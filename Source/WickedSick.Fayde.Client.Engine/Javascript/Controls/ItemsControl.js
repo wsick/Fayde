@@ -1,5 +1,5 @@
 /// <reference path="Control.js"/>
-/// <reference path="../Core/Collections/IListenCollectionChanged.js" />
+/// <reference path="ItemCollection.js"/>
 /// CODE
 /// <reference path="Panel.js"/>
 /// <reference path="ItemsPresenter.js"/>
@@ -7,22 +7,22 @@
 /// <reference path="VirtualizingPanel.js"/>
 
 (function (namespace) {
-    var ItemsControl = Nullstone.Create("ItemsControl", Control, 0, [IListenCollectionChanged]);
+    var ItemsControl = Nullstone.Create("ItemsControl", namespace.Control);
 
     ItemsControl.Instance.Init = function () {
         this.Init$Control();
         this.DefaultStyleKey = this.constructor;
-        this._ItemContainerGenerator = new ItemContainerGenerator(this);
+        this._ItemContainerGenerator = new namespace.ItemContainerGenerator(this);
         this._ItemContainerGenerator.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
     };
 
     //#region Properties
 
     ItemsControl.DisplayMemberPathProperty = DependencyProperty.RegisterCore("DisplayMemberPath", function () { return String; }, ItemsControl, null, function (d, args) { d.OnDisplayMemberPathChanged(args); });
-    ItemsControl.ItemsProperty = DependencyProperty.RegisterCore("Items", function () { return ItemCollection; }, ItemsControl);
-    ItemsControl.ItemsPanelProperty = DependencyProperty.RegisterCore("ItemsPanel", function () { return ItemsPanelTemplate; }, ItemsControl);
+    ItemsControl.ItemsProperty = DependencyProperty.RegisterCore("Items", function () { return Fayde.Controls.ItemCollection; }, ItemsControl);
+    ItemsControl.ItemsPanelProperty = DependencyProperty.RegisterCore("ItemsPanel", function () { return namespace.ItemsPanelTemplate; }, ItemsControl);
     ItemsControl.ItemsSourceProperty = DependencyProperty.RegisterCore("ItemsSource", function () { return Object; }, ItemsControl, null, function (d, args) { d.OnItemsSourceChanged(args); });
-    ItemsControl.ItemTemplateProperty = DependencyProperty.RegisterCore("ItemTemplate", function () { return DataTemplate; }, ItemsControl, undefined, function (d, args) { d.OnItemTemplateChanged(args); });
+    ItemsControl.ItemTemplateProperty = DependencyProperty.RegisterCore("ItemTemplate", function () { return Fayde.DataTemplate; }, ItemsControl, undefined, function (d, args) { d.OnItemTemplateChanged(args); });
 
     Nullstone.AutoProperties(ItemsControl, [
         ItemsControl.DisplayMemberPathProperty,
@@ -32,9 +32,9 @@
 
     Nullstone.Property(ItemsControl, "Items", {
         get: function () {
-            var items = Nullstone.As(this.$GetValue(ItemsControl.ItemsProperty), ItemCollection);
+            var items = Nullstone.As(this.$GetValue(ItemsControl.ItemsProperty), Fayde.Controls.ItemCollection);
             if (items == null) {
-                items = new ItemCollection();
+                items = new Fayde.Controls.ItemCollection();
                 this._itemsIsDataBound = false;
                 items.ItemsChanged.Subscribe(this.InvokeItemsChanged, this);
                 items.Clearing.Subscribe(this.OnItemsClearing, this);
@@ -62,17 +62,17 @@
         get: function () {
             if (this._DisplayMemberTemplate == null) {
                 var json = {
-                    Type: Grid,
+                    Type: namespace.Grid,
                     Children: [
                         {
-                            Type: TextBlock,
+                            Type: namespace.TextBlock,
                             Props: {
-                                Text: new BindingMarkup({ Path: this.DisplayMemberPath })
+                                Text: new Fayde.BindingMarkup({ Path: this.DisplayMemberPath })
                             }
                         }
                     ]
                 };
-                this._DisplayMemberTemplate = new DataTemplate(json);
+                this._DisplayMemberTemplate = new Fayde.DataTemplate(json);
             }
             return this._DisplayMemberTemplate;
         }
@@ -95,16 +95,16 @@
     //#endregion
 
     ItemsControl.GetItemsOwner = function (element) {
-        var panel = Nullstone.As(element, Panel);
+        var panel = Nullstone.As(element, namespace.Panel);
         if (panel == null || !panel.IsItemsHost)
             return null;
-        var owner = Nullstone.As(panel.TemplateOwner, ItemsPresenter);
+        var owner = Nullstone.As(panel.TemplateOwner, namespace.ItemsPresenter);
         if (owner != null)
-            return Nullstone.As(owner.TemplateOwner, ItemsControl);
+            return Nullstone.As(owner.TemplateOwner, namespace.ItemsControl);
         return null;
     };
     ItemsControl.ItemsControlFromItemContainer = function (container) {
-        var e = Nullstone.As(container, FrameworkElement);
+        var e = Nullstone.As(container, Fayde.FrameworkElement);
         if (e == null)
             return null;
 
@@ -119,7 +119,7 @@
     ItemsControl.Instance._GetDefaultTemplate = function () {
         var presenter = this._Presenter;
         if (presenter == null) {
-            presenter = new ItemsPresenter();
+            presenter = new namespace.ItemsPresenter();
             presenter.TemplateOwner = this;
         }
         return presenter;
@@ -132,12 +132,12 @@
         this.AddItemsToPresenter(-1, 1, this.Items.GetCount());
     };
     ItemsControl.Instance.OnItemsSourceChanged = function (e) {
-        if (!e.OldValue && Nullstone.Is(e.OldValue, INotifyCollectionChanged)) {
+        if (!e.OldValue && Nullstone.Is(e.OldValue, Fayde.Collections.INotifyCollectionChanged)) {
             e.OldValue.CollectionChanged.Unsubscribe(this._CollectionChanged, this);
         }
 
         if (e.NewValue != null) {
-            if (Nullstone.Is(e.NewValue, INotifyCollectionChanged)) {
+            if (Nullstone.Is(e.NewValue, Fayde.Collections.INotifyCollectionChanged)) {
                 e.NewValue.CollectionChanged.Subscribe(this._CollectionChanged, this);
             }
 
@@ -150,7 +150,7 @@
                 this.Items._AddImpl(e.NewValue[i]);
             }
 
-            this.OnItemsChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            this.OnItemsChanged(Fayde.Collections.NotifyCollectionChangedEventArgs.Reset());
         } else {
             this._itemsIsDataBound = false;
             this.Items._ReadOnly = false;
@@ -161,25 +161,25 @@
     };
     ItemsControl.Instance._CollectionChanged = function (sender, e) {
         switch (e.Action) {
-            case NotifyCollectionChangedAction.Add:
+            case Fayde.Collections.NotifyCollectionChangedAction.Add:
                 var count = e.NewItems.GetCount();
                 for (var i = 0; i < count; i++) {
                     this.Items._InsertImpl(e.NewStartingIndex + 1, e.NewItems.GetValueAt(i));
                 }
                 break;
-            case NotifyCollectionChangedAction.Remove:
+            case Fayde.Collections.NotifyCollectionChangedAction.Remove:
                 var count = e.OldItems.GetCount();
                 for (var i = 0; i < count; i++) {
                     this.Items._RemoveAtImpl(e.OldStartingIndex);
                 }
                 break;
-            case NotifyCollectionChangedAction.Replace:
+            case Fayde.Collections.NotifyCollectionChangedAction.Replace:
                 var count = e.NewItems.GetCount();
                 for (var i = 0; i < count; i++) {
                     this.Items._SetItemImpl(e.NewStartingIndex + 1, e.NewItems.GetValueAt(i));
                 }
                 break;
-            case NotifyCollectionChangedAction.Reset:
+            case Fayde.Collections.NotifyCollectionChangedAction.Reset:
                 this.Items._ClearImpl();
                 var count = this.ItemsSource.GetCount();
                 for (var i = 0; i < count; i++) {
@@ -198,10 +198,10 @@
     };
     ItemsControl.Instance.ClearContainerForItem = function (element, item) { };
     ItemsControl.Instance.GetContainerForItem = function () {
-        return new ContentPresenter();
+        return new namespace.ContentPresenter();
     };
     ItemsControl.Instance.IsItemItsOwnContainer = function (item) {
-        return item instanceof FrameworkElement;
+        return item instanceof Fayde.FrameworkElement;
     };
     ItemsControl.Instance.OnItemsChanged = function (e) { };
     ItemsControl.Instance.OnItemsClearing = function (object, e) {
@@ -209,13 +209,13 @@
     };
     ItemsControl.Instance.InvokeItemsChanged = function (object, e) {
         switch (e.Action) {
-            case NotifyCollectionChangedAction.Add:
+            case Fayde.Collections.NotifyCollectionChangedAction.Add:
                 this.SetLogicalParent(this, e.NewItems);
                 break;
-            case NotifyCollectionChangedAction.Remove:
+            case Fayde.Collections.NotifyCollectionChangedAction.Remove:
                 this.SetLogicalParent(null, e.OldItems);
                 break;
-            case NotifyCollectionChangedAction.Replace:
+            case Fayde.Collections.NotifyCollectionChangedAction.Replace:
                 this.SetLogicalParent(null, e.OldItems);
                 this.SetLogicalParent(this, e.NewItems);
                 break;
@@ -226,23 +226,23 @@
             this.OnItemsChanged(e);
     };
     ItemsControl.Instance.OnItemContainerGeneratorChanged = function (sender, e) {
-        if (this._Presenter == null || this._Presenter._ElementRoot instanceof VirtualizingPanel)
+        if (this._Presenter == null || this._Presenter._ElementRoot instanceof namespace.VirtualizingPanel)
             return;
 
         var panel = this._Presenter._ElementRoot;
         switch (e.Action) {
-            case NotifyCollectionChangedAction.Reset:
+            case Fayde.Collections.NotifyCollectionChangedAction.Reset:
                 var count = panel.Children.GetCount();
                 if (count > 0)
                     this.RemoveItemsFromPresenter(0, 0, count);
                 break;
-            case NotifyCollectionChangedAction.Add:
+            case Fayde.Collections.NotifyCollectionChangedAction.Add:
                 this.AddItemsToPresenter(e.Position.index, e.Position.offset, e.ItemCount);
                 break;
-            case NotifyCollectionChangedAction.Remove:
+            case Fayde.Collections.NotifyCollectionChangedAction.Remove:
                 this.RemoveItemsFromPresenter(e.Position.index, e.Position.offset, e.ItemCount);
                 break;
-            case NotifyCollectionChangedAction.Replace:
+            case Fayde.Collections.NotifyCollectionChangedAction.Replace:
                 this.RemoveItemsFromPresenter(e.Position.index, e.Position.offset, e.ItemCount);
                 this.AddItemsToPresenter(e.Position.index, e.Position.offset, e.ItemCount);
                 break;
@@ -262,7 +262,7 @@
         var error = new BError();
         var count = items.length;
         for (var i = 0; i < count; i++) {
-            var fe = Nullstone.As(items[i], FrameworkElement);
+            var fe = Nullstone.As(items[i], Fayde.FrameworkElement);
             if (fe == null)
                 continue;
             this._SetLogicalParent(parent, error);
@@ -271,7 +271,7 @@
         }
     };
     ItemsControl.Instance.AddItemsToPresenter = function (positionIndex, positionOffset, count) {
-        if (this._Presenter == null || this._Presenter._ElementRoot == null || this._Presenter._ElementRoot instanceof VirtualizingPanel)
+        if (this._Presenter == null || this._Presenter._ElementRoot == null || this._Presenter._ElementRoot instanceof namespace.VirtualizingPanel)
             return;
 
         var panel = this._Presenter._ElementRoot;
@@ -285,10 +285,10 @@
             for (var i = 0; i < count; i++) {
                 var item = items.GetValueAt(newIndex + i);
                 var container = icg.GenerateNext({});
-                if (container instanceof ContentControl)
+                if (container instanceof namespace.ContentControl)
                     container._ContentSetsParent = false;
 
-                if (container instanceof FrameworkElement && !(item instanceof FrameworkElement))
+                if (container instanceof Fayde.FrameworkElement && !(item instanceof Fayde.FrameworkElement))
                     container.DataContext = item;
 
                 children.Insert(newIndex + i, container);
@@ -299,7 +299,7 @@
         }
     };
     ItemsControl.Instance.RemoveItemsFromPresenter = function (positionIndex, positionOffset, count) {
-        if (this._Presenter == null || this._Presenter._ElementRoot == null || this._Presenter._ElementRoot instanceof VirtualizingPanel)
+        if (this._Presenter == null || this._Presenter._ElementRoot == null || this._Presenter._ElementRoot instanceof namespace.VirtualizingPanel)
             return;
 
         var panel = this._Presenter._ElementRoot;
@@ -318,11 +318,11 @@
         if (Nullstone.RefEquals(element, item))
             return;
 
-        var presenter = Nullstone.As(element, ContentPresenter);
-        var control = Nullstone.As(element, ContentControl);
+        var presenter = Nullstone.As(element, namespace.ContentPresenter);
+        var control = Nullstone.As(element, namespace.ContentControl);
 
         var template;
-        if (!(item instanceof UIElement)) {
+        if (!(item instanceof Fayde.UIElement)) {
             template = this.ItemTemplate;
             if (template == null)
                 template = this.$DisplayMemberTemplate;
@@ -338,4 +338,4 @@
     };
 
     namespace.ItemsControl = Nullstone.FinishCreate(ItemsControl);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

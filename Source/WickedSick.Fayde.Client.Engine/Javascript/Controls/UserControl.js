@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var UserControl = Nullstone.Create("UserControl", Control);
+    var UserControl = Nullstone.Create("UserControl", namespace.Control);
 
     //#region Properties
 
@@ -24,7 +24,7 @@
 
         var border = this.Padding.Plus(this.BorderThickness);
 
-        var walker = new _VisualTreeWalker(this);
+        var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
             child._MeasureWithError(availableSize.ShrinkByThickness(border), error);
@@ -40,7 +40,7 @@
 
         var arranged = finalSize;
 
-        var walker = new _VisualTreeWalker(this);
+        var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
             var childRect = new Rect(0, 0, finalSize.Width, finalSize.Height);
@@ -58,16 +58,16 @@
         }
 
         if (args.Property._ID === UserControl.ContentProperty._ID) {
-            if (args.OldValue && args.OldValue instanceof UIElement) {
-                if (args.OldValue instanceof FrameworkElement) {
+            if (args.OldValue && args.OldValue instanceof Fayde.UIElement) {
+                if (args.OldValue instanceof Fayde.FrameworkElement) {
                     args.OldValue._SetLogicalParent(null, error);
                     if (error.IsErrored())
                         return;
                 }
                 this._ElementRemoved(args.OldValue);
             }
-            if (args.NewValue && args.NewValue instanceof UIElement) {
-                if (args.NewValue instanceof FrameworkElement) {
+            if (args.NewValue && args.NewValue instanceof Fayde.UIElement) {
+                if (args.NewValue instanceof Fayde.FrameworkElement) {
                     args.NewValue._SetLogicalParent(this, error);
                     if (error.IsErrored())
                         return;
@@ -90,4 +90,4 @@
     //#endregion
 
     namespace.UserControl = Nullstone.FinishCreate(UserControl);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

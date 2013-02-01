@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var KeyFrame = Nullstone.Create("KeyFrame", DependencyObject);
+    var KeyFrame = Nullstone.Create("KeyFrame", Fayde.DependencyObject);
 
     KeyFrame.Instance.Init = function () {
         this.Init$DependencyObject();
@@ -32,4 +32,4 @@
     };
 
     namespace.KeyFrame = Nullstone.FinishCreate(KeyFrame);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

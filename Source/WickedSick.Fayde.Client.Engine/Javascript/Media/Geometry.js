@@ -4,7 +4,7 @@
 /// <reference path="../Primitives/Rect.js"/>
 
 (function (namespace) {
-    var Geometry = Nullstone.Create("Geometry", DependencyObject);
+    var Geometry = Nullstone.Create("Geometry", Fayde.DependencyObject);
 
     Geometry.Instance.Init = function () {
         this.Init$DependencyObject();
@@ -12,9 +12,9 @@
         this._LocalBounds = new Rect(0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
     };
 
-    //#region Dependency Properties
+    //#region Properties
 
-    Geometry.TransformProperty = DependencyProperty.RegisterCore("Transform", function () { return Transform; }, Geometry);
+    Geometry.TransformProperty = DependencyProperty.RegisterCore("Transform", function () { return Fayde.Media.Transform; }, Geometry);
 
     Nullstone.AutoProperties(Geometry, [
         Geometry.TransformProperty
@@ -75,8 +75,8 @@
 
     Geometry.Instance._OnPropertyChanged = function (args, error) {
         if (args.Property.OwnerType !== Geometry
-            && args.Property._ID !== PathGeometry.FillRuleProperty
-            && args.Property._ID !== GeometryGroup.FillRuleProperty) {
+            && args.Property._ID !== namespace.PathGeometry.FillRuleProperty
+            && args.Property._ID !== namespace.GeometryGroup.FillRuleProperty) {
             this._OnPropertyChanged$DependencyObject(args, error);
             return;
         }
@@ -93,4 +93,4 @@
     };
 
     namespace.Geometry = Nullstone.FinishCreate(Geometry);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

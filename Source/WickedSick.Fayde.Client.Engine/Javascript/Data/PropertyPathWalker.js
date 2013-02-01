@@ -24,7 +24,7 @@
         var lastCVNode;
 
         if (!path || path === ".") {
-            lastCVNode = new _CollectionViewNode(bindDirectlyToSource, bindsToView);
+            lastCVNode = new namespace._CollectionViewNode(bindDirectlyToSource, bindsToView);
             this.Node = lastCVNode;
             this.FinalNode = lastCVNode;
         } else {
@@ -34,18 +34,18 @@
                 index: undefined
             };
             var type;
-            var parser = new _PropertyPathParser(path);
-            while ((type = parser.Step(data)) !== _PropertyNodeType.None) {
+            var parser = new namespace._PropertyPathParser(path);
+            while ((type = parser.Step(data)) !== namespace._PropertyNodeType.None) {
                 var isViewProperty = false;
-                var node = new _CollectionViewNode(bindDirectlyToSource, isViewProperty);
+                var node = new namespace._CollectionViewNode(bindDirectlyToSource, isViewProperty);
                 lastCVNode = node;
                 switch (type) {
-                    case _PropertyNodeType.AttachedProperty:
-                    case _PropertyNodeType.Property:
-                        node.Next = new _StandardPropertyPathNode(data.typeName, data.propertyName);
+                    case namespace._PropertyNodeType.AttachedProperty:
+                    case namespace._PropertyNodeType.Property:
+                        node.Next = new namespace._StandardPropertyPathNode(data.typeName, data.propertyName);
                         break;
-                    case _PropertyNodeType.Indexed:
-                        node.Next = new _IndexedPropertyPathNode(data.index);
+                    case namespace._PropertyNodeType.Indexed:
+                        node.Next = new namespace._IndexedPropertyPathNode(data.index);
                         break;
                     default:
                         break;
@@ -62,12 +62,12 @@
         lastCVNode.BindToView = lastCVNode.BindToView || bindsToView;
         this.FinalNode.IsBrokenChanged.Subscribe(
             function (s, a) {
-                this.ValueInternal = Nullstone.As(s, _PropertyPathNode).Value;
+                this.ValueInternal = Nullstone.As(s, namespace._PropertyPathNode).Value;
                 this.IsBrokenChanged.Raise(this, new EventArgs());
             }, this);
         this.FinalNode.ValueChanged.Subscribe(
             function (s, a) {
-                this.ValueInternal = Nullstone.As(s, _PropertyPathNode).Value;
+                this.ValueInternal = Nullstone.As(s, namespace._PropertyPathNode).Value;
                 this.ValueChanged.Raise(this, new EventArgs());
             }, this);
     };
@@ -117,4 +117,4 @@
     };
 
     namespace._PropertyPathWalker = Nullstone.FinishCreate(_PropertyPathWalker);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

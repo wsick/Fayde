@@ -2,49 +2,54 @@
 /// CODE
 /// <reference path="Enums.js"/>
 
-(function (namespace) {
+(function (Collections) {
+    var NotifyCollectionChangedAction = {
+        Add: 1,
+        Remove: 2,
+        Replace: 3,
+        Reset: 4
+    };
+    Collections.NotifyCollectionChangedAction = NotifyCollectionChangedAction;
+
+    //#region NotifyCollectionChangedEventArgs
+
     var NotifyCollectionChangedEventArgs = Nullstone.Create("NotifyCollectionChangedEventArgs", EventArgs);
 
-    NotifyCollectionChangedEventArgs.Instance.Init = function (args) {
-        if (args.length === 1) {
-            if (args[0] !== NotifyCollectionChangedAction.Reset)
-                throw new NotSupportedException();
-            this._Action = args[0];
-            this._OldStartingIndex = -1;
-            this._NewStartingIndex = -1;
-        } else if (args.length === 3) {
-            switch (args[0]) {
-                case NotifyCollectionChangedAction.Add:
-                    this._NewItems = [];
-                    this._NewItems.push(args[1]);
-                    this._NewStartingIndex = args[2];
-                    this._OldStartingIndex = -1;
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    this._OldItems = [];
-                    this._OldItems.push(args[1]);
-                    this._OldStartingIndex = args[2];
-                    this._NewStartingIndex = -1;
-                    break;
-                default:
-                    throw new NotSupportedException();
-            }
-            this._Action = args[0];
-        } else if (args.length === 4) {
-            if (args[0] !== NotifyCollectionChangedAction.Replace)
-                throw new NotSupportedException();
-
-            this._Action = args[0];
-
-            this._NewItems = [];
-            this._NewItems.push(args[1]);
-
-            this._OldItems = [];
-            this._OldItems.push(args[2]);
-
-            this._NewStartingIndex = args[3];
-            this._OldStartingIndex = -1;
-        }
+    NotifyCollectionChangedEventArgs.Reset = function () {
+        var args = new NotifyCollectionChangedEventArgs();
+        args._Action = NotifyCollectionChangedAction.Reset;
+        args._OldStartingIndex = -1;
+        args._NewStartingIndex = -1;
+        return args;
+    };
+    NotifyCollectionChangedEventArgs.Replace = function (newValue, oldValue, index) {
+        var args = new NotifyCollectionChangedEventArgs();
+        args._Action = NotifyCollectionChangedAction.Replace;
+        args._NewItems = [];
+        args._NewItems.push(newValue);
+        args._OldItems = [];
+        args._OldItems.push(oldValue);
+        args._NewStartingIndex = index;
+        args._OldStartingIndex = -1;
+        return args;
+    };
+    NotifyCollectionChangedEventArgs.Add = function (newValue, index) {
+        var args = new NotifyCollectionChangedEventArgs();
+        args._Action = NotifyCollectionChangedAction.Add;
+        args._NewItems = [];
+        args._NewItems.push(newValue);
+        args._NewStartingIndex = index;
+        args._OldStartingIndex = -1;
+        return args;
+    };
+    NotifyCollectionChangedEventArgs.Remove = function (oldValue, index) {
+        var args = new NotifyCollectionChangedEventArgs();
+        args._Action = NotifyCollectionChangedAction.Remove;
+        args._OldItems = [];
+        args._OldItems.push(oldValue);
+        args._OldStartingIndex = index;
+        args._NewStartingIndex = -1;
+        return args;
     };
 
     Nullstone.Property(NotifyCollectionChangedEventArgs, "Action", {
@@ -63,5 +68,7 @@
         get: function () { return this._NewStartingIndex; }
     });
 
-    namespace.NotifyCollectionChangedEventArgs = Nullstone.FinishCreate(NotifyCollectionChangedEventArgs);
-})(window);
+    Collections.NotifyCollectionChangedEventArgs = Nullstone.FinishCreate(NotifyCollectionChangedEventArgs);
+
+    //#endregion
+})(Nullstone.Namespace("Fayde.Collections"));

@@ -68,6 +68,7 @@
     <Compile Include="Elements\Controls\ComboBox.cs" />
     <Compile Include="Elements\Controls\ComboBoxItem.cs" />
     <Compile Include="Elements\Controls\Frame.cs" />
+    <Compile Include="Elements\Controls\GridUnitType.cs" />
     <Compile Include="Elements\Controls\ItemsPanelTemplate.cs" />
     <Compile Include="Elements\Controls\ListBox.cs" />
     <Compile Include="Elements\Controls\ListBoxItem.cs" />
@@ -78,19 +79,19 @@
     <Compile Include="Elements\Controls\Slider.cs" />
     <Compile Include="Elements\Core\Array.cs" />
     <Compile Include="Elements\Core\Boolean.cs" />
-    <Compile Include="Elements\Bindings\Binding.cs">
+    <Compile Include="Elements\Data\Binding.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Bindings\IValueConverter.cs">
+    <Compile Include="Elements\Data\IValueConverter.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Bindings\RelativeSource.cs">
+    <Compile Include="Elements\Data\RelativeSource.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Bindings\StaticResource.cs">
+    <Compile Include="Elements\Core\StaticResource.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Bindings\TemplateBinding.cs">
+    <Compile Include="Elements\Core\TemplateBinding.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Controls\Border.cs">
@@ -128,7 +129,6 @@
     <Compile Include="Elements\IElementTypeable.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Media\Animation\BackEase.cs" />
     <Compile Include="Elements\Media\Animation\BeginStoryboard.cs" />
     <Compile Include="Elements\Media\Animation\ColorAnimationUsingKeyFrames.cs" />
     <Compile Include="Elements\Media\Animation\ColorKeyFrame.cs" />
@@ -137,6 +137,8 @@
     <Compile Include="Elements\Media\Animation\EasingColorKeyFrame.cs" />
     <Compile Include="Elements\Media\Animation\EasingDoubleKeyFrame.cs" />
     <Compile Include="Elements\Media\Animation\EasingFunctionBase.cs" />
+    <Compile Include="Elements\Media\Animation\EasingFunctions.cs" />
+    <Compile Include="Elements\Media\Animation\FillBehavior.cs" />
     <Compile Include="Elements\Media\Animation\IEasingFunction.cs" />
     <Compile Include="Elements\Media\Animation\KeySpline.cs" />
     <Compile Include="Elements\Media\Animation\ObjectAnimation.cs" />
@@ -171,7 +173,7 @@
     <Compile Include="Elements\Controls\ControlTemplate.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\DataTemplate.cs">
+    <Compile Include="Elements\Core\DataTemplate.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\DependencyObject.cs">
@@ -185,38 +187,41 @@
     <Compile Include="Elements\Media\Colors.cs" />
     <Compile Include="Elements\Media\Geometry.cs" />
     <Compile Include="Elements\Controls\Tooltip.cs" />
-    <Compile Include="Elements\Media\ImageBrush.cs" />
+    <Compile Include="Elements\Media\Imaging\ImageBrush.cs" />
     <Compile Include="Elements\Media\RotateTransform.cs" />
+    <Compile Include="Elements\Media\ScaleTransform.cs" />
     <Compile Include="Elements\Media\SkewTransform.cs" />
+    <Compile Include="Elements\Media\TextOptions.cs" />
     <Compile Include="Elements\Media\TileBrush.cs" />
     <Compile Include="Elements\Media\TransformGroup.cs" />
     <Compile Include="Elements\Media\VSM\VisualTransition.cs" />
     <Compile Include="Elements\ResourceDictionary.cs" />
     <Compile Include="Elements\Shapes\PointCollection.cs" />
-    <Compile Include="Elements\ToolTipService.cs" />
+    <Compile Include="Elements\Controls\ToolTipService.cs" />
     <Compile Include="Elements\Media\Transform.cs" />
     <Compile Include="Elements\Media\TranslateTransform.cs" />
     <Compile Include="Elements\TriggerAction.cs" />
     <Compile Include="Elements\TriggerBase.cs" />
-    <Compile Include="Elements\Types\AlignmentX.cs" />
-    <Compile Include="Elements\Types\AlignmentY.cs" />
-    <Compile Include="Elements\Types\BrushMappingMode.cs" />
-    <Compile Include="Elements\Types\ClickMode.cs" />
+    <Compile Include="Elements\Media\AlignmentX.cs" />
+    <Compile Include="Elements\Media\AlignmentY.cs" />
+    <Compile Include="Elements\Media\BrushMappingMode.cs" />
+    <Compile Include="Elements\Controls\ClickMode.cs" />
     <Compile Include="Elements\Types\CursorType.cs" />
-    <Compile Include="Elements\Types\EasingMode.cs" />
-    <Compile Include="Elements\Types\FlowDirection.cs" />
+    <Compile Include="Elements\Media\Animation\EasingMode.cs" />
+    <Compile Include="Elements\Core\FlowDirection.cs" />
     <Compile Include="Elements\Types\FontFamily.cs" />
     <Compile Include="Elements\Types\FontStretch.cs" />
     <Compile Include="Elements\Types\FontStyle.cs" />
-    <Compile Include="Elements\Types\FontWeight.cs" />
-    <Compile Include="Elements\Types\GradientSpreadMethod.cs" />
+    <Compile Include="Elements\Core\FontWeight.cs" />
+    <Compile Include="Elements\Media\GradientSpreadMethod.cs" />
     <Compile Include="Elements\Types\JsType.cs" />
-    <Compile Include="Elements\Types\KeyboardNavigationMode.cs" />
+    <Compile Include="Elements\Input\KeyboardNavigationMode.cs" />
     <Compile Include="Elements\Types\Length.cs" />
-    <Compile Include="Elements\Types\RepeatBehavior.cs" />
-    <Compile Include="Elements\Types\ScrollBarVisibility.cs" />
-    <Compile Include="Elements\Types\SelectionMode.cs" />
-    <Compile Include="Elements\Types\TextDecorationCollection.cs" />
+    <Compile Include="Elements\Media\Animation\RepeatBehavior.cs" />
+    <Compile Include="Elements\Controls\ScrollBarVisibility.cs" />
+    <Compile Include="Elements\Controls\SelectionMode.cs" />
+    <Compile Include="Elements\Core\TextDecorationCollection.cs" />
+    <Compile Include="Elements\Media\TextHintingMode.cs" />
     <Compile Include="Elements\UriMapping.cs" />
     <Compile Include="Elements\UriMappingCollection.cs" />
     <Compile Include="Elements\UriMatcher.cs" />
@@ -254,13 +259,13 @@
     <Compile Include="Elements\Media\Animation\Timeline.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Media\ImageSource.cs">
+    <Compile Include="Elements\Media\Imaging\ImageSource.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Media\BitmapImage.cs">
+    <Compile Include="Elements\Media\Imaging\BitmapImage.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Media\BitmapSource.cs">
+    <Compile Include="Elements\Media\Imaging\BitmapSource.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Media\VSM\VisualState.cs">
@@ -272,7 +277,7 @@
     <Compile Include="Elements\Media\VSM\VisualStateManager.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Page.cs">
+    <Compile Include="Elements\Controls\Page.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Controls\Panel.cs">
@@ -281,7 +286,7 @@
     <Compile Include="Elements\Controls\RowDefinition.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Setter.cs">
+    <Compile Include="Elements\Core\Setter.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Shapes\Ellipse.cs" />
@@ -297,7 +302,7 @@
     <Compile Include="Elements\Controls\StackPanel.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Style.cs">
+    <Compile Include="Elements\Core\Style.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Controls\TextBlock.cs">
@@ -327,11 +332,11 @@
     <Compile Include="Elements\Types\Color.cs" />
     <Compile Include="Elements\Types\CornerRadius.cs" />
     <Compile Include="Elements\Types\Duration.cs" />
-    <Compile Include="Elements\Types\FillRule.cs" />
+    <Compile Include="Elements\Shapes\FillRule.cs" />
     <Compile Include="TypeConverters\FontFamilyConverter.cs" />
     <Compile Include="TypeConverters\GridLengthConverter.cs" />
-    <Compile Include="Elements\Types\GridLength.cs" />
-    <Compile Include="Elements\Types\HorizontalAlignment.cs" />
+    <Compile Include="Elements\Controls\GridLength.cs" />
+    <Compile Include="Elements\Core\HorizontalAlignment.cs" />
     <Compile Include="TypeConverters\ImageSourceConverter.cs" />
     <Compile Include="TypeConverters\IntConverter.cs" />
     <Compile Include="TypeConverters\ITypeConverter.cs" />
@@ -339,22 +344,22 @@
     <Compile Include="TypeConverters\KeyTimeConverter.cs" />
     <Compile Include="Elements\Types\JsonUri.cs" />
     <Compile Include="Elements\Types\KeyTime.cs" />
-    <Compile Include="Elements\Types\Orientation.cs" />
+    <Compile Include="Elements\Core\Orientation.cs" />
     <Compile Include="TypeConverters\LengthConverter.cs" />
     <Compile Include="TypeConverters\PageLengthConverter.cs" />
     <Compile Include="Elements\Types\PageLength.cs" />
-    <Compile Include="Elements\Types\PenLineCap.cs" />
-    <Compile Include="Elements\Types\PenLineJoin.cs" />
-    <Compile Include="Elements\Types\PlacementMode.cs" />
+    <Compile Include="Elements\Shapes\PenLineCap.cs" />
+    <Compile Include="Elements\Shapes\PenLineJoin.cs" />
+    <Compile Include="Elements\Controls\PlacementMode.cs" />
     <Compile Include="TypeConverters\PointCollectionConverter.cs" />
     <Compile Include="TypeConverters\PointConverter.cs" />
     <Compile Include="TypeConverters\PropertyPathConverter.cs" />
     <Compile Include="TypeConverters\RepeatBehaviorConverter.cs" />
     <Compile Include="TypeConverters\SetterValueConverter.cs" />
     <Compile Include="Elements\Types\Point.cs" />
-    <Compile Include="Elements\Types\PropertyPath.cs" />
-    <Compile Include="Elements\Types\Stretch.cs" />
-    <Compile Include="Elements\Types\TextWrapping.cs">
+    <Compile Include="Elements\Data\PropertyPath.cs" />
+    <Compile Include="Elements\Media\Stretch.cs" />
+    <Compile Include="Elements\Controls\TextWrapping.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="TypeConverters\TextDecorationCollectionConverter.cs" />
@@ -364,8 +369,8 @@
     <Compile Include="TypeConverters\JsonUriConverter.cs" />
     <Compile Include="Elements\Types\Thickness.cs" />
     <Compile Include="Elements\Types\TimeSpan.cs" />
-    <Compile Include="Elements\Types\VerticalAlignment.cs" />
-    <Compile Include="Elements\Types\Visibility.cs" />
+    <Compile Include="Elements\Core\VerticalAlignment.cs" />
+    <Compile Include="Elements\Core\Visibility.cs" />
     <Compile Include="XamlParseException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

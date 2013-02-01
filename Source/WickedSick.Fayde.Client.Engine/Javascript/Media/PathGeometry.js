@@ -4,12 +4,12 @@
 /// <reference path="../Shapes/RawPath.js"/>
 
 (function (namespace) {
-    var PathGeometry = Nullstone.Create("PathGeometry", Geometry);
+    var PathGeometry = Nullstone.Create("PathGeometry", namespace.Geometry);
 
     //#region Properties
 
-    PathGeometry.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, PathGeometry);
-    PathGeometry.FiguresProperty = DependencyProperty.RegisterFull("Figures", function () { return PathFigureCollection; }, PathGeometry, undefined, undefined, { GetValue: function () { return new PathFigureCollection(); } });
+    PathGeometry.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(Fayde.Shapes.FillRule); }, PathGeometry);
+    PathGeometry.FiguresProperty = DependencyProperty.RegisterFull("Figures", function () { return namespace.PathFigureCollection; }, PathGeometry, undefined, undefined, { GetValue: function () { return new namespace.PathFigureCollection(); } });
 
     Nullstone.AutoProperties(PathGeometry, [
         PathGeometry.FillRuleProperty,
@@ -52,7 +52,7 @@
     };
 
     PathGeometry.Instance._Build = function () {
-        this.$Path = new RawPath();
+        this.$Path = new Fayde.Shapes.RawPath();
         var figures = this.Figures;
         if (figures == null)
             return;
@@ -61,7 +61,7 @@
         for (var i = 0; i < count; i++) {
             var f = figures.GetValueAt(i);
             f._EnsureBuilt();
-            RawPath.Merge(this.$Path, f.$Path);
+            Fayde.Shapes.RawPath.Merge(this.$Path, f.$Path);
         }
     };
 
@@ -73,4 +73,4 @@
     };
 
     namespace.PathGeometry = Nullstone.FinishCreate(PathGeometry);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

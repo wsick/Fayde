@@ -1,18 +1,16 @@
-/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="Timeline.js"/>
-/// <reference path="../../Core/Collections/DependencyObjectCollection.js"/>
+/// <reference path="../../Core/Collections/InternalCollection.js"/>
 /// CODE
-/// <reference path="TimelineCollection.js"/>
 /// <reference path="../../Primitives/TimeSpan.js"/>
 /// <reference path="../../Primitives/Duration.js"/>
 /// <reference path="Animation.js"/>
 
 (function (namespace) {
-    var Storyboard = Nullstone.Create("Storyboard", Timeline);
+    var Storyboard = Nullstone.Create("Storyboard", namespace.Timeline);
 
     //#region Properties
 
-    Storyboard.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return TimelineCollection; }, Storyboard, undefined, undefined, { GetValue: function () { return new TimelineCollection(); } });
+    Storyboard.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return namespace.TimelineCollection; }, Storyboard, undefined, undefined, { GetValue: function () { return new namespace.TimelineCollection(); } });
 
     Storyboard.TargetNameProperty = DependencyProperty.RegisterAttached("TargetName", function () { return String }, Storyboard);
     Storyboard.GetTargetName = function (d) {
@@ -24,13 +22,13 @@
         d.$SetValue(Storyboard.TargetNameProperty, value);
     };
 
-    Storyboard.TargetPropertyProperty = DependencyProperty.RegisterAttached("TargetProperty", function () { return _PropertyPath }, Storyboard);
+    Storyboard.TargetPropertyProperty = DependencyProperty.RegisterAttached("TargetProperty", function () { return Fayde.Data.PropertyPath }, Storyboard);
     Storyboard.GetTargetProperty = function (d) {
-        ///<returns type="_PropertyPath"></returns>
+        ///<returns type="PropertyPath"></returns>
         return d.$GetValue(Storyboard.TargetPropertyProperty);
     };
     Storyboard.SetTargetProperty = function (d, value) {
-        ///<param name="value" type="_PropertyPath"></param>
+        ///<param name="value" type="PropertyPath"></param>
         d.$SetValue(Storyboard.TargetPropertyProperty, value);
     };
 
@@ -103,7 +101,7 @@
     Storyboard.Instance._HookupAnimation = function (animation, targetObject, targetPropertyPath, promotedValues, error) {
         /// <param name="animation" type="Animation"></param>
         /// <param name="targetObject" type="DependencyObject"></param>
-        /// <param name="targetPropertyPath" type="_PropertyPath"></param>
+        /// <param name="targetPropertyPath" type="PropertyPath"></param>
         /// <param name="error" type="BError">Description</param>
         animation.Reset();
         var localTargetObject = null;
@@ -187,14 +185,12 @@
     };
 
     namespace.Storyboard = Nullstone.FinishCreate(Storyboard);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));
 
 (function (namespace) {
-    var StoryboardCollection = Nullstone.Create("StoryboardCollection", Collection);
-
+    var StoryboardCollection = Nullstone.Create("StoryboardCollection", Fayde.InternalCollection);
     StoryboardCollection.Instance.IsElementType = function (obj) {
-        return obj instanceof Storyboard;
+        return obj instanceof namespace.Storyboard;
     };
-
     namespace.StoryboardCollection = Nullstone.FinishCreate(StoryboardCollection);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

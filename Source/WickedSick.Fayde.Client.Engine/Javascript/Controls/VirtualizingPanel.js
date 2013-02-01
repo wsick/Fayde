@@ -3,14 +3,14 @@
 /// <reference path="ItemsControl.js"/>
 
 (function (namespace) {
-    var VirtualizingPanel = Nullstone.Create("VirtualizingPanel", Panel);
+    var VirtualizingPanel = Nullstone.Create("VirtualizingPanel", namespace.Panel);
 
     //#region Properties
 
     Nullstone.Property(VirtualizingPanel, "ItemContainerGenerator", {
         get: function () {
             if (this._Generator == null) {
-                var owner = ItemsControl.GetItemsOwner(this);
+                var owner = namespace.ItemsControl.GetItemsOwner(this);
                 if (owner == null)
                     throw new InvalidOperationException("VirtualizingPanels must be in the Template of an ItemsControl in order to generate items");
                 this._Generator = owner.ItemContainerGenerator;
@@ -38,7 +38,7 @@
     VirtualizingPanel.Instance.OnClearChildren = function () { };
     VirtualizingPanel.Instance.OnItemsChangedInternal = function (sender, args) {
         this._InvalidateMeasure();
-        if (args.Action === NotifyCollectionChangedAction.Reset) {
+        if (args.Action === Fayde.Collections.NotifyCollectionChangedAction.Reset) {
             this.Children.Clear();
             this.ItemContainerGenerator.RemoveAll();
             this.OnClearChildren();
@@ -48,4 +48,4 @@
     VirtualizingPanel.Instance.OnItemsChanged = function (sender, args) { };
 
     namespace.VirtualizingPanel = Nullstone.FinishCreate(VirtualizingPanel);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

@@ -5,35 +5,35 @@
 (function (namespace) {
     var VisualTreeHelper = {};
     VisualTreeHelper.GetChild = function (d, childIndex) {
-        if (!(d instanceof FrameworkElement))
+        if (!(d instanceof Fayde.FrameworkElement))
             throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
 
         var subtree = d._SubtreeObject;
-        if (subtree instanceof UIElementCollection)
+        if (subtree instanceof Fayde.UIElementCollection)
             return subtree.GetValueAt(childIndex);
 
-        if ((subtree instanceof UIElement) && childIndex === 0)
+        if ((subtree instanceof Fayde.UIElement) && childIndex === 0)
             return subtree;
 
         throw new ArgumentOutOfRangeException();
     };
     VisualTreeHelper.GetChildrenCount = function (d) {
-        if (!(d instanceof FrameworkElement))
+        if (!(d instanceof Fayde.FrameworkElement))
             throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
 
         var subtree = d._SubtreeObject;
-        if (subtree instanceof UIElementCollection)
+        if (subtree instanceof Fayde.UIElementCollection)
             return subtree.GetCount();
 
-        if (subtree instanceof UIElement)
+        if (subtree instanceof Fayde.UIElement)
             return 1;
 
         return 0;
     };
     VisualTreeHelper.GetParent = function (d) {
-        if (!(d instanceof FrameworkElement))
+        if (!(d instanceof Fayde.FrameworkElement))
             throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
-        return Nullstone.As(d.GetVisualParent(), DependencyObject);
+        return Nullstone.As(d.GetVisualParent(), Fayde.DependencyObject);
     };
     VisualTreeHelper.GetRoot = function (d) {
         var root = d;
@@ -93,13 +93,13 @@
             return "";
         /// <param name="uie" type="UIElement"></param>
         var str = "(";
-        if (uie.Visibility === Visibility.Visible)
+        if (uie.Visibility === Fayde.Visibility.Visible)
             str += "Visible";
         else
             str += "Collapsed";
 
         str += " ";
-        var p = LayoutInformation.GetVisualOffset(uie);
+        var p = Fayde.LayoutInformation.GetVisualOffset(uie);
         if (p)
             str += p.toString();
         var size = new Size(uie.ActualWidth, uie.ActualHeight);
@@ -112,7 +112,7 @@
         return str;
     };
     VisualTreeHelper.__DebugGrid = function (uie, tabIndex) {
-        var grid = Nullstone.As(uie, Grid);
+        var grid = Nullstone.As(uie, Fayde.Controls.Grid);
         if (!grid)
             return "";
         var rds = grid.RowDefinitions;
@@ -146,4 +146,4 @@
     };
 
     namespace.VisualTreeHelper = VisualTreeHelper;
-})(window);
+})(Nullstone.Namespace("Fayde"));

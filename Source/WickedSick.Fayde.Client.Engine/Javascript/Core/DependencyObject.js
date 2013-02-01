@@ -10,18 +10,34 @@
 /// <reference path="NameScope.js"/>
 /// <reference path="../Data/Binding.js"/>
 /// <reference path="../Runtime/BError.js" />
-/// <reference path="SubPropertyListener.js"/>
 
-(function (namespace) {
+(function (Fayde) {
+
+    //#region SubPropertyListener
+
+    function SubPropertyListener(dobj, propd) {
+        this._Dobj = dobj;
+        this._Propd = propd;
+    }
+    SubPropertyListener.prototype.OnSubPropertyChanged = function (sender, args) {
+        this._Dobj._OnSubPropertyChanged(this._Propd, sender, args);
+    };
+    //SubPropertyListener.prototype.Unsubscribe = function () {
+    //this._Dobj.PropertyChanged.Unsubscribe(this.OnSubPropertyChanged, this);
+    //};
+
+    //#endregion
+
+    //#region DependencyObject
+
     var DependencyObject = Nullstone.Create("DependencyObject");
 
     DependencyObject.Instance.Init = function () {
         this._IsAttached = false;
         this._Providers = [];
-        var propPrecEnum = _PropertyPrecedence;
-        this.AddProvider(new _LocalValuePropertyValueProvider(this, propPrecEnum.LocalValue));
-        this.AddProvider(new _DefaultValuePropertyValueProvider(this, propPrecEnum.DefaultValue));
-        this.AddProvider(new _AutoCreatePropertyValueProvider(this, propPrecEnum.AutoCreate));
+        this.AddProvider(new Fayde._LocalValuePropertyValueProvider(this));
+        this.AddProvider(new Fayde._DefaultValuePropertyValueProvider(this));
+        this.AddProvider(new Fayde._AutoCreatePropertyValueProvider(this));
         this._ProviderBitmasks = [];
         this._SecondaryParents = [];
         this.PropertyChanged = new MulticastEvent();
@@ -54,7 +70,7 @@
         this._OnMentorChanged(oldMentor, value);
     };
     DependencyObject.Instance._OnMentorChanged = function (oldValue, newValue) {
-        if (!(this instanceof FrameworkElement)) {
+        if (!(this instanceof Fayde.FrameworkElement)) {
             var propPrecEnum = _PropertyPrecedence;
             this._Providers[propPrecEnum.AutoCreate].ForeachValue(DependencyObject._PropagateMentor, newValue);
             this._Providers[propPrecEnum.LocalValue].ForeachValue(DependencyObject._PropagateMentor, newValue);
@@ -148,16 +164,16 @@
         this.$SetValueInternal(propd, value);
     };
     DependencyObject.Instance.$SetValueInternal = function (propd, value) {
-        if (value instanceof UnsetValue) {
+        if (value instanceof Fayde.UnsetValue) {
             this.$ClearValue(propd);
             return;
         }
 
-        var expression = Nullstone.As(value, Expression);
-        if (expression instanceof BindingExpressionBase) {
+        var expression = Nullstone.As(value, Fayde.Expression);
+        if (expression instanceof Fayde.Data.BindingExpressionBase) {
             var binding = expression.Binding;
             var path = binding.Path.Path;
-            if ((!path || path === ".") && binding.Mode === BindingMode.TwoWay)
+            if ((!path || path === ".") && binding.Mode === Fayde.Data.BindingMode.TwoWay)
                 throw new ArgumentException("TwoWay bindings require a non-empty Path.");
             binding.Seal();
         }
@@ -177,18 +193,18 @@
                 if (existing)
                     this.$RemoveExpression(propd);
                 if (!this._Expressions)
-                    this._Expressions = new Dictionary(DependencyProperty, Expression);
+                    this._Expressions = new Dictionary(DependencyProperty, Fayde.Expression);
                 this._Expressions.Add(propd, expression);
                 expression._OnAttached(this);
             }
             addingExpression = true;
             value = expression.GetValue(propd);
         } else if (existing) {
-            if (existing instanceof BindingExpressionBase) {
+            if (existing instanceof Fayde.Data.BindingExpressionBase) {
                 var binding = existing.Binding;
-                if (binding.Mode === BindingMode.TwoWay) {
+                if (binding.Mode === Fayde.Data.BindingMode.TwoWay) {
                     updateTwoWay = !existing.Updating && !propd._IsCustom;
-                } else if (!existing.Updating || binding.Mode === BindingMode.OneTime) {
+                } else if (!existing.Updating || binding.Mode === Fayde.Data.BindingMode.OneTime) {
                     this.$RemoveExpression(propd);
                 }
             } else if (!existing.Updating) {
@@ -220,7 +236,7 @@
             return;
         }
 
-        if (value instanceof UnsetValue) {
+        if (value instanceof Fayde.UnsetValue) {
             this._ClearValue(propd, true);
             return;
         }
@@ -298,7 +314,7 @@
     DependencyObject.Instance._HasDeferredValueExpression = function (propd) {
         var data = {};
         if (this._Expressions != null && this._Expressions.TryGetValue(propd, data)) {
-            return data.Value instanceof DeferredValueExpression;
+            return data.Value instanceof Fayde.DeferredValueExpression;
         }
         return false;
     };
@@ -378,7 +394,7 @@
         if (error.IsErrored())
             throw error.CreateException();
         if (value === undefined)
-            return new UnsetValue();
+            return new Fayde.UnsetValue();
         return value;
     };
     DependencyObject.Instance._ReadLocalValueWithError = function (propd, error) {
@@ -437,7 +453,7 @@
                     dob._RemoveParent(this, null);
                     dob.RemovePropertyChangedListener(this, propd);
                     dob._SetIsAttached(false);
-                    if (Nullstone.Is(dob, Collection)) {
+                    if (Nullstone.Is(dob, Fayde.InternalCollection)) {
                         //TODO: Changed Event - Remove Handler
                         //TODO: Item Changed Event - Remove Handler
                     }
@@ -557,7 +573,7 @@
                 oldDO._RemoveTarget(this);
 
                 oldDO.RemovePropertyChangedListener(this, propd);
-                if (oldDO instanceof Collection) {
+                if (oldDO instanceof Fayde.InternalCollection) {
                     oldDO.Changed.Unsubscribe(this._OnCollectionChangedEH, this);
                     oldDO.ItemChanged.Unsubscribe(this._OnCollectionItemChangedEH, this);
                 }
@@ -575,7 +591,7 @@
 
                 newDO._SetResourceBase(this._GetResourceBase());
 
-                if (newDO instanceof Collection) {
+                if (newDO instanceof Fayde.InternalCollection) {
                     newDO.Changed.Subscribe(this._OnCollectionChangedEH, this);
                     newDO.ItemChanged.Subscribe(this._OnCollectionItemChangedEH, this);
                 }
@@ -583,7 +599,7 @@
                 newDO._AddTarget(this);
             } else {
                 var cur = this;
-                while (cur && !(cur instanceof FrameworkElement))
+                while (cur && !(cur instanceof Fayde.FrameworkElement))
                     cur = cur.GetMentor();
                 newDO.SetMentor(cur);
             }
@@ -622,42 +638,6 @@
             if (provider && provider.RecomputePropertyValueOnLowerr)
                 provider.RecomputePropertyValueOnLower(propd, error);
         }
-    };
-    DependencyObject.Instance._PropagateInheritedValue = function (inheritable, source, newValue) {
-        var propPrecInherited = _PropertyPrecedence.Inherited;
-        var inheritedProvider = this._Providers[propPrecInherited];
-        if (!inheritedProvider)
-            return true;
-
-        inheritedProvider._SetPropertySource(inheritable, source);
-        var propd = inheritedProvider._GetPropertyFunc(inheritable, this);
-        if (!propd)
-            return false;
-
-        var error = new BError();
-        this._ProviderValueChanged(propPrecInherited, propd, undefined, newValue, true, false, false, error);
-    };
-    DependencyObject.Instance._GetInheritedValueSource = function (inheritable) {
-        var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
-        if (!inheritedProvider)
-            return undefined;
-        return inheritedProvider._GetPropertySource(inheritable);
-    };
-    DependencyObject.Instance._SetInheritedValueSource = function (inheritable, source) {
-        var propPrecInherited = _PropertyPrecedence.Inherited;
-        var inheritedProvider = this._Providers[propPrecInherited];
-        if (!inheritedProvider)
-            return;
-
-        if (!source) {
-            var propd = inheritedProvider._GetPropertyFunc(inheritable, this);
-            if (propd)
-                return;
-            var bitmask = this._ProviderBitmasks[propd._ID];
-            bitmask &= ~(1 << propPrecInherited);
-            this._ProviderBitmasks[propd._ID] = bitmask;
-        }
-        inheritedProvider._SetPropertySource(inheritable, source);
     };
 
     //#region Target
@@ -709,7 +689,7 @@
         this.PropertyChanged.Raise(this, args);
     };
     DependencyObject.Instance.AddPropertyChangedListener = function (ldo, propd) {
-        if (!(ldo instanceof Setter)) {
+        if (!(ldo instanceof Fayde.Setter)) {
             var listener = new SubPropertyListener(ldo, propd);
             this._SubPropertyListeners.push(listener);
             this.PropertyChanged.Subscribe(listener.OnSubPropertyChanged, listener);
@@ -751,9 +731,9 @@
         /// <param name="isTemplateItem" type="Boolean"></param>
         /// <returns type="DependencyObject" />
         if (isTemplateItem === undefined)
-            isTemplateItem = Control.GetIsTemplateItem(this);
+            isTemplateItem = Fayde.Controls.Control.GetIsTemplateItem(this);
 
-        var scope = NameScope.GetNameScope(this);
+        var scope = Fayde.NameScope.GetNameScope(this);
         if (scope && (isTemplateItem === scope.GetIsLocked()))
             return scope.FindName(name);
 
@@ -764,9 +744,9 @@
     };
     DependencyObject.Instance.FindNameScope = function (templateNamescope) {
         if (templateNamescope === undefined)
-            templateNamescope = Control.GetIsTemplateItem(this);
+            templateNamescope = Fayde.Controls.Control.GetIsTemplateItem(this);
 
-        var scope = NameScope.GetNameScope(this);
+        var scope = Fayde.NameScope.GetNameScope(this);
         if (scope && (templateNamescope === scope.GetIsLocked()))
             return scope;
 
@@ -798,7 +778,7 @@
         var registerName = false;
         var recurse = false;
 
-        var thisNs = NameScope.GetNameScope(this);
+        var thisNs = Fayde.NameScope.GetNameScope(this);
 
         if (thisNs && thisNs._GetTemporary()) {
             mergeNamescope = true;
@@ -811,7 +791,7 @@
 
         if (mergeNamescope) {
             toNs._MergeTemporaryScope(thisNs, error);
-            this._ClearValue(NameScope.NameScopeProperty, false);
+            this._ClearValue(Fayde.NameScope.NameScopeProperty, false);
         }
 
         if (registerName) {
@@ -847,7 +827,7 @@
             return;
         this._RegisteringNames = true;
 
-        var thisNs = NameScope.GetNameScope(this);
+        var thisNs = Fayde.NameScope.GetNameScope(this);
         if (/* TODO: this._IsHydratedFromXaml() || */!thisNs || thisNs._GetTemporary()) {
             var name = this.Name;
             if (name && name.length > 0)
@@ -900,7 +880,7 @@
         }
 
         if (this._Parent && !this._PermitsMultipleParents()) {
-            if (parent instanceof DependencyObjectCollection && (!parent._GetIsSecondaryParent() || this._HasSecondaryParents())) {
+            if (parent instanceof Fayde.DependencyObjectCollection && (!parent._GetIsSecondaryParent() || this._HasSecondaryParents())) {
                 error.SetErrored(BError.InvalidOperation, "Element is already a child of another element.");
                 return;
             }
@@ -908,19 +888,19 @@
 
         if (this._Parent || this._HasSecondaryParents()) {
             this._AddSecondaryParent(parent);
-            if (this._Parent && !(this._Parent instanceof ResourceDictionary))
+            if (this._Parent && !(this._Parent instanceof Fayde.ResourceDictionary))
                 this.SetMentor(null);
-            if (this._SecondaryParents.length > 1 || !(parent instanceof DependencyObjectCollection) || !parent._GetIsSecondaryParent())
+            if (this._SecondaryParents.length > 1 || !(parent instanceof Fayde.DependencyObjectCollection) || !parent._GetIsSecondaryParent())
                 return;
         }
 
-        var thisScope = NameScope.GetNameScope(this);
+        var thisScope = Fayde.NameScope.GetNameScope(this);
         var parentScope = parent.FindNameScope();
         if (thisScope) {
             if (thisScope._GetTemporary()) {
                 if (parentScope) {
                     parentScope._MergeTemporaryScope(thisScope, error);
-                    this._ClearValue(NameScope.NameScopeProperty, false);
+                    this._ClearValue(Fayde.NameScope.NameScopeProperty, false);
                 }
             } else {
                 if (true /* TODO: this._IsHydratedFromXaml()*/) {
@@ -939,7 +919,7 @@
             }
         } else {
             if (parentScope && mergeNamesFromSubtree) {
-                var tempScope = new NameScope();
+                var tempScope = new Fayde.NameScope();
                 tempScope._SetTemporary(true);
 
                 this._RegisterAllNamesRootedAt(tempScope, error);
@@ -954,7 +934,7 @@
         if (!error || !error.IsErrored()) {
             this._Parent = parent;
             var d = parent;
-            while (d && !(d instanceof FrameworkElement)) {
+            while (d && !(d instanceof Fayde.FrameworkElement)) {
                 d = d.GetMentor();
             }
             this.SetMentor(d);
@@ -962,7 +942,7 @@
     };
     DependencyObject.Instance._RemoveParent = function (parent, error) {
         if (this._RemoveSecondaryParent(parent)) {
-            if (this._HasSecondaryParents() || !(parent instanceof DependencyObjectCollection) || !(parent._GetIsSecondaryParent()))
+            if (this._HasSecondaryParents() || !(parent instanceof Fayde.DependencyObjectCollection) || !(parent._GetIsSecondaryParent()))
                 return;
         } else {
             if (!Nullstone.RefEquals(this._Parent, parent))
@@ -1136,5 +1116,7 @@
     }
     //#endif
 
-    namespace.DependencyObject = Nullstone.FinishCreate(DependencyObject);
-})(window);
+    Fayde.DependencyObject = Nullstone.FinishCreate(DependencyObject);
+
+    //#endregion
+})(Nullstone.Namespace("Fayde"));

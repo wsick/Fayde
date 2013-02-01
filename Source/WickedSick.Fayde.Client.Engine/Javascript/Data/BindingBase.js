@@ -43,4 +43,4 @@
     };
 
     namespace.BindingBase = Nullstone.FinishCreate(BindingBase);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

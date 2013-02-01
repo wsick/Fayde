@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var Canvas = Nullstone.Create("Canvas", Panel);
+    var Canvas = Nullstone.Create("Canvas", namespace.Panel);
 
     Canvas.Instance.Init = function () {
         this.Init$Panel();
@@ -49,7 +49,7 @@
 
     Canvas.Instance._MeasureOverrideWithError = function (availableSize, error) {
         var childSize = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
-        var walker = new _VisualTreeWalker(this);
+        var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
             child._MeasureWithError(childSize, error);
@@ -63,7 +63,7 @@
     //#region Arrange
 
     Canvas.Instance._ArrangeOverrideWithError = function (finalSize, error) {
-        var walker = new _VisualTreeWalker(this);
+        var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
             var desired = child._DesiredSize;
@@ -94,7 +94,7 @@
     };
 
     Canvas.Instance.IsLayoutContainer = function () {
-        var walker = new _DeepTreeWalker(this);
+        var walker = new Fayde._DeepTreeWalker(this);
         var child;
         while (child = walker.Step()) {
             if (!(child instanceof Canvas) && child.IsLayoutContainer())
@@ -129,7 +129,7 @@
         this.PropertyChanged.Raise(this, args);
     };
     Canvas.Instance._OnCollectionItemChanged = function (col, obj, args) {
-        if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, col)) {
+        if (this._PropertyHasValueNoAutoCreate(namespace.Panel.ChildrenProperty, col)) {
             if (args.Property._ID === Canvas.TopProperty._ID
                 || args.Property._ID === Canvas.LeftProperty._ID) {
                 var child = obj;
@@ -143,7 +143,7 @@
                     childFinal.Height = Math.round(childFinal.Height);
                 }
 
-                LayoutInformation.SetLayoutSlot(child, childFinal);
+                Fayde.LayoutInformation.SetLayoutSlot(child, childFinal);
                 child._InvalidateArrange();
                 return;
             }
@@ -152,4 +152,4 @@
     };
 
     namespace.Canvas = Nullstone.FinishCreate(Canvas);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

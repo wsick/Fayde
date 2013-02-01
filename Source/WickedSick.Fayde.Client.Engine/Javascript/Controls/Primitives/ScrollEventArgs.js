@@ -10,4 +10,4 @@
     };
 
     namespace.ScrollEventArgs = Nullstone.FinishCreate(ScrollEventArgs);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

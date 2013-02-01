@@ -7,7 +7,7 @@
 /// <reference path="DragCompletedEventArgs.js"/>
 
 (function (namespace) {
-    var ScrollBar = Nullstone.Create("ScrollBar", RangeBase);
+    var ScrollBar = Nullstone.Create("ScrollBar", namespace.RangeBase);
 
     ScrollBar.Instance.Init = function () {
         this.Init$RangeBase();
@@ -21,7 +21,7 @@
     ScrollBar._OnOrientationPropertyChanged = function (d, args) {
         d._OnOrientationChanged();
     };
-    ScrollBar.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Orientation); }, ScrollBar, Orientation.Horizontal, ScrollBar._OnOrientationPropertyChanged);
+    ScrollBar.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Fayde.Orientation); }, ScrollBar, Fayde.Orientation.Horizontal, ScrollBar._OnOrientationPropertyChanged);
 
     ScrollBar._OnViewportSizePropertyChanged = function (d, args) {
         d._UpdateTrackLayout(d._GetTrackLength());
@@ -46,18 +46,18 @@
 
     ScrollBar.Instance.OnApplyTemplate = function () {
         this.OnApplyTemplate$RangeBase();
-        this.$ElementHorizontalTemplate = Nullstone.As(this.GetTemplateChild("HorizontalRoot"), FrameworkElement);
-        this.$ElementHorizontalLargeIncrease = Nullstone.As(this.GetTemplateChild("HorizontalLargeIncrease"), RepeatButton);
-        this.$ElementHorizontalLargeDecrease = Nullstone.As(this.GetTemplateChild("HorizontalLargeDecrease"), RepeatButton);
-        this.$ElementHorizontalSmallIncrease = Nullstone.As(this.GetTemplateChild("HorizontalSmallIncrease"), RepeatButton);
-        this.$ElementHorizontalSmallDecrease = Nullstone.As(this.GetTemplateChild("HorizontalSmallDecrease"), RepeatButton);
-        this.$ElementHorizontalThumb = Nullstone.As(this.GetTemplateChild("HorizontalThumb"), Thumb);
-        this.$ElementVerticalTemplate = Nullstone.As(this.GetTemplateChild("VerticalRoot"), FrameworkElement);
-        this.$ElementVerticalLargeIncrease = Nullstone.As(this.GetTemplateChild("VerticalLargeIncrease"), RepeatButton);
-        this.$ElementVerticalLargeDecrease = Nullstone.As(this.GetTemplateChild("VerticalLargeDecrease"), RepeatButton);
-        this.$ElementVerticalSmallIncrease = Nullstone.As(this.GetTemplateChild("VerticalSmallIncrease"), RepeatButton);
-        this.$ElementVerticalSmallDecrease = Nullstone.As(this.GetTemplateChild("VerticalSmallDecrease"), RepeatButton);
-        this.$ElementVerticalThumb = Nullstone.As(this.GetTemplateChild("VerticalThumb"), Thumb);
+        this.$ElementHorizontalTemplate = Nullstone.As(this.GetTemplateChild("HorizontalRoot"), Fayde.FrameworkElement);
+        this.$ElementHorizontalLargeIncrease = Nullstone.As(this.GetTemplateChild("HorizontalLargeIncrease"), namespace.RepeatButton);
+        this.$ElementHorizontalLargeDecrease = Nullstone.As(this.GetTemplateChild("HorizontalLargeDecrease"), namespace.RepeatButton);
+        this.$ElementHorizontalSmallIncrease = Nullstone.As(this.GetTemplateChild("HorizontalSmallIncrease"), namespace.RepeatButton);
+        this.$ElementHorizontalSmallDecrease = Nullstone.As(this.GetTemplateChild("HorizontalSmallDecrease"), namespace.RepeatButton);
+        this.$ElementHorizontalThumb = Nullstone.As(this.GetTemplateChild("HorizontalThumb"), namespace.Thumb);
+        this.$ElementVerticalTemplate = Nullstone.As(this.GetTemplateChild("VerticalRoot"), Fayde.FrameworkElement);
+        this.$ElementVerticalLargeIncrease = Nullstone.As(this.GetTemplateChild("VerticalLargeIncrease"), namespace.RepeatButton);
+        this.$ElementVerticalLargeDecrease = Nullstone.As(this.GetTemplateChild("VerticalLargeDecrease"), namespace.RepeatButton);
+        this.$ElementVerticalSmallIncrease = Nullstone.As(this.GetTemplateChild("VerticalSmallIncrease"), namespace.RepeatButton);
+        this.$ElementVerticalSmallDecrease = Nullstone.As(this.GetTemplateChild("VerticalSmallDecrease"), namespace.RepeatButton);
+        this.$ElementVerticalThumb = Nullstone.As(this.GetTemplateChild("VerticalThumb"), namespace.Thumb);
 
         if (this.$ElementHorizontalThumb) {
             this.$ElementHorizontalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
@@ -112,9 +112,9 @@
         this.OnMouseEnter$RangeBase(args);
         var orientation = this.Orientation;
         var shouldUpdate = false;
-        if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.IsDragging)
+        if (orientation === Fayde.Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.IsDragging)
             shouldUpdate = true;
-        if (orientation === Orientation.Vertical && this.$ElementVerticalThumb && !this.$ElementVerticalThumb.IsDragging)
+        if (orientation === Fayde.Orientation.Vertical && this.$ElementVerticalThumb && !this.$ElementVerticalThumb.IsDragging)
             shouldUpdate = true;
         if (shouldUpdate)
             this.$UpdateVisualState();
@@ -123,9 +123,9 @@
         this.OnMouseLeave$RangeBase(args);
         var orientation = this.Orientation;
         var shouldUpdate = false;
-        if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.IsDragging)
+        if (orientation === Fayde.Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.IsDragging)
             shouldUpdate = true;
-        if (orientation === Orientation.Vertical && this.$ElementVerticalThumb && !this.$ElementVerticalThumb.IsDragging)
+        if (orientation === Fayde.Orientation.Vertical && this.$ElementVerticalThumb && !this.$ElementVerticalThumb.IsDragging)
             shouldUpdate = true;
         if (shouldUpdate)
             this.$UpdateVisualState();
@@ -184,10 +184,10 @@
         var diff = max - min;
         var trackLength = this._GetTrackLength();
         var orientation = this.Orientation;
-        if (this.$ElementVerticalThumb && orientation === Orientation.Vertical) {
+        if (this.$ElementVerticalThumb && orientation === Fayde.Orientation.Vertical) {
             change = num * args.VerticalChange / (trackLength - this.$ElementVerticalThumb.ActualHeight) * diff;
         }
-        if (this.$ElementHorizontalThumb && orientation === Orientation.Horizontal) {
+        if (this.$ElementHorizontalThumb && orientation === Fayde.Orientation.Horizontal) {
             change = num * args.HorizontalChange / (trackLength - this.$ElementHorizontalThumb.ActualWidth) * diff;
         }
         if (!isNaN(change) && isFinite(change)) {
@@ -249,10 +249,10 @@
     ScrollBar.Instance._OnOrientationChanged = function () {
         var orientation = this.Orientation;
         if (this.$ElementHorizontalTemplate) {
-            this.$ElementHorizontalTemplate.Visibility = orientation === Orientation.Horizontal ? Visibility.Visible : Visibility.Collapsed;
+            this.$ElementHorizontalTemplate.Visibility = orientation === Fayde.Orientation.Horizontal ? Fayde.Visibility.Visible : Fayde.Visibility.Collapsed;
         }
         if (this.$ElementVerticalTemplate) {
-            this.$ElementVerticalTemplate.Visibility = orientation === Orientation.Horizontal ? Visibility.Collapsed : Visibility.Visible;
+            this.$ElementVerticalTemplate.Visibility = orientation === Fayde.Orientation.Horizontal ? Fayde.Visibility.Collapsed : Fayde.Visibility.Visible;
         }
         this._UpdateTrackLayout(this._GetTrackLength());
     };
@@ -264,9 +264,9 @@
         var thumbSize = this._UpdateThumbSize(trackLength);
 
         var orientation = this.Orientation;
-        if (orientation === Orientation.Horizontal && this.$ElementHorizontalLargeDecrease && this.$ElementHorizontalThumb) {
+        if (orientation === Fayde.Orientation.Horizontal && this.$ElementHorizontalLargeDecrease && this.$ElementHorizontalThumb) {
             this.$ElementHorizontalLargeDecrease.Width = Math.max(0, multiplier * (trackLength - thumbSize));
-        } else if (orientation === Orientation.Vertical && this.$ElementVerticalLargeDecrease && this.$ElementVerticalThumb) {
+        } else if (orientation === Fayde.Orientation.Vertical && this.$ElementVerticalLargeDecrease && this.$ElementVerticalThumb) {
             this.$ElementVerticalLargeDecrease.Height = Math.max(0, multiplier * (trackLength - thumbSize));
         }
     };
@@ -277,39 +277,39 @@
             var orientation = this.Orientation;
             var max = this.Maximum;
             var min = this.Minimum;
-            if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb) {
+            if (orientation === Fayde.Orientation.Horizontal && this.$ElementHorizontalThumb) {
                 if (max - min !== 0)
                     result = Math.max(this.$ElementHorizontalThumb.MinWidth, this._ConvertViewportSizeToDisplayUnits(trackLength));
                 if (max - min === 0 || result > this.ActualWidth || trackLength <= this.$ElementHorizontalThumb.MinWidth) {
                     hideThumb = true;
                 } else {
-                    this.$ElementHorizontalThumb.Visibility = Visibility.Visible;
+                    this.$ElementHorizontalThumb.Visibility = Fayde.Visibility.Visible;
                     this.$ElementHorizontalThumb.Width = result;
                 }
-            } else if (orientation === Orientation.Vertical && this.$ElementVerticalThumb) {
+            } else if (orientation === Fayde.Orientation.Vertical && this.$ElementVerticalThumb) {
                 if (max - min !== 0)
                     result = Math.max(this.$ElementVerticalThumb.MinHeight, this._ConvertViewportSizeToDisplayUnits(trackLength));
                 if (max - min === 0 || result > this.ActualHeight || trackLength <= this.$ElementVerticalThumb.MinHeight) {
                     hideThumb = true;
                 } else {
-                    this.$ElementVerticalThumb.Visibility = Visibility.Visible;
+                    this.$ElementVerticalThumb.Visibility = Fayde.Visibility.Visible;
                     this.$ElementVerticalThumb.Height = result;
                 }
             }
         }
         if (hideThumb) {
             if (this.$ElementHorizontalThumb) {
-                this.$ElementHorizontalThumb.Visibility = Visibility.Collapsed;
+                this.$ElementHorizontalThumb.Visibility = Fayde.Visibility.Collapsed;
             }
             if (this.$ElementVerticalThumb) {
-                this.$ElementVerticalThumb.Visibility = Visibility.Collapsed;
+                this.$ElementVerticalThumb.Visibility = Fayde.Visibility.Collapsed;
             }
         }
         return result;
     };
     ScrollBar.Instance._GetTrackLength = function () {
         var actual = NaN;
-        if (this.Orientation === Orientation.Horizontal) {
+        if (this.Orientation === Fayde.Orientation.Horizontal) {
             actual = this.ActualWidth;
             if (this.$ElementHorizontalSmallDecrease) {
                 var thickness = this.$ElementHorizontalSmallDecrease.Margin;
@@ -338,10 +338,10 @@
     };
 
     ScrollBar.Instance._RaiseScroll = function (scrollEvtType) {
-        var args = new ScrollEventArgs(scrollEvtType, this.Value);
+        var args = new namespace.ScrollEventArgs(scrollEvtType, this.Value);
         args.OriginalSource = this;
         this.Scroll.Raise(this, args);
     };
 
     namespace.ScrollBar = Nullstone.FinishCreate(ScrollBar);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

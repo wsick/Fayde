@@ -15,9 +15,9 @@
             if (!binding)
                 throw new ArgumentNullException("binding");
 
-            var e = new BindingExpression(binding, target, dp);
+            var e = new Fayde.Data.BindingExpression(binding, target, dp);
             target.$SetValue(dp, e);
             return e;
         }
     };
-})(window);
+})(Nullstone.Namespace("Fayde"));

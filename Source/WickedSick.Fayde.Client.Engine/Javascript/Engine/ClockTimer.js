@@ -2,7 +2,7 @@
 /// CODE
 /// <reference path="../Runtime/JsEx.js"/>
 
-(function (namespace) {
+(function (Fayde) {
     var ClockTimer = Nullstone.Create("ClockTimer");
 
     ClockTimer.Instance.Init = function () {
@@ -41,5 +41,5 @@
         window.requestAnimFrame(function () { clockTimer.DoTick(); });
     };
 
-    namespace.ClockTimer = Nullstone.FinishCreate(ClockTimer);
-})(window);
+    Fayde.ClockTimer = Nullstone.FinishCreate(ClockTimer);
+})(Nullstone.Namespace("Fayde"));

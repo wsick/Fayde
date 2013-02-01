@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var Setter = Nullstone.Create("Setter", SetterBase);
+    var Setter = Nullstone.Create("Setter", namespace.SetterBase);
 
     //#region Properties
 
@@ -14,4 +14,4 @@
     //#endregion
 
     namespace.Setter = Nullstone.FinishCreate(Setter);
-})(window);
+})(Nullstone.Namespace("Fayde"));

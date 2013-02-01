@@ -10,4 +10,4 @@
     };
 
     namespace.ICollectionView = Nullstone.FinishCreate(ICollectionView);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

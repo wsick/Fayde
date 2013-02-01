@@ -3,7 +3,7 @@
 /// <reference path="AnimationStorage.js"/>
 
 (function (namespace) {
-    var Animation = Nullstone.Create("Animation", Timeline);
+    var Animation = Nullstone.Create("Animation", namespace.Timeline);
 
     Animation.Instance.Resolve = function () { return true; };
 
@@ -11,7 +11,7 @@
         /// <param name="targetObj" type="DependencyObject"></param>
         /// <param name="targetProp" type="DependencyProperty"></param>
         /// <returns type="AnimationStorage" />
-        this._Storage = new AnimationStorage(this, targetObj, targetProp);
+        this._Storage = new namespace.AnimationStorage(this, targetObj, targetProp);
         return this._Storage;
     };
     Animation.Instance.Disable = function () {
@@ -37,4 +37,4 @@
     Animation.Instance.GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) { };
 
     namespace.Animation = Nullstone.FinishCreate(Animation);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

@@ -1,6 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Shapes
 {
+    [Element(NullstoneNamespace = "Fayde.Shapes")]
     public class Rectangle : Shape
     {
         public static readonly PropertyDescription RadiusXProperty = PropertyDescription.Register("RadiusX", typeof(double), typeof(Rectangle));

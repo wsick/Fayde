@@ -1,19 +1,23 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Collections;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
-using WickedSick.Server.XamlParser.TypeConverters;
-using WickedSick.Server.XamlParser.Elements.Types;
 using log4net;
+using WickedSick.Server.XamlParser.Elements.Core;
+using WickedSick.Server.XamlParser.Elements.Types;
+using WickedSick.Server.XamlParser.TypeConverters;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
+    [Element(NullstoneNamespace = "Fayde")]
     public abstract class DependencyObject : IJsonConvertible
     {
         static readonly ILog Log = LogManager.GetLogger(typeof(DependencyObject));
+
+        internal static readonly string DEFAULT_NS = "WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements";
 
         private static IDictionary<Type, ITypeConverter> _converters = new Dictionary<Type, ITypeConverter>();
         public static Type GetElementType(string nameSpace, string elementName)
@@ -44,10 +48,10 @@ namespace WickedSick.Server.XamlParser.Elements
             }
 
             new Elements.Media.VSM.VisualStateManager();
-            new Elements.ToolTipService();
+            new Elements.Controls.ToolTipService();
             new Elements.Controls.Canvas();
         }
-        
+
         private IDictionary<AttachedPropertyDescription, object> _attachedValues = new Dictionary<AttachedPropertyDescription, object>();
         private IDictionary<PropertyDescription, object> _dependencyValues = new Dictionary<PropertyDescription, object>();
 
@@ -131,7 +135,7 @@ namespace WickedSick.Server.XamlParser.Elements
             //TODO: check and make sure the property type is correct
             if (contentProperty == null)
                 throw new XamlParseException(string.Format("Content cannot be added to an element with no content property definition. {0}", GetType().Name));
-            
+
             if (IsSubclassOfRawGeneric(contentProperty.Type, typeof(DependencyObjectCollection<>)))
             {
                 if (!_dependencyValues.Keys.Contains(contentProperty))
@@ -282,13 +286,7 @@ namespace WickedSick.Server.XamlParser.Elements
 
         public virtual string GetTypeName()
         {
-            var elAttr = GetType()
-                .GetCustomAttributes(typeof(ElementAttribute), true)
-                .OfType<ElementAttribute>()
-                .FirstOrDefault();
-            if (elAttr == null || string.IsNullOrWhiteSpace(elAttr.NullstoneName))
-                return GetType().Name;
-            return elAttr.NullstoneName;
+            return ElementAttribute.GetFullNullstoneType(GetType());
         }
 
         private string attachedPropsToJson(IDictionary<AttachedPropertyDescription, object> properties)
@@ -300,7 +298,7 @@ namespace WickedSick.Server.XamlParser.Elements
                 if (needsComma)
                     sb.AppendLine(",");
                 sb.AppendLine("{");
-                sb.AppendFormat("Owner: {0}", apd.OwnerType.Name);
+                sb.AppendFormat("Owner: {0}", ElementAttribute.GetFullNullstoneType(apd.OwnerType));
                 sb.AppendLine(",");
                 sb.AppendFormat("Prop: \"{0}\"", apd.Name);
                 sb.AppendLine(",");
@@ -386,7 +384,7 @@ namespace WickedSick.Server.XamlParser.Elements
                 {
                     sb.Append(pd.Name);
                     sb.Append(": ");
-                    sb.Append(string.Format("{0}.{1}", value.GetType().Name, value.ToString()));
+                    sb.Append(string.Format("{0}.{1}", ElementAttribute.GetFullNullstoneType(value.GetType()), value.ToString()));
                     needsComma = true;
                     continue;
                 }
@@ -442,6 +440,11 @@ namespace WickedSick.Server.XamlParser.Elements
                 if (tokens.Length != 2)
                     throw new XamlParseException("A property can only contain a '.' if it is an attached property with the following signature: '<Owner Type>.<Property Name>'.");
                 typeName = tokens[0];
+                if (typeName.Contains(":"))
+                    throw new NotSupportedException("Namespaces in owner types for setter properties.");
+                var type = GetElementType(DEFAULT_NS, typeName);
+                if (type != null)
+                    typeName = ElementAttribute.GetFullNullstoneType(type);
                 prop = tokens[1];
             }
             return string.Format("DependencyProperty.GetDependencyProperty({0}, \"{1}\")", typeName, prop);

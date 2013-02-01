@@ -1,8 +1,11 @@
-﻿using WickedSick.Server.XamlParser.Elements.Media;
+﻿using WickedSick.Server.XamlParser.Elements.Core;
+using WickedSick.Server.XamlParser.Elements.Input;
+using WickedSick.Server.XamlParser.Elements.Media;
 using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {
+    [Element(NullstoneNamespace = "Fayde.Controls")]
     public abstract class Control : FrameworkElement
     {
         public static readonly PropertyDescription BackgroundProperty = PropertyDescription.Register("Background", typeof(Brush), typeof(Control));

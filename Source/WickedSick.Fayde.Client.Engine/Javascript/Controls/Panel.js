@@ -4,21 +4,21 @@
 /// <reference path="../Media/Brush.js"/>
 
 (function (namespace) {
-    var Panel = Nullstone.Create("Panel", FrameworkElement);
+    var Panel = Nullstone.Create("Panel", Fayde.FrameworkElement);
 
     //#region Properties
 
-    Panel.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Panel);
+    Panel.BackgroundProperty = DependencyProperty.Register("Background", function () { return Fayde.Media.Brush; }, Panel);
     Panel._CreateChildren = {
         GetValue: function (propd, obj) {
-            var col = new UIElementCollection();
+            var col = new Fayde.UIElementCollection();
             col._SetIsSecondaryParent(true);
             if (obj)
                 obj._SubtreeObject = col;
             return col;
         }
     };
-    Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return UIElementCollection; }, Panel, undefined, undefined, Panel._CreateChildren);
+    Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return Fayde.UIElementCollection; }, Panel, undefined, undefined, Panel._CreateChildren);
     Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemsHost", function () { return Boolean; }, Panel, false);
 
     Nullstone.AutoProperties(Panel, [
@@ -36,7 +36,7 @@
     Panel.Instance._ComputeBounds = function () {
         this._Extents = this._ExtentsWithChildren = this._Bounds = this._BoundsWithChildren = new Rect();
 
-        var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.Logical);
+        var walker = Fayde._VisualTreeWalker.Logical(this);
         var item;
         while (item = walker.Step()) {
             if (!item._GetRenderVisible())
@@ -165,32 +165,25 @@
         Panel.Instance._OnCollectionChanged = function (col, args) {
             if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, col)) {
                 var error = new BError();
-                switch (args.Action) {
-                    case CollectionChangedArgs.Action.Replace:
-                        if (args.OldValue instanceof FrameworkElement)
+                if (args.IsAdd || args.IsReplace) {
+                    if (args.IsReplace) {
+                        if (args.OldValue instanceof Fayde.FrameworkElement)
                             args.OldValue._SetLogicalParent(null, error);
                         this._ElementRemoved(args.OldValue);
                         if (this._IsAttached)
                             this.RemoveHtmlChild(args.OldValue, args.Index);
-                        //NOTE: falls into add on purpose
-                    case CollectionChangedArgs.Action.Add:
-                        if (args.NewValue instanceof FrameworkElement)
-                            args.NewValue._SetLogicalParent(this, error);
-                        this._ElementAdded(args.NewValue);
-                        if (this._IsAttached)
-                            this.InsertHtmlChild(args.NewValue, args.Index);
-                        break;
-                    case CollectionChangedArgs.Action.Remove:
-                        if (args.OldValue instanceof FrameworkElement)
-                            args.OldValue._SetLogicalParent(null, error);
-                        this._ElementRemoved(args.OldValue);
-                        if (this._IsAttached)
-                            this.RemoveHtmlChild(args.OldValue, args.Index);
-                        break;
-                    case CollectionChangedArgs.Action.Clearing:
-                        break;
-                    case CollectionChangedArgs.Action.Cleared:
-                        break;
+                    }
+                    if (args.NewValue instanceof Fayde.FrameworkElement)
+                        args.NewValue._SetLogicalParent(this, error);
+                    this._ElementAdded(args.NewValue);
+                    if (this._IsAttached)
+                        this.InsertHtmlChild(args.NewValue, args.Index);
+                } else if (args.IsRemove) {
+                    if (args.OldValue instanceof Fayde.FrameworkElement)
+                        args.OldValue._SetLogicalParent(null, error);
+                    this._ElementRemoved(args.OldValue);
+                    if (this._IsAttached)
+                        this.RemoveHtmlChild(args.OldValue, args.Index);
                 }
             } else {
                 this._OnCollectionChanged$FrameworkElement(col, args);
@@ -240,26 +233,19 @@
         Panel.Instance._OnCollectionChanged = function (col, args) {
             if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, col)) {
                 var error = new BError();
-                switch (args.Action) {
-                    case CollectionChangedArgs.Action.Replace:
-                        if (args.OldValue instanceof FrameworkElement)
+                if (args.IsAdd || args.IsReplace) {
+                    if (args.IsReplace) {
+                        if (args.OldValue instanceof Fayde.FrameworkElement)
                             args.OldValue._SetLogicalParent(null, error);
                         this._ElementRemoved(args.OldValue);
-                        //NOTE: falls into add on purpose
-                    case CollectionChangedArgs.Action.Add:
-                        if (args.NewValue instanceof FrameworkElement)
-                            args.NewValue._SetLogicalParent(this, error);
-                        this._ElementAdded(args.NewValue);
-                        break;
-                    case CollectionChangedArgs.Action.Remove:
-                        if (args.OldValue instanceof FrameworkElement)
-                            args.OldValue._SetLogicalParent(null, error);
-                        this._ElementRemoved(args.OldValue);
-                        break;
-                    case CollectionChangedArgs.Action.Clearing:
-                        break;
-                    case CollectionChangedArgs.Action.Cleared:
-                        break;
+                    }
+                    if (args.NewValue instanceof Fayde.FrameworkElement)
+                        args.NewValue._SetLogicalParent(this, error);
+                    this._ElementAdded(args.NewValue);
+                } else if (args.IsRemove) {
+                    if (args.OldValue instanceof Fayde.FrameworkElement)
+                        args.OldValue._SetLogicalParent(null, error);
+                    this._ElementRemoved(args.OldValue);
                 }
             } else {
                 this._OnCollectionChanged$FrameworkElement(col, args);
@@ -267,7 +253,7 @@
         };
         Panel.Instance._OnCollectionItemChanged = function (col, obj, args) {
             if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, col)) {
-                if (args.Property._ID === Canvas.ZIndexProperty._ID || args.Property._ID === Canvas.ZProperty._ID) {
+                if (args.Property._ID === namespace.Canvas.ZIndexProperty._ID || args.Property._ID === namespace.Canvas.ZProperty._ID) {
                     args.Item._Invalidate();
                     if (this._IsAttached) {
                         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
@@ -351,4 +337,4 @@
     //#endregion
 
     namespace.Panel = Nullstone.FinishCreate(Panel);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

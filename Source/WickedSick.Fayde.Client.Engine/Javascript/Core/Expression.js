@@ -25,4 +25,4 @@
     };
 
     namespace.Expression = Nullstone.FinishCreate(Expression);
-})(window);
+})(Nullstone.Namespace("Fayde"));

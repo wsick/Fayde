@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var _IndexedPropertyPathNode = Nullstone.Create("_IndexedPropertyPathNode", _PropertyPathNode, 1);
+    var _IndexedPropertyPathNode = Nullstone.Create("_IndexedPropertyPathNode", namespace._PropertyPathNode, 1);
 
     _IndexedPropertyPathNode.Instance.Init = function (index) {
         this.Init$_PropertyPathNode();
@@ -55,7 +55,7 @@
             this.Listener = null;
         }
 
-        if (Nullstone.DoesImplement(newSource, INotifyCollectionChanged)) {
+        if (Nullstone.DoesImplement(newSource, Fayde.Collections.INotifyCollectionChanged)) {
             //TODO: CollectionChangedListener
             //this.Listener = new CollectionChangedListener(newSource, this, this.CollectionChanged);
         }
@@ -78,4 +78,4 @@
     });
 
     namespace._IndexedPropertyPathNode = Nullstone.FinishCreate(_IndexedPropertyPathNode);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

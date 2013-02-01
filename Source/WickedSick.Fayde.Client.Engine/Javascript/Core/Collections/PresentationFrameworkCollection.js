@@ -1,14 +1,14 @@
 ﻿/// <reference path="../DependencyObject.js"/>
 /// CODE
-/// <reference path="Collection.js"/>
+/// <reference path="InternalCollection.js"/>
 /// <reference path="../../Collections/NotifyCollectionChangedEventArgs.js"/>
 
 (function (namespace) {
-    var PresentationFrameworkCollection = Nullstone.Create("PresentationFrameworkCollection", DependencyObject);
+    var PresentationFrameworkCollection = Nullstone.Create("PresentationFrameworkCollection", Fayde.DependencyObject);
 
     PresentationFrameworkCollection.Instance.Init = function () {
         this.Init$DependencyObject();
-        this._Backing = new Collection();
+        this._Backing = new Fayde.InternalCollection();
         this.ItemsChanged = new MulticastEvent();
         this.Clearing = new MulticastEvent();
     };
@@ -33,7 +33,7 @@
     PresentationFrameworkCollection.Instance.SetValueAt = function (index, value) {
         var old = this.GetValueAt(index);
         this._Backing.SetValueAt(index, value);
-        this.ItemsChanged.Raise(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, old, index));
+        this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Replace(value, old, index));
     };
 
     PresentationFrameworkCollection.Instance.Contains = function (value) {
@@ -55,7 +55,7 @@
     PresentationFrameworkCollection.Instance._ClearImpl = function () {
         this.Clearing.Raise(this, new EventArgs());
         this._Backing.Clear();
-        this.ItemsChanged.Raise(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Reset());
     };
 
     PresentationFrameworkCollection.Instance.Add = function (value) {
@@ -63,10 +63,10 @@
         this._AddImpl(value);
     };
     PresentationFrameworkCollection.Instance._AddImpl = function (value) {
-        this._CheckNull(NotifyCollectionChangedAction.Add, value);
+        this._CheckNull(Fayde.Collections.NotifyCollectionChangedAction.Add, value);
 
         var index = this._Backing.Add(value);
-        this.ItemsChanged.Raise(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, value, index));
+        this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Add(value, index));
     };
 
     PresentationFrameworkCollection.Instance.Insert = function (index, value) {
@@ -74,12 +74,12 @@
         this._InsertImpl(index, value);
     };
     PresentationFrameworkCollection.Instance._InsertImpl = function (index, value) {
-        this._CheckNull(NotifyCollectionChangedAction.Add, value);
+        this._CheckNull(Fayde.Collections.NotifyCollectionChangedAction.Add, value);
         if (index < 0)
             throw new ArgumentOutOfRangeException();
 
         var index = this._Backing.Insert(index, value);
-        this.ItemsChanged.Raise(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, value, index));
+        this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Add(value, index));
     };
 
     PresentationFrameworkCollection.Instance.Remove = function (value) {
@@ -87,7 +87,7 @@
         return this._RemoveImpl(value);
     };
     PresentationFrameworkCollection.Instance._RemoveImpl = function (value) {
-        if (this._CheckNull(NotifyCollectionChangedAction.Remove, value))
+        if (this._CheckNull(Fayde.Collections.NotifyCollectionChangedAction.Remove, value))
             return false;
 
         var index = this.IndexOf(value);
@@ -95,7 +95,7 @@
             return false;
 
         this._Backing.RemoveAt(index);
-        this.ItemsChanged.Raise(this, new NotifyCollectionChangedEventArgs(value, index));
+        this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Remove(value, index));
         return true;
     };
 
@@ -106,7 +106,7 @@
     PresentationFrameworkCollection.Instance._RemoveAtImpl = function (index) {
         var value = this.GetValueAt(index);
         this._Backing.RemoveAt(index);
-        this.ItemsChanged.Raise(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, value, index));
+        this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Remove(value, index));
     };
 
     PresentationFrameworkCollection.Instance._IsReadOnlyImpl = function () {
@@ -121,7 +121,7 @@
     PresentationFrameworkCollection.Instance._CheckNull = function (action, value) {
         if (value != null)
             return false;
-        if (action === NotifyCollectionChangedAction.Add)
+        if (action === Fayde.Collections.NotifyCollectionChangedAction.Add)
             throw new ArgumentNullException();
     };
     PresentationFrameworkCollection.Instance._CheckReadOnly = function () {
@@ -130,4 +130,4 @@
     };
 
     namespace.PresentationFrameworkCollection = Nullstone.FinishCreate(PresentationFrameworkCollection);
-})(window);
+})(Nullstone.Namespace("Fayde"));

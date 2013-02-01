@@ -4,16 +4,16 @@
 /// CODE
 /// <reference path="../../Data/PropertyChangedListener.js"/>
 
-(function (namespace) {
-    var _InheritedDataContextPropertyValueProvider = Nullstone.Create("_InheritedDataContextPropertyValueProvider", _PropertyValueProvider, 2);
+(function (Fayde) {
+    var _InheritedDataContextPropertyValueProvider = Nullstone.Create("_InheritedDataContextPropertyValueProvider", Fayde._PropertyValueProvider, 1);
 
-    _InheritedDataContextPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-        this.Init$_PropertyValueProvider(obj, propPrecedence);
+    _InheritedDataContextPropertyValueProvider.Instance.Init = function (obj) {
+        this.Init$_PropertyValueProvider(obj, _PropertyPrecedence.InheritedDataContext);
         this._Source = null;
     };
 
     _InheritedDataContextPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
-        if (!this._Source || propd._ID !== FrameworkElement.DataContextProperty._ID)
+        if (!this._Source || propd._ID !== Fayde.FrameworkElement.DataContextProperty._ID)
             return undefined;
         return this._Source._GetValue(propd);
     };
@@ -21,8 +21,8 @@
         if (Nullstone.RefEquals(this._Source, source))
             return;
 
-        var oldValue = this._Source ? this._Source._GetValue(FrameworkElement.DataContextProperty) : undefined;
-        var newValue = source ? source._GetValue(FrameworkElement.DataContextProperty) : undefined;
+        var oldValue = this._Source ? this._Source._GetValue(Fayde.FrameworkElement.DataContextProperty) : undefined;
+        var newValue = source ? source._GetValue(Fayde.FrameworkElement.DataContextProperty) : undefined;
 
         this._DetachListener(this._Source);
         this._Source = source;
@@ -30,12 +30,12 @@
 
         if (!Nullstone.Equals(oldValue, newValue)) {
             var error = new BError();
-            this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, oldValue, newValue, false, false, false, error);
+            this._Object._ProviderValueChanged(this._PropertyPrecedence, Fayde.FrameworkElement.DataContextProperty, oldValue, newValue, false, false, false, error);
         }
     };
     _InheritedDataContextPropertyValueProvider.Instance._AttachListener = function (source) {
         if (source) {
-            this._DataContextListener = new PropertyChangedListener(source, FrameworkElement.DataContextProperty, this, this._SourceDataContextChanged);
+            this._DataContextListener = new Fayde.Data.PropertyChangedListener(source, Fayde.FrameworkElement.DataContextProperty, this, this._SourceDataContextChanged);
             //TODO: Add Handler - Destroyed Event
         }
     };
@@ -55,9 +55,9 @@
     _InheritedDataContextPropertyValueProvider.Instance.EmitChanged = function () {
         if (this._Source) {
             var error = new BError();
-            this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, undefined, this._Source._GetValue(FrameworkElement.DataContextProperty), true, false, false, error);
+            this._Object._ProviderValueChanged(this._PropertyPrecedence, Fayde.FrameworkElement.DataContextProperty, undefined, this._Source._GetValue(Fayde.FrameworkElement.DataContextProperty), true, false, false, error);
         }
     };
 
-    namespace._InheritedDataContextPropertyValueProvider = Nullstone.FinishCreate(_InheritedDataContextPropertyValueProvider);
-})(window);
+    Fayde._InheritedDataContextPropertyValueProvider = Nullstone.FinishCreate(_InheritedDataContextPropertyValueProvider);
+})(Nullstone.Namespace("Fayde"));

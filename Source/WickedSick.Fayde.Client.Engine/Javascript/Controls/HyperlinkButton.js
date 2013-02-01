@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var HyperlinkButton = Nullstone.Create("HyperlinkButton", ButtonBase);
+    var HyperlinkButton = Nullstone.Create("HyperlinkButton", namespace.Primitives.ButtonBase);
 
     //#region Properties
 
@@ -51,7 +51,7 @@
             window.location.href = this.NavigateUri.toString();
             return;
         }
-        var frame = Nullstone.As(this.FindName(targetName), Frame);
+        var frame = Nullstone.As(this.FindName(targetName), namespace.Frame);
         if (frame != null) {
             window.location.href = this.NavigateUri.toString();
             return;
@@ -60,4 +60,4 @@
     };
 
     namespace.HyperlinkButton = Nullstone.FinishCreate(HyperlinkButton);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

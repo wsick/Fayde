@@ -1,11 +1,12 @@
 /// <reference path="../../Core/DependencyObject.js"/>
+/// <reference path="../../Core/Collections/InternalCollection.js"/>
 /// CODE
 /// <reference path="../../Primitives/Duration.js"/>
 /// <reference path="RepeatBehavior.js"/>
 /// <reference path="Enums.js"/>
 
 (function (namespace) {
-    var Timeline = Nullstone.Create("Timeline", DependencyObject);
+    var Timeline = Nullstone.Create("Timeline", Fayde.DependencyObject);
 
     Timeline.Instance.Init = function () {
         this.Init$DependencyObject();
@@ -18,9 +19,9 @@
     Timeline.AutoReverseProperty = DependencyProperty.Register("AutoReverse", function () { return Boolean; }, Timeline, false);
     Timeline.BeginTimeProperty = DependencyProperty.Register("BeginTime", function () { return TimeSpan; }, Timeline, new TimeSpan());
     Timeline.DurationProperty = DependencyProperty.Register("Duration", function () { return Duration; }, Timeline, Duration.CreateAutomatic());
-    Timeline.RepeatBehaviorProperty = DependencyProperty.Register("RepeatBehavior", function () { return RepeatBehavior; }, Timeline, RepeatBehavior.FromIterationCount(1));
+    Timeline.RepeatBehaviorProperty = DependencyProperty.Register("RepeatBehavior", function () { return namespace.RepeatBehavior; }, Timeline, namespace.RepeatBehavior.FromIterationCount(1));
     Timeline.SpeedRatioProperty = DependencyProperty.Register("SpeedRatio", function () { return Number; }, Timeline, 1.0);
-    Timeline.FillBehaviorProperty = DependencyProperty.Register("FillBehavior", function () { return new Enum(FillBehavior); }, Timeline, FillBehavior.HoldEnd);
+    Timeline.FillBehaviorProperty = DependencyProperty.Register("FillBehavior", function () { return new Enum(namespace.FillBehavior); }, Timeline, namespace.FillBehavior.HoldEnd);
 
     Nullstone.AutoProperties(Timeline, [
         Timeline.AutoReverseProperty,
@@ -71,10 +72,10 @@
     Timeline.Instance.OnCompleted = function () {
         var fill = this.FillBehavior;
         switch (fill) {
-            case FillBehavior.HoldEnd:
+            case namespace.FillBehavior.HoldEnd:
                 this.Disable();
                 break;
-            case FillBehavior.Stop:
+            case namespace.FillBehavior.Stop:
                 this.Stop();
                 break;
         }
@@ -182,4 +183,9 @@
     //#endregion
 
     namespace.Timeline = Nullstone.FinishCreate(Timeline);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));
+
+(function (namespace) {
+    var TimelineCollection = Nullstone.Create("TimelineCollection", Fayde.InternalCollection);
+    namespace.TimelineCollection = Nullstone.FinishCreate(TimelineCollection);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

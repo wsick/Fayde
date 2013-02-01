@@ -4,12 +4,12 @@
 /// <reference path="ContentControl.js"/>
 
 (function (namespace) {
-    var ContentPresenter = Nullstone.Create("ContentPresenter", FrameworkElement);
+    var ContentPresenter = Nullstone.Create("ContentPresenter", Fayde.FrameworkElement);
 
     //#region Properties
 
     ContentPresenter.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, ContentPresenter);
-    ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentPresenter);
+    ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return namespace.ControlTemplate; }, ContentPresenter);
 
     Nullstone.AutoProperties(ContentPresenter, [
         ContentPresenter.ContentProperty,
@@ -22,13 +22,13 @@
 
     // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
     ContentPresenter.Instance._CreateFallbackTemplate = function () {
-        return new ControlTemplate(ContentControl, {
-            Type: Grid,
+        return new namespace.ControlTemplate(ContentPresenter, {
+            Type: namespace.Grid,
             Children: [
                 {
-                    Type: TextBlock,
+                    Type: namespace.TextBlock,
                     Props: {
-                        Text: new BindingMarkup()
+                        Text: new Fayde.BindingMarkup()
                     }
                 }
             ]
@@ -50,24 +50,24 @@
 
     ContentPresenter.Instance._GetDefaultTemplateCallback = function () {
         /// <returns type="UIElement" />
-        var templateOwner = Nullstone.As(this.TemplateOwner, ContentControl);
+        var templateOwner = Nullstone.As(this.TemplateOwner, namespace.ContentControl);
         if (templateOwner != null) {
-            if (this.$ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
+            if (this.$ReadLocalValue(ContentPresenter.ContentProperty) instanceof Fayde.UnsetValue) {
                 this.$SetValue(ContentPresenter.ContentProperty,
-                    new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
+                    new Fayde.TemplateBindingExpression(namespace.ContentControl.ContentProperty, ContentPresenter.ContentProperty));
             }
-            if (this.$ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
+            if (this.$ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof Fayde.UnsetValue) {
                 this.$SetValue(ContentPresenter.ContentTemplateProperty,
-                    new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
+                    new Fayde.TemplateBindingExpression(namespace.ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
             }
         }
 
-        var template = Nullstone.As(this.ContentTemplate, DataTemplate);
+        var template = Nullstone.As(this.ContentTemplate, Fayde.DataTemplate);
         if (template != null) {
-            this._ContentRoot = Nullstone.As(template.GetVisualTree(this), UIElement);
+            this._ContentRoot = Nullstone.As(template.GetVisualTree(this), Fayde.UIElement);
         } else {
             var content = this.Content;
-            this._ContentRoot = Nullstone.As(content, UIElement);
+            this._ContentRoot = Nullstone.As(content, Fayde.UIElement);
             if (this._ContentRoot == null && content != null)
                 this._ContentRoot = this._GetFallbackRoot();
         }
@@ -79,8 +79,8 @@
         this._ContentRoot = null;
     };
     ContentPresenter.Instance.InvokeLoaded = function () {
-        if (Nullstone.Is(this.Content, UIElement))
-            this.$ClearValue(FrameworkElement.DataContextProperty);
+        if (Nullstone.Is(this.Content, Fayde.UIElement))
+            this.$ClearValue(Fayde.FrameworkElement.DataContextProperty);
         else
             this.DataContext = this.Content;
         this.InvokeLoaded$FrameworkElement();
@@ -92,14 +92,14 @@
             return;
         }
         if (args.Property._ID === ContentPresenter.ContentProperty._ID) {
-            if ((args.NewValue && args.NewValue instanceof UIElement)
-                || (args.OldValue && args.OldValue instanceof UIElement)) {
+            if ((args.NewValue && args.NewValue instanceof Fayde.UIElement)
+                || (args.OldValue && args.OldValue instanceof Fayde.UIElement)) {
                 this._ClearRoot();
             }
-            if (args.NewValue && !(args.NewValue instanceof UIElement))
-                this._SetValue(FrameworkElement.DataContextProperty, args.NewValue);
+            if (args.NewValue && !(args.NewValue instanceof Fayde.UIElement))
+                this._SetValue(Fayde.FrameworkElement.DataContextProperty, args.NewValue);
             else
-                this._ClearValue(FrameworkElement.DataContextProperty);
+                this._ClearValue(Fayde.FrameworkElement.DataContextProperty);
             this._InvalidateMeasure();
         } else if (args.Property._ID === ContentPresenter.ContentTemplateProperty._ID) {
             this._ClearRoot();
@@ -119,4 +119,4 @@
     //#endregion
 
     namespace.ContentPresenter = Nullstone.FinishCreate(ContentPresenter);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

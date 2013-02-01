@@ -4,7 +4,7 @@
 /// CODE
 
 (function (namespace) {
-    var GradientStop = Nullstone.Create("GradientStop", DependencyObject);
+    var GradientStop = Nullstone.Create("GradientStop", Fayde.DependencyObject);
 
     //#region Properties
 
@@ -23,4 +23,12 @@
     };
 
     namespace.GradientStop = Nullstone.FinishCreate(GradientStop);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));
+
+(function (namespace) {
+    var GradientStopCollection = Nullstone.Create("GradientStopCollection", Fayde.DependencyObjectCollection);
+    GradientStopCollection.Instance.IsElementType = function (value) {
+        return value instanceof namespace.GradientStop;
+    };
+    namespace.GradientStopCollection = Nullstone.FinishCreate(GradientStopCollection);
+})(Nullstone.Namespace("Fayde.Media"));

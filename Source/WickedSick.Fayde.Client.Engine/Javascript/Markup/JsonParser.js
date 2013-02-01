@@ -1,11 +1,12 @@
 ﻿/// <reference path="../Runtime/Nullstone.js"/>
 /// CODE
 /// <reference path="Markup.js"/>
-/// <reference path="../Core/Collections/Collection.js"/>
+/// <reference path="../Core/Collections/InternalCollection.js"/>
 /// <reference path="../Core/DeferredValueExpression.js"/>
 /// <reference path="../Runtime/PerfTimer.js"/>
+/// <reference path="../Core/ResourceTarget.js"/>
 
-(function (namespace) {
+(function (Fayde) {
     var JsonParser = Nullstone.Create("JsonParser");
 
     JsonParser.Instance.Init = function () {
@@ -20,7 +21,7 @@
         parser._TemplateBindingSource = templateBindingSource;
         var shouldSetNS = false;
         if (!namescope) {
-            namescope = new NameScope();
+            namescope = new Fayde.NameScope();
             shouldSetNS = true;
         }
 
@@ -31,8 +32,8 @@
 
         perfTimer.Start();
         var obj = parser.CreateObject(json, namescope);
-        if (shouldSetNS && obj instanceof DependencyObject)
-            NameScope.SetNameScope(obj, namescope);
+        if (shouldSetNS && obj instanceof Fayde.DependencyObject)
+            Fayde.NameScope.SetNameScope(obj, namescope);
         perfTimer.Stop();
 
         return obj;
@@ -47,14 +48,14 @@
             return json.Value;
         }
 
-        if (json.Type === ControlTemplate) {
+        if (json.Type === Fayde.Controls.ControlTemplate) {
             var targetType = json.Props == null ? null : json.Props.TargetType;
             var template = new json.Type(targetType, json.Content);
             template._ResChain = this._ResChain;
             return template;
         }
-        if (json.Type === DataTemplate) {
-            var template = new DataTemplate(json.Content);
+        if (json.Type === Fayde.DataTemplate) {
+            var template = new Fayde.DataTemplate(json.Content);
             template._ResChain = this._ResChain;
             return template;
         }
@@ -73,7 +74,7 @@
                 if (propValue == undefined)
                     continue;
 
-                if (dobj instanceof DependencyObject)
+                if (dobj instanceof Fayde.DependencyObject)
                     propd = dobj.GetDependencyProperty(propName);
                 this.TrySetPropertyValue(dobj, propd, propValue, namescope, false, dobj.constructor, propName);
             }
@@ -97,7 +98,7 @@
                 this.TrySetCollectionProperty(json.Children, dobj, contentPropd, namescope);
             } else if (json.Content) {
                 var content = json.Content;
-                if (content instanceof Markup)
+                if (content instanceof Fayde.Markup)
                     content = content.Transmute(dobj, contentPropd, "Content", this._TemplateBindingSource);
                 else
                     content = this.CreateObject(json.Content, namescope, true);
@@ -111,19 +112,19 @@
                 var coll = dobj[contentPropd];
                 for (var j in json.Children) {
                     var fobj = this.CreateObject(json.Children[j], namescope, true);
-                    if (fobj instanceof DependencyObject)
+                    if (fobj instanceof Fayde.DependencyObject)
                         fobj._AddParent(coll, true);
                     coll.Add(fobj);
                 }
             }
-        } else if (dobj instanceof Collection) {
+        } else if (dobj instanceof Fayde.InternalCollection) {
             this.TrySetCollectionProperty(json.Children, dobj, null, namescope);
         }
 
         if (!ignoreResolve) {
             this.ResolveStaticResourceExpressions();
         }
-        if (json.Type === ResourceDictionary) {
+        if (json.Type === Fayde.ResourceDictionary) {
             delete this._ContextResourceDictionary;
         }
         return dobj;
@@ -135,10 +136,10 @@
             propValue = this.CreateObject(propValue, namescope, true);
         }
 
-        if (propValue instanceof Markup)
+        if (propValue instanceof Fayde.Markup)
             propValue = propValue.Transmute(dobj, propd, propName, this._TemplateBindingSource);
 
-        if (propValue instanceof StaticResourceExpression) {
+        if (propValue instanceof Fayde.StaticResourceExpression) {
             this.SetValue(dobj, propd, propValue);
             return;
         }
@@ -149,7 +150,7 @@
             if (this.TrySetCollectionProperty(propValue, dobj, propd, namescope))
                 return;
 
-            if (!(propValue instanceof Expression)) {
+            if (!(propValue instanceof Fayde.Expression)) {
                 var targetType = propd.GetTargetType();
                 if (targetType._IsNullstone && !(propValue instanceof targetType)) {
                     var propDesc = Nullstone.GetPropertyDescriptor(dobj, propName);
@@ -183,7 +184,7 @@
         } else {
             targetType = propd.GetTargetType();
         }
-        if (!Nullstone.DoesInheritFrom(targetType, Collection))
+        if (!Nullstone.DoesInheritFrom(targetType, Fayde.InternalCollection))
             return false;
         if (!(subJson instanceof Array))
             return false;
@@ -196,13 +197,13 @@
                 coll = dobj.$GetValue(propd);
             } else {
                 coll = new targetType();
-                if (coll instanceof DependencyObject)
+                if (coll instanceof Fayde.DependencyObject)
                     coll._AddParent(dobj, true);
                 dobj.$SetValue(propd, coll);
             }
         }
 
-        var rd = Nullstone.As(coll, ResourceDictionary);
+        var rd = Nullstone.As(coll, Fayde.ResourceDictionary);
         var oldChain = this._ResChain;
         if (rd) {
             this._ResChain = this._ResChain.slice(0);
@@ -212,13 +213,13 @@
             var fobj;
             if (rd == null) {
                 fobj = this.CreateObject(subJson[i], namescope, true);
-                if (fobj instanceof DependencyObject)
+                if (fobj instanceof Fayde.DependencyObject)
                     fobj._AddParent(coll, true);
                 coll.Add(fobj);
             } else {
                 var key = subJson[i].Key;
-                if (subJson[i].Type !== Style) {
-                    fobj = new ResourceTarget(subJson[i], namescope, this._TemplateBindingSource, this._ResChain);
+                if (subJson[i].Type !== Fayde.Style) {
+                    fobj = new Fayde.ResourceTarget(subJson[i], namescope, this._TemplateBindingSource, this._ResChain);
                 } else {
                     fobj = this.CreateObject(subJson[i], namescope, true);
                     if (!key)
@@ -244,10 +245,10 @@
         this.$SRExpressions = [];
     };
     JsonParser.Instance.SetValue = function (dobj, propd, value) {
-        if (value instanceof StaticResourceExpression) {
+        if (value instanceof Fayde.StaticResourceExpression) {
             this.$SRExpressions.push(value);
-            dobj.$SetValueInternal(propd, new DeferredValueExpression());
-        } else if (value instanceof Expression) {
+            dobj.$SetValueInternal(propd, new Fayde.DeferredValueExpression());
+        } else if (value instanceof Fayde.Expression) {
             dobj.$SetValueInternal(propd, value);
         } else {
             dobj._SetValue(propd, value);
@@ -266,12 +267,12 @@
     };
 
     JsonParser.CreateSetter = function (dobj, propName, value) {
-        var setter = new Setter();
+        var setter = new Fayde.Setter();
         var propd = dobj.GetDependencyProperty(propName);
         setter.SetProperty(propd);
         setter.SetValue_Prop(value);
         return setter;
     };
 
-    namespace.JsonParser = Nullstone.FinishCreate(JsonParser);
-})(window);
+    Fayde.JsonParser = Nullstone.FinishCreate(JsonParser);
+})(Nullstone.Namespace("Fayde"));

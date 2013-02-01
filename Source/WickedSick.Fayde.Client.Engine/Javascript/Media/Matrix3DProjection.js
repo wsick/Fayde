@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var Matrix3DProjection = Nullstone.Create("Matrix3DProjection", Projection);
+    var Matrix3DProjection = Nullstone.Create("Matrix3DProjection", namespace.Projection);
 
     //#region Properties
 
@@ -15,4 +15,4 @@
     //#endregion
 
     namespace.Matrix3DProjection = Nullstone.FinishCreate(Matrix3DProjection);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

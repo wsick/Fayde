@@ -4,7 +4,7 @@
 /// <reference path="../Primitives/Color.js"/>
 
 (function (namespace) {
-    var SolidColorBrush = Nullstone.Create("SolidColorBrush", Brush);
+    var SolidColorBrush = Nullstone.Create("SolidColorBrush", namespace.Brush);
 
     SolidColorBrush.Instance.Init = function (args) {
         this.Init$Brush();
@@ -32,4 +32,4 @@
     };
 
     namespace.SolidColorBrush = Nullstone.FinishCreate(SolidColorBrush);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

@@ -1,9 +1,10 @@
 /// <reference path="../../Core/FrameworkElement.js"/>
 /// CODE
 /// <reference path="../../Media/Matrix3DProjection.js"/>
+/// <reference path="../../Media/InternalTransform.js"/>
 
 (function (namespace) {
-    var Popup = Nullstone.Create("Popup", FrameworkElement);
+    var Popup = Nullstone.Create("Popup", Fayde.FrameworkElement);
 
     Popup.Instance.Init = function () {
         this.Init$FrameworkElement();
@@ -14,7 +15,7 @@
 
     //#region Properties
 
-    Popup.ChildProperty = DependencyProperty.RegisterCore("Child", function () { return UIElement; }, Popup);
+    Popup.ChildProperty = DependencyProperty.RegisterCore("Child", function () { return Fayde.UIElement; }, Popup);
     Popup.HorizontalOffsetProperty = DependencyProperty.RegisterCore("HorizontalOffset", function () { return Number; }, Popup, 0.0);
     Popup.VerticalOffsetProperty = DependencyProperty.RegisterCore("VerticalOffset", function () { return Number; }, Popup, 0.0);
     Popup.IsOpenProperty = DependencyProperty.RegisterCore("IsOpen", function () { return Boolean; }, Popup, false);
@@ -69,7 +70,7 @@
             }
         } else if (args.Property._ID === Popup.ChildProperty._ID) {
             if (args.OldValue != null) {
-                var oldFE = Nullstone.As(args.OldValue, FrameworkElement);
+                var oldFE = Nullstone.As(args.OldValue, Fayde.FrameworkElement);
                 if (this.IsOpen)
                     this._Hide(oldFE);
 
@@ -80,7 +81,7 @@
                     return;
             }
             if (args.NewValue != null) {
-                var newFE = Nullstone.As(args.NewValue, FrameworkElement);
+                var newFE = Nullstone.As(args.NewValue, Fayde.FrameworkElement);
                 newFE._SetLogicalParent(this, error);
                 if (error.IsErrored())
                     return;
@@ -130,9 +131,9 @@
         if (child == null)
             return;
 
-        var root = new Canvas();
-        this._ClickCatcher = new Canvas();
-        this._ClickCatcher.Background = new SolidColorBrush(new Color(255, 255, 255, 0));
+        var root = new Fayde.Controls.Canvas();
+        this._ClickCatcher = new Fayde.Controls.Canvas();
+        this._ClickCatcher.Background = new Fayde.Media.SolidColorBrush(new Color(255, 255, 255, 0));
         this.Child = root;
         root.Children.Add(this._ClickCatcher);
         root.Children.Add(child);
@@ -145,11 +146,11 @@
 
         try {
             var xform = this.Child.TransformToVisual(null);
-            if (xform instanceof Transform) {
+            if (xform instanceof Fayde.Media.Transform) {
                 this._ClickCatcher.Projection = null;
                 this._ClickCatcher.RenderTransform = xform.Inverse;
-            } else if (xform instanceof InternalTransform) {
-                var projection = new Matrix3DProjection();
+            } else if (xform instanceof Fayde.Media.InternalTransform) {
+                var projection = new Fayde.Media.Matrix3DProjection();
                 projection.ProjectionMatrix = xform.Inverse.Matrix;
                 this._ClickCatcher.RenderTransform = null;
                 this._ClickCatcher.Projection = projection;
@@ -167,4 +168,4 @@
     };
 
     namespace.Popup = Nullstone.FinishCreate(Popup);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

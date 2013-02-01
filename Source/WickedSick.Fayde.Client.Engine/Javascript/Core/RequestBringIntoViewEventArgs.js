@@ -1,8 +1,8 @@
 ﻿/// <reference path="RoutedEventArgs.js"/>
 /// CODE
 
-(function (namespace) {
-    var RequestBringIntoViewEventArgs = Nullstone.Create("RequestBringIntoViewEventArgs", RoutedEventArgs, 2);
+(function (Fayde) {
+    var RequestBringIntoViewEventArgs = Nullstone.Create("RequestBringIntoViewEventArgs", Fayde.RoutedEventArgs, 2);
 
     RequestBringIntoViewEventArgs.Instance.Init = function (targetObject, targetRect) {
         this.Init$RoutedEventArgs();
@@ -10,5 +10,5 @@
         this.TargetRect = targetRect;
     };
 
-    namespace.RequestBringIntoViewEventArgs = Nullstone.FinishCreate(RequestBringIntoViewEventArgs);
-})(window);
+    Fayde.RequestBringIntoViewEventArgs = Nullstone.FinishCreate(RequestBringIntoViewEventArgs);
+})(Nullstone.Namespace("Fayde"));

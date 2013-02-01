@@ -2,9 +2,10 @@
 /// <reference path="../Core/FrameworkElement.js"/>
 /// CODE
 /// <reference path="Enums.js"/>
+/// <reference path="../Media/Enums.js"/>
 
 (function (namespace) {
-    var MediaElement = Nullstone.Create("MediaElement", FrameworkElement);
+    var MediaElement = Nullstone.Create("MediaElement", Fayde.FrameworkElement);
 
     MediaElement.Instance.Init = function () {
         this.Init$FrameworkElement();
@@ -30,7 +31,7 @@
     MediaElement.BufferingTimeProperty = DependencyProperty.RegisterReadOnlyCore("BufferingTime", function () { return TimeSpan; }, MediaElement);
     MediaElement.CanPauseProperty = DependencyProperty.RegisterReadOnlyCore("CanPause", function () { return Boolean; }, MediaElement);
     MediaElement.CanSeekProperty = DependencyProperty.RegisterReadOnlyCore("CanSeek", function () { return Boolean; }, MediaElement);
-    MediaElement.CurrentStateProperty = DependencyProperty.RegisterReadOnlyCore("CurrentState", function () { return new Enum(MediaElementState); }, MediaElement);
+    MediaElement.CurrentStateProperty = DependencyProperty.RegisterReadOnlyCore("CurrentState", function () { return new Enum(namespace.MediaElementState); }, MediaElement);
     MediaElement.DownloadProgressProperty = DependencyProperty.RegisterReadOnlyCore("DownloadProgress", function () { return Number; }, MediaElement);
     MediaElement.DownloadProgressOffsetProperty = DependencyProperty.RegisterReadOnlyCore("DownloadProgressOffset", function () { return Number; }, MediaElement);
     //MediaElement.DroppedFramesPerSecondProperty = DependencyProperty.Register("DroppedFramesPerSecond", function () { return Number; }, MediaElement);
@@ -45,7 +46,7 @@
     MediaElement.PositionProperty = DependencyProperty.RegisterCore("Position", function () { return TimeSpan; }, MediaElement);
     //MediaElement.RenderedFramesPerSecondProperty = DependencyProperty.Register("RenderedFramesPerSecond", function () { return Number; }, MediaElement);
     MediaElement.SourceProperty = DependencyProperty.RegisterCore("Source", function () { return Uri; }, MediaElement);
-    MediaElement.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return Stretch; }, MediaElement, Stretch.Uniform);
+    MediaElement.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return Fayde.Media.Stretch; }, MediaElement, Fayde.Media.Stretch.Uniform);
     MediaElement.VolumeProperty = DependencyProperty.RegisterCore("Volume", function () { return Number; }, MediaElement);
 
     Nullstone.AutoProperties(MediaElement, [
@@ -72,7 +73,7 @@
     ]);
 
     Nullstone.Property(MediaElement, "IsClosed", {
-        get: function () { return this._State === MediaElementState.Closed; }
+        get: function () { return this._State === namespace.MediaElementState.Closed; }
     });
 
     //#endregion
@@ -112,7 +113,7 @@
 
     MediaElement.Instance._MeasureOverrideWithError = function (availableSize, error) {
         /// <param name="availableSize" type="Size"></param>
-        return new Rect();
+        return new Size();
         //TODO: Implement video
     };
 
@@ -122,41 +123,54 @@
 
     MediaElement.Instance._ArrangeOverrideWithError = function (finalSize, error) {
         /// <param name="finalSize" type="Size"></param>
-        return new Rect();
+        return new Size();
         //TODO: Implement video
     };
 
     //#endregion
 
-    MediaElement.Instance._OnPropertyChanged = function (args, error) {
-        if (args.Property.OwnerType !== MediaElement) {
-            this._OnPropertyChanged$FrameworkElement(args, error);
-            return;
-        }
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        MediaElement.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== MediaElement) {
+                this._OnPropertyChanged$FrameworkElement(args, error);
+                return;
+            }
 
-        var ivprop = false;
-        if (args.Property._ID === MediaElement.SourceProperty._ID
-            || args.Property._ID === MediaElement.AutoPlayProperty._ID
-            || args.Property._ID === MediaElement.IsMutedProperty._ID
-            || args.Property._ID === MediaElement.PlaybackRateProperty._ID
-            || args.Property._ID === MediaElement.VolumeProperty._ID) {
-            ivprop = true;
-        } else if (args.Property._ID === MediaElement.StretchProperty._ID) {
-            this._InvalidateMeasure();
-            ivprop = true;
-        }
+            var ivprop = false;
+            switch (args.Property._ID) {
+                case MediaElement.SourceProperty._ID:
+                case MediaElement.AutoPlayProperty._ID:
+                case MediaElement.IsMutedProperty._ID:
+                case MediaElement.PlaybackRateProperty._ID:
+                case MediaElement.VolumeProperty._ID:
+                case MediaElement.StretchProperty._ID:
+                    ivprop = true;
+                    break;
+            }
 
-        if (ivprop)
-            this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
-        this.PropertyChanged.Raise(this, args);
-    };
+            if (ivprop)
+                this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+            this.PropertyChanged.Raise(this, args);
+        };
+    }
+    //#else
+    if (Fayde.IsCanvasEnabled) {
+        MediaElement.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== MediaElement) {
+                this._OnPropertyChanged$FrameworkElement(args, error);
+                return;
+            }
 
-    MediaElement.Instance.HandleMediaError = function (e) {
-        var el = this.GetHtmlMediaEl();
-        if (!el.error)
-            return;
-        this.MediaFailed.Raise(this, new MediaFailedEventArgs(el.error.code));
-    };
+            if (args.Property._ID === MediaElement.StretchProperty._ID) {
+                this._InvalidateMeasure();
+            }
+
+            this.PropertyChanged.Raise(this, args);
+        };
+    }
+    //#endif
+
     // http://www.w3.org/2010/05/video/mediaevents.html
     //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {
@@ -184,7 +198,7 @@
             video.ondurationchange = function (e) { that.$SetValueInternal(MediaElement.NaturalDurationProperty, new Duration(new TimeSpan(0, 0, video.duration))); };
             video.onratechange = function (e) {
                 that.$SetValueInternal(MediaElement.PlaybackRateProperty, video.playbackRate);
-                that.RateChanged.Raise(that, new RateChangedRoutedEventArgs(vide.playbackRate));
+                that.RateChanged.Raise(that, new namespace.RateChangedRoutedEventArgs(vide.playbackRate));
             };
 
             video.addEventListener("progress", function (e) {
@@ -192,10 +206,16 @@
             }, false);
             video.ontimeupdate = function (e) { that.$SetValueInternal(MediaElement.PositionProperty, new TimeSpan(0, 0, video.currentTime)); };
 
-            video.onloadeddata = function (e) { that.MediaOpened.Raise(that, new RoutedEventArgs()); };
-            video.onended = function (e) { that.MediaEnded.Raise(that, new RoutedEventArgs()); };
+            video.onloadeddata = function (e) { that.MediaOpened.Raise(that, new Fayde.RoutedEventArgs()); };
+            video.onended = function (e) { that.MediaEnded.Raise(that, new Fayde.RoutedEventArgs()); };
 
             return video;
+        };
+        MediaElement.Instance.HandleMediaError = function (e) {
+            var el = this.GetHtmlMediaEl();
+            if (!el.error)
+                return;
+            this.MediaFailed.Raise(this, new namespace.MediaFailedEventArgs(el.error.code));
         };
         MediaElement.Instance.ApplyHtmlChange = function (change) {
             var propd = change.Property;
@@ -224,10 +244,10 @@
     //#endregion
 
     namespace.MediaElement = Nullstone.FinishCreate(MediaElement);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));
 
 (function (namespace) {
-    var MediaFailedEventArgs = Nullstone.Create("MediaFailedEventArgs", RoutedEventArgs, 1);
+    var MediaFailedEventArgs = Nullstone.Create("MediaFailedEventArgs", Fayde.RoutedEventArgs, 1);
 
     MediaFailedEventArgs.Instance.Init = function (code) {
         this.Init$RoutedEventArgs();
@@ -249,10 +269,10 @@
     };
 
     namespace.MediaFailedEventArgs = Nullstone.FinishCreate(MediaFailedEventArgs);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));
 
 (function (namespace) {
-    var RateChangedRoutedEventArgs = Nullstone.Create("RateChangedRoutedEventArgs", RoutedEventArgs, 1);
+    var RateChangedRoutedEventArgs = Nullstone.Create("RateChangedRoutedEventArgs", Fayde.RoutedEventArgs, 1);
 
     RateChangedRoutedEventArgs.Instance.Init = function (newRate) {
         this.Init$RoutedEventArgs();
@@ -260,4 +280,4 @@
     };
 
     namespace.RateChangedRoutedEventArgs = Nullstone.FinishCreate(RateChangedRoutedEventArgs);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

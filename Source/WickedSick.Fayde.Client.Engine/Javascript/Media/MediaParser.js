@@ -69,13 +69,13 @@
         var cp = new Point();
         var cp1, cp2, cp3;
         var start = new Point();
-        var fillRule = FillRule.EvenOdd;
+        var fillRule = namespace.Shapes.FillRule.EvenOdd;
         var cbz = false; // last figure is a cubic bezier curve
         var qbz = false; // last figure is a quadratic bezier curve
         var cbzp = new Point(); // points needed to create "smooth" beziers
         var qbzp = new Point(); // points needed to create "smooth" beziers
 
-        var path = new RawPath();
+        var path = new Fayde.Shapes.RawPath();
         while (this.index < this.len) {
             var c;
             while (this.index < this.len && (c = this.str.charAt(this.index)) === ' ') {
@@ -88,9 +88,9 @@
                 case 'F':
                     c = this.str.charAt(this.index);
                     if (c === '0')
-                        fillRule = FillRule.EvenOdd;
+                        fillRule = namespace.Shapes.FillRule.EvenOdd;
                     else if (c === '1')
-                        fillRule = FillRule.Nonzero;
+                        fillRule = namespace.Shapes.FillRule.NonZero;
                     else
                         return null;
                     this.index++
@@ -346,7 +346,7 @@
                     break;
             }
         }
-        var pg = new PathGeometry();
+        var pg = new Fayde.Media.PathGeometry();
         pg.$Path = path;
         pg.FillRule = fillRule;
         return pg;
@@ -354,7 +354,7 @@
     _MediaParser.prototype.ParsePointCollectionImpl = function () {
         /// <returns type="PointCollection" />
         var p;
-        var points = new PointCollection();
+        var points = new Fayde.Shapes.PointCollection();
         while (this.MorePointsAvailable() && (p = this.ParsePoint()) != null) {
             points.Add(p);
         }

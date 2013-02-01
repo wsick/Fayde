@@ -3,15 +3,11 @@
 /// CODE
 
 (function (namespace) {
-    var Brush = Nullstone.Create("Brush", DependencyObject);
-
-    Brush.Instance.Init = function () {
-        this.Init$DependencyObject();
-    };
+    var Brush = Nullstone.Create("Brush", Fayde.DependencyObject);
 
     //#region Properties
 
-    Brush.TransformProperty = DependencyProperty.RegisterCore("Transform", function () { return Transform; }, Brush);
+    Brush.TransformProperty = DependencyProperty.RegisterCore("Transform", function () { return Fayde.Media.Transform; }, Brush);
 
     Nullstone.AutoProperties(Brush, [
         Brush.TransformProperty
@@ -110,4 +106,4 @@
     };
 
     namespace.Brush = Nullstone.FinishCreate(Brush);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

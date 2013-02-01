@@ -4,7 +4,7 @@
 /// CODE
 
 (function (namespace) {
-    var BindingExpressionBase = Nullstone.Create("BindingExpressionBase", Expression, 3);
+    var BindingExpressionBase = Nullstone.Create("BindingExpressionBase", Fayde.Expression, 3);
 
     BindingExpressionBase.Instance.Init = function (binding, target, propd) {
         if (!binding)
@@ -17,9 +17,9 @@
         this.Target = target;
         this.Property = propd;
 
-        var bindsToView = propd._ID === FrameworkElement.DataContextProperty._ID; //TODO: || propd.GetTargetType() === IEnumerable || propd.GetTargetType() === ICollectionView
-        var walker = this.PropertyPathWalker = new _PropertyPathWalker(binding.Path.ParsePath, binding.BindsDirectlyToSource, bindsToView, this.IsBoundToAnyDataContext);
-        if (binding.Mode !== BindingMode.OneTime) {
+        var bindsToView = propd._ID === Fayde.FrameworkElement.DataContextProperty._ID; //TODO: || propd.GetTargetType() === IEnumerable || propd.GetTargetType() === Fayde.Data.ICollectionView
+        var walker = this.PropertyPathWalker = new Fayde.Data._PropertyPathWalker(binding.Path.ParsePath, binding.BindsDirectlyToSource, bindsToView, this.IsBoundToAnyDataContext);
+        if (binding.Mode !== namespace.BindingMode.OneTime) {
             walker.IsBrokenChanged.Subscribe(this._PropertyPathValueChanged, this);
             walker.ValueChanged.Subscribe(this._PropertyPathValueChanged, this);
         }
@@ -50,28 +50,28 @@
     Nullstone.Property(BindingExpressionBase, "IsSelfDataContextBound", {
         get: function () {
             return this.IsBoundToAnyDataContext
-                && (this.Target instanceof FrameworkElement)
-                && (this.Property._ID !== FrameworkElement.DataContextProperty._ID);
+                && (this.Target instanceof Fayde.FrameworkElement)
+                && (this.Property._ID !== Fayde.FrameworkElement.DataContextProperty._ID);
         }
     });
     Nullstone.Property(BindingExpressionBase, "IsParentDataContextBound", {
         get: function () {
             return this.IsBoundToAnyDataContext
-                && (this.Target instanceof FrameworkElement)
-                && (this.Property._ID === FrameworkElement.DataContextProperty._ID || this.Property._ID === ContentPresenter.ContentProperty._ID);
+                && (this.Target instanceof Fayde.FrameworkElement)
+                && (this.Property._ID === Fayde.FrameworkElement.DataContextProperty._ID || this.Property._ID === Fayde.Controls.ContentPresenter.ContentProperty._ID);
         }
     });
     Nullstone.Property(BindingExpressionBase, "IsMentorDataContextBound", {
         get: function () {
             return this.IsBoundToAnyDataContext
-                && !(this.Target instanceof FrameworkElement);
+                && !(this.Target instanceof Fayde.FrameworkElement);
         }
     });
     Nullstone.Property(BindingExpressionBase, "IsTwoWayTextBoxText", {
         get: function () {
-            return (this.Target instanceof TextBox)
-                && (this.Property._ID === TextBox.TextProperty._ID)
-                && (this.Binding.Mode === BindingMode.TwoWay);
+            return (this.Target instanceof Fayde.Controls.TextBox)
+                && (this.Property._ID === Fayde.Controls.TextBox.TextProperty._ID)
+                && (this.Binding.Mode === namespace.BindingMode.TwoWay);
         }
     });
 
@@ -106,8 +106,8 @@
         if (this.IsTwoWayTextBoxText)
             this.Target.LostFocus.Subscribe(this._TextBoxLostFocus, this);
 
-        var targetFE = Nullstone.As(element, FrameworkElement);
-        if (this.Binding.Mode === BindingMode.TwoWay && this.Property._IsCustom) {
+        var targetFE = Nullstone.As(element, Fayde.FrameworkElement);
+        if (this.Binding.Mode === namespace.BindingMode.TwoWay && this.Property._IsCustom) {
             var updateDataSourceCallback = function () {
                 try {
                     if (!this.Updating)
@@ -116,7 +116,7 @@
                     //ignore
                 }
             };
-            this._PropertyListener = new PropertyChangedListener(this.Target, this.Property, this, updateDataSourceCallback);
+            this._PropertyListener = new namespace.PropertyChangedListener(this.Target, this.Property, this, updateDataSourceCallback);
         }
     };
     BindingExpressionBase.Instance._OnDetached = function (element) {
@@ -128,7 +128,7 @@
         if (this.IsTwoWayTextBoxText)
             this.Target.LostFocus.Unsubscribe(this._TextBoxLostFocus, this);
 
-        var targetFE = Nullstone.As(element, FrameworkElement);
+        var targetFE = Nullstone.As(element, Fayde.FrameworkElement);
         if (this.IsMentorDataContextBound) {
             targetFE.MentorChanged.Unsubscribe(this._MentorChanged, this);
             this.SetDataContextSource(null);
@@ -158,7 +158,7 @@
         this._UpdateSourceObject();
     };
     BindingExpressionBase.Instance._TryUpdateSourceObject = function (value) {
-        if (!this.Updating && this.Binding.UpdateSourceTrigger === UpdateSourceTrigger.Default) {
+        if (!this.Updating && this.Binding.UpdateSourceTrigger === namespace.UpdateSourceTrigger.Default) {
             this._UpdateSourceObject(value, false);
         }
     };
@@ -168,7 +168,7 @@
         if (force === undefined)
             force = false;
         var binding = this.Binding;
-        if (binding.Mode !== BindingMode.TwoWay)
+        if (binding.Mode !== namespace.BindingMode.TwoWay)
             return;
 
         var dataError;
@@ -179,9 +179,8 @@
         try {
             // If the user calls BindingExpresion.UpdateSource (), we must update regardless of focus state.
             // Otherwise we only update if the textbox is unfocused.
-            //TODO: FocusManager
-            //if (!force && this.IsTwoWayTextBoxText && Nullstone.RefEquals(FocusManager.GetFocusedElement(), this.Target))
-            //return;
+            if (!force && this.IsTwoWayTextBoxText && Nullstone.RefEquals(Fayde.FocusManager.GetFocusedElement(), this.Target))
+                return;
 
             if (this.PropertyPathWalker.FinalNode.IsPathBroken)
                 return;
@@ -235,7 +234,7 @@
     BindingExpressionBase.Instance._MaybeEmitError = function (message, exception) {
         /// <param name="message" type="String"></param>
         /// <param name="exception" type="Exception"></param>
-        var fe = Nullstone.As(this.Target, FrameworkElement);
+        var fe = Nullstone.As(this.Target, Fayde.FrameworkElement);
         if (!fe)
             fe = this.Target.GetMentor();
         if (!fe)
@@ -284,7 +283,7 @@
             if (!this.PropertyPathWalker.IsPathBroken && binding.Converter) {
                 value = binding.Converter.Convert(value, this.Property.GetTargetType(), binding.ConverterParameter, binding.ConverterCulture);
             }
-            if (value === DependencyProperty.UnsetValue || this.PropertyPathWalker.IsPathBroken) {
+            if (value instanceof Fayde.UnsetValue || this.PropertyPathWalker.IsPathBroken) {
                 value = binding.FallbackValue;
                 if (value === undefined)
                     value = propd.GetDefaultValue(this.Target);
@@ -321,7 +320,7 @@
             this.PropertyPathWalker.Update(this.Binding.Source);
         } else if (this.Binding.ElementName != null) {
             source = this._FindSourceByElementName();
-            var feTarget = Nullstone.As(this.Target, FrameworkElement);
+            var feTarget = Nullstone.As(this.Target, Fayde.FrameworkElement);
             if (!feTarget)
                 feTarget = this.Target.GetMentor();
             if (!feTarget) {
@@ -330,12 +329,12 @@
                 feTarget.Loaded.Subscribe(this._HandleFeTargetLoaded, this);
             }
             this.PropertyPathWalker.Update(source);
-        } else if (this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === RelativeSourceMode.Self) {
+        } else if (this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === namespace.RelativeSourceMode.Self) {
             this.PropertyPathWalker.Update(this.Target);
         } else {
-            var fe = Nullstone.As(this.Target, FrameworkElement);
+            var fe = Nullstone.As(this.Target, Fayde.FrameworkElement);
             var propd = this.Property;
-            if (fe && (propd._ID === FrameworkElement.DataContextProperty._ID || propd._ID === ContentPresenter.ContentProperty._ID)) {
+            if (fe && (propd._ID === Fayde.FrameworkElement.DataContextProperty._ID || propd._ID === Fayde.Controls.ContentPresenter.ContentProperty._ID)) {
                 fe.VisualParentChanged.Subscribe(this._ParentChanged, this);
                 fe = fe.GetVisualParent();
                 this.SetDataContextSource(fe);
@@ -345,7 +344,7 @@
                     fe = this.Target.GetMentor();
                 }
 
-                if (fe && this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === RelativeSourceMode.TemplatedParent) {
+                if (fe && this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === namespace.RelativeSourceMode.TemplatedParent) {
                     this.PropertyPathWalker.Update(fe.TemplateOwner);
                 } else {
                     this.SetDataContextSource(fe);
@@ -361,7 +360,7 @@
         }
         this._DataContextSource = value;
         if (this._DataContextSource) {
-            this._DataContextPropertyListener = new PropertyChangedListener(this._DataContextSource, FrameworkElement.DataContextProperty, this, this._DataContextChanged);
+            this._DataContextPropertyListener = new namespace.PropertyChangedListener(this._DataContextSource, Fayde.FrameworkElement.DataContextProperty, this, this._DataContextChanged);
         }
 
         if (this._DataContextSource || this.IsMentorDataContextBound)
@@ -393,14 +392,14 @@
     };
     BindingExpressionBase.Instance._FindSourceByElementName = function () {
         var source;
-        var fe = Nullstone.As(this.Target, FrameworkElement);
+        var fe = Nullstone.As(this.Target, Fayde.FrameworkElement);
         if (!fe)
             fe = this.Target.GetMentor();
         while (fe && !source) {
             source = fe.FindName(this.Binding.ElementName);
             if (!source && fe.TemplateOwner)
                 fe = fe.GetTemplateOwner();
-            else if (fe.GetMentor() && ItemsControl.GetItemsOwner(fe.GetMentor()))
+            else if (fe.GetMentor() && Fayde.Controls.ItemsControl.GetItemsOwner(fe.GetMentor()))
                 fe = fe.GetMentor();
             else
                 fe = null;
@@ -416,7 +415,7 @@
         /// <param name="e" type="EventArgs"></param>
         try {
             var mentor = this.Target.GetMentor();
-            if (this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === RelativeSourceMode.TemplatedParent) {
+            if (this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === namespace.RelativeSourceMode.TemplatedParent) {
                 if (!mentor)
                     this.PropertyPathWalker.Update(null);
                 else
@@ -442,7 +441,7 @@
         try {
             var fe = sender;
             this.PropertyPathWalker.Update(fe.DataContext);
-            if (this.Binding.Mode === BindingMode.OneTime)
+            if (this.Binding.Mode === namespace.BindingMode.OneTime)
                 this.Refresh();
         } catch (err) {
             Warn(err.message);
@@ -486,4 +485,4 @@
     };
 
     namespace.BindingExpressionBase = Nullstone.FinishCreate(BindingExpressionBase);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

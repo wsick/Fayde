@@ -267,6 +267,25 @@ Nullstone.Namespace = function (namespace) {
     }
     return curNs;
 };
+Nullstone.Namespaces = function (namespace, func) {
+    var namespaces = [];
+
+    var tokens = namespace.split(".");
+    var len = tokens.length;
+    var curNs = window[tokens[0]];
+    if (!curNs)
+        curNs = window[tokens[0]] = {};
+    namespaces.push(curNs);
+
+    for (var i = 1; i < len; i++) {
+        if (!curNs[tokens[i]])
+            curNs[tokens[i]] = {};
+        curNs = curNs[tokens[i]];
+        namespaces.push(curNs);
+    }
+
+    func.apply(this, namespaces);
+}
 
 Nullstone._CreateProps = function (ns) {
     var props = ns.Properties;

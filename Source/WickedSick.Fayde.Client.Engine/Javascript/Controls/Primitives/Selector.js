@@ -8,13 +8,13 @@
 /// <reference path="../../Collections/ObservableCollection.js"/>
 
 (function (namespace) {
-    var Selector = Nullstone.Create("Selector", ItemsControl, 0, [ISupportInitialize]);
+    var Selector = Nullstone.Create("Selector", Fayde.Controls.ItemsControl, 0, [Fayde.ISupportInitialize]);
 
     Selector.Instance.Init = function () {
         this.Init$ItemsControl();
         this.SelectionChanged = new MulticastEvent();
-        this._SelectedItems = new ObservableCollection();
-        this._Selection = new SelectorSelection(this);
+        this._SelectedItems = new Fayde.Collections.ObservableCollection();
+        this._Selection = new namespace.SelectorSelection(this);
     };
 
     //#region Properties
@@ -45,7 +45,7 @@
 
     Nullstone.Property(Selector, "$SynchronizeWithCurrentItem", {
         get: function () {
-            if (!Nullstone.Is(this.ItemsSource, ICollectionView))
+            if (!Nullstone.Is(this.ItemsSource, Fayde.Data.ICollectionView))
                 return false;
             if (this.IsSynchronizedWithCurrentItem === false)
                 return false;
@@ -69,7 +69,7 @@
         if (args.NewValue === true)
             throw new ArgumentException("Setting IsSynchronizedWithCurrentItem to 'true' is not supported");
 
-        if (args.NewValue == null && Nullstone.Is(this.ItemsSource, ICollectionView))
+        if (args.NewValue == null && Nullstone.Is(this.ItemsSource, Fayde.Data.ICollectionView))
             this.SelectedItem = this.ItemsSource.CurrentItem;
         else
             this.SelectedItem = null;
@@ -103,7 +103,7 @@
         this._SelectItemFromValue(args.NewValue, false);
     };
     Selector.Instance._OnSelectedValuePathChanged = function (args) {
-        this._SelectedValueWalker = !args.NewValue ? null : new _PropertyPathWalker(args.NewValue);
+        this._SelectedValueWalker = !args.NewValue ? null : new Fayde.Data._PropertyPathWalker(args.NewValue);
 
         if (this._Initializing)
             return;
@@ -114,11 +114,11 @@
 
     Selector.Instance.OnApplyTemplate = function () {
         this.OnApplyTemplate$ItemsControl();
-        this.$TemplateScrollViewer = Nullstone.As(this.GetTemplateChild("ScrollViewer"), ScrollViewer);
+        this.$TemplateScrollViewer = Nullstone.As(this.GetTemplateChild("ScrollViewer"), Fayde.Controls.ScrollViewer);
         if (this.$TemplateScrollViewer != null) {
             this.$TemplateScrollViewer.TemplatedParentHandlesScrolling = true;
-            this.$TemplateScrollViewer.HorizontalScrollBarVisibility = ScrollViewer.GetHorizontalScrollBarVisibility(this);
-            this.$TemplateScrollViewer.VerticalScrollBarVisibility = ScrollViewer.GetVerticalScrollBarVisibility(this);
+            this.$TemplateScrollViewer.HorizontalScrollBarVisibility = Fayde.Controls.ScrollViewer.GetHorizontalScrollBarVisibility(this);
+            this.$TemplateScrollViewer.VerticalScrollBarVisibility = Fayde.Controls.ScrollViewer.GetVerticalScrollBarVisibility(this);
         }
     };
 
@@ -130,18 +130,18 @@
 
         var item;
         switch (e.Action) {
-            case NotifyCollectionChangedAction.Add:
-                item = Nullstone.As(e.NewItems[0], ListBoxItem);
+            case Fayde.Collections.NotifyCollectionChangedAction.Add:
+                item = Nullstone.As(e.NewItems[0], Fayde.Controls.ListBoxItem);
                 if (item != null && item.IsSelected && !this.SelectedItems.Contains(item)) {
                     this._Selection.Select(item);
                 } else if (this.SelectedItem != null) {
                     this._Selection.Select(this.SelectedItem);
                 }
                 break;
-            case NotifyCollectionChangedAction.Reset:
+            case Fayde.Collections.NotifyCollectionChangedAction.Reset:
                 var o;
                 var itemsSource = this.ItemsSource;
-                if (Nullstone.Is(itemsSource, ICollectionView) && this.$SynchronizeWithCurrentItem)
+                if (Nullstone.Is(itemsSource, Fayde.Data.ICollectionView) && this.$SynchronizeWithCurrentItem)
                     o = itemsSource.CurrentItem;
                 else
                     o = this.SelectedItem;
@@ -150,14 +150,14 @@
                 else
                     this._Selection.ClearSelection();
                 break;
-            case NotifyCollectionChangedAction.Remove:
+            case Fayde.Collections.NotifyCollectionChangedAction.Remove:
                 item = e.OldItems[0];
                 if (this.SelectedItems.Contains(item))
                     this._Selection.Unselect(item);
                 else if (e.OldStartingIndex <= this.SelectedIndex)
                     this._Selection.Select(this.SelectedItem);
                 break;
-            case NotifyCollectionChangedAction.Replace:
+            case Fayde.Collections.NotifyCollectionChangedAction.Replace:
                 item = e.OldItems[0];
                 this._Selection.Unselect(item);
                 break;
@@ -170,11 +170,11 @@
     Selector.Instance.OnItemsSourceChanged = function (args) {
         this.OnItemsSourceChanged$ItemsControl(args);
 
-        var view = Nullstone.As(args.OldValue, ICollectionView);
+        var view = Nullstone.As(args.OldValue, Fayde.Data.ICollectionView);
         if (view != null)
             view.CurrentChanged.Unsubscribe(this._OnCurrentItemChanged, this);
 
-        view = Nullstone.As(args.NewValue, ICollectionView);
+        view = Nullstone.As(args.NewValue, Fayde.Data.ICollectionView);
         if (view != null) {
             view.CurrentChanged.Subscribe(this._OnCurrentItemChanged, this);
             if (this.$SynchronizeWithCurrentItem)
@@ -248,7 +248,7 @@
             oldValue = oldVals[i];
             if (oldValue == null)
                 continue;
-            var oldItem = Nullstone.As(oldValue, ListBoxItem);
+            var oldItem = Nullstone.As(oldValue, Fayde.Controls.ListBoxItem);
             if (oldItem == null)
                 oldItem = this.ItemContainerGenerator.ContainerFromItem(oldValue);
             if (oldItem != null)
@@ -261,7 +261,7 @@
             newValue = newVals[i];
             if (newValue == null)
                 continue;
-            var newItem = Nullstone.As(newValue, ListBoxItem);
+            var newItem = Nullstone.As(newValue, Fayde.Controls.ListBoxItem);
             if (newItem == null)
                 newItem = this.ItemContainerGenerator.ContainerFromItem(newValue);
             if (newItem != null) {
@@ -270,7 +270,7 @@
             }
         }
 
-        this.SelectionChanged.Raise(this, new SelectionChangedEventArgs(oldVals, newVals));
+        this.SelectionChanged.Raise(this, new namespace.SelectionChangedEventArgs(oldVals, newVals));
     };
 
     Selector.Instance.NotifyListItemClicked = function (lbi) {
@@ -315,4 +315,4 @@
     //#endregion
     
     namespace.Selector = Nullstone.FinishCreate(Selector);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

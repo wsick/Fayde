@@ -1,13 +1,13 @@
-﻿/// <reference path="../../Core/TriggerAction.js"/>
+﻿/// <reference path="../../Core/Triggers.js"/>
 /// <reference path="Storyboard.js"/>
 /// CODE
 
 (function (namespace) {
-    var BeginStoryboard = Nullstone.Create("BeginStoryboard", TriggerAction);
+    var BeginStoryboard = Nullstone.Create("BeginStoryboard", Fayde.TriggerAction);
 
     //#region Properties
 
-    BeginStoryboard.StoryboardProperty = DependencyProperty.Register("Storyboard", function () { return Storyboard; }, BeginStoryboard);
+    BeginStoryboard.StoryboardProperty = DependencyProperty.Register("Storyboard", function () { return namespace.Storyboard; }, BeginStoryboard);
 
     Nullstone.AutoProperties(BeginStoryboard, [
         BeginStoryboard.StoryboardProperty
@@ -30,4 +30,4 @@
     };
 
     namespace.BeginStoryboard = Nullstone.FinishCreate(BeginStoryboard);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

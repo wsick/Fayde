@@ -2,7 +2,7 @@
 /// CODE
 /// <reference path="../Enums.js"/>
 /// <reference path="../../Collections/Enums.js"/>
-/// <reference path="../../Core/Collections/Collection.js"/>
+/// <reference path="../../Core/Collections/InternalCollection.js"/>
 
 (function (namespace) {
     var SelectorSelection = Nullstone.Create("SelectorSelection", undefined, 1);
@@ -10,33 +10,33 @@
     SelectorSelection.Instance.Init = function (owner) {
         this._Owner = owner;
         this._Owner.SelectedItems.CollectionChanged.Subscribe(this._HandleOwnerSelectionChanged, this);
-        this._SelectedItems = new Collection();
-        this.Mode = SelectionMode.Single;
+        this._SelectedItems = new Fayde.InternalCollection();
+        this.Mode = Fayde.Controls.SelectionMode.Single;
     };
 
     SelectorSelection.Instance._HandleOwnerSelectionChanged = function (sender, e) {
         if (this._Updating)
             return;
-        if (this.Mode === SelectionMode.Single)
+        if (this.Mode === Fayde.Controls.SelectionMode.Single)
             throw new InvalidOperationException("SelectedItems cannot be modified directly when in Single select mode");
         try {
             this._Updating = true;
             switch (e.Action) {
-                case NotifyCollectionChangedAction.Add:
+                case Fayde.Collections.NotifyCollectionChangedAction.Add:
                     if (!this._SelectedItems.Contains(e.NewItems[0]))
                         this.AddToSelected(e.NewItems[0]);
                     break;
-                case NotifyCollectionChangedAction.Remove:
+                case Fayde.Collections.NotifyCollectionChangedAction.Remove:
                     if (this._SelectedItems.Contains(e.OldItems[0]))
                         this.RemoveFromSelected(e.OldItems[0]);
                     break;
-                case NotifyCollectionChangedAction.Replace:
+                case Fayde.Collections.NotifyCollectionChangedAction.Replace:
                     if (this._SelectedItems.Contains(e.OldItems[0]))
                         this.RemoveFromSelected(e.OldItems[0]);
                     if (!this._SelectedItems.Contains(e.NewItems[0]))
                         this.AddToSelected(e.NewItems[0]);
                     break;
-                case NotifyCollectionChangedAction.Reset:
+                case Fayde.Collections.NotifyCollectionChangedAction.Reset:
                     var items = this._SelectedItems;
                     var ownerItems = this._Owner._SelectedItems;
 
@@ -110,9 +110,9 @@
             this._Updating = true;
 
             switch (this.Mode) {
-                case SelectionMode.Single:
+                case Fayde.Controls.SelectionMode.Single:
                     if (selected) {
-                        if ((Keyboard.Modifiers & ModifierKeys.Control) === ModifierKeys.Control)
+                        if (Fayde.Input.Keyboard.HasControl())
                             this.ClearSelection(ignoreSelectedValue);
                         else
                             this.UpdateSelectorProperties(this._SelectedItem, ownerItems.IndexOf(this._SelectedItem), ownerSelectedValue);
@@ -120,14 +120,14 @@
                         this.ReplaceSelection(item);
                     }
                     break;
-                case SelectionMode.Extended:
-                    if ((Keyboard.Modifiers & ModifierKeys.Shift) === ModifierKeys.Shift) {
+                case Fayde.Controls.SelectionMode.Extended:
+                    if (Fayde.Input.Keyboard.HasShift()) {
                         var sIndex = ownerItems.IndexOf(this._SelectedItem);
                         if (this._SelectedItems.GetCount() === 0)
                             this.SelectRange(0, ownerItems.IndexOf(item));
                         else
                             this.SelectRange(sIndex, ownerItems.IndexOf(item));
-                    } else if ((Keyboard.Modifiers & ModifierKeys.Control) === ModifierKeys.Control) {
+                    } else if (Fayde.Input.Keyboard.HasControl()) {
                         if (!selected)
                             this.AddToSelected(item);
                     } else {
@@ -137,7 +137,7 @@
                             this.AddToSelected(item);
                     }
                     break;
-                case SelectionMode.Multiple:
+                case Fayde.Controls.SelectionMode.Multiple:
                     if (this._SelectedItems.Contains(item))
                         this.UpdateSelectorProperties(this._SelectedItem, ownerItems.IndexOf(this._SelectedItem), ownerSelectedValue);
                     else
@@ -154,7 +154,7 @@
         var ownerItems = this._Owner.Items;
         var selectedItems = this._SelectedItems;
 
-        var select = new Collection();
+        var select = new Fayde.InternalCollection();
         for (var i = startIndex; i <= endIndex; i++) {
             select.Add(ownerItems.GetValueAt(i));
         }
@@ -191,7 +191,7 @@
     SelectorSelection.Instance.SelectAll = function (items) {
         try {
             this._Updating = true;
-            if (this.Mode === SelectionMode.Single)
+            if (this.Mode === Fayde.Controls.SelectionMode.Single)
                 throw new NotSupportedException("Cannot call SelectAll when in Single select mode");
 
             var selectedItems = this._SelectedItems;
@@ -314,7 +314,7 @@
         this.UpdateCollectionView(item);
     };
     SelectorSelection.Instance.UpdateCollectionView = function (item) {
-        var icv = Nullstone.As(this._Owner.ItemsSource, ICollectionView);
+        var icv = Nullstone.As(this._Owner.ItemsSource, Fayde.Data.ICollectionView);
         if (icv != null) {
             icv.MoveCurrentTo(item);
             return Nullstone.Equals(item, icv.CurrentItem);
@@ -323,4 +323,4 @@
     };
 
     namespace.SelectorSelection = Nullstone.FinishCreate(SelectorSelection);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

@@ -2,7 +2,7 @@
 /// <reference path="../Core/Input/ICommand.js"/>
 
 (function (namespace) {
-    var RelayCommand = Nullstone.Create("RelayCommand", undefined, 2, [ICommand]);
+    var RelayCommand = Nullstone.Create("RelayCommand", undefined, 2, [Fayde.Input.ICommand]);
 
     RelayCommand.Instance.Init = function (execute, canExecute) {
         this.CanExecuteChanged = new MulticastEvent();

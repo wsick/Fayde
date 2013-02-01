@@ -48,10 +48,10 @@ class AjaxJsonRequest {
     Cancel();
 }
 
-class App extends DependencyObject {
+class App extends Fayde.DependencyObject {
     Address: Uri;
-    Resources: ResourceDictionary;
-    RootVisual: UIElement;
+    Resources: Fayde.ResourceDictionary;
+    RootVisual: Fayde.UIElement;
     Loaded: MulticastEvent;
     static Instance: App;
     static Version: string;
@@ -71,23 +71,6 @@ interface ICollection {
     IndexOf(value): number;
     Contains(value): bool;
     ToArray(): any[];
-}
-class DependencyObjectCollection implements ICollection {
-    GetCount(): number;
-    GetValueAt(index: number): DependencyObject;
-    SetValueAt(index: number, value: DependencyObject);
-    Add(value: DependencyObject);
-    AddRange(newItems: DependencyObject[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: DependencyObject);
-    Remove(value: DependencyObject);
-    RemoveAt(index: number);
-    Clear();
-    IndexOf(value: DependencyObject): number;
-    Contains(value: DependencyObject): bool;
-    ToArray(): DependencyObject[];
-
-    IsElementType(element: any): bool;
 }
 
 //////////////////////////////////////////////////////////
@@ -274,7 +257,7 @@ class Font {
     Family: string;
     Stretch: string;
     Style: string;
-    Weight: FontWeight;
+    Weight: Fayde.FontWeight;
     Size: number;
 }
 class FontFamily {
@@ -355,2069 +338,2224 @@ class Uri {
 }
 
 //////////////////////////////////////////////////////////
-// ENUMS
-//////////////////////////////////////////////////////////
-enum Orientation {
-    Horizontal = 0,
-    Vertical = 1,
-}
-enum FontWeight {
-    Thin = 100,
-    ExtraLight = 200,
-    Light = 300,
-    Normal = 400,
-    Medium = 500,
-    SemiBold = 600,
-    Bold = 700,
-    ExtraBold = 800,
-    Black = 900,
-    ExtraBlack = 950,
-}
-enum Visibility {
-    Visible = 0,
-    Collapsed = 1,
-}
-enum HorizontalAlignment {
-    Left = 0,
-    Center = 1,
-    Right = 2,
-    Stretch = 3,
-}
-enum VerticalAlignment {
-    Top = 0,
-    Center = 1,
-    Bottom = 2,
-    Stretch = 3,
-}
-enum FlowDirection {
-    LeftToRight = 0,
-    RightToLeft = 1,
-}
-enum TextDecorations {
-    None = 0,
-    Underline = 1,
-}
-enum LineStackingStrategy {
-    MaxHeight = 0,
-    BlockLineHeight = 1,
-}
-enum ClickMode {
-    Release = 0,
-    Press = 1,
-    Hover = 2,
-}
-enum GradientSpreadMethod {
-    Pad = 0,
-    Reflect = 1,
-    Repeat = 2,
-}
-enum BrushMappingMode {
-    Absolute = 0,
-    RelativeToBoundingBox = 1,
-}
-enum AlignmentX  {
-    Left = 0,
-    Center = 1,
-    Right = 2
-}
-enum AlignmentY {
-    Top = 0,
-    Center = 1,
-    Bottom = 2
-}
-enum Stretch {
-    None = 0,
-    Fill = 1,
-    Uniform = 2,
-    UniformToFill = 3
-}
-enum PenLineCap {
-    Flat = 0,
-    Square = 1,
-    Round = 2,
-    Triangle = 3,
-}
-enum PenLineJoin {
-    Miter = 0,
-    Bevel = 1,
-    Round = 2,
-}
-enum SweepDirection {
-    Counterclockwise = 0,
-    Clockwise = 1,
-}
-enum FillRule {
-    EvenOdd = 0,
-    Nonzero = 1,
-}
-enum TextHintingMode {
-    Fixed = 0,
-    Animated = 1,
-}
-enum VirtualizationMode {
-    Standard = 0,
-    Recycling = 1,
-}
-enum SelectionMode {
-    Single = 0,
-    Multiple = 1,
-    Extended = 2,
-}
-enum ScrollBarVisibility {
-    Disabled = 0,
-    Auto = 1,
-    Hidden = 2,
-    Visible = 3,
-}
-enum TextAlignment {
-    Left = 0,
-    Center = 1,
-    Right = 2,
-}
-enum TextTrimming {
-    None = 0,
-}
-enum TextWrapping {
-    NoWrap = 0,
-    Wrap = 1,
-    WrapWithOverflow = 2,
-}
-enum PlacementMode {
-    Bottom = 0,
-    Right = 1,
-    Mouse = 2,
-    Left = 3,
-    Top = 4,
-}
-enum MediaElementState {
-    Closed = 0,
-    Opening = 1,
-    Buffering = 4,
-    Playing = 5,
-    Paused = 6,
-    Stopped = 7,
-}
-enum FillBehavior {
-    HoldEnd = 0,
-    Stop = 1,
-}
-enum EasingMode {
-    EaseOut = 0,
-    EaseIn = 1,
-    EaseInOut = 2,
-}
-
-//////////////////////////////////////////////////////////
 // CORE
 //////////////////////////////////////////////////////////
 module Fayde {
     export class TypeConverters {
         static Thickness(str: string): Thickness;
         static CornerRadius(str: string): CornerRadius;
-        static Brush(str: string): Brush;
+        static Brush(str: string): Fayde.Media.Brush;
         static Color(str: string): Color;
     }
     export class TypeConverter {
         static ConvertObject(propd: DependencyProperty, val, objectType, doStringConversion: bool);
-        static GeometryFromString(val): Geometry;
-        static PointCollectionFromString(val): PointCollection;
+        static GeometryFromString(val): Fayde.Media.Geometry;
+        static PointCollectionFromString(val): Fayde.Shapes.PointCollection;
     }
     export function Start(appType, rjson, json, canvas);
     export function Clone(value): any;
 }
 
-class DependencyObject {
-    $SetValue(propd: DependencyProperty, value): any;
-    $GetValue(propd: DependencyProperty): any;
-    $ReadLocalValue(propd: DependencyProperty): any;
-    $ClearValue(propd: DependencyProperty);
+module Fayde {
+    export enum Orientation {
+        Horizontal = 0,
+        Vertical = 1,
+    }
+    export enum Visibility {
+        Visible = 0,
+        Collapsed = 1,
+    }
+    export enum HorizontalAlignment {
+        Left = 0,
+        Center = 1,
+        Right = 2,
+        Stretch = 3,
+    }
+    export enum VerticalAlignment {
+        Top = 0,
+        Center = 1,
+        Bottom = 2,
+        Stretch = 3,
+    }
+    export enum TextDecorations {
+        None = 0,
+        Underline = 1,
+    }
+    export enum TextAlignment {
+        Left = 0,
+        Center = 1,
+        Right = 2,
+    }
+    export enum FontWeight {
+        Thin = 100,
+        ExtraLight = 200,
+        Light = 300,
+        Normal = 400,
+        Medium = 500,
+        SemiBold = 600,
+        Bold = 700,
+        ExtraBold = 800,
+        Black = 900,
+        ExtraBlack = 950,
+    }
+    export enum FlowDirection {
+        LeftToRight = 0,
+        RightToLeft = 1,
+    }
+    export enum LineStackingStrategy {
+        MaxHeight = 0,
+        BlockLineHeight = 1,
+    }
+
+    export class DataTemplate extends FrameworkTemplate {
+        //LoadContent(): DependencyObject;
+        //DataType;
+    }
+    export class DependencyObject {
+        $SetValue(propd: DependencyProperty, value): any;
+        $GetValue(propd: DependencyProperty): any;
+        $ReadLocalValue(propd: DependencyProperty): any;
+        $ClearValue(propd: DependencyProperty);
+    }
+    export class DependencyObjectCollection implements ICollection {
+        GetCount(): number;
+        GetValueAt(index: number): DependencyObject;
+        SetValueAt(index: number, value: DependencyObject);
+        Add(value: DependencyObject);
+        AddRange(newItems: DependencyObject[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: DependencyObject);
+        Remove(value: DependencyObject);
+        RemoveAt(index: number);
+        Clear();
+        IndexOf(value: DependencyObject): number;
+        Contains(value: DependencyObject): bool;
+        ToArray(): DependencyObject[];
+
+        IsElementType(element: any): bool;
+    }
+    export class Expression {
+    }
+    export class FrameworkElement extends UIElement {
+        //Dependency Properties
+        static ActualHeightProperty: DependencyProperty;
+        static ActualWidthProperty: DependencyProperty;
+        static CursorProperty: DependencyProperty;
+        static DataContextProperty: DependencyProperty;
+        static FlowDirectionProperty: DependencyProperty;
+        static HeightProperty: DependencyProperty;
+        static HorizontalAlignmentProperty: DependencyProperty;
+        static LanguageProperty: DependencyProperty;
+        static MarginProperty: DependencyProperty;
+        static MaxHeightProperty: DependencyProperty;
+        static MaxWidthProperty: DependencyProperty;
+        static MinHeightProperty: DependencyProperty;
+        static MinWidthProperty: DependencyProperty;
+        static NameProperty: DependencyProperty;
+        static StyleProperty: DependencyProperty;
+        static VerticalAlignmentProperty: DependencyProperty;
+        static WidthProperty: DependencyProperty;
+
+        //Properties
+        ActualHeight: number;
+        ActualWidth: number;
+        Cursor: string;
+        DataContext: any;
+        FlowDirection: Fayde.FlowDirection;
+        Height: number;
+        HorizontalAlignment: Fayde.HorizontalAlignment;
+        Language: any;
+        Margin: Thickness;
+        MaxHeight: number;
+        MaxWidth: number;
+        MinHeight: number;
+        MinWidth: number;;
+            Style: Fayde.Style;
+        Tag: any;
+        VerticalAlignment: Fayde.VerticalAlignment;
+        Width: number;
+
+        //Events
+        DataContextChanged: MulticastEvent;
+        LayoutUpdated: MulticastEvent;
+        Loaded: MulticastEvent;
+        SizeChanged: MulticastEvent;
+        Unloaded: MulticastEvent;
+
+        //Methods
+        FindName(name: string): any;
+        MeasureOverride(availableSize): Size;
+        ArrangeOverride(finalSize: Size): Size;
+        GetBindingExpression(dp: DependencyProperty): Fayde.Data.BindingExpression;
+        SetBinding(dp: DependencyProperty, binding: Fayde.Data.Binding): Fayde.Data.BindingExpressionBase;
+        OnApplyTemplate();
+    }
+    export class FrameworkTemplate extends DependencyObject {
+    }
+    export interface ISupportInitialize {
+        BeginInit();
+        EndInit();
+    }
+    export class LayoutInformation {
+        static LayoutClipProperty: DependencyProperty;
+        static GetLayoutClip(d: DependencyObject): Fayde.Media.Geometry;
+        static SetLayoutClip(d: DependencyObject, value: Fayde.Media.Geometry);
+
+        static LayoutExceptionElementProperty: DependencyProperty;
+        static GetLayoutExceptionElement(d: DependencyObject): UIElement;
+        static SetLayoutExceptionElement(d: DependencyObject, value: UIElement);
+
+        static LayoutSlotProperty: DependencyProperty;
+        static GetLayoutSlot(d: DependencyObject): Rect;
+        static SetLayoutSlot(d: DependencyObject, value: Rect);
+
+        static PreviousConstraintProperty: DependencyProperty;
+        static GetPreviousConstraint(d: DependencyObject): Size;
+        static SetPreviousConstraint(d: DependencyObject, value: Size);
+
+        static FinalRectProperty: DependencyProperty;
+        static GetFinalRect(d: DependencyObject): Rect;
+        static SetFinalRect(d: DependencyObject, value: Rect);
+
+        static LastRenderSizeProperty: DependencyProperty;
+        static GetLastRenderSize(d: DependencyObject): Size;
+        static SetLastRenderSize(d: DependencyObject, value: Size);
+
+        static VisualOffsetProperty: DependencyProperty;
+        static GetVisualOffset(d: DependencyObject): Point;
+        static SetVisualOffset(d: DependencyObject, value: Point);
+    }
+    export class PresentationFrameworkCollection extends DependencyObject implements ICollection {
+        GetCount(): number;
+        GetValueAt(index: number): any;
+        SetValueAt(index: number, value);
+        Add(value);
+        AddRange(newItems: any[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value);
+        Remove(value);
+        RemoveAt(index: number);
+        Clear();
+        IndexOf(value): number;
+        Contains(value): bool;
+        ToArray(): any[];
+    }
+    export class ResourceDictionary extends DependencyObject implements ICollection {
+        static MergedDictionariesProperty: DependencyProperty;
+        MergedDictionaries: ResourceDictionaryCollection;
+
+        GetCount(): number;
+        GetValueAt(index: number): any;
+        SetValueAt(index: number, value);
+        Add(value);
+        AddRange(newItems: any[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value);
+        Remove(key);
+        RemoveAt(index: number);
+        Clear();
+        IndexOf(value): number;
+        Contains(value): bool;
+        ToArray(): any[];
+
+        ContainsKey(key): bool;
+        Get(key): any;
+        Set(key, value);
+        Add(key, value);
+    }
+    export class ResourceDictionaryCollection extends DependencyObjectCollection {
+    }
+    export class RoutedEvent extends MulticastEvent {
+        Subscribe(callback: (sender, args: RoutedEventArgs) => void , closure);
+        SubscribeSpecific(callback: (sender, args: RoutedEventArgs) => void , closure, matchClosure);
+        Unsubscribe(callback: (sender, args: RoutedEventArgs) => void , closure, matchClosure? );
+        Raise(sender, args: RoutedEventArgs);
+        RaiseAsync(sender, args: RoutedEventArgs);
+    }
+    export class RoutedEventArgs extends EventArgs {
+        Handled: bool;
+    }
+    export class SetterBase extends DependencyObject {
+        IsSealed: bool;
+    }
+    export class SetterBaseCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): SetterBase;
+        SetValueAt(index: number, value: SetterBase);
+        Add(value: SetterBase);
+        AddRange(newItems: SetterBase[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: SetterBase);
+        Remove(value: SetterBase);
+        IndexOf(value: SetterBase): number;
+        Contains(value: SetterBase): bool;
+        ToArray(): SetterBase[];
+    }
+    export class Setter extends SetterBase {
+        Property: DependencyProperty;
+        Value;
+    }
+    export class Style extends DependencyObject {
+        BasedOn: Style;
+        IsSealed: bool;
+        Setters: SetterBaseCollection;
+        TargetType;
+        Seal();
+    }
+    export class UIElement extends DependencyObject {
+        //Dependency Properties
+        static AllowDropProperty: DependencyProperty;
+        static CacheModeProperty: DependencyProperty;
+        static ClipProperty: DependencyProperty;
+        static EffectProperty: DependencyProperty;
+        static IsHitTestVisibleProperty: DependencyProperty;
+        static OpacityMaskProperty: DependencyProperty;
+        static OpacityProperty: DependencyProperty;
+        static ProjectionProperty: DependencyProperty;
+        static RenderTransformProperty: DependencyProperty;
+        static RenderTransformOriginProperty: DependencyProperty;
+        static ResourcesProperty: DependencyProperty;
+        static TriggersProperty: DependencyProperty;
+        static UseLayoutRoundingProperty: DependencyProperty;
+        static VisibilityProperty: DependencyProperty;
+        static TagProperty: DependencyProperty;
+
+        //Properties
+        AllowDrop: bool;
+        CacheMode: Fayde.Media.CacheMode;
+        Clip: Fayde.Media.Geometry;
+        Effect: Fayde.Media.Effects.Effect;
+        IsHitTestVisible: bool;
+        OpacityMask: Fayde.Media.Brush;
+        Opacity: number;
+        Projection: Fayde.Media.Projection;
+        RenderTransform: Fayde.Media.Transform;
+        RenderTransformOrigin: Point;
+        Resources: ResourceDictionary;
+        Triggers: any;
+        UseLayoutRounding: bool;
+        Visibility: Fayde.Visibility;
+        Tag: any;
+
+        //Events
+        GotFocus: MulticastEvent;
+        KeyDown: MulticastEvent;
+        KeyUp: MulticastEvent;
+        LostFocus: MulticastEvent;
+        LostMouseCapture: MulticastEvent;
+        MouseEnter: MulticastEvent;
+        MouseLeave: MulticastEvent;
+        MouseLeftButtonDown: MulticastEvent;
+        MouseLeftButtonUp: MulticastEvent;
+        MouseMove: MulticastEvent;
+        MouseRightButtonDown: MulticastEvent;
+        MouseRightButtonUp: MulticastEvent;
+        MouseWheel: MulticastEvent;
+
+        //Methods
+        CaptureMouse(): bool;
+        ReleaseMouseCapture();
+
+        InvalidateMeasure();
+        Measure(availableSize: Size);
+
+        InvalidateArrange();
+        Arrange(finalRect: Rect);
+
+        UpdateLayout();
+
+        TransformToVisual(): Fayde.Media.GeneralTransform;
+    }
+    export class UIElementCollection extends DependencyObjectCollection {
+        GetValueAtZIndex();
+        GetZSortedCount();
+        ResortByZIndex();
+    }
+    export class VisualTreeHelper {
+        static GetChild(d: DependencyObject, childIndex: number): DependencyObject;
+        static GetChildrenCount(d: DependencyObject): DependencyObject;
+        static GetParent(d: DependencyObject): DependencyObject;
+        static GetRoot(d: DependencyObject): DependencyObject;
+    }
+    export class RequestBringIntoViewEventArgs extends RoutedEventArgs {
+        TargetObject: DependencyObject;
+        TargetRect: Rect;
+    }
+    export class RoutedPropertyChangedEventArgs extends RoutedEventArgs {
+        OldValue;
+        NewValue;
+    }
+    export class SizeChangedEventArgs extends RoutedEventArgs {
+        PreviousSize: Size;
+        NewSize: Size;
+    }
+    export class UnsetValue { }
 }
+
 class DependencyProperty {
     Name: string;
     static Register(name: string, getTargetType: Function, ownerType, defaultValue, changedCallback): DependencyProperty;
     static RegisterAttached(name: string, getTargetType: Function, ownerType, defaultValue, changedCallback): DependencyProperty;
 }
-class UIElement extends DependencyObject {
-    //Dependency Properties
-    static AllowDropProperty: DependencyProperty;
-    static CacheModeProperty: DependencyProperty;
-    static ClipProperty: DependencyProperty;
-    static EffectProperty: DependencyProperty;
-    static IsHitTestVisibleProperty: DependencyProperty;
-    static OpacityMaskProperty: DependencyProperty;
-    static OpacityProperty: DependencyProperty;
-    static ProjectionProperty: DependencyProperty;
-    static RenderTransformProperty: DependencyProperty;
-    static RenderTransformOriginProperty: DependencyProperty;
-    static ResourcesProperty: DependencyProperty;
-    static TriggersProperty: DependencyProperty;
-    static UseLayoutRoundingProperty: DependencyProperty;
-    static VisibilityProperty: DependencyProperty;
-    static TagProperty: DependencyProperty;
-    
-    //Properties
-    AllowDrop: bool;
-    CacheMode: any;
-    Clip: Geometry;
-    Effect: Effect;
-    IsHitTestVisible: bool;
-    OpacityMask: Brush;
-    Opacity: number;
-    Projection: Projection;
-    RenderTransform: Transform;
-    RenderTransformOrigin: Point;
-    Resources: ResourceDictionary;
-    Triggers: any;
-    UseLayoutRounding: bool;
-    Visibility: Visibility;
-    Tag: any;
 
-    //Events
-    GotFocus: MulticastEvent;
-    KeyDown: MulticastEvent;
-    KeyUp: MulticastEvent;
-    LostFocus: MulticastEvent;
-    LostMouseCapture: MulticastEvent;
-    MouseEnter: MulticastEvent;
-    MouseLeave: MulticastEvent;
-    MouseLeftButtonDown: MulticastEvent;
-    MouseLeftButtonUp: MulticastEvent;
-    MouseMove: MulticastEvent;
-    MouseRightButtonDown: MulticastEvent;
-    MouseRightButtonUp: MulticastEvent;
-    MouseWheel: MulticastEvent;
+//////////////////////////////////////////////////////////
+// INPUT
+//////////////////////////////////////////////////////////
+module Fayde.Input {
+    export enum KeyboardNavigationMode {
+        Continue = 0,
+        Once = 1,
+        Cycle = 2,
+        None = 3,
+        Contained = 4,
+        Local = 5
+    }
+    export class KeyboardNavigation {
+        AcceptsReturnProperty: DependencyProperty;
+        GetAcceptsReturn(d: DependencyObject): bool;
+        SetAcceptsReturn(d: DependencyObject, value: bool);
 
-    //Methods
-    CaptureMouse(): bool;
-    ReleaseMouseCapture();
+        ControlTabNavigationProperty: DependencyProperty;
+        GetControlTabNavigation(d: DependencyObject): KeyboardNavigationMode;
+        SetControlTabNavigation(d: DependencyObject, value: KeyboardNavigationMode);
 
-    InvalidateMeasure();
-    Measure(availableSize: Size);
+        DirectionalNavigationProperty: DependencyProperty;
+        GetDirectionalNavigation(d: DependencyObject): KeyboardNavigationMode;
+        SetDirectionalNavigation(d: DependencyObject, value: KeyboardNavigationMode);
 
-    InvalidateArrange();
-    Arrange(finalRect: Rect);
-    
-    UpdateLayout();
+        IsTabStopProperty: DependencyProperty;
+        GetIsTabStop(d: DependencyObject): bool;
+        SetIsTabStop(d: DependencyObject, value: bool);
 
-    TransformToVisual(): GeneralTransform;
-}
-class FrameworkElement extends UIElement {
-    //Dependency Properties
-    static ActualHeightProperty: DependencyProperty;
-    static ActualWidthProperty: DependencyProperty;
-    static CursorProperty: DependencyProperty;
-    static DataContextProperty: DependencyProperty;
-    static FlowDirectionProperty: DependencyProperty;
-    static HeightProperty: DependencyProperty;
-    static HorizontalAlignmentProperty: DependencyProperty;
-    static LanguageProperty: DependencyProperty;
-    static MarginProperty: DependencyProperty;
-    static MaxHeightProperty: DependencyProperty;
-    static MaxWidthProperty: DependencyProperty;
-    static MinHeightProperty: DependencyProperty;
-    static MinWidthProperty: DependencyProperty;
-    static NameProperty: DependencyProperty;
-    static StyleProperty: DependencyProperty;
-    static VerticalAlignmentProperty: DependencyProperty;
-    static WidthProperty: DependencyProperty;
+        TabIndexProperty: DependencyProperty;
+        GetTabIndex(d: DependencyObject): number;
+        SetTabIndex(d: DependencyObject, value: number);
 
-    //Properties
-    ActualHeight: number;
-    ActualWidth: number;
-    Cursor: string;
-    DataContext: any;
-    FlowDirection: FlowDirection;
-    Height: number;
-    HorizontalAlignment: HorizontalAlignment;
-    Language: any;
-    Margin: Thickness;
-    MaxHeight: number;
-    MaxWidth: number;
-    MinHeight: number;
-    MinWidth: number;;
-    Style: Style;
-    Tag: any;
-    VerticalAlignment: VerticalAlignment;
-    Width: number;
-
-    //Events
-    DataContextChanged: MulticastEvent;
-    LayoutUpdated: MulticastEvent;
-    Loaded: MulticastEvent;
-    SizeChanged: MulticastEvent;
-    Unloaded: MulticastEvent;
-
-    //Methods
-    FindName(name: string): any;
-    MeasureOverride(availableSize): Size;
-    ArrangeOverride(finalSize: Size): Size;
-    GetBindingExpression(dp: DependencyProperty): BindingExpression;
-    SetBinding(dp: DependencyProperty, binding: Binding): BindingExpressionBase;
-    OnApplyTemplate();
-}
-class RoutedEvent extends MulticastEvent {
-    Subscribe(callback: (sender, args: RoutedEventArgs) => void, closure);
-    SubscribeSpecific(callback: (sender, args: RoutedEventArgs) => void, closure, matchClosure);
-    Unsubscribe(callback: (sender, args: RoutedEventArgs) => void, closure, matchClosure?);
-    Raise(sender, args: RoutedEventArgs);
-    RaiseAsync(sender, args: RoutedEventArgs);
-}
-class RoutedEventArgs extends EventArgs {
-    Handled: bool;
-}
-class Expression {
-}
-class SetterBase extends DependencyObject {
-    IsSealed: bool;
-}
-class Setter extends SetterBase {
-    Property: DependencyProperty;
-    Value;
-}
-class SetterBaseCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): SetterBase;
-    SetValueAt(index: number, value: SetterBase);
-    Add(value: SetterBase);
-    AddRange(newItems: SetterBase[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: SetterBase);
-    Remove(value: SetterBase);
-    IndexOf(value: SetterBase): number;
-    Contains(value: SetterBase): bool;
-    ToArray(): SetterBase[];
-}
-class Style extends DependencyObject {
-    BasedOn: Style;
-    IsSealed: bool;
-    Setters: SetterBaseCollection;
-    TargetType;
-    Seal();
-}
-class ResourceDictionary extends DependencyObject implements ICollection {
-    static MergedDictionariesProperty: DependencyProperty;
-    MergedDictionaries: ResourceDictionaryCollection;
-
-    GetCount(): number;
-    GetValueAt(index: number): any;
-    SetValueAt(index: number, value);
-    Add(value);
-    AddRange(newItems: any[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value);
-    Remove(key);
-    RemoveAt(index: number);
-    Clear();
-    IndexOf(value): number;
-    Contains(value): bool;
-    ToArray(): any[];
-
-    ContainsKey(key): bool;
-    Get(key): any;
-    Set(key, value);
-    Add(key, value);
-}
-class ResourceDictionaryCollection extends DependencyObjectCollection {
-}
-class VisualTreeHelper {
-    static GetChild(d: DependencyObject, childIndex: number): DependencyObject;
-    static GetChildrenCount(d: DependencyObject): DependencyObject;
-    static GetParent(d: DependencyObject): DependencyObject;
-    static GetRoot(d: DependencyObject): DependencyObject;
-}
-class LayoutInformation {
-    static LayoutClipProperty: DependencyProperty;
-    static GetLayoutClip(d: DependencyObject): Geometry;
-    static SetLayoutClip(d: DependencyObject, value: Geometry);
-    
-    static LayoutExceptionElementProperty: DependencyProperty;
-    static GetLayoutExceptionElement(d: DependencyObject): UIElement;
-    static SetLayoutExceptionElement(d: DependencyObject, value: UIElement);
-
-    static LayoutSlotProperty: DependencyProperty;
-    static GetLayoutSlot(d: DependencyObject): Rect;
-    static SetLayoutSlot(d: DependencyObject, value: Rect);
-
-    static PreviousConstraintProperty: DependencyProperty;
-    static GetPreviousConstraint(d: DependencyObject): Size;
-    static SetPreviousConstraint(d: DependencyObject, value: Size);
-
-    static FinalRectProperty: DependencyProperty;
-    static GetFinalRect(d: DependencyObject): Rect;
-    static SetFinalRect(d: DependencyObject, value: Rect);
-
-    static LastRenderSizeProperty: DependencyProperty;
-    static GetLastRenderSize(d: DependencyObject): Size;
-    static SetLastRenderSize(d: DependencyObject, value: Size);
-
-    static VisualOffsetProperty: DependencyProperty;
-    static GetVisualOffset(d: DependencyObject): Point;
-    static SetVisualOffset(d: DependencyObject, value: Point);
-}
-class UIElementCollection extends DependencyObjectCollection {
-    GetValueAtZIndex();
-    GetZSortedCount();
-    ResortByZIndex();
-}
-class FrameworkTemplate extends DependencyObject {
-}
-class MouseEventArgs extends RoutedEventArgs {
-}
-class MouseButtonEventArgs extends MouseEventArgs {
-}
-class MouseWheelEventArgs extends MouseEventArgs {
-}
-class KeyEventArgs extends RoutedEventArgs {
-}
-class PresentationFrameworkCollection extends DependencyObject implements ICollection {
-    GetCount(): number;
-    GetValueAt(index: number): any;
-    SetValueAt(index: number, value);
-    Add(value);
-    AddRange(newItems: any[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value);
-    Remove(value);
-    RemoveAt(index: number);
-    Clear();
-    IndexOf(value): number;
-    Contains(value): bool;
-    ToArray(): any[];
-}
-class PropertyPath {
-    //TODO: Finish
+        TabNavigationProperty: DependencyProperty;
+        GetTabNavigation(d: DependencyObject): KeyboardNavigationMode;
+        SetTabNavigation(d: DependencyObject, value: KeyboardNavigationMode);
+    }
+    export class MouseEventArgs extends RoutedEventArgs {
+    }
+    export class MouseButtonEventArgs extends MouseEventArgs {
+    }
+    export class MouseWheelEventArgs extends MouseEventArgs {
+    }
+    export class KeyEventArgs extends RoutedEventArgs {
+    }
+    export interface ICommand {
+        Execute(parameter): void;
+        CanExecute(parameter): bool;
+    }
 }
 
 //////////////////////////////////////////////////////////
 // DOCUMENTS
 //////////////////////////////////////////////////////////
-class TextElement extends DependencyObject {
-    static FontFamilyProperty: DependencyProperty;
-    static FontSizeProperty: DependencyProperty;
-    static FontStretchProperty: DependencyProperty;
-    static FontStyleProperty: DependencyProperty;
-    static FontWeightProperty: DependencyProperty;
-    static ForegroundProperty: DependencyProperty;
-    FontFamily: string;
-    FontSize: number;
-    FontStretch: string;
-    FontStyle: string;
-    FontWeight: FontWeight;
-    Foreground: Brush;
-}
-class Block extends TextElement {
-    static LineHeightProperty: DependencyProperty;
-    static LineStackStrategyProperty: DependencyProperty;
-    static TextAlignmentProperty: DependencyProperty;
-    LineHeight: number;
-    LineStackingStrategy: LineStackingStrategy;
-    TextAlignment: TextAlignment;
-}
-class Paragraph extends Block {
-    Inlines: InlineCollection;
-}
-class Section extends Block {
-    Blocks: BlockCollection;
-}
-class Inline extends TextElement {
-}
-class LineBreak extends Inline {
-}
-class Run extends Inline {
-    static FlowDirectionProperty: DependencyProperty;
-    FlowDirection: FlowDirection;
-    Text: string;
-}
-class Span extends Inline {
-    Inlines: InlineCollection;
-}
-class Bold extends Span {
-}
-class Italic extends Span {
-}
-class Underline extends Span {
-}
-class Hyperlink extends Span {
-    static CommandProperty: DependencyProperty;
-    static CommandParameterProperty: DependencyProperty;
-    static MouseOverForegroundProperty: DependencyProperty;
-    static MouseOverTextDecorationsProperty: DependencyProperty;
-    static NavigateUriProperty: DependencyProperty;
-    static TargetNameProperty: DependencyProperty;
+module Fayde.Documents {
+    export class TextElement extends DependencyObject {
+        static FontFamilyProperty: DependencyProperty;
+        static FontSizeProperty: DependencyProperty;
+        static FontStretchProperty: DependencyProperty;
+        static FontStyleProperty: DependencyProperty;
+        static FontWeightProperty: DependencyProperty;
+        static ForegroundProperty: DependencyProperty;
+        FontFamily: string;
+        FontSize: number;
+        FontStretch: string;
+        FontStyle: string;
+        FontWeight: FontWeight;
+        Foreground: Fayde.Media.Brush;
+    }
+    export class Block extends TextElement {
+        static LineHeightProperty: DependencyProperty;
+        static LineStackStrategyProperty: DependencyProperty;
+        static TextAlignmentProperty: DependencyProperty;
+        LineHeight: number;
+        LineStackingStrategy: LineStackingStrategy;
+        TextAlignment: TextAlignment;
+    }
+    export class Paragraph extends Block {
+        Inlines: InlineCollection;
+    }
+    export class Section extends Block {
+        Blocks: BlockCollection;
+    }
+    export class Inline extends TextElement {
+    }
+    export class LineBreak extends Inline {
+    }
+    export class Run extends Inline {
+        static FlowDirectionProperty: DependencyProperty;
+        FlowDirection: FlowDirection;
+        Text: string;
+    }
+    export class Span extends Inline {
+        Inlines: InlineCollection;
+    }
+    export class Bold extends Span {
+    }
+    export class Italic extends Span {
+    }
+    export class Underline extends Span {
+    }
+    export class Hyperlink extends Span {
+        static CommandProperty: DependencyProperty;
+        static CommandParameterProperty: DependencyProperty;
+        static MouseOverForegroundProperty: DependencyProperty;
+        static MouseOverTextDecorationsProperty: DependencyProperty;
+        static NavigateUriProperty: DependencyProperty;
+        static TargetNameProperty: DependencyProperty;
 
-    Command: Fayde.MVVM.ICommand;
-    CommandParameter;
-    MouseOverForeground: Brush;
-    MouseOverTextDecorations: TextDecorations;
-    NavigateUri: Uri;
-    TargetName: string;
-    Click: RoutedEvent;
-}
-class TextElementCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): TextElement;
-    SetValueAt(index: number, value: TextElement);
-    Add(value: TextElement);
-    AddRange(newItems: TextElement[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: TextElement);
-    Remove(value: TextElement);
-    IndexOf(value: TextElement): number;
-    Contains(value: TextElement): bool;
-    ToArray(): TextElement[];
-}
-class InlineCollection extends TextElementCollection {
-    GetValueAt(index: number): Inline;
-    SetValueAt(index: number, value: Inline);
-    Add(value: Inline);
-    AddRange(newItems: Inline[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: Inline);
-    Remove(value: Inline);
-    IndexOf(value: Inline): number;
-    Contains(value: Inline): bool;
-    ToArray(): Inline[];
-}
-class BlockCollection extends TextElementCollection {
-    GetValueAt(index: number): Block;
-    SetValueAt(index: number, value: Block);
-    Add(value: Block);
-    AddRange(newItems: Block[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: Block);
-    Remove(value: Block);
-    IndexOf(value: Block): number;
-    Contains(value: Block): bool;
-    ToArray(): Block[];
-}
-class TextSelection {
-    //TODO: Finish
+        Command: Input.ICommand;
+        CommandParameter;
+        MouseOverForeground: Fayde.Media.Brush;
+        MouseOverTextDecorations: TextDecorations;
+        NavigateUri: Uri;
+        TargetName: string;
+        Click: RoutedEvent;
+    }
+    export class TextElementCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): TextElement;
+        SetValueAt(index: number, value: TextElement);
+        Add(value: TextElement);
+        AddRange(newItems: TextElement[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: TextElement);
+        Remove(value: TextElement);
+        IndexOf(value: TextElement): number;
+        Contains(value: TextElement): bool;
+        ToArray(): TextElement[];
+    }
+    export class InlineCollection extends TextElementCollection {
+        GetValueAt(index: number): Inline;
+        SetValueAt(index: number, value: Inline);
+        Add(value: Inline);
+        AddRange(newItems: Inline[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: Inline);
+        Remove(value: Inline);
+        IndexOf(value: Inline): number;
+        Contains(value: Inline): bool;
+        ToArray(): Inline[];
+    }
+    export class BlockCollection extends TextElementCollection {
+        GetValueAt(index: number): Block;
+        SetValueAt(index: number, value: Block);
+        Add(value: Block);
+        AddRange(newItems: Block[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: Block);
+        Remove(value: Block);
+        IndexOf(value: Block): number;
+        Contains(value: Block): bool;
+        ToArray(): Block[];
+    }
+    export class TextSelection {
+        //TODO: Finish
+    }
 }
 
 //////////////////////////////////////////////////////////
 // CONTROLS
 //////////////////////////////////////////////////////////
-interface IScrollInfo {
-    LineDown();
-    LineLeft();
-    LineRight();
-    LineUp();
-    MouseWheelDown();
-    MouseWheelLeft();
-    MouseWheelRight();
-    MouseWheelUp();
-    PageDown();
-    PageLeft();
-    PageRight();
-    PageUp();
-    SetHorizontalOffset(offset: number);
-    SetVerticalOffset(offset: number);
-    MakeVisible(visual: UIElement, rectangle: Rect);
-}
-class ItemsChangedEventArgs extends EventArgs {
-    Action: NotifyCollectionChangedAction;
-    ItemCount: number;
-    ItemUICount: number;
-    OldPosition: number;
-    Position: number;
-}
-class Border extends FrameworkElement {
-    static BackgroundProperty: DependencyProperty;
-    static BorderBrushProperty: DependencyProperty;
-    static BorderThicknessProperty: DependencyProperty;
-    static ChildProperty: DependencyProperty;
-    static CornerRadiusProperty: DependencyProperty;
-    static PaddingProperty: DependencyProperty;
+module Fayde.Controls {
+    module Primitives {
+        export enum ScrollEventType {
+            SmallDecrement = 0,
+            SmallIncrement = 1,
+            LargeDecrement = 2,
+            LargeIncrement = 3,
+            ThumbPosition = 4,
+            ThumbTrack = 5,
+            First = 6,
+            Last = 7,
+            EndScroll = 8
+        }
+        export class ButtonBase extends ContentControl {
+            static ClickModeProperty: DependencyProperty;
+            static CommandParameterProperty: DependencyProperty;
+            static CommandProperty: DependencyProperty;
+            static IsFocusedProperty: DependencyProperty;
+            static IsMouseOverProperty: DependencyProperty;
+            static IsPressedProperty: DependencyProperty;
+            ClickMode: ClickMode;
+            Command: Input.ICommand;
+            CommandParameter;
+            IsFocused: bool;
+            IsMouseOver: bool;
+            IsPressed: bool;
+            OnApplyTemplate();
+            OnClick();
+            OnGotFocus(e: RoutedEventArgs);
+            OnIsPressedChanged(e: RoutedEvent);
+            OnKeyDown(e: Input.KeyEventArgs);
+            OnKeyUp(e: Input.KeyEventArgs);
+            OnLostFocus(e: RoutedEventArgs);
+            OnLostMouseCapture(e: Input.MouseEventArgs);
+            OnMouseEnter(e: Input.MouseEventArgs);
+            OnMouseLeave(e: Input.MouseEventArgs);
+            OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs);
+            OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs);
+            OnMouseMove(e: Input.MouseEventArgs);
+            Click: RoutedEvent;
+        }
+        export class DragCompletedEventArgs extends RoutedEventArgs {
+            HorizontalChange: number;
+            VerticalChanged: number;
+            Canceled: bool;
+        }
+        export class DragDeltaEventArgs extends RoutedEventArgs {
+            HorizontalChange: number;
+            VerticalChanged: number;
+        }
+        export class DragStartedEventArgs extends RoutedEventArgs {
+            HorizontalOffset: number;
+            VerticalOffset: number;
+        }
+        export interface IScrollInfo {
+            LineDown();
+            LineLeft();
+            LineRight();
+            LineUp();
+            MouseWheelDown();
+            MouseWheelLeft();
+            MouseWheelRight();
+            MouseWheelUp();
+            PageDown();
+            PageLeft();
+            PageRight();
+            PageUp();
+            SetHorizontalOffset(offset: number);
+            SetVerticalOffset(offset: number);
+            MakeVisible(visual: UIElement, rectangle: Rect);
+        }
+        export class ItemsChangedEventArgs extends EventArgs {
+            Action: Collections.NotifyCollectionChangedAction;
+            ItemCount: number;
+            ItemUICount: number;
+            OldPosition: number;
+            Position: number;
+        }
+        export class Popup extends FrameworkElement {
+            static ChildProperty: DependencyProperty;
+            static HorizontalOffsetProperty: DependencyProperty;
+            static IsOpenProperty: DependencyProperty;
+            static VerticalOffsetProperty: DependencyProperty;
+            Child: UIElement;
+            HorizontalOffset: number;
+            IsOpen: bool;
+            VerticalOffset: number;
 
-    Background: Brush;
-    BorderBrush: Brush;
-    BorderThickness: Thickness;
-    Child: UIElement;
-    CornerRadius: CornerRadius;
-    Padding: Thickness;
-}
-class Panel extends FrameworkElement {
-    static BackgroundProperty: DependencyProperty;
-    static ChildrenProperty: DependencyProperty;
-    static IsItemsHostProperty: DependencyProperty;
-    Background: Brush;
-    Children: UIElementCollection;
-    IsItemsHost: bool;
-}
-class StackPanel extends Panel {
-    static OrientationProperty: DependencyProperty;
-    Orientation: Orientation;
-    MeasureOverride(constraint: Size): Size;
-    ArrangeOverride(arrangeSize: Size): Size;
-}
-class Grid extends Panel {
-    static ColumnProperty: DependencyProperty;
-    static GetColumn(d: DependencyObject): number;
-    static SetColumn(d: DependencyObject, value: number);
+            Opened: MulticastEvent;
+            Closed: MulticastEvent;
+        }
+        export class RangeBase extends Control {
+            static LargeChangeProperty: DependencyProperty;
+            static MaximumProperty: DependencyProperty;
+            static MinimumProperty: DependencyProperty;
+            static SmallChangeProperty: DependencyProperty;
+            static ValueProperty: DependencyProperty;
+            LargeChange: number;
+            Maximum: number;
+            Minimum: number;
+            SmallChange: number;
+            Value: number;
+            OnMaximumChanged();
+            OnMinimumChanged();
+            OnValueChanged();
+            ValueChanged: RoutedEvent;
+        }
+        export class RepeatButton extends ButtonBase {
+            static DelayProperty: DependencyProperty;
+            static IntervalProperty: DependencyProperty;
+            Delay: number;
+            Interval: number;
+        }
+        export class ScrollBar extends RangeBase {
+            static OrientationProperty: DependencyProperty;
+            static ViewportSizeProperty: DependencyProperty;
+            Orientation: Orientation;
+            ViewportSize: number;
+            Scroll: MulticastEvent;
+        }
+        export class ScrollEventArgs extends EventArgs {
+            ScrollEvent: ScrollEventType;
+            Value: number;
+        }
+        export class SelectionChangedEventArgs extends EventArgs {
+            OldValues: any[];
+            NewValues: any[];
+        }
+        export class Selector extends ItemsControl implements ISupportInitialize {
+            static SelectedIndexProperty: DependencyProperty;
+            static SelectedItemProperty: DependencyProperty;
+            static SelectedValuePathProperty: DependencyProperty;
+            static SelectedValueProperty: DependencyProperty;
+            HasItems: bool;
+            SelectedIndex: number;
+            SelectedItem;
+            SelectedValue;
+            SelectedValuePath: string;
+            static GetIsSelectionActive(element: DependencyObject): bool;
+            SelectionChanged: MulticastEvent;
+            BeginInit();
+            EndInit();
+        }
+        export class Thumb extends Control {
+            static IsDraggingProperty: DependencyProperty;
+            static IsFocusedProperty: DependencyProperty;
+            IsDragging: bool;
+            IsFocused: bool;
+            CancelDrag();
+            DragCompleted: MulticastEvent;
+            DragDelta: MulticastEvent;
+            DragStarted: MulticastEvent;
+        }
+        export class ToggleButton extends ButtonBase {
+            static IsCheckedProperty: DependencyProperty;
+            static IsThreeStateProperty: DependencyProperty;
+            IsChecked: bool;
+            IsThreeState: bool;
+            OnToggle();
+            Checked: RoutedEvent;
+            Indeterminate: RoutedEvent;
+            Unchecked: RoutedEvent;
+        }
+    }
 
-    static ColumnSpanProperty: DependencyProperty;
-    static GetColumnSpan(d: DependencyObject): number;
-    static SetColumnSpan(d: DependencyObject, value: number);
+    export enum GridUnitType {
+        Auto = 0,
+        Pixel = 1,
+        Star = 2,
+    }
+    export enum PlacementMode {
+        Bottom = 0,
+        Right = 1,
+        Mouse = 2,
+        Left = 3,
+        Top = 4,
+    }
+    export enum ScrollBarVisibility {
+        Disabled = 0,
+        Auto = 1,
+        Hidden = 2,
+        Visible = 3,
+    }
+    export enum SelectionMode {
+        Single = 0,
+        Multiple = 1,
+        Extended = 2,
+    }
+    export enum VirtualizationMode {
+        Standard = 0,
+        Recycling = 1,
+    }
+    export enum TextTrimming {
+        None = 0,
+    }
+    export enum TextWrapping {
+        NoWrap = 0,
+        Wrap = 1,
+        WrapWithOverflow = 2,
+    }
+    export enum ClickMode {
+        Release = 0,
+        Press = 1,
+        Hover = 2,
+    }
+    export enum MediaElementState {
+        Closed = 0,
+        Opening = 1,
+        Buffering = 4,
+        Playing = 5,
+        Paused = 6,
+        Stopped = 7,
+    }
 
-    static RowProperty: DependencyProperty;
-    static GetRow(d: DependencyObject): number;
-    static SetRow(d: DependencyObject, value: number);
+    export class Border extends FrameworkElement {
+        static BackgroundProperty: DependencyProperty;
+        static BorderBrushProperty: DependencyProperty;
+        static BorderThicknessProperty: DependencyProperty;
+        static ChildProperty: DependencyProperty;
+        static CornerRadiusProperty: DependencyProperty;
+        static PaddingProperty: DependencyProperty;
 
-    static RowSpanProperty: DependencyProperty;
-    static GetRowSpan(d: DependencyObject): number;
-    static SetRowSpan(d: DependencyObject, value: number);
+        Background: Fayde.Media.Brush;
+        BorderBrush: Fayde.Media.Brush;
+        BorderThickness: Thickness;
+        Child: UIElement;
+        CornerRadius: CornerRadius;
+        Padding: Thickness;
+    }
+    export class Button extends Primitives.ButtonBase {
+    }
+    export class Canvas extends Panel {
+        static LeftProperty: DependencyProperty;
+        static GetLeft(d: DependencyObject): number;
+        static SetLeft(d: DependencyObject, value: number);
 
-    static ShowGridLinesProperty: DependencyProperty;
-    static GetShowGridLines(d: DependencyObject): number;
-    static SetShowGridLines(d: DependencyObject, value: number);
+        static TopProperty: DependencyProperty;
+        static GetTop(d: DependencyObject): number;
+        static SetTop(d: DependencyObject, value: number);
 
-    ColumnDefinitions: ColumnDefinitionCollection;
-    RowDefinitions: RowDefinitionCollection;
-    ShowGridLines: bool;
-    
-    MeasureOverride(constraint: Size): Size;
-    ArrangeOverride(arrangeSize: Size): Size;
-}
-class ColumnDefinition extends DependencyObject {
-    static MaxWidthProperty: DependencyProperty;
-    static MinWidthProperty: DependencyProperty;
-    static WidthProperty: DependencyProperty;
-    ActualWidth: number;
-    MaxWidth: number;
-    MinWidth: number;
-    Width: number;
-}
-class ColumnDefinitionCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): ColumnDefinition;
-    SetValueAt(index: number, value: ColumnDefinition);
-    Add(value: ColumnDefinition);
-    AddRange(newItems: ColumnDefinition[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: ColumnDefinition);
-    Remove(value: ColumnDefinition);
-    IndexOf(value: ColumnDefinition): number;
-    Contains(value: ColumnDefinition): bool;
-    ToArray(): ColumnDefinition[];
-}
-class RowDefinition extends DependencyObject {
-    static MaxHeightProperty: DependencyProperty;
-    static MinHeightProperty: DependencyProperty;
-    static HeightProperty: DependencyProperty;
-    ActualHeight: number;
-    MaxHeight: number;
-    MinHeight: number;
-    Height: number;
-}
-class RowDefinitionCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): RowDefinition;
-    SetValueAt(index: number, value: RowDefinition);
-    Add(value: RowDefinition);
-    AddRange(newItems: RowDefinition[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: RowDefinition);
-    Remove(value: RowDefinition);
-    IndexOf(value: RowDefinition): number;
-    Contains(value: RowDefinition): bool;
-    ToArray(): RowDefinition[];
-}
-class Canvas extends Panel {
-    static LeftProperty: DependencyProperty;
-    static GetLeft(d: DependencyObject): number;
-    static SetLeft(d: DependencyObject, value: number);
+        static ZIndexProperty: DependencyProperty;
+        static GetZIndex(d: DependencyObject): number;
+        static SetZIndex(d: DependencyObject, value: number);
 
-    static TopProperty: DependencyProperty;
-    static GetTop(d: DependencyObject): number;
-    static SetTop(d: DependencyObject, value: number);
+        MeasureOverride(constraint: Size): Size;
+        ArrangeOverride(arrangeSize: Size): Size;
+    }
+    export class CheckBox extends Primitives.ToggleButton {
+    }
+    export class ColumnDefinition extends DependencyObject {
+        static MaxWidthProperty: DependencyProperty;
+        static MinWidthProperty: DependencyProperty;
+        static WidthProperty: DependencyProperty;
+        ActualWidth: number;
+        MaxWidth: number;
+        MinWidth: number;
+        Width: GridLength;
+    }
+    export class ColumnDefinitionCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): ColumnDefinition;
+        SetValueAt(index: number, value: ColumnDefinition);
+        Add(value: ColumnDefinition);
+        AddRange(newItems: ColumnDefinition[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: ColumnDefinition);
+        Remove(value: ColumnDefinition);
+        IndexOf(value: ColumnDefinition): number;
+        Contains(value: ColumnDefinition): bool;
+        ToArray(): ColumnDefinition[];
+    }
+    export class ComboBox extends Primitives.Selector {
+        static IsDropDownOpenProperty: DependencyProperty;
+        static IsSelectionActiveProperty: DependencyProperty;
+        static ItemContainerStyleProperty: DependencyProperty;
+        static MaxDropDownHeightProperty: DependencyProperty;
+        IsDropDownOpen: bool;
+        IsSelectionActive: bool;
+        ItemContainerStyle: Style;
+        MaxDropDownHeight: number;
+        IsEditable: bool;
+        IsSelectionBoxHighlighted: bool;
+        SelectionBoxItem;
+        SelectionBoxItemTemplate: DataTemplate;
+        DropDownClosed: RoutedEvent;
+        DropDownOpened: RoutedEvent;
+    }
+    export class ComboBoxItem extends ListBoxItem {
+    }
+    export class ContentControl extends Control {
+        static ContentProperty: DependencyProperty;
+        static ContentTemplateProperty: DependencyProperty;
+        Content;
+        ContentTemplate: ControlTemplate;
+        OnContentChanged(oldContent, newContent);
+    }
+    export class ContentPresenter extends FrameworkElement {
+        static ContentProperty: DependencyProperty;
+        static ContentTemplateProperty: DependencyProperty;
+        Content;
+        ContentTemplate: DataTemplate;
+    }
+    export class Control extends FrameworkElement {
+        static BackgroundProperty: DependencyProperty;
+        static BorderBrushProperty: DependencyProperty;
+        static BorderThicknessProperty: DependencyProperty;
+        static FontFamilyProperty: DependencyProperty;
+        static FontSizeProperty: DependencyProperty;
+        static FontStretchProperty: DependencyProperty;
+        static FontStyleProperty: DependencyProperty;
+        static FontWeightProperty: DependencyProperty;
+        static ForegroundProperty: DependencyProperty;
+        static HorizontalContentAlignmentProperty: DependencyProperty;
+        static IsEnabledProperty: DependencyProperty;
+        static IsTabStopProperty: DependencyProperty;
+        static PaddingProperty: DependencyProperty;
+        static TabIndexProperty: DependencyProperty;
+        static TabNavigationProperty: DependencyProperty;
+        static TemplateProperty: DependencyProperty;
+        static VerticalContentAlignmentProperty: DependencyProperty;
 
-    static ZIndexProperty: DependencyProperty;
-    static GetZIndex(d: DependencyObject): number;
-    static SetZIndex(d: DependencyObject, value: number);
-    
-    MeasureOverride(constraint: Size): Size;
-    ArrangeOverride(arrangeSize: Size): Size;
-}
-class VirtualizingPanel extends Panel {
-    ItemContainerGenerator: ItemContainerGenerator;
-    AddInternalChild(child: UIElement);
-    BringIndexIntoView(index: number);
-    InsertInternalChild(index: number, child: UIElement);
-    OnClearChildren();
-    OnItemsChanged(sender, args: ItemsChangedEventArgs);
-    RemoveInternalChildRange(index: number, range: number);
-}
-class VirtualizingStackPanel extends VirtualizingPanel implements IScrollInfo {
-    static IsVirtualizingProperty: DependencyProperty;
-    static GetIsVirtualizing(d: DependencyObject): bool;
-    static SetIsVirtualizing(d: DependencyObject, value: bool);
+        Background: Fayde.Media.Brush;
+        BorderBrush: Fayde.Media.Brush;
+        BorderThickness: Thickness;
+        FontFamily: string;
+        FontSize: number;
+        FontStretch: string;
+        FontStyle: string;
+        FontWeight: FontWeight;
+        Foreground: Fayde.Media.Brush;
+        HorizontalContentAlignment: HorizontalAlignment;
+        IsEnabled: bool;
+        IsTabStop: bool;
+        Padding: Thickness;
+        TabIndex: number;
+        TabNavigation: number;
+        Template: ControlTemplate;
+        VerticalContentAlignment: VerticalAlignment;
+        IsFocused: bool;
 
-    static OrientationProperty: DependencyProperty;
-    
-    static VirtualizationMode: DependencyProperty;
-    static GetVirtualizationMode(d: DependencyObject): VirtualizationMode;
-    static SetVirtualizationMode(d: DependencyObject, value: VirtualizationMode);
-    
-    MeasureOverride(constraint: Size): Size;
-    ArrangeOverride(arrangeSize: Size): Size;
+        Focus(): bool;
+        GetTemplateChild(name: string): DependencyObject;
 
-    //IScrollInfo Members
-    LineDown();
-    LineLeft();
-    LineRight();
-    LineUp();
-    MouseWheelDown();
-    MouseWheelLeft();
-    MouseWheelRight();
-    MouseWheelUp();
-    PageDown();
-    PageLeft();
-    PageRight();
-    PageUp();
-    SetHorizontalOffset(offset: number);
-    SetVerticalOffset(offset: number);
-    MakeVisible(visual: UIElement, rectangle: Rect);
-}
-class ControlTemplate extends FrameworkTemplate {
-    TargetType;
-}
-class Control extends FrameworkElement {
-    static BackgroundProperty: DependencyProperty;
-    static BorderBrushProperty: DependencyProperty;
-    static BorderThicknessProperty: DependencyProperty;
-    static FontFamilyProperty: DependencyProperty;
-    static FontSizeProperty: DependencyProperty;
-    static FontStretchProperty: DependencyProperty;
-    static FontStyleProperty: DependencyProperty;
-    static FontWeightProperty: DependencyProperty;
-    static ForegroundProperty: DependencyProperty;
-    static HorizontalContentAlignmentProperty: DependencyProperty;
-    static IsEnabledProperty: DependencyProperty;
-    static IsTabStopProperty: DependencyProperty;
-    static PaddingProperty: DependencyProperty;
-    static TabIndexProperty: DependencyProperty;
-    static TabNavigationProperty: DependencyProperty;
-    static TemplateProperty: DependencyProperty;
-    static VerticalContentAlignmentProperty: DependencyProperty;
+        IsEnabledChanged: RoutedEvent;
+    }
+    export class ControlTemplate extends FrameworkTemplate {
+        TargetType;
+    }
+    export class Frame extends ContentControl {
+        static IsDeepLinkedProperty: DependencyProperty;
+        static CurrentSourceProperty: DependencyProperty;
+        static SourceProperty: DependencyProperty;
+        IsDeepLinked: bool;
+        CurrentSource: Uri;
+        Source: Uri;
+        GoForward();
+        GoBackward();
+        StopLoading();
+        Navigate(source: Uri);
+    }
+    export class Grid extends Panel {
+        static ColumnProperty: DependencyProperty;
+        static GetColumn(d: DependencyObject): number;
+        static SetColumn(d: DependencyObject, value: number);
 
-    Background: Brush;
-    BorderBrush: Brush;
-    BorderThickness: Thickness;
-    FontFamily: string;
-    FontSize: number;
-    FontStretch: string;
-    FontStyle: string;
-    FontWeight: FontWeight;
-    Foreground: Brush;
-    HorizontalContentAlignment: HorizontalAlignment;
-    IsEnabled: bool;
-    IsTabStop: bool;
-    Padding: Thickness;
-    TabIndex: number;
-    TabNavigation: number;
-    Template: ControlTemplate;
-    VerticalContentAlignment: VerticalAlignment;
-    IsFocused: bool;
+        static ColumnSpanProperty: DependencyProperty;
+        static GetColumnSpan(d: DependencyObject): number;
+        static SetColumnSpan(d: DependencyObject, value: number);
 
-    Focus(): bool;
-    GetTemplateChild(name: string): DependencyObject;
-    
-    IsEnabledChanged: RoutedEvent;
-}
-class ContentControl extends Control {
-    static ContentProperty: DependencyProperty;
-    static ContentTemplateProperty: DependencyProperty;
-    Content;
-    ContentTemplate: ControlTemplate;
-    OnContentChanged(oldContent, newContent);
-}
-class ButtonBase extends ContentControl {
-    static ClickModeProperty: DependencyProperty;
-    static CommandParameterProperty: DependencyProperty;
-    static CommandProperty: DependencyProperty;
-    static IsFocusedProperty: DependencyProperty;
-    static IsMouseOverProperty: DependencyProperty;
-    static IsPressedProperty: DependencyProperty;
-    ClickMode: ClickMode;
-    Command: Fayde.MVVM.ICommand;
-    CommandParameter;
-    IsFocused: bool;
-    IsMouseOver: bool;
-    IsPressed: bool;
-    OnApplyTemplate();
-    OnClick();
-    OnGotFocus(e: RoutedEventArgs);
-    OnIsPressedChanged(e: RoutedEvent);
-    OnKeyDown(e: KeyEventArgs);
-    OnKeyUp(e: KeyEventArgs);
-    OnLostFocus(e: RoutedEventArgs);
-    OnLostMouseCapture(e: MouseEventArgs);
-    OnMouseEnter(e: MouseEventArgs);
-    OnMouseLeave(e: MouseEventArgs);
-    OnMouseLeftButtonDown(e: MouseButtonEventArgs);
-    OnMouseLeftButtonUp(e: MouseButtonEventArgs);
-    OnMouseMove(e: MouseEventArgs);
-    Click: RoutedEvent;
-}
-class Button extends ButtonBase {
-}
-class RepeatButton extends ButtonBase {
-    static DelayProperty: DependencyProperty;
-    static IntervalProperty: DependencyProperty;
-    Delay: number;
-    Interval: number;
-}
-class ToggleButton extends ButtonBase {
-    static IsCheckedProperty: DependencyProperty;
-    static IsThreeStateProperty: DependencyProperty;
-    IsChecked: bool;
-    IsThreeState: bool;
-    OnToggle();
-    Checked: RoutedEvent;
-    Indeterminate: RoutedEvent;
-    Unchecked: RoutedEvent;
-}
-class HyperlinkButton extends ButtonBase {
-    static NavigateUriProperty: DependencyProperty;
-    static TargetNameProperty: DependencyProperty;
-    NavigateUri: Uri;
-    TargetName: string;
-}
-class CheckBox extends ToggleButton {
-}
-class RadioButton extends ToggleButton {
-    static GroupNameProperty: DependencyProperty;
-    GroupName: string;
-}
-class ItemContainerGenerator {
-    ItemsChanged: MulticastEvent;
-}
-class ItemsPanelTemplate extends FrameworkTemplate {
-}
-class ItemCollection extends PresentationFrameworkCollection implements INotifyCollectionChanged {
-    CollectionChanged: NotifyCollectionChangedEventHandler;
-}
-class ItemsControl extends Control {
-    static DisplayMemberPathProperty: DependencyProperty;
-    static ItemsPanelProperty: DependencyProperty;
-    static ItemsSourceProperty: DependencyProperty;
-    static ItemTemplateProperty: DependencyProperty;
-    DisplayMemberPath: string;
-    ItemsPanel: ItemsPanelTemplate;
-    ItemsSource;
-    ItemTemplate: DataTemplate;
-    Items: ItemCollection;
-    ItemContainerGenerator: ItemContainerGenerator;
-    ClearContainerForItemOverride(element: DependencyObject, item);
-    GetContainerForItemOverride(): DependencyObject;
-    IsItemItsOwnContainerOverride(item): bool;
-    ItemsControlFromItemContainer(container: DependencyObject): ItemsControl;
-    OnItemsChanged(e: NotifyCollectionChangedEventArgs);
-    PrepareContainerForItemOverride(element: DependencyObject, item);
-}
-class Selector extends ItemsControl {
-    static SelectedIndexProperty: DependencyProperty;
-    static SelectedItemProperty: DependencyProperty;
-    static SelectedValuePathProperty: DependencyProperty;
-    static SelectedValueProperty: DependencyProperty;
-    HasItems: bool;
-    SelectedIndex: number;
-    SelectedItem;
-    SelectedValue;
-    SelectedValuePath: string;
-    static GetIsSelectionActive(element: DependencyObject): bool;
-    SelectionChanged: MulticastEvent;
-}
-class ListBox extends Selector {
-    static IsSelectionActiveProperty: DependencyProperty;
-    static ItemContainerStyleProperty: DependencyProperty;
-    static SelectionModeProperty: DependencyProperty;
-    IsSelectionActive: bool;
-    ItemContainerStyle: Style;
-    SelectionMode: SelectionMode;
-    SelectAll();
-    ScrollIntoView(item);
-}
-class ListBoxItem extends ContentControl {
-    static IsSelectedProperty: DependencyProperty;
-    IsSelected: bool;
-}
-class ComboBox extends Selector {
-    static IsDropDownOpenProperty: DependencyProperty;
-    static IsSelectionActiveProperty: DependencyProperty;
-    static ItemContainerStyleProperty: DependencyProperty;
-    static MaxDropDownHeightProperty: DependencyProperty;
-    IsDropDownOpen: bool;
-    IsSelectionActive: bool;
-    ItemContainerStyle: Style;
-    MaxDropDownHeight: number;
-    IsEditable: bool;
-    IsSelectionBoxHighlighted: bool;
-    SelectionBoxItem;
-    SelectionBoxItemTemplate: DataTemplate;
-    DropDownClosed: RoutedEvent;
-    DropDownOpened: RoutedEvent;
-}
-class ComboBoxItem extends ListBoxItem {
-}
-class ContentPresenter extends FrameworkElement {
-    static ContentProperty: DependencyProperty;
-    static ContentTemplateProperty: DependencyProperty;
-    Content;
-    ContentTemplate: DataTemplate;
-}
-class ItemsPresenter extends FrameworkElement {
-}
-class ScrollContentPresenter extends ContentPresenter implements IScrollInfo {
-    LineDown();
-    LineLeft();
-    LineRight();
-    LineUp();
-    MouseWheelDown();
-    MouseWheelLeft();
-    MouseWheelRight();
-    MouseWheelUp();
-    PageDown();
-    PageLeft();
-    PageRight();
-    PageUp();
-    SetHorizontalOffset(offset: number);
-    SetVerticalOffset(offset: number);
-    MakeVisible(visual: UIElement, rectangle: Rect);
-}
-class ScrollViewer extends ContentControl {
-    static HorizontalScrollBarVisibilityProperty: DependencyProperty;
-    static GetHorizontalScrollBarVisibility(d: DependencyObject): ScrollBarVisibility;
-    static SetHorizontalScrollBarVisibility(d: DependencyObject, value: ScrollBarVisibility);
+        static RowProperty: DependencyProperty;
+        static GetRow(d: DependencyObject): number;
+        static SetRow(d: DependencyObject, value: number);
 
-    static VerticalScrollBarVisibilityProperty: DependencyProperty;
-    static GetVerticalScrollBarVisibility(d: DependencyObject): ScrollBarVisibility;
-    static SetVerticalScrollBarVisibility(d: DependencyObject, value: ScrollBarVisibility);
+        static RowSpanProperty: DependencyProperty;
+        static GetRowSpan(d: DependencyObject): number;
+        static SetRowSpan(d: DependencyObject, value: number);
 
-    static ComputedHorizontalScrollBarVisibilityProperty: DependencyProperty;
-    static ComputedVerticalScrollBarVisibilityProperty: DependencyProperty;
-    static HorizontalOffsetProperty: DependencyProperty;
-    static VerticalOffsetProperty: DependencyProperty;
-    static ScrollableWidthProperty: DependencyProperty;
-    static ScrollableHeightProperty: DependencyProperty;
-    static ExtentWidthProperty: DependencyProperty;
-    static ExtentHeightProperty: DependencyProperty;
-    static ViewportWidthProperty: DependencyProperty;
-    static ViewportHeightProperty: DependencyProperty;
-    
-    HorizontalScrollBarVisibility: ScrollBarVisibility;
-    VerticalScrollBarVisibility: ScrollBarVisibility;
-    ComputedHorizontalScrollBarVisibility: ScrollBarVisibility;
-    ComputedVerticalScrollBarVisibility: ScrollBarVisibility;
-    HorizontalOffset: number;
-    VerticalOffset: number;
-    ScrollableWidth: number;
-    ScrollableHeight: number;
-    ExtentWidth: number;
-    ExtentHeight: number;
-    ViewportWidth: number;
-    ViewportHeight: number;
+        static ShowGridLinesProperty: DependencyProperty;
+        static GetShowGridLines(d: DependencyObject): number;
+        static SetShowGridLines(d: DependencyObject, value: number);
 
-    InvalidateScrollInfo();
-    ScrollToHorizontalOffset(offset: number);
-    ScrollToVerticalOffset(offset: number);
-}
-class UserControl extends Control {
-    static ContentProperty: DependencyProperty;
-    Content: UIElement;
-}
-class Frame extends ContentControl {
-    static IsDeepLinkedProperty: DependencyProperty;
-    static CurrentSourceProperty: DependencyProperty;
-    static SourceProperty: DependencyProperty;
-    IsDeepLinked: bool;
-    CurrentSource: Uri;
-    Source: Uri;
-    GoForward();
-    GoBackward();
-    StopLoading();
-    Navigate(source: Uri);
-}
-class Page extends UserControl {
-    static TitleProperty: DependencyProperty;
-    Title: string;
-}
-class Image extends FrameworkElement {
-    static SourceProperty: DependencyProperty;
-    static StretchProperty: DependencyProperty;
-    Source: ImageSource;
-    Stretch: Stretch;
-    ImageFailed: MulticastEvent;
-    ImageOpened: MulticastEvent;
-}
-class MediaElement extends FrameworkElement {
-    static AutoPlayProperty: DependencyProperty;
-    static BufferingProgressProperty: DependencyProperty;
-    static BufferingTimeProperty: DependencyProperty;
-    static CanPauseProperty: DependencyProperty;
-    static CanSeekProperty: DependencyProperty;
-    static CurrentStateProperty: DependencyProperty;
-    static DownloadProgressProperty: DependencyProperty;
-    static DownloadProgressOffsetProperty: DependencyProperty;
-    static IsMutedProperty: DependencyProperty;
-    static NaturalDurationProperty: DependencyProperty;
-    static NaturalVideoHeightProperty: DependencyProperty;
-    static NaturalVideoWidthProperty: DependencyProperty;
-    static PlaybackRateProperty: DependencyProperty;
-    static PositionProperty: DependencyProperty;
-    static SourceProperty: DependencyProperty;
-    static StretchProperty: DependencyProperty;
-    static VolumeProperty: DependencyProperty;
-    
-    AutoPlay: bool;
-    BufferingProgress: number;
-    BufferingTime: TimeSpan;
-    CanPause: bool;
-    CanSeek: bool;
-    CurrentState: MediaElementState;
-    DownloadProgress: number;
-    DownloadProgressOffset: number;
-    IsMuted: bool;
-    NaturalDuration: Duration;
-    NaturalVideoHeight: number;
-    NaturalVideoWidth: number;
-    PlaybackRate: number;
-    Position: TimeSpan;
-    Source: Uri;
-    Stretch: Stretch;
-    Volume: number;
-}
-class RangeBase extends Control {
-    static LargeChangeProperty: DependencyProperty;
-    static MaximumProperty: DependencyProperty;
-    static MinimumProperty: DependencyProperty;
-    static SmallChangeProperty: DependencyProperty;
-    static ValueProperty: DependencyProperty;
-    LargeChange: number;
-    Maximum: number;
-    Minimum: number;
-    SmallChange: number;
-    Value: number;
-    OnMaximumChanged();
-    OnMinimumChanged();
-    OnValueChanged();
-    ValueChanged: RoutedEvent;
-}
-class ProgressBar extends RangeBase {
-    static IsIndeterminateProperty: DependencyProperty;
-    IsIndeterminate: bool;
-}
-class ScrollBar extends RangeBase {
-    static OrientationProperty: DependencyProperty;
-    static ViewportSizeProperty: DependencyProperty;
-    Orientation: Orientation;
-    ViewportSize: number;
-    Scroll: MulticastEvent;
-}
-class Slider extends RangeBase {
-    static IsDirectionReversedProperty: DependencyProperty;
-    static IsFocusedProperty: DependencyProperty;
-    static OrientationProperty: DependencyProperty;
-    IsDirectionReversed: bool;
-    IsFocused: bool;
-    Orientation: Orientation;
-}
-class TextBlock extends FrameworkElement {
-    static FontFamilyProperty: DependencyProperty;
-    static FontSizeProperty: DependencyProperty;
-    static FontStretchProperty: DependencyProperty;
-    static FontStyleProperty: DependencyProperty;
-    static FontWeightProperty: DependencyProperty;
-    static ForegroundProperty: DependencyProperty;
-    static InlinesProperty: DependencyProperty;
-    static LineHeightProperty: DependencyProperty;
-    static LineStackingStrategyProperty: DependencyProperty;
-    static PaddingProperty: DependencyProperty;
-    static TextAlignmentProperty: DependencyProperty;
-    static TextDecorationsProperty: DependencyProperty;
-    static TextProperty: DependencyProperty;
-    static TextTrimmingProperty: DependencyProperty;
-    static TextWrappingProperty: DependencyProperty;
-    FontFamily: string;
-    FontSize: number;
-    FontStretch: string;
-    FontStyle: string;
-    FontWeight: FontWeight;
-    Foreground: Brush;
-    Inlines: InlineCollection;
-    LineHeight: number;
-    LineStackingStrategy: LineStackingStrategy;
-    Padding: Thickness;
-    TextAlignment: TextAlignment;
-    TextDecorations: TextDecorations;
-    Text: string;
-    TextTrimming: TextTrimming;
-    TextWrapping: TextWrapping;
-}
-class TextBox extends Control {
-    static AcceptsReturnProperty: DependencyProperty;
-    static CaretBrushProperty: DependencyProperty;
-    static MaxLengthProperty: DependencyProperty;
-    static IsReadOnlyProperty: DependencyProperty;
-    static SelectionForegroundProperty: DependencyProperty;
-    static SelectionBackgroundProperty: DependencyProperty;
-    static BaselineOffsetProperty: DependencyProperty;
-    static SelectedTextProperty: DependencyProperty;
-    static SelectionLengthProperty: DependencyProperty;
-    static SelectionStartProperty: DependencyProperty;
-    static TextProperty: DependencyProperty;
-    static TextAlignmentProperty: DependencyProperty;
-    static TextWrappingProperty: DependencyProperty;
-    static HorizontalScrollBarVisibilityProperty: DependencyProperty;
-    static VerticalScrollBarVisibilityProperty: DependencyProperty;
-    AcceptsReturn: bool;
-    CaretBrush: Brush;
-    MaxLength: number;
-    IsReadOnly: bool;
-    SelectionForeground: Brush;
-    SelectionBackground: Brush;
-    BaselineOffset: number;
-    SelectedText: string;
-    SelectionLength: number;
-    SelectionStart: number;
-    Text: string;
-    TextAlignment: TextAlignment;
-    TextWrapping: TextWrapping;
-    HorizontalScrollBarVisibility: ScrollBarVisibility;
-    VerticalScrollBarVisibility: ScrollBarVisibility;
-    Select(start: number, length: number);
-    SelectAll();
-    SelectionChanged: RoutedEvent;
-    TextChanged: RoutedEvent;
-}
-class PasswordBox extends Control {
-    static CaretBrushProperty: DependencyProperty;
-    static MaxLengthProperty: DependencyProperty;
-    static SelectionForegroundProperty: DependencyProperty;
-    static SelectionBackgroundProperty: DependencyProperty;
-    static PasswordProperty: DependencyProperty;
-    CaretBrush: Brush;
-    MaxLength: number;
-    SelectionForeground: Brush;
-    SelectionBackground: Brush;
-    Password: string;
-    SelectAll();
-    PasswordChanged: RoutedEvent;
-}
-class RichTextBox extends Control {
-    static AcceptsReturnProperty: DependencyProperty;
-    static CaretBrushProperty: DependencyProperty;
-    static IsReadOnlyProperty: DependencyProperty;
-    static LineHeightProperty: DependencyProperty;
-    static LineStackingStrategyProperty: DependencyProperty;
-    static TextAlignmentProperty: DependencyProperty;
-    static TextWrappingProperty: DependencyProperty;
-    AcceptsReturn: bool;
-    BaselineOffset: number;
-    Blocks: BlockCollection;
-    CaretBrush: Brush;
-    HorizontalScrollBarVisibility: ScrollBarVisibility;
-    IsReadOnly: bool;
-    LineHeight: number;
-    LineStackingStrategy: LineStackingStrategy;
-    Selection: TextSelection;
-    TextAlignment: TextAlignment;
-    TextWrapping: TextWrapping;
-    VerticalScrollBarVisibility: ScrollBarVisibility;
-    Xaml: string;
-    
-    ContentChanged: RoutedEvent;
-    SelectionChanged: RoutedEvent;
-}
-class ToolTip extends ContentControl {
-    static HorizontalOffsetProperty: DependencyProperty;
-    static IsOpenProperty: DependencyProperty;
-    static PlacementProperty: DependencyProperty;
-    static PlacementTargetProperty: DependencyProperty;
-    static VerticalOffsetProperty: DependencyProperty;
-    HorizontalOffset: number;
-    IsOpen: bool;
-    Placement: PlacementMode;
-    PlacementTarget: UIElement;
-    VerticalOffset: number;
-    Closed: RoutedEvent;
-    Opened: RoutedEvent;
-}
-class ToolTipService {
-    static PlacementProperty: DependencyProperty;
-    static GetPlacement(d: DependencyObject): PlacementMode;
-    static SetPlacement(d: DependencyObject, value: PlacementMode);
+        ColumnDefinitions: ColumnDefinitionCollection;
+        RowDefinitions: RowDefinitionCollection;
+        ShowGridLines: bool;
 
-    static PlacementTargetProperty: DependencyProperty;
-    static GetPlacementTarget(d: DependencyObject): UIElement;
-    static SetPlacementTarget(d: DependencyObject, value: UIElement);
+        MeasureOverride(constraint: Size): Size;
+        ArrangeOverride(arrangeSize: Size): Size;
+    }
+    export class GridLength {
+        Value: number;
+        Type: GridUnitType;
+    }
+    export class HyperlinkButton extends Primitives.ButtonBase {
+        static NavigateUriProperty: DependencyProperty;
+        static TargetNameProperty: DependencyProperty;
+        NavigateUri: Uri;
+        TargetName: string;
+    }
+    export class Image extends FrameworkElement {
+        static SourceProperty: DependencyProperty;
+        static StretchProperty: DependencyProperty;
+        Source: Fayde.Media.Imaging.ImageSource;
+        Stretch: Fayde.Media.Stretch;
+        ImageFailed: MulticastEvent;
+        ImageOpened: MulticastEvent;
+    }
+    export class ItemCollection extends PresentationFrameworkCollection implements Collections.INotifyCollectionChanged {
+        CollectionChanged: Collections.NotifyCollectionChangedEventHandler;
+    }
+    export class ItemContainerGenerator {
+        ItemsChanged: MulticastEvent;
+    }
+    export class ItemsControl extends Control {
+        static DisplayMemberPathProperty: DependencyProperty;
+        static ItemsPanelProperty: DependencyProperty;
+        static ItemsSourceProperty: DependencyProperty;
+        static ItemTemplateProperty: DependencyProperty;
+        DisplayMemberPath: string;
+        ItemsPanel: ItemsPanelTemplate;
+        ItemsSource;
+        ItemTemplate: DataTemplate;
+        Items: ItemCollection;
+        ItemContainerGenerator: ItemContainerGenerator;
+        ClearContainerForItemOverride(element: DependencyObject, item);
+        GetContainerForItemOverride(): DependencyObject;
+        IsItemItsOwnContainerOverride(item): bool;
+        ItemsControlFromItemContainer(container: DependencyObject): ItemsControl;
+        OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs);
+        PrepareContainerForItemOverride(element: DependencyObject, item);
+    }
+    export class ItemsPanelTemplate extends FrameworkTemplate {
+    }
+    export class ItemsPresenter extends FrameworkElement {
+    }
+    export class ListBox extends Primitives.Selector {
+        static IsSelectionActiveProperty: DependencyProperty;
+        static ItemContainerStyleProperty: DependencyProperty;
+        static SelectionModeProperty: DependencyProperty;
+        IsSelectionActive: bool;
+        ItemContainerStyle: Style;
+        SelectionMode: SelectionMode;
+        SelectAll();
+        ScrollIntoView(item);
+    }
+    export class ListBoxItem extends ContentControl {
+        static IsSelectedProperty: DependencyProperty;
+        IsSelected: bool;
+    }
+    export class MediaElement extends FrameworkElement {
+        static AutoPlayProperty: DependencyProperty;
+        static BufferingProgressProperty: DependencyProperty;
+        static BufferingTimeProperty: DependencyProperty;
+        static CanPauseProperty: DependencyProperty;
+        static CanSeekProperty: DependencyProperty;
+        static CurrentStateProperty: DependencyProperty;
+        static DownloadProgressProperty: DependencyProperty;
+        static DownloadProgressOffsetProperty: DependencyProperty;
+        static IsMutedProperty: DependencyProperty;
+        static NaturalDurationProperty: DependencyProperty;
+        static NaturalVideoHeightProperty: DependencyProperty;
+        static NaturalVideoWidthProperty: DependencyProperty;
+        static PlaybackRateProperty: DependencyProperty;
+        static PositionProperty: DependencyProperty;
+        static SourceProperty: DependencyProperty;
+        static StretchProperty: DependencyProperty;
+        static VolumeProperty: DependencyProperty;
 
-    static ToolTipProperty: DependencyProperty;
-    static GetToolTip(d: DependencyObject): ToolTip;
-    static SetToolTip(d: DependencyObject, value: ToolTip);
-}
-class Popup extends FrameworkElement {
-    static ChildProperty: DependencyProperty;
-    static HorizontalOffsetProperty: DependencyProperty;
-    static IsOpenProperty: DependencyProperty;
-    static VerticalOffsetProperty: DependencyProperty;
-    Child: UIElement;
-    HorizontalOffset: number;
-    IsOpen: bool;
-    VerticalOffset: number;
+        AutoPlay: bool;
+        BufferingProgress: number;
+        BufferingTime: TimeSpan;
+        CanPause: bool;
+        CanSeek: bool;
+        CurrentState: MediaElementState;
+        DownloadProgress: number;
+        DownloadProgressOffset: number;
+        IsMuted: bool;
+        NaturalDuration: Duration;
+        NaturalVideoHeight: number;
+        NaturalVideoWidth: number;
+        PlaybackRate: number;
+        Position: TimeSpan;
+        Source: Uri;
+        Stretch: Fayde.Media.Stretch;
+        Volume: number;
+    }
+    export class Page extends UserControl {
+        static TitleProperty: DependencyProperty;
+        Title: string;
+    }
+    export class Panel extends FrameworkElement {
+        static BackgroundProperty: DependencyProperty;
+        static ChildrenProperty: DependencyProperty;
+        static IsItemsHostProperty: DependencyProperty;
+        Background: Fayde.Media.Brush;
+        Children: UIElementCollection;
+        IsItemsHost: bool;
+    }
+    export class PasswordBox extends Control {
+        static CaretBrushProperty: DependencyProperty;
+        static MaxLengthProperty: DependencyProperty;
+        static SelectionForegroundProperty: DependencyProperty;
+        static SelectionBackgroundProperty: DependencyProperty;
+        static PasswordProperty: DependencyProperty;
+        CaretBrush: Fayde.Media.Brush;
+        MaxLength: number;
+        SelectionForeground: Fayde.Media.Brush;
+        SelectionBackground: Fayde.Media.Brush;
+        Password: string;
+        SelectAll();
+        PasswordChanged: RoutedEvent;
+    }
+    export class ProgressBar extends Primitives.RangeBase {
+        static IsIndeterminateProperty: DependencyProperty;
+        IsIndeterminate: bool;
+    }
+    export class RadioButton extends Primitives.ToggleButton {
+        static GroupNameProperty: DependencyProperty;
+        GroupName: string;
+    }
+    export class RichTextBox extends Control {
+        static AcceptsReturnProperty: DependencyProperty;
+        static CaretBrushProperty: DependencyProperty;
+        static IsReadOnlyProperty: DependencyProperty;
+        static LineHeightProperty: DependencyProperty;
+        static LineStackingStrategyProperty: DependencyProperty;
+        static TextAlignmentProperty: DependencyProperty;
+        static TextWrappingProperty: DependencyProperty;
+        AcceptsReturn: bool;
+        BaselineOffset: number;
+        Blocks: Documents.BlockCollection;
+        CaretBrush: Fayde.Media.Brush;
+        HorizontalScrollBarVisibility: ScrollBarVisibility;
+        IsReadOnly: bool;
+        LineHeight: number;
+        LineStackingStrategy: LineStackingStrategy;
+        Selection: Documents.TextSelection;
+        TextAlignment: TextAlignment;
+        TextWrapping: TextWrapping;
+        VerticalScrollBarVisibility: ScrollBarVisibility;
+        Xaml: string;
 
-    Opened: MulticastEvent;
-    Closed: MulticastEvent;
-}
-class Thumb extends Control {
-    static IsDraggingProperty: DependencyProperty;
-    static IsFocusedProperty: DependencyProperty;
-    IsDragging: bool;
-    IsFocused: bool;
-    CancelDrag();
-    DragCompleted: MulticastEvent;
-    DragDelta: MulticastEvent;
-    DragStarted: MulticastEvent;
+        ContentChanged: RoutedEvent;
+        SelectionChanged: RoutedEvent;
+    }
+    export class RowDefinition extends DependencyObject {
+        static MaxHeightProperty: DependencyProperty;
+        static MinHeightProperty: DependencyProperty;
+        static HeightProperty: DependencyProperty;
+        ActualHeight: number;
+        MaxHeight: number;
+        MinHeight: number;
+        Height: GridLength;
+    }
+    export class RowDefinitionCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): RowDefinition;
+        SetValueAt(index: number, value: RowDefinition);
+        Add(value: RowDefinition);
+        AddRange(newItems: RowDefinition[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: RowDefinition);
+        Remove(value: RowDefinition);
+        IndexOf(value: RowDefinition): number;
+        Contains(value: RowDefinition): bool;
+        ToArray(): RowDefinition[];
+    }
+    export class ScrollContentPresenter extends ContentPresenter implements Primitives.IScrollInfo {
+        LineDown();
+        LineLeft();
+        LineRight();
+        LineUp();
+        MouseWheelDown();
+        MouseWheelLeft();
+        MouseWheelRight();
+        MouseWheelUp();
+        PageDown();
+        PageLeft();
+        PageRight();
+        PageUp();
+        SetHorizontalOffset(offset: number);
+        SetVerticalOffset(offset: number);
+        MakeVisible(visual: UIElement, rectangle: Rect);
+    }
+    export class ScrollViewer extends ContentControl {
+        static HorizontalScrollBarVisibilityProperty: DependencyProperty;
+        static GetHorizontalScrollBarVisibility(d: DependencyObject): ScrollBarVisibility;
+        static SetHorizontalScrollBarVisibility(d: DependencyObject, value: ScrollBarVisibility);
+
+        static VerticalScrollBarVisibilityProperty: DependencyProperty;
+        static GetVerticalScrollBarVisibility(d: DependencyObject): ScrollBarVisibility;
+        static SetVerticalScrollBarVisibility(d: DependencyObject, value: ScrollBarVisibility);
+
+        static ComputedHorizontalScrollBarVisibilityProperty: DependencyProperty;
+        static ComputedVerticalScrollBarVisibilityProperty: DependencyProperty;
+        static HorizontalOffsetProperty: DependencyProperty;
+        static VerticalOffsetProperty: DependencyProperty;
+        static ScrollableWidthProperty: DependencyProperty;
+        static ScrollableHeightProperty: DependencyProperty;
+        static ExtentWidthProperty: DependencyProperty;
+        static ExtentHeightProperty: DependencyProperty;
+        static ViewportWidthProperty: DependencyProperty;
+        static ViewportHeightProperty: DependencyProperty;
+
+        HorizontalScrollBarVisibility: ScrollBarVisibility;
+        VerticalScrollBarVisibility: ScrollBarVisibility;
+        ComputedHorizontalScrollBarVisibility: ScrollBarVisibility;
+        ComputedVerticalScrollBarVisibility: ScrollBarVisibility;
+        HorizontalOffset: number;
+        VerticalOffset: number;
+        ScrollableWidth: number;
+        ScrollableHeight: number;
+        ExtentWidth: number;
+        ExtentHeight: number;
+        ViewportWidth: number;
+        ViewportHeight: number;
+
+        InvalidateScrollInfo();
+        ScrollToHorizontalOffset(offset: number);
+        ScrollToVerticalOffset(offset: number);
+    }
+    export class Slider extends Primitives.RangeBase {
+        static IsDirectionReversedProperty: DependencyProperty;
+        static IsFocusedProperty: DependencyProperty;
+        static OrientationProperty: DependencyProperty;
+        IsDirectionReversed: bool;
+        IsFocused: bool;
+        Orientation: Orientation;
+    }
+    export class StackPanel extends Panel {
+        static OrientationProperty: DependencyProperty;
+        Orientation: Orientation;
+        MeasureOverride(constraint: Size): Size;
+        ArrangeOverride(arrangeSize: Size): Size;
+    }
+    export class TextBlock extends FrameworkElement {
+        static FontFamilyProperty: DependencyProperty;
+        static FontSizeProperty: DependencyProperty;
+        static FontStretchProperty: DependencyProperty;
+        static FontStyleProperty: DependencyProperty;
+        static FontWeightProperty: DependencyProperty;
+        static ForegroundProperty: DependencyProperty;
+        static InlinesProperty: DependencyProperty;
+        static LineHeightProperty: DependencyProperty;
+        static LineStackingStrategyProperty: DependencyProperty;
+        static PaddingProperty: DependencyProperty;
+        static TextAlignmentProperty: DependencyProperty;
+        static TextDecorationsProperty: DependencyProperty;
+        static TextProperty: DependencyProperty;
+        static TextTrimmingProperty: DependencyProperty;
+        static TextWrappingProperty: DependencyProperty;
+        FontFamily: string;
+        FontSize: number;
+        FontStretch: string;
+        FontStyle: string;
+        FontWeight: FontWeight;
+        Foreground: Fayde.Media.Brush;
+        Inlines: Fayde.Documents.InlineCollection;
+        LineHeight: number;
+        LineStackingStrategy: LineStackingStrategy;
+        Padding: Thickness;
+        TextAlignment: TextAlignment;
+        TextDecorations: TextDecorations;
+        Text: string;
+        TextTrimming: TextTrimming;
+        TextWrapping: TextWrapping;
+    }
+    export class TextBox extends Control {
+        static AcceptsReturnProperty: DependencyProperty;
+        static CaretBrushProperty: DependencyProperty;
+        static MaxLengthProperty: DependencyProperty;
+        static IsReadOnlyProperty: DependencyProperty;
+        static SelectionForegroundProperty: DependencyProperty;
+        static SelectionBackgroundProperty: DependencyProperty;
+        static BaselineOffsetProperty: DependencyProperty;
+        static SelectedTextProperty: DependencyProperty;
+        static SelectionLengthProperty: DependencyProperty;
+        static SelectionStartProperty: DependencyProperty;
+        static TextProperty: DependencyProperty;
+        static TextAlignmentProperty: DependencyProperty;
+        static TextWrappingProperty: DependencyProperty;
+        static HorizontalScrollBarVisibilityProperty: DependencyProperty;
+        static VerticalScrollBarVisibilityProperty: DependencyProperty;
+        AcceptsReturn: bool;
+        CaretBrush: Fayde.Media.Brush;
+        MaxLength: number;
+        IsReadOnly: bool;
+        SelectionForeground: Fayde.Media.Brush;
+        SelectionBackground: Fayde.Media.Brush;
+        BaselineOffset: number;
+        SelectedText: string;
+        SelectionLength: number;
+        SelectionStart: number;
+        Text: string;
+        TextAlignment: TextAlignment;
+        TextWrapping: TextWrapping;
+        HorizontalScrollBarVisibility: ScrollBarVisibility;
+        VerticalScrollBarVisibility: ScrollBarVisibility;
+        Select(start: number, length: number);
+        SelectAll();
+        SelectionChanged: RoutedEvent;
+        TextChanged: RoutedEvent;
+    }
+    export class ToolTip extends ContentControl {
+        static HorizontalOffsetProperty: DependencyProperty;
+        static IsOpenProperty: DependencyProperty;
+        static PlacementProperty: DependencyProperty;
+        static PlacementTargetProperty: DependencyProperty;
+        static VerticalOffsetProperty: DependencyProperty;
+        HorizontalOffset: number;
+        IsOpen: bool;
+        Placement: PlacementMode;
+        PlacementTarget: UIElement;
+        VerticalOffset: number;
+        Closed: RoutedEvent;
+        Opened: RoutedEvent;
+    }
+    export class ToolTipService {
+        static PlacementProperty: DependencyProperty;
+        static GetPlacement(d: DependencyObject): PlacementMode;
+        static SetPlacement(d: DependencyObject, value: PlacementMode);
+
+        static PlacementTargetProperty: DependencyProperty;
+        static GetPlacementTarget(d: DependencyObject): UIElement;
+        static SetPlacementTarget(d: DependencyObject, value: UIElement);
+
+        static ToolTipProperty: DependencyProperty;
+        static GetToolTip(d: DependencyObject): ToolTip;
+        static SetToolTip(d: DependencyObject, value: ToolTip);
+    }
+    export class UserControl extends Control {
+        static ContentProperty: DependencyProperty;
+        Content: UIElement;
+    }
+    export class VirtualizingPanel extends Panel {
+        ItemContainerGenerator: ItemContainerGenerator;
+        AddInternalChild(child: UIElement);
+        BringIndexIntoView(index: number);
+        InsertInternalChild(index: number, child: UIElement);
+        OnClearChildren();
+        OnItemsChanged(sender, args: Primitives.ItemsChangedEventArgs);
+        RemoveInternalChildRange(index: number, range: number);
+    }
+    export class VirtualizingStackPanel extends VirtualizingPanel implements Primitives.IScrollInfo {
+        static IsVirtualizingProperty: DependencyProperty;
+        static GetIsVirtualizing(d: DependencyObject): bool;
+        static SetIsVirtualizing(d: DependencyObject, value: bool);
+
+        static OrientationProperty: DependencyProperty;
+
+        static VirtualizationMode: DependencyProperty;
+        static GetVirtualizationMode(d: DependencyObject): VirtualizationMode;
+        static SetVirtualizationMode(d: DependencyObject, value: VirtualizationMode);
+
+        MeasureOverride(constraint: Size): Size;
+        ArrangeOverride(arrangeSize: Size): Size;
+
+        //IScrollInfo Members
+        LineDown();
+        LineLeft();
+        LineRight();
+        LineUp();
+        MouseWheelDown();
+        MouseWheelLeft();
+        MouseWheelRight();
+        MouseWheelUp();
+        PageDown();
+        PageLeft();
+        PageRight();
+        PageUp();
+        SetHorizontalOffset(offset: number);
+        SetVerticalOffset(offset: number);
+        MakeVisible(visual: UIElement, rectangle: Rect);
+    }
 }
 
 //////////////////////////////////////////////////////////
 // MEDIA
 //////////////////////////////////////////////////////////
-class Brush extends DependencyObject {
-    static TransformProperty: DependencyProperty;
-    Transform: Transform;
-}
-class SolidColorBrush extends Brush {
-    static ColorProperty: DependencyProperty;
-    Color: Color;
-}
-class GradientBrush extends Brush {
-    static GradientStopsProperty: DependencyProperty;
-    static MappingModeProperty: DependencyProperty;
-    static SpreadMethodProperty: DependencyProperty;
+module Fayde.Media {
+    export class CacheMode extends DependencyObject {
+    }
+    export enum TextHintingMode {
+        Fixed = 0,
+        Animated = 1,
+    }
+    export class TextOptions {
+        static TextHintingModeProperty: DependencyProperty;
+        static GetTextHintingMode(d: DependencyObject): TextHintingMode;
+        static SetTextHintingMode(d: DependencyObject, value: TextHintingMode);
+    }
+    //Brushes
+    export enum AlignmentX  {
+        Left = 0,
+        Center = 1,
+        Right = 2
+    }
+    export enum AlignmentY {
+        Top = 0,
+        Center = 1,
+        Bottom = 2
+    }
+    export enum Stretch {
+        None = 0,
+        Fill = 1,
+        Uniform = 2,
+        UniformToFill = 3
+    }
+    export enum GradientSpreadMethod {
+        Pad = 0,
+        Reflect = 1,
+        Repeat = 2,
+    }
+    export enum BrushMappingMode {
+        Absolute = 0,
+        RelativeToBoundingBox = 1,
+    }
+    export class Brush extends DependencyObject {
+        static TransformProperty: DependencyProperty;
+        Transform: Fayde.Media.Transform;
+    }
+    export class SolidColorBrush extends Brush {
+        static ColorProperty: DependencyProperty;
+        Color: Color;
+    }
+    export class GradientBrush extends Brush {
+        static GradientStopsProperty: DependencyProperty;
+        static MappingModeProperty: DependencyProperty;
+        static SpreadMethodProperty: DependencyProperty;
+        GradientStops: GradientStopsCollection;
+        MappingMode: BrushMappingMode;
+        SpreadMethod: GradientSpreadMethod;
 
-    GradientStops: GradientStopsCollection;
-    MappingMode: BrushMappingMode;
-    SpreadMethod: GradientSpreadMethod;
+    }
+    export class GradientStop extends DependencyObject {
+        static ColorProperty: DependencyProperty;
+        static OffsetProperty: DependencyProperty;
+        Color: Color;
+        Offset: number;
+        toString(): string;
+    }
+    export class GradientStopsCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): GradientStop;
+        SetValueAt(index: number, value: GradientStop);
+        Add(value: GradientStop);
+        AddRange(newItems: GradientStop[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: GradientStop);
+        Remove(value: GradientStop);
+        IndexOf(value: GradientStop): number;
+        Contains(value: GradientStop): bool;
+        ToArray(): GradientStop[];
+    }
+    export class LinearGradientBrush extends GradientBrush {
+        static StartPointProperty: DependencyProperty;
+        static EndPointProperty: DependencyProperty;
+        StartPoint: Point;
+        EndPoint: Point;
+    }
+    export class RadialGradientBrush extends GradientBrush {
+        static CenterProperty: DependencyProperty;
+        static GradientOriginProperty: DependencyProperty;
+        static RadiusXProperty: DependencyProperty;
+        static RadiusYProperty: DependencyProperty;
+        Center: Point;
+        GradientOrigin: Point;
+        RadiusX: number;
+        RadiusY: number;
+    }
+    export class TileBrush extends Brush {
+        static AlignmentXProperty: DependencyProperty;
+        static AlignmentYProperty: DependencyProperty;
+        static StretchProperty: DependencyProperty;
+        AlignmentX: AlignmentX;
+        AlignmentY: AlignmentY;
+        Stretch: Stretch;
+    }
+    //Geometries
+    export class Geometry extends DependencyObject {
+        static TransformProperty: DependencyProperty;
+        Transform: Fayde.Media.Transform;
+        Bounds: Rect;
+    }
+    export class GeometryCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): Geometry;
+        SetValueAt(index: number, value: Geometry);
+        Add(value: Geometry);
+        AddRange(newItems: Geometry[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: Geometry);
+        Remove(value: Geometry);
+        IndexOf(value: Geometry): number;
+        Contains(value: Geometry): bool;
+        ToArray(): Geometry[];
+    }
+    export class GeometryGroup extends Geometry {
+        static FillRuleProperty: DependencyProperty;
+        static ChildrenProperty: DependencyProperty;
+        FillRule: Fayde.Shapes.FillRule;
+        Children: GeometryCollection;
+    }
+    export class PathSegment extends DependencyObject {
+    }
+    export class PathSegmentCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): PathSegment;
+        SetValueAt(index: number, value: PathSegment);
+        Add(value: PathSegment);
+        AddRange(newItems: PathSegment[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: PathSegment);
+        Remove(value: PathSegment);
+        IndexOf(value: PathSegment): number;
+        Contains(value: PathSegment): bool;
+        ToArray(): PathSegment[];
+    }
+    export class PathFigure extends DependencyObject {
+        static IsClosedProperty: DependencyProperty;
+        static SegmentsProperty: DependencyProperty;
+        static StartPointProperty: DependencyProperty;
+        static IsFilledProperty: DependencyProperty;
+        IsClosedProperty: bool;
+        SegmentsProperty: PathSegmentCollection;
+        StartPointProperty: Point;
+        IsFilledProperty: bool;
+    }
+    export class PathFigureCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): PathFigure;
+        SetValueAt(index: number, value: PathFigure);
+        Add(value: PathFigure);
+        AddRange(newItems: PathFigure[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: PathFigure);
+        Remove(value: PathFigure);
+        IndexOf(value: PathFigure): number;
+        Contains(value: PathFigure): bool;
+        ToArray(): PathFigure[];
+    }
+    export class ArcSegment extends PathSegment {
+        static IsLargeArcProperty: DependencyProperty;
+        static PointProperty: DependencyProperty;
+        static RotationAngleProperty: DependencyProperty;
+        static SizeProperty: DependencyProperty;
+        static SweepDirectionProperty: DependencyProperty;
+        IsLargeArc: bool;
+        Point: Point;
+        RotationAngle: number;
+        Size: Size;
+        SweepDirection: Fayde.Shapes.SweepDirection;
+    }
+    export class PathGeometry extends Geometry {
+        static FillRuleProperty: DependencyProperty;
+        static FiguresProperty: DependencyProperty;
+        FillRule: Fayde.Shapes.FillRule;
+        Figures: PathFigureCollection;
+    }
+    export class RectangleGeometry extends Geometry {
+        static RectProperty: DependencyProperty;
+        static RadiusXProperty: DependencyProperty;
+        static RadiusYProperty: DependencyProperty;
+        Rect: Rect;
+        RadiusX: number;
+        RadiusY: number;
+    }
+    //Transforms/Projections
+    export class GeneralTransform extends DependencyObject {
+        Inverse: GeneralTransform;
+        Transform(point: Point): Point;
+        TransformBounds(rect: Rect): Rect;
+    }
+    export class Transform extends GeneralTransform {
+    }
+    export class MatrixTransform extends Transform {
+        static MatrixProperty: DependencyProperty;
+        Matrix: Matrix;
+    }
+    export class RotateTransform extends Transform {
+        static AngleProperty: DependencyProperty;
+        static CenterXProperty: DependencyProperty;
+        static CenterYProperty: DependencyProperty;
+        Angle: number;
+        CenterX: number;
+        CenterY: number;
+    }
+    export class ScaleTransform extends Transform {
+        static CenterXProperty: DependencyProperty;
+        static CenterYProperty: DependencyProperty;
+        static ScaleXProperty: DependencyProperty;
+        static ScaleYProperty: DependencyProperty;
+        CenterX: number;
+        CenterY: number;
+        ScaleX: number;
+        ScaleY: number;
+    }
+    export class SkewTransform extends Transform {
+        static AngleXProperty: DependencyProperty;
+        static AngleYProperty: DependencyProperty;
+        static CenterXProperty: DependencyProperty;
+        static CenterYProperty: DependencyProperty;
+        AngleX: number;
+        AngleY: number;
+        CenterX: number;
+        CenterY: number;
+    }
+    export class TranslateTransform extends Transform {
+        static XProperty: DependencyProperty;
+        static YProperty: DependencyProperty;
+        X: number;
+        Y: number;
+    }
+    export class TransformCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): Transform;
+        SetValueAt(index: number, value: Transform);
+        Add(value: Transform);
+        AddRange(newItems: Transform[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: Transform);
+        Remove(value: Transform);
+        IndexOf(value: Transform): number;
+        Contains(value: Transform): bool;
+        ToArray(): Transform[];
+    }
+    export class TransformGroup extends Transform {
+        static ChildrenProperty: DependencyProperty;
+        Children: TransformCollection;
+    }
+    export class Projection extends DependencyObject {
+    }
+    export class Matrix3DProjection extends Projection {
+        static ProjectionMatrixProperty: DependencyProperty;
+        ProjectionMatrix: Matrix3D;
+    }
+}
 
+//////////////////////////////////////////////////////////
+// IMAGING
+//////////////////////////////////////////////////////////
+module Fayde.Media.Imaging {
+    export class ImageSource extends DependencyObject {
+    }
+    export class BitmapSource extends ImageSource {
+        static PixelWidthProperty: DependencyProperty;
+        static PixelHeightProperty: DependencyProperty;
+        PixelWidth: number;
+        PixelHeight: number;
+    }
+    export class BitmapImage extends BitmapSource {
+        static UriSourceProperty: DependencyProperty;
+        UriSource: Uri;
+        ImageFailed: MulticastEvent;
+        ImageOpened: MulticastEvent;
+        DownloadProgress: MulticastEvent;
+    }
+    export class ImageBrush extends TileBrush {
+        static ImageSourceProperty: DependencyProperty;
+        ImageSource: ImageBrush;
+    }
 }
-class GradientStop extends DependencyObject {
-    static ColorProperty: DependencyProperty;
-    static OffsetProperty: DependencyProperty;
-    Color: Color;
-    Offset: number;
-    toString(): string;
-}
-class GradientStopsCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): GradientStop;
-    SetValueAt(index: number, value: GradientStop);
-    Add(value: GradientStop);
-    AddRange(newItems: GradientStop[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: GradientStop);
-    Remove(value: GradientStop);
-    IndexOf(value: GradientStop): number;
-    Contains(value: GradientStop): bool;
-    ToArray(): GradientStop[];
-}
-class LinearGradientBrush extends GradientBrush {
-    static StartPointProperty: DependencyProperty;
-    static EndPointProperty: DependencyProperty;
-    StartPoint: Point;
-    EndPoint: Point;
-}
-class RadialGradientBrush extends GradientBrush {
-    static CenterProperty: DependencyProperty;
-    static GradientOriginProperty: DependencyProperty;
-    static RadiusXProperty: DependencyProperty;
-    static RadiusYProperty: DependencyProperty;
-    Center: Point;
-    GradientOrigin: Point;
-    RadiusX: number;
-    RadiusY: number;
-}
-class TileBrush extends Brush {
-    static AlignmentXProperty: DependencyProperty;
-    static AlignmentYProperty: DependencyProperty;
-    static StretchProperty: DependencyProperty;
-    AlignmentX: AlignmentX;
-    AlignmentY: AlignmentY;
-    Stretch: Stretch;
-}
-class ImageBrush extends TileBrush {
-    static ImageSourceProperty: DependencyProperty;
-    ImageSource: ImageBrush;
-}
-class GeneralTransform extends DependencyObject {
-    Inverse: GeneralTransform;
-    Transform(point: Point): Point;
-    TransformBounds(rect: Rect): Rect;
-}
-class Transform extends GeneralTransform {
-}
-class MatrixTransform extends Transform {
-    static MatrixProperty: DependencyProperty;
-    Matrix: Matrix;
-}
-class RotateTransform extends Transform {
-    static AngleProperty: DependencyProperty;
-    static CenterXProperty: DependencyProperty;
-    static CenterYProperty: DependencyProperty;
-    Angle: number;
-    CenterX: number;
-    CenterY: number;
-}
-class ScaleTransform extends Transform {
-    static CenterXProperty: DependencyProperty;
-    static CenterYProperty: DependencyProperty;
-    static ScaleXProperty: DependencyProperty;
-    static ScaleYProperty: DependencyProperty;
-    CenterX: number;
-    CenterY: number;
-    ScaleX: number;
-    ScaleY: number;
-}
-class SkewTransform extends Transform {
-    static AngleXProperty: DependencyProperty;
-    static AngleYProperty: DependencyProperty;
-    static CenterXProperty: DependencyProperty;
-    static CenterYProperty: DependencyProperty;
-    AngleX: number;
-    AngleY: number;
-    CenterX: number;
-    CenterY: number;
-}
-class TranslateTransform extends Transform {
-    static XProperty: DependencyProperty;
-    static YProperty: DependencyProperty;
-    X: number;
-    Y: number;
-}
-class TransformCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): Transform;
-    SetValueAt(index: number, value: Transform);
-    Add(value: Transform);
-    AddRange(newItems: Transform[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: Transform);
-    Remove(value: Transform);
-    IndexOf(value: Transform): number;
-    Contains(value: Transform): bool;
-    ToArray(): Transform[];
-}
-class TransformGroup extends Transform {
-    static ChildrenProperty: DependencyProperty;
-    Children: TransformCollection;
-}
-class Projection extends DependencyObject {
-}
-class Matrix3DProjection extends Projection {
-    static ProjectionMatrixProperty: DependencyProperty;
-    ProjectionMatrix: Matrix3D;
-}
-class Geometry extends DependencyObject {
-    static TransformProperty: DependencyProperty;
-    Transform: Transform;
-    Bounds: Rect;
-}
-class GeometryCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): Geometry;
-    SetValueAt(index: number, value: Geometry);
-    Add(value: Geometry);
-    AddRange(newItems: Geometry[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: Geometry);
-    Remove(value: Geometry);
-    IndexOf(value: Geometry): number;
-    Contains(value: Geometry): bool;
-    ToArray(): Geometry[];
-}
-class GeometryGroup extends Geometry {
-    static FillRuleProperty: DependencyProperty;
-    static ChildrenProperty: DependencyProperty;
-    FillRule: FillRule;
-    Children: GeometryCollection;
-}
-class PathSegment extends DependencyObject {
-}
-class PathSegmentCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): PathSegment;
-    SetValueAt(index: number, value: PathSegment);
-    Add(value: PathSegment);
-    AddRange(newItems: PathSegment[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: PathSegment);
-    Remove(value: PathSegment);
-    IndexOf(value: PathSegment): number;
-    Contains(value: PathSegment): bool;
-    ToArray(): PathSegment[];
-}
-class PathFigure extends DependencyObject {
-    static IsClosedProperty: DependencyProperty;
-    static SegmentsProperty: DependencyProperty;
-    static StartPointProperty: DependencyProperty;
-    static IsFilledProperty: DependencyProperty;
-    IsClosedProperty: bool;
-    SegmentsProperty: PathSegmentCollection;
-    StartPointProperty: Point;
-    IsFilledProperty: bool;
-}
-class PathFigureCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): PathFigure;
-    SetValueAt(index: number, value: PathFigure);
-    Add(value: PathFigure);
-    AddRange(newItems: PathFigure[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: PathFigure);
-    Remove(value: PathFigure);
-    IndexOf(value: PathFigure): number;
-    Contains(value: PathFigure): bool;
-    ToArray(): PathFigure[];
-}
-class ArcSegment extends PathSegment {
-    static IsLargeArcProperty: DependencyProperty;
-    static PointProperty: DependencyProperty;
-    static RotationAngleProperty: DependencyProperty;
-    static SizeProperty: DependencyProperty;
-    static SweepDirectionProperty: DependencyProperty;
-    IsLargeArc: bool;
-    Point: Point;
-    RotationAngle: number;
-    Size: Size;
-    SweepDirection: SweepDirection;
-}
-class PathGeometry extends Geometry {
-    static FillRuleProperty: DependencyProperty;
-    static FiguresProperty: DependencyProperty;
-    FillRule: FillRule;
-    Figures: PathFigureCollection;
-}
-class RectangleGeometry extends Geometry {
-    static RectProperty: DependencyProperty;
-    static RadiusXProperty: DependencyProperty;
-    static RadiusYProperty: DependencyProperty;
-    Rect: Rect;
-    RadiusX: number;
-    RadiusY: number;
-}
-class Effect extends DependencyObject {
-    static EffectMappingProperty: DependencyProperty;
-    EffectMapping: GeneralTransform;
-}
-class BlurEffect extends Effect {
-    static RadiusProperty: DependencyProperty;
-    Radius: number;
-}
-class DropShadowEffect extends Effect {
-    static BlurRadiusProperty: DependencyProperty;
-    static ColorProperty: DependencyProperty;
-    static DirectionProperty: DependencyProperty;
-    static OpacityProperty: DependencyProperty;
-    static ShadowDepthProperty: DependencyProperty;
-    BlurRadius: number;
-    Color: Color;
-    Direction: number;
-    Opacity: number;
-    ShadowDepth: number;
-}
-class ImageSource extends DependencyObject {
-}
-class BitmapSource extends ImageSource {
-    static PixelWidthProperty: DependencyProperty;
-    static PixelHeightProperty: DependencyProperty;
-    PixelWidth: number;
-    PixelHeight: number;
-}
-class BitmapImage extends BitmapSource {
-    static UriSourceProperty: DependencyProperty;
-    UriSource: Uri;
-    ImageFailed: MulticastEvent;
-    ImageOpened: MulticastEvent;
-    DownloadProgress: MulticastEvent;
-}
-class TextOptions {
-    static TextHintingModeProperty: DependencyProperty;
-    static GetTextHintingMode(d: DependencyObject): TextHintingMode;
-    static SetTextHintingMode(d: DependencyObject, value: TextHintingMode);
+
+//////////////////////////////////////////////////////////
+// EFFECTS
+//////////////////////////////////////////////////////////
+module Fayde.Media.Effects {
+    export class Effect extends DependencyObject {
+        static EffectMappingProperty: DependencyProperty;
+        EffectMapping: GeneralTransform;
+    }
+    export class BlurEffect extends Effect {
+        static RadiusProperty: DependencyProperty;
+        Radius: number;
+    }
+    export class DropShadowEffect extends Effect {
+        static BlurRadiusProperty: DependencyProperty;
+        static ColorProperty: DependencyProperty;
+        static DirectionProperty: DependencyProperty;
+        static OpacityProperty: DependencyProperty;
+        static ShadowDepthProperty: DependencyProperty;
+        BlurRadius: number;
+        Color: Color;
+        Direction: number;
+        Opacity: number;
+        ShadowDepth: number;
+    }
 }
 
 //////////////////////////////////////////////////////////
 // VISUAL STATE MANAGER
 //////////////////////////////////////////////////////////
-class VisualTransition extends DependencyObject {
-    From: string;
-    To: string;
-    Storyboard: Storyboard;
-    GeneratedDuration: Duration;
-    GeneratedEasingFunction: IEasingFunction;
-}
-class VisualTransitionCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): VisualTransition;
-    SetValueAt(index: number, value: VisualTransition);
-    Add(value: VisualTransition);
-    AddRange(newItems: VisualTransition[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: VisualTransition);
-    Remove(value: VisualTransition);
-    IndexOf(value: VisualTransition): number;
-    Contains(value: VisualTransition): bool;
-    ToArray(): VisualTransition[];
-}
-class VisualStateGroup extends DependencyObject {
-    States: VisualStateCollection;
-    CurrentStateChanging: MulticastEvent;
-    CurrentStateChanged: MulticastEvent;
-}
-class VisualStateGroupCollection implements ICollection {
-    GetCount(): number;
-    GetValueAt(index: number): VisualStateGroup;
-    SetValueAt(index: number, value: VisualStateGroup);
-    Add(value: VisualStateGroup);
-    AddRange(newItems: VisualStateGroup[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: VisualStateGroup);
-    Remove(value: VisualStateGroup);
-    RemoveAt(index: number);
-    Clear();
-    IndexOf(value: VisualStateGroup): number;
-    Contains(value: VisualStateGroup): bool;
-    ToArray(): VisualStateGroup[];
-}
-class VisualState extends DependencyObject {
-    static StoryboardProperty: DependencyProperty;
-    Storyboard: Storyboard;
-}
-class VisualStateCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): VisualState;
-    SetValueAt(index: number, value: VisualState);
-    Add(value: VisualState);
-    AddRange(newItems: VisualState[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: VisualState);
-    Remove(value: VisualState);
-    IndexOf(value: VisualState): number;
-    Contains(value: VisualState): bool;
-    ToArray(): VisualState[];
-}
-class VisualStateManager extends DependencyObject {
-    static VisualStateGroupsProperty: DependencyProperty;
-    static GetVisualStateGroups(d: DependencyObject): VisualStateGroupCollection;
+module Fayde.Media.VisualStateManager {
+    export class VisualTransition extends DependencyObject {
+        From: string;
+        To: string;
+        Storyboard: Fayde.Media.Animation.Storyboard;
+        GeneratedDuration: Duration;
+        GeneratedEasingFunction: Fayde.Media.Animation.IEasingFunction;
+    }
+    export class VisualTransitionCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): VisualTransition;
+        SetValueAt(index: number, value: VisualTransition);
+        Add(value: VisualTransition);
+        AddRange(newItems: VisualTransition[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: VisualTransition);
+        Remove(value: VisualTransition);
+        IndexOf(value: VisualTransition): number;
+        Contains(value: VisualTransition): bool;
+        ToArray(): VisualTransition[];
+    }
+    export class VisualStateGroup extends DependencyObject {
+        States: VisualStateCollection;
+        CurrentStateChanging: MulticastEvent;
+        CurrentStateChanged: MulticastEvent;
+    }
+    export class VisualStateGroupCollection implements ICollection {
+        GetCount(): number;
+        GetValueAt(index: number): VisualStateGroup;
+        SetValueAt(index: number, value: VisualStateGroup);
+        Add(value: VisualStateGroup);
+        AddRange(newItems: VisualStateGroup[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: VisualStateGroup);
+        Remove(value: VisualStateGroup);
+        RemoveAt(index: number);
+        Clear();
+        IndexOf(value: VisualStateGroup): number;
+        Contains(value: VisualStateGroup): bool;
+        ToArray(): VisualStateGroup[];
+    }
+    export class VisualState extends DependencyObject {
+        static StoryboardProperty: DependencyProperty;
+        Storyboard: Fayde.Media.Animation.Storyboard;
+    }
+    export class VisualStateCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): VisualState;
+        SetValueAt(index: number, value: VisualState);
+        Add(value: VisualState);
+        AddRange(newItems: VisualState[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: VisualState);
+        Remove(value: VisualState);
+        IndexOf(value: VisualState): number;
+        Contains(value: VisualState): bool;
+        ToArray(): VisualState[];
+    }
+    export class VisualStateManager extends DependencyObject {
+        static VisualStateGroupsProperty: DependencyProperty;
+        static GetVisualStateGroups(d: DependencyObject): VisualStateGroupCollection;
 
-    static CustomVisualStateManagerProperty: DependencyProperty;
-    static GetCustomVisualStateManager(d: DependencyObject): VisualStateManager;
-    static SetCustomVisualStateManager(d: DependencyObject, value: VisualStateManager);
+        static CustomVisualStateManagerProperty: DependencyProperty;
+        static GetCustomVisualStateManager(d: DependencyObject): VisualStateManager;
+        static SetCustomVisualStateManager(d: DependencyObject, value: VisualStateManager);
 
-    static GoToStateCore(control: Control, element: FrameworkElement, stateName: string, group: VisualStateGroup, state: VisualState, useTransitions: bool): bool;
-    static GoToState(control: Control, stateName: string, useTransitions: bool): bool;
+        static GoToStateCore(control: Fayde.Controls.Control, element: FrameworkElement, stateName: string, group: VisualStateGroup, state: VisualState, useTransitions: bool): bool;
+        static GoToState(control: Fayde.Controls.Control, stateName: string, useTransitions: bool): bool;
+    }
 }
 
 //////////////////////////////////////////////////////////
 // ANIMATIONS
 //////////////////////////////////////////////////////////
-interface IEasingFunction {
-}
-class RepeatBehavior {
-    static FromRepeatDuration(duration: Duration): RepeatBehavior;
-    static FromIterationCount(count: number): RepeatBehavior;
-    static FromForever(): RepeatBehavior;
-    HasCount: bool;
-    Count: number;
-    HasDuration: bool;
-    Duration: Duration;
-    IsForever: bool;
-}
-class Timeline extends DependencyObject {
-    static AutoReverseProperty: DependencyProperty;
-    static BeginTimeProperty: DependencyProperty;
-    static DurationProperty: DependencyProperty;
-    static RepeatBehaviorProperty: DependencyProperty;
-    static SpeedRatioProperty: DependencyProperty;
-    static FillBehaviorProperty: DependencyProperty;
-    AutoReverse: bool;
-    BeginTime: TimeSpan;
-    Duration: Duration;
-    RepeatBehavior: RepeatBehavior;
-    SpeedRatio: number;
-    FillBehavior: FillBehavior;
-    Completed: MulticastEvent;
-}
-class TimelineCollection implements ICollection {
-    GetCount(): number;
-    GetValueAt(index: number): Timeline;
-    SetValueAt(index: number, value: Timeline);
-    Add(value: Timeline);
-    AddRange(newItems: Timeline[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: Timeline);
-    Remove(value: Timeline);
-    RemoveAt(index: number);
-    Clear();
-    IndexOf(value: Timeline): number;
-    Contains(value: Timeline): bool;
-    ToArray(): Timeline[];
-}
-class ColorAnimation extends Timeline {
-    static ByProperty: DependencyProperty;
-    static EasingFunctionProperty: DependencyProperty;
-    static FromProperty: DependencyProperty;
-    static ToProperty: DependencyProperty;
-    By: Color;
-    EasingFunction: IEasingFunction;
-    From: Color;
-    To: Color;
-}
-class ColorAnimationUsingKeyFrames extends Timeline {
-    static KeyFramesProperty: DependencyProperty;
-    KeyFrames: ColorKeyFrameCollection;
-}
-class DoubleAnimation extends Timeline {
-    static ByProperty: DependencyProperty;
-    static EasingFunctionProperty: DependencyProperty;
-    static FromProperty: DependencyProperty;
-    static ToProperty: DependencyProperty;
-    By: number;
-    EasingFunction: IEasingFunction;
-    From: number;
-    To: number;
-}
-class DoubleAnimationUsingKeyFrames extends Timeline {
-    static KeyFramesProperty: DependencyProperty;
-    KeyFrames: DoubleKeyFrameCollection;
-}
-class ObjectAnimationUsingKeyFrames extends Timeline {
-    static KeyFramesProperty: DependencyProperty;
-    KeyFrames: ObjectKeyFrameCollection;
-}
-class PointAnimation extends Timeline {
-    static ByProperty: DependencyProperty;
-    static EasingFunctionProperty: DependencyProperty;
-    static FromProperty: DependencyProperty;
-    static ToProperty: DependencyProperty;
-    By: Point;
-    EasingFunction: IEasingFunction;
-    From: Point;
-    To: Point;
-}
-class PointAnimationUsingKeyFrames extends Timeline {
-    static KeyFramesProperty: DependencyProperty;
-    KeyFrames: PointKeyFrameCollection;
-}
-class Storyboard extends Timeline {
-    static ChildrenProperty: DependencyProperty;
+module Fayde.Media.Animation {
+    export class RepeatBehavior {
+        static FromRepeatDuration(duration: Duration): RepeatBehavior;
+        static FromIterationCount(count: number): RepeatBehavior;
+        static FromForever(): RepeatBehavior;
+        HasCount: bool;
+        Count: number;
+        HasDuration: bool;
+        Duration: Duration;
+        IsForever: bool;
+    }
+    export class Timeline extends DependencyObject {
+        static AutoReverseProperty: DependencyProperty;
+        static BeginTimeProperty: DependencyProperty;
+        static DurationProperty: DependencyProperty;
+        static RepeatBehaviorProperty: DependencyProperty;
+        static SpeedRatioProperty: DependencyProperty;
+        static FillBehaviorProperty: DependencyProperty;
+        AutoReverse: bool;
+        BeginTime: TimeSpan;
+        Duration: Duration;
+        RepeatBehavior: RepeatBehavior;
+        SpeedRatio: number;
+        FillBehavior: FillBehavior;
+        Completed: MulticastEvent;
+    }
+    export class TimelineCollection implements ICollection {
+        GetCount(): number;
+        GetValueAt(index: number): Timeline;
+        SetValueAt(index: number, value: Timeline);
+        Add(value: Timeline);
+        AddRange(newItems: Timeline[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: Timeline);
+        Remove(value: Timeline);
+        RemoveAt(index: number);
+        Clear();
+        IndexOf(value: Timeline): number;
+        Contains(value: Timeline): bool;
+        ToArray(): Timeline[];
+    }
+    export class ColorAnimation extends Timeline {
+        static ByProperty: DependencyProperty;
+        static EasingFunctionProperty: DependencyProperty;
+        static FromProperty: DependencyProperty;
+        static ToProperty: DependencyProperty;
+        By: Color;
+        EasingFunction: IEasingFunction;
+        From: Color;
+        To: Color;
+    }
+    export class ColorAnimationUsingKeyFrames extends Timeline {
+        static KeyFramesProperty: DependencyProperty;
+        KeyFrames: ColorKeyFrameCollection;
+    }
+    export class DoubleAnimation extends Timeline {
+        static ByProperty: DependencyProperty;
+        static EasingFunctionProperty: DependencyProperty;
+        static FromProperty: DependencyProperty;
+        static ToProperty: DependencyProperty;
+        By: number;
+        EasingFunction: IEasingFunction;
+        From: number;
+        To: number;
+    }
+    export class DoubleAnimationUsingKeyFrames extends Timeline {
+        static KeyFramesProperty: DependencyProperty;
+        KeyFrames: DoubleKeyFrameCollection;
+    }
+    export class ObjectAnimationUsingKeyFrames extends Timeline {
+        static KeyFramesProperty: DependencyProperty;
+        KeyFrames: ObjectKeyFrameCollection;
+    }
+    export class PointAnimation extends Timeline {
+        static ByProperty: DependencyProperty;
+        static EasingFunctionProperty: DependencyProperty;
+        static FromProperty: DependencyProperty;
+        static ToProperty: DependencyProperty;
+        By: Point;
+        EasingFunction: IEasingFunction;
+        From: Point;
+        To: Point;
+    }
+    export class PointAnimationUsingKeyFrames extends Timeline {
+        static KeyFramesProperty: DependencyProperty;
+        KeyFrames: PointKeyFrameCollection;
+    }
+    export class Storyboard extends Timeline {
+        static ChildrenProperty: DependencyProperty;
 
-    static TargetNameProperty: DependencyProperty;
-    static GetTargetName(t: Timeline): string;
-    static SetTargetName(t: Timeline, value: string);
+        static TargetNameProperty: DependencyProperty;
+        static GetTargetName(t: Timeline): string;
+        static SetTargetName(t: Timeline, value: string);
 
-    static TargetPropertyProperty: DependencyProperty;
-    static GetTargetProperty(t: Timeline): PropertyPath;
-    static SetTargetProperty(t: Timeline, value: PropertyPath);
+        static TargetPropertyProperty: DependencyProperty;
+        static GetTargetProperty(t: Timeline): Fayde.Data.PropertyPath;
+        static SetTargetProperty(t: Timeline, value: Fayde.Data.PropertyPath);
 
-    Children: TimelineCollection;
+        Children: TimelineCollection;
 
-    Begin();
-    Pause();
-    Resume();
-    Stop();
-    //GetCurrentState(): ClockState;
-    //GetCurrentTime(): TimeSpan;
-    //Seek(offset: TimeSpan);
-    //SeekAlignedToLastTick(offset: TimeSpan);
-    //SkipToFill();
-}
-class BeginStoryboard {
-    static StoryboardProperty: DependencyProperty;
-    Storyboard: Storyboard;
-}
-class KeySpline extends DependencyObject {
-    ControlPoint1: Point;
-    ControlPoint2: Point;
-}
-class KeyFrame extends DependencyObject {
-    KeyTime: KeyTime;
-    Value: any;
-}
-class ColorKeyFrame extends KeyFrame {
-    static KeyTimeProperty: DependencyProperty;
-    static ValueProperty: DependencyProperty;
-    KeyTime: KeyTime;
-    Value: Color;
-}
-class DoubleKeyFrame extends KeyFrame {
-    static KeyTimeProperty: DependencyProperty;
-    static ValueProperty: DependencyProperty;
-    KeyTime: KeyTime;
-    Value: number;
-}
-class ObjectKeyFrame extends KeyFrame {
-    static KeyTimeProperty: DependencyProperty;
-    static ValueProperty: DependencyProperty;
-    KeyTime: KeyTime;
-    Value: any;
-}
-class PointKeyFrame extends KeyFrame {
-    static KeyTimeProperty: DependencyProperty;
-    static ValueProperty: DependencyProperty;
-    KeyTime: KeyTime;
-    Value: Point;
-}
-class KeyFrameCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): KeyFrame;
-    SetValueAt(index: number, value: KeyFrame);
-    Add(value: KeyFrame);
-    AddRange(newItems: KeyFrame[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: KeyFrame);
-    Remove(value: KeyFrame);
-    IndexOf(value: KeyFrame): number;
-    Contains(value: KeyFrame): bool;
-    ToArray(): KeyFrame[];
-}
-class ColorKeyFrameCollection extends KeyFrameCollection {
-    GetValueAt(index: number): ColorKeyFrame;
-    SetValueAt(index: number, value: ColorKeyFrame);
-    Add(value: ColorKeyFrame);
-    AddRange(newItems: ColorKeyFrame[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: ColorKeyFrame);
-    Remove(value: ColorKeyFrame);
-    IndexOf(value: ColorKeyFrame): number;
-    Contains(value: ColorKeyFrame): bool;
-    ToArray(): ColorKeyFrame[];
-}
-class DoubleKeyFrameCollection extends KeyFrameCollection {
-    GetValueAt(index: number): DoubleKeyFrame;
-    SetValueAt(index: number, value: DoubleKeyFrame);
-    Add(value: DoubleKeyFrame);
-    AddRange(newItems: DoubleKeyFrame[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: DoubleKeyFrame);
-    Remove(value: DoubleKeyFrame);
-    IndexOf(value: DoubleKeyFrame): number;
-    Contains(value: DoubleKeyFrame): bool;
-    ToArray(): DoubleKeyFrame[];
-}
-class ObjectKeyFrameCollection extends KeyFrameCollection {
-    GetValueAt(index: number): ObjectKeyFrame;
-    SetValueAt(index: number, value: ObjectKeyFrame);
-    Add(value: ObjectKeyFrame);
-    AddRange(newItems: ObjectKeyFrame[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: ObjectKeyFrame);
-    Remove(value: ObjectKeyFrame);
-    IndexOf(value: ObjectKeyFrame): number;
-    Contains(value: ObjectKeyFrame): bool;
-    ToArray(): ObjectKeyFrame[];
-}
-class PointKeyFrameCollection extends KeyFrameCollection {
-    GetValueAt(index: number): PointKeyFrame;
-    SetValueAt(index: number, value: PointKeyFrame);
-    Add(value: PointKeyFrame);
-    AddRange(newItems: PointKeyFrame[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: PointKeyFrame);
-    Remove(value: PointKeyFrame);
-    IndexOf(value: PointKeyFrame): number;
-    Contains(value: PointKeyFrame): bool;
-    ToArray(): PointKeyFrame[];
-}
-class DiscreteColorKeyFrame extends ColorKeyFrame {
-}
-class DiscreteDoubleKeyFrame extends DoubleKeyFrame {
-}
-class DiscreteObjectKeyFrame extends ObjectKeyFrame {
-}
-class DiscretePointKeyFrame extends PointKeyFrame {
-}
-class EasingColorKeyFrame extends ColorKeyFrame {
-    static EasingFunctionProperty: DependencyProperty;
-    EasingFunction: IEasingFunction;
-}
-class EasingDoubleKeyFrame extends DoubleKeyFrame {
-    static EasingFunctionProperty: DependencyProperty;
-    EasingFunction: IEasingFunction;
-}
-class EasingPointKeyFrame extends PointKeyFrame {
-    static EasingFunctionProperty: DependencyProperty;
-    EasingFunction: IEasingFunction;
-}
-class LinearColorKeyFrame extends ColorKeyFrame {
-}
-class LinearDoubleKeyFrame extends DoubleKeyFrame {
-}
-class LinearPointKeyFrame extends PointKeyFrame {
-}
-class SplineColorKeyFrame extends ColorKeyFrame {
-    static KeySplineProperty: DependencyProperty;
-    KeySpline: KeySpline;
-}
-class SplineDoubleKeyFrame extends DoubleKeyFrame {
-    static KeySplineProperty: DependencyProperty;
-    KeySpline: KeySpline;
-}
-class SplinePointKeyFrame extends PointKeyFrame {
-    static KeySplineProperty: DependencyProperty;
-    KeySpline: KeySpline;
-}
-class EasingFunctionBase extends DependencyObject implements IEasingFunction {
-    static EasingModeProperty: DependencyProperty;
-    EasingMode: EasingMode;
-    Ease(normalizedTime: number): number;
-    EaseInCore(normalizedTime: number): number;
-}
-class BackEase extends EasingFunctionBase {
-    static AmplitudeProperty: DependencyProperty;
-    Amplitude: number;
-}
-class BounceEase extends EasingFunctionBase {
-    static BouncesProperty: DependencyProperty;
-    static BouncinessProperty: DependencyProperty;
-    Bounces: number;
-    Bounciness: number;
-}
-class CircleEase extends EasingFunctionBase {
-}
-class CubicEase extends EasingFunctionBase {
-}
-class ElasticEase extends EasingFunctionBase {
-    static OscillationsProperty: DependencyProperty;
-    static SpringinessProperty: DependencyProperty;
-    Oscillations: number;
-    Springiness: number;
-}
-class ExponentialEase extends EasingFunctionBase {
-    static ExponentProperty: DependencyProperty;
-    Exponent: number;
-}
-class PowerEase extends EasingFunctionBase {
-    static PowerProperty: DependencyProperty;
-    Power: number;
-}
-class QuadraticEase extends EasingFunctionBase {
-}
-class QuarticEase extends EasingFunctionBase {
-}
-class QuinticEase extends EasingFunctionBase {
-}
-class SineEase extends EasingFunctionBase {
+        Begin();
+        Pause();
+        Resume();
+        Stop();
+        //GetCurrentState(): ClockState;
+        //GetCurrentTime(): TimeSpan;
+        //Seek(offset: TimeSpan);
+        //SeekAlignedToLastTick(offset: TimeSpan);
+        //SkipToFill();
+    }
+    export class BeginStoryboard {
+        static StoryboardProperty: DependencyProperty;
+        Storyboard: Storyboard;
+    }
+    export class KeySpline extends DependencyObject {
+        ControlPoint1: Point;
+        ControlPoint2: Point;
+    }
+    export class KeyFrame extends DependencyObject {
+        KeyTime: KeyTime;
+        Value: any;
+    }
+    export class ColorKeyFrame extends KeyFrame {
+        static KeyTimeProperty: DependencyProperty;
+        static ValueProperty: DependencyProperty;
+        KeyTime: KeyTime;
+        Value: Color;
+    }
+    export class DoubleKeyFrame extends KeyFrame {
+        static KeyTimeProperty: DependencyProperty;
+        static ValueProperty: DependencyProperty;
+        KeyTime: KeyTime;
+        Value: number;
+    }
+    export class ObjectKeyFrame extends KeyFrame {
+        static KeyTimeProperty: DependencyProperty;
+        static ValueProperty: DependencyProperty;
+        KeyTime: KeyTime;
+        Value: any;
+    }
+    export class PointKeyFrame extends KeyFrame {
+        static KeyTimeProperty: DependencyProperty;
+        static ValueProperty: DependencyProperty;
+        KeyTime: KeyTime;
+        Value: Point;
+    }
+    export class KeyFrameCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): KeyFrame;
+        SetValueAt(index: number, value: KeyFrame);
+        Add(value: KeyFrame);
+        AddRange(newItems: KeyFrame[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: KeyFrame);
+        Remove(value: KeyFrame);
+        IndexOf(value: KeyFrame): number;
+        Contains(value: KeyFrame): bool;
+        ToArray(): KeyFrame[];
+    }
+    export class ColorKeyFrameCollection extends KeyFrameCollection {
+        GetValueAt(index: number): ColorKeyFrame;
+        SetValueAt(index: number, value: ColorKeyFrame);
+        Add(value: ColorKeyFrame);
+        AddRange(newItems: ColorKeyFrame[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: ColorKeyFrame);
+        Remove(value: ColorKeyFrame);
+        IndexOf(value: ColorKeyFrame): number;
+        Contains(value: ColorKeyFrame): bool;
+        ToArray(): ColorKeyFrame[];
+    }
+    export class DoubleKeyFrameCollection extends KeyFrameCollection {
+        GetValueAt(index: number): DoubleKeyFrame;
+        SetValueAt(index: number, value: DoubleKeyFrame);
+        Add(value: DoubleKeyFrame);
+        AddRange(newItems: DoubleKeyFrame[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: DoubleKeyFrame);
+        Remove(value: DoubleKeyFrame);
+        IndexOf(value: DoubleKeyFrame): number;
+        Contains(value: DoubleKeyFrame): bool;
+        ToArray(): DoubleKeyFrame[];
+    }
+    export class ObjectKeyFrameCollection extends KeyFrameCollection {
+        GetValueAt(index: number): ObjectKeyFrame;
+        SetValueAt(index: number, value: ObjectKeyFrame);
+        Add(value: ObjectKeyFrame);
+        AddRange(newItems: ObjectKeyFrame[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: ObjectKeyFrame);
+        Remove(value: ObjectKeyFrame);
+        IndexOf(value: ObjectKeyFrame): number;
+        Contains(value: ObjectKeyFrame): bool;
+        ToArray(): ObjectKeyFrame[];
+    }
+    export class PointKeyFrameCollection extends KeyFrameCollection {
+        GetValueAt(index: number): PointKeyFrame;
+        SetValueAt(index: number, value: PointKeyFrame);
+        Add(value: PointKeyFrame);
+        AddRange(newItems: PointKeyFrame[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: PointKeyFrame);
+        Remove(value: PointKeyFrame);
+        IndexOf(value: PointKeyFrame): number;
+        Contains(value: PointKeyFrame): bool;
+        ToArray(): PointKeyFrame[];
+    }
+    export class DiscreteColorKeyFrame extends ColorKeyFrame {
+    }
+    export class DiscreteDoubleKeyFrame extends DoubleKeyFrame {
+    }
+    export class DiscreteObjectKeyFrame extends ObjectKeyFrame {
+    }
+    export class DiscretePointKeyFrame extends PointKeyFrame {
+    }
+    export class EasingColorKeyFrame extends ColorKeyFrame {
+        static EasingFunctionProperty: DependencyProperty;
+        EasingFunction: IEasingFunction;
+    }
+    export class EasingDoubleKeyFrame extends DoubleKeyFrame {
+        static EasingFunctionProperty: DependencyProperty;
+        EasingFunction: IEasingFunction;
+    }
+    export class EasingPointKeyFrame extends PointKeyFrame {
+        static EasingFunctionProperty: DependencyProperty;
+        EasingFunction: IEasingFunction;
+    }
+    export class LinearColorKeyFrame extends ColorKeyFrame {
+    }
+    export class LinearDoubleKeyFrame extends DoubleKeyFrame {
+    }
+    export class LinearPointKeyFrame extends PointKeyFrame {
+    }
+    export class SplineColorKeyFrame extends ColorKeyFrame {
+        static KeySplineProperty: DependencyProperty;
+        KeySpline: KeySpline;
+    }
+    export class SplineDoubleKeyFrame extends DoubleKeyFrame {
+        static KeySplineProperty: DependencyProperty;
+        KeySpline: KeySpline;
+    }
+    export class SplinePointKeyFrame extends PointKeyFrame {
+        static KeySplineProperty: DependencyProperty;
+        KeySpline: KeySpline;
+    }
+    export interface IEasingFunction {
+    }
+    export class EasingFunctionBase extends DependencyObject implements IEasingFunction {
+        static EasingModeProperty: DependencyProperty;
+        EasingMode: EasingMode;
+        Ease(normalizedTime: number): number;
+        EaseInCore(normalizedTime: number): number;
+    }
+    export class BackEase extends EasingFunctionBase {
+        static AmplitudeProperty: DependencyProperty;
+        Amplitude: number;
+    }
+    export class BounceEase extends EasingFunctionBase {
+        static BouncesProperty: DependencyProperty;
+        static BouncinessProperty: DependencyProperty;
+        Bounces: number;
+        Bounciness: number;
+    }
+    export class CircleEase extends EasingFunctionBase {
+    }
+    export class CubicEase extends EasingFunctionBase {
+    }
+    export class ElasticEase extends EasingFunctionBase {
+        static OscillationsProperty: DependencyProperty;
+        static SpringinessProperty: DependencyProperty;
+        Oscillations: number;
+        Springiness: number;
+    }
+    export class ExponentialEase extends EasingFunctionBase {
+        static ExponentProperty: DependencyProperty;
+        Exponent: number;
+    }
+    export class PowerEase extends EasingFunctionBase {
+        static PowerProperty: DependencyProperty;
+        Power: number;
+    }
+    export class QuadraticEase extends EasingFunctionBase {
+    }
+    export class QuarticEase extends EasingFunctionBase {
+    }
+    export class QuinticEase extends EasingFunctionBase {
+    }
+    export class SineEase extends EasingFunctionBase {
+    }
+    export enum FillBehavior {
+        HoldEnd = 0,
+        Stop = 1,
+    }
+    export enum EasingMode {
+        EaseOut = 0,
+        EaseIn = 1,
+        EaseInOut = 2,
+    }
 }
 
 //////////////////////////////////////////////////////////
 // SHAPES
 //////////////////////////////////////////////////////////
-class DoubleCollection implements ICollection {
-    GetCount(): number;
-    GetValueAt(index: number): number;
-    SetValueAt(index: number, value: number);
-    Add(value: number);
-    AddRange(newItems: number[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: number);
-    Remove(value: number);
-    RemoveAt(index: number);
-    Clear();
-    IndexOf(value: number): number;
-    Contains(value: number): bool;
-    ToArray(): number[];
+module Fayde.Shapes {
+    export enum FillRule {
+        EvenOdd = 0,
+        NonZero = 1,
+    }
+    export enum SweepDirection {
+        Counterclockwise = 0,
+        Clockwise = 1,
+    }
+    export enum PenLineCap {
+        Flat = 0,
+        Square = 1,
+        Round = 2,
+        Triangle = 3,
+    }
+    export enum PenLineJoin {
+        Miter = 0,
+        Bevel = 1,
+        Round = 2,
+    }
+    export class DoubleCollection implements ICollection {
+        GetCount(): number;
+        GetValueAt(index: number): number;
+        SetValueAt(index: number, value: number);
+        Add(value: number);
+        AddRange(newItems: number[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: number);
+        Remove(value: number);
+        RemoveAt(index: number);
+        Clear();
+        IndexOf(value: number): number;
+        Contains(value: number): bool;
+        ToArray(): number[];
+    }
+    export class PointCollection implements ICollection {
+        GetCount(): number;
+        GetValueAt(index: number): Point;
+        SetValueAt(index: number, value: Point);
+        Add(value: Point);
+        AddRange(newItems: Point[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: Point);
+        Remove(value: Point);
+        RemoveAt(index: number);
+        Clear();
+        IndexOf(value: Point): number;
+        Contains(value: Point): bool;
+        ToArray(): Point[];
+    }
+    export class Shape extends FrameworkElement {
+        static FillProperty: DependencyProperty;
+        static StretchProperty: DependencyProperty;
+        static StrokeDashArrayProperty: DependencyProperty;
+        static StrokeDashCapProperty: DependencyProperty;
+        static StrokeDashOffsetProperty: DependencyProperty;
+        static StrokeEndLineCapProperty: DependencyProperty;
+        static StrokeLineJoinProperty: DependencyProperty;
+        static StrokeMiterLimitProperty: DependencyProperty;
+        static StrokeProperty: DependencyProperty;
+        static StrokeStartLineCapProperty: DependencyProperty;
+        static StrokeThicknessProperty: DependencyProperty;
+
+        Fill: Fayde.Media.Brush;
+        Stretch: Fayde.Media.Stretch;
+        StrokeDashArray: DoubleCollection;
+        StrokeDashCap: PenLineCap;
+        StrokeDashOffset: number;
+        StrokeEndLineCap: PenLineCap;
+        StrokeLineJoin: PenLineJoin;
+        StrokeMiterLimit: number;
+        Stroke: Fayde.Media.Brush;
+        StrokeStartLineCap: PenLineCap;
+        StrokeThickness: number;
+    }
+    export class Ellipse extends Shape {
+    }
+    export class Line extends Shape {
+        static X1Property: DependencyProperty;
+        static Y1Property: DependencyProperty;
+        static X2Property: DependencyProperty;
+        static Y2Property: DependencyProperty;
+        X1: number;
+        Y1: number;
+        X2: number;
+        Y2: number;
+    }
+    export class Path extends Shape {
+        static DataProperty: DependencyProperty;
+        Data: Fayde.Media.Geometry;
+    }
+    export class Polygon extends Shape {
+        static FillRuleProperty: DependencyProperty;
+        static PointsProperty: DependencyProperty;
+        FillRule: FillRule;
+        Points: PointCollection;
+    }
+    export class Polyline extends Shape {
+        static FillRuleProperty: DependencyProperty;
+        static PointsProperty: DependencyProperty;
+        FillRule: FillRule;
+        Points: PointCollection;
+    }
+    export class Rectangle extends Shape {
+        static RadiusXProperty: DependencyProperty;
+        static RadiusYProperty: DependencyProperty;
+        RadiusX: number;
+        RadiusY: number;
+    }
 }
-class PointCollection implements ICollection {
-    GetCount(): number;
-    GetValueAt(index: number): Point;
-    SetValueAt(index: number, value: Point);
-    Add(value: Point);
-    AddRange(newItems: Point[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: Point);
-    Remove(value: Point);
-    RemoveAt(index: number);
-    Clear();
-    IndexOf(value: Point): number;
-    Contains(value: Point): bool;
-    ToArray(): Point[];
-}
-class Shape extends FrameworkElement {
-    static FillProperty: DependencyProperty;
-    static StretchProperty: DependencyProperty;
-    static StrokeDashArrayProperty: DependencyProperty;
-    static StrokeDashCapProperty: DependencyProperty;
-    static StrokeDashOffsetProperty: DependencyProperty;
-    static StrokeEndLineCapProperty: DependencyProperty;
-    static StrokeLineJoinProperty: DependencyProperty;
-    static StrokeMiterLimitProperty: DependencyProperty;
-    static StrokeProperty: DependencyProperty;
-    static StrokeStartLineCapProperty: DependencyProperty;
-    static StrokeThicknessProperty: DependencyProperty;
-    
-    Fill: Brush;
-    Stretch: Stretch;
-    StrokeDashArray: DoubleCollection;
-    StrokeDashCap: PenLineCap;
-    StrokeDashOffset: number;
-    StrokeEndLineCap: PenLineCap;
-    StrokeLineJoin: PenLineJoin;
-    StrokeMiterLimit: number;
-    Stroke: Brush;
-    StrokeStartLineCap: PenLineCap;
-    StrokeThickness: number;
-}
-class Ellipse extends Shape {
-}
-class Line extends Shape {
-    static X1Property: DependencyProperty;
-    static Y1Property: DependencyProperty;
-    static X2Property: DependencyProperty;
-    static Y2Property: DependencyProperty;
-    X1: number;
-    Y1: number;
-    X2: number;
-    Y2: number;
-}
-class Path extends Shape {
-    static DataProperty: DependencyProperty;
-    Data: Geometry;
-}
-class Polygon extends Shape {
-    static FillRuleProperty: DependencyProperty;
-    static PointsProperty: DependencyProperty;
-    FillRule: FillRule;
-    Points: PointCollection;
-}
-class Polyline extends Shape {
-    static FillRuleProperty: DependencyProperty;
-    static PointsProperty: DependencyProperty;
-    FillRule: FillRule;
-    Points: PointCollection;
-}
-class Rectangle extends Shape {
-    static RadiusXProperty: DependencyProperty;
-    static RadiusYProperty: DependencyProperty;
-    RadiusX: number;
-    RadiusY: number;
+
+//////////////////////////////////////////////////////////
+// COLLECTIONS
+//////////////////////////////////////////////////////////
+module Fayde.Collections {
+    export enum NotifyCollectionChangedAction {
+        Add = 1,
+        Remove = 2,
+        Replace = 3,
+        Reset = 4,
+    }
+    export class NotifyCollectionChangedEventHandler extends MulticastEvent {
+        Subscribe(callback: (sender, args: NotifyCollectionChangedEventArgs) => void , closure);
+        SubscribeSpecific(callback: (sender, args: NotifyCollectionChangedEventArgs) => void , closure, matchClosure);
+        Unsubscribe(callback: (sender, args: NotifyCollectionChangedEventArgs) => void , closure, matchClosure? );
+        Raise(sender, args: NotifyCollectionChangedEventArgs);
+        RaiseAsync(sender, args: NotifyCollectionChangedEventArgs);
+    }
+    export class NotifyCollectionChangedEventArgs extends EventArgs {
+        constructor (action: NotifyCollectionChangedAction);
+        constructor (action: NotifyCollectionChangedAction, items: any[], index: number);
+        constructor (action: NotifyCollectionChangedAction, newItems: any[], oldItems: any[], index: number);
+        Action: NotifyCollectionChangedAction;
+        NewItems: any[];
+        OldItems: any[];
+        OldStartingIndex: number;
+        NewStartingIndex: number;
+    }
+    export interface INotifyCollectionChanged {
+        CollectionChanged: Collections.NotifyCollectionChangedEventHandler;
+    }
+    export class ObservableCollection implements INotifyCollectionChanged, ICollection {
+        CollectionChanged: NotifyCollectionChangedEventHandler;
+
+        GetCount(): number;
+        GetValueAt(index: number): DependencyObject;
+        SetValueAt(index: number, value: DependencyObject);
+        Add(value: DependencyObject);
+        AddRange(newItems: DependencyObject[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: DependencyObject);
+        Remove(value: DependencyObject);
+        RemoveAt(index: number);
+        Clear();
+        IndexOf(value: DependencyObject): number;
+        Contains(value: DependencyObject): bool;
+        ToArray(): DependencyObject[];
+    }
 }
 
 //////////////////////////////////////////////////////////
 // DATA
 //////////////////////////////////////////////////////////
-class DataTemplate extends FrameworkTemplate {
-    //LoadContent(): DependencyObject;
-    //DataType;
-}
-enum NotifyCollectionChangedAction {
-    Add = 1,
-    Remove = 2,
-    Replace = 3,
-    Reset = 4,
-}
-interface INotifyCollectionChanged {
-    CollectionChanged: NotifyCollectionChangedEventHandler;
-}
-class NotifyCollectionChangedEventArgs extends EventArgs {
-    constructor (action: NotifyCollectionChangedAction);
-    constructor (action: NotifyCollectionChangedAction, items: any[], index: number);
-    constructor (action: NotifyCollectionChangedAction, newItems: any[], oldItems: any[], index: number);
-    Action: NotifyCollectionChangedAction;
-    NewItems: any[];
-    OldItems: any[];
-    OldStartingIndex: number;
-    NewStartingIndex: number;
-}
-class NotifyCollectionChangedEventHandler extends MulticastEvent {
-    Subscribe(callback: (sender, args: NotifyCollectionChangedEventArgs) => void, closure);
-    SubscribeSpecific(callback: (sender, args: NotifyCollectionChangedEventArgs) => void, closure, matchClosure);
-    Unsubscribe(callback: (sender, args: NotifyCollectionChangedEventArgs) => void, closure, matchClosure?);
-    Raise(sender, args: NotifyCollectionChangedEventArgs);
-    RaiseAsync(sender, args: NotifyCollectionChangedEventArgs);
-}
-class ObservableCollection implements INotifyCollectionChanged, ICollection {
-    CollectionChanged: NotifyCollectionChangedEventHandler;
+module Fayde.Data {
+    export class BindingOperations {
+        static SetBinding(target: DependencyObject, dp: DependencyProperty, binding: BindingBase): BindingExpressionBase;
+    }
+    export interface INotifyPropertyChanged {
+        PropertyChanged: MulticastEvent;
+    }
+    export class PropertyChangedEventArgs extends EventArgs {
+        constructor (propertyName: string);
+        PropertyName: string;
+    }
+    export enum BindingMode {
+        TwoWay = 0,
+        OneWay = 1,
+        OneTime = 2,
+        OneWayToSource = 3,
+    }
+    export enum RelativeSourceMode {
+        TemplatedParent = 1,
+        Self = 2,
+        FindAncestor = 3,
+    }
+    export enum UpdateSourceTrigger {
+        Default = 0,
+        PropertyChanged = 1,
+        Explicit = 3,
+    }
+    export interface IValueConverter {
+        Convert(value, targetType, parameter, culture): any;
+        ConvertBack(value, targetType, parameter, culture): any;
+    }
+    export class RelativeSource implements IMarkupExtension {
+        AncestorLevel: number;
+        AncestorType;
+        Mode: RelativeSourceMode;
+    }
+    export interface IMarkupExtension {
+    }
+    export class BindingBase implements IMarkupExtension {
+        CheckSealed();
+        FallbackValue;
+        StringFormat: string;
+        TargetNullValue;
+    }
+    export class Binding extends BindingBase {
+        BindsDirectlyToSource: bool;
+        Converter: IValueConverter;
+        ConverterCulture;
+        ConverterParameter;
+        ElementName: string;
+        Mode: BindingMode;
+        NotifyOnValidationError: bool;
+        Path: string;
+        RelativeSource: RelativeSource;
+        Source;
+        UpdateSourceTrigger: UpdateSourceTrigger;
+        ValidatesOnDataErrors: bool;
+        ValidatesOnExceptions: bool;
+        ValidatesOnNotifyDataErrors: bool;
+    }
+    export class BindingExpressionBase extends Expression {
 
-    GetCount(): number;
-    GetValueAt(index: number): DependencyObject;
-    SetValueAt(index: number, value: DependencyObject);
-    Add(value: DependencyObject);
-    AddRange(newItems: DependencyObject[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: DependencyObject);
-    Remove(value: DependencyObject);
-    RemoveAt(index: number);
-    Clear();
-    IndexOf(value: DependencyObject): number;
-    Contains(value: DependencyObject): bool;
-    ToArray(): DependencyObject[];
-}
-class BindingOperations {
-    static SetBinding(target: DependencyObject, dp: DependencyProperty, binding: BindingBase): BindingExpressionBase;
-}
-interface INotifyPropertyChanged {
-    PropertyChanged: MulticastEvent;
-}
-class PropertyChangedEventArgs extends EventArgs {
-    constructor (propertyName: string);
-    PropertyName: string;
-}
-enum BindingMode {
-    TwoWay = 0,
-    OneWay = 1,
-    OneTime = 2,
-    OneWayToSource = 3,
-}
-enum RelativeSourceMode {
-    TemplatedParent = 1,
-    Self = 2,
-    FindAncestor = 3,
-}
-enum UpdateSourceTrigger {
-    Default = 0,
-    PropertyChanged = 1,
-    Explicit = 3,
-}
-interface IValueConverter {
-    Convert(value, targetType, parameter, culture): any;
-    ConvertBack(value, targetType, parameter, culture): any;
-}
-class RelativeSource implements IMarkupExtension {
-    AncestorLevel: number;
-    AncestorType;
-    Mode: RelativeSourceMode;
-}
-interface IMarkupExtension {
-}
-class BindingBase implements IMarkupExtension {
-    CheckSealed();
-    FallbackValue;
-    StringFormat: string;
-    TargetNullValue;
-}
-class Binding extends BindingBase {
-    BindsDirectlyToSource: bool;
-    Converter: IValueConverter;
-    ConverterCulture;
-    ConverterParameter;
-    ElementName: string;
-    Mode: BindingMode;
-    NotifyOnValidationError: bool;
-    Path: string;
-    RelativeSource: RelativeSource;
-    Source;
-    UpdateSourceTrigger: UpdateSourceTrigger;
-    ValidatesOnDataErrors: bool;
-    ValidatesOnExceptions: bool;
-    ValidatesOnNotifyDataErrors: bool;
-}
-class BindingExpressionBase extends Expression {
-
-}
-class BindingExpression extends BindingExpressionBase {
-    DataItem;
-    ParentBinding: Binding;
-    UpdateSource();
+    }
+    export class BindingExpression extends BindingExpressionBase {
+        DataItem;
+        ParentBinding: Binding;
+        UpdateSource();
+    }
+    export class PropertyPath {
+    }
 }
 
 //////////////////////////////////////////////////////////
 // MVVM
 //////////////////////////////////////////////////////////
 module Fayde.MVVM {
-    export interface ICommand {
-        Execute(parameter): void;
-        CanExecute(parameter): bool;
-    }
-    export class RelayCommand implements ICommand { 
+    export class RelayCommand implements Input.ICommand { 
         constructor (execute?: (parameter) => void, canExecute?: (parameter) => bool);
         Execute(parameter): void;
         CanExecute(parameter): bool;

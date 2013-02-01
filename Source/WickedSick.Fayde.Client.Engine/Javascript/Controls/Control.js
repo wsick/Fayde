@@ -1,34 +1,35 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/FrameworkElement.js" />
 /// CODE
+/// <reference path="../Media/VSM/VisualStateManager.js"/>
 
 (function (namespace) {
-    var Control = Nullstone.Create("Control", FrameworkElement);
+    var Control = Nullstone.Create("Control", Fayde.FrameworkElement);
 
     Control.Instance.Init = function () {
         this.Init$FrameworkElement();
-        this.AddProvider(new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled));
+        this.AddProvider(new Fayde._InheritedIsEnabledPropertyValueProvider(this));
     };
 
     //#region Properties
 
-    Control.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Brush; }, Control);
-    Control.BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", function () { return Brush; }, Control);
+    Control.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Fayde.Media.Brush; }, Control);
+    Control.BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", function () { return Fayde.Media.Brush; }, Control);
     Control.BorderThicknessProperty = DependencyProperty.RegisterCore("BorderThickness", function () { return Thickness; }, Control, new Thickness());
     Control.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () { return String; }, Control, Font.DEFAULT_FAMILY, undefined, undefined, _Inheritable.FontFamily);
     Control.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () { return Number; }, Control, Font.DEFAULT_SIZE, undefined, undefined, _Inheritable.FontSize);
     Control.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () { return String; }, Control, Font.DEFAULT_STRETCH, undefined, undefined, _Inheritable.FontStretch);
     Control.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () { return String; }, Control, Font.DEFAULT_STYLE, undefined, undefined, _Inheritable.FontStyle);
-    Control.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () { return new Enum(FontWeight); }, Control, Font.DEFAULT_WEIGHT, undefined, undefined, _Inheritable.FontWeight);
-    Control.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () { return Brush; }, Control, undefined, undefined, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0, 1.0)); } }, _Inheritable.Foreground);
-    Control.HorizontalContentAlignmentProperty = DependencyProperty.RegisterCore("HorizontalContentAlignment", function () { return new Enum(HorizontalAlignment); }, Control, HorizontalAlignment.Center);
+    Control.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () { return new Enum(Fayde.FontWeight); }, Control, Font.DEFAULT_WEIGHT, undefined, undefined, _Inheritable.FontWeight);
+    Control.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () { return Fayde.Media.Brush; }, Control, undefined, undefined, { GetValue: function () { return new Fayde.Media.SolidColorBrush(new Color(0, 0, 0, 1.0)); } }, _Inheritable.Foreground);
+    Control.HorizontalContentAlignmentProperty = DependencyProperty.RegisterCore("HorizontalContentAlignment", function () { return new Enum(Fayde.HorizontalAlignment); }, Control, Fayde.HorizontalAlignment.Center);
     Control.IsEnabledProperty = DependencyProperty.RegisterCore("IsEnabled", function () { return Boolean; }, Control, true, function (d, args, error) { d.OnIsEnabledChanged(args); });
     Control.IsTabStopProperty = DependencyProperty.RegisterCore("IsTabStop", function () { return Boolean; }, Control, true);
     Control.PaddingProperty = DependencyProperty.RegisterCore("Padding", function () { return Thickness; }, Control, new Thickness());
     Control.TabIndexProperty = DependencyProperty.RegisterCore("TabIndex", function () { return Number; }, Control, Number.MAX_VALUE);
     Control.TabNavigationProperty = DependencyProperty.RegisterCore("TabNavigation", function () { return Number; }, Control);
-    Control.TemplateProperty = DependencyProperty.RegisterCore("Template", function () { return ControlTemplate; }, Control);
-    Control.VerticalContentAlignmentProperty = DependencyProperty.RegisterCore("VerticalContentAlignment", function () { return new Enum(VerticalAlignment); }, Control, VerticalAlignment.Center);
+    Control.TemplateProperty = DependencyProperty.RegisterCore("Template", function () { return namespace.ControlTemplate; }, Control);
+    Control.VerticalContentAlignmentProperty = DependencyProperty.RegisterCore("VerticalContentAlignment", function () { return new Enum(Fayde.VerticalAlignment); }, Control, Fayde.VerticalAlignment.Center);
     Control.DefaultStyleKeyProperty = DependencyProperty.RegisterCore("DefaultStyleKey", function () { return Function; }, Control);
 
     Control.IsTemplateItemProperty = DependencyProperty.RegisterAttachedCore("IsTemplateItem", function () { return Boolean; }, Control, false);
@@ -160,7 +161,7 @@
         this._OnIsAttachedChanged$FrameworkElement(value);
         this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
         if (!value)
-            VisualStateManager.DestroyStoryboards(this);
+            Fayde.Media.VisualStateManager.VisualStateManager.DestroyStoryboards(this);
     };
 
     Control.Instance._DoApplyTemplateWithError = function (error) {
@@ -169,7 +170,7 @@
             return this._DoApplyTemplateWithError$FrameworkElement(error);
 
         var root = t._GetVisualTreeWithError(this, error);
-        if (root && !(root instanceof UIElement)) {
+        if (root && !(root instanceof Fayde.UIElement)) {
             Warn("Root element in template was not a UIElement.");
             root = null;
         }
@@ -205,10 +206,10 @@
             return false;
 
         var surface = App.Instance.MainSurface;
-        var walker = new _DeepTreeWalker(this);
+        var walker = new Fayde._DeepTreeWalker(this);
         var uie;
         while (uie = walker.Step()) {
-            if (uie.Visibility !== Visibility.Visible) {
+            if (uie.Visibility !== Fayde.Visibility.Visible) {
                 walker.SkipBranch();
                 continue;
             }
@@ -249,7 +250,7 @@
 
     Control.Instance.OnIsEnabledChanged = function (args) {
         if (!this.IsEnabled)
-            this.$SetValueInternal(UIElement.IsMouseOverProperty, false);
+            this.$SetValueInternal(Fayde.UIElement.IsMouseOverProperty, false);
     }
 
     //#region Visual State Management
@@ -258,7 +259,7 @@
         useTransitions = useTransitions !== false;
         var states = this.$GetVisualStateNamesToActivate();
         for (var i = 0; i < states.length; i++) {
-            VisualStateManager.GoToState(this, states[i], useTransitions);
+            Fayde.Media.VisualStateManager.VisualStateManager.GoToState(this, states[i], useTransitions);
         }
     };
     Control.Instance.$GetVisualStateNamesToActivate = function () {
@@ -285,4 +286,4 @@
     //#endregion
 
     namespace.Control = Nullstone.FinishCreate(Control);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

@@ -4,11 +4,11 @@
 /// <reference path="Dirty.js"/>
 /// <reference path="Debug.js"/>
 /// <reference path="../Core/LayoutInformation.js"/>
-/// <reference path="../Core/Collections/Collection.js"/>
+/// <reference path="../Core/Collections/InternalCollection.js"/>
 /// <reference path="../Runtime/EventArgs.js"/>
 /// <reference path="DirtyNode.js"/>
 /// <reference path="../Primitives/Font.js"/>
-/// <reference path="../Core/TabNavigationWalker.js"/>
+/// <reference path="../Core/Walkers.js"/>
 /// <reference path="../Core/Input/KeyCodes.js"/>
 /// <reference path="../Core/Input/Keyboard.js"/>
 /// <reference path="../Core/Input/Enums.js"/>
@@ -16,6 +16,16 @@
 /// <reference path="../Runtime/JsEx.js"/>
 
 (function (namespace) {
+    //#region FocusChangedNode
+    var FocusChangedNode = Nullstone.Create("FocusChangedNode", LinkedListNode, 2);
+    FocusChangedNode.Instance.Init = function (lostFocus, gotFocus) {
+        this.Init$LinkedListNode();
+        this.LostFocus = lostFocus;
+        this.GotFocus = gotFocus;
+    };
+    Nullstone.FinishCreate(FocusChangedNode);
+    //#endregion
+
     var Surface = Nullstone.Create("Surface", undefined, 1);
 
     Surface.Instance.Init = function (app) {
@@ -88,13 +98,13 @@
             return;
         }
 
-        if (!(element instanceof UIElement)) {
+        if (!(element instanceof Fayde.UIElement)) {
             _Console.WriteLine("Unsupported top level element.");
             return;
         }
 
-        if (!NameScope.GetNameScope(element)) {
-            NameScope.SetNameScope(element, new NameScope());
+        if (!Fayde.NameScope.GetNameScope(element)) {
+            Fayde.NameScope.SetNameScope(element, new NameScope());
         }
 
         this._TopLevel = element;
@@ -260,7 +270,7 @@
         var layerCount = layers ? layers.length : 0;
 
         RenderDebug.Count = 0;
-        var ctx = new _RenderContext(this);
+        var ctx = new Fayde._RenderContext(this);
         ctx.Clear(region);
         ctx.CanvasContext.save();
         ctx.Clip(region);
@@ -289,15 +299,16 @@
         return true;
     };
     Surface.Instance._UpdateLayout = function (error) {
+        var UIElementFlags = Fayde.UIElementFlags;
         var startTime;
         var layers = this._Layers;
         if (!layers)
             return false;
-        var pass = new LayoutPass();
+        var pass = new Fayde.LayoutPass();
         var dirty = false;
         pass.Updated = true;
         var updatedLayout = false;
-        while (pass.Count < LayoutPass.MaxCount && pass.Updated) {
+        while (pass.Count < Fayde.LayoutPass.MaxCount && pass.Updated) {
             pass.Updated = false;
             for (var i = 0; i < layers.length; i++) {
                 var layer = layers[i];
@@ -305,11 +316,11 @@
                 if (!element._HasFlag(UIElementFlags.DirtyMeasureHint) && !element._HasFlag(UIElementFlags.DirtyArrangeHint))
                     continue;
 
-                var last = LayoutInformation.GetPreviousConstraint(element);
+                var last = Fayde.LayoutInformation.GetPreviousConstraint(element);
                 var available = new Size(this.GetWidth(), this.GetHeight());
                 if (element.IsContainer() && (!last || (!Size.Equals(last, available)))) {
                     element._InvalidateMeasure();
-                    LayoutInformation.SetPreviousConstraint(element, available);
+                    Fayde.LayoutInformation.SetPreviousConstraint(element, available);
                 }
 
                 element._UpdateLayer(pass, error);
@@ -333,7 +344,7 @@
                 updatedLayout = true;
         }
 
-        if (pass.Count >= LayoutPass.MaxCount) {
+        if (pass.Count >= Fayde.LayoutPass.MaxCount) {
             if (error)
                 error.SetErrored(BError.Exception, "UpdateLayout has entered infinite loop and has been aborted.");
         }
@@ -423,7 +434,7 @@
 
             if (uie._DirtyFlags & dirtyEnum.ChildrenZIndices) {
                 uie._DirtyFlags &= ~dirtyEnum.ChildrenZIndices;
-                if (!(uie instanceof Panel)) {
+                if (!(uie instanceof Fayde.Controls.Panel)) {
                     Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
                 } else {
                     //DirtyDebug("ResortByZIndex: [" + uie.__DebugToString() + "]");
@@ -528,7 +539,7 @@
         }
     };
     Surface.Instance._PropagateDirtyFlagToChildren = function (element, dirt) {
-        var walker = new _VisualTreeWalker(element, _VisualTreeWalkerDirection.Logical);
+        var walker = Fayde._VisualTreeWalker.Logical(element);
         var child;
         while (child = walker.Step()) {
             this._AddDirtyElement(child, dirt);
@@ -579,10 +590,10 @@
         if (!subtree)
             return;
 
-        if (subtree instanceof UIElement)
+        if (subtree instanceof Fayde.UIElement)
             return subtree._UpDirtyNode;
 
-        if (subtree instanceof UIElementCollection) {
+        if (subtree instanceof Fayde.UIElementCollection) {
             var children = subtree._ht;
             var len = children.length;
             for (var i = 0; i < len; i++) {
@@ -616,7 +627,7 @@
     //#region Mouse
 
     Surface.Instance._HandleButtonRelease = function (evt) {
-        Keyboard.RefreshModifiers(evt);
+        Fayde.Input.Keyboard.RefreshModifiers(evt);
         var button = evt.which ? evt.which : evt.button;
         var pos = this._GetMousePosition(evt);
 
@@ -628,7 +639,7 @@
             this._PerformReleaseCapture();
     };
     Surface.Instance._HandleButtonPress = function (evt) {
-        Keyboard.RefreshModifiers(evt);
+        Fayde.Input.Keyboard.RefreshModifiers(evt);
         var button = evt.which ? evt.which : evt.button;
         var pos = this._GetMousePosition(evt);
 
@@ -638,7 +649,7 @@
         this._SetUserInitiatedEvent(false);
     };
     Surface.Instance._HandleWheel = function (evt) {
-        Keyboard.RefreshModifiers(evt);
+        Fayde.Input.Keyboard.RefreshModifiers(evt);
         var delta = 0;
         if (evt.wheelDelta)
             delta = evt.wheelDelta / 120;
@@ -651,13 +662,13 @@
         this._UpdateCursorFromInputList();
     };
     Surface.Instance._HandleMove = function (evt) {
-        Keyboard.RefreshModifiers(evt);
+        Fayde.Input.Keyboard.RefreshModifiers(evt);
         var pos = this._GetMousePosition(evt);
         this._HandleMouseEvent("move", null, pos);
         this._UpdateCursorFromInputList();
     };
     Surface.Instance._HandleOut = function (evt) {
-        Keyboard.RefreshModifiers(evt);
+        Fayde.Input.Keyboard.RefreshModifiers(evt);
         var pos = this._GetMousePosition(evt);
         this._HandleMouseEvent("out", null, pos);
     };
@@ -675,7 +686,7 @@
             this._EmitMouseList(type, button, pos, delta, this._InputList);
         } else {
             this.ProcessDirtyElements();
-            var ctx = new _RenderContext(this);
+            var ctx = new Fayde._RenderContext(this);
             var newInputList = new LinkedList();
             var layers = this._Layers;
             var layerCount = layers.length;
@@ -744,7 +755,7 @@
         var i = 0;
         var args = this._CreateEventArgs(type, pos, delta);
         var node = list.Head;
-        if (node && args instanceof RoutedEventArgs)
+        if (node && args instanceof Fayde.RoutedEventArgs)
             args.Source = node.UIElement;
         for (node = list.Head; node && i < endIndex; node = node.Next, i++) {
             if (type === "leave")
@@ -780,7 +791,7 @@
         this._Captured = uie;
         var newInputList = new LinkedList();
         while (uie != null) {
-            newInputList.Append(new UIElementNode(uie));
+            newInputList.Append(new Fayde.UIElementNode(uie));
             uie = uie.GetVisualParent();
         }
         this._InputList = newInputList;
@@ -801,7 +812,7 @@
 
     Surface.Instance._HandleKeyDown = function (args) {
         this._SetUserInitiatedEvent(true);
-        Keyboard.RefreshModifiers(args);
+        Fayde.Input.Keyboard.RefreshModifiers(args);
         var handled = false;
         if (this._FocusedElement != null) {
             var focusToRoot = Surface._ElementPathToRoot(this._FocusedElement);
@@ -810,7 +821,7 @@
 
         if (!handled && args.Key === Key.Tab) {
             if (this._FocusedElement != null)
-                TabNavigationWalker.Focus(this._FocusedElement, args.Shift);
+                Fayde.TabNavigationWalker.Focus(this._FocusedElement, args.Shift);
             else
                 this._EnsureElementFocused();
         }
@@ -895,7 +906,7 @@
         if (!this._FocusedElement) {
             var last = this._Layers.length - 1;
             for (var i = last; i >= 0; i--) {
-                if (TabNavigationWalker.Focus(layers.GetValueAt(i)))
+                if (Fayde.TabNavigationWalker.Focus(layers.GetValueAt(i)))
                     break;
             }
             if (!this._FocusedElement && last !== -1)
@@ -930,17 +941,17 @@
 
     Surface.Instance._CreateEventArgs = function (type, pos, delta) {
         if (type === "up") {
-            return new MouseButtonEventArgs(pos);
+            return new Fayde.Input.MouseButtonEventArgs(pos);
         } else if (type === "down") {
-            return new MouseButtonEventArgs(pos);
+            return new Fayde.Input.MouseButtonEventArgs(pos);
         } else if (type === "leave") {
-            return new MouseEventArgs(pos);
+            return new Fayde.Input.MouseEventArgs(pos);
         } else if (type === "enter") {
-            return new MouseEventArgs(pos);
+            return new Fayde.Input.MouseEventArgs(pos);
         } else if (type === "move") {
-            return new MouseEventArgs(pos);
+            return new Fayde.Input.MouseEventArgs(pos);
         } else if (type === "wheel") {
-            return new MouseWheelEventArgs(pos, delta);
+            return new Fayde.Input.MouseWheelEventArgs(pos, delta);
         }
     };
 
@@ -961,7 +972,7 @@
             this._RootHtmlEl = body;
         };
         Surface.Instance.ProcessHtmlChanges = function () {
-            DependencyObject.ProcessHtmlChanges();
+            Fayde.DependencyObject.ProcessHtmlChanges();
         };
         Surface.Instance.ProcessSizingAdjustments = function () {
             for (var key in Surface._SizingAdjustments) {
@@ -1020,7 +1031,7 @@
     Surface._ElementPathToRoot = function (source) {
         var list = new LinkedList();
         while (source) {
-            list.Append(new UIElementNode(source));
+            list.Append(new Fayde.UIElementNode(source));
             source = source.GetVisualParent();
         }
         return list;

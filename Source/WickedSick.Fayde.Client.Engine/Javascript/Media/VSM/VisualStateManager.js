@@ -11,11 +11,11 @@
 /// <reference path="../../Runtime/Closure.js"/>
 
 (function (namespace) {
-    var VisualStateManager = Nullstone.Create("VisualStateManager", DependencyObject);
+    var VisualStateManager = Nullstone.Create("VisualStateManager", Fayde.DependencyObject);
 
     //#region Properties
 
-    VisualStateManager.VisualStateGroupsProperty = DependencyProperty.RegisterAttachedCore("VisualStateGroups", function () { return VisualStateGroupCollection; }, VisualStateManager, null);
+    VisualStateManager.VisualStateGroupsProperty = DependencyProperty.RegisterAttachedCore("VisualStateGroups", function () { return namespace.VisualStateGroupCollection; }, VisualStateManager, null);
     VisualStateManager.GetVisualStateGroups = function (d) {
         /// <param name="d" type="DependencyObject"></param>
         /// <returns type="VisualStateGroupCollection" />
@@ -30,13 +30,13 @@
         /// <param name="d" type="DependencyObject"></param>
         var groups = this.GetVisualStateGroups(d);
         if (groups == null) {
-            groups = new VisualStateGroupCollection();
+            groups = new namespace.VisualStateGroupCollection();
             VisualStateManager.SetVisualStateGroups(d, groups);
         }
         return groups;
     };
 
-    VisualStateManager.CustomVisualStateManagerProperty = DependencyProperty.RegisterAttachedCore("CustomVisualStateManager", function () { return VisualStateManager }, VisualStateManager, null);
+    VisualStateManager.CustomVisualStateManagerProperty = DependencyProperty.RegisterAttachedCore("CustomVisualStateManager", function () { return namespace.VisualStateManager }, VisualStateManager, null);
     VisualStateManager.GetCustomVisualStateManager = function (d) {
         ///<returns type="VisualStateManager"></returns>
         return d.$GetValue(VisualStateManager.CustomVisualStateManagerProperty);
@@ -112,7 +112,7 @@
             group.RaiseCurrentStateChanged(element, lastState, state, control);
         } else {
             var dynamicTransition = VisualStateManager._GenerateDynamicTransitionAnimations(element, group, state, transition);
-            dynamicTransition.$SetValue(Control.IsTemplateItemProperty, true);
+            dynamicTransition.$SetValue(Fayde.Controls.Control.IsTemplateItemProperty, true);
 
             var eventClosure = new Closure();
             transition.DynamicStoryboardCompleted = false;
@@ -162,11 +162,11 @@
     VisualStateManager._GetTemplateRoot = function (control) {
         /// <param name="control" type="Control"></param>
         /// <returns type="FrameworkElement" />
-        var userControl = Nullstone.As(control, UserControl);
+        var userControl = Nullstone.As(control, Fayde.Controls.UserControl);
         if (userControl != null)
-            return Nullstone.As(userControl.Content, FrameworkElement);
-        if (VisualTreeHelper.GetChildrenCount(control) > 0)
-            return Nullstone.As(VisualTreeHelper.GetChild(control, 0), FrameworkElement);
+            return Nullstone.As(userControl.Content, Fayde.FrameworkElement);
+        if (Fayde.VisualTreeHelper.GetChildrenCount(control) > 0)
+            return Nullstone.As(Fayde.VisualTreeHelper.GetChild(control, 0), Fayde.FrameworkElement);
         return null;
     };
     VisualStateManager._TryGetState = function (groups, stateName, data) {
@@ -240,7 +240,7 @@
         /// <param name="transition" type="VisualTransition"></param>
         /// <returns type="Storyboard" />
 
-        var dynamic = new Storyboard();
+        var dynamic = new Fayde.Media.Animation.Storyboard();
         if (transition != null) {
             dynamic.SetDuration(transition.GeneratedDuration);
         } else {
@@ -258,4 +258,4 @@
     };
 
     namespace.VisualStateManager = Nullstone.FinishCreate(VisualStateManager);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.VisualStateManager"));

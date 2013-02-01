@@ -4,7 +4,7 @@
 /// <reference path="../Navigation/UriMapper.js"/>
 
 (function (namespace) {
-    var Frame = Nullstone.Create("Frame", ContentControl);
+    var Frame = Nullstone.Create("Frame", namespace.ContentControl);
 
     Frame.Instance.Init = function () {
         this.Init$ContentControl();
@@ -23,7 +23,7 @@
     Frame.IsDeepLinkedProperty = DependencyProperty.Register("IsDeepLinked", function () { return Boolean; }, Frame, true);
     Frame.CurrentSourceProperty = DependencyProperty.RegisterReadOnly("CurrentSource", function () { return Uri; }, Frame);
     Frame.SourceProperty = DependencyProperty.Register("Source", function () { return Uri; }, Frame, undefined, function (d, args) { d.SourcePropertyChanged(args); });
-    Frame.UriMapperProperty = DependencyProperty.Register("UriMapper", function () { return UriMapper; }, Frame);
+    Frame.UriMapperProperty = DependencyProperty.Register("UriMapper", function () { return Fayde.Navigation.UriMapper; }, Frame);
     //JournalOwnership
     //CanGoBack
     //CanGoForward
@@ -94,8 +94,8 @@
         });
     };
     Frame.Instance._HandleSuccessfulResponse = function (responseJson) {
-        var page = JsonParser.Parse(responseJson);
-        if (page instanceof Page) {
+        var page = Fayde.JsonParser.Parse(responseJson);
+        if (page instanceof namespace.Page) {
             document.title = page.Title;
             this.Content = page;
         }
@@ -106,4 +106,4 @@
     };
 
     namespace.Frame = Nullstone.FinishCreate(Frame);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

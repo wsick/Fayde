@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var Button = Nullstone.Create("Button", ButtonBase);
+    var Button = Nullstone.Create("Button", namespace.Primitives.ButtonBase);
 
     Button.Instance.Init = function () {
         this.Init$ButtonBase();
@@ -20,4 +20,4 @@
     };
 
     namespace.Button = Nullstone.FinishCreate(Button);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

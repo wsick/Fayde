@@ -1,5 +1,6 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/FrameworkElement.js"/>
+/// <reference path="../Text/Enums.js"/>
 /// CODE
 /// <reference path="../Primitives/Rect.js"/>
 /// <reference path="../Text/TextLayout.js"/>
@@ -8,12 +9,14 @@
 /// <reference path="../Engine/RenderContext.js"/>
 
 (function (namespace) {
-    var _TextBoxView = Nullstone.Create("_TextBoxView", FrameworkElement);
+    var _TextBoxModelChanged = Fayde.Text._TextBoxModelChanged;
+
+    var _TextBoxView = Nullstone.Create("_TextBoxView", Fayde.FrameworkElement);
 
     _TextBoxView.Instance.Init = function () {
         this.Init$FrameworkElement();
         this._Cursor = new Rect();
-        this._Layout = new TextLayout();
+        this._Layout = new Fayde.Text.TextLayout();
         this._SelectionChanged = false;
         this._HadSelectedText = false;
         this._CursorVisible = false;
@@ -39,7 +42,7 @@
             this._TextBox.ModelChanged.Subscribe(this._OnModelChanged, this);
 
             this._Layout.SetTextAttributes(new LinkedList());
-            var attrs = new _TextLayoutAttributes(this._TextBox, 0);
+            var attrs = new Fayde.Text._TextLayoutAttributes(this._TextBox, 0);
             this._Layout.GetTextAttributes().Append(attrs);
 
             this._Layout.SetTextAlignment(this._TextBox.TextAlignment);
@@ -166,7 +169,7 @@
     };
 
     _TextBoxView.Instance._ComputeActualSize = function () {
-        if (this._ReadLocalValue(LayoutInformation.LayoutSlotProperty) !== undefined)
+        if (this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty) !== undefined)
             return this._ComputeActualSize$FrameworkElement();
 
         this.Layout(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
@@ -224,14 +227,14 @@
     _TextBoxView.Instance._RenderImpl = function (ctx, region) {
         /// <param name="ctx" type="_RenderContext"></param>
         ctx.Save();
-        if (this.FlowDirection === FlowDirection.RightToLeft) {
+        if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
             //TODO: Invert
         }
         this._Layout._Render(ctx, this._GetOriginPoint(), new Point());
         if (this._CursorVisible) {
             var caretBrush = this._TextBox.CaretBrush;
             if (!caretBrush)
-                caretBrush = new SolidColorBrush(new Color(0, 0, 0));
+                caretBrush = new Fayde.Media.SolidColorBrush(new Color(0, 0, 0));
 
             var canvasCtx = ctx.CanvasContext;
             var rect = this._Cursor;
@@ -306,4 +309,4 @@
     _TextBoxView.CURSOR_BLINK_TIMEOUT_DEFAULT = 900;
 
     namespace._TextBoxView = Nullstone.FinishCreate(_TextBoxView);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

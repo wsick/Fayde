@@ -5,7 +5,7 @@
 /// <reference path="../Core/Input/KeyboardNavigation.js"/>
 
 (function (namespace) {
-    var ListBox = Nullstone.Create("ListBox", Selector);
+    var ListBox = Nullstone.Create("ListBox", namespace.Primitives.Selector);
 
     ListBox.Instance.Init = function () {
         this.Init$Selector();
@@ -15,9 +15,9 @@
 
     //#region Properties
 
-    ListBox.ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", function () { return Style; }, ListBox, undefined, function (d, args) { d.OnItemContainerStyleChanged(args.OldValue, args.NewValue); });
-    ListBox.SelectionModeProperty = DependencyProperty.RegisterCore("SelectionMode", function () { return new Enum(SelectionMode); }, ListBox, undefined, function (d, args) { d._Selection.Mode = args.NewValue; });
-    ListBox.IsSelectionActiveProperty = Selector.IsSelectionActiveProperty;
+    ListBox.ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", function () { return Fayde.Style; }, ListBox, undefined, function (d, args) { d.OnItemContainerStyleChanged(args.OldValue, args.NewValue); });
+    ListBox.SelectionModeProperty = DependencyProperty.RegisterCore("SelectionMode", function () { return new Enum(namespace.SelectionMode); }, ListBox, undefined, function (d, args) { d._Selection.Mode = args.NewValue; });
+    ListBox.IsSelectionActiveProperty = namespace.Primitives.Selector.IsSelectionActiveProperty;
 
     Nullstone.AutoProperties(ListBox, [
         ListBox.ItemContainerStyleProperty,
@@ -29,8 +29,8 @@
     Nullstone.Property(ListBox, "$IsVerticalOrientation", {
         get: function () {
             var p = this.$Panel;
-            if (p instanceof StackPanel || p instanceof VirtualizingStackPanel)
-                return p.Orientation === Orientation.Vertical;
+            if (p instanceof namespace.StackPanel || p instanceof namespace.VirtualizingStackPanel)
+                return p.Orientation === Fayde.Orientation.Vertical;
             return true;
         }
     });
@@ -50,8 +50,7 @@
 
         var ihro;
         var lbiro;
-        //TODO: VirtualizingStackPanel
-        var virtualizing = false; // VirtualizingStackPanel.GetIsVirtualizing(this);
+        var virtualizing = namespace.VirtualizingStackPanel.GetIsVirtualizing(this);
         if (this._IsOnCurrentPage(item, ihro, lbiro))
             return;
 
@@ -132,7 +131,7 @@
         if (itemsHostRectOut === undefined) itemsHostRectOut = {};
         if (listBoxItemsRectOut === undefined) listBoxItemsRectOut = {};
 
-        var itemsHost = VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(this, 0), 0);
+        var itemsHost = Fayde.VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(this, 0), 0);
 
         var tsv = this.$TemplateScrollViewer;
         if (tsv != null) {
@@ -140,7 +139,7 @@
             if (tsv.$ElementScrollContentPresenter != null)
                 itemsHost = tsv.$ElementScrollContentPresenter;
         }
-        itemsHost = Nullstone.As(itemsHost, FrameworkElement);
+        itemsHost = Nullstone.As(itemsHost, Fayde.FrameworkElement);
 
         var ihro = itemsHostRectOut.Value = new Rect();
         var lbiro = listBoxItemsRectOut.Value = new Rect();
@@ -157,7 +156,7 @@
         lbiro.Width = lbi.RenderSize.Width;
         lbiro.Height = lbi.RenderSize.Height;
 
-        if (itemsHost instanceof Control) {
+        if (itemsHost instanceof namespace.Control) {
             var padding = itemsHost.Padding;
             ihro.X = ihro.X + padding.Left;
             ihro.Y = ihro.Y + padding.Top;
@@ -214,11 +213,11 @@
         switch (args.Key) {
             case Key.Space:
             case Key.Enter:
-                if (Key.Enter !== args.Key || KeyboardNavigation.GetAcceptsReturn(this)) {
-                    if ((Keyboard.Modifiers & ModifierKeys.Alt) !== ModifierKeys.Alt) {
-                        var lbi = Nullstone.As(FocusManager.GetFocusedElement(), ListBoxItem);
+                if (Key.Enter !== args.Key || Fayde.Input.KeyboardNavigation.GetAcceptsReturn(this)) {
+                    if (!Fayde.Input.Keyboard.HasAlt()) {
+                        var lbi = Nullstone.As(Fayde.FocusManager.GetFocusedElement(), namespace.ListBoxItem);
                         if (lbi != null) {
-                            if ((Keyboard.Modifiers & ModifierKeys.Control) === ModifierKeys.Control && lbi.IsSelected) {
+                            if (Fayde.Input.Keyboard.HasControl() && lbi.IsSelected) {
                                 this.SelectedItem = null;
                             } else {
                                 this.SelectedItem = this.ItemContainerGenerator.ItemFromContainer(lbi);
@@ -276,7 +275,7 @@
             var lbi = icg.ContainerFromIndex(newFocusedIndex);
             var item = icg.ItemFromContainer(lbi);
             this.ScrollIntoView(item);
-            if ((Keyboard.Modifiers & ModifierKeys.Control) === ModifierKeys.Control) {
+            if (Fayde.Input.Keyboard.HasControl()) {
                 lbi.Focus();
             } else {
                 this.SelectedItem = item;
@@ -290,10 +289,10 @@
     //#region Overrides
 
     ListBox.Instance.IsItemItsOwnContainer = function (item) {
-        return item instanceof ListBoxItem;
+        return item instanceof namespace.ListBoxItem;
     };
     ListBox.Instance.GetContainerForItem = function () {
-        var item = new ListBoxItem();
+        var item = new namespace.ListBoxItem();
         var ics = this.ItemContainerStyle;
         if (ics != null)
             item.Style = ics;
@@ -333,4 +332,4 @@
     //#endregion
 
     namespace.ListBox = Nullstone.FinishCreate(ListBox);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

@@ -2,17 +2,309 @@
 /// CODE
 /// <reference path="../Engine/Surface.js"/>
 
-(function (namespace) {
+(function (Text) {
+
+    var breakType = {
+        Unknown: 0,
+        Space: 1,
+        OpenPunctuation: 2,
+        ClosePunctuation: 3,
+        InFixSeparator: 4,
+        Numeric: 5,
+        Alphabetic: 6,
+        WordJoiner: 7,
+        ZeroWidthSpace: 8,
+        BeforeAndAfter: 9,
+        NonBreakingGlue: 10,
+        Inseparable: 11,
+        Before: 12,
+        Ideographic: 13,
+        CombiningMark: 14,
+        Contingent: 15,
+        Ambiguous: 16,
+        Quotation: 17,
+        Prefix: 18
+    };
+    var layoutWordType = {
+        Unknown: 0,
+        Numeric: 1,
+        Alphabetic: 2,
+        Ideographic: 3,
+        Inseparable: 4
+    };
+
+    //#region _LayoutWord
+
+    var _LayoutWord = Nullstone.Create("_LayoutWord");
+    _LayoutWord.Instance.Init = function () {
+        this._Advance = 0.0;
+        this._LineAdvance = 0.0;
+        this._Length = 0;
+        this._BreakOps = null;
+        this._Font = new Font();
+    };
+    Nullstone.FinishCreate(_LayoutWord);
+
+    //#endregion
+
+    //#region _WordBreakOp
+
+    var _WordBreakOp = Nullstone.Create("_WordBreakOp");
+    _WordBreakOp.Instance.Init = function () {
+        this._Advance = 0.0;
+        this._Index = 0;
+        this._Btype = 0;
+        this._C = '';
+    };
+    _WordBreakOp.Instance.Copy = function () {
+        var newOp = new _WordBreakOp();
+        newOp._Advance = this._Advance;
+        newOp._Btype = this._Btype;
+        newOp._C = this._C;
+        newOp._Index = this._Index;
+    };
+    _WordBreakOp.Instance.SetWordBasics = function (word) {
+        word._Length = this._Index;
+        word._Advance = this._Advance;
+    };
+    Nullstone.FinishCreate(_WordBreakOp);
+
+    //#endregion
+
+    //#region _TextLayoutGlyphCluster
+
+    var _TextLayoutGlyphCluster = Nullstone.Create("_TextLayoutGlyphCluster", undefined, 3);
+    _TextLayoutGlyphCluster.Instance.Init = function (text, font, selected) {
+        this._Text = text;
+        this._Selected = selected == true;
+        this._Advance = Surface.MeasureText(text, font).Width;
+    };
+    _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
+        /// <param name="ctx" type="_RenderContext"></param>
+        if (this._Text.length == 0 || this._Advance == 0.0)
+            return;
+        var font = attrs.GetFont();
+        var y0 = font._Ascender();
+        ctx.Translate(x, y - y0);
+
+        var brush;
+        var fontHeight = font.GetActualHeight();
+        var area = new Rect(origin.X, origin.Y, this._Advance, fontHeight);
+        if (this._Selected && (brush = attrs.GetBackground(true))) {
+            ctx.FillRect(brush, area); //selection background
+        }
+        if (!(brush = attrs.GetForeground(this._Selected)))
+            return;
+
+        var canvasCtx = ctx.CanvasContext;
+        brush.SetupBrush(canvasCtx, area);
+        var brushHtml5 = brush.ToHtml5Object();
+        canvasCtx.fillStyle = brushHtml5;
+        canvasCtx.font = font.ToHtml5Object();
+        canvasCtx.textAlign = "left";
+        canvasCtx.textBaseline = "top";
+        canvasCtx.fillText(this._Text, 0, 0);
+        DrawDebug("Text: " + this._Text + " [" + canvasCtx.fillStyle.toString() + "]");
+
+        if (attrs.IsUnderlined()) {
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(0, fontHeight);
+            canvasCtx.lineTo(this._Advance, fontHeight);
+            canvasCtx.lineWidth = 2;
+            canvasCtx.strokeStyle = brushHtml5;
+            canvasCtx.stroke();
+        }
+    };
+    Nullstone.FinishCreate(_TextLayoutGlyphCluster);
+
+    //#endregion
+
+    //#region _TextLayoutRun
+
+    var _TextLayoutRun = Nullstone.Create("_TextLayoutRun", undefined, 3);
+
+    _TextLayoutRun.Instance.Init = function (line, attrs, start) {
+        this._Clusters = [];
+        this._Attrs = attrs;
+        this._Start = start;
+        this._Line = line;
+        this._Advance = 0.0; //after layout, will contain horizontal distance this run advances
+        this._Length = 0;
+    };
+
+    _TextLayoutRun.Instance._GenerateCache = function () {
+        var selectionLength = this._Line._Layout.GetSelectionLength();
+        var selectionStart = this._Line._Layout.GetSelectionStart();
+        var text = this._Line._Layout.GetText();
+        var font = this._Attrs.GetFont();
+
+        var len;
+        var index = this._Start;
+        var cluster1;
+        var cluster2;
+        //glyph before selection
+        if (selectionLength === 0 || this._Start < selectionStart) {
+            len = selectionLength > 0 ? Math.min(selectionStart - this._Start, this._Length) : this._Length;
+            cluster1 = new _TextLayoutGlyphCluster(text.substr(this._Start, len), font);
+            this._Clusters.push(cluster1);
+            index += len;
+        }
+
+        //glyph with selection
+        var selectionEnd = selectionStart + selectionLength;
+        var runEnd = this._Start + this._Length;
+        if (index < runEnd && index < selectionEnd) {
+            len = Math.min(runEnd - index, selectionEnd - index);
+            cluster2 = new _TextLayoutGlyphCluster(text.substr(index, len), font, true);
+            this._Clusters.push(cluster2);
+            index += len;
+        }
+
+        var cluster3;
+        //glyph after selection
+        if (index < runEnd) {
+            len = runEnd - index;
+            cluster3 = new _TextLayoutGlyphCluster(text.substr(index, len), font);
+            this._Clusters.push(cluster3);
+            index += len;
+        }
+    };
+    _TextLayoutRun.Instance._ClearCache = function () {
+        this._Clusters = [];
+    };
+    _TextLayoutRun.Instance._Render = function (ctx, origin, x, y) {
+        var x0 = x;
+        if (this._Clusters.length === 0)
+            this._GenerateCache();
+
+        for (var i = 0; i < this._Clusters.length; i++) {
+            var cluster = this._Clusters[i];
+            ctx.Save();
+            cluster._Render(ctx, origin, this._Attrs, x0, y);
+            ctx.Restore();
+            x0 += cluster._Advance;
+        }
+    };
+    _TextLayoutRun.Instance.__Debug = function (allText) {
+        return allText.substr(this._Start, this._Length);
+    };
+
+    Nullstone.FinishCreate(_TextLayoutRun);
+
+    //#endregion
+
+    //#region _TextLayoutLine
+
+    var _TextLayoutLine = Nullstone.Create("_TextLayoutLine", undefined, 3);
+    _TextLayoutLine.Instance.Init = function (layout, start, offset) {
+        this._Runs = [];
+        this._Layout = layout;
+        this._Start = start;
+        this._Offset = offset;
+        this._Advance = 0.0; //after layout, will contain horizontal distance this line advances
+        this._Descend = 0.0;
+        this._Height = 0.0;
+        this._Width = 0.0;
+        this._Length = 0;
+    };
+    _TextLayoutLine.Instance.GetCursorFromX = function (offset, x) {
+        var run = null;
+        var x0 = offset.X + this._Layout._HorizontalAlignment(this._Advance);
+        var cursor = this._Offset;
+        var text = this._Layout.GetText();
+        var index = this._Start;
+        var end;
+        var c;
+
+        var i;
+        for (i = 0; i < this._Runs.length; i++) {
+            run = this._Runs[i];
+            if (x < (x0 + run._Advance))
+                break; // x is somewhere inside this run
+
+            cursor += run._Length;
+            index += run._Length;
+            x0 += run._Advance;
+            run = null;
+        }
+
+        if (run != null) {
+            index = run._Start;
+            end = run._Start + run._Length;
+            var font = run._Attrs.GetFont();
+            var m;
+            var ch;
+            while (index < end) {
+                ch = index;
+                cursor++;
+                c = text.charAt(index);
+                index++;
+                if (c === '\t')
+                    c = ' ';
+                m = Surface._MeasureWidth(c, font);
+                if (x <= x0 + (m / 2.0)) {
+                    index = ch;
+                    cursor--;
+                    break;
+                }
+                x0 += m;
+            }
+        } else if (i > 0) {
+            // x is beyond the end of the last run
+            run = this._Runs[i - 1];
+            end = run._Start + run._Length;
+            index = run._Start;
+            c = end - 1 < 0 ? null : text.charAt(end - 1);
+            if (c == '\n') {
+                cursor--;
+                end--;
+                c = end - 1 < 0 ? null : text.charAt(end - 1);
+                if (c == '\r') {
+                    cursor--;
+                    end--;
+                }
+            }
+        }
+        return cursor;
+    };
+    _TextLayoutLine.Instance._Render = function (ctx, origin, left, top) {
+        var run;
+        var x0 = left;
+        //var y0 = top + this._Height + this._Descend; //not using this: we set html5 canvas to render top-left corner of text at x,y
+        var y0 = top;
+
+        for (var i = 0; i < this._Runs.length; i++) {
+            run = this._Runs[i];
+            run._Render(ctx, origin, x0, y0);
+            x0 += run._Advance;
+        }
+    };
+    _TextLayoutLine.Instance.__Debug = function (allText) {
+        var t = "";
+        t += "\t\tRuns: " + this._Runs.length.toString() + "\n";
+        for (var i = 0; i < this._Runs.length; i++) {
+            t += "\t\t\tRun " + i.toString() + ": ";
+            t += this._Runs[i].__Debug(allText);
+            t += "\n";
+        }
+        return t;
+    };
+    Nullstone.FinishCreate(_TextLayoutLine);
+
+    //#endregion
+
+    //#region TextLayout
+
     var TextLayout = Nullstone.Create("TextLayout");
 
     TextLayout.Instance.Init = function () {
         this._SelectionStart = 0;
         this._SelectionLength = 0;
 
-        this._Strategy = LineStackingStrategy.MaxHeight;
-        this._Alignment = TextAlignment.Left;
-        this._Trimming = TextTrimming.None;
-        this._Wrapping = TextWrapping.NoWrap;
+        this._Strategy = Fayde.LineStackingStrategy.MaxHeight;
+        this._Alignment = Fayde.TextAlignment.Left;
+        this._Trimming = Fayde.Controls.TextTrimming.None;
+        this._Wrapping = Fayde.Controls.TextWrapping.NoWrap;
 
         this._AvailableWidth = Number.POSITIVE_INFINITY;
         this._MaxHeight = Number.POSITIVE_INFINITY;
@@ -81,11 +373,11 @@
     };
     TextLayout.Instance.SetTextWrapping = function (value) {
         switch (value) {
-            case TextWrapping.NoWrap:
-            case TextWrapping.Wrap:
+            case Fayde.Controls.TextWrapping.NoWrap:
+            case Fayde.Controls.TextWrapping.Wrap:
                 break;
             default:
-                value = TextWrapping.Wrap;
+                value = Fayde.Controls.TextWrapping.Wrap;
                 break;
         }
 
@@ -160,7 +452,7 @@
         return line._Height + line._Descend;
     };
     TextLayout.Instance.OverrideLineHeight = function () {
-        return this.GetLineStackingStrategy() === LineStackingStrategy.BlockLineHeight && this.GetLineHeight() !== 0;
+        return this.GetLineStackingStrategy() === Fayde.LineStackingStrategy.BlockLineHeight && this.GetLineHeight() !== 0;
     };
     TextLayout.Instance.GetLineHeightOverride = function () {
         if (isNaN(this.GetLineHeight()))
@@ -342,12 +634,12 @@
             return;
 
         var word = new _LayoutWord();
-        if (this._Wrapping === TextWrapping.Wrap)
+        if (this._Wrapping === Fayde.Controls.TextWrapping.Wrap)
             word._BreakOps = [];
         else
             word._BreakOps = null;
 
-        var layoutWordFunc = this._Wrapping === TextWrapping.NoWrap ? TextLayout._LayoutWordNoWrap : TextLayout._LayoutWordWrap;
+        var layoutWordFunc = this._Wrapping === Fayde.Controls.TextWrapping.NoWrap ? TextLayout._LayoutWordNoWrap : TextLayout._LayoutWordWrap;
 
         var line = new _TextLayoutLine(this, 0, 0);
         if (this.OverrideLineHeight()) {
@@ -481,12 +773,12 @@
         var deltax = 0.0;
         var width;
         switch (this._Alignment) {
-            case TextAlignment.Center:
+            case Fayde.TextAlignment.Center:
                 width = TextLayout._GetWidthConstraint(this._AvailableWidth, this._MaxWidth, this._ActualWidth);
                 if (lineWidth < width)
                     deltax = (width - lineWidth) / 2.0;
                 break;
-            case TextAlignment.Right:
+            case Fayde.TextAlignment.Right:
                 width = TextLayout._GetWidthConstraint(this._AvailableWidth, this._MaxWidth, this._ActualWidth);
                 if (lineWidth < width)
                     deltax = width - lineWidth;
@@ -590,12 +882,12 @@
         if (!word._BreakOps)
             word._BreakOps = [];
         word._BreakOps.splice(0, word._BreakOps.length);
-        word._Type = _LayoutWordType.Unknown;
+        word._Type = layoutWordType.Unknown;
         word._Advance = 0.0;
 
         var op = new _WordBreakOp();
         var ctype;
-        var btype = _BreakType.Unknown;
+        var btype = breakType.Unknown;
         var fixed = false;
         var newGlyph = false;
         var glyphs = 0;
@@ -616,30 +908,30 @@
             }
 
             //check previous break-type
-            if (btype === _BreakType.ClosePunctuation) {
+            if (btype === breakType.ClosePunctuation) {
                 // if anything comes after close punctuation (except infix separator), the 'word' is done
                 btype = TextLayout._GetBreakType(c);
-                if (btype !== _BreakType.InFixSeparator) {
+                if (btype !== breakType.InFixSeparator) {
                     index = start;
                     break;
                 }
-            } else if (btype === _BreakType.InFixSeparator) {
+            } else if (btype === breakType.InFixSeparator) {
                 btype = TextLayout._GetBreakType(c);
-                if (word._Type === _LayoutWordType.Numeric) {
+                if (word._Type === layoutWordType.Numeric) {
                     //only accept numbers after the infix
-                    if (btype !== _BreakType.Numeric) {
+                    if (btype !== breakType.Numeric) {
                         index = start;
                         break;
                     }
-                } else if (word._Type === _LayoutWordType.Unknown) {
+                } else if (word._Type === layoutWordType.Unknown) {
                     //only accept alphanumerics after the infix
-                    if (btype !== _BreakType.Alphabetic && btype !== _BreakType.Numeric) {
+                    if (btype !== breakType.Alphabetic && btype !== breakType.Numeric) {
                         index = start;
                         break;
                     }
                     fixed = true;
                 }
-            } else if (btype === _BreakType.WordJoiner) {
+            } else if (btype === breakType.WordJoiner) {
                 btype = TextLayout._GetBreakType(c);
                 fixed = true;
             } else {
@@ -653,9 +945,9 @@
 
             ctype = TextLayout._GetCharType(c);
 
-            if (word._Type === _LayoutWordType.Unknown) {
+            if (word._Type === layoutWordType.Unknown) {
                 word._Type = TextLayout._GetWordType(ctype, btype);
-            } else if (btype === _BreakType.OpenPunctuation) {
+            } else if (btype === breakType.OpenPunctuation) {
                 index = start;
                 break;
             } else if (TextLayout._WordTypeChanged(word._Type, c, ctype, btype)) {
@@ -692,7 +984,7 @@
         }
 
         if (index === end)
-            btype = _BreakType.Space;
+            btype = breakType.Space;
 
         while (index < end) {
             start = index;
@@ -700,7 +992,7 @@
             index++;
 
             if (TextLayout._IsLineBreak(text)) {
-                btype = _BreakType.Space;
+                btype = breakType.Space;
                 index = start;
                 break;
             }
@@ -761,7 +1053,7 @@
     };
     TextLayout._LayoutWordWrapSearch = function (word, data) {
         switch (data.op.btype) {
-            case _BreakType.BeforeAndAfter:
+            case breakType.BeforeAndAfter:
                 if (i > 1 && i === word._BreakOps.length) {
                     data.op = word._BreakOps[data.i - 2];
                     data.op.SetWordBasics(word);
@@ -770,8 +1062,8 @@
                     data.op.SetWordBasics(word);
                     return true;
                 }
-            case _BreakType.NonBreakingGlue:
-            case _BreakType.WordJoiner:
+            case breakType.NonBreakingGlue:
+            case breakType.WordJoiner:
                 if (data.force && data.i < word._BreakOps.length) {
                     data.op.SetWordBasics(word);
                     return true;
@@ -781,21 +1073,21 @@
                     data.i--;
                 }
                 break;
-            case _BreakType.Inseparable:
+            case breakType.Inseparable:
                 if (data.lineStart && data.i < word._BreakOps.length) {
                     data.op.SetWordBasics(word);
                     return true;
                 }
                 break;
-            case _BreakType.Before:
+            case breakType.Before:
                 if (data.i > 1) {
                     data.op = word._BreakOps[data.i - 2];
                     data.op.SetWordBasics(word);
                     return true;
                 }
                 break;
-            case _BreakType.ClosePunctuation:
-                if (data.i < word._BreakOps.length && (data.force || data.btype !== _BreakType.InFixSeparator)) {
+            case breakType.ClosePunctuation:
+                if (data.i < word._BreakOps.length && (data.force || data.btype !== breakType.InFixSeparator)) {
                     data.op.SetWordBasics(word);
                     return true;
                 }
@@ -804,45 +1096,45 @@
                     i--;
                 }
                 break;
-            case _BreakType.InFixSeparator:
-                if (data.i < word._BreakOps.length && (data.force || data.btype !== _BreakType.Numeric)) {
+            case breakType.InFixSeparator:
+                if (data.i < word._BreakOps.length && (data.force || data.btype !== breakType.Numeric)) {
                     data.op.SetWordBasics(word);
                     return true;
                 }
                 if (data.i > 1 && !data.force) {
                     data.op = word._BreakOps[data.i - 2];
-                    if (data.op._Btype === _BreakType.InFixSeparator ||
-                        data.op._Btype === _BreakType.ClosePunctuation) {
+                    if (data.op._Btype === breakType.InFixSeparator ||
+                        data.op._Btype === breakType.ClosePunctuation) {
                         data.op = word._BreakOps[data.i - 1];
                     } else {
                         i--;
                     }
                 }
                 break;
-            case _BreakType.Alphabetic:
+            case breakType.Alphabetic:
                 if ((data.lineStart || data.fixed || data.force) && data.i < word._BreakOps.length) {
                     data.op.SetWordBasics(word);
                     return true;
                 }
                 break;
-            case _BreakType.Ideographic:
-                if (data.i < word._BreakOps.length && data.btype !== _BreakType.NonStarter) {
+            case breakType.Ideographic:
+                if (data.i < word._BreakOps.length && data.btype !== breakType.NonStarter) {
                     data.op.SetWordBasics(word);
                     return true;
                 }
                 break;
-            case _BreakType.Numeric:
-                if (data.lineStart && data.i < word._BreakOps.length && (data.force || data.btype !== _BreakType.InFixSeparator)) {
+            case breakType.Numeric:
+                if (data.lineStart && data.i < word._BreakOps.length && (data.force || data.btype !== breakType.InFixSeparator)) {
                     data.op.SetWordBasics(word);
                     return true;
                 }
                 break;
-            case _BreakType.OpenPunctuation:
-            case _BreakType.CombiningMark:
-            case _BreakType.Contingent:
-            case _BreakType.Ambiguous:
-            case _BreakType.Quotation:
-            case _BreakType.Prefix:
+            case breakType.OpenPunctuation:
+            case breakType.CombiningMark:
+            case breakType.Contingent:
+            case breakType.Ambiguous:
+            case breakType.Quotation:
+            case breakType.Prefix:
                 if (data.force && data.i < word._BreakOps.length) {
                     data.op.SetWordBasics(word);
                     return true;
@@ -885,5 +1177,7 @@
     TextLayout._UpdateSelection = function (lines, pre, post) {
     };
 
-    namespace.TextLayout = Nullstone.FinishCreate(TextLayout);
-})(window);
+    Text.TextLayout = Nullstone.FinishCreate(TextLayout);
+
+    //#endregion
+})(Nullstone.Namespace("Fayde.Text"));

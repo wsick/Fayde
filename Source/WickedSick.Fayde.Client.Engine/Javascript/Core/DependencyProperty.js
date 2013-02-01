@@ -1,11 +1,11 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 /// <reference path="../Data/PropertyPath.js"/>
-/// <reference path="../Core/Collections/Collection.js"/>
+/// <reference path="../Core/Collections/InternalCollection.js"/>
 /// <reference path="../Controls/TextBlock.js"/>
 /// <reference path="UnsetValue.js"/>
 
-(function (namespace) {
+(function (Fayde) {
     var DependencyProperty = Nullstone.Create("DependencyProperty", undefined, 13);
 
     DependencyProperty._LastID = 0;
@@ -127,7 +127,7 @@
 
     DependencyProperty.ResolvePropertyPath = function (refobj, propertyPath, promotedValues) {
         /// <param name="refobj" type="Object"></param>
-        /// <param name="propertyPath" type="_PropertyPath"></param>
+        /// <param name="propertyPath" type="PropertyPath"></param>
         /// <returns type="DependencyProperty" />
 
         if (propertyPath.HasDependencyProperty)
@@ -190,13 +190,13 @@
             var value = null;
             if ((value = data.lu._GetValue(data.res)) == null)
                 return false;
-            if (!(value instanceof DependencyObject))
+            if (!(value instanceof Fayde.DependencyObject))
                 return false;
 
             var newLu = value;
-            if (data.promotedValues != null && data.promotedValues[value._ID] == null && !(value instanceof UIElement)) {
+            if (data.promotedValues != null && data.promotedValues[value._ID] == null && !(value instanceof Fayde.UIElement)) {
                 var clonedValue = Fayde.Clone(value);
-                if (clonedValue instanceof DependencyObject) {
+                if (clonedValue instanceof Fayde.DependencyObject) {
                     newLu = clonedValue;
                     data.lu._SetValue(data.res, clonedValue);
                     clonedValue = data.lu._GetValue(data.res);
@@ -239,11 +239,11 @@
                 return false;
         }
 
-        if ((data.collection = Nullstone.As(value, Collection)) == null)
+        if ((data.collection = Nullstone.As(value, Fayde.InternalCollection)) == null)
             return false;
         if ((value = data.collection.GetValueAt(data.i)) == null)
             return false;
-        if ((data.lu = Nullstone.As(value, DependencyObject)) == null)
+        if ((data.lu = Nullstone.As(value, Fayde.DependencyObject)) == null)
             return false;
         return true;
     };
@@ -274,7 +274,7 @@
             if (c === '.') {
                 // we found a type name, now find the property name
                 if ((data.index - start) === 11 && data.path.substr(start, 11).toLowerCase() === "textelement") { //bug workaround from Blend
-                    data.type = TextBlock;
+                    data.type = Fayde.Controls.TextBlock;
                     data.explicitType = true;
                 } else {
                     var s = data.index;
@@ -328,9 +328,23 @@
 
         return true;
     };
+    var lookupNamespaces = [];
     DependencyProperty._LookupType = function (name) {
+        lookupNamespaces.push(Fayde);
+        lookupNamespaces.push(Fayde.Controls);
+        lookupNamespaces.push(Fayde.Media);
+        lookupNamespaces.push(Fayde.Controls.Primitives);
+        lookupNamespaces.push(window);
+
+        var len = lookupNamespaces.length;
+        for (var i = 0; i < len; i++) {
+            var potentialType = lookupNamespaces[i][name];
+            if (potentialType)
+                return potentialType;
+        }
         return eval(name);
     };
 
-    namespace.DependencyProperty = Nullstone.FinishCreate(DependencyProperty);
-})(window);
+    Fayde.DependencyProperty = Nullstone.FinishCreate(DependencyProperty);
+})(Nullstone.Namespace("Fayde"));
+window.DependencyProperty = Fayde.DependencyProperty;

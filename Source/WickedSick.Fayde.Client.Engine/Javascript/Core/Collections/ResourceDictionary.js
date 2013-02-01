@@ -1,18 +1,18 @@
 /// <reference path="../../Runtime/Nullstone.js" />
-/// <reference path="DependencyObjectCollection.js"/>
+/// <reference path="InternalCollection.js"/>
 /// CODE
 
 (function (namespace) {
-    var ResourceDictionary = Nullstone.Create("ResourceDictionary", Collection);
+    var ResourceDictionary = Nullstone.Create("ResourceDictionary", Fayde.InternalCollection);
 
     ResourceDictionary.Instance.Init = function () {
-        this.Init$Collection();
+        this.Init$InternalCollection();
         this._KeyIndex = [];
     };
 
     //#region Properties
 
-    ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, undefined, undefined, { GetValue: function () { return new ResourceDictionaryCollection(); } });
+    ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return Fayde.ResourceDictionaryCollection; }, ResourceDictionary, undefined, undefined, { GetValue: function () { return new Fayde.ResourceDictionaryCollection(); } });
 
     Nullstone.AutoProperties(ResourceDictionary, [
         ResourceDictionary.MergedDictionariesProperty
@@ -52,9 +52,9 @@
             oldValue = this.Get(key);
             this.Remove(oldValue);
         }
-        var index = this.Add$Collection(value);
+        var index = this.Add$InternalCollection(value);
         this._KeyIndex[key] = index;
-        this._RaiseChanged(CollectionChangedArgs.Action.Replace, oldValue, value, index);
+        this._RaiseChanged({ IsReplace: true, OldValue: oldValue, NewValue: value, Index: index });
         return true;
     };
     ResourceDictionary.Instance.Add = function (key, value) {
@@ -74,7 +74,7 @@
 
     ResourceDictionary.Instance.AddedToCollection = function (value, error) {
         var rv = false;
-        var obj = Nullstone.As(value, DependencyObject);
+        var obj = Nullstone.As(value, Fayde.DependencyObject);
         if (obj) {
             if (obj._Parent && !ResourceDictionary._CanBeAddedTwice(value)) {
                 error.SetErrored(BError.InvalidOperation, "Element is already a child of another element.");
@@ -89,39 +89,39 @@
             //WTF: if (!from_resource_dictionary_api)...
         }
 
-        rv = this.AddedToCollection$Collection(value, error);
+        rv = this.AddedToCollection$InternalCollection(value, error);
 
         if (rv /* && !from_resource_dictionary_api */ && obj) {
-            this._RaiseChanged(CollectionChangedArgs.Action.Add, undefined, obj, obj.Name);
+            this._RaiseChanged({ IsAdd: true, NewValue: obj, Index: null }); //TODO: Add index
         }
 
         return rv;
     };
     ResourceDictionary.Instance.RemovedFromCollection = function (value, isValueSafe) {
-        if (isValueSafe && value instanceof DependencyObject) {
-            var obj = Nullstone.As(value, DependencyObject);
+        if (isValueSafe && value instanceof Fayde.DependencyObject) {
+            var obj = Nullstone.As(value, Fayde.DependencyObject);
             if (obj) {
                 obj.RemovePropertyChangedListener(this);
                 obj._RemoveParent(this, null);
                 obj._SetIsAttached(false);
             }
         }
-        this.RemovedFromCollection$Collection(value, isValueSafe);
+        this.RemovedFromCollection$InternalCollection(value, isValueSafe);
     };
 
     ResourceDictionary.Instance._OnIsAttachedChanged = function (value) {
-        this._OnIsAttachedChanged$Collection(value);
+        this._OnIsAttachedChanged$InternalCollection(value);
 
         for (var i = 0; i < this._ht.length; i++) {
             var obj = this._ht[i];
-            if (obj instanceof DependencyObject)
+            if (obj instanceof Fayde.DependencyObject)
                 obj._SetIsAttached(value);
         }
     };
     ResourceDictionary.Instance._OnMentorChanged = function (oldValue, newValue) {
-        this._OnMentorChanged$Collection(oldValue, newValue);
+        this._OnMentorChanged$InternalCollection(oldValue, newValue);
         for (var i = 0; i < this._KeyIndex.length; i++) {
-            DependencyObject._PropagateMentor(this._KeyIndex[i], this.GetValueAt(this._KeyIndex[i]), newValue);
+            Fayde.DependencyObject._PropagateMentor(this._KeyIndex[i], this.GetValueAt(this._KeyIndex[i]), newValue);
         }
     };
 
@@ -130,30 +130,30 @@
         /// <param name="error" type="BError"></param>
         for (var i = 0; i < this.GetCount() ; i++) {
             var obj = this.GetValueAt(i);
-            if (obj && obj instanceof DependencyObject)
+            if (obj && obj instanceof Fayde.DependencyObject)
                 obj._RegisterAllNamesRootedAt(namescope, error);
         }
-        this._RegisterAllNamesRootedAt$Collection(namescope, error);
+        this._RegisterAllNamesRootedAt$InternalCollection(namescope, error);
     };
     ResourceDictionary.Instance._UnregisterAllNamesRootedAt = function (fromNs) {
         /// <param name="fromNs" type="NameScope"></param>
         for (var i = 0; i < this.GetCount() ; i++) {
             var obj = this.GetValueAt(i);
-            if (obj && obj instanceof DependencyObject)
+            if (obj && obj instanceof Fayde.DependencyObject)
                 obj._UnregisterAllNamesRootedAt(fromNs);
         }
-        this._UnregisterAllNamesRootedAt$Collection(fromNs);
+        this._UnregisterAllNamesRootedAt$InternalCollection(fromNs);
     };
 
     ResourceDictionary._CanBeAddedTwice = function (value) {
         //TODO: Uncomment when implemented
-        if (value instanceof FrameworkTemplate)
+        if (value instanceof Fayde.FrameworkTemplate)
             return true;
-        if (value instanceof Style)
+        if (value instanceof Fayde.Style)
             return true;
-        if (value instanceof Transform)
+        if (value instanceof Fayde.Media.Transform)
             return true;
-        if (value instanceof Brush)
+        if (value instanceof Fayde.Media.Brush)
             return true;
         //if (value instanceof StrokeCollection)
         //  return true;
@@ -161,7 +161,7 @@
         //  return true;
         //if (value instanceof StylusPointCollection)
         //  return true;
-        if (value instanceof BitmapImage)
+        if (value instanceof Fayde.Media.Imaging.BitmapImage)
             return true;
         //if (value instanceof Stroke)
         //  return true;
@@ -171,4 +171,4 @@
     };
 
     namespace.ResourceDictionary = Nullstone.FinishCreate(ResourceDictionary);
-})(window);
+})(Nullstone.Namespace("Fayde"));

@@ -42,4 +42,4 @@
     });
 
     namespace.RepeatBehavior = Nullstone.FinishCreate(RepeatBehavior);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

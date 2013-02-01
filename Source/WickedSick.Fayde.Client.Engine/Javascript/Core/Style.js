@@ -5,11 +5,11 @@
 /// <reference path="Core.js"/>
 
 (function (namespace) {
-    var Style = Nullstone.Create("Style", DependencyObject);
+    var Style = Nullstone.Create("Style", Fayde.DependencyObject);
 
     //#region Properties
 
-    Style.SettersProperty = DependencyProperty.RegisterFull("Setters", function () { return SetterBaseCollection; }, Style, undefined, undefined, { GetValue: function () { return new SetterBaseCollection(); } });
+    Style.SettersProperty = DependencyProperty.RegisterFull("Setters", function () { return Fayde.SetterBaseCollection; }, Style, undefined, undefined, { GetValue: function () { return new Fayde.SetterBaseCollection(); } });
     Style.IsSealedProperty = DependencyProperty.RegisterCore("IsSealed", function () { return Boolean; }, Style);
     Style.BasedOnProperty = DependencyProperty.RegisterCore("BasedOn", function () { return Function; }, Style);
     Style.TargetTypeProperty = DependencyProperty.RegisterCore("TargetType", function () { return Function; }, Style);
@@ -52,8 +52,8 @@
     };
     Style.Instance._ConvertSetterValue = function (setter) {
         /// <param name="setter" type="Setter"></param>
-        var propd = setter._GetValue(Setter.PropertyProperty);
-        var val = setter._GetValue(Setter.ValueProperty);
+        var propd = setter._GetValue(Fayde.Setter.PropertyProperty);
+        var val = setter._GetValue(Fayde.Setter.ValueProperty);
 
         if (typeof propd.GetTargetType() === "string") {
             //if (val === undefined)
@@ -63,18 +63,18 @@
         }
 
         try {
-            setter._SetValue(Setter.ConvertedValueProperty, Fayde.TypeConverter.ConvertObject(propd, val, this.TargetType, true));
+            setter._SetValue(Fayde.Setter.ConvertedValueProperty, Fayde.TypeConverter.ConvertObject(propd, val, this.TargetType, true));
         } catch (err) {
             throw new XamlParseException(err.message);
         }
     };
 
     Style.Instance._AddSetter = function (dobj, propName, value) {
-        this.Setters.Add(JsonParser.CreateSetter(dobj, propName, value));
+        this.Setters.Add(Fayde.JsonParser.CreateSetter(dobj, propName, value));
     };
     Style.Instance._AddSetterJson = function (dobj, propName, json) {
-        this._AddSetter(dobj, propName, JsonParser.Parse(json));
+        this._AddSetter(dobj, propName, Fayde.JsonParser.Parse(json));
     };
 
     namespace.Style = Nullstone.FinishCreate(Style);
-})(window);
+})(Nullstone.Namespace("Fayde"));

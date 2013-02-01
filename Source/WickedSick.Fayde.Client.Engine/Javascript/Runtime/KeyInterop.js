@@ -167,7 +167,7 @@
             if (unshifted)
                 keyCode = unshifted;
 
-            return new KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], e.char);
+            return new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], e.char);
         });
 
         IEKeyInterop.Instance.CreateArgsDown = (function (e) {
@@ -178,7 +178,7 @@
                 Ctrl: e.ctrlKey,
                 Alt: e.altKey
             };
-            return new KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode]);
+            return new Fayde.Input.KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode]);
         });
     })();
 
@@ -231,7 +231,7 @@
             if (unshifted)
                 keyCode = unshifted;
 
-            return new KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], String.fromCharCode(e.which || e.keyCode));
+            return new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], String.fromCharCode(e.which || e.keyCode));
         });
         NetscapeKeyInterop.Instance.CreateArgsDown = function (e) {
             //only do for special keys
@@ -243,7 +243,7 @@
                 Ctrl: e.ctrlKey,
                 Alt: e.altKey
             };
-            return new KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode]);
+            return new Fayde.Input.KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode]);
         };
     })();
 

@@ -3,18 +3,18 @@
 /// <reference path="PointCollection.js"/>
 
 (function (namespace) {
-    var Polygon = Nullstone.Create("Polygon", Shape);
+    var Polygon = Nullstone.Create("Polygon", namespace.Shape);
     
     //#region Properties
 
-    Polygon.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, Polygon, FillRule.EvenOdd);
-    Polygon.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polygon, undefined, undefined, { GetValue: function () { return new PointCollection(); } });
+    Polygon.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(namespace.FillRule); }, Polygon, namespace.FillRule.EvenOdd);
+    Polygon.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return namespace.PointCollection; }, Polygon, undefined, undefined, { GetValue: function () { return new namespace.PointCollection(); } });
 
     Nullstone.AutoProperties(Polygon, [
         Polygon.FillRuleProperty
     ]);
     Nullstone.AutoProperty(Polygon, Polygon.PointsProperty, function (value) {
-        if (value instanceof PointCollection)
+        if (value instanceof namespace.PointCollection)
             return value;
         if (typeof value === "string")
             return Fayde.TypeConverter.PointCollectionFromString(value);
@@ -72,13 +72,13 @@
         var points = this.Points;
         var count;
         if (points == null || (count = points.GetCount()) < 2) {
-            this._SetShapeFlags(ShapeFlags.Empty);
+            this._SetShapeFlags(namespace.ShapeFlags.Empty);
             return;
         }
 
-        this._SetShapeFlags(ShapeFlags.Normal);
+        this._SetShapeFlags(namespace.ShapeFlags.Normal);
 
-        var path = new RawPath();
+        var path = new Fayde.Shapes.RawPath();
         if (count === 2) {
             var thickness = this.StrokeThickness;
             var p1 = points.GetValueAt(0);
@@ -237,10 +237,10 @@
         };
         Polygon.Instance.ApplyHtmlFillRule = function (shape, fillRule) {
             switch (fillRule) {
-                case FillRule.EvenOdd:
+                case namespace.FillRule.EvenOdd:
                     shape.setAttribute("fill-rule", "evenodd");
                     break;
-                case FillRule.NonZero:
+                case namespace.FillRule.NonZero:
                     shape.setAttribute("fill-rule", "nonzero");
                     break;
             }
@@ -250,4 +250,4 @@
     //#endif
 
     namespace.Polygon = Nullstone.FinishCreate(Polygon);
-})(window);
+})(Nullstone.Namespace("Fayde.Shapes"));

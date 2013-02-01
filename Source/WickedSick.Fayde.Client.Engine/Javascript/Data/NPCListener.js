@@ -18,4 +18,4 @@
     };
 
     namespace.NPCListener = Nullstone.FinishCreate(NPCListener);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

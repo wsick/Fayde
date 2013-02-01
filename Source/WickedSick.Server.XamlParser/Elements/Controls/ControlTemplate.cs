@@ -2,6 +2,7 @@
 
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {
+    [Element(NullstoneNamespace = "Fayde.Controls")]
     public class ControlTemplate : DependencyObject
     {
         public static readonly PropertyDescription ContentProperty = PropertyDescription.Register("Content", typeof(UIElement), typeof(ControlTemplate), true);

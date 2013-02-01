@@ -4,7 +4,7 @@
 /// <reference path="RowDefinition.js"/>
 
 (function (namespace) {
-    var RowDefinitionCollection = Nullstone.Create("RowDefinitionCollection", DependencyObjectCollection);
+    var RowDefinitionCollection = Nullstone.Create("RowDefinitionCollection", Fayde.DependencyObjectCollection);
 
     RowDefinitionCollection.Instance.AddedToCollection = function (value, error) {
         if (this.Contains(value)) {
@@ -15,8 +15,8 @@
     };
 
     RowDefinitionCollection.Instance.IsElementType = function (value) {
-        return value instanceof RowDefinition;
+        return value instanceof namespace.RowDefinition;
     };
 
     namespace.RowDefinitionCollection = Nullstone.FinishCreate(RowDefinitionCollection);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

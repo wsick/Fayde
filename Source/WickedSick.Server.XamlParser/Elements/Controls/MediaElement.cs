@@ -1,8 +1,9 @@
 ﻿using WickedSick.Server.XamlParser.Elements.Core;
-using WickedSick.Server.XamlParser.Elements.Types;
+using WickedSick.Server.XamlParser.Elements.Media;
 
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {
+    [Element(NullstoneNamespace = "Fayde.Controls")]
     public class MediaElement : FrameworkElement
     {
         public static readonly PropertyDescription AutoPlayProperty = PropertyDescription.Register("AutoPlay", typeof(Boolean), typeof(MediaElement));

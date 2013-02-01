@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var _TextBoxBaseDynamicPropertyValueProvider = Nullstone.Create("_TextBoxBaseDynamicPropertyValueProvider", FrameworkElementPropertyValueProvider, 5);
+    var _TextBoxBaseDynamicPropertyValueProvider = Nullstone.Create("_TextBoxBaseDynamicPropertyValueProvider", Fayde.FrameworkElementPropertyValueProvider, 5);
 
     _TextBoxBaseDynamicPropertyValueProvider.Instance.Init = function (obj, propPrecedence, foregroundPropd, backgroundPropd, baselineOffsetPropd) {
         this.Init$FrameworkElementPropertyValueProvider(obj, propPrecedence);
@@ -39,8 +39,8 @@
             if (!v)
                 v = this._SelectionForeground;
         } else if (propd._ID === this._BaselineOffsetPropd._ID) {
-            var _TextBoxView = this._Object._View;
-            this._BaselineOffset = !_TextBoxView ? 0 : _TextBoxView.GetBaselineOffset();
+            var tbv = this._Object._View;
+            this._BaselineOffset = (tbv == null) ? 0 : tbv.GetBaselineOffset();
             v = this._BaselineOffset;
         }
         if (v != undefined)
@@ -50,10 +50,10 @@
 
     _TextBoxBaseDynamicPropertyValueProvider.Instance._InitializeSelectionBrushes = function () {
         if (!this._SelectionBackground)
-            this._SelectionBackground = new SolidColorBrush(Color.FromHex("#FF444444"));
+            this._SelectionBackground = new Fayde.Media.SolidColorBrush(Color.FromHex("#FF444444"));
         if (!this._SelectionForeground)
-            this._SelectionForeground = new SolidColorBrush(Color.FromHex("#FFFFFFFF"));
+            this._SelectionForeground = new Fayde.Media.SolidColorBrush(Color.FromHex("#FFFFFFFF"));
     };
 
     namespace._TextBoxBaseDynamicPropertyValueProvider = Nullstone.FinishCreate(_TextBoxBaseDynamicPropertyValueProvider);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

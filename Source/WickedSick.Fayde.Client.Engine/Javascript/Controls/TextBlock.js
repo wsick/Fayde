@@ -5,14 +5,15 @@
 /// CODE
 /// <reference path="../Runtime/LinkedList.js"/>
 /// <reference path="../Text/TextLayout.js"/>
+/// <reference path="Enums.js"/>
 
 (function (namespace) {
-    var TextBlock = Nullstone.Create("TextBlock", FrameworkElement);
+    var TextBlock = Nullstone.Create("TextBlock", Fayde.FrameworkElement);
 
     TextBlock.Instance.Init = function () {
         this.Init$FrameworkElement();
 
-        this._Layout = new TextLayout();
+        this._Layout = new Fayde.Text.TextLayout();
 
         this._ActualHeight = 0.0;
         this._ActualWidth = 0.0;
@@ -20,7 +21,7 @@
         this._WasSet = true;
         this._Dirty = true;
 
-        this.AddProvider(new _TextBlockDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue));
+        this.AddProvider(new namespace._TextBlockDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue));
 
         this._Font = new Font();
     };
@@ -28,21 +29,21 @@
     //#region Properties
 
     TextBlock.PaddingProperty = DependencyProperty.RegisterCore("Padding", function () { return Thickness; }, TextBlock, new Thickness());
-    TextBlock.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () { return Brush; }, TextBlock, undefined, undefined, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } }, _Inheritable.Foreground);
+    TextBlock.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () { return Fayde.Media.Brush; }, TextBlock, undefined, undefined, { GetValue: function () { return new Fayde.Media.SolidColorBrush(new Color(0, 0, 0)); } }, _Inheritable.Foreground);
     TextBlock.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () { return String; }, TextBlock, Font.DEFAULT_FAMILY, undefined, undefined, _Inheritable.FontFamily);
     TextBlock.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () { return String; }, TextBlock, Font.DEFAULT_STRETCH, undefined, undefined, _Inheritable.FontStretch);
     TextBlock.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () { return String; }, TextBlock, Font.DEFAULT_STYLE, undefined, undefined, _Inheritable.FontStyle);
-    TextBlock.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () { return new Enum(FontWeight); }, TextBlock, Font.DEFAULT_WEIGHT, undefined, undefined, _Inheritable.FontWeight);
+    TextBlock.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () { return new Enum(Fayde.FontWeight); }, TextBlock, Font.DEFAULT_WEIGHT, undefined, undefined, _Inheritable.FontWeight);
     TextBlock.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () { return Number; }, TextBlock, Font.DEFAULT_SIZE, undefined, undefined, _Inheritable.FontSize);
-    TextBlock.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () { return new Enum(TextDecorations); }, TextBlock, TextDecorations.None, undefined, undefined, _Inheritable.TextDecorations);
+    TextBlock.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () { return new Enum(Fayde.TextDecorations); }, TextBlock, Fayde.TextDecorations.None, undefined, undefined, _Inheritable.TextDecorations);
     TextBlock.FontSourceProperty = DependencyProperty.RegisterCore("FontSource", function () { return Object; }, TextBlock);
     TextBlock.TextProperty = DependencyProperty.RegisterCore("Text", function () { return String; }, TextBlock, "");
-    TextBlock.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, TextBlock, undefined, undefined, { GetValue: function () { return new InlineCollection(); } });
-    TextBlock.LineStackingStrategyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", function () { return new Enum(LineStackingStrategy); }, TextBlock);
+    TextBlock.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return Fayde.Documents.InlineCollection; }, TextBlock, undefined, undefined, { GetValue: function () { return new Fayde.Documents.InlineCollection(); } });
+    TextBlock.LineStackingStrategyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", function () { return new Enum(Fayde.LineStackingStrategy); }, TextBlock);
     TextBlock.LineHeightProperty = DependencyProperty.RegisterCore("LineHeight", function () { return Number; }, TextBlock, NaN);
-    TextBlock.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return new Enum(TextAlignment); }, TextBlock, TextAlignment.Left);
-    TextBlock.TextTrimmingProperty = DependencyProperty.RegisterCore("TextTrimming", function () { return new Enum(TextTrimming); }, TextBlock, TextTrimming.None);
-    TextBlock.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return new Enum(TextWrapping); }, TextBlock, TextWrapping.NoWrap);
+    TextBlock.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return new Enum(Fayde.TextAlignment); }, TextBlock, Fayde.TextAlignment.Left);
+    TextBlock.TextTrimmingProperty = DependencyProperty.RegisterCore("TextTrimming", function () { return new Enum(namespace.TextTrimming); }, TextBlock, namespace.TextTrimming.None);
+    TextBlock.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return new Enum(namespace.TextWrapping); }, TextBlock, namespace.TextWrapping.NoWrap);
 
     Nullstone.AutoProperties(TextBlock, [
         TextBlock.PaddingProperty,
@@ -95,7 +96,7 @@
         var constraint = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
         var result = new Size(0.0, 0.0);
 
-        if (LayoutInformation.GetPreviousConstraint(this) !== undefined || this._ReadLocalValue(LayoutInformation.LayoutSlotProperty) !== undefined) {
+        if (Fayde.LayoutInformation.GetPreviousConstraint(this) !== undefined || this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty) !== undefined) {
             this._Layout.Layout();
             var actuals = this._Layout.GetActualExtents();
             this._ActualWidth = actuals.Width;
@@ -149,7 +150,7 @@
         this._RenderLayoutClip(ctx);
         var padding = this.Padding;
         var offset = new Point(padding.Left, padding.Top);
-        if (this.FlowDirection === FlowDirection.RightToLeft) {
+        if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
             NotImplemented("TextBlock._Render: Right to left");
         }
         this._Layout._Render(ctx, this._GetOriginPoint(), offset);
@@ -213,16 +214,16 @@
         this._Layout.SetTextAttributes(runs);
     };
     TextBlock.Instance._UpdateLayoutAttributesForInline = function (item, length, runs) {
-        if (item instanceof Run) {
+        if (item instanceof Fayde.Documents.Run) {
             var text = item.Text;
             if (text && text.length) {
-                runs.Append(new _TextLayoutAttributes(item, length));
+                runs.Append(new Fayde.Text._TextLayoutAttributes(item, length));
                 length += text.length;
             }
-        } else if (item instanceof LineBreak) {
-            runs.Append(new _TextLayoutAttributes(item, length));
+        } else if (item instanceof Fayde.Documents.LineBreak) {
+            runs.Append(new Fayde.Text._TextLayoutAttributes(item, length));
             length += 1; //line break length
-        } else if (item instanceof Span) {
+        } else if (item instanceof Fayde.Documents.Span) {
             var inlines = item.Inlines;
             var count = inlines.GetCount();
             for (var i = 0; i < count; i++) {
@@ -257,7 +258,7 @@
         if (text) {
             var count = inlines.GetCount();
             var run = null;
-            if (count > 0 && (value = inlines.GetValueAt(0)) && value instanceof Run) {
+            if (count > 0 && (value = inlines.GetValueAt(0)) && value instanceof Fayde.Documents.Run) {
                 run = value;
                 if (run._GetAutogenerated()) {
                     while (count > 1) {
@@ -270,7 +271,7 @@
             }
             if (!run) {
                 inlines.Clear();
-                run = new Run();
+                run = new Fayde.Documents.Run();
                 run._SetAutogenerated(true);
                 inlines.Add(run);
             }
@@ -297,7 +298,7 @@
         TextBlock.Instance._OnPropertyChanged = function (args, error) {
             if (args.Property.OwnerType !== TextBlock) {
                 this._OnPropertyChanged$FrameworkElement(args, error);
-                if (args.Property._ID !== FrameworkElement.LanguageProperty._ID)
+                if (args.Property._ID !== Fayde.FrameworkElement.LanguageProperty._ID)
                     return;
                 if (!this._UpdateFonts(false))
                     return;
@@ -373,13 +374,13 @@
             }
 
             var inlines = this.Inlines;
-            if (args.Action === CollectionChangedArgs.Action.Clearing)
+            if (args.IsClearing)
                 return;
 
             if (!this._SetsValue)
                 return;
 
-            if (args.Action === CollectionChangedArgs.Add)
+            if (args.IsAdd)
                 this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
 
             this._SetsValue = false;
@@ -388,19 +389,14 @@
 
             this._UpdateLayoutAttributes();
 
-            switch (args.Action) {
-                case CollectionChangedArgs.Action.Cleared:
-                    this.ClearChildrenHtml();
-                    break;
-                case CollectionChangedArgs.Action.Add:
-                    this.AddChildHtml(args.NewValue, args.Index);
-                    break;
-                case CollectionChangedArgs.Action.Remove:
-                    this.RemoveChildHtml(args.NewValue);
-                    break;
-                case CollectionChangedArgs.Action.Replace:
-                    this.ReplaceChildHtml(args.OldValue, args.NewValue);
-                    break;
+            if (args.IsCleared) {
+                this.ClearChildrenHtml();
+            } else if (args.IsAdd) {
+                this.AddChildHtml(args.NewValue, args.Index);
+            } else if (args.IsRemove) {
+                this.RemoveChildHtml(args.NewValue);
+            } else if (args.IsReplace) {
+                this.ReplaceChildHtml(args.OldValue, args.NewValue);
             }
         };
     }
@@ -410,7 +406,7 @@
             var invalidate = true;
             if (args.Property.OwnerType !== TextBlock) {
                 this._OnPropertyChanged$FrameworkElement(args, error);
-                if (args.Property._ID !== FrameworkElement.LanguageProperty._ID)
+                if (args.Property._ID !== Fayde.FrameworkElement.LanguageProperty._ID)
                     return;
                 if (!this._UpdateFonts(false))
                     return;
@@ -486,13 +482,13 @@
             }
 
             var inlines = this.Inlines;
-            if (args.Action === CollectionChangedArgs.Action.Clearing)
+            if (args.IsClearing)
                 return;
 
             if (!this._SetsValue)
                 return;
 
-            if (args.Action === CollectionChangedArgs.Add)
+            if (args.IsAdd)
                 this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
 
             this._SetsValue = false;
@@ -573,20 +569,20 @@
         };
         TextBlock.Instance.ApplyTextAlignmentHtml = function (contentEl, alignment) {
             switch (alignment) {
-                case TextAlignment.Left:
+                case Fayde.TextAlignment.Left:
                     contentEl.style.textAlign = "left";
                     break;
-                case TextAlignment.Center:
+                case Fayde.TextAlignment.Center:
                     contentEl.style.textAlign = "center";
                     break;
-                case TextAlignment.Right:
+                case Fayde.TextAlignment.Right:
                     contentEl.style.textAlign = "right";
                     break;
             }
         };
         TextBlock.Instance.ApplyTextDecorationsHtml = function (contentEl, decorations) {
             var finalStyle = "";
-            if (decorations & TextDecorations.Underline)
+            if (decorations & Fayde.TextDecorations.Underline)
                 finalStyle += "underline ";
             contentEl.style.textDecoration = finalStyle;
         };
@@ -652,4 +648,4 @@
     //#endif
 
     namespace.TextBlock = Nullstone.FinishCreate(TextBlock);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

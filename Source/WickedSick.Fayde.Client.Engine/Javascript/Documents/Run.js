@@ -3,11 +3,11 @@
 /// CODE
 
 (function (namespace) {
-    var Run = Nullstone.Create("Run", Inline);
+    var Run = Nullstone.Create("Run", namespace.Inline);
 
     //#region Properties
 
-    Run.FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", function () { return new Enum(FlowDirection); }, Run, FlowDirection.LeftToRight, undefined, undefined, _Inheritable.FlowDirection);
+    Run.FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", function () { return new Enum(Fayde.FlowDirection); }, Run, Fayde.FlowDirection.LeftToRight, undefined, undefined, _Inheritable.FlowDirection);
     Run.TextProperty = DependencyProperty.Register("Text", function () { return String; }, Run);
 
     Nullstone.AutoProperties(Run, [
@@ -61,4 +61,4 @@
     //#endif
 
     namespace.Run = Nullstone.FinishCreate(Run);
-})(window);
+})(Nullstone.Namespace("Fayde.Documents"));

@@ -10,7 +10,7 @@
 /// <reference path="../Engine/RenderContext.js"/>
 
 (function (namespace) {
-    var Image = Nullstone.Create("Image", FrameworkElement);
+    var Image = Nullstone.Create("Image", Fayde.FrameworkElement);
 
     Image.Instance.Init = function () {
         this.Init$FrameworkElement();
@@ -20,9 +20,9 @@
 
     //#region Properties
 
-    Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return ImageSource; }, Image, undefined, undefined, { GetValue: function (propd, obj) { return new BitmapImage(); } });
+    Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return Fayde.Media.Imaging.ImageSource; }, Image, undefined, undefined, { GetValue: function (propd, obj) { return new Fayde.Media.Imaging.BitmapImage(); } });
     // http: //msdn.microsoft.com/en-us/library/system.windows.media.stretch(v=vs.95).aspx
-    Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Enum(Stretch); }, Image, Stretch.Uniform);
+    Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Enum(Fayde.Media.Stretch); }, Image, Fayde.Media.Stretch.Uniform);
 
     Nullstone.AutoProperties(Image, [
         Image.StretchProperty
@@ -30,7 +30,7 @@
 
     Nullstone.AutoProperty(Image, Image.SourceProperty, function (value) {
         if (value instanceof Uri)
-            return new BitmapImage(value);
+            return new Fayde.Media.Imaging.BitmapImage(value);
         return value;
     });
 
@@ -64,19 +64,19 @@
             sy = sx;
 
         switch (this.Stretch) {
-            case Stretch.Uniform:
+            case Fayde.Media.Stretch.Uniform:
                 sx = sy = Math.min(sx, sy);
                 break;
-            case Stretch.UniformToFill:
+            case Fayde.Media.Stretch.UniformToFill:
                 sx = sy = Math.max(sx, sy);
                 break;
-            case Stretch.Fill:
+            case Fayde.Media.Stretch.Fill:
                 if (!isFinite(availableSize.Width))
                     sx = sy;
                 if (!isFinite(availableSize.Height))
                     sy = sx;
                 break;
-            case Stretch.None:
+            case Fayde.Media.Stretch.None:
                 sx = sy = 1.0;
                 break;
         }
@@ -112,13 +112,13 @@
             sy = arranged.Height / shapeBounds.Height;
 
         switch (this.Stretch) {
-            case Stretch.Uniform:
+            case Fayde.Media.Stretch.Uniform:
                 sx = sy = Math.min(sx, sy);
                 break;
-            case Stretch.UniformToFill:
+            case Fayde.Media.Stretch.UniformToFill:
                 sx = sy = Math.max(sx, sy);
                 break;
-            case Stretch.None:
+            case Fayde.Media.Stretch.None:
                 sx = sy = 1.0;
                 break;
             default:
@@ -142,7 +142,7 @@
         if (!source)
             return false;
         var stretch = this.Stretch;
-        if (stretch === Stretch.Fill || stretch === Stretch.UniformToFill)
+        if (stretch === Fayde.Media.Stretch.Fill || stretch === Fayde.Media.Stretch.UniformToFill)
             return true;
         var metrics = this._CalculateRenderMetrics(source);
         if (!metrics)
@@ -163,8 +163,8 @@
         var parent = this.GetVisualParent();
         var source = this.Source;
 
-        if (parent && !Nullstone.Is(parent, Canvas))
-            if (this._ReadLocalValue(LayoutInformation.LayoutSlotProperty) !== undefined)
+        if (parent && !Nullstone.Is(parent, namespace.Canvas))
+            if (this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty) !== undefined)
                 return result;
 
         if (source) {
@@ -220,7 +220,7 @@
         if (height === 0)
             sy = 1.0;
 
-        if (stretch === Stretch.Fill) {
+        if (stretch === Fayde.Media.Stretch.Fill) {
             return mat3.createScale(sx, sy);
         }
 
@@ -228,37 +228,37 @@
         var dx = 0.0;
         var dy = 0.0;
         switch (stretch) {
-            case Stretch.Uniform:
+            case Fayde.Media.Stretch.Uniform:
                 scale = sx < sy ? sx : sy;
                 break;
-            case Stretch.UniformToFill:
+            case Fayde.Media.Stretch.UniformToFill:
                 scale = sx < sy ? sy : sx;
                 break;
-            case Stretch.None:
+            case Fayde.Media.Stretch.None:
                 break;
         }
 
         switch (alignX) {
-            case AlignmentX.Left:
+            case Fayde.Media.AlignmentX.Left:
                 dx = 0.0;
                 break;
-            case AlignmentX.Center:
+            case Fayde.Media.AlignmentX.Center:
                 dx = (width - (scale * sw)) / 2;
                 break;
-            case AlignmentX.Right:
+            case Fayde.Media.AlignmentX.Right:
             default:
                 dx = width - (scale * sw);
                 break;
         }
 
         switch (alignY) {
-            case AlignmentY.Top:
+            case Fayde.Media.AlignmentY.Top:
                 dy = 0.0;
                 break;
-            case AlignmentY.Center:
+            case Fayde.Media.AlignmentY.Center:
                 dy = (height - (scale * sh)) / 2;
                 break;
-            case AlignmentY.Bottom:
+            case Fayde.Media.AlignmentY.Bottom:
             default:
                 dy = height - (scale * sh);
                 break;
@@ -278,17 +278,17 @@
         if (pixelWidth === 0 || pixelHeight === 0)
             return null;
 
-        if (stretch !== Stretch.UniformToFill)
+        if (stretch !== Fayde.Media.Stretch.UniformToFill)
             specified = specified.Min(stretched);
 
         var paint = new Rect(0, 0, specified.Width, specified.Height);
         var image = new Rect(0, 0, pixelWidth, pixelHeight);
 
-        if (stretch === Stretch.None)
+        if (stretch === Fayde.Media.Stretch.None)
             paint = paint.Union(image);
 
         var matrix = computeMatrix(paint.Width, paint.Height, image.Width, image.Height,
-            stretch, AlignmentX.Center, AlignmentY.Center);
+            stretch, Fayde.Media.AlignmentX.Center, Fayde.Media.AlignmentY.Center);
 
         if (adjust) {
             var error = new BError();
@@ -297,7 +297,7 @@
         }
 
         var overlap = RectOverlap.In;
-        if (stretch === Stretch.UniformToFill || adjust) {
+        if (stretch === Fayde.Media.Stretch.UniformToFill || adjust) {
             var bounds = new Rect(paint.RoundOut());
             var box = image.Transform(matrix).RoundIn();
             overlap = bounds.RectIn(box);
@@ -321,12 +321,12 @@
 
             var ivprop = false;
             if (args.Property._ID === Image.SourceProperty._ID) {
-                var oldBmpSrc = Nullstone.As(args.OldValue, BitmapSource);
+                var oldBmpSrc = Nullstone.As(args.OldValue, Fayde.Media.Imaging.BitmapSource);
                 if (oldBmpSrc) {
                     oldBmpSrc._ErroredCallback = null;
                     oldBmpSrc._LoadedCallback = null;
                 }
-                var newBmpSrc = Nullstone.As(args.NewValue, BitmapSource);
+                var newBmpSrc = Nullstone.As(args.NewValue, Fayde.Media.Imaging.BitmapSource);
                 if (newBmpSrc) {
                     var i = this;
                     newBmpSrc._ErroredCallback = function () { i.ImageFailed.Raise(this, new EventArgs()); };
@@ -354,12 +354,12 @@
             }
 
             if (args.Property._ID === Image.SourceProperty._ID) {
-                var oldBmpSrc = Nullstone.As(args.OldValue, BitmapSource);
+                var oldBmpSrc = Nullstone.As(args.OldValue, Fayde.Media.Imaging.BitmapSource);
                 if (oldBmpSrc) {
                     oldBmpSrc._ErroredCallback = null;
                     oldBmpSrc._LoadedCallback = null;
                 }
-                var newBmpSrc = Nullstone.As(args.NewValue, BitmapSource);
+                var newBmpSrc = Nullstone.As(args.NewValue, Fayde.Media.Imaging.BitmapSource);
                 if (newBmpSrc) {
                     var i = this;
                     newBmpSrc._ErroredCallback = function () { i.ImageFailed.Raise(this, new EventArgs()); };
@@ -398,19 +398,19 @@
             //    stretch = Stretch.None;
             //}
             switch (stretch) {
-                case Stretch.None:
+                case Fayde.Media.Stretch.None:
                     var img = imgEl.appendChild(document.createElement("img"));
                     img.src = source._Image.src;
                     break;
-                case Stretch.Fill:
+                case Fayde.Media.Stretch.Fill:
                     break;
-                case Stretch.Uniform:
+                case Fayde.Media.Stretch.Uniform:
                     imgEl.style.backgroundSize = "contain";
                     imgEl.style.backgroundRepeat = "no-repeat";
                     imgEl.style.backgroundPosition = "center";
                     imgEl.style.backgroundImage = "url('" + source._Image.src + "')";
                     break;
-                case Stretch.UniformToFill:
+                case Fayde.Media.Stretch.UniformToFill:
                     break;
             }
         };
@@ -428,4 +428,4 @@
     //#endif
 
     namespace.Image = Nullstone.FinishCreate(Image);
-})(Fayde);
+})(Nullstone.Namespace("Fayde.Controls"));

@@ -2,15 +2,15 @@
 /// CODE
 
 (function (namespace) {
-    var _PropertyPath = Nullstone.Create("_PropertyPath", undefined, 2);
+    var PropertyPath = Nullstone.Create("PropertyPath", undefined, 2);
 
-    _PropertyPath.Instance.Init = function (path, expandedPath) {
+    PropertyPath.Instance.Init = function (path, expandedPath) {
         this._Path = path;
         this._ExpandedPath = expandedPath;
     };
 
-    _PropertyPath.CreateFromParameter = function (parameter) {
-        var p = new _PropertyPath();
+    PropertyPath.CreateFromParameter = function (parameter) {
+        var p = new PropertyPath();
         p._Propd = Nullstone.As(parameter, DependencyProperty);
         p._Path = null;
         if (parameter instanceof String)
@@ -18,7 +18,7 @@
         return p;
     };
 
-    _PropertyPath.Instance.TryResolveDependencyProperty = function (dobj) {
+    PropertyPath.Instance.TryResolveDependencyProperty = function (dobj) {
         /// <param name="dobj" type="DependencyObject"></param>
         if (this.HasDependencyProperty)
             return;
@@ -28,13 +28,13 @@
 
     //#region Properties
 
-    Nullstone.Property(_PropertyPath, "Path", {
+    Nullstone.Property(PropertyPath, "Path", {
         get: function () { return !this._Propd ? this._Path : "(0)"; }
     });
-    Nullstone.Property(_PropertyPath, "ExpandedPath", {
+    Nullstone.Property(PropertyPath, "ExpandedPath", {
         get: function () { return !this._Propd ? this._ExpandedPath : "(0)"; }
     });
-    Nullstone.Property(_PropertyPath, "ParsePath", {
+    Nullstone.Property(PropertyPath, "ParsePath", {
         get: function () {
             if (this._Propd)
                 return "(0)";
@@ -43,14 +43,14 @@
             return this._Path;
         }
     });
-    Nullstone.Property(_PropertyPath, "HasDependencyProperty", {
+    Nullstone.Property(PropertyPath, "HasDependencyProperty", {
         get: function () { return this._Propd != null; }
     });
-    Nullstone.Property(_PropertyPath, "DependencyProperty", {
+    Nullstone.Property(PropertyPath, "DependencyProperty", {
         get: function () { return this._Propd; }
     });
 
     //#endregion
 
-    namespace._PropertyPath = Nullstone.FinishCreate(_PropertyPath);
-})(window);
+    namespace.PropertyPath = Nullstone.FinishCreate(PropertyPath);
+})(Nullstone.Namespace("Fayde.Data"));

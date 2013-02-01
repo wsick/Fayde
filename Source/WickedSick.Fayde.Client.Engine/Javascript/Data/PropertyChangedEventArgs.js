@@ -14,4 +14,4 @@
     };
 
     namespace.PropertyChangedEventArgs = Nullstone.FinishCreate(PropertyChangedEventArgs);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

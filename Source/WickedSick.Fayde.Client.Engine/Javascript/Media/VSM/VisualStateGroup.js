@@ -1,14 +1,14 @@
 /// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="../../Core/DependencyObject.js"/>
 /// <reference path="../../Runtime/MulticastEvent.js"/>
-/// <reference path="../../Core/Collections/DependencyObjectCollection.js"/>
+/// <reference path="../../Core/Collections/InternalCollection.js"/>
 /// CODE
 /// <reference path="VisualTransition.js"/>
 /// <reference path="VisualState.js"/>
 /// <reference path="../Animation/Storyboard.js"/>
 
 (function (namespace) {
-    var VisualStateGroup = Nullstone.Create("VisualStateGroup", DependencyObject);
+    var VisualStateGroup = Nullstone.Create("VisualStateGroup", Fayde.DependencyObject);
 
     VisualStateGroup.Instance.Init = function () {
         this.Init$DependencyObject();
@@ -23,14 +23,14 @@
         get: function () {
             /// <returns type="VisualStateCollection" />
             if (this._States == null)
-                this._States = new VisualStateCollection();
+                this._States = new namespace.VisualStateCollection();
             return this._States;
         }
     });
     VisualStateGroup.Instance.GetTransitions = function () {
         ///<returns type="VisualTransitionCollection"></returns>
         if (this._Transitions == null)
-            this._Transitions = new VisualTransitionCollection();
+            this._Transitions = new namespace.VisualTransitionCollection();
         return this._Transitions;
     };
 
@@ -97,14 +97,14 @@
         /// <param name="oldState" type="VisualState"></param>
         /// <param name="newState" type="VisualState"></param>
         /// <param name="control" type="Control">Description</param>
-        this.CurrentStateChanging.Raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
+        this.CurrentStateChanging.Raise(this, new namespace.VisualStateChangedEventArgs(oldState, newState, control));
     };
     VisualStateGroup.Instance.RaiseCurrentStateChanged = function (element, oldState, newState, control) {
         /// <param name="element" type="FrameworkElement"></param>
         /// <param name="oldState" type="VisualState"></param>
         /// <param name="newState" type="VisualState"></param>
         /// <param name="control" type="Control">Description</param>
-        this.CurrentStateChanged.Raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
+        this.CurrentStateChanged.Raise(this, new namespace.VisualStateChangedEventArgs(oldState, newState, control));
     };
 
     //#region Annotations
@@ -116,9 +116,9 @@
     //#endregion
 
     namespace.VisualStateGroup = Nullstone.FinishCreate(VisualStateGroup);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.VisualStateManager"));
 
 (function (namespace) {
-    var VisualStateGroupCollection = Nullstone.Create("VisualStateGroupCollection", Collection);
+    var VisualStateGroupCollection = Nullstone.Create("VisualStateGroupCollection", Fayde.InternalCollection);
     namespace.VisualStateGroupCollection = Nullstone.FinishCreate(VisualStateGroupCollection);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.VisualStateManager"));

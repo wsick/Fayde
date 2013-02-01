@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var TemplateBindingExpression = Nullstone.Create("TemplateBindingExpression", Expression, 2);
+    var TemplateBindingExpression = Nullstone.Create("TemplateBindingExpression", namespace.Expression, 2);
 
     TemplateBindingExpression.Instance.Init = function (sourcePropd, targetPropd) {
         this.SourceProperty = sourcePropd;
@@ -29,15 +29,15 @@
             this.SetListener(listener);
         }
 
-        var c = Nullstone.As(this.Target, ContentControl);
-        if (this.TargetProperty._ID === ContentControl.ContentProperty._ID && c) {
+        var c = Nullstone.As(this.Target, Fayde.Controls.ContentControl);
+        if (this.TargetProperty._ID === Fayde.Controls.ContentControl.ContentProperty._ID && c) {
             this.SetsParent = c._ContentSetsParent;
             c._ContentSetsParent = false;
         }
 
         var source = this.Target.TemplateOwner;
         if (source) {
-            listener = new PropertyChangedListener(source, this.SourceProperty, this, this.OnPropertyChanged);
+            listener = new Fayde.Data.PropertyChangedListener(source, this.SourceProperty, this, this.OnPropertyChanged);
             this.SetListener(listener);
         }
     };
@@ -48,7 +48,7 @@
         if (!listener)
             return;
 
-        var c = Nullstone.As(this.Target, ContentControl);
+        var c = Nullstone.As(this.Target, Fayde.Controls.ContentControl);
         if (c)
             c._ContentSetsParent = this.SetsParent;
 
@@ -83,4 +83,4 @@
     };
 
     namespace.TemplateBindingExpression = Nullstone.FinishCreate(TemplateBindingExpression);
-})(window);
+})(Nullstone.Namespace("Fayde"));

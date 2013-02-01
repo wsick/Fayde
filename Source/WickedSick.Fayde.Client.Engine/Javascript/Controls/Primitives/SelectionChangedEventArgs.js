@@ -9,4 +9,4 @@
     };
 
     namespace.SelectionChangedEventArgs = Nullstone.FinishCreate(SelectionChangedEventArgs);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

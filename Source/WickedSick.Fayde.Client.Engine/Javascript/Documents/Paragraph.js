@@ -3,6 +3,6 @@
 /// CODE
 
 (function (namespace) {
-    var Paragraph = Nullstone.Create("Paragraph", Block);
+    var Paragraph = Nullstone.Create("Paragraph", namespace.Block);
     namespace.Paragraph = Nullstone.FinishCreate(Paragraph);
-})(window);
+})(Nullstone.Namespace("Fayde.Documents"));

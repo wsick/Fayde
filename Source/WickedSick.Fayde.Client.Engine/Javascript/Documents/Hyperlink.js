@@ -3,6 +3,6 @@
 /// CODE
 
 (function (namespace) {
-    var Hyperlink = Nullstone.Create("Hyperlink", Span);
+    var Hyperlink = Nullstone.Create("Hyperlink", namespace.Span);
     namespace.Hyperlink = Nullstone.FinishCreate(Hyperlink);
-})(window);
+})(Nullstone.Namespace("Fayde.Documents"));

@@ -2,20 +2,19 @@
 /// <reference path="../Core/DependencyObject.js"/>
 /// CODE
 /// <reference path="Surface.js"/>
-/// <reference path="../Core/Collections/Collection.js"/>
+/// <reference path="../Core/Collections/InternalCollection.js"/>
 /// <reference path="../Core/UIElement.js"/>
 /// <reference path="ClockTimer.js"/>
 /// <reference path="../Runtime/JsEx.js"/>
-/// <reference path="NavService.js"/>
-/// <reference path="AjaxJsonRequest.js"/>
+/// <reference path="../Navigation/NavService.js"/>
 
 (function (namespace) {
-    var App = Nullstone.Create("App", DependencyObject);
+    var App = Nullstone.Create("App", Fayde.DependencyObject);
 
     App.Instance.Init = function () {
         this.Init$DependencyObject();
         this.MainSurface = new Surface(this);
-        this._ClockTimer = new ClockTimer();
+        this._ClockTimer = new Fayde.ClockTimer();
         this._Storyboards = [];
         this._DebugFunc = {};
 
@@ -48,7 +47,7 @@
 
     //#region Properties
 
-    App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, undefined, undefined, { GetValue: function () { return new ResourceDictionary(); } });
+    App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return Fayde.ResourceDictionary; }, App, undefined, undefined, { GetValue: function () { return new Fayde.ResourceDictionary(); } });
 
     Nullstone.AutoProperties(App, [
         App.ResourcesProperty,
@@ -62,17 +61,17 @@
     //#endregion
 
     App.Instance.LoadResources = function (json) {
-        var rd = JsonParser.Parse(json);
-        if (rd instanceof ResourceDictionary)
+        var rd = Fayde.JsonParser.Parse(json);
+        if (rd instanceof Fayde.ResourceDictionary)
             this.Resources = rd;
     };
     App.Instance.LoadInitial = function (containerId, json) {
         this.Address = new Uri(document.URL);
         this.MainSurface.Register(containerId);
-        this.NavService = new NavService(this);
+        this.NavService = new Fayde.Navigation.NavService(this);
 
-        var element = JsonParser.Parse(json);
-        if (element instanceof UIElement)
+        var element = Fayde.JsonParser.Parse(json);
+        if (element instanceof Fayde.UIElement)
             this.MainSurface._Attach(element);
 
         this.Start();
@@ -139,7 +138,7 @@
         var appResourcesStyle = undefined;
         var visualTreeStyle = undefined;
         if ((styleMask & _StyleMask.GenericXaml) != 0) {
-            if (fe instanceof Control) {
+            if (fe instanceof Fayde.Controls.Control) {
                 genericXamlStyle = fe.GetDefaultStyle();
                 if (!genericXamlStyle) {
                     var styleKey = fe.DefaultStyleKey;
@@ -156,7 +155,7 @@
                 appResourcesStyle._ResChain = [this.Resources];
         }
         if ((styleMask & _StyleMask.VisualTree) != 0) {
-            var isControl = fe instanceof Control;
+            var isControl = fe instanceof Fayde.Controls.Control;
             var el = fe;
             while (el != null) {
                 if (el.TemplateOwner != null && fe.TemplateOwner == null) {

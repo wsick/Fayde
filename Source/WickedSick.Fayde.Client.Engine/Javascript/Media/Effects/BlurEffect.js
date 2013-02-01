@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var BlurEffect = Nullstone.Create("BlurEffect", Effect);
+    var BlurEffect = Nullstone.Create("BlurEffect", namespace.Effect);
 
     //#region Properties
 
@@ -15,4 +15,4 @@
     //#endregion
 
     namespace.BlurEffect = Nullstone.FinishCreate(BlurEffect);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Effects"));

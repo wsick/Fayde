@@ -4,7 +4,7 @@
 /// <reference path="ColumnDefinition.js"/>
 
 (function (namespace) {
-    var ColumnDefinitionCollection = Nullstone.Create("ColumnDefinitionCollection", DependencyObjectCollection);
+    var ColumnDefinitionCollection = Nullstone.Create("ColumnDefinitionCollection", Fayde.DependencyObjectCollection);
 
     ColumnDefinitionCollection.Instance.AddedToCollection = function (value, error) {
         if (this.Contains(value)) {
@@ -14,8 +14,8 @@
         return this.AddedToCollection$DependencyObjectCollection(value, error);
     };
     ColumnDefinitionCollection.Instance.IsElementType = function (value) {
-        return value instanceof ColumnDefinition;
+        return value instanceof namespace.ColumnDefinition;
     };
 
     namespace.ColumnDefinitionCollection = Nullstone.FinishCreate(ColumnDefinitionCollection);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

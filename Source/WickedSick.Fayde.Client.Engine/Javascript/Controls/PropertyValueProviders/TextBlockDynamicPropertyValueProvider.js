@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var _TextBlockDynamicPropertyValueProvider = Nullstone.Create("_TextBlockDynamicPropertyValueProvider", FrameworkElementPropertyValueProvider, 2);
+    var _TextBlockDynamicPropertyValueProvider = Nullstone.Create("_TextBlockDynamicPropertyValueProvider", Fayde.FrameworkElementPropertyValueProvider, 2);
 
     _TextBlockDynamicPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
         this.Init$FrameworkElementPropertyValueProvider(obj, propPrecedence);
@@ -22,4 +22,4 @@
     };
 
     namespace._TextBlockDynamicPropertyValueProvider = Nullstone.FinishCreate(_TextBlockDynamicPropertyValueProvider);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

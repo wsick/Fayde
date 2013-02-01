@@ -1,30 +1,31 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="TextBoxBase.js"/>
 /// <reference path="../Core/PropertyValueProviders/Enums.js"/>
-/// <reference path="PropertyValueProviders/TextBoxDynamicPropertyValueProvider.js"/>
 /// <reference path="Enums.js"/>
-/// <reference path="../Runtime/MulticastEvent.js"/>
+/// <reference path="../Text/Enums.js"/>
 /// CODE
+/// <reference path="PropertyValueProviders/TextBoxDynamicPropertyValueProvider.js"/>
+/// <reference path="../Runtime/MulticastEvent.js"/>
 /// <reference path="../Runtime/LinkedList.js"/>
 /// <reference path="Style.js"/>
 /// <reference path="ContentPresenter.js"/>
 /// <reference path="ContentControl.js"/>
 /// <reference path="Border.js"/>
 /// <reference path="../Text/TextBuffer.js"/>
-/// <reference path="../Text/History/TextBoxUndoAction.js"/>
-/// <reference path="../Text/History/TextBoxUndoActionDelete.js"/>
-/// <reference path="../Text/History/TextBoxUndoActionInsert.js"/>
-/// <reference path="../Text/History/TextBoxUndoActionReplace.js"/>
+/// <reference path="../Text/History.js"/>
 
 (function (namespace) {
-    var TextBox = Nullstone.Create("TextBox", TextBoxBase);
+    var _TextBoxModelChanged = Fayde.Text._TextBoxModelChanged;
+    var _TextBoxEmitChanged = Fayde.Text._TextBoxEmitChanged;
+
+    var TextBox = Nullstone.Create("TextBox", namespace.TextBoxBase);
 
     TextBox.Instance.Init = function () {
         this.Init$TextBoxBase();
 
         this.DefaultStyleKey = this.constructor;
 
-        this.AddProvider(new _TextBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue));
+        this.AddProvider(new namespace._TextBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue));
 
         this._EventsMask = _TextBoxEmitChanged.TEXT | _TextBoxEmitChanged.SELECTION;
 
@@ -35,7 +36,7 @@
     //#region Properties
 
     TextBox.AcceptsReturnProperty = DependencyProperty.RegisterCore("AcceptsReturn", function () { return Boolean; }, TextBox, false);
-    TextBox.CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", function () { return Brush; }, TextBox);
+    TextBox.CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", function () { return Fayde.Media.Brush; }, TextBox);
     TextBox.PositiveIntValidator = function (instance, propd, value, error) {
         if (typeof value !== 'number')
             return false;
@@ -43,17 +44,17 @@
     };
     TextBox.MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", function () { return Number; }, TextBox, 0, undefined, undefined, undefined, undefined, TextBox.PositiveIntValidator);
     TextBox.IsReadOnlyProperty = DependencyProperty.RegisterCore("IsReadOnly", function () { return Boolean; }, TextBox);
-    TextBox.SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", function () { return Brush; }, TextBox);
-    TextBox.SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", function () { return Brush; }, TextBox);
+    TextBox.SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", function () { return Fayde.Media.Brush; }, TextBox);
+    TextBox.SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", function () { return Fayde.Media.Brush; }, TextBox);
     TextBox.BaselineOffsetProperty = DependencyProperty.RegisterCore("BaselineOffset", function () { return Number; }, TextBox);
     TextBox.SelectedTextProperty = DependencyProperty.RegisterFull("SelectedText", function () { return String; }, TextBox, "", undefined, undefined, undefined, true);
     TextBox.SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", function () { return Number; }, TextBox, 0, undefined, undefined, undefined, true, TextBox.PositiveIntValidator);
     TextBox.SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", function () { return Number; }, TextBox, 0, undefined, undefined, undefined, true, TextBox.PositiveIntValidator);
     TextBox.TextProperty = DependencyProperty.RegisterCore("Text", function () { return String; }, TextBox);
-    TextBox.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return new Enum(TextAlignment); }, TextBox, TextAlignment.Left);
-    TextBox.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return new Enum(TextWrapping); }, TextBox, TextWrapping.NoWrap);
-    TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("HorizontalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, TextBox, ScrollBarVisibility.Hidden);
-    TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("VerticalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, TextBox, ScrollBarVisibility.Hidden);
+    TextBox.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return new Enum(Fayde.TextAlignment); }, TextBox, Fayde.TextAlignment.Left);
+    TextBox.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return new Enum(namespace.TextWrapping); }, TextBox, namespace.TextWrapping.NoWrap);
+    TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("HorizontalScrollBarVisibility", function () { return new Enum(namespace.ScrollBarVisibility); }, TextBox, namespace.ScrollBarVisibility.Hidden);
+    TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("VerticalScrollBarVisibility", function () { return new Enum(namespace.ScrollBarVisibility); }, TextBox, namespace.ScrollBarVisibility.Hidden);
 
     Nullstone.AutoProperties(TextBox, [
         TextBox.AcceptsReturnProperty,
@@ -88,8 +89,8 @@
 
         prop = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility");
         if (prop) {
-            if (this.TextWrapping === TextWrapping.Wrap)
-                this._ContentElement._SetValue(prop, ScrollBarVisibility.Disabled);
+            if (this.TextWrapping === namespace.TextWrapping.Wrap)
+                this._ContentElement._SetValue(prop, namespace.ScrollBarVisibility.Disabled);
             else
                 this._ContentElement._SetValue(prop, this._GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
         }
@@ -183,10 +184,10 @@
 
                 if (text) {
                     if (length > 0) {
-                        action = new _TextBoxUndoActionReplace(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length, text);
+                        action = new Fayde.Text._TextBoxUndoActionReplace(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length, text);
                         this._Buffer.Replace(start, length, text);
                     } else if (text.length > 0) {
-                        action = new _TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, start, text);
+                        action = new Fayde.Text._TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, start, text);
                         this._Buffer.Insert(start, text);
                     }
                     if (action) {
@@ -253,10 +254,10 @@
             if (this._SettingValue) {
                 if (text) {
                     if (this._Buffer.GetLength() > 0) {
-                        action = new _TextBoxUndoActionReplace(this._SelectionAnchor, this._SelectionCursor, this._Buffer, 0, this._Buffer.GetLength(), text);
+                        action = new Fayde.Text._TextBoxUndoActionReplace(this._SelectionAnchor, this._SelectionCursor, this._Buffer, 0, this._Buffer.GetLength(), text);
                         this._Buffer.Replace(0, this._Buffer.GetLength(), text);
                     } else {
-                        action = new _TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, 0, text);
+                        action = new Fayde.Text._TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, 0, text);
                         this._Buffer.Prepend(text);
                     }
 
@@ -277,8 +278,8 @@
             if (this._ContentElement) {
                 propd = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility");
                 if (propd) {
-                    if (args.NewValue === TextWrapping.Wrap)
-                        this._ContentElement._SetValue(propd, ScrollBarVisibility.Disabled);
+                    if (args.NewValue === namespace.TextWrapping.Wrap)
+                        this._ContentElement._SetValue(propd, namespace.ScrollBarVisibility.Disabled);
                     else
                         this._ContentElement._SetValue(propd, this.$GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
                 }
@@ -288,8 +289,8 @@
             if (this._ContentElement) {
                 propd = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility");
                 if (propd) {
-                    if (this.TextWrapping === TextWrapping.Wrap)
-                        this._ContentElement._SetValue(propd, ScrollBarVisibility.Disabled);
+                    if (this.TextWrapping === namespace.TextWrapping.Wrap)
+                        this._ContentElement._SetValue(propd, namespace.ScrollBarVisibility.Disabled);
                     else
                         this._ContentElement._SetValue(propd, args.NewValue);
                 }
@@ -303,14 +304,14 @@
 
         }
         if (changed !== _TextBoxModelChanged.Nothing)
-            this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(changed, args));
+            this.ModelChanged.Raise(this, new namespace._TextBoxModelChangedEventArgs(changed, args));
 
         this.PropertyChanged.Raise(this, args);
     };
     TextBox.Instance._OnSubPropertyChanged = function (propd, sender, args) {
         if (propd && (propd._ID === TextBox.SelectionBackgroundProperty._ID
             || propd._ID === TextBox.SelectionForegroundProperty._ID)) {
-            this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush));
+            this.ModelChanged.Raise(this, new namespace._TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush));
             this._Invalidate();
         }
 
@@ -352,4 +353,4 @@
     };
 
     namespace.TextBox = Nullstone.FinishCreate(TextBox);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

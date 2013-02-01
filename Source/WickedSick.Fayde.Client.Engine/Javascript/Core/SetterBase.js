@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var SetterBase = Nullstone.Create("SetterBase", DependencyObject);
+    var SetterBase = Nullstone.Create("SetterBase", Fayde.DependencyObject);
 
     SetterBase.Instance.Init = function () {
         this.Init$DependencyObject();
@@ -27,4 +27,4 @@
     };
 
     namespace.SetterBase = Nullstone.FinishCreate(SetterBase);
-})(window);
+})(Nullstone.Namespace("Fayde"));

@@ -2,8 +2,8 @@
 /// <reference path="DependencyObject.js"/>
 /// CODE
 
-(function (namespace) {
-    var NameScope = Nullstone.Create("NameScope", DependencyObject);
+(function (Fayde) {
+    var NameScope = Nullstone.Create("NameScope", Fayde.DependencyObject);
 
     NameScope.Instance.Init = function () {
         this.Init$DependencyObject();
@@ -60,7 +60,7 @@
             return;
 
         var objd = this._Names[name];
-        if (objd instanceof DependencyObject) {
+        if (objd instanceof Fayde.DependencyObject) {
             //TODO: Remove handler - Destroyed Event
             delete this._Names[name];
         }
@@ -101,5 +101,5 @@
         this._Temporary = value;
     };
 
-    namespace.NameScope = Nullstone.FinishCreate(NameScope);
-})(window);
+    Fayde.NameScope = Nullstone.FinishCreate(NameScope);
+})(Nullstone.Namespace("Fayde"));

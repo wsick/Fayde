@@ -1,6 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Controls.Primitives
 {
+    [Element(NullstoneNamespace = "Fayde.Controls.Primitives")]
     public class RepeatButton : ButtonBase
     {
         public static readonly PropertyDescription DelayProperty = PropertyDescription.Register("Delay", typeof(double), typeof(RepeatButton));

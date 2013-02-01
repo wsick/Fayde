@@ -1,28 +1,29 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/DependencyObject.js"/>
+/// <reference path="../Core/Collections/DependencyObjectCollection.js"/>
 /// CODE
 /// <reference path="PropertyValueProviders.js"/>
 
 (function (namespace) {
-    var TextElement = Nullstone.Create("TextElement", DependencyObject);
+    var TextElement = Nullstone.Create("TextElement", Fayde.DependencyObject);
 
     TextElement.Instance.Init = function () {
         this.Init$DependencyObject();
-        this.AddProvider(new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited));
+        this.AddProvider(new Fayde._InheritedPropertyValueProvider(this));
         this._Font = new Font();
         this._UpdateFont(true);
     };
 
     //#region Properties
 
-    TextElement.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () { return Brush; }, TextElement, undefined, undefined, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } }, _Inheritable.Foreground);
+    TextElement.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () { return Fayde.Media.Brush; }, TextElement, undefined, undefined, { GetValue: function () { return new Fayde.Media.SolidColorBrush(new Color(0, 0, 0)); } }, _Inheritable.Foreground);
     TextElement.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () { return String; }, TextElement, Font.DEFAULT_FAMILY, undefined, undefined, _Inheritable.FontFamily);
     TextElement.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () { return String; }, TextElement, Font.DEFAULT_STRETCH, undefined, undefined, _Inheritable.FontStretch);
     TextElement.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () { return String; }, TextElement, Font.DEFAULT_STYLE, undefined, undefined, _Inheritable.FontStyle);
-    TextElement.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () { return new Enum(FontWeight); }, TextElement, Font.DEFAULT_WEIGHT, undefined, undefined, _Inheritable.FontWeight);
+    TextElement.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () { return new Enum(Fayde.FontWeight); }, TextElement, Font.DEFAULT_WEIGHT, undefined, undefined, _Inheritable.FontWeight);
     TextElement.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () { return Number; }, TextElement, Font.DEFAULT_SIZE, undefined, undefined, _Inheritable.FontSize);
     TextElement.LanguageProperty = DependencyProperty.RegisterInheritable("Language", function () { return String; }, TextElement, undefined, undefined, undefined, _Inheritable.Language);
-    TextElement.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () { return new Enum(TextDecorations); }, TextElement, TextDecorations.None, undefined, undefined, _Inheritable.TextDecorations);
+    TextElement.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () { return new Enum(Fayde.TextDecorations); }, TextElement, Fayde.TextDecorations.None, undefined, undefined, _Inheritable.TextDecorations);
 
     Nullstone.AutoProperties(TextElement, [
         TextElement.ForegroundProperty,
@@ -42,7 +43,7 @@
     TextElement.Instance.GetBackground = function (selected) { return null; }
     //TextElement.Instance.GetForeground (DP)
     TextElement.Instance.GetFont = function () { return this._Font; };
-    TextElement.Instance.GetDirection = function () { return FlowDirection.LeftToRight; };
+    TextElement.Instance.GetDirection = function () { return Fayde.FlowDirection.LeftToRight; };
     //TextElement.Instance.GetTextDecorations (DP)
 
     //#endregion
@@ -152,4 +153,12 @@
     //#endif
 
     namespace.TextElement = Nullstone.FinishCreate(TextElement);
-})(window);
+})(Nullstone.Namespace("Fayde.Documents"));
+
+(function (namespace) {
+    var TextElementCollection = Nullstone.Create("TextElementCollection", Fayde.DependencyObjectCollection);
+    TextElementCollection.Instance.IsElementType = function (value) {
+        return value instanceof namespace.TextElement;
+    };
+    namespace.TextElementCollection = Nullstone.FinishCreate(TextElementCollection);
+})(Nullstone.Namespace("Fayde.Documents"));

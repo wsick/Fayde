@@ -14,4 +14,4 @@
     };
 
     namespace.ItemsChangedEventArgs = Nullstone.FinishCreate(ItemsChangedEventArgs);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

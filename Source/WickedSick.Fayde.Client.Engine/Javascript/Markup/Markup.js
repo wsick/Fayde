@@ -1,7 +1,7 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
-(function (namespace) {
+(function (Fayde) {
     var Markup = Nullstone.Create("Markup");
 
     Markup.Instance.Transmute = function (target, propd, propName, templateBindingSource) {
@@ -12,5 +12,5 @@
         AbstractMethod("Markup.Transmute");
     };
 
-    namespace.Markup = Nullstone.FinishCreate(Markup);
-})(window);
+    Fayde.Markup = Nullstone.FinishCreate(Markup);
+})(Nullstone.Namespace("Fayde"));

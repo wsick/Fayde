@@ -1,12 +1,6 @@
-﻿(function (namespace) {
-    namespace.ModifierKeys = {
-        None: 0,
-        Alt: 1,
-        Control: 2,
-        Shift: 4,
-        Windows: 8,
-        Apple: 16
-    };
+﻿/// <reference path="../../Runtime/Nullstone.js"/>
+
+(function (namespace) {
     namespace.Key = {
         // Summary:
         //     A special value indicating no key.
@@ -345,3 +339,15 @@
         Unknown: 255,
     };
 })(window);
+
+(function (namespace) {
+    // http://msdn.microsoft.com/en-us/library/system.windows.input.keyboardnavigationmode.aspx
+    namespace.KeyboardNavigationMode = {
+        Continue: 0,
+        Once: 1,
+        Cycle: 2,
+        None: 3,
+        Contained: 4,
+        Local: 5
+    };
+})(Nullstone.Namespace("Fayde.Input"));

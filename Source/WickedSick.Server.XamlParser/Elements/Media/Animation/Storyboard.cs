@@ -1,7 +1,9 @@
-﻿using WickedSick.Server.XamlParser.Elements.Types;
+﻿using WickedSick.Server.XamlParser.Elements.Data;
+using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements.Media.Animation
 {
+    [Element(NullstoneNamespace = "Fayde.Media.Animation")]
     public class Storyboard : Timeline
     {
         public static readonly PropertyDescription AnimationsProperty = PropertyDescription.Register("Animations", typeof(DependencyObjectCollection<Timeline>), typeof(Storyboard), true);

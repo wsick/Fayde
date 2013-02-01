@@ -5,7 +5,7 @@
 /// <reference path="../../Engine/RenderContext.js"/>
 
 (function (namespace) {
-    var DropShadowEffect = Nullstone.Create("DropShadowEffect", Effect);
+    var DropShadowEffect = Nullstone.Create("DropShadowEffect", namespace.Effect);
 
     DropShadowEffect.MAX_BLUR_RADIUS = 20;
     DropShadowEffect.MAX_SHADOW_DEPTH = 300;
@@ -69,4 +69,4 @@
     };
 
     namespace.DropShadowEffect = Nullstone.FinishCreate(DropShadowEffect);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Effects"));

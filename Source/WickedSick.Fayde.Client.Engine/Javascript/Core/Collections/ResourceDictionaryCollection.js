@@ -4,7 +4,7 @@
 /// <reference path="ResourceDictionary.js"/>
 
 (function (namespace) {
-    var ResourceDictionaryCollection = Nullstone.Create("ResourceDictionaryCollection", DependencyObjectCollection);
+    var ResourceDictionaryCollection = Nullstone.Create("ResourceDictionaryCollection", Fayde.DependencyObjectCollection);
 
     ResourceDictionaryCollection.Instance.AddedToCollection = function (value, error) {
         if (!this.AddedToCollection$DependencyObjectCollection(value, error))
@@ -16,14 +16,14 @@
         return this._WalkSubtreeLookingForCycle(value, parent, error);
     };
     ResourceDictionaryCollection.Instance.IsElementType = function (value) {
-        return value instanceof ResourceDictionary;
+        return value instanceof Fayde.ResourceDictionary;
     };
     ResourceDictionaryCollection.Instance._WalkSubtreeLookingForCycle = function (subtreeRoot, firstAncestor, error) {
         var source = subtreeRoot._GetInternalSource();
 
         var p = firstAncestor;
         while (p) {
-            if (p instanceof ResourceDictionary) {
+            if (p instanceof Fayde.ResourceDictionary) {
                 var cycleFound = false;
                 var rdSource = p._GetInternalSource();
                 if (p == subtreeRoot)
@@ -50,4 +50,4 @@
     };
 
     namespace.ResourceDictionaryCollection = Nullstone.FinishCreate(ResourceDictionaryCollection);
-})(window);
+})(Nullstone.Namespace("Fayde"));

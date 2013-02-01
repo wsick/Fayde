@@ -3,16 +3,12 @@
 /// <reference path="Enums.js"/>
 
 (function (namespace) {
-    var GeometryGroup = Nullstone.Create("GeometryGroup", Geometry);
-
-    GeometryGroup.Instance.Init = function () {
-        this.Init$Geometry();
-    };
+    var GeometryGroup = Nullstone.Create("GeometryGroup", namespace.Geometry);
 
     //#region Properties
 
-    GeometryGroup.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, GeometryGroup, FillRule.EvenOdd);
-    GeometryGroup.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return GeometryCollection; }, GeometryGroup, undefined, undefined, { GetValue: function () { return new GeometryCollection(); } });
+    GeometryGroup.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(Fayde.Shapes.FillRule); }, GeometryGroup, Fayde.Shapes.FillRule.EvenOdd);
+    GeometryGroup.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return namespace.GeometryCollection; }, GeometryGroup, undefined, undefined, { GetValue: function () { return new namespace.GeometryCollection(); } });
 
     Nullstone.AutoProperties(GeometryGroup, [
         GeometryGroup.FillRuleProperty,
@@ -77,4 +73,4 @@
     };
 
     namespace.GeometryGroup = Nullstone.FinishCreate(GeometryGroup);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

@@ -5,7 +5,7 @@
 (function (namespace) {
     var TextOptions = Nullstone.Create("TextOptions");
 
-    TextOptions.TextHintingModeProperty = DependencyProperty.RegisterAttached("TextHintingMode", function () { return new Enum(TextHintingMode); }, TextOptions);
+    TextOptions.TextHintingModeProperty = DependencyProperty.RegisterAttached("TextHintingMode", function () { return new Enum(namespace.TextHintingMode); }, TextOptions);
     TextOptions.GetTextHintingMode = function (d) {
         ///<returns type="TextHintingMode"></returns>
         return d.GetValue(TextOptions.TextHintingModeProperty);
@@ -16,4 +16,4 @@
     };
 
     namespace.TextOptions = Nullstone.FinishCreate(TextOptions);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

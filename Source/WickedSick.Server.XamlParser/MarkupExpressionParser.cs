@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
-using System.Collections.Generic;
-using WickedSick.Server.XamlParser.Elements.Bindings;
-using WickedSick.Server.XamlParser;
+using WickedSick.Server.XamlParser.Elements.Core;
+using WickedSick.Server.XamlParser.Elements.Data;
 
 namespace WickedSick.Server.XamlParser
 {
@@ -170,7 +168,7 @@ namespace WickedSick.Server.XamlParser
             }
             catch
             {
-                throw new XamlParseException(String.Format("MarkupExpressionParser: Error parsing RelativeSource, unknown mode: {0}", mode_str));
+                throw new XamlParseException(string.Format("MarkupExpressionParser: Error parsing RelativeSource, unknown mode: {0}", mode_str));
             }
         }
 
@@ -202,13 +200,13 @@ namespace WickedSick.Server.XamlParser
                     break;
                 case "Mode":
                     if (str_value == null)
-                        throw new XamlParseException(String.Format("Invalid type '{0}' for Mode.", value == null ? "null" : value.GetType().ToString()));
+                        throw new XamlParseException(string.Format("Invalid type '{0}' for Mode.", value == null ? "null" : value.GetType().ToString()));
                     str_value = str_value.Trim();
                     b.Mode = (BindingMode)Enum.Parse(typeof(BindingMode), str_value, true);
                     break;
                 case "Path":
                     if (str_value == null)
-                        throw new XamlParseException(String.Format("Invalid type '{0}' for Path.", value == null ? "null" : value.GetType().ToString()));
+                        throw new XamlParseException(string.Format("Invalid type '{0}' for Path.", value == null ? "null" : value.GetType().ToString()));
                     b.Path = str_value;
                     break;
                 case "Source":
@@ -241,16 +239,16 @@ namespace WickedSick.Server.XamlParser
                     break;
                 case "NotifyOnValidationError":
                     bool bl;
-                    if (!Boolean.TryParse(str_value, out bl))
-                        throw new Exception(String.Format("Invalid value {0} for NotifyValidationOnError.", str_value));
+                    if (!bool.TryParse(str_value, out bl))
+                        throw new Exception(string.Format("Invalid value {0} for NotifyValidationOnError.", str_value));
                     b.NotifyOnValidationError = bl;
                     break;
                 case "TargetNullValue":
                     b.TargetNullValue = value ?? str_value;
                     break;
                 case "ValidatesOnExceptions":
-                    if (!Boolean.TryParse(str_value, out bl))
-                        throw new Exception(String.Format("Invalid value {0} for ValidatesOnExceptions.", str_value));
+                    if (!bool.TryParse(str_value, out bl))
+                        throw new Exception(string.Format("Invalid value {0} for ValidatesOnExceptions.", str_value));
                     b.ValidatesOnExceptions = bl;
                     break;
                 case "ValidatesOnDataErrors":
@@ -266,7 +264,7 @@ namespace WickedSick.Server.XamlParser
                 case "RelativeSource":
                     RelativeSource rs = value as RelativeSource;
                     if (rs == null)
-                        throw new Exception(String.Format("Invalid value {0} for RelativeSource.", value));
+                        throw new Exception(string.Format("Invalid value {0} for RelativeSource.", value));
                     b.RelativeSource = rs;
                     break;
                 case "ElementName":

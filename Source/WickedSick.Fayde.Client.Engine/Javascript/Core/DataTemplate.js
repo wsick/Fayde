@@ -5,7 +5,7 @@
 /// <reference path="../Markup/JsonParser.js"/>
 
 (function (namespace) {
-    var DataTemplate = Nullstone.Create("DataTemplate", FrameworkTemplate, 1);
+    var DataTemplate = Nullstone.Create("DataTemplate", namespace.FrameworkTemplate, 1);
 
     DataTemplate.Instance.Init = function (json) {
         this.Init$FrameworkTemplate();
@@ -16,13 +16,13 @@
         /// <param name="templateBindingSource" type="FrameworkElement"></param>
         /// <returns type="DependencyObject" />
         if (this._TempJson) {
-            var namescope = new NameScope();
-            var root = JsonParser.Parse(this._TempJson, templateBindingSource, namescope);
-            NameScope.SetNameScope(root, namescope);
+            var namescope = new Fayde.NameScope();
+            var root = Fayde.JsonParser.Parse(this._TempJson, templateBindingSource, namescope);
+            Fayde.NameScope.SetNameScope(root, namescope);
             return root;
         }
         return this._GetVisualTreeWithError$FrameworkTemplate(templateBindingSource, error);
     };
 
     namespace.DataTemplate = Nullstone.FinishCreate(DataTemplate);
-})(window);
+})(Nullstone.Namespace("Fayde"));

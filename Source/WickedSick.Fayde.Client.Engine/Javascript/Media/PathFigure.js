@@ -4,7 +4,7 @@
 /// <reference path="../Shapes/Enums.js"/>
 
 (function (namespace) {
-    var PathFigure = Nullstone.Create("PathFigure", DependencyObject);
+    var PathFigure = Nullstone.Create("PathFigure", Fayde.DependencyObject);
 
     PathFigure.Instance.Init = function () {
         this.Init$DependencyObject();
@@ -14,7 +14,7 @@
     //#region Properties
 
     PathFigure.IsClosedProperty = DependencyProperty.RegisterCore("IsClosed", function () { return Boolean; }, PathFigure, false);
-    PathFigure.SegmentsProperty = DependencyProperty.RegisterFull("Segments", function () { return PathSegmentCollection; }, PathFigure, undefined, undefined, { GetValue: function () { return new PathSegmentCollection(); } });
+    PathFigure.SegmentsProperty = DependencyProperty.RegisterFull("Segments", function () { return namespace.PathSegmentCollection; }, PathFigure, undefined, undefined, { GetValue: function () { return new namespace.PathSegmentCollection(); } });
     PathFigure.StartPointProperty = DependencyProperty.RegisterCore("StartPoint", function () { return Point; }, PathFigure, new Point());
     PathFigure.IsFilledProperty = DependencyProperty.RegisterCore("IsFilled", function () { return Boolean; }, PathFigure, true);
 
@@ -66,7 +66,7 @@
         this._Path = [];
 
         var start = this.StartPoint;
-        this._Path.push({ type: PathEntryType.Move, x: start.X, y: start.Y });
+        this._Path.push({ type: Fayde.Shapes.PathEntryType.Move, x: start.X, y: start.Y });
 
         var segments = this.Segments;
         var count = segments.GetCount();
@@ -75,8 +75,8 @@
             segment._Append(this._Path);
         }
         if (this.IsClosed)
-            this._Path.push({ type: PathEntryType.Close });
+            this._Path.push({ type: Fayde.Shapes.PathEntryType.Close });
     };
 
     namespace.PathFigure = Nullstone.FinishCreate(PathFigure);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

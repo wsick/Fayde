@@ -28,4 +28,4 @@
     };
 
     namespace.CurrentChangedListener = Nullstone.FinishCreate(CurrentChangedListener);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

@@ -3,9 +3,10 @@
 /// <reference path="../Media/Enums.js"/>
 /// <reference path="../Engine/RenderContext.js"/>
 /// <reference path="Enums.js"/>
+/// <reference path="DoubleCollection.js"/>
 
 (function (namespace) {
-    var Shape = Nullstone.Create("Shape", FrameworkElement);
+    var Shape = Nullstone.Create("Shape", Fayde.FrameworkElement);
 
     Shape.Instance.Init = function () {
         this.Init$FrameworkElement();
@@ -16,17 +17,17 @@
 
     //#region Properties
 
-    Shape.FillProperty = DependencyProperty.Register("Fill", function () { return Brush; }, Shape);
-    Shape.StretchProperty = DependencyProperty.Register("Stretch", function () { return new Enum(Stretch); }, Shape, Stretch.None);
-    Shape.StrokeProperty = DependencyProperty.Register("Stroke", function () { return Brush; }, Shape);
+    Shape.FillProperty = DependencyProperty.Register("Fill", function () { return Fayde.Media.Brush; }, Shape);
+    Shape.StretchProperty = DependencyProperty.Register("Stretch", function () { return new Enum(Fayde.Media.Stretch); }, Shape, Fayde.Media.Stretch.None);
+    Shape.StrokeProperty = DependencyProperty.Register("Stroke", function () { return Fayde.Media.Brush; }, Shape);
     Shape.StrokeThicknessProperty = DependencyProperty.Register("StrokeThickness", function () { return Number; }, Shape, 1.0);
-    Shape.StrokeDashArrayProperty = DependencyProperty.Register("StrokeDashArray", function () { return DoubleCollection; }, Shape);
-    Shape.StrokeDashCapProperty = DependencyProperty.Register("StrokeDashCap", function () { return new Enum(PenLineCap); }, Shape, PenLineCap.Flat);
+    Shape.StrokeDashArrayProperty = DependencyProperty.Register("StrokeDashArray", function () { return namespace.DoubleCollection; }, Shape);
+    Shape.StrokeDashCapProperty = DependencyProperty.Register("StrokeDashCap", function () { return new Enum(namespace.PenLineCap); }, Shape, namespace.PenLineCap.Flat);
     Shape.StrokeDashOffsetProperty = DependencyProperty.Register("StrokeDashOffset", function () { return Number; }, Shape, 0.0);
-    Shape.StrokeEndLineCapProperty = DependencyProperty.Register("StrokeEndLineCap", function () { return new Enum(PenLineCap); }, Shape, PenLineCap.Flat);
-    Shape.StrokeLineJoinProperty = DependencyProperty.Register("StrokeLineJoin", function () { return new Enum(PenLineJoin); }, Shape, PenLineJoin.Miter);
+    Shape.StrokeEndLineCapProperty = DependencyProperty.Register("StrokeEndLineCap", function () { return new Enum(namespace.PenLineCap); }, Shape, namespace.PenLineCap.Flat);
+    Shape.StrokeLineJoinProperty = DependencyProperty.Register("StrokeLineJoin", function () { return new Enum(namespace.PenLineJoin); }, Shape, namespace.PenLineJoin.Miter);
     Shape.StrokeMiterLimitProperty = DependencyProperty.Register("StrokeMiterLimit", function () { return Number; }, Shape, 10.0);
-    Shape.StrokeStartLineCapProperty = DependencyProperty.Register("StrokeStartLineCap", function () { return new Enum(PenLineCap); }, Shape, PenLineCap.Flat);
+    Shape.StrokeStartLineCapProperty = DependencyProperty.Register("StrokeStartLineCap", function () { return new Enum(namespace.PenLineCap); }, Shape, namespace.PenLineCap.Flat);
 
     Nullstone.AutoProperties(Shape, [
         Shape.FillProperty,
@@ -46,10 +47,10 @@
 
     //#region Helpers
 
-    Shape.Instance._IsEmpty = function () { return this._ShapeFlags & ShapeFlags.Empty; };
-    Shape.Instance._IsNormal = function () { return this._ShapeFlags & ShapeFlags.Normal; };
-    Shape.Instance._IsDegenerate = function () { return this._ShapeFlags & ShapeFlags.Degenerate; };
-    Shape.Instance._HasRadii = function () { return this._ShapeFlags & ShapeFlags.Radii; };
+    Shape.Instance._IsEmpty = function () { return this._ShapeFlags & namespace.ShapeFlags.Empty; };
+    Shape.Instance._IsNormal = function () { return this._ShapeFlags & namespace.ShapeFlags.Normal; };
+    Shape.Instance._IsDegenerate = function () { return this._ShapeFlags & namespace.ShapeFlags.Degenerate; };
+    Shape.Instance._HasRadii = function () { return this._ShapeFlags & namespace.ShapeFlags.Radii; };
     Shape.Instance._SetShapeFlags = function (sf) { this._ShapeFlags = sf; };
     Shape.Instance._AddShapeFlags = function (sf) { this._ShapeFlags |= sf; };
 
@@ -59,7 +60,7 @@
     Shape.Instance._CanFindElement = function () { return this._IsFilled() || this._IsStroked(); };
 
     Shape.Instance._GetFillRule = function () {
-        return FillRule.Nonzero;
+        return namespace.FillRule.NonZero;
     };
 
     //#endregion
@@ -81,12 +82,12 @@
             return new Size();
         var sx = 0.0;
         var sy = 0.0;
-        if (this instanceof Rectangle || this instanceof Ellipse) {
+        if (this instanceof namespace.Rectangle || this instanceof namespace.Ellipse) {
             desired = new Size(0, 0);
         }
 
         var stretch = this.Stretch;
-        if (stretch === Stretch.None)
+        if (stretch === Fayde.Media.Stretch.None)
             return new Size(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height);
 
         if (!isFinite(availableSize.Width))
@@ -105,13 +106,13 @@
             sy = sx;
 
         switch (stretch) {
-            case Stretch.Uniform:
+            case Fayde.Media.Stretch.Uniform:
                 sx = sy = Math.min(sx, sy);
                 break;
-            case Stretch.UniformToFill:
+            case Fayde.Media.Stretch.UniformToFill:
                 sx = sy = Math.max(sx, sy);
                 break;
-            case Stretch.Fill:
+            case Fayde.Media.Stretch.Fill:
                 if (!isFinite(availableSize.Width))
                     sx = 1.0;
                 if (!isFinite(availableSize.Height))
@@ -142,7 +143,7 @@
         this._InvalidateStretch();
 
         var stretch = this.Stretch;
-        if (stretch === Stretch.None)
+        if (stretch === Fayde.Media.Stretch.None)
             return arranged.Max(new Size(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height));
 
         if (shapeBounds.Width === 0)
@@ -156,10 +157,10 @@
             sy = arranged.Height / shapeBounds.Height;
 
         switch (stretch) {
-            case Stretch.Uniform:
+            case Fayde.Media.Stretch.Uniform:
                 sx = sy = Math.min(sx, sy);
                 break;
-            case Stretch.UniformToFill:
+            case Fayde.Media.Stretch.UniformToFill:
                 sx = sy = Math.max(sx, sy);
                 break;
             default:
@@ -220,8 +221,8 @@
         var sy = 1.0;
         var parent = this.GetVisualParent();
 
-        if (parent != null && !(parent instanceof Canvas)) {
-            if (LayoutInformation.GetPreviousConstraint(this) !== undefined || this._ReadLocalValue(LayoutInformation.LayoutSlotProperty) !== undefined) {
+        if (parent != null && !(parent instanceof Fayde.Controls.Canvas)) {
+            if (Fayde.LayoutInformation.GetPreviousConstraint(this) !== undefined || this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty) !== undefined) {
                 return desired;
             }
         }
@@ -233,7 +234,7 @@
             return desired;
 
         var stretch = this.Stretch;
-        if (stretch === Stretch.None && shapeBounds.Width > 0 && shapeBounds.Height > 0)
+        if (stretch === Fayde.Media.Stretch.None && shapeBounds.Width > 0 && shapeBounds.Height > 0)
             return new Size(shapeBounds.Width, shapeBounds.Height);
 
         if (!isFinite(desired.Width))
@@ -247,10 +248,10 @@
             sy = desired.Height / shapeBounds.Height;
 
         switch (stretch) {
-            case Stretch.Uniform:
+            case Fayde.Media.Stretch.Uniform:
                 sx = sy = Math.min(sx, sy);
                 break;
-            case Stretch.UniformToFill:
+            case Fayde.Media.Stretch.UniformToFill:
                 sx = sy = Math.max(sx, sy);
                 break;
             default:
@@ -287,7 +288,7 @@
     Shape.Instance._ComputeStretchBounds = function () {
         var shapeBounds = this._GetNaturalBounds();
         if (!shapeBounds || shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
-            this._SetShapeFlags(ShapeFlags.Empty);
+            this._SetShapeFlags(namespace.ShapeFlags.Empty);
             return new Rect();
         }
 
@@ -296,12 +297,12 @@
         var framework = new Size(this.ActualWidth, this.ActualHeight);
 
         if (specified.Width <= 0.0 || specified.Height <= 0.0) {
-            this._SetShapeFlags(ShapeFlags.Empty);
+            this._SetShapeFlags(namespace.ShapeFlags.Empty);
             return new Rect();
         }
 
         var visualParent = this.GetVisualParent();
-        if (visualParent != null && visualParent instanceof Canvas) {
+        if (visualParent != null && visualParent instanceof Fayde.Controls.Canvas) {
             framework.Width = framework.Width === 0.0 ? shapeBounds.Width : framework.Width;
             framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
             if (!isNaN(specified.Width))
@@ -309,19 +310,19 @@
             if (!isNaN(specified.Height))
                 framework.Height = specified.Height;
 
-        } else if (!LayoutInformation.GetPreviousConstraint(this)) {
+        } else if (!Fayde.LayoutInformation.GetPreviousConstraint(this)) {
             framework.Width = framework.Width === 0.0 ? shapeBounds.Width : framework.Width;
             framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
         }
 
         var stretch = this.Stretch;
-        if (stretch === Stretch.None) {
+        if (stretch === Fayde.Media.Stretch.None) {
             shapeBounds = shapeBounds.Transform(this._StretchXform);
             return shapeBounds;
         }
 
         if (framework.Width === 0.0 || framework.Height === 0.0) {
-            this._SetShapeFlags(ShapeFlags.Empty);
+            this._SetShapeFlags(namespace.ShapeFlags.Empty);
             return new Rect();
         }
 
@@ -337,14 +338,14 @@
 
         var center = false;
         switch (stretch) {
-            case Stretch.Fill:
+            case Fayde.Media.Stretch.Fill:
                 center = true;
                 break;
-            case Stretch.Uniform:
+            case Fayde.Media.Stretch.Uniform:
                 sw = sh = (sw < sh) ? sw : sh;
                 center = true;
                 break;
-            case Stretch.UniformToFill:
+            case Fayde.Media.Stretch.UniformToFill:
                 sw = sh = (sw > sh) ? sw : sh;
                 break;
         }
@@ -356,10 +357,10 @@
                 sw *= adjX ? (framework.Width - stretchBounds.Width + logicalBounds.Width * sw) / (logicalBounds.Width * sw) : 1.0;
                 sh *= adjY ? (framework.Height - stretchBounds.Height + logicalBounds.Height * sh) / (logicalBounds.Height * sh) : 1.0;
                 switch (stretch) {
-                    case Stretch.Uniform:
+                    case Fayde.Media.Stretch.Uniform:
                         sw = sh = (sw < sh) ? sw : sh;
                         break;
-                    case Stretch.UniformToFill:
+                    case Fayde.Media.Stretch.UniformToFill:
                         sw = sh = (sw > sh) ? sw : sh;
                         break;
                 }
@@ -370,7 +371,7 @@
         var y = (!autoDim || adjY) ? shapeBounds.Y : 0;
 
         var st = this._StretchXform;
-        if (!(this instanceof Line) || !autoDim)
+        if (!(this instanceof namespace.Line) || !autoDim)
             mat3.translate(st, -x, -y);
         mat3.translate(st,
             adjX ? -shapeBounds.Width * 0.5 : 0.0,
@@ -484,7 +485,7 @@
     if (!Fayde.IsCanvasEnabled) {
         Shape.Instance._OnPropertyChanged = function (args, error) {
             if (args.Property.OwnerType !== Shape) {
-                if (args.Property._ID === FrameworkElement.HeightProperty || args.Property._ID === FrameworkElement.WidthProperty) {
+                if (args.Property._ID === Fayde.FrameworkElement.HeightProperty || args.Property._ID === Fayde.FrameworkElement.WidthProperty) {
                     this.InvalidateProperty(Shape.StretchProperty);
                 }
                 this._OnPropertyChanged$FrameworkElement(args, error);
@@ -505,7 +506,7 @@
     if (Fayde.IsCanvasEnabled) {
         Shape.Instance._OnPropertyChanged = function (args, error) {
             if (args.Property.OwnerType !== Shape) {
-                if (args.Property._ID === FrameworkElement.HeightProperty || args.Property._ID === FrameworkElement.WidthProperty) {
+                if (args.Property._ID === Fayde.FrameworkElement.HeightProperty || args.Property._ID === Fayde.FrameworkElement.WidthProperty) {
                     this._InvalidateStretch();
                 }
                 this._OnPropertyChanged$FrameworkElement(args, error);
@@ -516,7 +517,7 @@
                 this._InvalidateMeasure();
                 this._InvalidateStretch();
             } else if (args.Property._ID === Shape.StrokeProperty._ID) {
-                var newStroke = Nullstone.As(args.NewValue, Brush);
+                var newStroke = Nullstone.As(args.NewValue, Fayde.Media.Brush);
                 if (this._Stroke == null || newStroke == null) {
                     this._InvalidateStrokeBounds();
                 } else {
@@ -524,7 +525,7 @@
                 }
                 this._Stroke = newStroke;
             } else if (args.Property._ID === Shape.FillProperty._ID) {
-                var newFill = Nullstone.As(args.NewValue, Brush);
+                var newFill = Nullstone.As(args.NewValue, Fayde.Media.Brush);
                 if (this._Fill == null || newFill == null) {
                     this._InvalidateFillBounds();
                 } else {
@@ -648,4 +649,4 @@
     //#endif
 
     namespace.Shape = Nullstone.FinishCreate(Shape);
-})(window);
+})(Nullstone.Namespace("Fayde.Shapes"));

@@ -1,25 +1,29 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Control.js"/>
+/// <reference path="../Text/Enums.js"/>
 /// CODE
 /// <reference path="../Runtime/MulticastEvent.js"/>
 /// <reference path="../Primitives/Font.js"/>
 /// <reference path="Enums.js"/>
 /// <reference path="../Text/TextBuffer.js"/>
-/// <reference path="../Text/History/TextBoxUndoStack.js"/>
 /// <reference path="ContentPresenter.js"/>
 /// <reference path="ContentControl.js"/>
 /// <reference path="Border.js"/>
 /// <reference path="../Core/Input/Enums.js"/>
+/// <reference path="../Text/History.js"/>
 
 (function (namespace) {
-    var TextBoxBase = Nullstone.Create("TextBoxBase", Control);
+    var _TextBoxModelChanged = Fayde.Text._TextBoxModelChanged;
+    var _TextBoxEmitChanged = Fayde.Text._TextBoxEmitChanged;
+
+    var TextBoxBase = Nullstone.Create("TextBoxBase", namespace.Control);
 
     TextBoxBase.Instance.Init = function () {
         this.Init$Control();
 
-        this._Undo = new _TextBoxUndoStack(10);
-        this._Redo = new _TextBoxUndoStack(10);
-        this._Buffer = new _TextBuffer();
+        this._Undo = new Fayde.Text._TextBoxUndoStack(10);
+        this._Redo = new Fayde.Text._TextBoxUndoStack(10);
+        this._Buffer = new Fayde.Text._TextBuffer();
         this._MaxLength = 0;
 
         this._Emit = _TextBoxEmitChanged.NOTHING;
@@ -52,7 +56,7 @@
         return this._Font;
     };
     TextBoxBase.Instance.GetTextDecorations = function () {
-        return TextDecorations.None;
+        return Fayde.TextDecorations.None;
     };
     TextBoxBase.Instance.GetSelectionCursor = function () {
         return this._SelectionCursor;
@@ -76,17 +80,17 @@
             this._View.SetTextBox(null);
         }
 
-        this._View = new _TextBoxView();
+        this._View = new namespace._TextBoxView();
         this._View.SetEnableCursor(!this._IsReadOnly);
         this._View.SetTextBox(this);
 
-        if (this._ContentElement instanceof ContentPresenter) {
-            this._ContentElement._SetValue(ContentPresenter.ContentProperty, this._View);
-        } else if (this._ContentElement instanceof ContentControl) {
-            this._ContentElement._SetValue(ContentControl.ContentProperty, this._View);
-        } else if (this._ContentElement instanceof Border) {
-            this._ContentElement._SetValue(Border.ChildProperty, this._View);
-        } else if (this._ContentElement instanceof Panel) {
+        if (this._ContentElement instanceof namespace.ContentPresenter) {
+            this._ContentElement._SetValue(namespace.ContentPresenter.ContentProperty, this._View);
+        } else if (this._ContentElement instanceof namespace.ContentControl) {
+            this._ContentElement._SetValue(namespace.ContentControl.ContentProperty, this._View);
+        } else if (this._ContentElement instanceof namespace.Border) {
+            this._ContentElement._SetValue(namespace.Border.ChildProperty, this._View);
+        } else if (this._ContentElement instanceof namespace.Panel) {
             this._ContentElement.Children.Add(this._View);
         } else {
             Warn("Can't handle ContentElement.");
@@ -203,11 +207,11 @@
         var action = this._Undo.Pop();
         this._Redo.Push(action);
 
-        if (action instanceof _TextBoxUndoActionInsert) {
+        if (action instanceof Fayde.Text._TextBoxUndoActionInsert) {
             this._Buffer.Cut(action._Start, action._Length);
-        } else if (action instanceof _TextBoxUndoActionDelete) {
+        } else if (action instanceof Fayde.Text._TextBoxUndoActionDelete) {
             this._Buffer.Insert(action._Start, action._Text);
-        } else if (action instanceof _TextBoxUndoActionReplace) {
+        } else if (action instanceof Fayde.Text._TextBoxUndoActionReplace) {
             this._Buffer.Cut(action._Start, action._Inserted.length);
             this._Buffer.Insert(action._Start, action._Deleted);
         }
@@ -236,13 +240,13 @@
 
         var anchor;
         var cursor;
-        if (action instanceof _TextBoxUndoActionInsert) {
+        if (action instanceof Fayde.Text._TextBoxUndoActionInsert) {
             this._Buffer.Insert(action._Start, action._Buffer._Text);
             anchor = cursor = action._Start + action._Buffer.GetLength();
-        } else if (action instanceof _TextBoxUndoActionDelete) {
+        } else if (action instanceof Fayde.Text._TextBoxUndoActionDelete) {
             this._Buffer.Cut(action._Start, action._Length);
             anchor = cursor = action._Start;
-        } else if (action instanceof _TextBoxUndoActionReplace) {
+        } else if (action instanceof Fayde.Text._TextBoxUndoActionReplace) {
             this._Buffer.Cut(action._Start, action._Length);
             this._Buffer.Insert(action._Start, action._Inserted);
             anchor = cursor = action._Start + action._Inserted.length;
@@ -265,25 +269,25 @@
 
     TextBoxBase.Instance._OnPropertyChanged = function (args, error) {
         var changed = _TextBoxModelChanged.Nothing;
-        if (args.Property._ID === Control.FontFamilyProperty._ID) {
+        if (args.Property._ID === Fayde.Controls.Control.FontFamilyProperty._ID) {
             this._Font.Family = args.NewValue;
             changed = _TextBoxModelChanged.Font;
-        } else if (args.Property._ID === Control.FontSizeProperty._ID) {
+        } else if (args.Property._ID === Fayde.Controls.Control.FontSizeProperty._ID) {
             this._Font.Size = args.NewValue;
             changed = _TextBoxModelChanged.Font;
-        } else if (args.Property._ID === Control.FontStretchProperty._ID) {
+        } else if (args.Property._ID === Fayde.Controls.Control.FontStretchProperty._ID) {
             this._Font.Stretch = args.NewValue;
             changed = _TextBoxModelChanged.Font;
-        } else if (args.Property._ID === Control.FontStyleProperty._ID) {
+        } else if (args.Property._ID === Fayde.Controls.Control.FontStyleProperty._ID) {
             this._Font.Style = args.NewValue;
             changed = _TextBoxModelChanged.Font;
-        } else if (args.Property._ID === Control.FontWeightProperty._ID) {
+        } else if (args.Property._ID === Fayde.Controls.Control.FontWeightProperty._ID) {
             this._Font.Weight = args.NewValue;
             changed = _TextBoxModelChanged.Font;
         }
 
         if (changed !== _TextBoxModelChanged.Nothing)
-            this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(changed, args));
+            this.ModelChanged.Raise(this, new namespace._TextBoxModelChangedEventArgs(changed, args));
 
         if (args.Property.OwnerType !== TextBoxBase) {
             this._OnPropertyChanged$Control(args, error);
@@ -293,9 +297,9 @@
         this.PropertyChanged.Raise(this, args);
     };
     TextBoxBase.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-        if (propd && (propd._ID === Control.BackgroundProperty._ID
-            || propd._ID === Control.ForegroundProperty._ID)) {
-            this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush, args));
+        if (propd && (propd._ID === Fayde.Controls.Control.BackgroundProperty._ID
+            || propd._ID === Fayde.Controls.Control.ForegroundProperty._ID)) {
+            this.ModelChanged.Raise(this, new namespace._TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush, args));
             this._Invalidate();
         }
 
@@ -564,7 +568,7 @@
         }
 
         if (length > 0) {
-            action = new _TextBoxUndoActionDelete(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length);
+            action = new Fayde.Text._TextBoxUndoActionDelete(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length);
             this._Undo.Push(action);
             this._Redo.Clear();
 
@@ -612,7 +616,7 @@
         }
 
         if (length > 0) {
-            action = new _TextBoxUndoActionDelete(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length);
+            action = new Fayde.Text._TextBoxUndoActionDelete(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length);
             this._Undo.Push(action);
             this._Redo.Clear();
 
@@ -873,7 +877,7 @@
             return false;
 
         if (length > 0) {
-            action = new _TextBoxUndoActionReplace(anchor, cursor, this._Buffer, start, length, c);
+            action = new Fayde.Text._TextBoxUndoActionReplace(anchor, cursor, this._Buffer, start, length, c);
             this._Undo.Push(action);
             this._Redo.Clear();
 
@@ -881,14 +885,14 @@
         } else {
             var ins = null;
             action = this._Undo.Peek();
-            if (action instanceof _TextBoxUndoActionInsert) {
+            if (action instanceof Fayde.Text._TextBoxUndoActionInsert) {
                 ins = action;
                 if (!ins.Insert(start, c))
                     ins = null;
             }
 
             if (!ins) {
-                ins = new _TextBoxUndoActionInsert(anchor, cursor, start, c);
+                ins = new Fayde.Text._TextBoxUndoActionInsert(anchor, cursor, start, c);
                 this._Undo.Push(ins);
             }
             this._Redo.Clear();
@@ -938,4 +942,4 @@
     //#endregion
 
     namespace.TextBoxBase = Nullstone.FinishCreate(TextBoxBase);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

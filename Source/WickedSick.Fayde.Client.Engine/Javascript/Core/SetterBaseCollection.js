@@ -4,7 +4,7 @@
 /// <reference path="SetterBase.js"/>
 
 (function (namespace) {
-    var SetterBaseCollection = Nullstone.Create("SetterBaseCollection", DependencyObjectCollection);
+    var SetterBaseCollection = Nullstone.Create("SetterBaseCollection", Fayde.DependencyObjectCollection);
 
     //#region Properties
 
@@ -30,7 +30,7 @@
     SetterBaseCollection.Instance.AddedToCollection = function (value, error) {
         if (!value || !this._ValidateSetter(value, error))
             return false;
-        if (value instanceof SetterBase) {
+        if (value instanceof Fayde.SetterBase) {
             value._Attached = true;
             value._Seal();
         }
@@ -38,32 +38,32 @@
     };
     SetterBaseCollection.Instance.RemovedFromCollection = function (value, isValueSafe) {
         if (isValueSafe) {
-            if (value instanceof SetterBase)
+            if (value instanceof Fayde.SetterBase)
                 value._Attached = false;
         }
         this.RemovedFromCollection$DependencyObjectCollection(value, isValueSafe);
     };
 
     SetterBaseCollection.Instance.IsElementType = function (value) {
-        return value instanceof SetterBase;
+        return value instanceof Fayde.SetterBase;
     };
 
     SetterBaseCollection.Instance._ValidateSetter = function (value, error) {
-        var s = Nullstone.As(value, Setter);
+        var s = Nullstone.As(value, Fayde.Setter);
         if (s) {
-            if (s._GetValue(Setter.PropertyProperty) === undefined) {
+            if (s._GetValue(Fayde.Setter.PropertyProperty) === undefined) {
                 error.SetErrored(BError.Exception, "Cannot have a null PropertyProperty value");
                 return false;
             }
-            if (s._ReadLocalValue(Setter.ValueProperty) === undefined) {
-                if (!s._HasDeferredValueExpression(Setter.ValueProperty)) {
+            if (s._ReadLocalValue(Fayde.Setter.ValueProperty) === undefined) {
+                if (!s._HasDeferredValueExpression(Fayde.Setter.ValueProperty)) {
                     error.SetErrored(BError.Exception, "Cannot have a null ValueProperty value");
                     return false;
                 }
             }
         }
 
-        var sb = Nullstone.As(value, SetterBase);
+        var sb = Nullstone.As(value, Fayde.SetterBase);
         if (sb) {
             if (sb._Attached) {
                 error.SetErrored(BError.InvalidOperation, "Setter is currently attached to another style");
@@ -80,4 +80,4 @@
     };
 
     namespace.SetterBaseCollection = Nullstone.FinishCreate(SetterBaseCollection);
-})(window);
+})(Nullstone.Namespace("Fayde"));

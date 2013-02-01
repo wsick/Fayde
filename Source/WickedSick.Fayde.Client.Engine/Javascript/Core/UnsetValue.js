@@ -1,7 +1,7 @@
 ﻿/// <reference path="../Runtime/Nullstone.js"/>
 /// CODE
 
-(function (namespace) {
+(function (Fayde) {
     var UnsetValue = Nullstone.Create("UnsetValue");
-    namespace.UnsetValue = Nullstone.FinishCreate(UnsetValue);
-})(window);
+    Fayde.UnsetValue = Nullstone.FinishCreate(UnsetValue);
+})(Nullstone.Namespace("Fayde"));

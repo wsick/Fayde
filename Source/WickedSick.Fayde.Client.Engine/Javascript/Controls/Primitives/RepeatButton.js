@@ -1,12 +1,13 @@
 ﻿/// <reference path="ButtonBase.js"/>
 /// CODE
+/// <reference path="../Enums.js"/>
 
 (function (namespace) {
-    var RepeatButton = Nullstone.Create("RepeatButton", ButtonBase);
+    var RepeatButton = Nullstone.Create("RepeatButton", namespace.ButtonBase);
 
     RepeatButton.Instance.Init = function () {
         this.Init$ButtonBase();
-        this.ClickMode = ClickMode.Press;
+        this.ClickMode = Fayde.Controls.ClickMode.Press;
         this.DefaultStyleKey = this.constructor;
     };
 
@@ -38,7 +39,7 @@
         this._UpdateRepeatState();
     };
     RepeatButton.Instance.OnKeyDown = function (args) {
-        if (args.Key === Key.Space && this.ClickMode !== ClickMode.Hover) {
+        if (args.Key === Key.Space && this.ClickMode !== Fayde.Controls.ClickMode.Hover) {
             this._KeyboardCausingRepeat = true;
             this._UpdateRepeatState();
         }
@@ -46,7 +47,7 @@
     };
     RepeatButton.Instance.OnKeyUp = function (args) {
         this.OnKeyUp$ButtonBase(args);
-        if (args.Key === Key.Space && this.ClickMode !== ClickMode.Hover) {
+        if (args.Key === Key.Space && this.ClickMode !== Fayde.Controls.ClickMode.Hover) {
             this._KeyboardCausingRepeat = false;
             this._UpdateRepeatState();
         }
@@ -54,7 +55,7 @@
     };
     RepeatButton.Instance.OnLostFocus = function (sender, args) {
         this.OnLostFocus$ButtonBase(sender, args);
-        if (this.ClickMode !== ClickMode.Hover) {
+        if (this.ClickMode !== Fayde.Controls.ClickMode.Hover) {
             this._KeyboardCausingRepeat = false;
             this._MouseCausingRepeat = false;
             this._UpdateRepeatState();
@@ -62,7 +63,7 @@
     };
     RepeatButton.Instance.OnMouseEnter = function (args) {
         this.OnMouseEnter$ButtonBase(args);
-        if (this.ClickMode === ClickMode.Hover) {
+        if (this.ClickMode === Fayde.Controls.ClickMode.Hover) {
             this._MouseCausingRepeat = true;
             this._UpdateRepeatState();
         }
@@ -70,7 +71,7 @@
 
         var parent = this;
         while (true) {
-            var fe = Nullstone.As(parent, FrameworkElement);
+            var fe = Nullstone.As(parent, Fayde.FrameworkElement);
             if (!fe)
                 break;
             parent = fe._GetLogicalParent();
@@ -79,7 +80,7 @@
     };
     RepeatButton.Instance.OnMouseLeave = function (args) {
         this.OnMouseLeave$ButtonBase(args);
-        if (this.ClickMode === ClickMode.Hover) {
+        if (this.ClickMode === Fayde.Controls.ClickMode.Hover) {
             this._MouseCausingRepeat = false;
             this._UpdateRepeatState();
         }
@@ -89,7 +90,7 @@
         if (args.Handled)
             return;
         this.OnMouseLeftButtonDown$ButtonBase(sender, args);
-        if (this.ClickMode !== ClickMode.Hover) {
+        if (this.ClickMode !== Fayde.Controls.ClickMode.Hover) {
             this._MouseCausingRepeat = true;
             this._UpdateRepeatState();
         }
@@ -98,7 +99,7 @@
         if (args.Handled)
             return;
         this.OnMouseLeftButtonUp$ButtonBase(sender, args);
-        if (this.ClickMode !== ClickMode.Hover) {
+        if (this.ClickMode !== Fayde.Controls.ClickMode.Hover) {
             this._MouseCausingRepeat = false;
             this._UpdateRepeatState();
         }
@@ -107,7 +108,7 @@
     RepeatButton.Instance.OnMouseMove = function (sender, args) {
         var parent = this;
         while (true) {
-            var fe = Nullstone.As(parent, FrameworkElement);
+            var fe = Nullstone.As(parent, Fayde.FrameworkElement);
             if (!fe)
                 break;
             parent = fe._GetLogicalParent();
@@ -148,7 +149,7 @@
             return;
         }
 
-        var els = VisualTreeHelper.FindElementsInHostCoordinates(this._MousePosition);
+        var els = Fayde.VisualTreeHelper.FindElementsInHostCoordinates(this._MousePosition);
         for (var i = 0; i < els.length; i++) {
             if (Nullstone.RefEquals(els[i], this)) {
                 this.OnClick();
@@ -158,4 +159,4 @@
     };
 
     namespace.RepeatButton = Nullstone.FinishCreate(RepeatButton);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

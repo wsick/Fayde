@@ -3,7 +3,7 @@
 /// <reference path="KeyFrameCollection.js"/>
 
 (function (namespace) {
-    var AnimationUsingKeyFrames = Nullstone.Create("AnimationUsingKeyFrames", Animation);
+    var AnimationUsingKeyFrames = Nullstone.Create("AnimationUsingKeyFrames", namespace.Animation);
 
     //#region Properties
 
@@ -16,7 +16,7 @@
         /// <param name="propd" type="DependencyProperty"></param>
         var keyFrames = this.KeyFrames;
 
-        KeyFrameCollection.ResolveKeyFrames(this, keyFrames);
+        namespace.KeyFrameCollection.ResolveKeyFrames(this, keyFrames);
 
         var count = keyFrames._SortedList.length;
         for (var j = 0; j < count; j++) {
@@ -63,7 +63,7 @@
     };
     AnimationUsingKeyFrames.Instance.GetNaturalDurationCore = function () {
         var keyFrames = this.KeyFrames;
-        KeyFrameCollection.ResolveKeyFrames(this, keyFrames);
+        namespace.KeyFrameCollection.ResolveKeyFrames(this, keyFrames);
         var count = keyFrames._SortedList.length;
         var ts;
         if (count > 0)
@@ -81,4 +81,4 @@
     };
 
     namespace.AnimationUsingKeyFrames = Nullstone.FinishCreate(AnimationUsingKeyFrames);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

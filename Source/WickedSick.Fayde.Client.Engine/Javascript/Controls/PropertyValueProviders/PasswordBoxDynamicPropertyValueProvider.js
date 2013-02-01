@@ -3,12 +3,12 @@
 /// <reference path="PasswordBox.js"/>
 
 (function (namespace) {
-    var _PasswordBoxDynamicPropertyValueProvider = Nullstone.Create("_PasswordBoxDynamicPropertyValueProvider", _TextBoxBaseDynamicPropertyValueProvider, 2);
+    var _PasswordBoxDynamicPropertyValueProvider = Nullstone.Create("_PasswordBoxDynamicPropertyValueProvider", namespace._TextBoxBaseDynamicPropertyValueProvider, 2);
 
     _PasswordBoxDynamicPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
         this.Init$_TextBoxBaseDynamicPropertyValueProvider(obj, propPrecedence,
-            PasswordBox.SelectionForegroundProperty, PasswordBox.SelectionBackgroundProperty, PasswordBox.BaselineOffsetProperty);
+            namespace.PasswordBox.SelectionForegroundProperty, namespace.PasswordBox.SelectionBackgroundProperty, namespace.PasswordBox.BaselineOffsetProperty);
     };
 
     namespace._PasswordBoxDynamicPropertyValueProvider = Nullstone.FinishCreate(_PasswordBoxDynamicPropertyValueProvider);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

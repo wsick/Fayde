@@ -1,14 +1,15 @@
 /// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="../../Core/DependencyObject.js"/>
+/// <reference path="../../Core/Collections/DependencyObjectCollection.js"/>
 /// CODE
 /// <reference path="../Animation/Storyboard.js"/>
 
 (function (namespace) {
-    var VisualState = Nullstone.Create("VisualState", DependencyObject);
+    var VisualState = Nullstone.Create("VisualState", Fayde.DependencyObject);
 
     //#region Properties
 
-    VisualState.StoryboardProperty = DependencyProperty.Register("Storyboard", function () { return Storyboard; }, VisualState, null);
+    VisualState.StoryboardProperty = DependencyProperty.Register("Storyboard", function () { return Fayde.Media.Animation.Storyboard; }, VisualState, null);
 
     Nullstone.AutoProperties(VisualState, [
         VisualState.StoryboardProperty
@@ -25,14 +26,14 @@
     //#endregion
 
     namespace.VisualState = Nullstone.FinishCreate(VisualState);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.VisualStateManager"));
 
 (function (namespace) {
-    var VisualStateCollection = Nullstone.Create("VisualStateCollection", DependencyObjectCollection);
+    var VisualStateCollection = Nullstone.Create("VisualStateCollection", Fayde.DependencyObjectCollection);
 
     VisualStateCollection.Instance.IsElementType = function (value) {
-        return value instanceof VisualState;
+        return value instanceof namespace.VisualState;
     };
 
     namespace.VisualStateCollection = Nullstone.FinishCreate(VisualStateCollection);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.VisualStateManager"));

@@ -1,7 +1,7 @@
 /// <reference path="../../Runtime/Nullstone.js" />
 /// CODE
 
-(function (namespace) {
+(function (Fayde) {
     var _PropertyValueProvider = Nullstone.Create("_PropertyValueProvider", undefined, 2);
 
     _PropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
@@ -19,5 +19,5 @@
             func(DependencyProperty._IDs[value], this._ht[value], data);
     };
 
-    namespace._PropertyValueProvider = Nullstone.FinishCreate(_PropertyValueProvider);
-})(window);
+    Fayde._PropertyValueProvider = Nullstone.FinishCreate(_PropertyValueProvider);
+})(Nullstone.Namespace("Fayde"));

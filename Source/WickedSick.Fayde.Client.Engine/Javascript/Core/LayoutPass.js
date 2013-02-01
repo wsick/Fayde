@@ -1,6 +1,7 @@
+/// <reference path="../Runtime/Nullstone.js"/>
 /// CODE
 
-(function (namespace) {
+(function (Fayde) {
     function LayoutPass() {
         this.MeasureList = [];
         this.ArrangeList = [];
@@ -10,5 +11,5 @@
         this.StartTime = new Date().getTime();
     }
     LayoutPass.MaxCount = 250;
-    namespace.LayoutPass = LayoutPass;
-})(window);
+    Fayde.LayoutPass = LayoutPass;
+})(Nullstone.Namespace("Fayde"));

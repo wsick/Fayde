@@ -4,7 +4,7 @@
 /// <reference path="GridLength.js"/>
 
 (function (namespace) {
-    var Slider = Nullstone.Create("Slider", RangeBase);
+    var Slider = Nullstone.Create("Slider", namespace.Primitives.RangeBase);
 
     Slider.Instance.Init = function () {
         this.Init$RangeBase();
@@ -26,7 +26,7 @@
     Slider.OrientationPropertyChanged = function (d, args) {
         d._OnOrientationChanged();
     };
-    Slider.OrientationProperty = DependencyProperty.RegisterCore("Orientation", function () { return Orientation; }, Slider, Orientation.Horizontal, Slider.OrientationPropertyChanged);
+    Slider.OrientationProperty = DependencyProperty.RegisterCore("Orientation", function () { return Fayde.Orientation; }, Slider, Fayde.Orientation.Horizontal, Slider.OrientationPropertyChanged);
 
     Nullstone.AutoProperties(Slider, [
         Slider.IsDirectionReversedProperty,
@@ -39,10 +39,10 @@
     Slider.Instance.OnApplyTemplate = function () {
         this.OnApplyTemplate$RangeBase();
 
-        this.$HorizontalTemplate = Nullstone.As(this.GetTemplateChild("HorizontalTemplate"), FrameworkElement);
-        this.$HorizontalLargeIncrease = Nullstone.As(this.GetTemplateChild("HorizontalTrackLargeChangeIncreaseRepeatButton"), RepeatButton);
-        this.$HorizontalLargeDecrease = Nullstone.As(this.GetTemplateChild("HorizontalTrackLargeChangeDecreaseRepeatButton"), RepeatButton);
-        this.$HorizontalThumb = Nullstone.As(this.GetTemplateChild("HorizontalThumb"), Thumb);
+        this.$HorizontalTemplate = Nullstone.As(this.GetTemplateChild("HorizontalTemplate"), Fayde.FrameworkElement);
+        this.$HorizontalLargeIncrease = Nullstone.As(this.GetTemplateChild("HorizontalTrackLargeChangeIncreaseRepeatButton"), namespace.Primitives.RepeatButton);
+        this.$HorizontalLargeDecrease = Nullstone.As(this.GetTemplateChild("HorizontalTrackLargeChangeDecreaseRepeatButton"), namespace.Primitives.RepeatButton);
+        this.$HorizontalThumb = Nullstone.As(this.GetTemplateChild("HorizontalThumb"), namespace.Primitives.Thumb);
 
         if (this.$HorizontalThumb != null) {
             this.$HorizontalThumb.DragStarted.Subscribe(function (sender, e) { this.Focus(); this._OnThumbDragStarted(); }, this);
@@ -55,10 +55,10 @@
             this.$HorizontalLargeIncrease.Click.Subscribe(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
         }
 
-        this.$VerticalTemplate = Nullstone.As(this.GetTemplateChild("VerticalTemplate"), FrameworkElement);
-        this.$VerticalLargeIncrease = Nullstone.As(this.GetTemplateChild("VerticalTrackLargeChangeIncreaseRepeatButton"), RepeatButton);
-        this.$VerticalLargeDecrease = Nullstone.As(this.GetTemplateChild("VerticalTrackLargeChangeDecreaseRepeatButton"), RepeatButton);
-        this.$VerticalThumb = Nullstone.As(this.GetTemplateChild("VerticalThumb"), Thumb);
+        this.$VerticalTemplate = Nullstone.As(this.GetTemplateChild("VerticalTemplate"), Fayde.FrameworkElement);
+        this.$VerticalLargeIncrease = Nullstone.As(this.GetTemplateChild("VerticalTrackLargeChangeIncreaseRepeatButton"), namespace.Primitives.RepeatButton);
+        this.$VerticalLargeDecrease = Nullstone.As(this.GetTemplateChild("VerticalTrackLargeChangeDecreaseRepeatButton"), namespace.Primitives.RepeatButton);
+        this.$VerticalThumb = Nullstone.As(this.GetTemplateChild("VerticalThumb"), namespace.Primitives.Thumb);
 
         if (this.$VerticalThumb != null) {
             this.$VerticalThumb.DragStarted.Subscribe(function (sender, e) { this.Focus(); this._OnThumbDragStarted(); }, this);
@@ -94,11 +94,11 @@
     };
 
     Slider.Instance._OnOrientationChanged = function () {
-        var isHorizontal = this.Orientation === Orientation.Horizontal;
+        var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
         if (this.$HorizontalTemplate != null)
-            this.$HorizontalTemplate.Visibility = isHorizontal ? Visibility.Visible : Visibility.Collapsed;
+            this.$HorizontalTemplate.Visibility = isHorizontal ? Fayde.Visibility.Visible : Fayde.Visibility.Collapsed;
         if (this.$VerticalTemplate != null)
-            this.$VerticalTemplate.Visibility = !isHorizontal ? Visibility.Visible : Visibility.Collapsed;
+            this.$VerticalTemplate.Visibility = !isHorizontal ? Fayde.Visibility.Visible : Fayde.Visibility.Collapsed;
         this._UpdateTrackLayout();
     };
     Slider.Instance._UpdateTrackLayout = function () {
@@ -106,8 +106,8 @@
         var min = this.Minimum;
         var val = this.Value;
 
-        var isHorizontal = this.Orientation === Orientation.Horizontal;
-        var templateGrid = Nullstone.As(isHorizontal ? this.$HorizontalTemplate : this.$VerticalTemplate, Grid);
+        var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
+        var templateGrid = Nullstone.As(isHorizontal ? this.$HorizontalTemplate : this.$VerticalTemplate, namespace.Grid);
         if (templateGrid == null)
             return;
 
@@ -130,21 +130,21 @@
 
         if (defs != null && defs.GetCount() === 3) {
             if (isHorizontal) {
-                defs.GetValueAt(0).Width = new GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
-                defs.GetValueAt(2).Width = new GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
+                defs.GetValueAt(0).Width = new namespace.GridLength(1, isReversed ? namespace.GridUnitType.Star : namespace.GridUnitType.Auto);
+                defs.GetValueAt(2).Width = new namespace.GridLength(1, isReversed ? namespace.GridUnitType.Auto : namespace.GridUnitType.Star);
 
                 if (largeDecrease != null)
-                    Grid.SetColumn(largeDecrease, isReversed ? 2 : 0);
+                    namespace.Grid.SetColumn(largeDecrease, isReversed ? 2 : 0);
                 if (largeIncrease != null)
-                    Grid.SetColumn(largeIncrease, isReversed ? 0 : 2);
+                    namespace.Grid.SetColumn(largeIncrease, isReversed ? 0 : 2);
             } else {
-                defs.GetValueAt(0).Height = new GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
-                defs.GetValueAt(2).Height = new GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
+                defs.GetValueAt(0).Height = new namespace.GridLength(1, isReversed ? namespace.GridUnitType.Auto : namespace.GridUnitType.Star);
+                defs.GetValueAt(2).Height = new namespace.GridLength(1, isReversed ? namespace.GridUnitType.Star : namespace.GridUnitType.Auto);
 
                 if (largeDecrease != null)
-                    Grid.SetRow(largeDecrease, isReversed ? 0 : 2);
+                    namespace.Grid.SetRow(largeDecrease, isReversed ? 0 : 2);
                 if (largeIncrease != null)
-                    Grid.SetRow(largeIncrease, isReversed ? 2 : 0);
+                    namespace.Grid.SetRow(largeIncrease, isReversed ? 2 : 0);
             }
         }
 
@@ -165,9 +165,9 @@
     };
     Slider.Instance._OnThumbDragDelta = function (e) {
         var offset = 0;
-        if (this.Orientation === Orientation.Horizontal && this.$HorizontalThumb != null) {
+        if (this.Orientation === Fayde.Orientation.Horizontal && this.$HorizontalThumb != null) {
             offset = e.HorizontalChange / (this.ActualWidth - this.$HorizontalThumb.ActualWidth) * (this.Maximum - this.Minimum);
-        } else if (this.Orientation === Orientation.Vertical && this.$VerticalThumb != null) {
+        } else if (this.Orientation === Fayde.Orientation.Vertical && this.$VerticalThumb != null) {
             offset = -e.VerticalChange / (this.ActualHeight - this.$VerticalThumb.ActualHeight) * (this.Maximum - this.Minimum);
         }
         if (!isNaN(offset) && isFinite(offset)) {
@@ -182,15 +182,15 @@
 
     Slider.Instance.OnMouseEnter = function (e) {
         this.OnMouseEnter$RangeBase(e);
-        if ((this.Orientation === Orientation.Horizontal && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) ||
-            (this.Orientation === Orientation.Vertical && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
+        if ((this.Orientation === Fayde.Orientation.Horizontal && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) ||
+            (this.Orientation === Fayde.Orientation.Vertical && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
             this.$UpdateVisualState();
         }
     };
     Slider.Instance.OnMouseLeave = function (e) {
         this.OnMouseLeave$RangeBase(e);
-        if ((this.Orientation === Orientation.Horizontal && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) ||
-            (this.Orientation === Orientation.Vertical && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
+        if ((this.Orientation === Fayde.Orientation.Horizontal && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) ||
+            (this.Orientation === Fayde.Orientation.Vertical && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
             this.$UpdateVisualState();
         }
     };
@@ -253,4 +253,4 @@
     //#endregion
 
     namespace.Slider = Nullstone.FinishCreate(Slider);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

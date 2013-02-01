@@ -2,9 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var CacheMode = Nullstone.Create("CacheMode", DependencyObject);
-
-    CacheMode.Instance._GetTransform = function () { };
-
+    var CacheMode = Nullstone.Create("CacheMode", Fayde.DependencyObject);
+    CacheMode.Instance.GetTransform = function () { };
     namespace.CacheMode = Nullstone.FinishCreate(CacheMode);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

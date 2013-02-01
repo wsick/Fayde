@@ -7,14 +7,14 @@
 /// <reference path="../Engine/RenderContext.js"/>
 
 (function (namespace) {
-    var Border = Nullstone.Create("Border", FrameworkElement);
+    var Border = Nullstone.Create("Border", Fayde.FrameworkElement);
 
     //#region Properties
 
-    Border.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Brush; }, Border);
-    Border.BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", function () { return Brush; }, Border);
+    Border.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Fayde.Media.Brush; }, Border);
+    Border.BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", function () { return Fayde.Media.Brush; }, Border);
     Border.BorderThicknessProperty = DependencyProperty.RegisterFull("BorderThickness", function () { return Thickness; }, Border, new Thickness(0), undefined, undefined, undefined, undefined, Border._ThicknessValidator);
-    Border.ChildProperty = DependencyProperty.RegisterCore("Child", function () { return UIElement; }, Border);
+    Border.ChildProperty = DependencyProperty.RegisterCore("Child", function () { return Fayde.UIElement; }, Border);
     Border.CornerRadiusProperty = DependencyProperty.RegisterFull("CornerRadius", function () { return CornerRadius; }, Border, new CornerRadius(0), undefined, undefined, undefined, undefined, Border._CornerRadiusValidator);
     Border.PaddingProperty = DependencyProperty.RegisterFull("Padding", function () { return Thickness; }, Border, new Thickness(0), undefined, undefined, undefined, undefined, Border._ThicknessValidator);
 
@@ -44,7 +44,7 @@
         var desired = new Size();
         var border = this.Padding.Plus(this.BorderThickness);
 
-        var walker = new _VisualTreeWalker(this);
+        var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
             child._MeasureWithError(availableSize.ShrinkByThickness(border), error);
@@ -58,7 +58,7 @@
         var border = this.Padding.Plus(this.BorderThickness);
         var arranged = finalSize;
 
-        var walker = new _VisualTreeWalker(this);
+        var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
             var childRect = new Rect(0, 0, finalSize.Width, finalSize.Height);
@@ -112,7 +112,7 @@
             return;
         }
 
-        var rawPath = new RawPath();
+        var rawPath = new Fayde.Shapes.RawPath();
         rawPath.RoundedRectFull(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height,
             cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
         rawPath.Draw(ctx);
@@ -138,7 +138,7 @@
                 ctx.Stroke(borderBrush, thickness.Left, extents);
             }
         } else {
-            var rawPath = new RawPath();
+            var rawPath = new Fayde.Shapes.RawPath();
             rawPath.RoundedRectFull(fillPlusHalfExtents.X, fillPlusHalfExtents.Y, fillPlusHalfExtents.Width, fillPlusHalfExtents.Height,
                 cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
             rawPath.Draw(ctx);
@@ -158,8 +158,8 @@
         var hasCornerRadius = !cornerRadius.IsZero();
         var innerExtents = extents.ShrinkByThickness(thickness);
 
-        var innerPath = new RawPath();
-        var outerPath = new RawPath();
+        var innerPath = new Fayde.Shapes.RawPath();
+        var outerPath = new Fayde.Shapes.RawPath();
         if (hasCornerRadius) {
             outerPath.RoundedRectFull(0, 0, extents.Width, extents.Height,
                 cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
@@ -213,19 +213,19 @@
             var ivprop = false;
             switch (args.Property._ID) {
                 case Border.ChildProperty._ID:
-                    if (args.OldValue && args.OldValue instanceof UIElement) {
+                    if (args.OldValue && args.OldValue instanceof Fayde.UIElement) {
                         this._ElementRemoved(args.OldValue);
                         this._SubtreeObject = null;
-                        if (args.OldValue instanceof FrameworkElement) {
+                        if (args.OldValue instanceof Fayde.FrameworkElement) {
                             args.OldValue._SetLogicalParent(null, error);
                             if (error.IsErrored())
                                 return;
                         }
                     }
-                    if (args.NewValue && args.NewValue instanceof UIElement) {
+                    if (args.NewValue && args.NewValue instanceof Fayde.UIElement) {
                         this._SubtreeObject = args.NewValue;
                         this._ElementAdded(args.NewValue);
-                        if (args.NewValue instanceof FrameworkElement) {
+                        if (args.NewValue instanceof Fayde.FrameworkElement) {
                             var logicalParent = args.NewValue._GetLogicalParent();
                             if (logicalParent && !Nullstone.RefEquals(logicalParent, this)) {
                                 error.SetErrored(BError.Argument, "Content is already a child of another element.");
@@ -262,19 +262,19 @@
             
             switch (args.Property._ID) {
                 case Border.ChildProperty._ID:
-                    if (args.OldValue && args.OldValue instanceof UIElement) {
+                    if (args.OldValue && args.OldValue instanceof Fayde.UIElement) {
                         this._ElementRemoved(args.OldValue);
                         this._SubtreeObject = null;
-                        if (args.OldValue instanceof FrameworkElement) {
+                        if (args.OldValue instanceof Fayde.FrameworkElement) {
                             args.OldValue._SetLogicalParent(null, error);
                             if (error.IsErrored())
                                 return;
                         }
                     }
-                    if (args.NewValue && args.NewValue instanceof UIElement) {
+                    if (args.NewValue && args.NewValue instanceof Fayde.UIElement) {
                         this._SubtreeObject = args.NewValue;
                         this._ElementAdded(args.NewValue);
-                        if (args.NewValue instanceof FrameworkElement) {
+                        if (args.NewValue instanceof Fayde.FrameworkElement) {
                             var logicalParent = args.NewValue._GetLogicalParent();
                             if (logicalParent && !Nullstone.RefEquals(logicalParent, this)) {
                                 error.SetErrored(BError.Argument, "Content is already a child of another element.");
@@ -378,4 +378,4 @@
     };
 
     namespace.Border = Nullstone.FinishCreate(Border);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

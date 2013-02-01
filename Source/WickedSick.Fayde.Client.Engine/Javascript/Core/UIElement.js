@@ -4,7 +4,7 @@
 /// <reference path="../Controls/Canvas.js" />
 /// <reference path="../Engine/Dirty.js"/>
 /// <reference path="../Engine/App.js"/>
-/// <reference path="../Core/Collections/Collection.js"/>
+/// <reference path="../Core/Collections/InternalCollection.js"/>
 /// <reference path="../Media/Geometry.js"/>
 /// <reference path="../Media/Brush.js"/>
 /// <reference path="RequestBringIntoViewEventArgs.js"/>
@@ -13,12 +13,32 @@
 /// <reference path="../Engine/RenderContext.js"/>
 /// <reference path="../Primitives/Rect.js"/>
 /// <reference path="../Primitives/Thickness.js"/>
-/// <reference path="TriggerCollection.js"/>
+/// <reference path="Triggers.js"/>
 /// <reference path="../Media/CacheMode.js"/>
 /// <reference path="../Media/Projection.js"/>
 
-(function (namespace) {
-    var UIElement = Nullstone.Create("UIElement", DependencyObject);
+(function (Fayde) {
+    //#region UIElementFlags
+
+    var UIElementFlags = {
+        None: 0,
+
+        RenderVisible: 0x02,
+        HitTestVisible: 0x04,
+        TotalRenderVisible: 0x08,
+        TotalHitTestVisible: 0x10,
+
+        DirtyArrangeHint: 0x800,
+        DirtyMeasureHint: 0x1000,
+        DirtySizeHint: 0x2000,
+
+        RenderProjection: 0x4000
+    };
+    Fayde.UIElementFlags = UIElementFlags;
+
+    //#endregion
+
+    var UIElement = Nullstone.Create("UIElement", Fayde.DependencyObject);
 
     UIElement.Instance.Init = function () {
         this.Init$DependencyObject();
@@ -27,7 +47,7 @@
         this.Loaded = new MulticastEvent();
         this.Invalidated = new MulticastEvent();
 
-        this.AddProvider(new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited));
+        this.AddProvider(new Fayde._InheritedPropertyValueProvider(this));
 
         this._Flags = UIElementFlags.RenderVisible | UIElementFlags.HitTestVisible;
 
@@ -101,19 +121,19 @@
     //#region Properties
 
     UIElement.AllowDropProperty = DependencyProperty.Register("AllowDrop", function () { return Boolean; }, UIElement);
-    UIElement.CacheModeProperty = DependencyProperty.Register("CacheMode", function () { return CacheMode; }, UIElement);
-    UIElement.ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Geometry; }, UIElement);
-    UIElement.EffectProperty = DependencyProperty.Register("Effect", function () { return Effect; }, UIElement);
+    UIElement.CacheModeProperty = DependencyProperty.Register("CacheMode", function () { return Fayde.Media.CacheMode; }, UIElement);
+    UIElement.ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Fayde.Media.Geometry; }, UIElement);
+    UIElement.EffectProperty = DependencyProperty.Register("Effect", function () { return Fayde.Media.Effects.Effect; }, UIElement);
     UIElement.IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
-    UIElement.OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Brush; }, UIElement);
+    UIElement.OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Fayde.Media.Brush; }, UIElement);
     UIElement.OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0);
-    UIElement.ProjectionProperty = DependencyProperty.Register("Projection", function () { return Projection; }, UIElement);
-    UIElement.RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () { return Transform; }, UIElement);
+    UIElement.ProjectionProperty = DependencyProperty.Register("Projection", function () { return Fayde.Media.Projection; }, UIElement);
+    UIElement.RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () { return Fayde.Media.Transform; }, UIElement);
     UIElement.RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () { return Point; }, UIElement, new Point());
-    UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, undefined, undefined, { GetValue: function () { return new ResourceDictionary(); } });
-    UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return TriggerCollection; }, UIElement, undefined, undefined, { GetValue: function () { return new TriggerCollection(); } });
+    UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return Fayde.ResourceDictionary; }, UIElement, undefined, undefined, { GetValue: function () { return new Fayde.ResourceDictionary(); } });
+    UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return Fayde.TriggerCollection; }, UIElement, undefined, undefined, { GetValue: function () { return new Fayde.TriggerCollection(); } });
     UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, UIElement, true, undefined, undefined, _Inheritable.UseLayoutRounding);
-    UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
+    UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Fayde.Visibility); }, UIElement, Fayde.Visibility.Visible);
     UIElement.TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
 
     UIElement.IsFixedWidthProperty = DependencyProperty.Register("IsFixedWidth", function () { return Boolean; }, UIElement, false);
@@ -156,12 +176,12 @@
 
     UIElement.Instance.BringIntoView = function (rect) {
         if (!rect) rect = new Rect();
-        var args = new RequestBringIntoViewEventArgs(this, rect);
+        var args = new Fayde.RequestBringIntoViewEventArgs(this, rect);
 
         var cur = this;
         while (cur && !args.Handled) {
             cur.RequestBringIntoView.Raise(this, args);
-            cur = VisualTreeHelper.GetParent(cur);
+            cur = Fayde.VisualTreeHelper.GetParent(cur);
         }
     };
     UIElement.Instance.SetVisualParent = function (value) {
@@ -185,7 +205,7 @@
         /// <param name="el" type="UIElement"></param>
         var parent = el;
         while (parent && !Nullstone.RefEquals(parent, this))
-            parent = VisualTreeHelper.GetParent(parent);
+            parent = Fayde.VisualTreeHelper.GetParent(parent);
         return Nullstone.RefEquals(parent, this);
     };
     UIElement.Instance.TransformToVisual = function (uie) {
@@ -236,14 +256,14 @@
 
         var raw = mat4.toAffineMat3(result);
         if (raw) {
-            var mt = new MatrixTransform();
+            var mt = new Fayde.Media.MatrixTransform();
             var m = new Matrix();
             m.raw = raw;
-            mt._SetValue(MatrixTransform.MatrixProperty, m);
+            mt._SetValue(Fayde.Media.MatrixTransform.MatrixProperty, m);
             return mt;
         }
 
-        var it = new InternalTransform();
+        var it = new Fayde.Media.InternalTransform();
         it.raw = result;
         return it;
     };
@@ -365,7 +385,7 @@
         if (visualParent != null) {
             mat3.set(visualParent._AbsoluteXform, this._AbsoluteXform);
             mat4.set(visualParent._AbsoluteProjection, this._AbsoluteProjection);
-        } else if (this._Parent != null && this._Parent instanceof Popup) {
+        } else if (this._Parent != null && this._Parent instanceof Fayde.Controls.Primitives.Popup) {
             var popup = this._Parent;
             var el = popup;
             while (el != null) {
@@ -410,7 +430,7 @@
 
         mat4.multiply(this._LocalProjection, this._AbsoluteProjection, this._AbsoluteProjection); //abs = abs * local
 
-        if (this instanceof Popup) {
+        if (this instanceof Fayde.Controls.Primitives.Popup) {
             var popupChild = this.Child;
             if (popupChild)
                 popupChild._UpdateTransform();
@@ -465,13 +485,13 @@
     UIElement.Instance._ComputeLocalProjection = function () {
         var projection = this.Projection;
         if (!projection) {
-            Canvas.SetZ(this, NaN);
+            Fayde.Controls.Canvas.SetZ(this, NaN);
             return;
         }
 
         var size = this._GetSizeForBrush();
         projection._SetObjectSize(size.Width, size.Height);
-        Canvas.SetZ(this, projection._GetDistanceFromXYPlane());
+        Fayde.Controls.Canvas.SetZ(this, projection._GetDistanceFromXYPlane());
     };
 
     UIElement.Instance._TransformBounds = function (old, current) {
@@ -544,7 +564,7 @@
     UIElement.Instance._IntersectBoundsWithClipPath = function (unclipped, transform) {
         /// <returns type="Rect" />
         var clip = this.Clip;
-        var layoutClip = transform ? undefined : LayoutInformation.GetLayoutClip(this);
+        var layoutClip = transform ? undefined : Fayde.LayoutInformation.GetLayoutClip(this);
         var box;
 
         if (!clip && !layoutClip)
@@ -663,7 +683,7 @@
         return (this._Flags & UIElementFlags.TotalHitTestVisible) != 0;
     };
     UIElement.Instance._HitTestPoint = function (ctx, p, uielist) {
-        uielist.Prepend(new UIElementNode(this));
+        uielist.Prepend(new Fayde.UIElementNode(this));
     };
     UIElement.Instance._InsideObject = function (ctx, x, y) {
         return this._InsideClip(ctx, x, y);
@@ -709,7 +729,7 @@
     //#region Measure
 
     UIElement.Instance._DoMeasureWithError = function (error) {
-        var last = LayoutInformation.GetPreviousConstraint(this);
+        var last = Fayde.LayoutInformation.GetPreviousConstraint(this);
         var parent = this.GetVisualParent();
         var infinite = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
 
@@ -740,7 +760,7 @@
     //#region Arrange
 
     UIElement.Instance._DoArrangeWithError = function (error) {
-        var last = this._ReadLocalValue(LayoutInformation.LayoutSlotProperty);
+        var last = this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty);
         if (last === null)
             last = undefined;
         var parent = this.GetVisualParent();
@@ -752,7 +772,7 @@
             if (this.IsLayoutContainer()) {
                 desired = this._DesiredSize;
                 if (this._IsAttached && surface._IsTopLevel(this) && !this._Parent) {
-                    var measure = LayoutInformation.GetPreviousConstraint(this);
+                    var measure = Fayde.LayoutInformation.GetPreviousConstraint(this);
                     if (measure)
                         desired = desired.Max(measure);
                     else
@@ -762,7 +782,7 @@
                 desired = new Size(this.ActualWidth, this.ActualHeight);
             }
 
-            viewport = new Rect(Canvas.GetLeft(this), Canvas.GetTop(this), desired.Width, desired.Height)
+            viewport = new Rect(Fayde.Controls.Canvas.GetLeft(this), Fayde.Controls.Canvas.GetTop(this), desired.Width, desired.Height)
 
             last = viewport;
         }
@@ -828,7 +848,7 @@
             canvasCtx.restore();
         }
 
-        var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.ZForward);
+        var walker = Fayde._VisualTreeWalker.ZForward(this);
         var child;
         while (child = walker.Step()) {
             child._DoRender(ctx, region);
@@ -854,26 +874,26 @@
         if (!this._IsLoaded) {
             //WTF: ClearForeachGeneration(Loaded)
             this.Unloaded.Raise(this, new EventArgs());
-            iter = new CollectionIterator(this.Resources);
+            iter = this.Resources.GetIterator();
             while (iter.Next()) {
                 v = iter.GetCurrent();
-                v = Nullstone.As(v, FrameworkElement);
+                v = Nullstone.As(v, Fayde.FrameworkElement);
                 if (v)
                     v._SetIsLoaded(loaded);
             }
         }
 
-        var walker = new _VisualTreeWalker(this);
+        var walker = new Fayde._VisualTreeWalker(this);
         var element;
         while (element = walker.Step()) {
             element._SetIsLoaded(loaded);
         }
 
         if (this._IsLoaded) {
-            iter = new CollectionIterator(this.Resources);
+            iter = this.Resources.GetIterator();
             while (iter.Next()) {
                 v = iter.GetCurrent();
-                v = Nullstone.As(v, FrameworkElement);
+                v = Nullstone.As(v, Fayde.FrameworkElement);
                 if (v)
                     v._SetIsLoaded(loaded);
             }
@@ -925,8 +945,8 @@
         item.SetMentor(null);
 
         var emptySlot = new Rect();
-        LayoutInformation.SetLayoutSlot(item, emptySlot);
-        item._ClearValue(LayoutInformation.LayoutClipProperty);
+        Fayde.LayoutInformation.SetLayoutSlot(item, emptySlot);
+        item._ClearValue(Fayde.LayoutInformation.LayoutClipProperty);
 
         this._InvalidateMeasure();
 
@@ -942,21 +962,21 @@
         item._SetIsAttached(this._IsAttached);
         item._SetIsLoaded(this._IsLoaded);
         var o = this;
-        while (o && !(o instanceof FrameworkElement))
+        while (o && !(o instanceof Fayde.FrameworkElement))
             o = o.GetMentor();
         item.SetMentor(o);
 
         this._UpdateBounds(true);
 
         this._InvalidateMeasure();
-        this._ClearValue(LayoutInformation.LayoutClipProperty);
-        this._ClearValue(LayoutInformation.PreviousConstraintProperty);
+        this._ClearValue(Fayde.LayoutInformation.LayoutClipProperty);
+        this._ClearValue(Fayde.LayoutInformation.PreviousConstraintProperty);
         item._RenderSize = new Size(0, 0);
         item._UpdateTransform();
         item._UpdateProjection();
         item._InvalidateMeasure();
         item._InvalidateArrange();
-        if (item._HasFlag(UIElementFlags.DirtySizeHint) || item._ReadLocalValue(LayoutInformation.LastRenderSizeProperty) !== undefined)
+        if (item._HasFlag(UIElementFlags.DirtySizeHint) || item._ReadLocalValue(Fayde.LayoutInformation.LastRenderSizeProperty) !== undefined)
             item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
 
         if (!Fayde.IsCanvasEnabled) {
@@ -1062,7 +1082,7 @@
             if (propd._ID === UIElement.OpacityProperty._ID) {
                 this._InvalidateVisibility();
             } else if (propd._ID === UIElement.VisibilityProperty._ID) {
-                if (args.NewValue === Visibility.Visible)
+                if (args.NewValue === Fayde.Visibility.Visible)
                     this._Flags |= UIElementFlags.RenderVisible;
                 else
                     this._Flags &= ~UIElementFlags.RenderVisible;
@@ -1127,24 +1147,18 @@
         };
         UIElement.Instance._OnCollectionChanged = function (col, args) {
             if (this._PropertyHasValueNoAutoCreate(UIElement.TriggersProperty, col)) {
-                switch (args.Action) {
-                    case CollectionChangedArgs.Action.Replace:
-                        args.OldValue._RemoveTarget(this);
-                        //NOTE: Intentionally falling through
-                    case CollectionChangedArgs.Action.Add:
-                        args.NewValue._SetTarget(this);
-                        break;
-                    case CollectionChangedArgs.Action.Remove:
-                        args.OldValue._RemoveTarget(this);
-                        break;
-                    case CollectionChangedArgs.Action.Clearing:
-                        var count = col.GetCount();
-                        for (var i = 0; i < count; i++) {
-                            col.GetValueAt(i)._RemoveTarget(this);
-                        }
-                        break;
-                    case CollectionChangedArgs.Action.Cleared:
-                        break;
+                if (args.IsAdd) {
+                    args.NewValue._SetTarget(this);
+                } else if (args.IsReplace) {
+                    args.OldValue._RemoveTarget(this);
+                    args.NewValue._SetTarget(this);
+                } else if (args.IsRemove) {
+                    args.OldValue._RemoveTarget(this);
+                } else if (args.IsClearing) {
+                    var count = col.GetCount();
+                    for (var i = 0; i < count; i++) {
+                        col.GetValueAt(i)._RemoveTarget(this);
+                    }
                 }
             } else if (this._PropertyHasValueNoAutoCreate(UIElement.ResourcesProperty, col)) {
                 //TODO: ResourcesProperty
@@ -1216,7 +1230,7 @@
     UIElement.Instance.OnMouseWheel = function (sender, e) { };
 
     UIElement.Instance._EmitLostMouseCapture = function (absolutePos) {
-        this.LostMouseCapture.Raise(this, new MouseEventArgs(absolutePos));
+        this.LostMouseCapture.Raise(this, new Fayde.Input.MouseEventArgs(absolutePos));
     };
     UIElement.Instance.OnLostMouseCapture = function (sender, e) { };
 
@@ -1252,14 +1266,14 @@
     };
 
     UIElement.Instance._EmitGotFocus = function () {
-        var e = new RoutedEventArgs();
+        var e = new Fayde.RoutedEventArgs();
         this.OnGotFocus(e);
         this.GotFocus.Raise(this, e);
     };
     UIElement.Instance.OnGotFocus = function (e) { };
 
     UIElement.Instance._EmitLostFocus = function () {
-        var e = new RoutedEventArgs();
+        var e = new Fayde.RoutedEventArgs();
         this.OnLostFocus(e);
         this.LostFocus.Raise(this, e);
     };
@@ -1281,9 +1295,9 @@
                 contentEl.style.opacity = change.NewValue;
                 contentEl.style.filter = "alpha(opacity = " + change.NewValue * 100 + ")";
             } else if (propd._ID === UIElement.VisibilityProperty._ID) {
-                if (change.NewValue === Visibility.Collapsed) {
+                if (change.NewValue === Fayde.Visibility.Collapsed) {
                     rootEl.style.display = "none";
-                } else if (change.NewValue === Visibility.Visible) {
+                } else if (change.NewValue === Fayde.Visibility.Visible) {
                     rootEl.style.display = this.GetHtmlDefaultDisplay();
                 }
             } else if (propd._ID === UIElement.IsHitTestVisibleProperty._ID) {
@@ -1346,7 +1360,7 @@
         UIElement.Instance.InvalidateChildrenFixedWidth = function () {
             var subtree = this._SubtreeObject;
             if (subtree) {
-                if (subtree instanceof Collection) {
+                if (subtree instanceof Fayde.InternalCollection) {
                     var len = subtree.GetCount();
                     for (var i = 0; i < len; i++) {
                         var item = subtree.GetValueAt(i);
@@ -1360,7 +1374,7 @@
         UIElement.Instance.InvalidateChildrenFixedHeight = function () {
             var subtree = this._SubtreeObject;
             if (subtree) {
-                if (subtree instanceof Collection) {
+                if (subtree instanceof Fayde.InternalCollection) {
                     var len = subtree.GetCount();
                     for (var i = 0; i < len; i++) {
                         var item = subtree.GetValueAt(i);
@@ -1383,7 +1397,7 @@
         return this._TotalOpacity * 255 < 245.5;
     };
     UIElement.ZIndexComparer = function (uie1, uie2) {
-        var c = Canvas;
+        var c = Fayde.Controls.Canvas;
         var zi1 = c.GetZIndex(uie1);
         var zi2 = c.GetZIndex(uie2);
         if (zi1 == zi2) {
@@ -1400,5 +1414,5 @@
         return this._ID + ":" + this.constructor._TypeName + ":" + this.Name;
     };
 
-    namespace.UIElement = Nullstone.FinishCreate(UIElement);
-})(window);
+    Fayde.UIElement = Nullstone.FinishCreate(UIElement);
+})(Nullstone.Namespace("Fayde"));

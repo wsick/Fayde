@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var StackPanel = Nullstone.Create("StackPanel", Panel);
+    var StackPanel = Nullstone.Create("StackPanel", namespace.Panel);
 
     //#region Properties
 
@@ -11,7 +11,7 @@
         if (!sp)
             sp._UpdateHtmlOrientation(args.NewValue);
     };
-    StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Orientation); }, StackPanel, Orientation.Vertical, StackPanel._OrientationChanged);
+    StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Fayde.Orientation); }, StackPanel, Fayde.Orientation.Vertical, StackPanel._OrientationChanged);
 
     Nullstone.AutoProperties(StackPanel, [
         StackPanel.OrientationProperty
@@ -25,7 +25,7 @@
         var measured = new Size(0, 0);
 
         var orientation = this.Orientation;
-        if (orientation === Orientation.Vertical) {
+        if (orientation === Fayde.Orientation.Vertical) {
             childAvailable.Width = constraint.Width;
             var width = this.Width;
             if (!isNaN(width))
@@ -47,7 +47,7 @@
             child.Measure(childAvailable);
             var size = child._DesiredSize;
 
-            if (orientation === Orientation.Vertical) {
+            if (orientation === Fayde.Orientation.Vertical) {
                 measured.Height += size.Height;
                 measured.Width = Math.max(measured.Width, size.Width);
             } else {
@@ -63,7 +63,7 @@
         var arranged = arrangeSize;
         var orientation = this.Orientation;
 
-        if (orientation === Orientation.Vertical)
+        if (orientation === Fayde.Orientation.Vertical)
             arranged.Height = 0;
         else
             arranged.Width = 0;
@@ -73,7 +73,7 @@
             var child = children.GetValueAt(i);
             var size = child._DesiredSize;
             var childFinal;
-            if (orientation === Orientation.Vertical) {
+            if (orientation === Fayde.Orientation.Vertical) {
                 size.Width = arrangeSize.Width;
 
                 childFinal = new Rect(0, arranged.Height, size.Width, size.Height);
@@ -99,7 +99,7 @@
             }
         }
 
-        if (orientation === Orientation.Vertical)
+        if (orientation === Fayde.Orientation.Vertical)
             arranged.Height = Math.max(arranged.Height, arrangeSize.Height);
         else
             arranged.Width = Math.max(arranged.Width, arrangeSize.Width);
@@ -131,7 +131,7 @@
             var table = this.GetHtmlChildrenContainer();
             var children = this.Children;
             var nextEl;
-            if (this.Orientation == Orientation.Horizontal) {
+            if (this.Orientation === Fayde.Orientation.Horizontal) {
 
                 var columnEl = document.createElement("td");
                 columnEl.style.height = "100%";
@@ -178,7 +178,7 @@
         };
         StackPanel.Instance.RemoveHtmlChild = function (child, index) {
             var table = this.GetHtmlChildrenContainer();
-            if (this.Orientation == Orientation.Horizontal)
+            if (this.Orientation === Fayde.Orientation.Horizontal)
                 table.children[0].removeChild(table.children[0].children[index]);
             else
                 table.removeChild(table.children[index]);
@@ -194,7 +194,7 @@
             for (var i = 0; i < len; i++) {
                 child = children.GetValueAt(i);
                 var wrapper = child.GetRootHtmlElement().parentNode;
-                if (this.Orientation === Orientation.Horizontal) {
+                if (this.Orientation === Fayde.Orientation.Horizontal) {
                     wrapper.style.height = "100%";
                     wrapper.style.width = "auto";
                 }
@@ -207,7 +207,7 @@
         };
         StackPanel.Instance.UpdateAdjustedWidth = function (child, width) {
             delete Surface._SizingAdjustments[this._ID];
-            if (this.Orientation === Orientation.Horizontal) {
+            if (this.Orientation === Fayde.Orientation.Horizontal) {
                 var cell = child.GetRootHtmlElement().parentNode.parentNode.parentNode;
                 cell.style.width = width + "px";
                 cell.style.minWidth = width + "px";
@@ -222,7 +222,7 @@
         };
         StackPanel.Instance.UpdateAdjustedHeight = function (child, height) {
             delete Surface._SizingAdjustments[this._ID];
-            if (this.Orientation === Orientation.Vertical) {
+            if (this.Orientation === Fayde.Orientation.Vertical) {
                 var cell = child.GetRootHtmlElement().parentNode.parentNode.parentNode;
                 cell.style.height = height + "px";
                 cell.style.minHeight = height + "px";
@@ -239,7 +239,7 @@
             //when a child is passed, this means we need to tell the child how to render
             //otherwise, we are adjusting ourself
             if (child) {
-                if (this.Orientation == Orientation.Horizontal) return false;
+                if (this.Orientation === Fayde.Orientation.Horizontal) return false;
                 else return true;
             }
             else {
@@ -250,7 +250,7 @@
             //when a child is passed, this means we need to tell the child how to render
             //otherwise, we are adjusting ourself
             if (child) {
-                if (this.Orientation == Orientation.Vertical) return false;
+                if (this.Orientation === Fayde.Orientation.Vertical) return false;
                 else return true;
             }
             else {
@@ -268,4 +268,4 @@
     //#endif
 
     namespace.StackPanel = Nullstone.FinishCreate(StackPanel);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

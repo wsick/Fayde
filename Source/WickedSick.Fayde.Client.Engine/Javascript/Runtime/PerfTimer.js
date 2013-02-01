@@ -1,6 +1,6 @@
 ﻿/// <reference path="Nullstone.js"/>
 
-(function (namespace) {
+(function (Fayde) {
     var PerfTimer = Nullstone.Create("PerfTimer");
 
     PerfTimer.Instance.Init = function () {
@@ -23,5 +23,5 @@
         return elapsed;
     };
 
-    namespace.PerfTimer = Nullstone.FinishCreate(PerfTimer);
-})(Fayde || (Fayde = {}));
+    Fayde.PerfTimer = Nullstone.FinishCreate(PerfTimer);
+})(Nullstone.Namespace("Fayde"));

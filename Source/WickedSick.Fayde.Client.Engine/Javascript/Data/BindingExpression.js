@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var BindingExpression = Nullstone.Create("BindingExpression", BindingExpressionBase, 3);
+    var BindingExpression = Nullstone.Create("BindingExpression", namespace.BindingExpressionBase, 3);
 
     BindingExpression.Instance.Init = function (binding, target, propd) {
         this.Init$BindingExpressionBase(binding, target, propd);
@@ -25,4 +25,4 @@
     };
 
     namespace.BindingExpression = Nullstone.FinishCreate(BindingExpression);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

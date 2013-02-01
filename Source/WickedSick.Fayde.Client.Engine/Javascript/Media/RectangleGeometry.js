@@ -5,7 +5,7 @@
 /// <reference path="../Shapes/RawPath.js"/>
 
 (function (namespace) {
-    var RectangleGeometry = Nullstone.Create("RectangleGeometry", Geometry);
+    var RectangleGeometry = Nullstone.Create("RectangleGeometry", namespace.Geometry);
 
     //#region Properties
 
@@ -36,9 +36,9 @@
         var radiusX = this.RadiusX;
         var radiusY = this.RadiusY;
 
-        this.$Path = new RawPath();
+        this.$Path = new Fayde.Shapes.RawPath();
         this.$Path.RoundedRect(rect.X, rect.Y, rect.Width, rect.Height, radiusX, radiusY);
     };
 
     namespace.RectangleGeometry = Nullstone.FinishCreate(RectangleGeometry);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

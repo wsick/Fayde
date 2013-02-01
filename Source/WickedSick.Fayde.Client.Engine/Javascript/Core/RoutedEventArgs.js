@@ -14,4 +14,4 @@
     };
 
     namespace.RoutedEventArgs = Nullstone.FinishCreate(RoutedEventArgs);
-})(window);
+})(Nullstone.Namespace("Fayde"));

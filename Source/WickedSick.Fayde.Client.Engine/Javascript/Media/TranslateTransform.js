@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var TranslateTransform = Nullstone.Create("TranslateTransform", Transform);
+    var TranslateTransform = Nullstone.Create("TranslateTransform", namespace.Transform);
 
     //#region Properties
 
@@ -34,4 +34,4 @@
     };
 
     namespace.TranslateTransform = Nullstone.FinishCreate(TranslateTransform);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

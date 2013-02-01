@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var DragCompletedEventArgs = Nullstone.Create("DragCompletedEventArgs", RoutedEventArgs, 3);
+    var DragCompletedEventArgs = Nullstone.Create("DragCompletedEventArgs", Fayde.RoutedEventArgs, 3);
 
     DragCompletedEventArgs.Instance.Init = function (horizontal, vertical, canceled) {
         this.Init$RoutedEventArgs();
@@ -12,4 +12,4 @@
     };
 
     namespace.DragCompletedEventArgs = Nullstone.FinishCreate(DragCompletedEventArgs);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var ScaleTransform = Nullstone.Create("ScaleTransform", Transform);
+    var ScaleTransform = Nullstone.Create("ScaleTransform", namespace.Transform);
 
     //#region Properties
 
@@ -48,4 +48,4 @@
     };
 
     namespace.ScaleTransform = Nullstone.FinishCreate(ScaleTransform);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

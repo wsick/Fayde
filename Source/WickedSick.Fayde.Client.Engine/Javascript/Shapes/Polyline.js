@@ -4,18 +4,18 @@
 /// <reference path="PointCollection.js"/>
 
 (function (namespace) {
-    var Polyline = Nullstone.Create("Polyline", Shape);
+    var Polyline = Nullstone.Create("Polyline", namespace.Shape);
     
     //#region Properties
 
-    Polyline.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, Polyline, FillRule.EvenOdd);
-    Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polyline, undefined, undefined, { GetValue: function () { return new PointCollection(); } });
+    Polyline.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(namespace.FillRule); }, Polyline, namespace.FillRule.EvenOdd);
+    Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return namespace.PointCollection; }, Polyline, undefined, undefined, { GetValue: function () { return new namespace.PointCollection(); } });
 
     Nullstone.AutoProperties(Polyline, [
         Polyline.FillRuleProperty
     ]);
     Nullstone.AutoProperty(Polyline, Polyline.PointsProperty, function (value) {
-        if (value instanceof PointCollection)
+        if (value instanceof namespace.PointCollection)
             return value;
         if (typeof value === "string")
             return Fayde.TypeConverter.PointCollectionFromString(value);
@@ -28,13 +28,13 @@
         var points = this.Points;
         var count;
         if (points == null || (count = points.GetCount()) < 2) {
-            this._SetShapeFlags(ShapeFlags.Empty);
+            this._SetShapeFlags(namespace.ShapeFlags.Empty);
             return;
         }
 
-        this._SetShapeFlags(ShapeFlags.Normal);
+        this._SetShapeFlags(namespace.ShapeFlags.Normal);
 
-        this._Path = new RawPath();
+        this._Path = new Fayde.Shapes.RawPath();
         var p = points.GetValueAt(0);
         this._Path.Move(p.X, p.Y);
 
@@ -135,10 +135,10 @@
         };
         Polyline.Instance.ApplyHtmlFillRule = function (shape, fillRule) {
             switch (fillRule) {
-                case FillRule.EvenOdd:
+                case namespace.FillRule.EvenOdd:
                     shape.setAttribute("fill-rule", "evenodd");
                     break;
-                case FillRule.NonZero:
+                case namespace.FillRule.NonZero:
                     shape.setAttribute("fill-rule", "nonzero");
                     break;
             }
@@ -148,4 +148,4 @@
     //#endif
 
     namespace.Polyline = Nullstone.FinishCreate(Polyline);
-})(window);
+})(Nullstone.Namespace("Fayde.Shapes"));

@@ -1,6 +1,7 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Runtime/MulticastEvent.js"/>
 /// CODE
+/// <reference path="INotifyPropertyChanged.js"/>
 
 (function (namespace) {
     var _PropertyPathNode = Nullstone.Create("_PropertyPathNode");
@@ -54,8 +55,8 @@
             }
 
             this._Source = value;
-            if (this._Source && Nullstone.DoesImplement(this._Source, INotifyPropertyChanged)) {
-                listener = new NPCListener(this._Source, this, this.OnSourcePropertyChanged);
+            if (this._Source && Nullstone.DoesImplement(this._Source, namespace.INotifyPropertyChanged)) {
+                listener = new namespace.NPCListener(this._Source, this, this.OnSourcePropertyChanged);
                 this.Listener = listener;
             }
 
@@ -84,4 +85,4 @@
     };
 
     namespace._PropertyPathNode = Nullstone.FinishCreate(_PropertyPathNode);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

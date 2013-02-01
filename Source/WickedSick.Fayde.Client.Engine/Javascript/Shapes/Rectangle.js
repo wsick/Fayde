@@ -3,11 +3,11 @@
 /// <reference path="../Engine/RenderContext.js"/>
 
 (function (namespace) {
-    var Rectangle = Nullstone.Create("Rectangle", Shape);
+    var Rectangle = Nullstone.Create("Rectangle", namespace.Shape);
 
     Rectangle.Instance.Init = function () {
         this.Init$Shape();
-        this.Stretch = Stretch.Fill;
+        this.Stretch = Fayde.Media.Stretch.Fill;
     };
 
     //#region Properties
@@ -35,16 +35,16 @@
         var radiusY = this.RadiusY;
 
         switch (stretch) {
-            case Stretch.None:
+            case Fayde.Media.Stretch.None:
                 rect.Width = rect.Height = 0;
                 break;
-            case Stretch.Uniform:
+            case Fayde.Media.Stretch.Uniform:
                 rect.Width = rect.Height = Math.min(rect.Width, rect.Height);
                 break;
-            case Stretch.UniformToFill:
+            case Fayde.Media.Stretch.UniformToFill:
                 rect.Width = rect.Height = Math.max(rect.Width, rect.Height);
                 break;
-            case Stretch.Fill:
+            case Fayde.Media.Stretch.Fill:
                 break;
         }
 
@@ -57,14 +57,14 @@
         if (t >= rect.Width || t >= rect.Height) {
             ta = t * 0.001;
             rect = rect.GrowBy(ta, ta, ta, ta);
-            this._SetShapeFlags(ShapeFlags.Degenerate);
+            this._SetShapeFlags(namespace.ShapeFlags.Degenerate);
         } else {
             ta = -t * 0.5;
             rect = rect.GrowBy(ta, ta, ta, ta);
-            this._SetShapeFlags(ShapeFlags.Normal);
+            this._SetShapeFlags(namespace.ShapeFlags.Normal);
         }
 
-        var path = new RawPath();
+        var path = new Fayde.Shapes.RawPath();
         if ((radiusX === 0.0 && radiusY === 0.0) || (radiusX === radiusY))
             path.RoundedRect(rect.X, rect.Y, rect.Width, rect.Height, radiusX, radiusY);
         else
@@ -79,35 +79,35 @@
     Rectangle.Instance._ComputeShapeBounds = function (logical) {
         /// <returns type="Rect" />
         var rect = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
-        this._SetShapeFlags(ShapeFlags.Normal);
+        this._SetShapeFlags(namespace.ShapeFlags.Normal);
 
         var width = this.Width;
         var height = this.Height;
         if (rect.Width < 0.0 || rect.Height < 0.0 || width <= 0.0 || height <= 0.0) {
-            this._SetShapeFlags(ShapeFlags.Empty);
+            this._SetShapeFlags(namespace.ShapeFlags.Empty);
             return new Rect();
         }
 
         var visualParent = this.GetVisualParent();
-        if (visualParent != null && visualParent instanceof Canvas) {
+        if (visualParent != null && visualParent instanceof Fayde.Controls.Canvas) {
             if (isNaN(width) !== isNaN(height)) {
-                this._SetShapeFlags(ShapeFlags.Empty);
+                this._SetShapeFlags(namespace.ShapeFlags.Empty);
                 return new Rect();
             }
         }
 
         var t = this._IsStroked() ? this.StrokeThickness : 0.0;
         switch (this.Stretch) {
-            case Stretch.None:
+            case Fayde.Media.Stretch.None:
                 rect.Width = rect.Height = 0.0;
                 break;
-            case Stretch.Uniform:
+            case Fayde.Media.Stretch.Uniform:
                 rect.Width = rect.Height = Math.min(rect.Width, rect.Height);
                 break;
-            case Stretch.UniformToFill:
+            case Fayde.Media.Stretch.UniformToFill:
                 rect.Width = rect.Height = Math.max(rect.Width, rect.Height);
                 break;
-            case Stretch.Fill:
+            case Fayde.Media.Stretch.Fill:
                 break;
         }
 
@@ -119,9 +119,9 @@
         if (t >= rect.Width || t >= rect.Height) {
             var g = t * 0.5005;
             rect = rect.GrowBy(g, g, g, g);
-            this._SetShapeFlags(ShapeFlags.Degenerate);
+            this._SetShapeFlags(namespace.ShapeFlags.Degenerate);
         } else {
-            this._SetShapeFlags(ShapeFlags.Normal);
+            this._SetShapeFlags(namespace.ShapeFlags.Normal);
         }
 
         return rect;
@@ -189,4 +189,4 @@
     //#endif
 
     namespace.Rectangle = Nullstone.FinishCreate(Rectangle);
-})(window);
+})(Nullstone.Namespace("Fayde.Shapes"));

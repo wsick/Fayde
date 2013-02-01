@@ -2,7 +2,7 @@
 /// <reference path="ContentControl.js" />
 
 (function (namespace) {
-    var ListBoxItem = Nullstone.Create("ListBoxItem", ContentControl);
+    var ListBoxItem = Nullstone.Create("ListBoxItem", namespace.ContentControl);
 
     ListBoxItem.Instance.Init = function () {
         this.Init$ContentControl();
@@ -110,4 +110,4 @@
     //#endregion
 
     namespace.ListBoxItem = Nullstone.FinishCreate(ListBoxItem);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

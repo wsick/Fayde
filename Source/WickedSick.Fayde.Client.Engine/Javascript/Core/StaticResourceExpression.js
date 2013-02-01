@@ -1,8 +1,9 @@
 ﻿/// <reference path="Expression.js"/>
 /// CODE
+/// <reference path="ResourceTarget.js"/>
 
 (function (namespace) {
-    var StaticResourceExpression = Nullstone.Create("StaticResourceExpression", Expression, 5);
+    var StaticResourceExpression = Nullstone.Create("StaticResourceExpression", namespace.Expression, 5);
 
     StaticResourceExpression.Instance.Init = function (key, target, propd, propName, templateBindingSource) {
         this.Key = key;
@@ -24,12 +25,12 @@
 
         var cur = this.Target;
         while (cur) {
-            if (cur instanceof FrameworkElement) {
+            if (cur instanceof Fayde.FrameworkElement) {
                 o = cur.Resources.Get(key);
                 if (o)
                     return o;
             }
-            if (cur instanceof ResourceDictionary) {
+            if (cur instanceof Fayde.ResourceDictionary) {
                 o = cur.Get(key);
                 if (o)
                     return o;
@@ -51,7 +52,7 @@
         }
 
         var value = this.GetValue(parser._ResChain);
-        if (value instanceof ResourceTarget)
+        if (value instanceof Fayde.ResourceTarget)
             value = value.CreateResource();
         if (!value)
             throw new XamlParseException("Could not resolve StaticResource: '" + this.Key.toString() + "'.");
@@ -59,4 +60,4 @@
     };
 
     namespace.StaticResourceExpression = Nullstone.FinishCreate(StaticResourceExpression);
-})(window);
+})(Nullstone.Namespace("Fayde"));

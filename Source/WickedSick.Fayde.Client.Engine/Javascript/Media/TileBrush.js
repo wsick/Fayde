@@ -3,13 +3,13 @@
 /// CODE
 
 (function (namespace) {
-    var TileBrush = Nullstone.Create("TileBrush", Brush);
+    var TileBrush = Nullstone.Create("TileBrush", namespace.Brush);
 
     //#region Properties
 
-    TileBrush.AlignmentXProperty = DependencyProperty.RegisterCore("AlignmentX", function () { return new Enum(AlignmentX); }, TileBrush, AlignmentX.Center);
-    TileBrush.AlignmentYProperty = DependencyProperty.RegisterCore("AlignmentY", function () { return new Enum(AlignmentY); }, TileBrush, AlignmentY.Center);
-    TileBrush.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Enum(Stretch); }, TileBrush, Stretch.Fill);
+    TileBrush.AlignmentXProperty = DependencyProperty.RegisterCore("AlignmentX", function () { return new Enum(namespace.AlignmentX); }, TileBrush, namespace.AlignmentX.Center);
+    TileBrush.AlignmentYProperty = DependencyProperty.RegisterCore("AlignmentY", function () { return new Enum(namespace.AlignmentY); }, TileBrush, namespace.AlignmentY.Center);
+    TileBrush.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Enum(namespace.Stretch); }, TileBrush, namespace.Stretch.Fill);
 
     Nullstone.AutoProperties(TileBrush, [
         TileBrush.AlignmentXProperty,
@@ -28,7 +28,7 @@
 
         var tmpCtx = tmpCanvas.getContext("2d");
 
-        var mat = Fayde.Image.ComputeMatrix(bounds.Width, bounds.Height,
+        var mat = Fayde.Controls.Image.ComputeMatrix(bounds.Width, bounds.Height,
             imgExtents.Width, imgExtents.Height, this.Stretch, this.AlignmentX, this.AlignmentY);
         var els = mat._Elements;
         tmpCtx.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
@@ -56,4 +56,4 @@
     };
 
     namespace.TileBrush = Nullstone.FinishCreate(TileBrush);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

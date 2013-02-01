@@ -4,11 +4,11 @@
 /// CODE
 
 (function (namespace) {
-    var RowDefinition = Nullstone.Create("RowDefinition", DependencyObject);
+    var RowDefinition = Nullstone.Create("RowDefinition", Fayde.DependencyObject);
 
     //#region Properties
 
-    RowDefinition.HeightProperty = DependencyProperty.RegisterCore("Height", function () { return GridLength; }, RowDefinition, new GridLength(1.0, GridUnitType.Star));
+    RowDefinition.HeightProperty = DependencyProperty.RegisterCore("Height", function () { return namespace.GridLength; }, RowDefinition, new namespace.GridLength(1.0, namespace.GridUnitType.Star));
     RowDefinition.MaxHeightProperty = DependencyProperty.RegisterCore("MaxHeight", function () { return Number; }, RowDefinition, Number.POSITIVE_INFINITY);
     RowDefinition.MinHeightProperty = DependencyProperty.RegisterCore("MinHeight", function () { return Number; }, RowDefinition, 0.0);
     RowDefinition.ActualHeightProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", function () { return Number; }, RowDefinition, 0.0);
@@ -23,4 +23,4 @@
     //#endregion
 
     namespace.RowDefinition = Nullstone.FinishCreate(RowDefinition);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

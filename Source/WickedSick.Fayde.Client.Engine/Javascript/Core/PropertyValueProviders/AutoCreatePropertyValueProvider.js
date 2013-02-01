@@ -3,11 +3,11 @@
 /// <reference path="Enums.js"/>
 /// CODE
 
-(function (namespace) {
-    var _AutoCreatePropertyValueProvider = Nullstone.Create("_AutoCreatePropertyValueProvider", _PropertyValueProvider, 2);
+(function (Fayde) {
+    var _AutoCreatePropertyValueProvider = Nullstone.Create("_AutoCreatePropertyValueProvider", Fayde._PropertyValueProvider, 1);
 
-    _AutoCreatePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-        this.Init$_PropertyValueProvider(obj, propPrecedence);
+    _AutoCreatePropertyValueProvider.Instance.Init = function (obj) {
+        this.Init$_PropertyValueProvider(obj, _PropertyPrecedence.AutoCreate);
         this._ht = [];
     }
 
@@ -35,5 +35,5 @@
         delete this._ht[propd];
     };
 
-    namespace._AutoCreatePropertyValueProvider = Nullstone.FinishCreate(_AutoCreatePropertyValueProvider);
-})(window);
+    Fayde._AutoCreatePropertyValueProvider = Nullstone.FinishCreate(_AutoCreatePropertyValueProvider);
+})(Nullstone.Namespace("Fayde"));

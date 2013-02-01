@@ -2,14 +2,15 @@
 /// <reference path="Animation.js"/>
 /// CODE
 /// <reference path="../../Primitives/Color.js"/>
+/// <reference path="IEasingFunction.js"/>
 
 (function (namespace) {
-    var ColorAnimation = Nullstone.Create("ColorAnimation", Animation);
+    var ColorAnimation = Nullstone.Create("ColorAnimation", namespace.Animation);
 
     //#region Properties
 
     ColorAnimation.ByProperty = DependencyProperty.Register("By", function () { return Color; }, ColorAnimation);
-    ColorAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return IEasingFunction; }, ColorAnimation);
+    ColorAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return namespace.IEasingFunction; }, ColorAnimation);
     ColorAnimation.FromProperty = DependencyProperty.Register("From", function () { return Color; }, ColorAnimation);
     ColorAnimation.ToProperty = DependencyProperty.Register("To", function () { return Color; }, ColorAnimation);
 
@@ -70,4 +71,4 @@
     };
 
     namespace.ColorAnimation = Nullstone.FinishCreate(ColorAnimation);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

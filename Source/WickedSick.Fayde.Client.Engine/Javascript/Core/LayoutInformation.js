@@ -12,7 +12,7 @@
 
     //#region Properties
 
-    LayoutInformation.LayoutClipProperty = DependencyProperty.RegisterAttachedCore("LayoutClip", function () { return Geometry; }, LayoutInformation);
+    LayoutInformation.LayoutClipProperty = DependencyProperty.RegisterAttachedCore("LayoutClip", function () { return Fayde.Media.Geometry; }, LayoutInformation);
     LayoutInformation.GetLayoutClip = function (d) {
         return d.$GetValue(LayoutInformation.LayoutClipProperty);
     };
@@ -20,7 +20,7 @@
         d.$SetValue(LayoutInformation.LayoutClipProperty, value);
     };
 
-    LayoutInformation.LayoutExceptionElementProperty = DependencyProperty.RegisterAttachedCore("LayoutExceptionElement", function () { return UIElement; }, LayoutInformation);
+    LayoutInformation.LayoutExceptionElementProperty = DependencyProperty.RegisterAttachedCore("LayoutExceptionElement", function () { return Fayde.UIElement; }, LayoutInformation);
     LayoutInformation.GetLayoutExceptionElement = function (d) {
         return d.$GetValue(LayoutInformation.LayoutExceptionElementProperty);
     };
@@ -71,4 +71,4 @@
     //#endregion
 
     namespace.LayoutInformation = Nullstone.FinishCreate(LayoutInformation);
-})(window);
+})(Nullstone.Namespace("Fayde"));

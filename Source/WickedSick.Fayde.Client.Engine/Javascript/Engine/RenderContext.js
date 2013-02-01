@@ -5,7 +5,7 @@
 /// <reference path="../../gl-matrix.js"/>
 /// <reference path="../Runtime/gl-matrix-ex.js"/>
 
-(function (namespace) {
+(function (Fayde) {
     var _RenderContext = Nullstone.Create("_RenderContext", undefined, 1);
 
     _RenderContext.Instance.Init = function (surface) {
@@ -47,10 +47,10 @@
             this.CanvasContext.beginPath();
             this.CanvasContext.rect(clip.X, clip.Y, clip.Width, clip.Height);
             DrawDebug("DrawClip (Rect): " + clip.toString());
-        } else if (clip instanceof Geometry) {
+        } else if (clip instanceof Fayde.Media.Geometry) {
             clip.Draw(this);
             DrawDebug("DrawClip (Geometry): " + clip.toString());
-        } else if (clip instanceof RawPath) {
+        } else if (clip instanceof Fayde.Shapes.RawPath) {
             clip.Draw(this);
             DrawDebug("DrawClip (RawPath): " + clip.toString());
         }
@@ -61,7 +61,7 @@
     //#region Transforms
 
     _RenderContext.Instance.PreTransform = function (matrix) {
-        if (matrix instanceof Transform) {
+        if (matrix instanceof Fayde.Media.Transform) {
             matrix = matrix.Value.raw;
         }
 
@@ -72,7 +72,7 @@
         TransformDebug("PreTransform", ct);
     };
     _RenderContext.Instance.Transform = function (matrix) {
-        if (matrix instanceof Transform) {
+        if (matrix instanceof Fayde.Media.Transform) {
             matrix = matrix.Value.raw;
         }
 
@@ -174,5 +174,5 @@
         return arr;
     };
 
-    namespace._RenderContext = Nullstone.FinishCreate(_RenderContext);
-})(window);
+    Fayde._RenderContext = Nullstone.FinishCreate(_RenderContext);
+})(Nullstone.Namespace("Fayde"));

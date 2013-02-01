@@ -3,11 +3,11 @@
 /// <reference path="TransformCollection.js"/>
 
 (function (namespace) {
-    var TransformGroup = Nullstone.Create("TransformGroup", Transform);
+    var TransformGroup = Nullstone.Create("TransformGroup", namespace.Transform);
 
     //#region Properties
 
-    TransformGroup.ChildrenProperty = DependencyProperty.RegisterCore("Children", function () { return TransformCollection; }, TransformGroup);
+    TransformGroup.ChildrenProperty = DependencyProperty.RegisterCore("Children", function () { return namespace.TransformCollection; }, TransformGroup);
 
     Nullstone.AutoProperties(TransformGroup, [
         TransformGroup.ChildrenProperty
@@ -22,10 +22,6 @@
     };
 
     //#endregion
-
-    TransformGroup.Instance.Init = function () {
-        this.Init$Transform();
-    };
 
     TransformGroup.Instance._OnPropertyChanged = function (args, error) {
         if (args.Property.OwnerType !== TransformGroup) {
@@ -63,4 +59,4 @@
     };
 
     namespace.TransformGroup = Nullstone.FinishCreate(TransformGroup);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var _StandardPropertyPathNode = Nullstone.Create("_StandardPropertyPathNode", _PropertyPathNode, 2);
+    var _StandardPropertyPathNode = Nullstone.Create("_StandardPropertyPathNode", namespace._PropertyPathNode, 2);
 
     _StandardPropertyPathNode.Instance.Init = function (typeName, propertyName) {
         this.Init$_PropertyPathNode();
@@ -49,8 +49,8 @@
     _StandardPropertyPathNode.Instance.OnSourceChanged = function (oldSource, newSource) {
         this.OnSourceChanged$_PropertyPathNode(oldSource, newSource);
 
-        var oldDO = Nullstone.As(oldSource, DependencyObject);
-        var newDO = Nullstone.As(newSource, DependencyObject);
+        var oldDO = Nullstone.As(oldSource, Fayde.DependencyObject);
+        var newDO = Nullstone.As(newSource, Fayde.DependencyObject);
         var listener = this.Listener;
         if (listener) {
             listener.Detach();
@@ -66,7 +66,7 @@
             propd = DependencyProperty.GetDependencyProperty(this.Source.constructor, this.PropertyName);
             if (propd) {
                 this.DependencyProperty = propd;
-                listener = new PropertyChangedListener(newDO, propd, this, this.OnPropertyChanged);
+                listener = new namespace.PropertyChangedListener(newDO, propd, this, this.OnPropertyChanged);
                 this.Listener = listener;
             }
         }
@@ -94,4 +94,4 @@
     };
 
     namespace._StandardPropertyPathNode = Nullstone.FinishCreate(_StandardPropertyPathNode);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));
