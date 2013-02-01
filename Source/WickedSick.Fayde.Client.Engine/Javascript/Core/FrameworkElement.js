@@ -992,7 +992,12 @@
         };
         FrameworkElement.Instance.CreateHtmlObjectImpl = function () {
             var rootEl = document.createElement("div");
-            rootEl.appendChild(document.createElement("div"));
+            var contentEl = rootEl.appendChild(document.createElement("div"));
+            contentEl.style.zoom = "1";
+            if (navigator.appName === "Microsoft Internet Explorer") {
+                contentEl.style.filter = "inherit";
+                contentEl.style.opacity = "inherit";
+            }
             this.InitializeHtml(rootEl);
             return rootEl;
         };
@@ -1065,6 +1070,8 @@
             else {
                 if (horizontalAlignment === Fayde.HorizontalAlignment.Left || horizontalAlignment === Fayde.HorizontalAlignment.Right ||
                     verticalAlignment === Fayde.VerticalAlignment.Top || verticalAlignment === Fayde.VerticalAlignment.Bottom) {
+                if (horizontalAlignment === Fayde.HorizontalAlignment.Left || horizontalAlignment === Fayde.HorizontalAlignment.Right || horizontalAlignment === Fayde.HorizontalAlignment.Center ||
+                    verticalAlignment === Fayde.VerticalAlignment.Top || verticalAlignment === Fayde.VerticalAlignment.Bottom || verticalAlignment === Fayde.VerticalAlignment.Center) {
                     rootEl.style.position = "absolute";
                     subEl.style.position = "relative";
                     if (horizontalAlignment === Fayde.HorizontalAlignment.Left) rootEl.style.left = "0px";
