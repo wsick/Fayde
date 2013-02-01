@@ -1,10 +1,11 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="TextBoxBase.js"/>
 /// <reference path="../Core/PropertyValueProviders/Enums.js"/>
-/// <reference path="PropertyValueProviders/TextBoxDynamicPropertyValueProvider.js"/>
 /// <reference path="Enums.js"/>
-/// <reference path="../Runtime/MulticastEvent.js"/>
+/// <reference path="../Text/Enums.js"/>
 /// CODE
+/// <reference path="PropertyValueProviders/TextBoxDynamicPropertyValueProvider.js"/>
+/// <reference path="../Runtime/MulticastEvent.js"/>
 /// <reference path="../Runtime/LinkedList.js"/>
 /// <reference path="Style.js"/>
 /// <reference path="ContentPresenter.js"/>
@@ -14,6 +15,9 @@
 /// <reference path="../Text/History.js"/>
 
 (function (namespace) {
+    var _TextBoxModelChanged = Fayde.Text._TextBoxModelChanged;
+    var _TextBoxEmitChanged = Fayde.Text._TextBoxEmitChanged;
+
     var TextBox = Nullstone.Create("TextBox", namespace.TextBoxBase);
 
     TextBox.Instance.Init = function () {

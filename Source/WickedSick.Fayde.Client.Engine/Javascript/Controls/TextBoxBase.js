@@ -1,5 +1,6 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Control.js"/>
+/// <reference path="../Text/Enums.js"/>
 /// CODE
 /// <reference path="../Runtime/MulticastEvent.js"/>
 /// <reference path="../Primitives/Font.js"/>
@@ -12,6 +13,9 @@
 /// <reference path="../Text/History.js"/>
 
 (function (namespace) {
+    var _TextBoxModelChanged = Fayde.Text._TextBoxModelChanged;
+    var _TextBoxEmitChanged = Fayde.Text._TextBoxEmitChanged;
+
     var TextBoxBase = Nullstone.Create("TextBoxBase", namespace.Control);
 
     TextBoxBase.Instance.Init = function () {

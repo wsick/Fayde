@@ -1,5 +1,6 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/FrameworkElement.js"/>
+/// <reference path="../Text/Enums.js"/>
 /// CODE
 /// <reference path="../Primitives/Rect.js"/>
 /// <reference path="../Text/TextLayout.js"/>
@@ -8,6 +9,8 @@
 /// <reference path="../Engine/RenderContext.js"/>
 
 (function (namespace) {
+    var _TextBoxModelChanged = Fayde.Text._TextBoxModelChanged;
+
     var _TextBoxView = Nullstone.Create("_TextBoxView", Fayde.FrameworkElement);
 
     _TextBoxView.Instance.Init = function () {

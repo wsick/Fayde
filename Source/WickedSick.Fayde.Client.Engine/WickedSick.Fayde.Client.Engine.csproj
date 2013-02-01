@@ -234,6 +234,7 @@
     <Content Include="Javascript\Shapes\Rectangle.js" />
     <Content Include="Javascript\Shapes\Shape.js" />
     <Content Include="JavascriptTests\fayde_core.js" />
+    <Content Include="Javascript\Text\Enums.js" />
     <Content Include="Javascript\Text\History.js" />
     <Content Include="Javascript\Controls\TextBoxModelChangedEventArgs.js" />
     <Content Include="Javascript\Controls\TextBoxView.js" />
