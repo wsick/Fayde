@@ -220,7 +220,7 @@
         MediaElement.Instance.ApplyHtmlChange = function (change) {
             var propd = change.Property;
             if (propd.OwnerType !== MediaElement) {
-                this.ApplyChange$FrameworkElement(change);
+                this.ApplyHtmlChange$FrameworkElement(change);
                 return;
             }
 
