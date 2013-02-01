@@ -930,7 +930,7 @@ module Fayde.Controls {
             MakeVisible(visual: UIElement, rectangle: Rect);
         }
         export class ItemsChangedEventArgs extends EventArgs {
-            Action: Fayde.Data.NotifyCollectionChangedAction;
+            Action: Collections.NotifyCollectionChangedAction;
             ItemCount: number;
             ItemUICount: number;
             OldPosition: number;
@@ -1263,8 +1263,8 @@ module Fayde.Controls {
         ImageFailed: MulticastEvent;
         ImageOpened: MulticastEvent;
     }
-    export class ItemCollection extends PresentationFrameworkCollection implements Fayde.Data.INotifyCollectionChanged {
-        CollectionChanged: Fayde.Data.NotifyCollectionChangedEventHandler;
+    export class ItemCollection extends PresentationFrameworkCollection implements Collections.INotifyCollectionChanged {
+        CollectionChanged: Collections.NotifyCollectionChangedEventHandler;
     }
     export class ItemContainerGenerator {
         ItemsChanged: MulticastEvent;
@@ -1284,7 +1284,7 @@ module Fayde.Controls {
         GetContainerForItemOverride(): DependencyObject;
         IsItemItsOwnContainerOverride(item): bool;
         ItemsControlFromItemContainer(container: DependencyObject): ItemsControl;
-        OnItemsChanged(e: Fayde.Data.NotifyCollectionChangedEventArgs);
+        OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs);
         PrepareContainerForItemOverride(element: DependencyObject, item);
     }
     export class ItemsPanelTemplate extends FrameworkTemplate {
@@ -2437,9 +2437,6 @@ module Fayde.Collections {
         Replace = 3,
         Reset = 4,
     }
-    export interface INotifyCollectionChanged {
-        CollectionChanged: NotifyCollectionChangedEventHandler;
-    }
     export class NotifyCollectionChangedEventHandler extends MulticastEvent {
         Subscribe(callback: (sender, args: NotifyCollectionChangedEventArgs) => void , closure);
         SubscribeSpecific(callback: (sender, args: NotifyCollectionChangedEventArgs) => void , closure, matchClosure);
@@ -2456,6 +2453,9 @@ module Fayde.Collections {
         OldItems: any[];
         OldStartingIndex: number;
         NewStartingIndex: number;
+    }
+    export interface INotifyCollectionChanged {
+        CollectionChanged: Collections.NotifyCollectionChangedEventHandler;
     }
     export class ObservableCollection implements INotifyCollectionChanged, ICollection {
         CollectionChanged: NotifyCollectionChangedEventHandler;

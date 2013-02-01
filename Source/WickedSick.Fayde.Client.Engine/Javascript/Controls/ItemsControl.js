@@ -19,7 +19,7 @@
     //#region Properties
 
     ItemsControl.DisplayMemberPathProperty = DependencyProperty.RegisterCore("DisplayMemberPath", function () { return String; }, ItemsControl, null, function (d, args) { d.OnDisplayMemberPathChanged(args); });
-    ItemsControl.ItemsProperty = DependencyProperty.RegisterCore("Items", function () { return ItemCollection; }, ItemsControl);
+    ItemsControl.ItemsProperty = DependencyProperty.RegisterCore("Items", function () { return Fayde.Controls.ItemCollection; }, ItemsControl);
     ItemsControl.ItemsPanelProperty = DependencyProperty.RegisterCore("ItemsPanel", function () { return namespace.ItemsPanelTemplate; }, ItemsControl);
     ItemsControl.ItemsSourceProperty = DependencyProperty.RegisterCore("ItemsSource", function () { return Object; }, ItemsControl, null, function (d, args) { d.OnItemsSourceChanged(args); });
     ItemsControl.ItemTemplateProperty = DependencyProperty.RegisterCore("ItemTemplate", function () { return Fayde.DataTemplate; }, ItemsControl, undefined, function (d, args) { d.OnItemTemplateChanged(args); });
@@ -32,9 +32,9 @@
 
     Nullstone.Property(ItemsControl, "Items", {
         get: function () {
-            var items = Nullstone.As(this.$GetValue(ItemsControl.ItemsProperty), ItemCollection);
+            var items = Nullstone.As(this.$GetValue(ItemsControl.ItemsProperty), Fayde.Controls.ItemCollection);
             if (items == null) {
-                items = new ItemCollection();
+                items = new Fayde.Controls.ItemCollection();
                 this._itemsIsDataBound = false;
                 items.ItemsChanged.Subscribe(this.InvokeItemsChanged, this);
                 items.Clearing.Subscribe(this.OnItemsClearing, this);

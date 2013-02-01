@@ -3,7 +3,7 @@
 /// <reference path="../Collections/INotifyCollectionChanged.js"/>
 /// CODE
 
-(function (namespace) {
+(function (Controls) {
     var ItemCollection = Nullstone.Create("ItemCollection", Fayde.PresentationFrameworkCollection, 0, [Fayde.Collections.INotifyCollectionChanged]);
 
     ItemCollection.Instance.Init = function () {
@@ -28,5 +28,5 @@
         throw new ArgumentException();
     };
 
-    namespace.ItemCollection = Nullstone.FinishCreate(ItemCollection);
-})(window);
+    Controls.ItemCollection = Nullstone.FinishCreate(ItemCollection);
+})(Nullstone.Namespace("Fayde.Controls"));
