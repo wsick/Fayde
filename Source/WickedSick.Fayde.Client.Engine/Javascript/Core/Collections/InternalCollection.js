@@ -2,6 +2,7 @@
 /// <reference path="../DependencyObject.js"/>
 /// <reference path="../../Runtime/MulticastEvent.js"/>
 /// CODE
+/// <reference path="CollectionIterator.js"/>
 
 (function (Fayde) {
 
@@ -52,6 +53,31 @@
         this.Property = propd;
         this.OldValue = oldValue;
         this.NewValue = newValue;
+    };
+
+    //#endregion
+
+    //#region InternalCollectionIterator
+
+    function InternalCollectionIterator(collection) {
+        this._Collection = collection;
+        this._Index = -1;
+    }
+    InternalCollectionIterator.prototype.Next = function (error) {
+        /// <param name="error" type="BError"></param>
+        /// <returns type="Boolean" />
+        this._Index++;
+        return this._Index < this._Collection.GetCount();
+    };
+    InternalCollectionIterator.prototype.Reset = function () {
+        this._Index = -1;
+    };
+    InternalCollectionIterator.prototype.GetCurrent = function (error) {
+        if (this._Index < 0 || this._Index >= this._Collection.GetCount()) {
+            error.SetErrored(BError.InvalidOperation, "Index out of bounds.");
+            return undefined;
+        }
+        return this._Collection.GetValueAt(this._Index);
     };
 
     //#endregion
@@ -182,7 +208,7 @@
     instance.AddedToCollection = function (value, error) { return true; };
     instance.RemovedFromCollection = function (value, isValueSafe) { };
     instance.GetIterator = function () {
-        return new CollectionIterator(this);
+        return new InternalCollectionIterator(this);
     };
 
     instance.ToArray = function () {

@@ -327,7 +327,6 @@
     <Content Include="Javascript\Core\DependencyProperty.js" />
     <Content Include="Javascript\Engine\Dirty.js" />
     <Content Include="Javascript\Core\Collections\InternalCollection.js" />
-    <Content Include="Javascript\Core\Collections\CollectionIterator.js" />
     <Content Include="Javascript\Runtime\Dictionary.js" />
     <Content Include="Javascript\Runtime\EventArgs.js" />
     <Content Include="Javascript\Core\Expression.js" />

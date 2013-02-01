@@ -874,7 +874,7 @@
         if (!this._IsLoaded) {
             //WTF: ClearForeachGeneration(Loaded)
             this.Unloaded.Raise(this, new EventArgs());
-            iter = new CollectionIterator(this.Resources);
+            iter = this.Resources.GetIterator();
             while (iter.Next()) {
                 v = iter.GetCurrent();
                 v = Nullstone.As(v, Fayde.FrameworkElement);
@@ -890,7 +890,7 @@
         }
 
         if (this._IsLoaded) {
-            iter = new CollectionIterator(this.Resources);
+            iter = this.Resources.GetIterator();
             while (iter.Next()) {
                 v = iter.GetCurrent();
                 v = Nullstone.As(v, Fayde.FrameworkElement);
