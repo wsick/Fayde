@@ -27,6 +27,26 @@
         Panel.IsItemsHostProperty
     ]);
 
+    Panel.ZIndexProperty = DependencyProperty.RegisterAttached("ZIndex", function () { return Number; }, Panel, 0);
+    Panel.GetZIndex = function (d) {
+        ///<returns type="Number"></returns>
+        return d.$GetValue(Panel.ZIndexProperty);
+    };
+    Panel.SetZIndex = function (d, value) {
+        ///<param name="value" type="Number"></param>
+        d.$SetValue(Panel.ZIndexProperty, value);
+    };
+
+    Panel.ZProperty = DependencyProperty.RegisterAttached("Z", function () { return Number; }, Panel, NaN);
+    Panel.GetZ = function (d) {
+        ///<returns type="Number"></returns>
+        return d.$GetValue(Panel.ZProperty);
+    };
+    Panel.SetZ = function (d, value) {
+        ///<param name="value" type="Number"></param>
+        d.$SetValue(Panel.ZProperty, value);
+    };
+
     //#endregion
 
     //#region Instance Methods
@@ -253,7 +273,7 @@
         };
         Panel.Instance._OnCollectionItemChanged = function (col, obj, args) {
             if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, col)) {
-                if (args.Property._ID === namespace.Canvas.ZIndexProperty._ID || args.Property._ID === namespace.Canvas.ZProperty._ID) {
+                if (args.Property._ID === Panel.ZIndexProperty._ID) {
                     args.Item._Invalidate();
                     if (this._IsAttached) {
                         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);

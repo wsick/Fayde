@@ -27,22 +27,6 @@
         d.$SetValue(Canvas.TopProperty, value);
     };
 
-    Canvas.ZIndexProperty = DependencyProperty.RegisterAttached("ZIndex", function () { return Number; }, Canvas, 0);
-    Canvas.GetZIndex = function (d) {
-        return d.$GetValue(Canvas.ZIndexProperty);
-    };
-    Canvas.SetZIndex = function (d, value) {
-        d.$SetValue(Canvas.ZIndexProperty, value);
-    };
-
-    Canvas.ZProperty = DependencyProperty.RegisterAttached("Z", function () { return Number; }, Canvas, NaN);
-    Canvas.GetZ = function (d) {
-        return d.$GetValue(Canvas.ZProperty);
-    };
-    Canvas.SetZ = function (d, value) {
-        d.$SetValue(Canvas.ZProperty, value);
-    };
-
     //#endregion
 
     //#region Measure

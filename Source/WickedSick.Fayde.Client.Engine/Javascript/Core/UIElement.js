@@ -485,13 +485,13 @@
     UIElement.Instance._ComputeLocalProjection = function () {
         var projection = this.Projection;
         if (!projection) {
-            Fayde.Controls.Canvas.SetZ(this, NaN);
+            Fayde.Controls.Panel.SetZ(this, NaN);
             return;
         }
 
         var size = this._GetSizeForBrush();
         projection._SetObjectSize(size.Width, size.Height);
-        Fayde.Controls.Canvas.SetZ(this, projection._GetDistanceFromXYPlane());
+        Fayde.Controls.Panel.SetZ(this, projection._GetDistanceFromXYPlane());
     };
 
     UIElement.Instance._TransformBounds = function (old, current) {
@@ -1395,19 +1395,6 @@
     };
     UIElement.Instance._IsOpacityTranslucent = function () {
         return this._TotalOpacity * 255 < 245.5;
-    };
-    UIElement.ZIndexComparer = function (uie1, uie2) {
-        var c = Fayde.Controls.Canvas;
-        var zi1 = c.GetZIndex(uie1);
-        var zi2 = c.GetZIndex(uie2);
-        if (zi1 == zi2) {
-            var z1 = c.GetZ(uie1);
-            var z2 = c.GetZ(uie2);
-            if (isNaN(z1) || isNaN(z2))
-                return 0;
-            return z1 > z2 ? 1 : (z1 < z2 ? -1 : 0);
-        }
-        return zi1 - zi2;
     };
 
     UIElement.Instance.__DebugToString = function () {
