@@ -1,6 +1,90 @@
 ﻿/// <reference path="Fayde.js"/>
 
 App.GetGenericResourceDictionary = function () {
+    var VisualStateManager = Fayde.Media.VisualStateManager.VisualStateManager;
+    var VisualStateGroup = Fayde.Media.VisualStateManager.VisualStateGroup;
+    var VisualState = Fayde.Media.VisualStateManager.VisualState;
+    var VisualTransition = Fayde.Media.VisualStateManager.VisualTransition;
+    var RotateTransform = Fayde.Media.RotateTransform;
+    var TranslateTransform = Fayde.Media.TranslateTransform;
+    var TransformGroup = Fayde.Media.TransformGroup;
+    var SkewTransform = Fayde.Media.SkewTransform;
+    var Storyboard = Fayde.Media.Animation.Storyboard;
+    var ColorAnimation = Fayde.Media.Animation.ColorAnimation;
+    var DoubleAnimation = Fayde.Media.Animation.DoubleAnimation;
+    var PointAnimation = Fayde.Media.Animation.PointAnimation;
+    var DiscreteObjectKeyFrame = Fayde.Media.Animation.DiscreteObjectKeyFrame;
+    var SplineDoubleKeyFrame = Fayde.Media.Animation.SplineDoubleKeyFrame;
+    var ObjectAnimationUsingKeyFrames = Fayde.Media.Animation.ObjectAnimationUsingKeyFrames;
+    var DoubleAnimationUsingKeyFrames = Fayde.Media.Animation.DoubleAnimationUsingKeyFrames;
+    var BackEase = Fayde.Media.Animation.BackEase;
+    var EasingMode = Fayde.Media.Animation.EasingMode;
+    var BeginStoryboard = Fayde.Media.Animation.BeginStoryboard;
+    var EasingDoubleKeyFrame = Fayde.Media.Animation.EasingDoubleKeyFrame;
+    var ColorAnimationUsingKeyFrames = Fayde.Media.Animation.ColorAnimationUsingKeyFrames;
+    var EasingColorKeyFrame = Fayde.Media.Animation.EasingColorKeyFrame;
+    var RepeatBehavior = Fayde.Media.Animation.RepeatBehavior;
+    var SolidColorBrush = Fayde.Media.SolidColorBrush;
+    var Stretch = Fayde.Media.Stretch;
+    var GradientStop = Fayde.Media.GradientStop;
+    var LinearGradientBrush = Fayde.Media.LinearGradientBrush;
+    var BrushMappingMode = Fayde.Media.BrushMappingMode;
+    var GradientSpreadMethod = Fayde.Media.GradientSpreadMethod;
+    var TextOptions = Fayde.Media.TextOptions;
+    var Rectangle = Fayde.Shapes.Rectangle;
+    var Ellipse = Fayde.Shapes.Ellipse;
+    var Path = Fayde.Shapes.Path;
+    var PenLineCap = Fayde.Shapes.PenLineCap;
+    var PropertyPath = Fayde.Data.PropertyPath;
+    var BindingMode = Fayde.Data.BindingMode;
+    var HyperlinkButton = Fayde.Controls.HyperlinkButton;
+    var Grid = Fayde.Controls.Grid;
+    var ControlTemplate = Fayde.Controls.ControlTemplate;
+    var TextBlock = Fayde.Controls.TextBlock;
+    var Canvas = Fayde.Controls.Canvas;
+    var ContentControl = Fayde.Controls.ContentControl;
+    var ContentPresenter = Fayde.Controls.ContentPresenter;
+    var Border = Fayde.Controls.Border;
+    var ToolTip = Fayde.Controls.ToolTip;
+    var Button = Fayde.Controls.Button;
+    var TextBox = Fayde.Controls.TextBox;
+    var ScrollViewer = Fayde.Controls.ScrollViewer;
+    var ToolTipService = Fayde.Controls.ToolTipService;
+    var PlacementMode = Fayde.Controls.PlacementMode;
+    var ComboBox = Fayde.Controls.ComboBox;
+    var ToggleButton = Fayde.Controls.Primitives.ToggleButton;
+    var Popup = Fayde.Controls.Primitives.Popup;
+    var ItemsPresenter = Fayde.Controls.ItemsPresenter;
+    var ComboBoxItem = Fayde.Controls.ComboBoxItem;
+    var ScrollBar = Fayde.Controls.Primitives.ScrollBar;
+    var RepeatButton = Fayde.Controls.Primitives.RepeatButton;
+    var Thumb = Fayde.Controls.Primitives.Thumb;
+    var ColumnDefinition = Fayde.Controls.ColumnDefinition;
+    var RowDefinition = Fayde.Controls.RowDefinition;
+    var GridLength = Fayde.Controls.GridLength;
+    var GridUnitType = Fayde.Controls.GridUnitType;
+    var ScrollContentPresenter = Fayde.Controls.ScrollContentPresenter;
+    var ListBox = Fayde.Controls.ListBox;
+    var ListBoxItem = Fayde.Controls.ListBoxItem;
+    var CheckBox = Fayde.Controls.CheckBox;
+    var PasswordBox = Fayde.Controls.PasswordBox;
+    var ProgressBar = Fayde.Controls.ProgressBar;
+    var RadioButton = Fayde.Controls.RadioButton;
+    var Slider = Fayde.Controls.Slider;
+    var Visibility = Fayde.Visibility;
+    var HorizontalAlignment = Fayde.HorizontalAlignment;
+    var VerticalAlignment = Fayde.VerticalAlignment;
+    var TextDecorations = Fayde.TextDecorations;
+    var TextWrapping = Fayde.Controls.TextWrapping;
+    var Setter = Fayde.Setter;
+    var Style = Fayde.Style;
+    var DataTemplate = Fayde.DataTemplate;
+    var ResourceDictionary = Fayde.ResourceDictionary;
+    var EventTrigger = Fayde.EventTrigger;
+    var StaticResourceMarkup = Fayde.StaticResourceMarkup;
+    var TemplateBindingMarkup = Fayde.TemplateBindingMarkup;
+    var BindingMarkup = Fayde.BindingMarkup;
+
     var json = {
         Type: ResourceDictionary,
         Children: [
@@ -1180,7 +1264,7 @@ App.GetGenericResourceDictionary = function () {
 
         },
         {
-            Type: DropShadowEffect,
+            Type: Fayde.Media.Effects.DropShadowEffect,
             Key: "DropShadowBrush",
             Props: {
                 Direction: 330,
@@ -1610,7 +1694,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(SolidColorBrush.Color)")
+                                                    Value: new PropertyPath("(SolidColorBrush.Color)")
 
                                                 },
                                                 {
@@ -1629,7 +1713,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(Panel.Background).(SolidColorBrush.Color)")
+                                                    Value: new PropertyPath("(Panel.Background).(SolidColorBrush.Color)")
 
                                                 },
                                                 {
@@ -1657,7 +1741,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(Panel.Background).(SolidColorBrush.Color)")
+                                                    Value: new PropertyPath("(Panel.Background).(SolidColorBrush.Color)")
 
                                                 },
                                                 {
@@ -1676,7 +1760,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -1703,7 +1787,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -1910,7 +1994,7 @@ App.GetGenericResourceDictionary = function () {
                                         AttachedProps: [{
                                             Owner: Storyboard,
                                             Prop: "TargetProperty",
-                                            Value: new _PropertyPath("X")
+                                            Value: new PropertyPath("X")
 
                                         },
                                         {
@@ -1934,7 +2018,7 @@ App.GetGenericResourceDictionary = function () {
                                         AttachedProps: [{
                                             Owner: Storyboard,
                                             Prop: "TargetProperty",
-                                            Value: new _PropertyPath("Opacity")
+                                            Value: new PropertyPath("Opacity")
 
                                         },
                                         {
@@ -1970,7 +2054,7 @@ App.GetGenericResourceDictionary = function () {
                                     AttachedProps: [{
                                         Owner: Storyboard,
                                         Prop: "TargetProperty",
-                                        Value: new _PropertyPath("Opacity")
+                                        Value: new PropertyPath("Opacity")
 
                                     },
                                     {
@@ -2003,7 +2087,7 @@ App.GetGenericResourceDictionary = function () {
                                     AttachedProps: [{
                                         Owner: Storyboard,
                                         Prop: "TargetProperty",
-                                        Value: new _PropertyPath("X")
+                                        Value: new PropertyPath("X")
 
                                     },
                                     {
@@ -2027,7 +2111,7 @@ App.GetGenericResourceDictionary = function () {
                                     AttachedProps: [{
                                         Owner: Storyboard,
                                         Prop: "TargetProperty",
-                                        Value: new _PropertyPath("Opacity")
+                                        Value: new PropertyPath("Opacity")
 
                                     },
                                     {
@@ -2181,7 +2265,7 @@ App.GetGenericResourceDictionary = function () {
                                         {
                                             Owner: Storyboard,
                                             Prop: "TargetProperty",
-                                            Value: new _PropertyPath("X")
+                                            Value: new PropertyPath("X")
 
                                         }
                                         ]
@@ -2200,7 +2284,7 @@ App.GetGenericResourceDictionary = function () {
                                         {
                                             Owner: Storyboard,
                                             Prop: "TargetProperty",
-                                            Value: new _PropertyPath("Opacity")
+                                            Value: new PropertyPath("Opacity")
 
                                         }
                                         ]
@@ -2231,7 +2315,7 @@ App.GetGenericResourceDictionary = function () {
                                     {
                                         Owner: Storyboard,
                                         Prop: "TargetProperty",
-                                        Value: new _PropertyPath("Opacity")
+                                        Value: new PropertyPath("Opacity")
 
                                     }
                                     ]
@@ -2259,7 +2343,7 @@ App.GetGenericResourceDictionary = function () {
                                     {
                                         Owner: Storyboard,
                                         Prop: "TargetProperty",
-                                        Value: new _PropertyPath("X")
+                                        Value: new PropertyPath("X")
 
                                     }
                                     ]
@@ -2278,7 +2362,7 @@ App.GetGenericResourceDictionary = function () {
                                     {
                                         Owner: Storyboard,
                                         Prop: "TargetProperty",
-                                        Value: new _PropertyPath("Opacity")
+                                        Value: new PropertyPath("Opacity")
 
                                     }
                                     ]
@@ -2454,7 +2538,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -2482,7 +2566,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -2510,7 +2594,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Opacity")
+                                                    Value: new PropertyPath("Opacity")
 
                                                 },
                                                 {
@@ -2529,7 +2613,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -2563,7 +2647,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -2582,7 +2666,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -2798,7 +2882,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -2831,7 +2915,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Color")
+                                                    Value: new PropertyPath("Color")
 
                                                 }
                                                 ]
@@ -2853,7 +2937,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -2889,7 +2973,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -2932,7 +3016,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Opacity")
+                                                    Value: new PropertyPath("Opacity")
 
                                                 },
                                                 {
@@ -3153,7 +3237,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -3181,7 +3265,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Opacity")
+                                                    Value: new PropertyPath("Opacity")
 
                                                 },
                                                 {
@@ -3209,7 +3293,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Opacity")
+                                                    Value: new PropertyPath("Opacity")
 
                                                 },
                                                 {
@@ -3243,7 +3327,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -3262,7 +3346,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -3303,7 +3387,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -3336,7 +3420,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -3360,7 +3444,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("IsOpen")
+                                                    Value: new PropertyPath("IsOpen")
 
                                                 },
                                                 {
@@ -3499,7 +3583,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("IsHitTestVisible")
+                                                                Value: new PropertyPath("IsHitTestVisible")
 
                                                             },
                                                             {
@@ -3768,7 +3852,7 @@ App.GetGenericResourceDictionary = function () {
                                                                         AttachedProps: [{
                                                                             Owner: Storyboard,
                                                                             Prop: "TargetProperty",
-                                                                            Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                            Value: new PropertyPath("(UIElement.Opacity)")
 
                                                                         },
                                                                         {
@@ -3796,7 +3880,7 @@ App.GetGenericResourceDictionary = function () {
                                                                         AttachedProps: [{
                                                                             Owner: Storyboard,
                                                                             Prop: "TargetProperty",
-                                                                            Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                            Value: new PropertyPath("(UIElement.Opacity)")
 
                                                                         },
                                                                         {
@@ -3830,7 +3914,7 @@ App.GetGenericResourceDictionary = function () {
                                                                         AttachedProps: [{
                                                                             Owner: Storyboard,
                                                                             Prop: "TargetProperty",
-                                                                            Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                            Value: new PropertyPath("(UIElement.Opacity)")
 
                                                                         },
                                                                         {
@@ -3854,7 +3938,7 @@ App.GetGenericResourceDictionary = function () {
                                                                         AttachedProps: [{
                                                                             Owner: Storyboard,
                                                                             Prop: "TargetProperty",
-                                                                            Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                            Value: new PropertyPath("(UIElement.Opacity)")
 
                                                                         },
                                                                         {
@@ -3901,7 +3985,7 @@ App.GetGenericResourceDictionary = function () {
                                                                         AttachedProps: [{
                                                                             Owner: Storyboard,
                                                                             Prop: "TargetProperty",
-                                                                            Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                            Value: new PropertyPath("(UIElement.Opacity)")
 
                                                                         },
                                                                         {
@@ -3920,7 +4004,7 @@ App.GetGenericResourceDictionary = function () {
                                                                         AttachedProps: [{
                                                                             Owner: Storyboard,
                                                                             Prop: "TargetProperty",
-                                                                            Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                            Value: new PropertyPath("(UIElement.Opacity)")
 
                                                                         },
                                                                         {
@@ -4090,7 +4174,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -4129,7 +4213,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -4153,7 +4237,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -4193,7 +4277,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Visibility)")
+                                                    Value: new PropertyPath("(UIElement.Visibility)")
 
                                                 },
                                                 {
@@ -4236,7 +4320,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -4269,7 +4353,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -4293,7 +4377,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("IsOpen")
+                                                    Value: new PropertyPath("IsOpen")
 
                                                 },
                                                 {
@@ -4452,7 +4536,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("IsHitTestVisible")
+                                                                Value: new PropertyPath("IsHitTestVisible")
 
                                                             },
                                                             {
@@ -4653,7 +4737,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -4682,7 +4766,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Color")
+                                                    Value: new PropertyPath("Color")
 
                                                 }
                                                 ],
@@ -4710,7 +4794,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Opacity")
+                                                    Value: new PropertyPath("Opacity")
 
                                                 },
                                                 {
@@ -4753,7 +4837,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -4782,7 +4866,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Color")
+                                                    Value: new PropertyPath("Color")
 
                                                 }
                                                 ],
@@ -5048,7 +5132,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
 
                                                             },
                                                             {
@@ -5072,7 +5156,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
 
                                                             },
                                                             {
@@ -5112,7 +5196,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
 
                                                             },
                                                             {
@@ -5187,7 +5271,7 @@ App.GetGenericResourceDictionary = function () {
                                                 Opacity: 0,
                                                 Margin: new Thickness(1, 1, 0, 0),
                                                 Effect: {
-                                                    Type: BlurEffect
+                                                    Type: Fayde.Media.Effects.BlurEffect
                                                 },
                                                 Fill: {
                                                     Type: SolidColorBrush,
@@ -5242,7 +5326,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
 
                                                             },
                                                             {
@@ -5266,7 +5350,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
 
                                                             },
                                                             {
@@ -5306,7 +5390,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
 
                                                             },
                                                             {
@@ -5381,7 +5465,7 @@ App.GetGenericResourceDictionary = function () {
                                                 Opacity: 0,
                                                 Margin: new Thickness(0, 1, 0, 0),
                                                 Effect: {
-                                                    Type: BlurEffect
+                                                    Type: Fayde.Media.Effects.BlurEffect
                                                 },
                                                 Fill: {
                                                     Type: SolidColorBrush,
@@ -5426,7 +5510,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
 
                                                             },
                                                             {
@@ -5450,7 +5534,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
 
                                                             },
                                                             {
@@ -5490,7 +5574,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
 
                                                             },
                                                             {
@@ -5566,7 +5650,7 @@ App.GetGenericResourceDictionary = function () {
                                                 Opacity: 0,
                                                 Margin: new Thickness(1, 0, 0, 0),
                                                 Effect: {
-                                                    Type: BlurEffect
+                                                    Type: Fayde.Media.Effects.BlurEffect
                                                 },
                                                 Fill: {
                                                     Type: SolidColorBrush,
@@ -5621,7 +5705,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
 
                                                             },
                                                             {
@@ -5645,7 +5729,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
 
                                                             },
                                                             {
@@ -5685,7 +5769,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
 
                                                             },
                                                             {
@@ -5817,7 +5901,7 @@ App.GetGenericResourceDictionary = function () {
                                                 Opacity: 0,
                                                 Margin: new Thickness(1, 0, 0, 0),
                                                 Effect: {
-                                                    Type: BlurEffect
+                                                    Type: Fayde.Media.Effects.BlurEffect
                                                 },
                                                 Fill: {
                                                     Type: SolidColorBrush,
@@ -5861,7 +5945,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
 
                                                             },
                                                             {
@@ -5894,7 +5978,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
 
                                                             },
                                                             {
@@ -5927,7 +6011,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("Opacity")
+                                                                Value: new PropertyPath("Opacity")
 
                                                             },
                                                             {
@@ -6025,7 +6109,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
 
                                                             },
                                                             {
@@ -6058,7 +6142,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("(UIElement.Opacity)")
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
 
                                                             },
                                                             {
@@ -6091,7 +6175,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("Opacity")
+                                                                Value: new PropertyPath("Opacity")
 
                                                             },
                                                             {
@@ -6187,7 +6271,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Opacity")
+                                                    Value: new PropertyPath("Opacity")
 
                                                 },
                                                 {
@@ -6663,7 +6747,7 @@ App.GetGenericResourceDictionary = function () {
                                         Maximum: new TemplateBindingMarkup("ScrollableHeight"),
                                         Margin: new Thickness(0, -1, -3, -1),
                                         Minimum: 0,
-                                        Orientation: Orientation.Vertical,
+                                        Orientation: Fayde.Orientation.Vertical,
                                         Visibility: new TemplateBindingMarkup("ComputedVerticalScrollBarVisibility"),
                                         Value: new TemplateBindingMarkup("VerticalOffset"),
                                         ViewportSize: new TemplateBindingMarkup("ViewportHeight"),
@@ -6690,7 +6774,7 @@ App.GetGenericResourceDictionary = function () {
                                         Maximum: new TemplateBindingMarkup("ScrollableWidth"),
                                         Margin: new Thickness(-1, 0, -1, -3),
                                         Minimum: 0,
-                                        Orientation: Orientation.Horizontal,
+                                        Orientation: Fayde.Orientation.Horizontal,
                                         Visibility: new TemplateBindingMarkup("ComputedHorizontalScrollBarVisibility"),
                                         Value: new TemplateBindingMarkup("HorizontalOffset"),
                                         ViewportSize: new TemplateBindingMarkup("ViewportWidth")
@@ -6847,7 +6931,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -6880,7 +6964,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -6904,7 +6988,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("IsOpen")
+                                                    Value: new PropertyPath("IsOpen")
 
                                                 },
                                                 {
@@ -7004,7 +7088,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("IsHitTestVisible")
+                                                                Value: new PropertyPath("IsHitTestVisible")
 
                                                             },
                                                             {
@@ -7209,7 +7293,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Opacity")
+                                                    Value: new PropertyPath("Opacity")
 
                                                 },
                                                 {
@@ -7228,7 +7312,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(Control.Foreground).(SolidColorBrush.Color)")
+                                                    Value: new PropertyPath("(Control.Foreground).(SolidColorBrush.Color)")
 
                                                 },
                                                 {
@@ -7256,7 +7340,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Opacity")
+                                                    Value: new PropertyPath("Opacity")
 
                                                 },
                                                 {
@@ -7294,7 +7378,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(Control.Foreground).(SolidColorBrush.Color)")
+                                                    Value: new PropertyPath("(Control.Foreground).(SolidColorBrush.Color)")
 
                                                 },
                                                 {
@@ -7313,7 +7397,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -7350,7 +7434,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -7378,7 +7462,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -7397,7 +7481,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(Control.Foreground).(SolidColorBrush.Color)")
+                                                    Value: new PropertyPath("(Control.Foreground).(SolidColorBrush.Color)")
 
                                                 },
                                                 {
@@ -7610,7 +7694,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -7634,7 +7718,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Color")
+                                                    Value: new PropertyPath("Color")
 
                                                 }
                                                 ]
@@ -7648,7 +7732,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -7679,7 +7763,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -7707,7 +7791,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -7726,7 +7810,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -7760,7 +7844,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -7792,7 +7876,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -7843,7 +7927,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -7876,7 +7960,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -7900,7 +7984,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("IsOpen")
+                                                    Value: new PropertyPath("IsOpen")
 
                                                 },
                                                 {
@@ -8071,7 +8155,7 @@ App.GetGenericResourceDictionary = function () {
                                                                 AttachedProps: [{
                                                                     Owner: Storyboard,
                                                                     Prop: "TargetProperty",
-                                                                    Value: new _PropertyPath("IsHitTestVisible")
+                                                                    Value: new PropertyPath("IsHitTestVisible")
 
                                                                 },
                                                                 {
@@ -8296,7 +8380,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -8324,7 +8408,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Opacity")
+                                                    Value: new PropertyPath("Opacity")
 
                                                 },
                                                 {
@@ -8358,7 +8442,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Opacity")
+                                                    Value: new PropertyPath("Opacity")
 
                                                 },
                                                 {
@@ -8373,7 +8457,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -8410,7 +8494,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Opacity")
+                                                    Value: new PropertyPath("Opacity")
 
                                                 },
                                                 {
@@ -8444,7 +8528,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -8477,7 +8561,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -8501,7 +8585,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("IsOpen")
+                                                    Value: new PropertyPath("IsOpen")
 
                                                 },
                                                 {
@@ -8628,7 +8712,7 @@ App.GetGenericResourceDictionary = function () {
                                                             AttachedProps: [{
                                                                 Owner: Storyboard,
                                                                 Prop: "TargetProperty",
-                                                                Value: new _PropertyPath("IsHitTestVisible")
+                                                                Value: new PropertyPath("IsHitTestVisible")
 
                                                             },
                                                             {
@@ -8798,7 +8882,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Visibility)")
+                                                    Value: new PropertyPath("(UIElement.Visibility)")
 
                                                 },
                                                 {
@@ -8825,7 +8909,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Visibility)")
+                                                    Value: new PropertyPath("(UIElement.Visibility)")
 
                                                 },
                                                 {
@@ -8849,7 +8933,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(Shape.Fill).(LinearGradientBrush.Transform).(TransformGroup.Children)[0].X")
+                                                    Value: new PropertyPath("(Shape.Fill).(LinearGradientBrush.Transform).(TransformGroup.Children)[0].X")
 
                                                 },
                                                 {
@@ -9208,7 +9292,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -9232,7 +9316,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Color")
+                                                    Value: new PropertyPath("Color")
 
                                                 }
                                                 ]
@@ -9246,7 +9330,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -9281,7 +9365,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -9300,7 +9384,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -9334,7 +9418,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -9389,7 +9473,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -9422,7 +9506,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -9446,7 +9530,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("IsOpen")
+                                                    Value: new PropertyPath("IsOpen")
 
                                                 },
                                                 {
@@ -9579,7 +9663,7 @@ App.GetGenericResourceDictionary = function () {
                                                                     AttachedProps: [{
                                                                         Owner: Storyboard,
                                                                         Prop: "TargetProperty",
-                                                                        Value: new _PropertyPath("IsHitTestVisible")
+                                                                        Value: new PropertyPath("IsHitTestVisible")
 
                                                                     },
                                                                     {
@@ -9804,7 +9888,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -9832,7 +9916,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -9860,7 +9944,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Opacity")
+                                                    Value: new PropertyPath("Opacity")
 
                                                 },
                                                 {
@@ -9879,7 +9963,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -9913,7 +9997,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -9932,7 +10016,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -10117,7 +10201,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Opacity")
+                                                    Value: new PropertyPath("Opacity")
 
                                                 },
                                                 {
@@ -10255,7 +10339,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Opacity")
+                                                    Value: new PropertyPath("Opacity")
 
                                                 },
                                                 {
@@ -10528,7 +10612,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -10555,7 +10639,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -10582,7 +10666,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Visibility")
+                                                    Value: new PropertyPath("Visibility")
 
                                                 },
                                                 {
@@ -10606,7 +10690,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Visibility)")
+                                                    Value: new PropertyPath("(UIElement.Visibility)")
 
                                                 },
                                                 {
@@ -10630,7 +10714,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Visibility)")
+                                                    Value: new PropertyPath("(UIElement.Visibility)")
 
                                                 },
                                                 {
@@ -10654,7 +10738,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Visibility)")
+                                                    Value: new PropertyPath("(UIElement.Visibility)")
 
                                                 },
                                                 {
@@ -11131,7 +11215,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -11159,7 +11243,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -11187,7 +11271,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("Opacity")
+                                                    Value: new PropertyPath("Opacity")
 
                                                 },
                                                 {
@@ -11206,7 +11290,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -11240,7 +11324,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -11259,7 +11343,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -11297,7 +11381,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -11316,7 +11400,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -11545,7 +11629,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -11578,7 +11662,7 @@ App.GetGenericResourceDictionary = function () {
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
-                                                    Value: new _PropertyPath("(UIElement.Opacity)")
+                                                    Value: new PropertyPath("(UIElement.Opacity)")
 
                                                 },
                                                 {
@@ -11864,5 +11948,5 @@ App.GetGenericResourceDictionary = function () {
         }]
 
     };
-    return JsonParser.Parse(json);
+    return Fayde.JsonParser.Parse(json);
 };

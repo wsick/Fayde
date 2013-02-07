@@ -14,9 +14,9 @@ var Fayde;
 
                 }
                 return root;
-            })(Page);
+            })(Fayde.Controls.Page);
             SDB.root = root;            
-            Nullstone.RegisterType(root, "root", Page);
+            Nullstone.RegisterType(root, "root", Fayde.Controls.Page);
         })(Demos.SDB || (Demos.SDB = {}));
         var SDB = Demos.SDB;
     })(Fayde.Demos || (Fayde.Demos = {}));

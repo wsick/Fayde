@@ -1,7 +1,7 @@
-/// <reference path="../../scripts/Fayde.d.ts" />
-/// <reference path="ViewModels/MainViewModel.ts" />
+/// <reference path="../../scripts/Fayde.d.ts"/>
+/// <reference path="ViewModels/MainViewModel.ts"/>
 
-module Fayde.Demos.SDB {
+module Fayde.Demos.StackOverflow {
     var isLoaded = false;
     var onAppLoaded;
     Nullstone.ImportJsFile("ViewModels/MainViewModel.js", function () {
@@ -18,11 +18,10 @@ module Fayde.Demos.SDB {
             this.Loaded.Subscribe(this.OnLoaded, this);
         }
         OnLoaded(sender, e: EventArgs) {
-            if (isLoaded) {
+            if (isLoaded)
                 this.Setup();
-            } else {
+            else
                 onAppLoaded = () => this.Setup();
-            }
         }
         Setup() {
             var vm = new ViewModels.MainViewModel();

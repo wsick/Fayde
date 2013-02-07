@@ -3,26 +3,44 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-Nullstone.ImportJsFile("ViewModels/MainViewModel.js");
 var Fayde;
 (function (Fayde) {
     (function (Demos) {
         (function (SDB) {
-            var app = (function (_super) {
-                __extends(app, _super);
-                function app() {
+            var isLoaded = false;
+            var onAppLoaded;
+            Nullstone.ImportJsFile("ViewModels/MainViewModel.js", function () {
+                isLoaded = true;
+                if(onAppLoaded) {
+                    onAppLoaded();
+                    delete onAppLoaded;
+                }
+            });
+            var Application = (function (_super) {
+                __extends(Application, _super);
+                function Application() {
                                 _super.call(this);
                     this.Loaded.Subscribe(this.OnLoaded, this);
                 }
-                app.prototype.OnLoaded = function (sender, e) {
+                Application.prototype.OnLoaded = function (sender, e) {
+                    var _this = this;
+                    if(isLoaded) {
+                        this.Setup();
+                    } else {
+                        onAppLoaded = function () {
+                            return _this.Setup();
+                        };
+                    }
+                };
+                Application.prototype.Setup = function () {
                     var vm = new SDB.ViewModels.MainViewModel();
                     vm.Load();
                     (this.RootVisual).DataContext = vm;
                 };
-                return app;
+                return Application;
             })(App);
-            SDB.app = app;            
-            Nullstone.RegisterType(app, "app", App);
+            SDB.Application = Application;            
+            Nullstone.RegisterType(Application, "Application", App);
         })(Demos.SDB || (Demos.SDB = {}));
         var SDB = Demos.SDB;
     })(Fayde.Demos || (Fayde.Demos = {}));

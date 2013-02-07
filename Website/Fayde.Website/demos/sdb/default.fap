@@ -1,7 +1,7 @@
 ﻿<FaydeApplication
     xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
     xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
-    JsType="Fayde.Demos.SDB.app"
+    JsType="Fayde.Demos.SDB.Application"
     ScriptResolution="../../scripts/">
     <FaydeApplication.UriMappings>
         <UriMapping Uri="" MappedUri="root.fayde" />

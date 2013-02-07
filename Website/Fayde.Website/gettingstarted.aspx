@@ -4,8 +4,25 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="cphBody" runat="server">
     <h2>Download</h2>
     <ul>
-		<li><asp:HyperLink ID="HyperLink1" NavigateUrl="~/drops/Fayde-0.9.2.0.zip" Text="Fayde 0.9.2.0" runat="server" /> (Contains TypeScript definition)</li>
-		<li><asp:HyperLink ID="HyperLink2" NavigateUrl="~/drops/Fayde.zip" Text="Fayde 0.9.0.0" runat="server" /></li>
+        <li>
+            <asp:HyperLink NavigateUrl="~/drops/Fayde-0.9.3.0.zip" Text="Fayde 0.9.3.0" runat="server" />
+            <ul>
+                <li>Migrated classes out of global "window" scope.</li>
+                <li>Fixed Border rendering.</li>
+                <li>Implemented VirtualizingStackPanel.</li>
+                <li>Migrated Canvas.ZIndex to Panel.ZIndex.</li>
+                <li>Introduced experimental toggle to switch between HTML and Canvas rendering.</li>
+                <li>Better support for TypeScript work.</li>
+                <li>Improved class instantiation performance.</li>
+            </ul>
+        </li>
+		<li>
+            <asp:HyperLink ID="HyperLink1" NavigateUrl="~/drops/Fayde-0.9.2.0.zip" Text="Fayde 0.9.2.0" runat="server" />
+            <ul>
+                <li>Added TypeScript definition.</li>
+            </ul>
+		</li>
+		<li><asp:HyperLink NavigateUrl="~/drops/Fayde.zip" Text="Fayde 0.9.0.0" runat="server" /></li>
 	</ul>
     <h2>Hello World Example</h2>
 	<p>The zip file contains a Visual Studio 2012 solution that contains a project with a Hello World Example.</p>
