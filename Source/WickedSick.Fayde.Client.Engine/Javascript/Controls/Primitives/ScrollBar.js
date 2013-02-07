@@ -195,13 +195,13 @@
             var num1 = Math.min(max, Math.max(min, this._DragValue));
             if (num1 !== this.Value) {
                 this.Value = num1;
-                this._RaiseScroll(ScrollEventType.ThumbTrack);
+                this._RaiseScroll(namespace.ScrollEventType.ThumbTrack);
             }
         }
     };
     ScrollBar.Instance._OnThumbDragCompleted = function (sender, args) {
         /// <param name="args" type="DragCompletedEventArgs"></param>
-        this._RaiseScroll(ScrollEventType.EndScroll);
+        this._RaiseScroll(namespace.ScrollEventType.EndScroll);
     };
 
     //#endregion
@@ -213,7 +213,7 @@
         var num = Math.max(curValue - this.SmallChange, this.Minimum);
         if (curValue !== num) {
             this.Value = num;
-            this._RaiseScroll(ScrollEventType.SmallDecrement);
+            this._RaiseScroll(namespace.ScrollEventType.SmallDecrement);
         }
     };
     ScrollBar.Instance._SmallIncrement = function (sender, args) {
@@ -221,7 +221,7 @@
         var num = Math.min(curValue + this.SmallChange, this.Maximum);
         if (curValue !== num) {
             this.Value = num;
-            this._RaiseScroll(ScrollEventType.SmallIncrement);
+            this._RaiseScroll(namespace.ScrollEventType.SmallIncrement);
         }
     };
     ScrollBar.Instance._LargeDecrement = function (sender, args) {
@@ -229,7 +229,7 @@
         var num = Math.max(curValue - this.LargeChange, this.Minimum);
         if (curValue !== num) {
             this.Value = num;
-            this._RaiseScroll(ScrollEventType.LargeDecrement);
+            this._RaiseScroll(namespace.ScrollEventType.LargeDecrement);
         }
     };
     ScrollBar.Instance._LargeIncrement = function (sender, args) {
@@ -237,7 +237,7 @@
         var num = Math.min(curValue + this.LargeChange, this.Maximum);
         if (curValue !== num) {
             this.Value = num;
-            this._RaiseScroll(ScrollEventType.LargeIncrement);
+            this._RaiseScroll(namespace.ScrollEventType.LargeIncrement);
         }
     };
 
