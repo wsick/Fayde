@@ -21877,9 +21877,9 @@ App.Version = "0.9.2.0";
         var beyond = 0;
         var orientation = this.Orientation;
         if (orientation === Orientation.Horizontal)
-            index = this.GetHorizontalOffset();
+            index = Math.floor(this.GetHorizontalOffset());
         else
-            index = this.GetVerticalOffset();
+            index = Math.floor(this.GetVerticalOffset());
         var itemCount = owner.Items.GetCount();
         var generator = this.ItemContainerGenerator;
         if (itemCount > 0) {

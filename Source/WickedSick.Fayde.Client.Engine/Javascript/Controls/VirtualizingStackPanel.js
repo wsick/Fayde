@@ -233,9 +233,9 @@
 
         var orientation = this.Orientation;
         if (orientation === Fayde.Orientation.Horizontal)
-            index = this.HorizontalOffset;
+            index = Math.floor(this.HorizontalOffset);
         else
-            index = this.VerticalOffset;
+            index = Math.floor(this.VerticalOffset);
 
         var itemCount = owner.Items.GetCount();
         var generator = this.ItemContainerGenerator;
