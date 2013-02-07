@@ -55,7 +55,9 @@
         return this._GetAutoCreatedValue(obj);
     };
     DependencyProperty.Instance._GetAutoCreatedValue = function (obj) {
-        return this._AutoCreator.GetValue(this, obj);
+        var ac = this._AutoCreator;
+        if (ac && ac.GetValue)
+            return ac.GetValue(this, obj);
     };
     DependencyProperty.Instance._HasCoercer = function () {
         return this._Coercer != null;
