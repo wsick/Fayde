@@ -95,6 +95,9 @@
       <SubType>Designer</SubType>
     </Content>
     <None Include="border.fap" />
+    <Content Include="Tests\Media\image-stretch.fap">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Views\SDK.fayde" />
     <None Include="Views\Toolkit.fayde" />
     <Content Include="Views\Home.fayde.js">
