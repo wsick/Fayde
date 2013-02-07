@@ -315,7 +315,7 @@
             } else if (args.Property._ID === TextBlock.TextProperty._ID) {
                 if (this._SetsValue) {
                     this._SetTextInternal(args.NewValue);
-
+                    this.SetChildHtmlAsText(args.NewValue);
                     this._UpdateLayoutAttributes();
                     this._Dirty = true;
                 } else {
@@ -643,6 +643,14 @@
             while (contentEl.hasChildNodes()) {
                 contentEl.removeChild(contentEl.lastChild);
             }
+        };
+        TextBlock.Instance.SetChildHtmlAsText = function (text) {
+            var rootEl = this.GetRootHtmlElement();
+            var contentEl = rootEl.firstChild;
+            while (contentEl.hasChildNodes()) {
+                contentEl.removeChild(contentEl.lastChild);
+            }
+            contentEl.appendChild(document.createTextNode(text));
         };
     }
     //#endif
