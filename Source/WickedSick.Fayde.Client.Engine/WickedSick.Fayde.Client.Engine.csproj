@@ -76,10 +76,9 @@
     <Content Include="Fayde.js" />
     <Content Include="gl-matrix.js" />
     <Content Include="Global.asax" />
-    <Content Include="JavascriptTests\DependencyObjectTests.js" />
-    <Content Include="JavascriptTests\FaydeAsserts.js" />
-    <Content Include="JavascriptTests\MatrixTests.js" />
-    <Content Include="JavascriptTests\NullstoneTests.js" />
+    <Content Include="Tests\DependencyObjectTests.js" />
+    <Content Include="Tests\FaydeAsserts.js" />
+    <Content Include="Tests\NullstoneTests.js" />
     <Content Include="Javascript\Collections\INotifyCollectionChanged.js" />
     <Content Include="Javascript\Collections\NotifyCollectionChangedEventArgs.js" />
     <Content Include="Javascript\Collections\ObservableCollection.js" />
@@ -231,7 +230,6 @@
     <Content Include="Javascript\Shapes\RawPath.js" />
     <Content Include="Javascript\Shapes\Rectangle.js" />
     <Content Include="Javascript\Shapes\Shape.js" />
-    <Content Include="JavascriptTests\fayde_core.js" />
     <Content Include="Javascript\Text\Enums.js" />
     <Content Include="Javascript\Text\History.js" />
     <Content Include="Javascript\Controls\TextBoxModelChangedEventArgs.js" />
@@ -422,6 +420,9 @@
     <None Include="jsTestDriver.conf" />
     <Content Include="Silo\heightTest.htm" />
     <Content Include="Docs\Tips.txt" />
+    <Content Include="Tests\qunit-1.11.0.css" />
+    <Content Include="Tests\qunit-1.11.0.js" />
+    <Content Include="Tests\tests.html" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
