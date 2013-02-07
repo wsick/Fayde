@@ -127,24 +127,27 @@
         /// <param name="cornerRadius" type="CornerRadius"></param>
 
         //Stroke renders half-out/half-in the path, Border control needs to fit within the given extents so we need to shrink by half the border thickness
-        var fillPlusHalfExtents = extents.ShrinkBy(thickness.Left * 0.5, thickness.Top * 0.5, thickness.Right * 0.5, thickness.Bottom * 0.5);
+        var full = thickness.Left;
+        var half = full * 0.5;
+        var strokeExtents = extents.ShrinkBy(half, half, half, half);
+        var fillExtents = extents.ShrinkBy(full, full, full, full);
 
         if (cornerRadius.IsZero()) {
             //Technically this fills outside it's fill extents, we may need to do something different for a transparent border brush
             if (backgroundBrush) {
-                ctx.StrokeAndFillRect(borderBrush, thickness.Left, extents, backgroundBrush, fillPlusHalfExtents);
+                ctx.StrokeAndFillRect(borderBrush, thickness.Left, strokeExtents, backgroundBrush, fillExtents);
             } else {
-                ctx.Rect(fillPlusHalfExtents);
+                ctx.Rect(fillExtents);
                 ctx.Stroke(borderBrush, thickness.Left, extents);
             }
         } else {
             var rawPath = new Fayde.Shapes.RawPath();
-            rawPath.RoundedRectFull(fillPlusHalfExtents.X, fillPlusHalfExtents.Y, fillPlusHalfExtents.Width, fillPlusHalfExtents.Height,
+            rawPath.RoundedRectFull(strokeExtents.X, strokeExtents.Y, strokeExtents.Width, strokeExtents.Height,
                 cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
             rawPath.Draw(ctx);
-            ctx.Stroke(borderBrush, thickness.Left, extents);
             if (backgroundBrush)
-                ctx.Fill(backgroundBrush, fillPlusHalfExtents);
+                ctx.Fill(backgroundBrush, fillExtents);
+            ctx.Stroke(borderBrush, thickness.Left, extents);
         }
     };
     Border.Instance._RenderUnbalanced = function (ctx, extents, backgroundBrush, borderBrush, thickness, cornerRadius) {

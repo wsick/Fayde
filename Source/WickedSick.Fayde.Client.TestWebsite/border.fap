@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<FaydeApplication
+    xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+    Debug="true"
+    ScriptResolution="/Fayde/">
+    <Grid>
+        <Border BorderBrush="Black" BorderThickness="10,20,30,40" CornerRadius="10,15,20,25" Margin="5" Background="Yellow">
+            <Border BorderBrush="OrangeRed" BorderThickness="10" CornerRadius="10" Margin="5" Background="SteelBlue">
+
+            </Border>
+        </Border>
+    </Grid>
+</FaydeApplication>

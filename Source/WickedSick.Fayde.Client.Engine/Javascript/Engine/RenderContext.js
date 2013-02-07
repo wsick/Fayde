@@ -145,10 +145,11 @@
         fillBrush.SetupBrush(ctx, fillRect);
         ctx.beginPath();
         ctx.rect(fillRect.X, fillRect.Y, fillRect.Width, fillRect.Height);
-        ctx.strokeStyle = strokeBrush.ToHtml5Object();
-        ctx.stroke();
         ctx.fillStyle = fillBrush.ToHtml5Object();
         ctx.fill();
+        ctx.lineWidth = thickness;
+        ctx.strokeStyle = strokeBrush.ToHtml5Object();
+        ctx.stroke();
         DrawDebug("StrokeAndFillRect: [" + ctx.strokeStyle.toString() + "] [" + ctx.fillStyle.toString() + "] " + fillRect.toString());
     };
     _RenderContext.Instance.Stroke = function (stroke, thickness, region) {
