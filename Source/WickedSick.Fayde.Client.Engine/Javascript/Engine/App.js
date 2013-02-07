@@ -259,4 +259,4 @@
 
     namespace.App = Nullstone.FinishCreate(App);
 })(window);
-App.Version = "0.9.2.0";
+App.Version = "0.9.3.0";
