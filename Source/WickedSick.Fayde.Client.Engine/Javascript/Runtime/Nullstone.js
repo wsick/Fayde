@@ -160,17 +160,17 @@ Nullstone.AutoProperties = function (type, arr) {
     }
 };
 Nullstone.AutoProperty = function (type, nameOrDp, converter, isOverride) {
-    if (nameOrDp instanceof DependencyProperty) {
-        type.Properties.push({
-            Auto: true,
-            DP: nameOrDp,
-            Converter: converter,
-            Override: isOverride === true
-        });
-    } else {
+    if (typeof nameOrDp === "string") {
         type.Properties.push({
             Auto: true,
             Name: nameOrDp,
+            Converter: converter,
+            Override: isOverride === true
+        });
+    } else if (nameOrDp instanceof DependencyProperty) {
+        type.Properties.push({
+            Auto: true,
+            DP: nameOrDp,
             Converter: converter,
             Override: isOverride === true
         });
@@ -182,17 +182,17 @@ Nullstone.AutoPropertiesReadOnly = function (type, arr) {
     }
 };
 Nullstone.AutoPropertyReadOnly = function (type, nameOrDp, isOverride) {
-    if (nameOrDp instanceof DependencyProperty) {
-        type.Properties.push({
-            Auto: true,
-            DP: nameOrDp,
-            Override: isOverride === true
-        });
-    } else {
+    if (typeof nameOrDp === "string") {
         type.Properties.push({
             Auto: true,
             Name: nameOrDp,
             IsReadOnly: true,
+            Override: isOverride === true
+        });
+    } else if (nameOrDp instanceof DependencyProperty) {
+        type.Properties.push({
+            Auto: true,
+            DP: nameOrDp,
             Override: isOverride === true
         });
     }

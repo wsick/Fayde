@@ -65,123 +65,124 @@
 
     //#region IScrollInfo Members
 
-    VirtualizingStackPanel.Instance.GetCanHorizontallyScroll = function () { return this._CanHorizontallyScroll; };
-    VirtualizingStackPanel.Instance.SetCanHorizontallyScroll = function (value) {
-        this._CanHorizontallyScroll = value;
-        this._InvalidateMeasure();
-    };
-
-    VirtualizingStackPanel.Instance.GetCanVerticallyScroll = function () { return this._CanVerticallyScroll; };
-    VirtualizingStackPanel.Instance.SetCanVerticallyScroll = function (value) {
-        this._CanVerticallyScroll = value;
-        this._InvalidateMeasure();
-    };
-
-    VirtualizingStackPanel.Instance.GetExtentWidth = function () { return this._ExtentWidth; };
-    VirtualizingStackPanel.Instance.GetExtentHeight = function () { return this._ExtentHeight; };
-
-    VirtualizingStackPanel.Instance.GetViewportWidth = function () { return this._ViewportWidth; };
-    VirtualizingStackPanel.Instance.GetViewportHeight = function () { return this._ViewportHeight; };
-
-    VirtualizingStackPanel.Instance.GetHorizontalOffset = function () { return this._HorizontalOffset; };
-    VirtualizingStackPanel.Instance.SetHorizontalOffset = function (offset) {
-        if (offset < 0 || this._ViewportWidth >= this._ExtentWidth)
-            offset = 0;
-        else if ((offset + this._ViewportWidth) >= this._ExtentWidth)
-            offset = this._ExtentWidth - this._ViewportWidth;
-
-        if (this._HorizontalOffset === offset)
-            return;
-        this._HorizontalOffset = offset;
-
-        if (this.Orientation === Fayde.Orientation.Horizontal)
+    Nullstone.AutoProperty(VirtualizingStackPanel, "ScrollOwner");
+    Nullstone.Property(VirtualizingStackPanel, "CanHorizontallyScroll", {
+        get: function () { return this._CanHorizontallyScroll; },
+        set: function (value) {
+            this._CanHorizontallyScroll = value;
             this._InvalidateMeasure();
-        else
-            this._InvalidateArrange();
-
-        var scrollOwner = this.GetScrollOwner();
-        if (scrollOwner)
-            scrollOwner._InvalidateScrollInfo();
-    };
-
-    VirtualizingStackPanel.Instance.GetVerticalOffset = function () { return this._VerticalOffset; };
-    VirtualizingStackPanel.Instance.SetVerticalOffset = function (offset) {
-        if (offset < 0 || this._ViewportHeight >= this._ExtentHeight)
-            offset = 0;
-        else if ((offset + this._ViewportHeight) >= this._ExtentHeight)
-            offset = this._ExtentHeight - this._ViewportHeight;
-
-        if (this._VerticalOffset == offset)
-            return;
-        this._VerticalOffset = offset;
-
-        if (this.Orientation === Fayde.Orientation.Vertical)
+        }
+    });
+    Nullstone.Property(VirtualizingStackPanel, "CanVerticallyScroll", {
+        get: function () { return this._CanVerticallyScroll; },
+        set: function (value) {
+            this._CanVerticallyScroll = value;
             this._InvalidateMeasure();
-        else
-            this._InvalidateArrange();
+        }
+    });
+    Nullstone.Property(VirtualizingStackPanel, "ExtentWidth", { get: function () { return this._ExtentWidth; } });
+    Nullstone.Property(VirtualizingStackPanel, "ExtentHeight", { get: function () { return this._ExtentHeight; } });
+    Nullstone.Property(VirtualizingStackPanel, "ViewportWidth", { get: function () { return this._ViewportWidth; } });
+    Nullstone.Property(VirtualizingStackPanel, "ViewportHeight", { get: function () { return this._ViewportHeight; } });
+    Nullstone.Property(VirtualizingStackPanel, "HorizontalOffset", {
+        get: function () { return this._HorizontalOffset; },
+        set: function (offset) {
+            if (offset < 0 || this._ViewportWidth >= this._ExtentWidth)
+                offset = 0;
+            else if ((offset + this._ViewportWidth) >= this._ExtentWidth)
+                offset = this._ExtentWidth - this._ViewportWidth;
 
-        var scrollOwner = this.GetScrollOwner();
-        if (scrollOwner)
-            scrollOwner._InvalidateScrollInfo();
-    };
+            if (this._HorizontalOffset === offset)
+                return;
+            this._HorizontalOffset = offset;
 
-    VirtualizingStackPanel.Instance.GetScrollOwner = function () { return this._ScrollOwner; };
-    VirtualizingStackPanel.Instance.SetScrollOwner = function (value) { this._ScrollOwner = value; };
+            if (this.Orientation === Fayde.Orientation.Horizontal)
+                this._InvalidateMeasure();
+            else
+                this._InvalidateArrange();
+
+            var scrollOwner = this.ScrollOwner;
+            if (scrollOwner)
+                scrollOwner._InvalidateScrollInfo();
+        }
+    });
+    Nullstone.Property(VirtualizingStackPanel, "VerticalOffset", {
+        get: function () { return this._VerticalOffset; },
+        set: function (offset) {
+            if (offset < 0 || this._ViewportHeight >= this._ExtentHeight)
+                offset = 0;
+            else if ((offset + this._ViewportHeight) >= this._ExtentHeight)
+                offset = this._ExtentHeight - this._ViewportHeight;
+
+            if (this._VerticalOffset == offset)
+                return;
+            this._VerticalOffset = offset;
+
+            if (this.Orientation === Fayde.Orientation.Vertical)
+                this._InvalidateMeasure();
+            else
+                this._InvalidateArrange();
+
+            var scrollOwner = this.ScrollOwner;
+            if (scrollOwner)
+                scrollOwner._InvalidateScrollInfo();
+        }
+    });
 
     VirtualizingStackPanel.Instance.LineUp = function () {
         if (this.Orientation === Fayde.Orientation.Horizontal)
-            this.SetVerticalOffset(this._VerticalOffset - VirtualizingStackPanel.LineDelta);
+            this.VerticalOffset = this._VerticalOffset - VirtualizingStackPanel.LineDelta;
         else
-            this.SetVerticalOffset(this._VerticalOffset - 1);
+            this.VerticalOffset = this._VerticalOffset - 1;
     };
     VirtualizingStackPanel.Instance.LineDown = function () {
         if (this.Orientation === Fayde.Orientation.Horizontal)
-            this.SetVerticalOffset(this._VerticalOffset + VirtualizingStackPanel.LineDelta);
+            this.VerticalOffset = this._VerticalOffset + VirtualizingStackPanel.LineDelta;
         else
-            this.SetVerticalOffset(this._VerticalOffset + 1);
+            this.VerticalOffset = this._VerticalOffset + 1;
     };
     VirtualizingStackPanel.Instance.LineLeft = function () {
         if (this.Orientation === Fayde.Orientation.Vertical)
-            this.SetHorizontalOffset(this._HorizontalOffset - VirtualizingStackPanel.LineDelta);
+            this.HorizontalOffset = this._HorizontalOffset - VirtualizingStackPanel.LineDelta;
         else
-            this.SetHorizontalOffset(this._HorizontalOffset - 1);
+            this.HorizontalOffset = this._HorizontalOffset - 1;
     };
     VirtualizingStackPanel.Instance.LineRight = function () {
         if (this.Orientation === Fayde.Orientation.Vertical)
-            this.SetHorizontalOffset(this._HorizontalOffset + VirtualizingStackPanel.LineDelta);
+            this.HorizontalOffset = this._HorizontalOffset + VirtualizingStackPanel.LineDelta;
         else
-            this.SetHorizontalOffset(this._HorizontalOffset + 1);
+            this.HorizontalOffset = this._HorizontalOffset + 1;
     };
 
     VirtualizingStackPanel.Instance.MouseWheelUp = function () {
         if (this.Orientation === Fayde.Orientation.Horizontal)
-            this.SetVerticalOffset(this._VerticalOffset - VirtualizingStackPanel.LineDelta * VirtualizingStackPanel.Wheelitude);
+            this.VerticalOffset = this._VerticalOffset - VirtualizingStackPanel.LineDelta * VirtualizingStackPanel.Wheelitude;
         else
-            this.SetVerticalOffset(this._VerticalOffset - VirtualizingStackPanel.Wheelitude);
+            this.VerticalOffset = this._VerticalOffset - VirtualizingStackPanel.Wheelitude;
     };
     VirtualizingStackPanel.Instance.MouseWheelDown = function () {
         if (this.Orientation === Fayde.Orientation.Horizontal)
-            this.SetVerticalOffset(this._VerticalOffset + VirtualizingStackPanel.LineDelta * VirtualizingStackPanel.Wheelitude);
+            this.VerticalOffset = this._VerticalOffset + VirtualizingStackPanel.LineDelta * VirtualizingStackPanel.Wheelitude;
         else
-            this.SetVerticalOffset(this._VerticalOffset + VirtualizingStackPanel.Wheelitude);
+            this.VerticalOffset = this._VerticalOffset + VirtualizingStackPanel.Wheelitude;
     };
     VirtualizingStackPanel.Instance.MouseWheelLeft = function () {
         if (this.Orientation === Fayde.Orientation.Vertical)
-            this.SetHorizontalOffset(this._HorizontalOffset - VirtualizingStackPanel.LineDelta * VirtualizingStackPanel.Wheelitude);
+            this.HorizontalOffset = this._HorizontalOffset - VirtualizingStackPanel.LineDelta * VirtualizingStackPanel.Wheelitude;
         else
-            this.SetHorizontalOffset(this._HorizontalOffset - VirtualizingStackPanel.Wheelitude);
+            this.HorizontalOffset = this._HorizontalOffset - VirtualizingStackPanel.Wheelitude;
     };
     VirtualizingStackPanel.Instance.MouseWheelRight = function () {
         if (this.Orientation === Fayde.Orientation.Vertical)
-            this.SetHorizontalOffset(this._HorizontalOffset + VirtualizingStackPanel.LineDelta * VirtualizingStackPanel.Wheelitude);
+            this.HorizontalOffset = this._HorizontalOffset + VirtualizingStackPanel.LineDelta * VirtualizingStackPanel.Wheelitude;
         else
-            this.SetHorizontalOffset(this._HorizontalOffset + VirtualizingStackPanel.Wheelitude);
+            this.HorizontalOffset = this._HorizontalOffset + VirtualizingStackPanel.Wheelitude;
     };
 
-    VirtualizingStackPanel.Instance.PageUp = function () { this.SetVerticalOffset(this._VerticalOffset - this._ViewportHeight); };
-    VirtualizingStackPanel.Instance.PageDown = function () { this.SetVerticalOffset(this._VerticalOffset + this._ViewportHeight); };
-    VirtualizingStackPanel.Instance.PageLeft = function () { this.SetHorizontalOffset(this._HorizontalOffset - this._ViewportWidth); };
-    VirtualizingStackPanel.Instance.PageRight = function () { this.SetHorizontalOffset(this._HorizontalOffset + this._ViewportWidth); };
+    VirtualizingStackPanel.Instance.PageUp = function () { this.VerticalOffset = this._VerticalOffset - this._ViewportHeight; };
+    VirtualizingStackPanel.Instance.PageDown = function () { this.VerticalOffset = this._VerticalOffset + this._ViewportHeight; };
+    VirtualizingStackPanel.Instance.PageLeft = function () { this.HorizontalOffset = this._HorizontalOffset - this._ViewportWidth; };
+    VirtualizingStackPanel.Instance.PageRight = function () { this.HorizontalOffset = this._HorizontalOffset + this._ViewportWidth; };
 
     VirtualizingStackPanel.Instance.MakeVisible = function (uie, rectangle) {
         var exposed = new Rect();
@@ -194,14 +195,14 @@
             if (Nullstone.RefEquals(uie, child)) {
                 if (orientation === Fayde.Orientation.Vertical) {
                     if (rectangle.X !== this._HorizontalOffset)
-                        this.SetHorizontalOffset(rectangle.X);
+                        this.HorizontalOffset = rectangle.X;
 
                     exposed.Width = Math.min(child.RenderSize.Width, this._ViewportWidth);
                     exposed.Height = child.RenderSize.Height;
                     exposed.X = this._HorizontalOffset;
                 } else {
                     if (rectangle.Y !== this._VerticalOffset)
-                        this.SetVerticalOffset(rectangle.Y);
+                        this.VerticalOffset = rectangle.Y;
 
                     exposed.Height = Math.min(child.RenderSize.Height, this._ViewportHeight);
                     exposed.Width = child.RenderSize.Width;
@@ -232,18 +233,18 @@
 
         var orientation = this.Orientation;
         if (orientation === Fayde.Orientation.Horizontal)
-            index = this.GetHorizontalOffset();
+            index = this.HorizontalOffset;
         else
-            index = this.GetVerticalOffset();
+            index = this.VerticalOffset;
 
         var itemCount = owner.Items.GetCount();
         var generator = this.ItemContainerGenerator;
         if (itemCount > 0) {
             var children = this.Children;
             var childAvailable = constraint.Copy();
-            if (this.GetCanHorizontallyScroll() || orientation === Fayde.Orientation.Horizontal)
+            if (this.CanHorizontallyScroll || orientation === Fayde.Orientation.Horizontal)
                 childAvailable.Width = Number.POSITIVE_INFINITY;
-            if (this.GetCanVerticallyScroll() || orientation === Fayde.Orientation.Vertical)
+            if (this.CanVerticallyScroll || orientation === Fayde.Orientation.Vertical)
                 childAvailable.Height = Number.POSITIVE_INFINITY;
 
             var start = generator.GeneratorPositionFromIndex(index);
@@ -293,45 +294,45 @@
         nvisible -= beyond;
 
         if (orientation === Fayde.Orientation.Vertical) {
-            if (this.GetExtentHeight() !== itemCount) {
+            if (this.ExtentHeight !== itemCount) {
                 this._ExtentHeight = itemCount;
                 invalidate = true;
             }
-            if (this.GetExtentWidth() !== measured.Width) {
+            if (this.ExtentWidth !== measured.Width) {
                 this._ExtentWidth = measured.Width;
                 invalidate = true;
             }
-            if (this.GetViewportHeight() !== nvisible) {
+            if (this.ViewportHeight !== nvisible) {
                 this._ViewportHeight = nvisible;
                 invalidate = true;
             }
-            if (this.GetViewportWidth() != constraint.Width) {
+            if (this.ViewportWidth != constraint.Width) {
                 this._ViewportWidth = constraint.Width;
                 invalidate = true;
             }
         } else {
-            if (this.GetExtentHeight() !== measured.Height) {
+            if (this.ExtentHeight !== measured.Height) {
                 this._ExtentHeight = measured.Height;
                 invalidate = true;
             }
 
-            if (this.GetExtentWidth() !== itemCount) {
+            if (this.ExtentWidth !== itemCount) {
                 this._ExtentWidth = itemCount;
                 invalidate = true;
             }
 
-            if (this.GetViewportHeight() !== constraint.Height) {
+            if (this.ViewportHeight !== constraint.Height) {
                 this._ViewportHeight = constraint.Height;
                 invalidate = true;
             }
 
-            if (this.GetViewportWidth() !== nvisible) {
+            if (this.ViewportWidth !== nvisible) {
                 this._ViewportWidth = nvisible;
                 invalidate = true;
             }
         }
 
-        var scrollOwner = this.GetScrollOwner();
+        var scrollOwner = this.ScrollOwner;
         if (invalidate && scrollOwner != null)
             scrollOwner._InvalidateScrollInfo();
 
@@ -358,7 +359,7 @@
             var size = child._DesiredSize;
             if (orientation === Fayde.Orientation.Vertical) {
                 size.Width = arrangeSize.Width;
-                var childFinal = new Rect(-this.GetHorizontalOffset(), arranged.Height, size.Width, size.Height);
+                var childFinal = new Rect(-this.HorizontalOffset, arranged.Height, size.Width, size.Height);
                 if (childFinal.IsEmpty())
                     childFinal = new Rect();
                 child.Arrange(childFinal);
@@ -366,7 +367,7 @@
                 arranged.Height += size.Height;
             } else {
                 size.Height = arrangeSize.Height;
-                var childFinal = new Rect(arranged.Width, -this.GetVerticalOffset(), size.Width, size.Height);
+                var childFinal = new Rect(arranged.Width, -this.VerticalOffset, size.Width, size.Height);
                 if (childFinal.IsEmpty())
                     childFinal = new Rect();
                 child.Arrange(childFinal);
@@ -426,7 +427,7 @@
 
         this._InvalidateMeasure();
 
-        var scrollOwner = this.GetScrollOwner();
+        var scrollOwner = this.ScrollOwner;
         if (scrollOwner)
             scrollOwner._InvalidateScrollInfo();
     };
@@ -446,9 +447,9 @@
             case Fayde.Collections.NotifyCollectionChangedAction.Add:
                 var index = generator.IndexFromGeneratorPosition(args.Position.index, args.Position.offset);
                 if (orientation === Fayde.Orientation.Horizontal)
-                    offset = this.GetHorizontalOffset();
+                    offset = this.HorizontalOffset;
                 else
-                    offset = this.GetVerticalOffset();
+                    offset = this.VerticalOffset;
 
                 if (index <= offset) {
                     // items have been added earlier in the list than what is viewable
@@ -456,18 +457,18 @@
                 }
 
                 if (orientation === Fayde.Orientation.Horizontal)
-                    this.SetHorizontalOffset(offset);
+                    this.HorizontalOffset = offset;
                 else
-                    this.SetVerticalOffset(offset);
+                    this.VerticalOffset = offset;
                 break;
             case Fayde.Collections.NotifyCollectionChangedAction.Remove:
                 index = generator.IndexFromGeneratorPosition(args.Position.index, args.Position.offset);
                 if (orientation === Fayde.Orientation.Horizontal) {
-                    offset = this.GetHorizontalOffset();
-                    viewable = this.GetViewportWidth();
+                    offset = this.HorizontalOffset;
+                    viewable = this.ViewportWidth;
                 } else {
-                    offset = this.GetVerticalOffset();
-                    viewable = this.GetViewportHeight();
+                    offset = this.VerticalOffset;
+                    viewable = this.ViewportHeight;
                 }
 
                 if (index < offset) {
@@ -480,9 +481,9 @@
                 offset = Math.max(offset, 0);
 
                 if (orientation === Fayde.Orientation.Horizontal)
-                    this.SetHorizontalOffset(offset);
+                    this.HorizontalOffset = offset;
                 else
-                    this.SetVerticalOffset(offset);
+                    this.VerticalOffset = offset;
 
                 this.RemoveInternalChildRange(args.Position.index, args.Position.ItemUICount);
                 break;
@@ -495,7 +496,7 @@
 
         this._InvalidateMeasure();
 
-        var scrollOwner = this.GetScrollOwner();
+        var scrollOwner = this.ScrollOwner;
         if (scrollOwner)
             scrollOwner._InvalidateScrollInfo();
     };

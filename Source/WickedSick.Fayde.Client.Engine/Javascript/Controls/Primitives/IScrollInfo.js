@@ -1,29 +1,23 @@
 ﻿/// <reference path="../../Runtime/Nullstone.js"/>
 /// CODE
 
-(function (namespace) {
+(function (Primitives) {
     var IScrollInfo = Nullstone.Create("IScrollInfo");
 
-    IScrollInfo.Instance.GetCanHorizontallyScroll = function () { };
-    IScrollInfo.Instance.SetCanHorizontallyScroll = function () { };
+    Nullstone.AutoProperties(IScrollInfo, [
+        "CanHorizontallyScroll",
+        "CanVerticallyScroll",
+        "HorizontalOffset",
+        "VerticalOffset",
+        "ScrollOwner",
+    ]);
 
-    IScrollInfo.Instance.GetCanVerticallyScroll = function () { };
-    IScrollInfo.Instance.SetCanVerticallyScroll = function () { };
-
-    IScrollInfo.Instance.GetExtentWidth = function () { };
-    IScrollInfo.Instance.GetExtentHeight = function () { };
-
-    IScrollInfo.Instance.GetViewportWidth = function () { };
-    IScrollInfo.Instance.GetViewportHeight = function () { };
-
-    IScrollInfo.Instance.GetHorizontalOffset = function () { };
-    IScrollInfo.Instance.SetHorizontalOffset = function (value) { };
-
-    IScrollInfo.Instance.GetVerticalOffset = function () { };
-    IScrollInfo.Instance.SetVerticalOffset = function (value) { };
-
-    IScrollInfo.Instance.GetScrollOwner = function () { };
-    IScrollInfo.Instance.SetScrollOwner = function (value) { };
+    Nullstone.AutoPropertiesReadOnly(IScrollInfo, [
+        "ExtentWidth",
+        "ExtentHeight",
+        "ViewportWidth",
+        "ViewportHeight"
+    ]);
 
     IScrollInfo.Instance.LineUp = function () { };
     IScrollInfo.Instance.LineDown = function () { };
@@ -42,5 +36,5 @@
 
     IScrollInfo.Instance.MakeVisible = function (uie, rectangle) { return new Rect(); };
 
-    namespace.IScrollInfo = Nullstone.FinishCreate(IScrollInfo);
+    Primitives.IScrollInfo = Nullstone.FinishCreate(IScrollInfo);
 })(Nullstone.Namespace("Fayde.Controls.Primitives"));

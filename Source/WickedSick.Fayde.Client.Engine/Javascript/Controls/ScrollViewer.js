@@ -24,8 +24,8 @@
             d._InvalidateMeasure();
             var scrollInfo = d.GetScrollInfo();
             if (scrollInfo) {
-                scrollInfo.SetCanHorizontallyScroll(d.HorizontalScrollBarVisibility !== namespace.ScrollBarVisibility.Disabled);
-                scrollInfo.SetCanVerticallyScroll(d.VerticalScrollBarVisibility !== namespace.ScrollBarVisibility.Disabled);
+                scrollInfo.CanHorizontallyScroll = d.HorizontalScrollBarVisibility !== namespace.ScrollBarVisibility.Disabled;
+                scrollInfo.CanVerticallyScroll = d.VerticalScrollBarVisibility !== namespace.ScrollBarVisibility.Disabled;
             }
             d._UpdateScrollBarVisibility();
             return;
@@ -107,8 +107,8 @@
         ///<param name="value" type="IScrollInfo"></param>
         this.$ScrollInfo = value;
         if (value) {
-            value.SetCanHorizontallyScroll(this.HorizontalScrollBarVisibility !== namespace.ScrollBarVisibility.Disabled);
-            value.SetCanVerticallyScroll(this.VerticalScrollBarVisibility !== namespace.ScrollBarVisibility.Disabled);
+            value.CanHorizontallyScroll = this.HorizontalScrollBarVisibility !== namespace.ScrollBarVisibility.Disabled;
+            value.CanVerticallyScroll = this.VerticalScrollBarVisibility !== namespace.ScrollBarVisibility.Disabled;
         }
     };
 
@@ -205,7 +205,7 @@
         var scrollInfo = this.GetScrollInfo();
         if (!scrollInfo)
             return;
-        var offset = scrollInfo.GetHorizontalOffset();
+        var offset = scrollInfo.HorizontalOffset;
         var newValue = offset;
         switch (e.ScrollEventType) {
             case namespace.Primitives.ScrollEventType.SmallDecrement:
@@ -234,14 +234,14 @@
         newValue = Math.max(newValue, 0);
         newValue = Math.min(this.ScrollableWidth, newValue);
         if (!DoubleUtil.AreClose(offset, newValue))
-            scrollInfo.SetHorizontalOffset(newValue);
+            scrollInfo.HorizontalOffset = newValue;
     };
     ScrollViewer.Instance._HandleVerticalScroll = function (e) {
         /// <param name="e" type="ScrollEventArgs"></param>
         var scrollInfo = this.GetScrollInfo();
         if (!scrollInfo)
             return;
-        var offset = scrollInfo.GetVerticalOffset();
+        var offset = scrollInfo.VerticalOffset;
         var newValue = offset;
         switch (e.ScrollEventType) {
             case namespace.Primitives.ScrollEventType.SmallDecrement:
@@ -270,7 +270,7 @@
         newValue = Math.max(newValue, 0);
         newValue = Math.min(this.ScrollableHeight, newValue);
         if (!DoubleUtil.AreClose(offset, newValue))
-            scrollInfo.SetVerticalOffset(newValue);
+            scrollInfo.VerticalOffset = newValue;
     };
 
     //#endregion
@@ -289,7 +289,7 @@
         var scrollInfo = this.GetScrollInfo();
         if (!scrollInfo)
             return;
-        if ((args.Delta > 0 && scrollInfo.GetVerticalOffset() !== 0) || (args.Delta < 0 && scrollInfo.GetVerticalOffset() < this.ScrollableHeight)) {
+        if ((args.Delta > 0 && scrollInfo.VerticalOffset !== 0) || (args.Delta < 0 && scrollInfo.VerticalOffset < this.ScrollableHeight)) {
             if (args.Delta >= 0)
                 scrollInfo.MouseWheelUp();
             else
@@ -391,12 +391,12 @@
     ScrollViewer.Instance._InvalidateScrollInfo = function () {
         var scrollInfo = this.GetScrollInfo();
         if (scrollInfo) {
-            this.$SetValueInternal(ScrollViewer.ExtentWidthProperty, scrollInfo.GetExtentWidth());
-            this.$SetValueInternal(ScrollViewer.ExtentHeightProperty, scrollInfo.GetExtentHeight());
-            this.$SetValueInternal(ScrollViewer.ViewportWidthProperty, scrollInfo.GetViewportWidth());
-            this.$SetValueInternal(ScrollViewer.ViewportHeightProperty, scrollInfo.GetViewportHeight());
-            this._UpdateScrollBar(Fayde.Orientation.Horizontal, scrollInfo.GetHorizontalOffset());
-            this._UpdateScrollBar(Fayde.Orientation.Vertical, scrollInfo.GetVerticalOffset());
+            this.$SetValueInternal(ScrollViewer.ExtentWidthProperty, scrollInfo.ExtentWidth);
+            this.$SetValueInternal(ScrollViewer.ExtentHeightProperty, scrollInfo.ExtentHeight);
+            this.$SetValueInternal(ScrollViewer.ViewportWidthProperty, scrollInfo.ViewportWidth);
+            this.$SetValueInternal(ScrollViewer.ViewportHeightProperty, scrollInfo.ViewportHeight);
+            this._UpdateScrollBar(Fayde.Orientation.Horizontal, scrollInfo.HorizontalOffset);
+            this._UpdateScrollBar(Fayde.Orientation.Vertical, scrollInfo.VerticalOffset);
             this._UpdateScrollBarVisibility();
         }
         this._RaiseViewportChanged(this.ViewportWidth, this.ViewportHeight);
@@ -427,7 +427,7 @@
                 break;
             case namespace.ScrollBarVisibility.Auto:
             default:
-                horizontalVisibility = (!scrollInfo || scrollInfo.GetExtentWidth() <= scrollInfo.GetViewportWidth()) ? Fayde.Visibility.Collapsed : Fayde.Visibility.Visible;
+                horizontalVisibility = (!scrollInfo || scrollInfo.ExtentWidth <= scrollInfo.ViewportWidth) ? Fayde.Visibility.Collapsed : Fayde.Visibility.Visible;
                 break;
         }
 
@@ -448,7 +448,7 @@
                 break;
             case namespace.ScrollBarVisibility.Auto:
             default:
-                verticalVisibility = (!scrollInfo || scrollInfo.GetExtentHeight() <= scrollInfo.GetViewportHeight()) ? Fayde.Visibility.Collapsed : Fayde.Visibility.Visible;
+                verticalVisibility = (!scrollInfo || scrollInfo.ExtentHeight <= scrollInfo.ViewportHeight) ? Fayde.Visibility.Collapsed : Fayde.Visibility.Visible;
                 break;
         }
 
@@ -463,13 +463,13 @@
             var scrollInfo = this.GetScrollInfo();
             if (orientation === Fayde.Orientation.Horizontal) {
                 this.$SetValueInternal(ScrollViewer.HorizontalOffsetProperty, value);
-                this._RaiseOffsetChanged(scrollInfo.GetHorizontalOffset(), Fayde.Orientation.Horizontal);
+                this._RaiseOffsetChanged(scrollInfo.HorizontalOffset, Fayde.Orientation.Horizontal);
                 if (this.$ElementHorizontalScrollBar) {
                     this.$ElementHorizontalScrollBar.Value = value;
                 }
             } else {
                 this.$SetValueInternal(ScrollViewer.VerticalOffsetProperty, value);
-                this._RaiseOffsetChanged(scrollInfo.GetVerticalOffset(), Fayde.Orientation.Vertical);
+                this._RaiseOffsetChanged(scrollInfo.VerticalOffset, Fayde.Orientation.Vertical);
                 if (this.$ElementVerticalScrollBar) {
                     this.$ElementVerticalScrollBar.Value = value;
                 }
