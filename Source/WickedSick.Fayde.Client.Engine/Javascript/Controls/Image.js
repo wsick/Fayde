@@ -163,7 +163,7 @@
         var parent = this.GetVisualParent();
         var source = this.Source;
 
-        if (parent && !Nullstone.Is(parent, namespace.Canvas))
+        if (parent && !(parent instanceof namespace.Canvas))
             if (this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty) !== undefined)
                 return result;
 
@@ -397,20 +397,24 @@
             //if (!parentIsFixedHeight && !parentIsFixedWidth) {
             //    stretch = Stretch.None;
             //}
+            imgEl.style.backgroundImage = "url('" + source._Image.src + "')";
+            imgEl.style.backgroundRepeat = "no-repeat";
             switch (stretch) {
                 case Fayde.Media.Stretch.None:
-                    var img = imgEl.appendChild(document.createElement("img"));
-                    img.src = source._Image.src;
+                    //var img = imgEl.appendChild(document.createElement("img"));
+                    //img.src = source._Image.src;
+                    imgEl.style.backgroundPosition = "center";
                     break;
                 case Fayde.Media.Stretch.Fill:
+                    imgEl.style.backgroundSize = "100% 100%";
                     break;
                 case Fayde.Media.Stretch.Uniform:
                     imgEl.style.backgroundSize = "contain";
-                    imgEl.style.backgroundRepeat = "no-repeat";
                     imgEl.style.backgroundPosition = "center";
-                    imgEl.style.backgroundImage = "url('" + source._Image.src + "')";
                     break;
                 case Fayde.Media.Stretch.UniformToFill:
+                    imgEl.style.backgroundSize = "cover";
+                    imgEl.style.backgroundPosition = "left top";
                     break;
             }
         };
