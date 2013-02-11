@@ -38,11 +38,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\ThirdParty\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -59,12 +55,6 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
-    <Reference Include="WickedSick.Server.Framework.Fayde">
-      <HintPath>..\ThirdParty\WickedSick.Server.Framework.Fayde.dll</HintPath>
-    </Reference>
-    <Reference Include="WickedSick.Server.XamlParser">
-      <HintPath>..\ThirdParty\WickedSick.Server.XamlParser.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Data\features_list.xml">
@@ -89,37 +79,10 @@
     <Content Include="demos\masterdetail\INflRepository.ts" />
     <Content Include="demos\masterdetail\Player.js" />
     <Content Include="demos\masterdetail\Player.ts" />
-    <Content Include="demos\sdb\default.fap.js">
-      <DependentUpon>default.fap.ts</DependentUpon>
-    </Content>
-    <Content Include="demos\sdb\root.fayde.js">
-      <DependentUpon>root.fayde.ts</DependentUpon>
-    </Content>
-    <Content Include="demos\sdb\ViewModels\MainViewModel.js">
-      <DependentUpon>MainViewModel.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="demos\stackoverflow\default.fap.ts">
-      <DependentUpon>default.fap</DependentUpon>
-    </TypeScriptCompile>
-    <Content Include="demos\stackoverflow\default.fap.js">
-      <DependentUpon>default.fap.ts</DependentUpon>
-    </Content>
-    <Content Include="demos\stackoverflow\root.fayde.js">
-      <DependentUpon>root.fayde.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="demos\stackoverflow\ViewModels\MainViewModel.ts" />
-    <TypeScriptCompile Include="demos\stackoverflow\root.fayde.ts">
-      <DependentUpon>root.fayde</DependentUpon>
-    </TypeScriptCompile>
-    <Content Include="demos\stackoverflow\ViewModels\MainViewModel.js">
-      <DependentUpon>MainViewModel.ts</DependentUpon>
-    </Content>
     <Content Include="features.aspx" />
     <Content Include="gettingstarted.aspx" />
     <Content Include="home.aspx" />
     <Content Include="qa.aspx" />
-    <Content Include="scripts\Fayde.Generic.js" />
-    <Content Include="scripts\Fayde.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -143,17 +106,6 @@
     </Compile>
     <Compile Include="demo.aspx.designer.cs">
       <DependentUpon>demo.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="demos\sdb\Services\GetAllSongs.ashx.cs">
-      <DependentUpon>GetAllSongs.ashx</DependentUpon>
-    </Compile>
-    <Compile Include="demos\sdb\Services\GoogleMusicAPI\API.cs" />
-    <Compile Include="demos\sdb\Services\GoogleMusicAPI\FormBuilder.cs" />
-    <Compile Include="demos\sdb\Services\GoogleMusicAPI\GoogleHTTP.cs" />
-    <Compile Include="demos\sdb\Services\GoogleMusicAPI\JSON.cs" />
-    <Compile Include="demos\sdb\Services\GoogleMusicAPI\Models.cs" />
-    <Compile Include="demos\stackoverflow\so.ashx.cs">
-      <DependentUpon>so.ashx</DependentUpon>
     </Compile>
     <Compile Include="features.aspx.cs">
       <DependentUpon>features.aspx</DependentUpon>
@@ -187,30 +139,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="default.Master" />
-    <Content Include="demos\stackoverflow\default.fap">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="demos\stackoverflow\root.fayde">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="demos\stackoverflow\so.ashx" />
     <Content Include="demos\masterdetail\default.fap" />
     <Content Include="demos\masterdetail\default.fayde" />
-    <Content Include="demos\sdb\default.fap">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="demos\sdb\root.fayde">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="demos\sdb\Services\GetAllSongs.ashx" />
-    <Content Include="scripts\Fayde.d.ts" />
-    <TypeScriptCompile Include="demos\sdb\ViewModels\MainViewModel.ts" />
-    <TypeScriptCompile Include="demos\sdb\default.fap.ts">
-      <DependentUpon>default.fap</DependentUpon>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="demos\sdb\root.fayde.ts">
-      <DependentUpon>root.fayde</DependentUpon>
-    </TypeScriptCompile>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -260,16 +190,10 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <TypeScriptSourceMap> --sourcemap</TypeScriptSourceMap>
-  </PropertyGroup>
-  <Target Name="BeforeBuild">
-    <Message Text="Compiling TypeScript files" />
-    <Message Text="Executing tsc$(TypeScriptSourceMap) @(TypeScriptCompile ->'&quot;%(fullpath)&quot;', ' ')" />
-    <Exec Command="tsc$(TypeScriptSourceMap) @(TypeScriptCompile ->'&quot;%(fullpath)&quot;', ' ')" />
-  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
   <Target Name="AfterBuild">
   </Target>
   -->

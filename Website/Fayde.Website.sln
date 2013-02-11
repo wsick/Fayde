@@ -11,6 +11,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Website.MVVM", "Fayde
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Website.IO", "Fayde.Website.IO\Fayde.Website.IO.csproj", "{1F0C408A-ABA8-48CD-91B6-6FE857B018DE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Demos.StackOverflowDemo", "Fayde.Demos.StackOverflowDemo\Fayde.Demos.StackOverflowDemo.csproj", "{E5D7A77B-E224-45CB-ACE3-09C4856FA5A6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Demos.SDBDemo", "Fayde.Demos.SDBDemo\Fayde.Demos.SDBDemo.csproj", "{193C6F25-4BE8-4DA4-A24B-D85C48363A28}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demos", "Demos", "{105F8723-4365-415B-BCF1-9F1094993C17}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,8 +43,20 @@ Global
 		{1F0C408A-ABA8-48CD-91B6-6FE857B018DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F0C408A-ABA8-48CD-91B6-6FE857B018DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F0C408A-ABA8-48CD-91B6-6FE857B018DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5D7A77B-E224-45CB-ACE3-09C4856FA5A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5D7A77B-E224-45CB-ACE3-09C4856FA5A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5D7A77B-E224-45CB-ACE3-09C4856FA5A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5D7A77B-E224-45CB-ACE3-09C4856FA5A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{193C6F25-4BE8-4DA4-A24B-D85C48363A28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{193C6F25-4BE8-4DA4-A24B-D85C48363A28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{193C6F25-4BE8-4DA4-A24B-D85C48363A28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{193C6F25-4BE8-4DA4-A24B-D85C48363A28}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E5D7A77B-E224-45CB-ACE3-09C4856FA5A6} = {105F8723-4365-415B-BCF1-9F1094993C17}
+		{193C6F25-4BE8-4DA4-A24B-D85C48363A28} = {105F8723-4365-415B-BCF1-9F1094993C17}
 	EndGlobalSection
 EndGlobal
