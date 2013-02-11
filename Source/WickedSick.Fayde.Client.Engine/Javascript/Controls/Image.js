@@ -104,7 +104,7 @@
         if (shapeBounds.Width === 0)
             shapeBounds.Width = arranged.Width;
         if (shapeBounds.Height === 0)
-            shapeBounds.Height = arguments.Height;
+            shapeBounds.Height = arranged.Height;
 
         if (shapeBounds.Width !== arranged.Width)
             sx = arranged.Width / shapeBounds.Width;
