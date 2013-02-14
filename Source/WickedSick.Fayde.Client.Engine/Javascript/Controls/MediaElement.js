@@ -174,12 +174,18 @@
     // http://www.w3.org/2010/05/video/mediaevents.html
     //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {
+        MediaElement.Instance._HandleResizeStretch = function (e) {
+            var isFixedWidth = this.GetIsFixedWidth();
+            var isFixedHeight = this.GetIsFixedHeight();
+            if ((isFixedWidth && !isFixedHeight) || (!isFixedWidth && isFixedHeight))
+                Surface._SizingAdjustments[this._ID] = this;
+        };
         MediaElement.Instance.CreateHtmlObjectImpl = function () {
             var rootEl = this.CreateHtmlObjectImpl$FrameworkElement();
             var contentEl = rootEl.firstChild;
             contentEl.appendChild(this.GetHtmlMediaEl());
             var that = this;
-            window.addEventListener("resize", function (e) { Surface._SizingAdjustments[that._ID] = that; }, false);
+            window.addEventListener("resize", function (e) { that._HandleResizeStretch(e); }, false);
             return rootEl;
         };
         MediaElement.Instance.GetHtmlMediaEl = function () {

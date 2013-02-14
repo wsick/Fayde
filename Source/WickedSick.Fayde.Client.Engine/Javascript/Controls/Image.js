@@ -389,12 +389,18 @@
 
     //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {
+        Image.Instance._HandleResizeStretch = function (e) {
+            var isFixedWidth = this.GetIsFixedWidth();
+            var isFixedHeight = this.GetIsFixedHeight();
+            if ((isFixedWidth && !isFixedHeight) || (!isFixedWidth && isFixedHeight))
+                Surface._SizingAdjustments[this._ID] = this;
+        };
         Image.Instance.CreateHtmlObjectImpl = function () {
             var rootEl = document.createElement("div");
             rootEl.appendChild(document.createElement("div"));
             this.InitializeHtml(rootEl);
             var that = this;
-            window.addEventListener("resize", function (e) { Surface._SizingAdjustments[that._ID] = that; }, false);
+            window.addEventListener("resize", function (e) { that._HandleResizeStretch(e); }, false);
             return rootEl;
         };
         var applyImage = function (rootEl, parentIsFixedWidth, parentIsFixedHeight, source, stretch) {
