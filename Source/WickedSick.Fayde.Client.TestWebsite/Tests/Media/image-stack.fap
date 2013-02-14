@@ -1,0 +1,12 @@
+﻿<FaydeApplication
+    xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+    Debug="true"
+    ScriptResolution="/Fayde/">
+    <FaydeApplication.Resources>
+    </FaydeApplication.Resources>
+    <StackPanel>
+        <Image Source="../../Images/testing.jpg" />
+        <Image Source="../../Images/testing.jpg" />
+    </StackPanel>
+</FaydeApplication>

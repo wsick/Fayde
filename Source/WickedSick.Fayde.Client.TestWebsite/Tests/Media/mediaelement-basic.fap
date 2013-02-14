@@ -1,0 +1,11 @@
+﻿<FaydeApplication
+    xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+    Debug="true"
+    ScriptResolution="/Fayde/">
+    <FaydeApplication.Resources>
+    </FaydeApplication.Resources>
+    <Grid>
+        <MediaElement Source="../../Media/test_movie.mp4" />
+    </Grid>
+</FaydeApplication>
