@@ -1,0 +1,16 @@
+﻿<FaydeApplication
+    xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+    Debug="true"
+    ScriptResolution="/Fayde/">
+    <FaydeApplication.Resources>
+    </FaydeApplication.Resources>
+    <StackPanel>
+        <Polygon Fill="#222222" Stroke="Red" StrokeThickness="5"
+                 Points="150,0 200,300 0,100 300,100 100,300"
+                 FillRule="NonZero" />
+        <Polygon Fill="#222222" Stroke="Red" StrokeThickness="5"
+                 Points="150,0 200,300 0,100 300,100 100,300"
+                 FillRule="NonZero" />
+    </StackPanel>
+</FaydeApplication>

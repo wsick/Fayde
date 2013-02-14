@@ -389,12 +389,6 @@
 
     //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {
-        Image.Instance._HandleResizeStretch = function (e) {
-            var isFixedWidth = this.GetIsFixedWidth();
-            var isFixedHeight = this.GetIsFixedHeight();
-            if ((isFixedWidth && !isFixedHeight) || (!isFixedWidth && isFixedHeight))
-                Surface._SizingAdjustments[this._ID] = this;
-        };
         Image.Instance.CreateHtmlObjectImpl = function () {
             var rootEl = document.createElement("div");
             rootEl.appendChild(document.createElement("div"));
@@ -440,6 +434,12 @@
             this.ApplyHtmlChanges$FrameworkElement(invalidations);
         };
 
+        Image.Instance._HandleResizeStretch = function (e) {
+            var isFixedWidth = this.GetIsFixedWidth();
+            var isFixedHeight = this.GetIsFixedHeight();
+            if ((isFixedWidth && !isFixedHeight) || (!isFixedWidth && isFixedHeight))
+                Surface._SizingAdjustments[this._ID] = this;
+        };
         Image.Instance.FindAndSetAdjustedHeight = function () {
             if (this.GetIsFixedHeight() || !this.GetIsFixedWidth())
                 return this.FindAndSetAdjustedHeight$FrameworkElement();

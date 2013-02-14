@@ -78,9 +78,6 @@
     <Content Include="default3.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="default4.fap">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="Media\test_movie.mp4" />
     <Content Include="default6.fap">
       <SubType>Designer</SubType>
@@ -104,8 +101,18 @@
     <Content Include="Tests\Media\mediaelement-stack.fap">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Tests\Shapes\shape-stretch.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Tests\Shapes\rectangle-basic.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <None Include="Tests\Shapes\shape-stack.fap">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Views\SDK.fayde" />
     <None Include="Views\Toolkit.fayde" />
+    <Content Include="Tests\tests.aspx" />
     <Content Include="Views\Home.fayde.js">
       <DependentUpon>Home.fayde</DependentUpon>
     </Content>
@@ -117,6 +124,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests\tests.aspx.cs">
+      <DependentUpon>tests.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Tests\tests.aspx.designer.cs">
+      <DependentUpon>tests.aspx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="default.fap">

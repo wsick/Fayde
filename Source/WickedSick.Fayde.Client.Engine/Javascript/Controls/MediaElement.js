@@ -174,12 +174,6 @@
     // http://www.w3.org/2010/05/video/mediaevents.html
     //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {
-        MediaElement.Instance._HandleResizeStretch = function (e) {
-            var isFixedWidth = this.GetIsFixedWidth();
-            var isFixedHeight = this.GetIsFixedHeight();
-            if ((isFixedWidth && !isFixedHeight) || (!isFixedWidth && isFixedHeight))
-                Surface._SizingAdjustments[this._ID] = this;
-        };
         MediaElement.Instance.CreateHtmlObjectImpl = function () {
             var rootEl = this.CreateHtmlObjectImpl$FrameworkElement();
             var contentEl = rootEl.firstChild;
@@ -252,6 +246,12 @@
             }
         };
 
+        MediaElement.Instance._HandleResizeStretch = function (e) {
+            var isFixedWidth = this.GetIsFixedWidth();
+            var isFixedHeight = this.GetIsFixedHeight();
+            if ((isFixedWidth && !isFixedHeight) || (!isFixedWidth && isFixedHeight))
+                Surface._SizingAdjustments[this._ID] = this;
+        };
         MediaElement.Instance.FindAndSetAdjustedHeight = function () {
             if (this.GetIsFixedHeight() || !this.GetIsFixedWidth())
                 return this.FindAndSetAdjustedHeight$FrameworkElement();
