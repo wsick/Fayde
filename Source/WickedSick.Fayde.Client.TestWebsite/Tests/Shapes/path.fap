@@ -1,13 +1,15 @@
 ﻿<FaydeApplication
     xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
-    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core">
-    <FaydeApplication.UriMappings>
-    </FaydeApplication.UriMappings>
-    <Grid x:Name="LayoutRoot" Width="100" Height="100" Background="#FFFFFF00">
+    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+    Debug="true"
+    ScriptResolution="/Fayde/">
+    <FaydeApplication.Resources>
+    </FaydeApplication.Resources>
+    <StackPanel>
         <Path Stretch="Uniform" Height="8" Width="4" Data="F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z ">
             <Path.Fill>
                 <SolidColorBrush x:Name="ButtonColor" Color="#FF333333" />
             </Path.Fill>
         </Path>
-    </Grid>
+    </StackPanel>
 </FaydeApplication>
