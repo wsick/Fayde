@@ -81,9 +81,6 @@
     <Content Include="default4.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="default5.fap">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="Media\test_movie.mp4" />
     <Content Include="default6.fap">
       <SubType>Designer</SubType>
@@ -102,6 +99,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Tests\Media\mediaelement-basic.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Tests\Media\mediaelement-stack.fap">
       <SubType>Designer</SubType>
     </Content>
     <None Include="Views\SDK.fayde" />

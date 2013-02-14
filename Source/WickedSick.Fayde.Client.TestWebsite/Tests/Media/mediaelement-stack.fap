@@ -3,12 +3,10 @@
     xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
     Debug="true"
     ScriptResolution="/Fayde/">
-    <FaydeApplication.UriMappings>
-        <UriMapping Uri="" MappedUri="/Views/default.fayde" />
-    </FaydeApplication.UriMappings>
     <FaydeApplication.Resources>
     </FaydeApplication.Resources>
-    <StackPanel Background="AntiqueWhite">
-        <MediaElement Source="Media/test_movie.mp4" />
+    <StackPanel>
+        <MediaElement Source="../../Media/test_movie.mp4" />
+        <MediaElement Source="../../Media/test_movie.mp4" />
     </StackPanel>
 </FaydeApplication>

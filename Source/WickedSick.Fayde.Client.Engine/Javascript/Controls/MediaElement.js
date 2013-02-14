@@ -178,6 +178,8 @@
             var rootEl = this.CreateHtmlObjectImpl$FrameworkElement();
             var contentEl = rootEl.firstChild;
             contentEl.appendChild(this.GetHtmlMediaEl());
+            var that = this;
+            window.addEventListener("resize", function (e) { Surface._SizingAdjustments[that._ID] = that; }, false);
             return rootEl;
         };
         MediaElement.Instance.GetHtmlMediaEl = function () {
@@ -205,8 +207,11 @@
                 //TODO: Finish
             }, false);
             video.ontimeupdate = function (e) { that.$SetValueInternal(MediaElement.PositionProperty, new TimeSpan(0, 0, video.currentTime)); };
-
-            video.onloadeddata = function (e) { that.MediaOpened.Raise(that, new Fayde.RoutedEventArgs()); };
+            
+            video.onloadeddata = function (e) {
+                Surface._SizingAdjustments[that._ID] = that;
+                that.MediaOpened.Raise(that, new Fayde.RoutedEventArgs());
+            };
             video.onended = function (e) { that.MediaEnded.Raise(that, new Fayde.RoutedEventArgs()); };
 
             return video;
@@ -239,6 +244,45 @@
             } else if (propd._ID === MediaElement.VolumeProperty._ID) {
                 el.volume = change.NewValue;
             }
+        };
+
+        MediaElement.Instance.FindAndSetAdjustedHeight = function () {
+            if (this.GetIsFixedHeight() || !this.GetIsFixedWidth())
+                return this.FindAndSetAdjustedHeight$FrameworkElement();
+
+            var el = this._Element;
+            if (!el || el.videoWidth === 0 || el.videoHeight === 0)
+                return this.FindAndSetAdjustedHeight$FrameworkElement();
+
+            var aspectRatio = el.videoWidth / el.videoHeight;
+            
+            var parent = this.GetVisualParent();
+            var parentWidth = parent.GetContentHtmlElement().offsetWidth;
+            
+            var result = parentWidth / aspectRatio;
+            this.GetContentHtmlElement().style.height = result + "px";
+            result = this.CalculateAdjustedHeight(result);
+            delete Surface._SizingAdjustments[this._ID];
+            return result;
+        };
+        MediaElement.Instance.FindAndSetAdjustedWidth = function () {
+            if (this.GetIsFixedWidth() || !this.GetIsFixedHeight())
+                return this.FindAndSetAdjustedWidth$FrameworkElement();
+
+            var el = this._Element;
+            if (!el || el.videoWidth === 0 || el.videoHeight === 0)
+                return this.FindAndSetAdjustedWidth$FrameworkElement();
+
+            var aspectRatio = el.videoWidth / el.videoHeight;
+
+            var parent = this.GetVisualParent();
+            var parentHeight = parent.GetContentHtmlElement().offsetHeight;
+
+            var result = parentHeight * aspectRatio;
+            this.GetContentHtmlElement().style.width = result + "px";
+            result = this.CalculateAdjustedWidth(result);
+            delete Surface._SizingAdjustments[this._ID];
+            return result;
         };
     }
     //#endregion
