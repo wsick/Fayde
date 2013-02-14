@@ -1114,8 +1114,8 @@
             }
 
             //set max width and max height on inner element
-            subEl.style.maxHeight = this.MaxHeight + "px";
-            subEl.style.maxWidth = this.MaxWidth + "px";
+            rootEl.style.maxHeight = this.MaxHeight + "px";
+            rootEl.style.maxWidth = this.MaxWidth + "px";
             return isStretchPlusShrink;
         };
         FrameworkElement.Instance.ApplyHtmlChanges = function (invalidations) {
