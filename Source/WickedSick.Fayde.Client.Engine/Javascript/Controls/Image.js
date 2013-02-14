@@ -328,9 +328,12 @@
                 }
                 var newBmpSrc = Nullstone.As(args.NewValue, Fayde.Media.Imaging.BitmapSource);
                 if (newBmpSrc) {
-                    var i = this;
-                    newBmpSrc._ErroredCallback = function () { i.ImageFailed.Raise(this, new EventArgs()); };
-                    newBmpSrc._LoadedCallback = function () { i.ImageOpened.Raise(this, new EventArgs()); };
+                    var that = this;
+                    newBmpSrc._ErroredCallback = function () { that.ImageFailed.Raise(that, new EventArgs()); };
+                    newBmpSrc._LoadedCallback = function () {
+                        Surface._SizingAdjustments[that._ID] = that;
+                        that.ImageOpened.Raise(that, new EventArgs());
+                    };
                 }
                 ivprop = true;
             }
@@ -361,9 +364,9 @@
                 }
                 var newBmpSrc = Nullstone.As(args.NewValue, Fayde.Media.Imaging.BitmapSource);
                 if (newBmpSrc) {
-                    var i = this;
-                    newBmpSrc._ErroredCallback = function () { i.ImageFailed.Raise(this, new EventArgs()); };
-                    newBmpSrc._LoadedCallback = function () { i.ImageOpened.Raise(this, new EventArgs()); };
+                    var that = this;
+                    newBmpSrc._ErroredCallback = function () { that.ImageFailed.Raise(that, new EventArgs()); };
+                    newBmpSrc._LoadedCallback = function () { that.ImageOpened.Raise(that, new EventArgs()); };
                 } else {
                     this._UpdateBounds();
                     this._Invalidate();
@@ -390,6 +393,8 @@
             var rootEl = document.createElement("div");
             rootEl.appendChild(document.createElement("div"));
             this.InitializeHtml(rootEl);
+            var that = this;
+            window.addEventListener("resize", function (e) { Surface._SizingAdjustments[that._ID] = that; }, false);
             return rootEl;
         };
         var applyImage = function (rootEl, parentIsFixedWidth, parentIsFixedHeight, source, stretch) {
@@ -427,6 +432,47 @@
                 }
             }
             this.ApplyHtmlChanges$FrameworkElement(invalidations);
+        };
+
+        Image.Instance.FindAndSetAdjustedHeight = function () {
+            if (this.GetIsFixedHeight() || !this.GetIsFixedWidth())
+                return this.FindAndSetAdjustedHeight$FrameworkElement();
+
+            var isNoneStretch = this.Stretch === Fayde.Media.Stretch.None;
+            var src = this.Source;
+            if (!src || src.PixelWidth === 0 || src.PixelHeight === 0)
+                return this.FindAndSetAdjustedHeight$FrameworkElement();
+
+            var aspectRatio = src.PixelWidth / src.PixelHeight;
+
+            var parent = this.GetVisualParent();
+            var parentWidth = parent.GetContentHtmlElement().offsetWidth;
+
+            var result = parentWidth / aspectRatio;
+            this.GetContentHtmlElement().style.height = result + "px";
+            result = this.CalculateAdjustedHeight(result);
+            delete Surface._SizingAdjustments[this._ID];
+            return result;
+        };
+        Image.Instance.FindAndSetAdjustedWidth = function () {
+            if (this.GetIsFixedWidth() || !this.GetIsFixedHeight())
+                return this.FindAndSetAdjustedWidth$FrameworkElement();
+
+            var isNoneStretch = this.Stretch === Fayde.Media.Stretch.None;
+            var src = this.Source;
+            if (!src || src.PixelWidth === 0 || src.PixelHeight === 0)
+                return this.FindAndSetAdjustedHeight$FrameworkElement();
+
+            var aspectRatio = src.PixelWidth / src.PixelHeight;
+
+            var parent = this.GetVisualParent();
+            var parentHeight = parent.GetContentHtmlElement().offsetHeight;
+
+            var result = parentHeight * aspectRatio;
+            this.GetContentHtmlElement().style.width = result + "px";
+            result = this.CalculateAdjustedWidth(result);
+            delete Surface._SizingAdjustments[this._ID];
+            return result;
         };
     }
     //#endif
