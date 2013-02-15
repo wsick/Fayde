@@ -31,7 +31,7 @@ namespace WickedSick.Server.XamlParser.Elements.Shapes
             }
         }
 
-        public override string ToJson(int tabIndents)
+        public override string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
             if (_items.Count == 0)
                 return "[]";
@@ -43,7 +43,7 @@ namespace WickedSick.Server.XamlParser.Elements.Shapes
             {
                 if (needsComma) sb.AppendLine(",");
                 if (o is IJsonConvertible)
-                    sb.Append(((IJsonConvertible)o).ToJson(tabIndents));
+                    sb.Append(((IJsonConvertible)o).ToJson(tabIndents, outputMods));
                 else
                     sb.Append(o.ToString());
                 needsComma = true;

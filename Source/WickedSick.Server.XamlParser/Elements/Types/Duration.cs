@@ -31,12 +31,13 @@ namespace WickedSick.Server.XamlParser.Elements.Types
         public DurationType DurationType { get; private set; }
         public Elements.Types.TimeSpan TimeSpan { get; private set; }
 
-        public string ToJson(int tabIndents)
+        public string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
+            var typeName = ElementAttribute.GetFullNullstoneType(GetType(), outputMods);
             if (DurationType == DurationType.Automatic || DurationType == DurationType.Forever)
-                return string.Format("new Duration({0})", DurationType.ToString());
+                return string.Format("new {0}({1})", typeName, DurationType.ToString());
             else
-                return string.Format("new Duration({0})", TimeSpan.ToJson(tabIndents));
+                return string.Format("new {0}({1})", typeName, TimeSpan.ToJson(tabIndents, outputMods));
         }
     }
 }

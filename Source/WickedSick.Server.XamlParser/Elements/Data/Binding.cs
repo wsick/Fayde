@@ -46,28 +46,28 @@ namespace WickedSick.Server.XamlParser.Elements.Data
         {
         }
 
-        public string ToJson(int tabIndents)
+        public string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("new ");
-            sb.Append(ElementAttribute.GetFullNullstoneType(GetType()));
+            sb.Append(ElementAttribute.GetFullNullstoneType(GetType(), outputMods));
             sb.Append("({ ");
-            sb.Append(string.Join(", ", GetPropertiesJson(tabIndents)));
+            sb.Append(string.Join(", ", GetPropertiesJson(tabIndents, outputMods)));
             sb.Append(" })");
             return sb.ToString();
         }
 
-        private IEnumerable<string> GetPropertiesJson(int tabIndents)
+        private IEnumerable<string> GetPropertiesJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
             if (Mode != BindingMode.OneWay)
-                yield return string.Format("Mode: {0}.{1}", ElementAttribute.GetFullNullstoneType(typeof(BindingMode)), Mode);
+                yield return string.Format("Mode: {0}.{1}", ElementAttribute.GetFullNullstoneType(typeof(BindingMode), outputMods), Mode);
             if (Path != null)
                 yield return string.Format("Path: \"{0}\"", Path);
             if (FallbackValue != null)
             {
                 var ijc = FallbackValue as IJsonConvertible;
                 if (ijc != null)
-                    yield return string.Format("FallbackValue: {0}", ijc.ToJson(tabIndents));
+                    yield return string.Format("FallbackValue: {0}", ijc.ToJson(tabIndents, outputMods));
                 else if (FallbackValue is string)
                     yield return string.Format("FallbackValue: \"{0}\"", FallbackValue);
                 else

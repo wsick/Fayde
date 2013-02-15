@@ -8,9 +8,11 @@ namespace WickedSick.Server.XamlParser.Elements.Media.Imaging
     {
         public static readonly PropertyDescription UriSource = PropertyDescription.Register("UriSource", typeof(Uri), typeof(BitmapImage));
 
-        public override string ToJson(int tabIndents)
+        public override string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
-            return string.Format("new Uri(\"{0}\")", ((Uri)GetValue("UriSource")).OriginalString);
+            var uriType = ElementAttribute.GetFullNullstoneType(typeof(Uri), outputMods);
+            var originalString = ((Uri)GetValue("UriSource")).OriginalString;
+            return string.Format("new {0}(\"{1}\")", uriType, originalString);
         }
     }
 }

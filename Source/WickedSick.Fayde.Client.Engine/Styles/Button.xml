@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Style TargetType="Button"
-       xmlns:x="http://schemas.wsick.com/fayde/">
+       xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+       xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+       xmlns:sys="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+       xmlns:vsm="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements">
     <Setter Property="Background" Value="#FF1F3B53"/>
     <Setter Property="Foreground" Value="#FF000000"/>
     <Setter Property="Padding" Value="3"/>

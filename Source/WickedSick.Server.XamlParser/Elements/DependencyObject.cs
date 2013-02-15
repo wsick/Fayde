@@ -233,11 +233,11 @@ namespace WickedSick.Server.XamlParser.Elements
                 return null;
         }
 
-        public virtual string ToJson(int tabIndent)
+        public virtual string ToJson(int tabIndent, IJsonOutputModifiers outputMods)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("{");
-            sb.AppendFormat("Type: {0}", GetTypeName());
+            sb.AppendFormat("Type: {0}", GetTypeName(outputMods));
 
             if (!string.IsNullOrWhiteSpace(Name))
             {
@@ -251,7 +251,7 @@ namespace WickedSick.Server.XamlParser.Elements
                 sb.AppendFormat("Key: \"{0}\"", Key);
             }
 
-            string propJson = propsToJson(GetProperties());
+            string propJson = propsToJson(GetProperties(), outputMods);
             if (!string.IsNullOrWhiteSpace(propJson))
             {
                 sb.AppendLine(",");
@@ -260,7 +260,7 @@ namespace WickedSick.Server.XamlParser.Elements
                 sb.Append("}");
             }
 
-            string attachedJson = attachedPropsToJson(_attachedValues);
+            string attachedJson = attachedPropsToJson(_attachedValues, outputMods);
             if (!string.IsNullOrWhiteSpace(attachedJson))
             {
                 sb.AppendLine(",");
@@ -277,19 +277,19 @@ namespace WickedSick.Server.XamlParser.Elements
                     sb.Append("Children: ");
                 else
                     sb.Append("Content: ");
-                sb.Append(content.ToJson(0));
+                sb.Append(content.ToJson(0, outputMods));
             }
             sb.AppendLine();
             sb.Append("}");
             return sb.ToString();
         }
 
-        public virtual string GetTypeName()
+        public virtual string GetTypeName(IJsonOutputModifiers outputMods)
         {
-            return ElementAttribute.GetFullNullstoneType(GetType());
+            return ElementAttribute.GetFullNullstoneType(GetType(), outputMods);
         }
 
-        private string attachedPropsToJson(IDictionary<AttachedPropertyDescription, object> properties)
+        private string attachedPropsToJson(IDictionary<AttachedPropertyDescription, object> properties, IJsonOutputModifiers outputMods)
         {
             var sb = new StringBuilder();
             var needsComma = false;
@@ -298,7 +298,7 @@ namespace WickedSick.Server.XamlParser.Elements
                 if (needsComma)
                     sb.AppendLine(",");
                 sb.AppendLine("{");
-                sb.AppendFormat("Owner: {0}", ElementAttribute.GetFullNullstoneType(apd.OwnerType));
+                sb.AppendFormat("Owner: {0}", ElementAttribute.GetFullNullstoneType(apd.OwnerType, outputMods));
                 sb.AppendLine(",");
                 sb.AppendFormat("Prop: \"{0}\"", apd.Name);
                 sb.AppendLine(",");
@@ -306,11 +306,11 @@ namespace WickedSick.Server.XamlParser.Elements
                 object value = properties[apd];
                 if (value is IJsonConvertible)
                 {
-                    sb.AppendLine(((IJsonConvertible)value).ToJson(0));
+                    sb.AppendLine(((IJsonConvertible)value).ToJson(0, outputMods));
                 }
                 else if (typeof(IList).IsAssignableFrom(value.GetType()))
                 {
-                    string json = listpropToJson((IList)value);
+                    string json = listpropToJson((IList)value, outputMods);
                     if (json.Length > 0)
                     {
                         sb.AppendLine("[");
@@ -333,7 +333,7 @@ namespace WickedSick.Server.XamlParser.Elements
             return sb.ToString();
         }
 
-        private string propsToJson(IDictionary<PropertyDescription, object> properties)
+        private string propsToJson(IDictionary<PropertyDescription, object> properties, IJsonOutputModifiers outputMods)
         {
             var sb = new StringBuilder();
             var needsComma = false;
@@ -350,19 +350,19 @@ namespace WickedSick.Server.XamlParser.Elements
                 {
                     sb.Append(pd.Name);
                     sb.Append(": ");
-                    sb.Append(SerializeSetterProperty(this as Setter, Parent.GetValue("TargetType") as JsType));
+                    sb.Append(SerializeSetterProperty(this as Setter, Parent.GetValue("TargetType") as JsType, outputMods));
                     needsComma = true;
                 }
                 else if (value is IJsonConvertible)
                 {
                     sb.Append(pd.Name);
                     sb.Append(": ");
-                    sb.Append(((IJsonConvertible)value).ToJson(0));
+                    sb.Append(((IJsonConvertible)value).ToJson(0, outputMods));
                     needsComma = true;
                 }
                 else if (typeof(IList).IsAssignableFrom(value.GetType()))
                 {
-                    string json = listpropToJson((IList)value);
+                    string json = listpropToJson((IList)value, outputMods);
                     if (json.Length > 0)
                     {
                         sb.Append(pd.Name);
@@ -384,7 +384,7 @@ namespace WickedSick.Server.XamlParser.Elements
                 {
                     sb.Append(pd.Name);
                     sb.Append(": ");
-                    sb.Append(string.Format("{0}.{1}", ElementAttribute.GetFullNullstoneType(value.GetType()), value.ToString()));
+                    sb.Append(string.Format("{0}.{1}", ElementAttribute.GetFullNullstoneType(value.GetType(), outputMods), value.ToString()));
                     needsComma = true;
                     continue;
                 }
@@ -416,7 +416,7 @@ namespace WickedSick.Server.XamlParser.Elements
             return cur.Trim();
         }
 
-        private string listpropToJson(IList values)
+        private string listpropToJson(IList values, IJsonOutputModifiers outputMods)
         {
             var sb = new StringBuilder();
             var needsComma = false;
@@ -424,15 +424,15 @@ namespace WickedSick.Server.XamlParser.Elements
             {
                 if (needsComma)
                     sb.AppendLine(",");
-                sb.Append(d.ToJson(0));
+                sb.Append(d.ToJson(0, outputMods));
                 needsComma = true;
             }
             return sb.ToString();
         }
 
-        private string SerializeSetterProperty(Setter setter, JsType parentType)
+        private string SerializeSetterProperty(Setter setter, JsType parentType, IJsonOutputModifiers outputMods)
         {
-            var typeName = parentType.ToJson(0);
+            var typeName = parentType.ToJson(0, outputMods);
             var prop = setter.Property;
             if (prop.Contains("."))
             {
@@ -444,7 +444,7 @@ namespace WickedSick.Server.XamlParser.Elements
                     throw new NotSupportedException("Namespaces in owner types for setter properties.");
                 var type = GetElementType(DEFAULT_NS, typeName);
                 if (type != null)
-                    typeName = ElementAttribute.GetFullNullstoneType(type);
+                    typeName = ElementAttribute.GetFullNullstoneType(type, outputMods);
                 prop = tokens[1];
             }
             return string.Format("DependencyProperty.GetDependencyProperty({0}, \"{1}\")", typeName, prop);

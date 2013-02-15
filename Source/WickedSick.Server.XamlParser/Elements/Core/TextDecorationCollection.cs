@@ -22,7 +22,7 @@ namespace WickedSick.Server.XamlParser.Elements.Types
             _Items.Add(item);
         }
 
-        public string ToJson(int tabIndents)
+        public string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
             //TextDecorations are a flags enum in javascript, bitwise OR all items
             return string.Join(" | ", _Items.Select(i => string.Format("Fayde.TextDecorations.{0}", i)));

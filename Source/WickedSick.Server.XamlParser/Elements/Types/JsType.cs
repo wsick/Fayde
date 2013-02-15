@@ -10,12 +10,12 @@ namespace WickedSick.Server.XamlParser.Elements.Types
             Value = value;
         }
 
-        public string ToJson(int tabIndents)
+        public string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
             var type = DependencyObject.GetElementType(DependencyObject.DEFAULT_NS, Value);
             if (type == null)
                 return Value;
-            return ElementAttribute.GetFullNullstoneType(type);
+            return ElementAttribute.GetFullNullstoneType(type, outputMods);
         }
     }
 }

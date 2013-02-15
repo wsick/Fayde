@@ -23,7 +23,7 @@ namespace WickedSick.Server.XamlParser.Elements.Data
             Mode = mode;
         }
 
-        public string ToJson(int tabIndents)
+        public string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
             throw new NotImplementedException();
         }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
     public class TimeSpan : IJsonConvertible
@@ -28,12 +24,13 @@ namespace WickedSick.Server.XamlParser.Elements.Types
             _milliseconds = milliseconds;
         }
 
-        public string ToJson(int tabIndents)
+        public string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
+            var typeName = ElementAttribute.GetFullNullstoneType(GetType(), outputMods);
             if (_ticks > 0)
-                return string.Format("new TimeSpan({0})", _ticks);
+                return string.Format("new {0}({1})", typeName, _ticks);
             else
-                return string.Format("new TimeSpan({0}, {1}, {2}, {3}, {4})", _days, _hours, _minutes, _seconds, _milliseconds);
+                return string.Format("new {0}({1}, {2}, {3}, {4}, {5})", typeName, _days, _hours, _minutes, _seconds, _milliseconds);
         }
     }
 }

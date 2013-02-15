@@ -25,7 +25,7 @@ namespace WickedSick.Server.XamlParser.Elements
             _DynamicType = js;
         }
 
-        public override string GetTypeName()
+        public override string GetTypeName(IJsonOutputModifiers outputMods)
         {
             var jsType = JsType;
             if (!string.IsNullOrWhiteSpace(jsType))
@@ -34,7 +34,7 @@ namespace WickedSick.Server.XamlParser.Elements
             if (!string.IsNullOrWhiteSpace(_DynamicType))
                 return _DynamicType;
 
-            return base.GetTypeName();
+            return base.GetTypeName(outputMods);
         }
     }
 }

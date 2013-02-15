@@ -13,7 +13,12 @@
             onclick="selectedFile_Click" /><br />
         <asp:TextBox runat="server" TextMode="MultiLine" Wrap="true" ID="tb1" Height="800" Width="800" />
         <asp:TextBox runat="server" TextMode="MultiLine" ID="tb2" Height="800" Width="500" /><br />
+        <asp:CheckBox ID="cacheNamespaces" Text="Cache Types" runat="server" />
         <asp:Button runat="server" ID="submit" onclick="submit_Click" Text="Convert"/>
+        <br />
+        <asp:Label ID="lblParseTime" runat="server" />
+        <br />
+        <asp:Label ID="lblSerializeTime" runat="server" />
     </form>
 </body>
 </html>

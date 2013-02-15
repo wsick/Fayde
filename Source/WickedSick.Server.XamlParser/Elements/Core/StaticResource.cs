@@ -18,9 +18,9 @@ namespace WickedSick.Server.XamlParser.Elements.Core
             set { SetValue("ResourceKey", value); }
         }
 
-        public override string ToJson(int tabIndents)
+        public override string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
-            return string.Format("new {0}(\"{1}\")", GetTypeName(), ResourceKey);
+            return string.Format("new {0}(\"{1}\")", GetTypeName(outputMods), ResourceKey);
         }
     }
 }

@@ -58,6 +58,15 @@ namespace WickedSick.Fayde.Client.Engine {
         protected global::System.Web.UI.WebControls.TextBox tb2;
         
         /// <summary>
+        /// cacheNamespaces control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox cacheNamespaces;
+        
+        /// <summary>
         /// submit control.
         /// </summary>
         /// <remarks>
@@ -65,5 +74,23 @@ namespace WickedSick.Fayde.Client.Engine {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button submit;
+        
+        /// <summary>
+        /// lblParseTime control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblParseTime;
+        
+        /// <summary>
+        /// lblSerializeTime control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblSerializeTime;
     }
 }

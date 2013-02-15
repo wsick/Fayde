@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
     public enum PageLengthType
@@ -16,7 +12,7 @@ namespace WickedSick.Server.XamlParser.Elements.Types
         public double Value { get; set; }
         public PageLengthType LengthType { get; set; }
 
-        public string ToJson(int tabIndents)
+        public string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
             if (LengthType == PageLengthType.Pixel)
                 return Value.ToString();

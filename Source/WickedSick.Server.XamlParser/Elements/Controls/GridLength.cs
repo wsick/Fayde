@@ -7,10 +7,10 @@ namespace WickedSick.Server.XamlParser.Elements.Controls
         public double Value { get; set; }
         public GridUnitType UnitType { get; set; }
 
-        public string ToJson(int tabIndents)
+        public string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
-            return string.Format("new {0}({1}, {2}.{3})", ElementAttribute.GetFullNullstoneType(GetType()), Value, 
-                ElementAttribute.GetFullNullstoneType(UnitType.GetType()), UnitType.ToString());
+            return string.Format("new {0}({1}, {2}.{3})", ElementAttribute.GetFullNullstoneType(GetType(), outputMods), Value, 
+                ElementAttribute.GetFullNullstoneType(UnitType.GetType(), outputMods), UnitType.ToString());
         }
     }
 }

@@ -11,12 +11,12 @@ namespace WickedSick.Server.XamlParser.Elements.Controls
             set { SetValue("Panel", value); }
         }
 
-        public override string ToJson(int tabIndent)
+        public override string ToJson(int tabIndent, IJsonOutputModifiers outputMods)
         {
-            var typeName = GetTypeName();
+            var typeName = GetTypeName(outputMods);
             if (Panel == null)
                 return string.Format("new {0}()", typeName);
-            return string.Format("new {0}({1})", typeName, Panel.ToJson(0));
+            return string.Format("new {0}({1})", typeName, Panel.ToJson(0, outputMods));
         }
     }
 }

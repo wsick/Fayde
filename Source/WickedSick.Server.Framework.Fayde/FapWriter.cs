@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using WickedSick.Server.XamlParser;
 using WickedSick.Server.XamlParser.Elements;
 
 namespace WickedSick.Server.Framework.Fayde
@@ -81,16 +82,18 @@ namespace WickedSick.Server.Framework.Fayde
 
         public void WriteAppLoadScript(FaydeApplication fap)
         {
+            var outputMods = new JsonOutputModifiers { IsNamespaceIncluded = true };
+
             string rjson = "{}";
             if (fap.Resources != null)
-                rjson = fap.Resources.ToJson(0);
+                rjson = fap.Resources.ToJson(0, outputMods);
 
             string json = "{}";
             if (fap.Content != null)
-                json = fap.Content.ToJson(0);
+                json = fap.Content.ToJson(0, outputMods);
 
             Writer.WriteLine(START_INITIALIZATION_SCRIPT);
-            Writer.WriteLine(string.Format("var appType = {0};", fap.GetTypeName()));
+            Writer.WriteLine(string.Format("var appType = {0};", fap.GetTypeName(outputMods)));
             Writer.WriteLine(string.Format("var rjson = {0};", rjson));
             Writer.WriteLine(string.Format("var json = {0};", json));
             Writer.WriteLine(END_INITIALIZATION_SCRIPT);

@@ -225,6 +225,8 @@
     <Compile Include="Elements\UriMapping.cs" />
     <Compile Include="Elements\UriMappingCollection.cs" />
     <Compile Include="Elements\UriMatcher.cs" />
+    <Compile Include="IJsonOutputModifiers.cs" />
+    <Compile Include="JsonOutputModifiers.cs" />
     <Compile Include="ParserAttributes.cs">
       <SubType>Code</SubType>
     </Compile>

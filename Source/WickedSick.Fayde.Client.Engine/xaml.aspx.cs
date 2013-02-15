@@ -1,9 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-using System.Xml;
 using WickedSick.Server.XamlParser;
-using WickedSick.Server.XamlParser.Elements;
 
 namespace WickedSick.Fayde.Client.Engine
 {
@@ -25,16 +22,28 @@ namespace WickedSick.Fayde.Client.Engine
 
         protected void submit_Click(object sender, EventArgs e)
         {
+            var startTime = DateTime.Now;
             var dobj = Parser.ParseXml(tb1.Text);
-            tb2.Text = dobj.ToJson(0);
+            var parseTime = DateTime.Now - startTime;
+            startTime = DateTime.Now;
+            var outputMods = new JsonOutputModifiers { IsNamespaceIncluded = !cacheNamespaces.Checked };
+            var json = dobj.ToJson(0, outputMods);
+            var typeDeclarations = string.Empty;
+            if (!outputMods.IsNamespaceIncluded)
+                typeDeclarations = outputMods.SerializeLocalDeclarations();
+            var serializeTime = DateTime.Now - startTime;
+            tb2.Text = typeDeclarations + Environment.NewLine + json;
+            lblParseTime.Text = string.Format("Parse Time: {0} ms", parseTime.TotalMilliseconds);
+            lblSerializeTime.Text = string.Format("Serialize Time: {0} ms", serializeTime.TotalMilliseconds);
         }
 
         protected void selectedFile_Click(object sender, EventArgs e)
         {
             tb2.Text = "";
-            StreamReader sr = new StreamReader(File.Open(faydeFiles.SelectedValue, FileMode.Open, FileAccess.Read));
-            tb1.Text = sr.ReadToEnd();
-            sr.Close();
+            using (var sr = new StreamReader(File.Open(faydeFiles.SelectedValue, FileMode.Open, FileAccess.Read)))
+            {
+                tb1.Text = sr.ReadToEnd();
+            }
         }
     }
 }

@@ -14,7 +14,7 @@ namespace WickedSick.Server.XamlParser.Elements.Types
             Value = null;
         }
 
-        public string ToJson(int tabIndents)
+        public string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
             return Value.ToString();
         }

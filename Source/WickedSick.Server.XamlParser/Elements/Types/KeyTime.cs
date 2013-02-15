@@ -14,12 +14,13 @@ namespace WickedSick.Server.XamlParser.Elements.Types
         public KeyTimeType Type { get; set; }
         public TimeSpan TimeSpan { get; set; }
 
-        public string ToJson(int tabIndents)
+        public string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
+            var typeName = ElementAttribute.GetFullNullstoneType(GetType(), outputMods);
             if (Type == KeyTimeType.Uniform)
-                return "KeyTime.CreateUniform()";
+                return string.Format("{0}.CreateUniform()", typeName);
             else
-                return string.Format("KeyTime.CreateTimeSpan({0})", TimeSpan.ToJson(tabIndents));
+                return string.Format("{0}.CreateTimeSpan({1})", typeName, TimeSpan.ToJson(tabIndents, outputMods));
         }
     }
 

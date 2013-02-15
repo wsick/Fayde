@@ -11,7 +11,7 @@ namespace WickedSick.Server.XamlParser.Elements.Core
             set { SetValue("Content", value); }
         }
 
-        public override string ToJson(int tabIndent)
+        public override string ToJson(int tabIndent, IJsonOutputModifiers outputMods)
         {
             var sb = new StringBuilder();
             sb.AppendLine("{");

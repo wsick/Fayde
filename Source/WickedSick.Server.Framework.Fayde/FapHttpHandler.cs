@@ -74,7 +74,8 @@ namespace WickedSick.Server.Framework.Fayde
             using (var sw = new StreamWriter(response.OutputStream))
             {
                 var page = Parser.Parse(pageLocalPath) as Page;
-                sw.Write(page.ToJson(0));
+                var outputMods = new JsonOutputModifiers { IsNamespaceIncluded = true };
+                sw.Write(page.ToJson(0, outputMods));
             }
         }
         private void RedirectToCodeBehindJs(HttpContext context, FaydeApplication fap, string fragment)

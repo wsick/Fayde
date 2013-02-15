@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
     public class CornerRadius : IJsonConvertible
@@ -12,9 +8,9 @@ namespace WickedSick.Server.XamlParser.Elements.Types
         public double Right { get; set; }
         public double Bottom { get; set; }
 
-        public string ToJson(int tabIndents)
+        public string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
-            return string.Format("new CornerRadius({0}, {1}, {2}, {3})", Left, Top, Right, Bottom);
+            return string.Format("new {0}({1}, {2}, {3}, {4})", ElementAttribute.GetFullNullstoneType(GetType(), outputMods), Left, Top, Right, Bottom);
         }
     }
 }

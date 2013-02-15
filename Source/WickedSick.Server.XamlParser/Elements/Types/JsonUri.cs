@@ -5,6 +5,7 @@ using System.Text;
 
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
+    [Element(NullstoneName = "Uri")]
     public class JsonUri : IJsonConvertible
     {
         private Uri _Uri;
@@ -14,9 +15,9 @@ namespace WickedSick.Server.XamlParser.Elements.Types
             _Uri = uri;
         }
 
-        public string ToJson(int tabIndents)
+        public string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
-            return string.Format("new Uri(\"{0}\")", _Uri);
+            return string.Format("new {0}(\"{1}\")", ElementAttribute.GetFullNullstoneType(GetType(), outputMods),  _Uri);
         }
     }
 }

@@ -6,9 +6,9 @@ namespace WickedSick.Server.XamlParser.Elements.Core
     {
         public string SourcePropertyName { get; set; }
 
-        public string ToJson(int tabIndents)
+        public string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
-            return string.Format("new {0}(\"{1}\")", ElementAttribute.GetFullNullstoneType(GetType()), SourcePropertyName);
+            return string.Format("new {0}(\"{1}\")", ElementAttribute.GetFullNullstoneType(GetType(), outputMods), SourcePropertyName);
         }
     }
 }

@@ -29,7 +29,7 @@ namespace WickedSick.Server.XamlParser.Elements
             }
         }
 
-        public override string ToJson(int tabIndents)
+        public override string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
             if (_items.Count == 0)
                 return "[]";
@@ -41,7 +41,7 @@ namespace WickedSick.Server.XamlParser.Elements
             {
                 if (needsComma) sb.AppendLine(",");
                 if (o is DependencyObject)
-                    sb.Append(((DependencyObject)o).ToJson(tabIndents));
+                    sb.Append(((DependencyObject)o).ToJson(tabIndents, outputMods));
                 else
                     sb.Append(o.ToString());
                 needsComma = true;

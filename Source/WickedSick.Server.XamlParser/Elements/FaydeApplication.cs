@@ -52,11 +52,11 @@ namespace WickedSick.Server.XamlParser.Elements
             set { SetValue("JsType", value); }
         }
 
-        public override string GetTypeName()
+        public override string GetTypeName(IJsonOutputModifiers outputMods)
         {
             if (!string.IsNullOrWhiteSpace(JsType))
                 return JsType;
-            return base.GetTypeName();
+            return base.GetTypeName(outputMods);
         }
 
 

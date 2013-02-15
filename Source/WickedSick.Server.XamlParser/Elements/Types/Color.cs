@@ -28,7 +28,7 @@ namespace WickedSick.Server.XamlParser.Elements.Types
             return new Color() { Content = string.Format("#{0:x8}", uint32).ToUpper() };
         }
 
-        public override string ToJson(int tabIndents)
+        public override string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
             if (Content != null)
             {
@@ -36,9 +36,9 @@ namespace WickedSick.Server.XamlParser.Elements.Types
                 var color = converter.Convert(Content) as Color;
                 color.Name = Name;
                 color.Key = Key;
-                return color.ToJson(tabIndents);
+                return color.ToJson(tabIndents, outputMods);
             }
-            return base.ToJson(tabIndents);
+            return base.ToJson(tabIndents, outputMods);
         }
     }
 }
