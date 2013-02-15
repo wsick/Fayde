@@ -9,7 +9,7 @@ namespace WickedSick.Server.XamlParser.Elements
         {
             var sb = new StringBuilder();
             sb.AppendLine("{");
-            sb.AppendLine(string.Format("Type: {0}, ", ElementAttribute.GetFullNullstoneType(GetType())));
+            sb.AppendLine(string.Format("Type: {0}, ", GetTypeName()));
             sb.Append("Children: ");
             sb.AppendLine(base.ToJson(tabIndents + 1));
             sb.Append("}");

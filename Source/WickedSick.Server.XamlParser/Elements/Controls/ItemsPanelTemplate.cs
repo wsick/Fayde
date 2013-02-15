@@ -13,9 +13,10 @@ namespace WickedSick.Server.XamlParser.Elements.Controls
 
         public override string ToJson(int tabIndent)
         {
+            var typeName = GetTypeName();
             if (Panel == null)
-                return string.Format("new {0}()", ElementAttribute.GetFullNullstoneType(GetType()));
-            return string.Format("new {0}({1})", ElementAttribute.GetFullNullstoneType(GetType()), Panel.ToJson(0));
+                return string.Format("new {0}()", typeName);
+            return string.Format("new {0}({1})", typeName, Panel.ToJson(0));
         }
     }
 }

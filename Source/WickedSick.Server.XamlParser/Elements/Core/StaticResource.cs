@@ -20,7 +20,7 @@ namespace WickedSick.Server.XamlParser.Elements.Core
 
         public override string ToJson(int tabIndents)
         {
-            return string.Format("new {0}(\"{1}\")", ElementAttribute.GetFullNullstoneType(GetType()), ResourceKey);
+            return string.Format("new {0}(\"{1}\")", GetTypeName(), ResourceKey);
         }
     }
 }
