@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using WickedSick.Server.XamlParser.Elements;
 
 namespace WickedSick.Server.XamlParser
 {
     public class AttachedPropertyDescription
     {
-        private static IDictionary<string, AttachedPropertyDescription> _attachedProperties = new Dictionary<string, AttachedPropertyDescription>();
+        private static Dictionary<Type, Dictionary<string, AttachedPropertyDescription>> _AttachedProperties = new Dictionary<Type, Dictionary<string, AttachedPropertyDescription>>();
 
         public static AttachedPropertyDescription Register(string name, Type type, Type ownerType)
         {
-            string key = string.Format("{0}.{1}", ownerType.Name, name);
-            AttachedPropertyDescription pd = new AttachedPropertyDescription(name, type, ownerType);
-            if (_attachedProperties.ContainsKey(key))
-                throw new ArgumentException(string.Format("The AttachedProperty ({0}) has already been registered."));
-            //TODO: check and make sure more than one content property is not registered
-            _attachedProperties.Add(key, pd);
-            return pd;
+            var groupDict = _AttachedProperties.ContainsKey(ownerType) ? _AttachedProperties[ownerType] : null;
+            if (groupDict == null)
+                _AttachedProperties[ownerType] = groupDict = new Dictionary<string, AttachedPropertyDescription>();
+
+            if (groupDict.ContainsKey(name))
+                throw new ArgumentException(string.Format("The DependencyProperty ({0}.{1}) has already been registered.", ownerType.Name, name));
+
+            var dp = new AttachedPropertyDescription(name, type, ownerType);
+            groupDict[name] = dp;
+            return dp;
         }
 
         public static AttachedPropertyDescription Get(string name, Type ownerType)
@@ -28,10 +27,12 @@ namespace WickedSick.Server.XamlParser
             while (checkType != null)
             {
                 PropertyHelper.EnsurePropertyRegistered(checkType);
-
-                string key = string.Format("{0}.{1}", checkType.Name, name);
-                if (_attachedProperties.Keys.Contains(key))
-                    return _attachedProperties[key];
+                if (_AttachedProperties.ContainsKey(checkType))
+                {
+                    var groupDict = _AttachedProperties[checkType];
+                    if (groupDict.ContainsKey(name))
+                        return groupDict[name];
+                }
                 checkType = checkType.BaseType;
             }
 

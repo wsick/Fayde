@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using log4net;
-using System.Reflection;
 
 namespace WickedSick.Server.XamlParser
 {
@@ -12,13 +9,13 @@ namespace WickedSick.Server.XamlParser
         static readonly ILog Log = LogManager.GetLogger(typeof(PropertyDescription));
 
         private static Dictionary<Type, PropertyDescription> _ContentProperty = new Dictionary<Type, PropertyDescription>();
-        private static Dictionary<Type, Dictionary<string, PropertyDescription>> _GroupedDependencyProperties = new Dictionary<Type, Dictionary<string, PropertyDescription>>();
+        private static Dictionary<Type, Dictionary<string, PropertyDescription>> _DependencyProperties = new Dictionary<Type, Dictionary<string, PropertyDescription>>();
 
         public static PropertyDescription Register(string name, Type type, Type ownerType, bool isContent = false)
         {
-            var groupDict = _GroupedDependencyProperties.ContainsKey(ownerType) ? _GroupedDependencyProperties[ownerType] : null;
+            var groupDict = _DependencyProperties.ContainsKey(ownerType) ? _DependencyProperties[ownerType] : null;
             if (groupDict == null)
-                _GroupedDependencyProperties[ownerType] = groupDict = new Dictionary<string, PropertyDescription>();
+                _DependencyProperties[ownerType] = groupDict = new Dictionary<string, PropertyDescription>();
 
             if (groupDict.ContainsKey(name))
                 throw new ArgumentException(string.Format("The DependencyProperty ({0}.{1}) has already been registered.", ownerType.Name, name));
@@ -39,13 +36,12 @@ namespace WickedSick.Server.XamlParser
             while (checkType != null)
             {
                 PropertyHelper.EnsurePropertyRegistered(checkType);
-                var groupDict = _GroupedDependencyProperties.ContainsKey(checkType) ? _GroupedDependencyProperties[checkType] : null;
-                if (groupDict != null)
+                if (_DependencyProperties.ContainsKey(checkType))
                 {
+                    var groupDict = _DependencyProperties[checkType];
                     if (groupDict.ContainsKey(name))
                         return groupDict[name];
                 }
-
                 checkType = checkType.BaseType;
             }
 
