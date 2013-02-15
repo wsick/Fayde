@@ -11,7 +11,7 @@ namespace WickedSick.Server.XamlParser
         {
         }
 
-        protected static Dictionary<Type, ElementAttribute> _CachedElementAttributes = new Dictionary<Type, ElementAttribute>();
+        private static Dictionary<Type, ElementAttribute> _CachedElementAttributes = new Dictionary<Type, ElementAttribute>();
 
         public string NullstoneNamespace { get; set; }
         public string NullstoneName { get; set; }
@@ -57,7 +57,7 @@ namespace WickedSick.Server.XamlParser
             return string.Format("var {0} = {1};", basicTypeName, full);
         }
 
-        protected static ElementAttribute GetElementAttribute(Type type)
+        private static ElementAttribute GetElementAttribute(Type type)
         {
             if (_CachedElementAttributes.ContainsKey(type))
                 return _CachedElementAttributes[type];
