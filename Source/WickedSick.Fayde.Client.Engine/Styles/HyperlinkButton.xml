@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Style TargetType="HyperlinkButton"
-       xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
-       xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core">
+       xmlns="http://schemas.wsick.com/fayde"
+       xmlns:x="http://schemas.wsick.com/fayde">
     <Setter Property="Foreground" Value="#FF73A9D8"/>
     <Setter Property="Padding" Value="2,0,2,0"/>
     <Setter Property="Cursor" Value="Hand"/>

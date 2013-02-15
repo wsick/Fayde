@@ -17,7 +17,7 @@ namespace WickedSick.Server.XamlParser.Elements
     {
         static readonly ILog Log = LogManager.GetLogger(typeof(DependencyObject));
 
-        internal static readonly string DEFAULT_NS = "WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements";
+        internal static readonly string DEFAULT_NS = "http://schemas.wsick.com/fayde";
 
         private static IDictionary<Type, ITypeConverter> _converters = new Dictionary<Type, ITypeConverter>();
         

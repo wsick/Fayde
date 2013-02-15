@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Style TargetType="TextBox"
-       xmlns:x="http://schemas.wsick.com/fayde/"
-       xmlns:System="http://schemas.wsick.com/fayde/">
+       xmlns:x="http://schemas.wsick.com/fayde"
+       xmlns:System="http://schemas.wsick.com/fayde">
     <Setter Property="BorderThickness" Value="1"/>
     <Setter Property="Background" Value="#FFFFFFFF"/>
     <Setter Property="Foreground" Value="#FF000000"/>
