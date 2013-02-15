@@ -1,4 +1,4 @@
 ﻿var Fayde;
 (function (Fayde) {
-    Fayde.IsCanvasEnabled = false;
+    Fayde.IsCanvasEnabled = true;
 })(Fayde || (Fayde = {}));
