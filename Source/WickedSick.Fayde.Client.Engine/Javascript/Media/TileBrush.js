@@ -19,6 +19,70 @@
 
     //#endregion
 
+    var computeImageMatrix = function (width, height, sw, sh, stretch, alignX, alignY) {
+        /// <param name="width" type="Number"></param>
+        /// <param name="height" type="Number"></param>
+        /// <param name="sw" type="Number"></param>
+        /// <param name="sh" type="Number"></param>
+        /// <param name="stretch" type="Stretch"></param>
+        /// <param name="alignX" type="Number"></param>
+        /// <param name="alignY" type="Number"></param>
+
+        var sx = width / sw;
+        var sy = height / sh;
+        if (width === 0)
+            sx = 1.0;
+        if (height === 0)
+            sy = 1.0;
+
+        if (stretch === Fayde.Media.Stretch.Fill) {
+            return mat3.createScale(sx, sy);
+        }
+
+        var scale = 1.0;
+        var dx = 0.0;
+        var dy = 0.0;
+        switch (stretch) {
+            case Fayde.Media.Stretch.Uniform:
+                scale = sx < sy ? sx : sy;
+                break;
+            case Fayde.Media.Stretch.UniformToFill:
+                scale = sx < sy ? sy : sx;
+                break;
+            case Fayde.Media.Stretch.None:
+                break;
+        }
+
+        switch (alignX) {
+            case Fayde.Media.AlignmentX.Left:
+                dx = 0.0;
+                break;
+            case Fayde.Media.AlignmentX.Center:
+                dx = (width - (scale * sw)) / 2;
+                break;
+            case Fayde.Media.AlignmentX.Right:
+            default:
+                dx = width - (scale * sw);
+                break;
+        }
+
+        switch (alignY) {
+            case Fayde.Media.AlignmentY.Top:
+                dy = 0.0;
+                break;
+            case Fayde.Media.AlignmentY.Center:
+                dy = (height - (scale * sh)) / 2;
+                break;
+            case Fayde.Media.AlignmentY.Bottom:
+            default:
+                dy = height - (scale * sh);
+                break;
+        }
+        var m = mat3.createScale(scale, scale);
+        mat3.translate(m, dx, dy);
+        return m;
+    };
+
     TileBrush.Instance.CreateBrush = function (ctx, bounds) {
         var imgExtents = this.GetTileExtents();
 
@@ -28,10 +92,9 @@
 
         var tmpCtx = tmpCanvas.getContext("2d");
 
-        var mat = Fayde.Controls.Image.ComputeMatrix(bounds.Width, bounds.Height,
+        var mat = computeImageMatrix(bounds.Width, bounds.Height,
             imgExtents.Width, imgExtents.Height, this.Stretch, this.AlignmentX, this.AlignmentY);
-        var els = mat._Elements;
-        tmpCtx.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
+        tmpCtx.setTransform(mat[0], mat[1], mat[3], mat[4], mat[2], mat[5]);
 
         this.DrawTile(tmpCtx, bounds);
 
