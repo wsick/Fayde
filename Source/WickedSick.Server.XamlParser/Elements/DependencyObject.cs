@@ -20,20 +20,7 @@ namespace WickedSick.Server.XamlParser.Elements
         internal static readonly string DEFAULT_NS = "WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements";
 
         private static IDictionary<Type, ITypeConverter> _converters = new Dictionary<Type, ITypeConverter>();
-        public static Type GetElementType(string nameSpace, string elementName)
-        {
-            string[] nsParts = nameSpace.Split(';');
-
-            var types = from t in Assembly.Load(nsParts[0]).GetTypes()
-                        where !t.IsAbstract && t.Namespace != null && t.Namespace.StartsWith(nsParts[1])
-                        select t;
-            foreach (Type t in types)
-            {
-                if (t.Name.Equals(elementName)) return t;
-            }
-            return null;
-        }
-
+        
         static DependencyObject()
         {
             var converters = from t in Assembly.GetCallingAssembly().GetTypes()
@@ -442,7 +429,7 @@ namespace WickedSick.Server.XamlParser.Elements
                 typeName = tokens[0];
                 if (typeName.Contains(":"))
                     throw new NotSupportedException("Namespaces in owner types for setter properties.");
-                var type = GetElementType(DEFAULT_NS, typeName);
+                var type = TypeResolver.GetElementType(DEFAULT_NS, typeName);
                 if (type != null)
                     typeName = ElementAttribute.GetFullNullstoneType(type, outputMods);
                 prop = tokens[1];

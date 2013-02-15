@@ -373,6 +373,7 @@
     <Compile Include="Elements\Types\TimeSpan.cs" />
     <Compile Include="Elements\Core\VerticalAlignment.cs" />
     <Compile Include="Elements\Core\Visibility.cs" />
+    <Compile Include="TypeResolver.cs" />
     <Compile Include="XamlParseException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

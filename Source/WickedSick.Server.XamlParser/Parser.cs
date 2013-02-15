@@ -34,7 +34,7 @@ namespace WickedSick.Server.XamlParser
             if (node.NodeType == XmlNodeType.Comment)
                 return null;
 
-            Type t = DependencyObject.GetElementType(node.NamespaceURI, node.LocalName);
+            Type t = TypeResolver.GetElementType(node.NamespaceURI, node.LocalName);
             if (t == null)
                 throw new XamlParseException("Unknown element: " + node.LocalName);
             if (t.IsEnum)
@@ -69,7 +69,7 @@ namespace WickedSick.Server.XamlParser
                     if (parts.Count() != 2)
                         throw new XamlParseException(string.Format("An invalid element has been encountered. {0}", a.Name));
 
-                    Type ownerType = DependencyObject.GetElementType(node.NamespaceURI, parts[0]);
+                    Type ownerType = TypeResolver.GetElementType(node.NamespaceURI, parts[0]);
                     element.AddAttachedProperty(ownerType, parts[1], a.Value);
                     continue;
                 }
@@ -109,7 +109,7 @@ namespace WickedSick.Server.XamlParser
                         //the sub-element is an attached property
                         if (n.NodeType == XmlNodeType.Text)
                         {
-                            Type ownerType = DependencyObject.GetElementType(n.NamespaceURI, parts[0]);
+                            Type ownerType = TypeResolver.GetElementType(n.NamespaceURI, parts[0]);
                             element.AddAttachedProperty(ownerType, parts[1], n.InnerText);
                         }
                         else
@@ -144,7 +144,7 @@ namespace WickedSick.Server.XamlParser
                     else if (propertyName.Contains("."))
                     {
                         string[] parts = propertyName.Split('.');
-                        Type ownerType = DependencyObject.GetElementType(n.NamespaceURI, parts[0]);
+                        Type ownerType = TypeResolver.GetElementType(n.NamespaceURI, parts[0]);
                         element.AddAttachedProperty(ownerType, parts[1], child);
                     }
                     else
