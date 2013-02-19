@@ -3,11 +3,11 @@
     xmlns:x="http://schemas.wsick.com/fayde"
     Debug="true"
     ScriptResolution="/Fayde/">
-    <FaydeApplication.Resources>
-    </FaydeApplication.Resources>
-    <Grid x:Name="LayoutRoot" Background="Green">
-        <Border BorderBrush="White" BorderThickness="10" Background="Black" Margin="5" Width="100" Height="100">
+    <Grid>
+        <Border BorderBrush="Black" BorderThickness="10,20,30,40" CornerRadius="10,15,20,25" Margin="5" Background="Yellow">
+            <Border BorderBrush="OrangeRed" BorderThickness="10" CornerRadius="10" Margin="5" Background="SteelBlue">
 
+            </Border>
         </Border>
     </Grid>
 </FaydeApplication>

@@ -88,7 +88,6 @@
     <Content Include="default8.fap">
       <SubType>Designer</SubType>
     </Content>
-    <None Include="border.fap" />
     <Content Include="Tests\Media\image-stretch.fap">
       <SubType>Designer</SubType>
     </Content>
