@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using log4net;
 using WickedSick.Server.XamlParser.Elements.Core;
 using WickedSick.Server.XamlParser.Elements.Types;
 using WickedSick.Server.XamlParser.TypeConverters;
@@ -15,8 +14,6 @@ namespace WickedSick.Server.XamlParser.Elements
     [Element(NullstoneNamespace = "Fayde")]
     public abstract class DependencyObject : IJsonConvertible
     {
-        static readonly ILog Log = LogManager.GetLogger(typeof(DependencyObject));
-
         internal static readonly string DEFAULT_NS = "http://schemas.wsick.com/fayde";
 
         private static IDictionary<Type, ITypeConverter> _converters = new Dictionary<Type, ITypeConverter>();
