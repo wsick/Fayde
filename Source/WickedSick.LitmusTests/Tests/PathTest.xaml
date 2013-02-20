@@ -22,28 +22,22 @@
         <TextBlock Grid.Column="1" Text="Auto" />
         <TextBlock Grid.Column="2" Text="100" />
         
-        <Path Stretch="Uniform" 
-              Data="F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z "
+        <Path Data="F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z "
               Fill="#FF333333" 
               Grid.Column="1" Grid.Row="1" />
-        <Path Stretch="Uniform" 
-              Data="F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z "
+        <Path Data="F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z "
               Fill="#FF333333" 
               Grid.Column="1" Grid.Row="2" />
-        <Path Stretch="Uniform" 
-              Data="F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z "
+        <Path Data="F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z "
               Fill="#FF333333" 
               Grid.Column="1" Grid.Row="3" />
-        <Path Stretch="Uniform" 
-              Data="F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z "
+        <Path Data="F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z "
               Fill="#FF333333" 
               Grid.Column="2" Grid.Row="1" />
-        <Path Stretch="Uniform" 
-              Data="F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z "
+        <Path Data="F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z "
               Fill="#FF333333" 
               Grid.Column="2" Grid.Row="2" />
-        <Path Stretch="Uniform" 
-              Data="F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z "
+        <Path Data="F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z "
               Fill="#FF333333" 
               Grid.Column="2" Grid.Row="3" />
     </Grid>

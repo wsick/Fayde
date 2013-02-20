@@ -57,5 +57,5 @@
         </Rectangle>
     </StackPanel>
     -->
-    <tests:PathTest />
+    <tests:RectangleTest />
 </UserControl>
