@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
-using log4net;
 using WickedSick.Server.XamlParser;
 using WickedSick.Server.XamlParser.Elements;
 
@@ -11,8 +10,6 @@ namespace WickedSick.Server.Framework.Fayde
 {
     public class FapHttpHandler : IHttpHandler
     {
-        static readonly ILog logger = LogManager.GetLogger(typeof(FapHttpHandler));
-
         public bool IsReusable { get { return true; } }
 
         public void ProcessRequest(HttpContext context)
@@ -127,8 +124,7 @@ namespace WickedSick.Server.Framework.Fayde
             }
             catch (Exception ex)
             {
-                logger.Error("Could not load Fayde Application document.", ex);
-                throw;
+                throw new Exception("Could not load Fayde Application.", ex);
             }
         }
 

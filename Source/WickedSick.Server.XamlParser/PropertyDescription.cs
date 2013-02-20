@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using log4net;
 
 namespace WickedSick.Server.XamlParser
 {
     public class PropertyDescription
     {
-        static readonly ILog Log = LogManager.GetLogger(typeof(PropertyDescription));
-
         private static Dictionary<Type, PropertyDescription> _ContentProperty = new Dictionary<Type, PropertyDescription>();
         private static Dictionary<Type, Dictionary<string, PropertyDescription>> _DependencyProperties = new Dictionary<Type, Dictionary<string, PropertyDescription>>();
 
