@@ -571,6 +571,9 @@
         };
         Shape.Instance.CreateSvg = function () {
             var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.style.position = "absolute";
+            svg.style.width = "100%";
+            svg.style.height = "100%";
             return svg;
         };
         Shape.Instance.GetSvg = function () {
@@ -587,27 +590,85 @@
             }
             return this._Shape;
         };
+
+        Shape.Instance.ApplySizingMargin = function (rootEl, subEl, horizontalLayoutType, verticalLayoutType) {
+            var margin = this.Margin;
+            var left = margin.Left;
+            if (isNaN(left)) left = 0;
+            var top = margin.Top;
+            if (isNaN(top)) top = 0;
+            var right = margin.Right;
+            if (isNaN(right)) right = 0;
+            var bottom = margin.Bottom;
+            if (isNaN(bottom)) bottom = 0;
+
+            var half = this.StrokeThickness / 2.0;
+            left += half;
+            top += half;
+            right += half;
+            bottom += half;
+
+            if (horizontalLayoutType === HorizontalLayoutType.Stretch) {
+                subEl.style.left = left + "px";
+                subEl.style.right = right + "px";
+            } else {
+                rootEl.style.marginLeft = left + "px";
+                rootEl.style.marginRight = right + "px";
+            }
+            if (verticalLayoutType === VerticalLayoutType.Stretch) {
+                subEl.style.top = top + "px";
+                subEl.style.bottom = bottom + "px";
+            } else {
+                rootEl.style.marginTop = top + "px";
+                rootEl.style.marginBottom = bottom + "px";
+            }
+        };
+        Shape.Instance.ApplySizingSizes = function (rootEl, subEl) {
+            if (!isNaN(this.Width)) {
+                //explicit width
+                rootEl.style.width = this.Width + "px";
+            } else {
+                rootEl.style.width = "100%";
+                //subEl.style.width = "100%";
+            }
+            if (!isNaN(this.Height)) {
+                //explicit height
+                rootEl.style.height = this.Height + "px";
+            } else {
+                rootEl.style.height = "100%";
+                //subEl.style.height = "100%";
+            }
+
+            //set max width and max height on root element
+            rootEl.style.maxHeight = this.MaxHeight + "px";
+            rootEl.style.maxWidth = this.MaxWidth + "px";
+        };
+
+        /*
         Shape.Instance.FindAndSetAdjustedWidth = function () {
             if (this.GetIsFixedWidth())
                 return this.FindAndSetAdjustedWidth$FrameworkElement();
-            if (this.GetIsFixedHeight())
+            if (!this.GetIsFixedHeight())
                 return this.FindAndSetAdjustedWidth$FrameworkElement();
             delete Surface._SizingAdjustments[this._ID];
-            return this.GetRootHtmlElement().offsetHeight * this.GetAspectRatio();
+            var height = this.GetRootHtmlElement().offsetHeight;
+            return height * this.GetAspectRatio();
         };
         Shape.Instance.FindAndSetAdjustedHeight = function () {
             if (this.GetIsFixedHeight())
                 return this.FindAndSetAdjustedHeight$FrameworkElement();
-            if (this.GetIsFixedWidth())
+            if (!this.GetIsFixedWidth())
                 return this.FindAndSetAdjustedHeight$FrameworkElement();
             delete Surface._SizingAdjustments[this._ID];
-            return this.GetRootHtmlElement().offsetWidth / this.GetAspectRatio();
+            var width = this.GetRootHtmlElement().offsetWidth;
+            return width / this.GetAspectRatio();
         };
         Shape.Instance.GetAspectRatio = function () {
             var shape = this._Shape;
             var bounds = shape.getBBox();
             return bounds.width / bounds.height;
         };
+        */
 
         var serializeDashArray = function (collection) {
             var s = "";

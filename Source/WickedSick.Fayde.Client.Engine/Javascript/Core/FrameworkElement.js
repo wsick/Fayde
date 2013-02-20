@@ -1021,6 +1021,7 @@
                 this.GetRootHtmlElement().firstChild.removeChild(subtree.GetRootHtmlElement());
             }
         };
+
         FrameworkElement.Instance.ApplySizing = function (rootEl) {
             var isStretchPlusShrink = false;
             var subEl = rootEl.firstChild;
@@ -1083,27 +1084,38 @@
                 }
             }
 
+            this.ApplySizingMargin(rootEl, subEl, horizontalLayoutType, verticalLayoutType);
+            this.ApplySizingSizes(rootEl, subEl);
+
+            return isStretchPlusShrink;
+        };
+        FrameworkElement.Instance.ApplySizingMargin = function (rootEl, subEl, horizontalLayoutType, verticalLayoutType) {
+            var margin = this.Margin;
+            var left = margin.Left;
+            if (isNaN(left)) left = 0;
+            var top = margin.Top;
+            if (isNaN(top)) top = 0;
+            var right = margin.Right;
+            if (isNaN(right)) right = 0;
+            var bottom = margin.Bottom;
+            if (isNaN(bottom)) bottom = 0;
+
             if (horizontalLayoutType === HorizontalLayoutType.Stretch) {
-                var left = (isNaN(this.Margin.Left) ? 0 : this.Margin.Left);
                 subEl.style.left = left + "px";
-                var right = (isNaN(this.Margin.Right) ? 0 : this.Margin.Right);
                 subEl.style.right = right + "px";
-            }
-            else {
-                rootEl.style.marginLeft = this.Margin.Left + "px";
-                rootEl.style.marginRight = this.Margin.Right + "px";
+            } else {
+                rootEl.style.marginLeft = left + "px";
+                rootEl.style.marginRight = right + "px";
             }
             if (verticalLayoutType === VerticalLayoutType.Stretch) {
-                var top = (isNaN(this.Margin.Top) ? 0 : this.Margin.Top);
                 subEl.style.top = top + "px";
-                var bottom = (isNaN(this.Margin.Bottom) ? 0 : this.Margin.Bottom);
                 subEl.style.bottom = bottom + "px";
+            } else {
+                rootEl.style.marginTop = top + "px";
+                rootEl.style.marginBottom = bottom + "px";
             }
-            else {
-                rootEl.style.marginTop = this.Margin.Top + "px";
-                rootEl.style.marginBottom = this.Margin.Bottom + "px";
-            }
-
+        };
+        FrameworkElement.Instance.ApplySizingSizes = function (rootEl, subEl) {
             if (!isNaN(this.Width)) {
                 //explicit width
                 rootEl.style.width = this.Width + "px";
@@ -1113,11 +1125,11 @@
                 rootEl.style.height = this.Height + "px";
             }
 
-            //set max width and max height on inner element
+            //set max width and max height on root element
             rootEl.style.maxHeight = this.MaxHeight + "px";
             rootEl.style.maxWidth = this.MaxWidth + "px";
-            return isStretchPlusShrink;
         };
+
         FrameworkElement.Instance.ApplyHtmlChanges = function (invalidations) {
             var sizingChecks = [Fayde.UIElement.IsFixedWidthProperty, Fayde.UIElement.IsFixedHeightProperty,
                 FrameworkElement.HorizontalAlignmentProperty, FrameworkElement.VerticalAlignmentProperty,
