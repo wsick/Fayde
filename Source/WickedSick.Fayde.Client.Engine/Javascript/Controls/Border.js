@@ -360,20 +360,6 @@
                 contentEl.style.borderRadius = htmlRadius.TopLeft + "px " + htmlRadius.TopRight + "px " + htmlRadius.BottomRight + "px " + htmlRadius.BottomLeft + "px";
             }
         };
-        Border.Instance.CalculateAdjustedWidth = function (width) {
-            var marginLeft = isNaN(this.Margin.Left) ? 0 : this.Margin.Left;
-            var marginRight = isNaN(this.Margin.Right) ? 0 : this.Margin.Right;
-            var borderLeft = isNaN(this.BorderThickness.Left) ? 0 : this.BorderThickness.Left;
-            var borderRight = isNaN(this.BorderThickness.Right) ? 0 : this.BorderThickness.Right;
-            return width + marginLeft + marginRight + borderLeft + borderRight;
-        };
-        Border.Instance.CalculateAdjustedHeight = function (height) {
-            var marginTop = isNaN(this.Margin.Top) ? 0 : this.Margin.Top;
-            var marginBottom = isNaN(this.Margin.Bottom) ? 0 : this.Margin.Bottom;
-            var borderTop = isNaN(this.BorderThickness.Top) ? 0 : this.BorderThickness.Top;
-            var borderBottom = isNaN(this.BorderThickness.Bottom) ? 0 : this.BorderThickness.Bottom;
-            return height + marginTop + marginBottom + borderTop + borderBottom;
-        };
     }
     //#endif
 

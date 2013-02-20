@@ -722,6 +722,9 @@
             var cd = this.GetColumnDefinition(column);
             var contentEl = table.children[row].children[column].firstChild.firstChild;
             contentEl.appendChild(child.GetRootHtmlElement());
+            if (rd.Height.Type === Fayde.Controls.GridUnitType.Auto || cd.Width.Type === Fayde.Controls.GridUnitType.Auto) {
+                Surface._SizingAdjustments[child._ID] = child;
+            }
         };
         Grid.Instance.RemoveHtmlChild = function (child, index) {
             //TODO: what to do if row is set to a row number that doesn't exist?
