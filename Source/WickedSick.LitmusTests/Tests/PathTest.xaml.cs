@@ -12,9 +12,9 @@ using System.Windows.Shapes;
 
 namespace WickedSick.LitmusTests.Tests
 {
-    public partial class ShapesTest : UserControl
+    public partial class PathTest : UserControl
     {
-        public ShapesTest()
+        public PathTest()
         {
             InitializeComponent();
         }
