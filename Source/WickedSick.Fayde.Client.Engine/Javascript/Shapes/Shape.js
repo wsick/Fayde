@@ -587,6 +587,27 @@
             }
             return this._Shape;
         };
+        Shape.Instance.FindAndSetAdjustedWidth = function () {
+            if (this.GetIsFixedWidth())
+                return this.FindAndSetAdjustedWidth$FrameworkElement();
+            if (this.GetIsFixedHeight())
+                return this.FindAndSetAdjustedWidth$FrameworkElement();
+            delete Surface._SizingAdjustments[this._ID];
+            return this.GetRootHtmlElement().offsetHeight * this.GetAspectRatio();
+        };
+        Shape.Instance.FindAndSetAdjustedHeight = function () {
+            if (this.GetIsFixedHeight())
+                return this.FindAndSetAdjustedHeight$FrameworkElement();
+            if (this.GetIsFixedWidth())
+                return this.FindAndSetAdjustedHeight$FrameworkElement();
+            delete Surface._SizingAdjustments[this._ID];
+            return this.GetRootHtmlElement().offsetWidth / this.GetAspectRatio();
+        };
+        Shape.Instance.GetAspectRatio = function () {
+            var shape = this._Shape;
+            var bounds = shape.getBBox();
+            return bounds.width / bounds.height;
+        };
 
         var serializeDashArray = function (collection) {
             var s = "";
