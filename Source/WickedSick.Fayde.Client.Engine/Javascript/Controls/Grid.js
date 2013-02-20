@@ -834,7 +834,7 @@
 
             if (propd._ID === Grid.ShowGridLinesProperty._ID) {
                 var table = this.GetHtmlChildrenContainer();
-                var style = this.ShowGridLines ? "solid 1px black" : "";
+                var style = this.ShowGridLines ? "dashed 2px gray" : "";
                 for (var i = 0; i < table.children.length; i++) {
                     var row = table.children[i];
                     for (var j = 0; j < row.children.length; j++) {
