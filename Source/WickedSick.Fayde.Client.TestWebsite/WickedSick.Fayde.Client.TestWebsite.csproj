@@ -106,6 +106,9 @@
     <Content Include="Tests\Shapes\rectangle-basic.fap">
       <SubType>Designer</SubType>
     </Content>
+    <None Include="Tests\Shapes\rectangle-grid.fap">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Tests\Shapes\shape-stack.fap">
       <SubType>Designer</SubType>
     </None>

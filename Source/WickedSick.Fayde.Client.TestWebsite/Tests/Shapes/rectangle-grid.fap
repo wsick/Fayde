@@ -1,0 +1,48 @@
+﻿<FaydeApplication
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde"
+    Debug="true"
+    ScriptResolution="/Fayde/">
+    <FaydeApplication.Resources>
+    </FaydeApplication.Resources>
+    <Grid ShowGridLines="True">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="100" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="100" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="1" Text="Auto" />
+        <TextBlock Grid.Row="2" Text="100" />
+        <TextBlock Grid.Row="3" Text="*" />
+
+        <TextBlock Grid.Column="1" Text="Auto" />
+        <TextBlock Grid.Column="2" Text="100" />
+        
+        <Rectangle Grid.Column="1" Grid.Row="1" Margin="10"
+            Fill="#222222" Stroke="Red" StrokeThickness="5"
+            RadiusX="10" RadiusY="20" />
+        <Rectangle Grid.Column="2" Grid.Row="1"
+            Fill="#222222" Stroke="Red" StrokeThickness="5"
+            RadiusX="10" RadiusY="20" />
+        <Rectangle Grid.Column="1" Grid.Row="2"
+            Fill="#222222" Stroke="Red" StrokeThickness="5"
+            RadiusX="10" RadiusY="20" />
+        <Rectangle Grid.Column="2" Grid.Row="2"
+            Fill="#222222" Stroke="Red" StrokeThickness="5"
+            RadiusX="10" RadiusY="20" />
+        <Rectangle Grid.Column="1" Grid.Row="3"
+            Fill="#222222" Stroke="Red" StrokeThickness="5"
+            RadiusX="10" RadiusY="20" />
+        <Rectangle Grid.Column="2" Grid.Row="3"
+            Fill="#222222" Stroke="Red" StrokeThickness="5"
+            RadiusX="10" RadiusY="20" />
+    </Grid>
+</FaydeApplication>
