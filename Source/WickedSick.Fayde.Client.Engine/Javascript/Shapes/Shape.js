@@ -707,15 +707,11 @@
                 if (!fill)
                     fill = this.Fill;
                 this.ChangeFillOnSvg(fill);
-                //fill.SetupBrush(null, null);
-                //shape.setAttribute("fill", fill.ToHtml5Object());
             } else if (propd._ID === Shape.StrokeProperty._ID) {
                 var stroke = change.NewValue;
                 if (!stroke)
                     stroke = this.Stroke;
                 this.ChangeStrokeOnSvg(stroke);
-                //stroke.SetupBrush(null, null);
-                //shape.setAttribute("stroke", stroke.ToHtml5Object());
             } else if (propd._ID === Shape.StrokeThicknessProperty._ID) {
                 shape.setAttribute("stroke-width", change.NewValue);
             } else if (propd._ID === Shape.StrokeDashArrayProperty._ID) {
@@ -751,10 +747,11 @@
             if (typeof svgBrush === "string") {
                 fillAttr = svgBrush;
             } else {
-                svgBrush.id = "fillBrush";
+                var id = "fillBrush" + newFill._ID.toString();
+                svgBrush.id = id;
                 this._ExistingFill = svgBrush;
                 defs.appendChild(svgBrush);
-                fillAttr = "url(#fillBrush)";
+                fillAttr = "url(#" + id + ")";
             }
             shape.setAttribute("fill", fillAttr);
         };
@@ -766,15 +763,16 @@
                 defs.removeChild(stroke);
 
             var shape = this.GetSvgShape();
-            var svgBrush = newFill.CreateForSvg();
+            var svgBrush = newStroke.CreateForSvg();
             var strokeAttr = "";
             if (typeof svgBrush === "string") {
                 strokeAttr = svgBrush;
             } else {
-                svgBrush.id = "strokeBrush";
+                var id = "strokeBrush" + newStroke._ID.toString();
+                svgBrush.id = id;
                 this._ExistingStroke = svgBrush;
                 defs.appendChild(svgBrush);
-                strokeAttr = "url(#strokeBrush)";
+                strokeAttr = "url(#" + id + ")";
             }
             shape.setAttribute("stroke", strokeAttr);
         };

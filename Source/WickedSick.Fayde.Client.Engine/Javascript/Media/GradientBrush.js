@@ -59,16 +59,16 @@
 
     function createStop(grdStop) {
         var xmlStop = document.createElementNS("http://www.w3.org/2000/svg", "stop");
-        xmlStop.offset = grdStop.Offset + "%";
+        xmlStop.setAttribute("offset", "" + (grdStop.Offset * 100.0) + "%");
         var stopColor = grdStop.Color;
         if (!stopColor) {
             stopColor = "#000000";
-            xmlStop.stopOpacity = 1.0;
+            xmlStop.setAttribute("stop-opacity", "1.0");
         } else {
+            xmlStop.setAttribute("stop-opacity", stopColor.A.toString());
             stopColor = stopColor.ToHexStringNoAlpha();
-            xmlStop.stopOpacity = stopColor.A;
         }
-        xmlStop.stopColor = stopColor;
+        xmlStop.setAttribute("stop-color", stopColor);
         return xmlStop;
     };
     GradientBrush.Instance.Initialize = function (svgBrush) {

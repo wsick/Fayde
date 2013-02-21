@@ -65,10 +65,10 @@
         var lgb = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
         var startPoint = this.StartPoint;
         var endPoint = this.EndPoint;
-        lgb.x1 = startPoint.X + "%";
-        lgb.y1 = startPoint.Y + "%";
-        lgb.x2 = endPoint.X + "%";
-        lgb.y2 = endPoint.Y + "%";
+        lgb.setAttribute("x1", (startPoint.X * 100.0).toString() + "%");
+        lgb.setAttribute("y1", (startPoint.Y * 100.0).toString() + "%");
+        lgb.setAttribute("x2", (endPoint.X * 100.0).toString() + "%");
+        lgb.setAttribute("y2", (endPoint.Y * 100.0).toString() + "%");
         this.Initialize(lgb);
         return lgb;
     };
