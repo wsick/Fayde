@@ -15,7 +15,13 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <Rectangle RadiusX="5" RadiusY="10" Fill="#FFFFFF00" Stroke="#FF000000" StrokeThickness="5" />
-        <Rectangle Grid.Row="1" RadiusX="5" RadiusY="5" Stroke="#FF000000" StrokeThickness="5">
+        <Rectangle Grid.Row="1" RadiusX="5" RadiusY="5" StrokeThickness="5">
+            <Rectangle.Stroke>
+                <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                    <GradientStop Color="#FF000000" Offset="0"/>
+                    <GradientStop Color="#FFFFFFFF" Offset="1"/>
+                </LinearGradientBrush>
+            </Rectangle.Stroke>
             <Rectangle.Fill>
                 <LinearGradientBrush EndPoint="0,0" StartPoint="1,1">
                     <GradientStop Color="#FF000000" Offset="0"/>
