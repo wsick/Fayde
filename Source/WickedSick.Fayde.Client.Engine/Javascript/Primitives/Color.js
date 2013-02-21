@@ -67,6 +67,10 @@
         return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
     };
 
+    Color.Instance.ToHexStringNoAlpha = function () {
+        return "#" + this.R.toString(16) + this.G.toString(16) + this.B.toString(16);
+    };
+
     Color.LERP = function (start, end, p) {
         var r = start.R + (end.R - start.R) * p;
         var g = start.G + (end.G - start.G) * p;

@@ -57,5 +57,42 @@
         return mat3.createScale(bounds.Width, bounds.Height);
     };
 
+    function createStop(grdStop) {
+        var xmlStop = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+        xmlStop.offset = grdStop.Offset + "%";
+        var stopColor = grdStop.Color;
+        if (!stopColor) {
+            stopColor = "#000000";
+            xmlStop.stopOpacity = 1.0;
+        } else {
+            stopColor = stopColor.ToHexStringNoAlpha();
+            xmlStop.stopOpacity = stopColor.A;
+        }
+        xmlStop.stopColor = stopColor;
+        return xmlStop;
+    };
+    GradientBrush.Instance.Initialize = function (svgBrush) {
+        var method = this.SpreadMethod;
+        switch (method) {
+            case namespace.GradientSpreadMethod.Pad:
+                svgBrush.spreadMethod = "pad";
+                break;
+            case namespace.GradientSpreadMethod.Reflect:
+                svgBrush.spreadMethod = "reflect";
+                break;
+            case namespace.GradientSpreadMethod.Repeat:
+                svgBrush.spreadMethod = "repeat";
+                break;
+        }
+
+        var stops = this.GradientStops;
+        var count = stops.GetCount();
+        for (var i = 0; i < count; i++) {
+            var stop = stops.GetValueAt(i);
+            var xmlStop = createStop(stop);
+            svgBrush.appendChild(xmlStop);
+        }
+    };
+
     namespace.GradientBrush = Nullstone.FinishCreate(GradientBrush);
 })(Nullstone.Namespace("Fayde.Media"));

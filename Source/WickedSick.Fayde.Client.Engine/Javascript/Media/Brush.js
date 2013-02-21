@@ -52,6 +52,7 @@
     };
     Brush.Instance.CreateBrush = function (ctx, bounds) { };
     Brush.Instance.ToHtml5Object = function () { return this._Brush; };
+    Brush.Instance.CreateForSvg = function () { };
 
     Brush.Instance._IsSurfaceCached = function (bounds) {
         if (!this._Brush)

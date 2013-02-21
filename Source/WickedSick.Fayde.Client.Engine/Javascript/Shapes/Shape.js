@@ -574,6 +574,8 @@
             svg.style.position = "absolute";
             svg.style.width = "100%";
             svg.style.height = "100%";
+            var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+            svg.appendChild(defs);
             return svg;
         };
         Shape.Instance.GetSvg = function () {
@@ -644,6 +646,13 @@
             rootEl.style.maxWidth = this.MaxWidth + "px";
         };
 
+        Shape.Instance.CalculateIsFixedWidth = function () {
+            return !isNaN(this.Width);
+        };
+        Shape.Instance.CalculateIsFixedHeight = function () {
+            return !isNaN(this.Height);
+        };
+
         /*
         Shape.Instance.FindAndSetAdjustedWidth = function () {
             if (this.GetIsFixedWidth())
@@ -697,14 +706,16 @@
                 var fill = change.NewValue;
                 if (!fill)
                     fill = this.Fill;
-                fill.SetupBrush(null, null);
-                shape.setAttribute("fill", fill.ToHtml5Object());
+                this.ChangeFillOnSvg(fill);
+                //fill.SetupBrush(null, null);
+                //shape.setAttribute("fill", fill.ToHtml5Object());
             } else if (propd._ID === Shape.StrokeProperty._ID) {
                 var stroke = change.NewValue;
                 if (!stroke)
                     stroke = this.Stroke;
-                stroke.SetupBrush(null, null);
-                shape.setAttribute("stroke", stroke.ToHtml5Object());
+                this.ChangeStrokeOnSvg(stroke);
+                //stroke.SetupBrush(null, null);
+                //shape.setAttribute("stroke", stroke.ToHtml5Object());
             } else if (propd._ID === Shape.StrokeThicknessProperty._ID) {
                 shape.setAttribute("stroke-width", change.NewValue);
             } else if (propd._ID === Shape.StrokeDashArrayProperty._ID) {
@@ -726,6 +737,46 @@
             } else if (propd._ID === Shape.StrokeMiterLimitProperty._ID) {
                 shape.setAttribute("stroke-miterlimit", change.NewValue);
             }
+        };
+        Shape.Instance.ChangeFillOnSvg = function (newFill) {
+            var svg = this.GetSvg();
+            var defs = svg.firstChild;
+            var fill = this._ExistingFill;
+            if (fill)
+                defs.removeChild(fill);
+            
+            var shape = this.GetSvgShape();
+            var svgBrush = newFill.CreateForSvg();
+            var fillAttr = "";
+            if (typeof svgBrush === "string") {
+                fillAttr = svgBrush;
+            } else {
+                svgBrush.id = "fillBrush";
+                this._ExistingFill = svgBrush;
+                defs.appendChild(svgBrush);
+                fillAttr = "url(#fillBrush)";
+            }
+            shape.setAttribute("fill", fillAttr);
+        };
+        Shape.Instance.ChangeStrokeOnSvg = function (newStroke) {
+            var svg = this.GetSvg();
+            var defs = svg.firstChild;
+            var stroke = this._ExistingStroke;
+            if (stroke)
+                defs.removeChild(stroke);
+
+            var shape = this.GetSvgShape();
+            var svgBrush = newFill.CreateForSvg();
+            var strokeAttr = "";
+            if (typeof svgBrush === "string") {
+                strokeAttr = svgBrush;
+            } else {
+                svgBrush.id = "strokeBrush";
+                this._ExistingStroke = svgBrush;
+                defs.appendChild(svgBrush);
+                strokeAttr = "url(#strokeBrush)";
+            }
+            shape.setAttribute("stroke", strokeAttr);
         };
     }
     //#endif

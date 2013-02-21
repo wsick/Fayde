@@ -30,6 +30,9 @@
             return "#000000";
         return color.toString();
     };
+    SolidColorBrush.Instance.CreateForSvg = function () {
+        return this.CreateBrush();
+    };
 
     namespace.SolidColorBrush = Nullstone.FinishCreate(SolidColorBrush);
 })(Nullstone.Namespace("Fayde.Media"));

@@ -25,6 +25,15 @@
     RadialGradientBrush.Instance.CreateBrush = function (ctx, bounds) {
         NotImplemented("RadialGradientBrush.CreateBrush");
     };
+    RadialGradientBrush.Instance.CreateForSvg = function () {
+        var rgb = document.createElementNS("http://www.w3.org/2000/svg", "radialGradient");
+        var center = this.Center;
+        var radiusX = this.RadiusX;
+        var radiusY = this.RadiusY;
+        NotImplemented("RadialGradientBrush.CreateForSvg");
+        this.Initialize(rgb);
+        return rgb;
+    };
 
     namespace.RadialGradientBrush = Nullstone.FinishCreate(RadialGradientBrush);
 })(Nullstone.Namespace("Fayde.Media"));

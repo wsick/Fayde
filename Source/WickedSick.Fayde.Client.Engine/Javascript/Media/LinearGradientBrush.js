@@ -61,6 +61,17 @@
         var start = data.start;
         var end = data.end;
     };
+    LinearGradientBrush.Instance.CreateForSvg = function () {
+        var lgb = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+        var startPoint = this.StartPoint;
+        var endPoint = this.EndPoint;
+        lgb.x1 = startPoint.X + "%";
+        lgb.y1 = startPoint.Y + "%";
+        lgb.x2 = endPoint.X + "%";
+        lgb.y2 = endPoint.Y + "%";
+        this.Initialize(lgb);
+        return lgb;
+    };
 
     LinearGradientBrush.Instance._GetPointData = function (bounds) {
         var transform = this._GetMappingModeTransform(bounds);
