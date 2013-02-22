@@ -85,8 +85,11 @@
         this._ClockTimer.RegisterTimer(this);
     };
     App.Instance._Tick = function (lastTime, nowTime) {
+        profile();
         this.ProcessStoryboards(lastTime, nowTime);
         this.Update();
+        profileEnd();
+        canProfile = false;
     };
     App.Instance._Stop = function () {
         this._ClockTimer.UnregisterTimer(this);
@@ -259,4 +262,4 @@
 
     namespace.App = Nullstone.FinishCreate(App);
 })(window);
-App.Version = "0.9.3.0";
+App.Version = "0.9.4.0";

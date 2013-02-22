@@ -11,9 +11,13 @@
     };
 
     Fayde.Start = function (appType, rjson, json, canvas) {
+        if (window.console && console.profile)
+            console.profile();
         App.Instance = new appType();
         App.Instance.LoadResources(rjson);
         App.Instance.LoadInitial(canvas, json);
+        if (window.console && console.profileEnd)
+            console.profileEnd();
     };
 
     Fayde.TypeConverters = {

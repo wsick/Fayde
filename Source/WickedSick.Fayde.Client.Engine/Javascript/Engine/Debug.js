@@ -6,6 +6,21 @@ var DebugLevel = {
     Fatal: 4
 };
 
+var canProfile = false;
+function profile() {
+    if (!canProfile)
+        return;
+    if (window.console && console.profile)
+        console.profile();
+}
+function profileEnd() {
+    if (!canProfile)
+        return;
+    if (window.console && console.profileEnd) {
+        console.profileEnd();
+    }
+}
+
 //#region HUD
 
 HUD.prototype = new Object;
