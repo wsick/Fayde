@@ -791,7 +791,7 @@
 
         if (mergeNamescope) {
             toNs._MergeTemporaryScope(thisNs, error);
-            this._ClearValue(Fayde.NameScope.NameScopeProperty, false);
+            Fayde.NameScope.ClearNameScope(this);
         }
 
         if (registerName) {
@@ -900,7 +900,7 @@
             if (thisScope._GetTemporary()) {
                 if (parentScope) {
                     parentScope._MergeTemporaryScope(thisScope, error);
-                    this._ClearValue(Fayde.NameScope.NameScopeProperty, false);
+                    Fayde.NameScope.ClearNameScope(this);
                 }
             } else {
                 if (true /* TODO: this._IsHydratedFromXaml()*/) {

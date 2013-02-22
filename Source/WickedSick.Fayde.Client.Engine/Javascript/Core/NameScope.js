@@ -3,10 +3,9 @@
 /// CODE
 
 (function (Fayde) {
-    var NameScope = Nullstone.Create("NameScope", Fayde.DependencyObject);
+    var NameScope = Nullstone.Create("NameScope");
 
     NameScope.Instance.Init = function () {
-        this.Init$DependencyObject();
         this._IsLocked = false;
         this._Names = null;
         this._Temporary = false;
@@ -14,16 +13,18 @@
 
     //#region Properties
 
-    NameScope.NameScopeProperty = DependencyProperty.RegisterAttachedCore("NameScope", function () { return NameScope; }, NameScope);
     NameScope.GetNameScope = function (d) {
         /// <param name="d" type="DependencyObject"></param>
         /// <returns type="NameScope" />
-        return d.$GetValue(NameScope.NameScopeProperty);
+        return d.__NameScope;
     };
     NameScope.SetNameScope = function (d, value) {
         /// <param name="d" type="DependencyObject"></param>
         /// <param name="value" type="NameScope"></param>
-        d.$SetValue(NameScope.NameScopeProperty, value);
+        d.__NameScope = value;
+    };
+    NameScope.ClearNameScope = function (d) {
+        delete d.__NameScope;
     };
 
     //#endregion
