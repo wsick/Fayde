@@ -256,6 +256,12 @@
         this.Height = rh;
     };
 
+    Rect.prototype.Equals = function (other) {
+        return this.X === other.X
+            && this.Y === other.Y
+            && this.Width === other.Width
+            && this.Height === other.Height;
+    };
     Rect.prototype.toString = function () {
         return "[X = " + this.X + "; Y = " + this.Y + "; Width = " + this.Width + "; Height = " + this.Height + "]";
     };

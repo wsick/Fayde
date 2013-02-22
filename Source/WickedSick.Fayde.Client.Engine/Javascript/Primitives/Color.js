@@ -63,6 +63,12 @@
         return new Color(this.R * factor, this.G * factor, this.B * factor, this.A * factor);
     };
 
+    Color.Instance.Equals = function (other) {
+        return this.R === other.R
+            && this.G === other.G
+            && this.B === other.B
+            && this.A === other.A;
+    };
     Color.Instance.toString = function () {
         return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
     };

@@ -104,10 +104,10 @@ Nullstone.Equals = function (val1, val2) {
         return true;
     if (val1 == null || val2 == null)
         return false;
-    if (val1.constructor._IsNullstone && val2.constructor._IsNullstone)
-        return val1._ID === val2._ID;
-    if (!(val1 instanceof Object) && !(val2 instanceof Object))
-        return val1 === val2;
+    if (val1 === val2)
+        return true;
+    if (val1.Equals)
+        return val1.Equals(val2);
     return false;
 };
 Nullstone.As = function (obj, type) {

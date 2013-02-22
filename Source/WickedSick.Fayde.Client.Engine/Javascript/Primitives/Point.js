@@ -10,6 +10,9 @@
     Point.prototype.toString = function () {
         return "X=" + this.X.toString() + ";Y=" + this.Y.toString();
     };
+    Point.prototype.Equals = function (other) {
+        return this.X === other.X && this.Y === other.Y;
+    };
 
     Point.Equals = function (p1, p2) {
         /// <param name="p1" type="Point"></param>

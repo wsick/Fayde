@@ -18,6 +18,12 @@
             && this.BottomLeft === 0;
     };
 
+    CornerRadius.Instance.Equals = function (other) {
+        return this.TopLeft === other.TopLeft
+            && this.TopRight === other.TopRight
+            && this.BottomRight === other.BottomRight
+            && this.BottomLeft === other.BottomLeft;
+    };
     CornerRadius.Instance.toString = function () {
         return "(" + this.TopLeft + ", " + this.TopRight + ", " + this.BottomRight + ", " + this.BottomLeft + ")";
     };

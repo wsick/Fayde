@@ -60,6 +60,10 @@
         return new Size(Math.max(this.Width, size2.Width), Math.max(this.Height, size2.Height));
     };
 
+    Size.prototype.Equals = function (other) {
+        return this.Width === other.Width && this.Height === other.Height;
+    };
+
     Size.prototype.toString = function () {
         return "[Width = " + this.Width + "; Height = " + this.Height + "]";
     };
