@@ -69,6 +69,7 @@
     <Content Include="Benchmarks\Matrix\Matrix3D.js" />
     <Content Include="Benchmarks\Matrix\test.html" />
     <None Include="Fayde.Generic.js.old" />
+    <Content Include="Benchmarks\refequals.html" />
     <Content Include="Docs\DebugServices.txt" />
     <Content Include="Docs\Links.txt" />
     <Content Include="Docs\Notes.txt" />
@@ -417,7 +418,6 @@
     <Content Include="Styles\Thumb.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Javascript\tsc-all.bat" />
     <None Include="jsTestDriver.conf" />
     <Content Include="Silo\heightTest.htm" />
     <Content Include="Docs\Tips.txt" />
@@ -466,6 +466,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Docs\Rules\" />
     <Folder Include="Typescript\" />
   </ItemGroup>
   <PropertyGroup>
