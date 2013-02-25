@@ -46,3 +46,4 @@ var Fayde;
     })(Fayde.Demos || (Fayde.Demos = {}));
     var Demos = Fayde.Demos;
 })(Fayde || (Fayde = {}));
+//@ sourceMappingURL=default.fap.js.map

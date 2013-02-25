@@ -63,3 +63,4 @@ var Fayde;
     })(Fayde.Demos || (Fayde.Demos = {}));
     var Demos = Fayde.Demos;
 })(Fayde || (Fayde = {}));
+//@ sourceMappingURL=MainViewModel.js.map
