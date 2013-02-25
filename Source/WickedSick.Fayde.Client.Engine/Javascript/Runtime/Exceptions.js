@@ -106,4 +106,16 @@
     var ArgumentException = Nullstone.Create("ArgumentException", Exception, 3);
     namespace.ArgumentException = Nullstone.FinishCreate(ArgumentException);
     //#endregion
+
+    (function (namespace) {
+        var InvalidJsonException = Nullstone.Create("InvalidJsonException", Exception, 2);
+
+        InvalidJsonException.Instance.Init = function (jsonText, innerException) {
+            this.Init$Exception("Invalid json.");
+            this.JsonText = jsonText;
+            this.InnerException = innerException;
+        };
+
+        namespace.InvalidJsonException = Nullstone.FinishCreate(InvalidJsonException);
+    })(window);
 })(window);

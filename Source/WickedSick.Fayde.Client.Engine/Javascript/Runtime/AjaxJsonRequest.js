@@ -42,27 +42,39 @@
     AjaxJsonRequest.prototype._HandleStateChange = function () {
         if (this.xmlhttp.readyState === 4) {
             if (this.xmlhttp.status === 200) {
-                var responseJson = {};
-                var data = this.xmlhttp.responseText;
-                try {
-                    if (data) {
-                        responseJson = (window.JSON && window.JSON.parse) ?
-                            window.JSON.parse(data) :
-                            new Function("return " + data)();
-                    }
-                } catch (err) {
-                    try {
-                        responseJson = new Function("return " + data)();
-                    } catch (err) {
-                        this.OnError("Could not create json from response.", err);
-                        return;
-                    }
-                }
-                this.OnSuccess(responseJson);
+                this.OnSuccess(new AjaxJsonResult(this.xmlhttp));
             } else {
                 this.OnError("Unsuccessful request: " + this.xmlhttp.status);
             }
         }
     };
     namespace.AjaxJsonRequest = AjaxJsonRequest;
+})(window);
+
+(function (namespace) {
+    function AjaxJsonResult(xmlhttp) {
+        this.xmlhttp = xmlhttp;
+    }
+    AjaxJsonResult.prototype.CreateJson = function () {
+        var data = this.xmlhttp.responseText;
+        if (!data)
+            return null;
+
+        if (window.JSON && window.JSON.parse) {
+            try {
+                return window.JSON.parse(data);
+            } catch (err) {
+            }
+        }
+
+        try {
+            return new Function("return " + data)();
+        } catch (err) {
+            throw new InvalidJsonException(data, err);
+        }
+    };
+    AjaxJsonResult.prototype.GetHeader = function (name) {
+        return this.xmlhttp.getResponseHeader(name);
+    };
+    namespace.AjaxJsonResult = AjaxJsonResult;
 })(window);

@@ -2,6 +2,7 @@
 /// CODE
 /// <reference path="../Primitives/Uri.js"/>
 /// <reference path="../Navigation/UriMapper.js"/>
+/// <reference path="../Runtime/AjaxJsonRequest.js"/>
 
 (function (namespace) {
     var Frame = Nullstone.Create("Frame", namespace.ContentControl);
@@ -56,7 +57,7 @@
     Frame.Instance.Navigate = function (source) {
         /// <param name="source" type="Uri"></param>
         var ns = this;
-        this._Request = new AjaxJsonRequest(function (responseJson) { ns._HandleSuccessfulResponse(responseJson); },
+        this._Request = new AjaxJsonRequest(function (result) { ns._HandleSuccessfulResponse(result); },
             function (error) { ns._HandleErrorResponse(error); });
         this._Request.Get(source.toString());
     };
@@ -88,13 +89,14 @@
         var scriptUrl = href + "?js=true&p=" + hash;
         var ns = this;
         Nullstone.ImportJsFile(scriptUrl, function (script) {
-            this._Request = new AjaxJsonRequest(function (responseJson) { ns._HandleSuccessfulResponse(responseJson); },
+            this._Request = new AjaxJsonRequest(function (result) { ns._HandleSuccessfulResponse(result); },
                 function (error) { ns._HandleErrorResponse(error); });
             this._Request.Get(href, "p=" + hash);
         });
     };
-    Frame.Instance._HandleSuccessfulResponse = function (responseJson) {
-        var page = Fayde.JsonParser.Parse(responseJson);
+    Frame.Instance._HandleSuccessfulResponse = function (ajaxJsonResult) {
+        /// <param name="ajaxJsonResult" type="AjaxJsonResult"></param>
+        var page = Fayde.JsonParser.Parse(ajaxJsonResult.CreateJson());
         if (page instanceof namespace.Page) {
             document.title = page.Title;
             this.Content = page;
