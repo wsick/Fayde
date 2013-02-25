@@ -42,10 +42,14 @@ class Dictionary {
 }
 
 class AjaxJsonRequest {
-    constructor (onSuccess: (json: string) => void, onError: (msg: string, error?) => void);
+    constructor (onSuccess: (json: AjaxJsonResult) => void, onError: (msg: string, error?) => void);
     Get(url: string, query: string);
     Post(url: string, query: string, data);
     Cancel();
+}
+class AjaxJsonResult {
+    CreateJson(): any;
+    GetHeader(name: string): string;
 }
 
 class App extends Fayde.DependencyObject {
