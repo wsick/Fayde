@@ -17,7 +17,7 @@ namespace WickedSick.Server.XamlParser.Elements
         internal static readonly string DEFAULT_NS = "http://schemas.wsick.com/fayde";
 
         private static IDictionary<Type, ITypeConverter> _converters = new Dictionary<Type, ITypeConverter>();
-        
+
         static DependencyObject()
         {
             var converters = from t in Assembly.GetCallingAssembly().GetTypes()
@@ -38,14 +38,22 @@ namespace WickedSick.Server.XamlParser.Elements
 
         private IDictionary<AttachedPropertyDescription, object> _attachedValues = new Dictionary<AttachedPropertyDescription, object>();
         private IDictionary<PropertyDescription, object> _dependencyValues = new Dictionary<PropertyDescription, object>();
+        private Dictionary<EventDescription, string> _EventSubscriptions = new Dictionary<EventDescription, string>();
 
         public void SetValue(string name, object value)
         {
             //first check to see if the property is defined
-            PropertyDescription pd = PropertyDescription.Get(name, GetType());
-            if (pd == null)
-                throw new ArgumentException(string.Format("An unregistered property has been passed. {0}.{1}", GetType().Name, name));
+            var desc = AttributeDescriptionHelper.Get(name, GetType());
+            if (desc == null)
+                throw new ArgumentException(string.Format("An unregistered attribute has been passed. {0}.{1}", GetType().Name, name));
 
+            if (desc is PropertyDescription)
+                SetValue(desc as PropertyDescription, value);
+            else if (desc is EventDescription)
+                SetValue(desc as EventDescription, value as string);
+        }
+        protected void SetValue(PropertyDescription pd, object value)
+        {
             if (IsSubclassOfRawGeneric(pd.Type, typeof(DependencyObjectCollection<>)))
             {
                 DependencyObject doc;
@@ -73,7 +81,7 @@ namespace WickedSick.Server.XamlParser.Elements
             else
             {
                 if (_dependencyValues.ContainsKey(pd))
-                    throw new Exception(string.Format("The property has already been set. {0}.{1}", GetType().Name, name));
+                    throw new Exception(string.Format("The property has already been set. {0}.{1}", GetType().Name, pd.Name));
 
                 if (value is string)
                 {
@@ -82,6 +90,10 @@ namespace WickedSick.Server.XamlParser.Elements
 
                 _dependencyValues.Add(pd, value);
             }
+        }
+        protected void SetValue(EventDescription ed, string value)
+        {
+            _EventSubscriptions[ed] = value;
         }
 
         private object GetConvertedValue(string value, Type convertedType)
@@ -100,7 +112,7 @@ namespace WickedSick.Server.XamlParser.Elements
 
         public object GetValue(string name)
         {
-            PropertyDescription pd = PropertyDescription.Get(name, GetType());
+            PropertyDescription pd = AttributeDescriptionHelper.Get(name, GetType()) as PropertyDescription;
             if (pd == null) return null;
             if (!_dependencyValues.ContainsKey(pd))
                 return null;
@@ -253,6 +265,8 @@ namespace WickedSick.Server.XamlParser.Elements
                 sb.Append("]");
             }
 
+            WriteEventsToJson(sb);
+
             IJsonConvertible content = GetContent();
             if (content != null)
             {
@@ -271,50 +285,6 @@ namespace WickedSick.Server.XamlParser.Elements
         public virtual string GetTypeName(IJsonOutputModifiers outputMods)
         {
             return ElementAttribute.GetFullNullstoneType(GetType(), outputMods);
-        }
-
-        private string attachedPropsToJson(IDictionary<AttachedPropertyDescription, object> properties, IJsonOutputModifiers outputMods)
-        {
-            var sb = new StringBuilder();
-            var needsComma = false;
-            foreach (AttachedPropertyDescription apd in properties.Keys)
-            {
-                if (needsComma)
-                    sb.AppendLine(",");
-                sb.AppendLine("{");
-                sb.AppendFormat("Owner: {0}", ElementAttribute.GetFullNullstoneType(apd.OwnerType, outputMods));
-                sb.AppendLine(",");
-                sb.AppendFormat("Prop: \"{0}\"", apd.Name);
-                sb.AppendLine(",");
-                sb.Append("Value: ");
-                object value = properties[apd];
-                if (value is IJsonConvertible)
-                {
-                    sb.AppendLine(((IJsonConvertible)value).ToJson(0, outputMods));
-                }
-                else if (typeof(IList).IsAssignableFrom(value.GetType()))
-                {
-                    string json = listpropToJson((IList)value, outputMods);
-                    if (json.Length > 0)
-                    {
-                        sb.AppendLine("[");
-                        sb.AppendLine(json);
-                        sb.Append("]");
-                    }
-                }
-                else
-                {
-                    if (value is string)
-                        sb.Append("\"");
-                    sb.Append(CleanseText(value.ToString()));
-                    if (value is string)
-                        sb.Append("\"");
-                }
-                sb.AppendLine();
-                sb.Append("}");
-                needsComma = true;
-            }
-            return sb.ToString();
         }
 
         private string propsToJson(IDictionary<PropertyDescription, object> properties, IJsonOutputModifiers outputMods)
@@ -386,6 +356,67 @@ namespace WickedSick.Server.XamlParser.Elements
             }
             sb.AppendLine();
             return sb.ToString();
+        }
+        private string attachedPropsToJson(IDictionary<AttachedPropertyDescription, object> properties, IJsonOutputModifiers outputMods)
+        {
+            var sb = new StringBuilder();
+            var needsComma = false;
+            foreach (AttachedPropertyDescription apd in properties.Keys)
+            {
+                if (needsComma)
+                    sb.AppendLine(",");
+                sb.AppendLine("{");
+                sb.AppendFormat("Owner: {0}", ElementAttribute.GetFullNullstoneType(apd.OwnerType, outputMods));
+                sb.AppendLine(",");
+                sb.AppendFormat("Prop: \"{0}\"", apd.Name);
+                sb.AppendLine(",");
+                sb.Append("Value: ");
+                object value = properties[apd];
+                if (value is IJsonConvertible)
+                {
+                    sb.AppendLine(((IJsonConvertible)value).ToJson(0, outputMods));
+                }
+                else if (typeof(IList).IsAssignableFrom(value.GetType()))
+                {
+                    string json = listpropToJson((IList)value, outputMods);
+                    if (json.Length > 0)
+                    {
+                        sb.AppendLine("[");
+                        sb.AppendLine(json);
+                        sb.Append("]");
+                    }
+                }
+                else
+                {
+                    if (value is string)
+                        sb.Append("\"");
+                    sb.Append(CleanseText(value.ToString()));
+                    if (value is string)
+                        sb.Append("\"");
+                }
+                sb.AppendLine();
+                sb.Append("}");
+                needsComma = true;
+            }
+            return sb.ToString();
+        }
+        private void WriteEventsToJson(StringBuilder sb)
+        {
+            if (!_EventSubscriptions.Any())
+                return;
+            sb.AppendLine(",");
+            sb.Append("Events: {");
+            var needsComma = false;
+            foreach (var evt in _EventSubscriptions)
+            {
+                if (needsComma)
+                {
+                    sb.AppendLine(",");
+                    needsComma = true;
+                }
+                sb.AppendFormat(string.Format("{0}: \"{1}\"", evt.Key.Name, evt.Value));
+            }
+            sb.Append("}");
         }
 
         private static string CleanseText(string s)

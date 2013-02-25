@@ -3,46 +3,22 @@ using System.Collections.Generic;
 
 namespace WickedSick.Server.XamlParser
 {
-    public class PropertyDescription
+    public class PropertyDescription : IAttributeDescription
     {
         private static Dictionary<Type, PropertyDescription> _ContentProperty = new Dictionary<Type, PropertyDescription>();
-        private static Dictionary<Type, Dictionary<string, PropertyDescription>> _DependencyProperties = new Dictionary<Type, Dictionary<string, PropertyDescription>>();
 
         public static PropertyDescription Register(string name, Type type, Type ownerType, bool isContent = false)
         {
-            var groupDict = _DependencyProperties.ContainsKey(ownerType) ? _DependencyProperties[ownerType] : null;
-            if (groupDict == null)
-                _DependencyProperties[ownerType] = groupDict = new Dictionary<string, PropertyDescription>();
-
-            if (groupDict.ContainsKey(name))
-                throw new ArgumentException(string.Format("The DependencyProperty ({0}.{1}) has already been registered.", ownerType.Name, name));
-
-            if (isContent && _ContentProperty.ContainsKey(ownerType))
-                throw new ArgumentException(string.Format("There cannot be more than one content property on a DependencyObject ({0})", ownerType.Name));
-
-            var dp = new PropertyDescription(name, type, isContent);
-            groupDict[name] = dp;
+            var desc = new PropertyDescription(name, type, isContent);
+            AttributeDescriptionHelper.Register(desc, ownerType);
             if (isContent)
-                _ContentProperty[ownerType] = dp;
-            return dp;
-        }
-
-        public static PropertyDescription Get(string name, Type ownerType)
-        {
-            Type checkType = ownerType;
-            while (checkType != null)
             {
-                PropertyHelper.EnsurePropertyRegistered(checkType);
-                if (_DependencyProperties.ContainsKey(checkType))
-                {
-                    var groupDict = _DependencyProperties[checkType];
-                    if (groupDict.ContainsKey(name))
-                        return groupDict[name];
-                }
-                checkType = checkType.BaseType;
+                if (_ContentProperty.ContainsKey(ownerType))
+                    throw new ArgumentException(string.Format("There cannot be more than one content property on a DependencyObject ({0}).", ownerType.Name));
+                _ContentProperty[ownerType] = desc;
             }
 
-            return null;
+            return desc;
         }
 
         public static PropertyDescription GetContent(Type ownerType)

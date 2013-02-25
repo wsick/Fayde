@@ -14,11 +14,12 @@
         this._ResChain = [];
     };
 
-    JsonParser.Parse = function (json, templateBindingSource, namescope, resChain) {
+    JsonParser.Parse = function (json, templateBindingSource, namescope, resChain, rootXamlObject) {
         var parser = new JsonParser();
         if (resChain)
             parser._ResChain = resChain;
         parser._TemplateBindingSource = templateBindingSource;
+        parser._RootXamlObject = rootXamlObject;
         var shouldSetNS = false;
         if (!namescope) {
             namescope = new Fayde.NameScope();
@@ -62,6 +63,8 @@
 
 
         var dobj = new json.Type();
+        if (!this._RootXamlObject)
+            this._RootXamlObject = dobj;
         dobj.TemplateOwner = this._TemplateBindingSource;
         if (json.Name)
             dobj.SetNameOnScope(json.Name, namescope);
@@ -89,6 +92,20 @@
                 propd = DependencyProperty.GetDependencyProperty(attachedDef.Owner, attachedDef.Prop);
                 propValue = attachedDef.Value;
                 this.TrySetPropertyValue(dobj, propd, propValue, namescope, true, attachedDef.Owner, attachedDef.Prop);
+            }
+        }
+        
+        if (json.Events) {
+            for (var i in json.Events) {
+                var targetEvent = dobj[i];
+                if (!targetEvent || !(targetEvent instanceof MulticastEvent))
+                    throw new ArgumentException("Could not locate event '" + i + "' on object '" + json.Type._TypeName + "'.");
+                var root = this._RootXamlObject;
+                var targetCallback = root[json.Events[i]];
+                if (!targetCallback || typeof targetCallback !== "function")
+                    throw new ArgumentException("Could not locate event callback '" + json.Events[i] + "' on object '" + root.constructor._TypeName + "'.");
+                
+                targetEvent.Subscribe(targetCallback, root);
             }
         }
 

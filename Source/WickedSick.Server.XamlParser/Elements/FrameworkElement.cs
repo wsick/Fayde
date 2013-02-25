@@ -21,5 +21,7 @@ namespace WickedSick.Server.XamlParser.Elements
         public static readonly PropertyDescription DataContextProperty = PropertyDescription.Register("DataContext", typeof(object), typeof(FrameworkElement));
         public static readonly PropertyDescription TriggersProperty = PropertyDescription.Register("Triggers", typeof(DependencyObjectCollection<TriggerBase>), typeof(FrameworkElement));
         public static readonly PropertyDescription CursorProperty = PropertyDescription.Register("Cursor", typeof(CursorType), typeof(FrameworkElement));
+
+        public static readonly EventDescription SizeChangedEvent = EventDescription.Register("SizeChanged", typeof(FrameworkElement));
     }
 }

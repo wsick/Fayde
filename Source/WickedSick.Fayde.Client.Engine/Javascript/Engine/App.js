@@ -70,7 +70,7 @@
         this.MainSurface.Register(containerId);
         this.NavService = new Fayde.Navigation.NavService(this);
 
-        var element = Fayde.JsonParser.Parse(json);
+        var element = Fayde.JsonParser.Parse(json, undefined, undefined, undefined, this);
         if (element instanceof Fayde.UIElement)
             this.MainSurface._Attach(element);
 
