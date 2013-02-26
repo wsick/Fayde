@@ -1,6 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
+    [Element("")]
     public class Thickness : IJsonConvertible
     {
         public double Left { get; set; }
