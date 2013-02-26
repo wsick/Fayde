@@ -41,10 +41,12 @@
     };
     AjaxJsonRequest.prototype._HandleStateChange = function () {
         if (this.xmlhttp.readyState === 4) {
-            if (this.xmlhttp.status === 200) {
-                this.OnSuccess(new AjaxJsonResult(this.xmlhttp));
+            var req = this.xmlhttp;
+            this.xmlhttp = undefined;
+            if (req.status === 200) {
+                this.OnSuccess(new AjaxJsonResult(req));
             } else {
-                this.OnError("Unsuccessful request: " + this.xmlhttp.status);
+                this.OnError("Unsuccessful request: " + req.status);
             }
         }
     };
