@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements
 {
-    [Element(NullstoneNamespace = "Fayde")]
+    [Element("Fayde")]
     public abstract class TriggerAction : DependencyObject
     {
     }

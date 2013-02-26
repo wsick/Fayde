@@ -2,7 +2,7 @@
 
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {
-    [Element(NullstoneNamespace = "Fayde.Controls")]
+    [Element("Fayde.Controls")]
     public class ToolTip : ContentControl
     {
         public static readonly PropertyDescription Placement = PropertyDescription.Register("Placement", typeof(PlacementMode), typeof(ToolTip));

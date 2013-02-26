@@ -2,7 +2,7 @@
 
 namespace WickedSick.Server.XamlParser.Elements.Media
 {
-    [Element(NullstoneNamespace = "Fayde.Media")]
+    [Element("Fayde.Media")]
     public class GradientBrush : Brush
     {
         public static readonly PropertyDescription SpreadMethodProperty = PropertyDescription.Register("SpreadMethod", typeof(GradientSpreadMethod), typeof(GradientBrush));

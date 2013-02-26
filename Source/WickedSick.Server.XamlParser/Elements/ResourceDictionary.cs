@@ -2,7 +2,7 @@
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    [Element(NullstoneNamespace = "Fayde")]
+    [Element("Fayde")]
     public class ResourceDictionary : DependencyObjectCollection<DependencyObject>
     {
         public override string ToJson(int tabIndents, IJsonOutputModifiers outputMods)

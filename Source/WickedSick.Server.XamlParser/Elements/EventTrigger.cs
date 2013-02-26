@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements
 {
-    [Element(NullstoneNamespace = "Fayde")]
+    [Element("Fayde")]
     public class EventTrigger : TriggerBase
     {
         public static readonly PropertyDescription ActionsProperty = PropertyDescription.Register("Actions", typeof(DependencyObjectCollection<TriggerAction>), typeof(EventTrigger), true);

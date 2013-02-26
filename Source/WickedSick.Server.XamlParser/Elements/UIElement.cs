@@ -5,7 +5,7 @@ using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    [Element(NullstoneNamespace = "Fayde")]
+    [Element("Fayde")]
     public abstract class UIElement : DependencyObject
     {
         public static readonly PropertyDescription EffectProperty = PropertyDescription.Register("Effect", typeof(Effect), typeof(UIElement));

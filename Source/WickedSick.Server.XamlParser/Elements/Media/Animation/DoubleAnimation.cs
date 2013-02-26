@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Media.Animation
 {
-    [Element(NullstoneNamespace = "Fayde.Media.Animation")]
+    [Element("Fayde.Media.Animation")]
     public class DoubleAnimation : Timeline
     {
         public static readonly PropertyDescription FromProperty = PropertyDescription.Register("From", typeof(double), typeof(DoubleAnimation));

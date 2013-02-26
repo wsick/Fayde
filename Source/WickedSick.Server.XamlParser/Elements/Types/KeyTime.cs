@@ -7,6 +7,7 @@ namespace WickedSick.Server.XamlParser.Elements.Types
         TimeSpan = 2,
     }
 
+    [Element("")]
     public class KeyTime : IJsonConvertible
     {
         public static KeyTime Uniform = new KeyTime { Type = KeyTimeType.Uniform };

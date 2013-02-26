@@ -2,7 +2,7 @@
 
 namespace WickedSick.Server.XamlParser.Elements.Media.Imaging
 {
-    [Element(NullstoneNamespace = "Fayde.Media.Imaging")]
+    [Element("Fayde.Media.Imaging")]
     public class BitmapSource : ImageSource
     {
         public static readonly PropertyDescription PixelWidth = PropertyDescription.Register("PixelWidth", typeof(double), typeof(BitmapSource));

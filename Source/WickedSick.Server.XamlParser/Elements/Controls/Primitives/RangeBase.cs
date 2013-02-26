@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Controls.Primitives
 {
-    [Element(NullstoneNamespace = "Fayde.Controls.Primitives")]
+    [Element("Fayde.Controls.Primitives")]
     public class RangeBase : Control
     {
         public readonly static PropertyDescription MinimumProperty = PropertyDescription.Register("Minimum", typeof(double), typeof(RangeBase));

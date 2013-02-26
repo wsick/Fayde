@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Core
 {
-    [Element(NullstoneNamespace = "Fayde", NullstoneName = "TemplateBindingMarkup")]
+    [Element("Fayde", "TemplateBindingMarkup")]
     public class TemplateBinding : IJsonConvertible
     {
         public string SourcePropertyName { get; set; }

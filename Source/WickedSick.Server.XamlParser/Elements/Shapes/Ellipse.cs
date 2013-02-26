@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Shapes
 {
-    [Element(NullstoneNamespace = "Fayde.Shapes")]
+    [Element("Fayde.Shapes")]
     public class Ellipse : Shape
     {
     }

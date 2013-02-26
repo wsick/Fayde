@@ -2,7 +2,7 @@
 
 namespace WickedSick.Server.XamlParser.Elements.Media
 {
-    [Element(NullstoneNamespace="Fayde.Media")]
+    [Element("Fayde.Media")]
     public class LinearGradientBrush : GradientBrush
     {
         public static readonly PropertyDescription StartPointProperty = PropertyDescription.Register("StartPoint", typeof(Point), typeof(LinearGradientBrush));

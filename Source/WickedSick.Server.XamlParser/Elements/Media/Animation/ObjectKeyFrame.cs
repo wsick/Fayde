@@ -2,7 +2,7 @@
 
 namespace WickedSick.Server.XamlParser.Elements.Media.Animation
 {
-    [Element(NullstoneNamespace = "Fayde.Media.Animation")]
+    [Element("Fayde.Media.Animation")]
     public class ObjectKeyFrame : DependencyObject
     {
         public static readonly PropertyDescription KeyTime = PropertyDescription.Register("KeyTime", typeof(KeyTime), typeof(ObjectKeyFrame));

@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Controls.Primitives
 {
-    [Element(NullstoneNamespace = "Fayde.Controls.Primitives")]
+    [Element("Fayde.Controls.Primitives")]
     public class Popup : FrameworkElement
     {
         public static readonly PropertyDescription ChildProperty = PropertyDescription.Register("Child", typeof(UIElement), typeof(Popup), true);

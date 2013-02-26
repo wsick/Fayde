@@ -2,9 +2,9 @@
 
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {
-    [Element(NullstoneNamespace = "Fayde.Controls")]
+    [Element("Fayde.Controls")]
     public class RowDefinition : DependencyObject
     {
-        public static readonly PropertyDescription Height = PropertyDescription.Register("Height", typeof(GridLength), typeof(RowDefinition));
+        public static readonly PropertyDescription HeightProperty = PropertyDescription.Register("Height", typeof(GridLength), typeof(RowDefinition));
     }
 }

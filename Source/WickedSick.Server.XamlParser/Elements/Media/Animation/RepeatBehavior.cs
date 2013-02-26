@@ -2,7 +2,7 @@
 
 namespace WickedSick.Server.XamlParser.Elements.Media.Animation
 {
-    [Element(NullstoneNamespace = "Fayde.Media.Animation")]
+    [Element("Fayde.Media.Animation")]
     public enum RepeatBehaviorType
     {
         IterationCount,
@@ -10,7 +10,7 @@ namespace WickedSick.Server.XamlParser.Elements.Media.Animation
         Forever
     }
 
-    [Element(NullstoneNamespace = "Fayde.Media.Animation")]
+    [Element("Fayde.Media.Animation")]
     public class RepeatBehavior : IJsonConvertible
     {
         public RepeatBehaviorType Type { get; set; }

@@ -2,7 +2,7 @@
 
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {
-    [Element(NullstoneNamespace = "Fayde.Controls")]
+    [Element("Fayde.Controls")]
     public class ProgressBar : RangeBase
     {
         public static readonly PropertyDescription IsIndeterminateProperty = PropertyDescription.Register("IsIndeterminate", typeof(bool), typeof(ProgressBar));

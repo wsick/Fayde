@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Core
 {
-    [Element(NullstoneNamespace = "Fayde", NullstoneName = "StaticResourceMarkup")]
+    [Element("Fayde", "StaticResourceMarkup")]
     public class StaticResource : DependencyObject
     {
         public StaticResource() { }

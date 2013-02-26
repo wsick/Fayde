@@ -7,35 +7,47 @@ namespace WickedSick.Server.XamlParser
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Enum, AllowMultiple = false)]
     public sealed class ElementAttribute : Attribute
     {
+        private static Dictionary<Type, ElementAttribute> _CachedElementAttributes = new Dictionary<Type, ElementAttribute>();
+
         public ElementAttribute()
         {
         }
 
-        private static Dictionary<Type, ElementAttribute> _CachedElementAttributes = new Dictionary<Type, ElementAttribute>();
+        public ElementAttribute(string nullstoneNamespace)
+        {
+            NullstoneNamespace = nullstoneNamespace;
+        }
 
-        public string NullstoneNamespace { get; set; }
-        public string NullstoneName { get; set; }
+        public ElementAttribute(string nullstoneNamespace, string nullstoneName)
+        {
+            NullstoneName = nullstoneName;
+            NullstoneNamespace = nullstoneNamespace;
+        }
 
+        private string NullstoneNamespace { get; set; }
+        private string NullstoneName { get; set; }
+        
         public static string GetFullNullstoneType(Type type, IJsonOutputModifiers outputMods)
         {
             outputMods.AddTypeReference(type);
+
             var elAttr = GetElementAttribute(type);
-            if (elAttr == null)
-                return type.Name;
-            if (string.IsNullOrWhiteSpace(elAttr.NullstoneNamespace))
-                return elAttr.NullstoneName;
-            if (outputMods.IsNamespaceIncluded)
-            {
-                if (string.IsNullOrWhiteSpace(elAttr.NullstoneName))
-                    return string.Format("{0}.{1}", elAttr.NullstoneNamespace, type.Name);
-                return string.Format("{0}.{1}", elAttr.NullstoneNamespace, elAttr.NullstoneName);
-            }
+
+            string ns = "";
+            if (elAttr == null || elAttr.NullstoneNamespace == null)
+                ns = type.Namespace;
             else
-            {
-                if (string.IsNullOrWhiteSpace(elAttr.NullstoneName))
-                    return type.Name;
-                return elAttr.NullstoneName;
-            }
+                ns = elAttr.NullstoneNamespace;
+
+            string name = "";
+            if (elAttr == null || elAttr.NullstoneName == null)
+                name = type.Name;
+            else
+                name = elAttr.NullstoneName;
+
+            if (outputMods.IsNamespaceIncluded && !string.IsNullOrWhiteSpace(ns))
+                return string.Format("{0}.{1}", ns, name);
+            return name;
         }
         
         public static string CreateNullstoneTypeDeclaration(Type type)

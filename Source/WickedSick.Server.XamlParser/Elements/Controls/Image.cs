@@ -3,7 +3,7 @@ using WickedSick.Server.XamlParser.Elements.Media.Imaging;
 
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {
-    [Element(NullstoneNamespace = "Fayde.Controls")]
+    [Element("Fayde.Controls")]
     public class Image : FrameworkElement
     {
         public static readonly PropertyDescription StretchProperty = PropertyDescription.Register("Stretch", typeof(Stretch), typeof(Image));

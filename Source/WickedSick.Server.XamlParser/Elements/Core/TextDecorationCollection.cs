@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
-    [Element(NullstoneNamespace = "Fayde")]
+    [Element("Fayde")]
     public class TextDecorationCollection : IJsonConvertible
     {
         private List<string> _Items = new List<string>();

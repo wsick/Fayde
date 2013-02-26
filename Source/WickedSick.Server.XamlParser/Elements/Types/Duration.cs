@@ -5,6 +5,7 @@ using System.Text;
 
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
+    [Element("")]
     public enum DurationType
     {
         Automatic,
@@ -12,6 +13,7 @@ namespace WickedSick.Server.XamlParser.Elements.Types
         Forever
     }
 
+    [Element("")]
     public class Duration : IJsonConvertible
     {
         private Duration(DurationType durationType)

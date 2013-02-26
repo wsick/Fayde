@@ -3,7 +3,7 @@ using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements.Shapes
 {
-    [Element(NullstoneNamespace = "Fayde.Shapes")]
+    [Element("Fayde.Shapes")]
     public class Shape : FrameworkElement
     {
         public static readonly PropertyDescription FillProperty = PropertyDescription.Register("Fill", typeof(Brush), typeof(Shape));

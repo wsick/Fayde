@@ -3,7 +3,7 @@ using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    [Element(NullstoneName = "App")]
+    [Element("", "App")]
     public class FaydeApplication : DependencyObject
     {
         //public static readonly PropertyDescription DefaultPageUriProperty = PropertyDescription.Register("DefaultPageUri", typeof(string), typeof(FaydeApplication));

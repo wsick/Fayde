@@ -5,7 +5,7 @@ using System.Text;
 
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
-    [Element(NullstoneName = "Uri")]
+    [Element("", "Uri")]
     public class JsonUri : IJsonConvertible
     {
         private Uri _Uri;

@@ -4,7 +4,7 @@ using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements.Documents
 {
-    [Element(NullstoneNamespace = "Fayde.Documents")]
+    [Element("Fayde.Documents")]
     public abstract class TextElement : DependencyObject
     {
         public static readonly PropertyDescription FontFamilyProperty = PropertyDescription.Register("FontFamily", typeof(string), typeof(TextElement));

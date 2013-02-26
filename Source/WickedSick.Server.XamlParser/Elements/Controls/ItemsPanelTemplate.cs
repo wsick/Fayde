@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {
-    [Element(NullstoneNamespace = "Fayde.Controls")]
+    [Element("Fayde.Controls")]
     public class ItemsPanelTemplate : DependencyObject
     {
         public static readonly PropertyDescription PanelProperty = PropertyDescription.Register("Panel", typeof(Panel), typeof(ItemsPanelTemplate), true);

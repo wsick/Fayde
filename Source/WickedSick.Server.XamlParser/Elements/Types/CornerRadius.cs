@@ -1,6 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
+    [Element("")]
     public class CornerRadius : IJsonConvertible
     {
         public double Left { get; set; }

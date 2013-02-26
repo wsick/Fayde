@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Input
 {
-    [Element(NullstoneNamespace = "Fayde.Input")]
+    [Element("Fayde.Input")]
     public enum KeyboardNavigationMode
     {
         Local,

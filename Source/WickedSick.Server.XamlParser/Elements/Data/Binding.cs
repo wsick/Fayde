@@ -6,7 +6,7 @@ using System.Globalization;
 
 namespace WickedSick.Server.XamlParser.Elements.Data
 {
-    [Element(NullstoneNamespace = "Fayde.Data")]
+    [Element("Fayde.Data")]
     public enum BindingMode
     {
         OneWay,
@@ -14,14 +14,14 @@ namespace WickedSick.Server.XamlParser.Elements.Data
         TwoWay
     }
 
-    [Element(NullstoneNamespace = "Fayde.Data")]
+    [Element("Fayde.Data")]
     public enum UpdateSourceTrigger
     {
         Default,
         Explicit
     }
 
-    [Element(NullstoneNamespace = "Fayde", NullstoneName = "BindingMarkup")]
+    [Element("Fayde", "BindingMarkup")]
     public class Binding : IJsonConvertible
     {
         public object FallbackValue { get; set; }

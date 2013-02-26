@@ -3,7 +3,7 @@ using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {
-    [Element(NullstoneNamespace = "Fayde.Controls")]
+    [Element("Fayde.Controls")]
     public class HyperlinkButton : ButtonBase
     {
         public static readonly PropertyDescription NavigateUriProperty = PropertyDescription.Register("NavigateUri", typeof(JsonUri), typeof(HyperlinkButton));

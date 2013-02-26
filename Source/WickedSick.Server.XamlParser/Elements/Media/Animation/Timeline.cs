@@ -3,7 +3,7 @@ using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements.Media.Animation
 {
-    [Element(NullstoneNamespace = "Fayde.Media.Animation")]
+    [Element("Fayde.Media.Animation")]
     public abstract class Timeline : DependencyObject
     {
         public static readonly PropertyDescription BeginTimeProperty = PropertyDescription.Register("BeginTime", typeof(WickedSick.Server.XamlParser.Elements.Types.TimeSpan), typeof(Timeline));

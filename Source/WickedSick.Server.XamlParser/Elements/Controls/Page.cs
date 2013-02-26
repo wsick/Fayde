@@ -2,7 +2,7 @@
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    [Element(NullstoneNamespace = "Fayde.Controls")]
+    [Element("Fayde.Controls")]
     public class Page : UserControl
     {
         public static readonly PropertyDescription TitleProperty = PropertyDescription.Register("Title", typeof(string), typeof(Page));

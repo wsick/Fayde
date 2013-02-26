@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Media
 {
-    [Element(NullstoneNamespace = "Fayde.Media")]
+    [Element("Fayde.Media")]
     public class TranslateTransform : Transform
     {
         public static readonly PropertyDescription XProperty = PropertyDescription.Register("X", typeof(double), typeof(TranslateTransform));

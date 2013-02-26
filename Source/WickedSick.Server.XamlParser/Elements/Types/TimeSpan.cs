@@ -1,6 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
+    [Element("")]
     public class TimeSpan : IJsonConvertible
     {
         private long _ticks;

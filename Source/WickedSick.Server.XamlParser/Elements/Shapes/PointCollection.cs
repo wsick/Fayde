@@ -6,7 +6,7 @@ using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements.Shapes
 {
-    [Element(NullstoneNamespace = "Fayde.Shapes")]
+    [Element("Fayde.Shapes")]
     public class PointCollection : DependencyObject, IEnumerable<Point>, IElementTypeable
     {
         private IList<Point> _items = new List<Point>();

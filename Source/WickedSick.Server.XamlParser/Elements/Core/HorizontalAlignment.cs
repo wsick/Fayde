@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Core
 {
-    [Element(NullstoneNamespace = "Fayde")]
+    [Element("Fayde")]
     public enum HorizontalAlignment
     {
         Left,

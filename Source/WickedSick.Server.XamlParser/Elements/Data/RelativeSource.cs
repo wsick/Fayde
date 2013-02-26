@@ -6,14 +6,14 @@ namespace WickedSick.Server.XamlParser.Elements.Data
     /// Only two modes are supported right now (Self, TemplatedParent)
     /// Modes not supported are PreviousData and FindAncestor
     /// </summary>
-    [Element(NullstoneNamespace = "Fayde.Data")]
+    [Element("Fayde.Data")]
     public enum RelativeSourceMode
     {
         Self,
         TemplatedParent
     }
 
-    [Element(NullstoneNamespace = "Fayde", NullstoneName = "RelativeSourceMarkup")]
+    [Element("Fayde", "RelativeSourceMarkup")]
     public class RelativeSource : IJsonConvertible
     {
         public RelativeSourceMode Mode { get; set; }

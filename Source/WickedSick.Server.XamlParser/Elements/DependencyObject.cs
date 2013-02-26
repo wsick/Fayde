@@ -11,7 +11,7 @@ using WickedSick.Server.XamlParser.TypeConverters;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    [Element(NullstoneNamespace = "Fayde")]
+    [Element("Fayde")]
     public abstract class DependencyObject : IJsonConvertible
     {
         internal static readonly string DEFAULT_NS = "http://schemas.wsick.com/fayde";

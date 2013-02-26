@@ -3,7 +3,7 @@ using WickedSick.Server.XamlParser.Elements;
 
 namespace WickedSick.Server.XamlParser.Elements.Media
 {
-    [Element(NullstoneNamespace = "Fayde.Media")]
+    [Element("Fayde.Media")]
     public enum Stretch
     {
         Fill,

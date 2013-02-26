@@ -3,7 +3,7 @@ using WickedSick.Server.XamlParser.Elements.Core;
 
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {
-    [Element(NullstoneNamespace = "Fayde.Controls")]
+    [Element("Fayde.Controls")]
     public class Slider : RangeBase
     {
         public static readonly PropertyDescription OrientationProperty = PropertyDescription.Register("Orientation", typeof(Orientation), typeof(Slider));

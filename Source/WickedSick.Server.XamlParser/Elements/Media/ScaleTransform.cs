@@ -2,7 +2,7 @@
 
 namespace WickedSick.Server.XamlParser.Elements.Media
 {
-    [Element(NullstoneNamespace="Fayde.Media")]
+    [Element("Fayde.Media")]
     public class ScaleTransform : Transform
     {
         public static readonly PropertyDescription CenterXProperty = PropertyDescription.Register("CenterX", typeof(Double), typeof(ScaleTransform));

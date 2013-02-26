@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Controls.Primitives
 {
-    [Element(NullstoneNamespace = "Fayde.Controls.Primitives")]
+    [Element("Fayde.Controls.Primitives")]
     public class ToggleButton : ButtonBase
     {
         public static readonly PropertyDescription IsCheckedProperty = PropertyDescription.Register("IsChecked", typeof(Core.Boolean), typeof(ToggleButton));

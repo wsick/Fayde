@@ -2,6 +2,7 @@
 
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
+    [Element("")]
     public class Color : DependencyObject
     {
         protected static readonly PropertyDescription ContentProperty = PropertyDescription.Register("Content", typeof(string), typeof(Color), true);
