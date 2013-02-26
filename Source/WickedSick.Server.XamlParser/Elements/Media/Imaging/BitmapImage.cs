@@ -1,18 +1,24 @@
 ﻿using System;
-using WickedSick.Server.XamlParser.TypeConverters;
+using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements.Media.Imaging
 {
     [Element("Fayde.Media.Imaging")]
     public class BitmapImage : BitmapSource
     {
-        public static readonly PropertyDescription UriSource = PropertyDescription.Register("UriSource", typeof(Uri), typeof(BitmapImage));
+        public static readonly PropertyDescription UriSourceProperty = PropertyDescription.Register("UriSource", typeof(JsonUri), typeof(BitmapImage));
+        public JsonUri UriSource
+        {
+            get { return GetValue("UriSource") as JsonUri; }
+            set { SetValue(UriSourceProperty, value); }
+        }
 
         public override string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
-            var uriType = ElementAttribute.GetFullNullstoneType(typeof(Uri), outputMods);
-            var originalString = ((Uri)GetValue("UriSource")).OriginalString;
-            return string.Format("new {0}(\"{1}\")", uriType, originalString);
+            var uriSource = UriSource;
+            if (uriSource == null)
+                return "null";
+            return uriSource.ToJson(tabIndents, outputMods);
         }
     }
 }

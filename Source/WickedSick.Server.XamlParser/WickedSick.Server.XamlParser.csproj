@@ -110,7 +110,6 @@
     <Compile Include="Elements\Core\Double.cs" />
     <Compile Include="Elements\Core\ICommand.cs" />
     <Compile Include="Elements\Core\String.cs" />
-    <Compile Include="Elements\Core\Uri.cs" />
     <Compile Include="Elements\DependencyObjectCollection.cs" />
     <Compile Include="Elements\Documents\Bold.cs" />
     <Compile Include="Elements\Documents\Inline.cs" />
