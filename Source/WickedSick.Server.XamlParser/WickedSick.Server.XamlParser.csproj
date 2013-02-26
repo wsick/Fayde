@@ -224,10 +224,14 @@
     <Compile Include="EventDescription.cs" />
     <Compile Include="IAttributeDescription.cs" />
     <Compile Include="IJsonOutputModifiers.cs" />
+    <Compile Include="IParseMetadata.cs" />
+    <Compile Include="IParseResult.cs" />
     <Compile Include="JsonOutputModifiers.cs" />
-    <Compile Include="ParserAttributes.cs">
+    <Compile Include="ElementAttribute.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ParseMetadata.cs" />
+    <Compile Include="ParseResult.cs" />
     <Compile Include="PropertyDescription.cs" />
     <Compile Include="Elements\FrameworkElement.cs">
       <SubType>Code</SubType>

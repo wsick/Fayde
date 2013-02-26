@@ -1,40 +1,61 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Xml;
 using WickedSick.Server.XamlParser.Elements;
 
 namespace WickedSick.Server.XamlParser
 {
-    public static class Parser
+    public class Parser
     {
-        public static DependencyObject Parse(string filepath)
+        public Parser(Assembly resolveAssembly)
+        {
+            TypeResolver = new TypeResolver(resolveAssembly);
+        }
+        public TypeResolver TypeResolver { get; protected set; }
+
+        public static IParseResult ParseApp(string filepath, Assembly resolveAssembly)
+        {
+            var parser = new Parser(resolveAssembly);
+            return parser.Parse(filepath);
+        }
+
+        public IParseResult Parse(string filepath)
         {
             var doc = new XmlDocument();
             doc.Load(filepath);
-            return (DependencyObject)Parser.ParseXmlNode(doc.DocumentElement, null);
+            var result = new ParseResult { Metadata = new ParseMetadata() };
+            var metadata = new ParseMetadata();
+            result.RootObject = (DependencyObject)ParseXmlNode(doc.DocumentElement, null, result.Metadata);
+            return result;
         }
-
-        public static DependencyObject Parse(Stream stream)
+        public IParseResult Parse(Stream stream)
         {
             var doc = new XmlDocument();
             doc.Load(stream);
-            return (DependencyObject)Parser.ParseXmlNode(doc.DocumentElement, null);
+            var result = new ParseResult { Metadata = new ParseMetadata() };
+            var metadata = new ParseMetadata();
+            result.RootObject = (DependencyObject)ParseXmlNode(doc.DocumentElement, null, result.Metadata);
+            return result;
         }
-
-        public static DependencyObject ParseXml(string xml)
+        public IParseResult ParseXml(string xml)
         {
             var doc = new XmlDocument();
             doc.LoadXml(xml);
-            return (DependencyObject)Parser.ParseXmlNode(doc.DocumentElement, null);
+            var result = new ParseResult { Metadata = new ParseMetadata() };
+            var metadata = new ParseMetadata();
+            result.RootObject = (DependencyObject)ParseXmlNode(doc.DocumentElement, null, result.Metadata);
+            return result;
         }
 
-        private static object ParseXmlNode(XmlNode node, DependencyObject parent)
+        private object ParseXmlNode(XmlNode node, DependencyObject parent, IParseMetadata parseMetadata)
         {
             if (node.NodeType == XmlNodeType.Comment)
                 return null;
 
-            Type t = TypeResolver.GetElementType(node.NamespaceURI, node.LocalName);
+            Type t = ResolveType(node.NamespaceURI, node.LocalName, parseMetadata);
             if (t == null)
                 throw new XamlParseException("Unknown element: " + node.LocalName);
             if (t.IsEnum)
@@ -69,7 +90,7 @@ namespace WickedSick.Server.XamlParser
                     if (parts.Count() != 2)
                         throw new XamlParseException(string.Format("An invalid element has been encountered. {0}", a.Name));
 
-                    Type ownerType = TypeResolver.GetElementType(node.NamespaceURI, parts[0]);
+                    Type ownerType = ResolveType(node.NamespaceURI, parts[0], parseMetadata);
                     element.AddAttachedProperty(ownerType, parts[1], a.Value);
                     continue;
                 }
@@ -86,12 +107,11 @@ namespace WickedSick.Server.XamlParser
                 element.SetValue(a.Name, a.Value);
             }
 
-            ProcessChildNodes(node.ChildNodes, element, null);
+            ProcessChildNodes(node.ChildNodes, element, null, parseMetadata);
 
             return element;
         }
-
-        private static void ProcessChildNodes(XmlNodeList children, DependencyObject element, string propertyName)
+        private void ProcessChildNodes(XmlNodeList children, DependencyObject element, string propertyName, IParseMetadata parseMetadata)
         {
             foreach (XmlNode n in children)
             {
@@ -109,12 +129,12 @@ namespace WickedSick.Server.XamlParser
                         //the sub-element is an attached property
                         if (n.NodeType == XmlNodeType.Text)
                         {
-                            Type ownerType = TypeResolver.GetElementType(n.NamespaceURI, parts[0]);
+                            Type ownerType = ResolveType(n.NamespaceURI, parts[0], parseMetadata);
                             element.AddAttachedProperty(ownerType, parts[1], n.InnerText);
                         }
                         else
                         {
-                            ProcessChildNodes(n.ChildNodes, element, n.LocalName);
+                            ProcessChildNodes(n.ChildNodes, element, n.LocalName, parseMetadata);
                         }
                     }
                     else
@@ -126,7 +146,7 @@ namespace WickedSick.Server.XamlParser
                             element.SetValue(parts[1], n.InnerText);
                         }
                         else
-                            ProcessChildNodes(n.ChildNodes, element, parts[1]);
+                            ProcessChildNodes(n.ChildNodes, element, parts[1], parseMetadata);
                     }
                 }
                 else
@@ -135,7 +155,7 @@ namespace WickedSick.Server.XamlParser
                     object child = n.InnerText;
                     if (n.NodeType != XmlNodeType.Text)
                     {
-                        child = ParseXmlNode(n, element);
+                        child = ParseXmlNode(n, element, parseMetadata);
                         if (child == null)
                             continue;
                     }
@@ -144,13 +164,21 @@ namespace WickedSick.Server.XamlParser
                     else if (propertyName.Contains("."))
                     {
                         string[] parts = propertyName.Split('.');
-                        Type ownerType = TypeResolver.GetElementType(n.NamespaceURI, parts[0]);
+                        Type ownerType = ResolveType(n.NamespaceURI, parts[0], parseMetadata);
                         element.AddAttachedProperty(ownerType, parts[1], child);
                     }
                     else
                         element.SetValue(propertyName, child);
                 }
             }
+        }
+
+        private Type ResolveType(string xmlNamespace, string localName, IParseMetadata parseMetadata)
+        {
+            var type = TypeResolver.GetElementType(xmlNamespace, localName);
+            if (type.Assembly != Assembly.GetExecutingAssembly())
+                parseMetadata.AddParseDependency(xmlNamespace, localName);
+            return type;
         }
     }
 }

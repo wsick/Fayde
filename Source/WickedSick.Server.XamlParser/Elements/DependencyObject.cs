@@ -14,8 +14,6 @@ namespace WickedSick.Server.XamlParser.Elements
     [Element("Fayde")]
     public abstract class DependencyObject : IJsonConvertible
     {
-        internal static readonly string DEFAULT_NS = "http://schemas.wsick.com/fayde";
-
         private static IDictionary<Type, ITypeConverter> _converters = new Dictionary<Type, ITypeConverter>();
 
         static DependencyObject()
@@ -457,7 +455,7 @@ namespace WickedSick.Server.XamlParser.Elements
                 typeName = tokens[0];
                 if (typeName.Contains(":"))
                     throw new NotSupportedException("Namespaces in owner types for setter properties.");
-                var type = TypeResolver.GetElementType(DEFAULT_NS, typeName);
+                var type = TypeResolver.GetElementTypeInDefaultNamespace(typeName);
                 if (type != null)
                     typeName = ElementAttribute.GetFullNullstoneType(type, outputMods);
                 prop = tokens[1];

@@ -68,7 +68,7 @@ namespace WickedSick.Server.XamlParser
 
             return string.Format("var {0} = {1};", basicTypeName, full);
         }
-
+        
         private static ElementAttribute GetElementAttribute(Type type)
         {
             if (_CachedElementAttributes.ContainsKey(type))

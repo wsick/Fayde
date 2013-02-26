@@ -6,6 +6,16 @@ namespace WickedSick.Server.XamlParser.Elements
     [Element("", "App")]
     public class FaydeApplication : DependencyObject
     {
+        public Parser Parser { get; internal set; }
+
+        public Type ResolveType(string xmlNamespace, string xmlName)
+        {
+            var type = Parser.TypeResolver.GetElementType(xmlNamespace, xmlName);
+            if (type == null)
+                throw new Exception(string.Format("Could not resolve type: '{0}.{1}'", xmlNamespace, xmlName));
+            return type;
+        }
+
         //public static readonly PropertyDescription DefaultPageUriProperty = PropertyDescription.Register("DefaultPageUri", typeof(string), typeof(FaydeApplication));
         public static readonly PropertyDescription WidthProperty = PropertyDescription.Register("Width", typeof(PageLength), typeof(FaydeApplication));
         public static readonly PropertyDescription HeightProperty = PropertyDescription.Register("Height", typeof(PageLength), typeof(FaydeApplication));

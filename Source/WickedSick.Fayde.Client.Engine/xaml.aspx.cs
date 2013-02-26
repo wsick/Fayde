@@ -23,11 +23,12 @@ namespace WickedSick.Fayde.Client.Engine
         protected void submit_Click(object sender, EventArgs e)
         {
             var startTime = DateTime.Now;
-            var dobj = Parser.ParseXml(tb1.Text);
+            var parser = new Parser(GetType().Assembly);
+            var result = parser.ParseXml(tb1.Text);
             var parseTime = DateTime.Now - startTime;
             startTime = DateTime.Now;
             var outputMods = new JsonOutputModifiers { IsNamespaceIncluded = !cacheNamespaces.Checked };
-            var json = dobj.ToJson(0, outputMods);
+            var json = result.RootObject.ToJson(0, outputMods);
             var typeDeclarations = string.Empty;
             if (!outputMods.IsNamespaceIncluded)
                 typeDeclarations = outputMods.SerializeLocalDeclarations();

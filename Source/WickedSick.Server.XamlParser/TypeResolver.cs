@@ -2,20 +2,40 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace WickedSick.Server.XamlParser
 {
     public class TypeResolver
     {
+        public TypeResolver()
+        {
+        }
+        public TypeResolver(Assembly fapAssembly)
+        {
+            _FapAssembly = fapAssembly;
+        }
+        private Assembly _FapAssembly;
+
         private static Dictionary<Assembly, AssemblyTypes> _CachedValidTypes = new Dictionary<Assembly, AssemblyTypes>();
         private static Dictionary<Uri, Tuple<XmlnsDefinitionAttribute, Assembly>> _CachedUriAssemblies = new Dictionary<Uri, Tuple<XmlnsDefinitionAttribute, Assembly>>();
 
-        public static Type GetElementType(string xmlNamespace, string name)
+        private static readonly Regex _ClrNamespaceRegex = new Regex("(?<full>assembly=(?<assembly>[^;]*);clr-namespace:(?<clrNamespace>[^;]*);?)|(?<reverse>clr-namespace:(?<clrNamespace>[^;]*);assembly=(?<assembly>[^;]*);?)|(?<short>clr-namespace:(?<clrNamespace>[^;]*);?)");
+        public Type GetElementType(string xmlNamespace, string name)
         {
-            Uri nsUri;
-            if (Uri.TryCreate(xmlNamespace, UriKind.Absolute, out nsUri))
-                return FindType(nsUri, name);
-            return FindType(xmlNamespace, name);
+            var match = _ClrNamespaceRegex.Match(xmlNamespace);
+            if (!match.Success)
+            {
+                Uri nsUri;
+                if (Uri.TryCreate(xmlNamespace, UriKind.Absolute, out nsUri))
+                    return FindType(nsUri, name);
+            }
+            return FindType(match.Groups["clrNamespace"].Value, match.Groups["assembly"].Value, name);
+        }
+        internal static readonly string DEFAULT_NS = "http://schemas.wsick.com/fayde";
+        public static Type GetElementTypeInDefaultNamespace(string name)
+        {
+            return new TypeResolver().GetElementType(DEFAULT_NS, name);
         }
         private static Type FindType(Uri uri, string name)
         {
@@ -33,20 +53,24 @@ namespace WickedSick.Server.XamlParser
             
             return types.Find(attr, name);
         }
-        private static Type FindType(string xmlNamespace, string name)
+        private Type FindType(string clrNamespace, string assemblyString, string name)
         {
-            var tokens = xmlNamespace.Split(';');
-            var assemblyString = tokens[0];
-            var @namespace = tokens[1];
-
-            var asm = Assembly.Load(assemblyString);
+            Assembly asm;
+            if (string.IsNullOrWhiteSpace(assemblyString))
+            {
+                if (_FapAssembly == null)
+                    throw new Exception("Assembly must be specified in anonymous parsing mode.");
+                asm = _FapAssembly;
+            }
+            else
+                asm = Assembly.Load(assemblyString);
             AssemblyTypes types = null;
             if (_CachedValidTypes.ContainsKey(asm))
                 types = _CachedValidTypes[asm];
             else
                 _CachedValidTypes[asm] = types = new AssemblyTypes(asm);
             
-            return types.Find(@namespace, name);
+            return types.Find(clrNamespace, name);
         }
         private static Tuple<XmlnsDefinitionAttribute, Assembly> FindAssembly(Uri uri)
         {
@@ -65,9 +89,37 @@ namespace WickedSick.Server.XamlParser
                 return tuple;
             }
 
-            //TODO: Search bin directory
-
+            var binDir = new System.IO.DirectoryInfo(Assembly.GetExecutingAssembly().Location);
+            var fi = FindAssemblyWithXmlnsUri(binDir, uriString);
+            if (fi != null)
+            {
+                var asm = Assembly.LoadFile(fi.FullName);
+                XmlnsDefinitionAttribute attr;
+                TryGetXmlnDefinitionAttribute(asm, uriString, out attr);
+                var tuple = Tuple.Create(attr, asm);
+                _CachedUriAssemblies[uri] = tuple;
+                return tuple;
+            }
             return null;
+        }
+        private static System.IO.FileInfo FindAssemblyWithXmlnsUri(System.IO.DirectoryInfo baseDir, string uriString)
+        {
+            var appDomain = AppDomain.CreateDomain("TemporaryResolution");
+            try
+            {
+                foreach (var dllFi in baseDir.GetFiles("*.dll", System.IO.SearchOption.AllDirectories))
+                {
+                    var asm = appDomain.Load(AssemblyName.GetAssemblyName(dllFi.FullName));
+                    XmlnsDefinitionAttribute attr;
+                    if (TryGetXmlnDefinitionAttribute(asm, uriString, out attr))
+                        return dllFi;
+                }
+                return null;
+            }
+            finally
+            {
+                AppDomain.Unload(appDomain);
+            }
         }
         private static bool TryGetXmlnDefinitionAttribute(Assembly asm, string uriString, out XmlnsDefinitionAttribute attribute)
         {
