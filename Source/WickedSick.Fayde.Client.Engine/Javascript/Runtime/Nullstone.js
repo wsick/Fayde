@@ -385,6 +385,8 @@ Nullstone._GetTypeCountsAbove = function (count) {
 };
 
 Nullstone.ImportJsFile = function (url, onComplete) {
+    if (!onComplete) onComplete = function () { };
+
     var scripts = document.getElementsByTagName("script");
     for (var i = 0; i < scripts.length; i++) {
         if (scripts[i].src === url) {
@@ -407,4 +409,17 @@ Nullstone.ImportJsFile = function (url, onComplete) {
 
     var head = document.getElementsByTagName("head")[0];
     head.appendChild(script);
+};
+Nullstone.ImportJsFiles = function (urls, onComplete) {
+    if (!onComplete) onComplete = function () { };
+    var completedScripts = [];
+    var len = urls.length;
+    for (var i = 0; i < len; i++) {
+        var url = urls[i];
+        Nullstone.ImportJsFile(url, function (s) {
+            completedScripts.push(s);
+            if (completedScripts.length === len)
+                onComplete(completedScripts);
+        });
+    }
 };

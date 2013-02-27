@@ -20,7 +20,8 @@ class Nullstone {
     static GetPropertyDescriptor(obj, name: string): PropertyDescriptor;
     static HasProperty(obj, name: string): PropertyDescriptor;
 
-    static ImportJsFile(file: string);
+    static ImportJsFile(url: string, onComplete?: (script: HTMLScriptElement) => void);
+    static ImportJsFiles(urls: string[], onComplete?: (scripts: HTMLScriptElement[]) => void);
 }
 class EventArgs {
 }
