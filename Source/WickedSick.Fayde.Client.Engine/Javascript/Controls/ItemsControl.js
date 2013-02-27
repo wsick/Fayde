@@ -1,5 +1,6 @@
 /// <reference path="Control.js"/>
 /// <reference path="ItemCollection.js"/>
+/// <reference path="../Runtime/IEnumerable.js"/>
 /// CODE
 /// <reference path="Panel.js"/>
 /// <reference path="ItemsPresenter.js"/>
@@ -21,7 +22,7 @@
     ItemsControl.DisplayMemberPathProperty = DependencyProperty.RegisterCore("DisplayMemberPath", function () { return String; }, ItemsControl, null, function (d, args) { d.OnDisplayMemberPathChanged(args); });
     ItemsControl.ItemsProperty = DependencyProperty.RegisterCore("Items", function () { return Fayde.Controls.ItemCollection; }, ItemsControl);
     ItemsControl.ItemsPanelProperty = DependencyProperty.RegisterCore("ItemsPanel", function () { return namespace.ItemsPanelTemplate; }, ItemsControl);
-    ItemsControl.ItemsSourceProperty = DependencyProperty.RegisterCore("ItemsSource", function () { return Object; }, ItemsControl, null, function (d, args) { d.OnItemsSourceChanged(args); });
+    ItemsControl.ItemsSourceProperty = DependencyProperty.RegisterCore("ItemsSource", function () { return IEnumerable; }, ItemsControl, null, function (d, args) { d.OnItemsSourceChanged(args); });
     ItemsControl.ItemTemplateProperty = DependencyProperty.RegisterCore("ItemTemplate", function () { return Fayde.DataTemplate; }, ItemsControl, undefined, function (d, args) { d.OnItemTemplateChanged(args); });
 
     Nullstone.AutoProperties(ItemsControl, [

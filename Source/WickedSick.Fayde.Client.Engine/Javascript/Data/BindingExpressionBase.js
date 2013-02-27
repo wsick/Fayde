@@ -17,7 +17,7 @@
         this.Target = target;
         this.Property = propd;
 
-        var bindsToView = propd._ID === Fayde.FrameworkElement.DataContextProperty._ID; //TODO: || propd.GetTargetType() === IEnumerable || propd.GetTargetType() === Fayde.Data.ICollectionView
+        var bindsToView = propd._ID === Fayde.FrameworkElement.DataContextProperty._ID || propd.GetTargetType() === IEnumerable || propd.GetTargetType() === Fayde.Data.ICollectionView;
         var walker = this.PropertyPathWalker = new Fayde.Data._PropertyPathWalker(binding.Path.ParsePath, binding.BindsDirectlyToSource, bindsToView, this.IsBoundToAnyDataContext);
         if (binding.Mode !== namespace.BindingMode.OneTime) {
             walker.IsBrokenChanged.Subscribe(this._PropertyPathValueChanged, this);

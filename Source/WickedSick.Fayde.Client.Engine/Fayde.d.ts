@@ -41,6 +41,8 @@ class Dictionary {
     Remove(key);
     Clear();
 }
+interface IEnumerable {
+}
 
 class AjaxJsonRequest {
     constructor (onSuccess: (json: AjaxJsonResult) => void, onError: (msg: string, error?) => void);
@@ -1284,7 +1286,7 @@ module Fayde.Controls {
         static ItemTemplateProperty: DependencyProperty;
         DisplayMemberPath: string;
         ItemsPanel: ItemsPanelTemplate;
-        ItemsSource;
+        ItemsSource: IEnumerable;
         ItemTemplate: DataTemplate;
         Items: ItemCollection;
         ItemContainerGenerator: ItemContainerGenerator;

@@ -79,6 +79,7 @@
     <Content Include="gl-matrix.js" />
     <Content Include="Global.asax" />
     <Content Include="Javascript\Engine\XamlResolver.js" />
+    <Content Include="Javascript\Runtime\IEnumerable.js" />
     <Content Include="Tests\DependencyObjectTests.js" />
     <Content Include="Tests\FaydeAsserts.js" />
     <Content Include="Tests\NullstoneTests.js" />
