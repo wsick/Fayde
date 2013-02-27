@@ -5,6 +5,11 @@
 (function (namespace) {
     var UserControl = Nullstone.Create("UserControl", namespace.Control);
 
+    UserControl.Instance.Init = function () {
+        this.Init$Control();
+        this.InitializeComponent();
+    };
+
     //#region Properties
 
     UserControl.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, UserControl);
@@ -88,6 +93,20 @@
     };
 
     //#endregion
+
+    UserControl.Instance.InitializeComponent = function () {
+        this.ApplyTemplate();
+    };
+    UserControl.Instance._GetDefaultTemplateCallback = function () {
+        var json = this.constructor.__TemplateJson;
+        if (!json)
+            return;
+
+        var namescope = new Fayde.NameScope();
+        var root = Fayde.JsonParser.Parse(json, undefined, namescope, undefined);
+        Fayde.NameScope.SetNameScope(root, namescope);
+        return root;
+    };
 
     namespace.UserControl = Nullstone.FinishCreate(UserControl);
 })(Nullstone.Namespace("Fayde.Controls"));

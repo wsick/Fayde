@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
+using WickedSick.Server.XamlParser.Elements.Core;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
@@ -11,9 +13,34 @@ namespace WickedSick.Server.XamlParser.Elements
             sb.AppendLine("{");
             sb.AppendLine(string.Format("Type: {0}, ", GetTypeName(outputMods)));
             sb.Append("Children: ");
-            sb.AppendLine(base.ToJson(tabIndents + 1, outputMods));
+            WriteChildren(sb, tabIndents + 1, outputMods);
             sb.Append("}");
             return sb.ToString();
+        }
+
+        protected override void WriteChild(object o, StringBuilder sb, int tabIndents, IJsonOutputModifiers outputMods)
+        {
+            sb.Append("{");
+            var dobj = o as DependencyObject;
+            if (dobj != null)
+            {
+                if (!string.IsNullOrWhiteSpace(dobj.Key))
+                    sb.AppendFormat("Key:\"{0}\",", dobj.Key);
+                else if (!(dobj is Style))
+                    throw new Exception("Resource must have either a Key or be a style with a TargetType.");
+                sb.Append("Value:");
+                sb.AppendLine(dobj.ToJson(tabIndents, outputMods));
+            }
+            else
+            {
+                //TODO: We can't handle non-DependencyObjects (we need a key)
+            }
+            sb.Append("}");
+        }
+
+        protected virtual void WriteChild(StringBuilder sb, int tabIndents, IJsonOutputModifiers outputMods)
+        {
+            sb.AppendLine(base.ToJson(tabIndents, outputMods));
         }
     }
 }

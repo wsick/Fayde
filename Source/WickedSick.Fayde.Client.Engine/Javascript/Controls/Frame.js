@@ -3,6 +3,7 @@
 /// <reference path="../Primitives/Uri.js"/>
 /// <reference path="../Navigation/UriMapper.js"/>
 /// <reference path="../Runtime/AjaxJsonRequest.js"/>
+/// <reference path="../Engine/XamlResolver.js"/>
 
 (function (namespace) {
     var Frame = Nullstone.Create("Frame", namespace.ContentControl);
@@ -86,16 +87,18 @@
     Frame.Instance._LoadContent = function (href, hash) {
         this.StopLoading();
 
-        var scriptUrl = href + "?js=true&p=" + hash;
-        var ns = this;
-        Nullstone.ImportJsFile(scriptUrl, function (script) {
-            this._Request = new AjaxJsonRequest(function (result) { ns._HandleSuccessfulResponse(result); },
-                function (error) { ns._HandleErrorResponse(error); });
-            this._Request.Get(href, "p=" + hash);
-        });
+        var that = this;
+        this._Resolver = new Fayde.XamlResolver(
+            function (xamlResult, scriptResult) { that._HandleSuccessfulResponse(xamlResult); },
+            function (xamlResult, scriptResult) { that._HandleSuccessfulSubResponse(xamlResult); },
+            function (error) { that._HandleErrorResponse(error); });
+        this._Resolver.Load(href, hash);
     };
     Frame.Instance._HandleSuccessfulResponse = function (ajaxJsonResult) {
         /// <param name="ajaxJsonResult" type="AjaxJsonResult"></param>
+        var dependencies = ajaxJsonResult.GetHeader("Dependencies");
+
+
         var page = Fayde.JsonParser.Parse(ajaxJsonResult.CreateJson());
         if (page instanceof namespace.Page) {
             document.title = page.Title;
@@ -103,8 +106,15 @@
         }
         this._Request = null;
     };
+    Frame.Instance._HandleSuccessfulSubResponse = function (ajaxJsonResult) {
+        var json = ajaxJsonResult.CreateJson();
+        var jsType = json.Type;
+        jsType.__TemplateJson = json;
+    };
+    Frame.Instance._FinishLoadContent = function () {
+    };
     Frame.Instance._HandleErrorResponse = function (error) {
-        this._Request = null;
+        this._Resolver = null;
     };
 
     namespace.Frame = Nullstone.FinishCreate(Frame);

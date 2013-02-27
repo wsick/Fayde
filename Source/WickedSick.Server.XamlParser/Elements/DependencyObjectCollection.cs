@@ -34,20 +34,30 @@ namespace WickedSick.Server.XamlParser.Elements
             if (_items.Count == 0)
                 return "[]";
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
+            WriteChildren(sb, tabIndents + 1, outputMods);
+            return sb.ToString();
+        }
+
+        protected virtual void WriteChildren(StringBuilder sb, int tabIndents, IJsonOutputModifiers outputMods)
+        {
             sb.AppendLine("[");
             bool needsComma = false;
             foreach (object o in _items)
             {
                 if (needsComma) sb.AppendLine(",");
-                if (o is DependencyObject)
-                    sb.Append(((DependencyObject)o).ToJson(tabIndents, outputMods));
-                else
-                    sb.Append(o.ToString());
+                WriteChild(o, sb, tabIndents, outputMods);
                 needsComma = true;
             }
             sb.AppendLine("]");
-            return sb.ToString();
+        }
+
+        protected virtual void WriteChild(object o, StringBuilder sb, int tabIndents, IJsonOutputModifiers outputMods)
+        {
+            if (o is DependencyObject)
+                sb.Append(((DependencyObject)o).ToJson(tabIndents, outputMods));
+            else
+                sb.Append(o.ToString());
         }
 
         public IEnumerator<T> GetEnumerator()

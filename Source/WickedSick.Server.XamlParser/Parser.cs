@@ -64,6 +64,8 @@ namespace WickedSick.Server.XamlParser
             }
 
             DependencyObject element = (DependencyObject)Activator.CreateInstance(t);
+            if (element is FaydeApplication)
+                (element as FaydeApplication).Parser = this;
             element.Parent = parent;
 
             foreach (XmlAttribute a in node.Attributes)

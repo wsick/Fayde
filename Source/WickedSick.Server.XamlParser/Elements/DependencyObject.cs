@@ -231,25 +231,27 @@ namespace WickedSick.Server.XamlParser.Elements
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("{");
-            sb.AppendFormat("Type: {0}", GetTypeName(outputMods));
+            sb.AppendFormat("Type:{0}", GetTypeName(outputMods));
 
             if (!string.IsNullOrWhiteSpace(Name))
             {
                 sb.AppendLine(",");
-                sb.AppendFormat("Name: \"{0}\"", Name);
+                sb.AppendFormat("Name:\"{0}\"", Name);
             }
 
+            /*
             if (!string.IsNullOrWhiteSpace(Key))
             {
                 sb.AppendLine(",");
                 sb.AppendFormat("Key: \"{0}\"", Key);
             }
+            */
 
             string propJson = propsToJson(GetProperties(), outputMods);
             if (!string.IsNullOrWhiteSpace(propJson))
             {
                 sb.AppendLine(",");
-                sb.AppendLine("Props: {");
+                sb.AppendLine("Props:{");
                 sb.Append(propJson);
                 sb.Append("}");
             }
@@ -258,7 +260,7 @@ namespace WickedSick.Server.XamlParser.Elements
             if (!string.IsNullOrWhiteSpace(attachedJson))
             {
                 sb.AppendLine(",");
-                sb.Append("AttachedProps: [");
+                sb.Append("AttachedProps:[");
                 sb.AppendLine(attachedJson);
                 sb.Append("]");
             }
@@ -270,9 +272,9 @@ namespace WickedSick.Server.XamlParser.Elements
             {
                 sb.AppendLine(",");
                 if (IsSubclassOfRawGeneric(content.GetType(), typeof(DependencyObjectCollection<>)))
-                    sb.Append("Children: ");
+                    sb.Append("Children:");
                 else
-                    sb.Append("Content: ");
+                    sb.Append("Content:");
                 sb.Append(content.ToJson(0, outputMods));
             }
             sb.AppendLine();
@@ -300,15 +302,13 @@ namespace WickedSick.Server.XamlParser.Elements
                     sb.AppendLine(",");
                 if (this is Setter && pd.Name.Equals("Property"))
                 {
-                    sb.Append(pd.Name);
-                    sb.Append(": ");
+                    sb.AppendFormat("{0}:", pd.Name);
                     sb.Append(SerializeSetterProperty(this as Setter, Parent.GetValue("TargetType") as JsType, outputMods));
                     needsComma = true;
                 }
                 else if (value is IJsonConvertible)
                 {
-                    sb.Append(pd.Name);
-                    sb.Append(": ");
+                    sb.AppendFormat("{0}:", pd.Name);
                     sb.Append(((IJsonConvertible)value).ToJson(0, outputMods));
                     needsComma = true;
                 }
@@ -317,8 +317,8 @@ namespace WickedSick.Server.XamlParser.Elements
                     string json = listpropToJson((IList)value, outputMods);
                     if (json.Length > 0)
                     {
-                        sb.Append(pd.Name);
-                        sb.AppendLine(": [");
+                        sb.AppendFormat("{0}:", pd.Name);
+                        sb.AppendLine("[");
                         sb.AppendLine(json);
                         sb.Append("]");
                         needsComma = true;
@@ -326,24 +326,21 @@ namespace WickedSick.Server.XamlParser.Elements
                 }
                 else if (value is bool)
                 {
-                    sb.Append(pd.Name);
-                    sb.Append(": ");
+                    sb.AppendFormat("{0}:", pd.Name);
                     sb.Append(value.ToString().ToLower());
                     needsComma = true;
                     continue;
                 }
                 else if (value is Enum)
                 {
-                    sb.Append(pd.Name);
-                    sb.Append(": ");
+                    sb.AppendFormat("{0}:", pd.Name);
                     sb.Append(string.Format("{0}.{1}", ElementAttribute.GetFullNullstoneType(value.GetType(), outputMods), value.ToString()));
                     needsComma = true;
                     continue;
                 }
                 else
                 {
-                    sb.Append(pd.Name);
-                    sb.Append(": ");
+                    sb.AppendFormat("{0}:", pd.Name);
                     if (value is string)
                         sb.Append("\"");
                     sb.Append(CleanseText(value.ToString()));

@@ -220,35 +220,43 @@
             }
         }
 
-        var rd = Nullstone.As(coll, Fayde.ResourceDictionary);
-        var oldChain = this._ResChain;
-        if (rd) {
-            this._ResChain = this._ResChain.slice(0);
-            this._ResChain.push(rd);
-        }
-        for (var i in subJson) {
-            var fobj;
-            if (rd == null) {
-                fobj = this.CreateObject(subJson[i], namescope, true);
+        if (coll instanceof Fayde.ResourceDictionary) {
+            this.CreateResourceDictionary(coll, subJson, namescope);
+        } else {
+            for (var i in subJson) {
+                var fobj = this.CreateObject(subJson[i], namescope, true);
                 if (fobj instanceof Fayde.DependencyObject)
                     fobj._AddParent(coll, true);
                 coll.Add(fobj);
-            } else {
-                var key = subJson[i].Key;
-                if (subJson[i].Type !== Fayde.Style) {
-                    fobj = new Fayde.ResourceTarget(subJson[i], namescope, this._TemplateBindingSource, this._ResChain);
-                } else {
-                    fobj = this.CreateObject(subJson[i], namescope, true);
-                    if (!key)
-                        key = fobj.TargetType;
-                }
-                if (key)
-                    rd.Set(key, fobj);
             }
         }
-        this._ResChain = oldChain;
 
         return true;
+    };
+    JsonParser.Instance.CreateResourceDictionary = function (rd, subJson, namescope) {
+        var oldChain = this._ResChain;
+
+        this._ResChain = this._ResChain.slice(0);
+        this._ResChain.push(rd);
+
+        for (var i in subJson) {
+            var fobj;
+            var cur = subJson[i];
+            var key = cur.Key;
+            var val = cur.Value;
+
+            if (val.Type !== Fayde.Style) {
+                fobj = new Fayde.ResourceTarget(val, namescope, this._TemplateBindingSource, this._ResChain);
+            } else {
+                fobj = this.CreateObject(val, namescope, true);
+                if (!key)
+                    key = fobj.TargetType;
+            }
+            if (key)
+                rd.Set(key, fobj);
+        }
+
+        this._ResChain = oldChain;
     };
     JsonParser.Instance.ResolveStaticResourceExpressions = function () {
         var srs = this.$SRExpressions;
