@@ -138,17 +138,25 @@
         }
 
         if (e.NewValue != null) {
-            if (Nullstone.Is(e.NewValue, Fayde.Collections.INotifyCollectionChanged)) {
-                e.NewValue.CollectionChanged.Subscribe(this._CollectionChanged, this);
+            var source = e.NewValue;
+            if (Nullstone.Is(source, Fayde.Collections.INotifyCollectionChanged)) {
+                source.CollectionChanged.Subscribe(this._CollectionChanged, this);
             }
 
             this.Items._ReadOnly = true;
             this._itemsIsDataBound = true;
             this.Items._ClearImpl();
 
-            var count = e.NewValue.length;
-            for (var i = 0; i < count; i++) {
-                this.Items._AddImpl(e.NewValue[i]);
+            if (source instanceof Array) {
+                var count = source.length;
+                for (var i = 0; i < count; i++) {
+                    this.Items._AddImpl(source[i]);
+                }
+            } else if (source instanceof Fayde.InternalCollection) {
+                var count = source.GetCount();
+                for (var i = 0; i < count; i++) {
+                    this.Items._AddImpl(source.GetValueAt(i));
+                }
             }
 
             this.OnItemsChanged(Fayde.Collections.NotifyCollectionChangedEventArgs.Reset());
