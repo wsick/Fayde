@@ -2465,18 +2465,18 @@ module Fayde.Collections {
         CollectionChanged: NotifyCollectionChangedEventHandler;
 
         GetCount(): number;
-        GetValueAt(index: number): DependencyObject;
-        SetValueAt(index: number, value: DependencyObject);
-        Add(value: DependencyObject);
-        AddRange(newItems: DependencyObject[]);
+        GetValueAt(index: number): any;
+        SetValueAt(index: number, value: any);
+        Add(value: any);
+        AddRange(newItems: any[]);
         AddRange(newItems: ICollection);
-        Insert(index: number, value: DependencyObject);
-        Remove(value: DependencyObject);
+        Insert(index: number, value: any);
+        Remove(value: any);
         RemoveAt(index: number);
         Clear();
-        IndexOf(value: DependencyObject): number;
-        Contains(value: DependencyObject): bool;
-        ToArray(): DependencyObject[];
+        IndexOf(value: any): number;
+        Contains(value: any): bool;
+        ToArray(): any[];
     }
 }
 
