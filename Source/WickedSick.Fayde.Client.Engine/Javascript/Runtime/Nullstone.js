@@ -136,6 +136,8 @@ Nullstone.DoesInheritFrom = function (t, type) {
     return temp != null;
 };
 Nullstone.DoesImplement = function (obj, interfaceType) {
+    if (obj == null)
+        return false;
     var curType = obj.constructor;
     if (!curType._IsNullstone)
         return false;
