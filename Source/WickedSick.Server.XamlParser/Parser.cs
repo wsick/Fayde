@@ -92,7 +92,11 @@ namespace WickedSick.Server.XamlParser
                     if (parts.Count() != 2)
                         throw new XamlParseException(string.Format("An invalid element has been encountered. {0}", a.Name));
 
-                    Type ownerType = ResolveType(node.NamespaceURI, parts[0], parseMetadata);
+                    var nsUri = a.NamespaceURI;
+                    if (string.IsNullOrWhiteSpace(nsUri))
+                        nsUri = a.OwnerDocument.ChildNodes[0].NamespaceURI;
+
+                    Type ownerType = ResolveType(nsUri, parts[0], parseMetadata);
                     element.AddAttachedProperty(ownerType, parts[1], a.Value);
                     continue;
                 }
@@ -178,6 +182,10 @@ namespace WickedSick.Server.XamlParser
         private Type ResolveType(string xmlNamespace, string localName, IParseMetadata parseMetadata)
         {
             var type = TypeResolver.GetElementType(xmlNamespace, localName);
+            if (type == null)
+            {
+                throw new Exception(string.Format("Could not resolve type: '{0}' [{1}].", localName, xmlNamespace));
+            }
             if (type.Assembly != Assembly.GetExecutingAssembly())
                 parseMetadata.AddParseDependency(xmlNamespace, localName);
             return type;
