@@ -515,7 +515,7 @@
         this.Cancel = false;
     };
 
-    Nullstone.AutoProperty(CleanUpVirtualizedItemEventArgs, [
+    Nullstone.AutoProperties(CleanUpVirtualizedItemEventArgs, [
         "UIElement",
         "Value",
         "Cancel"

@@ -341,6 +341,9 @@ class Uri {
     toString(): string;
     static IsNullOrEmpty(uri: Uri): bool;
 }
+class Enum {
+    constructor(type: any);
+}
 
 //////////////////////////////////////////////////////////
 // CORE
@@ -698,8 +701,8 @@ module Fayde {
 
 class DependencyProperty {
     Name: string;
-    static Register(name: string, getTargetType: Function, ownerType, defaultValue, changedCallback): DependencyProperty;
-    static RegisterAttached(name: string, getTargetType: Function, ownerType, defaultValue, changedCallback): DependencyProperty;
+    static Register(name: string, getTargetType: Function, ownerType, defaultValue, changedCallback?): DependencyProperty;
+    static RegisterAttached(name: string, getTargetType: Function, ownerType, defaultValue, changedCallback?): DependencyProperty;
 }
 
 //////////////////////////////////////////////////////////

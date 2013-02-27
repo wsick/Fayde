@@ -162,20 +162,28 @@ Nullstone.AutoProperties = function (type, arr) {
     }
 };
 Nullstone.AutoProperty = function (type, nameOrDp, converter, isOverride) {
+    var data;
     if (typeof nameOrDp === "string") {
-        type.Properties.push({
+        data = {
             Auto: true,
             Name: nameOrDp,
             Converter: converter,
             Override: isOverride === true
-        });
+        };
     } else if (nameOrDp instanceof DependencyProperty) {
-        type.Properties.push({
+        data = {
             Auto: true,
             DP: nameOrDp,
             Converter: converter,
             Override: isOverride === true
-        });
+        };
+    } else {
+        return;
+    }
+    if (type.Properties) {
+        type.Properties.push(data);
+    } else {
+        this._CreateProp(type, data);
     }
 };
 Nullstone.AutoPropertiesReadOnly = function (type, arr) {
@@ -184,19 +192,25 @@ Nullstone.AutoPropertiesReadOnly = function (type, arr) {
     }
 };
 Nullstone.AutoPropertyReadOnly = function (type, nameOrDp, isOverride) {
+    var data;
     if (typeof nameOrDp === "string") {
-        type.Properties.push({
+        data = {
             Auto: true,
             Name: nameOrDp,
             IsReadOnly: true,
             Override: isOverride === true
-        });
+        };
     } else if (nameOrDp instanceof DependencyProperty) {
-        type.Properties.push({
+        data = {
             Auto: true,
             DP: nameOrDp,
             Override: isOverride === true
-        });
+        };
+    }
+    if (type.Properties) {
+        type.Properties.push(data);
+    } else {
+        this._CreateProp(type, data);
     }
 };
 Nullstone.AbstractProperty = function (type, name, isReadOnly) {
@@ -207,11 +221,15 @@ Nullstone.AbstractProperty = function (type, name, isReadOnly) {
     });
 };
 Nullstone.Property = function (type, name, data) {
-    type.Properties.push({
-        Custom: true,
-        Name: name,
-        Data: data
-    });
+    if (type.Properties) {
+        type.Properties.push({
+            Custom: true,
+            Name: name,
+            Data: data
+        });
+    } else {
+        Object.defineProperty(type.prototype, name, data);
+    }
 };
 Nullstone.AutoNotifyProperty = function (type, name) {
     var backingName = "z_" + name;
