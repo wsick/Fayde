@@ -96,9 +96,6 @@
     };
     Frame.Instance._HandleSuccessfulResponse = function (ajaxJsonResult) {
         /// <param name="ajaxJsonResult" type="AjaxJsonResult"></param>
-        var dependencies = ajaxJsonResult.GetHeader("Dependencies");
-
-
         var page = Fayde.JsonParser.Parse(ajaxJsonResult.CreateJson());
         if (page instanceof namespace.Page) {
             document.title = page.Title;

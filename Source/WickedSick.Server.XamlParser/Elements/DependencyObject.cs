@@ -405,11 +405,9 @@ namespace WickedSick.Server.XamlParser.Elements
             foreach (var evt in _EventSubscriptions)
             {
                 if (needsComma)
-                {
                     sb.AppendLine(",");
-                    needsComma = true;
-                }
                 sb.AppendFormat(string.Format("{0}: \"{1}\"", evt.Key.Name, evt.Value));
+                needsComma = true;
             }
             sb.Append("}");
         }

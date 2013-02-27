@@ -3,11 +3,11 @@
 (function (Fayde) {
     var XamlResolver = Nullstone.Create("XamlResolver", undefined, 3);
 
-    XamlResolver.Instance.Init = function (onSuccess, subOnSuccess, onError) {
+    XamlResolver.Instance.Init = function (onSuccess, onSubSuccess, onError) {
         this._IsXamlLoaded = false;
         this._IsScriptLoaded = false;
         this.OnSuccess = onSuccess;
-        this.SubOnSuccess = subOnSuccess;
+        this.OnSubSuccess = onSubSuccess;
         this.OnError = onError;
     };
 
@@ -46,36 +46,15 @@
         this.ResolveDependencies(function () { that.OnSuccess(that._XamlResult, that._ScriptResult); },
             function (error) { that.OnError(error); });
     };
-    function parseDependencies(dependenciesString) {
-        /// <param name="dependenciesString" type="String"></param>
-        /// <returns type="[]" />
-        var funcs = [];
-        
-        var tokens = dependenciesString.split("|");
-        var len = tokens.length;
-        var completes = [];
-        for (var i = 0; i < len; i++) {
-            completes.push(false);
-            var hash = tokens[i];
-            var cur = i;
-            funcs.push(function (href, s, f, e) {
-                var resolver = new XamlResolver(
-                    function (xamlResult, scriptResult) {
-                        f(xamlResult, scriptResult);
-                        completes[cur] = true;
-                        for (var j = 0; j < len; j++) {
-                            if (!completes[j])
-                                return;
-                        }
-                        s();
-                    },
-                    f,
-                    function (error) { e(error); });
-                resolver.LoadGeneric(href, hash);
-            });
-        }
-
-        return funcs;
+    function resolve(href, hash, index, isFullyResolved, onSuccess, onSubSuccess, onFail) {
+        var os = (function () {
+            return function (xamlResult, scriptResult) {
+                if (isFullyResolved(index))
+                    onSuccess();
+            };
+        })();
+        var resolver = new XamlResolver(os, onSubSuccess, onFail);
+        resolver.LoadGeneric(href, hash);
     }
     XamlResolver.Instance.ResolveDependencies = function (onResolve, onFail) {
         var dependencies = this._XamlResult.GetHeader("Dependencies");
@@ -84,15 +63,27 @@
             return;
         }
 
-        var resolvers = parseDependencies(dependencies);
+        var resolvers = dependencies.split("|");
         var len = resolvers.length;
         if (len < 1) {
             onResolve();
             return;
         }
 
+        var completes = [];
         for (var i = 0; i < len; i++) {
-            resolvers[i](this._BaseHref, onResolve, this.SubOnSuccess, onFail);
+            completes[i] = false;
+        }
+        function isFullyResolved(completedIndex) {
+            completes[completedIndex] = true;
+            for (var j = 0; j < len; j++) {
+                if (!completes[j])
+                    return false;
+            }
+            return true;
+        }
+        for (var i = 0; i < len; i++) {
+            resolve(this._BaseHref, resolvers[i], i, isFullyResolved, onResolve, this.OnSubSuccess, onFail);
         }
     };
 
