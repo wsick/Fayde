@@ -262,7 +262,7 @@ Nullstone.GetPropertyDescriptor = function (obj, name) {
     var type = obj.constructor;
     var propDesc = Object.getOwnPropertyDescriptor(type.prototype, name);
     if (propDesc)
-        return propDesc
+        return propDesc;
     return Object.getOwnPropertyDescriptor(obj, name);
 };
 Nullstone.HasProperty = function (obj, name) {

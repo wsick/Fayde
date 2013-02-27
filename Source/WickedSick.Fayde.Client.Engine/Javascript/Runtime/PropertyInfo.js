@@ -42,3 +42,37 @@
 
     namespace.PropertyInfo = Nullstone.FinishCreate(PropertyInfo);
 })(window);
+
+(function (namespace) {
+    var IndexedPropertyInfo = Nullstone.Create("IndexedPropertyInfo");
+
+    IndexedPropertyInfo.Find = function (typeOrObj) {
+        var o = typeOrObj;
+        var isType = typeOrObj instanceof Function;
+        if (isType)
+            o = new typeOrObj();
+
+        if (o instanceof Array) {
+            var pi = new IndexedPropertyInfo();
+            pi.GetFunc = function (index) { return this[index]; };
+            pi.SetFunc = function (index, value) { this[index] = value; };
+            return pi;
+        } else if (o instanceof Fayde.InternalCollection) {
+            var pi = new IndexedPropertyInfo();
+            pi.GetFunc = function (index) { return this.GetValueAt(index); };
+            pi.SetFunc = function (index, value) { return this.SetValueAt(index, value); };
+            return pi;
+        }
+    };
+
+    IndexedPropertyInfo.Instance.GetValue = function (ro, index) {
+        if (this.GetFunc)
+            return this.GetFunc.call(ro, index);
+    };
+    IndexedPropertyInfo.Instance.SetValue = function (ro, index, value) {
+        if (this.SetFunc)
+            this.SetFunc.call(ro, index, value);
+    };
+
+    namespace.IndexedPropertyInfo = Nullstone.FinishCreate(IndexedPropertyInfo);
+})(window);

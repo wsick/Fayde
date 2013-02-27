@@ -24,7 +24,7 @@
         }
 
         try {
-            var newVal = this.PropertyInfo.GetValue(this.Source, [this._Index]);
+            var newVal = this.PropertyInfo.GetValue(this.Source, this._Index);
             this._isBroken = false;
             this.ValueType = this.PropertyInfo.PropertyType;
             this.UpdateValueAndIsBroken(newVal, this._isBroken);
@@ -36,7 +36,7 @@
     };
     _IndexedPropertyPathNode.Instance.SetValue = function (value) {
         if (this.PropertyInfo != null)
-            this.PropertyInfo.SetValue(this.Source, value, [this._Index]);
+            this.PropertyInfo.SetValue(this.Source, this._Index, value);
     };
 
     _IndexedPropertyPathNode.Instance._CheckIsBroken = function () {
@@ -64,7 +64,10 @@
     };
 
     _IndexedPropertyPathNode.Instance._GetIndexer = function () {
-        //TODO: Implement
+        this.PropertyInfo = null;
+        if (this._Source != null) {
+            this.PropertyInfo = IndexedPropertyInfo.Find(this._Source);
+        }
     };
 
     _IndexedPropertyPathNode.Instance.CollectionChanged = function (o, e) {
