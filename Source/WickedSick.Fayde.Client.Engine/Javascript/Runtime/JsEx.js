@@ -12,7 +12,7 @@ String.prototype.indexOfAny = function (carr, start) {
     if (start == null)
         start = 0;
     for (var cur = start; cur < this.length; cur++) {
-        var c = this.charAt(c);
+        var c = this.charAt(cur);
         for (var i = 0; i < carr.length; i++) {
             if (c === carr[i])
                 return cur;
