@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Demos.SDBDemo", "Fayd
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demos", "Demos", "{105F8723-4365-415B-BCF1-9F1094993C17}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Demos.MarchMadnessDemo", "Fayde.Demos.MarchMadnessDemo\Fayde.Demos.MarchMadnessDemo.csproj", "{D3FB3CB3-43B2-4FD6-997B-1622CF5BD1FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,12 +53,17 @@ Global
 		{193C6F25-4BE8-4DA4-A24B-D85C48363A28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{193C6F25-4BE8-4DA4-A24B-D85C48363A28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{193C6F25-4BE8-4DA4-A24B-D85C48363A28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3FB3CB3-43B2-4FD6-997B-1622CF5BD1FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3FB3CB3-43B2-4FD6-997B-1622CF5BD1FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3FB3CB3-43B2-4FD6-997B-1622CF5BD1FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3FB3CB3-43B2-4FD6-997B-1622CF5BD1FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{E5D7A77B-E224-45CB-ACE3-09C4856FA5A6} = {105F8723-4365-415B-BCF1-9F1094993C17}
 		{193C6F25-4BE8-4DA4-A24B-D85C48363A28} = {105F8723-4365-415B-BCF1-9F1094993C17}
+		{E5D7A77B-E224-45CB-ACE3-09C4856FA5A6} = {105F8723-4365-415B-BCF1-9F1094993C17}
+		{D3FB3CB3-43B2-4FD6-997B-1622CF5BD1FA} = {105F8723-4365-415B-BCF1-9F1094993C17}
 	EndGlobalSection
 EndGlobal

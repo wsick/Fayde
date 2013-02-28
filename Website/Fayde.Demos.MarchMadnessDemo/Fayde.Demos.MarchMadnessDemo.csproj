@@ -7,12 +7,12 @@
     <ProductVersion>
     </ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{193C6F25-4BE8-4DA4-A24B-D85C48363A28}</ProjectGuid>
+    <ProjectGuid>{D3FB3CB3-43B2-4FD6-997B-1622CF5BD1FA}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Fayde.Demos.SDBDemo</RootNamespace>
-    <AssemblyName>Fayde.Demos.SDBDemo</AssemblyName>
+    <RootNamespace>Fayde.Demos.MarchMadnessDemo</RootNamespace>
+    <AssemblyName>Fayde.Demos.MarchMadnessDemo</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <UseIISExpress>false</UseIISExpress>
     <IISExpressSSLPort />
@@ -39,7 +39,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -56,48 +55,83 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
+    <Reference Include="WickedSick.Server.Framework.Fayde, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>faydebin\WickedSick.Server.Framework.Fayde.dll</HintPath>
+    </Reference>
+    <Reference Include="WickedSick.Server.XamlParser, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>faydebin\WickedSick.Server.XamlParser.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="ViewModels\MainViewModel.ts" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Team.fayde.cs">
+      <DependentUpon>Team.fayde</DependentUpon>
+    </Compile>
     <TypeScriptCompile Include="default.fap.ts">
       <DependentUpon>default.fap</DependentUpon>
+    </TypeScriptCompile>
+    <EmbeddedResource Include="Bracket.fayde.js">
+      <DependentUpon>Bracket.fayde.ts</DependentUpon>
+    </EmbeddedResource>
+    <TypeScriptCompile Include="Bracket.fayde.ts">
+      <DependentUpon>Bracket.fayde</DependentUpon>
     </TypeScriptCompile>
     <Content Include="default.fap.js">
       <DependentUpon>default.fap.ts</DependentUpon>
     </Content>
-    <TypeScriptCompile Include="root.fayde.ts">
-      <DependentUpon>root.fayde</DependentUpon>
+    <TypeScriptCompile Include="default.fayde.ts">
+      <DependentUpon>default.fayde</DependentUpon>
     </TypeScriptCompile>
-    <Content Include="root.fayde.js">
-      <DependentUpon>root.fayde.ts</DependentUpon>
+    <Content Include="default.fayde.js">
+      <DependentUpon>default.fayde.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="scripts\Fayde.d.ts" />
+    <Content Include="Global.asax" />
     <Content Include="scripts\Fayde.Generic.js" />
     <Content Include="scripts\Fayde.js" />
-    <Content Include="ViewModels\MainViewModel.js">
-      <DependentUpon>MainViewModel.ts</DependentUpon>
+    <EmbeddedResource Include="Team.fayde.js">
+      <DependentUpon>Team.fayde.ts</DependentUpon>
+    </EmbeddedResource>
+    <TypeScriptCompile Include="Team.fayde.ts">
+      <DependentUpon>Team.fayde</DependentUpon>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="ViewModels\BracketViewModel.ts" />
+    <Content Include="ViewModels\BracketViewModel.js">
+      <DependentUpon>BracketViewModel.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="ViewModels\Match.ts" />
+    <Content Include="ViewModels\Match.js">
+      <DependentUpon>Match.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="ViewModels\Team.ts" />
+    <TypeScriptCompile Include="ViewModels\MatchColumn.ts" />
+    <Content Include="ViewModels\MatchColumn.js">
+      <DependentUpon>MatchColumn.ts</DependentUpon>
+    </Content>
+    <Content Include="ViewModels\Team.js">
+      <DependentUpon>Team.ts</DependentUpon>
     </Content>
     <Content Include="Web.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\GetAllSongs.ashx.cs">
-      <DependentUpon>GetAllSongs.ashx</DependentUpon>
+    <Content Include="faydebin\WickedSick.Server.Framework.Fayde.dll" />
+    <Content Include="faydebin\WickedSick.Server.XamlParser.dll" />
+    <Compile Include="Bracket.fayde.cs">
+      <DependentUpon>Bracket.fayde</DependentUpon>
     </Compile>
-    <Compile Include="Services\GoogleMusicAPI\API.cs" />
-    <Compile Include="Services\GoogleMusicAPI\FormBuilder.cs" />
-    <Compile Include="Services\GoogleMusicAPI\GoogleHTTP.cs" />
-    <Compile Include="Services\GoogleMusicAPI\JSON.cs" />
-    <Compile Include="Services\GoogleMusicAPI\Models.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Services\GetAllSongs.ashx" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="default.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="root.fayde">
+    <Content Include="default.fayde">
       <SubType>Designer</SubType>
     </Content>
+    <EmbeddedResource Include="Bracket.fayde">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Team.fayde" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -116,16 +150,7 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>True</UseIIS>
-          <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>39806</DevelopmentServerPort>
-          <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost/Fayde.Website/SDBDemo</IISUrl>
-          <NTLMAuthentication>False</NTLMAuthentication>
-          <UseCustomServer>False</UseCustomServer>
-          <CustomServerUrl>
-          </CustomServerUrl>
-          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+          <SaveServerSettingsInUserFile>True</SaveServerSettingsInUserFile>
         </WebProjectProperties>
       </FlavorProperties>
     </VisualStudio>

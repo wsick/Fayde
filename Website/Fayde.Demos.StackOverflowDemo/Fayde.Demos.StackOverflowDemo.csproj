@@ -38,9 +38,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\ThirdParty\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
@@ -58,12 +55,6 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
-    <Reference Include="WickedSick.Server.Framework.Fayde">
-      <HintPath>..\ThirdParty\WickedSick.Server.Framework.Fayde.dll</HintPath>
-    </Reference>
-    <Reference Include="WickedSick.Server.XamlParser">
-      <HintPath>..\ThirdParty\WickedSick.Server.XamlParser.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="ViewModels\MainViewModel.ts" />

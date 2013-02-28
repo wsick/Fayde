@@ -1,0 +1,9 @@
+﻿<UserControl 
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde"
+    JsType="Fayde.Demos.MarchMadnessDemo.Team">
+    <StackPanel Orientation="Horizontal" Background="Tan" Cursor="Hand">
+        <TextBlock Text="{Binding Seed}" Margin="5,0" />
+        <TextBlock Text="{Binding Name, FallbackValue=' '}" />
+    </StackPanel>
+</UserControl>

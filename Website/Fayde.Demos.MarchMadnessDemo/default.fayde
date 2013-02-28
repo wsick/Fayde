@@ -1,0 +1,82 @@
+﻿<Page xmlns="http://schemas.wsick.com/fayde"
+      xmlns:x="http://schemas.wsick.com/fayde"
+      xmlns:views="clr-namespace:Fayde.Demos.MarchMadnessDemo"
+      JsType="Fayde.Demos.MarchMadnessDemo.Default"
+      Title="Fayde Page">
+    <Page.Resources>
+        <DataTemplate x:Key="LeftBracketTemplate">
+            <views:Bracket RoundNumber="{Binding Round}" BracketBorderThickness="3" InitialMargin="2" />
+        </DataTemplate>
+        <DataTemplate x:Key="RightBracketTemplate">
+            <views:Bracket RoundNumber="{Binding Round}" BracketBorderThickness="3" InitialMargin="2" Direction="Left" />
+        </DataTemplate>
+        <ItemsPanelTemplate x:Key="BracketColumnPanelTemplate">
+            <StackPanel VerticalAlignment="Center" />
+        </ItemsPanelTemplate>
+    </Page.Resources>
+    <Grid x:Name="LayoutRoot" Background="White">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <ItemsControl ItemsSource="{Binding MatchColumns[0].Matches}"
+                  ItemTemplate="{StaticResource LeftBracketTemplate}"
+                  ItemsPanel="{StaticResource BracketColumnPanelTemplate}" />
+        <ItemsControl Grid.Column="1"
+                  ItemsSource="{Binding MatchColumns[2].Matches}"
+                  ItemTemplate="{StaticResource LeftBracketTemplate}"
+                  ItemsPanel="{StaticResource BracketColumnPanelTemplate}" />
+        <ItemsControl Grid.Column="2"
+                  ItemsSource="{Binding MatchColumns[4].Matches}"
+                  ItemTemplate="{StaticResource LeftBracketTemplate}"
+                  ItemsPanel="{StaticResource BracketColumnPanelTemplate}" />
+        <ItemsControl Grid.Column="3"
+                  ItemsSource="{Binding MatchColumns[6].Matches}"
+                  ItemTemplate="{StaticResource LeftBracketTemplate}"
+                  ItemsPanel="{StaticResource BracketColumnPanelTemplate}" />
+        <ItemsControl Grid.Column="4"
+                  ItemsSource="{Binding MatchColumns[8].Matches}"
+                  ItemTemplate="{StaticResource LeftBracketTemplate}"
+                  ItemsPanel="{StaticResource BracketColumnPanelTemplate}" />
+        <StackPanel Grid.Column="5" VerticalAlignment="Center" DataContext="{Binding MatchColumns[10].Matches[0]}">
+            <Border BorderBrush="Black" BorderThickness="0,0,0,3" Margin="0,0,10,45" MouseLeftButtonUp="Team_MouseLeftButtonUp">
+                <views:Team DataContext="{Binding Team1}" />
+            </Border>
+            <Border BorderBrush="Black" BorderThickness="0,0,0,3" Margin="0,0,0,16">
+                <views:Team DataContext="{Binding SelectedTeam}" />
+            </Border>
+            <Border BorderBrush="Black" BorderThickness="0,0,0,3" Margin="10,45,0,0" MouseLeftButtonUp="Team_MouseLeftButtonUp">
+                <views:Team DataContext="{Binding Team2}" />
+            </Border>
+        </StackPanel>
+        <ItemsControl Grid.Column="6"
+                  ItemsSource="{Binding MatchColumns[9].Matches}"
+                  ItemTemplate="{StaticResource RightBracketTemplate}"
+                  ItemsPanel="{StaticResource BracketColumnPanelTemplate}" />
+        <ItemsControl Grid.Column="7"
+                  ItemsSource="{Binding MatchColumns[7].Matches}"
+                  ItemTemplate="{StaticResource RightBracketTemplate}"
+                  ItemsPanel="{StaticResource BracketColumnPanelTemplate}" />
+        <ItemsControl Grid.Column="8"
+                  ItemsSource="{Binding MatchColumns[5].Matches}"
+                  ItemTemplate="{StaticResource RightBracketTemplate}"
+                  ItemsPanel="{StaticResource BracketColumnPanelTemplate}" />
+        <ItemsControl Grid.Column="9"
+                  ItemsSource="{Binding MatchColumns[3].Matches}"
+                  ItemTemplate="{StaticResource RightBracketTemplate}"
+                  ItemsPanel="{StaticResource BracketColumnPanelTemplate}" />
+        <ItemsControl Grid.Column="10"
+                  ItemsSource="{Binding MatchColumns[1].Matches}"
+                  ItemTemplate="{StaticResource RightBracketTemplate}"
+                  ItemsPanel="{StaticResource BracketColumnPanelTemplate}" />
+    </Grid>
+</Page>
