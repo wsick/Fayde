@@ -100,30 +100,25 @@
     DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, coercer, alwaysChange, validator, isCustom, isReadOnly, isAttached, inheritable) {
         if (!DependencyProperty._IDs)
             DependencyProperty._IDs = [];
-        if (!DependencyProperty._Registered)
-            DependencyProperty._Registered = [];
-        if (!DependencyProperty._Registered[ownerType._TypeName])
-            DependencyProperty._Registered[ownerType._TypeName] = [];
+        var registeredDPs = ownerType._RegisteredDPs;
+        if (!registeredDPs)
+            ownerType._RegisteredDPs = registeredDPs = [];
         var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback, isReadOnly, isAttached, inheritable);
-        if (DependencyProperty._Registered[ownerType._TypeName][name] !== undefined)
+        if (registeredDPs[name] !== undefined)
             throw new InvalidOperationException("Dependency Property is already registered. [" + ownerType._TypeName + "." + name + "]");
-        DependencyProperty._Registered[ownerType._TypeName][name] = propd;
+        registeredDPs[name] = propd;
         DependencyProperty._IDs[propd._ID] = propd;
         return propd;
     };
     DependencyProperty.GetDependencyProperty = function (ownerType, name) {
-        var reg = DependencyProperty._Registered;
-        if (!reg)
-            return null;
         if (!ownerType)
             return null;
-        var reg = reg[ownerType._TypeName];
+        var reg = ownerType._RegisteredDPs;
         var propd;
         if (reg)
             propd = reg[name];
-        if (!propd && ownerType && ownerType._IsNullstone) {
+        if (!propd)
             propd = DependencyProperty.GetDependencyProperty(ownerType._BaseClass, name);
-        }
         return propd;
     };
 

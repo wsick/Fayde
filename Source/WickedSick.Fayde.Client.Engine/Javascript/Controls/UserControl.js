@@ -99,13 +99,8 @@
     };
     UserControl.Instance._GetDefaultTemplateCallback = function () {
         var json = this.constructor.__TemplateJson;
-        if (!json)
-            return;
-
-        var namescope = new Fayde.NameScope();
-        var root = Fayde.JsonParser.Parse(json, undefined, namescope, undefined);
-        Fayde.NameScope.SetNameScope(root, namescope);
-        return root;
+        if (json)
+            Fayde.JsonParser.ParseUserControl(json, this);
     };
 
     namespace.UserControl = Nullstone.FinishCreate(UserControl);

@@ -39,6 +39,13 @@
 
         return obj;
     };
+    JsonParser.ParseUserControl = function (json, dobj) {
+        var parser = new JsonParser();
+        parser._RootXamlObject = dobj;
+        var namescope = new Fayde.NameScope();
+        Fayde.NameScope.SetNameScope(dobj, namescope);
+        parser.SetObject(json, dobj, namescope);
+    };
 
     JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
         if (json.Type == null) {
@@ -65,6 +72,10 @@
         var dobj = new json.Type();
         if (!this._RootXamlObject)
             this._RootXamlObject = dobj;
+        this.SetObject(json, dobj, namescope, ignoreResolve);
+        return dobj;
+    };
+    JsonParser.Instance.SetObject = function (json, dobj, namescope, ignoreResolve) {
         dobj.TemplateOwner = this._TemplateBindingSource;
         if (json.Name)
             dobj.SetNameOnScope(json.Name, namescope);
@@ -94,7 +105,7 @@
                 this.TrySetPropertyValue(dobj, propd, propValue, namescope, true, attachedDef.Owner, attachedDef.Prop);
             }
         }
-        
+
         if (json.Events) {
             for (var i in json.Events) {
                 var targetEvent = dobj[i];
@@ -104,7 +115,7 @@
                 var targetCallback = root[json.Events[i]];
                 if (!targetCallback || typeof targetCallback !== "function")
                     throw new ArgumentException("Could not locate event callback '" + json.Events[i] + "' on object '" + root.constructor._TypeName + "'.");
-                
+
                 targetEvent.Subscribe(targetCallback, root);
             }
         }
@@ -144,9 +155,7 @@
         if (json.Type === Fayde.ResourceDictionary) {
             delete this._ContextResourceDictionary;
         }
-        return dobj;
     };
-
     JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, namescope, isAttached, ownerType, propName) {
         //If the object is not a Nullstone, let's parse it
         if (!propValue.constructor._IsNullstone && propValue.Type) {

@@ -49,6 +49,7 @@
     function resolve(href, hash, index, isFullyResolved, onSuccess, onSubSuccess, onFail) {
         var os = (function () {
             return function (xamlResult, scriptResult) {
+                if (onSubSuccess) onSubSuccess(xamlResult, scriptResult);
                 if (isFullyResolved(index))
                     onSuccess();
             };
