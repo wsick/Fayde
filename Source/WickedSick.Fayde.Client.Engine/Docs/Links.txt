@@ -6,3 +6,12 @@ http://stackoverflow.com/questions/1720320/how-to-dynamically-create-css-class-i
 
 Javascript Truth/Equality
 http://javascriptweblog.wordpress.com/2011/02/07/truth-equality-and-javascript/
+
+Gaming presentation: from C/C++ to Javascript
+https://www.youtube.com/watch?feature=player_detailpage&v=XAqIpGU8ZZk
+	V8 flags:
+		--trace-bailout (tryCatch, ForIn, NonStringToString, etc.)
+		--trace-opt
+		--trace-deopt
+	Garbage collector:
+		--trace-gc
