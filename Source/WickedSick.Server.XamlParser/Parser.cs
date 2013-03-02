@@ -94,7 +94,7 @@ namespace WickedSick.Server.XamlParser
 
                     var nsUri = a.NamespaceURI;
                     if (string.IsNullOrWhiteSpace(nsUri))
-                        nsUri = a.OwnerDocument.ChildNodes[0].NamespaceURI;
+                        nsUri = a.OwnerElement.NamespaceURI;
 
                     Type ownerType = ResolveType(nsUri, parts[0], parseMetadata);
                     element.AddAttachedProperty(ownerType, parts[1], a.Value);
