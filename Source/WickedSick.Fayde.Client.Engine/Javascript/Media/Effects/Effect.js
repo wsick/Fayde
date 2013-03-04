@@ -18,6 +18,11 @@
     Effect.Instance.Padding = function () {
         return new Thickness();
     };
+    Effect.Instance.GetPadding = function (thickness) {
+        /// <param name="thickness" type="Thickness"></param>
+        //DO NOTHING
+        return false;
+    };
 
     Effect.Instance.PreRender = function (ctx) {
         AbstractMethod("Effect.PreRender");

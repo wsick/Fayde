@@ -49,6 +49,44 @@
             bottom < 1.0 ? 1.0 : Math.ceil(bottom));
 
     };
+    DropShadowEffect.Instance.GetPadding = function (thickness) {
+        /// <param name="thickness" type="Thickness"></param>
+        var radius = Math.min(this.BlurRadius, DropShadowEffect.MAX_BLUR_RADIUS);
+        var depth = Math.min(Math.max(0, this.ShadowDepth), DropShadowEffect.MAX_SHADOW_DEPTH);
+        var direction = this.Direction * Math.PI / 180.0;
+        var width = Math.ceil(radius);
+
+        var offsetX = Math.cos(direction) * depth;
+        var offsetY = Math.sin(direction) * depth;
+
+        var left = -offsetX + width;
+        var top = offsetY + width;
+        var right = offsetX + width;
+        var bottom = -offsetY + width;
+
+        var l = left < 1.0 ? 1.0 : Math.ceil(left);
+        var t = top < 1.0 ? 1.0 : Math.ceil(top);
+        var r = right < 1.0 ? 1.0 : Math.ceil(right);
+        var b = bottom < 1.0 ? 1.0 : Math.ceil(bottom);
+        var flag = false;
+        if (thickness.Left !== l) {
+            thickness.Left = l;
+            flag = true;
+        }
+        if (thickness.Top !== t) {
+            thickness.Top = t;
+            flag = true;
+        }
+        if (thickness.Right !== r) {
+            thickness.Right = r;
+            flag = true;
+        }
+        if (thickness.Bottom !== b) {
+            thickness.Bottom = b;
+            flag = true;
+        }
+        return flag;
+    };
     DropShadowEffect.Instance.PreRender = function (ctx) {
         /// <param name="ctx" type="_RenderingContext"></param>
         var color = this.Color;
