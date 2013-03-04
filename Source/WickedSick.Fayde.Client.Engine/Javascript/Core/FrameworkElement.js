@@ -19,11 +19,6 @@
     FrameworkElement.Instance.Init = function () {
         this.Init$UIElement();
 
-        this._BoundsWithChildren = new Rect();
-        this._GlobalBoundsWithChildren = new Rect();
-        this._SurfaceBoundsWithChildren = new Rect();
-        this._ExtentsWithChildren = new Rect();
-
         this.AddProvider(new Fayde._StylePropertyValueProvider(this));
         this.AddProvider(new Fayde._ImplicitStylePropertyValueProvider(this));
         this.AddProvider(new Fayde.FrameworkElementPropertyValueProvider(this));
@@ -42,6 +37,9 @@
                     surface.LayoutUpdated.Unsubscribe(callback, closure);
             }
         };
+    };
+    FrameworkElement.Instance.InitSpecific = function () {
+        this._Metrics = new FrameworkElementMetrics();
     };
 
     //#region Properties
@@ -171,69 +169,6 @@
 
         return constrained;
     };
-
-    //#endregion
-
-    //#region Bounds
-
-    FrameworkElement.Instance._GetSubtreeExtents = function () {
-        if (this._SubtreeObject)
-            return this._ExtentsWithChildren;
-        return this._Extents;
-    };
-
-    //#region Bounds
-
-    FrameworkElement.Instance._ComputeBounds = function () {
-        var size = new Size(this.ActualWidth, this.ActualHeight);
-        size = this._ApplySizeConstraints(size);
-
-        this._Extents = new Rect(0, 0, size.Width, size.Height);
-        this._ExtentsWithChildren = this._Extents;
-
-        var walker = new Fayde._VisualTreeWalker(this);
-        var item;
-        while (item = walker.Step()) {
-            if (item._GetRenderVisible())
-                this._ExtentsWithChildren = this._ExtentsWithChildren.Union(item._GetGlobalBounds());
-        }
-
-        this._Bounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform(this._AbsoluteXform);
-        this._BoundsWithChildren = this._ExtentsWithChildren.GrowByThickness(this._EffectPadding).Transform(this._AbsoluteXform);
-
-        this._ComputeGlobalBounds();
-        this._ComputeSurfaceBounds();
-    };
-
-    //#endregion
-
-    //#region Global Bounds
-
-    FrameworkElement.Instance._ComputeGlobalBounds = function () {
-        this._ComputeGlobalBounds$UIElement();
-        this._GlobalBoundsWithChildren = this._ExtentsWithChildren.GrowByThickness(this._EffectPadding).Transform4(this._LocalProjection);
-    };
-    FrameworkElement.Instance._GetGlobalBounds = function () {
-        if (this._SubtreeObject)
-            return this._GlobalBoundsWithChildren;
-        return this._GlobalBounds;
-    };
-
-    //#endregion
-
-    //#region Surface Bounds
-
-    FrameworkElement.Instance._ComputeSurfaceBounds = function () {
-        this._ComputeSurfaceBounds$UIElement();
-        this._SurfaceBoundsWithChildren = this._ExtentsWithChildren.GrowByThickness(this._EffectPadding).Transform4(this._AbsoluteProjection);
-    };
-    FrameworkElement.Instance._GetSubtreeBounds = function () {
-        if (this._SubtreeObject)
-            return this._SurfaceBoundsWithChildren;
-        return this._SurfaceBounds;
-    };
-
-    //#endregion
 
     //#endregion
 

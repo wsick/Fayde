@@ -49,13 +49,11 @@
 
         this.AddProvider(new Fayde._InheritedPropertyValueProvider(this));
 
+        this.InitSpecific();
+
         this._Flags = UIElementFlags.RenderVisible | UIElementFlags.HitTestVisible;
 
         this._HiddenDesire = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
-        this._Extents = new Rect();
-        this._Bounds = new Rect();
-        this._GlobalBounds = new Rect();
-        this._SurfaceBounds = new Rect();
 
         this._DirtyFlags = _Dirty.Measure;
         this._PropagateFlagUp(UIElementFlags.DirtyMeasureHint);
@@ -64,7 +62,6 @@
         this._DirtyRegion = new Rect();
         this._DesiredSize = new Size();
         this._RenderSize = new Size();
-        this._EffectPadding = new Thickness();
 
         this._AbsoluteXform = mat3.identity();
         this._LayoutXform = mat3.identity();
@@ -116,6 +113,9 @@
         this.VisualParentChanged = new MulticastEvent();
 
         this.CreateHtmlObject();
+    };
+    FrameworkElement.Instance.InitSpecific = function () {
+        this._Metrics = new UIElementMetrics();
     };
 
     //#region Properties
@@ -548,14 +548,9 @@
 
     //#region Bounds
 
-    UIElement.Instance._GetSubtreeExtents = function () {
-        /// <returns type="Rect" />
-        AbstractMethod("UIElement._GetSubtreeExtents()");
-    };
     UIElement.Instance._GetOriginPoint = function () {
         return new Point(0.0, 0.0);
     };
-
     UIElement.Instance._UpdateBounds = function (forceRedraw) {
         if (this._IsAttached)
             App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Bounds);
@@ -586,38 +581,28 @@
         return box.Intersection(unclipped);
     };
 
-    //#region Bounds
-
     UIElement.Instance.GetBounds = function () {
-        return this._SurfaceBounds;
+        return this._Metrics.Surface;
+
     };
     UIElement.Instance._ComputeBounds = function () {
-        AbstractMethod("UIElement._ComputeBounds()");
+        this._Metrics.ComputeBounds(this);
     };
-
-    //#endregion
-
-    //#region Global Bounds
-
+    UIElement.Instance._GetSubtreeExtents = function () {
+        return this._Metrics.SubtreeExtents;
+    };
     UIElement.Instance._GetGlobalBounds = function () {
-        return this._GlobalBounds;
+        return this._Metrics.GlobalBounds;
     };
     UIElement.Instance._ComputeGlobalBounds = function () {
-        this._GlobalBounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform4(this._LocalProjection);
+        this._Metrics.ComputeGlobalBounds(this._LocalXform, this._LocalProjection);
     };
-
-    //#endregion
-
-    //#region Surface Bounds
-
     UIElement.Instance._GetSubtreeBounds = function () {
-        return this._SurfaceBounds;
+        return this._Metrics.SubtreeBounds;
     };
     UIElement.Instance._ComputeSurfaceBounds = function () {
-        this._SurfaceBounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform4(this._AbsoluteProjection);
+        this._Metrics.ComputeGlobalBounds(this._AbsoluteXform, this._AbsoluteProjection);
     };
-
-    //#endregion
 
     //#endregion
 
