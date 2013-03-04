@@ -78,7 +78,13 @@
     <Content Include="Fayde.js" />
     <Content Include="gl-matrix.js" />
     <Content Include="Global.asax" />
+    <Content Include="Javascript\Core\FrameworkElementMetrics.js" />
+    <Content Include="Javascript\Core\UIElementMetrics.js" />
     <Content Include="Javascript\Engine\XamlResolver.js" />
+    <TypeScriptCompile Include="Javascript\Primitives.ts" />
+    <Content Include="Javascript\Primitives.js">
+      <DependentUpon>Primitives.ts</DependentUpon>
+    </Content>
     <Content Include="Javascript\Runtime\IEnumerable.js" />
     <Content Include="Tests\DependencyObjectTests.js" />
     <Content Include="Tests\FaydeAsserts.js" />
