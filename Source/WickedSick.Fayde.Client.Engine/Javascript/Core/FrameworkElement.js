@@ -7,6 +7,7 @@
 /// <reference path="PropertyValueProviders/FrameworkElementPropertyValueProvider.js"/>
 /// <reference path="PropertyValueProviders/InheritedDataContextPropertyValueProvider.js"/>
 /// CODE
+/// <reference path="FrameworkElementMetrics.js"/>
 /// <reference path="../Runtime/BError.js"/>
 /// <reference path="Style.js"/>
 /// <reference path="VisualTreeHelper.js"/>
@@ -39,7 +40,7 @@
         };
     };
     FrameworkElement.Instance.InitSpecific = function () {
-        this._Metrics = new FrameworkElementMetrics();
+        this._Metrics = new Fayde.FrameworkElementMetrics();
     };
 
     //#region Properties

@@ -3,19 +3,19 @@
 var Fayde;
 (function (Fayde) {
     FrameworkElementMetrics.prototype = new Fayde.UIElementMetrics();
-    FrameworkElementMetrics.prototype.constructor = Fayde.UIElementMetrics;
+    FrameworkElementMetrics.prototype.constructor = FrameworkElementMetrics;
     function FrameworkElementMetrics() {
         this.ExtentsWithChildren = new rect();
         this.BoundsWithChildren = new rect();
         this.GlobalWithChildren = new rect();
         this.SurfaceWithChildren = new rect();
-        this.LayoutClipBounds = new rect(); //TODO: Update LayoutClipBounds from UIElement
+        this.LayoutClipBounds = new rect();
 
         this.SubtreeExtents = this.ExtentsWithChildren;
         this.SubtreeBounds = this.SurfaceWithChildren;
         this.GlobalBounds = this.GlobalWithChildren;
     }
-    FrameworkElementMetrics.prototype.ComputeBounds = function (fe) {
+    FrameworkElementMetrics.prototype.ComputeBounds = function (fe, absoluteXform) {
         var size = new Size(fe.ActualWidth, fe.ActualHeight);
         size = fe._ApplySizeConstraints(size);
 
@@ -30,7 +30,7 @@ var Fayde;
         }
 
         this._IntersectBoundsWithClipPath(this.Bounds, absoluteXform);
-        rect.copyGrowTransform(this.BoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, xform);
+        rect.copyGrowTransform(this.BoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, absoluteXform);
 
         this.ComputeGlobalBounds();
         this.ComputeSurfaceBounds();
@@ -58,6 +58,13 @@ var Fayde;
             rect.intersection(dest, this.ClipBounds);
         if (!isLayoutClipEmpty)
             rect.intersection(dest, this.LayoutClipBounds);
+    };
+    FrameworkElementMetrics.prototype.UpdateLayoutClipBounds = function (layoutClip) {
+        if (!layoutClip) {
+            rect.clear(this.LayoutClipBounds);
+            return;
+        }
+        rect.copyTo(layoutClip.GetBounds(), this.LayoutClipBounds);
     };
     Fayde.FrameworkElementMetrics = FrameworkElementMetrics;
 })(Fayde || (Fayde = {}));

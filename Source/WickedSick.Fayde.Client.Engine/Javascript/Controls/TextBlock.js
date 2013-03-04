@@ -6,6 +6,7 @@
 /// <reference path="../Runtime/LinkedList.js"/>
 /// <reference path="../Text/TextLayout.js"/>
 /// <reference path="Enums.js"/>
+/// <reference path="TextBlockMetrics.js"/>
 
 (function (namespace) {
     var TextBlock = Nullstone.Create("TextBlock", Fayde.FrameworkElement);
@@ -24,6 +25,9 @@
         this.AddProvider(new namespace._TextBlockDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue));
 
         this._Font = new Font();
+    };
+    TextBlock.Instance.InitSpecific = function () {
+        this._Metrics = new Fayde.Controls.TextBlockMetrics();
     };
 
     //#region Properties
@@ -76,21 +80,6 @@
 
     //#region Instance Methods
 
-    TextBlock.Instance._ComputeBounds = function () {
-        this._Extents = this._Layout.GetRenderExtents();
-        var padding = this.Padding;
-
-        this._Extents.X += padding.Left;
-        this._Extents.Y += padding.Top;
-
-        this._ExtentsWithChildren = this._Extents;
-
-        this._Bounds = this._IntersectBoundsWithClipPath(this._Extents.GrowBy(this._EffectPadding), false).Transform(this._AbsoluteXform);
-        this._BoundsWithChildren = this._Bounds;
-
-        this._ComputeGlobalBounds();
-        this._ComputeSurfaceBounds();
-    };
     TextBlock.Instance._ComputeActualSize = function () {
         var padding = this.Padding;
         var constraint = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));

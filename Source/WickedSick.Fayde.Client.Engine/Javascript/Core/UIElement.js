@@ -16,6 +16,7 @@
 /// <reference path="Triggers.js"/>
 /// <reference path="../Media/CacheMode.js"/>
 /// <reference path="../Media/Projection.js"/>
+/// <reference path="UIElementMetrics.js"/>
 
 (function (Fayde) {
     //#region UIElementFlags
@@ -114,8 +115,8 @@
 
         this.CreateHtmlObject();
     };
-    FrameworkElement.Instance.InitSpecific = function () {
-        this._Metrics = new UIElementMetrics();
+    UIElement.Instance.InitSpecific = function () {
+        this._Metrics = new Fayde.UIElementMetrics();
     };
 
     //#region Properties
@@ -324,6 +325,7 @@
             App.Instance.MainSurface._Invalidate(r);
     };
     UIElement.Instance._InvalidateClip = function () {
+        this._Metrics.UpdateClipBounds(this.Clip);
         this._InvalidateParent(this._GetSubtreeBounds());
         this._UpdateBounds(true);
         this._ComputeComposite();
@@ -586,7 +588,7 @@
 
     };
     UIElement.Instance._ComputeBounds = function () {
-        this._Metrics.ComputeBounds(this);
+        this._Metrics.ComputeBounds(this, this._AbsoluteXform);
     };
     UIElement.Instance._GetSubtreeExtents = function () {
         return this._Metrics.SubtreeExtents;

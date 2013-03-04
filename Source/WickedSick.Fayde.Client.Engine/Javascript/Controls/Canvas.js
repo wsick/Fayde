@@ -4,9 +4,8 @@
 (function (namespace) {
     var Canvas = Nullstone.Create("Canvas", namespace.Panel);
 
-    Canvas.Instance.Init = function () {
-        this.Init$Panel();
-        this._Bounds = new Rect();
+    Canvas.Instance.InitSpecific = function () {
+        this._Metrics = new Fayde.Controls.CanvasMetrics();
     };
 
     //#region Properties
@@ -58,24 +57,6 @@
     };
 
     //#endregion
-
-    Canvas.Instance._ComputeBounds = function () {
-        var surface = App.Instance.MainSurface;
-        if (surface && this._IsAttached && surface._IsTopLevel(this)) {
-            // a toplevel (non-popup) canvas doesn't subscribe to the same bounds computation as others
-            var aw = surface.ActualWidth;
-            var ah = surface.ActualHeight;
-            this._Extents = new Rect(0, 0, aw, ah);
-            this._Bounds = new Rect(0, 0, aw, ah);
-            this._ExtentsWithChildren = new Rect(0, 0, aw, ah);
-            this._BoundsWithChildren = new Rect(0, 0, aw, ah);
-
-            this._ComputeGlobalBounds();
-            this._ComputeSurfaceBounds();
-        } else {
-            this._ComputeBounds$Panel();
-        }
-    };
 
     Canvas.Instance.IsLayoutContainer = function () {
         var walker = new Fayde._DeepTreeWalker(this);

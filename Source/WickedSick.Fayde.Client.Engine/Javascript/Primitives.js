@@ -11,6 +11,12 @@ var rect = (function () {
         dest.Width = 0;
         dest.Height = 0;
     };
+    rect.set = function set(dest, x, y, width, height) {
+        dest.X = x;
+        dest.Y = y;
+        dest.Width = width;
+        dest.Height = height;
+    };
     rect.isEmpty = function isEmpty(rect1) {
         return rect1.Width <= 0 || rect1.Height <= 0;
     };
@@ -80,11 +86,17 @@ var rect = (function () {
         dest.Width = r - l;
         dest.Width = b - t;
     };
+    rect.transform4 = function transform4(dest, projection) {
+    };
     rect.copyGrowTransform = function copyGrowTransform(dest, src, thickness, xform) {
         rect.copyTo(src, dest);
         rect.growByThickness(dest, thickness);
         rect.transform(dest, xform);
     };
+    rect.copyGrowTransform4 = function copyGrowTransform4(dest, src, thickness, projection) {
+        rect.copyTo(src, dest);
+        rect.growByThickness(dest, thickness);
+        rect.transform4(dest, projection);
+    };
     return rect;
 })();
-exports.rect = rect;

@@ -1,4 +1,5 @@
 ﻿/// <reference path="../Primitives.js"/>
+/// <reference path="../Primitives/Thickness.js"/>
 
 var Fayde;
 (function (Fayde) {
@@ -8,13 +9,13 @@ var Fayde;
         this.Global = new rect();
         this.Surface = new rect();
         this.EffectPadding = new Thickness();
-        this.ClipBounds = new rect(); //TODO: Update ClipBounds from UIElement
+        this.ClipBounds = new rect();
 
         this.SubtreeExtents = this.Extents;
         this.SubtreeBounds = this.Surface;
         this.GlobalBounds = this.Global;
     }
-    UIElementMetrics.prototype.ComputeBounds = function (uie) { };
+    UIElementMetrics.prototype.ComputeBounds = function (uie, absoluteXform) { };
     UIElementMetrics.prototype.ComputeSurfaceBounds = function (absoluteXform) {
         this._IntersectBoundsWithClipPath(this.Surface, absoluteXform);
     };
@@ -39,6 +40,11 @@ var Fayde;
             return;
 
         rect.intersection(dest, this.ClipBounds);
+    };
+    UIElementMetrics.prototype.UpdateClipBounds = function (clip) {
+        if (!clip)
+            rect.clear(this.ClipBounds);
+        rect.copyTo(clip.GetBounds(), this.ClipBounds);
     };
     Fayde.UIElementMetrics = UIElementMetrics;
 })(Fayde || (Fayde = {}));

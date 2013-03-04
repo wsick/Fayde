@@ -2,9 +2,14 @@
 /// <reference path="../Core/FrameworkElement.js" />
 /// CODE
 /// <reference path="../Media/Brush.js"/>
+/// <reference path="PanelMetrics.js"/>
 
 (function (namespace) {
     var Panel = Nullstone.Create("Panel", Fayde.FrameworkElement);
+
+    Panel.Instance.InitSpecific = function () {
+        this._Metrics = new Fayde.Controls.PanelMetrics();
+    };
 
     //#region Properties
 
@@ -53,28 +58,6 @@
 
     Panel.Instance.IsLayoutContainer = function () { return true; };
     Panel.Instance.IsContainer = function () { return true; };
-    Panel.Instance._ComputeBounds = function () {
-        this._Extents = this._ExtentsWithChildren = this._Bounds = this._BoundsWithChildren = new Rect();
-
-        var walker = Fayde._VisualTreeWalker.Logical(this);
-        var item;
-        while (item = walker.Step()) {
-            if (!item._GetRenderVisible())
-                continue;
-            this._ExtentsWithChildren = this._ExtentsWithChildren.Union(item._GetGlobalBounds());
-        }
-
-        if (this.Background) {
-            this._Extents = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
-            this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
-        }
-
-        this._Bounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform(this._AbsoluteXform);
-        this._BoundsWithChildren = this._IntersectBoundsWithClipPath(this._ExtentsWithChildren.GrowByThickness(this._EffectPadding), false).Transform(this._AbsoluteXform);
-
-        this._ComputeGlobalBounds();
-        this._ComputeSurfaceBounds();
-    };
     Panel.Instance._ShiftPosition = function (point) {
         var dx = point.X - this._Bounds.X;
         var dy = point.Y - this._Bounds.Y;

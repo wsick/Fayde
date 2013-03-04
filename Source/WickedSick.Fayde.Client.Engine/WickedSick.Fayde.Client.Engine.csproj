@@ -78,6 +78,11 @@
     <Content Include="Fayde.js" />
     <Content Include="gl-matrix.js" />
     <Content Include="Global.asax" />
+    <Content Include="Javascript\Controls\CanvasMetrics.js" />
+    <Content Include="Javascript\Controls\GridMetrics.js" />
+    <Content Include="Javascript\Controls\PanelMetrics.js" />
+    <Content Include="Javascript\Controls\Primitives\PopupMetrics.js" />
+    <Content Include="Javascript\Controls\TextBlockMetrics.js" />
     <Content Include="Javascript\Core\FrameworkElementMetrics.js" />
     <Content Include="Javascript\Core\UIElementMetrics.js" />
     <Content Include="Javascript\Engine\XamlResolver.js" />
@@ -86,6 +91,7 @@
       <DependentUpon>Primitives.ts</DependentUpon>
     </Content>
     <Content Include="Javascript\Runtime\IEnumerable.js" />
+    <Content Include="Javascript\Shapes\ShapeMetrics.js" />
     <Content Include="Tests\DependencyObjectTests.js" />
     <Content Include="Tests\FaydeAsserts.js" />
     <Content Include="Tests\NullstoneTests.js" />

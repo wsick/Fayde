@@ -12,6 +12,12 @@ export class rect {
         dest.Width = 0;
         dest.Height = 0;
     }
+    static set (dest: rect, x: number, y: number, width: number, height: number) {
+        dest.X = x;
+        dest.Y = y;
+        dest.Width = width;
+        dest.Height = height;
+    }
     static isEmpty(rect1: rect) {
         return rect1.Width <= 0
             || rect1.Height <= 0;
@@ -84,9 +90,17 @@ export class rect {
         dest.Width = r - l;
         dest.Width = b - t;
     }
+    static transform4(dest: rect, projection) {
+        //TODO: Implement
+    }
     static copyGrowTransform(dest:rect, src: rect, thickness, xform) {
         rect.copyTo(src, dest);
         rect.growByThickness(dest, thickness);
         rect.transform(dest, xform);
+    }
+    static copyGrowTransform4(dest: rect, src: rect, thickness, projection) {
+        rect.copyTo(src, dest);
+        rect.growByThickness(dest, thickness);
+        rect.transform4(dest, projection);
     }
 }

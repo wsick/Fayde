@@ -4,6 +4,8 @@
 /// <reference path="../Engine/RenderContext.js"/>
 /// <reference path="Enums.js"/>
 /// <reference path="DoubleCollection.js"/>
+/// CODE
+/// <reference path="ShapeMetrics.js"/>
 
 (function (namespace) {
     var Shape = Nullstone.Create("Shape", Fayde.FrameworkElement);
@@ -13,6 +15,9 @@
         this._ShapeFlags = 0;
         this._StretchXform = mat3.identity();
         this._NaturalBounds = new Rect();
+    };
+    Shape.Instance.InitSpecific = function () {
+        this._Metrics = new Fayde.Shapes.ShapeMetrics();
     };
 
     //#region Properties
@@ -180,7 +185,7 @@
         this._InvalidateStretch();
     };
     Shape.Instance._InvalidateStretch = function () {
-        this._ExtentsWithChildren = this._Extents = new Rect();
+        this._Metrics.UpdateStretch();
         this._StretchXform = mat3.identity();
         this._InvalidatePathCache();
     };
@@ -209,10 +214,7 @@
     //#region Sizes
 
     Shape.Instance._GetStretchExtents = function () {
-        if (this._Extents.IsEmpty()) {
-            this._ExtentsWithChildren = this._Extents = this._ComputeStretchBounds();
-        }
-        return this._Extents;
+        return this._Metrics.GetStretchExtents(this);
     };
     Shape.Instance._ComputeActualSize = function () {
         var desired = this._ComputeActualSize$FrameworkElement();
@@ -279,11 +281,6 @@
     };
     Shape.Instance._TransformBounds = function () {
         //TODO:
-    };
-    Shape.Instance._ComputeBounds = function () {
-        this._BoundsWithChildren = this._Bounds = this._IntersectBoundsWithClipPath(this._GetStretchExtents().GrowBy(this._EffectPadding), false).Transform(this._AbsoluteXform);
-        this._ComputeGlobalBounds();
-        this._ComputeSurfaceBounds();
     };
     Shape.Instance._ComputeStretchBounds = function () {
         var shapeBounds = this._GetNaturalBounds();

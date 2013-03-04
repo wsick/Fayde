@@ -10,6 +10,7 @@
 /// <reference path="RowDefinitionCollection.js"/>
 /// <reference path="GridLength.js"/>
 /// <reference path="../Core/Walkers.js"/>
+/// <reference path="GridMetrics.js"/>
 
 (function (namespace) {
     var _Segment = (function () {
@@ -103,6 +104,10 @@
         this.Init$Panel();
         this._RowMatrix = null;
         this._ColMatrix = null;
+    };
+
+    Grid.Instance.InitSpecific = function () {
+        this._Metrics = new Fayde.Controls.GridMetrics();
     };
 
     //#region Attached Dependency Properties
@@ -522,24 +527,6 @@
             }
         } while (assigned);
         return size;
-    };
-
-    //#endregion
-
-    //#region Bounds
-
-    Grid.Instance._ComputeBounds = function () {
-        this._ComputeBounds$Panel();
-
-        if (this.ShowGridLines) {
-            this._Extents = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
-            this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
-            this._Bounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform(this._AbsoluteXform);
-            this._BoundsWithChildren = this._BoundsWithChildren.Union(this._Bounds);
-
-            this._ComputeGlobalBounds();
-            this._ComputeSurfaceBounds();
-        }
     };
 
     //#endregion
