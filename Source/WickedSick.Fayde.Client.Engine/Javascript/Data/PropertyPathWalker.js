@@ -37,6 +37,8 @@
             var parser = new namespace._PropertyPathParser(path);
             while ((type = parser.Step(data)) !== namespace._PropertyNodeType.None) {
                 var isViewProperty = false;
+                //bool isViewProperty = CollectionViewProperties.Any (prop => prop.Name == propertyName);
+                //          static readonly PropertyInfo[] CollectionViewProperties = typeof (ICollectionView).GetProperties ();
                 var node = new namespace._CollectionViewNode(bindDirectlyToSource, isViewProperty);
                 lastCVNode = node;
                 switch (type) {
