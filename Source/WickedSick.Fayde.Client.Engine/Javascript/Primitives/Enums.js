@@ -31,11 +31,6 @@
         Forever: 1,
         TimeSpan: 2
     };
-    namespace.RectOverlap = {
-        Out: 0,
-        In: 1,
-        Part: 2
-    };
     namespace.MatrixTypes = {
         Identity: 0,
         Unknown: 1,

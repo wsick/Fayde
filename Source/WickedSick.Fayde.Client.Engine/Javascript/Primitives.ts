@@ -1,5 +1,14 @@
 declare var vec2;
+declare var vec4;
 declare var mat3;
+declare var mat4;
+
+var RectOverlap = {
+    Out: 0,
+    In: 1,
+    Part: 2
+};
+
 class rect {
     X: number = 0;
     Y: number = 0;
@@ -35,6 +44,12 @@ class rect {
         r.Width = src.Width;
         r.Height = src.Height;
         return r;
+    }
+    static isEqual(rect1: rect, rect2: rect): bool {
+        return rect1.X === rect2.X
+            && rect1.Y === rect2.Y
+            && rect1.Width === rect2.Width
+            && rect1.Height === rect2.Height;
     }
     
     static intersection(rect1: rect, rect2: rect) {
@@ -101,6 +116,22 @@ class rect {
         if (dest.Height < 0)
             dest.Height = 0;
     }
+    static extendTo(rect1: rect, x: number, y: number) {
+        var rx = rect1.X;
+        var ry = rect1.Y;
+        var rw = rect1.Width;
+        var rh = rect1.Height;
+
+        if (x < rx || x > (rx + rw))
+            rw = Math.max(Math.abs(x - rx), Math.abs(x - rx - rw));
+        if (y < ry || y > (ry + rh))
+            rh = Math.max(Math.abs(y - ry), Math.abs(y - ry - rh));
+
+        rect1.X = Math.min(rx, x);
+        rect1.Y = Math.min(ry, y);
+        rect1.Width = rw;
+        rect1.Height = rh;
+    }
     
     static transform(dest: rect, xform) {
         if (!xform)
@@ -131,8 +162,84 @@ class rect {
         dest.Width = r - l;
         dest.Width = b - t;
     }
+    private static clipmask (clip) {
+        var mask = 0;
+
+        if (-clip[0] + clip[3] < 0) mask |= (1 << 0);
+        if (clip[0] + clip[3] < 0) mask |= (1 << 1);
+        if (-clip[1] + clip[3] < 0) mask |= (1 << 2);
+        if (clip[1] + clip[3] < 0) mask |= (1 << 3);
+        if (clip[2] + clip[3] < 0) mask |= (1 << 4);
+        if (-clip[2] + clip[3] < 0) mask |= (1 << 5);
+
+        return mask;
+    };
     static transform4(dest: rect, projection) {
-        //TODO: Implement
+        if (!transform)
+            return;
+
+        var x = dest.X;
+        var y = dest.Y;
+        var width = dest.Width;
+        var height = dest.Height;
+
+        var p1 = vec4.createFrom(x, y, 0.0, 1.0);
+        var p2 = vec4.createFrom(x + width, y, 0.0, 1.0);
+        var p3 = vec4.createFrom(x + width, y + height, 0.0, 1.0);
+        var p4 = vec4.createFrom(x, y + height, 0.0, 1.0);
+
+        mat4.transformVec4(transform, p1);
+        mat4.transformVec4(transform, p2);
+        mat4.transformVec4(transform, p3);
+        mat4.transformVec4(transform, p4);
+
+        var vs = 65536.0;
+        var vsr = 1.0 / vs;
+        p1[0] *= vsr;
+        p1[1] *= vsr;
+        p2[0] *= vsr;
+        p2[1] *= vsr;
+        p3[0] *= vsr;
+        p3[1] *= vsr;
+        p4[0] *= vsr;
+        p4[1] *= vsr;
+
+        var cm1 = clipmask(p1);
+        var cm2 = clipmask(p2);
+        var cm3 = clipmask(p3);
+        var cm4 = clipmask(p4);
+
+        if ((cm1 | cm2 | cm3 | cm4) !== 0) {
+            if ((cm1 & cm2 & cm3 & cm4) === 0) {
+                rect.clear(dest);
+                //TODO: Implement
+                //var r1 = Matrix3D._ClipToBounds(p1, p2, p3, cm1 | cm2 | cm3);
+                //var r2 = Matrix3D._ClipToBounds(p1, p3, p4, cm1 | cm3 | cm4);
+                //if (!r1.IsEmpty()) rect.union(dest, r1);
+                //if (!r2.IsEmpty()) rect.union(dest, r2);
+            }
+        } else {
+            var p1w = 1.0 / p1[3];
+            var p2w = 1.0 / p2[3];
+            var p3w = 1.0 / p3[3];
+            var p4w = 1.0 / p4[3];
+            p1[0] *= p1w * vs;
+            p1[1] *= p1w * vs;
+            p2[0] *= p2w * vs;
+            p2[1] *= p2w * vs;
+            p3[0] *= p3w * vs;
+            p3[1] *= p3w * vs;
+            p4[0] *= p4w * vs;
+            p4[1] *= p4w * vs;
+
+            dest.X = p1[0];
+            dest.Y = p1[1];
+            dest.Width = 0;
+            dest.Height = 0;
+            rect.extendTo(dest, p2[0], p2[1]);
+            rect.extendTo(dest, p3[0], p3[1]);
+            rect.extendTo(dest, p4[0], p4[1]);
+        }
     }
 
     static roundOut(dest: rect) {
@@ -174,5 +281,14 @@ class rect {
             && rect1.Y <= y
             && (rect1.X + rect1.Width) >= x
             && (rect1.Y + rect1.Height) >= y;
+    }
+    static rectIn(rect1: rect, rect2: rect) {
+        var copy = rect.clone(rect1);
+        rect.intersection(copy, rect2);
+        if (rect.isEmpty(copy))
+            return RectOverlap.Out;
+        if (rect.isEqual(copy, rect2))
+            return RectOverlap.In;
+        return RectOverlap.Part;
     }
 }
