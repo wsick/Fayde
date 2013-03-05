@@ -40,6 +40,16 @@ var Fayde;
             }
             return this.Extents;
         };
+        ShapeMetrics.prototype.TransformBounds = function (uie, old, current) {
+            //TODO:
+        };
+        var superShiftPosition = ShapeMetrics.prototype.ShiftPosition;
+        ShapeMetrics.prototype.ShiftPosition = function (uie, point) {
+            var dx = this.Bounds.X - point.X;
+            var dy = this.Bounds.Y - point.Y;
+            //WTF?
+            superShiftPosition.call(this, uie, point);
+        };
         Shapes.ShapeMetrics = ShapeMetrics;
     })(Fayde.Shapes || (Fayde.Shapes = {}));
 })(Fayde || (Fayde = {}));

@@ -26,6 +26,14 @@ var rect = (function () {
         dest.Width = src.Width;
         dest.Height = src.Height;
     };
+    rect.clone = function clone(src) {
+        var r = new rect();
+        r.X = src.X;
+        r.Y = src.Y;
+        r.Width = src.Width;
+        r.Height = src.Height;
+        return r;
+    };
     rect.intersection = function intersection(rect1, rect2) {
         var x = Math.max(rect1.X, rect2.X);
         var y = Math.max(rect2.Y, rect2.Y);
@@ -49,11 +57,47 @@ var rect = (function () {
         rect1.X = x;
         rect1.Y = y;
     };
+    rect.growBy = function growBy(dest, left, top, right, bottom) {
+        dest.X -= left;
+        dest.Y -= top;
+        dest.Width += left + right;
+        dest.Height += top + bottom;
+        if(dest.Width < 0) {
+            dest.Width = 0;
+        }
+        if(dest.Height < 0) {
+            dest.Height = 0;
+        }
+    };
     rect.growByThickness = function growByThickness(dest, thickness) {
-        dest.X += thickness.Left;
-        dest.Y += thickness.Top;
+        dest.X -= thickness.Left;
+        dest.Y -= thickness.Top;
         dest.Width += thickness.Left + thickness.Right;
         dest.Height += thickness.Top + thickness.Bottom;
+        if(dest.Width < 0) {
+            dest.Width = 0;
+        }
+        if(dest.Height < 0) {
+            dest.Height = 0;
+        }
+    };
+    rect.shrinkBy = function shrinkBy(dest, left, top, right, bottom) {
+        dest.X += left;
+        dest.Y += top;
+        dest.Width -= left + right;
+        dest.Height -= top + bottom;
+        if(dest.Width < 0) {
+            dest.Width = 0;
+        }
+        if(dest.Height < 0) {
+            dest.Height = 0;
+        }
+    };
+    rect.shrinkByThickness = function shrinkByThickness(dest, thickness) {
+        dest.X += thickness.Left;
+        dest.Y += thickness.Top;
+        dest.Width -= thickness.Left + thickness.Right;
+        dest.Height -= thickness.Top + thickness.Bottom;
         if(dest.Width < 0) {
             dest.Width = 0;
         }
@@ -88,6 +132,22 @@ var rect = (function () {
     };
     rect.transform4 = function transform4(dest, projection) {
     };
+    rect.roundOut = function roundOut(dest) {
+        var x = Math.floor(dest.X);
+        var y = Math.floor(dest.Y);
+        dest.Width = Math.ceil(dest.X + dest.Width) - Math.floor(dest.X);
+        dest.Height = Math.ceil(dest.Y + dest.Height) - Math.floor(dest.Y);
+        dest.X = x;
+        dest.Y = y;
+    };
+    rect.roundIn = function roundIn(dest) {
+        var x = Math.ceil(dest.X);
+        var y = Math.ceil(dest.Y);
+        dest.Width = Math.floor(dest.X + dest.Width) - Math.ceil(dest.X);
+        dest.Height = Math.floor(dest.Y + dest.Height) - Math.ceil(dest.Y);
+        dest.X = x;
+        dest.Y = y;
+    };
     rect.copyGrowTransform = function copyGrowTransform(dest, src, thickness, xform) {
         rect.copyTo(src, dest);
         rect.growByThickness(dest, thickness);
@@ -97,6 +157,12 @@ var rect = (function () {
         rect.copyTo(src, dest);
         rect.growByThickness(dest, thickness);
         rect.transform4(dest, projection);
+    };
+    rect.containsPoint = function containsPoint(rect1, p) {
+        return rect1.X <= p.X && rect1.Y <= p.Y && (rect1.X + rect1.Width) >= p.X && (rect1.Y + rect1.Height) >= p.Y;
+    };
+    rect.containsPointXY = function containsPointXY(rect1, x, y) {
+        return rect1.X <= x && rect1.Y <= y && (rect1.X + rect1.Width) >= x && (rect1.Y + rect1.Height) >= y;
     };
     return rect;
 })();

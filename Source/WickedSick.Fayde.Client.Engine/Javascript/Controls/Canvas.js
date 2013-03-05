@@ -68,15 +68,6 @@
         return false;
     };
 
-    Canvas.Instance._ShiftPosition = function (point) {
-        var surface = App.Instance.MainSurface;
-        if (surface && this._IsAttached && surface._IsTopLevel(this)) {
-            this._ComputeBounds();
-        } else {
-            this._ShiftPosition$Panel(point);
-        }
-    };
-
     Canvas.Instance._OnPropertyChanged = function (args, error) {
         if (args.Property.OwnerType !== Canvas) {
             this._OnPropertyChanged$Panel(args, error);

@@ -70,13 +70,6 @@
 
     //#endregion
 
-    Shape.Instance._ShiftPosition = function (point) {
-        var dx = this._Bounds.X - point.X;
-        var dy = this._Bounds.Y - point.Y;
-        //WTF?
-        this._ShiftPosition$FrameworkElement(point);
-    };
-
     //#region Measure
 
     Shape.Instance._MeasureOverrideWithError = function (availableSize, error) {
@@ -279,9 +272,6 @@
             this._NaturalBounds = this._ComputeShapeBoundsImpl(false, null);
         return this._NaturalBounds;
     };
-    Shape.Instance._TransformBounds = function () {
-        //TODO:
-    };
     Shape.Instance._ComputeStretchBounds = function () {
         var shapeBounds = this._GetNaturalBounds();
         if (!shapeBounds || shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
@@ -428,7 +418,7 @@
         this._TransformPoint(p);
         x = p.X;
         y = p.Y;
-        if (!this._GetStretchExtents().ContainsPointXY(x, y))
+        if (!rect.containsPointXY(this._GetStretchExtents(), x, y))
             return false;
         return this._InsideShape(ctx, x, y);
     };

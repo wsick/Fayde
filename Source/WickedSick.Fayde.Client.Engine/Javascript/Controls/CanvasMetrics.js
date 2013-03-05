@@ -23,6 +23,15 @@ var Fayde;
                 superComputeBounds.call(this, fe, absoluteXform);
             }
         };;
+        var superShiftPosition = CanvasMetrics.prototype.ShiftPosition;
+        CanvasMetrics.prototype.ShiftPosition = function (uie, point) {
+            var surface = App.Instance.MainSurface;
+            if (surface && uie._IsAttached && surface._IsTopLevel(uie)) {
+                this.ComputeBounds();
+            } else {
+                superShiftPosition.call(this, uie, point);
+            }
+        };
         Controls.CanvasMetrics = CanvasMetrics;
     })(Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));

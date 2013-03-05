@@ -1,6 +1,6 @@
 declare var vec2;
 declare var mat3;
-export class rect {
+class rect {
     X: number = 0;
     Y: number = 0;
     Width: number = 0;
@@ -28,6 +28,15 @@ export class rect {
         dest.Width = src.Width;
         dest.Height = src.Height;
     }
+    static clone(src: rect): rect {
+        var r = new rect();
+        r.X = src.X;
+        r.Y = src.Y;
+        r.Width = src.Width;
+        r.Height = src.Height;
+        return r;
+    }
+    
     static intersection(rect1: rect, rect2: rect) {
         var x = Math.max(rect1.X, rect2.X);
         var y = Math.max(rect2.Y, rect2.Y);
@@ -51,9 +60,20 @@ export class rect {
         rect1.X = x;
         rect1.Y = y;
     }
+    
+    static growBy(dest: rect, left: number, top: number, right: number, bottom: number) {
+        dest.X -= left;
+        dest.Y -= top;
+        dest.Width += left + right;
+        dest.Height += top + bottom;
+        if (dest.Width < 0)
+            dest.Width = 0;
+        if (dest.Height < 0)
+            dest.Height = 0;
+    }
     static growByThickness(dest: rect, thickness) {
-        dest.X += thickness.Left;
-        dest.Y += thickness.Top;
+        dest.X -= thickness.Left;
+        dest.Y -= thickness.Top;
         dest.Width += thickness.Left + thickness.Right;
         dest.Height += thickness.Top + thickness.Bottom;
         if (dest.Width < 0)
@@ -61,6 +81,27 @@ export class rect {
         if (dest.Height < 0)
             dest.Height = 0;
     }
+    static shrinkBy(dest: rect, left: number, top: number, right: number, bottom: number) {
+        dest.X += left;
+        dest.Y += top;
+        dest.Width -= left + right;
+        dest.Height -= top + bottom;
+        if (dest.Width < 0)
+            dest.Width = 0;
+        if (dest.Height < 0)
+            dest.Height = 0;
+    }
+    static shrinkByThickness(dest: rect, thickness) {
+        dest.X += thickness.Left;
+        dest.Y += thickness.Top;
+        dest.Width -= thickness.Left + thickness.Right;
+        dest.Height -= thickness.Top + thickness.Bottom;
+        if (dest.Width < 0)
+            dest.Width = 0;
+        if (dest.Height < 0)
+            dest.Height = 0;
+    }
+    
     static transform(dest: rect, xform) {
         if (!xform)
             return this;
@@ -93,6 +134,24 @@ export class rect {
     static transform4(dest: rect, projection) {
         //TODO: Implement
     }
+
+    static roundOut(dest: rect) {
+        var x = Math.floor(dest.X);
+        var y = Math.floor(dest.Y);
+        dest.Width = Math.ceil(dest.X + dest.Width) - Math.floor(dest.X);
+        dest.Height = Math.ceil(dest.Y + dest.Height) - Math.floor(dest.Y);
+        dest.X = x;
+        dest.Y = y;
+    }
+    static roundIn(dest: rect) {
+        var x = Math.ceil(dest.X);
+        var y = Math.ceil(dest.Y);
+        dest.Width = Math.floor(dest.X + dest.Width) - Math.ceil(dest.X);
+        dest.Height = Math.floor(dest.Y + dest.Height) - Math.ceil(dest.Y);
+        dest.X = x;
+        dest.Y = y;
+    }
+
     static copyGrowTransform(dest:rect, src: rect, thickness, xform) {
         rect.copyTo(src, dest);
         rect.growByThickness(dest, thickness);
@@ -102,5 +161,18 @@ export class rect {
         rect.copyTo(src, dest);
         rect.growByThickness(dest, thickness);
         rect.transform4(dest, projection);
+    }
+    
+    static containsPoint(rect1: rect, p): bool {
+        return rect1.X <= p.X
+            && rect1.Y <= p.Y
+            && (rect1.X + rect1.Width) >= p.X
+            && (rect1.Y + rect1.Height) >= p.Y;
+    }
+    static containsPointXY(rect1: rect, x: number, y: number): bool {
+        return rect1.X <= x
+            && rect1.Y <= y
+            && (rect1.X + rect1.Width) >= x
+            && (rect1.Y + rect1.Height) >= y;
     }
 }

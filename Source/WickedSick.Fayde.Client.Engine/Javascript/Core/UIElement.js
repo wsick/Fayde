@@ -17,6 +17,7 @@
 /// <reference path="../Media/CacheMode.js"/>
 /// <reference path="../Media/Projection.js"/>
 /// <reference path="UIElementMetrics.js"/>
+/// <reference path="../Primitives.js"/>
 
 (function (Fayde) {
     //#region UIElementFlags
@@ -60,9 +61,10 @@
         this._PropagateFlagUp(UIElementFlags.DirtyMeasureHint);
         this._UpDirtyNode = this._DownDirtyNode = null;
         this._ForceInvalidateOfNewBounds = false;
-        this._DirtyRegion = new Rect();
         this._DesiredSize = new Size();
         this._RenderSize = new Size();
+
+        this._DirtyRegion = new rect();
 
         this._AbsoluteXform = mat3.identity();
         this._LayoutXform = mat3.identity();
@@ -282,9 +284,9 @@
         }
         this._UpdateBounds(true);
     };
-    UIElement.Instance._Invalidate = function (rect) {
-        if (!rect)
-            rect = this.GetBounds();
+    UIElement.Instance._Invalidate = function (irect) {
+        if (!irect)
+            irect = this.GetBounds();
         if (!this._GetRenderVisible() || this._IsOpacityInvisible())
             return;
 
@@ -293,9 +295,9 @@
             this._InvalidateBitmapCache();
             if (false) {
                 //TODO: Render Intermediate not implemented
-                this._DirtyRegion = this._DirtyRegion.Union(this._GetSubtreeBounds());
+                rect.union(this._DirtyRegion, this._GetSubtreeBounds());
             } else {
-                this._DirtyRegion = this._DirtyRegion.Union(rect);
+                rect.union(this._DirtyRegion, irect);
             }
             this._OnInvalidated();
         }
@@ -331,18 +333,10 @@
         this._ComputeComposite();
     };
     UIElement.Instance._InvalidateEffect = function () {
-        var effect = this.Effect;
-        var oldPadding = this._EffectPadding;
-        if (effect)
-            this._EffectPadding = effect.Padding();
-        else
-            this._EffectPadding = new Thickness();
-
+        var changed = this._Metrics.ComputeEffectPadding(this.Effect);
         this._InvalidateParent(this._GetSubtreeBounds());
-
-        if (!Thickness.Equals(oldPadding, this._EffectPadding))
+        if (changed)
             this._UpdateBounds();
-
         this._ComputeComposite();
     };
     UIElement.Instance._InvalidateBitmapCache = function () {
@@ -497,42 +491,7 @@
     };
 
     UIElement.Instance._TransformBounds = function (old, current) {
-        var updated = new Rect();
-
-        var tween = mat3.inverse(old);
-        mat3.multiply(current, tween, tween); //tween = tween * current;
-
-        var p0 = vec2.createFrom(0, 0);
-        var p1 = vec2.createFrom(1, 0);
-        var p2 = vec2.createFrom(1, 1);
-        var p3 = vec2.createFrom(0, 1);
-
-        var p0a = mat3.transformVec2(tween, p0, vec2.create());
-        p0[0] = p0[0] - p0a[0];
-        p0[1] = p0[1] - p0a[1];
-
-        var p1a = mat3.transformVec2(tween, p1, vec2.create());
-        p1[0] = p1[0] - p1a[0];
-        p1[1] = p1[1] - p1a[1];
-
-        var p2a = mat3.transformVec2(tween, p2, vec2.create());
-        p2[0] = p2[0] - p2a[0];
-        p2[1] = p2[1] - p2a[1];
-
-        var p3a = mat3.transformVec2(tween, p3, vec2.create());
-        p3[0] = p3[0] - p3a[0];
-        p3[1] = p3[1] - p3a[1];
-
-        if (vec2.equal(p0, p1) && vec2.equal(p1, p2) && vec2.equal(p2, p3)) {
-            var bounds = vec2.createFrom(this._Bounds.X, this._Bounds.Y);
-            mat3.transformVec2(tween, bounds);
-            this._ShiftPosition(bounds);
-            this._ComputeGlobalBounds();
-            this._ComputeSurfaceBounds();
-            return;
-        }
-
-        this._UpdateBounds();
+        this._Metrics.TransformBounds(this, old, current);
     };
 
     UIElement.Instance._GetSizeForBrush = function () {
@@ -540,10 +499,6 @@
     };
     UIElement.Instance._GetTransformOrigin = function () {
         return new Point(0, 0);
-    };
-    UIElement.Instance._ShiftPosition = function (point) {
-        this._Bounds.X = point.X;
-        this._Bounds.Y = point.Y;
     };
 
     //#endregion
@@ -557,30 +512,6 @@
         if (this._IsAttached)
             App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Bounds);
         this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
-    };
-    UIElement.Instance._IntersectBoundsWithClipPath = function (unclipped, transform) {
-        /// <returns type="Rect" />
-        var clip = this.Clip;
-        var layoutClip = transform ? undefined : Fayde.LayoutInformation.GetLayoutClip(this);
-        var box;
-
-        if (!clip && !layoutClip)
-            return unclipped;
-        if (clip)
-            box = clip.GetBounds();
-        else
-            box = layoutClip.GetBounds();
-
-        if (layoutClip)
-            box = box.Intersection(layoutClip.GetBounds());
-
-        if (!this._GetRenderVisible())
-            box = new Rect(0, 0, 0, 0);
-
-        if (transform)
-            box = box.Transform(this._AbsoluteXform);
-
-        return box.Intersection(unclipped);
     };
 
     UIElement.Instance.GetBounds = function () {
@@ -796,18 +727,18 @@
         if (!this._GetRenderVisible() || this._IsOpacityInvisible())
             return;
 
-        var region;
+        var region = new rect();
         if (false) {
             //TODO: Render to intermediate
         } else {
-            region = this._GetSubtreeExtents()
-                .Transform(this._RenderXform)
-                .Transform(ctx.CurrentTransform)
-                .RoundOut()
-                .Intersection(parentRegion);
+            rect.copyTo(region, this._GetSubtreeExtents());
+            rect.transform(region, this._RenderXform);
+            rect.transform(region, ctx.CurrentTransform);
+            rect.roundOut(region);
+            rect.intersection(region, parentRegion);
         }
 
-        if (region.IsEmpty())
+        if (rect.isEmpty(region))
             return;
 
         ctx.Save();

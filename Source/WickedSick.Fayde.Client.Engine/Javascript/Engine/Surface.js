@@ -239,18 +239,17 @@
     Surface.Instance._Invalidate = function (rect) { };
     //#if ENABLE_CANVAS
     if (Fayde.IsCanvasEnabled) {
-        Surface.Instance._Invalidate = function (rect) {
-            RenderDebug("Invalidation: " + rect.toString());
-            if (!rect) {
-                var extents = this.GetExtents();
-                rect = new Rect(0, 0, extents.Width, extents.Height);
+        Surface.Instance._Invalidate = function (irect) {
+            RenderDebug("Invalidation: " + irect.toString());
+            if (!irect) {
+                irect = new rect();
+                irect.Width = this.GetWidth();
+                irect.Height = this.GetHeight();
             }
-            var invalidated = this._InvalidatedRect;
-            if (!invalidated)
-                invalidated = rect;
+            if (!this._InvalidatedRect)
+                this._InvalidatedRect = rect.clone(irect);
             else
-                invalidated = invalidated.Union(rect);
-            this._InvalidatedRect = invalidated;
+                rect.union(this._InvalidatedRect, irect);
 
             if (this._IsRenderQueued)
                 return;
@@ -525,7 +524,7 @@
                         */
                     }
                 }
-                uie._DirtyRegion = new Rect();
+                rect.clear(dirty);
             }
 
             if (!(uie._DirtyFlags & dirtyEnum.UpDirtyState) && uie._UpDirtyNode != null) {

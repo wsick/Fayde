@@ -75,12 +75,12 @@
     Border.Instance._Render = function (ctx, region) {
         /// <param name="ctx" type="_RenderContext"></param>
         var borderBrush = this.BorderBrush;
-        var extents = this._Extents;
+        var extents = this._Metrics.Extents;
         var backgroundBrush = this.Background;
 
         if (!backgroundBrush && !borderBrush)
             return;
-        if (extents.IsEmpty())
+        if (rect.isEmpty(extents))
             return;
 
         var thickness = this.BorderThickness;
@@ -129,8 +129,10 @@
         //Stroke renders half-out/half-in the path, Border control needs to fit within the given extents so we need to shrink by half the border thickness
         var full = thickness.Left;
         var half = full * 0.5;
-        var strokeExtents = extents.ShrinkBy(half, half, half, half);
-        var fillExtents = extents.ShrinkBy(full, full, full, full);
+        var strokeExtents = rect.clone(extents);
+        rect.shrinkBy(strokeExtents, half, half, half, half);
+        var fillExtents = rect.clone(extents);
+        rect.shrinkBy(fillExtents, full, full, full, full);
 
         if (cornerRadius.IsZero()) {
             //Technically this fills outside it's fill extents, we may need to do something different for a transparent border brush
@@ -159,7 +161,9 @@
         /// <param name="cornerRadius" type="CornerRadius"></param>
 
         var hasCornerRadius = !cornerRadius.IsZero();
-        var innerExtents = extents.ShrinkByThickness(thickness);
+        var innerExtents = new rect();
+        rect.copyTo(extents, innerExtents);
+        rect.shrinkByThickness(innerExtents, thickness);
 
         var innerPath = new Fayde.Shapes.RawPath();
         var outerPath = new Fayde.Shapes.RawPath();

@@ -58,15 +58,6 @@
 
     Panel.Instance.IsLayoutContainer = function () { return true; };
     Panel.Instance.IsContainer = function () { return true; };
-    Panel.Instance._ShiftPosition = function (point) {
-        var dx = point.X - this._Bounds.X;
-        var dy = point.Y - this._Bounds.Y;
-
-        this._ShiftPosition$FrameworkElement(point);
-
-        this._BoundsWithChildren.X += dx;
-        this._BoundsWithChildren.Y += dy;
-    };
     Panel.Instance._EmptyBackground = function () {
         return this.Background == null;
     };

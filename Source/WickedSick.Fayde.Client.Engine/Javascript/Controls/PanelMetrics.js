@@ -31,6 +31,16 @@ var Fayde;
             this.ComputeGlobalBounds();
             this.ComputeSurfaceBounds();
         };
+        var superShiftPosition = PanelMetrics.prototype.ShiftPosition;
+        PanelMetrics.prototype.ShiftPosition = function (uie, point) {
+            var dx = point.X - this.Bounds.X;
+            var dy = point.Y - this.Bounds.Y;
+
+            superShiftPosition.call(this, uie, point);
+
+            this.BoundsWithChildren.X += dx;
+            this.BoundsWithChildren.Y += dy;
+        };
         Controls.PanelMetrics = PanelMetrics;
     })(Fayde.Controls || (Fayde.Controls = {}));
 })(Fayde || (Fayde = {}));
