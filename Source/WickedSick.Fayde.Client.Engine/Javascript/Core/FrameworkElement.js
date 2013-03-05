@@ -893,7 +893,7 @@
                 case FrameworkElement.FlowDirectionProperty._ID:
                     this._PurgeSizeCache();
 
-                    //var p = this._GetRenderTransformOrigin();
+                    //TODO: var p = this._GetRenderTransformOrigin();
                     //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
                     this._FullInvalidate(false);
 

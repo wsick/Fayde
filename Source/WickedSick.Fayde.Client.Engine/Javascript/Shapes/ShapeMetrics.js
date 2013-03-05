@@ -6,18 +6,35 @@ var Fayde;
         ShapeMetrics.prototype = new Fayde.FrameworkElementMetrics();
         ShapeMetrics.prototype.constructor = ShapeMetrics;
         function ShapeMetrics() {
+            Fayde.FrameworkElementMetrics.call(this);
         }
-        ShapeMetrics.prototype.ComputeBounds = function (fe, absoluteXform) {
-            this._IntersectBoundsWithClipPath(this.Bounds, absoluteXform);
+        ShapeMetrics.prototype.ComputeBounds = function (fe) {
+            this._IntersectBaseBoundsWithClipPath(this.Bounds, this.GetStretchExtents(fe), fe, fe._AbsoluteXform);
             rect.copyTo(this.Bounds, this.BoundsWithChildren);
-            this.ComputeGlobalBounds();
-            this.ComputeSurfaceBounds();
+            this.ComputeGlobalBounds(fe);
+            this.ComputeSurfaceBounds(fe);
         };
-        ShapeMetrics.prototype._IntersectBoundsWithClipPath = function (dest, xform) {
+        ShapeMetrics.prototype._IntersectBaseBoundsWithClipPath = function (dest, baseBounds, fe, xform) {
             var isClipEmpty = rect.isEmpty(this.ClipBounds);
             var isLayoutClipEmpty = rect.isEmpty(this.LayoutClipBounds);
 
-            if ((!isClipEmpty || !isLayoutClipEmpty) && !this._GetRenderVisible()) {
+            if ((!isClipEmpty || !isLayoutClipEmpty) && !fe._GetRenderVisible()) {
+                rect.clear(dest);
+                return;
+            }
+
+            rect.copyGrowTransform(dest, baseBounds, this.EffectPadding, xform);
+
+            if (!isClipEmpty)
+                rect.intersection(dest, this.ClipBounds);
+            if (!isLayoutClipEmpty)
+                rect.intersection(dest, this.LayoutClipBounds);
+        };
+        ShapeMetrics.prototype._IntersectBoundsWithClipPath = function (dest, fe, xform) {
+            var isClipEmpty = rect.isEmpty(this.ClipBounds);
+            var isLayoutClipEmpty = rect.isEmpty(this.LayoutClipBounds);
+
+            if ((!isClipEmpty || !isLayoutClipEmpty) && !fe._GetRenderVisible()) {
                 rect.clear(dest);
                 return;
             }

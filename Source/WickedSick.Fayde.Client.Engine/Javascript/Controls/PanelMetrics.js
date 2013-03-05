@@ -6,9 +6,13 @@ var Fayde;
         PanelMetrics.prototype = new Fayde.FrameworkElementMetrics();
         PanelMetrics.prototype.constructor = PanelMetrics;
         function PanelMetrics() {
+            Fayde.FrameworkElementMetrics.call(this);
         }
-        PanelMetrics.prototype.ComputeBounds = function (fe, absoluteXform) {
+        PanelMetrics.prototype.ComputeBounds = function (fe) {
             /// <param name="fe" type="FrameworkElement"></param>
+            rect.clear(this.Extents);
+            rect.clear(this.ExtentsWithChildren);
+
             var walker = Fayde._VisualTreeWalker.Logical(fe);
             var item;
             while (item = walker.Step()) {
@@ -20,16 +24,13 @@ var Fayde;
             if (fe.Background) {
                 rect.set(this.Extents, 0, 0, fe.ActualWidth, fe.ActualHeight);
                 rect.union(this.ExtentsWithChildren, this.Extents);
-            } else {
-                rect.clear(this.Extents);
-                rect.clear(this.ExtentsWithChildren);
             }
 
-            rect.copyGrowTransform(this.Bounds, this.Extents, this.EffectPadding, absoluteXform);
-            rect.copyGrowTransform(this.BoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, absoluteXform);
+            rect.copyGrowTransform(this.Bounds, this.Extents, this.EffectPadding, fe._AbsoluteXform);
+            rect.copyGrowTransform(this.BoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, fe._AbsoluteXform);
 
-            this.ComputeGlobalBounds();
-            this.ComputeSurfaceBounds();
+            this.ComputeGlobalBounds(fe);
+            this.ComputeSurfaceBounds(fe);
         };
         var superShiftPosition = PanelMetrics.prototype.ShiftPosition;
         PanelMetrics.prototype.ShiftPosition = function (uie, point) {

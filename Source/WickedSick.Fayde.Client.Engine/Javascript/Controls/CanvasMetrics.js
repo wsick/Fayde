@@ -6,9 +6,10 @@ var Fayde;
         CanvasMetrics.prototype = new Controls.PanelMetrics();
         CanvasMetrics.prototype.constructor = CanvasMetrics;
         function CanvasMetrics() {
+            Controls.PanelMetrics.call(this);
         }
         var superComputeBounds = CanvasMetrics.prototype.ComputeBounds;
-        CanvasMetrics.prototype.ComputeBounds = function (fe, absoluteXform) {
+        CanvasMetrics.prototype.ComputeBounds = function (fe) {
             var surface = App.Instance.MainSurface;
             if (surface && fe._IsAttached && surface._IsTopLevel(fe)) {
                 // a toplevel (non-popup) canvas doesn't subscribe to the same bounds computation as others
@@ -17,17 +18,17 @@ var Fayde;
                 rect.copyTo(this.Extents, this.Bounds);
                 rect.copyTo(this.Bounds, this.BoundsWithChildren);
 
-                this.ComputeGlobalBounds();
-                this.ComputeSurfaceBounds();
+                this.ComputeGlobalBounds(fe);
+                this.ComputeSurfaceBounds(fe);
             } else {
-                superComputeBounds.call(this, fe, absoluteXform);
+                superComputeBounds.call(this, fe);
             }
         };;
         var superShiftPosition = CanvasMetrics.prototype.ShiftPosition;
         CanvasMetrics.prototype.ShiftPosition = function (uie, point) {
             var surface = App.Instance.MainSurface;
             if (surface && uie._IsAttached && surface._IsTopLevel(uie)) {
-                this.ComputeBounds();
+                this.ComputeBounds(uie);
             } else {
                 superShiftPosition.call(this, uie, point);
             }

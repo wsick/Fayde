@@ -10,6 +10,9 @@ var rect = (function () {
         this.Width = 0;
         this.Height = 0;
     }
+    rect.prototype.toString = function () {
+        return "{" + this.X + "," + this.Y + "," + this.Width + "," + this.Height + "}";
+    };
     rect._TypeName = "rect";
     rect.fromSize = function fromSize(size) {
         var r = new rect();
@@ -177,7 +180,7 @@ var rect = (function () {
         dest.X = l;
         dest.Y = t;
         dest.Width = r - l;
-        dest.Width = b - t;
+        dest.Height = b - t;
     };
     rect.clipmask = function clipmask(clip) {
         var mask = 0;

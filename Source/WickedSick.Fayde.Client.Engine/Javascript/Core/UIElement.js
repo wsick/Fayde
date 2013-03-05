@@ -518,7 +518,7 @@
 
     };
     UIElement.Instance._ComputeBounds = function () {
-        this._Metrics.ComputeBounds(this, this._AbsoluteXform);
+        this._Metrics.ComputeBounds(this);
     };
     UIElement.Instance._GetSubtreeExtents = function () {
         return this._Metrics.SubtreeExtents;
@@ -527,13 +527,13 @@
         return this._Metrics.GlobalBounds;
     };
     UIElement.Instance._ComputeGlobalBounds = function () {
-        this._Metrics.ComputeGlobalBounds(this._LocalXform, this._LocalProjection);
+        this._Metrics.ComputeGlobalBounds(this);
     };
     UIElement.Instance._GetSubtreeBounds = function () {
         return this._Metrics.SubtreeBounds;
     };
     UIElement.Instance._ComputeSurfaceBounds = function () {
-        this._Metrics.ComputeGlobalBounds(this._AbsoluteXform, this._AbsoluteProjection);
+        this._Metrics.ComputeGlobalBounds(this);
     };
 
     //#endregion
@@ -613,7 +613,7 @@
         var np = new Point(x, y);
         this._TransformPoint(np);
 
-        if (!clip.GetBounds().ContainsPoint(np))
+        if (!rect.containsPoint(clip.GetBounds(), np))
             return false;
 
         return ctx.IsPointInClipPath(clip, np);

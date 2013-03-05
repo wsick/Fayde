@@ -15,22 +15,22 @@ var Fayde;
         this.SubtreeBounds = this.Surface;
         this.GlobalBounds = this.Global;
     }
-    UIElementMetrics.prototype.ComputeBounds = function (uie, absoluteXform) { };
-    UIElementMetrics.prototype.ComputeSurfaceBounds = function (absoluteXform) {
-        this._IntersectBoundsWithClipPath(this.Surface, absoluteXform);
+    UIElementMetrics.prototype.ComputeBounds = function (uie) { };
+    UIElementMetrics.prototype.ComputeSurfaceBounds = function (uie) {
+        this._IntersectBoundsWithClipPath(this.Surface, uie, uie._AbsoluteXform);
     };
-    UIElementMetrics.prototype.ComputeGlobalBounds = function (localXform) {
-        this._IntersectBoundsWithClipPath(this.Global, localXform);
+    UIElementMetrics.prototype.ComputeGlobalBounds = function (uie) {
+        this._IntersectBoundsWithClipPath(this.Global, uie, uie._LocalXform);
     };
     UIElementMetrics.prototype.ComputeEffectPadding = function (effect) {
         if (!effect)
             return false;
         return effect.GetPadding(this.EffectPadding);
     };
-    UIElementMetrics.prototype._IntersectBoundsWithClipPath = function (dest, xform) {
+    UIElementMetrics.prototype._IntersectBoundsWithClipPath = function (dest, uie, xform) {
         var isClipEmpty = rect.isEmpty(this.ClipBounds);
 
-        if (!isClipEmpty && !this._GetRenderVisible()) {
+        if (!isClipEmpty && !uie._GetRenderVisible()) {
             rect.clear(dest);
             return;
         }
@@ -75,8 +75,8 @@ var Fayde;
             var bounds = vec2.createFrom(this.Bounds.X, this.Bounds.Y);
             mat3.transformVec2(tween, bounds);
             this.ShiftPosition(uie, bounds);
-            this.ComputeGlobalBounds();
-            this.ComputeSurfaceBounds();
+            this.ComputeGlobalBounds(uie);
+            this.ComputeSurfaceBounds(uie);
             return;
         }
 

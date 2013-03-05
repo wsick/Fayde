@@ -14,6 +14,9 @@ class rect {
     Y: number = 0;
     Width: number = 0;
     Height: number = 0;
+    toString(): string {
+        return "{" + this.X + "," + this.Y + "," + this.Width + "," + this.Height + "}";
+    }
 
     static _TypeName = "rect";
 
