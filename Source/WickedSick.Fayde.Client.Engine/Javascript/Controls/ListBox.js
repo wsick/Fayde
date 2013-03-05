@@ -141,8 +141,8 @@
         }
         itemsHost = Nullstone.As(itemsHost, Fayde.FrameworkElement);
 
-        var ihro = itemsHostRectOut.Value = new Rect();
-        var lbiro = listBoxItemsRectOut.Value = new Rect();
+        var ihro = itemsHostRectOut.Value = new rect();
+        var lbiro = listBoxItemsRectOut.Value = new rect();
         if (itemsHost == null) {
             return false;
         }

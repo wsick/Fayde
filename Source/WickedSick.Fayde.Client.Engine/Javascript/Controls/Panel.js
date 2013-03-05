@@ -75,8 +75,8 @@
         framework = this._ApplySizeConstraints(framework);
         if (framework.Width <= 0 || framework.Height <= 0)
             return;
-        var area = new Rect(0, 0, framework.Width, framework.Height);
 
+        var area = rect.fromSize(framework);
         ctx.Save();
         this._RenderLayoutClip(ctx);
         ctx.FillRect(background, area);

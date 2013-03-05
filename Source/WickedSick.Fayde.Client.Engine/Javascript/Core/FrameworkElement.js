@@ -1,7 +1,6 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="UIElement.js"/>
 /// <reference path="../Runtime/MulticastEvent.js"/>
-/// <reference path="../Primitives/Rect.js"/>
 /// <reference path="PropertyValueProviders/StylePropertyValueProvider.js"/>
 /// <reference path="PropertyValueProviders/ImplicitStylePropertyValueProvider.js"/>
 /// <reference path="PropertyValueProviders/FrameworkElementPropertyValueProvider.js"/>
@@ -11,6 +10,7 @@
 /// <reference path="../Runtime/BError.js"/>
 /// <reference path="Style.js"/>
 /// <reference path="VisualTreeHelper.js"/>
+/// <reference path="../Primitives.js"/>
 
 (function (Fayde) {
     var UIElementFlags = Fayde.UIElementFlags;
@@ -283,10 +283,10 @@
         var shouldArrange = (this._DirtyFlags & _Dirty.Arrange) > 0;
 
         if (this.UseLayoutRounding) {
-            finalRect = new Rect(Math.round(finalRect.X), Math.round(finalRect.Y), Math.round(finalRect.Width), Math.round(finalRect.Height));
+            rect.round(finalRect);
         }
 
-        shouldArrange |= slot ? !Rect.Equals(slot, finalRect) : true;
+        shouldArrange |= slot ? !rect.isEqual(slot, finalRect) : true;
 
         if (finalRect.Width < 0 || finalRect.Height < 0
                 || !isFinite(finalRect.Width) || !isFinite(finalRect.Height)
@@ -314,7 +314,8 @@
         this._ClearValue(Fayde.LayoutInformation.LayoutClipProperty);
 
         var margin = this.Margin;
-        var childRect = finalRect.ShrinkByThickness(margin);
+        var childRect = rect.clone(finalRect);
+        rect.shrinkByThickness(childRect, margin);
 
         this._UpdateTransform();
         this._UpdateProjection();
@@ -437,8 +438,10 @@
 
         Fayde.LayoutInformation.SetVisualOffset(this, visualOffset);
 
-        var element = new Rect(0, 0, response.Width, response.Height);
-        var layoutClip = childRect;
+        var element = new rect();
+        rect.Width = response.Width;
+        rect.Height = response.Height;
+        var layoutClip = rect.clone(childRect);
         layoutClip.X = Math.max(childRect.X - visualOffset.X, 0);
         layoutClip.Y = Math.max(childRect.Y - visualOffset.Y, 0);
         if (this.UseLayoutRounding) {
@@ -446,15 +449,16 @@
             layoutClip.Y = Math.round(layoutClip.Y);
         }
 
-        if (((!isTopLevel && !Rect.Equals(element, element.Intersection(layoutClip))) || !Rect.Equals(constrainedResponse, response)) && !(this instanceof Fayde.Controls.Canvas) && ((parent && !(parent instanceof Fayde.Controls.Canvas)) || this.IsContainer())) {
+        if (((!isTopLevel && rect.isRectContainedIn(element, layoutClip)) || !Size.Equals(constrainedResponse, response)) && !(this instanceof Fayde.Controls.Canvas) && ((parent && !(parent instanceof Fayde.Controls.Canvas)) || this.IsContainer())) {
             var frameworkClip = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
-            layoutClip = layoutClip.Intersection(new Rect(0, 0, frameworkClip.Width, frameworkClip.Height));
+            var frect = new rect(0, 0, frameworkClip.Width, frameworkClip.Height);
+            rect.intersection(layoutClip, frect);
             var rectangle = new Fayde.Media.RectangleGeometry();
             rectangle.Rect = layoutClip;
             Fayde.LayoutInformation.SetLayoutClip(this, rectangle);
         }
 
-        if (!Rect.Equals(oldSize, response)) {
+        if (!Size.Equals(oldSize, response)) {
             if (!Fayde.LayoutInformation.GetLastRenderSize(this)) {
                 Fayde.LayoutInformation.SetLastRenderSize(this, oldSize);
                 this._PropagateFlagUp(UIElementFlags.DirtySizeHint);
@@ -467,7 +471,8 @@
         var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
-            var childRect = new Rect(0, 0, finalSize.Width, finalSize.Height);
+            var childRect = new rect();
+            rect.set(childRect, 0, 0, finalSize.Width, finalSize.Height);
             child._ArrangeWithError(childRect, error);
             arranged = arranged.Max(finalSize);
         }

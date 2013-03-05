@@ -89,7 +89,8 @@
 
         var brush;
         var fontHeight = font.GetActualHeight();
-        var area = new Rect(origin.X, origin.Y, this._Advance, fontHeight);
+        var area = new rect();
+        rect.set(area, origin.X, origin.Y, this._Advance, fontHeight);
         if (this._Selected && (brush = attrs.GetBackground(true))) {
             ctx.FillRect(brush, area); //selection background
         }
@@ -555,7 +556,9 @@
             }
             break;
         }
-        return new Rect(x0, y0, 1.0, height);
+        var r = new rect();
+        rect.set(r, x0, y0, 1.0, height);
+        return r;
     };
     TextLayout.Instance._FindLineWithIndex = function (index) {
         var cursor = 0;
@@ -616,7 +619,9 @@
     };
     TextLayout.Instance.GetRenderExtents = function () {
         this.Layout();
-        return new Rect(this._HorizontalAlignment(this._ActualWidth), 0.0, this._ActualWidth, this._ActualHeight);
+        var r = new rect();
+        rect.set(r, this._HorizontalAlignment(this._ActualWidth), 0.0, this._ActualWidth, this._ActualHeight);
+        return r;
     };
     TextLayout.Instance.GetActualExtents = function () {
         return new Size(this._ActualWidth, this._ActualHeight);

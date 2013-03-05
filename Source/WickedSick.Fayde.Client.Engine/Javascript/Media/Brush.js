@@ -23,7 +23,7 @@
 
     Brush.Instance.SetupBrush = function (ctx, bounds) {
         /// <param name="ctx" type="CanvasRenderingContext2D">HTML5 Canvas Context</param>
-        /// <param name="bounds" type="Rect"></param>
+        /// <param name="bounds" type="rect"></param>
         if (this._IsSurfaceCached(bounds))
             return;
         this._CacheSurface(bounds);
@@ -38,7 +38,8 @@
         var raw = transform.Value.raw;
 
         this._Brush = this.CreateBrush(ctx, bounds);
-        var fillExtents = bounds.GrowBy(raw[2], raw[5], 0, 0);
+        var fillExtents = rect.clone(bounds);
+        rect.growBy(fillExtents, raw[2], raw[5], 0, 0);
 
         var tmpCanvas = document.createElement('canvas');
         tmpCanvas.width = Math.max(transformedBounds.Width, bounds.Width);
@@ -59,7 +60,7 @@
             return false;
         if (!this._SC)
             return false;
-        if (!Rect.Equals(this._SC.Bounds, bounds))
+        if (!rect.isEqual(this._SC.Bounds, bounds))
             return false;
         return true;
     };

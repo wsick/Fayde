@@ -2,7 +2,7 @@
 /// <reference path="../Core/FrameworkElement.js"/>
 /// <reference path="../Text/Enums.js"/>
 /// CODE
-/// <reference path="../Primitives/Rect.js"/>
+/// <reference path="../Primitives.js"/>
 /// <reference path="../Text/TextLayout.js"/>
 /// <reference path="TextBoxBase.js"/>
 /// <reference path="../Primitives/Enums.js"/>
@@ -15,7 +15,7 @@
 
     _TextBoxView.Instance.Init = function () {
         this.Init$FrameworkElement();
-        this._Cursor = new Rect();
+        this._Cursor = new rect();
         this._Layout = new Fayde.Text.TextLayout();
         this._SelectionChanged = false;
         this._HadSelectedText = false;
@@ -147,17 +147,17 @@
     _TextBoxView.Instance._UpdateCursor = function (invalidate) {
         var cur = this._TextBox.GetSelectionCursor();
         var current = this._Cursor;
-        var rect;
 
         if (invalidate && this._CursorVisible)
             this._InvalidateCursor();
 
         this._Cursor = this._Layout.GetSelectionCursor(new Point(), cur);
-        rect = this._Cursor.Transform(this._AbsoluteXform);
+        //TODO: ...
+        // var irect = rect.clone(this._Cursor);
+        // rect.transform(irect, this._AbsoluteXform);
+        // this._TextBox._ImCtx.SetCursorLocation(irect);
 
-        //TODO: this._TextBox._ImCtx.SetCursorLocation(rect);
-
-        if (!Rect.Equals(this._Cursor, current))
+        if (!rect.isEqual(this._Cursor, current))
             this._TextBox._EmitCursorPositionChanged(this._Cursor.Height, this._Cursor.X, this._Cursor.Y);
 
         if (invalidate && this._CursorVisible)

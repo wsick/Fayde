@@ -1,5 +1,5 @@
 /// <reference path="../Runtime/Nullstone.js" />
-/// <reference path="../Primitives/Rect.js"/>
+/// <reference path="../Primitives.js"/>
 /// CODE
 /// <reference path="../Primitives/Size.js"/>
 /// <reference path="../Primitives/Point.js"/>
@@ -32,7 +32,7 @@
         d.$SetValue(LayoutInformation.LayoutExceptionElementProperty, value);
     };
 
-    LayoutInformation.LayoutSlotProperty = DependencyProperty.RegisterAttachedCore("LayoutSlot", function () { return Rect; }, LayoutInformation, new Rect());
+    LayoutInformation.LayoutSlotProperty = DependencyProperty.RegisterAttachedCore("LayoutSlot", function () { return rect; }, LayoutInformation, new rect());
     LayoutInformation.GetLayoutSlot = function (d) {
         return d.$GetValue(LayoutInformation.LayoutSlotProperty);
     };
@@ -48,7 +48,7 @@
         d.$SetValue(LayoutInformation.PreviousConstraintProperty, value);
     };
 
-    LayoutInformation.FinalRectProperty = DependencyProperty.RegisterAttachedCore("FinalRect", function () { return Rect; }, LayoutInformation);
+    LayoutInformation.FinalRectProperty = DependencyProperty.RegisterAttachedCore("FinalRect", function () { return rect; }, LayoutInformation);
     LayoutInformation.GetFinalRect = function (d) {
         return d.$GetValue(LayoutInformation.FinalRectProperty);
     };

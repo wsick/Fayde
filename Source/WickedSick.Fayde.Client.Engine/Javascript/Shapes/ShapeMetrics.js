@@ -9,7 +9,7 @@ var Fayde;
         }
         ShapeMetrics.prototype.ComputeBounds = function (fe, absoluteXform) {
             this._IntersectBoundsWithClipPath(this.Bounds, absoluteXform);
-            rect.copyTo(this.BoundsWithChildren, this.Bounds);
+            rect.copyTo(this.Bounds, this.BoundsWithChildren);
             this.ComputeGlobalBounds();
             this.ComputeSurfaceBounds();
         };

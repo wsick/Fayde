@@ -11,7 +11,6 @@
 /// <reference path="../Media/MatrixTransform.js"/>
 /// <reference path="Enums.js"/>
 /// <reference path="../Engine/RenderContext.js"/>
-/// <reference path="../Primitives/Rect.js"/>
 /// <reference path="../Primitives/Thickness.js"/>
 /// <reference path="Triggers.js"/>
 /// <reference path="../Media/CacheMode.js"/>
@@ -177,9 +176,9 @@
 
     //#endregion
 
-    UIElement.Instance.BringIntoView = function (rect) {
-        if (!rect) rect = new Rect();
-        var args = new Fayde.RequestBringIntoViewEventArgs(this, rect);
+    UIElement.Instance.BringIntoView = function (irect) {
+        if (!irect) irect = new rect();
+        var args = new Fayde.RequestBringIntoViewEventArgs(this, irect);
 
         var cur = this;
         while (cur && !args.Handled) {
@@ -700,8 +699,8 @@
                 desired = new Size(this.ActualWidth, this.ActualHeight);
             }
 
-            viewport = new Rect(Fayde.Controls.Canvas.GetLeft(this), Fayde.Controls.Canvas.GetTop(this), desired.Width, desired.Height)
-
+            var viewport = new rect();
+            rect.set(viewport, Fayde.Controls.Canvas.GetLeft(this), Fayde.Controls.Canvas.GetTop(this), desired.Width, desired.Height);
             last = viewport;
         }
 
@@ -731,7 +730,7 @@
         if (false) {
             //TODO: Render to intermediate
         } else {
-            rect.copyTo(region, this._GetSubtreeExtents());
+            rect.copyTo(this._GetSubtreeExtents(), region);
             rect.transform(region, this._RenderXform);
             rect.transform(region, ctx.CurrentTransform);
             rect.roundOut(region);
@@ -862,7 +861,7 @@
         item._SetIsAttached(false);
         item.SetMentor(null);
 
-        var emptySlot = new Rect();
+        var emptySlot = new rect();
         Fayde.LayoutInformation.SetLayoutSlot(item, emptySlot);
         item._ClearValue(Fayde.LayoutInformation.LayoutClipProperty);
 

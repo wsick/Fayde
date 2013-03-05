@@ -72,27 +72,27 @@
         for (var i = 0; i < children.GetCount() ; i++) {
             var child = children.GetValueAt(i);
             var size = child._DesiredSize;
-            var childFinal;
             if (orientation === Fayde.Orientation.Vertical) {
                 size.Width = arrangeSize.Width;
 
-                childFinal = new Rect(0, arranged.Height, size.Width, size.Height);
+                var childFinal = rect.fromSize(size);
+                childFinal.Y = arranged.Height;
 
-                if (childFinal.IsEmpty())
-                    child.Arrange(new Rect());
-                else
-                    child.Arrange(childFinal);
+                if (rect.isEmpty(childFinal))
+                    rect.clear(childFinal);
+                child.Arrange(childFinal);
 
                 arranged.Width = Math.max(arranged.Width, size.Width);
                 arranged.Height += size.Height;
             } else {
                 size.Height = arrangeSize.Height;
 
-                childFinal = new Rect(arranged.Width, 0, size.Width, size.Height);
-                if (childFinal.IsEmpty())
-                    child.Arrange(new Rect());
-                else
-                    child.Arrange(childFinal);
+                var childFinal = rect.fromSize(size);
+                childFinal.X = arranged.Width;
+
+                if (rect.isEmpty(childFinal))
+                    rect.clear(childFinal);
+                child.Arrange(childFinal);
 
                 arranged.Width += size.Width;
                 arranged.Height = Math.max(arranged.Height, size.Height);

@@ -185,7 +185,7 @@
     VirtualizingStackPanel.Instance.PageRight = function () { this.HorizontalOffset = this._HorizontalOffset + this._ViewportWidth; };
 
     VirtualizingStackPanel.Instance.MakeVisible = function (uie, rectangle) {
-        var exposed = new Rect();
+        var exposed = new rect();
 
         var orientation = this.Orientation;
         var children = this.Children;
@@ -359,17 +359,25 @@
             var size = child._DesiredSize;
             if (orientation === Fayde.Orientation.Vertical) {
                 size.Width = arrangeSize.Width;
-                var childFinal = new Rect(-this.HorizontalOffset, arranged.Height, size.Width, size.Height);
-                if (childFinal.IsEmpty())
-                    childFinal = new Rect();
+                var childFinal = rect.fromSize(size);
+                if (rect.isEmpty(childFinal)) {
+                    rect.clear();
+                } else {
+                    childFinal.Width = -this.HorizontalOffset;
+                    childFinal.Height = arranged.Height;
+                }
                 child.Arrange(childFinal);
                 arranged.Width = Math.max(arranged.Width, size.Width);
                 arranged.Height += size.Height;
             } else {
                 size.Height = arrangeSize.Height;
-                var childFinal = new Rect(arranged.Width, -this.VerticalOffset, size.Width, size.Height);
-                if (childFinal.IsEmpty())
-                    childFinal = new Rect();
+                var childFinal = rect.fromSize(size);
+                if (rect.isEmpty(childFinal)) {
+                    rect.clear();
+                } else {
+                    childFinal.Width = arranged.Width;
+                    childFinal.Height = -this.VerticalOffset;
+                }
                 child.Arrange(childFinal);
                 arranged.Width += size.Width;
                 arranged.Height = Math.max(arranged.Height, size.Height);

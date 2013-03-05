@@ -87,29 +87,31 @@
 
     ScrollContentPresenter.Instance.MakeVisible = function (visual, rectangle) {
         /// <param name="visual" type="UIElement"></param>
-        /// <param name="rectangle" type="Rect">Description</param>
-        if (rectangle.IsEmpty() || !visual || Nullstone.RefEquals(visual, this) || !this.IsAncestorOf(visual))
-            return new Rect();
+        /// <param name="rectangle" type="rect"></param>
+        if (rect.isEmpty(rectangle) || !visual || Nullstone.RefEquals(visual, this) || !this.IsAncestorOf(visual))
+            return new rect();
 
         var generalTransform = visual.TransformToVisual(this);
         var point = generalTransform.Transform(new Point(rectangle.X, rectangle.Y));
+        rectangle = rect.clone(rectangle);
         rectangle.X = point.X;
         rectangle.Y = point.Y;
         return rectangle;
 
-        var rect = new Rect(this.HorizontalOffset, this.VerticalOffset, this.ViewportWidth, this.ViewportHeight);
-        rectangle.X += rect.X;
-        rectangle.Y += rect.Y;
-        var num = ScrollContentPresenter._ComputeScrollOffsetWithMinimalScroll(rect.X, rect.GetRight(), rectangle.X, rectangle.GetRight());
-        var num1 = ScrollContentPresenter._ComputeScrollOffsetWithMinimalScroll(rect.Y, rect.GetBottom(), rectangle.Y, rectangle.GetBottom());
+        var irect = new rect();
+        rect.set(irect, this.HorizontalOffset, this.VerticalOffset, this.ViewportWidth, this.ViewportHeight);
+        rectangle.X += irect.X;
+        rectangle.Y += irect.Y;
+        var num = ScrollContentPresenter._ComputeScrollOffsetWithMinimalScroll(irect.X, irect.X + irect.Width, rectangle.X, rectangle.X + rectangle.Width);
+        var num1 = ScrollContentPresenter._ComputeScrollOffsetWithMinimalScroll(irect.Y, irect.Y + irect.Height, rectangle.Y, rectangle.Y + rectangle.Height);
         this.ChangeHorizontalOffset(num);
         this.ChangeVerticalOffset(num1);
-        rect.X = num;
-        rect.Y = num1;
-        rectangle = rectangle.Intersection(rect)
-        if (!rectangle.IsEmpty()) {
-            rectangle.X -= rect.X;
-            rectangle.Y -= rect.Y;
+        irect.X = num;
+        irect.Y = num1;
+        rect.intersection(rectangle, irect);
+        if (!rect.isEmpty(rectangle)) {
+            rectangle.X -= irect.X;
+            rectangle.Y -= irect.Y;
         }
         return rectangle;
     };
@@ -181,7 +183,9 @@
         var start = new Point(-this.HorizontalOffset, -this.VerticalOffset);
 
         var offerSize = desired.Max(arrangeSize);
-        this._ContentRoot.Arrange(new Rect(start.X, start.Y, offerSize.Width, offerSize.Height));
+        var childRect = new rect();
+        rect.set(childRect, start.X, start.Y, offerSize.Width, offerSize.Height);
+        this._ContentRoot.Arrange(childRect);
         this._UpdateClip(arrangeSize);
         this._UpdateExtents(arrangeSize, this.$ScrollData.Extent);
         return arrangeSize;
@@ -270,16 +274,16 @@
         }
 
         var content;
-        if (Nullstone.Is(this.TemplateOwner, Fayde.Controls.ScrollViewer) && (content = this.Content) && (Nullstone.Is(content, Fayde.Controls._TextBoxView) || Nullstone.Is(content, Fayde.Controls._RichTextBoxView))) {
+        if (this.TemplateOwner instanceof Fayde.Controls.ScrollViewer && (content = this.Content) && (content instanceof Fayde.Controls._TextBoxView || content instanceof Fayde.Controls._RichTextBoxView)) {
             //ScrollViewer inside TextBox/RichTextBox
             this.$ClippingRectangle.Rect = this._CalculateTextBoxClipRect(arrangeSize);
         } else {
-            this.$ClippingRectangle.Rect = new Rect(0, 0, arrangeSize.Width, arrangeSize.Height);
+            this.$ClippingRectangle.Rect = rect.fromSize(arrangeSize);
         }
     };
     ScrollContentPresenter.Instance._CalculateTextBoxClipRect = function (arrangeSize) {
         /// <param name="arrangeSize" type="Size"></param>
-        /// <returns type="Rect" />
+        /// <returns type="rect" />
         var left = 0;
         var right = 0;
         var templatedParent = Nullstone.As(this.TemplateOwner, namespace.ScrollViewer);
@@ -311,7 +315,9 @@
         }
         left = Math.max(0, left);
         right = Math.max(0, right);
-        return new Rect(-left, 0, arrangeSize.Width + left + right, arrangeSize.Height);
+        var r = new rect();
+        rect.set(r, -left, 0, arrangeSize.Width + left + right, arrangeSize.Height);
+        return r;
     };
 
     //#endregion

@@ -2,7 +2,6 @@
 /// CODE
 /// <reference path="../Media/ImageSource.js"/>
 /// <reference path="Enums.js"/>
-/// <reference path="../Primitives/Rect.js"/>
 /// <reference path="../Primitives/Enums.js"/>
 /// <reference path="../Media/Enums.js"/>
 /// <reference path="../Primitives/Uri.js"/>
@@ -41,12 +40,14 @@
     Image.Instance._MeasureOverrideWithError = function (availableSize, error) {
         /// <param name="availableSize" type="Size"></param>
         var desired = availableSize;
-        var shapeBounds = new Rect();
+        var shapeBounds = new rect();
         var source = this.Source;
         var sx = sy = 0.0;
 
-        if (source != null)
-            shapeBounds = new Rect(0, 0, source.PixelWidth, source.PixelHeight);
+        if (source != null) {
+            shapeBounds.Width = source.PixelWidth;
+            shapeBounds.Height = source.PixelHeight;
+        }
 
         if (!isFinite(desired.Width))
             desired.Width = shapeBounds.Width;
@@ -93,13 +94,15 @@
     Image.Instance._ArrangeOverrideWithError = function (finalSize, error) {
         /// <param name="finalSize" type="Size"></param>
         var arranged = finalSize;
-        var shapeBounds = new Rect();
+        var shapeBounds = new rect();
         var source = this.Source;
         var sx = 1.0;
         var sy = 1.0;
 
-        if (source != null)
-            shapeBounds = new Rect(0, 0, source.PixelWidth, source.PixelHeight);
+        if (source != null) {
+            shapeBounds.Width = source.PixelWidth;
+            shapeBounds.Height = source.PixelHeight;
+        }
 
         if (shapeBounds.Width === 0)
             shapeBounds.Width = arranged.Width;
@@ -148,11 +151,13 @@
         if (!metrics)
             return null;
 
-        var rect = new Rect(0, 0, source.PixelWidth, source.PixelHeight);
-        rect = rect.Transform(metrics.Matrix);
+        var irect = new rect();
+        irect.Width = source.PixelWidth;
+        irect.Height = source.PixelHeight;
+        rect.transform(irect, metrics.Matrix);
         var np = new Point(x, y);
         this._TransformPoint(np);
-        return rect.ContainsPoint(np);
+        return rect.containsPoint(irect, np);
     };
 
     //#endregion
@@ -271,7 +276,7 @@
         var stretch = this.Stretch;
         var specified = new Size(this.ActualWidth, this.ActualHeight);
         var stretched = this._ApplySizeConstraints(specified);
-        var adjust = !Rect.Equals(specified, this._RenderSize);
+        var adjust = !Size.Equals(specified, this._RenderSize);
 
         var pixelWidth = source.PixelWidth;
         var pixelHeight = source.PixelHeight;
@@ -281,11 +286,13 @@
         if (stretch !== Fayde.Media.Stretch.UniformToFill)
             specified = specified.Min(stretched);
 
-        var paint = new Rect(0, 0, specified.Width, specified.Height);
-        var image = new Rect(0, 0, pixelWidth, pixelHeight);
+        var paint = rect.fromSize(specified);
+        var image = new rect();
+        image.Width = pixelWidth;
+        image.Height = pixelHeight;
 
         if (stretch === Fayde.Media.Stretch.None)
-            paint = paint.Union(image);
+            rect.union(paint, image);
 
         var matrix = computeMatrix(paint.Width, paint.Height, image.Width, image.Height,
             stretch, Fayde.Media.AlignmentX.Center, Fayde.Media.AlignmentY.Center);
@@ -293,14 +300,21 @@
         if (adjust) {
             var error = new BError();
             this._MeasureOverrideWithError(specified, error);
-            paint = new Rect((stretched.Width - specified.Width) * 0.5, (stretched.Height - specified.Height) * 0.5, specified.Width, specified.Height);
+            rect.set(paint,
+                (stretched.Width - specified.Width) * 0.5,
+                (stretched.Height - specified.Height) * 0.5,
+                specified.Width,
+                specified.Height);
         }
 
         var overlap = RectOverlap.In;
         if (stretch === Fayde.Media.Stretch.UniformToFill || adjust) {
-            var bounds = new Rect(paint.RoundOut());
-            var box = image.Transform(matrix).RoundIn();
-            overlap = bounds.RectIn(box);
+            var bounds = rect.clone(paint);
+            rect.roundOut(bounds);
+            var box = rect.clone(image);
+            rect.transform(box, matrix);
+            rect.roundIn(box);
+            overlap = rect.rectIn(bounds, box);
         }
 
         return {

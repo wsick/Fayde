@@ -14,7 +14,7 @@
         this.Init$FrameworkElement();
         this._ShapeFlags = 0;
         this._StretchXform = mat3.identity();
-        this._NaturalBounds = new Rect();
+        this._NaturalBounds = new rect();
     };
     Shape.Instance.InitSpecific = function () {
         this._Metrics = new Fayde.Shapes.ShapeMetrics();
@@ -174,7 +174,7 @@
     //#region Invalidation
 
     Shape.Instance._InvalidateNaturalBounds = function () {
-        this._NaturalBounds = new Rect();
+        rect.clear(this._NaturalBounds);
         this._InvalidateStretch();
     };
     Shape.Instance._InvalidateStretch = function () {
@@ -268,7 +268,7 @@
     Shape.Instance._GetNaturalBounds = function () {
         if (!this._NaturalBounds)
             return;
-        if (this._NaturalBounds.IsEmpty())
+        if (rect.isEmpty(this._NaturalBounds))
             this._NaturalBounds = this._ComputeShapeBoundsImpl(false, null);
         return this._NaturalBounds;
     };
@@ -276,7 +276,7 @@
         var shapeBounds = this._GetNaturalBounds();
         if (!shapeBounds || shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
             this._SetShapeFlags(namespace.ShapeFlags.Empty);
-            return new Rect();
+            return new rect();
         }
 
         var specified = new Size(this.Width, this.Height);
@@ -285,7 +285,7 @@
 
         if (specified.Width <= 0.0 || specified.Height <= 0.0) {
             this._SetShapeFlags(namespace.ShapeFlags.Empty);
-            return new Rect();
+            return new rect();
         }
 
         var visualParent = this.GetVisualParent();
@@ -304,13 +304,13 @@
 
         var stretch = this.Stretch;
         if (stretch === Fayde.Media.Stretch.None) {
-            shapeBounds = shapeBounds.Transform(this._StretchXform);
+            rect.transform(shapeBounds, this._StretchXform);
             return shapeBounds;
         }
 
         if (framework.Width === 0.0 || framework.Height === 0.0) {
             this._SetShapeFlags(namespace.ShapeFlags.Empty);
-            return new Rect();
+            return new rect();
         }
 
         var logicalBounds = this._ComputeShapeBoundsImpl(true, null);
@@ -377,7 +377,7 @@
         }
         this._StretchXform = st;
 
-        shapeBounds = shapeBounds.Transform(this._StretchXform);
+        rect.transform(shapeBounds, this._StretchXform);
         return shapeBounds;
     };
     Shape.IsSignificant = function (dx, x) {
@@ -393,7 +393,7 @@
             this._BuildPath();
 
         if (this._IsEmpty())
-            return new Rect();
+            return new rect();
 
         if (logical) {
             //TODO: measure path extents
@@ -403,6 +403,7 @@
             //TODO: measure fill extents
         }
         NotImplemented("Shape._ComputeShapeBoundsImpl");
+        return new rect();
     };
 
     //#endregion

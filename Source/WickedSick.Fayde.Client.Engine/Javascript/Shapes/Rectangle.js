@@ -30,105 +30,114 @@
     Rectangle.Instance._BuildPath = function () {
         var stretch = this.Stretch;
         var t = this._IsStroked() ? this.StrokeThickness : 0.0;
-        var rect = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
+        var irect = new rect();
+        irect.Width = this.ActualWidth;
+        irect.Height = this.ActualHeight;
         var radiusX = this.RadiusX;
         var radiusY = this.RadiusY;
 
         switch (stretch) {
             case Fayde.Media.Stretch.None:
-                rect.Width = rect.Height = 0;
+                irect.Width = irect.Height = 0;
                 break;
             case Fayde.Media.Stretch.Uniform:
-                rect.Width = rect.Height = Math.min(rect.Width, rect.Height);
+                irect.Width = irect.Height = Math.min(irect.Width, irect.Height);
                 break;
             case Fayde.Media.Stretch.UniformToFill:
-                rect.Width = rect.Height = Math.max(rect.Width, rect.Height);
+                irect.Width = irect.Height = Math.max(irect.Width, irect.Height);
                 break;
             case Fayde.Media.Stretch.Fill:
                 break;
         }
 
-        if (rect.Width === 0)
-            rect.X = t * 0.5;
-        if (rect.Height === 0)
-            rect.Y = t * 0.5;
+        if (irect.Width === 0)
+            irect.X = t * 0.5;
+        if (irect.Height === 0)
+            irect.Y = t * 0.5;
 
         var ta;
-        if (t >= rect.Width || t >= rect.Height) {
+        if (t >= irect.Width || t >= irect.Height) {
             ta = t * 0.001;
-            rect = rect.GrowBy(ta, ta, ta, ta);
+            rect.growBy(irect, ta, ta, ta, ta);
             this._SetShapeFlags(namespace.ShapeFlags.Degenerate);
         } else {
             ta = -t * 0.5;
-            rect = rect.GrowBy(ta, ta, ta, ta);
+            rect.growBy(irect, ta, ta, ta, ta);
             this._SetShapeFlags(namespace.ShapeFlags.Normal);
         }
 
         var path = new Fayde.Shapes.RawPath();
         if ((radiusX === 0.0 && radiusY === 0.0) || (radiusX === radiusY))
-            path.RoundedRect(rect.X, rect.Y, rect.Width, rect.Height, radiusX, radiusY);
+            path.RoundedRect(irect.X, irect.Y, irect.Width, irect.Height, radiusX, radiusY);
         else
             NotImplemented("Rectangle._BuildPath with RadiusX !== RadiusY");
         this._Path = path;
     };
 
     Rectangle.Instance._ComputeStretchBounds = function () {
-        /// <returns type="Rect" />
+        /// <returns type="rect" />
         return this._ComputeShapeBounds(false);
     };
     Rectangle.Instance._ComputeShapeBounds = function (logical) {
-        /// <returns type="Rect" />
-        var rect = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
+        /// <returns type="rect" />
+        var irect = new rect();
+        irect.Width = this.ActualWidth;
+        irect.Height = this.ActualHeight;
         this._SetShapeFlags(namespace.ShapeFlags.Normal);
 
         var width = this.Width;
         var height = this.Height;
-        if (rect.Width < 0.0 || rect.Height < 0.0 || width <= 0.0 || height <= 0.0) {
+        if (irect.Width < 0.0 || irect.Height < 0.0 || width <= 0.0 || height <= 0.0) {
             this._SetShapeFlags(namespace.ShapeFlags.Empty);
-            return new Rect();
+            return new rect();
         }
 
         var visualParent = this.GetVisualParent();
         if (visualParent != null && visualParent instanceof Fayde.Controls.Canvas) {
             if (isNaN(width) !== isNaN(height)) {
                 this._SetShapeFlags(namespace.ShapeFlags.Empty);
-                return new Rect();
+                return new rect();
             }
         }
 
         var t = this._IsStroked() ? this.StrokeThickness : 0.0;
         switch (this.Stretch) {
             case Fayde.Media.Stretch.None:
-                rect.Width = rect.Height = 0.0;
+                irect.Width = irect.Height = 0.0;
                 break;
             case Fayde.Media.Stretch.Uniform:
-                rect.Width = rect.Height = Math.min(rect.Width, rect.Height);
+                irect.Width = irect.Height = Math.min(irect.Width, irect.Height);
                 break;
             case Fayde.Media.Stretch.UniformToFill:
-                rect.Width = rect.Height = Math.max(rect.Width, rect.Height);
+                irect.Width = irect.Height = Math.max(irect.Width, irect.Height);
                 break;
             case Fayde.Media.Stretch.Fill:
                 break;
         }
 
-        if (rect.Width === 0)
-            rect.X = t * 0.5;
-        if (rect.Height === 0)
-            rect.Y = t * 0.5;
+        if (irect.Width === 0)
+            irect.X = t * 0.5;
+        if (irect.Height === 0)
+            irect.Y = t * 0.5;
 
-        if (t >= rect.Width || t >= rect.Height) {
+        if (t >= irect.Width || t >= irect.Height) {
             var g = t * 0.5005;
-            rect = rect.GrowBy(g, g, g, g);
+            rect.growBy(irect, g, g, g, g);
             this._SetShapeFlags(namespace.ShapeFlags.Degenerate);
         } else {
             this._SetShapeFlags(namespace.ShapeFlags.Normal);
         }
 
-        return rect;
+        return irect;
     };
     Rectangle.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
-        /// <returns type="Rect" />
-        return logical ? new Rect(0, 0, 1.0, 1.0) : new Rect();
+        /// <returns type="rect" />
+        var r = new rect();
+        if (logical) {
+            r.Width = 1.0;
+            r.Height = 1.0;
+        }
+        return r;
     };
 
     //#if !ENABLE_CANVAS
@@ -168,8 +177,7 @@
     //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {
         Rectangle.Instance.CreateSvgShape = function () {
-            var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-            return rect;
+            return document.createElementNS("http://www.w3.org/2000/svg", "rect");
         };
         Rectangle.Instance.ApplyHtmlChange = function (change) {
             var propd = change.Property;

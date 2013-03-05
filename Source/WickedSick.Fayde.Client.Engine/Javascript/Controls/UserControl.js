@@ -48,8 +48,8 @@
         var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
-            var childRect = new Rect(0, 0, finalSize.Width, finalSize.Height);
-            childRect = childRect.ShrinkByThickness(border);
+            var childRect = rect.fromSize(finalSize);
+            rect.shrinkByThickness(childRect, border);
             child._ArrangeWithError(childRect, error);
             arranged = new Size(childRect.Width, childRect.Height).GrowByThickness(border);
         }

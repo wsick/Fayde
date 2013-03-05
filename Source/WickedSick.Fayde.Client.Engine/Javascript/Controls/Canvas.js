@@ -50,7 +50,8 @@
         var child;
         while (child = walker.Step()) {
             var desired = child._DesiredSize;
-            var childFinal = new Rect(Canvas.GetLeft(child), Canvas.GetTop(child), desired.Width, desired.Height);
+            var childFinal = new rect();
+            rect.set(childFinal, Canvas.GetLeft(child), Canvas.GetTop(child), desired.Width, desired.Height);
             child._ArrangeWithError(childFinal, error);
         }
         return finalSize;
@@ -90,7 +91,8 @@
                 || args.Property._ID === Canvas.LeftProperty._ID) {
                 var child = obj;
                 var desired = child._DesiredSize;
-                var childFinal = new Rect(Canvas.GetLeft(child), Canvas.GetTop(child), desired.Width, desired.Height);
+                var childFinal = new rect();
+                rect.set(childFinal, Canvas.GetLeft(child), Canvas.GetTop(child), desired.Width, desired.Height);
 
                 if (child.UseLayoutRounding) {
                     childFinal.X = Math.round(childFinal.X);

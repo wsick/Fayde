@@ -17,89 +17,98 @@
     Ellipse.Instance._BuildPath = function () {
         var stretch = this.Stretch;
         var t = this._IsStroked() ? this.StrokeThickness : 0.0;
-        var rect = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
+        var irect = new rect();
+        irect.Width = this.ActualWidth;
+        irect.Height = this.ActualHeight;
 
         switch (stretch) {
             case Fayde.Media.Stretch.None:
-                rect.Width = rect.Height = 0;
+                irect.Width = irect.Height = 0;
                 break;
             case Fayde.Media.Stretch.Uniform:
-                rect.Width = rect.Height = Math.min(rect.Width, rect.Height);
+                irect.Width = irect.Height = Math.min(irect.Width, irect.Height);
                 break;
             case Fayde.Media.Stretch.UniformToFill:
-                rect.Width = rect.Height = Math.max(rect.Width, rect.Height);
+                irect.Width = irect.Height = Math.max(irect.Width, irect.Height);
                 break;
             case Fayde.Media.Stretch.Fill:
                 break;
         }
 
-        if (t >= rect.Width || t >= rect.Height) {
-            rect.Width = Math.max(rect.Width, t + t * 0.001);
-            rect.Height = Math.max(rect.Height, t + t * 0.001);
+        if (t >= irect.Width || t >= irect.Height) {
+            irect.Width = Math.max(irect.Width, t + t * 0.001);
+            irect.Height = Math.max(irect.Height, t + t * 0.001);
             this._SetShapeFlags(namespace.ShapeFlags.Degenerate);
         } else {
             this._SetShapeFlags(namespace.ShapeFlags.Normal);
         }
 
         var ht = -t / 2;
-        rect = rect.GrowBy(ht, ht, ht, ht);
+        rect.growBy(irect, ht, ht, ht, ht);
 
         var path = new Fayde.Shapes.RawPath();
-        path.Ellipse(rect.X, rect.Y, rect.Width, rect.Height);
+        path.Ellipse(irect.X, irect.Y, irect.Width, irect.Height);
         this._Path = path;
     };
 
     Ellipse.Instance._ComputeStretchBounds = function () {
-        /// <returns type="Rect" />
+        /// <returns type="rect" />
         return this._ComputeShapeBounds(false);
     };
     Ellipse.Instance._ComputeShapeBounds = function (logical) {
-        var rect = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
+        var irect = new rect();
+        irect.Width = this.ActualWidth;
+        irect.Height = this.ActualHeight;
         this._SetShapeFlags(namespace.ShapeFlags.Normal);
 
         var width = this.Width;
         var height = this.Height;
-        if (rect.Width < 0.0 || rect.Height < 0.0 || width <= 0.0 || height <= 0.0) {
+        if (irect.Width < 0.0 || irect.Height < 0.0 || width <= 0.0 || height <= 0.0) {
             this._SetShapeFlags(namespace.ShapeFlags.Empty);
-            return new Rect();
+            return new rect();
         }
 
         var visualParent = this.GetVisualParent();
         if (visualParent != null && visualParent instanceof Fayde.Controls.Canvas) {
             if (isNaN(width) !== isNaN(height)) {
                 this._SetShapeFlags(namespace.ShapeFlags.Empty);
-                return new Rect();
+                return new rect();
             }
         }
 
         var t = this._IsStroked() ? this.StrokeThickness : 0.0;
         switch (this.Stretch) {
             case Fayde.Media.Stretch.None:
-                rect.Width = rect.Height = 0.0;
+                irect.Width = irect.Height = 0.0;
                 break;
             case Fayde.Media.Stretch.Uniform:
-                rect.Width = rect.Height = Math.min(rect.Width, rect.Height);
+                irect.Width = irect.Height = Math.min(irect.Width, irect.Height);
                 break;
             case Fayde.Media.Stretch.UniformToFill:
-                rect.Width = rect.Height = Math.max(rect.Width, rect.Height);
+                irect.Width = irect.Height = Math.max(irect.Width, irect.Height);
                 break;
             case Fayde.Media.Stretch.Fill:
                 break;
         }
 
-        if (t >= rect.Width || t >= rect.Height) {
-            rect.Width = Math.max(rect.Width, t + t * 0.001);
-            rect.Height = Math.max(rect.Height, t + t * 0.001);
+        if (t >= irect.Width || t >= irect.Height) {
+            irect.Width = Math.max(irect.Width, t + t * 0.001);
+            irect.Height = Math.max(irect.Height, t + t * 0.001);
             this._SetShapeFlags(namespace.ShapeFlags.Degenerate);
         } else {
             this._SetShapeFlags(namespace.ShapeFlags.Normal);
         }
 
-        return rect;
+        return irect;
     };
     Ellipse.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
-        /// <returns type="Rect" />
-        return logical ? new Rect(0, 0, 1.0, 1.0) : new Rect();
+        /// <returns type="rect" />
+        var r = new rect();
+        if (logical) {
+            r.Width = 1.0;
+            r.Height = 1.0;
+        }
+        return r;
     };
 
     //#if !ENABLE_CANVAS

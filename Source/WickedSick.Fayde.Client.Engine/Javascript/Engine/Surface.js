@@ -481,7 +481,7 @@
 
                 uie._ComputeBounds();
 
-                if (!Rect.Equals(oglobalbounds, uie._GetGlobalBounds())) {
+                if (!rect.isEqual(oglobalbounds, uie._GetGlobalBounds())) {
                     if (visualParent) {
                         visualParent._UpdateBounds();
                         visualParent._Invalidate(osubtreebounds);
@@ -489,7 +489,7 @@
                     }
                 }
 
-                if (!Rect.Equals(oextents, uie._GetSubtreeExtents())) {
+                if (!rect.isEqual(oextents, uie._GetSubtreeExtents())) {
                     uie._Invalidate(uie._GetSubtreeBounds());
                 }
 

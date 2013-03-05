@@ -58,11 +58,11 @@
         var border = this.Padding.Plus(this.BorderThickness);
         var arranged = finalSize;
 
-        var walker = new Fayde._VisualTreeWalker(this);
-        var child;
-        while (child = walker.Step()) {
-            var childRect = new Rect(0, 0, finalSize.Width, finalSize.Height);
-            childRect = childRect.ShrinkByThickness(border);
+        var child = this.Child;
+        if (child) {
+            var childRect = new rect();
+            rect.set(childRect, 0, 0, finalSize.Width, finalSize.Height);
+            rect.shrinkByThickness(childRect, border);
             child._ArrangeWithError(childRect, error);
             arranged = new Size(childRect.Width, childRect.Height).GrowBy(border);
             arranged = arranged.Max(finalSize);
@@ -100,12 +100,14 @@
     };
     Border.Instance._RenderFillOnly = function (ctx, extents, backgroundBrush, thickness, cornerRadius) {
         /// <param name="ctx" type="_RenderContext"></param>
-        /// <param name="extents" type="Rect"></param>
+        /// <param name="extents" type="rect"></param>
         /// <param name="backgroundBrush" type="Brush"></param>
         /// <param name="thickness" type="Thickness"></param>
         /// <param name="cornerRadius" type="CornerRadius"></param>
 
-        var fillExtents = thickness.IsEmpty() ? extents : extents.ShrinkByThickness(thickness);
+        var fillExtents = rect.clone(extents);
+        if (!thickness.IsEmpty())
+            rect.shrinkByThickness(fillExtents, thickness);
 
         if (cornerRadius.IsZero()) {
             ctx.FillRect(backgroundBrush, fillExtents);
@@ -120,7 +122,7 @@
     };
     Border.Instance._RenderBalanced = function (ctx, extents, backgroundBrush, borderBrush, thickness, cornerRadius) {
         /// <param name="ctx" type="_RenderContext"></param>
-        /// <param name="extents" type="Rect"></param>
+        /// <param name="extents" type="rect"></param>
         /// <param name="backgroundBrush" type="Brush"></param>
         /// <param name="borderBrush" type="Brush"></param>
         /// <param name="thickness" type="Thickness"></param>
@@ -154,15 +156,14 @@
     };
     Border.Instance._RenderUnbalanced = function (ctx, extents, backgroundBrush, borderBrush, thickness, cornerRadius) {
         /// <param name="ctx" type="_RenderContext"></param>
-        /// <param name="extents" type="Rect"></param>
+        /// <param name="extents" type="rect"></param>
         /// <param name="backgroundBrush" type="Brush"></param>
         /// <param name="borderBrush" type="Brush"></param>
         /// <param name="thickness" type="Thickness"></param>
         /// <param name="cornerRadius" type="CornerRadius"></param>
 
         var hasCornerRadius = !cornerRadius.IsZero();
-        var innerExtents = new rect();
-        rect.copyTo(extents, innerExtents);
+        var innerExtents = rect.clone(extents);
         rect.shrinkByThickness(innerExtents, thickness);
 
         var innerPath = new Fayde.Shapes.RawPath();

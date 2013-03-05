@@ -15,6 +15,15 @@ class rect {
     Width: number = 0;
     Height: number = 0;
 
+    static _TypeName = "rect";
+
+    static fromSize(size): rect {
+        var r = new rect();
+        r.Width = size.Width;
+        r.Height = size.Height;
+        return r;
+    }
+
     static clear(dest: rect) {
         dest.X = 0;
         dest.Y = 0;
@@ -30,6 +39,10 @@ class rect {
     static isEmpty(rect1: rect) {
         return rect1.Width <= 0
             || rect1.Height <= 0;
+    }
+    static isEmptyLogical(rect1: rect) {
+        return rect1.Width <= 0
+            && rect1.Height <= 0;
     }
     static copyTo(src: rect, dest: rect) {
         dest.X = src.X;
@@ -64,6 +77,21 @@ class rect {
         if (rect.isEmpty(rect2))
             return;
         if (rect.isEmpty(rect1)) {
+            rect.copyTo(rect2, rect1);
+            return;
+        }
+
+        var x = Math.min(rect1.X, rect2.X);
+        var y = Math.min(rect1.Y, rect2.Y);
+        rect1.Width = Math.max(rect1.X + rect1.Width, rect2.X + rect2.Width) - x;
+        rect1.Height = Math.max(rect1.Y + rect1.Height, rect2.Y + rect2.Height) - y;
+        rect1.X = x;
+        rect1.Y = y;
+    }
+    static unionLogical(rect1: rect, rect2: rect) {
+        if (rect.isEmptyLogical(rect2))
+            return;
+        if (rect.isEmptyLogical(rect1)) {
             rect.copyTo(rect2, rect1);
             return;
         }
@@ -135,8 +163,7 @@ class rect {
     
     static transform(dest: rect, xform) {
         if (!xform)
-            return this;
-
+            return;
         var x = dest.X;
         var y = dest.Y;
         var width = dest.Width;
@@ -147,10 +174,10 @@ class rect {
         var p3 = vec2.createFrom(x + width, y + height);
         var p4 = vec2.createFrom(x, y + height);
 
-        mat3.transformVec2(transform, p1);
-        mat3.transformVec2(transform, p2);
-        mat3.transformVec2(transform, p3);
-        mat3.transformVec2(transform, p4);
+        mat3.transformVec2(xform, p1);
+        mat3.transformVec2(xform, p2);
+        mat3.transformVec2(xform, p3);
+        mat3.transformVec2(xform, p4);
 
         var l = Math.min(p1[0], p2[0], p3[0], p4[0]);
         var t = Math.min(p1[1], p2[1], p3[1], p4[1]);
@@ -175,7 +202,7 @@ class rect {
         return mask;
     };
     static transform4(dest: rect, projection) {
-        if (!transform)
+        if (!projection)
             return;
 
         var x = dest.X;
@@ -188,10 +215,10 @@ class rect {
         var p3 = vec4.createFrom(x + width, y + height, 0.0, 1.0);
         var p4 = vec4.createFrom(x, y + height, 0.0, 1.0);
 
-        mat4.transformVec4(transform, p1);
-        mat4.transformVec4(transform, p2);
-        mat4.transformVec4(transform, p3);
-        mat4.transformVec4(transform, p4);
+        mat4.transformVec4(projection, p1);
+        mat4.transformVec4(projection, p2);
+        mat4.transformVec4(projection, p3);
+        mat4.transformVec4(projection, p4);
 
         var vs = 65536.0;
         var vsr = 1.0 / vs;
@@ -242,6 +269,12 @@ class rect {
         }
     }
 
+    static round(dest: rect) {
+        dest.X = Math.round(dest.X);
+        dest.Y = Math.round(dest.Y);
+        dest.Width = Math.round(dest.Width);
+        dest.Height = Math.round(dest.Height);
+    }
     static roundOut(dest: rect) {
         var x = Math.floor(dest.X);
         var y = Math.floor(dest.Y);
@@ -290,5 +323,10 @@ class rect {
         if (rect.isEqual(copy, rect2))
             return RectOverlap.In;
         return RectOverlap.Part;
+    }
+    static isRectContainedIn(src: rect, test: rect) {
+        var copy = rect.clone(src);
+        rect.intersection(copy, test);
+        return !rect.isEqual(src, copy);
     }
 }

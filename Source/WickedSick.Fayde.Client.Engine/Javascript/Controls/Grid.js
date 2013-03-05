@@ -393,7 +393,7 @@
             var colspan = Math.min(Grid.GetColumnSpan(child), this._ColMatrixDim - col);
             var rowspan = Math.min(Grid.GetRowSpan(child), this._RowMatrixDim - row);
 
-            var childFinal = new Rect(0, 0, 0, 0);
+            var childFinal = new rect();
             for (c = 0; c < col; c++) {
                 childFinal.X += this._ColMatrix[c][c]._OfferedSize;
             }

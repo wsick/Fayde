@@ -43,7 +43,7 @@
         return this.CanvasContext.isPointInPath(p.X, p.Y);
     };
     _RenderContext.Instance._DrawClip = function (clip) {
-        if (clip instanceof Rect) {
+        if (clip instanceof rect) {
             this.CanvasContext.beginPath();
             this.CanvasContext.rect(clip.X, clip.Y, clip.Width, clip.Height);
             DrawDebug("DrawClip (Rect): " + clip.toString());
@@ -114,11 +114,11 @@
 
     //#region Stroke/Fill/Clear
 
-    _RenderContext.Instance.Rect = function (rect) {
+    _RenderContext.Instance.Rect = function (irect) {
         var ctx = this.CanvasContext;
         ctx.beginPath();
-        ctx.rect(rect.X, rect.Y, rect.Width, rect.Height);
-        DrawDebug("Rect: " + rect.toString());
+        ctx.rect(irect.X, irect.Y, irect.Width, irect.Height);
+        DrawDebug("Rect: " + irect.toString());
     };
     _RenderContext.Instance.Fill = function (brush, region) {
         /// <param name="brush" type="Brush"></param>
@@ -128,16 +128,16 @@
         ctx.fill();
         DrawDebug("Fill: [" + ctx.fillStyle.toString() + "]");
     };
-    _RenderContext.Instance.FillRect = function (brush, rect) {
+    _RenderContext.Instance.FillRect = function (brush, irect) {
         /// <param name="brush" type="Brush"></param>
-        /// <param name="rect" type="Rect"></param>
+        /// <param name="irect" type="rect"></param>
         var ctx = this.CanvasContext;
-        brush.SetupBrush(ctx, rect);
+        brush.SetupBrush(ctx, irect);
         ctx.beginPath();
-        ctx.rect(rect.X, rect.Y, rect.Width, rect.Height);
+        ctx.rect(irect.X, irect.Y, irect.Width, irect.Height);
         ctx.fillStyle = brush.ToHtml5Object();
         ctx.fill();
-        DrawDebug("FillRect: [" + ctx.fillStyle.toString() + "] " + rect.toString());
+        DrawDebug("FillRect: [" + ctx.fillStyle.toString() + "] " + irect.toString());
     };
     _RenderContext.Instance.StrokeAndFillRect = function (strokeBrush, thickness, strokeRect, fillBrush, fillRect) {
         var ctx = this.CanvasContext;
@@ -161,9 +161,9 @@
         ctx.stroke();
         DrawDebug("Stroke: [" + ctx.strokeStyle.toString() + "] -> " + ctx.lineWidth.toString());
     };
-    _RenderContext.Instance.Clear = function (rect) {
-        this.CanvasContext.clearRect(rect.X, rect.Y, rect.Width, rect.Height);
-        DrawDebug("Clear: " + rect.toString());
+    _RenderContext.Instance.Clear = function (irect) {
+        this.CanvasContext.clearRect(irect.X, irect.Y, irect.Width, irect.Height);
+        DrawDebug("Clear: " + irect.toString());
     };
 
     //#endregion

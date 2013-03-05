@@ -10,6 +10,13 @@ var rect = (function () {
         this.Width = 0;
         this.Height = 0;
     }
+    rect._TypeName = "rect";
+    rect.fromSize = function fromSize(size) {
+        var r = new rect();
+        r.Width = size.Width;
+        r.Height = size.Height;
+        return r;
+    };
     rect.clear = function clear(dest) {
         dest.X = 0;
         dest.Y = 0;
@@ -24,6 +31,9 @@ var rect = (function () {
     };
     rect.isEmpty = function isEmpty(rect1) {
         return rect1.Width <= 0 || rect1.Height <= 0;
+    };
+    rect.isEmptyLogical = function isEmptyLogical(rect1) {
+        return rect1.Width <= 0 && rect1.Height <= 0;
     };
     rect.copyTo = function copyTo(src, dest) {
         dest.X = src.X;
@@ -55,6 +65,21 @@ var rect = (function () {
             return;
         }
         if(rect.isEmpty(rect1)) {
+            rect.copyTo(rect2, rect1);
+            return;
+        }
+        var x = Math.min(rect1.X, rect2.X);
+        var y = Math.min(rect1.Y, rect2.Y);
+        rect1.Width = Math.max(rect1.X + rect1.Width, rect2.X + rect2.Width) - x;
+        rect1.Height = Math.max(rect1.Y + rect1.Height, rect2.Y + rect2.Height) - y;
+        rect1.X = x;
+        rect1.Y = y;
+    };
+    rect.unionLogical = function unionLogical(rect1, rect2) {
+        if(rect.isEmptyLogical(rect2)) {
+            return;
+        }
+        if(rect.isEmptyLogical(rect1)) {
             rect.copyTo(rect2, rect1);
             return;
         }
@@ -131,7 +156,7 @@ var rect = (function () {
     };
     rect.transform = function transform(dest, xform) {
         if(!xform) {
-            return this;
+            return;
         }
         var x = dest.X;
         var y = dest.Y;
@@ -141,10 +166,10 @@ var rect = (function () {
         var p2 = vec2.createFrom(x + width, y);
         var p3 = vec2.createFrom(x + width, y + height);
         var p4 = vec2.createFrom(x, y + height);
-        mat3.transformVec2(rect.transform, p1);
-        mat3.transformVec2(rect.transform, p2);
-        mat3.transformVec2(rect.transform, p3);
-        mat3.transformVec2(rect.transform, p4);
+        mat3.transformVec2(xform, p1);
+        mat3.transformVec2(xform, p2);
+        mat3.transformVec2(xform, p3);
+        mat3.transformVec2(xform, p4);
         var l = Math.min(p1[0], p2[0], p3[0], p4[0]);
         var t = Math.min(p1[1], p2[1], p3[1], p4[1]);
         var r = Math.max(p1[0], p2[0], p3[0], p4[0]);
@@ -177,7 +202,7 @@ var rect = (function () {
         return mask;
     };
     rect.transform4 = function transform4(dest, projection) {
-        if(!rect.transform) {
+        if(!projection) {
             return;
         }
         var x = dest.X;
@@ -188,10 +213,10 @@ var rect = (function () {
         var p2 = vec4.createFrom(x + width, y, 0.0, 1.0);
         var p3 = vec4.createFrom(x + width, y + height, 0.0, 1.0);
         var p4 = vec4.createFrom(x, y + height, 0.0, 1.0);
-        mat4.transformVec4(rect.transform, p1);
-        mat4.transformVec4(rect.transform, p2);
-        mat4.transformVec4(rect.transform, p3);
-        mat4.transformVec4(rect.transform, p4);
+        mat4.transformVec4(projection, p1);
+        mat4.transformVec4(projection, p2);
+        mat4.transformVec4(projection, p3);
+        mat4.transformVec4(projection, p4);
         var vs = 65536.0;
         var vsr = 1.0 / vs;
         p1[0] *= vsr;
@@ -231,6 +256,12 @@ var rect = (function () {
             rect.extendTo(dest, p3[0], p3[1]);
             rect.extendTo(dest, p4[0], p4[1]);
         }
+    };
+    rect.round = function round(dest) {
+        dest.X = Math.round(dest.X);
+        dest.Y = Math.round(dest.Y);
+        dest.Width = Math.round(dest.Width);
+        dest.Height = Math.round(dest.Height);
     };
     rect.roundOut = function roundOut(dest) {
         var x = Math.floor(dest.X);
@@ -274,6 +305,11 @@ var rect = (function () {
             return RectOverlap.In;
         }
         return RectOverlap.Part;
+    };
+    rect.isRectContainedIn = function isRectContainedIn(src, test) {
+        var copy = rect.clone(src);
+        rect.intersection(copy, test);
+        return !rect.isEqual(src, copy);
     };
     return rect;
 })();

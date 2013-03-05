@@ -1,15 +1,15 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Geometry.js"/>
 /// CODE
-/// <reference path="../Primitives/Rect.js"/>
 /// <reference path="../Shapes/RawPath.js"/>
+/// <reference path="../Primitives.js"/>
 
 (function (namespace) {
     var RectangleGeometry = Nullstone.Create("RectangleGeometry", namespace.Geometry);
 
     //#region Properties
 
-    RectangleGeometry.RectProperty = DependencyProperty.RegisterCore("Rect", function () { return Rect; }, RectangleGeometry, new Rect());
+    RectangleGeometry.RectProperty = DependencyProperty.RegisterCore("Rect", function () { return rect; }, RectangleGeometry, new rect());
     RectangleGeometry.RadiusXProperty = DependencyProperty.RegisterCore("RadiusX", function () { return Number; }, RectangleGeometry, 0);
     RectangleGeometry.RadiusYProperty = DependencyProperty.RegisterCore("RadiusY", function () { return Number; }, RectangleGeometry, 0);
 
@@ -22,22 +22,22 @@
     //#endregion
 
     RectangleGeometry.Instance.ComputePathBounds = function () {
-        var rect = this.Rect;
-        if (rect)
-            return rect;
-        return new Rect(0.0, 0.0, 0.0, 0.0);
+        var irect = this.Rect;
+        if (irect)
+            return irect;
+        return new rect();
     };
 
     RectangleGeometry.Instance._Build = function () {
-        var rect = this.Rect;
-        if (!rect)
+        var irect = this.Rect;
+        if (!irect)
             return;
 
         var radiusX = this.RadiusX;
         var radiusY = this.RadiusY;
 
         this.$Path = new Fayde.Shapes.RawPath();
-        this.$Path.RoundedRect(rect.X, rect.Y, rect.Width, rect.Height, radiusX, radiusY);
+        this.$Path.RoundedRect(irect.X, irect.Y, irect.Width, irect.Height, radiusX, radiusY);
     };
 
     namespace.RectangleGeometry = Nullstone.FinishCreate(RectangleGeometry);

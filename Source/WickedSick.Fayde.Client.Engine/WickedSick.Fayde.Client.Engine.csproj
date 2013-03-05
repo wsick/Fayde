@@ -373,7 +373,6 @@
     <Content Include="Javascript\Primitives\Font.js" />
     <Content Include="Javascript\Primitives\Matrix.js" />
     <Content Include="Javascript\Primitives\Point.js" />
-    <Content Include="Javascript\Primitives\Rect.js" />
     <Content Include="Javascript\Primitives\Size.js" />
     <Content Include="Javascript\Primitives\Thickness.js" />
     <Content Include="Javascript\Primitives\Uri.js" />

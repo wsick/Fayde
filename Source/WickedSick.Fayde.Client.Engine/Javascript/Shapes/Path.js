@@ -39,11 +39,11 @@
     Path.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
         /// <param name="logical" type="Boolean"></param>
         /// <param name="matrix" type="Matrix"></param>
-        /// <returns type="Rect" />
+        /// <returns type="rect" />
         var geom = this.Data;
         if (geom == null) {
             this._SetShapeFlags(namespace.ShapeFlags.Empty);
-            return new Rect();
+            return new rect();
         }
         if (logical)
             return geom.GetBounds();

@@ -13,9 +13,9 @@ var Fayde;
             if (surface && fe._IsAttached && surface._IsTopLevel(fe)) {
                 // a toplevel (non-popup) canvas doesn't subscribe to the same bounds computation as others
                 rect.set(this.Extents, 0, 0, surface.ActualWidth, surface.ActualHeight);
-                rect.copyTo(this.ExtentsWithChildren, this.Extents);
-                rect.copyTo(this.Bounds, this.Extents);
-                rect.copyTo(this.BoundsWithChildren, this.Bounds);
+                rect.copyTo(this.Extents, this.ExtentsWithChildren);
+                rect.copyTo(this.Extents, this.Bounds);
+                rect.copyTo(this.Bounds, this.BoundsWithChildren);
 
                 this.ComputeGlobalBounds();
                 this.ComputeSurfaceBounds();
