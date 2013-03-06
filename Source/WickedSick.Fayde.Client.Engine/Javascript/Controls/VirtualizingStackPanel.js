@@ -363,8 +363,8 @@
                 if (rect.isEmpty(childFinal)) {
                     rect.clear();
                 } else {
-                    childFinal.Width = -this.HorizontalOffset;
-                    childFinal.Height = arranged.Height;
+                    childFinal.X = -this.HorizontalOffset;
+                    childFinal.Y = arranged.Height;
                 }
                 child.Arrange(childFinal);
                 arranged.Width = Math.max(arranged.Width, size.Width);
@@ -375,8 +375,8 @@
                 if (rect.isEmpty(childFinal)) {
                     rect.clear();
                 } else {
-                    childFinal.Width = arranged.Width;
-                    childFinal.Height = -this.VerticalOffset;
+                    childFinal.X = arranged.Width;
+                    childFinal.Y = -this.VerticalOffset;
                 }
                 child.Arrange(childFinal);
                 arranged.Width += size.Width;
