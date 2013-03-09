@@ -67,11 +67,15 @@
         /// <param name="uie" type="UIElement"></param>
         /// <param name="uie2" type="UIElement"></param>
         var str = "";
-        for (var i = 0; i < tabIndex; i++) {
-            str += "\t";
+        if (uie === uie2) {
+            for (var i = 0; i < tabIndex; i++) {
+                str += ">>>>>>>>";
+            }
+        } else {
+            for (var i = 0; i < tabIndex; i++) {
+                str += "\t";
+            }
         }
-        if (Nullstone.RefEquals(uie, uie2))
-            str += "> ";
         str += uie.constructor._TypeName;
         var name = uie.Name;
         if (name)
