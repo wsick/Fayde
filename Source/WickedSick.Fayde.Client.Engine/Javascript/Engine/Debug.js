@@ -127,12 +127,22 @@ function DrawDebug(message) {
     if (window.console && console.log)
         console.log("DRAW: " + message);
 }
-function RenderDebug(message) {
-    if (true)
-        return;
-    if (window.console && console.log)
-        console.log("RENDER: " + message);
-}
+(function () {
+    var tabs = "";
+    function RenderDebug(message) {
+        if (true)
+            return;
+        if (window.console && console.log)
+            console.log(tabs + "RENDER: " + message);
+    }
+    RenderDebug.Indent = function () {
+        tabs += "\t";
+    };
+    RenderDebug.Unindent = function () {
+        tabs = tabs.slice(1);
+    };
+    this.RenderDebug = RenderDebug;
+}).call(this);
 function ParserDebug(message) {
     if (true)
         return;

@@ -767,9 +767,11 @@
 
         var walker = Fayde._VisualTreeWalker.ZForward(this);
         var child;
+        RenderDebug.Indent();
         while (child = walker.Step()) {
             child._DoRender(ctx, region);
         }
+        RenderDebug.Unindent();
 
         ctx.Restore();
     };
