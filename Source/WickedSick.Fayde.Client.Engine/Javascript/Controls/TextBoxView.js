@@ -134,7 +134,7 @@
             this._HideCursor();
     };
     _TextBoxView.Instance._InvalidateCursor = function () {
-        this._Invalidate(this._Cursor.Transform(this._AbsoluteXform));
+        this._Invalidate(rect.transform(this._Cursor, this._AbsoluteXform));
     };
     _TextBoxView.Instance._ShowCursor = function () {
         this._CursorVisible = true;
