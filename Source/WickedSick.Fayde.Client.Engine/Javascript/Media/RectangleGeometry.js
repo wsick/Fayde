@@ -40,5 +40,14 @@
         this.$Path.RoundedRect(irect.X, irect.Y, irect.Width, irect.Height, radiusX, radiusY);
     };
 
+    RectangleGeometry.Instance._OnPropertyChanged = function (args, error) {
+        if (args.Property.OwnerType !== RectangleGeometry) {
+            this._OnPropertyChanged$Geometry(args, error);
+            return;
+        }
+        this._InvalidateCache();
+        this.PropertyChanged.Raise(this, args);
+    };
+
     namespace.RectangleGeometry = Nullstone.FinishCreate(RectangleGeometry);
 })(Nullstone.Namespace("Fayde.Media"));
