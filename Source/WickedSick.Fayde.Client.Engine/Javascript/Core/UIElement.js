@@ -752,8 +752,10 @@
             canvasCtx.clip();
         }
 
-        RenderDebug.Count++;
-        RenderDebug(this.__DebugToString());
+        if (window.RenderDebug) {
+            RenderDebug.Count++;
+            RenderDebug(this.__DebugToString());
+        }
 
         var effect = this.Effect;
         if (effect) {
@@ -767,11 +769,11 @@
 
         var walker = Fayde._VisualTreeWalker.ZForward(this);
         var child;
-        RenderDebug.Indent();
+        if (window.RenderDebug) RenderDebug.Indent();
         while (child = walker.Step()) {
             child._DoRender(ctx, region);
         }
-        RenderDebug.Unindent();
+        if (window.RenderDebug) RenderDebug.Unindent();
 
         ctx.Restore();
     };

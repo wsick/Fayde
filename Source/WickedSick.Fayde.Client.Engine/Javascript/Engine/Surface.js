@@ -232,7 +232,7 @@
             var rect2 = cur._InvalidatedRect;
             cur._InvalidatedRect = null;
             cur._IsRenderQueued = false;
-            RenderDebug(" --> " + rect2.toString());
+            if (window.RenderDebug) RenderDebug(" --> " + rect2.toString());
             cur.Render(rect2);
         }
     };
@@ -240,7 +240,7 @@
     //#if ENABLE_CANVAS
     if (Fayde.IsCanvasEnabled) {
         Surface.Instance._Invalidate = function (irect) {
-            RenderDebug("Invalidation: " + irect.toString());
+            if (window.RenderDebug) RenderDebug("Invalidation: " + irect.toString());
             if (!irect) {
                 irect = new rect();
                 irect.Width = this.GetWidth();
@@ -268,7 +268,7 @@
         var layers = this._Layers;
         var layerCount = layers ? layers.length : 0;
 
-        RenderDebug.Count = 0;
+        if (window.RenderDebug) RenderDebug.Count = 0;
         var ctx = new Fayde._RenderContext(this);
         ctx.Clear(region);
         ctx.CanvasContext.save();
@@ -277,7 +277,7 @@
             layers[i]._DoRender(ctx, region);
         }
         ctx.CanvasContext.restore();
-        RenderDebug("UIElement Count: " + RenderDebug.Count);
+        if (window.RenderDebug) RenderDebug("UIElement Count: " + RenderDebug.Count);
 
         if (isRenderPassTimed)
             this._App._NotifyDebugRenderPass(new Date().getTime() - startRenderTime);

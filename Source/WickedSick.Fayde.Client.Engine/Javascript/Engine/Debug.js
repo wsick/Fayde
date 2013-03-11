@@ -128,10 +128,10 @@ function DrawDebug(message) {
         console.log("DRAW: " + message);
 }
 (function () {
+    if (true)
+        return;
     var tabs = "";
     function RenderDebug(message) {
-        if (true)
-            return;
         if (window.console && console.log)
             console.log(tabs + "RENDER: " + message);
     }
