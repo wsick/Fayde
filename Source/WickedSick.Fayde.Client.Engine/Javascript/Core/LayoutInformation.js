@@ -7,72 +7,109 @@
 /// <reference path="UIElement.js"/>
 /// <reference path="DependencyProperty.js"/>
 
-(function (namespace) {
-    var LayoutInformation = Nullstone.Create("LayoutInformation");
-
-    //#region Properties
-
-    function onLayoutClipChanged(d, args) {
-        if (d._Metrics)
-            d._Metrics.UpdateLayoutClipBounds(args.NewValue);
+(function (Fayde) {
+    function LayoutInformation() {
+        this.LayoutClip = undefined;
+        this.LayoutExceptionElement = undefined;
+        this.LayoutSlot = undefined;
+        this.PreviousConstraint = undefined;
+        this.FinalRect = undefined;
+        this.LastRenderSize = undefined;
+        this.VisualOffset = undefined;
     }
-    LayoutInformation.LayoutClipProperty = DependencyProperty.RegisterAttachedCore("LayoutClip", function () { return Fayde.Media.Geometry; }, LayoutInformation, undefined, onLayoutClipChanged);
-    LayoutInformation.GetLayoutClip = function (d) {
-        return d.$GetValue(LayoutInformation.LayoutClipProperty);
-    };
-    LayoutInformation.SetLayoutClip = function (d, value) {
-        d.$SetValue(LayoutInformation.LayoutClipProperty, value);
+
+    LayoutInformation.GetLayoutClip = function (uie) {
+        /// <param name="uie" type="UIElement"></param>
+        /// <returns type="Fayde.Media.Geometry" />
+        return uie._LayoutInformation.LayoutClip;
+    }
+    LayoutInformation.SetLayoutClip = function (uie, value) {
+        /// <param name="uie" type="UIElement"></param>
+        /// <param name="value" type="Fayde.Media.Geometry"></param>
+        uie._LayoutInformation.LayoutClip = value;
+        if (uie._Metrics)
+            uie._Metrics.UpdateLayoutClipBounds(value);
     };
 
+    LayoutInformation.GetLayoutExceptionElement = function (uie) {
+        /// <param name="uie" type="UIElement"></param>
+        /// <returns type="Fayde.UIElement" />
+        return uie._LayoutInformation.LayoutExceptionElement;
+    };
+    LayoutInformation.SetLayoutExceptionElement = function (uie, value) {
+        /// <param name="uie" type="UIElement"></param>
+        /// <param name="value" type="UIElement"></param>
+        uie._LayoutInformation.LayoutExceptionElement = value;
+    };
+
+    LayoutInformation.GetLayoutSlot = function (uie, ignoreDefault) {
+        /// <param name="uie" type="Fayde.UIElement"></param>
+        /// <param name="ignoreDefault" type="Boolean"></param>
+        /// <returns type="rect" />
+        var s = uie._LayoutInformation.LayoutSlot;
+        if (ignoreDefault || s)
+            return s;
+        return new rect();
+    };
+    LayoutInformation.SetLayoutSlot = function (uie, value) {
+        /// <param name="uie" type="UIElement"></param>
+        /// <param name="value" type="rect"></param>
+        uie._LayoutInformation.LayoutSlot = value;
+    };
+    
+    LayoutInformation.GetPreviousConstraint = function (uie) {
+        /// <param name="uie" type="UIElement"></param>
+        /// <returns type="Size" />
+        return uie._LayoutInformation.PreviousConstraint;
+    };
+    LayoutInformation.SetPreviousConstraint = function (uie, value) {
+        /// <param name="uie" type="UIElement"></param>
+        /// <param name="value" type="Size"></param>
+        uie._LayoutInformation.PreviousConstraint = value;
+    };
+    
+    LayoutInformation.GetFinalRect = function (uie) {
+        /// <param name="uie" type="UIElement"></param>
+        /// <returns type="rect" />
+        return uie._LayoutInformation.FinalRect;
+    };
+    LayoutInformation.SetFinalRect = function (uie, value) {
+        /// <param name="uie" type="UIElement"></param>
+        /// <param name="value" type="rect"></param>
+        uie._LayoutInformation.FinalRect = value;
+    };
+    
+    LayoutInformation.GetLastRenderSize = function (uie) {
+        /// <param name="uie" type="UIElement"></param>
+        /// <returns type="Size" />
+        return uie._LayoutInformation.LastRenderSize;
+    };
+    LayoutInformation.SetLastRenderSize = function (uie, value) {
+        /// <param name="uie" type="UIElement"></param>
+        /// <param name="value" type="Size"></param>
+        uie._LayoutInformation.LastRenderSize = value;
+    };
+    
+    LayoutInformation.GetVisualOffset = function (uie) {
+        /// <param name="uie" type="UIElement"></param>
+        /// <returns type="Point" />
+        return uie._LayoutInformation.VisualOffset;
+    };
+    LayoutInformation.SetVisualOffset = function (uie, value) {
+        /// <param name="uie" type="UIElement"></param>
+        /// <param name="value" type="Point"></param>
+        uie._LayoutInformation.VisualOffset = value;
+    };
+
+    /*
+    LayoutInformation.LayoutClipProperty = DependencyProperty.RegisterAttachedCore("LayoutClip", function () { return Fayde.Media.Geometry; }, LayoutInformation);
     LayoutInformation.LayoutExceptionElementProperty = DependencyProperty.RegisterAttachedCore("LayoutExceptionElement", function () { return Fayde.UIElement; }, LayoutInformation);
-    LayoutInformation.GetLayoutExceptionElement = function (d) {
-        return d.$GetValue(LayoutInformation.LayoutExceptionElementProperty);
-    };
-    LayoutInformation.SetLayoutExceptionElement = function (d, value) {
-        d.$SetValue(LayoutInformation.LayoutExceptionElementProperty, value);
-    };
-
     LayoutInformation.LayoutSlotProperty = DependencyProperty.RegisterAttachedCore("LayoutSlot", function () { return rect; }, LayoutInformation, new rect());
-    LayoutInformation.GetLayoutSlot = function (d) {
-        return d.$GetValue(LayoutInformation.LayoutSlotProperty);
-    };
-    LayoutInformation.SetLayoutSlot = function (d, value) {
-        d.$SetValue(LayoutInformation.LayoutSlotProperty, value);
-    };
-
     LayoutInformation.PreviousConstraintProperty = DependencyProperty.RegisterAttachedCore("PreviousConstraint", function () { return Size; }, LayoutInformation);
-    LayoutInformation.GetPreviousConstraint = function (d) {
-        return d.$GetValue(LayoutInformation.PreviousConstraintProperty);
-    };
-    LayoutInformation.SetPreviousConstraint = function (d, value) {
-        d.$SetValue(LayoutInformation.PreviousConstraintProperty, value);
-    };
-
     LayoutInformation.FinalRectProperty = DependencyProperty.RegisterAttachedCore("FinalRect", function () { return rect; }, LayoutInformation);
-    LayoutInformation.GetFinalRect = function (d) {
-        return d.$GetValue(LayoutInformation.FinalRectProperty);
-    };
-    LayoutInformation.SetFinalRect = function (d, value) {
-        d.$SetValue(LayoutInformation.FinalRectProperty, value);
-    };
-
     LayoutInformation.LastRenderSizeProperty = DependencyProperty.RegisterAttachedCore("LastRenderSize", function () { return Size; }, LayoutInformation);
-    LayoutInformation.GetLastRenderSize = function (d) {
-        return d.$GetValue(LayoutInformation.LastRenderSizeProperty);
-    };
-    LayoutInformation.SetLastRenderSize = function (d, value) {
-        d.$SetValue(LayoutInformation.LastRenderSizeProperty, value);
-    };
-
     LayoutInformation.VisualOffsetProperty = DependencyProperty.RegisterAttachedCore("VisualOffset", function () { return Point; }, LayoutInformation);
-    LayoutInformation.GetVisualOffset = function (d) {
-        return d.$GetValue(LayoutInformation.VisualOffsetProperty);
-    };
-    LayoutInformation.SetVisualOffset = function (d, value) {
-        d.$SetValue(LayoutInformation.VisualOffsetProperty, value);
-    };
+    */
 
-    //#endregion
-
-    namespace.LayoutInformation = Nullstone.FinishCreate(LayoutInformation);
+    Fayde.LayoutInformation = LayoutInformation;
 })(Nullstone.Namespace("Fayde"));

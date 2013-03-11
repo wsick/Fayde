@@ -169,7 +169,7 @@
     };
 
     _TextBoxView.Instance._ComputeActualSize = function () {
-        if (this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty) !== undefined)
+        if (Fayde.LayoutInformation.GetLayoutSlot(this, true) !== undefined)
             return this._ComputeActualSize$FrameworkElement();
 
         this.Layout(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));

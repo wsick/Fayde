@@ -51,6 +51,7 @@
         this.AddProvider(new Fayde._InheritedPropertyValueProvider(this));
 
         this.InitSpecific();
+        this._LayoutInformation = new Fayde.LayoutInformation();
 
         this._Flags = UIElementFlags.RenderVisible | UIElementFlags.HitTestVisible;
 
@@ -677,7 +678,7 @@
     //#region Arrange
 
     UIElement.Instance._DoArrangeWithError = function (error) {
-        var last = this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty);
+        var last = Fayde.LayoutInformation.GetLayoutSlot(this, true);
         if (last === null)
             last = undefined;
         var parent = this.GetVisualParent();
@@ -867,7 +868,7 @@
 
         var emptySlot = new rect();
         Fayde.LayoutInformation.SetLayoutSlot(item, emptySlot);
-        item._ClearValue(Fayde.LayoutInformation.LayoutClipProperty);
+        Fayde.LayoutInformation.SetLayoutClip(item, undefined);
 
         this._InvalidateMeasure();
 
@@ -890,14 +891,14 @@
         this._UpdateBounds(true);
 
         this._InvalidateMeasure();
-        this._ClearValue(Fayde.LayoutInformation.LayoutClipProperty);
-        this._ClearValue(Fayde.LayoutInformation.PreviousConstraintProperty);
+        Fayde.LayoutInformation.SetLayoutClip(this, undefined);
+        Fayde.LayoutInformation.SetPreviousConstraint(this, undefined);
         item._RenderSize = new Size(0, 0);
         item._UpdateTransform();
         item._UpdateProjection();
         item._InvalidateMeasure();
         item._InvalidateArrange();
-        if (item._HasFlag(UIElementFlags.DirtySizeHint) || item._ReadLocalValue(Fayde.LayoutInformation.LastRenderSizeProperty) !== undefined)
+        if (item._HasFlag(UIElementFlags.DirtySizeHint) || Fayde.LayoutInformation.GetLastRenderSize(item, true) !== undefined)
             item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
 
         if (!Fayde.IsCanvasEnabled) {

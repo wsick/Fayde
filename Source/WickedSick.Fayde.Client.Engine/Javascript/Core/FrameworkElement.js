@@ -276,7 +276,7 @@
         if (error.IsErrored())
             return;
 
-        var slot = this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty);
+        var slot = Fayde.LayoutInformation.GetLayoutSlot(this, true);
         if (slot === null)
             slot = undefined;
 
@@ -311,7 +311,7 @@
             this._MeasureWithError(new Size(finalRect.Width, finalRect.Height), error);
         measure = Fayde.LayoutInformation.GetPreviousConstraint(this);
 
-        this._ClearValue(Fayde.LayoutInformation.LayoutClipProperty);
+        Fayde.LayoutInformation.SetLayoutClip(this, undefined);
 
         var margin = this.Margin;
         var childRect = rect.clone(finalRect);
@@ -627,7 +627,7 @@
                                 pass.ArrangeList.push(child);
                             break;
                         case UIElementFlags.DirtySizeHint:
-                            if (child._ReadLocalValue(Fayde.LayoutInformation.LastRenderSizeProperty) !== undefined)
+                            if (Fayde.LayoutInformation.GetLastRenderSize(child, true) !== undefined)
                                 pass.SizeList.push(child);
                             break;
                         default:
@@ -657,7 +657,7 @@
                     pass.Updated = true;
                     var last = Fayde.LayoutInformation.GetLastRenderSize(uie);
                     if (last) {
-                        uie._ClearValue(Fayde.LayoutInformation.LastRenderSizeProperty, false);
+                        Fayde.LayoutInformation.SetLastRenderSize(uie, undefined);
                         uie._PurgeSizeCache();
                         uie.SizeChanged.Raise(uie, new Fayde.SizeChangedEventArgs(last, uie._RenderSize));
                     }

@@ -169,7 +169,7 @@
         var source = this.Source;
 
         if (parent && !(parent instanceof namespace.Canvas))
-            if (this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty) !== undefined)
+            if (Fayde.LayoutInformation.GetLayoutSlot(this, true) !== undefined)
                 return result;
 
         if (source) {

@@ -217,7 +217,7 @@
         var parent = this.GetVisualParent();
 
         if (parent != null && !(parent instanceof Fayde.Controls.Canvas)) {
-            if (Fayde.LayoutInformation.GetPreviousConstraint(this) !== undefined || this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty) !== undefined) {
+            if (Fayde.LayoutInformation.GetPreviousConstraint(this) !== undefined || Fayde.LayoutInformation.GetLayoutSlot(this, true) !== undefined) {
                 return desired;
             }
         }
