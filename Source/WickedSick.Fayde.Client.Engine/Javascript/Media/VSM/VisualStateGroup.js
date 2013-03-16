@@ -50,7 +50,8 @@
         /// <param name="element" type="FrameworkElement"></param>
         /// <param name="newStoryboards" type="Array"></param>
 
-        AnimationDebug("StartNewThenStopOld (" + element.__DebugToString() + " - " + this.Name + ")");
+        var that = this;
+        AnimationDebug(function () { return "StartNewThenStopOld (" + element.__DebugToString() + " - " + that.Name + ")"; });
 
         var i;
         var storyboard;

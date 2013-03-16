@@ -1,3 +1,23 @@
+var traces = {
+    //Layout
+    layout: false,
+    transform: false,
+    //Render
+    draw: false,
+    render: false,
+    text: false,
+    //Input
+    keyboard: false,
+    focus: false,
+    //Animations
+    vsm: true,
+    animation: true,
+    //Core
+    parser: false
+};
+
+
+
 var DebugLevel = {
     Debug: 0,
     Info: 1,
@@ -86,81 +106,6 @@ function DumpTiming(arr) {
     return "[Min: " + min + "; Max: " + max + "; Avg: " + avg + "; StdDev: " + stddev + "; Total: " + total + "; Count: " + arr.length + "]";;
 }
 
-function KeyboardDebug(message) {
-    if (true)
-        return;
-    if (window.console && console.log)
-        console.log("KEYBOARD: " + message);
-}
-function AnimationDebug(message) {
-    if (true)
-        return;
-    if (window.console && console.log)
-        console.log("ANIMATION: " + message);
-}
-function VsmDebug(message) {
-    if (true)
-        return;
-    if (window.console && console.log)
-        console.log("VSM: " + message);
-}
-function LayoutDebug(message) {
-    if (true)
-        return;
-    if (window.console && console.log)
-        console.log("LAYOUT: " + message);
-}
-function TransformDebug(message, matrix) {
-    if (true)
-        return;
-    var last = TransformDebug.Last;
-    if (last && mat3.equal(last, matrix))
-        return;
-    TransformDebug.Last = matrix;
-
-    if (window.console && console.log)
-        console.log("TRANSFORM: " + message + " --> " + matrix.toString());
-}
-function DrawDebug(message) {
-    if (true)
-        return;
-    if (window.console && console.log)
-        console.log("DRAW: " + message);
-}
-(function () {
-    if (true)
-        return;
-    var tabs = "";
-    function RenderDebug(message) {
-        if (window.console && console.log)
-            console.log(tabs + "RENDER: " + message);
-    }
-    RenderDebug.Indent = function () {
-        tabs += "\t";
-    };
-    RenderDebug.Unindent = function () {
-        tabs = tabs.slice(1);
-    };
-    this.RenderDebug = RenderDebug;
-}).call(this);
-function ParserDebug(message) {
-    if (true)
-        return;
-    if (window.console && console.log)
-        console.log("PARSER: " + message);
-}
-function FocusDebug(message) {
-    if (true)
-        return;
-    if (window.console && console.log)
-        console.log("FOCUS: " + message);
-}
-function TextDebug(message) {
-    if (true)
-        return;
-    if (window.console && console.log)
-        console.log("TEXT: " + message);
-}
 function Debug(message) {
     if (window.console && console.log)
         console.log(message);
@@ -192,3 +137,60 @@ function HUDUpdate(id, message) {
         return;
     hud.SetMessage(message);
 }
+
+
+
+function LayoutDebug() { }
+function TransformDebug() { }
+function DrawDebug() { }
+function RenderDebug() { }
+RenderDebug.Indent = function () { }
+RenderDebug.Unindent = function () { }
+function TextDebug() { }
+function KeyboardDebug() { }
+function FocusDebug() { }
+function AnimationDebug() { }
+function VsmDebug() { }
+function ParserDebug() {}
+
+function initFaydeTraces() {
+    if (!window.console || !console.log)
+        return;
+
+    if (traces.draw)
+        this.DrawDebug = function (message) { console.log("DRAW: " + message); };
+    if (traces.render) {
+        var tabs = "";
+        this.RenderDebug = function (message) { console.log(tabs + "RENDER: " + message); };
+        RenderDebug.Indent = function () {
+            tabs += "\t";
+        };
+        RenderDebug.Unindent = function () {
+            tabs = tabs.slice(1);
+        };
+    }
+    if (traces.text)
+        function TextDebug(message) { console.log("TEXT: " + message); };
+    if (traces.layout)
+        this.LayoutDebug = function (message) { console.log("LAYOUT: " + message); };
+    if (traces.transform)
+        this.TransformDebug = function (message, matrix) {
+            var last = TransformDebug.Last;
+            if (last && mat3.equal(last, matrix))
+                return;
+            TransformDebug.Last = matrix;
+
+            console.log("TRANSFORM: " + message + " --> " + matrix.toString());
+        };
+    if (traces.keyboard)
+        this.KeyboardDebug = function (message) { console.log("KEYBOARD: " + message); };
+    if (traces.focus)
+        FocusDebug = function (message) { console.log("FOCUS: " + message); };
+    if (traces.animation)
+        this.AnimationDebug = function (func) { console.log("ANIMATION: " + func()); };
+    if (traces.vsm)
+        this.VsmDebug = function (message) { console.log("VSM: " + message); };
+    if (traces.parser)
+        this.ParserDebug = function (message) { console.log("PARSER: " + message); };
+}
+initFaydeTraces.call(this);

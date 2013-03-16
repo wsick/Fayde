@@ -78,7 +78,8 @@
     AnimationStorage.Instance.ApplyCurrentValue = function () {
         if (this._CurrentValue == null)
             return;
-        AnimationDebug("ApplyCurrentValue: [" + this._TargetObj.constructor._TypeName + "." + this._TargetProp.Name + "] --> " + this._CurrentValue.toString());
+        var that = this;
+        AnimationDebug(function () { return "ApplyCurrentValue: [" + that._TargetObj.constructor._TypeName + "." + that._TargetProp.Name + "] --> " + that._CurrentValue.toString(); });
         this._TargetObj._SetValue(this._TargetProp, this._CurrentValue);
     };
 
