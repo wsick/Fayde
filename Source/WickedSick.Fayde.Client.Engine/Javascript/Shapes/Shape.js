@@ -73,20 +73,23 @@
     //#region Measure
 
     Shape.Instance._MeasureOverrideWithError = function (availableSize, error) {
-        /// <param name="availableSize" type="Size"></param>
-        var desired = availableSize;
+        /// <param name="availableSize" type="size"></param>
         var shapeBounds = this._GetNaturalBounds();
         if (!shapeBounds)
-            return new Size();
+            return new size();
         var sx = 0.0;
         var sy = 0.0;
-        if (this instanceof namespace.Rectangle || this instanceof namespace.Ellipse) {
-            desired = new Size(0, 0);
-        }
+
+        var desired;
+        if (this instanceof namespace.Rectangle || this instanceof namespace.Ellipse)
+            desired = new size();
+        else
+            desired = size.clone(availableSize);
 
         var stretch = this.Stretch;
-        if (stretch === Fayde.Media.Stretch.None)
-            return new Size(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height);
+        if (stretch === Fayde.Media.Stretch.None) {
+            return size.fromRaw(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height);
+        }
 
         if (!isFinite(availableSize.Width))
             desired.Width = shapeBounds.Width;
@@ -120,7 +123,8 @@
                 break;
         }
 
-        desired = new Size(shapeBounds.Width * sx, shapeBounds.Height * sy);
+        desired.Width = shapeBounds.Width * sx;
+        desired.Height = shapeBounds.Height * sy;
         return desired;
     };
 
@@ -129,20 +133,23 @@
     //#region Arrange
 
     Shape.Instance._ArrangeOverrideWithError = function (finalSize, error) {
-        /// <param name="finalSize" type="Size"></param>
-        var arranged = finalSize;
+        /// <param name="finalSize" type="size"></param>
         var sx = 1.0;
         var sy = 1.0;
 
         var shapeBounds = this._GetNaturalBounds();
         if (!shapeBounds)
-            return new Size();
+            return new size();
 
         this._InvalidateStretch();
 
+        var arranged;
         var stretch = this.Stretch;
-        if (stretch === Fayde.Media.Stretch.None)
-            return arranged.Max(new Size(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height));
+        if (stretch === Fayde.Media.Stretch.None) {
+            arranged = size.fromRaw(Math.max(finalSize.Width, shapeBounds.X + shapeBounds.Width), Math.max(finalSize.Height, shapeBounds.Y + shapeBounds.Height));
+        } else {
+            arranged = size.clone(finalSize);
+        }
 
         if (shapeBounds.Width === 0)
             shapeBounds.Width = arranged.Width;
@@ -165,7 +172,8 @@
                 break;
         }
 
-        arranged = new Size(shapeBounds.Width * sx, shapeBounds.Height * sy);
+        arranged.Width = shapeBounds.Width * sx;
+        arranged.Height = shapeBounds.Height * sy;
         return arranged;
     };
 
@@ -230,7 +238,7 @@
 
         var stretch = this.Stretch;
         if (stretch === Fayde.Media.Stretch.None && shapeBounds.Width > 0 && shapeBounds.Height > 0)
-            return new Size(shapeBounds.Width, shapeBounds.Height);
+            return size.fromRect(shapeBounds);
 
         if (!isFinite(desired.Width))
             desired.Width = shapeBounds.Width;
@@ -253,12 +261,12 @@
                 break;
         }
 
-        desired = desired.Min(shapeBounds.Width * sx, shapeBounds.Height * sy);
+        desired.Width = Math.min(desired.Width, shapeBounds.Width * sx);
+        desired.Height = Math.min(desired.Height, shapeBounds.Height * sy);
         return desired;
     };
     Shape.Instance._GetSizeForBrush = function (ctx) {
-        var se = this._GetStretchExtents();
-        return new Size(se.Width, se.Height);
+        return size.fromRect(this._GetStretchExtents());
     };
 
     //#endregion
@@ -279,9 +287,9 @@
             return new rect();
         }
 
-        var specified = new Size(this.Width, this.Height);
+        var specified = size.fromRaw(this.Width, this.Height);
         var autoDim = isNaN(specified.Width);
-        var framework = new Size(this.ActualWidth, this.ActualHeight);
+        var framework = size.fromRaw(this.ActualWidth, this.ActualHeight);
 
         if (specified.Width <= 0.0 || specified.Height <= 0.0) {
             this._SetShapeFlags(namespace.ShapeFlags.Empty);

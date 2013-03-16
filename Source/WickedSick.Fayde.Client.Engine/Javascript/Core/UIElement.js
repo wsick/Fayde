@@ -55,14 +55,14 @@
 
         this._Flags = UIElementFlags.RenderVisible | UIElementFlags.HitTestVisible;
 
-        this._HiddenDesire = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+        this._HiddenDesire = size.createNegativeInfinite();
 
         this._DirtyFlags = _Dirty.Measure;
         this._PropagateFlagUp(UIElementFlags.DirtyMeasureHint);
         this._UpDirtyNode = this._DownDirtyNode = null;
         this._ForceInvalidateOfNewBounds = false;
-        this._DesiredSize = new Size();
-        this._RenderSize = new Size();
+        this._DesiredSize = new size();
+        this._RenderSize = new size();
 
         this._DirtyRegion = new rect();
 
@@ -485,8 +485,8 @@
             return;
         }
 
-        var size = this._GetSizeForBrush();
-        projection._SetObjectSize(size.Width, size.Height);
+        var s = this._GetSizeForBrush();
+        projection._SetObjectSize(s.Width, s.Height);
         Fayde.Controls.Panel.SetZ(this, projection._GetDistanceFromXYPlane());
     };
 
@@ -649,16 +649,16 @@
     UIElement.Instance._DoMeasureWithError = function (error) {
         var last = Fayde.LayoutInformation.GetPreviousConstraint(this);
         var parent = this.GetVisualParent();
-        var infinite = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
+        var infinite = size.createInfinite();
 
         if (!this._IsAttached && !last && !parent && this.IsLayoutContainer()) {
             last = infinite;
         }
 
         if (last) {
-            var previousDesired = this._DesiredSize;
+            var previousDesired = size.clone(this._DesiredSize);
             this._MeasureWithError(last, error);
-            if (Size.Equals(previousDesired, this._DesiredSize))
+            if (size.isEqual(previousDesired, this._DesiredSize))
                 return;
         }
 
@@ -684,24 +684,28 @@
         var parent = this.GetVisualParent();
 
         if (!parent) {
-            var desired = new Size();
             var surface = App.Instance.MainSurface;
-
+            var desired = new size();
             if (this.IsLayoutContainer()) {
-                desired = this._DesiredSize;
+                desired.Width = this._DesiredSize.Width;
+                desired.Height = this._DesiredSize.Height;
                 if (this._IsAttached && surface._IsTopLevel(this) && !this._Parent) {
                     var measure = Fayde.LayoutInformation.GetPreviousConstraint(this);
                     if (measure)
-                        desired = desired.Max(measure);
-                    else
-                        desired = new Size(surface.GetWidth(), surface.GetHeight());
+                        size.max(desired, measure);
+                    else {
+                        desired.Width = surface.GetWidth();
+                        desired.Height = surface.GetHeight();
+                    }
                 }
             } else {
-                desired = new Size(this.ActualWidth, this.ActualHeight);
+                desired.Width = this.ActualWidth;
+                desired.Height = this.ActualHeight;
             }
 
-            var viewport = new rect();
-            rect.set(viewport, Fayde.Controls.Canvas.GetLeft(this), Fayde.Controls.Canvas.GetTop(this), desired.Width, desired.Height);
+            var viewport = rect.fromSize(desired);
+            viewport.X = Fayde.Controls.Canvas.GetLeft(this);
+            viewport.Y = Fayde.Controls.Canvas.GetTop(this);
             last = viewport;
         }
 
@@ -893,7 +897,7 @@
         this._InvalidateMeasure();
         Fayde.LayoutInformation.SetLayoutClip(this, undefined);
         Fayde.LayoutInformation.SetPreviousConstraint(this, undefined);
-        item._RenderSize = new Size(0, 0);
+        item._RenderSize = new size();
         item._UpdateTransform();
         item._UpdateProjection();
         item._InvalidateMeasure();

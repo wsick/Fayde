@@ -31,14 +31,13 @@
     //#region Measure
 
     Canvas.Instance._MeasureOverrideWithError = function (availableSize, error) {
-        var childSize = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
+        var childSize = size.createInfinite();
         var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
             child._MeasureWithError(childSize, error);
         }
-        var desired = new Size(0, 0);
-        return desired;
+        return new size();
     };
 
     //#endregion
@@ -49,9 +48,9 @@
         var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
-            var desired = child._DesiredSize;
-            var childFinal = new rect();
-            rect.set(childFinal, Canvas.GetLeft(child), Canvas.GetTop(child), desired.Width, desired.Height);
+            var childFinal = rect.fromSize(child._DesiredSize);
+            childFinal.X = Canvas.GetLeft(child);
+            childFinal.Y = Canvas.GetTop(child);
             child._ArrangeWithError(childFinal, error);
         }
         return finalSize;
@@ -90,10 +89,9 @@
             if (args.Property._ID === Canvas.TopProperty._ID
                 || args.Property._ID === Canvas.LeftProperty._ID) {
                 var child = obj;
-                var desired = child._DesiredSize;
-                var childFinal = new rect();
-                rect.set(childFinal, Canvas.GetLeft(child), Canvas.GetTop(child), desired.Width, desired.Height);
-
+                var childFinal = rect.fromSize(child._DesiredSize);
+                childFinal.X = Canvas.GetLeft(child);
+                childFinal.Y = Canvas.GetTop(child);
                 if (child.UseLayoutRounding) {
                     childFinal.X = Math.round(childFinal.X);
                     childFinal.Y = Math.round(childFinal.Y);

@@ -1,6 +1,7 @@
 ﻿/// <reference path="VirtualizingPanel.js"/>
 /// <reference path="Primitives/IScrollInfo.js"/>
 /// CODE
+/// <reference path="../Primitives.js"/>
 /// <reference path="Enums.js"/>
 /// <reference path="Primitives/ItemsChangedEventArgs.js"/>
 
@@ -226,7 +227,7 @@
 
     VirtualizingStackPanel.Instance.MeasureOverride = function (constraint) {
         var owner = namespace.ItemsControl.GetItemsOwner(this);
-        var measured = new Size(0, 0);
+        var measured = new size();
         var invalidate = false;
         var nvisible = 0;
         var beyond = 0;
@@ -241,7 +242,7 @@
         var generator = this.ItemContainerGenerator;
         if (itemCount > 0) {
             var children = this.Children;
-            var childAvailable = constraint.Copy();
+            var childAvailable = size.clone(constraint);
             if (this.CanHorizontallyScroll || orientation === Fayde.Orientation.Horizontal)
                 childAvailable.Width = Number.POSITIVE_INFINITY;
             if (this.CanVerticallyScroll || orientation === Fayde.Orientation.Vertical)
@@ -265,18 +266,18 @@
                     }
 
                     child.Measure(childAvailable);
-                    var size = child._DesiredSize;
+                    var s = child._DesiredSize;
                     nvisible++;
 
                     if (orientation === Fayde.Orientation.Vertical) {
-                        measured.Width = Math.max(measured.Width, size.Width);
-                        measured.Height += size.Height;
+                        measured.Width = Math.max(measured.Width, s.Width);
+                        measured.Height += s.Height;
 
                         if (measured.Height > constraint.Height)
                             beyond++;
                     } else {
-                        measured.Height = Math.max(measured.Height, size.Height);
-                        measured.Width += size.Width;
+                        measured.Height = Math.max(measured.Height, s.Height);
+                        measured.Width += s.Width;
 
                         if (measured.Width > constraint.Width)
                             beyond++;
@@ -344,8 +345,8 @@
     //#region Arrange
 
     VirtualizingStackPanel.Instance.ArrangeOverride = function (arrangeSize) {
-        /// <param name="arrangeSize" type="Size"></param>
-        var arranged = arrangeSize.Copy();
+        /// <param name="arrangeSize" type="size"></param>
+        var arranged = size.clone(arrangeSize);
         var orientation = this.Orientation;
         if (orientation === Fayde.Orientation.Vertical)
             arranged.Height = 0;
@@ -356,10 +357,10 @@
         var len = children.GetCount();
         for (var i = 0; i < len; i++) {
             var child = children.GetValueAt(i);
-            var size = child._DesiredSize;
+            var s = child._DesiredSize;
             if (orientation === Fayde.Orientation.Vertical) {
-                size.Width = arrangeSize.Width;
-                var childFinal = rect.fromSize(size);
+                s.Width = arrangeSize.Width;
+                var childFinal = rect.fromSize(s);
                 if (rect.isEmpty(childFinal)) {
                     rect.clear();
                 } else {
@@ -367,11 +368,11 @@
                     childFinal.Y = arranged.Height;
                 }
                 child.Arrange(childFinal);
-                arranged.Width = Math.max(arranged.Width, size.Width);
-                arranged.Height += size.Height;
+                arranged.Width = Math.max(arranged.Width, s.Width);
+                arranged.Height += s.Height;
             } else {
-                size.Height = arrangeSize.Height;
-                var childFinal = rect.fromSize(size);
+                s.Height = arrangeSize.Height;
+                var childFinal = rect.fromSize(s);
                 if (rect.isEmpty(childFinal)) {
                     rect.clear();
                 } else {
@@ -379,8 +380,8 @@
                     childFinal.Y = -this.VerticalOffset;
                 }
                 child.Arrange(childFinal);
-                arranged.Width += size.Width;
-                arranged.Height = Math.max(arranged.Height, size.Height);
+                arranged.Width += s.Width;
+                arranged.Height = Math.max(arranged.Height, s.Height);
             }
         }
 

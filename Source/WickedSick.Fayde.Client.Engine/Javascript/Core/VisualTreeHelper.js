@@ -106,9 +106,10 @@
         var p = Fayde.LayoutInformation.GetVisualOffset(uie);
         if (p)
             str += p.toString();
-        var size = new Size(uie.ActualWidth, uie.ActualHeight);
+        var s = size.fromRaw(uie.ActualWidth, uie.ActualHeight);
+
         str += " ";
-        str += size.toString();
+        str += s.toString();
         str += ")";
         var gridStr = VisualTreeHelper.__DebugGrid(uie, tabIndex);
         if (gridStr)

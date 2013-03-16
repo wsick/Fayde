@@ -210,8 +210,8 @@
                 var r = new rect();
                 rect.set(r, value.X, value.Y, value.Width, value.Height);
                 return r;
-            case "Size":
-                return new Size(value.Width, value.Height);
+            case "size":
+                return size.fromRaw(value.Width, value.Height);
             case "Uri":
                 return new Uri(value._OriginalString);
             case "RepeatBehavior":

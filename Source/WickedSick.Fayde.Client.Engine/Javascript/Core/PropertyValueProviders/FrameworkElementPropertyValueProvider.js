@@ -1,7 +1,7 @@
 /// <reference path="PropertyValueProvider.js"/>
 /// CODE
 /// <reference path="../FrameworkElement.js"/>
-/// <reference path="../../Primitives/Size.js"/>
+/// <reference path="../../Primitives.js"/>
 
 (function (Fayde) {
     var FrameworkElementPropertyValueProvider = Nullstone.Create("FrameworkElementPropertyValueProvider", Fayde._PropertyValueProvider, 1);
@@ -10,7 +10,7 @@
         this.Init$_PropertyValueProvider(obj, _PropertyPrecedence.DynamicValue);
         this._ActualHeight = null;
         this._ActualWidth = null;
-        this._Last = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+        this._Last = size.createNegativeInfinite();
     };
 
     FrameworkElementPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
@@ -18,7 +18,7 @@
             return undefined;
 
         var actual = this._Object._ComputeActualSize();
-        if (!Size.Equals(this._Last, actual)) {
+        if (!size.isEqual(this._Last, actual)) {
             this._Last = actual;
             this._ActualHeight = actual.Height;
             this._ActualWidth = actual.Width;

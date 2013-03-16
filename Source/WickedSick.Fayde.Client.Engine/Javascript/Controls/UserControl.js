@@ -25,25 +25,25 @@
     UserControl.Instance.IsLayoutContainer = function () { return true; };
 
     UserControl.Instance._MeasureOverrideWithError = function (availableSize, error) {
-        var desired = new Size(0, 0);
-
+        var desired;
+        availableSize = size.clone(availableSize);
         var border = this.Padding.Plus(this.BorderThickness);
+        size.shrinkByThickness(availableSize, border);
 
         var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
-            child._MeasureWithError(availableSize.ShrinkByThickness(border), error);
-            desired = child._DesiredSize;
+            child._MeasureWithError(availableSize, error);
+            desired = size.clone(child._DesiredSize);
         }
-
-        desired = desired.GrowByThickness(border);
-
+        if (!desired)
+            desired = new size();
+        size.growByThickness(desired, border);
         return desired;
     };
     UserControl.Instance._ArrangeOverrideWithError = function (finalSize, error) {
         var border = this.Padding.Plus(this.BorderThickness);
-
-        var arranged = finalSize;
+        var arranged;
 
         var walker = new Fayde._VisualTreeWalker(this);
         var child;
@@ -51,8 +51,11 @@
             var childRect = rect.fromSize(finalSize);
             rect.shrinkByThickness(childRect, border);
             child._ArrangeWithError(childRect, error);
-            arranged = new Size(childRect.Width, childRect.Height).GrowByThickness(border);
+            arranged = size.fromRect(childRect);
+            size.growByThickness(arranged, border);
         }
+        if (!arranged)
+            return finalSize;
         return arranged;
     };
 

@@ -63,16 +63,14 @@
     };
     Panel.Instance._MeasureOverrideWithError = function (availableSize, error) {
         Info("Panel._MeasureOverrideWithError [" + this._TypeName + "]");
-        var result = new Size(0, 0);
-        return result;
+        return new size();
     };
     Panel.Instance._Render = function (ctx, region) {
         /// <param name="ctx" type="_RenderContext"></param>
         var background = this.Background;
         if (!background)
             return;
-        var framework = new Size(this.ActualWidth, this.ActualHeight);
-        framework = this._ApplySizeConstraints(framework);
+        var framework = this._ApplySizeConstraints(size.fromRaw(this.ActualWidth, this.ActualHeight));
         if (framework.Width <= 0 || framework.Height <= 0)
             return;
 

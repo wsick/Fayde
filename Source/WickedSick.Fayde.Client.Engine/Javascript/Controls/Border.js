@@ -1,5 +1,6 @@
 /// <reference path="../Core/FrameworkElement.js"/>
 /// CODE
+/// <reference path="../Primitives.js"/>
 /// <reference path="../Core/DependencyObject.js" />
 /// <reference path="../Primitives/CornerRadius.js"/>
 /// <reference path="../Primitives/Thickness.js"/>
@@ -41,31 +42,32 @@
 
     Border.Instance.IsLayoutContainer = function () { return true; };
     Border.Instance._MeasureOverrideWithError = function (availableSize, error) {
-        var desired = new Size();
+        var desired = new size();
         var border = this.Padding.Plus(this.BorderThickness);
 
+        availableSize = size.shrinkByThickness(size.clone(availableSize), border);
         var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
-            child._MeasureWithError(availableSize.ShrinkByThickness(border), error);
-            desired = child._DesiredSize;
+            child._MeasureWithError(availableSize, error);
+            desired = size.clone(child._DesiredSize);
         }
-        desired = desired.GrowByThickness(border);
-        desired = desired.Min(availableSize);
+        size.growByThickness(desired, border);
+        size.min(desired, availableSize);
         return desired;
     };
     Border.Instance._ArrangeOverrideWithError = function (finalSize, error) {
-        var border = this.Padding.Plus(this.BorderThickness);
-        var arranged = finalSize;
-
         var child = this.Child;
         if (child) {
-            var childRect = new rect();
-            rect.set(childRect, 0, 0, finalSize.Width, finalSize.Height);
+            var border = this.Padding.Plus(this.BorderThickness);
+            var childRect = rect.fromSize(finalSize);
             rect.shrinkByThickness(childRect, border);
             child._ArrangeWithError(childRect, error);
-            arranged = new Size(childRect.Width, childRect.Height).GrowBy(border);
-            arranged = arranged.Max(finalSize);
+            /*
+            arranged = size.fromRect(childRect);
+            size.growByThickness(arranged, border);
+            size.max(arranged, finalSize);
+            */
         }
         return finalSize;
     };

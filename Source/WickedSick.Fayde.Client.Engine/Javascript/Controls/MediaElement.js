@@ -81,7 +81,7 @@
     //#region Size/Bounds
 
     MediaElement.Instance._ComputeActualSize = function () {
-        return new Size();
+        return new size();
         //TODO: Implement video
     };
 
@@ -112,8 +112,8 @@
     //#region Measure
 
     MediaElement.Instance._MeasureOverrideWithError = function (availableSize, error) {
-        /// <param name="availableSize" type="Size"></param>
-        return new Size();
+        /// <param name="availableSize" type="size"></param>
+        return new size();
         //TODO: Implement video
     };
 
@@ -122,8 +122,8 @@
     //#region Arrange
 
     MediaElement.Instance._ArrangeOverrideWithError = function (finalSize, error) {
-        /// <param name="finalSize" type="Size"></param>
-        return new Size();
+        /// <param name="finalSize" type="size"></param>
+        return new size();
         //TODO: Implement video
     };
 

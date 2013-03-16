@@ -17,10 +17,9 @@ var Fayde;
         this.GlobalBounds = this.GlobalWithChildren;
     }
     FrameworkElementMetrics.prototype.ComputeBounds = function (fe) {
-        var size = new Size(fe.ActualWidth, fe.ActualHeight);
-        size = fe._ApplySizeConstraints(size);
+        var s = fe._ApplySizeConstraints(size.fromRaw(fe.ActualWidth, fe.ActualHeight));
 
-        rect.set(this.Extents, 0, 0, size.Width, size.Height);
+        rect.set(this.Extents, 0, 0, s.Width, s.Height);
         rect.copyTo(this.Extents, this.ExtentsWithChildren);
 
         var walker = new Fayde._VisualTreeWalker(fe);

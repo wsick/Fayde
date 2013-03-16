@@ -624,7 +624,7 @@
         return r;
     };
     TextLayout.Instance.GetActualExtents = function () {
-        return new Size(this._ActualWidth, this._ActualHeight);
+        return size.fromRaw(this._ActualWidth, this._ActualHeight);
     };
     TextLayout.Instance.Layout = function () {
         if (!isNaN(this._ActualWidth))

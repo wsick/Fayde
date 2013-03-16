@@ -1,7 +1,6 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Primitives.js"/>
 /// CODE
-/// <reference path="../Primitives/Size.js"/>
 /// <reference path="../Primitives/Point.js"/>
 /// <reference path="../Media/Geometry.js"/>
 /// <reference path="UIElement.js"/>
@@ -59,12 +58,12 @@
     
     LayoutInformation.GetPreviousConstraint = function (uie) {
         /// <param name="uie" type="UIElement"></param>
-        /// <returns type="Size" />
+        /// <returns type="size" />
         return uie._LayoutInformation.PreviousConstraint;
     };
     LayoutInformation.SetPreviousConstraint = function (uie, value) {
         /// <param name="uie" type="UIElement"></param>
-        /// <param name="value" type="Size"></param>
+        /// <param name="value" type="size"></param>
         uie._LayoutInformation.PreviousConstraint = value;
     };
     
@@ -81,12 +80,12 @@
     
     LayoutInformation.GetLastRenderSize = function (uie) {
         /// <param name="uie" type="UIElement"></param>
-        /// <returns type="Size" />
+        /// <returns type="size" />
         return uie._LayoutInformation.LastRenderSize;
     };
     LayoutInformation.SetLastRenderSize = function (uie, value) {
         /// <param name="uie" type="UIElement"></param>
-        /// <param name="value" type="Size"></param>
+        /// <param name="value" type="size"></param>
         uie._LayoutInformation.LastRenderSize = value;
     };
     
@@ -105,9 +104,9 @@
     LayoutInformation.LayoutClipProperty = DependencyProperty.RegisterAttachedCore("LayoutClip", function () { return Fayde.Media.Geometry; }, LayoutInformation);
     LayoutInformation.LayoutExceptionElementProperty = DependencyProperty.RegisterAttachedCore("LayoutExceptionElement", function () { return Fayde.UIElement; }, LayoutInformation);
     LayoutInformation.LayoutSlotProperty = DependencyProperty.RegisterAttachedCore("LayoutSlot", function () { return rect; }, LayoutInformation, new rect());
-    LayoutInformation.PreviousConstraintProperty = DependencyProperty.RegisterAttachedCore("PreviousConstraint", function () { return Size; }, LayoutInformation);
+    LayoutInformation.PreviousConstraintProperty = DependencyProperty.RegisterAttachedCore("PreviousConstraint", function () { return size; }, LayoutInformation);
     LayoutInformation.FinalRectProperty = DependencyProperty.RegisterAttachedCore("FinalRect", function () { return rect; }, LayoutInformation);
-    LayoutInformation.LastRenderSizeProperty = DependencyProperty.RegisterAttachedCore("LastRenderSize", function () { return Size; }, LayoutInformation);
+    LayoutInformation.LastRenderSizeProperty = DependencyProperty.RegisterAttachedCore("LastRenderSize", function () { return size; }, LayoutInformation);
     LayoutInformation.VisualOffsetProperty = DependencyProperty.RegisterAttachedCore("VisualOffset", function () { return Point; }, LayoutInformation);
     */
 

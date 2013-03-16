@@ -38,8 +38,8 @@
     //#region Measure
 
     Image.Instance._MeasureOverrideWithError = function (availableSize, error) {
-        /// <param name="availableSize" type="Size"></param>
-        var desired = availableSize;
+        /// <param name="availableSize" type="size"></param>
+        var desired = size.clone(availableSize);
         var shapeBounds = new rect();
         var source = this.Source;
         var sx = sy = 0.0;
@@ -82,8 +82,8 @@
                 break;
         }
 
-        desired = new Size(shapeBounds.Width * sx, shapeBounds.Height * sy);
-
+        desired.Width = shapeBounds.Width * sx;
+        desired.Height = shapeBounds.Height * sy;
         return desired;
     };
 
@@ -92,8 +92,8 @@
     //#region Arrange
 
     Image.Instance._ArrangeOverrideWithError = function (finalSize, error) {
-        /// <param name="finalSize" type="Size"></param>
-        var arranged = finalSize;
+        /// <param name="finalSize" type="size"></param>
+        var arranged = size.clone(finalSize);
         var shapeBounds = new rect();
         var source = this.Source;
         var sx = 1.0;
@@ -128,8 +128,8 @@
                 break;
         }
 
-        arranged = new Size(shapeBounds.Width * sx, shapeBounds.Height * sy);
-
+        arranged.Width = shapeBounds.Width * sx;
+        arranged.Height = shapeBounds.Height * sy;
         return arranged;
     };
 
@@ -173,11 +173,10 @@
                 return result;
 
         if (source) {
-            var available = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
-            available = this._ApplySizeConstraints(available);
+            var available = this._ApplySizeConstraints(size.createInfinite());
             var error = new BError();
             result = this._MeasureOverrideWithError(available, error);
-            result = this._ApplySizeConstraints(result);
+            this._ApplySizeConstraints(result);
         }
 
         return result;
@@ -274,9 +273,9 @@
     };
     Image.Instance._CalculateRenderMetrics = function (source) {
         var stretch = this.Stretch;
-        var specified = new Size(this.ActualWidth, this.ActualHeight);
-        var stretched = this._ApplySizeConstraints(specified);
-        var adjust = !Size.Equals(specified, this._RenderSize);
+        var specified = size.fromRaw(this.ActualWidth, this.ActualHeight);
+        var stretched = this._ApplySizeConstraints(size.clone(specified));
+        var adjust = !size.isEqual(specified, this._RenderSize);
 
         var pixelWidth = source.PixelWidth;
         var pixelHeight = source.PixelHeight;
@@ -284,7 +283,7 @@
             return null;
 
         if (stretch !== Fayde.Media.Stretch.UniformToFill)
-            specified = specified.Min(stretched);
+            size.min(specified, stretched);
 
         var paint = rect.fromSize(specified);
         var image = new rect();

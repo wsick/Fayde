@@ -14,9 +14,9 @@
         this.ScrollOwner = null;
         this.Offset = new Point();
         this.CachedOffset = new Point();
-        this.Viewport = new Size();
-        this.Extent = new Size();
-        this.MaxDesiredSize = new Size();
+        this.Viewport = new size();
+        this.Extent = new size();
+        this.MaxDesiredSize = new size();
     };
 
     namespace.ScrollData = Nullstone.FinishCreate(ScrollData);

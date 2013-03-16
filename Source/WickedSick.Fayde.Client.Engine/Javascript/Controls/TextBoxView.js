@@ -172,20 +172,21 @@
         if (Fayde.LayoutInformation.GetLayoutSlot(this, true) !== undefined)
             return this._ComputeActualSize$FrameworkElement();
 
-        this.Layout(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
+        this.Layout(size.createInfinite());
         return this._Layout.GetActualExtents();
     };
     _TextBoxView.Instance._MeasureOverrideWithError = function (availableSize, error) {
         this.Layout(availableSize);
-        var desired = this._Layout.GetActualExtents();
+        var desired = size.clone(this._Layout.GetActualExtents());
         if (!isFinite(availableSize.Width))
             desired.Width = Math.max(desired.Width, 11);
-        return desired.Min(availableSize);
+        size.min(desired, availableSize);
+        return desired;
     };
     _TextBoxView.Instance._ArrangeOverrideWithError = function (finalSize, error) {
         this.Layout(finalSize);
-        var arranged = this._Layout.GetActualExtents();
-        arranged = arranged.Max(finalSize);
+        var arranged = size.clone(this._Layout.GetActualExtents());
+        size.max(arranged, finalSize);
         return arranged;
     };
     _TextBoxView.Instance.Layout = function (constraint) {

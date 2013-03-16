@@ -150,20 +150,25 @@
     //#region Measure
 
     ScrollContentPresenter.Instance.MeasureOverride = function (constraint) {
-        /// <param name="constraint" type="Size"></param>
+        /// <param name="constraint" type="size"></param>
         var scrollOwner = this.ScrollOwner;
         if (scrollOwner == null || this._ContentRoot == null) {
             var error = new BError();
             return this._MeasureOverrideWithError(constraint, error);
         }
 
-        var ideal = new Size(this.CanHorizontallyScroll ? Number.POSITIVE_INFINITY : constraint.Width,
-            this.CanVerticallyScroll ? Number.POSITIVE_INFINITY : constraint.Height);
+        var ideal = size.createInfinite();
+        if (!this.CanHorizontallyScroll)
+            ideal.Width = constraint.Width;
+        if (!this.CanVerticallyScroll)
+            ideal.Height = constraint.Height;
 
         this._ContentRoot.Measure(ideal);
         this._UpdateExtents(constraint, this._ContentRoot._DesiredSize);
 
-        return constraint.Min(this.$ScrollData.Extent);
+        var desired = size.clone(constraint);
+        size.min(desired, this.$ScrollData.Extent);
+        return desired;
     };
 
     //#endregion
@@ -171,7 +176,7 @@
     //#region Arrange
 
     ScrollContentPresenter.Instance.ArrangeOverride = function (arrangeSize) {
-        /// <param name="arrangeSize" type="Size"></param>
+        /// <param name="arrangeSize" type="size"></param>
         var scrollOwner = this.ScrollOwner;
         if (!scrollOwner || !this._ContentRoot)
             return this._ArrangeOverrideWithError(arrangeSize, new BError());
@@ -182,9 +187,11 @@
         var desired = this._ContentRoot._DesiredSize;
         var start = new Point(-this.HorizontalOffset, -this.VerticalOffset);
 
-        var offerSize = desired.Max(arrangeSize);
-        var childRect = new rect();
-        rect.set(childRect, start.X, start.Y, offerSize.Width, offerSize.Height);
+        var offerSize = size.clone(desired);
+        size.max(offerSize, arrangeSize);
+        var childRect = rect.fromSize(offerSize);
+        childRect.X = start.X;
+        childRect.Y = start.Y;
         this._ContentRoot.Arrange(childRect);
         this._UpdateClip(arrangeSize);
         this._UpdateExtents(arrangeSize, this.$ScrollData.Extent);
@@ -237,10 +244,10 @@
     //#region Update/Invalidate
 
     ScrollContentPresenter.Instance._UpdateExtents = function (viewport, extents) {
-        /// <param name="viewport" type="Size"></param>
-        /// <param name="extents" type="Size"></param>
-        var changed = !Size.Equals(this.$ScrollData.Viewport, viewport)
-            || !Size.Equals(this.$ScrollData.Extent, extents);
+        /// <param name="viewport" type="size"></param>
+        /// <param name="extents" type="size"></param>
+        var changed = !size.isEqual(this.$ScrollData.Viewport, viewport)
+            || !size.isEqual(this.$ScrollData.Extent, extents);
         this.$ScrollData.Viewport = viewport;
         this.$ScrollData.Extent = extents;
         changed |= this._ClampOffsets();
@@ -266,7 +273,7 @@
         return changed;
     };
     ScrollContentPresenter.Instance._UpdateClip = function (arrangeSize) {
-        /// <param name="arrangeSize" type="Size"></param>
+        /// <param name="arrangeSize" type="size"></param>
         if (!this.$IsClipPropertySet) {
             this.$ClippingRectangle = new Fayde.Media.RectangleGeometry();
             this.Clip = this.$ClippingRectangle;
@@ -282,7 +289,7 @@
         }
     };
     ScrollContentPresenter.Instance._CalculateTextBoxClipRect = function (arrangeSize) {
-        /// <param name="arrangeSize" type="Size"></param>
+        /// <param name="arrangeSize" type="size"></param>
         /// <returns type="rect" />
         var left = 0;
         var right = 0;
