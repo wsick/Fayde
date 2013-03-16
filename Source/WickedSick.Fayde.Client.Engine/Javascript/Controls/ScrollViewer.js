@@ -234,7 +234,7 @@
         newValue = Math.max(newValue, 0);
         newValue = Math.min(this.ScrollableWidth, newValue);
         if (!DoubleUtil.AreClose(offset, newValue))
-            scrollInfo.HorizontalOffset = newValue;
+            scrollInfo.ChangeHorizontalOffset(newValue);
     };
     ScrollViewer.Instance._HandleVerticalScroll = function (e) {
         /// <param name="e" type="ScrollEventArgs"></param>
@@ -270,7 +270,7 @@
         newValue = Math.max(newValue, 0);
         newValue = Math.min(this.ScrollableHeight, newValue);
         if (!DoubleUtil.AreClose(offset, newValue))
-            scrollInfo.VerticalOffset = newValue;
+            scrollInfo.ChangeVerticalOffset(newValue);
     };
 
     //#endregion
