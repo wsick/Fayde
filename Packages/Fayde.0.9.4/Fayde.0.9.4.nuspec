@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Fayde</id>
+        <version>0.9.4</version>
+        <title />
+        <authors>WickedSick</authors>
+        <owners>WickedSick</owners>
+        <projectUrl>http://fayde.wsick.com/</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Fayde is a web framework that brings XAML rendering to all browsers.</description>
+    </metadata>
+    <files>
+        <file src="..\Source\WickedSick.Fayde.Client.Engine\Fayde.d.ts" target="content\scripts\Fayde.d.ts" />
+        <file src="..\Source\WickedSick.Fayde.Client.Engine\Fayde.Generic.js" target="content\scripts\Fayde.Generic.js" />
+        <file src="..\Source\WickedSick.Fayde.Client.Engine\Fayde.js" target="content\scripts\Fayde.js" />
+        <file src="..\Source\WickedSick.Server.Framework.Fayde\bin\Release\WickedSick.Server.Framework.Fayde.dll" target="lib\net\WickedSick.Server.Framework.Fayde.dll" />
+        <file src="..\Source\WickedSick.Server.Framework.Fayde\bin\Release\WickedSick.Server.XamlParser.dll" target="lib\net\WickedSick.Server.XamlParser.dll" />
+    </files>
+</package>
