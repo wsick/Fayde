@@ -1,6 +1,7 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Runtime/LinkedList.js"/>
 /// CODE
+/// <reference path="../Primitives.js"/>
 /// <reference path="Dirty.js"/>
 /// <reference path="Debug.js"/>
 /// <reference path="../Core/LayoutInformation.js"/>
@@ -198,7 +199,7 @@
     Surface.Instance.GetCanvas = function () { return this._Canvas; };
     Surface.Instance.GetExtents = function () {
         if (!this._Extents)
-            this._Extents = new Size(this.GetWidth(), this.GetHeight());
+            this._Extents = size.fromRaw(this.GetWidth(), this.GetHeight());
         return this._Extents;
     };
     Surface.Instance._InvalidateExtents = function () {
@@ -232,25 +233,24 @@
             var rect2 = cur._InvalidatedRect;
             cur._InvalidatedRect = null;
             cur._IsRenderQueued = false;
-            RenderDebug(" --> " + rect2.toString());
+            if (window.RenderDebug) RenderDebug(" --> " + rect2.toString());
             cur.Render(rect2);
         }
     };
     Surface.Instance._Invalidate = function (rect) { };
     //#if ENABLE_CANVAS
     if (Fayde.IsCanvasEnabled) {
-        Surface.Instance._Invalidate = function (rect) {
-            RenderDebug("Invalidation: " + rect.toString());
-            if (!rect) {
-                var extents = this.GetExtents();
-                rect = new Rect(0, 0, extents.Width, extents.Height);
+        Surface.Instance._Invalidate = function (irect) {
+            if (window.RenderDebug) RenderDebug("Invalidation: " + irect.toString());
+            if (!irect) {
+                irect = new rect();
+                irect.Width = this.GetWidth();
+                irect.Height = this.GetHeight();
             }
-            var invalidated = this._InvalidatedRect;
-            if (!invalidated)
-                invalidated = rect;
+            if (!this._InvalidatedRect)
+                this._InvalidatedRect = rect.clone(irect);
             else
-                invalidated = invalidated.Union(rect);
-            this._InvalidatedRect = invalidated;
+                rect.union(this._InvalidatedRect, irect);
 
             if (this._IsRenderQueued)
                 return;
@@ -269,7 +269,7 @@
         var layers = this._Layers;
         var layerCount = layers ? layers.length : 0;
 
-        RenderDebug.Count = 0;
+        if (window.RenderDebug) RenderDebug.Count = 0;
         var ctx = new Fayde._RenderContext(this);
         ctx.Clear(region);
         ctx.CanvasContext.save();
@@ -278,7 +278,7 @@
             layers[i]._DoRender(ctx, region);
         }
         ctx.CanvasContext.restore();
-        RenderDebug("UIElement Count: " + RenderDebug.Count);
+        if (window.RenderDebug) RenderDebug("UIElement Count: " + RenderDebug.Count);
 
         if (isRenderPassTimed)
             this._App._NotifyDebugRenderPass(new Date().getTime() - startRenderTime);
@@ -317,8 +317,8 @@
                     continue;
 
                 var last = Fayde.LayoutInformation.GetPreviousConstraint(element);
-                var available = new Size(this.GetWidth(), this.GetHeight());
-                if (element.IsContainer() && (!last || (!Size.Equals(last, available)))) {
+                var available = size.fromRaw(this.GetWidth(), this.GetHeight());
+                if (element.IsContainer() && (!last || (!size.isEqual(last, available)))) {
                     element._InvalidateMeasure();
                     Fayde.LayoutInformation.SetPreviousConstraint(element, available);
                 }
@@ -482,7 +482,7 @@
 
                 uie._ComputeBounds();
 
-                if (!Rect.Equals(oglobalbounds, uie._GetGlobalBounds())) {
+                if (!rect.isEqual(oglobalbounds, uie._GetGlobalBounds())) {
                     if (visualParent) {
                         visualParent._UpdateBounds();
                         visualParent._Invalidate(osubtreebounds);
@@ -490,7 +490,7 @@
                     }
                 }
 
-                if (!Rect.Equals(oextents, uie._GetSubtreeExtents())) {
+                if (!rect.isEqual(oextents, uie._GetSubtreeExtents())) {
                     uie._Invalidate(uie._GetSubtreeBounds());
                 }
 
@@ -525,7 +525,7 @@
                         */
                     }
                 }
-                uie._DirtyRegion = new Rect();
+                rect.clear(dirty);
             }
 
             if (!(uie._DirtyFlags & dirtyEnum.UpDirtyState) && uie._UpDirtyNode != null) {
@@ -849,11 +849,11 @@
         var surface = this;
         if (resizeTimeout)
             clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(function () { surface._HandleResizeTimeout(evt); }, 50);
+        resizeTimeout = setTimeout(function () { surface._HandleResizeTimeout(evt); }, 20);
     };
     Surface.Instance._HandleResizeTimeout = function (evt) {
-        this._InvalidateExtents();
         this._ResizeCanvas();
+        this._InvalidateExtents();
 
         var layers = this._Layers;
         var layersCount = layers.length;
@@ -996,7 +996,7 @@
     }
 
     Surface.MeasureText = function (text, font) {
-        return new Size(Surface._MeasureWidth(text, font), Surface._MeasureHeight(font));
+        return size.fromRaw(Surface._MeasureWidth(text, font), Surface._MeasureHeight(font));
     };
     Surface._MeasureWidth = function (text, font) {
         /// <param name="text" type="String"></param>

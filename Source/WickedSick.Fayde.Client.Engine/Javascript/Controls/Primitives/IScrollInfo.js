@@ -34,7 +34,7 @@
     IScrollInfo.Instance.PageLeft = function () { };
     IScrollInfo.Instance.PageRight = function () { };
 
-    IScrollInfo.Instance.MakeVisible = function (uie, rectangle) { return new Rect(); };
+    IScrollInfo.Instance.MakeVisible = function (uie, rectangle) { return new rect(); };
 
     Primitives.IScrollInfo = Nullstone.FinishCreate(IScrollInfo);
 })(Nullstone.Namespace("Fayde.Controls.Primitives"));

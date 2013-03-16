@@ -95,8 +95,8 @@
     };
     Matrix3D.TransformBounds = function (m3, bounds) {
         /// <param name="m3" type="Matrix3D"></param>
-        /// <param name="bounds" type="Rect"></param>
-        /// <returns type="Rect" />
+        /// <param name="bounds" type="rect"></param>
+        /// <returns type="rect" />
         var idels = [
             1, 0, 0, 0,
             0, 1, 0, 0,
@@ -104,7 +104,7 @@
             0, 0, 0, 1
         ];
         if (!(m3._Elements < idels) && !(m3._Elements > idels)) //identity matrix
-            return new Rect(bounds.X, bounds.Y, bounds.Width, bounds.Height);
+            return new rect(bounds.X, bounds.Y, bounds.Width, bounds.Height);
     
         var p1 = [bounds.X, bounds.Y, 0.0, 1.0];
         var p2 = [bounds.X + bounds.Width, bounds.Y, 0.0, 1.0];
@@ -135,7 +135,7 @@
         var cm4 = clipmask(p4);
     
         if ((cm1 | cm2 | cm3 | cm4) !== 0) {
-            bounds = new Rect();
+            bounds = new rect();
             if ((cm1 & cm2 & cm3 & cm4) === 0) {
                 NotImplemented("Matrix3D.TransformBounds");
                 //var r1 = Matrix3D._ClipToBounds(p1, p2, p3, cm1 | cm2 | cm3);
@@ -157,7 +157,7 @@
             p4[0] *= p4w * vs;
             p4[1] *= p4w * vs;
     
-            bounds = new Rect(p1[0], p1[1], 0, 0);
+            bounds = new rect(p1[0], p1[1], 0, 0);
             bounds.ExtendTo(p2[0], p2[1]);
             bounds.ExtendTo(p3[0], p3[1]);
             bounds.ExtendTo(p4[0], p4[1]);

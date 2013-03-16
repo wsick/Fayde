@@ -234,7 +234,7 @@
         newValue = Math.max(newValue, 0);
         newValue = Math.min(this.ScrollableWidth, newValue);
         if (!DoubleUtil.AreClose(offset, newValue))
-            scrollInfo.HorizontalOffset = newValue;
+            scrollInfo.ChangeHorizontalOffset(newValue);
     };
     ScrollViewer.Instance._HandleVerticalScroll = function (e) {
         /// <param name="e" type="ScrollEventArgs"></param>
@@ -270,7 +270,7 @@
         newValue = Math.max(newValue, 0);
         newValue = Math.min(this.ScrollableHeight, newValue);
         if (!DoubleUtil.AreClose(offset, newValue))
-            scrollInfo.VerticalOffset = newValue;
+            scrollInfo.ChangeVerticalOffset(newValue);
     };
 
     //#endregion
@@ -370,14 +370,13 @@
 
     ScrollViewer.Instance.MakeVisible = function (uie, targetRect) {
         /// <param name="uie" type="UIElement"></param>
-        /// <param name="targetRect" type="Rect"></param>
+        /// <param name="targetRect" type="rect"></param>
         var escp = this.$ElementScrollContentPresenter;
         if (uie && escp && (Nullstone.RefEquals(escp, uie) || escp.IsAncestorOf(uie)) && this.IsAncestorOf(escp) && this._IsAttached) {
-            if (targetRect.IsEmpty()) {
-                targetRect = new Rect(0, 0, uie._RenderSize.Width, uie._RenderSize.Height);
-            }
+            if (rect.isEmpty(targetRect))
+                targetRect = rect.fromSize(uie._RenderSize);
             var rect2 = escp.MakeVisible(uie, targetRect);
-            if (!rect2.IsEmpty()) {
+            if (!rect.isEmpty(rect2)) {
                 var p = escp.TransformToVisual(this).Transform(new Point(rect2.X, rect2.Y));
                 rect2.X = p.X;
                 rect2.Y = p.Y;

@@ -40,12 +40,14 @@
         var v = mat3.transformVec2(this.Value.raw, vec2.createFrom(point.X, point.Y));
         return new Point(v[0], v[1]);
     };
-    Transform.Instance.TransformBounds = function (rect) {
-        /// <param name="rect" type="Rect"></param>
-        /// <returns type="Rect" />
-        if (!rect)
+    Transform.Instance.TransformBounds = function (irect) {
+        /// <param name="irect" type="rect"></param>
+        /// <returns type="rect" />
+        if (!irect)
             return;
-        return rect.Transform(this.Value.raw);
+        var rv = rect.clone(irect);
+        rect.transform(rv, this.Value.raw);
+        return rv;
     };
 
     Transform.Instance._BuildValue = function () {

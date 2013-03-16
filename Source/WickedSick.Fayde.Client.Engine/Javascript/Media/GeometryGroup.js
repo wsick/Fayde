@@ -18,13 +18,13 @@
     //#endregion
 
     GeometryGroup.Instance.ComputePathBounds = function () {
-        /// <returns type="Rect" />
-        var bounds = new Rect();
+        /// <returns type="rect" />
+        var bounds = new rect();
         var children = this.Children;
         var count = children.GetCount();
         for (var i = 0; i < count; i++) {
             var g = children.GetValueAt(i);
-            bounds = bounds.Union(g.GetBounds(), true);
+            rect.unionLogical(bounds, g.GetBounds());
         }
         return bounds;
     };

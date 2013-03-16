@@ -2,6 +2,7 @@
 /// CODE
 /// <reference path="../../Media/Matrix3DProjection.js"/>
 /// <reference path="../../Media/InternalTransform.js"/>
+/// <reference path="PopupMetrics.js"/>
 
 (function (namespace) {
     var Popup = Nullstone.Create("Popup", Fayde.FrameworkElement);
@@ -11,6 +12,10 @@
         this.Opened = new MulticastEvent();
         this.Closed = new MulticastEvent();
         this.ClickedOutside = new MulticastEvent();
+    };
+
+    Popup.Instance.InitSpecific = function () {
+        this._Metrics = new Fayde.Controls.PopupMetrics();
     };
 
     //#region Properties
@@ -45,8 +50,6 @@
     };
 
     //#endregion
-
-    Popup.Instance._ComputeBounds = function () { };
 
     Popup.Instance._OnIsAttachedChanged = function (value) {
         this._OnIsAttachedChanged$FrameworkElement(value);

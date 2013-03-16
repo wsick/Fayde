@@ -4,6 +4,8 @@
 /// <reference path="../Engine/RenderContext.js"/>
 /// <reference path="Enums.js"/>
 /// <reference path="DoubleCollection.js"/>
+/// CODE
+/// <reference path="ShapeMetrics.js"/>
 
 (function (namespace) {
     var Shape = Nullstone.Create("Shape", Fayde.FrameworkElement);
@@ -12,7 +14,10 @@
         this.Init$FrameworkElement();
         this._ShapeFlags = 0;
         this._StretchXform = mat3.identity();
-        this._NaturalBounds = new Rect();
+        this._NaturalBounds = new rect();
+    };
+    Shape.Instance.InitSpecific = function () {
+        this._Metrics = new Fayde.Shapes.ShapeMetrics();
     };
 
     //#region Properties
@@ -65,30 +70,26 @@
 
     //#endregion
 
-    Shape.Instance._ShiftPosition = function (point) {
-        var dx = this._Bounds.X - point.X;
-        var dy = this._Bounds.Y - point.Y;
-        //WTF?
-        this._ShiftPosition$FrameworkElement(point);
-    };
-
     //#region Measure
 
     Shape.Instance._MeasureOverrideWithError = function (availableSize, error) {
-        /// <param name="availableSize" type="Size"></param>
-        var desired = availableSize;
+        /// <param name="availableSize" type="size"></param>
         var shapeBounds = this._GetNaturalBounds();
         if (!shapeBounds)
-            return new Size();
+            return new size();
         var sx = 0.0;
         var sy = 0.0;
-        if (this instanceof namespace.Rectangle || this instanceof namespace.Ellipse) {
-            desired = new Size(0, 0);
-        }
+
+        var desired;
+        if (this instanceof namespace.Rectangle || this instanceof namespace.Ellipse)
+            desired = new size();
+        else
+            desired = size.clone(availableSize);
 
         var stretch = this.Stretch;
-        if (stretch === Fayde.Media.Stretch.None)
-            return new Size(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height);
+        if (stretch === Fayde.Media.Stretch.None) {
+            return size.fromRaw(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height);
+        }
 
         if (!isFinite(availableSize.Width))
             desired.Width = shapeBounds.Width;
@@ -122,7 +123,8 @@
                 break;
         }
 
-        desired = new Size(shapeBounds.Width * sx, shapeBounds.Height * sy);
+        desired.Width = shapeBounds.Width * sx;
+        desired.Height = shapeBounds.Height * sy;
         return desired;
     };
 
@@ -131,20 +133,23 @@
     //#region Arrange
 
     Shape.Instance._ArrangeOverrideWithError = function (finalSize, error) {
-        /// <param name="finalSize" type="Size"></param>
-        var arranged = finalSize;
+        /// <param name="finalSize" type="size"></param>
         var sx = 1.0;
         var sy = 1.0;
 
         var shapeBounds = this._GetNaturalBounds();
         if (!shapeBounds)
-            return new Size();
+            return new size();
 
         this._InvalidateStretch();
 
+        var arranged;
         var stretch = this.Stretch;
-        if (stretch === Fayde.Media.Stretch.None)
-            return arranged.Max(new Size(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height));
+        if (stretch === Fayde.Media.Stretch.None) {
+            arranged = size.fromRaw(Math.max(finalSize.Width, shapeBounds.X + shapeBounds.Width), Math.max(finalSize.Height, shapeBounds.Y + shapeBounds.Height));
+        } else {
+            arranged = size.clone(finalSize);
+        }
 
         if (shapeBounds.Width === 0)
             shapeBounds.Width = arranged.Width;
@@ -167,7 +172,8 @@
                 break;
         }
 
-        arranged = new Size(shapeBounds.Width * sx, shapeBounds.Height * sy);
+        arranged.Width = shapeBounds.Width * sx;
+        arranged.Height = shapeBounds.Height * sy;
         return arranged;
     };
 
@@ -176,11 +182,11 @@
     //#region Invalidation
 
     Shape.Instance._InvalidateNaturalBounds = function () {
-        this._NaturalBounds = new Rect();
+        rect.clear(this._NaturalBounds);
         this._InvalidateStretch();
     };
     Shape.Instance._InvalidateStretch = function () {
-        this._ExtentsWithChildren = this._Extents = new Rect();
+        this._Metrics.UpdateStretch();
         this._StretchXform = mat3.identity();
         this._InvalidatePathCache();
     };
@@ -209,10 +215,7 @@
     //#region Sizes
 
     Shape.Instance._GetStretchExtents = function () {
-        if (this._Extents.IsEmpty()) {
-            this._ExtentsWithChildren = this._Extents = this._ComputeStretchBounds();
-        }
-        return this._Extents;
+        return this._Metrics.GetStretchExtents(this);
     };
     Shape.Instance._ComputeActualSize = function () {
         var desired = this._ComputeActualSize$FrameworkElement();
@@ -222,7 +225,7 @@
         var parent = this.GetVisualParent();
 
         if (parent != null && !(parent instanceof Fayde.Controls.Canvas)) {
-            if (Fayde.LayoutInformation.GetPreviousConstraint(this) !== undefined || this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty) !== undefined) {
+            if (Fayde.LayoutInformation.GetPreviousConstraint(this) !== undefined || Fayde.LayoutInformation.GetLayoutSlot(this, true) !== undefined) {
                 return desired;
             }
         }
@@ -235,7 +238,7 @@
 
         var stretch = this.Stretch;
         if (stretch === Fayde.Media.Stretch.None && shapeBounds.Width > 0 && shapeBounds.Height > 0)
-            return new Size(shapeBounds.Width, shapeBounds.Height);
+            return size.fromRect(shapeBounds);
 
         if (!isFinite(desired.Width))
             desired.Width = shapeBounds.Width;
@@ -258,12 +261,12 @@
                 break;
         }
 
-        desired = desired.Min(shapeBounds.Width * sx, shapeBounds.Height * sy);
+        desired.Width = Math.min(desired.Width, shapeBounds.Width * sx);
+        desired.Height = Math.min(desired.Height, shapeBounds.Height * sy);
         return desired;
     };
     Shape.Instance._GetSizeForBrush = function (ctx) {
-        var se = this._GetStretchExtents();
-        return new Size(se.Width, se.Height);
+        return size.fromRect(this._GetStretchExtents());
     };
 
     //#endregion
@@ -273,32 +276,24 @@
     Shape.Instance._GetNaturalBounds = function () {
         if (!this._NaturalBounds)
             return;
-        if (this._NaturalBounds.IsEmpty())
+        if (rect.isEmpty(this._NaturalBounds))
             this._NaturalBounds = this._ComputeShapeBoundsImpl(false, null);
         return this._NaturalBounds;
-    };
-    Shape.Instance._TransformBounds = function () {
-        //TODO:
-    };
-    Shape.Instance._ComputeBounds = function () {
-        this._BoundsWithChildren = this._Bounds = this._IntersectBoundsWithClipPath(this._GetStretchExtents().GrowByThickness(this._EffectPadding), false).Transform(this._AbsoluteXform);
-        this._ComputeGlobalBounds();
-        this._ComputeSurfaceBounds();
     };
     Shape.Instance._ComputeStretchBounds = function () {
         var shapeBounds = this._GetNaturalBounds();
         if (!shapeBounds || shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
             this._SetShapeFlags(namespace.ShapeFlags.Empty);
-            return new Rect();
+            return new rect();
         }
 
-        var specified = new Size(this.Width, this.Height);
+        var specified = size.fromRaw(this.Width, this.Height);
         var autoDim = isNaN(specified.Width);
-        var framework = new Size(this.ActualWidth, this.ActualHeight);
+        var framework = size.fromRaw(this.ActualWidth, this.ActualHeight);
 
         if (specified.Width <= 0.0 || specified.Height <= 0.0) {
             this._SetShapeFlags(namespace.ShapeFlags.Empty);
-            return new Rect();
+            return new rect();
         }
 
         var visualParent = this.GetVisualParent();
@@ -317,13 +312,13 @@
 
         var stretch = this.Stretch;
         if (stretch === Fayde.Media.Stretch.None) {
-            shapeBounds = shapeBounds.Transform(this._StretchXform);
+            rect.transform(shapeBounds, this._StretchXform);
             return shapeBounds;
         }
 
         if (framework.Width === 0.0 || framework.Height === 0.0) {
             this._SetShapeFlags(namespace.ShapeFlags.Empty);
-            return new Rect();
+            return new rect();
         }
 
         var logicalBounds = this._ComputeShapeBoundsImpl(true, null);
@@ -390,7 +385,7 @@
         }
         this._StretchXform = st;
 
-        shapeBounds = shapeBounds.Transform(this._StretchXform);
+        rect.transform(shapeBounds, this._StretchXform);
         return shapeBounds;
     };
     Shape.IsSignificant = function (dx, x) {
@@ -406,7 +401,7 @@
             this._BuildPath();
 
         if (this._IsEmpty())
-            return new Rect();
+            return new rect();
 
         if (logical) {
             //TODO: measure path extents
@@ -416,6 +411,7 @@
             //TODO: measure fill extents
         }
         NotImplemented("Shape._ComputeShapeBoundsImpl");
+        return new rect();
     };
 
     //#endregion
@@ -431,7 +427,7 @@
         this._TransformPoint(p);
         x = p.X;
         y = p.Y;
-        if (!this._GetStretchExtents().ContainsPointXY(x, y))
+        if (!rect.containsPointXY(this._GetStretchExtents(), x, y))
             return false;
         return this._InsideShape(ctx, x, y);
     };

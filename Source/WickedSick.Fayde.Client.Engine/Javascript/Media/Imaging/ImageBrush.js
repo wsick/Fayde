@@ -61,7 +61,10 @@
     };
     ImageBrush.Instance.GetTileExtents = function () {
         var source = this.ImageSource;
-        return new Rect(0, 0, source.PixelWidth, source.PixelHeight);
+        var r = new rect();
+        r.Width = source.PixelWidth;
+        r.Height = source.PixelHeight;
+        return r;
     };
     ImageBrush.Instance.DrawTile = function (canvasCtx, bounds) {
         var source = this.ImageSource;

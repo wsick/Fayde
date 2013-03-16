@@ -10,8 +10,8 @@ var traces = {
     keyboard: false,
     focus: false,
     //Animations
-    vsm: true,
-    animation: true,
+    vsm: false,
+    animation: false,
     //Core
     parser: false
 };

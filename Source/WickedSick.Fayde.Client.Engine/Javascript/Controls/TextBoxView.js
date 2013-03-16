@@ -2,7 +2,7 @@
 /// <reference path="../Core/FrameworkElement.js"/>
 /// <reference path="../Text/Enums.js"/>
 /// CODE
-/// <reference path="../Primitives/Rect.js"/>
+/// <reference path="../Primitives.js"/>
 /// <reference path="../Text/TextLayout.js"/>
 /// <reference path="TextBoxBase.js"/>
 /// <reference path="../Primitives/Enums.js"/>
@@ -15,7 +15,7 @@
 
     _TextBoxView.Instance.Init = function () {
         this.Init$FrameworkElement();
-        this._Cursor = new Rect();
+        this._Cursor = new rect();
         this._Layout = new Fayde.Text.TextLayout();
         this._SelectionChanged = false;
         this._HadSelectedText = false;
@@ -134,7 +134,7 @@
             this._HideCursor();
     };
     _TextBoxView.Instance._InvalidateCursor = function () {
-        this._Invalidate(this._Cursor.Transform(this._AbsoluteXform));
+        this._Invalidate(rect.transform(this._Cursor, this._AbsoluteXform));
     };
     _TextBoxView.Instance._ShowCursor = function () {
         this._CursorVisible = true;
@@ -147,17 +147,17 @@
     _TextBoxView.Instance._UpdateCursor = function (invalidate) {
         var cur = this._TextBox.GetSelectionCursor();
         var current = this._Cursor;
-        var rect;
 
         if (invalidate && this._CursorVisible)
             this._InvalidateCursor();
 
         this._Cursor = this._Layout.GetSelectionCursor(new Point(), cur);
-        rect = this._Cursor.Transform(this._AbsoluteXform);
+        //TODO: ...
+        // var irect = rect.clone(this._Cursor);
+        // rect.transform(irect, this._AbsoluteXform);
+        // this._TextBox._ImCtx.SetCursorLocation(irect);
 
-        //TODO: this._TextBox._ImCtx.SetCursorLocation(rect);
-
-        if (!Rect.Equals(this._Cursor, current))
+        if (!rect.isEqual(this._Cursor, current))
             this._TextBox._EmitCursorPositionChanged(this._Cursor.Height, this._Cursor.X, this._Cursor.Y);
 
         if (invalidate && this._CursorVisible)
@@ -169,23 +169,24 @@
     };
 
     _TextBoxView.Instance._ComputeActualSize = function () {
-        if (this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty) !== undefined)
+        if (Fayde.LayoutInformation.GetLayoutSlot(this, true) !== undefined)
             return this._ComputeActualSize$FrameworkElement();
 
-        this.Layout(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
+        this.Layout(size.createInfinite());
         return this._Layout.GetActualExtents();
     };
     _TextBoxView.Instance._MeasureOverrideWithError = function (availableSize, error) {
         this.Layout(availableSize);
-        var desired = this._Layout.GetActualExtents();
+        var desired = size.clone(this._Layout.GetActualExtents());
         if (!isFinite(availableSize.Width))
             desired.Width = Math.max(desired.Width, 11);
-        return desired.Min(availableSize);
+        size.min(desired, availableSize);
+        return desired;
     };
     _TextBoxView.Instance._ArrangeOverrideWithError = function (finalSize, error) {
         this.Layout(finalSize);
-        var arranged = this._Layout.GetActualExtents();
-        arranged = arranged.Max(finalSize);
+        var arranged = size.clone(this._Layout.GetActualExtents());
+        size.max(arranged, finalSize);
         return arranged;
     };
     _TextBoxView.Instance.Layout = function (constraint) {
