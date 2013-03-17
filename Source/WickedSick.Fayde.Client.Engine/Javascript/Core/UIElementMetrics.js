@@ -17,10 +17,10 @@ var Fayde;
     }
     UIElementMetrics.prototype.ComputeBounds = function (uie) { };
     UIElementMetrics.prototype.ComputeSurfaceBounds = function (uie) {
-        this._IntersectBoundsWithClipPath(this.Surface, uie, uie._AbsoluteXform);
+        this._IntersectBoundsWithClipPath(this.Surface, uie, uie._Xformer.AbsoluteXform);
     };
     UIElementMetrics.prototype.ComputeGlobalBounds = function (uie) {
-        this._IntersectBoundsWithClipPath(this.Global, uie, uie._LocalXform);
+        this._IntersectBoundsWithClipPath(this.Global, uie, uie._Xformer.LocalXform);
     };
     UIElementMetrics.prototype.ComputeEffectPadding = function (effect) {
         if (!effect)

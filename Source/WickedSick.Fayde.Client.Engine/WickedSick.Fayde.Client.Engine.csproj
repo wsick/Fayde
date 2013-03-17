@@ -85,6 +85,7 @@
     <Content Include="Javascript\Controls\TextBlockMetrics.js" />
     <Content Include="Javascript\Core\FrameworkElementMetrics.js" />
     <Content Include="Javascript\Core\UIElementMetrics.js" />
+    <Content Include="Javascript\Core\Xformer.js" />
     <Content Include="Javascript\Engine\XamlResolver.js" />
     <TypeScriptCompile Include="Javascript\Primitives.ts" />
     <Content Include="Javascript\Primitives.js">

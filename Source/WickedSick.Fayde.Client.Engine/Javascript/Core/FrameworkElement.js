@@ -365,13 +365,12 @@
         else
             flipHoriz = this.FlowDirection === Fayde.FlowDirection.RightToLeft;
 
-        var layoutXform = mat3.identity();
+        var layoutXform = mat3.identity(this._Xformer.LayoutXform);
         mat3.translate(layoutXform, childRect.X, childRect.Y);
         if (flipHoriz) {
             mat3.translate(layoutXform, offer.Width, 0);
             mat3.scale(layoutXform, -1, 1);
         }
-        this._LayoutXform = layoutXform;
 
         if (error.IsErrored())
             return;
@@ -435,13 +434,12 @@
             visualOffset.Y = Math.round(visualOffset.Y);
         }
 
-        layoutXform = mat3.identity();
+        layoutXform = mat3.identity(this._Xformer.LayoutXform);
         mat3.translate(layoutXform, visualOffset.X, visualOffset.Y);
         if (flipHoriz) {
             mat3.translate(layoutXform, response.Width, 0);
             mat3.scale(layoutXform, -1, 1);
         }
-        this._LayoutXform = layoutXform;
 
         Fayde.LayoutInformation.SetVisualOffset(this, visualOffset);
 

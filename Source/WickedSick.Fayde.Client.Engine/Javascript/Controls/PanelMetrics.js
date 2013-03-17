@@ -26,8 +26,8 @@ var Fayde;
                 rect.union(this.ExtentsWithChildren, this.Extents);
             }
 
-            rect.copyGrowTransform(this.Bounds, this.Extents, this.EffectPadding, fe._AbsoluteXform);
-            rect.copyGrowTransform(this.BoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, fe._AbsoluteXform);
+            rect.copyGrowTransform(this.Bounds, this.Extents, this.EffectPadding, fe._Xformer.AbsoluteXform);
+            rect.copyGrowTransform(this.BoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, fe._Xformer.AbsoluteXform);
 
             this.ComputeGlobalBounds(fe);
             this.ComputeSurfaceBounds(fe);

@@ -15,7 +15,7 @@ var Fayde;
             this.Extents.Y += padding.Top;
             rect.copyTo(this.Extents, this.ExtentsWithChildren);
 
-            this._IntersectBoundsWithClipPath(this.Bounds, fe, fe._AbsoluteXform);
+            this._IntersectBoundsWithClipPath(this.Bounds, fe, fe._Xformer.AbsoluteXform);
             rect.copyTo(this.Bounds, this.BoundsWithChildren);
 
             this.ComputeGlobalBounds(fe);

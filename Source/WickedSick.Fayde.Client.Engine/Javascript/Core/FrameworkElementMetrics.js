@@ -29,19 +29,22 @@ var Fayde;
                 rect.union(this.ExtentsWithChildren, item._GetGlobalBounds());
         }
 
-        this._IntersectBoundsWithClipPath(this.Bounds, fe, fe._AbsoluteXform);
-        rect.copyGrowTransform(this.BoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, fe._AbsoluteXform);
+        var xformer = fe._Xformer;
+        this._IntersectBoundsWithClipPath(this.Bounds, fe, xformer.AbsoluteXform);
+        rect.copyGrowTransform(this.BoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, xformer.AbsoluteXform);
 
         this.ComputeGlobalBounds(fe);
         this.ComputeSurfaceBounds(fe);
     };
     FrameworkElementMetrics.prototype.ComputeSurfaceBounds = function (fe) {
-        this._IntersectBoundsWithClipPath(this.Surface, fe, fe._AbsoluteXform);
-        rect.copyGrowTransform4(this.SurfaceWithChildren, this.ExtentsWithChildren, this.EffectPadding, fe._AbsoluteProjection);
+        var xformer = fe._Xformer;
+        this._IntersectBoundsWithClipPath(this.Surface, fe, xformer.AbsoluteXform);
+        rect.copyGrowTransform4(this.SurfaceWithChildren, this.ExtentsWithChildren, this.EffectPadding, xformer.AbsoluteProjection);
     };
     FrameworkElementMetrics.prototype.ComputeGlobalBounds = function (fe) {
-        this._IntersectBoundsWithClipPath(this.Global, fe, fe._LocalXform);
-        rect.copyGrowTransform4(this.GlobalWithChildren, this.ExtentsWithChildren, this.EffectPadding, fe._LocalProjection);
+        var xformer = fe._Xformer;
+        this._IntersectBoundsWithClipPath(this.Global, fe, xformer.LocalXform);
+        rect.copyGrowTransform4(this.GlobalWithChildren, this.ExtentsWithChildren, this.EffectPadding, xformer.LocalProjection);
     };
     FrameworkElementMetrics.prototype._IntersectBoundsWithClipPath = function (dest, fe, xform) {
         var isClipEmpty = rect.isEmpty(this.ClipBounds);

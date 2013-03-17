@@ -17,6 +17,7 @@
 /// <reference path="../Media/Projection.js"/>
 /// <reference path="UIElementMetrics.js"/>
 /// <reference path="../Primitives.js"/>
+/// <reference path="Xformer.js"/>
 
 (function (Fayde) {
     //#region UIElementFlags
@@ -52,6 +53,9 @@
 
         this.InitSpecific();
         this._LayoutInformation = new Fayde.LayoutInformation();
+        this._Xformer = new Fayde.Xformer();
+        this._Xformer.ComputeLocalTransform(this);
+        this._Xformer.ComputeLocalProjection(this);
 
         this._Flags = UIElementFlags.RenderVisible | UIElementFlags.HitTestVisible;
 
@@ -66,18 +70,6 @@
 
         this._DirtyRegion = new rect();
 
-        this._AbsoluteXform = mat3.identity();
-        this._LayoutXform = mat3.identity();
-        this._LocalXform = mat3.identity();
-        this._RenderXform = mat3.identity();
-        this._CacheXform = mat3.identity();
-
-        this._LocalProjection = mat4.identity();
-        this._AbsoluteProjection = mat4.identity();
-        this._RenderProjection = mat4.identity();
-
-        this._ComputeLocalTransform();
-        this._ComputeLocalProjection();
         this._ComputeTotalRenderVisibility();
         this._ComputeTotalHitTestVisibility();
 
@@ -243,32 +235,7 @@
             }
         }
 
-        //1. invert transform from input element to top level
-        //2. transform back down to this element
-        var result = mat4.create();
-        // A = From, B = To, M = what we want
-        // A = M * B
-        // => M = inv (B) * A
-        if (uie) {
-            var inverse = mat4.create();
-            mat4.inverse(uie._AbsoluteProjection, inverse);
-            mat4.multiply(this._AbsoluteProjection, inverse, result); //result = inverse * abs
-        } else {
-            mat4.set(this._AbsoluteProjection, result); //result = absolute
-        }
-
-        var raw = mat4.toAffineMat3(result);
-        if (raw) {
-            var mt = new Fayde.Media.MatrixTransform();
-            var m = new Matrix();
-            m.raw = raw;
-            mt._SetValue(Fayde.Media.MatrixTransform.MatrixProperty, m);
-            return mt;
-        }
-
-        var it = new Fayde.Media.InternalTransform();
-        it.raw = result;
-        return it;
+        return this._Xformer.TransformToVisual(uie);
     };
 
     //#region Invalidation
@@ -359,141 +326,9 @@
         if (this._IsAttached)
             App.Instance.MainSurface._AddDirtyElement(this, _Dirty.LocalProjection);
     };
-
-    UIElement.Instance._ComputeTransform = function () {
-        var projection = this.Projection;
-        var cacheMode = this.CacheMode;
-
-        var oldProjection = mat4.create(this._LocalProjection);
-
-        var old = this._AbsoluteXform;
-        var oldCache = this._CacheXform;
-
-        this._AbsoluteXform = mat3.identity();
-        this._RenderXform = mat3.identity();
-        this._CacheXform = mat3.identity();
-        this._AbsoluteProjection = mat4.identity();
-        this._LocalProjection = mat4.identity();
-
-        var renderXform = this._RenderXform;
-
-        var visualParent = this.GetVisualParent();
-        if (visualParent != null) {
-            mat3.set(visualParent._AbsoluteXform, this._AbsoluteXform);
-            mat4.set(visualParent._AbsoluteProjection, this._AbsoluteProjection);
-        } else if (this._Parent != null && this._Parent instanceof Fayde.Controls.Primitives.Popup) {
-            var popup = this._Parent;
-            var el = popup;
-            while (el != null) {
-                this._Flags |= (el._Flags & UIElementFlags.RenderProjection);
-                el = el.GetVisualParent();
-            }
-
-            if (this._Flags & UIElementFlags.RenderProjection) {
-                mat4.set(popup._AbsoluteProjection, this._LocalProjection);
-                var m = mat4.createTranslate(popup.HorizontalOffset, popup.VerticalOffset, 0.0);
-                mat4.multiply(m, this._LocalProjection, this._LocalProjection); //local = local * m
-            } else {
-                var pap = popup._AbsoluteProjection;
-                renderXform[0] = pap[0];
-                renderXform[1] = pap[1];
-                renderXform[2] = pap[3];
-                renderXform[3] = pap[4];
-                renderXform[4] = pap[5];
-                renderXform[5] = pap[7];
-                mat3.translate(renderXform, popup.HorizontalOffset, popup.VerticalOffset);
-            }
-        }
-
-        mat3.multiply(renderXform, this._LayoutXform, renderXform); //render = layout * render
-        mat3.multiply(renderXform, this._LocalXform, renderXform); //render = local * render
-
-
-        var m = mat3.toAffineMat4(renderXform);
-        mat4.multiply(m, this._LocalProjection, this._LocalProjection); //local = local * m
-
-        if (false) {
-            //TODO: Render To Intermediate not implemented
-        } else {
-            mat3.multiply(this._AbsoluteXform, this._RenderXform, this._AbsoluteXform); //abs = render * abs
-        }
-
-        if (projection) {
-            m = projection.GetTransform();
-            mat4.multiply(m, this._LocalProjection, this._LocalProjection); //local = local * m
-            this._Flags |= UIElementFlags.RenderProjection;
-        }
-
-        mat4.multiply(this._LocalProjection, this._AbsoluteProjection, this._AbsoluteProjection); //abs = abs * local
-
-        if (this instanceof Fayde.Controls.Primitives.Popup) {
-            var popupChild = this.Child;
-            if (popupChild)
-                popupChild._UpdateTransform();
-        }
-        if (!mat4.equal(oldProjection, this._LocalProjection)) {
-            if (visualParent)
-                visualParent._Invalidate(this._GetSubtreeBounds());
-            else if (App.Instance.MainSurface._IsTopLevel(this))
-                this._InvalidateSubtreePaint();
-
-            if (this._IsAttached)
-                App.Instance.MainSurface._AddDirtyElement(this, _Dirty.NewBounds);
-        }
-
-        if (cacheMode) {
-            if (!this.Effect)
-                cacheMode.GetTransform(this._CacheXform);
-
-            if (!mat3.equal(oldCache, this._CacheXform))
-                this._InvalidateBitmapCache();
-
-            var inverse = mat3.inverse(this._CacheXform);
-            mat4.toAffineMat4(inverse, m);
-            mat4.multiply(m, this._LocalProjection, this._RenderProjection); //render = local * m
-        } else {
-            // render = local
-            mat4.set(this._LocalProjection, this._RenderProjection);
-        }
-
-        if (/* RUNTIME_INIT_USE_UPDATE_POSITION */false && !(this._DirtyFlags & _Dirty.Bounds)) {
-            this._TransformBounds(old, this._AbsoluteXform);
-        } else {
-            this._UpdateBounds();
-        }
-
-        this._ComputeComposite();
-    };
-    UIElement.Instance._ComputeLocalTransform = function () {
-        var transform = this.RenderTransform;
-        if (!transform)
-            return;
-
-        var transformOrigin = this._GetTransformOrigin();
-        this._LocalXform = mat3.identity();
-        this._RenderXform = mat3.identity();
-        mat3.set(transform.Value.raw, this._RenderXform);
-
-        mat3.translate(this._LocalXform, transformOrigin.X, transformOrigin.Y);
-        mat3.multiply(this._LocalXform, this._RenderXform, this._LocalXform); //local = render * local
-        mat3.translate(this._LocalXform, -transformOrigin.X, -transformOrigin.Y);
-    };
-    UIElement.Instance._ComputeLocalProjection = function () {
-        var projection = this.Projection;
-        if (!projection) {
-            Fayde.Controls.Panel.SetZ(this, NaN);
-            return;
-        }
-
-        var s = this._GetSizeForBrush();
-        projection._SetObjectSize(s.Width, s.Height);
-        Fayde.Controls.Panel.SetZ(this, projection._GetDistanceFromXYPlane());
-    };
-
     UIElement.Instance._TransformBounds = function (old, current) {
         this._Metrics.TransformBounds(this, old, current);
     };
-
     UIElement.Instance._GetSizeForBrush = function () {
         AbstractMethod("UIElement._GetSizeForBrush");
     };
@@ -620,23 +455,7 @@
         return ctx.IsPointInClipPath(clip, np);
     };
     UIElement.Instance._TransformPoint = function (p) {
-        /// <param name="p" type="Point"></param>
-        var inverse = mat4.inverse(this._AbsoluteProjection, mat4.create());
-        if (inverse == null) {
-            Warn("Could not get inverse of Absolute Projection for UIElement.");
-            return;
-        }
-
-        var p4 = vec4.createFrom(p.X, p.Y, 0.0, 1.0);
-        var m20 = inverse[2];
-        var m21 = inverse[6];
-        var m22 = inverse[10];
-        var m23 = inverse[14];
-        p4[2] = -(m20 * p4[0] + m21 * p4[1] + m23) / m22;
-
-        mat4.transformVec4(inverse, p4);
-        p.X = p4[0] / p4[3];
-        p.Y = p4[1] / p4[3];
+        return this._Xformer.TransformPoint(p);
     };
     UIElement.Instance._CanFindElement = function () {
         return false;
@@ -736,7 +555,7 @@
             //TODO: Render to intermediate
         } else {
             rect.copyTo(this._GetSubtreeExtents(), region);
-            rect.transform(region, this._RenderXform);
+            rect.transform(region, this._Xformer.RenderXform);
             rect.transform(region, ctx.CurrentTransform);
             rect.roundOut(region);
             rect.intersection(region, parentRegion);
@@ -747,7 +566,7 @@
 
         ctx.Save();
 
-        ctx.Transform(this._RenderXform);
+        ctx.Transform(this._Xformer.RenderXform);
         ctx.CanvasContext.globalAlpha = this._TotalOpacity;
 
         var canvasCtx = ctx.CanvasContext;
@@ -917,6 +736,33 @@
 
     //#region Dirty Updates
 
+    UIElement.Instance._ComputeXformer = function (visualParent) {
+        var xformer = this._Xformer;
+        var dirtyEnum = _Dirty;
+        if (this._DirtyFlags & dirtyEnum.LocalTransform) {
+            this._DirtyFlags &= ~dirtyEnum.LocalTransform;
+            this._DirtyFlags |= dirtyEnum.Transform;
+            //DirtyDebug("ComputeLocalTransform: [" + this.__DebugToString() + "]");
+            xformer.ComputeLocalTransform(this);
+            //DirtyDebug("--> " + xformer.LocalXform._Elements.toString());
+        }
+        if (this._DirtyFlags & dirtyEnum.LocalProjection) {
+            this._DirtyFlags &= ~dirtyEnum.LocalProjection;
+            this._DirtyFlags |= dirtyEnum.Transform;
+            //DirtyDebug("ComputeLocalProjection: [" + this.__DebugToString() + "]");
+            xformer.ComputeLocalProjection(this);
+        }
+        if (this._DirtyFlags & dirtyEnum.Transform) {
+            this._DirtyFlags &= ~dirtyEnum.Transform;
+            //DirtyDebug("ComputeTransform: [" + this.__DebugToString() + "]");
+            xformer.ComputeTransform(this);
+            //DirtyDebug("--> " + xformer.AbsoluteProjection._Elements.slice(0, 8).toString());
+            if (visualParent)
+                visualParent._UpdateBounds();
+            return true;
+        }
+        return false;
+    };
     UIElement.Instance._UpdateLayer = function (pass, error) {
         //Intentionally empty
     };

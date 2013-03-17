@@ -400,28 +400,8 @@
                 this._PropagateDirtyFlagToChildren(uie, dirtyEnum.HitTestVisibility);
             }
 
-            if (uie._DirtyFlags & dirtyEnum.LocalTransform) {
-                uie._DirtyFlags &= ~dirtyEnum.LocalTransform;
-                uie._DirtyFlags |= dirtyEnum.Transform;
-                //DirtyDebug("ComputeLocalTransform: [" + uie.__DebugToString() + "]");
-                uie._ComputeLocalTransform();
-                //DirtyDebug("--> " + uie._LocalXform._Elements.toString());
-            }
-            if (uie._DirtyFlags & dirtyEnum.LocalProjection) {
-                uie._DirtyFlags &= ~dirtyEnum.LocalProjection;
-                uie._DirtyFlags |= dirtyEnum.Transform;
-                //DirtyDebug("ComputeLocalProjection: [" + uie.__DebugToString() + "]");
-                uie._ComputeLocalProjection();
-            }
-            if (uie._DirtyFlags & dirtyEnum.Transform) {
-                uie._DirtyFlags &= ~dirtyEnum.Transform;
-                //DirtyDebug("ComputeTransform: [" + uie.__DebugToString() + "]");
-                uie._ComputeTransform();
-                //DirtyDebug("--> " + uie._AbsoluteProjection._Elements.slice(0, 8).toString());
-                if (visualParent)
-                    visualParent._UpdateBounds();
+            if (uie._ComputeXformer(visualParent))
                 this._PropagateDirtyFlagToChildren(uie, dirtyEnum.Transform);
-            }
 
             if (uie._DirtyFlags & dirtyEnum.LocalClip) {
                 uie._DirtyFlags &= ~dirtyEnum.LocalClip;

@@ -9,7 +9,7 @@ var Fayde;
             Fayde.FrameworkElementMetrics.call(this);
         }
         ShapeMetrics.prototype.ComputeBounds = function (fe) {
-            this._IntersectBaseBoundsWithClipPath(this.Bounds, this.GetStretchExtents(fe), fe, fe._AbsoluteXform);
+            this._IntersectBaseBoundsWithClipPath(this.Bounds, this.GetStretchExtents(fe), fe, fe._Xformer.AbsoluteXform);
             rect.copyTo(this.Bounds, this.BoundsWithChildren);
             this.ComputeGlobalBounds(fe);
             this.ComputeSurfaceBounds(fe);

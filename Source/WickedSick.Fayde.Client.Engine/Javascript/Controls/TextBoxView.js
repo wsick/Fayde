@@ -134,7 +134,7 @@
             this._HideCursor();
     };
     _TextBoxView.Instance._InvalidateCursor = function () {
-        this._Invalidate(rect.transform(this._Cursor, this._AbsoluteXform));
+        this._Invalidate(rect.transform(this._Cursor, this._Xformer.AbsoluteXform));
     };
     _TextBoxView.Instance._ShowCursor = function () {
         this._CursorVisible = true;
@@ -154,7 +154,7 @@
         this._Cursor = this._Layout.GetSelectionCursor(new Point(), cur);
         //TODO: ...
         // var irect = rect.clone(this._Cursor);
-        // rect.transform(irect, this._AbsoluteXform);
+        // rect.transform(irect, this._Xformer.AbsoluteXform);
         // this._TextBox._ImCtx.SetCursorLocation(irect);
 
         if (!rect.isEqual(this._Cursor, current))
