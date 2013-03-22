@@ -87,6 +87,11 @@ mat3.createRotate = function (angleRad, dest) {
     dest[8] = 1;
     return dest;
 };
+mat3.clone = function (mat) {
+    if (typeof Float32Array !== "undefined")
+        return new Float32Array(mat);
+    return mat.slice(0);
+};
 
 mat3.transformVec2 = function (mat, vec, dest) {
     if (!dest) dest = vec;
@@ -143,3 +148,4 @@ mat4.createTranslate = function (x, y, z, dest) {
     dest[15] = 1;
     return dest;
 };
+mat4.clone = mat3.clone;

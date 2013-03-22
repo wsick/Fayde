@@ -1,4 +1,5 @@
 /// <reference path="DependencyObject.js" />
+/// <reference path="../Flags.js"/>
 /// CODE
 /// <reference path="../Core/DependencyProperty.js" />
 /// <reference path="../Controls/Canvas.js" />
@@ -39,6 +40,8 @@
     Fayde.UIElementFlags = UIElementFlags;
 
     //#endregion
+
+    var useProjections = Fayde.UseProjections;
 
     var UIElement = Nullstone.Create("UIElement", Fayde.DependencyObject);
 
@@ -122,7 +125,8 @@
     UIElement.IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
     UIElement.OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Fayde.Media.Brush; }, UIElement);
     UIElement.OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0);
-    UIElement.ProjectionProperty = DependencyProperty.Register("Projection", function () { return Fayde.Media.Projection; }, UIElement);
+    if (useProjections)
+        UIElement.ProjectionProperty = DependencyProperty.Register("Projection", function () { return Fayde.Media.Projection; }, UIElement);
     UIElement.RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () { return Fayde.Media.Transform; }, UIElement);
     UIElement.RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () { return Point; }, UIElement, new Point());
     UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return Fayde.ResourceDictionary; }, UIElement, undefined, undefined, { GetValue: function () { return new Fayde.ResourceDictionary(); } });
@@ -144,7 +148,6 @@
         UIElement.IsHitTestVisibleProperty,
         UIElement.OpacityMaskProperty,
         UIElement.OpacityProperty,
-        UIElement.ProjectionProperty,
         UIElement.RenderTransformProperty,
         UIElement.RenderTransformOriginProperty,
         UIElement.ResourcesProperty,
@@ -155,6 +158,9 @@
         UIElement.IsFixedWidthProperty,
         UIElement.IsFixedHeightProperty
     ]);
+
+    if (useProjections)
+        Nullstone.AutoProperty(UIElement, UIElement.ProjectionProperty);
 
     Nullstone.AutoPropertiesReadOnly(UIElement, [
         UIElement.IsMouseOverProperty
@@ -902,7 +908,7 @@
                 this._InvalidateEffect();
                 if (oldEffect !== newEffect && this._IsAttached)
                     App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Transform);
-            } else if (propd._ID === UIElement.ProjectionProperty._ID) {
+            } else if (useProjections && propd._ID === UIElement.ProjectionProperty._ID) {
                 this._UpdateProjection();
             } else if (propd._ID === UIElement.CacheModeProperty._ID) {
                 //TODO: CacheModeProperty
@@ -1080,7 +1086,7 @@
             } else if (propd._ID === UIElement.TriggersProperty._ID) {
             } else if (propd._ID === UIElement.UseLayoutRoundingProperty._ID) {
             } else if (propd._ID === UIElement.EffectProperty._ID) {
-            } else if (propd._ID === UIElement.ProjectionProperty._ID) {
+            } else if (useProjections && propd._ID === UIElement.ProjectionProperty._ID) {
             } else if (propd._ID === UIElement.CacheModeProperty._ID) {
             }
         };
