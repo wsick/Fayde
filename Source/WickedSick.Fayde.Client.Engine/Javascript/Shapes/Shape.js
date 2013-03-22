@@ -23,6 +23,7 @@
     //#region Properties
 
     Shape.FillProperty = DependencyProperty.Register("Fill", function () { return Fayde.Media.Brush; }, Shape);
+    http://msdn.microsoft.com/en-us/library/system.windows.shapes.shape.stretch(v=vs.95).aspx
     Shape.StretchProperty = DependencyProperty.Register("Stretch", function () { return new Enum(Fayde.Media.Stretch); }, Shape, Fayde.Media.Stretch.None);
     Shape.StrokeProperty = DependencyProperty.Register("Stroke", function () { return Fayde.Media.Brush; }, Shape);
     Shape.StrokeThicknessProperty = DependencyProperty.Register("StrokeThickness", function () { return Number; }, Shape, 1.0);
