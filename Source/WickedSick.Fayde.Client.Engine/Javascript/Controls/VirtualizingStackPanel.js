@@ -362,7 +362,7 @@
                 s.Width = arrangeSize.Width;
                 var childFinal = rect.fromSize(s);
                 if (rect.isEmpty(childFinal)) {
-                    rect.clear();
+                    rect.clear(childFinal);
                 } else {
                     childFinal.X = -this.HorizontalOffset;
                     childFinal.Y = arranged.Height;
@@ -374,7 +374,7 @@
                 s.Height = arrangeSize.Height;
                 var childFinal = rect.fromSize(s);
                 if (rect.isEmpty(childFinal)) {
-                    rect.clear();
+                    rect.clear(childFinal);
                 } else {
                     childFinal.X = arranged.Width;
                     childFinal.Y = -this.VerticalOffset;
