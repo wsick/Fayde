@@ -63,59 +63,81 @@ namespace WickedSick.Server.XamlParser
                 return Enum.Parse(t, node.InnerText);
             }
 
-            DependencyObject element = (DependencyObject)Activator.CreateInstance(t);
-            if (element is FaydeApplication)
-                (element as FaydeApplication).Parser = this;
-            element.Parent = parent;
-
-            foreach (XmlAttribute a in node.Attributes)
+            object obj = Activator.CreateInstance(t);
+            if (obj is DependencyObject)
             {
-                if (a.Name == "x:Key")
+                DependencyObject element = obj as DependencyObject;
+                if (element is FaydeApplication)
+                    (element as FaydeApplication).Parser = this;
+                element.Parent = parent;
+
+                foreach (XmlAttribute a in node.Attributes)
                 {
-                    element.SetValue("Key", a.Value);
-                    continue;
+                    if (a.Name == "x:Key")
+                    {
+                        element.SetValue("Key", a.Value);
+                        continue;
+                    }
+                    if (a.Name == "x:Name")
+                    {
+                        element.SetValue("Name", a.Value);
+                        continue;
+                    }
+
+                    if (a.Name.ToLower().Equals("xmlns"))
+                        continue;
+                    if (a.Name.Contains(":"))
+                        continue;
+                    if (a.Name.Contains("."))
+                    {
+                        //inline attached property
+                        string[] parts = a.LocalName.Split('.');
+                        if (parts.Count() != 2)
+                            throw new XamlParseException(string.Format("An invalid element has been encountered. {0}", a.Name));
+
+                        var nsUri = a.NamespaceURI;
+                        if (string.IsNullOrWhiteSpace(nsUri))
+                            nsUri = a.OwnerElement.NamespaceURI;
+
+                        Type ownerType = ResolveType(nsUri, parts[0], parseMetadata);
+                        element.AddAttachedProperty(ownerType, parts[1], a.Value);
+                        continue;
+                    }
+
+                    if (a.Value.StartsWith("{"))
+                    {
+                        MarkupExpressionParser mep = new MarkupExpressionParser(a.Value);
+                        object expression = mep.ParseExpression();
+                        element.SetValue(a.Name, expression);
+                        continue;
+                    }
+
+                    //regular property
+                    element.SetValue(a.Name, a.Value);
                 }
-                if (a.Name == "x:Name")
+
+                ProcessChildNodes(node.ChildNodes, element, null, parseMetadata);
+            }
+            else
+            {
+                foreach (XmlAttribute a in node.Attributes)
                 {
-                    element.SetValue("Name", a.Value);
-                    continue;
+                    try
+                    {
+                        PropertyHelper.SetProperty(obj, a.Name, a.Value);
+                    }
+                    catch (MemberAccessException)
+                    {
+                        throw new XamlParseException(string.Format("An invalid property has been encountered. {0}.{1}", node.LocalName, a.Name));
+                    }
+                    catch (FormatException)
+                    {
+                        throw new XamlParseException(string.Format("An invalid value format has been encountered ({0}). {1}.{2}", node.LocalName, a.Name, a.Value));
+                    }
                 }
-
-                if (a.Name.ToLower().Equals("xmlns"))
-                    continue;
-                if (a.Name.Contains(":"))
-                    continue;
-                if (a.Name.Contains("."))
-                {
-                    //inline attached property
-                    string[] parts = a.LocalName.Split('.');
-                    if (parts.Count() != 2)
-                        throw new XamlParseException(string.Format("An invalid element has been encountered. {0}", a.Name));
-
-                    var nsUri = a.NamespaceURI;
-                    if (string.IsNullOrWhiteSpace(nsUri))
-                        nsUri = a.OwnerElement.NamespaceURI;
-
-                    Type ownerType = ResolveType(nsUri, parts[0], parseMetadata);
-                    element.AddAttachedProperty(ownerType, parts[1], a.Value);
-                    continue;
-                }
-
-                if (a.Value.StartsWith("{"))
-                {
-                    MarkupExpressionParser mep = new MarkupExpressionParser(a.Value);
-                    object expression = mep.ParseExpression();
-                    element.SetValue(a.Name, expression);
-                    continue;
-                }
-
-                //regular property
-                element.SetValue(a.Name, a.Value);
             }
 
-            ProcessChildNodes(node.ChildNodes, element, null, parseMetadata);
-
-            return element;
+            return obj;
         }
         private void ProcessChildNodes(XmlNodeList children, DependencyObject element, string propertyName, IParseMetadata parseMetadata)
         {
@@ -152,7 +174,9 @@ namespace WickedSick.Server.XamlParser
                             element.SetValue(parts[1], n.InnerText);
                         }
                         else
+                        {
                             ProcessChildNodes(n.ChildNodes, element, parts[1], parseMetadata);
+                        }
                     }
                 }
                 else
