@@ -7,6 +7,15 @@ namespace WickedSick.Server.XamlParser.Elements
     [Element("Fayde")]
     public class ResourceDictionary : DependencyObjectCollection<DependencyObject>
     {
+        public static readonly PropertyDescription MergedDictionariesProperty = PropertyDescription.Register("MergedDictionaries", typeof(ResourceDictionaryCollection), typeof(ResourceDictionary));
+
+        public static readonly PropertyDescription SourceProperty = PropertyDescription.Register("Source", typeof(string), typeof(ResourceDictionary));
+        public string Source
+        {
+            get { return GetValue("Source") as string; }
+            set { SetValue(SourceProperty, value); }
+        }
+
         public override string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
             var sb = new StringBuilder();
