@@ -473,11 +473,10 @@
 
     UIElement.Instance._DoMeasureWithError = function (error) {
         var last = Fayde.LayoutInformation.GetPreviousConstraint(this);
-        var parent = this.GetVisualParent();
-        var infinite = size.createInfinite();
+        var parent = this._VisualParent;
 
         if (!this._IsAttached && !last && !parent && this.IsLayoutContainer()) {
-            last = infinite;
+            last = size.createInfinite();
         }
 
         if (last) {
@@ -840,6 +839,9 @@
                     ivprop = true;
                     this.InvalidateChildrenFixedWidth();
                     break;
+                case UIElement.UseLayoutRoundingProperty._ID:
+                    this._UpdateMetrics.UseLayoutRounding = args.NewValue ? 1 : 0;
+                    break;
                 default:
                     break;
             }
@@ -900,6 +902,7 @@
                     }
                 }
             } else if (propd._ID === UIElement.UseLayoutRoundingProperty._ID) {
+                this._UpdateMetrics.UseLayoutRounding = args.NewValue ? 1 : 0;
                 this._InvalidateMeasure();
                 this._InvalidateArrange();
             } else if (propd._ID === UIElement.EffectProperty._ID) {

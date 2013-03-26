@@ -5,6 +5,7 @@
 /// <reference path="PropertyValueProviders/ImplicitStylePropertyValueProvider.js"/>
 /// <reference path="PropertyValueProviders/FrameworkElementPropertyValueProvider.js"/>
 /// <reference path="PropertyValueProviders/InheritedDataContextPropertyValueProvider.js"/>
+/// <reference path="UpdateMetrics.js"/>
 /// CODE
 /// <reference path="FrameworkElementMetrics.js"/>
 /// <reference path="../Runtime/BError.js"/>
@@ -24,6 +25,8 @@
         this.AddProvider(new Fayde._ImplicitStylePropertyValueProvider(this));
         this.AddProvider(new Fayde.FrameworkElementPropertyValueProvider(this));
         this.AddProvider(new Fayde._InheritedDataContextPropertyValueProvider(this));
+
+        this._UpdateMetrics = Fayde.CreateUpdateMetrics();
 
         this.SizeChanged = new MulticastEvent();
         this.LayoutUpdated = {
@@ -148,31 +151,7 @@
 
     FrameworkElement.Instance._ApplySizeConstraints = function (s) {
         /// <param name="s" type="size"></param>
-        var spw = this.Width;
-        var sph = this.Height;
-        var cw = this.MinWidth;
-        var ch = this.MinHeight;
-
-        cw = Math.max(cw, s.Width);
-        ch = Math.max(ch, s.Height);
-        
-        if (!isNaN(spw))
-            cw = spw;
-
-        if (!isNaN(sph))
-            ch = sph;
-
-        cw = Math.max(Math.min(cw, this.MaxWidth), this.MinWidth);
-        ch = Math.max(Math.min(ch, this.MaxHeight), this.MinHeight);
-
-        if (this.UseLayoutRounding) {
-            cw = Math.round(cw);
-            ch = Math.round(ch);
-        }
-
-        s.Width = cw;
-        s.Height = ch;
-        return s;
+        return this._UpdateMetrics.CoerceSize(s);
     };
 
     //#endregion
@@ -840,11 +819,35 @@
             var ivprop = false;
             switch (args.Property._ID) {
                 case FrameworkElement.WidthProperty._ID:
+                    this._UpdateMetrics.Width = args.NewValue;
+                    this._PurgeSizeCache();
+                    ivprop = true;
+                    break;
                 case FrameworkElement.MaxWidthProperty._ID:
+                    this._UpdateMetrics.MaxWidth = args.NewValue;
+                    this._PurgeSizeCache();
+                    ivprop = true;
+                    break;
                 case FrameworkElement.MinWidthProperty._ID:
+                    this._UpdateMetrics.MinWidth = args.NewValue;
+                    this._PurgeSizeCache();
+                    ivprop = true;
+                    break;
                 case FrameworkElement.HeightProperty._ID:
+                    this._UpdateMetrics.Height = args.NewValue;
+                    this._PurgeSizeCache();
+                    ivprop = true;
+                    break;
                 case FrameworkElement.MaxHeightProperty._ID:
+                    this._UpdateMetrics.MaxHeight = args.NewValue;
+                    this._PurgeSizeCache();
+                    ivprop = true;
+                    break;
                 case FrameworkElement.MinHeightProperty._ID:
+                    this._UpdateMetrics.MinHeight = args.NewValue;
+                    this._PurgeSizeCache();
+                    ivprop = true;
+                    break;
                 case FrameworkElement.MarginProperty._ID:
                 case FrameworkElement.FlowDirectionProperty._ID:
                     this._PurgeSizeCache();
@@ -886,28 +889,35 @@
                 return;
             }
 
+            var isSize = false;
             switch (args.Property._ID) {
                 case FrameworkElement.WidthProperty._ID:
+                    this._UpdateMetrics.Width = args.NewValue;
+                    isSize = true;
+                    break;
                 case FrameworkElement.MaxWidthProperty._ID:
+                    this._UpdateMetrics.MaxWidth = args.NewValue;
+                    isSize = true;
+                    break;
                 case FrameworkElement.MinWidthProperty._ID:
+                    this._UpdateMetrics.MinWidth = args.NewValue;
+                    isSize = true;
+                    break;
                 case FrameworkElement.HeightProperty._ID:
+                    this._UpdateMetrics.Height = args.NewValue;
+                    isSize = true;
+                    break;
                 case FrameworkElement.MaxHeightProperty._ID:
+                    this._UpdateMetrics.MaxHeight = args.NewValue;
+                    isSize = true;
+                    break;
                 case FrameworkElement.MinHeightProperty._ID:
+                    this._UpdateMetrics.MinHeight = args.NewValue;
+                    isSize = true;
+                    break;
                 case FrameworkElement.MarginProperty._ID:
                 case FrameworkElement.FlowDirectionProperty._ID:
-                    this._PurgeSizeCache();
-
-                    //TODO: var p = this._GetRenderTransformOrigin();
-                    //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
-                    this._FullInvalidate(false);
-
-                    var visualParent = this.GetVisualParent();
-                    if (visualParent)
-                        visualParent._InvalidateMeasure();
-
-                    this._InvalidateMeasure();
-                    this._InvalidateArrange();
-                    this._UpdateBounds();
+                    isSize = true;
                     break;
                 case FrameworkElement.HorizontalAlignmentProperty._ID:
                 case FrameworkElement.VerticalAlignmentProperty._ID:
@@ -921,6 +931,21 @@
                     if (error.IsErrored())
                         return;
                     break;
+            }
+            if (isSize) {
+                this._PurgeSizeCache();
+
+                //TODO: var p = this._GetRenderTransformOrigin();
+                //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
+                this._FullInvalidate(false);
+
+                var visualParent = this.GetVisualParent();
+                if (visualParent)
+                    visualParent._InvalidateMeasure();
+
+                this._InvalidateMeasure();
+                this._InvalidateArrange();
+                this._UpdateBounds();
             }
 
             this.PropertyChanged.Raise(this, args);

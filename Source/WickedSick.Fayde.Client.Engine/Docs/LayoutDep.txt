@@ -1,0 +1,130 @@
+﻿///////////////////////////////////
+// Measure Dependencies
+///////////////////////////////////
+UIElement
+	LayoutInformation.PreviousConstraint
+	VisualParent
+	_IsAttached
+	IsLayoutContainer
+	_DesiredSize
+	_DirtyFlags
+FrameworkElement
+	LayoutInformation.LayoutExceptionElement
+	Visibility
+	Margin
+	_ApplySizeConstraints
+		Width
+		Height
+		MinWidth
+		MinHeight
+		MaxWidth
+		MaxHeight
+	_HiddenDesire
+	UseLayoutRounding
+Shape
+	Stretch
+	_GetNaturalBounds
+Border
+	Padding
+	BorderThickness
+	Child
+Panel
+	(None)
+Grid
+	ColumnDefinitions
+	RowDefinitions
+	Children
+		GetColumn
+		GetRow
+		GetColumnSpan
+		GetRowSpan
+StackPanel
+	Orientation
+		Width
+		MinWidth
+		MaxWidth
+		-or-
+		Height
+		MinHeight
+		MaxHeight
+	Children
+Canvas
+	Children
+Image
+	Source
+	Stretch
+
+///////////////////////////////////
+// Arrange Dependencies
+///////////////////////////////////
+FrameworkElement
+	LayoutInformation.LayoutSlot
+	LayoutInformation.PreviousConstraint
+	LayoutInformation.LayoutClip
+	LayoutInformation.VisualOffset
+	_ApplySizeConstraints
+		Width
+		Height
+		MinWidth
+		MinHeight
+		MaxWidth
+		MaxHeight
+	Margin
+	Visibility
+	VerticalAlignment
+	HorizontalAlignment
+	UseLayoutRounding
+	FlowDirection
+	_DirtyFlags
+	_HiddenDesire
+	_RenderSize
+Border
+	Padding
+	BorderThickness
+	Child
+Panel
+	(None)
+Grid
+	Children
+	ColumnDefinitions
+	RowDefinitions
+	GetColumn
+	GetRow
+	GetColumnSpan
+	GetRowSpan
+StackPanel
+	Orientation
+	Children
+Canvas
+	Children
+		GetLeft
+		GetTop
+Image
+	Source
+	Stretch
+
+///////////////////////////////////
+// Render Dependencies
+///////////////////////////////////
+All
+	ActualWidth
+	ActualHeight
+Border
+	Padding
+	BorderThickness
+	Background
+	CornerRadius
+Panel
+	Background
+	_ApplySizeConstraints
+	ActualWidth
+	ActualHeight
+Grid (Panel)
+StackPanel (Panel)
+Canvas (Panel)
+Image
+	Source
+	Stretch
+	_ApplySizeConstraints
+	ActualWidth
+	ActualHeight
