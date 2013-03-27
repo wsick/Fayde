@@ -30,12 +30,12 @@
 
     //#region Measure
 
-    Canvas.Instance._MeasureOverrideWithError = function (availableSize, error) {
+    Canvas.Instance._MeasureOverride = function (availableSize, pass) {
         var childSize = size.createInfinite();
         var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
-            child._MeasureWithError(childSize, error);
+            var innerpass = child._Measure(childSize);
         }
         return new size();
     };

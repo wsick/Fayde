@@ -175,7 +175,7 @@
         this.Layout(size.createInfinite());
         return this._Layout.GetActualExtents();
     };
-    _TextBoxView.Instance._MeasureOverrideWithError = function (availableSize, error) {
+    _TextBoxView.Instance._MeasureOverride = function (availableSize, pass) {
         this.Layout(availableSize);
         var desired = size.clone(this._Layout.GetActualExtents());
         if (!isFinite(availableSize.Width))

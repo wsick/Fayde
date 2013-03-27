@@ -111,7 +111,7 @@
 
     //#region Measure
 
-    MediaElement.Instance._MeasureOverrideWithError = function (availableSize, error) {
+    MediaElement.Instance._MeasureOverride = function (availableSize, pass) {
         /// <param name="availableSize" type="size"></param>
         return new size();
         //TODO: Implement video

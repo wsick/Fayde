@@ -49,21 +49,21 @@
     //#region Properties
 
     FrameworkElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () { return new Enum(CursorType); }, FrameworkElement, CursorType.Default); //TODO: AutoCreator: FrameworkElement._CoerceCursor);
-    FrameworkElement.HeightProperty = DependencyProperty.RegisterCore("Height", function () { return Number; }, FrameworkElement, NaN);
-    FrameworkElement.WidthProperty = DependencyProperty.RegisterCore("Width", function () { return Number; }, FrameworkElement, NaN);
+    FrameworkElement.HeightProperty = DependencyProperty.RegisterCore("Height", function () { return Number; }, FrameworkElement, NaN, function (d, args) { d._UpdateMetrics.Height = args.NewValue; });
+    FrameworkElement.WidthProperty = DependencyProperty.RegisterCore("Width", function () { return Number; }, FrameworkElement, NaN, function (d, args) { d._UpdateMetrics.Width = args.NewValue; });
     FrameworkElement.ActualHeightProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", function () { return Number; }, FrameworkElement);
     FrameworkElement.ActualWidthProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", function () { return Number; }, FrameworkElement);
     FrameworkElement.DataContextProperty = DependencyProperty.RegisterCore("DataContext", function () { return Object; }, FrameworkElement);
-    FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.RegisterCore("HorizontalAlignment", function () { return new Enum(Fayde.HorizontalAlignment); }, FrameworkElement, Fayde.HorizontalAlignment.Stretch);
+    FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.RegisterCore("HorizontalAlignment", function () { return new Enum(Fayde.HorizontalAlignment); }, FrameworkElement, Fayde.HorizontalAlignment.Stretch, function (d, args) { d._UpdateMetrics.HorizontalAlignment = args.NewValue; });
     FrameworkElement.LanguageProperty = DependencyProperty.RegisterCore("Language", function () { return String; }, FrameworkElement);
     FrameworkElement.MarginProperty = DependencyProperty.RegisterCore("Margin", function () { return Thickness; }, FrameworkElement, new Thickness());
-    FrameworkElement.MaxHeightProperty = DependencyProperty.RegisterCore("MaxHeight", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
-    FrameworkElement.MaxWidthProperty = DependencyProperty.RegisterCore("MaxWidth", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
-    FrameworkElement.MinHeightProperty = DependencyProperty.RegisterCore("MinHeight", function () { return Number; }, FrameworkElement, 0.0);
-    FrameworkElement.MinWidthProperty = DependencyProperty.RegisterCore("MinWidth", function () { return Number; }, FrameworkElement, 0.0);
-    FrameworkElement.VerticalAlignmentProperty = DependencyProperty.RegisterCore("VerticalAlignment", function () { return new Enum(Fayde.VerticalAlignment); }, FrameworkElement, Fayde.VerticalAlignment.Stretch);
+    FrameworkElement.MaxHeightProperty = DependencyProperty.RegisterCore("MaxHeight", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY, function (d, args) { d._UpdateMetrics.MaxHeight = args.NewValue; });
+    FrameworkElement.MaxWidthProperty = DependencyProperty.RegisterCore("MaxWidth", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY, function (d, args) { d._UpdateMetrics.MaxWidth = args.NewValue; });
+    FrameworkElement.MinHeightProperty = DependencyProperty.RegisterCore("MinHeight", function () { return Number; }, FrameworkElement, 0.0, function (d, args) { d._UpdateMetrics.MinHeight = args.NewValue; });
+    FrameworkElement.MinWidthProperty = DependencyProperty.RegisterCore("MinWidth", function () { return Number; }, FrameworkElement, 0.0, function (d, args) { d._UpdateMetrics.MinWidth = args.NewValue; });
+    FrameworkElement.VerticalAlignmentProperty = DependencyProperty.RegisterCore("VerticalAlignment", function () { return new Enum(Fayde.VerticalAlignment); }, FrameworkElement, Fayde.VerticalAlignment.Stretch, function (d, args) { d._UpdateMetrics.VerticalAlignment = args.NewValue; });
     FrameworkElement.StyleProperty = DependencyProperty.RegisterCore("Style", function () { return Fayde.Style; }, FrameworkElement);
-    FrameworkElement.FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", function () { return new Enum(Fayde.FlowDirection); }, FrameworkElement, Fayde.FlowDirection.LeftToRight, undefined, undefined, _Inheritable.FlowDirection);
+    FrameworkElement.FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", function () { return new Enum(Fayde.FlowDirection); }, FrameworkElement, Fayde.FlowDirection.LeftToRight, function (d, args) { d._UpdateMetrics.FlowDirection = args.NewValue; }, undefined, _Inheritable.FlowDirection);
 
     Nullstone.AutoProperties(FrameworkElement, [
         FrameworkElement.CursorProperty,
@@ -158,79 +158,7 @@
 
     //#region Measure
 
-    FrameworkElement.Instance.Measure = function (availableSize) {
-        var error = new BError();
-        this._MeasureWithError(availableSize, error);
-        if (error.IsErrored())
-            throw error.CreateException();
-    };
-    FrameworkElement.Instance._MeasureWithError = function (availableSize, error) {
-        if (error.IsErrored())
-            return;
-
-        if (isNaN(availableSize.Width) || isNaN(availableSize.Height)) {
-            error.SetErrored("Cannot call Measure using a size with NaN values");
-            Fayde.LayoutInformation.SetLayoutExceptionElement(this);
-            return;
-        }
-
-        var last = Fayde.LayoutInformation.GetPreviousConstraint(this);
-        var shouldMeasure = (this._DirtyFlags & _Dirty.Measure) > 0;
-        shouldMeasure = shouldMeasure || (!last || last.Width !== availableSize.Width || last.Height !== availableSize.Height);
-
-        if (this.Visibility !== Fayde.Visibility.Visible) {
-            Fayde.LayoutInformation.SetPreviousConstraint(this, availableSize);
-            size.clear(this._DesiredSize);
-            return;
-        }
-
-        this._ApplyTemplateWithError(error);
-
-        var parent = this.GetVisualParent();
-
-        if (!shouldMeasure)
-            return;
-
-        Fayde.LayoutInformation.SetPreviousConstraint(this, availableSize);
-
-        this._InvalidateArrange();
-        this._UpdateBounds();
-
-        var margin = this.Margin;
-        var s = size.clone(availableSize);
-        size.shrinkByThickness(s, margin);
-        this._ApplySizeConstraints(s);
-
-        if (this.MeasureOverride)
-            s = this.MeasureOverride(s);
-        else
-            s = this._MeasureOverrideWithError(s, error);
-
-        if (error.IsErrored())
-            return;
-
-        this._DirtyFlags &= ~_Dirty.Measure;
-        this._HiddenDesire = size.clone(s);
-
-        if (!parent || parent instanceof Fayde.Controls.Canvas) {
-            if (this instanceof Fayde.Controls.Canvas || !this.IsLayoutContainer()) {
-                size.clear(this._DesiredSize);
-                return;
-            }
-        }
-
-        this._ApplySizeConstraints(s);
-        size.growByThickness(s, margin);
-        size.min(s, availableSize);
-
-        if (this.UseLayoutRounding) {
-            s.Width = Math.round(s.Width);
-            s.Height = Math.round(s.Height);
-        }
-
-        size.copyTo(s, this._DesiredSize);
-    };
-    FrameworkElement.Instance._MeasureOverrideWithError = function (availableSize, error) {
+    FrameworkElement.Instance._MeasureOverride = function (availableSize, pass) {
         var desired = new size();
 
         availableSize = size.clone(availableSize);
@@ -238,8 +166,11 @@
 
         var walker = new Fayde._VisualTreeWalker(this);
         var child;
+        var innerpass;
         while (child = walker.Step()) {
-            child._MeasureWithError(availableSize, error);
+            innerpass = child._Measure(availableSize);
+            if (innerpass.Error)
+                pass.Error = innerpass.Error;
             desired = size.clone(child._DesiredSize);
         }
 
@@ -261,13 +192,14 @@
         if (error.IsErrored())
             return;
 
+        var metrics = this._UpdateMetrics;
         var slot = Fayde.LayoutInformation.GetLayoutSlot(this, true);
         if (slot === null)
             slot = undefined;
 
         var shouldArrange = (this._DirtyFlags & _Dirty.Arrange) > 0;
 
-        if (this.UseLayoutRounding) {
+        if (metrics.UseLayoutRounding) {
             rect.round(finalRect);
         }
 
@@ -283,7 +215,7 @@
 
         var parent = this.GetVisualParent();
 
-        if (this.Visibility !== Fayde.Visibility.Visible) {
+        if (metrics.Visibility !== Fayde.Visibility.Visible) {
             Fayde.LayoutInformation.SetLayoutSlot(this, finalRect);
             return;
         }
@@ -291,10 +223,13 @@
         if (!shouldArrange)
             return;
 
-        var measure = Fayde.LayoutInformation.GetPreviousConstraint(this);
-        if (this.IsContainer() && !measure)
-            this._MeasureWithError(size.fromRect(finalRect), error);
-        measure = Fayde.LayoutInformation.GetPreviousConstraint(this);
+        var metrics = this._UpdateMetrics;
+        var measure = metrics.PreviousConstraint;
+        if (this.IsContainer() && !measure) {
+            this._Measure(size.fromRect(finalRect));
+            //this._MeasureWithError(size.fromRect(finalRect), error);
+        }
+        measure = metrics.PreviousConstraint;
 
         Fayde.LayoutInformation.SetLayoutClip(this, undefined);
 
@@ -311,8 +246,8 @@
         var stretched = this._ApplySizeConstraints(size.fromRect(childRect));
         var framework = this._ApplySizeConstraints(new size());
 
-        var horiz = this.HorizontalAlignment;
-        var vert = this.VerticalAlignment;
+        var horiz = metrics.HorizontalAlignment;
+        var vert = metrics.VerticalAlignment;
 
         if (horiz === Fayde.HorizontalAlignment.Stretch)
             framework.Width = Math.max(framework.Width, stretched.Width);
@@ -338,11 +273,11 @@
 
         var flipHoriz = false;
         if (parent)
-            flipHoriz = parent.FlowDirection !== this.FlowDirection;
+            flipHoriz = parent.FlowDirection !== metrics.FlowDirection;
         else if (this._Parent instanceof Fayde.Controls.Primitives.Popup)
-            flipHoriz = this._Parent.FlowDirection !== this.FlowDirection;
+            flipHoriz = this._Parent.FlowDirection !== metrics.FlowDirection;
         else
-            flipHoriz = this.FlowDirection === Fayde.FlowDirection.RightToLeft;
+            flipHoriz = metrics.FlowDirection === Fayde.FlowDirection.RightToLeft;
 
         var layoutXform = mat3.identity(this._Xformer.LayoutXform);
         mat3.translate(layoutXform, childRect.X, childRect.Y);
@@ -360,7 +295,7 @@
 
         var oldSize = size.clone(this._RenderSize);
 
-        if (this.UseLayoutRounding) {
+        if (metrics.UseLayoutRounding) {
             response.Width = Math.round(response.Width);
             response.Height = Math.round(response.Height);
         }
@@ -408,7 +343,7 @@
             }
         }
 
-        if (this.UseLayoutRounding) {
+        if (metrics.UseLayoutRounding) {
             visualOffset.X = Math.round(visualOffset.X);
             visualOffset.Y = Math.round(visualOffset.Y);
         }
@@ -428,7 +363,7 @@
         var layoutClip = rect.clone(childRect);
         layoutClip.X = Math.max(childRect.X - visualOffset.X, 0);
         layoutClip.Y = Math.max(childRect.Y - visualOffset.Y, 0);
-        if (this.UseLayoutRounding) {
+        if (metrics.UseLayoutRounding) {
             layoutClip.X = Math.round(layoutClip.X);
             layoutClip.Y = Math.round(layoutClip.Y);
         }
@@ -819,35 +754,11 @@
             var ivprop = false;
             switch (args.Property._ID) {
                 case FrameworkElement.WidthProperty._ID:
-                    this._UpdateMetrics.Width = args.NewValue;
-                    this._PurgeSizeCache();
-                    ivprop = true;
-                    break;
                 case FrameworkElement.MaxWidthProperty._ID:
-                    this._UpdateMetrics.MaxWidth = args.NewValue;
-                    this._PurgeSizeCache();
-                    ivprop = true;
-                    break;
                 case FrameworkElement.MinWidthProperty._ID:
-                    this._UpdateMetrics.MinWidth = args.NewValue;
-                    this._PurgeSizeCache();
-                    ivprop = true;
-                    break;
                 case FrameworkElement.HeightProperty._ID:
-                    this._UpdateMetrics.Height = args.NewValue;
-                    this._PurgeSizeCache();
-                    ivprop = true;
-                    break;
                 case FrameworkElement.MaxHeightProperty._ID:
-                    this._UpdateMetrics.MaxHeight = args.NewValue;
-                    this._PurgeSizeCache();
-                    ivprop = true;
-                    break;
                 case FrameworkElement.MinHeightProperty._ID:
-                    this._UpdateMetrics.MinHeight = args.NewValue;
-                    this._PurgeSizeCache();
-                    ivprop = true;
-                    break;
                 case FrameworkElement.MarginProperty._ID:
                 case FrameworkElement.FlowDirectionProperty._ID:
                     this._PurgeSizeCache();
@@ -892,29 +803,11 @@
             var isSize = false;
             switch (args.Property._ID) {
                 case FrameworkElement.WidthProperty._ID:
-                    this._UpdateMetrics.Width = args.NewValue;
-                    isSize = true;
-                    break;
                 case FrameworkElement.MaxWidthProperty._ID:
-                    this._UpdateMetrics.MaxWidth = args.NewValue;
-                    isSize = true;
-                    break;
                 case FrameworkElement.MinWidthProperty._ID:
-                    this._UpdateMetrics.MinWidth = args.NewValue;
-                    isSize = true;
-                    break;
                 case FrameworkElement.HeightProperty._ID:
-                    this._UpdateMetrics.Height = args.NewValue;
-                    isSize = true;
-                    break;
                 case FrameworkElement.MaxHeightProperty._ID:
-                    this._UpdateMetrics.MaxHeight = args.NewValue;
-                    isSize = true;
-                    break;
                 case FrameworkElement.MinHeightProperty._ID:
-                    this._UpdateMetrics.MinHeight = args.NewValue;
-                    isSize = true;
-                    break;
                 case FrameworkElement.MarginProperty._ID:
                 case FrameworkElement.FlowDirectionProperty._ID:
                     isSize = true;

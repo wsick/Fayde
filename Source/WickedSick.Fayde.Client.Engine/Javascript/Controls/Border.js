@@ -41,15 +41,14 @@
     //#region Instance Methods
 
     Border.Instance.IsLayoutContainer = function () { return true; };
-    Border.Instance._MeasureOverrideWithError = function (availableSize, error) {
-        var desired = new size();
+    Border.Instance._MeasureOverride = function (availableSize, pass) {
         var border = this.Padding.Plus(this.BorderThickness);
 
+        var desired = new size();
         availableSize = size.shrinkByThickness(size.clone(availableSize), border);
-        var walker = new Fayde._VisualTreeWalker(this);
-        var child;
-        while (child = walker.Step()) {
-            child._MeasureWithError(availableSize, error);
+        var child = this.Child;
+        if (child) {
+            var innerpass = child._Measure(availableSize);
             desired = size.clone(child._DesiredSize);
         }
         size.growByThickness(desired, border);

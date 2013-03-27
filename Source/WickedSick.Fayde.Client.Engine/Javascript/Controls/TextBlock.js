@@ -84,7 +84,8 @@
         var padding = this.Padding;
         var constraint = this._ApplySizeConstraints(size.createInfinite());
 
-        if (Fayde.LayoutInformation.GetPreviousConstraint(this) !== undefined || Fayde.LayoutInformation.GetLayoutSlot(this, true) !== undefined) {
+        var metrics = this._UpdateMetrics;
+        if (metrics.PreviousConstraint !== undefined || Fayde.LayoutInformation.GetLayoutSlot(this, true) !== undefined) {
             this._Layout.Layout();
             var actuals = this._Layout.GetActualExtents();
             this._ActualWidth = actuals.Width;
@@ -106,7 +107,7 @@
 
     //#region Measure
 
-    TextBlock.Instance._MeasureOverrideWithError = function (availableSize, error) {
+    TextBlock.Instance._MeasureOverride = function (availableSize, pass) {
         var padding = this.Padding;
         var constraint = size.clone(availableSize);
         size.shrinkByThickness(constraint, padding);

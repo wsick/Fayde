@@ -316,11 +316,12 @@
                 if (!element._HasFlag(UIElementFlags.DirtyMeasureHint) && !element._HasFlag(UIElementFlags.DirtyArrangeHint))
                     continue;
 
-                var last = Fayde.LayoutInformation.GetPreviousConstraint(element);
+                var elMetrics = element._UpdateMetrics;
+                var last = elMetrics.PreviousConstraint;
                 var available = size.fromRaw(this.GetWidth(), this.GetHeight());
                 if (element.IsContainer() && (!last || (!size.isEqual(last, available)))) {
                     element._InvalidateMeasure();
-                    Fayde.LayoutInformation.SetPreviousConstraint(element, available);
+                    elMetrics.PreviousConstraint = available;
                 }
 
                 element._UpdateLayer(pass, error);

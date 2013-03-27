@@ -149,13 +149,11 @@
 
     //#region Measure
 
-    ScrollContentPresenter.Instance.MeasureOverride = function (constraint) {
+    ScrollContentPresenter.Instance._MeasureOverride = function (constraint, pass) {
         /// <param name="constraint" type="size"></param>
         var scrollOwner = this.ScrollOwner;
-        if (scrollOwner == null || this._ContentRoot == null) {
-            var error = new BError();
-            return this._MeasureOverrideWithError(constraint, error);
-        }
+        if (scrollOwner == null || this._ContentRoot == null)
+            return this._MeasureOverride$ContentPresenter(constraint, pass);
 
         var ideal = size.createInfinite();
         if (!this.CanHorizontallyScroll)

@@ -11,7 +11,6 @@
         this.LayoutClip = undefined;
         this.LayoutExceptionElement = undefined;
         this.LayoutSlot = undefined;
-        this.PreviousConstraint = undefined;
         this.FinalRect = undefined;
         this.LastRenderSize = undefined;
         this.VisualOffset = undefined;
@@ -54,17 +53,6 @@
         /// <param name="uie" type="UIElement"></param>
         /// <param name="value" type="rect"></param>
         uie._LayoutInformation.LayoutSlot = value;
-    };
-    
-    LayoutInformation.GetPreviousConstraint = function (uie) {
-        /// <param name="uie" type="UIElement"></param>
-        /// <returns type="size" />
-        return uie._LayoutInformation.PreviousConstraint;
-    };
-    LayoutInformation.SetPreviousConstraint = function (uie, value) {
-        /// <param name="uie" type="UIElement"></param>
-        /// <param name="value" type="size"></param>
-        uie._LayoutInformation.PreviousConstraint = value;
     };
     
     LayoutInformation.GetFinalRect = function (uie) {

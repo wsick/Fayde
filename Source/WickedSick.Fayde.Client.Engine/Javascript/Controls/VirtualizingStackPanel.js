@@ -225,7 +225,7 @@
 
     //#region Measure
 
-    VirtualizingStackPanel.Instance.MeasureOverride = function (constraint) {
+    VirtualizingStackPanel.Instance._MeasureOverride = function (constraint, pass) {
         var owner = namespace.ItemsControl.GetItemsOwner(this);
         var measured = new size();
         var invalidate = false;

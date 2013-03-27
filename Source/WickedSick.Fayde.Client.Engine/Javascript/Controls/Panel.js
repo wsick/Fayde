@@ -61,8 +61,8 @@
     Panel.Instance._EmptyBackground = function () {
         return this.Background == null;
     };
-    Panel.Instance._MeasureOverrideWithError = function (availableSize, error) {
-        Info("Panel._MeasureOverrideWithError [" + this._TypeName + "]");
+    Panel.Instance._MeasureOverride = function (availableSize, pass) {
+        Info("Panel._MeasureOverride [" + this._TypeName + "]");
         return new size();
     };
     Panel.Instance._Render = function (ctx, region) {

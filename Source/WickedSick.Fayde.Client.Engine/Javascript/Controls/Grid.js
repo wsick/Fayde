@@ -162,7 +162,7 @@
 
     //#region Measure/Arrange
 
-    Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
+    Grid.Instance._MeasureOverride = function (availableSize, pass) {
         //LayoutDebug("Grid Measure Pass: " + this.__DebugToString() + " [" + availableSize.toString() + "]");
         var totalSize = size.clone(availableSize);
         var cols = this._GetColumnDefinitionsNoAutoCreate();
@@ -318,7 +318,9 @@
                     childSize.Width += this._ColMatrix[c][c]._OfferedSize;
                 }
 
-                child._MeasureWithError(childSize, error);
+                var innerpass = child._Measure(childSize);
+                if (innerpass.Error)
+                    pass.Error = innerpass.Error;
 
                 if (!starAuto) {
                     node = new _GridNode(this._RowMatrix, row + rowspan - 1, row, child._DesiredSize.Height);

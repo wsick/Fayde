@@ -24,7 +24,7 @@
 
     UserControl.Instance.IsLayoutContainer = function () { return true; };
 
-    UserControl.Instance._MeasureOverrideWithError = function (availableSize, error) {
+    UserControl.Instance._MeasureOverride = function (availableSize, pass) {
         var desired;
         availableSize = size.clone(availableSize);
         var border = this.Padding.Plus(this.BorderThickness);
@@ -33,7 +33,7 @@
         var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
-            child._MeasureWithError(availableSize, error);
+            child._Measure(availableSize);
             desired = size.clone(child._DesiredSize);
         }
         if (!desired)

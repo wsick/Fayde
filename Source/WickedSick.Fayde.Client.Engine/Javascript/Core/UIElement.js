@@ -1,6 +1,7 @@
 /// <reference path="DependencyObject.js" />
 /// <reference path="../Flags.js"/>
 /// CODE
+/// <reference path="UpdateMetrics.js"/>
 /// <reference path="../Core/DependencyProperty.js" />
 /// <reference path="../Controls/Canvas.js" />
 /// <reference path="../Engine/Dirty.js"/>
@@ -124,15 +125,15 @@
     UIElement.EffectProperty = DependencyProperty.Register("Effect", function () { return Fayde.Media.Effects.Effect; }, UIElement);
     UIElement.IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
     UIElement.OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Fayde.Media.Brush; }, UIElement);
-    UIElement.OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0);
+    UIElement.OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0, function (d, args) { d._UpdateMetrics.Opacity = args.NewValue; });
     if (useProjections)
         UIElement.ProjectionProperty = DependencyProperty.Register("Projection", function () { return Fayde.Media.Projection; }, UIElement);
     UIElement.RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () { return Fayde.Media.Transform; }, UIElement);
     UIElement.RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () { return Point; }, UIElement, new Point());
     UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return Fayde.ResourceDictionary; }, UIElement, undefined, undefined, { GetValue: function () { return new Fayde.ResourceDictionary(); } });
     UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return Fayde.TriggerCollection; }, UIElement, undefined, undefined, { GetValue: function () { return new Fayde.TriggerCollection(); } });
-    UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, UIElement, true, undefined, undefined, _Inheritable.UseLayoutRounding);
-    UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Fayde.Visibility); }, UIElement, Fayde.Visibility.Visible);
+    UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, UIElement, true, function (d, args) { d._UpdateMetrics.UseLayoutRounding = args.NewValue; }, undefined, _Inheritable.UseLayoutRounding);
+    UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Fayde.Visibility); }, UIElement, Fayde.Visibility.Visible, function (d, args) { d._UpdateMetrics.Visibility = args.NewValue; });
     UIElement.TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
 
     UIElement.IsFixedWidthProperty = DependencyProperty.Register("IsFixedWidth", function () { return Boolean; }, UIElement, false);
@@ -472,30 +473,22 @@
     //#region Measure
 
     UIElement.Instance._DoMeasureWithError = function (error) {
-        var last = Fayde.LayoutInformation.GetPreviousConstraint(this);
-        var parent = this._VisualParent;
-
-        if (!this._IsAttached && !last && !parent && this.IsLayoutContainer()) {
-            last = size.createInfinite();
-        }
-
-        if (last) {
-            var previousDesired = size.clone(this._DesiredSize);
-            this._MeasureWithError(last, error);
-            if (size.isEqual(previousDesired, this._DesiredSize))
-                return;
-        }
-
-        if (parent)
-            parent._InvalidateMeasure();
-
-        this._DirtyFlags &= ~_Dirty.Measure;
+        var pass = Fayde.CreateMeasurePass(this, this._MeasureOverride);
+        pass.Do();
+        if (pass.Error)
+            throw new Exception(pass.Error);
     };
     UIElement.Instance.Measure = function (availableSize) {
-        var error = new BError();
-        this._MeasureWithError(availableSize, error);
+        var pass = this._Measure(availableSize);
+        if (pass.Error)
+            throw new Exception(pass.Error);
     };
-    UIElement.Instance._MeasureWithError = function (availableSize, error) { };
+    UIElement.Instance._Measure = function (availableSize) {
+        var pass = Fayde.CreateMeasurePass(this, this._MeasureOverride);
+        pass.Measure(availableSize);
+        return pass;
+    }
+    UIElement.Instance._MeasureOverride = function (availableSize, pass) { };
 
     //#endregion
 
@@ -514,7 +507,7 @@
                 desired.Width = this._DesiredSize.Width;
                 desired.Height = this._DesiredSize.Height;
                 if (this._IsAttached && surface._IsTopLevel(this) && !this._Parent) {
-                    var measure = Fayde.LayoutInformation.GetPreviousConstraint(this);
+                    var measure = this._UpdateMetrics.PreviousConstraint;
                     if (measure)
                         size.max(desired, measure);
                     else {
@@ -720,7 +713,7 @@
 
         this._InvalidateMeasure();
         Fayde.LayoutInformation.SetLayoutClip(this, undefined);
-        Fayde.LayoutInformation.SetPreviousConstraint(this, undefined);
+        this._UpdateMetrics.PreviousConstraint = undefined;
         item._RenderSize = new size();
         item._UpdateTransform();
         item._UpdateProjection();
