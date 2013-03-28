@@ -80,13 +80,13 @@
                 this._Providers[_PropertyPrecedence.Inherited].ClearInheritedPropertiesOnRemovingFromTree(oldFE);
 
                 oldFE._SetLogicalParent(undefined, error);
-                if (error.IsErrored())
+                if (error.Message)
                     return;
             }
             if (args.NewValue != null) {
                 var newFE = Nullstone.As(args.NewValue, Fayde.FrameworkElement);
                 newFE._SetLogicalParent(this, error);
-                if (error.IsErrored())
+                if (error.Message)
                     return;
 
                 this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(newFE);

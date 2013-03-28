@@ -40,7 +40,7 @@
             oldValue = this._ht[propd._ID];
             this._ht[propd._ID] = newValue;
             this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, oldValue, newValue, true, true, true, error);
-            if (error.IsErrored())
+            if (error.Message)
                 return;
         }
     };

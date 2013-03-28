@@ -223,9 +223,9 @@
 
     //#endregion
 
-    //#region Measure
+    //#region Measure/Arrange
 
-    VirtualizingStackPanel.Instance._MeasureOverride = function (constraint, pass) {
+    VirtualizingStackPanel.Instance._MeasureOverride = function (constraint, pass, error) {
         var owner = namespace.ItemsControl.GetItemsOwner(this);
         var measured = new size();
         var invalidate = false;
@@ -339,12 +339,7 @@
 
         return measured;
     };
-
-    //#endregion
-
-    //#region Arrange
-
-    VirtualizingStackPanel.Instance.ArrangeOverride = function (arrangeSize) {
+    VirtualizingStackPanel.Instance._ArrangeOverride = function (arrangeSize, pass, error) {
         /// <param name="arrangeSize" type="size"></param>
         var arranged = size.clone(arrangeSize);
         var orientation = this.Orientation;

@@ -26,8 +26,6 @@
         this.AddProvider(new Fayde.FrameworkElementPropertyValueProvider(this));
         this.AddProvider(new Fayde._InheritedDataContextPropertyValueProvider(this));
 
-        this._UpdateMetrics = Fayde.CreateUpdateMetrics();
-
         this.SizeChanged = new MulticastEvent();
         this.LayoutUpdated = {
             Subscribe: function (callback, closure) {
@@ -156,9 +154,9 @@
 
     //#endregion
 
-    //#region Measure
+    //#region Measure/Arrange
 
-    FrameworkElement.Instance._MeasureOverride = function (availableSize, pass) {
+    FrameworkElement.Instance._MeasureOverride = function (availableSize, pass, error) {
         var desired = new size();
 
         availableSize = size.clone(availableSize);
@@ -166,232 +164,22 @@
 
         var walker = new Fayde._VisualTreeWalker(this);
         var child;
-        var innerpass;
         while (child = walker.Step()) {
-            innerpass = child._Measure(availableSize);
-            if (innerpass.Error)
-                pass.Error = innerpass.Error;
+            child._Measure(availableSize, error);
             desired = size.clone(child._DesiredSize);
         }
 
         size.min(desired, availableSize);
         return desired;
     };
-
-    //#endregion
-
-    //#region Arrange
-
-    FrameworkElement.Instance.Arrange = function (finalRect) {
-        var error = new BError();
-        this._ArrangeWithError(finalRect, error);
-        if (error.IsErrored())
-            throw error.CreateException();
-    };
-    FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
-        if (error.IsErrored())
-            return;
-
-        var metrics = this._UpdateMetrics;
-        var slot = Fayde.LayoutInformation.GetLayoutSlot(this, true);
-        if (slot === null)
-            slot = undefined;
-
-        var shouldArrange = (this._DirtyFlags & _Dirty.Arrange) > 0;
-
-        if (metrics.UseLayoutRounding) {
-            rect.round(finalRect);
-        }
-
-        shouldArrange |= slot ? !rect.isEqual(slot, finalRect) : true;
-
-        if (finalRect.Width < 0 || finalRect.Height < 0
-                || !isFinite(finalRect.Width) || !isFinite(finalRect.Height)
-                || isNaN(finalRect.Width) || isNaN(finalRect.Height)) {
-            var desired = this._DesiredSize;
-            Warn("Invalid arguments to Arrange. Desired = " + desired.toString());
-            return;
-        }
-
-        var parent = this.GetVisualParent();
-
-        if (metrics.Visibility !== Fayde.Visibility.Visible) {
-            Fayde.LayoutInformation.SetLayoutSlot(this, finalRect);
-            return;
-        }
-
-        if (!shouldArrange)
-            return;
-
-        var metrics = this._UpdateMetrics;
-        var measure = metrics.PreviousConstraint;
-        if (this.IsContainer() && !measure) {
-            this._Measure(size.fromRect(finalRect));
-            //this._MeasureWithError(size.fromRect(finalRect), error);
-        }
-        measure = metrics.PreviousConstraint;
-
-        Fayde.LayoutInformation.SetLayoutClip(this, undefined);
-
-        var margin = this.Margin;
-        var childRect = rect.clone(finalRect);
-        rect.shrinkByThickness(childRect, margin);
-
-        this._UpdateTransform();
-        this._UpdateProjection();
-        this._UpdateBounds();
-
-        var offer = size.clone(this._HiddenDesire);
-
-        var stretched = this._ApplySizeConstraints(size.fromRect(childRect));
-        var framework = this._ApplySizeConstraints(new size());
-
-        var horiz = metrics.HorizontalAlignment;
-        var vert = metrics.VerticalAlignment;
-
-        if (horiz === Fayde.HorizontalAlignment.Stretch)
-            framework.Width = Math.max(framework.Width, stretched.Width);
-
-        if (vert === Fayde.VerticalAlignment.Stretch)
-            framework.Height = Math.max(framework.Height, stretched.Height);
-
-        size.max(offer, framework);
-
-        Fayde.LayoutInformation.SetLayoutSlot(this, finalRect);
-
-        var response;
-        if (this.ArrangeOverride)
-            response = this.ArrangeOverride(offer);
-        else
-            response = this._ArrangeOverrideWithError(offer, error);
-
-        if (horiz === Fayde.HorizontalAlignment.Stretch)
-            response.Width = Math.max(response.Width, framework.Width);
-
-        if (vert === Fayde.VerticalAlignment.Stretch)
-            response.Height = Math.max(response.Height, framework.Height);
-
-        var flipHoriz = false;
-        if (parent)
-            flipHoriz = parent.FlowDirection !== metrics.FlowDirection;
-        else if (this._Parent instanceof Fayde.Controls.Primitives.Popup)
-            flipHoriz = this._Parent.FlowDirection !== metrics.FlowDirection;
-        else
-            flipHoriz = metrics.FlowDirection === Fayde.FlowDirection.RightToLeft;
-
-        var layoutXform = mat3.identity(this._Xformer.LayoutXform);
-        mat3.translate(layoutXform, childRect.X, childRect.Y);
-        if (flipHoriz) {
-            mat3.translate(layoutXform, offer.Width, 0);
-            mat3.scale(layoutXform, -1, 1);
-        }
-
-        if (error.IsErrored())
-            return;
-
-        this._DirtyFlags &= ~_Dirty.Arrange;
-        var visualOffset = new Point(childRect.X, childRect.Y);
-        Fayde.LayoutInformation.SetVisualOffset(this, visualOffset);
-
-        var oldSize = size.clone(this._RenderSize);
-
-        if (metrics.UseLayoutRounding) {
-            response.Width = Math.round(response.Width);
-            response.Height = Math.round(response.Height);
-        }
-
-        size.copyTo(response, this._RenderSize);
-        var constrainedResponse = this._ApplySizeConstraints(size.clone(response));
-        size.min(constrainedResponse, response);
-
-        if (!parent || parent instanceof Fayde.Controls.Canvas) {
-            if (!this.IsLayoutContainer()) {
-                size.clear(this._RenderSize);
-                return;
-            }
-        }
-
-        var surface = App.Instance.MainSurface;
-        var isTopLevel = this._IsAttached && surface._IsTopLevel(this);
-        if (!isTopLevel) {
-            switch (horiz) {
-                case Fayde.HorizontalAlignment.Left:
-                    break;
-                case Fayde.HorizontalAlignment.Right:
-                    visualOffset.X += childRect.Width - constrainedResponse.Width;
-                    break;
-                case Fayde.HorizontalAlignment.Center:
-                    visualOffset.X += (childRect.Width - constrainedResponse.Width) * 0.5;
-                    break;
-                default:
-                    visualOffset.X += Math.max((childRect.Width - constrainedResponse.Width) * 0.5, 0);
-                    break;
-            }
-
-            switch (vert) {
-                case Fayde.VerticalAlignment.Top:
-                    break;
-                case Fayde.VerticalAlignment.Bottom:
-                    visualOffset.Y += childRect.Height - constrainedResponse.Height;
-                    break;
-                case Fayde.VerticalAlignment.Center:
-                    visualOffset.Y += (childRect.Height - constrainedResponse.Height) * 0.5;
-                    break;
-                default:
-                    visualOffset.Y += Math.max((childRect.Height - constrainedResponse.Height) * 0.5, 0);
-                    break;
-            }
-        }
-
-        if (metrics.UseLayoutRounding) {
-            visualOffset.X = Math.round(visualOffset.X);
-            visualOffset.Y = Math.round(visualOffset.Y);
-        }
-
-        layoutXform = mat3.identity(this._Xformer.LayoutXform);
-        mat3.translate(layoutXform, visualOffset.X, visualOffset.Y);
-        if (flipHoriz) {
-            mat3.translate(layoutXform, response.Width, 0);
-            mat3.scale(layoutXform, -1, 1);
-        }
-
-        Fayde.LayoutInformation.SetVisualOffset(this, visualOffset);
-
-        var element = new rect();
-        rect.Width = response.Width;
-        rect.Height = response.Height;
-        var layoutClip = rect.clone(childRect);
-        layoutClip.X = Math.max(childRect.X - visualOffset.X, 0);
-        layoutClip.Y = Math.max(childRect.Y - visualOffset.Y, 0);
-        if (metrics.UseLayoutRounding) {
-            layoutClip.X = Math.round(layoutClip.X);
-            layoutClip.Y = Math.round(layoutClip.Y);
-        }
-
-        if (((!isTopLevel && rect.isRectContainedIn(element, layoutClip)) || !size.isEqual(constrainedResponse, response)) && !(this instanceof Fayde.Controls.Canvas) && ((parent && !(parent instanceof Fayde.Controls.Canvas)) || this.IsContainer())) {
-            var frameworkClip = this._ApplySizeConstraints(size.createInfinite());
-            var frect = rect.fromSize(frameworkClip);
-            rect.intersection(layoutClip, frect);
-            var rectangle = new Fayde.Media.RectangleGeometry();
-            rectangle.Rect = layoutClip;
-            Fayde.LayoutInformation.SetLayoutClip(this, rectangle);
-        }
-
-        if (!size.isEqual(oldSize, response)) {
-            if (!Fayde.LayoutInformation.GetLastRenderSize(this)) {
-                Fayde.LayoutInformation.SetLastRenderSize(this, oldSize);
-                this._PropagateFlagUp(UIElementFlags.DirtySizeHint);
-            }
-        }
-    };
-    FrameworkElement.Instance._ArrangeOverrideWithError = function (finalSize, error) {
+    FrameworkElement.Instance._ArrangeOverride = function (finalSize, pass, error) {
         var arranged = size.clone(finalSize);
 
         var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
             var childRect = rect.fromSize(finalSize);
-            child._ArrangeWithError(childRect, error);
+            child._Arrange(childRect, error);
             size.max(arranged, finalSize);
         }
 
@@ -467,7 +255,7 @@
 
             if (element instanceof Fayde.Controls.Canvas || element instanceof Fayde.Controls.UserControl)
                 break;
-            var visualOffset = Fayde.LayoutInformation.GetVisualOffset(element);
+            var visualOffset = element._UpdateMetrics.VisualOffset;
             if (visualOffset) {
                 ctx.Translate(-visualOffset.X, -visualOffset.Y);
                 iX += visualOffset.X;
@@ -495,8 +283,8 @@
             if (pass.Updated)
                 App.Instance.MainSurface.LayoutUpdated.Raise(this, new EventArgs());
         }
-        if (error.IsErrored())
-            throw error.CreateException();
+        if (error.Message)
+            throw new Exception(error.Message);
     };
     FrameworkElement.Instance._UpdateLayer = function (pass, error) {
         var element = this;
@@ -545,7 +333,7 @@
                                 pass.ArrangeList.push(child);
                             break;
                         case UIElementFlags.DirtySizeHint:
-                            if (Fayde.LayoutInformation.GetLastRenderSize(child, true) !== undefined)
+                            if (child._UpdateMetrics.LastRenderSize !== undefined)
                                 pass.SizeList.push(child);
                             break;
                         default:
@@ -573,9 +361,10 @@
             } else if (flag === UIElementFlags.DirtySizeHint) {
                 while (uie = pass.SizeList.shift()) {
                     pass.Updated = true;
-                    var last = Fayde.LayoutInformation.GetLastRenderSize(uie);
+                    
+                    var last = uie._UpdateMetrics.LastRenderSize
                     if (last) {
-                        Fayde.LayoutInformation.SetLastRenderSize(uie, undefined);
+                        uie._UpdateMetrics.LastRenderSize = undefined;
                         uie._PurgeSizeCache();
                         uie.SizeChanged.Raise(uie, new Fayde.SizeChangedEventArgs(last, uie._RenderSize));
                     }
@@ -626,8 +415,8 @@
     FrameworkElement.Instance.ApplyTemplate = function () {
         var error = new BError();
         this._ApplyTemplateWithError(error);
-        if (error.IsErrored())
-            throw error.CreateException();
+        if (error.Message)
+            throw new Exception(error.Message);
     };
     FrameworkElement.Instance._ApplyTemplateWithError = function (error) {
         if (this._SubtreeObject)
@@ -642,7 +431,7 @@
         var uie = this._GetDefaultTemplate();
         if (uie) {
             uie._AddParent(this, true, error);
-            if (error.IsErrored())
+            if (error.Message)
                 return false;
             this._SubtreeObject = uie;
             this._ElementAdded(uie);
@@ -771,9 +560,9 @@
                     break;
                 case FrameworkElement.StyleProperty._ID:
                     var newStyle = args.NewValue;
-                    if (!error.IsErrored())
+                    if (!error.Message)
                         this._Providers[_PropertyPrecedence.LocalStyle]._UpdateStyle(newStyle, error);
-                    if (error.IsErrored())
+                    if (error.Message)
                         return;
                     break;
             }
@@ -819,9 +608,9 @@
                     break;
                 case FrameworkElement.StyleProperty._ID:
                     var newStyle = args.NewValue;
-                    if (!error.IsErrored())
+                    if (!error.Message)
                         this._Providers[_PropertyPrecedence.LocalStyle]._UpdateStyle(newStyle, error);
-                    if (error.IsErrored())
+                    if (error.Message)
                         return;
                     break;
             }

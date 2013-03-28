@@ -35,9 +35,9 @@
 
     //#endregion
 
-    //#region Measure
+    //#region Measure/Arrange
 
-    Image.Instance._MeasureOverride = function (availableSize, pass) {
+    Image.Instance._MeasureOverride = function (availableSize, pass, error) {
         /// <param name="availableSize" type="size"></param>
         var desired = size.clone(availableSize);
         var shapeBounds = new rect();
@@ -86,12 +86,7 @@
         desired.Height = shapeBounds.Height * sy;
         return desired;
     };
-
-    //#endregion
-
-    //#region Arrange
-
-    Image.Instance._ArrangeOverrideWithError = function (finalSize, error) {
+    Image.Instance._ArrangeOverride = function (finalSize, pass, error) {
         /// <param name="finalSize" type="size"></param>
         var arranged = size.clone(finalSize);
         var shapeBounds = new rect();

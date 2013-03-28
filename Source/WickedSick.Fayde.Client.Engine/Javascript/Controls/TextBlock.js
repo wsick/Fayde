@@ -105,9 +105,9 @@
         return new Point(xformSize.Width * userXformOrigin.X, xformSize.height * userXformOrigin.Y);
     };
 
-    //#region Measure
+    //#region Measure/Arrange
 
-    TextBlock.Instance._MeasureOverride = function (availableSize, pass) {
+    TextBlock.Instance._MeasureOverride = function (availableSize, pass, error) {
         var padding = this.Padding;
         var constraint = size.clone(availableSize);
         size.shrinkByThickness(constraint, padding);
@@ -116,12 +116,7 @@
         size.growByThickness(desired, padding);
         return desired;
     };
-
-    //#endregion
-
-    //#region Arrange
-
-    TextBlock.Instance._ArrangeOverrideWithError = function (finalSize, error) {
+    TextBlock.Instance._ArrangeOverride = function (finalSize, pass, error) {
         var padding = this.Padding;
         var constraint = size.clone(finalSize);
         size.shrinkByThickness(constraint, padding);

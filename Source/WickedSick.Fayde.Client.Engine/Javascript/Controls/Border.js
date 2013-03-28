@@ -41,27 +41,30 @@
     //#region Instance Methods
 
     Border.Instance.IsLayoutContainer = function () { return true; };
-    Border.Instance._MeasureOverride = function (availableSize, pass) {
+
+    //#region Measure/Arrange
+
+    Border.Instance._MeasureOverride = function (availableSize, pass, error) {
         var border = this.Padding.Plus(this.BorderThickness);
 
         var desired = new size();
         availableSize = size.shrinkByThickness(size.clone(availableSize), border);
         var child = this.Child;
         if (child) {
-            var innerpass = child._Measure(availableSize);
+            child._Measure(availableSize, error);
             desired = size.clone(child._DesiredSize);
         }
         size.growByThickness(desired, border);
         size.min(desired, availableSize);
         return desired;
     };
-    Border.Instance._ArrangeOverrideWithError = function (finalSize, error) {
+    Border.Instance._ArrangeOverride = function (finalSize, pass, error) {
         var child = this.Child;
         if (child) {
             var border = this.Padding.Plus(this.BorderThickness);
             var childRect = rect.fromSize(finalSize);
             rect.shrinkByThickness(childRect, border);
-            child._ArrangeWithError(childRect, error);
+            child._Arrange(childRect, error);
             /*
             arranged = size.fromRect(childRect);
             size.growByThickness(arranged, border);
@@ -70,6 +73,8 @@
         }
         return finalSize;
     };
+
+    //#endregion
 
     //#region Render
 
@@ -227,7 +232,7 @@
                         this._SubtreeObject = null;
                         if (args.OldValue instanceof Fayde.FrameworkElement) {
                             args.OldValue._SetLogicalParent(null, error);
-                            if (error.IsErrored())
+                            if (error.Message)
                                 return;
                         }
                     }
@@ -241,7 +246,7 @@
                                 return;
                             }
                             args.NewValue._SetLogicalParent(this, error);
-                            if (error.IsErrored())
+                            if (error.Message)
                                 return;
                         }
                     }
@@ -276,7 +281,7 @@
                         this._SubtreeObject = null;
                         if (args.OldValue instanceof Fayde.FrameworkElement) {
                             args.OldValue._SetLogicalParent(null, error);
-                            if (error.IsErrored())
+                            if (error.Message)
                                 return;
                         }
                     }
@@ -290,7 +295,7 @@
                                 return;
                             }
                             args.NewValue._SetLogicalParent(this, error);
-                            if (error.IsErrored())
+                            if (error.Message)
                                 return;
                         }
                     }

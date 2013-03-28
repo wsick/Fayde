@@ -20,7 +20,7 @@
 
     //#endregion
 
-    StackPanel.Instance._MeasureOverride = function (constraint, pass) {
+    StackPanel.Instance._MeasureOverride = function (constraint, pass, error) {
         //Info("StackPanel.MeasureOverride [" + this._TypeName + "]");
         var childAvailable = size.createInfinite();
         var measured = new size();
@@ -60,7 +60,7 @@
 
         return measured;
     };
-    StackPanel.Instance.ArrangeOverride = function (arrangeSize) {
+    StackPanel.Instance._ArrangeOverride = function (arrangeSize, pass, error) {
         //Info("StackPanel.ArrangeOverride [" + this._TypeName + "]");
         var arranged = size.clone(arrangeSize);
         var orientation = this.Orientation;

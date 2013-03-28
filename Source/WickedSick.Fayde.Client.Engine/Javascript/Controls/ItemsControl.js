@@ -275,8 +275,8 @@
             if (fe == null)
                 continue;
             this._SetLogicalParent(parent, error);
-            if (error.IsErrored())
-                throw error.CreateException();
+            if (error.Message)
+                throw new Exception(error.Message);
         }
     };
     ItemsControl.Instance.AddItemsToPresenter = function (positionIndex, positionOffset, count) {

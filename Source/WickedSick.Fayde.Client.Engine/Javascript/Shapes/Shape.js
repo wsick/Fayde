@@ -71,9 +71,9 @@
 
     //#endregion
 
-    //#region Measure
+    //#region Measure/Arrange
 
-    Shape.Instance._MeasureOverride = function (availableSize, pass) {
+    Shape.Instance._MeasureOverride = function (availableSize, pass, error) {
         /// <param name="availableSize" type="size"></param>
         var shapeBounds = this._GetNaturalBounds();
         if (!shapeBounds)
@@ -128,12 +128,7 @@
         desired.Height = shapeBounds.Height * sy;
         return desired;
     };
-
-    //#endregion
-
-    //#region Arrange
-
-    Shape.Instance._ArrangeOverrideWithError = function (finalSize, error) {
+    Shape.Instance._ArrangeOverride = function (finalSize, pass, error) {
         /// <param name="finalSize" type="size"></param>
         var sx = 1.0;
         var sy = 1.0;

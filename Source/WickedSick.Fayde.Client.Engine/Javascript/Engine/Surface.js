@@ -118,6 +118,7 @@
             this._Layers.splice(0, 0, layer);
         else
             this._Layers.push(layer);
+        layer._UpdatePass.IsTopLevel = true;
 
         DirtyDebug("AttachLayer");
         layer._FullInvalidate(true);
@@ -130,6 +131,9 @@
     };
     Surface.Instance._DetachLayer = function (layer) {
         /// <param name="layer" type="UIElement"></param>
+
+        layer._UpdatePass.IsTopLevel = false;
+
         if (!this._InputList.IsEmpty() && Nullstone.RefEquals(this._InputList.Tail.UIElement, layer)) {
             this._InputList = new LinkedList();
         }
@@ -291,8 +295,8 @@
     Surface.Instance.ProcessDirtyElements = function () {
         var error = new BError();
         var dirty = this._UpdateLayout(error);
-        if (error.IsErrored())
-            throw error.CreateException();
+        if (error.Message)
+            throw new Exception(error.Message);
         if (!dirty)
             return false;
         this.LayoutUpdated.Raise(this, new EventArgs());

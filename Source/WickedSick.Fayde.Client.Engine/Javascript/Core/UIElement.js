@@ -60,6 +60,8 @@
         this._Xformer = new Fayde.Xformer();
         this._Xformer.ComputeLocalTransform(this);
         this._Xformer.ComputeLocalProjection(this);
+        this._UpdateMetrics = Fayde.CreateUpdateMetrics();
+        this._UpdatePass = Fayde.CreateUpdatePass(this, this._MeasureOverride, this._ArrangeOverride);
 
         this._Flags = UIElementFlags.RenderVisible | UIElementFlags.HitTestVisible;
 
@@ -189,6 +191,7 @@
     UIElement.Instance.SetVisualParent = function (value) {
         /// <param name="value" type="UIElement"></param>
         this._VisualParent = value;
+        this._UpdatePass.VisualParent = value;
         this.VisualParentChanged.Raise(this, new EventArgs());
     };
     UIElement.Instance.GetVisualParent = function () {
@@ -470,74 +473,34 @@
 
     //#endregion
 
-    //#region Measure
+    //#region Measure/Arrange
 
     UIElement.Instance._DoMeasureWithError = function (error) {
-        var pass = Fayde.CreateMeasurePass(this, this._MeasureOverride);
-        pass.Do();
-        if (pass.Error)
-            throw new Exception(pass.Error);
+        this._UpdatePass.DoMeasure(error);
     };
     UIElement.Instance.Measure = function (availableSize) {
-        var pass = this._Measure(availableSize);
-        if (pass.Error)
+        var error = { Message: null };
+        var pass = this._Measure(availableSize, error);
+        if (error.Message)
             throw new Exception(pass.Error);
     };
-    UIElement.Instance._Measure = function (availableSize) {
-        var pass = Fayde.CreateMeasurePass(this, this._MeasureOverride);
-        pass.Measure(availableSize);
-        return pass;
+    UIElement.Instance._Measure = function (availableSize, error) {
+        this._UpdatePass.Measure(availableSize, error);
     }
-    UIElement.Instance._MeasureOverride = function (availableSize, pass) { };
-
-    //#endregion
-
-    //#region Arrange
-
+    UIElement.Instance._MeasureOverride = function (availableSize, pass, error) { };
     UIElement.Instance._DoArrangeWithError = function (error) {
-        var last = Fayde.LayoutInformation.GetLayoutSlot(this, true);
-        if (last === null)
-            last = undefined;
-        var parent = this.GetVisualParent();
-
-        if (!parent) {
-            var surface = App.Instance.MainSurface;
-            var desired = new size();
-            if (this.IsLayoutContainer()) {
-                desired.Width = this._DesiredSize.Width;
-                desired.Height = this._DesiredSize.Height;
-                if (this._IsAttached && surface._IsTopLevel(this) && !this._Parent) {
-                    var measure = this._UpdateMetrics.PreviousConstraint;
-                    if (measure)
-                        size.max(desired, measure);
-                    else {
-                        desired.Width = surface.GetWidth();
-                        desired.Height = surface.GetHeight();
-                    }
-                }
-            } else {
-                desired.Width = this.ActualWidth;
-                desired.Height = this.ActualHeight;
-            }
-
-            var viewport = rect.fromSize(desired);
-            viewport.X = Fayde.Controls.Canvas.GetLeft(this);
-            viewport.Y = Fayde.Controls.Canvas.GetTop(this);
-            last = viewport;
-        }
-
-        if (last) {
-            this._ArrangeWithError(last, error);
-        } else {
-            if (parent)
-                parent._InvalidateArrange();
-        }
+        this._UpdatePass.DoArrange(error);
     };
     UIElement.Instance.Arrange = function (finalRect) {
-        var error = new BError();
-        this._ArrangeWithError(finalRect, error);
+        var error = { Message: null };
+        var pass = this._Arrange(finalRect, error);
+        if (error.Message)
+            throw new Exception(error.Message);
     };
-    UIElement.Instance._ArrangeWithError = function (finalRect, error) { };
+    UIElement.Instance._Arrange = function (finalRect, error) {
+        this._UpdatePass.Arrange(finalRect, error);
+    };
+    UIElement.Instance._ArrangeOverride = function (finalRect, pass, error) { };
 
     //#endregion
 
@@ -647,9 +610,10 @@
 
     //#endregion
 
-    //#region Visual State Changes
+    //#region Visual Tree Changes
 
     UIElement.Instance._OnIsAttachedChanged = function (value) {
+        this._UpdatePass.IsAttached = value;
         this._UpdateTotalRenderVisibility();
 
         var subtree = this._SubtreeObject;
@@ -719,7 +683,7 @@
         item._UpdateProjection();
         item._InvalidateMeasure();
         item._InvalidateArrange();
-        if (item._HasFlag(UIElementFlags.DirtySizeHint) || Fayde.LayoutInformation.GetLastRenderSize(item, true) !== undefined)
+        if (item._HasFlag(UIElementFlags.DirtySizeHint) || item._UpdateMetrics.LastRenderSize !== undefined)
             item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
 
         if (!Fayde.IsCanvasEnabled) {
@@ -729,6 +693,9 @@
             }
         }
     }
+    UIElement.Instance._OnParentChanged = function (parent) {
+        this._UpdatePass.Parent = parent;
+    };
 
     //#endregion
 

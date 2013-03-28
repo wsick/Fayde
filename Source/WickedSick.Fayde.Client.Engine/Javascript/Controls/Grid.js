@@ -162,7 +162,7 @@
 
     //#region Measure/Arrange
 
-    Grid.Instance._MeasureOverride = function (availableSize, pass) {
+    Grid.Instance._MeasureOverride = function (availableSize, pass, error) {
         //LayoutDebug("Grid Measure Pass: " + this.__DebugToString() + " [" + availableSize.toString() + "]");
         var totalSize = size.clone(availableSize);
         var cols = this._GetColumnDefinitionsNoAutoCreate();
@@ -318,9 +318,7 @@
                     childSize.Width += this._ColMatrix[c][c]._OfferedSize;
                 }
 
-                var innerpass = child._Measure(childSize);
-                if (innerpass.Error)
-                    pass.Error = innerpass.Error;
+                child._Measure(childSize, error);
 
                 if (!starAuto) {
                     node = new _GridNode(this._RowMatrix, row + rowspan - 1, row, child._DesiredSize.Height);
@@ -353,7 +351,7 @@
         }
         return gridSize;
     };
-    Grid.Instance._ArrangeOverrideWithError = function (finalSize, error) {
+    Grid.Instance._ArrangeOverride = function (finalSize, pass, error) {
         //LayoutDebug("Grid Arrange Pass: " + this.__DebugToString() + " [" + finalSize.toString() + "]");
         var columns = this._GetColumnDefinitionsNoAutoCreate();
         var rows = this._GetRowDefinitionsNoAutoCreate();
@@ -408,7 +406,7 @@
             for (r = row; r < row + rowspan; r++) {
                 childFinal.Height += this._RowMatrix[r][r]._OfferedSize;
             }
-            child._ArrangeWithError(childFinal, error);
+            child._Arrange(childFinal, error);
         }
 
         return finalSize;

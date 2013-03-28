@@ -24,7 +24,7 @@
 
     UserControl.Instance.IsLayoutContainer = function () { return true; };
 
-    UserControl.Instance._MeasureOverride = function (availableSize, pass) {
+    UserControl.Instance._MeasureOverride = function (availableSize, pass, error) {
         var desired;
         availableSize = size.clone(availableSize);
         var border = this.Padding.Plus(this.BorderThickness);
@@ -33,7 +33,7 @@
         var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
-            child._Measure(availableSize);
+            child._Measure(availableSize, error);
             desired = size.clone(child._DesiredSize);
         }
         if (!desired)
@@ -41,7 +41,7 @@
         size.growByThickness(desired, border);
         return desired;
     };
-    UserControl.Instance._ArrangeOverrideWithError = function (finalSize, error) {
+    UserControl.Instance._ArrangeOverride = function (finalSize, pass, error) {
         var border = this.Padding.Plus(this.BorderThickness);
         var arranged;
 
@@ -50,7 +50,7 @@
         while (child = walker.Step()) {
             var childRect = rect.fromSize(finalSize);
             rect.shrinkByThickness(childRect, border);
-            child._ArrangeWithError(childRect, error);
+            child._Arrange(childRect, error);
             arranged = size.fromRect(childRect);
             size.growByThickness(arranged, border);
         }
@@ -69,7 +69,7 @@
             if (args.OldValue && args.OldValue instanceof Fayde.UIElement) {
                 if (args.OldValue instanceof Fayde.FrameworkElement) {
                     args.OldValue._SetLogicalParent(null, error);
-                    if (error.IsErrored())
+                    if (error.Message)
                         return;
                 }
                 this._ElementRemoved(args.OldValue);
@@ -77,7 +77,7 @@
             if (args.NewValue && args.NewValue instanceof Fayde.UIElement) {
                 if (args.NewValue instanceof Fayde.FrameworkElement) {
                     args.NewValue._SetLogicalParent(this, error);
-                    if (error.IsErrored())
+                    if (error.Message)
                         return;
                 }
                 this._ElementAdded(args.NewValue);

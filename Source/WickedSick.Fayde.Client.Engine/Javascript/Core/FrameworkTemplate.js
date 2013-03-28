@@ -10,8 +10,8 @@
         /// <returns type="DependencyObject" />
         var error = new BError();
         var vt = this._GetVisualTreeWithError(bindingSource, error);
-        if (error.IsErrored())
-            throw error.CreateException();
+        if (error.Message)
+            throw new Exception(error.Message);
         return vt;
     };
     FrameworkTemplate.Instance._GetVisualTreeWithError = function (templateBindingSource, error) {
