@@ -774,6 +774,10 @@
                     columnEl.style.padding = "0px";
                     switch (rd.Height.Type) {
                         case namespace.GridUnitType.Star:
+                            //TODO: chrome, IE, and ff measure this differently
+                            //chrome: can set the final row to 100% and it will just fill the remaining
+                            //IE: does fractional heights but doesn't take gridlines into account it seems
+                            //FF: seems to be fine
                             columnEl.style.height = (rd.Height.Value / totalRowStars) * 100 + "%";
                             break;
                         case namespace.GridUnitType.Pixel:
@@ -782,12 +786,16 @@
                             break;
                         case namespace.GridUnitType.Auto:
                             columnEl.style.height = "auto";
-                            columnEl.style.minHeight = rd.MinHeight + "px";
-                            columnEl.style.maxHeight = rd.MaxHeight + "px";
+                            //columnEl.style.minHeight = rd.MinHeight + "px";
+                            //columnEl.style.maxHeight = rd.MaxHeight + "px";
                             break;
                     }
                     switch (cd.Width.Type) {
                         case namespace.GridUnitType.Star:
+                            //TODO: chrome, IE, and ff measure this differently
+                            //chrome: can set the final column to 100% and it will just fill the remaining
+                            //IE: does fractional widths but doesn't take gridlines into account it seems
+                            //FF: seems to be fine
                             columnEl.style.width = (cd.Width.Value / totalColumnStars) * 100 + "%";
                             break;
                         case namespace.GridUnitType.Pixel:
@@ -796,8 +804,8 @@
                             break;
                         case namespace.GridUnitType.Auto:
                             columnEl.style.width = "auto";
-                            columnEl.style.minWidth = cd.MinWidth + "px";
-                            columnEl.style.maxWidth = cd.MaxWidth + "px";
+                            //columnEl.style.minWidth = cd.MinWidth + "px";
+                            //columnEl.style.maxWidth = cd.MaxWidth + "px";
                             break;
                     }
                     columnEl.style.fontSize = "0px";
@@ -834,7 +842,7 @@
 
             if (propd._ID === Grid.ShowGridLinesProperty._ID) {
                 var table = this.GetHtmlChildrenContainer();
-                var style = this.ShowGridLines ? "dashed 2px gray" : "";
+                var style = this.ShowGridLines ? "solid 1px black" : "";
                 for (var i = 0; i < table.children.length; i++) {
                     var row = table.children[i];
                     for (var j = 0; j < row.children.length; j++) {
