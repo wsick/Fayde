@@ -41,7 +41,7 @@
     };
 
     Line.Instance._ComputeShapeBounds = function (logical) {
-        var shapeBounds = new Rect();
+        var shapeBounds = new rect();
 
         var thickness = 0;
         if (!logical)
@@ -55,7 +55,7 @@
         var x2 = this.X2;
         var y2 = this.Y2;
 
-        shapeBounds = new Rect(
+        rect.set(shapeBounds,
             Math.min(x1, x2),
             Math.min(y1, y2),
             Math.abs(x2 - x1),

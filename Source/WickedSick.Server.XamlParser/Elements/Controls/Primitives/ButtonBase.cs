@@ -11,5 +11,7 @@ namespace WickedSick.Server.XamlParser.Elements.Controls.Primitives
         public static readonly PropertyDescription IsFocusedProperty = PropertyDescription.Register("IsFocused", typeof(Boolean), typeof(ButtonBase));
         public static readonly PropertyDescription CommandProperty = PropertyDescription.Register("Command", typeof(ICommand), typeof(ButtonBase));
         public static readonly PropertyDescription CommandParameterProperty = PropertyDescription.Register("CommandParameter", typeof(object), typeof(ButtonBase));
+
+        public static readonly EventDescription ClickEvent = EventDescription.Register("Click", typeof(ButtonBase));
     }
 }

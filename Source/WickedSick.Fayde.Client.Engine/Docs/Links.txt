@@ -1,5 +1,6 @@
 ﻿Performance Tips
 http://jonraasch.com/blog/10-javascript-performance-boosting-tips-from-nicholas-zakas
+http://coding.smashingmagazine.com/2012/11/05/writing-fast-memory-efficient-javascript/
 
 Dynamically Change CSS
 http://stackoverflow.com/questions/1720320/how-to-dynamically-create-css-class-in-javascript-and-apply

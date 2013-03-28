@@ -1,7 +1,7 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/DependencyObject.js"/>
 /// CODE
-/// <reference path="../Primitives/Rect.js"/>
+/// <reference path="../Primitives.js"/>
 
 (function (namespace) {
     var Geometry = Nullstone.Create("Geometry", Fayde.DependencyObject);
@@ -9,7 +9,9 @@
     Geometry.Instance.Init = function () {
         this.Init$DependencyObject();
         this.$Path = null;
-        this._LocalBounds = new Rect(0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+        this._LocalBounds = new rect();
+        this._LocalBounds.Width = Number.NEGATIVE_INFINITY;
+        this._LocalBounds.Height = Number.NEGATIVE_INFINITY;
     };
 
     //#region Properties
@@ -38,7 +40,7 @@
     };
 
     Geometry.Instance.GetBounds = function (thickness) {
-        var compute = this._LocalBounds.IsEmpty();
+        var compute = rect.isEmpty(this._LocalBounds);
 
         if (this.$Path == null) {
             this._Build();
@@ -47,19 +49,18 @@
 
         if (compute)
             this._LocalBounds = this.ComputePathBounds(thickness);
-        var bounds = this._LocalBounds;
+        var bounds = rect.clone(this._LocalBounds);
 
         var transform = this.Transform
-        if (transform != null) {
+        if (transform != null)
             bounds = transform.TransformBounds(bounds);
-        }
 
         return bounds;
     };
     Geometry.Instance.ComputePathBounds = function (thickness) {
         this._EnsureBuilt();
         if (this.$Path == null)
-            return new Rect();
+            return new rect();
         return this.$Path.CalculateBounds(thickness);
     };
     Geometry.Instance._EnsureBuilt = function () {
@@ -70,7 +71,7 @@
     };
     Geometry.Instance._InvalidateCache = function () {
         this.$Path = null;
-        this._LocalBounds = new Rect(0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+        rect.set(this._LocalBounds, 0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
     };
 
     Geometry.Instance._OnPropertyChanged = function (args, error) {

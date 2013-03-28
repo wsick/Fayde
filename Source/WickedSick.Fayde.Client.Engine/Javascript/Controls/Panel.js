@@ -2,9 +2,14 @@
 /// <reference path="../Core/FrameworkElement.js" />
 /// CODE
 /// <reference path="../Media/Brush.js"/>
+/// <reference path="PanelMetrics.js"/>
 
 (function (namespace) {
     var Panel = Nullstone.Create("Panel", Fayde.FrameworkElement);
+
+    Panel.Instance.InitSpecific = function () {
+        this._Metrics = new Fayde.Controls.PanelMetrics();
+    };
 
     //#region Properties
 
@@ -53,56 +58,23 @@
 
     Panel.Instance.IsLayoutContainer = function () { return true; };
     Panel.Instance.IsContainer = function () { return true; };
-    Panel.Instance._ComputeBounds = function () {
-        this._Extents = this._ExtentsWithChildren = this._Bounds = this._BoundsWithChildren = new Rect();
-
-        var walker = Fayde._VisualTreeWalker.Logical(this);
-        var item;
-        while (item = walker.Step()) {
-            if (!item._GetRenderVisible())
-                continue;
-            this._ExtentsWithChildren = this._ExtentsWithChildren.Union(item._GetGlobalBounds());
-        }
-
-        if (this.Background) {
-            this._Extents = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
-            this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
-        }
-
-        this._Bounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform(this._AbsoluteXform);
-        this._BoundsWithChildren = this._IntersectBoundsWithClipPath(this._ExtentsWithChildren.GrowByThickness(this._EffectPadding), false).Transform(this._AbsoluteXform);
-
-        this._ComputeGlobalBounds();
-        this._ComputeSurfaceBounds();
-    };
-    Panel.Instance._ShiftPosition = function (point) {
-        var dx = point.X - this._Bounds.X;
-        var dy = point.Y - this._Bounds.Y;
-
-        this._ShiftPosition$FrameworkElement(point);
-
-        this._BoundsWithChildren.X += dx;
-        this._BoundsWithChildren.Y += dy;
-    };
     Panel.Instance._EmptyBackground = function () {
         return this.Background == null;
     };
     Panel.Instance._MeasureOverrideWithError = function (availableSize, error) {
         Info("Panel._MeasureOverrideWithError [" + this._TypeName + "]");
-        var result = new Size(0, 0);
-        return result;
+        return new size();
     };
     Panel.Instance._Render = function (ctx, region) {
         /// <param name="ctx" type="_RenderContext"></param>
         var background = this.Background;
         if (!background)
             return;
-        var framework = new Size(this.ActualWidth, this.ActualHeight);
-        framework = this._ApplySizeConstraints(framework);
+        var framework = this._ApplySizeConstraints(size.fromRaw(this.ActualWidth, this.ActualHeight));
         if (framework.Width <= 0 || framework.Height <= 0)
             return;
-        var area = new Rect(0, 0, framework.Width, framework.Height);
 
+        var area = rect.fromSize(framework);
         ctx.Save();
         this._RenderLayoutClip(ctx);
         ctx.FillRect(background, area);

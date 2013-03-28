@@ -10,6 +10,7 @@
 /// <reference path="RowDefinitionCollection.js"/>
 /// <reference path="GridLength.js"/>
 /// <reference path="../Core/Walkers.js"/>
+/// <reference path="GridMetrics.js"/>
 
 (function (namespace) {
     var _Segment = (function () {
@@ -105,6 +106,10 @@
         this._ColMatrix = null;
     };
 
+    Grid.Instance.InitSpecific = function () {
+        this._Metrics = new Fayde.Controls.GridMetrics();
+    };
+
     //#region Attached Dependency Properties
 
     Grid.ColumnProperty = DependencyProperty.RegisterAttached("Column", function () { return Number; }, Grid, 0);
@@ -159,12 +164,12 @@
 
     Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
         //LayoutDebug("Grid Measure Pass: " + this.__DebugToString() + " [" + availableSize.toString() + "]");
-        var totalSize = availableSize.Copy();
+        var totalSize = size.clone(availableSize);
         var cols = this._GetColumnDefinitionsNoAutoCreate();
         var rows = this._GetRowDefinitionsNoAutoCreate();
         var colCount = cols ? cols.GetCount() : 0;
         var rowCount = rows ? rows.GetCount() : 0;
-        var totalStars = new Size();
+        var totalStars = new size();
         var emptyRows = rowCount === 0;
         var emptyCols = colCount === 0;
         var hasChildren = this.Children.GetCount() > 0;
@@ -256,7 +261,7 @@
             var walker = new Fayde._VisualTreeWalker(this);
             var child;
             while (child = walker.Step()) {
-                var childSize = new Size();
+                var childSize = new size();
                 var starCol = false;
                 var starRow = false;
                 var autoCol = false;
@@ -314,13 +319,12 @@
                 }
 
                 child._MeasureWithError(childSize, error);
-                var desired = child._DesiredSize;
 
                 if (!starAuto) {
-                    node = new _GridNode(this._RowMatrix, row + rowspan - 1, row, desired.Height);
+                    node = new _GridNode(this._RowMatrix, row + rowspan - 1, row, child._DesiredSize.Height);
                     sizes.InsertBefore(node, node._Row === node._Col ? separator.Next : separator);
                 }
-                node = new _GridNode(this._ColMatrix, col + colspan - 1, col, desired.Width);
+                node = new _GridNode(this._ColMatrix, col + colspan - 1, col, child._DesiredSize.Width);
                 sizes.InsertBefore(node, node._Row === node._Col ? separator.Next : separator);
             }
 
@@ -338,7 +342,7 @@
 
         sizes.Remove(separator);
 
-        var gridSize = new Size();
+        var gridSize = new size();
         for (c = 0; c < colCount; c++) {
             gridSize.Width += this._ColMatrix[c][c]._DesiredSize;
         }
@@ -360,7 +364,7 @@
         var c;
         var r;
 
-        var totalConsumed = new Size();
+        var totalConsumed = new size();
         for (c = 0; c < this._ColMatrixDim; c++) {
             totalConsumed.Width += this._ColMatrix[c][c]._SetOfferedToDesired();
         }
@@ -388,7 +392,7 @@
             var colspan = Math.min(Grid.GetColumnSpan(child), this._ColMatrixDim - col);
             var rowspan = Math.min(Grid.GetRowSpan(child), this._RowMatrixDim - row);
 
-            var childFinal = new Rect(0, 0, 0, 0);
+            var childFinal = new rect();
             for (c = 0; c < col; c++) {
                 childFinal.X += this._ColMatrix[c][c]._OfferedSize;
             }
@@ -409,7 +413,7 @@
     };
 
     Grid.Instance._ExpandStarRows = function (availableSize) {
-        var availSize = availableSize.Copy();
+        availableSize = size.clone(availableSize);
         var rows = this._GetRowDefinitionsNoAutoCreate();
         var rowsCount = rows ? rows.GetCount() : 0;
 
@@ -420,9 +424,9 @@
             if (cur._Type === namespace.GridUnitType.Star)
                 cur._OfferedSize = 0;
             else
-                availSize.Height = Math.max(availSize.Height - cur._OfferedSize, 0);
+                availableSize.Height = Math.max(availableSize.Height - cur._OfferedSize, 0);
         }
-        availSize.Height = this._AssignSize(this._RowMatrix, 0, this._RowMatrixDim - 1, availSize.Height, namespace.GridUnitType.Star, false);
+        availableSize.Height = this._AssignSize(this._RowMatrix, 0, this._RowMatrixDim - 1, availableSize.Height, namespace.GridUnitType.Star, false);
         if (rowsCount > 0) {
             for (i = 0; i < this._RowMatrixDim; i++) {
                 cur = this._RowMatrix[i][i];
@@ -432,7 +436,7 @@
         }
     };
     Grid.Instance._ExpandStarCols = function (availableSize) {
-        var availSize = availableSize.Copy();
+        availableSize = size.clone(availableSize);
         var columns = this._GetColumnDefinitionsNoAutoCreate();
         var columnsCount = columns ? columns.GetCount() : 0;
 
@@ -443,9 +447,9 @@
             if (cur._Type === namespace.GridUnitType.Star)
                 cur._OfferedSize = 0;
             else
-                availSize.Width = Math.max(availSize.Width - cur._OfferedSize, 0);
+                availableSize.Width = Math.max(availableSize.Width - cur._OfferedSize, 0);
         }
-        availSize.Width = this._AssignSize(this._ColMatrix, 0, this._ColMatrixDim - 1, availSize.Width, namespace.GridUnitType.Star, false);
+        availableSize.Width = this._AssignSize(this._ColMatrix, 0, this._ColMatrixDim - 1, availableSize.Width, namespace.GridUnitType.Star, false);
         if (columnsCount > 0) {
             for (i = 0; i < this._ColMatrixDim; i++) {
                 cur = this._ColMatrix[i][i];
@@ -522,24 +526,6 @@
             }
         } while (assigned);
         return size;
-    };
-
-    //#endregion
-
-    //#region Bounds
-
-    Grid.Instance._ComputeBounds = function () {
-        this._ComputeBounds$Panel();
-
-        if (this.ShowGridLines) {
-            this._Extents = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
-            this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
-            this._Bounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform(this._AbsoluteXform);
-            this._BoundsWithChildren = this._BoundsWithChildren.Union(this._Bounds);
-
-            this._ComputeGlobalBounds();
-            this._ComputeSurfaceBounds();
-        }
     };
 
     //#endregion

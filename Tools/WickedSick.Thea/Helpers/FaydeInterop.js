@@ -45,9 +45,9 @@ FaydeInterop.prototype.GenerateDPCache = function () {
 };
 FaydeInterop.prototype.GetCacheChildren = function (visual) {
     var arr = [];
-    var childCount = VisualTreeHelper.GetChildrenCount(visual);
+    var childCount = Fayde.VisualTreeHelper.GetChildrenCount(visual);
     for (var i = 0; i < childCount; i++) {
-        var cur = VisualTreeHelper.GetChild(visual, i);
+        var cur = Fayde.VisualTreeHelper.GetChild(visual, i);
         var item = {
             Visual: cur,
             Children: this.GetCacheChildren(cur)

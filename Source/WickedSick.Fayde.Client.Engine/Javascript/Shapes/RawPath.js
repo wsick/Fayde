@@ -213,7 +213,7 @@
     };
     RawPath.Instance.CalculateBounds = function (thickness) {
         /// <param name="thickness" type="Number">Stroke Thickness</param>
-        /// <returns type="Rect" />
+        /// <returns type="rect" />
         var backing = this._Path;
         var startX, startY;
         var xMin = xMax = yMin = yMax = null;
@@ -288,7 +288,9 @@
                     break;
             }
         }
-        return new Rect(xMin, yMin, xMax - xMin, yMax - yMin);
+        var r = new rect();
+        rect.set(r, xMin, yMin, xMax - xMin, yMax - yMin);
+        return r;
     };
 
     //http://pomax.nihongoresources.com/pages/bezier/

@@ -10,7 +10,7 @@
     ArcSegment.IsLargeArcProperty = DependencyProperty.RegisterCore("IsLargeArc", function () { return Boolean; }, ArcSegment, false);
     ArcSegment.PointProperty = DependencyProperty.Register("Point", function () { return Point; }, ArcSegment, new Point());
     ArcSegment.RotationAngleProperty = DependencyProperty.Register("RotationAngle", function () { return Number; }, ArcSegment, 0.0);
-    ArcSegment.SizeProperty = DependencyProperty.Register("Size", function () { return Size; }, ArcSegment, new Size());
+    ArcSegment.SizeProperty = DependencyProperty.Register("Size", function () { return size; }, ArcSegment, new size());
     ArcSegment.SweepDirectionProperty = DependencyProperty.Register("SweepDirection", function () { return new Enum(Fayde.Shapes.SweepDirection); }, ArcSegment, Fayde.Shapes.SweepDirection.Counterclockwise);
 
     Nullstone.AutoProperties(ArcSegment, [

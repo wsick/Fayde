@@ -46,11 +46,9 @@
     GradientBrush.Instance._CreateReflect = function (ctx, data, bounds) { };
 
     GradientBrush.Instance._GetMappingModeTransform = function (bounds) {
-        /// <param name="bounds" type="Rect"></param>
+        /// <param name="bounds" type="rect"></param>
         /// <returns type="Matrix" />
         if (this.MappingMode === namespace.BrushMappingMode.Absolute)
-            return mat3.identity();
-        if (!bounds)
             return mat3.identity();
         if (!bounds)
             return mat3.identity();

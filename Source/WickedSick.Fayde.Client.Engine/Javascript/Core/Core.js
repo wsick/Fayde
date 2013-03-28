@@ -206,10 +206,12 @@
                 return new Color(value.R, value.G, value.B, value.A);
             case "Point":
                 return new Point(value.X, value.Y);
-            case "Rect":
-                return new Rect(value.X, value.Y, value.Width, value.Height);
-            case "Size":
-                return new Size(value.Width, value.Height);
+            case "rect":
+                var r = new rect();
+                rect.set(r, value.X, value.Y, value.Width, value.Height);
+                return r;
+            case "size":
+                return size.fromRaw(value.Width, value.Height);
             case "Uri":
                 return new Uri(value._OriginalString);
             case "RepeatBehavior":

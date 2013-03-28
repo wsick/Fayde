@@ -133,7 +133,7 @@
             error.SetErrored(BError.InvalidOperation, "Storyboard value could not be converted to the correct type");
             return false;
         }
-        AnimationDebug("Hookup (" + targetPropertyPath.Path + ")");
+        AnimationDebug(function () { return "Hookup (" + Storyboard.GetTargetName(animation) + "." + targetPropertyPath.Path + ")"; });
         animation.HookupStorage(refobj.Value, targetProperty);
         return true;
     };

@@ -6,6 +6,7 @@
 /// <reference path="../Runtime/LinkedList.js"/>
 /// <reference path="../Text/TextLayout.js"/>
 /// <reference path="Enums.js"/>
+/// <reference path="TextBlockMetrics.js"/>
 
 (function (namespace) {
     var TextBlock = Nullstone.Create("TextBlock", Fayde.FrameworkElement);
@@ -24,6 +25,9 @@
         this.AddProvider(new namespace._TextBlockDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue));
 
         this._Font = new Font();
+    };
+    TextBlock.Instance.InitSpecific = function () {
+        this._Metrics = new Fayde.Controls.TextBlockMetrics();
     };
 
     //#region Properties
@@ -76,43 +80,27 @@
 
     //#region Instance Methods
 
-    TextBlock.Instance._ComputeBounds = function () {
-        this._Extents = this._Layout.GetRenderExtents();
-        var padding = this.Padding;
-
-        this._Extents.X += padding.Left;
-        this._Extents.Y += padding.Top;
-
-        this._ExtentsWithChildren = this._Extents;
-
-        this._Bounds = this._IntersectBoundsWithClipPath(this._Extents.GrowBy(this._EffectPadding), false).Transform(this._AbsoluteXform);
-        this._BoundsWithChildren = this._Bounds;
-
-        this._ComputeGlobalBounds();
-        this._ComputeSurfaceBounds();
-    };
     TextBlock.Instance._ComputeActualSize = function () {
         var padding = this.Padding;
-        var constraint = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
-        var result = new Size(0.0, 0.0);
+        var constraint = this._ApplySizeConstraints(size.createInfinite());
 
-        if (Fayde.LayoutInformation.GetPreviousConstraint(this) !== undefined || this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty) !== undefined) {
+        if (Fayde.LayoutInformation.GetPreviousConstraint(this) !== undefined || Fayde.LayoutInformation.GetLayoutSlot(this, true) !== undefined) {
             this._Layout.Layout();
             var actuals = this._Layout.GetActualExtents();
             this._ActualWidth = actuals.Width;
             this._ActualHeight = actuals.Height;
         } else {
-            constraint = constraint.ShrinkByThickness(padding);
+            size.shrinkByThickness(constraint, padding);
             this.Layout(constraint);
         }
-        result = new Size(this._ActualWidth, this._ActualHeight);
-        result = result.GrowByThickness(padding);
+        var result = size.fromRaw(this._ActualWidth, this._ActualHeight);
+        size.growByThickness(result, padding);
         return result;
     };
 
     TextBlock.Instance._GetTransformOrigin = function () {
         var userXformOrigin = this.RenderTransformOrigin;
-        var xformSize = this._ApplySizeConstraints(this.RenderSize);
+        var xformSize = this._ApplySizeConstraints(size.clone(this.RenderSize));
         return new Point(xformSize.Width * userXformOrigin.X, xformSize.height * userXformOrigin.Y);
     };
 
@@ -120,9 +108,11 @@
 
     TextBlock.Instance._MeasureOverrideWithError = function (availableSize, error) {
         var padding = this.Padding;
-        var constraint = availableSize.ShrinkByThickness(padding);
+        var constraint = size.clone(availableSize);
+        size.shrinkByThickness(constraint, padding);
         this.Layout(constraint);
-        desired = new Size(this._ActualWidth, this._ActualHeight).GrowByThickness(padding);
+        var desired = size.fromRaw(this._ActualWidth, this._ActualHeight);
+        size.growByThickness(desired, padding);
         return desired;
     };
 
@@ -132,12 +122,13 @@
 
     TextBlock.Instance._ArrangeOverrideWithError = function (finalSize, error) {
         var padding = this.Padding;
-        var constraint = finalSize.ShrinkByThickness(padding);
+        var constraint = size.clone(finalSize);
+        size.shrinkByThickness(constraint, padding);
         this.Layout(constraint);
-        var arranged = new Size(this._ActualWidth, this._ActualHeight);
-        arranged = arranged.Max(constraint);
+        var arranged = size.fromRaw(this._ActualWidth, this._ActualHeight);
+        size.max(arranged, constraint);
         this._Layout.SetAvailableWidth(constraint.Width);
-        arranged = arranged.GrowByThickness(padding);
+        size.growByThickness(arranged, padding);
         return finalSize;
     };
 
@@ -160,7 +151,7 @@
     //#endregion
 
     TextBlock.Instance.Layout = function (constraint) {
-        /// <param name="constraint" type="Size"></param>
+        /// <param name="constraint" type="size"></param>
         if (this._WasSet && this._GetValueNoDefault(TextBlock.TextProperty) === undefined) {
             this._ActualHeight = this._Font.GetActualHeight();
             this._ActualWidth = 0.0;

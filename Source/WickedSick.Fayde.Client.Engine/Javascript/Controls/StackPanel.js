@@ -1,5 +1,6 @@
 /// <reference path="Panel.js" />
 /// CODE
+/// <reference path="../Primitives.js"/>
 
 (function (namespace) {
     var StackPanel = Nullstone.Create("StackPanel", namespace.Panel);
@@ -21,8 +22,8 @@
 
     StackPanel.Instance.MeasureOverride = function (constraint) {
         //Info("StackPanel.MeasureOverride [" + this._TypeName + "]");
-        var childAvailable = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
-        var measured = new Size(0, 0);
+        var childAvailable = size.createInfinite();
+        var measured = new size();
 
         var orientation = this.Orientation;
         if (orientation === Fayde.Orientation.Vertical) {
@@ -45,14 +46,14 @@
         for (var i = 0; i < children.GetCount() ; i++) {
             var child = children.GetValueAt(i);
             child.Measure(childAvailable);
-            var size = child._DesiredSize;
+            var s = child._DesiredSize;
 
             if (orientation === Fayde.Orientation.Vertical) {
-                measured.Height += size.Height;
-                measured.Width = Math.max(measured.Width, size.Width);
+                measured.Height += s.Height;
+                measured.Width = Math.max(measured.Width, s.Width);
             } else {
-                measured.Width += size.Width;
-                measured.Height = Math.max(measured.Height, size.Height);
+                measured.Width += s.Width;
+                measured.Height = Math.max(measured.Height, s.Height);
             }
         }
 
@@ -60,7 +61,7 @@
     };
     StackPanel.Instance.ArrangeOverride = function (arrangeSize) {
         //Info("StackPanel.ArrangeOverride [" + this._TypeName + "]");
-        var arranged = arrangeSize;
+        var arranged = size.clone(arrangeSize);
         var orientation = this.Orientation;
 
         if (orientation === Fayde.Orientation.Vertical)
@@ -71,31 +72,31 @@
         var children = this.Children;
         for (var i = 0; i < children.GetCount() ; i++) {
             var child = children.GetValueAt(i);
-            var size = child._DesiredSize;
-            var childFinal;
+            var s = size.clone(child._DesiredSize);
             if (orientation === Fayde.Orientation.Vertical) {
-                size.Width = arrangeSize.Width;
+                s.Width = arrangeSize.Width;
 
-                childFinal = new Rect(0, arranged.Height, size.Width, size.Height);
+                var childFinal = rect.fromSize(s);
+                childFinal.Y = arranged.Height;
 
-                if (childFinal.IsEmpty())
-                    child.Arrange(new Rect());
-                else
-                    child.Arrange(childFinal);
+                if (rect.isEmpty(childFinal))
+                    rect.clear(childFinal);
+                child.Arrange(childFinal);
 
-                arranged.Width = Math.max(arranged.Width, size.Width);
-                arranged.Height += size.Height;
+                arranged.Width = Math.max(arranged.Width, s.Width);
+                arranged.Height += s.Height;
             } else {
-                size.Height = arrangeSize.Height;
+                s.Height = arrangeSize.Height;
 
-                childFinal = new Rect(arranged.Width, 0, size.Width, size.Height);
-                if (childFinal.IsEmpty())
-                    child.Arrange(new Rect());
-                else
-                    child.Arrange(childFinal);
+                var childFinal = rect.fromSize(s);
+                childFinal.X = arranged.Width;
 
-                arranged.Width += size.Width;
-                arranged.Height = Math.max(arranged.Height, size.Height);
+                if (rect.isEmpty(childFinal))
+                    rect.clear(childFinal);
+                child.Arrange(childFinal);
+
+                arranged.Width += s.Width;
+                arranged.Height = Math.max(arranged.Height, s.Height);
             }
         }
 

@@ -13,10 +13,13 @@
     //#region Properties
 
     ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return Fayde.ResourceDictionaryCollection; }, ResourceDictionary, undefined, undefined, { GetValue: function () { return new Fayde.ResourceDictionaryCollection(); } });
+    ResourceDictionary.SourceProperty = DependencyProperty.Register("Source", function () { return String; }, ResourceDictionary);
 
     Nullstone.AutoProperties(ResourceDictionary, [
-        ResourceDictionary.MergedDictionariesProperty
+        ResourceDictionary.MergedDictionariesProperty,
+        ResourceDictionary.SourceProperty
     ]);
+
 
     //#endregion
 
