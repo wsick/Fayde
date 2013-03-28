@@ -838,38 +838,88 @@
                 }
             }
         };
+        //this method is called by a child when the child's size has changed
+        //this allows the parent to adjust accordingly and propogate that change up the tree
         Grid.Instance.UpdateAdjustedWidth = function (child, width) {
             delete Surface._SizingAdjustments[this._ID];
+            var table = this.GetHtmlChildrenContainer();
             var column = Grid.GetColumn(child);
             var row = Grid.GetRow(child);
             var cd = this.GetColumnDefinition(column);
             var rd = this.GetRowDefinition(row);
             if (cd.Width.Type === namespace.GridUnitType.Auto) {
-                var table = this.GetHtmlChildrenContainer();
-                table.children[row].children[column].firstChild.style.width = width + "px";
+                //when a child of a grid reports a size change, we will adjust auto rows and columns
+                //we need to update all column widths
+                var existingWidth = table.children[row].children[column].firstChild.offsetWidth;
+                //only change the container and children if you are making it bigger
+                if (width > existingWidth) {
+                    var len = table.children.length;
+                    for (var i = 0; i < len; i++) {
+                        table.children[i].children[column].firstChild.style.width = width + "px";
+                    }
+                    //this is code to grow the children's width if the auto row has grown
+                    var children = this.Children;
+                    len = children.GetCount();
+                    for (var i = 0; i < len; i++) {
+                        var c = children.GetValueAt(i);
+                        if (child != c && Grid.GetColumn(c) === column) {
+                            c.CoerceWidth(width);
+                        }
+                    }
+                }
+                else {
+                    child.CoerceWidth(existingWidth);
+                }
             }
+            //now that I have updated the appropriate containers and children, make sure I update myself
+            //I need to update my outer width based on all my children's sized combined
             if (!this.GetIsFixedWidth()) {
-                var myWidth = this.GetHtmlChildrenContainer().offsetWidth;
+                var myWidth = table.offsetWidth;
                 this.GetContentHtmlElement().style.width = myWidth + "px";
-                myWidth = this.CalculateAdjustedWidth(myWidth);
+                myWidth = this.CalculateOuterWidth(myWidth);
                 var parent = this.GetVisualParent();
                 if (parent) parent.UpdateAdjustedWidth(this, myWidth);
             }
         };
+        //this method is called by a child when the child's size has changed
+        //this allows the parent to adjust accordingly and propogate that change up the tree
         Grid.Instance.UpdateAdjustedHeight = function (child, height) {
             delete Surface._SizingAdjustments[this._ID];
+            var table = this.GetHtmlChildrenContainer();
             var column = Grid.GetColumn(child);
             var row = Grid.GetRow(child);
             var cd = this.GetColumnDefinition(column);
             var rd = this.GetRowDefinition(row);
             if (rd.Height.Type === namespace.GridUnitType.Auto) {
-                var table = this.GetHtmlChildrenContainer();
-                table.children[row].children[column].firstChild.style.height = height + "px";
+                //when a child of a grid reports a size change, we will adjust auto rows and columns
+                //we need to update all row heights
+                var existingHeight = table.children[row].children[column].firstChild.offsetHeight;
+                //only change the container and children if you are making it bigger
+                if (height > existingHeight) {
+                    var len = table.children[row].children.length;
+                    for (var i = 0; i < len; i++) {
+                        table.children[row].children[i].firstChild.style.height = height + "px";
+                    }
+                    //this is code to grow the children's height if the auto column has grown
+                    var children = this.Children;
+                    len = children.GetCount();
+                    for (var i = 0; i < len; i++) {
+                        var c = children.GetValueAt(i);
+                        if (child != c && Grid.GetRow(c) === row) {
+                            c.CoerceHeight(height);
+                        }
+                    }
+                }
+                else {
+                    child.CoerceHeight(existingHeight);
+                }
             }
+            //now that I have updated the appropriate containers and children, make sure I update myself
+            //I need to update my outer width based on all my children's sized combined
             if (!this.GetIsFixedHeight()) {
-                var myHeight = this.GetHtmlChildrenContainer().offsetHeight;
+                var myHeight = table.offsetHeight;
                 this.GetContentHtmlElement().style.height = myHeight + "px";
-                myHeight = this.CalculateAdjustedHeight(myHeight);
+                myHeight = this.CalculateOuterHeight(myHeight);
                 var parent = this.GetVisualParent();
                 if (parent) parent.UpdateAdjustedHeight(this, myHeight);
             }

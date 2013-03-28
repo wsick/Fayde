@@ -130,7 +130,6 @@
         };
         StackPanel.Instance.InsertHtmlChild = function (child, index) {
             var table = this.GetHtmlChildrenContainer();
-            var children = this.Children;
             var nextEl;
             if (this.Orientation === Fayde.Orientation.Horizontal) {
 
@@ -206,17 +205,69 @@
             }
             */
         };
+        //this is called when a auto grid column has changed width due to another item in the same column
+        //this only gets called if the width is larger than the existing width
+        //if orientation is vertical, we should update each child's container width (the containers take the entire width)
+        //make sure to update our own width as well
+        StackPanel.Instance.CoerceWidth = function (width) {
+            if (this.Orientation === Fayde.Orientation.Vertical) {
+                var table = this.GetHtmlChildrenContainer();
+                //we have a row and cell for each child
+                //loop through each child container and update its width to the StackPanel inner width
+                var len = table.children.size;
+                var iWidth = this.CalculateInnerWidth(width);
+                for (var i = 0; i < len; i++) {
+                    var cell = table.children[i].children[0];
+                    cell.style.width = iWidth;
+                    cell.style.minWidth = iWidth;
+                }
+            }
+            //now adjust ourself, but only if we aren't fixed width
+            //and don't make ourself smaller than our contents
+            if (!this.GetIsFixedWidth()) {
+                var childrenWidth = this.GetHtmlChildrenContainer().offsetWidth;
+                var iWidth = this.CalculateInnerWidth(width);
+                if (iWidth > childrenWidth) {
+                    this.GetContentHtmlElement().style.width = iWidth + "px";
+                }
+            }
+        };
+        StackPanel.Instance.CoerceHeight = function (height) {
+            if (this.Orientation === Fayde.Orientation.Horizontal) {
+                var table = this.GetHtmlChildrenContainer();
+                //we have one row total and one cell for each child
+                //loop through each child container and update its height to the StackPanel inner height
+                var len = table.children[0].children.size;
+                var iHeight = this.CalculateInnerHeight(height);
+                for (var i = 0; i < len; i++) {
+                    var cell = table.children[0].children[i];
+                    cell.style.height = iHeight;
+                    cell.style.minHeight = iHeight;
+                }
+            }
+            //now adjust ourself, but only if we aren't fixed width
+            //and don't make ourself smaller than our contents
+            if (!this.GetIsFixedHeight()) {
+                var childrenHeight = this.GetHtmlChildrenContainer().offsetHeight;
+                var iHeight = this.CalculateInnerHeight(height);
+                if (iHeight > childrenHeight) {
+                    this.GetContentHtmlElement().style.height = iHeight + "px";
+                }
+            }
+        };
         StackPanel.Instance.UpdateAdjustedWidth = function (child, width) {
             delete Surface._SizingAdjustments[this._ID];
             if (this.Orientation === Fayde.Orientation.Horizontal) {
+                //the child lives in a container, update that container's width because it should stretch to the size of the child
                 var cell = child.GetRootHtmlElement().parentNode.parentNode.parentNode;
                 cell.style.width = width + "px";
                 cell.style.minWidth = width + "px";
             }
+            //now update myself, always updating the content element
             if (!this.GetIsFixedWidth()) {
                 var myWidth = this.GetHtmlChildrenContainer().offsetWidth;
                 this.GetContentHtmlElement().style.width = myWidth + "px";
-                myWidth = this.CalculateAdjustedWidth(myWidth);
+                myWidth = this.CalculateOuterWidth(myWidth);
                 var parent = this.GetVisualParent();
                 if (parent) parent.UpdateAdjustedWidth(this, myWidth);
             }
@@ -224,14 +275,16 @@
         StackPanel.Instance.UpdateAdjustedHeight = function (child, height) {
             delete Surface._SizingAdjustments[this._ID];
             if (this.Orientation === Fayde.Orientation.Vertical) {
+                //the child lives in a container, update that container's height because it should stretch to the size of the child
                 var cell = child.GetRootHtmlElement().parentNode.parentNode.parentNode;
                 cell.style.height = height + "px";
                 cell.style.minHeight = height + "px";
             }
+            //now update myself, always updating the content element
             if (!this.GetIsFixedHeight()) {
                 var myHeight = this.GetHtmlChildrenContainer().offsetHeight;
                 this.GetContentHtmlElement().style.height = myHeight + "px";
-                myHeight = this.CalculateAdjustedHeight(myHeight);
+                myHeight = this.CalculateOuterHeight(myHeight);
                 var parent = this.GetVisualParent();
                 if (parent) parent.UpdateAdjustedHeight(this, myHeight);
             }

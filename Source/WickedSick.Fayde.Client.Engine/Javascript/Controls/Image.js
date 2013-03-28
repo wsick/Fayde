@@ -469,7 +469,7 @@
 
             var result = parentWidth / aspectRatio;
             this.GetContentHtmlElement().style.height = result + "px";
-            result = this.CalculateAdjustedHeight(result);
+            result = this.CalculateOuterHeight(result);
             delete Surface._SizingAdjustments[this._ID];
             return result;
         };
@@ -489,7 +489,7 @@
 
             var result = parentHeight * aspectRatio;
             this.GetContentHtmlElement().style.width = result + "px";
-            result = this.CalculateAdjustedWidth(result);
+            result = this.CalculateOuterWidth(result);
             delete Surface._SizingAdjustments[this._ID];
             return result;
         };

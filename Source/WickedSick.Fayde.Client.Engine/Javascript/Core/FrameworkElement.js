@@ -1064,10 +1064,12 @@
             if (!isNaN(this.Width)) {
                 //explicit width
                 rootEl.style.width = this.Width + "px";
+                subEl.style.width = "100%";
             }
             if (!isNaN(this.Height)) {
                 //explicit height
                 rootEl.style.height = this.Height + "px";
+                subEl.style.height = "100%";
             }
 
             //set max width and max height on root element
@@ -1090,21 +1092,57 @@
             }
             this.ApplyHtmlChanges$UIElement(invalidations);
         };
-        FrameworkElement.Instance.CalculateAdjustedWidth = function (width) {
+        FrameworkElement.Instance.CalculateOuterWidth = function (width) {
             var marginLeft = isNaN(this.Margin.Left) ? 0 : this.Margin.Left;
             var marginRight = isNaN(this.Margin.Right) ? 0 : this.Margin.Right;
             return width + marginLeft + marginRight;
         };
-        FrameworkElement.Instance.CalculateAdjustedHeight = function (height) {
+        FrameworkElement.Instance.CalculateInnerWidth = function (width) {
+            var marginLeft = isNaN(this.Margin.Left) ? 0 : this.Margin.Left;
+            var marginRight = isNaN(this.Margin.Right) ? 0 : this.Margin.Right;
+            return width - marginLeft - marginRight;
+        };
+        FrameworkElement.Instance.CalculateOuterHeight = function (height) {
             var marginTop = isNaN(this.Margin.Top) ? 0 : this.Margin.Top;
             var marginBottom = isNaN(this.Margin.Bottom) ? 0 : this.Margin.Bottom;
             return height + marginTop + marginBottom;
+        };
+        FrameworkElement.Instance.CalculateInnerHeight = function (height) {
+            var marginTop = isNaN(this.Margin.Top) ? 0 : this.Margin.Top;
+            var marginBottom = isNaN(this.Margin.Bottom) ? 0 : this.Margin.Bottom;
+            return height - marginTop - marginBottom;
+        };
+        //this is called when a auto grid column has changed width due to another item in the same column
+        //this only gets called if the width is larger than the existing width
+        //we should walk down the tree, growing each item if it isn't fixed width
+        FrameworkElement.Instance.CoerceWidth = function (width) {
+            if (!this.GetIsFixedWidth()) {
+                var iWidth = this.CalculateInnerWidth(width);
+                this.GetContentHtmlElement().style.width = iWidth + "px";
+                var subtree = this._SubtreeObject;
+                if (subtree && Nullstone.Is(subtree, FrameworkElement)) {
+                    subtree.CoerceWidth(iWidth);
+                }
+            }
+        };
+        //this is called when a auto grid row has changed width due to another item in the same row
+        //this only gets called if the height is larger than the existing height
+        //we should walk down the tree, growing each item if it isn't fixed height
+        FrameworkElement.Instance.CoerceHeight = function (height) {
+            if (!this.GetIsFixedHeight()) {
+                var iHeight = this.CalculateInnerHeight(height);
+                this.GetContentHtmlElement().style.height = iHeight + "px";
+                var subtree = this._SubtreeObject;
+                if (subtree && Nullstone.Is(subtree, FrameworkElement)) {
+                    subtree.CoerceHeight(iHeight);
+                }
+            }
         };
         FrameworkElement.Instance.UpdateAdjustedWidth = function (child, width) {
             delete Surface._SizingAdjustments[this._ID];
             if (!this.GetIsFixedWidth()) {
                 this.GetContentHtmlElement().style.width = width + "px";
-                var myWidth = this.CalculateAdjustedWidth(width);
+                var myWidth = this.CalculateOuterWidth(width);
                 var parent = this.GetVisualParent();
                 if (parent) parent.UpdateAdjustedWidth(this, myWidth);
             }
@@ -1113,7 +1151,7 @@
             delete Surface._SizingAdjustments[this._ID];
             if (!this.GetIsFixedHeight()) {
                 this.GetContentHtmlElement().style.height = height + "px";
-                var myHeight = this.CalculateAdjustedHeight(height);
+                var myHeight = this.CalculateOuterHeight(height);
                 var parent = this.GetVisualParent();
                 if (parent) parent.UpdateAdjustedHeight(this, myHeight);
             }
@@ -1125,9 +1163,9 @@
                 var childWidth = 0;
                 if (subtree && Nullstone.Is(subtree, FrameworkElement)) childWidth = subtree.FindAndSetAdjustedWidth();
                 this.GetContentHtmlElement().style.width = childWidth + "px";
-                result = this.CalculateAdjustedWidth(childWidth);
+                result = this.CalculateOuterWidth(childWidth);
             }
-            else result = this.CalculateAdjustedWidth(this.GetRootHtmlElement().offsetWidth);
+            else result = this.CalculateOuterWidth(this.GetRootHtmlElement().offsetWidth);
             delete Surface._SizingAdjustments[this._ID];
             return result;
         };
@@ -1138,9 +1176,9 @@
                 var childHeight = 0;
                 if (subtree && Nullstone.Is(subtree, FrameworkElement)) childHeight = subtree.FindAndSetAdjustedHeight();
                 this.GetContentHtmlElement().style.height = childHeight + "px";
-                result = this.CalculateAdjustedHeight(childHeight);
+                result = this.CalculateOuterHeight(childHeight);
             }
-            else result = this.CalculateAdjustedHeight(this.GetRootHtmlElement().offsetHeight);
+            else result = this.CalculateOuterHeight(this.GetRootHtmlElement().offsetHeight);
             delete Surface._SizingAdjustments[this._ID];
             return result;
         };
