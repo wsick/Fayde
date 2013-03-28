@@ -146,7 +146,7 @@
         };
         TextElement.Instance.ApplyForegroundHtml = function (contentEl, foreground) {
             var ctx = document.createElement("canvas").getContext("2d");
-            foreground.SetupBrush(ctx, null);
+            foreground.SetupBrush(ctx, new rect());
             contentEl.style.color = foreground.ToHtml5Object();
         };
     }
