@@ -132,10 +132,10 @@
     _DeepTreeWalker.prototype.SkipBranch = function () {
         this._Last = null;
     };
-    _DeepTreeWalker.Logical = function (obj) { return new _DeepTreeWalker(top, _VisualTreeWalkerDirection.Logical); };
-    _DeepTreeWalker.LogicalReverse = function (obj) { return new _DeepTreeWalker(top, _VisualTreeWalkerDirection.LogicalReverse); };
-    _DeepTreeWalker.ZForward = function (obj) { return new _DeepTreeWalker(top, _VisualTreeWalkerDirection.ZForward); };
-    _DeepTreeWalker.ZReverse = function (obj) { return new _DeepTreeWalker(top, _VisualTreeWalkerDirection.ZReverse); };
+    _DeepTreeWalker.Logical = function (obj) { return new _DeepTreeWalker(obj, _VisualTreeWalkerDirection.Logical); };
+    _DeepTreeWalker.LogicalReverse = function (obj) { return new _DeepTreeWalker(obj, _VisualTreeWalkerDirection.LogicalReverse); };
+    _DeepTreeWalker.ZForward = function (obj) { return new _DeepTreeWalker(obj, _VisualTreeWalkerDirection.ZForward); };
+    _DeepTreeWalker.ZReverse = function (obj) { return new _DeepTreeWalker(obj, _VisualTreeWalkerDirection.ZReverse); };
     Fayde._DeepTreeWalker = _DeepTreeWalker;
 
     //#endregion
