@@ -25,7 +25,7 @@
         var childAvailable = size.createInfinite();
         var measured = new size();
 
-        var metrics = pass.Metrics;
+        var metrics = pass.UpdateMetrics;
         var orientation = this.Orientation;
         if (orientation === Fayde.Orientation.Vertical) {
             childAvailable.Width = constraint.Width;

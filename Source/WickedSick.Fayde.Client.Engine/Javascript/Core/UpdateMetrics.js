@@ -1,5 +1,6 @@
 ﻿/// <reference path="../Primitives.js"/>
 /// <reference path="Enums.js"/>
+/// <reference path="../Engine/Dirty.js"/>
 /// CODE
 
 (function (Fayde) {
@@ -20,6 +21,7 @@
             HorizontalAlignment: 3 | 0, //Fayde.HorizontalAlignment.Stretch
             VerticalAlignment: 3 | 0, //Fayde.VerticalAlignment.Stretch
             FlowDirection: 0 | 0, //Fayde.FlowDirection.LeftToRight
+            Margin: null, //Thickness
             //LayoutInformation
             PreviousConstraint: null, //size
             FinalRect: null, //rect
@@ -57,21 +59,33 @@
     };
     Fayde.CreateUpdateMetrics = CreateUpdateMetrics;
 
+    var dirtyEnum = _Dirty;
+    var localTransformFlag = dirtyEnum.LocalTransform;
+    var localProjectionFlag = dirtyEnum.LocalProjection;
+    var transformFlag = dirtyEnum.Transform;
+    var downDirtyFlag = dirtyEnum.DownDirtyState;
+    var upDirtyFlag = dirtyEnum.UpDirtyState;
+
     function CreateUpdatePass(fe, measureOverride, arrangeOverride) {
         /// <param name="fe" type="Fayde.FrameworkElement"></param>
         /// <param name="measureOverride" type="Function"></param>
         /// <param name="arrangeOverride" type="Function"></param>
+
+        var xformer = fe._Xformer;
+        var updateMetrics = fe._UpdateMetrics;
+        var metrics = fe._Metrics;
         var pass = {
             IsContainer: fe.IsContainer(),
             IsLayoutContainer: fe.IsLayoutContainer(),
             VisualParent: fe._VisualParent,
             Parent: fe._Parent,
-            Metrics: fe._UpdateMetrics,
-            Xformer: fe._Xformer,
             IsAttached: fe._IsAttached,
             IsTopLevel: false,
+            Xformer: xformer,
+            UpdateMetrics: updateMetrics,
+            Metrics: metrics,
             DoMeasure: function (error) {
-                var last = this.Metrics.PreviousConstraint;
+                var last = updateMetrics.PreviousConstraint;
                 var parent = this.VisualParent;
 
                 if (!this.IsAttached && !last && !parent && this.IsLayoutContainer) {
@@ -100,13 +114,12 @@
                     return;
                 }
 
-                var metrics = this.Metrics;
-                var last = metrics.PreviousConstraint;
+                var last = updateMetrics.PreviousConstraint;
                 var shouldMeasure = (fe._DirtyFlags & _Dirty.Measure) > 0;
                 shouldMeasure = shouldMeasure || (!last || last.Width !== availableSize.Width || last.Height !== availableSize.Height);
 
-                if (metrics.Visibility !== Fayde.Visibility.Visible) {
-                    metrics.PreviousConstraint = availableSize;
+                if (updateMetrics.Visibility !== Fayde.Visibility.Visible) {
+                    updateMetrics.PreviousConstraint = availableSize;
                     size.clear(fe._DesiredSize);
                     return;
                 }
@@ -116,15 +129,16 @@
                 if (!shouldMeasure)
                     return;
 
-                metrics.PreviousConstraint = availableSize;
+                updateMetrics.PreviousConstraint = availableSize;
 
                 fe._InvalidateArrange();
                 fe._UpdateBounds();
 
-                var margin = fe.Margin;
                 var s = size.clone(availableSize);
-                size.shrinkByThickness(s, margin);
-                metrics.CoerceSize(s);
+                var margin = updateMetrics.Margin;
+                if (margin)
+                    size.shrinkByThickness(s, margin);
+                updateMetrics.CoerceSize(s);
 
                 s = measureOverride.call(fe, s, pass, error);
 
@@ -142,11 +156,12 @@
                     }
                 }
 
-                metrics.CoerceSize(s);
-                size.growByThickness(s, margin);
+                updateMetrics.CoerceSize(s);
+                if (margin)
+                    size.growByThickness(s, margin);
                 size.min(s, availableSize);
 
-                if (metrics.UseLayoutRounding) {
+                if (updateMetrics.UseLayoutRounding) {
                     s.Width = Math.round(s.Width);
                     s.Height = Math.round(s.Height);
                 }
@@ -166,7 +181,7 @@
                         desired.Width = fe._DesiredSize.Width;
                         desired.Height = fe._DesiredSize.Height;
                         if (this.IsAttached && this.IsTopLevel && !this.Parent) {
-                            var measure = this.Metrics.PreviousConstraint;
+                            var measure = updateMetrics.PreviousConstraint;
                             if (measure)
                                 size.max(desired, measure);
                             else {
@@ -196,14 +211,13 @@
                 if (error.Message)
                     return;
 
-                var metrics = this.Metrics;
                 var slot = Fayde.LayoutInformation.GetLayoutSlot(fe, true);
                 if (slot === null)
                     slot = undefined;
 
                 var shouldArrange = (fe._DirtyFlags & _Dirty.Arrange) > 0;
 
-                if (metrics.UseLayoutRounding) {
+                if (updateMetrics.UseLayoutRounding) {
                     rect.round(finalRect);
                 }
 
@@ -219,7 +233,7 @@
 
                 var visualParent = this.VisualParent;
 
-                if (metrics.Visibility !== Fayde.Visibility.Visible) {
+                if (updateMetrics.Visibility !== Fayde.Visibility.Visible) {
                     Fayde.LayoutInformation.SetLayoutSlot(fe, finalRect);
                     return;
                 }
@@ -227,17 +241,18 @@
                 if (!shouldArrange)
                     return;
 
-                var measure = metrics.PreviousConstraint;
+                var measure = updateMetrics.PreviousConstraint;
                 if (this.IsContainer && !measure) {
                     this.Measure(size.fromRect(finalRect), error);
                 }
-                measure = metrics.PreviousConstraint;
+                measure = updateMetrics.PreviousConstraint;
 
                 Fayde.LayoutInformation.SetLayoutClip(fe, undefined);
 
-                var margin = fe.Margin;
                 var childRect = rect.clone(finalRect);
-                rect.shrinkByThickness(childRect, margin);
+                var margin = updateMetrics.Margin;
+                if (margin)
+                    rect.shrinkByThickness(childRect, margin);
 
                 fe._UpdateTransform();
                 fe._UpdateProjection();
@@ -245,11 +260,11 @@
 
                 var offer = size.clone(fe._HiddenDesire);
 
-                var stretched = metrics.CoerceSize(size.fromRect(childRect));
-                var framework = metrics.CoerceSize(new size());
+                var stretched = updateMetrics.CoerceSize(size.fromRect(childRect));
+                var framework = updateMetrics.CoerceSize(new size());
 
-                var horiz = metrics.HorizontalAlignment;
-                var vert = metrics.VerticalAlignment;
+                var horiz = updateMetrics.HorizontalAlignment;
+                var vert = updateMetrics.VerticalAlignment;
 
                 if (horiz === Fayde.HorizontalAlignment.Stretch)
                     framework.Width = Math.max(framework.Width, stretched.Width);
@@ -271,13 +286,13 @@
 
                 var flipHoriz = false;
                 if (visualParent)
-                    flipHoriz = visualParent.FlowDirection !== metrics.FlowDirection;
+                    flipHoriz = visualParent.FlowDirection !== updateMetrics.FlowDirection;
                 else if (fe.Parent instanceof Fayde.Controls.Primitives.Popup)
-                    flipHoriz = fe.Parent.FlowDirection !== metrics.FlowDirection;
+                    flipHoriz = fe.Parent.FlowDirection !== updateMetrics.FlowDirection;
                 else
-                    flipHoriz = metrics.FlowDirection === Fayde.FlowDirection.RightToLeft;
+                    flipHoriz = updateMetrics.FlowDirection === Fayde.FlowDirection.RightToLeft;
 
-                var layoutXform = mat3.identity(this.Xformer.LayoutXform);
+                var layoutXform = mat3.identity(xformer.LayoutXform);
                 mat3.translate(layoutXform, childRect.X, childRect.Y);
                 if (flipHoriz) {
                     mat3.translate(layoutXform, offer.Width, 0);
@@ -289,17 +304,17 @@
 
                 fe._DirtyFlags &= ~_Dirty.Arrange;
                 var visualOffset = new Point(childRect.X, childRect.Y);
-                metrics.VisualOffset = visualOffset;
+                updateMetrics.VisualOffset = visualOffset;
 
                 var oldSize = size.clone(fe._RenderSize);
 
-                if (metrics.UseLayoutRounding) {
+                if (updateMetrics.UseLayoutRounding) {
                     response.Width = Math.round(response.Width);
                     response.Height = Math.round(response.Height);
                 }
 
                 size.copyTo(response, fe._RenderSize);
-                var constrainedResponse = metrics.CoerceSize(size.clone(response));
+                var constrainedResponse = updateMetrics.CoerceSize(size.clone(response));
                 size.min(constrainedResponse, response);
 
                 if (!visualParent || visualParent instanceof Fayde.Controls.Canvas) {
@@ -340,19 +355,19 @@
                     }
                 }
 
-                if (metrics.UseLayoutRounding) {
+                if (updateMetrics.UseLayoutRounding) {
                     visualOffset.X = Math.round(visualOffset.X);
                     visualOffset.Y = Math.round(visualOffset.Y);
                 }
 
-                layoutXform = mat3.identity(this.Xformer.LayoutXform);
+                layoutXform = mat3.identity(xformer.LayoutXform);
                 mat3.translate(layoutXform, visualOffset.X, visualOffset.Y);
                 if (flipHoriz) {
                     mat3.translate(layoutXform, response.Width, 0);
                     mat3.scale(layoutXform, -1, 1);
                 }
 
-                metrics.VisualOffset = visualOffset;
+                updateMetrics.VisualOffset = visualOffset;
 
                 var element = new rect();
                 rect.Width = response.Width;
@@ -360,13 +375,13 @@
                 var layoutClip = rect.clone(childRect);
                 layoutClip.X = Math.max(childRect.X - visualOffset.X, 0);
                 layoutClip.Y = Math.max(childRect.Y - visualOffset.Y, 0);
-                if (metrics.UseLayoutRounding) {
+                if (updateMetrics.UseLayoutRounding) {
                     layoutClip.X = Math.round(layoutClip.X);
                     layoutClip.Y = Math.round(layoutClip.Y);
                 }
 
                 if (((!isTopLevel && rect.isRectContainedIn(element, layoutClip)) || !size.isEqual(constrainedResponse, response)) && !(fe instanceof Fayde.Controls.Canvas) && ((visualParent && !(visualParent instanceof Fayde.Controls.Canvas)) || this.IsContainer)) {
-                    var frameworkClip = metrics.CoerceSize(size.createInfinite());
+                    var frameworkClip = updateMetrics.CoerceSize(size.createInfinite());
                     var frect = rect.fromSize(frameworkClip);
                     rect.intersection(layoutClip, frect);
                     var rectangle = new Fayde.Media.RectangleGeometry();
@@ -375,12 +390,165 @@
                 }
 
                 if (!size.isEqual(oldSize, response)) {
-                    if (!metrics.LastRenderSize) {
-                        metrics.LastRenderSize = oldSize;
+                    if (!updateMetrics.LastRenderSize) {
+                        updateMetrics.LastRenderSize = oldSize;
                         fe._PropagateFlagUp(Fayde.UIElementFlags.DirtySizeHint);
                     }
                 }
-            }
+            },
+            //Down --> RenderVisibility, HitTestVisibility, Transformation, Clip, ChildrenZIndices
+            ProcessDown: function (surface, uie) {
+                var visualParent = this.VisualParent;
+                var f = uie._DirtyFlags;
+                //i++;
+                //DirtyDebug("Down Dirty Loop #" + i.toString() + " --> " + surface._DownDirty.__DebugToString());
+                /*
+                DirtyDebug.Level++;
+                DirtyDebug("[" + uie.__DebugToString() + "]" + uie.__DebugDownDirtyFlags());
+                */
+                if (f & dirtyEnum.RenderVisibility) {
+                    f &= ~dirtyEnum.RenderVisibility;
+
+                    var ovisible = uie._GetRenderVisible();
+
+                    uie._UpdateBounds();
+
+                    if (visualParent)
+                        visualParent._UpdateBounds();
+
+                    //DirtyDebug("ComputeTotalRenderVisibility: [" + uie.__DebugToString() + "]");
+                    uie._ComputeTotalRenderVisibility();
+
+                    if (!uie._GetRenderVisible())
+                        uie._CacheInvalidateHint();
+
+                    if (ovisible !== uie._GetRenderVisible())
+                        surface._AddDirtyElement(uie, dirtyEnum.NewBounds);
+
+                    surface._PropagateDirtyFlagToChildren(uie, dirtyEnum.RenderVisibility);
+                }
+
+                if (f & dirtyEnum.HitTestVisibility) {
+                    f &= ~dirtyEnum.HitTestVisibility;
+                    uie._ComputeTotalHitTestVisibility();
+                    surface._PropagateDirtyFlagToChildren(uie, dirtyEnum.HitTestVisibility);
+                }
+
+                f = this.ComputeXforms(surface, f);
+
+                if (f & dirtyEnum.LocalClip) {
+                    f &= ~dirtyEnum.LocalClip;
+                    f |= dirtyEnum.Clip;
+                }
+                if (f & dirtyEnum.Clip) {
+                    f &= ~dirtyEnum.Clip;
+                    surface._PropagateDirtyFlagToChildren(uie, dirtyEnum.Clip);
+                }
+
+                if (f & dirtyEnum.ChildrenZIndices) {
+                    f &= ~dirtyEnum.ChildrenZIndices;
+                    if (!(uie instanceof Fayde.Controls.Panel)) {
+                        Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
+                    } else {
+                        //DirtyDebug("ResortByZIndex: [" + uie.__DebugToString() + "]");
+                        uie.Children.ResortByZIndex();
+                    }
+                }
+
+                //DirtyDebug.Level--;
+                uie._DirtyFlags = f;
+
+                return !(f & downDirtyFlag);
+            },
+            //Up --> Bounds, Invalidation
+            ProcessUp: function (surface, uie) {
+                var visualParent = this.VisualParent;
+                var f = uie._DirtyFlags;
+                //i++;
+                //DirtyDebug("Up Dirty Loop #" + i.toString() + " --> " + surface._UpDirty.__DebugToString());
+                var invalidateSubtreePaint = false;
+                if (f & dirtyEnum.Bounds) {
+                    f &= ~dirtyEnum.Bounds;
+
+                    var oextents = rect.clone(metrics.SubtreeExtents);
+                    var oglobalbounds = rect.clone(metrics.GlobalBounds);
+                    var osubtreebounds = rect.clone(metrics.SubtreeBounds);
+
+                    metrics.ComputeBounds(uie);
+
+                    if (!rect.isEqual(oglobalbounds, metrics.GlobalBounds)) {
+                        if (visualParent) {
+                            visualParent._UpdateBounds();
+                            visualParent._Invalidate(osubtreebounds);
+                            visualParent._Invalidate(metrics.SubtreeBounds);
+                        }
+                    }
+
+                    invalidateSubtreePaint = !rect.isEqual(oextents, metrics.SubtreeExtents) || uie._ForceInvalidateOfNewBounds;
+                    uie._ForceInvalidateOfNewBounds = false;
+                }
+
+                if (f & dirtyEnum.NewBounds) {
+                    if (visualParent)
+                        visualParent._Invalidate(metrics.SubtreeBounds);
+                    else if (this.IsTopLevel)
+                        invalidateSubtreePaint = true;
+                    f &= ~dirtyEnum.NewBounds;
+                }
+                if (invalidateSubtreePaint)
+                    uie._Invalidate(metrics.SubtreeBounds);
+
+
+                if (f & dirtyEnum.Invalidate) {
+                    f &= ~dirtyEnum.Invalidate;
+                    var dirty = uie._DirtyRegion;
+                    if (visualParent) {
+                        visualParent._Invalidate(dirty);
+                    } else {
+                        if (this.IsAttached) {
+                            surface._Invalidate(dirty);
+                            /*
+                            OPTIMIZATION NOT IMPLEMENTED
+                            var count = dirty.GetRectangleCount();
+                            for (var i = count - 1; i >= 0; i--) {
+                            surface._Invalidate(dirty.GetRectangle(i));
+                            }
+                            */
+                        }
+                    }
+                    rect.clear(dirty);
+                }
+                uie._DirtyFlags = f;
+                return !(f & upDirtyFlag);
+            },
+            ComputeXforms: function (surface, f) {
+                var uie = fe;
+                var visualParent = this.VisualParent;
+
+                var isLT = f & localTransformFlag;
+                var isLP = f & localProjectionFlag;
+                var isT = isLT || isLP || f & transformFlag;
+                f &= ~(localTransformFlag | localProjectionFlag | transformFlag);
+
+                if (isLT) {
+                    //DirtyDebug("ComputeLocalTransform: [" + uie.__DebugToString() + "]");
+                    xformer.ComputeLocalTransform(uie);
+                    //DirtyDebug("--> " + xformer.LocalXform._Elements.toString());
+                }
+                if (isLP) {
+                    //DirtyDebug("ComputeLocalProjection: [" + uie.__DebugToString() + "]");
+                    xformer.ComputeLocalProjection(uie);
+                }
+                if (isT) {
+                    //DirtyDebug("ComputeTransform: [" + uie.__DebugToString() + "]");
+                    xformer.ComputeTransform(uie, this);
+                    //DirtyDebug("--> " + xformer.AbsoluteProjection._Elements.slice(0, 8).toString());
+                    if (visualParent)
+                        visualParent._UpdateBounds();
+                    surface._PropagateDirtyFlagToChildren(uie, dirtyEnum.Transform);
+                }
+                return f;
+            },
         };
         return pass;
     };

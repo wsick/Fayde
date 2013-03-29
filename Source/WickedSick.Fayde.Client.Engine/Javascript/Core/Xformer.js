@@ -56,7 +56,7 @@ var Fayde;
                 }
             }
         };
-        Xformer.prototype.ComputeTransform = function (uie) {
+        Xformer.prototype.ComputeTransform = function (uie, um) {
             var projection = uie.Projection;
 
             var oldProjection = mat4.clone(this.LocalProjection);
@@ -64,8 +64,8 @@ var Fayde;
 
             var renderXform = mat3.identity(this.RenderXform);
             mat4.identity(this.LocalProjection);
-            var visualParent = uie.GetVisualParent();
-            this._CarryParentTransform(uie, visualParent, uie._Parent);
+            var visualParent = uie.VisualParent;
+            this._CarryParentTransform(uie, visualParent, um.Parent);
             mat3.multiply(renderXform, this.LayoutXform, renderXform); //render = layout * render
             mat3.multiply(renderXform, this.LocalXform, renderXform); //render = local * render
 
@@ -94,10 +94,10 @@ var Fayde;
             if (!mat4.equal(oldProjection, this.LocalProjection)) {
                 if (visualParent)
                     visualParent._Invalidate(uie._GetSubtreeBounds());
-                else if (App.Instance.MainSurface._IsTopLevel(uie))
+                else if (um.IsTopLevel)
                     uie._InvalidateSubtreePaint();
 
-                if (uie._IsAttached)
+                if (um.IsAttached)
                     App.Instance.MainSurface._AddDirtyElement(uie, _Dirty.NewBounds);
             }
 
@@ -304,13 +304,13 @@ var Fayde;
                 mat3.translate(renderXform, popup.HorizontalOffset, popup.VerticalOffset);
             }
         };
-        Xformer.prototype.ComputeTransform = function (uie) {
+        Xformer.prototype.ComputeTransform = function (uie, um) {
             var oldRender = mat3.clone(this.RenderXform);
             var old = mat3.clone(this.AbsoluteXform);
 
             var renderXform = mat3.identity(this.RenderXform);
-            var visualParent = uie.GetVisualParent();
-            this._CarryParentTransform(uie, visualParent, uie._Parent);
+            var visualParent = um.VisualParent;
+            this._CarryParentTransform(uie, visualParent, um.Parent);
             mat3.multiply(renderXform, this.LayoutXform, renderXform); //render = layout * render
             mat3.multiply(renderXform, this.LocalXform, renderXform); //render = local * render
 
@@ -328,10 +328,10 @@ var Fayde;
             if (!mat3.equal(oldRender, this.RenderXform)) {
                 if (visualParent)
                     visualParent._Invalidate(uie._GetSubtreeBounds());
-                else if (App.Instance.MainSurface._IsTopLevel(uie))
+                else if (um.IsTopLevel)
                     uie._InvalidateSubtreePaint();
 
-                if (uie._IsAttached)
+                if (um.IsAttached)
                     App.Instance.MainSurface._AddDirtyElement(uie, _Dirty.NewBounds);
             }
 

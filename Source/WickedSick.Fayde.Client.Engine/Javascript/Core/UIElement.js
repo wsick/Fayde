@@ -399,7 +399,7 @@
     UIElement.Instance._GetActualTotalRenderVisibility = function () {
         var visible = (this._Flags & UIElementFlags.RenderVisible) != 0;
         var parentVisible = true;
-        this._TotalOpacity = this.Opacity;
+        this._TotalOpacity = this._UpdateMetrics.Opacity;
 
         var visualParent = this.GetVisualParent();
         if (visualParent) {
@@ -482,7 +482,7 @@
         var error = { Message: null };
         var pass = this._Measure(availableSize, error);
         if (error.Message)
-            throw new Exception(pass.Error);
+            throw new Exception(error.Message);
     };
     UIElement.Instance._Measure = function (availableSize, error) {
         this._UpdatePass.Measure(availableSize, error);
@@ -701,33 +701,6 @@
 
     //#region Dirty Updates
 
-    UIElement.Instance._ComputeXformer = function (visualParent) {
-        var xformer = this._Xformer;
-        var dirtyEnum = _Dirty;
-        if (this._DirtyFlags & dirtyEnum.LocalTransform) {
-            this._DirtyFlags &= ~dirtyEnum.LocalTransform;
-            this._DirtyFlags |= dirtyEnum.Transform;
-            //DirtyDebug("ComputeLocalTransform: [" + this.__DebugToString() + "]");
-            xformer.ComputeLocalTransform(this);
-            //DirtyDebug("--> " + xformer.LocalXform._Elements.toString());
-        }
-        if (this._DirtyFlags & dirtyEnum.LocalProjection) {
-            this._DirtyFlags &= ~dirtyEnum.LocalProjection;
-            this._DirtyFlags |= dirtyEnum.Transform;
-            //DirtyDebug("ComputeLocalProjection: [" + this.__DebugToString() + "]");
-            xformer.ComputeLocalProjection(this);
-        }
-        if (this._DirtyFlags & dirtyEnum.Transform) {
-            this._DirtyFlags &= ~dirtyEnum.Transform;
-            //DirtyDebug("ComputeTransform: [" + this.__DebugToString() + "]");
-            xformer.ComputeTransform(this);
-            //DirtyDebug("--> " + xformer.AbsoluteProjection._Elements.slice(0, 8).toString());
-            if (visualParent)
-                visualParent._UpdateBounds();
-            return true;
-        }
-        return false;
-    };
     UIElement.Instance._UpdateLayer = function (pass, error) {
         //Intentionally empty
     };

@@ -46,6 +46,14 @@
 
     //#region Properties
 
+    var marginAutoCreator = {
+        GetValue: function (propd, dobj) {
+            var t = new Thickness();
+            dobj._UpdateMetrics.Margin = t;
+            return t;
+        }
+    };
+
     FrameworkElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () { return new Enum(CursorType); }, FrameworkElement, CursorType.Default); //TODO: AutoCreator: FrameworkElement._CoerceCursor);
     FrameworkElement.HeightProperty = DependencyProperty.RegisterCore("Height", function () { return Number; }, FrameworkElement, NaN, function (d, args) { d._UpdateMetrics.Height = args.NewValue; });
     FrameworkElement.WidthProperty = DependencyProperty.RegisterCore("Width", function () { return Number; }, FrameworkElement, NaN, function (d, args) { d._UpdateMetrics.Width = args.NewValue; });
@@ -54,7 +62,7 @@
     FrameworkElement.DataContextProperty = DependencyProperty.RegisterCore("DataContext", function () { return Object; }, FrameworkElement);
     FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.RegisterCore("HorizontalAlignment", function () { return new Enum(Fayde.HorizontalAlignment); }, FrameworkElement, Fayde.HorizontalAlignment.Stretch, function (d, args) { d._UpdateMetrics.HorizontalAlignment = args.NewValue; });
     FrameworkElement.LanguageProperty = DependencyProperty.RegisterCore("Language", function () { return String; }, FrameworkElement);
-    FrameworkElement.MarginProperty = DependencyProperty.RegisterCore("Margin", function () { return Thickness; }, FrameworkElement, new Thickness());
+    FrameworkElement.MarginProperty = DependencyProperty.RegisterFull("Margin", function () { return Thickness; }, FrameworkElement, undefined, function (d, args) { d._UpdateMetrics.Margin = args.NewValue; }, marginAutoCreator);
     FrameworkElement.MaxHeightProperty = DependencyProperty.RegisterCore("MaxHeight", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY, function (d, args) { d._UpdateMetrics.MaxHeight = args.NewValue; });
     FrameworkElement.MaxWidthProperty = DependencyProperty.RegisterCore("MaxWidth", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY, function (d, args) { d._UpdateMetrics.MaxWidth = args.NewValue; });
     FrameworkElement.MinHeightProperty = DependencyProperty.RegisterCore("MinHeight", function () { return Number; }, FrameworkElement, 0.0, function (d, args) { d._UpdateMetrics.MinHeight = args.NewValue; });
