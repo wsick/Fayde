@@ -32,11 +32,11 @@
         var walker = new Fayde._DeepStyleWalker(this._Styles);
         var setter;
         while (setter = walker.Step()) {
-            prop = setter._GetValue(Fayde.Setter.PropertyProperty);
+            prop = setter.Property;
             if (prop._ID !== propd._ID)
                 continue;
 
-            newValue = setter._GetValue(Fayde.Setter.ConvertedValueProperty);
+            newValue = setter.ConvertedValue;
             oldValue = this._ht[propd._ID];
             this._ht[propd._ID] = newValue;
             this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, oldValue, newValue, true, true, true, error);
@@ -48,7 +48,7 @@
         var isChanged = !this._Styles || styleMask != this._StyleMask;
         if (!isChanged) {
             for (var i = 0; i < _StyleIndex.Count; i++) {
-                if (!Nullstone.RefEquals(styles[i], this._Styles[i])) {
+                if (styles[i] !== this._Styles[i]) {
                     isChanged = true;
                     break;
                 }
@@ -70,13 +70,13 @@
             var oldProp;
             var newProp;
             if (oldSetter)
-                oldProp = oldSetter._GetValue(Fayde.Setter.PropertyProperty);
+                oldProp = oldSetter.Property;
             if (newSetter)
-                newProp = newSetter._GetValue(Fayde.Setter.PropertyProperty);
+                newProp = newSetter.Property;
 
             if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
                 //Property in old style, not in new style
-                oldValue = oldSetter._GetValue(Fayde.Setter.ConvertedValueProperty);
+                oldValue = oldSetter.ConvertedValue;
                 newValue = undefined;
                 delete this._ht[oldProp._ID];
                 this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
@@ -84,8 +84,8 @@
             }
             else if (oldProp == newProp) {
                 //Property in both styles
-                oldValue = oldSetter._GetValue(Fayde.Setter.ConvertedValueProperty);
-                newValue = newSetter._GetValue(Fayde.Setter.ConvertedValueProperty);
+                oldValue = oldSetter.ConvertedValue;
+                newValue = newSetter.ConvertedValue;
                 this._ht[oldProp._ID] = newValue;
                 this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
                 oldSetter = oldWalker.Step();
@@ -93,7 +93,7 @@
             } else {
                 //Property in new style, not in old style
                 oldValue = undefined;
-                newValue = newSetter._GetValue(Fayde.Setter.ConvertedValueProperty);
+                newValue = newSetter.ConvertedValue;
                 this._ht[newProp._ID] = newValue;
                 this._Object._ProviderValueChanged(this._PropertyPrecedence, newProp, oldValue, newValue, true, true, false, error);
                 newSetter = newWalker.Step();

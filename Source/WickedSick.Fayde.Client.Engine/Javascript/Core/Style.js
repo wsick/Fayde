@@ -52,8 +52,8 @@
     };
     Style.Instance._ConvertSetterValue = function (setter) {
         /// <param name="setter" type="Setter"></param>
-        var propd = setter._GetValue(Fayde.Setter.PropertyProperty);
-        var val = setter._GetValue(Fayde.Setter.ValueProperty);
+        var propd = setter.Property;
+        var val = setter.Value;
 
         if (typeof propd.GetTargetType() === "string") {
             //if (val === undefined)
@@ -68,13 +68,6 @@
             throw new XamlParseException(err.message);
         }
     };
-
-    Style.Instance._AddSetter = function (dobj, propName, value) {
-        this.Setters.Add(Fayde.JsonParser.CreateSetter(dobj, propName, value));
-    };
-    Style.Instance._AddSetterJson = function (dobj, propName, json) {
-        this._AddSetter(dobj, propName, Fayde.JsonParser.Parse(json));
-    };
-
+    
     namespace.Style = Nullstone.FinishCreate(Style);
 })(Nullstone.Namespace("Fayde"));
