@@ -5,12 +5,25 @@
 
 (function (Fayde) {
     "use asm";
+
+    var dirtyEnum = _Dirty;
+    var localTransformFlag = dirtyEnum.LocalTransform;
+    var localProjectionFlag = dirtyEnum.LocalProjection;
+    var transformFlag = dirtyEnum.Transform;
+    var rvFlag = dirtyEnum.RenderVisibility;
+    var htvFlag = dirtyEnum.HitTestVisibility;
+    var localClipFlag = dirtyEnum.LocalClip;
+    var clipFlag = dirtyEnum.Clip;
+    var downDirtyFlag = dirtyEnum.DownDirtyState;
+    var upDirtyFlag = dirtyEnum.UpDirtyState;
+
     function CreateUpdateMetrics() {
         var metrics = {
             //UIElement
             Opacity: +1,
             UseLayoutRounding: 1 | 0,
             Visibility: 0 | 0, //Fayde.Visibility.Visible
+            IsHitTestVisible: true,
             //FrameworkElement
             Width: +NaN,
             Height: +NaN,
@@ -27,6 +40,9 @@
             FinalRect: null, //rect
             LastRenderSize: null, //size
             VisualOffset: null, //Point
+            TotalOpacity: +1,
+            TotalIsRenderVisible: true,
+            TotalIsHitTestVisible: true,
             CoerceSize: function (s) {
                 var spw = this.Width;
                 var sph = this.Height;
@@ -53,18 +69,31 @@
                 s.Width = cw;
                 s.Height = ch;
                 return s;
+            },
+            UpdateRenderVisibility: function (uie, visualParent) {
+                var um;
+                if (visualParent) {
+                    um = visualParent._UpdateMetrics;
+                    this.TotalOpacity = um.TotalOpacity * this.Opacity;
+                    this.TotalIsRenderVisible = (um.Visibility === 0) && (this.Visibility === 0);
+                } else {
+                    this.TotalOpacity = this.Opacity;
+                    this.TotalIsRenderVisible = (this.Visibility === 0);
+                }
+            },
+            UpdateHitTestVisibility: function (uie, visualParent) {
+                var um;
+                if (visualParent) {
+                    um = visualParent._UpdateMetrics;
+                    this.TotalIsHitTestVisible = um.TotalIsHitTestVisible && this.IsHitTestVisible;
+                } else {
+                    this.TotalIsHitTestVisible = this.IsHitTestVisible;
+                }
             }
         };
         return metrics;
     };
     Fayde.CreateUpdateMetrics = CreateUpdateMetrics;
-
-    var dirtyEnum = _Dirty;
-    var localTransformFlag = dirtyEnum.LocalTransform;
-    var localProjectionFlag = dirtyEnum.LocalProjection;
-    var transformFlag = dirtyEnum.Transform;
-    var downDirtyFlag = dirtyEnum.DownDirtyState;
-    var upDirtyFlag = dirtyEnum.UpDirtyState;
 
     function CreateUpdatePass(fe, measureOverride, arrangeOverride) {
         /// <param name="fe" type="Fayde.FrameworkElement"></param>
@@ -81,9 +110,18 @@
             Parent: fe._Parent,
             IsAttached: fe._IsAttached,
             IsTopLevel: false,
+
+            Grid: {
+                Column: 0,
+                ColumnSpan: 1,
+                Row: 0,
+                RowSpan: 1
+            },
+
             Xformer: xformer,
             UpdateMetrics: updateMetrics,
             Metrics: metrics,
+
             DoMeasure: function (error) {
                 var last = updateMetrics.PreviousConstraint;
                 var parent = this.VisualParent;
@@ -406,44 +444,10 @@
                 DirtyDebug.Level++;
                 DirtyDebug("[" + uie.__DebugToString() + "]" + uie.__DebugDownDirtyFlags());
                 */
-                if (f & dirtyEnum.RenderVisibility) {
-                    f &= ~dirtyEnum.RenderVisibility;
-
-                    var ovisible = uie._GetRenderVisible();
-
-                    uie._UpdateBounds();
-
-                    if (visualParent)
-                        visualParent._UpdateBounds();
-
-                    //DirtyDebug("ComputeTotalRenderVisibility: [" + uie.__DebugToString() + "]");
-                    uie._ComputeTotalRenderVisibility();
-
-                    if (!uie._GetRenderVisible())
-                        uie._CacheInvalidateHint();
-
-                    if (ovisible !== uie._GetRenderVisible())
-                        surface._AddDirtyElement(uie, dirtyEnum.NewBounds);
-
-                    surface._PropagateDirtyFlagToChildren(uie, dirtyEnum.RenderVisibility);
-                }
-
-                if (f & dirtyEnum.HitTestVisibility) {
-                    f &= ~dirtyEnum.HitTestVisibility;
-                    uie._ComputeTotalHitTestVisibility();
-                    surface._PropagateDirtyFlagToChildren(uie, dirtyEnum.HitTestVisibility);
-                }
-
-                f = this.ComputeXforms(surface, f);
-
-                if (f & dirtyEnum.LocalClip) {
-                    f &= ~dirtyEnum.LocalClip;
-                    f |= dirtyEnum.Clip;
-                }
-                if (f & dirtyEnum.Clip) {
-                    f &= ~dirtyEnum.Clip;
-                    surface._PropagateDirtyFlagToChildren(uie, dirtyEnum.Clip);
-                }
+                
+                f = this.ComputeVisibility(surface, uie, f);
+                f = this.ComputeXforms(surface, uie, f);
+                f = this.ComputeClips(surface, uie, f);
 
                 if (f & dirtyEnum.ChildrenZIndices) {
                     f &= ~dirtyEnum.ChildrenZIndices;
@@ -521,8 +525,40 @@
                 uie._DirtyFlags = f;
                 return !(f & upDirtyFlag);
             },
-            ComputeXforms: function (surface, f) {
-                var uie = fe;
+            ComputeVisibility: function (surface, uie, f) {
+                if (f & rvFlag) {
+                    f &= ~rvFlag;
+
+                    var ovisible = updateMetrics.TotalIsRenderVisible;
+
+                    uie._UpdateBounds();
+
+                    var visualParent = this.VisualParent;
+                    if (visualParent)
+                        visualParent._UpdateBounds();
+
+                    //DirtyDebug("ComputeTotalRenderVisibility: [" + uie.__DebugToString() + "]");
+                    //uie._ComputeTotalRenderVisibility();
+                    updateMetrics.UpdateRenderVisibility(uie, this.VisualParent);
+
+                    if (!updateMetrics.TotalIsRenderVisible)
+                        uie._CacheInvalidateHint();
+
+                    if (ovisible !== updateMetrics.TotalIsRenderVisible)
+                        surface._AddDirtyElement(uie, dirtyEnum.NewBounds);
+
+                    surface._PropagateDirtyFlagToChildren(uie, rvFlag);
+                }
+
+                if (f & htvFlag) {
+                    f &= ~htvFlag;
+                    //uie._ComputeTotalHitTestVisibility();
+                    updateMetrics.UpdateHitTestVisibility(uie, this.VisualParent);
+                    surface._PropagateDirtyFlagToChildren(uie, htvFlag);
+                }
+                return f;
+            },
+            ComputeXforms: function (surface, uie, f) {
                 var visualParent = this.VisualParent;
 
                 var isLT = f & localTransformFlag;
@@ -549,6 +585,16 @@
                 }
                 return f;
             },
+            ComputeClips: function (surface, uie, f) {
+                var isLocalClip = f & localClipFlag;
+                var isClip = isLocalClip || f & clipFlag;
+                f &= ~(localClipFlag | clipFlag);
+
+                if (isClip)
+                    surface._PropagateDirtyFlagToChildren(uie, dirtyEnum.Clip);
+
+                return f;
+            }
         };
         return pass;
     };

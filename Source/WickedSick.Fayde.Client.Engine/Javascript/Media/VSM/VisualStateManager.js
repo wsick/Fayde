@@ -112,7 +112,7 @@
             group.RaiseCurrentStateChanged(element, lastState, state, control);
         } else {
             var dynamicTransition = VisualStateManager._GenerateDynamicTransitionAnimations(element, group, state, transition);
-            dynamicTransition.$SetValue(Fayde.Controls.Control.IsTemplateItemProperty, true);
+            dynamicTransition.IsTemplateItem = true;
 
             var eventClosure = new Closure();
             transition.DynamicStoryboardCompleted = false;

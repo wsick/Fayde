@@ -125,7 +125,7 @@
     UIElement.CacheModeProperty = DependencyProperty.Register("CacheMode", function () { return Fayde.Media.CacheMode; }, UIElement);
     UIElement.ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Fayde.Media.Geometry; }, UIElement);
     UIElement.EffectProperty = DependencyProperty.Register("Effect", function () { return Fayde.Media.Effects.Effect; }, UIElement);
-    UIElement.IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
+    UIElement.IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true, function (d, args) { d._UpdateMetrics.IsHitTestVisible = args.NewValue; });
     UIElement.OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Fayde.Media.Brush; }, UIElement);
     UIElement.OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0, function (d, args) { d._UpdateMetrics.Opacity = args.NewValue; });
     if (useProjections)
@@ -411,7 +411,8 @@
         return visible;
     };
     UIElement.Instance._GetRenderVisible = function () {
-        return (this._Flags & UIElementFlags.TotalRenderVisible) != 0;
+        return this._UpdateMetrics.TotalIsRenderVisible;
+        //return (this._Flags & UIElementFlags.TotalRenderVisible) != 0;
     };
 
     //#endregion
@@ -432,19 +433,20 @@
         var visible = (this._Flags & UIElementFlags.HitTestVisible) != 0;
         var visualParent;
         if (visible && (visualParent = this.GetVisualParent())) {
-            visualParent._ComputeTotalRenderVisibility();
+            visualParent._ComputeTotalHitTestVisibility();
             visible = visible && visualParent._GetIsHitTestVisible();
         }
         return visible;
+    };
+    UIElement.Instance._GetIsHitTestVisible = function () {
+        return this._UpdateMetrics.TotalIsHitTestVisible;
+        //return (this._Flags & UIElementFlags.TotalHitTestVisible) != 0;
     };
 
     //#endregion
 
     //#region Hit Testing
 
-    UIElement.Instance._GetIsHitTestVisible = function () {
-        return (this._Flags & UIElementFlags.TotalHitTestVisible) != 0;
-    };
     UIElement.Instance._HitTestPoint = function (ctx, p, uielist) {
         uielist.Prepend(new Fayde.UIElementNode(this));
     };
@@ -528,7 +530,7 @@
         ctx.Save();
 
         ctx.Transform(this._Xformer.RenderXform);
-        ctx.CanvasContext.globalAlpha = this._TotalOpacity;
+        ctx.CanvasContext.globalAlpha = this._UpdateMetrics.TotalOpacity;
 
         var canvasCtx = ctx.CanvasContext;
         var clip = this.Clip;
@@ -1105,10 +1107,12 @@
     //#endif
 
     UIElement.Instance._IsOpacityInvisible = function () {
-        return this._TotalOpacity * 255 < .5;
+        return this._UpdateMetrics.TotalOpacity * 255 < .5;
+        //return this._TotalOpacity * 255 < .5;
     };
     UIElement.Instance._IsOpacityTranslucent = function () {
-        return this._TotalOpacity * 255 < 245.5;
+        return this._UpdateMetrics.TotalOpacity * 255 < 245.5;
+        //return this._TotalOpacity * 255 < 245.5;
     };
 
     UIElement.Instance.__DebugToString = function () {
