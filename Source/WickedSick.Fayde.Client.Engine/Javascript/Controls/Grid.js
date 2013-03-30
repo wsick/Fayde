@@ -644,7 +644,7 @@
             }
         };
         Grid.Instance._OnCollectionItemChanged = function (col, obj, args) {
-            if (this._PropertyHasValueNoAutoCreate(namespace.Panel.ChildrenProperty, col)) {
+            if (col === this._UpdatePass.Panel.Children) {
                 if (args.Property._ID === Grid.ColumnProperty._ID
                     || args.Property._ID === Grid.RowProperty._ID
                     || args.Property._ID === Grid.ColumnSpanProperty._ID
@@ -653,14 +653,6 @@
                     obj._InvalidateMeasure();
                     return;
                 }
-            /*} else if (Nullstone.RefEquals(col, this._GetColumnDefinitionsNoAutoCreate())
-                || Nullstone.RefEquals(col, this._GetRowDefinitionsNoAutoCreate())) {
-                if (args.Property._ID !== namespace.ColumnDefinition.ActualWidthProperty._ID
-                    && args.Property._ID !== namespace.RowDefinition.ActualHeightProperty._ID) {
-                    this._InvalidateMeasure();
-                }
-                return;
-            */
             } else if (col === this._UpdatePass.Grid.ColumnDefinitions || col === this._UpdatePass.Grid.RowDefinitions) {
                 if (args.Property._ID !== namespace.ColumnDefinition.ActualWidthProperty._ID
                     && args.Property._ID !== namespace.RowDefinition.ActualHeightProperty._ID) {

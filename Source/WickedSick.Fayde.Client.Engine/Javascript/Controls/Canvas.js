@@ -80,7 +80,7 @@
         this.PropertyChanged.Raise(this, args);
     };
     Canvas.Instance._OnCollectionItemChanged = function (col, obj, args) {
-        if (this._PropertyHasValueNoAutoCreate(namespace.Panel.ChildrenProperty, col)) {
+        if (col === this._UpdatePass.Panel.Children) {
             if (args.Property._ID === Canvas.TopProperty._ID
                 || args.Property._ID === Canvas.LeftProperty._ID) {
                 var child = obj;
