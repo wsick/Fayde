@@ -14,16 +14,18 @@
     //#region Properties
 
     Panel.BackgroundProperty = DependencyProperty.Register("Background", function () { return Fayde.Media.Brush; }, Panel);
-    Panel._CreateChildren = {
-        GetValue: function (propd, obj) {
+    var createChildren = {
+        GetValue: function (propd, dobj) {
             var col = new Fayde.UIElementCollection();
             col._SetIsSecondaryParent(true);
-            if (obj)
-                obj._SubtreeObject = col;
+            if (dobj) {
+                dobj._SubtreeObject = col;
+                dobj._UpdatePass.Panel.Children = col;
+            }
             return col;
         }
     };
-    Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return Fayde.UIElementCollection; }, Panel, undefined, undefined, Panel._CreateChildren);
+    Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return Fayde.UIElementCollection; }, Panel, undefined, function (d, args) { d._UpdatePass.Panel.Children = args.NewValue; }, createChildren);
     Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemsHost", function () { return Boolean; }, Panel, false);
 
     Nullstone.AutoProperties(Panel, [
@@ -155,7 +157,7 @@
             }
         };
         Panel.Instance._OnCollectionChanged = function (col, args) {
-            if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, col)) {
+            if (col === this._UpdatePass.Panel.Children) {
                 var error = new BError();
                 if (args.IsAdd || args.IsReplace) {
                     if (args.IsReplace) {
@@ -223,7 +225,7 @@
             }
         };
         Panel.Instance._OnCollectionChanged = function (col, args) {
-            if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, col)) {
+            if (col === this._UpdatePass.Panel.Children) {
                 var error = new BError();
                 if (args.IsAdd || args.IsReplace) {
                     if (args.IsReplace) {
@@ -244,7 +246,7 @@
             }
         };
         Panel.Instance._OnCollectionItemChanged = function (col, obj, args) {
-            if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, col)) {
+            if (col === this._UpdatePass.Panel.Children) {
                 if (args.Property._ID === Panel.ZIndexProperty._ID) {
                     args.Item._Invalidate();
                     if (this._IsAttached) {

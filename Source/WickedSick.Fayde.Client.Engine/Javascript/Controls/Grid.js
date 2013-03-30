@@ -637,8 +637,7 @@
             this.PropertyChanged.Raise(this, args);
         };
         Grid.Instance._OnCollectionChanged = function (col, args) {
-            if (this._PropertyHasValueNoAutoCreate(Grid.ColumnDefinitionsProperty, col)
-                || this._PropertyHasValueNoAutoCreate(Grid.RowDefinitionsProperty, col)) {
+            if (col === this._UpdatePass.Grid.ColumnDefinitions || col === this._UpdatePass.Grid.RowDefinitions) {
                 this._InvalidateMeasure();
             } else {
                 this._OnCollectionChanged$Panel(col, args);

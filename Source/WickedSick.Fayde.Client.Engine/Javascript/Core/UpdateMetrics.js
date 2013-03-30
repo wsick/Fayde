@@ -111,7 +111,12 @@
             IsAttached: fe._IsAttached,
             IsTopLevel: false,
 
+            Panel: {
+                Children: null
+            },
             Grid: {
+                ColumnDefinitions: null,
+                RowDefinitions: null,
                 Column: 0,
                 ColumnSpan: 1,
                 Row: 0,
