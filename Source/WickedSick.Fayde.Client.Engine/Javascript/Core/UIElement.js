@@ -132,7 +132,14 @@
         UIElement.ProjectionProperty = DependencyProperty.Register("Projection", function () { return Fayde.Media.Projection; }, UIElement);
     UIElement.RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () { return Fayde.Media.Transform; }, UIElement);
     UIElement.RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () { return Point; }, UIElement, new Point());
-    UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return Fayde.ResourceDictionary; }, UIElement, undefined, undefined, { GetValue: function () { return new Fayde.ResourceDictionary(); } });
+    var resourceAutoCreator = {
+        GetValue: function (propd, dobj) {
+            var rd = new Fayde.ResourceDictionary();
+            dobj._UpdatePass.Resources = rd;
+            return rd;
+        }
+    };
+    UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return Fayde.ResourceDictionary; }, UIElement, undefined, function (d, args) { d._UpdatePass.Resources = args.NewValue; }, resourceAutoCreator);
     UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return Fayde.TriggerCollection; }, UIElement, undefined, undefined, { GetValue: function () { return new Fayde.TriggerCollection(); } });
     UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, UIElement, true, function (d, args) { d._UpdateMetrics.UseLayoutRounding = args.NewValue; }, undefined, _Inheritable.UseLayoutRounding);
     UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Fayde.Visibility); }, UIElement, Fayde.Visibility.Visible, function (d, args) { d._UpdateMetrics.Visibility = args.NewValue; });
@@ -579,15 +586,17 @@
     UIElement.Instance._OnIsLoadedChanged = function (loaded) {
         var iter;
         var v;
+        var res = this._UpdatePass.Resources;
         if (!this._IsLoaded) {
             //WTF: ClearForeachGeneration(Loaded)
             this.Unloaded.Raise(this, new EventArgs());
-            iter = this.Resources.GetIterator();
-            while (iter.Next()) {
-                v = iter.GetCurrent();
-                v = Nullstone.As(v, Fayde.FrameworkElement);
-                if (v)
-                    v._SetIsLoaded(loaded);
+            if (res) {
+                iter = res.GetIterator();
+                while (iter.Next()) {
+                    v = iter.GetCurrent();
+                    if (v instanceof Fayde.FrameworkElement)
+                        v._SetIsLoaded(loaded);
+                }
             }
         }
 
@@ -598,12 +607,13 @@
         }
 
         if (this._IsLoaded) {
-            iter = this.Resources.GetIterator();
-            while (iter.Next()) {
-                v = iter.GetCurrent();
-                v = Nullstone.As(v, Fayde.FrameworkElement);
-                if (v)
-                    v._SetIsLoaded(loaded);
+            if (res) {
+                iter = res.GetIterator();
+                while (iter.Next()) {
+                    v = iter.GetCurrent();
+                    if (v instanceof Fayde.FrameworkElement)
+                        v._SetIsLoaded(loaded);
+                }
             }
             //WTF: AddAllLoadedHandlers
             this.Loaded.RaiseAsync(this, new EventArgs());

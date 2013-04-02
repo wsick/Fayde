@@ -111,6 +111,7 @@
             IsAttached: fe._IsAttached,
             IsTopLevel: false,
 
+            Resources: null,
             Panel: {
                 Children: null
             },
