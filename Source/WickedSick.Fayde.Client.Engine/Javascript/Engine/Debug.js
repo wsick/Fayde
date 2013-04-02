@@ -172,7 +172,7 @@ function initFaydeTraces() {
     if (traces.text)
         function TextDebug(message) { console.log("TEXT: " + message); };
     if (traces.layout)
-        this.LayoutDebug = function (message) { console.log("LAYOUT: " + message); };
+        this.LayoutDebug = function (func) { console.log("LAYOUT: " + func()); };
     if (traces.transform)
         this.TransformDebug = function (message, matrix) {
             var last = TransformDebug.Last;

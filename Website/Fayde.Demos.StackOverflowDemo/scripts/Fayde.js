@@ -101,6 +101,20 @@ var DebugLevel = {
     Error: 3,
     Fatal: 4
 };
+var canProfile = true;
+function profile() {
+    if (!canProfile)
+        return;
+    if (window.console && console.profile)
+        console.profile();
+}
+function profileEnd() {
+    if (!canProfile)
+        return;
+    if (window.console && console.profileEnd) {
+        console.profileEnd();
+    }
+}
 HUD.prototype = new Object;
 HUD.prototype.constructor = HUD;
 function HUD(jSelector) {
@@ -343,30 +357,41 @@ function HUDUpdate(id, message) {
     };
     AjaxJsonRequest.prototype._HandleStateChange = function () {
         if (this.xmlhttp.readyState === 4) {
-            if (this.xmlhttp.status === 200) {
-                var responseJson = {};
-                var data = this.xmlhttp.responseText;
-                try {
-                    if (data) {
-                        responseJson = (window.JSON && window.JSON.parse) ?
-                            window.JSON.parse(data) :
-                            new Function("return " + data)();
-                    }
-                } catch (err) {
-                    try {
-                        responseJson = new Function("return " + data)();
-                    } catch (err) {
-                        this.OnError("Could not create json from response.", err);
-                        return;
-                    }
-                }
-                this.OnSuccess(responseJson);
+            var req = this.xmlhttp;
+            this.xmlhttp = undefined;
+            if (req.status === 200) {
+                this.OnSuccess(new AjaxJsonResult(req));
             } else {
-                this.OnError("Unsuccessful request: " + this.xmlhttp.status);
+                this.OnError("Unsuccessful request: " + req.status);
             }
         }
     };
     namespace.AjaxJsonRequest = AjaxJsonRequest;
+})(window);
+(function (namespace) {
+    function AjaxJsonResult(xmlhttp) {
+        this.xmlhttp = xmlhttp;
+    }
+    AjaxJsonResult.prototype.CreateJson = function () {
+        var data = this.xmlhttp.responseText;
+        if (!data)
+            return null;
+        if (window.JSON && window.JSON.parse) {
+            try {
+                return window.JSON.parse(data);
+            } catch (err) {
+            }
+        }
+        try {
+            return new Function("return " + data)();
+        } catch (err) {
+            throw new InvalidJsonException(data, err);
+        }
+    };
+    AjaxJsonResult.prototype.GetHeader = function (name) {
+        return this.xmlhttp.getResponseHeader(name);
+    };
+    namespace.AjaxJsonResult = AjaxJsonResult;
 })(window);
 
 function Enum(object) {
@@ -385,7 +410,7 @@ String.prototype.indexOfAny = function (carr, start) {
     if (start == null)
         start = 0;
     for (var cur = start; cur < this.length; cur++) {
-        var c = this.charAt(c);
+        var c = this.charAt(cur);
         for (var i = 0; i < carr.length; i++) {
             if (c === carr[i])
                 return cur;
@@ -719,10 +744,10 @@ Nullstone.Equals = function (val1, val2) {
         return true;
     if (val1 == null || val2 == null)
         return false;
-    if (val1.constructor._IsNullstone && val2.constructor._IsNullstone)
-        return val1._ID === val2._ID;
-    if (!(val1 instanceof Object) && !(val2 instanceof Object))
-        return val1 === val2;
+    if (val1 === val2)
+        return true;
+    if (val1.Equals)
+        return val1.Equals(val2);
     return false;
 };
 Nullstone.As = function (obj, type) {
@@ -751,6 +776,8 @@ Nullstone.DoesInheritFrom = function (t, type) {
     return temp != null;
 };
 Nullstone.DoesImplement = function (obj, interfaceType) {
+    if (obj == null)
+        return false;
     var curType = obj.constructor;
     if (!curType._IsNullstone)
         return false;
@@ -773,20 +800,28 @@ Nullstone.AutoProperties = function (type, arr) {
     }
 };
 Nullstone.AutoProperty = function (type, nameOrDp, converter, isOverride) {
+    var data;
     if (typeof nameOrDp === "string") {
-        type.Properties.push({
+        data = {
             Auto: true,
             Name: nameOrDp,
             Converter: converter,
             Override: isOverride === true
-        });
+        };
     } else if (nameOrDp instanceof DependencyProperty) {
-        type.Properties.push({
+        data = {
             Auto: true,
             DP: nameOrDp,
             Converter: converter,
             Override: isOverride === true
-        });
+        };
+    } else {
+        return;
+    }
+    if (type.Properties) {
+        type.Properties.push(data);
+    } else {
+        this._CreateProp(type, data);
     }
 };
 Nullstone.AutoPropertiesReadOnly = function (type, arr) {
@@ -795,19 +830,25 @@ Nullstone.AutoPropertiesReadOnly = function (type, arr) {
     }
 };
 Nullstone.AutoPropertyReadOnly = function (type, nameOrDp, isOverride) {
+    var data;
     if (typeof nameOrDp === "string") {
-        type.Properties.push({
+        data = {
             Auto: true,
             Name: nameOrDp,
             IsReadOnly: true,
             Override: isOverride === true
-        });
+        };
     } else if (nameOrDp instanceof DependencyProperty) {
-        type.Properties.push({
+        data = {
             Auto: true,
             DP: nameOrDp,
             Override: isOverride === true
-        });
+        };
+    }
+    if (type.Properties) {
+        type.Properties.push(data);
+    } else {
+        this._CreateProp(type, data);
     }
 };
 Nullstone.AbstractProperty = function (type, name, isReadOnly) {
@@ -818,11 +859,15 @@ Nullstone.AbstractProperty = function (type, name, isReadOnly) {
     });
 };
 Nullstone.Property = function (type, name, data) {
-    type.Properties.push({
-        Custom: true,
-        Name: name,
-        Data: data
-    });
+    if (type.Properties) {
+        type.Properties.push({
+            Custom: true,
+            Name: name,
+            Data: data
+        });
+    } else {
+        Object.defineProperty(type.prototype, name, data);
+    }
 };
 Nullstone.AutoNotifyProperty = function (type, name) {
     var backingName = "z_" + name;
@@ -854,7 +899,7 @@ Nullstone.GetPropertyDescriptor = function (obj, name) {
     var type = obj.constructor;
     var propDesc = Object.getOwnPropertyDescriptor(type.prototype, name);
     if (propDesc)
-        return propDesc
+        return propDesc;
     return Object.getOwnPropertyDescriptor(obj, name);
 };
 Nullstone.HasProperty = function (obj, name) {
@@ -981,6 +1026,7 @@ Nullstone._GetTypeCountsAbove = function (count) {
     return arr;
 };
 Nullstone.ImportJsFile = function (url, onComplete) {
+    if (!onComplete) onComplete = function () { };
     var scripts = document.getElementsByTagName("script");
     for (var i = 0; i < scripts.length; i++) {
         if (scripts[i].src === url) {
@@ -1000,6 +1046,19 @@ Nullstone.ImportJsFile = function (url, onComplete) {
     script.onload = function () { if (onComplete) onComplete(script); };
     var head = document.getElementsByTagName("head")[0];
     head.appendChild(script);
+};
+Nullstone.ImportJsFiles = function (urls, onComplete) {
+    if (!onComplete) onComplete = function () { };
+    var completedScripts = [];
+    var len = urls.length;
+    for (var i = 0; i < len; i++) {
+        var url = urls[i];
+        Nullstone.ImportJsFile(url, function (s) {
+            completedScripts.push(s);
+            if (completedScripts.length === len)
+                onComplete(completedScripts);
+        });
+    }
 };
 
 (function (Fayde) {
@@ -1059,6 +1118,35 @@ Nullstone.ImportJsFile = function (url, onComplete) {
             this.SetFunc.call(ro, value);
     };
     namespace.PropertyInfo = Nullstone.FinishCreate(PropertyInfo);
+})(window);
+(function (namespace) {
+    var IndexedPropertyInfo = Nullstone.Create("IndexedPropertyInfo");
+    IndexedPropertyInfo.Find = function (typeOrObj) {
+        var o = typeOrObj;
+        var isType = typeOrObj instanceof Function;
+        if (isType)
+            o = new typeOrObj();
+        if (o instanceof Array) {
+            var pi = new IndexedPropertyInfo();
+            pi.GetFunc = function (index) { return this[index]; };
+            pi.SetFunc = function (index, value) { this[index] = value; };
+            return pi;
+        } else if (o instanceof Fayde.InternalCollection) {
+            var pi = new IndexedPropertyInfo();
+            pi.GetFunc = function (index) { return this.GetValueAt(index); };
+            pi.SetFunc = function (index, value) { return this.SetValueAt(index, value); };
+            return pi;
+        }
+    };
+    IndexedPropertyInfo.Instance.GetValue = function (ro, index) {
+        if (this.GetFunc)
+            return this.GetFunc.call(ro, index);
+    };
+    IndexedPropertyInfo.Instance.SetValue = function (ro, index, value) {
+        if (this.SetFunc)
+            this.SetFunc.call(ro, index, value);
+    };
+    namespace.IndexedPropertyInfo = Nullstone.FinishCreate(IndexedPropertyInfo);
 })(window);
 
 (function (namespace) {
@@ -3401,30 +3489,25 @@ Nullstone.ImportJsFile = function (url, onComplete) {
     DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, coercer, alwaysChange, validator, isCustom, isReadOnly, isAttached, inheritable) {
         if (!DependencyProperty._IDs)
             DependencyProperty._IDs = [];
-        if (!DependencyProperty._Registered)
-            DependencyProperty._Registered = [];
-        if (!DependencyProperty._Registered[ownerType._TypeName])
-            DependencyProperty._Registered[ownerType._TypeName] = [];
+        var registeredDPs = ownerType._RegisteredDPs;
+        if (!registeredDPs)
+            ownerType._RegisteredDPs = registeredDPs = [];
         var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback, isReadOnly, isAttached, inheritable);
-        if (DependencyProperty._Registered[ownerType._TypeName][name] !== undefined)
+        if (registeredDPs[name] !== undefined)
             throw new InvalidOperationException("Dependency Property is already registered. [" + ownerType._TypeName + "." + name + "]");
-        DependencyProperty._Registered[ownerType._TypeName][name] = propd;
+        registeredDPs[name] = propd;
         DependencyProperty._IDs[propd._ID] = propd;
         return propd;
     };
     DependencyProperty.GetDependencyProperty = function (ownerType, name) {
-        var reg = DependencyProperty._Registered;
-        if (!reg)
-            return null;
         if (!ownerType)
             return null;
-        var reg = reg[ownerType._TypeName];
+        var reg = ownerType._RegisteredDPs;
         var propd;
         if (reg)
             propd = reg[name];
-        if (!propd && ownerType && ownerType._IsNullstone) {
+        if (!propd)
             propd = DependencyProperty.GetDependencyProperty(ownerType._BaseClass, name);
-        }
         return propd;
     };
     DependencyProperty.ResolvePropertyPath = function (refobj, propertyPath, promotedValues) {
@@ -5060,16 +5143,102 @@ window.DependencyProperty = Fayde.DependencyProperty;
 })(Nullstone.Namespace("Fayde"));
 
 (function (Fayde) {
+    var XamlResolver = Nullstone.Create("XamlResolver", undefined, 3);
+    XamlResolver.Instance.Init = function (onSuccess, onSubSuccess, onError) {
+        this._IsXamlLoaded = false;
+        this._IsScriptLoaded = false;
+        this.OnSuccess = onSuccess;
+        this.OnSubSuccess = onSubSuccess;
+        this.OnError = onError;
+    };
+    XamlResolver.Instance.Load = function (href, hash) {
+        this._BaseHref = href;
+        var that = this;
+        var xamlRequest = new AjaxJsonRequest(function (result) { that._HandleXamlSuccess(result); }, function (error) { that._HandleXamlFailed(error); });
+        xamlRequest.Get(href, "p=" + hash);
+        Nullstone.ImportJsFile(href + "?js=true&p=" + hash, function (script) { that._HandleScriptSuccess(script); });
+    };
+    XamlResolver.Instance.LoadGeneric = function (href, hash) {
+        this._BaseHref = href;
+        var that = this;
+        var xamlRequest = new AjaxJsonRequest(function (result) { that._HandleXamlSuccess(result); }, function (error) { that._HandleXamlFailed(error); });
+        xamlRequest.Get(href, hash);
+        Nullstone.ImportJsFile(href + "?js=true&" + hash, function (script) { that._HandleScriptSuccess(script); });
+    };
+    XamlResolver.Instance._HandleScriptSuccess = function (script) {
+        this._IsScriptLoaded = true;
+        this._ScriptResult = script;
+        this._CheckIfLoaded();
+    };
+    XamlResolver.Instance._HandleXamlSuccess = function (result) {
+        this._IsXamlLoaded = true;
+        this._XamlResult = result;
+        this._CheckIfLoaded();
+    };
+    XamlResolver.Instance._HandleXamlFailed = function (error) {
+        this.OnError(error);
+    };
+    XamlResolver.Instance._CheckIfLoaded = function () {
+        if (!this._IsXamlLoaded || !this._IsScriptLoaded)
+            return;
+        var that = this;
+        this.ResolveDependencies(function () { that.OnSuccess(that._XamlResult, that._ScriptResult); },
+            function (error) { that.OnError(error); });
+    };
+    function resolve(href, hash, index, isFullyResolved, onSuccess, onSubSuccess, onFail) {
+        var os = (function () {
+            return function (xamlResult, scriptResult) {
+                if (onSubSuccess) onSubSuccess(xamlResult, scriptResult);
+                if (isFullyResolved(index))
+                    onSuccess();
+            };
+        })();
+        var resolver = new XamlResolver(os, onSubSuccess, onFail);
+        resolver.LoadGeneric(href, hash);
+    }
+    XamlResolver.Instance.ResolveDependencies = function (onResolve, onFail) {
+        var dependencies = this._XamlResult.GetHeader("Dependencies");
+        if (!dependencies) {
+            onResolve();
+            return;
+        }
+        var resolvers = dependencies.split("|");
+        var len = resolvers.length;
+        if (len < 1) {
+            onResolve();
+            return;
+        }
+        var completes = [];
+        for (var i = 0; i < len; i++) {
+            completes[i] = false;
+        }
+        function isFullyResolved(completedIndex) {
+            completes[completedIndex] = true;
+            for (var j = 0; j < len; j++) {
+                if (!completes[j])
+                    return false;
+            }
+            return true;
+        }
+        for (var i = 0; i < len; i++) {
+            resolve(this._BaseHref, resolvers[i], i, isFullyResolved, onResolve, this.OnSubSuccess, onFail);
+        }
+    };
+    Fayde.XamlResolver = Nullstone.FinishCreate(XamlResolver);
+})(Nullstone.Namespace("Fayde"));
+
+(function (Fayde) {
     var JsonParser = Nullstone.Create("JsonParser");
     JsonParser.Instance.Init = function () {
         this.$SRExpressions = [];
         this._ResChain = [];
     };
-    JsonParser.Parse = function (json, templateBindingSource, namescope, resChain) {
+    JsonParser.Parse = function (json, templateBindingSource, namescope, resChain, rootXamlObject) {
         var parser = new JsonParser();
         if (resChain)
             parser._ResChain = resChain;
         parser._TemplateBindingSource = templateBindingSource;
+        parser._RootXamlObject = rootXamlObject;
         var shouldSetNS = false;
         if (!namescope) {
             namescope = new Fayde.NameScope();
@@ -5085,6 +5254,13 @@ window.DependencyProperty = Fayde.DependencyProperty;
             Fayde.NameScope.SetNameScope(obj, namescope);
         perfTimer.Stop();
         return obj;
+    };
+    JsonParser.ParseUserControl = function (json, dobj) {
+        var parser = new JsonParser();
+        parser._RootXamlObject = dobj;
+        var namescope = new Fayde.NameScope();
+        Fayde.NameScope.SetNameScope(dobj, namescope);
+        parser.SetObject(json, dobj, namescope);
     };
     JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
         if (json.Type == null) {
@@ -5105,6 +5281,12 @@ window.DependencyProperty = Fayde.DependencyProperty;
             return template;
         }
         var dobj = new json.Type();
+        if (!this._RootXamlObject)
+            this._RootXamlObject = dobj;
+        this.SetObject(json, dobj, namescope, ignoreResolve);
+        return dobj;
+    };
+    JsonParser.Instance.SetObject = function (json, dobj, namescope, ignoreResolve) {
         dobj.TemplateOwner = this._TemplateBindingSource;
         if (json.Name)
             dobj.SetNameOnScope(json.Name, namescope);
@@ -5128,6 +5310,18 @@ window.DependencyProperty = Fayde.DependencyProperty;
                 propd = DependencyProperty.GetDependencyProperty(attachedDef.Owner, attachedDef.Prop);
                 propValue = attachedDef.Value;
                 this.TrySetPropertyValue(dobj, propd, propValue, namescope, true, attachedDef.Owner, attachedDef.Prop);
+            }
+        }
+        if (json.Events) {
+            for (var i in json.Events) {
+                var targetEvent = dobj[i];
+                if (!targetEvent || !(targetEvent instanceof MulticastEvent))
+                    throw new ArgumentException("Could not locate event '" + i + "' on object '" + json.Type._TypeName + "'.");
+                var root = this._RootXamlObject;
+                var targetCallback = root[json.Events[i]];
+                if (!targetCallback || typeof targetCallback !== "function")
+                    throw new ArgumentException("Could not locate event callback '" + json.Events[i] + "' on object '" + root.constructor._TypeName + "'.");
+                targetEvent.Subscribe(targetCallback, root);
             }
         }
         var contentPropd = this.GetAnnotationMember(json.Type, "ContentProperty");
@@ -5164,7 +5358,6 @@ window.DependencyProperty = Fayde.DependencyProperty;
         if (json.Type === Fayde.ResourceDictionary) {
             delete this._ContextResourceDictionary;
         }
-        return dobj;
     };
     JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, namescope, isAttached, ownerType, propName) {
         if (!propValue.constructor._IsNullstone && propValue.Type) {
@@ -5229,34 +5422,38 @@ window.DependencyProperty = Fayde.DependencyProperty;
                 dobj.$SetValue(propd, coll);
             }
         }
-        var rd = Nullstone.As(coll, Fayde.ResourceDictionary);
-        var oldChain = this._ResChain;
-        if (rd) {
-            this._ResChain = this._ResChain.slice(0);
-            this._ResChain.push(rd);
-        }
-        for (var i in subJson) {
-            var fobj;
-            if (rd == null) {
-                fobj = this.CreateObject(subJson[i], namescope, true);
+        if (coll instanceof Fayde.ResourceDictionary) {
+            this.CreateResourceDictionary(coll, subJson, namescope);
+        } else {
+            for (var i in subJson) {
+                var fobj = this.CreateObject(subJson[i], namescope, true);
                 if (fobj instanceof Fayde.DependencyObject)
                     fobj._AddParent(coll, true);
                 coll.Add(fobj);
-            } else {
-                var key = subJson[i].Key;
-                if (subJson[i].Type !== Fayde.Style) {
-                    fobj = new Fayde.ResourceTarget(subJson[i], namescope, this._TemplateBindingSource, this._ResChain);
-                } else {
-                    fobj = this.CreateObject(subJson[i], namescope, true);
-                    if (!key)
-                        key = fobj.TargetType;
-                }
-                if (key)
-                    rd.Set(key, fobj);
             }
         }
-        this._ResChain = oldChain;
         return true;
+    };
+    JsonParser.Instance.CreateResourceDictionary = function (rd, subJson, namescope) {
+        var oldChain = this._ResChain;
+        this._ResChain = this._ResChain.slice(0);
+        this._ResChain.push(rd);
+        for (var i in subJson) {
+            var fobj;
+            var cur = subJson[i];
+            var key = cur.Key;
+            var val = cur.Value;
+            if (val.Type !== Fayde.Style) {
+                fobj = new Fayde.ResourceTarget(val, namescope, this._TemplateBindingSource, this._ResChain);
+            } else {
+                fobj = this.CreateObject(val, namescope, true);
+                if (!key)
+                    key = fobj.TargetType;
+            }
+            if (key)
+                rd.Set(key, fobj);
+        }
+        this._ResChain = oldChain;
     };
     JsonParser.Instance.ResolveStaticResourceExpressions = function () {
         var srs = this.$SRExpressions;
@@ -6130,6 +6327,12 @@ window.DependencyProperty = Fayde.DependencyProperty;
             && this.BottomRight === 0
             && this.BottomLeft === 0;
     };
+    CornerRadius.Instance.Equals = function (other) {
+        return this.TopLeft === other.TopLeft
+            && this.TopRight === other.TopRight
+            && this.BottomRight === other.BottomRight
+            && this.BottomLeft === other.BottomLeft;
+    };
     CornerRadius.Instance.toString = function () {
         return "(" + this.TopLeft + ", " + this.TopRight + ", " + this.BottomRight + ", " + this.BottomLeft + ")";
     };
@@ -6618,6 +6821,9 @@ window.DependencyProperty = Fayde.DependencyProperty;
     Point.prototype.toString = function () {
         return "X=" + this.X.toString() + ";Y=" + this.Y.toString();
     };
+    Point.prototype.Equals = function (other) {
+        return this.X === other.X && this.Y === other.Y;
+    };
     Point.Equals = function (p1, p2) {
         if (p1 == null)
             return p2 == null;
@@ -6842,6 +7048,12 @@ window.DependencyProperty = Fayde.DependencyProperty;
         this.Width = rw;
         this.Height = rh;
     };
+    Rect.prototype.Equals = function (other) {
+        return this.X === other.X
+            && this.Y === other.Y
+            && this.Width === other.Width
+            && this.Height === other.Height;
+    };
     Rect.prototype.toString = function () {
         return "[X = " + this.X + "; Y = " + this.Y + "; Width = " + this.Width + "; Height = " + this.Height + "]";
     };
@@ -6900,6 +7112,9 @@ window.DependencyProperty = Fayde.DependencyProperty;
     };
     Size.prototype.Max = function (size2) {
         return new Size(Math.max(this.Width, size2.Width), Math.max(this.Height, size2.Height));
+    };
+    Size.prototype.Equals = function (other) {
+        return this.Width === other.Width && this.Height === other.Height;
     };
     Size.prototype.toString = function () {
         return "[Width = " + this.Width + "; Height = " + this.Height + "]";
@@ -7319,6 +7534,20 @@ window.DependencyProperty = Fayde.DependencyProperty;
     namespace.PropertyCollisionException = Nullstone.FinishCreate(PropertyCollisionException);
     var ArgumentException = Nullstone.Create("ArgumentException", Exception, 3);
     namespace.ArgumentException = Nullstone.FinishCreate(ArgumentException);
+    (function (namespace) {
+        var InvalidJsonException = Nullstone.Create("InvalidJsonException", Exception, 2);
+        InvalidJsonException.Instance.Init = function (jsonText, innerException) {
+            this.Init$Exception("Invalid json.");
+            this.JsonText = jsonText;
+            this.InnerException = innerException;
+        };
+        namespace.InvalidJsonException = Nullstone.FinishCreate(InvalidJsonException);
+    })(window);
+})(window);
+
+(function (namespace) {
+    var IEnumerable = Nullstone.Create("IEnumerable");
+    namespace.IEnumerable = Nullstone.FinishCreate(IEnumerable);
 })(window);
 
 (function (namespace) {
@@ -8714,7 +8943,7 @@ window.DependencyProperty = Fayde.DependencyProperty;
         this._Binding = binding;
         this.Target = target;
         this.Property = propd;
-        var bindsToView = propd._ID === Fayde.FrameworkElement.DataContextProperty._ID; //TODO: || propd.GetTargetType() === IEnumerable || propd.GetTargetType() === Fayde.Data.ICollectionView
+        var bindsToView = propd._ID === Fayde.FrameworkElement.DataContextProperty._ID || propd.GetTargetType() === IEnumerable || propd.GetTargetType() === Fayde.Data.ICollectionView;
         var walker = this.PropertyPathWalker = new Fayde.Data._PropertyPathWalker(binding.Path.ParsePath, binding.BindsDirectlyToSource, bindsToView, this.IsBoundToAnyDataContext);
         if (binding.Mode !== namespace.BindingMode.OneTime) {
             walker.IsBrokenChanged.Subscribe(this._PropertyPathValueChanged, this);
@@ -11559,7 +11788,7 @@ Nullstone.FinishCreate(GenerationState);
         }
         if (mergeNamescope) {
             toNs._MergeTemporaryScope(thisNs, error);
-            this._ClearValue(Fayde.NameScope.NameScopeProperty, false);
+            Fayde.NameScope.ClearNameScope(this);
         }
         if (registerName) {
             var n = this.Name;
@@ -11652,7 +11881,7 @@ Nullstone.FinishCreate(GenerationState);
             if (thisScope._GetTemporary()) {
                 if (parentScope) {
                     parentScope._MergeTemporaryScope(thisScope, error);
-                    this._ClearValue(Fayde.NameScope.NameScopeProperty, false);
+                    Fayde.NameScope.ClearNameScope(this);
                 }
             } else {
                 if (true /* TODO: this._IsHydratedFromXaml()*/) {
@@ -11858,19 +12087,20 @@ Nullstone.FinishCreate(GenerationState);
 })(Nullstone.Namespace("Fayde"));
 
 (function (Fayde) {
-    var NameScope = Nullstone.Create("NameScope", Fayde.DependencyObject);
+    var NameScope = Nullstone.Create("NameScope");
     NameScope.Instance.Init = function () {
-        this.Init$DependencyObject();
         this._IsLocked = false;
         this._Names = null;
         this._Temporary = false;
     };
-    NameScope.NameScopeProperty = DependencyProperty.RegisterAttachedCore("NameScope", function () { return NameScope; }, NameScope);
     NameScope.GetNameScope = function (d) {
-        return d.$GetValue(NameScope.NameScopeProperty);
+        return d.__NameScope;
     };
     NameScope.SetNameScope = function (d, value) {
-        d.$SetValue(NameScope.NameScopeProperty, value);
+        d.__NameScope = value;
+    };
+    NameScope.ClearNameScope = function (d) {
+        delete d.__NameScope;
     };
     NameScope.Instance.GetIsLocked = function () {
         return this._IsLocked;
@@ -13685,7 +13915,7 @@ Nullstone.FinishCreate(GenerationState);
             return;
         }
         try {
-            var newVal = this.PropertyInfo.GetValue(this.Source, [this._Index]);
+            var newVal = this.PropertyInfo.GetValue(this.Source, this._Index);
             this._isBroken = false;
             this.ValueType = this.PropertyInfo.PropertyType;
             this.UpdateValueAndIsBroken(newVal, this._isBroken);
@@ -13697,7 +13927,7 @@ Nullstone.FinishCreate(GenerationState);
     };
     _IndexedPropertyPathNode.Instance.SetValue = function (value) {
         if (this.PropertyInfo != null)
-            this.PropertyInfo.SetValue(this.Source, value, [this._Index]);
+            this.PropertyInfo.SetValue(this.Source, this._Index, value);
     };
     _IndexedPropertyPathNode.Instance._CheckIsBroken = function () {
         return this._isBroken || this._CheckIsBroken$_PropertyPathNode();
@@ -13718,6 +13948,10 @@ Nullstone.FinishCreate(GenerationState);
         this._GetIndexer();
     };
     _IndexedPropertyPathNode.Instance._GetIndexer = function () {
+        this.PropertyInfo = null;
+        if (this._Source != null) {
+            this.PropertyInfo = IndexedPropertyInfo.Find(this._Source);
+        }
     };
     _IndexedPropertyPathNode.Instance.CollectionChanged = function (o, e) {
         this.UpdateValue();
@@ -13772,7 +14006,7 @@ Nullstone.FinishCreate(GenerationState);
         this.Address = new Uri(document.URL);
         this.MainSurface.Register(containerId);
         this.NavService = new Fayde.Navigation.NavService(this);
-        var element = Fayde.JsonParser.Parse(json);
+        var element = Fayde.JsonParser.Parse(json, undefined, undefined, undefined, this);
         if (element instanceof Fayde.UIElement)
             this.MainSurface._Attach(element);
         this.Start();
@@ -13785,8 +14019,11 @@ Nullstone.FinishCreate(GenerationState);
         this._ClockTimer.RegisterTimer(this);
     };
     App.Instance._Tick = function (lastTime, nowTime) {
+        profile();
         this.ProcessStoryboards(lastTime, nowTime);
         this.Update();
+        profileEnd();
+        canProfile = false;
     };
     App.Instance._Stop = function () {
         this._ClockTimer.UnregisterTimer(this);
@@ -13939,7 +14176,7 @@ Nullstone.FinishCreate(GenerationState);
     };
     namespace.App = Nullstone.FinishCreate(App);
 })(window);
-App.Version = "0.9.3.0";
+App.Version = "0.9.4.0";
 
 (function (namespace) {
     var Brush = Nullstone.Create("Brush", Fayde.DependencyObject);
@@ -13975,6 +14212,7 @@ App.Version = "0.9.3.0";
     };
     Brush.Instance.CreateBrush = function (ctx, bounds) { };
     Brush.Instance.ToHtml5Object = function () { return this._Brush; };
+    Brush.Instance.CreateForSvg = function () { };
     Brush.Instance._IsSurfaceCached = function (bounds) {
         if (!this._Brush)
             return false;
@@ -14384,6 +14622,9 @@ App.Version = "0.9.3.0";
             return "#000000";
         return color.toString();
     };
+    SolidColorBrush.Instance.CreateForSvg = function () {
+        return this.CreateBrush();
+    };
     namespace.SolidColorBrush = Nullstone.FinishCreate(SolidColorBrush);
 })(Nullstone.Namespace("Fayde.Media"));
 
@@ -14397,16 +14638,66 @@ App.Version = "0.9.3.0";
         TileBrush.AlignmentYProperty,
         TileBrush.StretchProperty
     ]);
+    var computeImageMatrix = function (width, height, sw, sh, stretch, alignX, alignY) {
+        var sx = width / sw;
+        var sy = height / sh;
+        if (width === 0)
+            sx = 1.0;
+        if (height === 0)
+            sy = 1.0;
+        if (stretch === Fayde.Media.Stretch.Fill) {
+            return mat3.createScale(sx, sy);
+        }
+        var scale = 1.0;
+        var dx = 0.0;
+        var dy = 0.0;
+        switch (stretch) {
+            case Fayde.Media.Stretch.Uniform:
+                scale = sx < sy ? sx : sy;
+                break;
+            case Fayde.Media.Stretch.UniformToFill:
+                scale = sx < sy ? sy : sx;
+                break;
+            case Fayde.Media.Stretch.None:
+                break;
+        }
+        switch (alignX) {
+            case Fayde.Media.AlignmentX.Left:
+                dx = 0.0;
+                break;
+            case Fayde.Media.AlignmentX.Center:
+                dx = (width - (scale * sw)) / 2;
+                break;
+            case Fayde.Media.AlignmentX.Right:
+            default:
+                dx = width - (scale * sw);
+                break;
+        }
+        switch (alignY) {
+            case Fayde.Media.AlignmentY.Top:
+                dy = 0.0;
+                break;
+            case Fayde.Media.AlignmentY.Center:
+                dy = (height - (scale * sh)) / 2;
+                break;
+            case Fayde.Media.AlignmentY.Bottom:
+            default:
+                dy = height - (scale * sh);
+                break;
+        }
+        var m = mat3.createScale(scale, scale);
+        mat3.translate(m, dx, dy);
+        return m;
+    };
     TileBrush.Instance.CreateBrush = function (ctx, bounds) {
         var imgExtents = this.GetTileExtents();
         var tmpCanvas = document.createElement("canvas");
         tmpCanvas.width = bounds.Width;
         tmpCanvas.height = bounds.Height;
         var tmpCtx = tmpCanvas.getContext("2d");
-        var mat = Fayde.Controls.Image.ComputeMatrix(bounds.Width, bounds.Height,
+        var mat = computeImageMatrix(bounds.Width, bounds.Height,
             imgExtents.Width, imgExtents.Height, this.Stretch, this.AlignmentX, this.AlignmentY);
-        var els = mat._Elements;
-        tmpCtx.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
+        tmpCtx.setTransform(mat[0], mat[1], mat[3], mat[4], mat[2], mat[5]);
         this.DrawTile(tmpCtx, bounds);
         return ctx.createPattern(tmpCanvas, "no-repeat");
     };
@@ -15295,8 +15586,17 @@ App.Version = "0.9.3.0";
     Color.Instance.Multiply = function (factor) {
         return new Color(this.R * factor, this.G * factor, this.B * factor, this.A * factor);
     };
+    Color.Instance.Equals = function (other) {
+        return this.R === other.R
+            && this.G === other.G
+            && this.B === other.B
+            && this.A === other.A;
+    };
     Color.Instance.toString = function () {
         return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
+    };
+    Color.Instance.ToHexStringNoAlpha = function () {
+        return "#" + this.R.toString(16) + this.G.toString(16) + this.B.toString(16);
     };
     Color.LERP = function (start, end, p) {
         var r = start.R + (end.R - start.R) * p;
@@ -16460,35 +16760,44 @@ App.Version = "0.9.3.0";
                     subEl.style.position = "relative";
                 }
             }
+            this.ApplySizingMargin(rootEl, subEl, horizontalLayoutType, verticalLayoutType);
+            this.ApplySizingSizes(rootEl, subEl);
+            return isStretchPlusShrink;
+        };
+        FrameworkElement.Instance.ApplySizingMargin = function (rootEl, subEl, horizontalLayoutType, verticalLayoutType) {
+            var margin = this.Margin;
+            var left = margin.Left;
+            if (isNaN(left)) left = 0;
+            var top = margin.Top;
+            if (isNaN(top)) top = 0;
+            var right = margin.Right;
+            if (isNaN(right)) right = 0;
+            var bottom = margin.Bottom;
+            if (isNaN(bottom)) bottom = 0;
             if (horizontalLayoutType === HorizontalLayoutType.Stretch) {
-                var left = (isNaN(this.Margin.Left) ? 0 : this.Margin.Left);
                 subEl.style.left = left + "px";
-                var right = (isNaN(this.Margin.Right) ? 0 : this.Margin.Right);
                 subEl.style.right = right + "px";
-            }
-            else {
-                rootEl.style.marginLeft = this.Margin.Left + "px";
-                rootEl.style.marginRight = this.Margin.Right + "px";
+            } else {
+                rootEl.style.marginLeft = left + "px";
+                rootEl.style.marginRight = right + "px";
             }
             if (verticalLayoutType === VerticalLayoutType.Stretch) {
-                var top = (isNaN(this.Margin.Top) ? 0 : this.Margin.Top);
                 subEl.style.top = top + "px";
-                var bottom = (isNaN(this.Margin.Bottom) ? 0 : this.Margin.Bottom);
                 subEl.style.bottom = bottom + "px";
+            } else {
+                rootEl.style.marginTop = top + "px";
+                rootEl.style.marginBottom = bottom + "px";
             }
-            else {
-                rootEl.style.marginTop = this.Margin.Top + "px";
-                rootEl.style.marginBottom = this.Margin.Bottom + "px";
-            }
+        };
+        FrameworkElement.Instance.ApplySizingSizes = function (rootEl, subEl) {
             if (!isNaN(this.Width)) {
                 rootEl.style.width = this.Width + "px";
             }
             if (!isNaN(this.Height)) {
                 rootEl.style.height = this.Height + "px";
             }
-            subEl.style.maxHeight = this.MaxHeight + "px";
-            subEl.style.maxWidth = this.MaxWidth + "px";
-            return isStretchPlusShrink;
+            rootEl.style.maxHeight = this.MaxHeight + "px";
+            rootEl.style.maxWidth = this.MaxWidth + "px";
         };
         FrameworkElement.Instance.ApplyHtmlChanges = function (invalidations) {
             var sizingChecks = [Fayde.UIElement.IsFixedWidthProperty, Fayde.UIElement.IsFixedHeightProperty,
@@ -18426,6 +18735,11 @@ App.Version = "0.9.3.0";
         };
         Shape.Instance.CreateSvg = function () {
             var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.style.position = "absolute";
+            svg.style.width = "100%";
+            svg.style.height = "100%";
+            var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+            svg.appendChild(defs);
             return svg;
         };
         Shape.Instance.GetSvg = function () {
@@ -18442,6 +18756,81 @@ App.Version = "0.9.3.0";
             }
             return this._Shape;
         };
+        Shape.Instance.ApplySizingMargin = function (rootEl, subEl, horizontalLayoutType, verticalLayoutType) {
+            var margin = this.Margin;
+            var left = margin.Left;
+            if (isNaN(left)) left = 0;
+            var top = margin.Top;
+            if (isNaN(top)) top = 0;
+            var right = margin.Right;
+            if (isNaN(right)) right = 0;
+            var bottom = margin.Bottom;
+            if (isNaN(bottom)) bottom = 0;
+            var half = this.StrokeThickness / 2.0;
+            left += half;
+            top += half;
+            right += half;
+            bottom += half;
+            if (horizontalLayoutType === HorizontalLayoutType.Stretch) {
+                subEl.style.left = left + "px";
+                subEl.style.right = right + "px";
+            } else {
+                rootEl.style.marginLeft = left + "px";
+                rootEl.style.marginRight = right + "px";
+            }
+            if (verticalLayoutType === VerticalLayoutType.Stretch) {
+                subEl.style.top = top + "px";
+                subEl.style.bottom = bottom + "px";
+            } else {
+                rootEl.style.marginTop = top + "px";
+                rootEl.style.marginBottom = bottom + "px";
+            }
+        };
+        Shape.Instance.ApplySizingSizes = function (rootEl, subEl) {
+            if (!isNaN(this.Width)) {
+                rootEl.style.width = this.Width + "px";
+            } else {
+                rootEl.style.width = "100%";
+            }
+            if (!isNaN(this.Height)) {
+                rootEl.style.height = this.Height + "px";
+            } else {
+                rootEl.style.height = "100%";
+            }
+            rootEl.style.maxHeight = this.MaxHeight + "px";
+            rootEl.style.maxWidth = this.MaxWidth + "px";
+        };
+        Shape.Instance.CalculateIsFixedWidth = function () {
+            return !isNaN(this.Width);
+        };
+        Shape.Instance.CalculateIsFixedHeight = function () {
+            return !isNaN(this.Height);
+        };
+        /*
+        Shape.Instance.FindAndSetAdjustedWidth = function () {
+            if (this.GetIsFixedWidth())
+                return this.FindAndSetAdjustedWidth$FrameworkElement();
+            if (!this.GetIsFixedHeight())
+                return this.FindAndSetAdjustedWidth$FrameworkElement();
+            delete Surface._SizingAdjustments[this._ID];
+            var height = this.GetRootHtmlElement().offsetHeight;
+            return height * this.GetAspectRatio();
+        };
+        Shape.Instance.FindAndSetAdjustedHeight = function () {
+            if (this.GetIsFixedHeight())
+                return this.FindAndSetAdjustedHeight$FrameworkElement();
+            if (!this.GetIsFixedWidth())
+                return this.FindAndSetAdjustedHeight$FrameworkElement();
+            delete Surface._SizingAdjustments[this._ID];
+            var width = this.GetRootHtmlElement().offsetWidth;
+            return width / this.GetAspectRatio();
+        };
+        Shape.Instance.GetAspectRatio = function () {
+            var shape = this._Shape;
+            var bounds = shape.getBBox();
+            return bounds.width / bounds.height;
+        };
+        */
         var serializeDashArray = function (collection) {
             var s = "";
             var len = collection.GetCount();
@@ -18467,14 +18856,12 @@ App.Version = "0.9.3.0";
                 var fill = change.NewValue;
                 if (!fill)
                     fill = this.Fill;
-                fill.SetupBrush(null, null);
-                shape.setAttribute("fill", fill.ToHtml5Object());
+                this.ChangeFillOnSvg(fill);
             } else if (propd._ID === Shape.StrokeProperty._ID) {
                 var stroke = change.NewValue;
                 if (!stroke)
                     stroke = this.Stroke;
-                stroke.SetupBrush(null, null);
-                shape.setAttribute("stroke", stroke.ToHtml5Object());
+                this.ChangeStrokeOnSvg(stroke);
             } else if (propd._ID === Shape.StrokeThicknessProperty._ID) {
                 shape.setAttribute("stroke-width", change.NewValue);
             } else if (propd._ID === Shape.StrokeDashArrayProperty._ID) {
@@ -18496,6 +18883,46 @@ App.Version = "0.9.3.0";
             } else if (propd._ID === Shape.StrokeMiterLimitProperty._ID) {
                 shape.setAttribute("stroke-miterlimit", change.NewValue);
             }
+        };
+        Shape.Instance.ChangeFillOnSvg = function (newFill) {
+            var svg = this.GetSvg();
+            var defs = svg.firstChild;
+            var fill = this._ExistingFill;
+            if (fill)
+                defs.removeChild(fill);
+            var shape = this.GetSvgShape();
+            var svgBrush = newFill.CreateForSvg();
+            var fillAttr = "";
+            if (typeof svgBrush === "string") {
+                fillAttr = svgBrush;
+            } else {
+                var id = "fillBrush" + newFill._ID.toString();
+                svgBrush.id = id;
+                this._ExistingFill = svgBrush;
+                defs.appendChild(svgBrush);
+                fillAttr = "url(#" + id + ")";
+            }
+            shape.setAttribute("fill", fillAttr);
+        };
+        Shape.Instance.ChangeStrokeOnSvg = function (newStroke) {
+            var svg = this.GetSvg();
+            var defs = svg.firstChild;
+            var stroke = this._ExistingStroke;
+            if (stroke)
+                defs.removeChild(stroke);
+            var shape = this.GetSvgShape();
+            var svgBrush = newStroke.CreateForSvg();
+            var strokeAttr = "";
+            if (typeof svgBrush === "string") {
+                strokeAttr = svgBrush;
+            } else {
+                var id = "strokeBrush" + newStroke._ID.toString();
+                svgBrush.id = id;
+                this._ExistingStroke = svgBrush;
+                defs.appendChild(svgBrush);
+                strokeAttr = "url(#" + id + ")";
+            }
+            shape.setAttribute("stroke", strokeAttr);
         };
     }
     namespace.Shape = Nullstone.FinishCreate(Shape);
@@ -18774,20 +19201,6 @@ App.Version = "0.9.3.0";
                     radius.BottomLeft + (halfThickness.Bottom + halfThickness.Left) / 2);
                 contentEl.style.borderRadius = htmlRadius.TopLeft + "px " + htmlRadius.TopRight + "px " + htmlRadius.BottomRight + "px " + htmlRadius.BottomLeft + "px";
             }
-        };
-        Border.Instance.CalculateAdjustedWidth = function (width) {
-            var marginLeft = isNaN(this.Margin.Left) ? 0 : this.Margin.Left;
-            var marginRight = isNaN(this.Margin.Right) ? 0 : this.Margin.Right;
-            var borderLeft = isNaN(this.BorderThickness.Left) ? 0 : this.BorderThickness.Left;
-            var borderRight = isNaN(this.BorderThickness.Right) ? 0 : this.BorderThickness.Right;
-            return width + marginLeft + marginRight + borderLeft + borderRight;
-        };
-        Border.Instance.CalculateAdjustedHeight = function (height) {
-            var marginTop = isNaN(this.Margin.Top) ? 0 : this.Margin.Top;
-            var marginBottom = isNaN(this.Margin.Bottom) ? 0 : this.Margin.Bottom;
-            var borderTop = isNaN(this.BorderThickness.Top) ? 0 : this.BorderThickness.Top;
-            var borderBottom = isNaN(this.BorderThickness.Bottom) ? 0 : this.BorderThickness.Bottom;
-            return height + marginTop + marginBottom + borderTop + borderBottom;
         };
     }
     Border._ThicknessValidator = function () {
@@ -19199,7 +19612,7 @@ App.Version = "0.9.3.0";
         if (shapeBounds.Width === 0)
             shapeBounds.Width = arranged.Width;
         if (shapeBounds.Height === 0)
-            shapeBounds.Height = arguments.Height;
+            shapeBounds.Height = arranged.Height;
         if (shapeBounds.Width !== arranged.Width)
             sx = arranged.Width / shapeBounds.Width;
         if (shapeBounds.Height !== arranged.Height)
@@ -19243,7 +19656,7 @@ App.Version = "0.9.3.0";
         var result = this._ComputeActualSize$FrameworkElement();
         var parent = this.GetVisualParent();
         var source = this.Source;
-        if (parent && !Nullstone.Is(parent, namespace.Canvas))
+        if (parent && !(parent instanceof namespace.Canvas))
             if (this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty) !== undefined)
                 return result;
         if (source) {
@@ -19373,9 +19786,12 @@ App.Version = "0.9.3.0";
                 }
                 var newBmpSrc = Nullstone.As(args.NewValue, Fayde.Media.Imaging.BitmapSource);
                 if (newBmpSrc) {
-                    var i = this;
-                    newBmpSrc._ErroredCallback = function () { i.ImageFailed.Raise(this, new EventArgs()); };
-                    newBmpSrc._LoadedCallback = function () { i.ImageOpened.Raise(this, new EventArgs()); };
+                    var that = this;
+                    newBmpSrc._ErroredCallback = function () { that.ImageFailed.Raise(that, new EventArgs()); };
+                    newBmpSrc._LoadedCallback = function () {
+                        Surface._SizingAdjustments[that._ID] = that;
+                        that.ImageOpened.Raise(that, new EventArgs());
+                    };
                 }
                 ivprop = true;
             }
@@ -19404,9 +19820,9 @@ App.Version = "0.9.3.0";
                 }
                 var newBmpSrc = Nullstone.As(args.NewValue, Fayde.Media.Imaging.BitmapSource);
                 if (newBmpSrc) {
-                    var i = this;
-                    newBmpSrc._ErroredCallback = function () { i.ImageFailed.Raise(this, new EventArgs()); };
-                    newBmpSrc._LoadedCallback = function () { i.ImageOpened.Raise(this, new EventArgs()); };
+                    var that = this;
+                    newBmpSrc._ErroredCallback = function () { that.ImageFailed.Raise(that, new EventArgs()); };
+                    newBmpSrc._LoadedCallback = function () { that.ImageOpened.Raise(that, new EventArgs()); };
                 } else {
                     this._UpdateBounds();
                     this._Invalidate();
@@ -19428,24 +19844,28 @@ App.Version = "0.9.3.0";
             var rootEl = document.createElement("div");
             rootEl.appendChild(document.createElement("div"));
             this.InitializeHtml(rootEl);
+            var that = this;
+            window.addEventListener("resize", function (e) { that._HandleResizeStretch(e); }, false);
             return rootEl;
         };
         var applyImage = function (rootEl, parentIsFixedWidth, parentIsFixedHeight, source, stretch) {
             var imgEl = rootEl.firstChild;
+            imgEl.style.backgroundImage = "url('" + source._Image.src + "')";
+            imgEl.style.backgroundRepeat = "no-repeat";
             switch (stretch) {
                 case Fayde.Media.Stretch.None:
-                    var img = imgEl.appendChild(document.createElement("img"));
-                    img.src = source._Image.src;
+                    imgEl.style.backgroundPosition = "center";
                     break;
                 case Fayde.Media.Stretch.Fill:
+                    imgEl.style.backgroundSize = "100% 100%";
                     break;
                 case Fayde.Media.Stretch.Uniform:
                     imgEl.style.backgroundSize = "contain";
-                    imgEl.style.backgroundRepeat = "no-repeat";
                     imgEl.style.backgroundPosition = "center";
-                    imgEl.style.backgroundImage = "url('" + source._Image.src + "')";
                     break;
                 case Fayde.Media.Stretch.UniformToFill:
+                    imgEl.style.backgroundSize = "cover";
+                    imgEl.style.backgroundPosition = "left top";
                     break;
             }
         };
@@ -19458,6 +19878,44 @@ App.Version = "0.9.3.0";
                 }
             }
             this.ApplyHtmlChanges$FrameworkElement(invalidations);
+        };
+        Image.Instance._HandleResizeStretch = function (e) {
+            var isFixedWidth = this.GetIsFixedWidth();
+            var isFixedHeight = this.GetIsFixedHeight();
+            if ((isFixedWidth && !isFixedHeight) || (!isFixedWidth && isFixedHeight))
+                Surface._SizingAdjustments[this._ID] = this;
+        };
+        Image.Instance.FindAndSetAdjustedHeight = function () {
+            if (this.GetIsFixedHeight() || !this.GetIsFixedWidth())
+                return this.FindAndSetAdjustedHeight$FrameworkElement();
+            var isNoneStretch = this.Stretch === Fayde.Media.Stretch.None;
+            var src = this.Source;
+            if (!src || src.PixelWidth === 0 || src.PixelHeight === 0)
+                return this.FindAndSetAdjustedHeight$FrameworkElement();
+            var aspectRatio = src.PixelWidth / src.PixelHeight;
+            var parent = this.GetVisualParent();
+            var parentWidth = parent.GetContentHtmlElement().offsetWidth;
+            var result = parentWidth / aspectRatio;
+            this.GetContentHtmlElement().style.height = result + "px";
+            result = this.CalculateAdjustedHeight(result);
+            delete Surface._SizingAdjustments[this._ID];
+            return result;
+        };
+        Image.Instance.FindAndSetAdjustedWidth = function () {
+            if (this.GetIsFixedWidth() || !this.GetIsFixedHeight())
+                return this.FindAndSetAdjustedWidth$FrameworkElement();
+            var isNoneStretch = this.Stretch === Fayde.Media.Stretch.None;
+            var src = this.Source;
+            if (!src || src.PixelWidth === 0 || src.PixelHeight === 0)
+                return this.FindAndSetAdjustedHeight$FrameworkElement();
+            var aspectRatio = src.PixelWidth / src.PixelHeight;
+            var parent = this.GetVisualParent();
+            var parentHeight = parent.GetContentHtmlElement().offsetHeight;
+            var result = parentHeight * aspectRatio;
+            this.GetContentHtmlElement().style.width = result + "px";
+            result = this.CalculateAdjustedWidth(result);
+            delete Surface._SizingAdjustments[this._ID];
+            return result;
         };
     }
     namespace.Image = Nullstone.FinishCreate(Image);
@@ -19474,7 +19932,7 @@ App.Version = "0.9.3.0";
     ItemsControl.DisplayMemberPathProperty = DependencyProperty.RegisterCore("DisplayMemberPath", function () { return String; }, ItemsControl, null, function (d, args) { d.OnDisplayMemberPathChanged(args); });
     ItemsControl.ItemsProperty = DependencyProperty.RegisterCore("Items", function () { return Fayde.Controls.ItemCollection; }, ItemsControl);
     ItemsControl.ItemsPanelProperty = DependencyProperty.RegisterCore("ItemsPanel", function () { return namespace.ItemsPanelTemplate; }, ItemsControl);
-    ItemsControl.ItemsSourceProperty = DependencyProperty.RegisterCore("ItemsSource", function () { return Object; }, ItemsControl, null, function (d, args) { d.OnItemsSourceChanged(args); });
+    ItemsControl.ItemsSourceProperty = DependencyProperty.RegisterCore("ItemsSource", function () { return IEnumerable; }, ItemsControl, null, function (d, args) { d.OnItemsSourceChanged(args); });
     ItemsControl.ItemTemplateProperty = DependencyProperty.RegisterCore("ItemTemplate", function () { return Fayde.DataTemplate; }, ItemsControl, undefined, function (d, args) { d.OnItemTemplateChanged(args); });
     Nullstone.AutoProperties(ItemsControl, [
         ItemsControl.DisplayMemberPathProperty,
@@ -19571,15 +20029,23 @@ App.Version = "0.9.3.0";
             e.OldValue.CollectionChanged.Unsubscribe(this._CollectionChanged, this);
         }
         if (e.NewValue != null) {
-            if (Nullstone.Is(e.NewValue, Fayde.Collections.INotifyCollectionChanged)) {
-                e.NewValue.CollectionChanged.Subscribe(this._CollectionChanged, this);
+            var source = e.NewValue;
+            if (Nullstone.Is(source, Fayde.Collections.INotifyCollectionChanged)) {
+                source.CollectionChanged.Subscribe(this._CollectionChanged, this);
             }
             this.Items._ReadOnly = true;
             this._itemsIsDataBound = true;
             this.Items._ClearImpl();
-            var count = e.NewValue.length;
-            for (var i = 0; i < count; i++) {
-                this.Items._AddImpl(e.NewValue[i]);
+            if (source instanceof Array) {
+                var count = source.length;
+                for (var i = 0; i < count; i++) {
+                    this.Items._AddImpl(source[i]);
+                }
+            } else if (source instanceof Fayde.InternalCollection) {
+                var count = source.GetCount();
+                for (var i = 0; i < count; i++) {
+                    this.Items._AddImpl(source.GetValueAt(i));
+                }
             }
             this.OnItemsChanged(Fayde.Collections.NotifyCollectionChangedEventArgs.Reset());
         } else {
@@ -19914,6 +20380,8 @@ App.Version = "0.9.3.0";
             var rootEl = this.CreateHtmlObjectImpl$FrameworkElement();
             var contentEl = rootEl.firstChild;
             contentEl.appendChild(this.GetHtmlMediaEl());
+            var that = this;
+            window.addEventListener("resize", function (e) { that._HandleResizeStretch(e); }, false);
             return rootEl;
         };
         MediaElement.Instance.GetHtmlMediaEl = function () {
@@ -19938,7 +20406,10 @@ App.Version = "0.9.3.0";
             video.addEventListener("progress", function (e) {
             }, false);
             video.ontimeupdate = function (e) { that.$SetValueInternal(MediaElement.PositionProperty, new TimeSpan(0, 0, video.currentTime)); };
-            video.onloadeddata = function (e) { that.MediaOpened.Raise(that, new Fayde.RoutedEventArgs()); };
+            video.onloadeddata = function (e) {
+                Surface._SizingAdjustments[that._ID] = that;
+                that.MediaOpened.Raise(that, new Fayde.RoutedEventArgs());
+            };
             video.onended = function (e) { that.MediaEnded.Raise(that, new Fayde.RoutedEventArgs()); };
             return video;
         };
@@ -19967,6 +20438,42 @@ App.Version = "0.9.3.0";
             } else if (propd._ID === MediaElement.VolumeProperty._ID) {
                 el.volume = change.NewValue;
             }
+        };
+        MediaElement.Instance._HandleResizeStretch = function (e) {
+            var isFixedWidth = this.GetIsFixedWidth();
+            var isFixedHeight = this.GetIsFixedHeight();
+            if ((isFixedWidth && !isFixedHeight) || (!isFixedWidth && isFixedHeight))
+                Surface._SizingAdjustments[this._ID] = this;
+        };
+        MediaElement.Instance.FindAndSetAdjustedHeight = function () {
+            if (this.GetIsFixedHeight() || !this.GetIsFixedWidth())
+                return this.FindAndSetAdjustedHeight$FrameworkElement();
+            var el = this._Element;
+            if (!el || el.videoWidth === 0 || el.videoHeight === 0)
+                return this.FindAndSetAdjustedHeight$FrameworkElement();
+            var aspectRatio = el.videoWidth / el.videoHeight;
+            var parent = this.GetVisualParent();
+            var parentWidth = parent.GetContentHtmlElement().offsetWidth;
+            var result = parentWidth / aspectRatio;
+            this.GetContentHtmlElement().style.height = result + "px";
+            result = this.CalculateAdjustedHeight(result);
+            delete Surface._SizingAdjustments[this._ID];
+            return result;
+        };
+        MediaElement.Instance.FindAndSetAdjustedWidth = function () {
+            if (this.GetIsFixedWidth() || !this.GetIsFixedHeight())
+                return this.FindAndSetAdjustedWidth$FrameworkElement();
+            var el = this._Element;
+            if (!el || el.videoWidth === 0 || el.videoHeight === 0)
+                return this.FindAndSetAdjustedWidth$FrameworkElement();
+            var aspectRatio = el.videoWidth / el.videoHeight;
+            var parent = this.GetVisualParent();
+            var parentHeight = parent.GetContentHtmlElement().offsetHeight;
+            var result = parentHeight * aspectRatio;
+            this.GetContentHtmlElement().style.width = result + "px";
+            result = this.CalculateAdjustedWidth(result);
+            delete Surface._SizingAdjustments[this._ID];
+            return result;
         };
     }
     namespace.MediaElement = Nullstone.FinishCreate(MediaElement);
@@ -21070,6 +21577,7 @@ App.Version = "0.9.3.0";
             } else if (args.Property._ID === TextBlock.TextProperty._ID) {
                 if (this._SetsValue) {
                     this._SetTextInternal(args.NewValue);
+                    this.SetChildHtmlAsText(args.NewValue);
                     this._UpdateLayoutAttributes();
                     this._Dirty = true;
                 } else {
@@ -21366,6 +21874,14 @@ App.Version = "0.9.3.0";
             while (contentEl.hasChildNodes()) {
                 contentEl.removeChild(contentEl.lastChild);
             }
+        };
+        TextBlock.Instance.SetChildHtmlAsText = function (text) {
+            var rootEl = this.GetRootHtmlElement();
+            var contentEl = rootEl.firstChild;
+            while (contentEl.hasChildNodes()) {
+                contentEl.removeChild(contentEl.lastChild);
+            }
+            contentEl.appendChild(document.createTextNode(text));
         };
     }
     namespace.TextBlock = Nullstone.FinishCreate(TextBlock);
@@ -22385,6 +22901,10 @@ App.Version = "0.9.3.0";
 
 (function (namespace) {
     var UserControl = Nullstone.Create("UserControl", namespace.Control);
+    UserControl.Instance.Init = function () {
+        this.Init$Control();
+        this.InitializeComponent();
+    };
     UserControl.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, UserControl);
     Nullstone.AutoProperties(UserControl, [
         UserControl.ContentProperty
@@ -22443,6 +22963,14 @@ App.Version = "0.9.3.0";
     };
     UserControl.Annotations = {
         ContentProperty: UserControl.ContentProperty
+    };
+    UserControl.Instance.InitializeComponent = function () {
+        this.ApplyTemplate();
+    };
+    UserControl.Instance._GetDefaultTemplateCallback = function () {
+        var json = this.constructor.__TemplateJson;
+        if (json)
+            Fayde.JsonParser.ParseUserControl(json, this);
     };
     namespace.UserControl = Nullstone.FinishCreate(UserControl);
 })(Nullstone.Namespace("Fayde.Controls"));
@@ -22903,7 +23431,7 @@ App.Version = "0.9.3.0";
         this.Value = value;
         this.Cancel = false;
     };
-    Nullstone.AutoProperty(CleanUpVirtualizedItemEventArgs, [
+    Nullstone.AutoProperties(CleanUpVirtualizedItemEventArgs, [
         "UIElement",
         "Value",
         "Cancel"
@@ -24283,6 +24811,41 @@ App.Version = "0.9.3.0";
             return mat3.identity();
         return mat3.createScale(bounds.Width, bounds.Height);
     };
+    function createStop(grdStop) {
+        var xmlStop = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+        xmlStop.setAttribute("offset", "" + (grdStop.Offset * 100.0) + "%");
+        var stopColor = grdStop.Color;
+        if (!stopColor) {
+            stopColor = "#000000";
+            xmlStop.setAttribute("stop-opacity", "1.0");
+        } else {
+            xmlStop.setAttribute("stop-opacity", stopColor.A.toString());
+            stopColor = stopColor.ToHexStringNoAlpha();
+        }
+        xmlStop.setAttribute("stop-color", stopColor);
+        return xmlStop;
+    };
+    GradientBrush.Instance.Initialize = function (svgBrush) {
+        var method = this.SpreadMethod;
+        switch (method) {
+            case namespace.GradientSpreadMethod.Pad:
+                svgBrush.spreadMethod = "pad";
+                break;
+            case namespace.GradientSpreadMethod.Reflect:
+                svgBrush.spreadMethod = "reflect";
+                break;
+            case namespace.GradientSpreadMethod.Repeat:
+                svgBrush.spreadMethod = "repeat";
+                break;
+        }
+        var stops = this.GradientStops;
+        var count = stops.GetCount();
+        for (var i = 0; i < count; i++) {
+            var stop = stops.GetValueAt(i);
+            var xmlStop = createStop(stop);
+            svgBrush.appendChild(xmlStop);
+        }
+    };
     namespace.GradientBrush = Nullstone.FinishCreate(GradientBrush);
 })(Nullstone.Namespace("Fayde.Media"));
 
@@ -24334,6 +24897,17 @@ App.Version = "0.9.3.0";
         var start = data.start;
         var end = data.end;
     };
+    LinearGradientBrush.Instance.CreateForSvg = function () {
+        var lgb = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+        var startPoint = this.StartPoint;
+        var endPoint = this.EndPoint;
+        lgb.setAttribute("x1", (startPoint.X * 100.0).toString() + "%");
+        lgb.setAttribute("y1", (startPoint.Y * 100.0).toString() + "%");
+        lgb.setAttribute("x2", (endPoint.X * 100.0).toString() + "%");
+        lgb.setAttribute("y2", (endPoint.Y * 100.0).toString() + "%");
+        this.Initialize(lgb);
+        return lgb;
+    };
     LinearGradientBrush.Instance._GetPointData = function (bounds) {
         var transform = this._GetMappingModeTransform(bounds);
         var sp = this.StartPoint;
@@ -24371,6 +24945,15 @@ App.Version = "0.9.3.0";
     ]);
     RadialGradientBrush.Instance.CreateBrush = function (ctx, bounds) {
         NotImplemented("RadialGradientBrush.CreateBrush");
+    };
+    RadialGradientBrush.Instance.CreateForSvg = function () {
+        var rgb = document.createElementNS("http://www.w3.org/2000/svg", "radialGradient");
+        var center = this.Center;
+        var radiusX = this.RadiusX;
+        var radiusY = this.RadiusY;
+        NotImplemented("RadialGradientBrush.CreateForSvg");
+        this.Initialize(rgb);
+        return rgb;
     };
     namespace.RadialGradientBrush = Nullstone.FinishCreate(RadialGradientBrush);
 })(Nullstone.Namespace("Fayde.Media"));
@@ -26419,6 +27002,9 @@ App.Version = "0.9.3.0";
             var cd = this.GetColumnDefinition(column);
             var contentEl = table.children[row].children[column].firstChild.firstChild;
             contentEl.appendChild(child.GetRootHtmlElement());
+            if (rd.Height.Type === Fayde.Controls.GridUnitType.Auto || cd.Width.Type === Fayde.Controls.GridUnitType.Auto) {
+                Surface._SizingAdjustments[child._ID] = child;
+            }
         };
         Grid.Instance.RemoveHtmlChild = function (child, index) {
             var table = this.GetHtmlChildrenContainer();
@@ -26522,7 +27108,7 @@ App.Version = "0.9.3.0";
             }
             if (propd._ID === Grid.ShowGridLinesProperty._ID) {
                 var table = this.GetHtmlChildrenContainer();
-                var style = this.ShowGridLines ? "solid 1px black" : "";
+                var style = this.ShowGridLines ? "dashed 2px gray" : "";
                 for (var i = 0; i < table.children.length; i++) {
                     var row = table.children[i];
                     for (var j = 0; j < row.children.length; j++) {
@@ -27657,7 +28243,7 @@ App.Version = "0.9.3.0";
     };
     Frame.Instance.Navigate = function (source) {
         var ns = this;
-        this._Request = new AjaxJsonRequest(function (responseJson) { ns._HandleSuccessfulResponse(responseJson); },
+        this._Request = new AjaxJsonRequest(function (result) { ns._HandleSuccessfulResponse(result); },
             function (error) { ns._HandleErrorResponse(error); });
         this._Request.Get(source.toString());
     };
@@ -27679,24 +28265,31 @@ App.Version = "0.9.3.0";
     };
     Frame.Instance._LoadContent = function (href, hash) {
         this.StopLoading();
-        var scriptUrl = href + "?js=true&p=" + hash;
-        var ns = this;
-        Nullstone.ImportJsFile(scriptUrl, function (script) {
-            this._Request = new AjaxJsonRequest(function (responseJson) { ns._HandleSuccessfulResponse(responseJson); },
-                function (error) { ns._HandleErrorResponse(error); });
-            this._Request.Get(href, "p=" + hash);
-        });
+        var that = this;
+        this._Resolver = new Fayde.XamlResolver(
+            function (xamlResult, scriptResult) { that._HandleSuccessfulResponse(xamlResult); },
+            function (xamlResult, scriptResult) { that._HandleSuccessfulSubResponse(xamlResult); },
+            function (error) { that._HandleErrorResponse(error); });
+        this._Resolver.Load(href, hash);
     };
-    Frame.Instance._HandleSuccessfulResponse = function (responseJson) {
-        var page = Fayde.JsonParser.Parse(responseJson);
+    Frame.Instance._HandleSuccessfulResponse = function (ajaxJsonResult) {
+        var page = Fayde.JsonParser.Parse(ajaxJsonResult.CreateJson());
         if (page instanceof namespace.Page) {
             document.title = page.Title;
+            canProfile = true;
             this.Content = page;
         }
         this._Request = null;
     };
+    Frame.Instance._HandleSuccessfulSubResponse = function (ajaxJsonResult) {
+        var json = ajaxJsonResult.CreateJson();
+        var jsType = json.Type;
+        jsType.__TemplateJson = json;
+    };
+    Frame.Instance._FinishLoadContent = function () {
+    };
     Frame.Instance._HandleErrorResponse = function (error) {
-        this._Request = null;
+        this._Resolver = null;
     };
     namespace.Frame = Nullstone.FinishCreate(Frame);
 })(Nullstone.Namespace("Fayde.Controls"));

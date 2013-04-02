@@ -162,8 +162,8 @@
             this._RaiseChanged(_CollectionChangedArgs.Add(value, index));
             return true;
         }
-        if (error.IsErrored())
-            throw error.CreateException();
+        if (error.Message)
+            throw new Exception(error.Message);
         return false;
     };
     instance.Remove = function (value) {

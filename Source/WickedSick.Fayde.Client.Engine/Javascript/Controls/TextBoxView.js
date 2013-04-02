@@ -175,7 +175,7 @@
         this.Layout(size.createInfinite());
         return this._Layout.GetActualExtents();
     };
-    _TextBoxView.Instance._MeasureOverrideWithError = function (availableSize, error) {
+    _TextBoxView.Instance._MeasureOverride = function (availableSize, pass, error) {
         this.Layout(availableSize);
         var desired = size.clone(this._Layout.GetActualExtents());
         if (!isFinite(availableSize.Width))
@@ -183,7 +183,7 @@
         size.min(desired, availableSize);
         return desired;
     };
-    _TextBoxView.Instance._ArrangeOverrideWithError = function (finalSize, error) {
+    _TextBoxView.Instance._ArrangeOverride = function (finalSize, pass, error) {
         this.Layout(finalSize);
         var arranged = size.clone(this._Layout.GetActualExtents());
         size.max(arranged, finalSize);

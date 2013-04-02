@@ -55,6 +55,12 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
+    <Reference Include="WickedSick.Server.Framework.Fayde">
+      <HintPath>faydebin\WickedSick.Server.Framework.Fayde.dll</HintPath>
+    </Reference>
+    <Reference Include="WickedSick.Server.XamlParser">
+      <HintPath>faydebin\WickedSick.Server.XamlParser.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="ViewModels\MainViewModel.ts" />

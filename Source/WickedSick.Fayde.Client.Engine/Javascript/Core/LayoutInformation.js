@@ -11,10 +11,6 @@
         this.LayoutClip = undefined;
         this.LayoutExceptionElement = undefined;
         this.LayoutSlot = undefined;
-        this.PreviousConstraint = undefined;
-        this.FinalRect = undefined;
-        this.LastRenderSize = undefined;
-        this.VisualOffset = undefined;
     }
 
     LayoutInformation.GetLayoutClip = function (uie) {
@@ -55,55 +51,12 @@
         /// <param name="value" type="rect"></param>
         uie._LayoutInformation.LayoutSlot = value;
     };
-    
-    LayoutInformation.GetPreviousConstraint = function (uie) {
-        /// <param name="uie" type="UIElement"></param>
-        /// <returns type="size" />
-        return uie._LayoutInformation.PreviousConstraint;
-    };
-    LayoutInformation.SetPreviousConstraint = function (uie, value) {
-        /// <param name="uie" type="UIElement"></param>
-        /// <param name="value" type="size"></param>
-        uie._LayoutInformation.PreviousConstraint = value;
-    };
-    
-    LayoutInformation.GetFinalRect = function (uie) {
-        /// <param name="uie" type="UIElement"></param>
-        /// <returns type="rect" />
-        return uie._LayoutInformation.FinalRect;
-    };
-    LayoutInformation.SetFinalRect = function (uie, value) {
-        /// <param name="uie" type="UIElement"></param>
-        /// <param name="value" type="rect"></param>
-        uie._LayoutInformation.FinalRect = value;
-    };
-    
-    LayoutInformation.GetLastRenderSize = function (uie) {
-        /// <param name="uie" type="UIElement"></param>
-        /// <returns type="size" />
-        return uie._LayoutInformation.LastRenderSize;
-    };
-    LayoutInformation.SetLastRenderSize = function (uie, value) {
-        /// <param name="uie" type="UIElement"></param>
-        /// <param name="value" type="size"></param>
-        uie._LayoutInformation.LastRenderSize = value;
-    };
-    
-    LayoutInformation.GetVisualOffset = function (uie) {
-        /// <param name="uie" type="UIElement"></param>
-        /// <returns type="Point" />
-        return uie._LayoutInformation.VisualOffset;
-    };
-    LayoutInformation.SetVisualOffset = function (uie, value) {
-        /// <param name="uie" type="UIElement"></param>
-        /// <param name="value" type="Point"></param>
-        uie._LayoutInformation.VisualOffset = value;
-    };
 
     /*
     LayoutInformation.LayoutClipProperty = DependencyProperty.RegisterAttachedCore("LayoutClip", function () { return Fayde.Media.Geometry; }, LayoutInformation);
     LayoutInformation.LayoutExceptionElementProperty = DependencyProperty.RegisterAttachedCore("LayoutExceptionElement", function () { return Fayde.UIElement; }, LayoutInformation);
     LayoutInformation.LayoutSlotProperty = DependencyProperty.RegisterAttachedCore("LayoutSlot", function () { return rect; }, LayoutInformation, new rect());
+
     LayoutInformation.PreviousConstraintProperty = DependencyProperty.RegisterAttachedCore("PreviousConstraint", function () { return size; }, LayoutInformation);
     LayoutInformation.FinalRectProperty = DependencyProperty.RegisterAttachedCore("FinalRect", function () { return rect; }, LayoutInformation);
     LayoutInformation.LastRenderSizeProperty = DependencyProperty.RegisterAttachedCore("LastRenderSize", function () { return size; }, LayoutInformation);

@@ -43,15 +43,14 @@
         this.PropertyChanged = new MulticastEvent();
         this._SubPropertyListeners = [];
         this._CachedValues = {};
+        this._Cache = {
+            Name: ""
+        };
     };
 
     //#region Properties
 
-    DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", function () { return String; }, DependencyObject, "", undefined, undefined, undefined, false, DependencyObject._NameValidator);
-
-    //#endregion
-
-    //#region Properties
+    DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", function () { return String; }, DependencyObject, "", function (d, args) { d._Cache.Name = args.NewValue; }, undefined, undefined, false, DependencyObject._NameValidator);
 
     Nullstone.AutoProperties(DependencyObject, [
         DependencyObject.NameProperty,
@@ -231,8 +230,8 @@
         var error = new BError();
         if (value === null) {
             this._SetValueWithError(propd, null, error);
-            if (error.IsErrored())
-                throw error.CreateException();
+            if (error.Message)
+                throw new Exception(error.Message);
             return;
         }
 
@@ -248,8 +247,8 @@
         }
 
         this._SetValueWithError(propd, value, error);
-        if (error.IsErrored())
-            throw error.CreateException();
+        if (error.Message)
+            throw new Exception(error.Message);
     };
     DependencyObject.Instance._SetValueWithError = function (propd, value, error) {
         if (!error)
@@ -259,13 +258,13 @@
         if ((hasCoercer && !(coerced = propd._Coerce(this, coerced, error)))
                 || !this._IsValueValid(propd, coerced, error)
                 || !propd._Validate(this, propd, coerced, error)) {
-            if (error.IsErrored())
-                throw error.CreateException();
+            if (error.Message)
+                throw new Exception(error.Message);
             return false;
         }
         var retVal = this._SetValueWithErrorImpl(propd, coerced, error);
-        if (error.IsErrored())
-            throw error.CreateException();
+        if (error.Message)
+            throw new Exception(error.Message);
         return retVal;
     };
     DependencyObject.Instance._SetValueWithErrorImpl = function (propd, value, error) {
@@ -391,8 +390,8 @@
 
         var error = new BError();
         var value = this._ReadLocalValueWithError(propd, error);
-        if (error.IsErrored())
-            throw error.CreateException();
+        if (error.Message)
+            throw new Exception(error.Message);
         if (value === undefined)
             return new Fayde.UnsetValue();
         return value;
@@ -426,8 +425,8 @@
     DependencyObject.Instance._ClearValue = function (propd, notifyListeners) {
         var error = new BError();
         this._ClearValueWithError(propd, true, error);
-        if (error.IsErrored())
-            throw error.CreateException();
+        if (error.Message)
+            throw new Exception(error.Message);
     };
     DependencyObject.Instance._ClearValueWithError = function (propd, notifyListeners, error) {
         if (notifyListeners === undefined)
@@ -586,7 +585,7 @@
             if (setsParent) {
                 newDO._SetIsAttached(this._IsAttached);
                 newDO._AddParent(this, mergeNamesOnSetParent, error);
-                if (error.IsErrored())
+                if (error.Message)
                     return;
 
                 newDO._SetResourceBase(this._GetResourceBase());
@@ -635,7 +634,7 @@
     DependencyObject.Instance._CallRecomputePropertyValueForProviders = function (propd, providerPrecedence, error) {
         for (var i = 0; i < providerPrecedence; i++) {
             var provider = this._Providers[i];
-            if (provider && provider.RecomputePropertyValueOnLowerr)
+            if (provider && provider.RecomputePropertyValueOnLower)
                 provider.RecomputePropertyValueOnLower(propd, error);
         }
     };
@@ -731,7 +730,7 @@
         /// <param name="isTemplateItem" type="Boolean"></param>
         /// <returns type="DependencyObject" />
         if (isTemplateItem === undefined)
-            isTemplateItem = Fayde.Controls.Control.GetIsTemplateItem(this);
+            isTemplateItem = this.IsTemplateItem === true;
 
         var scope = Fayde.NameScope.GetNameScope(this);
         if (scope && (isTemplateItem === scope.GetIsLocked()))
@@ -744,7 +743,7 @@
     };
     DependencyObject.Instance.FindNameScope = function (templateNamescope) {
         if (templateNamescope === undefined)
-            templateNamescope = Fayde.Controls.Control.GetIsTemplateItem(this);
+            templateNamescope = this.IsTemplateItem === true;
 
         var scope = Fayde.NameScope.GetNameScope(this);
         if (scope && (templateNamescope === scope.GetIsLocked()))
@@ -765,7 +764,7 @@
     };
 
     DependencyObject.Instance._RegisterAllNamesRootedAt = function (toNs, error) {
-        if (error.IsErrored())
+        if (error.Message)
             return;
         if (this._RegisteringNames)
             return;
@@ -795,7 +794,7 @@
         }
 
         if (registerName) {
-            var n = this.Name;
+            var n = this._Cache.Name;
             if (n) {
                 var o = toNs.FindName(n);
                 if (o) {
@@ -829,7 +828,7 @@
 
         var thisNs = Fayde.NameScope.GetNameScope(this);
         if (/* TODO: this._IsHydratedFromXaml() || */!thisNs || thisNs._GetTemporary()) {
-            var name = this.Name;
+            var name = this._Cache.Name;
             if (name && name.length > 0)
                 fromNs.UnregisterName(name);
         }
@@ -845,7 +844,7 @@
         this._RegisteringNames = false;
     }
     DependencyObject._RegisterDONames = function (propd, value, data) {
-        if (data.error.IsErrored())
+        if (data.error.Message)
             return;
         if (value != null && value instanceof DependencyObject) {
             value._RegisterAllNamesRootedAt(data.toNs, data.error);
@@ -863,10 +862,12 @@
 
     DependencyObject.Instance._PermitsMultipleParents = function () {
         return true;
-    };
+    }; 
+    DependencyObject.Instance._OnParentChanged = function (parent) { };
     DependencyObject.Instance._AddParent = function (parent, mergeNamesFromSubtree, error) {
         if (false/* TODO: IsShuttingDown */) {
             this._Parent = null;
+            this._OnParentChanged(parent);
             return;
         }
 
@@ -904,7 +905,7 @@
                 }
             } else {
                 if (true /* TODO: this._IsHydratedFromXaml()*/) {
-                    var name = this.Name;
+                    var name = this._Cache.Name;
                     if (parentScope && name && name.length > 0) {
                         var existingObj = parentScope.FindName(name);
                         if (existingObj !== this) {
@@ -924,15 +925,16 @@
 
                 this._RegisterAllNamesRootedAt(tempScope, error);
 
-                if (error.IsErrored())
+                if (error.Message)
                     return;
 
                 parentScope._MergeTemporaryScope(tempScope, error);
             }
         }
 
-        if (!error || !error.IsErrored()) {
+        if (!error || !error.Message) {
             this._Parent = parent;
+            this._OnParentChanged(parent);
             var d = parent;
             while (d && !(d instanceof Fayde.FrameworkElement)) {
                 d = d.GetMentor();
@@ -951,6 +953,7 @@
 
         if (false/* TODO:IsShuttingDown */) {
             this._Parent = null;
+            this._OnParentChanged(null);
             return;
         }
 
@@ -961,9 +964,11 @@
             this.SetMentor(null);
         }
 
-        if (!error || !error.IsErrored()) {
-            if (Nullstone.RefEquals(this._Parent, parent))
+        if (!error || !error.Message) {
+            if (Nullstone.RefEquals(this._Parent, parent)) {
                 this._Parent = null;
+                this._OnParentChanged(null);
+            }
         }
     };
     DependencyObject.Instance._AddSecondaryParent = function (obj) {

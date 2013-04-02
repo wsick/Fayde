@@ -132,10 +132,10 @@
     _DeepTreeWalker.prototype.SkipBranch = function () {
         this._Last = null;
     };
-    _DeepTreeWalker.Logical = function (obj) { return new _DeepTreeWalker(top, _VisualTreeWalkerDirection.Logical); };
-    _DeepTreeWalker.LogicalReverse = function (obj) { return new _DeepTreeWalker(top, _VisualTreeWalkerDirection.LogicalReverse); };
-    _DeepTreeWalker.ZForward = function (obj) { return new _DeepTreeWalker(top, _VisualTreeWalkerDirection.ZForward); };
-    _DeepTreeWalker.ZReverse = function (obj) { return new _DeepTreeWalker(top, _VisualTreeWalkerDirection.ZReverse); };
+    _DeepTreeWalker.Logical = function (obj) { return new _DeepTreeWalker(obj, _VisualTreeWalkerDirection.Logical); };
+    _DeepTreeWalker.LogicalReverse = function (obj) { return new _DeepTreeWalker(obj, _VisualTreeWalkerDirection.LogicalReverse); };
+    _DeepTreeWalker.ZForward = function (obj) { return new _DeepTreeWalker(obj, _VisualTreeWalkerDirection.ZForward); };
+    _DeepTreeWalker.ZReverse = function (obj) { return new _DeepTreeWalker(obj, _VisualTreeWalkerDirection.ZReverse); };
     Fayde._DeepTreeWalker = _DeepTreeWalker;
 
     //#endregion
@@ -145,9 +145,25 @@
     function setterSort (setter1, setter2) {
         /// <param name="setter1" type="Setter"></param>
         /// <param name="setter2" type="Setter"></param>
-        var a = setter1._GetValue(Fayde.Setter.PropertyProperty);
-        var b = setter2._GetValue(Fayde.Setter.PropertyProperty);
+        var a = setter1.Property;
+        var b = setter2.Property;
         return (a === b) ? 0 : ((a > b) ? 1 : -1);
+    }
+    function mergeSetters(arr, dps, style) {
+        var setters = style.Setters;
+        var count = setters.GetCount();
+        for (var i = count - 1; i >= 0; i--) {
+            var setter = setters.GetValueAt(i);
+            if (!(setter instanceof Fayde.Setter))
+                continue;
+            var propd = setter.Property;
+            if (!propd)
+                continue;
+            if (dps[propd])
+                continue;
+            dps[propd] = setter;
+            arr.push(setter);
+        }
     }
 
     function _DeepStyleWalker(styles) {
@@ -170,31 +186,20 @@
     };
     _DeepStyleWalker.prototype._InitializeStyle = function (style) {
         var dps = [];
+        var flattenedSetters = this._Setters;
         var cur = style;
         while (cur) {
-            var setters = cur.Setters;
-            var count = setters.GetCount();
-            for (var i = count - 1; i >= 0; i--) {
-                var setter = Nullstone.As(setters.GetValueAt(i), Fayde.Setter);
-                if (!setter)
-                    continue;
-                var propd = setter._GetValue(Fayde.Setter.PropertyProperty);
-                if (!propd)
-                    continue;
-                if (dps[propd])
-                    continue;
-                dps[propd] = setter;
-                this._Setters.push(setter);
-            }
+            mergeSetters(flattenedSetters, dps, cur);
             cur = cur.BasedOn;
         }
-        this._Setters.sort(setterSort);
+        flattenedSetters.sort(setterSort);
     };
     _DeepStyleWalker.prototype._InitializeStyles = function (styles) {
         if (!styles)
             return;
 
         var dps = [];
+        var flattenedSetters = this._Setters;
         var stylesSeen = [];
         for (var i = 0; i < _StyleIndex.Count; i++) {
             var style = styles[i];
@@ -202,26 +207,13 @@
                 if (stylesSeen[style._ID])
                     continue;
 
-                var setters = style.Setters;
-                var count = setters ? setters.GetCount() : 0;
-                for (var j = count - 1; j >= 0; j--) {
-                    var setter = Nullstone.As(setters.GetValueAt(j), Fayde.Setter);
-                    if (!setter)
-                        continue;
-                    var propd = setter._GetValue(Fayde.Setter.PropertyProperty);
-                    if (!propd)
-                        continue;
-                    if (dps[propd])
-                        continue;
-                    dps[propd] = setter;
-                    this._Setters.push(setter);
-                }
+                mergeSetters(flattenedSetters, dps, style);
 
                 stylesSeen[style._ID] = true;
                 style = style.BasedOn;
             }
         }
-        this._Setters.sort(setterSort);
+        flattenedSetters.sort(setterSort);
     };
     Fayde._DeepStyleWalker = _DeepStyleWalker;
 

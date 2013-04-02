@@ -40,7 +40,7 @@
         var states = this.States;
         for (var i = 0; i < states.GetCount() ; i++) {
             var state = states.GetValueAt(i);
-            if (state.Name === stateName)
+            if (state._Cache.Name === stateName)
                 return state;
         }
         return null;

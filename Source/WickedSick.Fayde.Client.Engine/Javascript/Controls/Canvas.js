@@ -28,30 +28,25 @@
 
     //#endregion
 
-    //#region Measure
+    //#region Measure/Arrange
 
-    Canvas.Instance._MeasureOverrideWithError = function (availableSize, error) {
+    Canvas.Instance._MeasureOverride = function (availableSize, pass, error) {
         var childSize = size.createInfinite();
         var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
-            child._MeasureWithError(childSize, error);
+            child._Measure(childSize, error);
         }
         return new size();
     };
-
-    //#endregion
-
-    //#region Arrange
-
-    Canvas.Instance._ArrangeOverrideWithError = function (finalSize, error) {
+    Canvas.Instance._ArrangeOverride = function (finalSize, pass, error) {
         var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
             var childFinal = rect.fromSize(child._DesiredSize);
             childFinal.X = Canvas.GetLeft(child);
             childFinal.Y = Canvas.GetTop(child);
-            child._ArrangeWithError(childFinal, error);
+            child._Arrange(childFinal, error);
         }
         return finalSize;
     };
@@ -85,7 +80,7 @@
         this.PropertyChanged.Raise(this, args);
     };
     Canvas.Instance._OnCollectionItemChanged = function (col, obj, args) {
-        if (this._PropertyHasValueNoAutoCreate(namespace.Panel.ChildrenProperty, col)) {
+        if (col === this._UpdatePass.Panel.Children) {
             if (args.Property._ID === Canvas.TopProperty._ID
                 || args.Property._ID === Canvas.LeftProperty._ID) {
                 var child = obj;
@@ -101,6 +96,7 @@
 
                 Fayde.LayoutInformation.SetLayoutSlot(child, childFinal);
                 child._InvalidateArrange();
+                this._UpdatePass.IsLayoutContainer = this.IsLayoutContainer();
                 return;
             }
         }

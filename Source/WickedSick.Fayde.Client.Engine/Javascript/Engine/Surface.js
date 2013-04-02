@@ -118,10 +118,12 @@
             this._Layers.splice(0, 0, layer);
         else
             this._Layers.push(layer);
+        layer._UpdatePass.IsTopLevel = true;
 
         DirtyDebug("AttachLayer");
         layer._FullInvalidate(true);
         layer._InvalidateMeasure();
+        layer._MainSurface = this;
         layer._SetIsAttached(true);
         layer._SetIsLoaded(true);
         this.FinishAttachLayer(layer);
@@ -130,6 +132,9 @@
     };
     Surface.Instance._DetachLayer = function (layer) {
         /// <param name="layer" type="UIElement"></param>
+
+        layer._UpdatePass.IsTopLevel = false;
+
         if (!this._InputList.IsEmpty() && Nullstone.RefEquals(this._InputList.Tail.UIElement, layer)) {
             this._InputList = new LinkedList();
         }
@@ -151,6 +156,7 @@
         Array.removeNullstone(this._Layers, layer);
         layer._SetIsLoaded(false);
         layer._SetIsAttached(false);
+        layer._MainSurface = undefined;
 
         this._Invalidate(layer._GetSubtreeBounds());
 
@@ -291,8 +297,8 @@
     Surface.Instance.ProcessDirtyElements = function () {
         var error = new BError();
         var dirty = this._UpdateLayout(error);
-        if (error.IsErrored())
-            throw error.CreateException();
+        if (error.Message)
+            throw new Exception(error.Message);
         if (!dirty)
             return false;
         this.LayoutUpdated.Raise(this, new EventArgs());
@@ -316,11 +322,12 @@
                 if (!element._HasFlag(UIElementFlags.DirtyMeasureHint) && !element._HasFlag(UIElementFlags.DirtyArrangeHint))
                     continue;
 
-                var last = Fayde.LayoutInformation.GetPreviousConstraint(element);
+                var elMetrics = element._UpdateMetrics;
+                var last = elMetrics.PreviousConstraint;
                 var available = size.fromRaw(this.GetWidth(), this.GetHeight());
                 if (element.IsContainer() && (!last || (!size.isEqual(last, available)))) {
                     element._InvalidateMeasure();
-                    Fayde.LayoutInformation.SetPreviousConstraint(element, available);
+                    elMetrics.PreviousConstraint = available;
                 }
 
                 element._UpdateLayer(pass, error);
@@ -353,81 +360,19 @@
     };
     //Down --> RenderVisibility, HitTestVisibility, Transformation, Clip, ChildrenZIndices
     Surface.Instance._ProcessDownDirtyElements = function () {
-        //var i = 0;
         var node;
-        var dirtyEnum = _Dirty;
         while (node = this._DownDirty.Head) {
             var uie = node.UIElement;
-            var visualParent = uie.GetVisualParent();
+            var visualParent = this.VisualParent;
             if (visualParent && visualParent._DownDirtyNode != null) {
                 //OPTIMIZATION: uie is overzealous. His parent will invalidate him later
                 this._DownDirty.Remove(node);
                 this._DownDirty.InsertAfter(node, visualParent._DownDirtyNode);
-                continue;
             }
-            //i++;
-            //DirtyDebug("Down Dirty Loop #" + i.toString() + " --> " + this._DownDirty.__DebugToString());
-            /*
-            DirtyDebug.Level++;
-            DirtyDebug("[" + uie.__DebugToString() + "]" + uie.__DebugDownDirtyFlags());
-            */
-
-            if (uie._DirtyFlags & dirtyEnum.RenderVisibility) {
-                uie._DirtyFlags &= ~dirtyEnum.RenderVisibility;
-
-                var ovisible = uie._GetRenderVisible();
-
-                uie._UpdateBounds();
-
-                if (visualParent)
-                    visualParent._UpdateBounds();
-
-                //DirtyDebug("ComputeTotalRenderVisibility: [" + uie.__DebugToString() + "]");
-                uie._ComputeTotalRenderVisibility();
-
-                if (!uie._GetRenderVisible())
-                    uie._CacheInvalidateHint();
-
-                if (ovisible !== uie._GetRenderVisible())
-                    this._AddDirtyElement(uie, dirtyEnum.NewBounds);
-
-                this._PropagateDirtyFlagToChildren(uie, dirtyEnum.RenderVisibility);
+            if (uie._UpdatePass.ProcessDown(this, uie)) {
+                this._DownDirty.Remove(node);
+                uie._DownDirtyNode = null;
             }
-
-            if (uie._DirtyFlags & dirtyEnum.HitTestVisibility) {
-                uie._DirtyFlags &= ~dirtyEnum.HitTestVisibility;
-                uie._ComputeTotalHitTestVisibility();
-                this._PropagateDirtyFlagToChildren(uie, dirtyEnum.HitTestVisibility);
-            }
-
-            if (uie._ComputeXformer(visualParent))
-                this._PropagateDirtyFlagToChildren(uie, dirtyEnum.Transform);
-
-            if (uie._DirtyFlags & dirtyEnum.LocalClip) {
-                uie._DirtyFlags &= ~dirtyEnum.LocalClip;
-                uie._DirtyFlags |= dirtyEnum.Clip;
-            }
-            if (uie._DirtyFlags & dirtyEnum.Clip) {
-                uie._DirtyFlags &= ~dirtyEnum.Clip;
-                this._PropagateDirtyFlagToChildren(uie, dirtyEnum.Clip);
-            }
-
-            if (uie._DirtyFlags & dirtyEnum.ChildrenZIndices) {
-                uie._DirtyFlags &= ~dirtyEnum.ChildrenZIndices;
-                if (!(uie instanceof Fayde.Controls.Panel)) {
-                    Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
-                } else {
-                    //DirtyDebug("ResortByZIndex: [" + uie.__DebugToString() + "]");
-                    uie.Children.ResortByZIndex();
-                }
-            }
-
-            if (!(uie._DirtyFlags & dirtyEnum.DownDirtyState) && uie._DownDirtyNode != null) {
-                this._DownDirty.Remove(uie._DownDirtyNode);
-                delete uie._DownDirtyNode;
-            }
-
-            //DirtyDebug.Level--;
         }
 
         if (!this._DownDirty.IsEmpty()) {
@@ -436,13 +381,9 @@
     };
     //Up --> Bounds, Invalidation
     Surface.Instance._ProcessUpDirtyElements = function () {
-        //var i = 0;
         var node;
-        var dirtyEnum = _Dirty;
         while (node = this._UpDirty.Head) {
             var uie = node.UIElement;
-            var visualParent = uie.GetVisualParent();
-
             var childNode = this._GetChildNodeInUpList(uie);
             if (childNode) {
                 // OPTIMIZATION: Parent is overzealous, children will invalidate him
@@ -450,67 +391,9 @@
                 this._UpDirty.InsertAfter(node, childNode);
                 continue;
             }
-
-            //i++;
-            //DirtyDebug("Up Dirty Loop #" + i.toString() + " --> " + this._UpDirty.__DebugToString());
-            if (uie._DirtyFlags & dirtyEnum.Bounds) {
-                uie._DirtyFlags &= ~dirtyEnum.Bounds;
-
-                var oextents = uie._GetSubtreeExtents();
-                var oglobalbounds = uie._GetGlobalBounds();
-                var osubtreebounds = uie._GetSubtreeBounds();
-
-                uie._ComputeBounds();
-
-                if (!rect.isEqual(oglobalbounds, uie._GetGlobalBounds())) {
-                    if (visualParent) {
-                        visualParent._UpdateBounds();
-                        visualParent._Invalidate(osubtreebounds);
-                        visualParent._Invalidate(uie._GetSubtreeBounds());
-                    }
-                }
-
-                if (!rect.isEqual(oextents, uie._GetSubtreeExtents())) {
-                    uie._Invalidate(uie._GetSubtreeBounds());
-                }
-
-                if (uie._ForceInvalidateOfNewBounds) {
-                    uie._ForceInvalidateOfNewBounds = false;
-                    uie._InvalidateSubtreePaint();
-                }
-            }
-
-            if (uie._DirtyFlags & dirtyEnum.NewBounds) {
-                if (visualParent)
-                    visualParent._Invalidate(uie._GetSubtreeBounds());
-                else if (this._IsTopLevel(uie))
-                    uie._InvalidateSubtreePaint();
-                uie._DirtyFlags &= ~dirtyEnum.NewBounds;
-            }
-
-            if (uie._DirtyFlags & dirtyEnum.Invalidate) {
-                uie._DirtyFlags &= ~dirtyEnum.Invalidate;
-                var dirty = uie._DirtyRegion;
-                if (visualParent) {
-                    visualParent._Invalidate(dirty);
-                } else {
-                    if (uie._IsAttached) {
-                        this._Invalidate(dirty);
-                        /*
-                        OPTIMIZATION NOT IMPLEMENTED
-                        var count = dirty.GetRectangleCount();
-                        for (var i = count - 1; i >= 0; i--) {
-                        this._Invalidate(dirty.GetRectangle(i));
-                        }
-                        */
-                    }
-                }
-                rect.clear(dirty);
-            }
-
-            if (!(uie._DirtyFlags & dirtyEnum.UpDirtyState) && uie._UpDirtyNode != null) {
-                this._UpDirty.Remove(uie._UpDirtyNode);
-                delete uie._UpDirtyNode;
+            if (uie._UpdatePass.ProcessUp(this, uie)) {
+                this._UpDirty.Remove(node);
+                uie._UpDirtyNode = null;
             }
         }
 

@@ -109,19 +109,14 @@
 
     //#endregion
 
-    //#region Measure
+    //#region Measure/Arrange
 
-    MediaElement.Instance._MeasureOverrideWithError = function (availableSize, error) {
+    MediaElement.Instance._MeasureOverride = function (availableSize, pass, error) {
         /// <param name="availableSize" type="size"></param>
         return new size();
         //TODO: Implement video
     };
-
-    //#endregion
-
-    //#region Arrange
-
-    MediaElement.Instance._ArrangeOverrideWithError = function (finalSize, error) {
+    MediaElement.Instance._ArrangeOverride = function (finalSize, pass, error) {
         /// <param name="finalSize" type="size"></param>
         return new size();
         //TODO: Implement video

@@ -35,9 +35,9 @@
         if (this._SetsParent) {
             var existingParent = value._Parent;
             value._AddParent(this, true, error);
-            if (!error.IsErrored() && existingParent == null && this._GetIsSecondaryParent() != null)
+            if (!error.Message && existingParent == null && this._GetIsSecondaryParent() != null)
                 value._AddParent(this, true, error);
-            if (error.IsErrored())
+            if (error.Message)
                 return false;
         } else {
             value.SetMentor(this.GetMentor());

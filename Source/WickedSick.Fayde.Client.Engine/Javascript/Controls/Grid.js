@@ -69,16 +69,18 @@
 
             var walker = Fayde._VisualTreeWalker.Logical(grid);
             var child;
+            var up;
             while (child = walker.Step()) {
+                up = child._UpdatePass;
                 var starCol = false;
                 var starRow = false;
                 var autoCol = false;
                 var autoRow = false;
 
-                var col = Math.min(Grid.GetColumn(child), colCount - 1);
-                var row = Math.min(Grid.GetRow(child), rowCount - 1);
-                var colspan = Math.min(Grid.GetColumnSpan(child), colCount - col);
-                var rowspan = Math.min(Grid.GetRowSpan(child), rowCount - row);
+                var col = Math.min(up.Grid.Column, colCount - 1);
+                var row = Math.min(up.Grid.Row, rowCount - 1);
+                var colspan = Math.min(up.Grid.ColumnSpan, colCount - col);
+                var rowspan = Math.min(up.Grid.RowSpan, rowCount - row);
 
                 for (var r = row; r < row + rowspan; r++) {
                     starRow |= rowMatrix[r][r].Type === namespace.GridUnitType.Star;
@@ -112,7 +114,7 @@
 
     //#region Attached Dependency Properties
 
-    Grid.ColumnProperty = DependencyProperty.RegisterAttached("Column", function () { return Number; }, Grid, 0);
+    Grid.ColumnProperty = DependencyProperty.RegisterAttached("Column", function () { return Number; }, Grid, 0, function (d, args) { d._UpdatePass.Grid.Column = args.NewValue; });
     Grid.GetColumn = function (d) {
         return d.$GetValue(Grid.ColumnProperty);
     };
@@ -120,7 +122,7 @@
         d.$SetValue(Grid.ColumnProperty, value);
     };
 
-    Grid.ColumnSpanProperty = DependencyProperty.RegisterAttached("ColumnSpan", function () { return Number; }, Grid, 1);
+    Grid.ColumnSpanProperty = DependencyProperty.RegisterAttached("ColumnSpan", function () { return Number; }, Grid, 1, function (d, args) { d._UpdatePass.Grid.ColumnSpan = args.NewValue; });
     Grid.GetColumnSpan = function (d) {
         return d.$GetValue(Grid.ColumnSpanProperty);
     };
@@ -128,7 +130,7 @@
         d.$SetValue(Grid.ColumnSpanProperty, value);
     };
 
-    Grid.RowProperty = DependencyProperty.RegisterAttached("Row", function () { return Number; }, Grid, 0);
+    Grid.RowProperty = DependencyProperty.RegisterAttached("Row", function () { return Number; }, Grid, 0, function (d, args) { d._UpdatePass.Grid.Row = args.NewValue; });
     Grid.GetRow = function (d) {
         return d.$GetValue(Grid.RowProperty);
     };
@@ -136,7 +138,7 @@
         d.$SetValue(Grid.RowProperty, value);
     };
 
-    Grid.RowSpanProperty = DependencyProperty.RegisterAttached("RowSpan", function () { return Number; }, Grid, 1);
+    Grid.RowSpanProperty = DependencyProperty.RegisterAttached("RowSpan", function () { return Number; }, Grid, 1, function (d, args) { d._UpdatePass.Grid.RowSpan = args.NewValue; });
     Grid.GetRowSpan = function (d) {
         return d.$GetValue(Grid.RowSpanProperty);
     };
@@ -148,9 +150,23 @@
 
     //#region Properties
 
+    var colDefAutoCreater = {
+        GetValue: function (propd, dobj) {
+            var col = new namespace.ColumnDefinitionCollection();
+            dobj._UpdatePass.Grid.ColumnDefinitions = col;
+            return col;
+        }
+    };
+    var rowDefAutoCreater = {
+        GetValue: function (propd, dobj) {
+            var col = new namespace.RowDefinitionCollection();
+            dobj._UpdatePass.Grid.RowDefinitions = col;
+            return col;
+        }
+    };
     Grid.ShowGridLinesProperty = DependencyProperty.Register("ShowGridLines", function () { return Boolean; }, Grid, false);
-    Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterFull("ColumnDefinitions", function () { return namespace.ColumnDefinitionCollection; }, Grid, undefined, undefined, { GetValue: function () { return new namespace.ColumnDefinitionCollection(); } });
-    Grid.RowDefinitionsProperty = DependencyProperty.RegisterFull("RowDefinitions", function () { return namespace.RowDefinitionCollection; }, Grid, undefined, undefined, { GetValue: function () { return new namespace.RowDefinitionCollection(); } });
+    Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterFull("ColumnDefinitions", function () { return namespace.ColumnDefinitionCollection; }, Grid, undefined, function (d, args) { d._UpdatePass.Grid.ColumnDefinitions = args.NewValue; }, colDefAutoCreater);
+    Grid.RowDefinitionsProperty = DependencyProperty.RegisterFull("RowDefinitions", function () { return namespace.RowDefinitionCollection; }, Grid, undefined, function (d, args) { d._UpdatePass.Grid.RowDefinitions = args.NewValue; }, rowDefAutoCreater);
 
     Nullstone.AutoProperties(Grid, [
         Grid.ShowGridLinesProperty,
@@ -162,11 +178,11 @@
 
     //#region Measure/Arrange
 
-    Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
-        //LayoutDebug("Grid Measure Pass: " + this.__DebugToString() + " [" + availableSize.toString() + "]");
+    Grid.Instance._MeasureOverride = function (availableSize, pass, error) {
+        //LayoutDebug(function () { return "Grid Measure Pass: " + this.__DebugToString() + " [" + availableSize.toString() + "]"; });
         var totalSize = size.clone(availableSize);
-        var cols = this._GetColumnDefinitionsNoAutoCreate();
-        var rows = this._GetRowDefinitionsNoAutoCreate();
+        var cols = pass.Grid.ColumnDefinitions;// this._GetColumnDefinitionsNoAutoCreate();
+        var rows = pass.Grid.RowDefinitions;// this._GetRowDefinitionsNoAutoCreate();
         var colCount = cols ? cols.GetCount() : 0;
         var rowCount = rows ? rows.GetCount() : 0;
         var totalStars = new size();
@@ -254,23 +270,25 @@
             var remainingStar = i === 5;
 
             if (hasChildren) {
-                this._ExpandStarCols(totalSize);
-                this._ExpandStarRows(totalSize);
+                this._ExpandStarCols(totalSize, pass);
+                this._ExpandStarRows(totalSize, pass);
             }
 
             var walker = new Fayde._VisualTreeWalker(this);
             var child;
+            var up;
             while (child = walker.Step()) {
+                up = child._UpdatePass;
                 var childSize = new size();
                 var starCol = false;
                 var starRow = false;
                 var autoCol = false;
                 var autoRow = false;
 
-                var col = Math.min(Grid.GetColumn(child), colCount - 1);
-                var row = Math.min(Grid.GetRow(child), rowCount - 1);
-                var colspan = Math.min(Grid.GetColumnSpan(child), colCount - col);
-                var rowspan = Math.min(Grid.GetRowSpan(child), rowCount - row);
+                var col = Math.min(up.Grid.Column, colCount - 1);
+                var row = Math.min(up.Grid.Row, rowCount - 1);
+                var colspan = Math.min(up.Grid.ColumnSpan, colCount - col);
+                var rowspan = Math.min(up.Grid.RowSpan, rowCount - row);
 
                 for (r = row; r < row + rowspan; r++) {
                     starRow |= this._RowMatrix[r][r]._Type === namespace.GridUnitType.Star;
@@ -318,7 +336,7 @@
                     childSize.Width += this._ColMatrix[c][c]._OfferedSize;
                 }
 
-                child._MeasureWithError(childSize, error);
+                child._Measure(childSize, error);
 
                 if (!starAuto) {
                     node = new _GridNode(this._RowMatrix, row + rowspan - 1, row, child._DesiredSize.Height);
@@ -351,12 +369,12 @@
         }
         return gridSize;
     };
-    Grid.Instance._ArrangeOverrideWithError = function (finalSize, error) {
-        //LayoutDebug("Grid Arrange Pass: " + this.__DebugToString() + " [" + finalSize.toString() + "]");
-        var columns = this._GetColumnDefinitionsNoAutoCreate();
-        var rows = this._GetRowDefinitionsNoAutoCreate();
+    Grid.Instance._ArrangeOverride = function (finalSize, pass, error) {
+        //LayoutDebug(function () { return "Grid Arrange Pass: " + this.__DebugToString() + " [" + finalSize.toString() + "]"; });
+        var cols = pass.Grid.ColumnDefinitions;// this._GetColumnDefinitionsNoAutoCreate();
+        var rows = pass.Grid.RowDefinitions;// this._GetRowDefinitionsNoAutoCreate();
 
-        var colCount = columns ? columns.GetCount() : 0;
+        var colCount = cols ? cols.GetCount() : 0;
         var rowCount = rows ? rows.GetCount() : 0;
 
         this._RestoreMeasureResults();
@@ -373,12 +391,12 @@
         }
 
         if (totalConsumed.Width !== finalSize.Width)
-            this._ExpandStarCols(finalSize);
+            this._ExpandStarCols(finalSize, pass);
         if (totalConsumed.Height !== finalSize.Height)
-            this._ExpandStarRows(finalSize);
+            this._ExpandStarRows(finalSize, pass);
 
         for (c = 0; c < colCount; c++) {
-            columns.GetValueAt(c).$SetValueInternal(namespace.ColumnDefinition.ActualWidthProperty, this._ColMatrix[c][c]._OfferedSize);
+            cols.GetValueAt(c).$SetValueInternal(namespace.ColumnDefinition.ActualWidthProperty, this._ColMatrix[c][c]._OfferedSize);
         }
         for (r = 0; r < rowCount; r++) {
             rows.GetValueAt(r).$SetValueInternal(namespace.RowDefinition.ActualHeightProperty, this._RowMatrix[r][r]._OfferedSize);
@@ -386,11 +404,13 @@
 
         var walker = new Fayde._VisualTreeWalker(this);
         var child;
+        var up;
         while (child = walker.Step()) {
-            var col = Math.min(Grid.GetColumn(child), this._ColMatrixDim - 1);
-            var row = Math.min(Grid.GetRow(child), this._RowMatrixDim - 1);
-            var colspan = Math.min(Grid.GetColumnSpan(child), this._ColMatrixDim - col);
-            var rowspan = Math.min(Grid.GetRowSpan(child), this._RowMatrixDim - row);
+            up = child._UpdatePass;
+            var col = Math.min(up.Grid.Column, this._ColMatrixDim - 1);
+            var row = Math.min(up.Grid.Row, this._RowMatrixDim - 1);
+            var colspan = Math.min(up.Grid.ColumnSpan, this._ColMatrixDim - col);
+            var rowspan = Math.min(up.Grid.RowSpan, this._RowMatrixDim - row);
 
             var childFinal = new rect();
             for (c = 0; c < col; c++) {
@@ -406,15 +426,15 @@
             for (r = row; r < row + rowspan; r++) {
                 childFinal.Height += this._RowMatrix[r][r]._OfferedSize;
             }
-            child._ArrangeWithError(childFinal, error);
+            child._Arrange(childFinal, error);
         }
 
         return finalSize;
     };
 
-    Grid.Instance._ExpandStarRows = function (availableSize) {
+    Grid.Instance._ExpandStarRows = function (availableSize, pass) {
         availableSize = size.clone(availableSize);
-        var rows = this._GetRowDefinitionsNoAutoCreate();
+        var rows = pass.Grid.RowDefinitions;// this._GetRowDefinitionsNoAutoCreate();
         var rowsCount = rows ? rows.GetCount() : 0;
 
         var i;
@@ -435,10 +455,10 @@
             }
         }
     };
-    Grid.Instance._ExpandStarCols = function (availableSize) {
+    Grid.Instance._ExpandStarCols = function (availableSize, pass) {
         availableSize = size.clone(availableSize);
-        var columns = this._GetColumnDefinitionsNoAutoCreate();
-        var columnsCount = columns ? columns.GetCount() : 0;
+        var cols = pass.Grid.ColumnDefinitions;// this._GetColumnDefinitionsNoAutoCreate();
+        var columnsCount = cols ? cols.GetCount() : 0;
 
         var i;
         var cur;
@@ -454,7 +474,7 @@
             for (i = 0; i < this._ColMatrixDim; i++) {
                 cur = this._ColMatrix[i][i];
                 if (cur._Type === namespace.GridUnitType.Star) {
-                    columns.GetValueAt(i).$SetValueInternal(namespace.ColumnDefinition.ActualWidthProperty, cur._OfferedSize);
+                    cols.GetValueAt(i).$SetValueInternal(namespace.ColumnDefinition.ActualWidthProperty, cur._OfferedSize);
                 }
             }
         }
@@ -617,15 +637,14 @@
             this.PropertyChanged.Raise(this, args);
         };
         Grid.Instance._OnCollectionChanged = function (col, args) {
-            if (this._PropertyHasValueNoAutoCreate(Grid.ColumnDefinitionsProperty, col)
-                || this._PropertyHasValueNoAutoCreate(Grid.RowDefinitionsProperty, col)) {
+            if (col === this._UpdatePass.Grid.ColumnDefinitions || col === this._UpdatePass.Grid.RowDefinitions) {
                 this._InvalidateMeasure();
             } else {
                 this._OnCollectionChanged$Panel(col, args);
             }
         };
         Grid.Instance._OnCollectionItemChanged = function (col, obj, args) {
-            if (this._PropertyHasValueNoAutoCreate(namespace.Panel.ChildrenProperty, col)) {
+            if (col === this._UpdatePass.Panel.Children) {
                 if (args.Property._ID === Grid.ColumnProperty._ID
                     || args.Property._ID === Grid.RowProperty._ID
                     || args.Property._ID === Grid.ColumnSpanProperty._ID
@@ -634,14 +653,14 @@
                     obj._InvalidateMeasure();
                     return;
                 }
-            } else if (Nullstone.RefEquals(col, this._GetColumnDefinitionsNoAutoCreate())
-                || Nullstone.RefEquals(col, this._GetRowDefinitionsNoAutoCreate())) {
+            } else if (col === this._UpdatePass.Grid.ColumnDefinitions || col === this._UpdatePass.Grid.RowDefinitions) {
                 if (args.Property._ID !== namespace.ColumnDefinition.ActualWidthProperty._ID
                     && args.Property._ID !== namespace.RowDefinition.ActualHeightProperty._ID) {
                     this._InvalidateMeasure();
                 }
                 return;
             }
+
             this._OnCollectionItemChanged$Panel(col, obj, args);
         };
     }
@@ -665,17 +684,6 @@
         };
     }
     //#endif
-
-    //#endregion
-
-    //#region Definition Retrieval
-
-    Grid.Instance._GetRowDefinitionsNoAutoCreate = function () {
-        return this._GetValueNoAutoCreate(Grid.RowDefinitionsProperty);
-    }
-    Grid.Instance._GetColumnDefinitionsNoAutoCreate = function () {
-        return this._GetValueNoAutoCreate(Grid.ColumnDefinitionsProperty);
-    }
 
     //#endregion
 

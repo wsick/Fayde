@@ -71,9 +71,9 @@
 
     //#endregion
 
-    //#region Measure
+    //#region Measure/Arrange
 
-    Shape.Instance._MeasureOverrideWithError = function (availableSize, error) {
+    Shape.Instance._MeasureOverride = function (availableSize, pass, error) {
         /// <param name="availableSize" type="size"></param>
         var shapeBounds = this._GetNaturalBounds();
         if (!shapeBounds)
@@ -128,12 +128,7 @@
         desired.Height = shapeBounds.Height * sy;
         return desired;
     };
-
-    //#endregion
-
-    //#region Arrange
-
-    Shape.Instance._ArrangeOverrideWithError = function (finalSize, error) {
+    Shape.Instance._ArrangeOverride = function (finalSize, pass, error) {
         /// <param name="finalSize" type="size"></param>
         var sx = 1.0;
         var sy = 1.0;
@@ -225,8 +220,9 @@
         var sy = 1.0;
         var parent = this.GetVisualParent();
 
+        var metrics = this._UpdateMetrics;
         if (parent != null && !(parent instanceof Fayde.Controls.Canvas)) {
-            if (Fayde.LayoutInformation.GetPreviousConstraint(this) !== undefined || Fayde.LayoutInformation.GetLayoutSlot(this, true) !== undefined) {
+            if (metrics.PreviousConstraint !== undefined || Fayde.LayoutInformation.GetLayoutSlot(this, true) !== undefined) {
                 return desired;
             }
         }
@@ -306,7 +302,7 @@
             if (!isNaN(specified.Height))
                 framework.Height = specified.Height;
 
-        } else if (!Fayde.LayoutInformation.GetPreviousConstraint(this)) {
+        } else if (!this._UpdateMetrics.PreviousConstraint) {
             framework.Width = framework.Width === 0.0 ? shapeBounds.Width : framework.Width;
             framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
         }

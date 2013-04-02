@@ -51,11 +51,11 @@
     SetterBaseCollection.Instance._ValidateSetter = function (value, error) {
         var s = Nullstone.As(value, Fayde.Setter);
         if (s) {
-            if (s._GetValue(Fayde.Setter.PropertyProperty) === undefined) {
+            if (s.Property === undefined) {
                 error.SetErrored(BError.Exception, "Cannot have a null PropertyProperty value");
                 return false;
             }
-            if (s._ReadLocalValue(Fayde.Setter.ValueProperty) === undefined) {
+            if (s.Value === undefined) {
                 if (!s._HasDeferredValueExpression(Fayde.Setter.ValueProperty)) {
                     error.SetErrored(BError.Exception, "Cannot have a null ValueProperty value");
                     return false;
