@@ -179,7 +179,7 @@
     //#region Measure/Arrange
 
     Grid.Instance._MeasureOverride = function (availableSize, pass, error) {
-        //LayoutDebug("Grid Measure Pass: " + this.__DebugToString() + " [" + availableSize.toString() + "]");
+        //LayoutDebug(function () { return "Grid Measure Pass: " + this.__DebugToString() + " [" + availableSize.toString() + "]"; });
         var totalSize = size.clone(availableSize);
         var cols = pass.Grid.ColumnDefinitions;// this._GetColumnDefinitionsNoAutoCreate();
         var rows = pass.Grid.RowDefinitions;// this._GetRowDefinitionsNoAutoCreate();
@@ -370,7 +370,7 @@
         return gridSize;
     };
     Grid.Instance._ArrangeOverride = function (finalSize, pass, error) {
-        //LayoutDebug("Grid Arrange Pass: " + this.__DebugToString() + " [" + finalSize.toString() + "]");
+        //LayoutDebug(function () { return "Grid Arrange Pass: " + this.__DebugToString() + " [" + finalSize.toString() + "]"; });
         var cols = pass.Grid.ColumnDefinitions;// this._GetColumnDefinitionsNoAutoCreate();
         var rows = pass.Grid.RowDefinitions;// this._GetRowDefinitionsNoAutoCreate();
 

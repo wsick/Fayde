@@ -304,11 +304,11 @@
         while (pass.Count < Fayde.LayoutPass.MaxCount) {
             while (uie = pass.ArrangeList.shift()) {
                 uie._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
-                LayoutDebug("PropagateFlagUp DirtyArrangeHint");
+                LayoutDebug(function () { return "PropagateFlagUp DirtyArrangeHint"; });
             }
             while (uie = pass.SizeList.shift()) {
                 uie._PropagateFlagUp(UIElementFlags.DirtySizeHint);
-                LayoutDebug("PropagateFlagUp DirtySizeHint");
+                LayoutDebug(function () { return "PropagateFlagUp DirtySizeHint"; });
             }
             pass.Count = pass.Count + 1;
 
@@ -351,16 +351,16 @@
             }
 
             if (flag === UIElementFlags.DirtyMeasureHint) {
-                LayoutDebug("Starting _MeasureList Update: " + pass.MeasureList.length);
+                LayoutDebug(function () { return "Starting _MeasureList Update: " + pass.MeasureList.length; });
                 while (uie = pass.MeasureList.shift()) {
-                    LayoutDebug("Measure [" + uie.__DebugToString() + "]");
+                    LayoutDebug(function () { return "Measure [" + uie.__DebugToString() + "]"; });
                     uie._DoMeasureWithError(error);
                     pass.Updated = true;
                 }
             } else if (flag === UIElementFlags.DirtyArrangeHint) {
-                LayoutDebug("Starting _ArrangeList Update: " + pass.ArrangeList.length);
+                LayoutDebug(function () { return "Starting _ArrangeList Update: " + pass.ArrangeList.length; });
                 while (uie = pass.ArrangeList.shift()) {
-                    LayoutDebug("Arrange [" + uie.__DebugToString() + "]");
+                    LayoutDebug(function () { return "Arrange [" + uie.__DebugToString() + "]"; });
                     uie._DoArrangeWithError(error);
                     pass.Updated = true;
                     if (element._HasFlag(UIElementFlags.DirtyMeasureHint))
@@ -377,7 +377,7 @@
                         uie.SizeChanged.Raise(uie, new Fayde.SizeChangedEventArgs(last, uie._RenderSize));
                     }
                 }
-                LayoutDebug("Completed _SizeList Update");
+                LayoutDebug(function () { return "Completed _SizeList Update"; });
             } else {
                 break;
             }
