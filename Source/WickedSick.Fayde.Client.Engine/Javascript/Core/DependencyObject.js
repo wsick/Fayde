@@ -43,15 +43,14 @@
         this.PropertyChanged = new MulticastEvent();
         this._SubPropertyListeners = [];
         this._CachedValues = {};
+        this._Cache = {
+            Name: ""
+        };
     };
 
     //#region Properties
 
-    DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", function () { return String; }, DependencyObject, "", undefined, undefined, undefined, false, DependencyObject._NameValidator);
-
-    //#endregion
-
-    //#region Properties
+    DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", function () { return String; }, DependencyObject, "", function (d, args) { d._Cache.Name = args.NewValue; }, undefined, undefined, false, DependencyObject._NameValidator);
 
     Nullstone.AutoProperties(DependencyObject, [
         DependencyObject.NameProperty,
@@ -795,7 +794,7 @@
         }
 
         if (registerName) {
-            var n = this.Name;
+            var n = this._Cache.Name;
             if (n) {
                 var o = toNs.FindName(n);
                 if (o) {
@@ -829,7 +828,7 @@
 
         var thisNs = Fayde.NameScope.GetNameScope(this);
         if (/* TODO: this._IsHydratedFromXaml() || */!thisNs || thisNs._GetTemporary()) {
-            var name = this.Name;
+            var name = this._Cache.Name;
             if (name && name.length > 0)
                 fromNs.UnregisterName(name);
         }
@@ -906,7 +905,7 @@
                 }
             } else {
                 if (true /* TODO: this._IsHydratedFromXaml()*/) {
-                    var name = this.Name;
+                    var name = this._Cache.Name;
                     if (parentScope && name && name.length > 0) {
                         var existingObj = parentScope.FindName(name);
                         if (existingObj !== this) {
