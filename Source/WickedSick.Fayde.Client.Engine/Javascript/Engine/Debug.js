@@ -26,12 +26,17 @@ var DebugLevel = {
     Fatal: 4
 };
 
+var profiles = {
+    initialParse: true,
+    initialUpdate: true,
+    frameUpdate: true
+};
 var canProfile = false;
-function profile() {
+function profile(reportName) {
     if (!canProfile)
         return;
     if (window.console && console.profile)
-        console.profile();
+        console.profile(reportName);
 }
 function profileEnd() {
     if (!canProfile)

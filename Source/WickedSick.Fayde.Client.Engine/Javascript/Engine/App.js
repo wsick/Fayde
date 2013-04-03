@@ -70,10 +70,16 @@
         this.MainSurface.Register(containerId);
         this.NavService = new Fayde.Navigation.NavService(this);
 
+        canProfile = profiles.initialParse;
+        profile("Initial Parse");
         var element = Fayde.JsonParser.Parse(json, undefined, undefined, undefined, this);
+        profileEnd();
+        canProfile = false;
+
         if (element instanceof Fayde.UIElement)
             this.MainSurface._Attach(element);
 
+        canProfile = profiles.initialUpdate;
         this.Start();
         this.EmitLoaded();
     };
@@ -85,7 +91,7 @@
         this._ClockTimer.RegisterTimer(this);
     };
     App.Instance._Tick = function (lastTime, nowTime) {
-        profile();
+        profile("Tick");
         this.ProcessStoryboards(lastTime, nowTime);
         this.Update();
         profileEnd();
