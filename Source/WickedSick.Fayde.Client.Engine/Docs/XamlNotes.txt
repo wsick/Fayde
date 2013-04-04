@@ -1,0 +1,26 @@
+﻿XamlObject
+	LogicalParent
+	Name
+	IsAttached
+DependencyObject
+	ValueProvider
+UIElement
+	VisualParent
+FrameworkElement
+	Mentor
+
+
+1. Metrics - Manages bounds
+2. Xformer - Manages transforms
+3. UpdateMetrics - Holds cache of metrics used during update
+4. UpdatePass - Manages logic to Measure+Arrange+ProcessUp+ProcessDown
+		- Add render logic
+	
+
+Proposed Structure
+
+TreeNode (all should be created in same closure and have access to each other)
+	UpdatePass		->		LayoutUpdater
+		UpdateMetrics	->		Metrics (Merge)
+		Metrics			->		Metrics (Merge)
+		Xformer			->		Xformer

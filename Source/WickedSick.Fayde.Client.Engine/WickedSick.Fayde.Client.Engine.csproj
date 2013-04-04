@@ -75,6 +75,7 @@
     <Content Include="Docs\LayoutDep.txt" />
     <Content Include="Docs\Notes.txt" />
     <Content Include="Docs\Plugins.txt" />
+    <Content Include="Docs\XamlNotes.txt" />
     <Content Include="Fayde.Generic.js" />
     <Content Include="Fayde.js" />
     <Content Include="gl-matrix.js" />
