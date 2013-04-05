@@ -19,8 +19,12 @@ FrameworkElement
 
 Proposed Structure
 
-TreeNode (all should be created in same closure and have access to each other)
-	UpdatePass		->		LayoutUpdater
-		UpdateMetrics	->		Metrics (Merge)
-		Metrics			->		Metrics (Merge)
-		Xformer			->		Xformer
+XamlObject
+	TreeNode (all should be created in same closure and have access to each other)
+		UpdatePass		->		LayoutUpdater
+			UpdateMetrics	->		Metrics (Merge)
+			Metrics			->		Metrics (Merge)
+			Xformer			->		Xformer
+DependencyObject
+	ProviderStore
+	Expressions

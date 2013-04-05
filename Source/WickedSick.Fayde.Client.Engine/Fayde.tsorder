@@ -1,4 +1,12 @@
+Core/DependencyProperty.js
+Core/Expression.js
 Core/NameScope.js
+Core/ProviderStore.js
 Core/XamlNode.js
-Engine/Exceptions.js
 Core/XamlObject.js
+Data/Enums.js
+Engine/Exceptions.js
+Runtime/BError.js
+Runtime/Nullstone.js
+Core/DependencyObject.js
+Data/BindingExpressionBase.js

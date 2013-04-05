@@ -1,0 +1,3 @@
+class BError {
+    Message: string;
+}

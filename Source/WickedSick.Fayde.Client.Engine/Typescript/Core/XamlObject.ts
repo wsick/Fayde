@@ -1,5 +1,5 @@
-/// <reference path="XamlNode.ts" />
 /// CODE
+/// <reference path="XamlNode.ts" />
 
 module Fayde {
     export class XamlObject {
