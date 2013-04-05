@@ -434,12 +434,29 @@
     <Content Include="Styles\Thumb.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Fayde.tsorder" />
     <None Include="jsTestDriver.conf" />
     <Content Include="Silo\heightTest.htm" />
     <Content Include="Docs\Tips.txt" />
     <Content Include="Tests\qunit-1.11.0.css" />
     <Content Include="Tests\qunit-1.11.0.js" />
     <Content Include="Tests\tests.html" />
+    <TypeScriptCompile Include="Typescript\Core\XamlObject.ts" />
+    <TypeScriptCompile Include="Typescript\Core\XamlNode.ts" />
+    <TypeScriptCompile Include="Typescript\Core\NameScope.ts" />
+    <Content Include="Typescript\Core\NameScope.js">
+      <DependentUpon>NameScope.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\XamlNode.js">
+      <DependentUpon>XamlNode.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\XamlObject.js">
+      <DependentUpon>XamlObject.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Engine\Exceptions.ts" />
+    <Content Include="Typescript\Engine\Exceptions.js">
+      <DependentUpon>Exceptions.ts</DependentUpon>
+    </Content>
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -483,7 +500,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Docs\Rules\" />
-    <Folder Include="Typescript\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -501,6 +517,14 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptSourceMap> --sourcemap</TypeScriptSourceMap>
+  </PropertyGroup>
+  <Target Name="BeforeBuild">
+    <Message Text="Compiling TypeScript files" />
+    <Message Text="Executing tsc$(TypeScriptSourceMap) @(TypeScriptCompile ->'&quot;%(fullpath)&quot;', ' ')" />
+    <Exec Command="tsc$(TypeScriptSourceMap) -c --target ES5 @(TypeScriptCompile ->'&quot;%(fullpath)&quot;', ' ')" />
+  </Target>
   <PropertyGroup>
     <PreBuildEvent>"$(ProjectDir)PackageAssemblies.bat" "$(ProjectDir)"</PreBuildEvent>
   </PropertyGroup>
@@ -511,8 +535,6 @@ xcopy /s /y "$(ProjectDir)Fayde.Generic.js" "$(SolutionDir)..\JsBin\"</PostBuild
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
   <Target Name="AfterBuild">
   </Target>
   -->
