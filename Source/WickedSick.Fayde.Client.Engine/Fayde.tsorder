@@ -1,0 +1,4 @@
+Core/NameScope.js
+Core/XamlNode.js
+Engine/Exceptions.js
+Core/XamlObject.js
