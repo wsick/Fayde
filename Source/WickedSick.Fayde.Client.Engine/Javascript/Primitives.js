@@ -237,7 +237,12 @@ var rect = (function () {
         if((cm1 | cm2 | cm3 | cm4) !== 0) {
             if((cm1 & cm2 & cm3 & cm4) === 0) {
                 rect.clear(dest);
-            }
+                //TODO: Implement
+                //var r1 = Matrix3D._ClipToBounds(p1, p2, p3, cm1 | cm2 | cm3);
+                //var r2 = Matrix3D._ClipToBounds(p1, p3, p4, cm1 | cm3 | cm4);
+                //if (!r1.IsEmpty()) rect.union(dest, r1);
+                //if (!r2.IsEmpty()) rect.union(dest, r2);
+                            }
         } else {
             var p1w = 1.0 / p1[3];
             var p2w = 1.0 / p2[3];
@@ -430,3 +435,4 @@ var size = (function () {
     };
     return size;
 })();
+//@ sourceMappingURL=Primitives.js.map
