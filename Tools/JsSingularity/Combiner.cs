@@ -9,6 +9,7 @@ namespace JsSingularity
     public class Combiner
     {
         private static readonly Regex JS_REF_REGEX = new Regex(@"///\s?<reference\spath=""(?<filename>[^\\:*?""<>|\r\n]+\.js)""\s?/>", RegexOptions.Compiled);
+        private static readonly Regex TS_REF_REGEX = new Regex(@"///\s?<reference\spath=""(?<filename>[^\\:*?""<>|\r\n]+\.ts)""\s?/>", RegexOptions.Compiled);
         private static readonly Regex CANCEL_REF_REGEX = new Regex(@"///\s*CODE", RegexOptions.Compiled);
 
         //private static readonly string JS_INCLUDE_FORMAT = "<script src=\"{0}\" type=\"text/javascript\"></script>";
@@ -24,6 +25,7 @@ namespace JsSingularity
         public string IncludesFilePath { get; set; }
         public string BaseIncludesPath { get; set; }
         public bool IsDebug { get; set; }
+        public bool IsInTSMode { get; set; }
 
         protected DirectoryInfo ScriptsDirectory { get; set; }
 
@@ -33,7 +35,8 @@ namespace JsSingularity
 
             var orderedFiles = CollectOrderedFiles().ToList();
             WriteDebugIncludes(orderedFiles);
-            WriteCombinedJavascript(orderedFiles);
+            if (!string.IsNullOrWhiteSpace(DeployPath))
+                WriteCombinedJavascript(orderedFiles);
         }
 
         protected IEnumerable<JsFile> CollectOrderedFiles()
@@ -56,6 +59,8 @@ namespace JsSingularity
 
         protected IEnumerable<FileInfo> CollectFiles()
         {
+            if (IsInTSMode)
+                return ScriptsDirectory.GetFiles("*.ts", ShouldSearchSubDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
             return ScriptsDirectory.GetFiles("*.js", ShouldSearchSubDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
         }
 
@@ -73,7 +78,11 @@ namespace JsSingularity
                     var line = sr.ReadLine();
                     if (CANCEL_REF_REGEX.IsMatch(line))
                         break;
-                    var match = JS_REF_REGEX.Match(line);
+                    Match match;
+                    if (IsInTSMode)
+                        match = TS_REF_REGEX.Match(line);
+                    else
+                        match = JS_REF_REGEX.Match(line);
                     if (match.Success)
                     {
                         var relativeFilename = match.Groups["filename"].Value;
@@ -99,7 +108,10 @@ namespace JsSingularity
                 {
                     foreach (var jf in orderedFiles)
                     {
-                        sw.WriteLine(JS_INCLUDE_FORMAT, jf.GetPathRelativeTo(BaseIncludesPath));
+                        string relativePath = jf.GetPathRelativeTo(BaseIncludesPath);
+                        if (new FileInfo(relativePath).Extension == ".ts")
+                            relativePath = relativePath.Substring(0, relativePath.Length - 3) + ".js";
+                        sw.WriteLine(JS_INCLUDE_FORMAT, relativePath);
                     }
                 }
                 File.Copy(tempfi.FullName, IncludesFilePath, true);
