@@ -8,6 +8,8 @@ UIElement
 	VisualParent
 FrameworkElement
 	Mentor
+Control
+	IsEnabled
 
 
 1. Metrics - Manages bounds

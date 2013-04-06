@@ -3,5 +3,6 @@
 
 module Fayde {
     export class FrameworkElement extends UIElement {
+        static DataContextProperty: DependencyProperty;
     }
 }

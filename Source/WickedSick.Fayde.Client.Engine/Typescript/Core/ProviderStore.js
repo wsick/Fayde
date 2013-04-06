@@ -127,22 +127,24 @@ var Fayde;
                     this.LocalValueChanged();
                 }
             };
-            InheritedIsEnabledProvider.prototype._DetachListener = function (source) {
-                if(source) {
-                    var matchFunc = function (sender, args) {
-                        return this === args.Property;//Closure - Control.IsEnabledProperty
-                        
-                    };
-                    (source).PropertyChanged.SubscribeSpecific(this._IsEnabledChanged, this, matchFunc, Fayde.Controls.Control.IsEnabledProperty);
-                    //TODO: Add Handler - Destroyed Event
-                                    }
-            };
             InheritedIsEnabledProvider.prototype._AttachListener = function (source) {
-                if(source) {
-                    (source).PropertyChanged.Unsubscribe(this._IsEnabledChanged, this, Fayde.Controls.Control.IsEnabledProperty);
-                    //TODO: Remove Handler - Destroyed Event
-                                    }
-            };
+                if(!source) {
+                    return;
+                }
+                var matchFunc = function (sender, args) {
+                    return this === args.Property;//Closure - Control.IsEnabledProperty
+                    
+                };
+                (source).PropertyChanged.SubscribeSpecific(this._IsEnabledChanged, this, matchFunc, Fayde.Controls.Control.IsEnabledProperty);
+                //TODO: Add Handler - Destroyed Event
+                            };
+            InheritedIsEnabledProvider.prototype._DetachListener = function (source) {
+                if(!source) {
+                    return;
+                }
+                (source).PropertyChanged.Unsubscribe(this._IsEnabledChanged, this, Fayde.Controls.Control.IsEnabledProperty);
+                //TODO: Remove Handler - Destroyed Event
+                            };
             InheritedIsEnabledProvider.prototype._IsEnabledChanged = function (sender, args) {
                 this.LocalValueChanged();
             };
@@ -170,6 +172,68 @@ var Fayde;
             return InheritedIsEnabledProvider;
         })(PropertyProvider);
         Provider.InheritedIsEnabledProvider = InheritedIsEnabledProvider;        
+        var InheritedDataContextProvider = (function (_super) {
+            __extends(InheritedDataContextProvider, _super);
+            function InheritedDataContextProvider(store) {
+                        _super.call(this);
+                this._Store = store;
+            }
+            InheritedDataContextProvider.prototype.GetPropertyValue = function (store, propd) {
+                var source = this._Source;
+                if(!source) {
+                    return;
+                }
+                if(propd._ID !== Fayde.FrameworkElement.DataContextProperty._ID) {
+                    return;
+                }
+                return source._Store.GetValue(Fayde.FrameworkElement.DataContextProperty);
+            };
+            InheritedDataContextProvider.prototype.SetDataSource = function (source) {
+                var oldSource = this._Source;
+                if(oldSource === source) {
+                    return;
+                }
+                var oldValue = oldSource ? oldSource._Store.GetValue(Fayde.FrameworkElement.DataContextProperty) : undefined;
+                var newValue = source ? source._Store.GetValue(Fayde.FrameworkElement.DataContextProperty) : undefined;
+                this._DetachListener(oldSource);
+                this._Source = source;
+                this._AttachListener(source);
+                if(!Nullstone.Equals(oldValue, newValue)) {
+                    var error = new BError();
+                    this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, oldValue, newValue, false, false, false, error);
+                }
+            };
+            InheritedDataContextProvider.prototype._AttachListener = function (source) {
+                if(!source) {
+                    return;
+                }
+                var matchFunc = function (sender, args) {
+                    return this === args.Property;//Closure - FrameworkElement.DataContextProperty
+                    
+                };
+                (source).PropertyChanged.SubscribeSpecific(this._SourceDataContextChanged, this, matchFunc, Fayde.FrameworkElement.DataContextProperty);
+                //TODO: Add Handler - Destroyed Event
+                            };
+            InheritedDataContextProvider.prototype._DetachListener = function (source) {
+                if(!source) {
+                    return;
+                }
+                (source).PropertyChanged.Unsubscribe(this._SourceDataContextChanged, this, Fayde.FrameworkElement.DataContextProperty);
+                //TODO: Remove Handler - Destroyed Event
+                            };
+            InheritedDataContextProvider.prototype._SourceDataContextChanged = function (sender, args) {
+                var error = new BError();
+                this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, args.OldValue, args.NewValue, true, false, false, error);
+            };
+            InheritedDataContextProvider.prototype.EmitChanged = function () {
+                if(this._Source) {
+                    var error = new BError();
+                    this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, undefined, this._Source._Store.GetValue(Fayde.FrameworkElement.DataContextProperty), true, false, false, error);
+                }
+            };
+            return InheritedDataContextProvider;
+        })(PropertyProvider);
+        Provider.InheritedDataContextProvider = InheritedDataContextProvider;        
         var ProviderStore = (function () {
             function ProviderStore(dobj) {
                 this._Providers = [
