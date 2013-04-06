@@ -449,6 +449,10 @@
     <TypeScriptCompile Include="Typescript\Controls\TextBlock.ts" />
     <TypeScriptCompile Include="Typescript\Controls\Primitives\Popup.ts" />
     <TypeScriptCompile Include="Typescript\Controls\Image.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Control.ts" />
+    <Content Include="Typescript\Controls\Control.js">
+      <DependentUpon>Control.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Image.js">
       <DependentUpon>Image.ts</DependentUpon>
     </Content>

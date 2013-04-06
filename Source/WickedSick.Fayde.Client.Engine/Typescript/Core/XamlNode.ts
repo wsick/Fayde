@@ -7,7 +7,6 @@ module Fayde {
     declare var Warn;
 
     export class XamlNode {
-        
         XObject: XamlObject;
         ParentNode: XamlNode;
         Name: string;

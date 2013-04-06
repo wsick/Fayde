@@ -10,6 +10,7 @@ var Fayde;
     /// <reference path="../Runtime/BError.ts" />
     /// <reference path="../Runtime/Nullstone.ts" />
     /// <reference path="InheritedProvider.ts" />
+    /// <reference path="../Controls/Control.ts" />
     (function (Provider) {
         (function (_PropertyPrecedence) {
             _PropertyPrecedence._map = [];
@@ -90,6 +91,85 @@ var Fayde;
             return LocalValueProvider;
         })(PropertyProvider);
         Provider.LocalValueProvider = LocalValueProvider;        
+        var InheritedIsEnabledProvider = (function (_super) {
+            __extends(InheritedIsEnabledProvider, _super);
+            function InheritedIsEnabledProvider(store) {
+                        _super.call(this);
+                this._CurrentValue = true;
+                this._Store = store;
+            }
+            InheritedIsEnabledProvider.prototype.GetPropertyValue = function (store, propd) {
+                if(propd._ID === Fayde.Controls.Control.IsEnabledProperty._ID) {
+                    return this._CurrentValue;
+                }
+                return undefined;
+            };
+            InheritedIsEnabledProvider.prototype.SetDataSource = function (source) {
+                if(source) {
+                    var curNode = source.XamlNode;
+                    while(curNode) {
+                        if(curNode.XObject instanceof Fayde.Controls.Control) {
+                            break;
+                        } else if(curNode.XObject instanceof Fayde.FrameworkElement) {
+                            curNode = curNode.ParentNode;
+                        } else {
+                            curNode = null;
+                        }
+                    }
+                    source = (curNode) ? (curNode.XObject) : null;
+                }
+                if(this._Source !== source) {
+                    this._DetachListener(this._Source);
+                    this._Source = source;
+                    this._AttachListener(source);
+                }
+                if(!source && (this._Store._Object.XamlNode.IsAttached)) {
+                    this.LocalValueChanged();
+                }
+            };
+            InheritedIsEnabledProvider.prototype._DetachListener = function (source) {
+                if(source) {
+                    var matchFunc = function (sender, args) {
+                        return this === args.Property;//Closure - Control.IsEnabledProperty
+                        
+                    };
+                    (source).PropertyChanged.SubscribeSpecific(this._IsEnabledChanged, this, matchFunc, Fayde.Controls.Control.IsEnabledProperty);
+                    //TODO: Add Handler - Destroyed Event
+                                    }
+            };
+            InheritedIsEnabledProvider.prototype._AttachListener = function (source) {
+                if(source) {
+                    (source).PropertyChanged.Unsubscribe(this._IsEnabledChanged, this, Fayde.Controls.Control.IsEnabledProperty);
+                    //TODO: Remove Handler - Destroyed Event
+                                    }
+            };
+            InheritedIsEnabledProvider.prototype._IsEnabledChanged = function (sender, args) {
+                this.LocalValueChanged();
+            };
+            InheritedIsEnabledProvider.prototype.LocalValueChanged = function (propd) {
+                if(propd && propd._ID !== Fayde.Controls.Control.IsEnabledProperty._ID) {
+                    return false;
+                }
+                var store = this._Store;
+                var localEnabled = store.GetValueSpec(Fayde.Controls.Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
+                var parentEnabled = false;
+                var source = this._Source;
+                if(source && (store._Object.XamlNode).VisualParentNode) {
+                    parentEnabled = source.GetValue(Fayde.Controls.Control.IsEnabledProperty) === true;
+                }
+                var newValue = localEnabled === true && parentEnabled;
+                if(newValue !== this._CurrentValue) {
+                    var oldValue = this._CurrentValue;
+                    this._CurrentValue = newValue;
+                    var error = new BError();
+                    store._ProviderValueChanged(_PropertyPrecedence.IsEnabled, Fayde.Controls.Control.IsEnabledProperty, oldValue, newValue, true, false, false, error);
+                    return true;
+                }
+                return false;
+            };
+            return InheritedIsEnabledProvider;
+        })(PropertyProvider);
+        Provider.InheritedIsEnabledProvider = InheritedIsEnabledProvider;        
         var ProviderStore = (function () {
             function ProviderStore(dobj) {
                 this._Providers = [

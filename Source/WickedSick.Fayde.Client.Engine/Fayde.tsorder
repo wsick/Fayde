@@ -22,6 +22,7 @@ Documents/Inline.js
 Documents/Paragraph.js
 Documents/Section.js
 Documents/Span.js
+Controls/Control.js
 Controls/Image.js
 Controls/MediaElement.js
 Controls/TextBlock.js
