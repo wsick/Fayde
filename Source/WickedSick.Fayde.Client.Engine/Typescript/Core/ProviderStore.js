@@ -9,8 +9,8 @@ var Fayde;
     /// <reference path="DependencyObject.ts" />
     /// <reference path="../Runtime/BError.ts" />
     /// <reference path="../Runtime/Nullstone.ts" />
+    /// <reference path="InheritedProvider.ts" />
     (function (Provider) {
-        var _PropertyPrecedence;
         (function (_PropertyPrecedence) {
             _PropertyPrecedence._map = [];
             _PropertyPrecedence.IsEnabled = 0;
@@ -25,7 +25,8 @@ var Fayde;
             _PropertyPrecedence.Lowest = 8;
             _PropertyPrecedence.Highest = 0;
             _PropertyPrecedence.Count = 9;
-        })(_PropertyPrecedence || (_PropertyPrecedence = {}));
+        })(Provider._PropertyPrecedence || (Provider._PropertyPrecedence = {}));
+        var _PropertyPrecedence = Provider._PropertyPrecedence;
         var PropertyProvider = (function () {
             function PropertyProvider() { }
             PropertyProvider.prototype.GetPropertyValue = function (store, propd) {
@@ -89,17 +90,6 @@ var Fayde;
             return LocalValueProvider;
         })(PropertyProvider);
         Provider.LocalValueProvider = LocalValueProvider;        
-        var InheritedProvider = (function (_super) {
-            __extends(InheritedProvider, _super);
-            function InheritedProvider() {
-                _super.apply(this, arguments);
-
-            }
-            InheritedProvider.prototype.PropagateInheritedProperty = function (propd, source, subtree) {
-            };
-            return InheritedProvider;
-        })(PropertyProvider);
-        Provider.InheritedProvider = InheritedProvider;        
         var ProviderStore = (function () {
             function ProviderStore(dobj) {
                 this._Providers = [
@@ -341,7 +331,7 @@ var Fayde;
                         var inheritedProvider = this._InheritedProvider;
                         // GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited
                         if(inheritedProvider && ((this._ProviderBitmasks[propd._ID] & ((1 << _PropertyPrecedence.Inherited) - 1)) !== 0)) {
-                            inheritedProvider.PropagateInheritedProperty(propd, this._Object, this._Object);
+                            inheritedProvider.PropagateInheritedProperty(this, propd, this._Object, this._Object);
                         }
                     }
                 }

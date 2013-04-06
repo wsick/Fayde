@@ -2,9 +2,10 @@
 /// <reference path="DependencyObject.ts" />
 /// <reference path="../Runtime/BError.ts" />
 /// <reference path="../Runtime/Nullstone.ts" />
+/// <reference path="InheritedProvider.ts" />
 
 module Fayde.Provider {
-    enum _PropertyPrecedence {
+    export enum _PropertyPrecedence {
         IsEnabled = 0,
         LocalValue = 1,
         DynamicValue = 2,
@@ -64,21 +65,16 @@ module Fayde.Provider {
             this._ht[propd._ID] = undefined;
         }
     }
-    export class InheritedProvider extends PropertyProvider {
-        PropagateInheritedProperty(propd: DependencyProperty, source: DependencyObject, subtree: DependencyObject) {
-        }
-    }
-
 
     export class ProviderStore {
         _Object: DependencyObject;
         private _Providers: PropertyProvider[] = [null, null, null, null, null, null, null, null, null];
-        private _ProviderBitmasks: number[] = [];
+        _ProviderBitmasks: number[] = [];
         private _AnimStorage: any[][] = [];
 
         private _AutoCreateProvider: AutoCreateProvider;
         private _LocalValueProvider: LocalValueProvider;
-        private _InheritedProvider: InheritedProvider;
+        private _InheritedProvider: Inherited.InheritedProvider;
         private _InheritedIsEnabledProvider: PropertyProvider;
 
         constructor(dobj: DependencyObject) {
@@ -270,7 +266,7 @@ module Fayde.Provider {
                 newValue = newProviderValue;
             }
 
-             //INTENTIONAL: Below checks are different
+            //INTENTIONAL: Below checks are different
             if (oldValue === null && newValue === null)
                 return;
             if (oldValue === undefined && newValue === undefined)
@@ -307,7 +303,7 @@ module Fayde.Provider {
                     var inheritedProvider = this._InheritedProvider;
                     // GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited
                     if (inheritedProvider && ((this._ProviderBitmasks[propd._ID] & ((1 << _PropertyPrecedence.Inherited) - 1)) !== 0))
-                        inheritedProvider.PropagateInheritedProperty(propd, this._Object, this._Object);
+                        inheritedProvider.PropagateInheritedProperty(this, propd, this._Object, this._Object);
                 }
             }
         }
@@ -332,7 +328,7 @@ module Fayde.Provider {
                 this._AnimStorage[propd._ID] = list = [storage];
                 return undefined;
             }
-            
+
             var attached = list[list.length - 1];
             if (attached)
                 attached.Disable();
@@ -373,7 +369,7 @@ module Fayde.Provider {
                     provider.RecomputePropertyValueOnLower(propd);
             }
         }
-
+        
         private _AttachValue(value: any) {
             if (!value)
                 return;

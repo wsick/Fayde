@@ -9,7 +9,7 @@ module Fayde {
 
     export class DependencyObject extends XamlObject {
         private _Expressions: Fayde.Expression[] = [];
-        private _Store: Provider.ProviderStore;
+        _Store: Provider.ProviderStore;
         _CachedValues: any[] = [];
 
         constructor() {

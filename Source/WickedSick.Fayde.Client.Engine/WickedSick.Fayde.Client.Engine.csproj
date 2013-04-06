@@ -446,6 +446,22 @@
     <TypeScriptCompile Include="Typescript\Core\XamlNode.ts" />
     <TypeScriptCompile Include="Typescript\Core\NameScope.ts" />
     <TypeScriptCompile Include="Typescript\Core\DependencyObject.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\TextBlock.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\Popup.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Image.ts" />
+    <Content Include="Typescript\Controls\Image.js">
+      <DependentUpon>Image.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\MediaElement.ts" />
+    <Content Include="Typescript\Controls\MediaElement.js">
+      <DependentUpon>MediaElement.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\Primitives\Popup.js">
+      <DependentUpon>Popup.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\TextBlock.js">
+      <DependentUpon>TextBlock.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\DependencyObject.js">
       <DependentUpon>DependencyObject.ts</DependentUpon>
     </Content>
@@ -457,12 +473,36 @@
     <Content Include="Typescript\Core\Expression.js">
       <DependentUpon>Expression.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Core\InheritedProvider.ts" />
+    <TypeScriptCompile Include="Typescript\Core\FrameworkElement.ts" />
+    <Content Include="Typescript\Core\FrameworkElement.js">
+      <DependentUpon>FrameworkElement.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Runtime\IEnumerator.ts" />
+    <Content Include="Typescript\Runtime\IEnumerator.js">
+      <DependentUpon>IEnumerator.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\InheritedProvider.js">
+      <DependentUpon>InheritedProvider.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\InternalCollection.ts" />
+    <Content Include="Typescript\Core\InternalCollection.js">
+      <DependentUpon>InternalCollection.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\NameScope.js">
       <DependentUpon>NameScope.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Core\ProviderStore.ts" />
     <Content Include="Typescript\Core\ProviderStore.js">
       <DependentUpon>ProviderStore.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\UIElement.ts" />
+    <Content Include="Typescript\Core\UIElement.js">
+      <DependentUpon>UIElement.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\VisualTreeWalker.ts" />
+    <Content Include="Typescript\Core\VisualTreeWalker.js">
+      <DependentUpon>VisualTreeWalker.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Core\XamlNode.js">
       <DependentUpon>XamlNode.ts</DependentUpon>
@@ -478,6 +518,30 @@
     <TypeScriptCompile Include="Typescript\Data\Enums.ts" />
     <Content Include="Typescript\Data\Enums.js">
       <DependentUpon>Enums.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Documents\TextElement.ts" />
+    <TypeScriptCompile Include="Typescript\Documents\Span.ts" />
+    <TypeScriptCompile Include="Typescript\Documents\Paragraph.ts" />
+    <TypeScriptCompile Include="Typescript\Documents\Block.ts" />
+    <Content Include="Typescript\Documents\Block.js">
+      <DependentUpon>Block.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Documents\Inline.ts" />
+    <Content Include="Typescript\Documents\Inline.js">
+      <DependentUpon>Inline.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Documents\Paragraph.js">
+      <DependentUpon>Paragraph.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Documents\Section.ts" />
+    <Content Include="Typescript\Documents\Section.js">
+      <DependentUpon>Section.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Documents\Span.js">
+      <DependentUpon>Span.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Documents\TextElement.js">
+      <DependentUpon>TextElement.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Engine\Exceptions.js">
       <DependentUpon>Exceptions.ts</DependentUpon>

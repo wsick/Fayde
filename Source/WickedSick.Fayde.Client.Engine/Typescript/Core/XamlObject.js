@@ -4,8 +4,11 @@ var Fayde;
 (function (Fayde) {
     var XamlObject = (function () {
         function XamlObject() {
-            this.XamlNode = new Fayde.XamlNode(this);
+            this.XamlNode = this.CreateNode();
         }
+        XamlObject.prototype.CreateNode = function () {
+            return new Fayde.XamlNode(this);
+        };
         Object.defineProperty(XamlObject.prototype, "Name", {
             get: function () {
                 return this.XamlNode.Name;

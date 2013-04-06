@@ -1,6 +1,7 @@
 /// CODE
 /// <reference path="XamlObject.ts" />
 /// <reference path="NameScope.ts" />
+/// <reference path="InternalCollection.ts" />
 var Fayde;
 (function (Fayde) {
     var XamlNode = (function () {
@@ -68,6 +69,9 @@ var Fayde;
             }
             this.SetIsAttached(false);
             this.ParentNode = null;
+        };
+        XamlNode.prototype.GetInheritedWalker = function () {
+            return undefined;
         };
         return XamlNode;
     })();

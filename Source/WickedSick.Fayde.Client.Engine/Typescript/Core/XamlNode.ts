@@ -1,11 +1,13 @@
 /// CODE
 /// <reference path="XamlObject.ts" />
 /// <reference path="NameScope.ts" />
+/// <reference path="InternalCollection.ts" />
 
 module Fayde {
     declare var Warn;
 
     export class XamlNode {
+        
         XObject: XamlObject;
         ParentNode: XamlNode;
         Name: string;
@@ -77,5 +79,7 @@ module Fayde {
             this.SetIsAttached(false);
             this.ParentNode = null;
         }
+
+        GetInheritedWalker(): IEnumerator { return undefined; }
     }
 }
