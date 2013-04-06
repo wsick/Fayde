@@ -1,6 +1,6 @@
 /// <reference path="DependencyObject.ts" />
 /// CODE
-/// <reference path="VisualTreeWalker.ts" />
+/// <reference path="Walkers.ts" />
 
 module Fayde {
     export class UINode extends XamlNode {

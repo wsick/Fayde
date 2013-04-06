@@ -483,6 +483,14 @@
       <DependentUpon>FrameworkElement.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Runtime\IEnumerator.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Style.ts" />
+    <Content Include="Typescript\Core\Style.js">
+      <DependentUpon>Style.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\Walkers.ts" />
+    <Content Include="Typescript\Core\Walkers.js">
+      <DependentUpon>Walkers.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Runtime\IEnumerator.js">
       <DependentUpon>IEnumerator.ts</DependentUpon>
     </Content>
@@ -503,10 +511,6 @@
     <TypeScriptCompile Include="Typescript\Core\UIElement.ts" />
     <Content Include="Typescript\Core\UIElement.js">
       <DependentUpon>UIElement.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="Typescript\Core\VisualTreeWalker.ts" />
-    <Content Include="Typescript\Core\VisualTreeWalker.js">
-      <DependentUpon>VisualTreeWalker.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Core\XamlNode.js">
       <DependentUpon>XamlNode.ts</DependentUpon>

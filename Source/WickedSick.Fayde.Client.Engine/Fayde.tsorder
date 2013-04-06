@@ -12,8 +12,9 @@ Runtime/BError.js
 Runtime/IEnumerator.js
 Runtime/Nullstone.js
 Core/DependencyObject.js
+Core/Style.js
 Core/UIElement.js
-Core/VisualTreeWalker.js
+Core/Walkers.js
 Data/BindingExpressionBase.js
 Documents/TextElement.js
 Core/FrameworkElement.js

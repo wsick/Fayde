@@ -11,6 +11,7 @@ var Fayde;
     /// <reference path="../Runtime/Nullstone.ts" />
     /// <reference path="InheritedProvider.ts" />
     /// <reference path="../Controls/Control.ts" />
+    /// <reference path="Style.ts" />
     (function (Provider) {
         (function (_PropertyPrecedence) {
             _PropertyPrecedence._map = [];
@@ -28,17 +29,46 @@ var Fayde;
             _PropertyPrecedence.Count = 9;
         })(Provider._PropertyPrecedence || (Provider._PropertyPrecedence = {}));
         var _PropertyPrecedence = Provider._PropertyPrecedence;
+        (function (_StyleIndex) {
+            _StyleIndex._map = [];
+            _StyleIndex.VisualTree = 0;
+            _StyleIndex.ApplicationResources = 1;
+            _StyleIndex.GenericXaml = 2;
+            _StyleIndex.Count = 3;
+        })(Provider._StyleIndex || (Provider._StyleIndex = {}));
+        var _StyleIndex = Provider._StyleIndex;
+        (function (_StyleMask) {
+            _StyleMask._map = [];
+            _StyleMask.None = 0;
+            _StyleMask.VisualTree = 1 << _StyleIndex.VisualTree;
+            _StyleMask.ApplicationResources = 1 << _StyleIndex.ApplicationResources;
+            _StyleMask.GenericXaml = 1 << _StyleIndex.GenericXaml;
+            _StyleMask.All = _StyleMask.VisualTree | _StyleMask.ApplicationResources | _StyleMask.GenericXaml;
+        })(Provider._StyleMask || (Provider._StyleMask = {}));
+        var _StyleMask = Provider._StyleMask;
         var PropertyProvider = (function () {
             function PropertyProvider() { }
             PropertyProvider.prototype.GetPropertyValue = function (store, propd) {
             };
-            PropertyProvider.prototype.RecomputePropertyValueOnClear = function (propd) {
+            PropertyProvider.prototype.RecomputePropertyValueOnClear = function (propd, error) {
             };
-            PropertyProvider.prototype.RecomputePropertyValueOnLower = function (propd) {
+            PropertyProvider.prototype.RecomputePropertyValueOnLower = function (propd, error) {
             };
             return PropertyProvider;
         })();
         Provider.PropertyProvider = PropertyProvider;        
+        var DefaultValueProvider = (function (_super) {
+            __extends(DefaultValueProvider, _super);
+            function DefaultValueProvider() {
+                _super.apply(this, arguments);
+
+            }
+            DefaultValueProvider.prototype.GetPropertyValue = function (store, propd) {
+                return propd.DefaultValue;
+            };
+            return DefaultValueProvider;
+        })(PropertyProvider);
+        Provider.DefaultValueProvider = DefaultValueProvider;        
         var AutoCreateProvider = (function (_super) {
             __extends(AutoCreateProvider, _super);
             function AutoCreateProvider() {
@@ -234,6 +264,224 @@ var Fayde;
             return InheritedDataContextProvider;
         })(PropertyProvider);
         Provider.InheritedDataContextProvider = InheritedDataContextProvider;        
+        var LocalStyleProvider = (function (_super) {
+            __extends(LocalStyleProvider, _super);
+            function LocalStyleProvider(store) {
+                        _super.call(this);
+                this._ht = [];
+                this._Store = store;
+            }
+            LocalStyleProvider.prototype.GetPropertyValue = function (store, propd) {
+                return this._ht[propd._ID];
+            };
+            LocalStyleProvider.prototype.RecomputePropertyValueOnClear = function (propd, error) {
+                var oldValue;
+                var newValue;
+                var walkPropd;
+                var walker = Fayde.DeepStyleWalker.Single(this._Style);
+                var setter;
+                while(setter = walker.Step()) {
+                    walkPropd = setter.Property;
+                    if(walkPropd._ID !== propd._ID) {
+                        continue;
+                    }
+                    newValue = setter.ConvertedValue;
+                    oldValue = this._ht[propd._ID];
+                    this._ht[propd._ID] = newValue;
+                    this._Store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, propd, oldValue, newValue, true, true, true, error);
+                    if(error.Message) {
+                        return;
+                    }
+                }
+            };
+            LocalStyleProvider.prototype.UpdateStyle = function (style, error) {
+                var store = this._Store;
+                var oldValue = undefined;
+                var newValue = undefined;
+                var oldWalker = Fayde.DeepStyleWalker.Single(this._Style);
+                var newWalker = Fayde.DeepStyleWalker.Single(style);
+                style.Seal();
+                var oldSetter = oldWalker.Step();
+                var newSetter = newWalker.Step();
+                var oldProp;
+                var newProp;
+                while(oldSetter || newSetter) {
+                    if(oldSetter) {
+                        oldProp = oldSetter.Property;
+                    }
+                    if(newSetter) {
+                        newProp = newSetter.Property;
+                    }
+                    if(oldProp && (oldProp < newProp || !newProp)) {
+                        //WTF: Less than?
+                        //Property in old style, not in new style
+                        oldValue = oldSetter.ConvertedValue;
+                        newValue = undefined;
+                        this._ht[oldProp._ID] = undefined;
+                        store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, oldProp, oldValue, newValue, true, true, false, error);
+                        oldSetter = oldWalker.Step();
+                    } else if(oldProp === newProp) {
+                        //Property in both styles
+                        oldValue = oldSetter.ConvertedValue;
+                        newValue = newSetter.ConvertedValue;
+                        this._ht[oldProp._ID] = newValue;
+                        store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, oldProp, oldValue, newValue, true, true, false, error);
+                        oldSetter = oldWalker.Step();
+                        newSetter = newWalker.Step();
+                    } else {
+                        //Property in new style, not in old style
+                        oldValue = undefined;
+                        newValue = newSetter.ConvertedValue;
+                        this._ht[newProp._ID] = newValue;
+                        store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, newProp, oldValue, newValue, true, true, false, error);
+                        newSetter = newWalker.Step();
+                    }
+                }
+                this._Style = style;
+            };
+            return LocalStyleProvider;
+        })(PropertyProvider);
+        Provider.LocalStyleProvider = LocalStyleProvider;        
+        var ImplicitStyleProvider = (function (_super) {
+            __extends(ImplicitStyleProvider, _super);
+            function ImplicitStyleProvider(store) {
+                        _super.call(this);
+                this._ht = [];
+                this._Styles = [
+                    null, 
+                    null, 
+                    null
+                ];
+                this._StyleMask = _StyleMask.None;
+                this._Store = store;
+            }
+            ImplicitStyleProvider.prototype.GetPropertyValue = function (store, propd) {
+                return this._ht[propd._ID];
+            };
+            ImplicitStyleProvider.prototype.RecomputePropertyValueOnClear = function (propd, error) {
+                if(!this._Styles) {
+                    return;
+                }
+                var oldValue;
+                var newValue;
+                var prop;
+                var walker = Fayde.DeepStyleWalker.Multiple(this._Styles);
+                var setter;
+                while(setter = walker.Step()) {
+                    prop = setter.Property;
+                    if(prop._ID !== propd._ID) {
+                        continue;
+                    }
+                    newValue = setter.ConvertedValue;
+                    oldValue = this._ht[propd._ID];
+                    this._ht[propd._ID] = newValue;
+                    this._Store._ProviderValueChanged(_PropertyPrecedence.ImplicitStyle, propd, oldValue, newValue, true, true, true, error);
+                    if(error.Message) {
+                        return;
+                    }
+                }
+            };
+            ImplicitStyleProvider.prototype.SetStyles = function (styleMask, styles, error) {
+                if(!styles) {
+                    return;
+                }
+                var newStyles = [
+                    null, 
+                    null, 
+                    null
+                ];
+                if(this._Styles) {
+                    newStyles[_StyleIndex.GenericXaml] = this._Styles[_StyleIndex.GenericXaml];
+                    newStyles[_StyleIndex.ApplicationResources] = this._Styles[_StyleIndex.ApplicationResources];
+                    newStyles[_StyleIndex.VisualTree] = this._Styles[_StyleIndex.VisualTree];
+                }
+                if(styleMask & _StyleMask.GenericXaml) {
+                    newStyles[_StyleIndex.GenericXaml] = styles[_StyleIndex.GenericXaml];
+                }
+                if(styleMask & _StyleMask.ApplicationResources) {
+                    newStyles[_StyleIndex.ApplicationResources] = styles[_StyleIndex.ApplicationResources];
+                }
+                if(styleMask & _StyleMask.VisualTree) {
+                    newStyles[_StyleIndex.VisualTree] = styles[_StyleIndex.VisualTree];
+                }
+                this._ApplyStyles(this._StyleMask | styleMask, newStyles, error);
+            };
+            ImplicitStyleProvider.prototype.ClearStyles = function (styleMask, error) {
+                if(!this._Styles) {
+                    return;
+                }
+                var newStyles = this._Styles.slice(0);
+                //TODO: Do we need a deep copy?
+                if(styleMask & _StyleMask.GenericXaml) {
+                    newStyles[_StyleIndex.GenericXaml] = null;
+                }
+                if(styleMask & _StyleMask.ApplicationResources) {
+                    newStyles[_StyleIndex.ApplicationResources] = null;
+                }
+                if(styleMask & _StyleMask.VisualTree) {
+                    newStyles[_StyleIndex.VisualTree] = null;
+                }
+                this._ApplyStyles(this._StyleMask & ~styleMask, newStyles, error);
+            };
+            ImplicitStyleProvider.prototype._ApplyStyles = function (styleMask, styles, error) {
+                var isChanged = !this._Styles || styleMask !== this._StyleMask;
+                if(!isChanged) {
+                    for(var i = 0; i < _StyleIndex.Count; i++) {
+                        if(styles[i] !== this._Styles[i]) {
+                            isChanged = true;
+                            break;
+                        }
+                    }
+                }
+                if(!isChanged) {
+                    return;
+                }
+                var oldValue;
+                var newValue;
+                var oldWalker = Fayde.DeepStyleWalker.Multiple(this._Styles);
+                var newWalker = Fayde.DeepStyleWalker.Multiple(styles);
+                var oldSetter = oldWalker.Step();
+                var newSetter = newWalker.Step();
+                while(oldSetter || newSetter) {
+                    var oldProp;
+                    var newProp;
+                    if(oldSetter) {
+                        oldProp = oldSetter.Property;
+                    }
+                    if(newSetter) {
+                        newProp = newSetter.Property;
+                    }
+                    if(oldProp && (oldProp < newProp || !newProp)) {
+                        //WTF: Less than?
+                        //Property in old style, not in new style
+                        oldValue = oldSetter.ConvertedValue;
+                        newValue = undefined;
+                        this._ht[oldProp._ID] = undefined;
+                        this._Store._ProviderValueChanged(_PropertyPrecedence.ImplicitStyle, oldProp, oldValue, newValue, true, true, false, error);
+                        oldSetter = oldWalker.Step();
+                    } else if(oldProp == newProp) {
+                        //Property in both styles
+                        oldValue = oldSetter.ConvertedValue;
+                        newValue = newSetter.ConvertedValue;
+                        this._ht[oldProp._ID] = newValue;
+                        this._Store._ProviderValueChanged(_PropertyPrecedence.ImplicitStyle, oldProp, oldValue, newValue, true, true, false, error);
+                        oldSetter = oldWalker.Step();
+                        newSetter = newWalker.Step();
+                    } else {
+                        //Property in new style, not in old style
+                        oldValue = undefined;
+                        newValue = newSetter.ConvertedValue;
+                        this._ht[newProp._ID] = newValue;
+                        this._Store._ProviderValueChanged(_PropertyPrecedence.ImplicitStyle, newProp, oldValue, newValue, true, true, false, error);
+                        newSetter = newWalker.Step();
+                    }
+                }
+                this._Styles = styles;
+                this._StyleMask = styleMask;
+            };
+            return ImplicitStyleProvider;
+        })(PropertyProvider);
+        Provider.ImplicitStyleProvider = ImplicitStyleProvider;        
         var ProviderStore = (function () {
             function ProviderStore(dobj) {
                 this._Providers = [
@@ -376,15 +624,15 @@ var Fayde;
                         this._AutoCreateProvider.ClearValue(propd);
                     }
                 }
+                var error = new BError();
                 var count = _PropertyPrecedence.Count;
                 for(var i = _PropertyPrecedence.LocalValue + 1; i < count; i++) {
                     var provider = this._Providers[i];
                     if(provider) {
-                        provider.RecomputePropertyValueOnClear(propd);
+                        provider.RecomputePropertyValueOnClear(propd, error);
                     }
                 }
                 if(oldLocalValue !== undefined) {
-                    var error = new BError();
                     this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, oldLocalValue, undefined, notifyListeners, true, false, error);
                     if(error.Message) {
                         throw new Exception(error.Message);
@@ -540,10 +788,11 @@ var Fayde;
                 }
             };
             ProviderStore.prototype._CallRecomputePropertyValueForProviders = function (propd, providerPrecedence) {
+                var error = new BError();
                 for(var i = 0; i < providerPrecedence; i++) {
                     var provider = this._Providers[i];
                     if(provider) {
-                        provider.RecomputePropertyValueOnLower(propd);
+                        provider.RecomputePropertyValueOnLower(propd, error);
                     }
                 }
             };

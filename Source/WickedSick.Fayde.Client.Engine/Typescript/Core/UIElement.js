@@ -5,7 +5,7 @@ var __extends = this.__extends || function (d, b) {
 };
 /// <reference path="DependencyObject.ts" />
 /// CODE
-/// <reference path="VisualTreeWalker.ts" />
+/// <reference path="Walkers.ts" />
 var Fayde;
 (function (Fayde) {
     var UINode = (function (_super) {
