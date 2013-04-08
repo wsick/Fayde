@@ -70,10 +70,16 @@
         this.MainSurface.Register(containerId);
         this.NavService = new Fayde.Navigation.NavService(this);
 
+        canProfile = profiles.initialParse;
+        profile("Initial Parse");
         var element = Fayde.JsonParser.Parse(json, undefined, undefined, undefined, this);
+        profileEnd();
+        canProfile = false;
+
         if (element instanceof Fayde.UIElement)
             this.MainSurface._Attach(element);
 
+        canProfile = profiles.initialUpdate;
         this.Start();
         this.EmitLoaded();
     };
@@ -85,7 +91,7 @@
         this._ClockTimer.RegisterTimer(this);
     };
     App.Instance._Tick = function (lastTime, nowTime) {
-        profile();
+        profile("Tick");
         this.ProcessStoryboards(lastTime, nowTime);
         this.Update();
         profileEnd();
@@ -150,17 +156,20 @@
                 }
             }
         }
+        var res = this.Resources;
         if ((styleMask & _StyleMask.ApplicationResources) != 0) {
-            appResourcesStyle = this.Resources.Get(fe.constructor);
+            appResourcesStyle = res.Get(fe.constructor);
             if (appResourcesStyle == null)
-                appResourcesStyle = this.Resources.Get(fe._TypeName);
+                appResourcesStyle = res.Get(fe._TypeName);
             if (appResourcesStyle != null)
-                appResourcesStyle._ResChain = [this.Resources];
+                appResourcesStyle._ResChain = [res];
         }
         if ((styleMask & _StyleMask.VisualTree) != 0) {
             var isControl = fe instanceof Fayde.Controls.Control;
             var el = fe;
+            var up;
             while (el != null) {
+                up = el._UpdatePass;
                 if (el.TemplateOwner != null && fe.TemplateOwner == null) {
                     el = el.TemplateOwner;
                     continue;
@@ -168,14 +177,17 @@
                 if (!isControl && Nullstone.RefEquals(el, fe.TemplateOwner))
                     break;
 
-                visualTreeStyle = el.Resources.Get(fe.constructor);
-                if (visualTreeStyle != null)
-                    break;
-                visualTreeStyle = el.Resources.Get(fe._TypeName);
-                if (visualTreeStyle != null)
-                    break;
+                res = up.Resources;
+                if (res) {
+                    visualTreeStyle = res.Get(fe.constructor);
+                    if (visualTreeStyle != null)
+                        break;
+                    visualTreeStyle = res.Get(fe._TypeName);
+                    if (visualTreeStyle != null)
+                        break;
+                }
 
-                el = el.GetVisualParent();
+                el = up.VisualParent;
             }
         }
 

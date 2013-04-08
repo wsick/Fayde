@@ -84,7 +84,8 @@
         var padding = this.Padding;
         var constraint = this._ApplySizeConstraints(size.createInfinite());
 
-        if (Fayde.LayoutInformation.GetPreviousConstraint(this) !== undefined || Fayde.LayoutInformation.GetLayoutSlot(this, true) !== undefined) {
+        var metrics = this._UpdateMetrics;
+        if (metrics.PreviousConstraint !== undefined || Fayde.LayoutInformation.GetLayoutSlot(this, true) !== undefined) {
             this._Layout.Layout();
             var actuals = this._Layout.GetActualExtents();
             this._ActualWidth = actuals.Width;
@@ -104,9 +105,9 @@
         return new Point(xformSize.Width * userXformOrigin.X, xformSize.height * userXformOrigin.Y);
     };
 
-    //#region Measure
+    //#region Measure/Arrange
 
-    TextBlock.Instance._MeasureOverrideWithError = function (availableSize, error) {
+    TextBlock.Instance._MeasureOverride = function (availableSize, pass, error) {
         var padding = this.Padding;
         var constraint = size.clone(availableSize);
         size.shrinkByThickness(constraint, padding);
@@ -115,12 +116,7 @@
         size.growByThickness(desired, padding);
         return desired;
     };
-
-    //#endregion
-
-    //#region Arrange
-
-    TextBlock.Instance._ArrangeOverrideWithError = function (finalSize, error) {
+    TextBlock.Instance._ArrangeOverride = function (finalSize, pass, error) {
         var padding = this.Padding;
         var constraint = size.clone(finalSize);
         size.shrinkByThickness(constraint, padding);

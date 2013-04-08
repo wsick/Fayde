@@ -20,8 +20,8 @@ class Nullstone {
     static GetPropertyDescriptor(obj, name: string): PropertyDescriptor;
     static HasProperty(obj, name: string): PropertyDescriptor;
 
-    static ImportJsFile(file: string);
-    static ImportJsFile(file: string, callback: () => void );
+    static ImportJsFile(url: string, onComplete?: (script: HTMLScriptElement) => void);
+    static ImportJsFiles(urls: string[], onComplete?: (scripts: HTMLScriptElement[]) => void);
 }
 class EventArgs {
 }
@@ -41,12 +41,18 @@ class Dictionary {
     Remove(key);
     Clear();
 }
+interface IEnumerable {
+}
 
 class AjaxJsonRequest {
-    constructor (onSuccess: (json: string) => void, onError: (msg: string, error?) => void);
+    constructor (onSuccess: (json: AjaxJsonResult) => void, onError: (msg: string, error?) => void);
     Get(url: string, query: string);
     Post(url: string, query: string, data);
     Cancel();
+}
+class AjaxJsonResult {
+    CreateJson(): any;
+    GetHeader(name: string): string;
 }
 
 class App extends Fayde.DependencyObject {
@@ -336,6 +342,9 @@ class TimeSpan {
 class Uri {
     toString(): string;
     static IsNullOrEmpty(uri: Uri): bool;
+}
+class Enum {
+    constructor(type: any);
 }
 
 //////////////////////////////////////////////////////////
@@ -694,8 +703,8 @@ module Fayde {
 
 class DependencyProperty {
     Name: string;
-    static Register(name: string, getTargetType: Function, ownerType, defaultValue, changedCallback): DependencyProperty;
-    static RegisterAttached(name: string, getTargetType: Function, ownerType, defaultValue, changedCallback): DependencyProperty;
+    static Register(name: string, getTargetType: Function, ownerType, defaultValue, changedCallback?): DependencyProperty;
+    static RegisterAttached(name: string, getTargetType: Function, ownerType, defaultValue, changedCallback?): DependencyProperty;
 }
 
 //////////////////////////////////////////////////////////
@@ -1277,7 +1286,7 @@ module Fayde.Controls {
         static ItemTemplateProperty: DependencyProperty;
         DisplayMemberPath: string;
         ItemsPanel: ItemsPanelTemplate;
-        ItemsSource;
+        ItemsSource: IEnumerable;
         ItemTemplate: DataTemplate;
         Items: ItemCollection;
         ItemContainerGenerator: ItemContainerGenerator;
@@ -2462,18 +2471,18 @@ module Fayde.Collections {
         CollectionChanged: NotifyCollectionChangedEventHandler;
 
         GetCount(): number;
-        GetValueAt(index: number): DependencyObject;
-        SetValueAt(index: number, value: DependencyObject);
-        Add(value: DependencyObject);
-        AddRange(newItems: DependencyObject[]);
+        GetValueAt(index: number): any;
+        SetValueAt(index: number, value: any);
+        Add(value: any);
+        AddRange(newItems: any[]);
         AddRange(newItems: ICollection);
-        Insert(index: number, value: DependencyObject);
-        Remove(value: DependencyObject);
+        Insert(index: number, value: any);
+        Remove(value: any);
         RemoveAt(index: number);
         Clear();
-        IndexOf(value: DependencyObject): number;
-        Contains(value: DependencyObject): bool;
-        ToArray(): DependencyObject[];
+        IndexOf(value: any): number;
+        Contains(value: any): bool;
+        ToArray(): any[];
     }
 }
 

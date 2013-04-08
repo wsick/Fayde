@@ -84,7 +84,7 @@
                 if (args.OldValue instanceof Fayde.FrameworkElement) {
                     if (this._ContentSetsParent) {
                         args.OldValue._SetLogicalParent(null, error);
-                        if (error.IsErrored())
+                        if (error.Message)
                             return;
                     }
                 }
@@ -94,7 +94,7 @@
             if (args.NewValue && args.NewValue instanceof Fayde.FrameworkElement) {
                 if (this._ContentSetsParent) {
                     args.NewValue._SetLogicalParent(this, error);
-                    if (error.IsErrored())
+                    if (error.Message)
                         return;
                 }
             }

@@ -147,15 +147,13 @@
         throw new ArgumentException("Offset is not a number.");
     };
 
-    //#region Measure
+    //#region Measure/Arrange
 
-    ScrollContentPresenter.Instance.MeasureOverride = function (constraint) {
+    ScrollContentPresenter.Instance._MeasureOverride = function (constraint, pass, error) {
         /// <param name="constraint" type="size"></param>
         var scrollOwner = this.ScrollOwner;
-        if (scrollOwner == null || this._ContentRoot == null) {
-            var error = new BError();
-            return this._MeasureOverrideWithError(constraint, error);
-        }
+        if (scrollOwner == null || this._ContentRoot == null)
+            return this._MeasureOverride$ContentPresenter(constraint, pass, error);
 
         var ideal = size.createInfinite();
         if (!this.CanHorizontallyScroll)
@@ -170,16 +168,11 @@
         size.min(desired, this.$ScrollData.Extent);
         return desired;
     };
-
-    //#endregion
-
-    //#region Arrange
-
-    ScrollContentPresenter.Instance.ArrangeOverride = function (arrangeSize) {
+    ScrollContentPresenter.Instance._ArrangeOverride = function (arrangeSize, pass, error) {
         /// <param name="arrangeSize" type="size"></param>
         var scrollOwner = this.ScrollOwner;
         if (!scrollOwner || !this._ContentRoot)
-            return this._ArrangeOverrideWithError(arrangeSize, new BError());
+            return this._ArrangeOverride$ContentPresenter(arrangeSize, pass, error);
 
         if (this._ClampOffsets())
             scrollOwner._InvalidateScrollInfo();

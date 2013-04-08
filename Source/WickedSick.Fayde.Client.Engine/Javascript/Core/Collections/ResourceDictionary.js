@@ -84,7 +84,7 @@
                 return false;
             }
             obj._AddParent(this, true, error);
-            if (error.IsErrored())
+            if (error.Message)
                 return false;
             obj._SetIsAttached(this._IsAttached);
             obj.AddPropertyChangedListener(this);

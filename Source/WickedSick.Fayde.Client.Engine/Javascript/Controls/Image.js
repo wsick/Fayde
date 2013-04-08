@@ -35,9 +35,9 @@
 
     //#endregion
 
-    //#region Measure
+    //#region Measure/Arrange
 
-    Image.Instance._MeasureOverrideWithError = function (availableSize, error) {
+    Image.Instance._MeasureOverride = function (availableSize, pass, error) {
         /// <param name="availableSize" type="size"></param>
         var desired = size.clone(availableSize);
         var shapeBounds = new rect();
@@ -86,12 +86,7 @@
         desired.Height = shapeBounds.Height * sy;
         return desired;
     };
-
-    //#endregion
-
-    //#region Arrange
-
-    Image.Instance._ArrangeOverrideWithError = function (finalSize, error) {
+    Image.Instance._ArrangeOverride = function (finalSize, pass, error) {
         /// <param name="finalSize" type="size"></param>
         var arranged = size.clone(finalSize);
         var shapeBounds = new rect();
@@ -174,8 +169,7 @@
 
         if (source) {
             var available = this._ApplySizeConstraints(size.createInfinite());
-            var error = new BError();
-            result = this._MeasureOverrideWithError(available, error);
+            result = this._MeasureOverride(available);
             this._ApplySizeConstraints(result);
         }
 
@@ -297,8 +291,7 @@
             stretch, Fayde.Media.AlignmentX.Center, Fayde.Media.AlignmentY.Center);
 
         if (adjust) {
-            var error = new BError();
-            this._MeasureOverrideWithError(specified, error);
+            this._MeasureOverride(specified);
             rect.set(paint,
                 (stretched.Width - specified.Width) * 0.5,
                 (stretched.Height - specified.Height) * 0.5,

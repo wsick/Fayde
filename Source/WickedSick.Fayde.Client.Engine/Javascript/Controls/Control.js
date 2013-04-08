@@ -32,16 +32,6 @@
     Control.VerticalContentAlignmentProperty = DependencyProperty.RegisterCore("VerticalContentAlignment", function () { return new Enum(Fayde.VerticalAlignment); }, Control, Fayde.VerticalAlignment.Center);
     Control.DefaultStyleKeyProperty = DependencyProperty.RegisterCore("DefaultStyleKey", function () { return Function; }, Control);
 
-    Control.IsTemplateItemProperty = DependencyProperty.RegisterAttachedCore("IsTemplateItem", function () { return Boolean; }, Control, false);
-    Control.GetIsTemplateItem = function (d) {
-        ///<returns type="Boolean"></returns>
-        return d.$GetValue(Control.IsTemplateItemProperty);
-    };
-    Control.SetIsTemplateItem = function (d, value) {
-        ///<param name="value" type="Boolean"></param>
-        d.$SetValue(Control.IsTemplateItemProperty, value);
-    };
-
     Nullstone.AutoProperties(Control, [
         Control.BackgroundProperty,
         Control.BorderBrushProperty,

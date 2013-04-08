@@ -103,7 +103,7 @@
             str += "Collapsed";
 
         str += " ";
-        var p = Fayde.LayoutInformation.GetVisualOffset(uie);
+        var p = uie._UpdateMetrics.VisualOffset;
         if (p)
             str += p.toString();
         var s = size.fromRaw(uie.ActualWidth, uie.ActualHeight);

@@ -99,6 +99,7 @@
         var page = Fayde.JsonParser.Parse(ajaxJsonResult.CreateJson());
         if (page instanceof namespace.Page) {
             document.title = page.Title;
+            canProfile = profiles.frameUpdate;
             this.Content = page;
         }
         this._Request = null;

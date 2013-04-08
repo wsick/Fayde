@@ -16,8 +16,8 @@ var Fayde;
                     }
                     MainViewModel.prototype.Load = function () {
                         var _this = this;
-                        this.$Request = new AjaxJsonRequest(function (json) {
-                            return _this.Songs = json;
+                        this.$Request = new AjaxJsonRequest(function (result) {
+                            return _this.Songs = result.CreateJson();
                         }, function (error) {
                         });
                         this.$Request.Get("Services/GetAllSongs.ashx", null);

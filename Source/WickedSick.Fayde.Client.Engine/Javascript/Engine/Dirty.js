@@ -33,6 +33,34 @@
     _Dirty.UpDirtyState = _Dirty.Bounds | _Dirty.Invalidate;
     _Dirty.State = _Dirty.DownDirtyState | _Dirty.UpDirtyState;
 
+    _Dirty.__FullDebugToString = function (dirty) {
+        var a = [];
+        if (dirty & _Dirty.Measure)
+            a.push("Measure");
+        if (dirty & _Dirty.Arrange)
+            a.push("Arrange");
+        if (dirty & _Dirty.Bounds)
+            a.push("Bounds");
+        if (dirty & _Dirty.NewBounds)
+            a.push("NewBounds");
+        if (dirty & _Dirty.ChildrenZIndices)
+            a.push("ChildrenZIndices");
+        if (dirty & _Dirty.Clip)
+            a.push("Clip");
+        if (dirty & _Dirty.Invalidate)
+            a.push("Invalidate");
+        if (dirty & _Dirty.Transform)
+            a.push("Transform");
+        if (dirty & _Dirty.LocalTransform)
+            a.push("LocalTransform");
+        if (dirty & _Dirty.LocalProjection)
+            a.push("LocalProjection");
+        if (dirty & _Dirty.RenderVisibility)
+            a.push("RenderVisibility");
+        if (dirty & _Dirty.HitTestVisibility)
+            a.push("HitTestVisibility");
+        return a;
+    };
     _Dirty.__DebugToString = function (dirty) {
         switch (dirty) {
             case _Dirty.Measure:

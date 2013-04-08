@@ -5,7 +5,7 @@ module Fayde.Demos.SDB.ViewModels {
         Songs;
         $Request: AjaxJsonRequest;
         Load() {
-            this.$Request = new AjaxJsonRequest(json => this.Songs = json, error => { });
+            this.$Request = new AjaxJsonRequest(result => this.Songs = result.CreateJson(), error => { });
             this.$Request.Get("Services/GetAllSongs.ashx", null);
         }
     }

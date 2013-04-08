@@ -26,12 +26,17 @@ var DebugLevel = {
     Fatal: 4
 };
 
+var profiles = {
+    initialParse: true,
+    initialUpdate: true,
+    frameUpdate: true
+};
 var canProfile = false;
-function profile() {
+function profile(reportName) {
     if (!canProfile)
         return;
     if (window.console && console.profile)
-        console.profile();
+        console.profile(reportName);
 }
 function profileEnd() {
     if (!canProfile)
@@ -172,7 +177,7 @@ function initFaydeTraces() {
     if (traces.text)
         function TextDebug(message) { console.log("TEXT: " + message); };
     if (traces.layout)
-        this.LayoutDebug = function (message) { console.log("LAYOUT: " + message); };
+        this.LayoutDebug = function (func) { console.log("LAYOUT: " + func()); };
     if (traces.transform)
         this.TransformDebug = function (message, matrix) {
             var last = TransformDebug.Last;

@@ -20,26 +20,27 @@
 
     //#endregion
 
-    StackPanel.Instance.MeasureOverride = function (constraint) {
+    StackPanel.Instance._MeasureOverride = function (constraint, pass, error) {
         //Info("StackPanel.MeasureOverride [" + this._TypeName + "]");
         var childAvailable = size.createInfinite();
         var measured = new size();
 
+        var metrics = pass.UpdateMetrics;
         var orientation = this.Orientation;
         if (orientation === Fayde.Orientation.Vertical) {
             childAvailable.Width = constraint.Width;
-            var width = this.Width;
+            var width = metrics.Width;
             if (!isNaN(width))
                 childAvailable.Width = width;
-            childAvailable.Width = Math.min(childAvailable.Width, this.MaxWidth);
-            childAvailable.Width = Math.max(childAvailable.Width, this.MinWidth);
+            childAvailable.Width = Math.min(childAvailable.Width, metrics.MaxWidth);
+            childAvailable.Width = Math.max(childAvailable.Width, metrics.MinWidth);
         } else {
             childAvailable.Height = constraint.Height;
-            var height = this.Height;
+            var height = metrics.Height;
             if (!isNaN(height))
                 childAvailable.Height = height;
-            childAvailable.Height = Math.min(childAvailable.Height, this.MaxHeight);
-            childAvailable.Height = Math.max(childAvailable.Height, this.MinHeight);
+            childAvailable.Height = Math.min(childAvailable.Height, metrics.MaxHeight);
+            childAvailable.Height = Math.max(childAvailable.Height, metrics.MinHeight);
         }
 
         var children = this.Children;
@@ -59,7 +60,7 @@
 
         return measured;
     };
-    StackPanel.Instance.ArrangeOverride = function (arrangeSize) {
+    StackPanel.Instance._ArrangeOverride = function (arrangeSize, pass, error) {
         //Info("StackPanel.ArrangeOverride [" + this._TypeName + "]");
         var arranged = size.clone(arrangeSize);
         var orientation = this.Orientation;

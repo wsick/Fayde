@@ -72,6 +72,7 @@
     <Content Include="Benchmarks\refequals.html" />
     <Content Include="Docs\DebugServices.txt" />
     <Content Include="Docs\Links.txt" />
+    <Content Include="Docs\LayoutDep.txt" />
     <Content Include="Docs\Notes.txt" />
     <Content Include="Docs\Plugins.txt" />
     <Content Include="Fayde.Generic.js" />
@@ -85,6 +86,7 @@
     <Content Include="Javascript\Controls\TextBlockMetrics.js" />
     <Content Include="Javascript\Core\FrameworkElementMetrics.js" />
     <Content Include="Javascript\Core\UIElementMetrics.js" />
+    <Content Include="Javascript\Core\UpdateMetrics.js" />
     <Content Include="Javascript\Core\Xformer.js" />
     <Content Include="Javascript\Engine\XamlResolver.js" />
     <TypeScriptCompile Include="Javascript\Primitives.ts" />
