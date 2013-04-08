@@ -259,9 +259,9 @@
             delete Surface._SizingAdjustments[this._ID];
             if (this.Orientation === Fayde.Orientation.Horizontal) {
                 //the child lives in a container, update that container's width because it should stretch to the size of the child
-                var cell = child.GetRootHtmlElement().parentNode.parentNode.parentNode;
-                cell.style.width = width + "px";
-                cell.style.minWidth = width + "px";
+                //var cell = child.GetRootHtmlElement().parentNode.parentNode.parentNode;
+                //cell.style.width = width + "px";
+                //cell.style.minWidth = width + "px";
             }
             //now update myself, always updating the content element
             if (!this.GetIsFixedWidth()) {
@@ -276,9 +276,9 @@
             delete Surface._SizingAdjustments[this._ID];
             if (this.Orientation === Fayde.Orientation.Vertical) {
                 //the child lives in a container, update that container's height because it should stretch to the size of the child
-                var cell = child.GetRootHtmlElement().parentNode.parentNode.parentNode;
-                cell.style.height = height + "px";
-                cell.style.minHeight = height + "px";
+                //var cell = child.GetRootHtmlElement().parentNode.parentNode.parentNode;
+                //cell.style.height = height + "px";
+                //cell.style.minHeight = height + "px";
             }
             //now update myself, always updating the content element
             if (!this.GetIsFixedHeight()) {

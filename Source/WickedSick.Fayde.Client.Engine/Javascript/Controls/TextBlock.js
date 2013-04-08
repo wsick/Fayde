@@ -549,7 +549,7 @@
             }
         };
         TextBlock.Instance.ApplyForegroundHtml = function (contentEl, foreground) {
-            foreground.SetupBrush(null, null);
+            foreground.SetupBrush(null, new rect());
             contentEl.style.color = foreground.ToHtml5Object();
         };
         TextBlock.Instance.ApplyLineHeightHtml = function (contentEl, lineHeight) {
