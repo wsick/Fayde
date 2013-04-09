@@ -60,8 +60,7 @@ var Fayde;
         var PanelChildrenCollection = (function (_super) {
             __extends(PanelChildrenCollection, _super);
             function PanelChildrenCollection() {
-                _super.apply(this, arguments);
-
+                        _super.call(this, false);
             }
             PanelChildrenCollection.prototype.CreateNode = function () {
                 return new PanelChildrenNode(this);
@@ -76,14 +75,6 @@ var Fayde;
                 var panelNode = this.XamlNode.ParentNode;
                 panelNode._ElementRemoved(removed);
                 panelNode._ElementAdded(added);
-            };
-            PanelChildrenCollection.prototype._RaiseItemChanged = function (item, propd, oldValue, newValue) {
-                if(propd._ID !== Panel.ZIndexProperty._ID) {
-                    return;
-                }
-                //TODO: Invalidate item
-                var panelNode = this.XamlNode.ParentNode;
-                panelNode._InvalidateChildrenZIndices();
             };
             return PanelChildrenCollection;
         })(Fayde.DependencyObjectCollection);        
@@ -113,21 +104,41 @@ var Fayde;
             return PanelNode;
         })(Fayde.FENode);
         Controls.PanelNode = PanelNode;        
+        function zIndexPropertyChanged(dobj, args) {
+            //if (dobj instanceof UIElement) {
+            //  (<UIElement>dobj)._Invalidate();
+            //}
+            (dobj.XamlNode.ParentNode)._InvalidateChildrenZIndices();
+        }
         var Panel = (function (_super) {
             __extends(Panel, _super);
             function Panel() {
                 _super.apply(this, arguments);
 
             }
+            Panel.BackgroundProperty = DependencyProperty.Register("Background", function () {
+                return Fayde.Media.Brush;
+            }, Panel);
+            Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemHost", function () {
+                return Boolean;
+            }, Panel, false);
+            Panel.ZIndexProperty = DependencyProperty.RegisterAttached("ZIndex", function () {
+                return Number;
+            }, Panel, 0, zIndexPropertyChanged);
+            Panel.ZProperty = DependencyProperty.RegisterAttached("Z", function () {
+                return Number;
+            }, Panel, NaN);
             Panel.GetZIndex = function GetZIndex(uie) {
-                return -1;
+                return uie.GetValue(Panel.ZIndexProperty);
             };
             Panel.SetZIndex = function SetZIndex(uie, value) {
+                uie.SetValue(Panel.ZIndexProperty, value);
             };
             Panel.GetZ = function GetZ(uie) {
-                return -1;
+                return uie.GetValue(Panel.ZProperty);
             };
             Panel.SetZ = function SetZ(uie, value) {
+                uie.SetValue(Panel.ZProperty, value);
             };
             Panel.prototype.CreateNode = function () {
                 return new PanelNode(this);

@@ -7,8 +7,13 @@
 module Fayde {
     export class UnsetValue { }
 
+    export interface IPropertyChangedListener {
+        OnPropertyChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs);
+    }
+
     export class DependencyObject extends XamlObject {
         private _Expressions: Fayde.Expression[] = [];
+        private _PropertyChangedListeners: IPropertyChangedListener[] = [];
         _Store: Provider.ProviderStore;
         _CachedValues: any[] = [];
 
@@ -98,8 +103,24 @@ module Fayde {
             return this._Store.ReadLocalValue(propd);
         }
 
-        _OnPropertyChanged(args: IDependencyPropertyChangedEventArgs) {
-
+        _SubscribePropertyChanged(listener: IPropertyChangedListener) {
+            var l = this._PropertyChangedListeners;
+            if (l.indexOf(listener) < 0)
+                l.push(listener);
+        }
+        _UnsubscribePropertyChanged(listener: IPropertyChangedListener) {
+            var l = this._PropertyChangedListeners;
+            var index = l.indexOf(listener);
+            if (index > -1)
+                l.splice(index, 1);
+        }
+        _OnPropertyChanged(args: IDependencyPropertyChangedEventArgs) { }
+        _RaisePropertyChanged(args: IDependencyPropertyChangedEventArgs) {
+            var l = this._PropertyChangedListeners;
+            var len = l.length;
+            for (var i = 0; i < len; i++) {
+                l[i].OnPropertyChanged(this, args);
+            }
         }
 
         private _AddExpression(propd: DependencyProperty, expr: Fayde.Expression) {

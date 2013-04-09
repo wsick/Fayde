@@ -677,7 +677,7 @@ module Fayde.Provider {
                 };
                 try { this._Object._OnPropertyChanged(args); }
                 catch (err) { error.Message = err.Message; }
-
+                this._Object._RaisePropertyChanged(args);
                 if (propd && propd._ChangedCallback)
                     propd._ChangedCallback(this._Object, args);
 

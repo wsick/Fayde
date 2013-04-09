@@ -3,15 +3,25 @@
 /// <reference path="DependencyObject.ts" />
 
 module Fayde {
-    export class DependencyObjectCollection extends XamlObjectCollection {
+    export class DependencyObjectCollection extends XamlObjectCollection implements IPropertyChangedListener {
+        private _HandleItemChanged: bool;
+        constructor(handleItemChanged: bool) {
+            super();
+            this._HandleItemChanged = handleItemChanged;
+        }
         AddedToCollection(value: DependencyObject, error: BError): bool {
             super.AddedToCollection(value, error);
-            //TODO: On added, subscribe to item property changed
+            if (this._HandleItemChanged)
+                value._SubscribePropertyChanged(this);
             return true;
         }
         RemovedFromCollection(value: DependencyObject, isValueSafe: bool) {
             super.RemovedFromCollection(value, isValueSafe);
-            //TODO: On removed, unsubscribe to item property changed
+            if (this._HandleItemChanged)
+                value._UnsubscribePropertyChanged(this);
+        }
+        OnPropertyChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
+            this._RaiseItemChanged(sender, args.Property, args.OldValue, args.NewValue);
         }
         _RaiseItemChanged(item, propd: DependencyProperty, oldValue: DependencyObject, newValue: DependencyObject) { }
     }

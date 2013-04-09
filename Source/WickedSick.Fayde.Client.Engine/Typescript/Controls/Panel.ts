@@ -45,6 +45,9 @@ module Fayde.Controls {
     }
     class PanelChildrenCollection extends DependencyObjectCollection {
         XamlNode: PanelChildrenNode;
+        constructor() {
+            super(false);
+        }
         CreateNode(): XamlNode {
             return new PanelChildrenNode(this);
         }
@@ -58,13 +61,6 @@ module Fayde.Controls {
             var panelNode = this.XamlNode.ParentNode;
             panelNode._ElementRemoved(removed);
             panelNode._ElementAdded(added);
-        }
-        _RaiseItemChanged(item: UIElement, propd: DependencyProperty, oldValue: UIElement, newValue: UIElement) {
-            if (propd._ID !== Panel.ZIndexProperty._ID)
-                return;
-            //TODO: Invalidate item
-            var panelNode = this.XamlNode.ParentNode;
-            panelNode._InvalidateChildrenZIndices();
         }
     }
 
@@ -94,20 +90,27 @@ module Fayde.Controls {
             }
         }
     }
+    function zIndexPropertyChanged(dobj: DependencyObject, args) {
+        //if (dobj instanceof UIElement) {
+        //  (<UIElement>dobj)._Invalidate();
+        //}
+        (<PanelNode>dobj.XamlNode.ParentNode)._InvalidateChildrenZIndices();
+    }
     export class Panel extends FrameworkElement {
         XamlNode: PanelNode;
-        static BackgroundProperty: DependencyProperty;
-        static IsItemsHostProperty: DependencyProperty;
-        static ZIndexProperty: DependencyProperty;
-        static ZProperty: DependencyProperty;
+        static BackgroundProperty: DependencyProperty = DependencyProperty.Register("Background", () => { return Media.Brush; }, Panel);
+        static IsItemsHostProperty: DependencyProperty = DependencyProperty.Register("IsItemHost", () => { return Boolean; }, Panel, false);
+
+        static ZIndexProperty: DependencyProperty = DependencyProperty.RegisterAttached("ZIndex", () => { return Number; }, Panel, 0, zIndexPropertyChanged);
+        static ZProperty: DependencyProperty = DependencyProperty.RegisterAttached("Z", () => { return Number; }, Panel, NaN);
 
         Children: DependencyObjectCollection;
 
-        static GetZIndex(uie: UIElement): number { return -1; }
-        static SetZIndex(uie: UIElement, value: number) { }
+        static GetZIndex(uie: UIElement): number { return uie.GetValue(ZIndexProperty); }
+        static SetZIndex(uie: UIElement, value: number) { uie.SetValue(ZIndexProperty, value); }
         
-        static GetZ(uie: UIElement): number { return -1; }
-        static SetZ(uie: UIElement, value: number) { }
+        static GetZ(uie: UIElement): number { return uie.GetValue(ZProperty); }
+        static SetZ(uie: UIElement, value: number) { uie.SetValue(ZProperty, value); }
 
         CreateNode(): XamlNode {
             return new PanelNode(this);
