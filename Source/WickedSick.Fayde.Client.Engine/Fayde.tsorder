@@ -1,4 +1,3 @@
-Core/DependencyObjectCollection.js
 Core/DependencyProperty.js
 Core/Expression.js
 Core/InheritedProvider.js
@@ -19,6 +18,7 @@ Core/Style.js
 Core/UIElement.js
 Data/BindingExpressionBase.js
 Documents/TextElement.js
+Core/DependencyObjectCollection.js
 Core/FrameworkElement.js
 Documents/Block.js
 Documents/Inline.js

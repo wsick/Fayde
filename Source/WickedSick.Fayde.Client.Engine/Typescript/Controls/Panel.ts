@@ -74,7 +74,10 @@ module Fayde.Controls {
             super(xobj);
             
             var coll = new PanelChildrenCollection();
-            xobj.Children = coll;
+            Object.defineProperty(xobj, "Children", {
+                value: coll,
+                writable: false
+            });
             this.SetSubtreeNode(coll.XamlNode);
         }
         _ElementAdded(uie: UIElement) {

@@ -5,9 +5,9 @@ var __extends = this.__extends || function (d, b) {
 };
 var Fayde;
 (function (Fayde) {
-    /// <reference path="InternalCollection.ts"
+    /// <reference path="InternalCollection.ts" />
     /// CODE
-    /// <reference path="DependencyObject.ts"
+    /// <reference path="DependencyObject.ts" />
     (function (Core) {
         var DependencyObjectCollection = (function (_super) {
             __extends(DependencyObjectCollection, _super);

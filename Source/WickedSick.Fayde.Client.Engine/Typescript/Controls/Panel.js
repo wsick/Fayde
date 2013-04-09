@@ -92,7 +92,10 @@ var Fayde;
             function PanelNode(xobj) {
                         _super.call(this, xobj);
                 var coll = new PanelChildrenCollection();
-                xobj.Children = coll;
+                Object.defineProperty(xobj, "Children", {
+                    value: coll,
+                    writable: false
+                });
                 this.SetSubtreeNode(coll.XamlNode);
             }
             PanelNode.prototype._ElementAdded = function (uie) {

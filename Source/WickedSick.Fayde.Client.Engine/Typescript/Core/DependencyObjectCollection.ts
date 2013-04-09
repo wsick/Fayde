@@ -1,6 +1,6 @@
-/// <reference path="InternalCollection.ts"
+/// <reference path="InternalCollection.ts" />
 /// CODE
-/// <reference path="DependencyObject.ts"
+/// <reference path="DependencyObject.ts" />
 
 module Fayde.Core {
     export class DependencyObjectCollection extends InternalCollection {
