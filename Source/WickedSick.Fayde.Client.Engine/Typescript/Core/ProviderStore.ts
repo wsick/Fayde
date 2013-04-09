@@ -37,6 +37,10 @@ module Fayde.Provider {
         GenericXaml = 1 << _StyleIndex.GenericXaml,
         All = _StyleMask.VisualTree | _StyleMask.ApplicationResources | _StyleMask.GenericXaml,
     }
+    
+    export interface IPropertyChangedListener {
+        OnPropertyChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs);
+    }
 
     export class PropertyProvider {
         GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any { }
@@ -447,6 +451,7 @@ module Fayde.Provider {
     export class ProviderStore {
         _Object: DependencyObject;
         private _Providers: PropertyProvider[] = [null, null, null, null, null, null, null, null, null];
+        private _PropertyChangedListeners: IPropertyChangedListener[] = [];
         _ProviderBitmasks: number[] = [];
         private _AnimStorage: any[][] = [];
 
@@ -677,7 +682,7 @@ module Fayde.Provider {
                 };
                 try { this._Object._OnPropertyChanged(args); }
                 catch (err) { error.Message = err.Message; }
-                this._Object._RaisePropertyChanged(args);
+                this._RaisePropertyChanged(args);
                 if (propd && propd._ChangedCallback)
                     propd._ChangedCallback(this._Object, args);
 
@@ -753,7 +758,25 @@ module Fayde.Provider {
                     provider.RecomputePropertyValueOnLower(propd, error);
             }
         }
-
+        
+        _SubscribePropertyChanged(listener: IPropertyChangedListener) {
+            var l = this._PropertyChangedListeners;
+            if (l.indexOf(listener) < 0)
+                l.push(listener);
+        }
+        _UnsubscribePropertyChanged(listener: IPropertyChangedListener) {
+            var l = this._PropertyChangedListeners;
+            var index = l.indexOf(listener);
+            if (index > -1)
+                l.splice(index, 1);
+        }
+        private _RaisePropertyChanged(args: IDependencyPropertyChangedEventArgs) {
+            var l = this._PropertyChangedListeners;
+            var len = l.length;
+            for (var i = 0; i < len; i++) {
+                l[i].OnPropertyChanged(this._Object, args);
+            }
+        }
         private _AttachValue(value: any, error: BError): bool {
             if (!value)
                 return true;

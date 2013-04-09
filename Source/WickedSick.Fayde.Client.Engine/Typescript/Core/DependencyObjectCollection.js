@@ -17,14 +17,14 @@ var Fayde;
         DependencyObjectCollection.prototype.AddedToCollection = function (value, error) {
             _super.prototype.AddedToCollection.call(this, value, error);
             if(this._HandleItemChanged) {
-                value._SubscribePropertyChanged(this);
+                value._Store._SubscribePropertyChanged(this);
             }
             return true;
         };
         DependencyObjectCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
             _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);
             if(this._HandleItemChanged) {
-                value._UnsubscribePropertyChanged(this);
+                value._Store._UnsubscribePropertyChanged(this);
             }
         };
         DependencyObjectCollection.prototype.OnPropertyChanged = function (sender, args) {

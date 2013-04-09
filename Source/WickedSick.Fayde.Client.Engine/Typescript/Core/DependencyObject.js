@@ -20,7 +20,6 @@ var Fayde;
         function DependencyObject() {
                 _super.call(this);
             this._Expressions = [];
-            this._PropertyChangedListeners = [];
             this._CachedValues = [];
             this._Store = new Fayde.Provider.ProviderStore(this);
         }
@@ -114,27 +113,7 @@ var Fayde;
             }
             return this._Store.ReadLocalValue(propd);
         };
-        DependencyObject.prototype._SubscribePropertyChanged = function (listener) {
-            var l = this._PropertyChangedListeners;
-            if(l.indexOf(listener) < 0) {
-                l.push(listener);
-            }
-        };
-        DependencyObject.prototype._UnsubscribePropertyChanged = function (listener) {
-            var l = this._PropertyChangedListeners;
-            var index = l.indexOf(listener);
-            if(index > -1) {
-                l.splice(index, 1);
-            }
-        };
         DependencyObject.prototype._OnPropertyChanged = function (args) {
-        };
-        DependencyObject.prototype._RaisePropertyChanged = function (args) {
-            var l = this._PropertyChangedListeners;
-            var len = l.length;
-            for(var i = 0; i < len; i++) {
-                l[i].OnPropertyChanged(this, args);
-            }
         };
         DependencyObject.prototype._AddExpression = function (propd, expr) {
             this._Expressions[propd._ID] = expr;

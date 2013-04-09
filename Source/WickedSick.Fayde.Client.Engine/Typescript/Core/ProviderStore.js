@@ -518,6 +518,7 @@ var Fayde;
                     null, 
                     null
                 ];
+                this._PropertyChangedListeners = [];
                 this._ProviderBitmasks = [];
                 this._AnimStorage = [];
                 this._Object = dobj;
@@ -738,7 +739,7 @@ var Fayde;
                     } catch (err) {
                         error.Message = err.Message;
                     }
-                    this._Object._RaisePropertyChanged(args);
+                    this._RaisePropertyChanged(args);
                     if(propd && propd._ChangedCallback) {
                         propd._ChangedCallback(this._Object, args);
                     }
@@ -818,6 +819,26 @@ var Fayde;
                     if(provider) {
                         provider.RecomputePropertyValueOnLower(propd, error);
                     }
+                }
+            };
+            ProviderStore.prototype._SubscribePropertyChanged = function (listener) {
+                var l = this._PropertyChangedListeners;
+                if(l.indexOf(listener) < 0) {
+                    l.push(listener);
+                }
+            };
+            ProviderStore.prototype._UnsubscribePropertyChanged = function (listener) {
+                var l = this._PropertyChangedListeners;
+                var index = l.indexOf(listener);
+                if(index > -1) {
+                    l.splice(index, 1);
+                }
+            };
+            ProviderStore.prototype._RaisePropertyChanged = function (args) {
+                var l = this._PropertyChangedListeners;
+                var len = l.length;
+                for(var i = 0; i < len; i++) {
+                    l[i].OnPropertyChanged(this._Object, args);
                 }
             };
             ProviderStore.prototype._AttachValue = function (value, error) {
