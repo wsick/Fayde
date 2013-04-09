@@ -640,6 +640,7 @@ var Fayde;
                         oldLocalValue = this._AutoCreateProvider.ReadLocalValue(propd);
                     }
                 }
+                var error = new BError();
                 if(oldLocalValue !== undefined) {
                     this._DetachValue(oldLocalValue);
                     this._LocalValueProvider.ClearValue(propd);
@@ -647,7 +648,6 @@ var Fayde;
                         this._AutoCreateProvider.ClearValue(propd);
                     }
                 }
-                var error = new BError();
                 var count = _PropertyPrecedence.Count;
                 for(var i = _PropertyPrecedence.LocalValue + 1; i < count; i++) {
                     var provider = this._Providers[i];
@@ -725,7 +725,7 @@ var Fayde;
                 this._CallRecomputePropertyValueForProviders(propd, providerPrecedence);
                 var setsParent = setParent && !propd.IsCustom;
                 this._DetachValue(oldValue);
-                this._AttachValue(newValue);
+                this._AttachValue(newValue, error);
                 //Construct property changed event args and raise
                 if(notifyListeners) {
                     var args = {
@@ -819,20 +819,20 @@ var Fayde;
                     }
                 }
             };
-            ProviderStore.prototype._AttachValue = function (value) {
+            ProviderStore.prototype._AttachValue = function (value, error) {
                 if(!value) {
-                    return;
+                    return true;
                 }
                 if(value instanceof Fayde.DependencyObject) {
-                    (value).XamlNode.AttachTo(this._Object.XamlNode);
+                    return (value).XamlNode.AttachTo(this._Object.XamlNode, error);
                     //TODO:
                     //  AddPropertyChangedListener (SubPropertyChanged)
-                    //if (value instanceof InternalCollection) {
-                    //(<InternalCollection>value).ListenToChanged(this);
+                    //if (value instanceof XamlObjectCollection) {
+                    //(<XamlObjectCollection>value).ListenToChanged(this);
                     //      Subscribe ItemChanged
                     //}
                                     } else if(value instanceof Fayde.XamlObject) {
-                    (value).XamlNode.AttachTo(this._Object.XamlNode);
+                    return (value).XamlNode.AttachTo(this._Object.XamlNode, error);
                 }
             };
             ProviderStore.prototype._DetachValue = function (value) {
@@ -843,8 +843,8 @@ var Fayde;
                     (value).XamlNode.Detach();
                     //TODO:
                     //  RemovePropertyChangedListener (SubPropertyChanged)
-                    //if (value instanceof InternalCollection) {
-                    //(<InternalCollection>value).StopListenToChanged(this);
+                    //if (value instanceof XamlObjectCollection) {
+                    //(<XamlObjectCollection>value).StopListenToChanged(this);
                     //      Unsubscribe ItemChanged
                     //}
                                     } else if(value instanceof Fayde.XamlObject) {

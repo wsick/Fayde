@@ -503,15 +503,15 @@
       <DependentUpon>Walkers.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Runtime\Enumerable.ts" />
+    <TypeScriptCompile Include="Typescript\Core\XamlObjectCollection.ts" />
+    <Content Include="Typescript\Core\XamlObjectCollection.js">
+      <DependentUpon>XamlObjectCollection.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Runtime\Enumerable.js">
       <DependentUpon>Enumerable.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Core\InheritedProvider.js">
       <DependentUpon>InheritedProvider.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="Typescript\Core\InternalCollection.ts" />
-    <Content Include="Typescript\Core\InternalCollection.js">
-      <DependentUpon>InternalCollection.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Core\NameScope.js">
       <DependentUpon>NameScope.ts</DependentUpon>

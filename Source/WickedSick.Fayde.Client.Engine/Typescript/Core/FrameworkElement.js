@@ -15,12 +15,15 @@ var Fayde;
                 _super.call(this, xobj);
         }
         FENode.prototype.SetSubtreeNode = function (subtreeNode) {
-            subtreeNode.AttachTo(this);
+            var error = new BError();
+            if(!subtreeNode.AttachTo(this, error)) {
+                error.ThrowException();
+            }
             this.SubtreeNode = subtreeNode;
         };
         FENode.prototype.GetVisualTreeEnumerator = function (direction) {
             if(this.SubtreeNode) {
-                if(this.SubtreeNode instanceof Fayde.InternalCollection) {
+                if(this.SubtreeNode instanceof Fayde.XamlObjectCollection) {
                     return this.SubtreeNode.GetVisualTreeEnumerator();
                 }
                 return Fayde.ArrayEx.GetEnumerator([

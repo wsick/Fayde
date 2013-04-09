@@ -3,7 +3,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-/// <reference path="InternalCollection.ts" />
+/// <reference path="XamlObjectCollection.ts" />
 /// CODE
 var Fayde;
 (function (Fayde) {
@@ -47,7 +47,7 @@ var Fayde;
             return true;
         };
         return ResourceDictionaryCollection;
-    })(Fayde.InternalCollection);
+    })(Fayde.XamlObjectCollection);
     Fayde.ResourceDictionaryCollection = ResourceDictionaryCollection;    
     var ResourceDictionary = (function (_super) {
         __extends(ResourceDictionary, _super);
@@ -103,7 +103,7 @@ var Fayde;
             return undefined;
         };
         return ResourceDictionary;
-    })(Fayde.InternalCollection);
+    })(Fayde.XamlObjectCollection);
     Fayde.ResourceDictionary = ResourceDictionary;    
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=ResourceDictionary.js.map

@@ -7,7 +7,7 @@ var Fayde;
 (function (Fayde) {
     /// <reference path="../Core/FrameworkElement.ts" />
     /// CODE
-    /// <reference path="../Core/InternalCollection.ts" />
+    /// <reference path="../Core/XamlObjectCollection.ts" />
     (function (Controls) {
         var TextBlockNode = (function (_super) {
             __extends(TextBlockNode, _super);

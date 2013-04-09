@@ -43,23 +43,23 @@ module Fayde.Controls {
             }
         }
     }
-    class PanelChildrenCollection extends Core.DependencyObjectCollection {
+    class PanelChildrenCollection extends DependencyObjectCollection {
         XamlNode: PanelChildrenNode;
         CreateNode(): XamlNode {
             return new PanelChildrenNode(this);
         }
-        _RaiseItemAdded(value: any, index: number) {
+        _RaiseItemAdded(value: UIElement, index: number) {
             this.XamlNode.ParentNode._ElementAdded(value);
         }
-        _RaiseItemRemoved(value: any, index: number) {
+        _RaiseItemRemoved(value: UIElement, index: number) {
             this.XamlNode.ParentNode._ElementRemoved(value);
         }
-        _RaiseItemReplaced(removed: any, added: any, index: number) {
+        _RaiseItemReplaced(removed: UIElement, added: UIElement, index: number) {
             var panelNode = this.XamlNode.ParentNode;
             panelNode._ElementRemoved(removed);
             panelNode._ElementAdded(added);
         }
-        _RaiseItemChanged(item: UIElement, propd: DependencyProperty, oldValue: any, newValue: any) {
+        _RaiseItemChanged(item: UIElement, propd: DependencyProperty, oldValue: UIElement, newValue: UIElement) {
             if (propd._ID !== Panel.ZIndexProperty._ID)
                 return;
             //TODO: Invalidate item
@@ -101,7 +101,7 @@ module Fayde.Controls {
         static ZIndexProperty: DependencyProperty;
         static ZProperty: DependencyProperty;
 
-        Children: Core.DependencyObjectCollection;
+        Children: DependencyObjectCollection;
 
         static GetZIndex(uie: UIElement): number { return -1; }
         static SetZIndex(uie: UIElement, value: number) { }

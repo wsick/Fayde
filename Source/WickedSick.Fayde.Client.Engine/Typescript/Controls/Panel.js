@@ -86,7 +86,7 @@ var Fayde;
                 panelNode._InvalidateChildrenZIndices();
             };
             return PanelChildrenCollection;
-        })(Fayde.Core.DependencyObjectCollection);        
+        })(Fayde.DependencyObjectCollection);        
         var PanelNode = (function (_super) {
             __extends(PanelNode, _super);
             function PanelNode(xobj) {

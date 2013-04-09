@@ -11,12 +11,14 @@ module Fayde {
         }
         SubtreeNode: XamlNode;
         SetSubtreeNode(subtreeNode: XamlNode) {
-            subtreeNode.AttachTo(this);
+            var error = new BError();
+            if (!subtreeNode.AttachTo(this, error))
+                error.ThrowException();
             this.SubtreeNode = subtreeNode;
         }
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
             if (this.SubtreeNode) {
-                if (this.SubtreeNode instanceof InternalCollection)
+                if (this.SubtreeNode instanceof XamlObjectCollection)
                     return this.SubtreeNode.GetVisualTreeEnumerator();
                 return ArrayEx.GetEnumerator([this.SubtreeNode]);
             }

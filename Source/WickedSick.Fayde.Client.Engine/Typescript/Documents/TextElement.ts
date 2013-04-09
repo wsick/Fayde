@@ -3,11 +3,12 @@
 
 module Fayde.Documents {
     export class TextElementNode extends XamlNode {
+        XObject: TextElement;
         InheritedWalkProperty: DependencyProperty;
         GetInheritedEnumerator(): IEnumerator {
-            var coll = (<DependencyObject>this.XObject).GetValue(this.InheritedWalkProperty);
+            var coll = this.XObject.GetValue(this.InheritedWalkProperty);
             if (coll)
-                return (<InternalCollection>coll).GetEnumerator();
+                return (<XamlObjectCollection>coll).GetEnumerator();
         }
     }
 

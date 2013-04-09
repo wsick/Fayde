@@ -1,8 +1,8 @@
-/// <reference path="InternalCollection.ts" />
+/// <reference path="XamlObjectCollection.ts" />
 /// CODE
 
 module Fayde {
-    export class ResourceDictionaryCollection extends InternalCollection {
+    export class ResourceDictionaryCollection extends XamlObjectCollection {
         AddedToCollection(value: ResourceDictionary, error: BError): bool {
             if (!super.AddedToCollection(value, error))
                 return false;
@@ -38,7 +38,7 @@ module Fayde {
         }
     }
 
-    export class ResourceDictionary extends InternalCollection {
+    export class ResourceDictionary extends XamlObjectCollection {
         private _KeyIndex: number[] = [];
 
         MergedDictionaries: ResourceDictionaryCollection;
@@ -55,13 +55,13 @@ module Fayde {
         ContainsKey(key: any): bool {
             return this._KeyIndex[key] !== undefined;
         }
-        Get(key: any): any {
+        Get(key: any): XamlObject {
             var index = this._KeyIndex[key];
             if (index !== undefined)
                 return this.GetValueAt(index);
             return this._GetFromMerged(key);
         }
-        Set(key: any, value: any) {
+        Set(key: any, value: XamlObject) {
             var oldValue;
             if (this.ContainsKey(key)) {
                 oldValue = this.Get(key);
@@ -73,14 +73,14 @@ module Fayde {
             return true;
         }
 
-        Add(value: any): number {
+        Add(value: XamlObject): number {
             throw new InvalidOperationException("Cannot add to ResourceDictionary. Use Set instead.");
         }
-        Remove(value: any): bool {
+        Remove(value: XamlObject): bool {
             throw new InvalidOperationException("Cannot remove from ResourceDictionary. Use Set instead.");
         }
         
-        private _GetFromMerged(key: any): any {
+        private _GetFromMerged(key: any): XamlObject {
             var merged = this.MergedDictionaries;
 
             if (!merged)

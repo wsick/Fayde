@@ -1,1 +1,1 @@
-{"version":3,"file":"BError.js","sources":["BError.ts"],"names":["BError","BError.constructor"],"mappings":"AAAA;IAAAA;AAICA,IAHGA,0BAAkCA,CAACA;AAAAA,IAGvCA;AAACA,CAAAA,IAAA"}
+{"version":3,"file":"BError.js","sources":["BError.ts"],"names":["BError","BError.constructor","BError.ThrowException"],"mappings":"AAAA;IAAAA;AAQCA,IAPGA,kBAA0BA,CAACA;AAAAA,IAC3BA,0BAAkCA,CAACA;AAAAA,IAGnCA,kCAAAA;QACIE,MAAMA,IAAIA,SAASA,CAACA,IAAIA,CAACA,OAAOA,CAACA,CAACA;IACtCA,CAACA;IACLF;AAACA,CAAAA,IAAA"}

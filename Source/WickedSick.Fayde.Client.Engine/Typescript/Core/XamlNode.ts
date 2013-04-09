@@ -1,7 +1,7 @@
 /// CODE
 /// <reference path="XamlObject.ts" />
 /// <reference path="NameScope.ts" />
-/// <reference path="InternalCollection.ts" />
+/// <reference path="XamlObjectCollection.ts" />
 
 module Fayde {
     declare var Warn;
@@ -42,20 +42,23 @@ module Fayde {
             this.IsAttached = value;
         }
 
-        AttachTo(parentNode: XamlNode) {
+        AttachTo(parentNode: XamlNode, error: BError): bool {
             this.SetIsAttached(parentNode.IsAttached);
 
             var curNode = parentNode;
             while (curNode) {
                 if (curNode === this) {
-                    Warn("AddParentNode - Cycle found.");
-                    return;
+                    error.Message = "AddParentNode - Cycle found.";
+                    return false;
                 }
                 curNode = curNode.ParentNode;
             }
 
-            if (this.ParentNode)
-                throw new InvalidOperationException("Element is already a child of another element.");
+            if (this.ParentNode) {
+                error.Message = "Element is already a child of another element.";
+                error.Number = BError.InvalidOperation;
+                return false;
+            }
 
             var parentScope = parentNode.FindNameScope();
             var thisScope = this.NameScope;
@@ -68,13 +71,17 @@ module Fayde {
                 var name = this.Name;
                 if (name) {
                     var existing = parentScope.FindName(name);
-                    if (existing && existing !== this)
-                        throw new ArgumentException("Name is already registered in parent namescope.");
+                    if (existing && existing !== this) {
+                        error.Message = "Name is already registered in parent namescope.";
+                        error.Number = BError.Argument;
+                        return false;
+                    }
                     parentScope.RegisterName(name, this);
                 }
             }
 
             this.ParentNode = parentNode;
+            return true;
         }
         Detach() {
             var name = this.Name;

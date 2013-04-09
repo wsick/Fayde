@@ -12,14 +12,14 @@ Runtime/BError.js
 Runtime/Enumerable.js
 Runtime/Nullstone.js
 Core/DependencyObject.js
-Core/InternalCollection.js
-Core/ResourceDictionary.js
 Core/Style.js
 Core/UIElement.js
+Core/XamlObjectCollection.js
 Data/BindingExpressionBase.js
 Documents/TextElement.js
 Core/DependencyObjectCollection.js
 Core/FrameworkElement.js
+Core/ResourceDictionary.js
 Documents/Block.js
 Documents/Inline.js
 Documents/Paragraph.js

@@ -2,18 +2,19 @@
 /// <reference path="../Runtime/Enumerable.ts" />
 /// CODE
 /// <reference path="../Runtime/BError.ts" />
+/// <reference path="../Runtime/Nullstone.ts" />
 
 module Fayde {
-    export class InternalCollection extends XamlObject implements IEnumerable {
-        private _ht = [];
+    export class XamlObjectCollection extends XamlObject implements IEnumerable {
+        private _ht: XamlObject[] = [];
         private _listeners = [];
         
         get Count() { return this._ht.length; }
 
-        GetValueAt(index: number): any {
+        GetValueAt(index: number): XamlObject {
             return this._ht[index];
         }
-        SetValueAt(index: number, value: any): bool {
+        SetValueAt(index: number, value: XamlObject): bool {
             if (!this.CanAdd(value))
                 return false;
 
@@ -32,11 +33,11 @@ module Fayde {
             }
             return false;
         }
-        Add(value: any): number {
+        Add(value: XamlObject): number {
             var rv = this.Insert(this._ht.length, value);
             return rv ? this._ht.length - 1 : -1;
         }
-        Insert(index: number, value: any): bool {
+        Insert(index: number, value: XamlObject): bool {
             if (!this.CanAdd(value))
                 return false;
             if (index < 0)
@@ -55,7 +56,7 @@ module Fayde {
                 throw new Exception(error.Message);
             return false;
         }
-        Remove(value: any): bool {
+        Remove(value: XamlObject): bool {
             var index = this.IndexOf(value);
             if (index == -1)
                 return false;
@@ -74,13 +75,14 @@ module Fayde {
             //LOOKS_USELESS: this._RaiseClearing();
             var old = this._ht;
             this._ht = [];
-            for (var i = 0; i < old.length; i++) {
+            var len = old.length;
+            for (var i = 0; i < len; i++) {
                 this.RemovedFromCollection(old[i], true);
             }
             this._RaiseCleared();
             return true;
         }
-        IndexOf(value: any): number {
+        IndexOf(value: XamlObject): number {
             var count = this._ht.length;
             for (var i = 0; i < count; i++) {
                 if (Nullstone.Equals(value, this._ht[i]))
@@ -88,18 +90,22 @@ module Fayde {
             }
             return -1;
         }
-        Contains(value: any): bool { return this.IndexOf(value) > -1; }
-        CanAdd (value: any): bool { return true; }
-        AddedToCollection(value: any, error: BError): bool { return true; }
-        RemovedFromCollection(value: any, isValueSafe: bool) { }
+        Contains(value: XamlObject): bool { return this.IndexOf(value) > -1; }
+        CanAdd (value: XamlObject): bool { return true; }
+        AddedToCollection(value: XamlObject, error: BError): bool {
+            return value.XamlNode.AttachTo(this.XamlNode, error);
+        }
+        RemovedFromCollection(value: XamlObject, isValueSafe: bool) {
+            value.XamlNode.Detach();
+        }
 
         GetEnumerator(): IEnumerator {
             return ArrayEx.GetEnumerator(this._ht);
         }
 
-        _RaiseItemAdded(value: any, index: number) { }
-        _RaiseItemRemoved(value: any, index: number) { }
-        _RaiseItemReplaced(removed: any, added: any, index: number) { }
+        _RaiseItemAdded(value: XamlObject, index: number) { }
+        _RaiseItemRemoved(value: XamlObject, index: number) { }
+        _RaiseItemReplaced(removed: XamlObject, added: XamlObject, index: number) { }
         //_RaiseClearing() { }
         _RaiseCleared() { }
     }
