@@ -9,7 +9,11 @@ module Fayde {
     export interface IStyleWalker extends IWalker {
         Step(): Setter;
     }
-    
+    export interface IDeepTreeWalker extends IWalker {
+        Step(): UINode;
+        SkipBranch();
+    }
+
     function setterSort(setter1: Setter, setter2: Setter) {
         var a = setter1.Property;
         var b = setter2.Property;
@@ -40,7 +44,7 @@ module Fayde {
             cur = cur.BasedOn;
         }
         flattenedSetters.sort(setterSort);
-        
+
         return {
             Step: function () {
                 return flattenedSetters.shift();
@@ -65,10 +69,43 @@ module Fayde {
             }
             flattenedSetters.sort(setterSort);
         }
-        
+
         return {
             Step: function () {
                 return flattenedSetters.shift();
+            }
+        };
+    }
+
+    export function DeepTreeWalker(top: UIElement, direction?: VisualTreeDirection): IDeepTreeWalker {
+        var last: UINode = undefined;
+        var dir = VisualTreeDirection.Logical;
+        var walkList: UINode[] = [top.XamlNode];
+        if (direction)
+            dir = direction;
+
+        return {
+            Step: function () {
+                if (last) {
+                    var enumerator = last.GetVisualTreeEnumerator(dir);
+                    var insertIndex = 0;
+                    while (enumerator.MoveNext()) {
+                        walkList.splice(insertIndex, 0, enumerator.Current);
+                        insertIndex++;
+                    }
+                }
+
+                var next = walkList[0];
+                if (!next) {
+                    last = undefined;
+                    return;
+                }
+
+                var curNode: UINode;
+                return curNode;
+            },
+            SkipBranch: function () {
+                last = undefined;
             }
         };
     }

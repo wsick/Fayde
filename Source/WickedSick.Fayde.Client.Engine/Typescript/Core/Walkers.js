@@ -68,5 +68,38 @@ var Fayde;
         };
     }
     Fayde.MultipleStylesWalker = MultipleStylesWalker;
+    function DeepTreeWalker(top, direction) {
+        var last = undefined;
+        var dir = Fayde.VisualTreeDirection.Logical;
+        var walkList = [
+            top.XamlNode
+        ];
+        if(direction) {
+            dir = direction;
+        }
+        return {
+            Step: function () {
+                if(last) {
+                    var enumerator = last.GetVisualTreeEnumerator(dir);
+                    var insertIndex = 0;
+                    while(enumerator.MoveNext()) {
+                        walkList.splice(insertIndex, 0, enumerator.Current);
+                        insertIndex++;
+                    }
+                }
+                var next = walkList[0];
+                if(!next) {
+                    last = undefined;
+                    return;
+                }
+                var curNode;
+                return curNode;
+            },
+            SkipBranch: function () {
+                last = undefined;
+            }
+        };
+    }
+    Fayde.DeepTreeWalker = DeepTreeWalker;
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=Walkers.js.map
