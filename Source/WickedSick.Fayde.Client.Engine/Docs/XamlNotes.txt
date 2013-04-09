@@ -7,7 +7,7 @@ DependencyObject
 UIElement
 	VisualParent
 FrameworkElement
-	Mentor
+	Mentor?
 Control
 	IsEnabled
 
@@ -27,6 +27,7 @@ XamlObject
 			UpdateMetrics	->		Metrics (Merge)
 			Metrics			->		Metrics (Merge)
 			Xformer			->		Xformer
+			(Nothing)		->		Invalidator?
 DependencyObject
 	ProviderStore
 	Expressions

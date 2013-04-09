@@ -6,6 +6,13 @@
 module Fayde {
     declare var Warn;
 
+    export enum VisualTreeDirection {
+        Logical = 0,
+        LogicalReverse = 1,
+        ZFoward = 2,
+        ZReverse = 3,
+    }
+
     export class XamlNode {
         XObject: XamlObject;
         ParentNode: XamlNode;
@@ -79,6 +86,7 @@ module Fayde {
             this.ParentNode = null;
         }
 
-        GetInheritedWalker(): IEnumerator { return undefined; }
+        GetInheritedEnumerator(): IEnumerator { return undefined; }
+        GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator { return undefined; }
     }
 }

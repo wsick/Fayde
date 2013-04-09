@@ -173,11 +173,11 @@ module Fayde.Provider.Inherited {
             return undefined;
         }
         WalkSubtree(rootParent: DependencyObject, element: DependencyObject, context: _InheritedContext, props, adding) {
-            var walker = element.XamlNode.GetInheritedWalker();
-            if (!walker)
+            var enumerator = element.XamlNode.GetInheritedEnumerator();
+            if (!enumerator)
                 return;
-            while (walker.MoveNext()) {
-                this.WalkTree(rootParent, walker.Current, context, props, adding);
+            while (enumerator.MoveNext()) {
+                this.WalkTree(rootParent, enumerator.Current, context, props, adding);
             }
         }
         WalkTree(rootParent: DependencyObject, element: DependencyObject, context: _InheritedContext, props: _Inheritable, adding: bool) {

@@ -1,13 +1,7 @@
-/// <reference path="../Runtime/IEnumerator.ts" />
 /// CODE
 /// <reference path="Style.ts" />
 
 module Fayde {
-    export class VisualTreeWalker {
-        static Logical(xnode: XamlNode): IEnumerator {
-            return undefined;
-        }
-    }
     export class DeepStyleWalker {
         Step(): any {
 

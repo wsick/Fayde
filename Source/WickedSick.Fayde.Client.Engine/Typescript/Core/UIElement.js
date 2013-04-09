@@ -10,12 +10,15 @@ var Fayde;
 (function (Fayde) {
     var UINode = (function (_super) {
         __extends(UINode, _super);
-        function UINode() {
-            _super.apply(this, arguments);
-
+        function UINode(xobj) {
+                _super.call(this, xobj);
         }
-        UINode.prototype.GetInheritedWalker = function () {
-            return Fayde.VisualTreeWalker.Logical(this);
+        UINode.prototype.GetInheritedEnumerator = function () {
+            return this.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.Logical);
+        };
+        UINode.prototype._ElementAdded = function (uie) {
+        };
+        UINode.prototype._ElementRemoved = function (uie) {
         };
         return UINode;
     })(Fayde.XamlNode);

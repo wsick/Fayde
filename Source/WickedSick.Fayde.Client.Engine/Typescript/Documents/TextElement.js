@@ -14,7 +14,7 @@ var Fayde;
                 _super.apply(this, arguments);
 
             }
-            TextElementNode.prototype.GetInheritedWalker = function () {
+            TextElementNode.prototype.GetInheritedEnumerator = function () {
                 var coll = (this.XObject).GetValue(this.InheritedWalkProperty);
                 if(coll) {
                     return (coll).GetEnumerator();

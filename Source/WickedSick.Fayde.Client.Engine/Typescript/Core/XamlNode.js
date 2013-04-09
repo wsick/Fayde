@@ -4,6 +4,14 @@
 /// <reference path="InternalCollection.ts" />
 var Fayde;
 (function (Fayde) {
+    (function (VisualTreeDirection) {
+        VisualTreeDirection._map = [];
+        VisualTreeDirection.Logical = 0;
+        VisualTreeDirection.LogicalReverse = 1;
+        VisualTreeDirection.ZFoward = 2;
+        VisualTreeDirection.ZReverse = 3;
+    })(Fayde.VisualTreeDirection || (Fayde.VisualTreeDirection = {}));
+    var VisualTreeDirection = Fayde.VisualTreeDirection;
     var XamlNode = (function () {
         function XamlNode(xobj) {
             this.IsAttached = false;
@@ -70,7 +78,10 @@ var Fayde;
             this.SetIsAttached(false);
             this.ParentNode = null;
         };
-        XamlNode.prototype.GetInheritedWalker = function () {
+        XamlNode.prototype.GetInheritedEnumerator = function () {
+            return undefined;
+        };
+        XamlNode.prototype.GetVisualTreeEnumerator = function (direction) {
             return undefined;
         };
         return XamlNode;

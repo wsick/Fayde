@@ -460,11 +460,19 @@
     <Content Include="Typescript\Controls\MediaElement.js">
       <DependentUpon>MediaElement.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Panel.ts" />
+    <Content Include="Typescript\Controls\Panel.js">
+      <DependentUpon>Panel.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Primitives\Popup.js">
       <DependentUpon>Popup.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Controls\TextBlock.js">
       <DependentUpon>TextBlock.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\DependencyObjectCollection.ts" />
+    <Content Include="Typescript\Core\DependencyObjectCollection.js">
+      <DependentUpon>DependencyObjectCollection.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Core\DependencyObject.js">
       <DependentUpon>DependencyObject.ts</DependentUpon>
@@ -482,8 +490,11 @@
     <Content Include="Typescript\Core\FrameworkElement.js">
       <DependentUpon>FrameworkElement.ts</DependentUpon>
     </Content>
-    <TypeScriptCompile Include="Typescript\Runtime\IEnumerator.ts" />
     <TypeScriptCompile Include="Typescript\Core\Style.ts" />
+    <TypeScriptCompile Include="Typescript\Core\ResourceDictionary.ts" />
+    <Content Include="Typescript\Core\ResourceDictionary.js">
+      <DependentUpon>ResourceDictionary.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\Style.js">
       <DependentUpon>Style.ts</DependentUpon>
     </Content>
@@ -491,8 +502,9 @@
     <Content Include="Typescript\Core\Walkers.js">
       <DependentUpon>Walkers.ts</DependentUpon>
     </Content>
-    <Content Include="Typescript\Runtime\IEnumerator.js">
-      <DependentUpon>IEnumerator.ts</DependentUpon>
+    <TypeScriptCompile Include="Typescript\Runtime\Enumerable.ts" />
+    <Content Include="Typescript\Runtime\Enumerable.js">
+      <DependentUpon>Enumerable.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Core\InheritedProvider.js">
       <DependentUpon>InheritedProvider.ts</DependentUpon>

@@ -206,12 +206,12 @@ var Fayde;
                     return undefined;
                 };
                 InheritedProvider.prototype.WalkSubtree = function (rootParent, element, context, props, adding) {
-                    var walker = element.XamlNode.GetInheritedWalker();
-                    if(!walker) {
+                    var enumerator = element.XamlNode.GetInheritedEnumerator();
+                    if(!enumerator) {
                         return;
                     }
-                    while(walker.MoveNext()) {
-                        this.WalkTree(rootParent, walker.Current, context, props, adding);
+                    while(enumerator.MoveNext()) {
+                        this.WalkTree(rootParent, enumerator.Current, context, props, adding);
                     }
                 };
                 InheritedProvider.prototype.WalkTree = function (rootParent, element, context, props, adding) {

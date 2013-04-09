@@ -4,7 +4,7 @@
 module Fayde.Documents {
     export class TextElementNode extends XamlNode {
         InheritedWalkProperty: DependencyProperty;
-        GetInheritedWalker(): IEnumerator {
+        GetInheritedEnumerator(): IEnumerator {
             var coll = (<DependencyObject>this.XObject).GetValue(this.InheritedWalkProperty);
             if (coll)
                 return (<InternalCollection>coll).GetEnumerator();

@@ -452,7 +452,7 @@ module Fayde.Provider {
 
         private _InheritedIsEnabledProvider: InheritedIsEnabledProvider;
         private _LocalValueProvider: LocalValueProvider;
-        private _DynamicValueProvider: PropertyProvider;
+        private _DynamicValueProvider: FrameworkElementDynamicProvider;
         private _LocalStyleProvider: LocalStyleProvider;
         private _ImplicitStyleProvider: ImplicitStyleProvider;
         private _InheritedProvider: Inherited.InheritedProvider;
@@ -761,9 +761,10 @@ module Fayde.Provider {
                 (<XamlObject>value).XamlNode.AttachTo(this._Object.XamlNode);
                 //TODO: 
                 //  AddPropertyChangedListener (SubPropertyChanged)
-                //  If (is collection)
-                //      Subscribe Changed
-                //      Subscribe ItemChanged
+                //if (value instanceof InternalCollection) {
+                    //(<InternalCollection>value).ListenToChanged(this);
+                    //      Subscribe ItemChanged
+                //}
             } else if (value instanceof XamlObject) {
                 (<XamlObject>value).XamlNode.AttachTo(this._Object.XamlNode);
             }
@@ -775,9 +776,10 @@ module Fayde.Provider {
                 (<XamlObject>value).XamlNode.Detach();
                 //TODO: 
                 //  RemovePropertyChangedListener (SubPropertyChanged)
-                //  If (is collection)
-                //      Unsubscribe Changed
-                //      Unsubscribe ItemChanged
+                //if (value instanceof InternalCollection) {
+                    //(<InternalCollection>value).StopListenToChanged(this);
+                    //      Unsubscribe ItemChanged
+                //}
             } else if (value instanceof XamlObject) {
                 (<XamlObject>value).XamlNode.Detach();
             }

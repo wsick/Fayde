@@ -827,9 +827,10 @@ var Fayde;
                     (value).XamlNode.AttachTo(this._Object.XamlNode);
                     //TODO:
                     //  AddPropertyChangedListener (SubPropertyChanged)
-                    //  If (is collection)
-                    //      Subscribe Changed
+                    //if (value instanceof InternalCollection) {
+                    //(<InternalCollection>value).ListenToChanged(this);
                     //      Subscribe ItemChanged
+                    //}
                                     } else if(value instanceof Fayde.XamlObject) {
                     (value).XamlNode.AttachTo(this._Object.XamlNode);
                 }
@@ -842,9 +843,10 @@ var Fayde;
                     (value).XamlNode.Detach();
                     //TODO:
                     //  RemovePropertyChangedListener (SubPropertyChanged)
-                    //  If (is collection)
-                    //      Unsubscribe Changed
+                    //if (value instanceof InternalCollection) {
+                    //(<InternalCollection>value).StopListenToChanged(this);
                     //      Unsubscribe ItemChanged
+                    //}
                                     } else if(value instanceof Fayde.XamlObject) {
                     (value).XamlNode.Detach();
                 }
