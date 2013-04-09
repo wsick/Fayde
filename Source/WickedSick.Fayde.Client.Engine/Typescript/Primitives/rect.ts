@@ -1,3 +1,6 @@
+/// CODE
+/// <reference path="size.ts" />
+
 declare var vec2;
 declare var vec4;
 declare var mat3;
@@ -67,7 +70,7 @@ class rect {
             && rect1.Width === rect2.Width
             && rect1.Height === rect2.Height;
     }
-    
+
     static intersection(rect1: rect, rect2: rect) {
         var x = Math.max(rect1.X, rect2.X);
         var y = Math.max(rect2.Y, rect2.Y);
@@ -106,7 +109,7 @@ class rect {
         rect1.X = x;
         rect1.Y = y;
     }
-    
+
     static growBy(dest: rect, left: number, top: number, right: number, bottom: number) {
         dest.X -= left;
         dest.Y -= top;
@@ -163,7 +166,7 @@ class rect {
         rect1.Width = rw;
         rect1.Height = rh;
     }
-    
+
     static transform(dest: rect, xform) {
         if (!xform)
             return;
@@ -192,7 +195,7 @@ class rect {
         dest.Width = r - l;
         dest.Height = b - t;
     }
-    private static clipmask (clip) {
+    private static clipmask(clip) {
         var mask = 0;
 
         if (-clip[0] + clip[3] < 0) mask |= (1 << 0);
@@ -272,30 +275,33 @@ class rect {
         }
     }
 
-    static round(dest: rect) {
+    static round(dest: rect): rect {
         dest.X = Math.round(dest.X);
         dest.Y = Math.round(dest.Y);
         dest.Width = Math.round(dest.Width);
         dest.Height = Math.round(dest.Height);
+        return dest;
     }
-    static roundOut(dest: rect) {
+    static roundOut(dest: rect): rect {
         var x = Math.floor(dest.X);
         var y = Math.floor(dest.Y);
         dest.Width = Math.ceil(dest.X + dest.Width) - Math.floor(dest.X);
         dest.Height = Math.ceil(dest.Y + dest.Height) - Math.floor(dest.Y);
         dest.X = x;
         dest.Y = y;
+        return dest;
     }
-    static roundIn(dest: rect) {
+    static roundIn(dest: rect): rect {
         var x = Math.ceil(dest.X);
         var y = Math.ceil(dest.Y);
         dest.Width = Math.floor(dest.X + dest.Width) - Math.ceil(dest.X);
         dest.Height = Math.floor(dest.Y + dest.Height) - Math.ceil(dest.Y);
         dest.X = x;
         dest.Y = y;
+        return dest;
     }
 
-    static copyGrowTransform(dest:rect, src: rect, thickness, xform) {
+    static copyGrowTransform(dest: rect, src: rect, thickness, xform) {
         rect.copyTo(src, dest);
         rect.growByThickness(dest, thickness);
         rect.transform(dest, xform);
@@ -305,7 +311,7 @@ class rect {
         rect.growByThickness(dest, thickness);
         rect.transform4(dest, projection);
     }
-    
+
     static containsPoint(rect1: rect, p): bool {
         return rect1.X <= p.X
             && rect1.Y <= p.Y
@@ -331,113 +337,5 @@ class rect {
         var copy = rect.clone(src);
         rect.intersection(copy, test);
         return !rect.isEqual(src, copy);
-    }
-}
-
-class size {
-    Width: number = 0;
-    Height: number = 0;
-    toString(): string {
-        return "{" + this.Width + "," + this.Height + "}";
-    }
-    
-    static _TypeName = "size";
-
-    static fromRaw(width: number, height: number): size {
-        var s = new size();
-        s.Width = width;
-        s.Height = height;
-        return s;
-    }
-    static fromRect(src: rect): size {
-        var s = new size();
-        s.Width = src.Width;
-        s.Height = src.Height;
-        return s;
-    }
-    static createInfinite(): size {
-        var s = new size();
-        s.Width = Number.POSITIVE_INFINITY;
-        s.Height = Number.POSITIVE_INFINITY;
-        return s;
-    }
-    static createNegativeInfinite(): size {
-        var s = new size();
-        s.Width = Number.NEGATIVE_INFINITY;
-        s.Height = Number.NEGATIVE_INFINITY;
-        return s;
-    }
-    static copyTo(src: size, dest: size) {
-        dest.Width = src.Width;
-        dest.Height = src.Height;
-    }
-    static clone(src: size): size {
-        var s = new size();
-        s.Width = src.Width;
-        s.Height = src.Height;
-        return s;
-    }
-    static clear(dest: size) {
-        dest.Width = 0;
-        dest.Height = 0;
-    }
-    static isEqual(size1: size, size2: size): bool {
-        return size1.Width === size2.Width
-            && size1.Height === size2.Height;
-    }
-    
-    static growBy(dest: size, width: number, height: number) {
-        var h = dest.Height;
-        var w = dest.Width;
-        if (h != Number.POSITIVE_INFINITY)
-            h += height;
-        if (w != Number.POSITIVE_INFINITY)
-            w += width;
-        dest.Width = w > 0 ? w : 0;
-        dest.Height = h > 0 ? h : 0;
-        return dest;
-    }
-    static growByThickness(dest: size, thickness) {
-        var w = dest.Width;
-        var h = dest.Height;
-        if (w != Number.POSITIVE_INFINITY)
-            w += thickness.Left + thickness.Right;
-        if (h != Number.POSITIVE_INFINITY)
-            h += thickness.Top + thickness.Bottom;
-        dest.Width = w > 0 ? w : 0;
-        dest.Height = h > 0 ? h : 0;
-        return dest;
-    }
-    static shrinkBy(dest: size, width: number, height: number) {
-        var h = dest.Height;
-        var w = dest.Width;
-        if (h != Number.POSITIVE_INFINITY)
-            h -= height;
-        if (w != Number.POSITIVE_INFINITY)
-            w -= width;
-        dest.Width = w > 0 ? w : 0;
-        dest.Height = h > 0 ? h : 0;
-        return dest;
-    }
-    static shrinkByThickness(dest: size, thickness) {
-        var w = dest.Width;
-        var h = dest.Height;
-        if (w != Number.POSITIVE_INFINITY)
-            w -= thickness.Left + thickness.Right;
-        if (h != Number.POSITIVE_INFINITY)
-            h -= thickness.Top + thickness.Bottom;
-        dest.Width = w > 0 ? w : 0;
-        dest.Height = h > 0 ? h : 0;
-        return dest;
-    }
-    static min(dest: size, other: size) {
-        dest.Width = Math.min(dest.Width, other.Width);
-        dest.Height = Math.min(dest.Height, other.Height);
-        return dest;
-    }
-    static max(dest: size, other: size) {
-        dest.Width = Math.max(dest.Width, other.Width);
-        dest.Height = Math.max(dest.Height, other.Height);
-        return dest;
     }
 }

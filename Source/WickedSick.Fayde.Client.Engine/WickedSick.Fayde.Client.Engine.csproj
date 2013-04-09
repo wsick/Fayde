@@ -91,10 +91,7 @@
     <Content Include="Javascript\Core\Xformer.js" />
     <Content Include="Javascript\Engine\XamlResolver.js" />
     <Content Include="Fayde.d.ts" />
-    <TypeScriptCompile Include="Javascript\Primitives.ts" />
-    <Content Include="Javascript\Primitives.js">
-      <DependentUpon>Primitives.ts</DependentUpon>
-    </Content>
+    <Content Include="Javascript\Primitives.js" />
     <Content Include="Javascript\Runtime\IEnumerable.js" />
     <Content Include="Javascript\Shapes\ShapeMetrics.js" />
     <Content Include="Tests\DependencyObjectTests.js" />
@@ -533,12 +530,56 @@
     <Content Include="Typescript\Media\SolidColorBrush.js">
       <DependentUpon>SolidColorBrush.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Primitives\Clip.ts" />
+    <Content Include="Typescript\Primitives\Clip.js">
+      <DependentUpon>Clip.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Primitives\Color.js">
       <DependentUpon>Color.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Primitives\Thickness.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\CornerRadius.ts" />
+    <Content Include="Typescript\Primitives\CornerRadius.js">
+      <DependentUpon>CornerRadius.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Primitives\Point.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\Duration.ts" />
+    <Content Include="Typescript\Primitives\Duration.js">
+      <DependentUpon>Duration.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Primitives\KeyTime.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\Font.ts" />
+    <Content Include="Typescript\Primitives\Font.js">
+      <DependentUpon>Font.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Primitives\FontFamily.ts" />
+    <Content Include="Typescript\Primitives\FontFamily.js">
+      <DependentUpon>FontFamily.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Primitives\KeyTime.js">
+      <DependentUpon>KeyTime.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Primitives\Point.js">
+      <DependentUpon>Point.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Primitives\rect.ts" />
+    <Content Include="Typescript\Primitives\rect.js">
+      <DependentUpon>rect.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Primitives\size.ts" />
+    <Content Include="Typescript\Primitives\size.js">
+      <DependentUpon>size.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Primitives\Thickness.js">
       <DependentUpon>Thickness.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Primitives\TimeSpan.ts" />
+    <Content Include="Typescript\Primitives\TimeSpan.js">
+      <DependentUpon>TimeSpan.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Primitives\Uri.ts" />
+    <Content Include="Typescript\Primitives\Uri.js">
+      <DependentUpon>Uri.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Runtime\Enum.js">
       <DependentUpon>Enum.ts</DependentUpon>

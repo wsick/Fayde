@@ -1,7 +1,7 @@
 /// CODE
 /// <reference path="DependencyProperty.ts" />
 /// <reference path="../Runtime/Enum.ts" />
-/// <reference path="../../Javascript/Primitives.ts" />
+/// <reference path="../Primitives/CornerRadius.ts" />
 /// <reference path="../Primitives/Color.ts" />
 /// <reference path="../Primitives/Thickness.ts" />
 /// <reference path="../Media/MediaParser.ts" />
@@ -13,7 +13,7 @@ var Fayde;
         function TypeConverters() { }
         TypeConverters.ThicknessConverter = function ThicknessConverter(str) {
             if(!str) {
-                return new Fayde.Thickness();
+                return new Thickness();
             }
             var tokens = str.split(",");
             var left, top, right, bottom;
@@ -30,11 +30,11 @@ var Fayde;
             } else {
                 throw new XamlParseException("Cannot parse Thickness value '" + str + "'");
             }
-            return new Fayde.Thickness(left, top, right, bottom);
+            return new Thickness(left, top, right, bottom);
         };
         TypeConverters.CornerRadiusConverter = function CornerRadiusConverter(str) {
             if(!str) {
-                return new Fayde.Thickness();
+                return new CornerRadius();
             }
             var tokens = str.split(",");
             var topLeft, topRight, bottomRight, bottomLeft;
@@ -48,6 +48,7 @@ var Fayde;
             } else {
                 throw new XamlParseException("Cannot parse CornerRadius value '" + str + "'");
             }
+            return new CornerRadius(topLeft, topRight, bottomRight, bottomLeft);
         };
         TypeConverters.BrushConverter = function BrushConverter(str) {
             var scb = new Fayde.Media.SolidColorBrush();
@@ -56,16 +57,16 @@ var Fayde;
         };
         TypeConverters.ColorConverter = function ColorConverter(str) {
             if(!str) {
-                return new Fayde.Color();
+                return new Color();
             }
             if(str.substr(0, 1) !== "#") {
-                var color = Fayde.Color.KnownColors[str];
+                var color = Color.KnownColors[str];
                 if(!color) {
                     throw new NotSupportedException("Unknown Color: " + str);
                 }
                 return color;
             }
-            return Fayde.Color.FromHex(str);
+            return Color.FromHex(str);
         };
         return TypeConverters;
     })();    
@@ -99,7 +100,7 @@ var Fayde;
                 if(!val) {
                     return 0;
                 }
-                if(val instanceof Fayde.Thickness) {
+                if(val instanceof Thickness) {
                     return val.Left;
                 }
                 return parseFloat(val.toString());

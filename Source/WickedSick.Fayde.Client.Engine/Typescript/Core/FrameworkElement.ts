@@ -1,7 +1,7 @@
 /// <reference path="UIElement.ts" />
 /// CODE
 /// <reference path="../Runtime/Enumerable.ts" />
-/// <reference path="../../Javascript/Primitives.ts" />
+/// <reference path="../Primitives/size.ts" />
 
 module Fayde {
     export class FENode extends UINode {

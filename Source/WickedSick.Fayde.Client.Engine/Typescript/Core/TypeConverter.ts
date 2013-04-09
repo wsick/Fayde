@@ -1,7 +1,7 @@
 /// CODE
 /// <reference path="DependencyProperty.ts" />
 /// <reference path="../Runtime/Enum.ts" />
-/// <reference path="../../Javascript/Primitives.ts" />
+/// <reference path="../Primitives/CornerRadius.ts" />
 /// <reference path="../Primitives/Color.ts" />
 /// <reference path="../Primitives/Thickness.ts" />
 /// <reference path="../Media/MediaParser.ts" />
@@ -10,7 +10,7 @@
 
 module Fayde {
     class TypeConverters {
-        static ThicknessConverter(str: string) {
+        static ThicknessConverter(str: string): Thickness {
             if (!str)
                 return new Thickness();
             var tokens = str.split(",");
@@ -30,9 +30,9 @@ module Fayde {
             }
             return new Thickness(left, top, right, bottom);
         }
-        static CornerRadiusConverter(str: string) {
+        static CornerRadiusConverter(str: string): CornerRadius {
             if (!str)
-                return new Thickness();
+                return new CornerRadius();
             var tokens = str.split(",");
             var topLeft, topRight, bottomRight, bottomLeft;
             if (tokens.length === 1) {
@@ -45,13 +45,14 @@ module Fayde {
             } else {
                 throw new XamlParseException("Cannot parse CornerRadius value '" + str + "'");
             }
+            return new CornerRadius(topLeft, topRight, bottomRight, bottomLeft);
         }
-        static BrushConverter(str: string) {
-            var scb = new Media.SolidColorBrush(); 
+        static BrushConverter(str: string): Media.Brush {
+            var scb = new Media.SolidColorBrush();
             scb.Color = ColorConverter(str);
             return scb;
         }
-        static ColorConverter(str: string) {
+        static ColorConverter(str: string): Color {
             if (!str)
                 return new Color();
             if (str.substr(0, 1) !== "#") {

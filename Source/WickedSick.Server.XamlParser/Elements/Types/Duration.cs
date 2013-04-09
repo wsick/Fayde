@@ -36,10 +36,16 @@ namespace WickedSick.Server.XamlParser.Elements.Types
         public string ToJson(int tabIndents, IJsonOutputModifiers outputMods)
         {
             var typeName = ElementAttribute.GetFullNullstoneType(GetType(), outputMods);
-            if (DurationType == DurationType.Automatic || DurationType == DurationType.Forever)
-                return string.Format("new {0}({1})", typeName, DurationType.ToString());
-            else
-                return string.Format("new {0}({1})", typeName, TimeSpan.ToJson(tabIndents, outputMods));
+            switch (DurationType)
+            {
+                case DurationType.Automatic:
+                default:
+                    return string.Format("{0}.CreateAutomatic()", typeName);
+                case DurationType.Forever:
+                    return string.Format("{0}.CreateForever()", typeName);
+                case DurationType.TimeSpan:
+                    return string.Format("{0}.CreateTimeSpan({1})", typeName, TimeSpan.ToJson(tabIndents, outputMods));
+            }
         }
     }
 }

@@ -6,7 +6,7 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path="UIElement.ts" />
 /// CODE
 /// <reference path="../Runtime/Enumerable.ts" />
-/// <reference path="../../Javascript/Primitives.ts" />
+/// <reference path="../Primitives/size.ts" />
 var Fayde;
 (function (Fayde) {
     var FENode = (function (_super) {
