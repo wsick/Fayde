@@ -40,7 +40,9 @@ module Fayde {
             if (this.IsAttached !== value)
                 return;
             this.IsAttached = value;
+            this.OnIsAttachedChanged(value);
         }
+        OnIsAttachedChanged(newIsAttached: bool) { }
 
         AttachTo(parentNode: XamlNode, error: BError): bool {
             this.SetIsAttached(parentNode.IsAttached);

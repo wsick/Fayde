@@ -34,6 +34,9 @@ var Fayde;
                 return;
             }
             this.IsAttached = value;
+            this.OnIsAttachedChanged(value);
+        };
+        XamlNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
         };
         XamlNode.prototype.AttachTo = function (parentNode, error) {
             this.SetIsAttached(parentNode.IsAttached);

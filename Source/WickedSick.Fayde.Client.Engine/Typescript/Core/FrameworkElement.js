@@ -7,12 +7,14 @@ var __extends = this.__extends || function (d, b) {
 /// CODE
 /// <reference path="../Runtime/Enumerable.ts" />
 /// <reference path="../Primitives/size.ts" />
+/// <reference path="ResourceDictionary.ts" />
 var Fayde;
 (function (Fayde) {
     var FENode = (function (_super) {
         __extends(FENode, _super);
         function FENode(xobj) {
                 _super.call(this, xobj);
+            this.IsLoaded = false;
         }
         FENode.prototype.SetSubtreeNode = function (subtreeNode) {
             var error = new BError();
@@ -20,6 +22,30 @@ var Fayde;
                 error.ThrowException();
             }
             this.SubtreeNode = subtreeNode;
+        };
+        FENode.prototype.SetIsLoaded = function (value) {
+            if(this.IsLoaded === value) {
+                return;
+            }
+            this.IsLoaded = value;
+            this.OnIsLoadedChanged(value);
+        };
+        FENode.prototype.OnIsLoadedChanged = function (newIsLoaded) {
+            var res = this.XObject.Resources;
+            if(!newIsLoaded) {
+            }
+            var enumerator = this.GetVisualTreeEnumerator();
+            while(enumerator.MoveNext()) {
+                (enumerator.Current).SetIsLoaded(newIsLoaded);
+            }
+            if(newIsLoaded) {
+            }
+        };
+        FENode.prototype.OnIsAttachedChanged = function (newIsAttached) {
+            if(this.SubtreeNode) {
+                this.SubtreeNode.SetIsAttached(newIsAttached);
+            }
+            _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
         };
         FENode.prototype.GetVisualTreeEnumerator = function (direction) {
             if(this.SubtreeNode) {
@@ -37,8 +63,11 @@ var Fayde;
     var FrameworkElement = (function (_super) {
         __extends(FrameworkElement, _super);
         function FrameworkElement() {
-            _super.apply(this, arguments);
-
+                _super.call(this);
+            Object.defineProperty(this, "Resources", {
+                value: new Fayde.ResourceDictionary(),
+                writable: false
+            });
         }
         FrameworkElement.prototype.CreateNode = function () {
             return new FENode(this);

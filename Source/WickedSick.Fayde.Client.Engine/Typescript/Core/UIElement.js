@@ -16,10 +16,38 @@ var Fayde;
         UINode.prototype.GetInheritedEnumerator = function () {
             return this.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.Logical);
         };
+        UINode.prototype.OnIsAttachedChanged = function (newIsAttached) {
+            _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
+            //Update total render visibility
+            if(!newIsAttached) {
+            }
+        };
         UINode.prototype._ElementAdded = function (uie) {
-        };
+            uie.XamlNode.VisualParentNode = this;
+            //Update uie Total Render+HitTest Visibility
+            //Invalidate uie
+            //Propagate inherited props on adding to tree
+            //set loaded to this.IsLoaded
+            //Update this Bounds(true)
+            //Invalidate this measure
+            //LayoutInformation.SetLayoutClip(this, undefined)
+            //Clear PreviousConstraint
+            //Clear uie render size
+            //Update uie transform
+            //Update uie projection
+            //Invalidate uie measure
+            //Invalidate uie arrange
+            //if uie has dirtysizehint or uie LastRenderSize !== undefined --> uie.propagateflagup dirtysizeup
+                    };
         UINode.prototype._ElementRemoved = function (uie) {
-        };
+            //this.Invalidate uie subtree bounds
+            uie.XamlNode.VisualParentNode = null;
+            //set loaded to false
+            //LayoutInformation.SetLayoutSlot(uie, emptySlot);
+            //LayoutInformation.SetLayoutClip(uie, undefined);
+            //Invalidate this measure
+            //Clear inherited properties on removing from tree
+                    };
         return UINode;
     })(Fayde.XamlNode);
     Fayde.UINode = UINode;    
