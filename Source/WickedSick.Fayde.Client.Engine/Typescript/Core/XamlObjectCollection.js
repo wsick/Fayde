@@ -121,8 +121,8 @@ var Fayde;
         XamlObjectCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
             value.XamlNode.Detach();
         };
-        XamlObjectCollection.prototype.GetEnumerator = function () {
-            return Fayde.ArrayEx.GetEnumerator(this._ht);
+        XamlObjectCollection.prototype.GetEnumerator = function (reverse) {
+            return Fayde.ArrayEx.GetEnumerator(this._ht, reverse);
         };
         XamlObjectCollection.prototype._RaiseItemAdded = function (value, index) {
         };

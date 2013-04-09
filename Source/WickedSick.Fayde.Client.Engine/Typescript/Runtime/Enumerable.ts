@@ -1,6 +1,6 @@
 module Fayde {
     export interface IEnumerable {
-        GetEnumerator(): IEnumerator;
+        GetEnumerator(reverse?: bool): IEnumerator;
     }
     export interface IEnumerator {
         Current: any;

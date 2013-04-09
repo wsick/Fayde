@@ -5,6 +5,7 @@ var __extends = this.__extends || function (d, b) {
 };
 /// <reference path="XamlObject.ts" />
 /// CODE
+/// <reference path="TypeConverter.ts" />
 var Fayde;
 (function (Fayde) {
     var SetterCollection = (function (_super) {

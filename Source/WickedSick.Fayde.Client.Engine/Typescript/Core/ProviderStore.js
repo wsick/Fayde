@@ -278,7 +278,7 @@ var Fayde;
                 var oldValue;
                 var newValue;
                 var walkPropd;
-                var walker = Fayde.DeepStyleWalker.Single(this._Style);
+                var walker = Fayde.SingleStyleWalker(this._Style);
                 var setter;
                 while(setter = walker.Step()) {
                     walkPropd = setter.Property;
@@ -298,8 +298,8 @@ var Fayde;
                 var store = this._Store;
                 var oldValue = undefined;
                 var newValue = undefined;
-                var oldWalker = Fayde.DeepStyleWalker.Single(this._Style);
-                var newWalker = Fayde.DeepStyleWalker.Single(style);
+                var oldWalker = Fayde.SingleStyleWalker(this._Style);
+                var newWalker = Fayde.SingleStyleWalker(style);
                 style.Seal();
                 var oldSetter = oldWalker.Step();
                 var newSetter = newWalker.Step();
@@ -365,7 +365,7 @@ var Fayde;
                 var oldValue;
                 var newValue;
                 var prop;
-                var walker = Fayde.DeepStyleWalker.Multiple(this._Styles);
+                var walker = Fayde.MultipleStylesWalker(this._Styles);
                 var setter;
                 while(setter = walker.Step()) {
                     prop = setter.Property;
@@ -438,13 +438,13 @@ var Fayde;
                 }
                 var oldValue;
                 var newValue;
-                var oldWalker = Fayde.DeepStyleWalker.Multiple(this._Styles);
-                var newWalker = Fayde.DeepStyleWalker.Multiple(styles);
+                var oldWalker = Fayde.MultipleStylesWalker(this._Styles);
+                var newWalker = Fayde.MultipleStylesWalker(styles);
                 var oldSetter = oldWalker.Step();
                 var newSetter = newWalker.Step();
+                var oldProp;
+                var newProp;
                 while(oldSetter || newSetter) {
-                    var oldProp;
-                    var newProp;
                     if(oldSetter) {
                         oldProp = oldSetter.Property;
                     }
@@ -459,7 +459,7 @@ var Fayde;
                         this._ht[oldProp._ID] = undefined;
                         this._Store._ProviderValueChanged(_PropertyPrecedence.ImplicitStyle, oldProp, oldValue, newValue, true, true, false, error);
                         oldSetter = oldWalker.Step();
-                    } else if(oldProp == newProp) {
+                    } else if(oldProp === newProp) {
                         //Property in both styles
                         oldValue = oldSetter.ConvertedValue;
                         newValue = newSetter.ConvertedValue;

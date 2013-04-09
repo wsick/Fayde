@@ -99,8 +99,8 @@ module Fayde {
             value.XamlNode.Detach();
         }
 
-        GetEnumerator(): IEnumerator {
-            return ArrayEx.GetEnumerator(this._ht);
+        GetEnumerator(reverse?: bool): IEnumerator {
+            return ArrayEx.GetEnumerator(this._ht, reverse);
         }
 
         _RaiseItemAdded(value: XamlObject, index: number) { }

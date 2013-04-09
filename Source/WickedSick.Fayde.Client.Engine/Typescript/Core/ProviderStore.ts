@@ -234,8 +234,8 @@ module Fayde.Provider {
             var newValue;
             var walkPropd;
 
-            var walker = DeepStyleWalker.Single(this._Style);
-            var setter;
+            var walker = SingleStyleWalker(this._Style);
+            var setter: Setter;
             while (setter = walker.Step()) {
                 walkPropd = setter.Property;
                 if (walkPropd._ID !== propd._ID)
@@ -254,14 +254,14 @@ module Fayde.Provider {
             var oldValue = undefined;
             var newValue = undefined;
 
-            var oldWalker = DeepStyleWalker.Single(this._Style);
-            var newWalker = DeepStyleWalker.Single(style);
+            var oldWalker = SingleStyleWalker(this._Style);
+            var newWalker = SingleStyleWalker(style);
             style.Seal();
 
             var oldSetter = oldWalker.Step();
             var newSetter = newWalker.Step();
-            var oldProp;
-            var newProp;
+            var oldProp: DependencyProperty;
+            var newProp: DependencyProperty;
 
             while (oldSetter || newSetter) {
                 if (oldSetter)
@@ -316,8 +316,8 @@ module Fayde.Provider {
             var newValue;
             var prop;
 
-            var walker = DeepStyleWalker.Multiple(this._Styles);
-            var setter;
+            var walker = MultipleStylesWalker(this._Styles);
+            var setter: Setter;
             while (setter = walker.Step()) {
                 prop = setter.Property;
                 if (prop._ID !== propd._ID)
@@ -381,15 +381,15 @@ module Fayde.Provider {
             var oldValue;
             var newValue;
 
-            var oldWalker = DeepStyleWalker.Multiple(this._Styles);
-            var newWalker = DeepStyleWalker.Multiple(styles);
+            var oldWalker = MultipleStylesWalker(this._Styles);
+            var newWalker = MultipleStylesWalker(styles);
 
             var oldSetter = oldWalker.Step();
             var newSetter = newWalker.Step();
-
+            
+            var oldProp: DependencyProperty;
+            var newProp: DependencyProperty;
             while (oldSetter || newSetter) {
-                var oldProp;
-                var newProp;
                 if (oldSetter)
                     oldProp = oldSetter.Property;
                 if (newSetter)
@@ -403,7 +403,7 @@ module Fayde.Provider {
                     this._Store._ProviderValueChanged(_PropertyPrecedence.ImplicitStyle, oldProp, oldValue, newValue, true, true, false, error);
                     oldSetter = oldWalker.Step();
                 }
-                else if (oldProp == newProp) {
+                else if (oldProp === newProp) {
                     //Property in both styles
                     oldValue = oldSetter.ConvertedValue;
                     newValue = newSetter.ConvertedValue;
