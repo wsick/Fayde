@@ -33,7 +33,7 @@ class DependencyProperty {
     private _Coercer: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any;
     _AlwaysChange: bool;
     private _Validator: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => bool;
-    private _IsAttached: bool;
+    _IsAttached: bool;
     _BitmaskCache: number;
     _Inheritable: number;
 

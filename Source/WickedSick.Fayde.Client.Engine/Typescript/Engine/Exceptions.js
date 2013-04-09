@@ -23,4 +23,18 @@ var InvalidOperationException = (function (_super) {
     }
     return InvalidOperationException;
 })(Exception);
+var XamlParseException = (function (_super) {
+    __extends(XamlParseException, _super);
+    function XamlParseException(message) {
+        _super.call(this, message);
+    }
+    return XamlParseException;
+})(Exception);
+var NotSupportedException = (function (_super) {
+    __extends(NotSupportedException, _super);
+    function NotSupportedException(message) {
+        _super.call(this, message);
+    }
+    return NotSupportedException;
+})(Exception);
 //@ sourceMappingURL=Exceptions.js.map

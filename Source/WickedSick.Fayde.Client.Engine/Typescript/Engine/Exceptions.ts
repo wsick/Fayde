@@ -16,3 +16,16 @@ class InvalidOperationException extends Exception {
         super(message);
     }
 }
+
+class XamlParseException extends Exception {
+    constructor(message: string) {
+        super(message);
+    }
+}
+
+
+class NotSupportedException extends Exception {
+    constructor(message: string) {
+        super(message);
+    }
+}

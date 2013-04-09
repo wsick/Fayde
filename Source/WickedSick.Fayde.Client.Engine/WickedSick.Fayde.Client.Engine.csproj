@@ -495,10 +495,18 @@
     <Content Include="Typescript\Core\ResourceDictionary.js">
       <DependentUpon>ResourceDictionary.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Core\Setter.ts" />
+    <Content Include="Typescript\Core\Setter.js">
+      <DependentUpon>Setter.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\Style.js">
       <DependentUpon>Style.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Core\Walkers.ts" />
+    <TypeScriptCompile Include="Typescript\Core\TypeConverter.ts" />
+    <Content Include="Typescript\Core\TypeConverter.js">
+      <DependentUpon>TypeConverter.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\Walkers.js">
       <DependentUpon>Walkers.ts</DependentUpon>
     </Content>
@@ -506,6 +514,34 @@
     <TypeScriptCompile Include="Typescript\Core\XamlObjectCollection.ts" />
     <Content Include="Typescript\Core\XamlObjectCollection.js">
       <DependentUpon>XamlObjectCollection.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Runtime\Enum.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\Color.ts" />
+    <TypeScriptCompile Include="Typescript\Media\MediaParser.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Geometry.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Brush.ts" />
+    <Content Include="Typescript\Media\Brush.js">
+      <DependentUpon>Brush.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Geometry.js">
+      <DependentUpon>Geometry.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\MediaParser.js">
+      <DependentUpon>MediaParser.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\SolidColorBrush.ts" />
+    <Content Include="Typescript\Media\SolidColorBrush.js">
+      <DependentUpon>SolidColorBrush.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Primitives\Color.js">
+      <DependentUpon>Color.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Primitives\Thickness.ts" />
+    <Content Include="Typescript\Primitives\Thickness.js">
+      <DependentUpon>Thickness.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Runtime\Enum.js">
+      <DependentUpon>Enum.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Runtime\Enumerable.js">
       <DependentUpon>Enumerable.ts</DependentUpon>
@@ -573,6 +609,14 @@
     <TypeScriptCompile Include="Typescript\Runtime\Nullstone.ts" />
     <Content Include="Typescript\Runtime\Nullstone.js">
       <DependentUpon>Nullstone.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Shapes\ShapesParser.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\PointCollection.ts" />
+    <Content Include="Typescript\Shapes\PointCollection.js">
+      <DependentUpon>PointCollection.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Shapes\ShapesParser.js">
+      <DependentUpon>ShapesParser.ts</DependentUpon>
     </Content>
     <Content Include="Web.config">
       <SubType>Designer</SubType>
