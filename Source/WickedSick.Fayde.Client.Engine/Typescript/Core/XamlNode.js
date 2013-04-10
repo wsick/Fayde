@@ -95,7 +95,7 @@ var Fayde;
         };
         XamlNode.prototype.Detach = function () {
             var name = this.Name;
-            if(name) {
+            if(name && !this.NameScope) {
                 var ns = this.FindNameScope();
                 if(ns) {
                     ns.UnregisterName(this.Name);

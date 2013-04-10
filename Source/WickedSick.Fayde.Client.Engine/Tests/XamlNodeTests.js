@@ -5,7 +5,7 @@
 //Test absorbing of namescopes
 //Test isattached modification
 //Test AttachTo/Detach
-test("AttachTo and Detach", function () {
+test("XamlNodeTests.AttachTo_Detach", function () {
     var root = new Fayde.XamlObject();
     root.XamlNode.NameScope = new Fayde.NameScope(true);
     root.XamlNode.SetIsAttached(true);
@@ -26,7 +26,7 @@ test("AttachTo and Detach", function () {
     equal(child.XamlNode.FindNameScope(), null, "Child Node should no longer have a namescope.");
     equal(child.XamlNode.ParentNode, null, "Child Node should no longer have a parent node.");
 });
-test("Merge NameScopes", function () {
+test("XamlNodeTests.MergeNameScopes", function () {
     var root = new Fayde.XamlObject();
     root.XamlNode.NameScope = new Fayde.NameScope(true);
     root.XamlNode.SetIsAttached(true);
@@ -42,6 +42,37 @@ test("Merge NameScopes", function () {
     strictEqual(childNs, ns, "Child.FindNameScope should be the same as the root NameScope because AttachTo merges namescopes if NameScope.IsRoot=false.");
     strictEqual(ns.FindName("CHILD"), child.XamlNode, "Child should be registered in root namescope after merge.");
 });
-//TODO: Test throws with name collisions
-//TODO: Test throws with name collisions
+test("XamlNodeTests.ChildRootNameScope", function () {
+    var root = new Fayde.XamlObject();
+    root.XamlNode.NameScope = new Fayde.NameScope(true);
+    root.XamlNode.SetIsAttached(true);
+    var child = new Fayde.XamlObject();
+    child.XamlNode.NameScope = new Fayde.NameScope(true);
+    child.XamlNode.SetName("CHILD");
+    var error = new BError();
+    if(!child.XamlNode.AttachTo(root.XamlNode, error)) {
+        ok(false, "Error should not happen when attaching child node:" + error.Message);
+    }
+    var childNs = child.XamlNode.FindNameScope();
+    notStrictEqual(childNs, root.XamlNode.FindNameScope(), "Child NameScope should be absorbed by parent on attach when IsRoot=true.");
+    strictEqual(childNs.FindName("CHILD"), child.XamlNode, "Child should be registered in its own namescope after merge.");
+    child.XamlNode.Detach();
+    strictEqual(childNs.FindName("CHILD"), child.XamlNode, "Child should be still be registered in its own namescope after detach.");
+});
+test("XamlNodeTests.NameCollision", function () {
+    var root = new Fayde.XamlObject();
+    root.XamlNode.NameScope = new Fayde.NameScope(true);
+    root.XamlNode.SetIsAttached(true);
+    var child1 = new Fayde.XamlObject();
+    child1.XamlNode.SetName("CHILD");
+    var child2 = new Fayde.XamlObject();
+    child2.XamlNode.SetName("CHILD");
+    var error = new BError();
+    if(!child1.XamlNode.AttachTo(root.XamlNode, error)) {
+        ok(false, "Error should not happen when attaching child node 1:" + error.Message);
+    }
+    ok(!child2.XamlNode.AttachTo(root.XamlNode, error), "Attaching child node 2 should error because the name is already registered in the namescope.");
+    ok(!child1.XamlNode.AttachTo(root.XamlNode, error), "Attaching child node 1 twice should error because element already exists in tree.");
+    ok(!root.XamlNode.AttachTo(child1.XamlNode, error), "Attaching root to child node 1 should error because cycles are not allowed.");
+});
 //@ sourceMappingURL=XamlNodeTests.js.map
