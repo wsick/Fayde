@@ -15,9 +15,19 @@ var Fayde;
     var VisualTreeDirection = Fayde.VisualTreeDirection;
     var XamlNode = (function () {
         function XamlNode(xobj) {
+            this.ParentNode = null;
+            this.Name = "";
+            this.NameScope = null;
             this.IsAttached = false;
             this.XObject = xobj;
         }
+        XamlNode.prototype.SetName = function (name) {
+            this.Name = name;
+            var ns = this.FindNameScope();
+            if(ns) {
+                ns.RegisterName(name, this);
+            }
+        };
         XamlNode.prototype.FindNameScope = function () {
             var curNode = this;
             var ns;

@@ -3,10 +3,13 @@
 var Fayde;
 (function (Fayde) {
     var NameScope = (function () {
-        function NameScope() {
+        function NameScope(isRoot) {
             this.IsRoot = false;
             this.XNodes = {
             };
+            if(isRoot) {
+                this.IsRoot = isRoot;
+            }
         }
         NameScope.prototype.FindName = function (name) {
             return this.XNodes[name];

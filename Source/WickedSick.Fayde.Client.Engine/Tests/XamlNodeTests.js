@@ -7,10 +7,10 @@
 //Test AttachTo/Detach
 test("AttachTo", function () {
     var root = new Fayde.XamlObject();
-    root.XamlNode.NameScope = new Fayde.NameScope();
+    root.XamlNode.NameScope = new Fayde.NameScope(true);
     root.XamlNode.SetIsAttached(true);
     var child = new Fayde.XamlObject();
-    child.XamlNode.Name = "CHILD";
+    child.XamlNode.SetName("CHILD");
     var error = new BError();
     if(!child.XamlNode.AttachTo(root.XamlNode, error)) {
         ok(false, "Error should not happen when attaching child node:" + error.Message);
@@ -18,8 +18,26 @@ test("AttachTo", function () {
     strictEqual(child.XamlNode.ParentNode, root.XamlNode, "ParentNode of child needs to be its direct logical parent.");
     strictEqual(child.XamlNode.IsAttached, root.XamlNode.IsAttached, "Child IsAttached should match Parent IsAttached after attaching.");
     var ns = root.XamlNode.FindNameScope();
-    var found = ns.FindName("CHILD");
-    strictEqual(found, child.XamlNode, "Registered child should be returned from FindNameScope.");
-    //TODO: Haven't tested "NameScope.Absorb"
-    });
+    strictEqual(ns.FindName("CHILD"), child.XamlNode, "Registered child should be returned from FindName on root namescope.");
+    var childNs = child.XamlNode.FindNameScope();
+    strictEqual(childNs, ns, "Child.FindNameScope should be the same as the root NameScope.");
+});
+test("Merge NameScopes", function () {
+    var root = new Fayde.XamlObject();
+    root.XamlNode.NameScope = new Fayde.NameScope(true);
+    root.XamlNode.SetIsAttached(true);
+    var child = new Fayde.XamlObject();
+    child.XamlNode.NameScope = new Fayde.NameScope();
+    child.XamlNode.SetName("CHILD");
+    var error = new BError();
+    if(!child.XamlNode.AttachTo(root.XamlNode, error)) {
+        ok(false, "Error should not happen when attaching child node:" + error.Message);
+    }
+    var ns = root.XamlNode.FindNameScope();
+    var childNs = child.XamlNode.FindNameScope();
+    strictEqual(childNs, ns, "Child.FindNameScope should be the same as the root NameScope because AttachTo merges namescopes if NameScope.IsRoot=false.");
+    strictEqual(ns.FindName("CHILD"), child.XamlNode, "Child should be registered in root namescope after merge.");
+});
+//TODO: Test throws with name collisions
+//TODO: Test throws with name collisions
 //@ sourceMappingURL=XamlNodeTests.js.map

@@ -6,6 +6,11 @@ module Fayde {
         IsRoot: bool = false;
         private XNodes = {};
 
+        constructor(isRoot?: bool) {
+            if (isRoot)
+                this.IsRoot = isRoot;
+        }
+
         FindName(name: string): XamlNode {
             return this.XNodes[name];
         }

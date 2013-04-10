@@ -16,14 +16,20 @@ module Fayde {
 
     export class XamlNode {
         XObject: XamlObject;
-        ParentNode: XamlNode;
-        Name: string;
-        NameScope: NameScope;
+        ParentNode: XamlNode = null;
+        Name: string = "";
+        NameScope: NameScope = null;
 
         constructor(xobj: XamlObject) {
             this.XObject = xobj;
         }
         
+        SetName(name: string) {
+            this.Name = name;
+            var ns = this.FindNameScope();
+            if (ns)
+                ns.RegisterName(name, this);
+        }
         FindNameScope(): NameScope {
             var curNode = this;
             var ns;
