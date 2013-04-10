@@ -32,7 +32,6 @@ Runtime/Nullstone.js
 Shapes/PointCollection.js
 Shapes/ShapesParser.js
 Core/DependencyObject.js
-Core/Setter.js
 Core/Style.js
 Core/UIElement.js
 Core/XamlObjectCollection.js
@@ -42,6 +41,7 @@ Media/SolidColorBrush.js
 Core/DependencyObjectCollection.js
 Core/FrameworkElement.js
 Core/ResourceDictionary.js
+Core/Setter.js
 Documents/Block.js
 Documents/Inline.js
 Documents/Paragraph.js

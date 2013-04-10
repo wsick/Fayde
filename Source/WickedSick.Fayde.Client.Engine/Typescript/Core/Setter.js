@@ -4,6 +4,7 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 /// <reference path="XamlObject.ts" />
+/// <reference path="XamlObjectCollection.ts" />
 /// CODE
 /// <reference path="TypeConverter.ts" />
 var Fayde;

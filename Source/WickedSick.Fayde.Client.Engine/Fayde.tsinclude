@@ -32,7 +32,6 @@ Runtime/Nullstone.ts
 Shapes/PointCollection.ts
 Shapes/ShapesParser.ts
 Core/DependencyObject.ts
-Core/Setter.ts
 Core/Style.ts
 Core/UIElement.ts
 Core/XamlObjectCollection.ts
@@ -42,6 +41,7 @@ Media/SolidColorBrush.ts
 Core/DependencyObjectCollection.ts
 Core/FrameworkElement.ts
 Core/ResourceDictionary.ts
+Core/Setter.ts
 Documents/Block.ts
 Documents/Inline.ts
 Documents/Paragraph.ts

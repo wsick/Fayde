@@ -1,4 +1,5 @@
 /// <reference path="XamlObject.ts" />
+/// <reference path="XamlObjectCollection.ts" />
 /// CODE
 /// <reference path="TypeConverter.ts" />
 
