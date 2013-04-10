@@ -1,8 +1,3 @@
-var __extends = this.__extends || function (d, b) {
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var Fayde;
 (function (Fayde) {
     (function (Provider) {
@@ -179,11 +174,8 @@ var Fayde;
                 _Inheritable.None = 0;
             })(Inherited._Inheritable || (Inherited._Inheritable = {}));
             var _Inheritable = Inherited._Inheritable;
-            var InheritedProvider = (function (_super) {
-                __extends(InheritedProvider, _super);
+            var InheritedProvider = (function () {
                 function InheritedProvider() {
-                    _super.apply(this, arguments);
-
                     this._ht = [];
                 }
                 InheritedProvider.prototype.GetPropertyValue = function (store, propd) {
@@ -307,8 +299,12 @@ var Fayde;
                         this._ht[inheritable] = undefined;
                     }
                 };
+                InheritedProvider.prototype.RecomputePropertyValueOnClear = function (propd, error) {
+                };
+                InheritedProvider.prototype.RecomputePropertyValueOnLower = function (propd, error) {
+                };
                 return InheritedProvider;
-            })(Provider.PropertyProvider);
+            })();
             Inherited.InheritedProvider = InheritedProvider;            
         })(Provider.Inherited || (Provider.Inherited = {}));
         var Inherited = Provider.Inherited;

@@ -497,6 +497,14 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Core\Style.ts" />
     <TypeScriptCompile Include="Typescript\Core\ResourceDictionary.ts" />
+    <TypeScriptCompile Include="Typescript\Core\InheritedIsEnabledProvider.ts" />
+    <TypeScriptCompile Include="Typescript\Core\InheritedDataContextProvider.ts" />
+    <Content Include="Typescript\Core\InheritedDataContextProvider.js">
+      <DependentUpon>InheritedDataContextProvider.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\InheritedIsEnabledProvider.js">
+      <DependentUpon>InheritedIsEnabledProvider.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\ResourceDictionary.js">
       <DependentUpon>ResourceDictionary.ts</DependentUpon>
     </Content>

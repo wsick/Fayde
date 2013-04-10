@@ -2,10 +2,6 @@
 /// <reference path="DependencyObject.ts" />
 /// <reference path="../Runtime/BError.ts" />
 /// <reference path="../Runtime/Nullstone.ts" />
-/// <reference path="InheritedProvider.ts" />
-
-/// <reference path="../Controls/Control.ts" />
-/// <reference path="Style.ts" />
 
 module Fayde.Provider {
     export enum _PropertyPrecedence {
@@ -42,17 +38,19 @@ module Fayde.Provider {
         OnPropertyChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs);
     }
 
-    export class PropertyProvider {
-        GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any { }
-        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError) { }
-        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
+    export interface IPropertyProvider {
+        GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any;
+        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError);
+        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError);
     }
-    export class DefaultValueProvider extends PropertyProvider {
+    export class DefaultValueProvider implements IPropertyProvider {
         GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
             return propd.DefaultValue;
         }
+        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError) { }
+        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
     }
-    export class AutoCreateProvider extends PropertyProvider {
+    export class AutoCreateProvider implements IPropertyProvider {
         private _ht: any[] = [];
         GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
             var value = this.ReadLocalValue(propd);
@@ -77,8 +75,9 @@ module Fayde.Provider {
         ClearValue(propd: DependencyProperty) {
             this._ht[propd._ID] = undefined;
         }
+        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
     }
-    export class LocalValueProvider extends PropertyProvider {
+    export class LocalValueProvider implements IPropertyProvider {
         private _ht: any[] = [];
         GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
             return this._ht[propd._ID];
@@ -89,145 +88,14 @@ module Fayde.Provider {
         ClearValue(propd: DependencyProperty) {
             this._ht[propd._ID] = undefined;
         }
+        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError) { }
+        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
     }
-    export class InheritedIsEnabledProvider extends PropertyProvider {
-        private _Source: Controls.Control;
-        private _CurrentValue: bool = true;
-        private _Store: ProviderStore;
-        constructor(store: ProviderStore) {
-            super();
-            this._Store = store;
-        }
-        GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
-            if (propd._ID === Controls.Control.IsEnabledProperty._ID)
-                return this._CurrentValue;
-            return undefined;
-        }
-        SetDataSource(source: DependencyObject) {
-            if (source) {
-                var curNode = source.XamlNode;
-                while (curNode) {
-                    if (curNode.XObject instanceof Controls.Control)
-                        break;
-                    else if (curNode.XObject instanceof FrameworkElement)
-                        curNode = curNode.ParentNode;
-                    else
-                        curNode = null;
-                }
-                source = (curNode) ? (<DependencyObject>curNode.XObject) : null;
-            }
-            if (this._Source !== source) {
-                this._DetachListener(<Controls.Control>this._Source);
-                this._Source = <Controls.Control>source;
-                this._AttachListener(<Controls.Control>source);
-            }
-            if (!source && (this._Store._Object.XamlNode.IsAttached))
-                this.LocalValueChanged();
-        }
-        private _AttachListener(source: Controls.Control) {
-            if (!source)
-                return;
-            var matchFunc = function (sender, args) {
-                return this === args.Property; //Closure - Control.IsEnabledProperty
-            };
-            (<any>source).PropertyChanged.SubscribeSpecific(this._IsEnabledChanged, this, matchFunc, Fayde.Controls.Control.IsEnabledProperty);
-            //TODO: Add Handler - Destroyed Event
-        }
-        private _DetachListener(source: Controls.Control) {
-            if (!source)
-                return;
-            (<any>source).PropertyChanged.Unsubscribe(this._IsEnabledChanged, this, Fayde.Controls.Control.IsEnabledProperty);
-            //TODO: Remove Handler - Destroyed Event
-        }
-        private _IsEnabledChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
-            this.LocalValueChanged();
-        }
-        LocalValueChanged(propd?: DependencyProperty) {
-            if (propd && propd._ID !== Controls.Control.IsEnabledProperty._ID)
-                return false;
-
-            var store = this._Store;
-            var localEnabled = store.GetValueSpec(Controls.Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
-            var parentEnabled = false;
-            var source = this._Source;
-            if (source && (<UINode>store._Object.XamlNode).VisualParentNode)
-                parentEnabled = source.GetValue(Controls.Control.IsEnabledProperty) === true;
-            var newValue = localEnabled === true && parentEnabled;
-            if (newValue !== this._CurrentValue) {
-                var oldValue = this._CurrentValue;
-                this._CurrentValue = newValue;
-
-                var error = new BError();
-                store._ProviderValueChanged(_PropertyPrecedence.IsEnabled, Controls.Control.IsEnabledProperty, oldValue, newValue, true, false, false, error);
-                return true;
-            }
-            return false;
-        }
-    }
-    export class InheritedDataContextProvider extends PropertyProvider {
-        private _Source: FrameworkElement;
-        private _Store: ProviderStore;
-        constructor(store: ProviderStore) {
-            super();
-            this._Store = store;
-        }
-        GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
-            var source = this._Source;
-            if (!source)
-                return;
-            if (propd._ID !== FrameworkElement.DataContextProperty._ID)
-                return;
-            return source._Store.GetValue(FrameworkElement.DataContextProperty);
-        }
-        SetDataSource(source: FrameworkElement) {
-            var oldSource = this._Source;
-            if (oldSource === source)
-                return;
-
-            var oldValue = oldSource ? oldSource._Store.GetValue(FrameworkElement.DataContextProperty) : undefined;
-            var newValue = source ? source._Store.GetValue(FrameworkElement.DataContextProperty) : undefined;
-
-            this._DetachListener(oldSource);
-            this._Source = source;
-            this._AttachListener(source);
-
-            if (!Nullstone.Equals(oldValue, newValue)) {
-                var error = new BError();
-                this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, FrameworkElement.DataContextProperty, oldValue, newValue, false, false, false, error);
-            }
-        }
-        private _AttachListener(source: FrameworkElement) {
-            if (!source)
-                return;
-            var matchFunc = function (sender, args) {
-                return this === args.Property; //Closure - FrameworkElement.DataContextProperty
-            };
-            (<any>source).PropertyChanged.SubscribeSpecific(this._SourceDataContextChanged, this, matchFunc, FrameworkElement.DataContextProperty);
-            //TODO: Add Handler - Destroyed Event
-        }
-        private _DetachListener(source: FrameworkElement) {
-            if (!source)
-                return;
-            (<any>source).PropertyChanged.Unsubscribe(this._SourceDataContextChanged, this, FrameworkElement.DataContextProperty);
-            //TODO: Remove Handler - Destroyed Event
-        }
-        private _SourceDataContextChanged(sender, args) {
-            var error = new BError();
-            this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, FrameworkElement.DataContextProperty, args.OldValue, args.NewValue, true, false, false, error);
-        }
-        private EmitChanged() {
-            if (this._Source) {
-                var error = new BError();
-                this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, FrameworkElement.DataContextProperty, undefined, this._Source._Store.GetValue(FrameworkElement.DataContextProperty), true, false, false, error);
-            }
-        }
-    }
-    export class LocalStyleProvider extends PropertyProvider {
+    export class LocalStyleProvider implements IPropertyProvider {
         private _ht: any[] = [];
         private _Style: Style;
         private _Store: ProviderStore;
         constructor(store: ProviderStore) {
-            super();
             this._Store = store;
         }
         GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
@@ -299,14 +167,14 @@ module Fayde.Provider {
 
             this._Style = style;
         }
+        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
     }
-    export class ImplicitStyleProvider extends PropertyProvider {
+    export class ImplicitStyleProvider implements IPropertyProvider {
         private _ht: any[] = [];
         private _Styles: any[] = [null, null, null];
         private _StyleMask: _StyleMask = _StyleMask.None;
         private _Store: ProviderStore;
         constructor(store: ProviderStore) {
-            super();
             this._Store = store;
         }
         GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
@@ -428,8 +296,9 @@ module Fayde.Provider {
             this._Styles = styles;
             this._StyleMask = styleMask;
         }
+        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
     }
-    export class FrameworkElementDynamicProvider extends PropertyProvider {
+    export class FrameworkElementDynamicProvider implements IPropertyProvider {
         private _ActualHeight: number;
         private _ActualWidth: number;
         GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
@@ -446,22 +315,31 @@ module Fayde.Provider {
                 return this._ActualWidth;
             return this._ActualHeight;
         }
+        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError) { }
+        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
+    }
+
+    interface IInheritedProvider extends IPropertyProvider {
+        PropagateInheritedProperty(store: ProviderStore, propd: DependencyProperty, source: DependencyObject, subtree: DependencyObject);
+    }
+    interface IInheritedIsEnabledProvider extends IPropertyProvider {
+        LocalValueChanged(propd?: DependencyProperty): bool;
     }
 
     export class ProviderStore {
         _Object: DependencyObject;
-        private _Providers: PropertyProvider[] = [null, null, null, null, null, null, null, null, null];
+        private _Providers: IPropertyProvider[] = [null, null, null, null, null, null, null, null, null];
         private _PropertyChangedListeners: IPropertyChangedListener[] = [];
         _ProviderBitmasks: number[] = [];
         private _AnimStorage: any[][] = [];
 
-        private _InheritedIsEnabledProvider: InheritedIsEnabledProvider;
+        private _InheritedIsEnabledProvider: IInheritedIsEnabledProvider;
         private _LocalValueProvider: LocalValueProvider;
         private _DynamicValueProvider: FrameworkElementDynamicProvider;
         private _LocalStyleProvider: LocalStyleProvider;
         private _ImplicitStyleProvider: ImplicitStyleProvider;
-        private _InheritedProvider: Inherited.InheritedProvider;
-        private _InheritedDataContextProvider: InheritedDataContextProvider;
+        private _InheritedProvider: IInheritedProvider;
+        private _InheritedDataContextProvider: IPropertyProvider;
         private _DefaultValueProvider: DefaultValueProvider;
         private _AutoCreateProvider: AutoCreateProvider;
 
@@ -662,7 +540,7 @@ module Fayde.Provider {
             if (!propd._AlwaysChange && Nullstone.Equals(oldValue, newValue))
                 return;
 
-            var iiep;
+            var iiep: IInheritedIsEnabledProvider;
             if (providerPrecedence !== _PropertyPrecedence.IsEnabled && (iiep = this._InheritedIsEnabledProvider) && iiep.LocalValueChanged(propd))
                 return;
 

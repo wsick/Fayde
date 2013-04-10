@@ -153,7 +153,7 @@ module Fayde.Provider.Inherited {
         All = 0x7ff,
         None = 0,
     }
-    export class InheritedProvider extends PropertyProvider {
+    export class InheritedProvider implements IPropertyProvider {
         private _ht: DependencyObject[] = [];
         GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
             if (!getInheritable(store._Object, propd))
@@ -287,5 +287,7 @@ module Fayde.Provider.Inherited {
             else
                 this._ht[inheritable] = undefined;
         }
+        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError) { }
+        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
     }
 }

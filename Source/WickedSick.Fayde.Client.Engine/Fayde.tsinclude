@@ -32,6 +32,8 @@ Typescript\Runtime\Nullstone.ts
 Typescript\Shapes\PointCollection.ts
 Typescript\Shapes\ShapesParser.ts
 Typescript\Core\DependencyObject.ts
+Typescript\Core\InheritedDataContextProvider.ts
+Typescript\Core\InheritedIsEnabledProvider.ts
 Typescript\Core\Style.ts
 Typescript\Core\UIElement.ts
 Typescript\Core\XamlObjectCollection.ts

@@ -32,6 +32,8 @@ Runtime/Nullstone.js
 Shapes/PointCollection.js
 Shapes/ShapesParser.js
 Core/DependencyObject.js
+Core/InheritedDataContextProvider.js
+Core/InheritedIsEnabledProvider.js
 Core/Style.js
 Core/UIElement.js
 Core/XamlObjectCollection.js

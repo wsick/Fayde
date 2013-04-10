@@ -1,17 +1,9 @@
-var __extends = this.__extends || function (d, b) {
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var Fayde;
 (function (Fayde) {
     /// CODE
     /// <reference path="DependencyObject.ts" />
     /// <reference path="../Runtime/BError.ts" />
     /// <reference path="../Runtime/Nullstone.ts" />
-    /// <reference path="InheritedProvider.ts" />
-    /// <reference path="../Controls/Control.ts" />
-    /// <reference path="Style.ts" />
     (function (Provider) {
         (function (_PropertyPrecedence) {
             _PropertyPrecedence._map = [];
@@ -46,34 +38,20 @@ var Fayde;
             _StyleMask.All = _StyleMask.VisualTree | _StyleMask.ApplicationResources | _StyleMask.GenericXaml;
         })(Provider._StyleMask || (Provider._StyleMask = {}));
         var _StyleMask = Provider._StyleMask;
-        var PropertyProvider = (function () {
-            function PropertyProvider() { }
-            PropertyProvider.prototype.GetPropertyValue = function (store, propd) {
-            };
-            PropertyProvider.prototype.RecomputePropertyValueOnClear = function (propd, error) {
-            };
-            PropertyProvider.prototype.RecomputePropertyValueOnLower = function (propd, error) {
-            };
-            return PropertyProvider;
-        })();
-        Provider.PropertyProvider = PropertyProvider;        
-        var DefaultValueProvider = (function (_super) {
-            __extends(DefaultValueProvider, _super);
-            function DefaultValueProvider() {
-                _super.apply(this, arguments);
-
-            }
+        var DefaultValueProvider = (function () {
+            function DefaultValueProvider() { }
             DefaultValueProvider.prototype.GetPropertyValue = function (store, propd) {
                 return propd.DefaultValue;
             };
+            DefaultValueProvider.prototype.RecomputePropertyValueOnClear = function (propd, error) {
+            };
+            DefaultValueProvider.prototype.RecomputePropertyValueOnLower = function (propd, error) {
+            };
             return DefaultValueProvider;
-        })(PropertyProvider);
+        })();
         Provider.DefaultValueProvider = DefaultValueProvider;        
-        var AutoCreateProvider = (function (_super) {
-            __extends(AutoCreateProvider, _super);
+        var AutoCreateProvider = (function () {
             function AutoCreateProvider() {
-                _super.apply(this, arguments);
-
                 this._ht = [];
             }
             AutoCreateProvider.prototype.GetPropertyValue = function (store, propd) {
@@ -99,14 +77,13 @@ var Fayde;
             AutoCreateProvider.prototype.ClearValue = function (propd) {
                 this._ht[propd._ID] = undefined;
             };
+            AutoCreateProvider.prototype.RecomputePropertyValueOnLower = function (propd, error) {
+            };
             return AutoCreateProvider;
-        })(PropertyProvider);
+        })();
         Provider.AutoCreateProvider = AutoCreateProvider;        
-        var LocalValueProvider = (function (_super) {
-            __extends(LocalValueProvider, _super);
+        var LocalValueProvider = (function () {
             function LocalValueProvider() {
-                _super.apply(this, arguments);
-
                 this._ht = [];
             }
             LocalValueProvider.prototype.GetPropertyValue = function (store, propd) {
@@ -118,156 +95,15 @@ var Fayde;
             LocalValueProvider.prototype.ClearValue = function (propd) {
                 this._ht[propd._ID] = undefined;
             };
+            LocalValueProvider.prototype.RecomputePropertyValueOnClear = function (propd, error) {
+            };
+            LocalValueProvider.prototype.RecomputePropertyValueOnLower = function (propd, error) {
+            };
             return LocalValueProvider;
-        })(PropertyProvider);
+        })();
         Provider.LocalValueProvider = LocalValueProvider;        
-        var InheritedIsEnabledProvider = (function (_super) {
-            __extends(InheritedIsEnabledProvider, _super);
-            function InheritedIsEnabledProvider(store) {
-                        _super.call(this);
-                this._CurrentValue = true;
-                this._Store = store;
-            }
-            InheritedIsEnabledProvider.prototype.GetPropertyValue = function (store, propd) {
-                if(propd._ID === Fayde.Controls.Control.IsEnabledProperty._ID) {
-                    return this._CurrentValue;
-                }
-                return undefined;
-            };
-            InheritedIsEnabledProvider.prototype.SetDataSource = function (source) {
-                if(source) {
-                    var curNode = source.XamlNode;
-                    while(curNode) {
-                        if(curNode.XObject instanceof Fayde.Controls.Control) {
-                            break;
-                        } else if(curNode.XObject instanceof Fayde.FrameworkElement) {
-                            curNode = curNode.ParentNode;
-                        } else {
-                            curNode = null;
-                        }
-                    }
-                    source = (curNode) ? (curNode.XObject) : null;
-                }
-                if(this._Source !== source) {
-                    this._DetachListener(this._Source);
-                    this._Source = source;
-                    this._AttachListener(source);
-                }
-                if(!source && (this._Store._Object.XamlNode.IsAttached)) {
-                    this.LocalValueChanged();
-                }
-            };
-            InheritedIsEnabledProvider.prototype._AttachListener = function (source) {
-                if(!source) {
-                    return;
-                }
-                var matchFunc = function (sender, args) {
-                    return this === args.Property;//Closure - Control.IsEnabledProperty
-                    
-                };
-                (source).PropertyChanged.SubscribeSpecific(this._IsEnabledChanged, this, matchFunc, Fayde.Controls.Control.IsEnabledProperty);
-                //TODO: Add Handler - Destroyed Event
-                            };
-            InheritedIsEnabledProvider.prototype._DetachListener = function (source) {
-                if(!source) {
-                    return;
-                }
-                (source).PropertyChanged.Unsubscribe(this._IsEnabledChanged, this, Fayde.Controls.Control.IsEnabledProperty);
-                //TODO: Remove Handler - Destroyed Event
-                            };
-            InheritedIsEnabledProvider.prototype._IsEnabledChanged = function (sender, args) {
-                this.LocalValueChanged();
-            };
-            InheritedIsEnabledProvider.prototype.LocalValueChanged = function (propd) {
-                if(propd && propd._ID !== Fayde.Controls.Control.IsEnabledProperty._ID) {
-                    return false;
-                }
-                var store = this._Store;
-                var localEnabled = store.GetValueSpec(Fayde.Controls.Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
-                var parentEnabled = false;
-                var source = this._Source;
-                if(source && (store._Object.XamlNode).VisualParentNode) {
-                    parentEnabled = source.GetValue(Fayde.Controls.Control.IsEnabledProperty) === true;
-                }
-                var newValue = localEnabled === true && parentEnabled;
-                if(newValue !== this._CurrentValue) {
-                    var oldValue = this._CurrentValue;
-                    this._CurrentValue = newValue;
-                    var error = new BError();
-                    store._ProviderValueChanged(_PropertyPrecedence.IsEnabled, Fayde.Controls.Control.IsEnabledProperty, oldValue, newValue, true, false, false, error);
-                    return true;
-                }
-                return false;
-            };
-            return InheritedIsEnabledProvider;
-        })(PropertyProvider);
-        Provider.InheritedIsEnabledProvider = InheritedIsEnabledProvider;        
-        var InheritedDataContextProvider = (function (_super) {
-            __extends(InheritedDataContextProvider, _super);
-            function InheritedDataContextProvider(store) {
-                        _super.call(this);
-                this._Store = store;
-            }
-            InheritedDataContextProvider.prototype.GetPropertyValue = function (store, propd) {
-                var source = this._Source;
-                if(!source) {
-                    return;
-                }
-                if(propd._ID !== Fayde.FrameworkElement.DataContextProperty._ID) {
-                    return;
-                }
-                return source._Store.GetValue(Fayde.FrameworkElement.DataContextProperty);
-            };
-            InheritedDataContextProvider.prototype.SetDataSource = function (source) {
-                var oldSource = this._Source;
-                if(oldSource === source) {
-                    return;
-                }
-                var oldValue = oldSource ? oldSource._Store.GetValue(Fayde.FrameworkElement.DataContextProperty) : undefined;
-                var newValue = source ? source._Store.GetValue(Fayde.FrameworkElement.DataContextProperty) : undefined;
-                this._DetachListener(oldSource);
-                this._Source = source;
-                this._AttachListener(source);
-                if(!Nullstone.Equals(oldValue, newValue)) {
-                    var error = new BError();
-                    this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, oldValue, newValue, false, false, false, error);
-                }
-            };
-            InheritedDataContextProvider.prototype._AttachListener = function (source) {
-                if(!source) {
-                    return;
-                }
-                var matchFunc = function (sender, args) {
-                    return this === args.Property;//Closure - FrameworkElement.DataContextProperty
-                    
-                };
-                (source).PropertyChanged.SubscribeSpecific(this._SourceDataContextChanged, this, matchFunc, Fayde.FrameworkElement.DataContextProperty);
-                //TODO: Add Handler - Destroyed Event
-                            };
-            InheritedDataContextProvider.prototype._DetachListener = function (source) {
-                if(!source) {
-                    return;
-                }
-                (source).PropertyChanged.Unsubscribe(this._SourceDataContextChanged, this, Fayde.FrameworkElement.DataContextProperty);
-                //TODO: Remove Handler - Destroyed Event
-                            };
-            InheritedDataContextProvider.prototype._SourceDataContextChanged = function (sender, args) {
-                var error = new BError();
-                this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, args.OldValue, args.NewValue, true, false, false, error);
-            };
-            InheritedDataContextProvider.prototype.EmitChanged = function () {
-                if(this._Source) {
-                    var error = new BError();
-                    this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, undefined, this._Source._Store.GetValue(Fayde.FrameworkElement.DataContextProperty), true, false, false, error);
-                }
-            };
-            return InheritedDataContextProvider;
-        })(PropertyProvider);
-        Provider.InheritedDataContextProvider = InheritedDataContextProvider;        
-        var LocalStyleProvider = (function (_super) {
-            __extends(LocalStyleProvider, _super);
+        var LocalStyleProvider = (function () {
             function LocalStyleProvider(store) {
-                        _super.call(this);
                 this._ht = [];
                 this._Store = store;
             }
@@ -339,13 +175,13 @@ var Fayde;
                 }
                 this._Style = style;
             };
+            LocalStyleProvider.prototype.RecomputePropertyValueOnLower = function (propd, error) {
+            };
             return LocalStyleProvider;
-        })(PropertyProvider);
+        })();
         Provider.LocalStyleProvider = LocalStyleProvider;        
-        var ImplicitStyleProvider = (function (_super) {
-            __extends(ImplicitStyleProvider, _super);
+        var ImplicitStyleProvider = (function () {
             function ImplicitStyleProvider(store) {
-                        _super.call(this);
                 this._ht = [];
                 this._Styles = [
                     null, 
@@ -479,15 +315,13 @@ var Fayde;
                 this._Styles = styles;
                 this._StyleMask = styleMask;
             };
+            ImplicitStyleProvider.prototype.RecomputePropertyValueOnLower = function (propd, error) {
+            };
             return ImplicitStyleProvider;
-        })(PropertyProvider);
+        })();
         Provider.ImplicitStyleProvider = ImplicitStyleProvider;        
-        var FrameworkElementDynamicProvider = (function (_super) {
-            __extends(FrameworkElementDynamicProvider, _super);
-            function FrameworkElementDynamicProvider() {
-                _super.apply(this, arguments);
-
-            }
+        var FrameworkElementDynamicProvider = (function () {
+            function FrameworkElementDynamicProvider() { }
             FrameworkElementDynamicProvider.prototype.GetPropertyValue = function (store, propd) {
                 var isWidth = propd._ID !== Fayde.FrameworkElement.ActualWidthProperty._ID;
                 var isHeight = propd._ID !== Fayde.FrameworkElement.ActualHeightProperty._ID;
@@ -502,8 +336,12 @@ var Fayde;
                 }
                 return this._ActualHeight;
             };
+            FrameworkElementDynamicProvider.prototype.RecomputePropertyValueOnClear = function (propd, error) {
+            };
+            FrameworkElementDynamicProvider.prototype.RecomputePropertyValueOnLower = function (propd, error) {
+            };
             return FrameworkElementDynamicProvider;
-        })(PropertyProvider);
+        })();
         Provider.FrameworkElementDynamicProvider = FrameworkElementDynamicProvider;        
         var ProviderStore = (function () {
             function ProviderStore(dobj) {
