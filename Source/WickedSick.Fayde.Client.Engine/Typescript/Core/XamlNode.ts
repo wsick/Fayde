@@ -19,6 +19,7 @@ module Fayde {
         ParentNode: XamlNode = null;
         Name: string = "";
         NameScope: NameScope = null;
+        private _OwnerNameScope: NameScope = null;
 
         constructor(xobj: XamlObject) {
             this.XObject = xobj;
@@ -31,12 +32,17 @@ module Fayde {
                 ns.RegisterName(name, this);
         }
         FindNameScope(): NameScope {
+            if (this._OwnerNameScope)
+                return this._OwnerNameScope;
+
             var curNode = this;
             var ns;
             while (curNode) {
                 ns = curNode.NameScope;
-                if (ns)
+                if (ns) {
+                    this._OwnerNameScope = ns;
                     return ns;
+                }
                 curNode = curNode.ParentNode;
             }
             return undefined;
@@ -75,6 +81,7 @@ module Fayde {
                 if (!thisScope.IsRoot) {
                     parentScope.Absorb(thisScope);
                     this.NameScope = null;
+                    this._OwnerNameScope = parentScope;
                 }
             } else if (parentScope) {
                 var name = this.Name;
@@ -87,6 +94,7 @@ module Fayde {
                     }
                     parentScope.RegisterName(name, this);
                 }
+                this._OwnerNameScope = parentScope;
             }
 
             this.ParentNode = parentNode;
@@ -99,6 +107,7 @@ module Fayde {
                 if (ns) ns.UnregisterName(this.Name);
             }
             this.SetIsAttached(false);
+            this._OwnerNameScope = null;
             this.ParentNode = null;
         }
 

@@ -18,6 +18,7 @@ var Fayde;
             this.ParentNode = null;
             this.Name = "";
             this.NameScope = null;
+            this._OwnerNameScope = null;
             this.IsAttached = false;
             this.XObject = xobj;
         }
@@ -29,11 +30,15 @@ var Fayde;
             }
         };
         XamlNode.prototype.FindNameScope = function () {
+            if(this._OwnerNameScope) {
+                return this._OwnerNameScope;
+            }
             var curNode = this;
             var ns;
             while(curNode) {
                 ns = curNode.NameScope;
                 if(ns) {
+                    this._OwnerNameScope = ns;
                     return ns;
                 }
                 curNode = curNode.ParentNode;
@@ -70,6 +75,7 @@ var Fayde;
                 if(!thisScope.IsRoot) {
                     parentScope.Absorb(thisScope);
                     this.NameScope = null;
+                    this._OwnerNameScope = parentScope;
                 }
             } else if(parentScope) {
                 var name = this.Name;
@@ -82,6 +88,7 @@ var Fayde;
                     }
                     parentScope.RegisterName(name, this);
                 }
+                this._OwnerNameScope = parentScope;
             }
             this.ParentNode = parentNode;
             return true;
@@ -95,6 +102,7 @@ var Fayde;
                 }
             }
             this.SetIsAttached(false);
+            this._OwnerNameScope = null;
             this.ParentNode = null;
         };
         XamlNode.prototype.GetInheritedEnumerator = function () {

@@ -7,7 +7,7 @@
 //Test isattached modification
 //Test AttachTo/Detach
 
-test("AttachTo", () => {
+test("AttachTo and Detach", () => {
     var root = new Fayde.XamlObject();
     root.XamlNode.NameScope = new Fayde.NameScope(true);
     root.XamlNode.SetIsAttached(true);
@@ -26,8 +26,12 @@ test("AttachTo", () => {
     strictEqual(ns.FindName("CHILD"), child.XamlNode, "Registered child should be returned from FindName on root namescope.");
 
     var childNs = child.XamlNode.FindNameScope();
-    strictEqual(childNs, ns, "Child.FindNameScope should be the same as the root NameScope.");
+    strictEqual(childNs, ns, "ChildNode.FindNameScope should be the same as the root NameScope.");
 
+    child.XamlNode.Detach();
+    ok(!child.XamlNode.IsAttached, "Child Node should be IsAttached=false.");
+    equal(child.XamlNode.FindNameScope(), null, "Child Node should no longer have a namescope.");
+    equal(child.XamlNode.ParentNode, null, "Child Node should no longer have a parent node.");
 });
 
 test("Merge NameScopes", () => {
