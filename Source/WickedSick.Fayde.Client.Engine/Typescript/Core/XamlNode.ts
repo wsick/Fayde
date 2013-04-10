@@ -1,7 +1,8 @@
 /// CODE
 /// <reference path="XamlObject.ts" />
 /// <reference path="NameScope.ts" />
-/// <reference path="XamlObjectCollection.ts" />
+/// <reference path="../Runtime/BError.ts" />
+/// <reference path="../Runtime/Enumerable.ts" />
 
 module Fayde {
     declare var Warn;

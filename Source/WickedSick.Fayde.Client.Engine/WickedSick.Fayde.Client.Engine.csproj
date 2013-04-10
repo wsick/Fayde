@@ -68,6 +68,8 @@
     <Content Include="Benchmarks\Matrix\glMatrix-min.js" />
     <Content Include="Benchmarks\Matrix\Matrix3D.js" />
     <Content Include="Benchmarks\Matrix\test.html" />
+    <Content Include="Fayde-New.d.ts" />
+    <Content Include="Fayde-New.order" />
     <None Include="Fayde.Generic.js.old" />
     <Content Include="Benchmarks\refequals.html" />
     <Content Include="Docs\DebugServices.txt" />
@@ -76,8 +78,10 @@
     <Content Include="Docs\Notes.txt" />
     <Content Include="Docs\Plugins.txt" />
     <Content Include="Docs\XamlNotes.txt" />
+    <Content Include="Fayde-New.js" />
     <Content Include="Fayde.Generic.js" />
     <Content Include="Fayde.js" />
+    <None Include="Fayde.tsinclude" />
     <Content Include="gl-matrix.js" />
     <Content Include="Global.asax" />
     <Content Include="Javascript\Controls\CanvasMetrics.js" />
@@ -432,10 +436,10 @@
     <Content Include="Styles\Thumb.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Fayde.tsorder" />
     <None Include="jsTestDriver.conf" />
     <Content Include="Silo\heightTest.htm" />
     <Content Include="Docs\Tips.txt" />
+    <Content Include="Tests\qunit-1.10.0.d.ts" />
     <Content Include="Tests\qunit-1.11.0.css" />
     <Content Include="Tests\qunit-1.11.0.js" />
     <Content Include="Tests\tests.html" />
@@ -447,6 +451,10 @@
     <TypeScriptCompile Include="Typescript\Controls\Primitives\Popup.ts" />
     <TypeScriptCompile Include="Typescript\Controls\Image.ts" />
     <TypeScriptCompile Include="Typescript\Controls\Control.ts" />
+    <TypeScriptCompile Include="Tests\XamlNodeTests.ts" />
+    <Content Include="Tests\XamlNodeTests.js">
+      <DependentUpon>XamlNodeTests.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Control.js">
       <DependentUpon>Control.ts</DependentUpon>
     </Content>
@@ -725,6 +733,9 @@
     <Message Text="Compiling TypeScript files" />
     <Message Text="Executing tsc$(TypeScriptSourceMap) @(TypeScriptCompile ->'&quot;%(fullpath)&quot;', ' ')" />
     <Exec Command="tsc$(TypeScriptSourceMap) -c --target ES5 @(TypeScriptCompile ->'&quot;%(fullpath)&quot;', ' ')" />
+    <Message Text="Compiling TypeScript files to single file" />
+    <Message Text="Executing tsc --out Fayde-New.js --declaration --target ES5 @(TypeScriptCompile ->'&quot;%(fullpath)&quot;', ' ')" />
+    <Exec Command="tsc --out Fayde-New.js --declaration --target ES5 @(TypeScriptCompile ->'&quot;%(fullpath)&quot;', ' ')" />
   </Target>
   <PropertyGroup>
     <PreBuildEvent>"$(ProjectDir)PackageAssemblies.bat" "$(ProjectDir)"</PreBuildEvent>
@@ -736,7 +747,7 @@ xcopy /s /y "$(ProjectDir)Fayde.Generic.js" "$(SolutionDir)..\JsBin\"</PostBuild
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
+  -->
   <Target Name="AfterBuild">
   </Target>
-  -->
 </Project>
