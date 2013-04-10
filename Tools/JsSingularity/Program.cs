@@ -27,6 +27,8 @@ namespace JsSingularity
                 BaseIncludesPath = cmdLine.Value("BaseIncludesPath"),
                 IsDebug = cmdLine.Value("Debug").EqualsIgnoreCase("true"),
                 IsInTSMode = cmdLine.Value("ts").EqualsIgnoreCase("true"),
+                TsIncludeFile = cmdLine.Value("TsIncludeFile"),
+                TsIncludeFormat = cmdLine.Value("TsIncludeFormat"),
             };
 #if TESTING
             combiner.DeployPath = System.IO.Directory.GetCurrentDirectory();

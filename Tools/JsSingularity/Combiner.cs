@@ -26,6 +26,8 @@ namespace JsSingularity
         public string BaseIncludesPath { get; set; }
         public bool IsDebug { get; set; }
         public bool IsInTSMode { get; set; }
+        public string TsIncludeFile { get; set; }
+        public string TsIncludeFormat { get; set; }
 
         protected DirectoryInfo ScriptsDirectory { get; set; }
 
@@ -35,6 +37,7 @@ namespace JsSingularity
 
             var orderedFiles = CollectOrderedFiles().ToList();
             WriteDebugIncludes(orderedFiles);
+            WriteTsIncludeFile(orderedFiles);
             if (!string.IsNullOrWhiteSpace(DeployPath))
                 WriteCombinedJavascript(orderedFiles);
         }
@@ -115,6 +118,47 @@ namespace JsSingularity
                     }
                 }
                 File.Copy(tempfi.FullName, IncludesFilePath, true);
+            }
+            finally
+            {
+                if (tempfi.Exists)
+                    tempfi.Delete();
+            }
+        }
+
+        protected void WriteTsIncludeFile(IEnumerable<JsFile> orderedFiles)
+        {
+            if (string.IsNullOrWhiteSpace(TsIncludeFile))
+                return;
+            
+            var format = TsIncludeFormat;
+            bool isFull = false;
+            if (format != null && format.StartsWith("FULL||"))
+            {
+                format = format.Substring(6);
+                isFull = true;
+            }
+            if (string.IsNullOrWhiteSpace(format))
+                format = "{0}";
+
+            var tempfi = new FileInfo(Guid.NewGuid().ToString() + ".temp");
+            try
+            {
+                using (var sw = new StreamWriter(tempfi.FullName) { AutoFlush = true })
+                {
+                    foreach (var jf in orderedFiles)
+                    {
+                        string relativePath = jf.GetPathRelativeTo(BaseIncludesPath);
+                        if (new FileInfo(relativePath).Extension == ".ts")
+                        {
+                            if (isFull)
+                                sw.WriteLine(format, new FileInfo(relativePath).FullName);
+                            else
+                                sw.WriteLine(format, relativePath);
+                        }
+                    }
+                }
+                File.Copy(tempfi.FullName, TsIncludeFile, true);
             }
             finally
             {

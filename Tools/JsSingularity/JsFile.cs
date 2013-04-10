@@ -41,7 +41,7 @@ namespace JsSingularity
                 {
                     var line = sr.ReadLine();
                     if (ShouldWriteLine(line))
-                    sw.WriteLine(line);
+                        sw.WriteLine(line);
                 }
             }
         }
