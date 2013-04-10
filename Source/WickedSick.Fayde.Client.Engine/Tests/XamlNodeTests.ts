@@ -29,9 +29,9 @@ test("XamlNodeTests.AttachTo_Detach", () => {
     strictEqual(childNs, ns, "ChildNode.FindNameScope should be the same as the root NameScope.");
 
     child.XamlNode.Detach();
-    ok(!child.XamlNode.IsAttached, "Child Node should be IsAttached=false.");
-    equal(child.XamlNode.FindNameScope(), null, "Child Node should no longer have a namescope.");
-    equal(child.XamlNode.ParentNode, null, "Child Node should no longer have a parent node.");
+    ok(!child.XamlNode.IsAttached, "Child Node should be IsAttached=false after being detached.");
+    equal(child.XamlNode.FindNameScope(), null, "Child Node should no longer have a namescope after being detached.");
+    equal(child.XamlNode.ParentNode, null, "Child Node should no longer have a parent node after being detached.");
 });
 
 test("XamlNodeTests.MergeNameScopes", () => {
