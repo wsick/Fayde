@@ -91,7 +91,7 @@ test("XamlNodeTests.NameCollision", () => {
     if (!child1.XamlNode.AttachTo(root.XamlNode, error)) {
         ok(false, "Error should not happen when attaching child node 1:" + error.Message);
     }
-    ok(!child2.XamlNode.AttachTo(root.XamlNode, error), "Attaching child node 2 should error because the name is already registered in the namescope.");
+    ok(!child2.XamlNode.AttachTo(root.XamlNode, error), "Attaching child node 2 with same Name as child node 1 should error because the name is already registered in the namescope.");
     ok(!child1.XamlNode.AttachTo(root.XamlNode, error), "Attaching child node 1 twice should error because element already exists in tree.");
     ok(!root.XamlNode.AttachTo(child1.XamlNode, error), "Attaching root to child node 1 should error because cycles are not allowed.");
 });
