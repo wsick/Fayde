@@ -733,9 +733,6 @@
     <Message Text="Compiling TypeScript files" />
     <Message Text="Executing tsc$(TypeScriptSourceMap) @(TypeScriptCompile ->'&quot;%(fullpath)&quot;', ' ')" />
     <Exec Command="tsc$(TypeScriptSourceMap) -c --target ES5 @(TypeScriptCompile ->'&quot;%(fullpath)&quot;', ' ')" />
-    <Message Text="Compiling TypeScript files to single file" />
-    <Message Text="Executing tsc --out Fayde-New.js --declaration --target ES5 @(TypeScriptCompile ->'&quot;%(fullpath)&quot;', ' ')" />
-    <Exec Command="tsc --out Fayde-New.js --declaration --target ES5 @(TypeScriptCompile ->'&quot;%(fullpath)&quot;', ' ')" />
   </Target>
   <PropertyGroup>
     <PreBuildEvent>"$(ProjectDir)PackageAssemblies.bat" "$(ProjectDir)"</PreBuildEvent>

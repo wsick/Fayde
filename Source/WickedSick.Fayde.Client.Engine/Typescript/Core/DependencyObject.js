@@ -7,6 +7,7 @@ var __extends = this.__extends || function (d, b) {
 /// CODE
 /// <reference path="DependencyProperty.ts" />
 /// <reference path="ProviderStore.ts" />
+/// <reference path="Expression.ts" />
 /// <reference path="../Data/BindingExpressionBase.ts" />
 var Fayde;
 (function (Fayde) {

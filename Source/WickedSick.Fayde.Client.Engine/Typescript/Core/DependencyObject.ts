@@ -2,14 +2,14 @@
 /// CODE
 /// <reference path="DependencyProperty.ts" />
 /// <reference path="ProviderStore.ts" />
+/// <reference path="Expression.ts" />
 /// <reference path="../Data/BindingExpressionBase.ts" />
 
 module Fayde {
     export class UnsetValue { }
 
-
     export class DependencyObject extends XamlObject {
-        private _Expressions: Fayde.Expression[] = [];
+        private _Expressions: Expression[] = [];
         _Store: Provider.ProviderStore;
         _CachedValues: any[] = [];
 
@@ -101,7 +101,7 @@ module Fayde {
 
         _OnPropertyChanged(args: IDependencyPropertyChangedEventArgs) { }
 
-        private _AddExpression(propd: DependencyProperty, expr: Fayde.Expression) {
+        private _AddExpression(propd: DependencyProperty, expr: Expression) {
             this._Expressions[propd._ID] = expr;
             expr.OnAttached(this);
         }

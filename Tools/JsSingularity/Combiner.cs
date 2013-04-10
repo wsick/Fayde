@@ -133,10 +133,14 @@ namespace JsSingularity
             
             var format = TsIncludeFormat;
             bool isFull = false;
-            if (format != null && format.StartsWith("FULL||"))
+            bool useFileSystemFormat = false;
+            if (format != null && format.StartsWith("?"))
             {
-                format = format.Substring(6);
-                isFull = true;
+                var index = format.IndexOf("||") + 2;
+                var modifiers = (format.Substring(0, index) ?? "").ToLower();
+                format = format.Substring(index);
+                isFull = modifiers.Contains("f");
+                useFileSystemFormat = modifiers.Contains("s");
             }
             if (string.IsNullOrWhiteSpace(format))
                 format = "{0}";
@@ -153,6 +157,8 @@ namespace JsSingularity
                         {
                             if (isFull)
                                 sw.WriteLine(format, new FileInfo(relativePath).FullName);
+                            else if (useFileSystemFormat)
+                                sw.WriteLine(format, relativePath.Replace("/", "\\"));
                             else
                                 sw.WriteLine(format, relativePath);
                         }

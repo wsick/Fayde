@@ -16,6 +16,10 @@ namespace JsSingularity
             //  IncludeSubdirectories
             //  IncludesFile
             //  BaseIncludePath
+            //  TsIncludeFormat
+            //      ?f||{0} --> Use Full Path
+            //      ?s||{0} --> Use Relative Path (Use \ instead of /)
+            //      {0}     --> Use Relative Path (Use /)
             var cmdLine = ParseCommandLine(args).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             var combiner = new Combiner
