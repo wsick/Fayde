@@ -499,6 +499,10 @@
     <TypeScriptCompile Include="Typescript\Core\ResourceDictionary.ts" />
     <TypeScriptCompile Include="Typescript\Core\InheritedIsEnabledProvider.ts" />
     <TypeScriptCompile Include="Typescript\Core\InheritedDataContextProvider.ts" />
+    <TypeScriptCompile Include="Typescript\Core\FrameworkElementDynamicProvider.ts" />
+    <Content Include="Typescript\Core\FrameworkElementDynamicProvider.js">
+      <DependentUpon>FrameworkElementDynamicProvider.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\InheritedDataContextProvider.js">
       <DependentUpon>InheritedDataContextProvider.ts</DependentUpon>
     </Content>

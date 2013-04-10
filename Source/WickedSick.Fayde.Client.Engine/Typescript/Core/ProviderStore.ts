@@ -298,26 +298,6 @@ module Fayde.Provider {
         }
         RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
     }
-    export class FrameworkElementDynamicProvider implements IPropertyProvider {
-        private _ActualHeight: number;
-        private _ActualWidth: number;
-        GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
-            var isWidth = propd._ID !== FrameworkElement.ActualWidthProperty._ID;
-            var isHeight = propd._ID !== FrameworkElement.ActualHeightProperty._ID;
-            if (!isWidth && !isHeight)
-                return undefined;
-
-            var actual = (<FrameworkElement>store._Object)._ComputeActualSize();
-            this._ActualWidth = actual.Width;
-            this._ActualHeight = actual.Height;
-
-            if (isWidth)
-                return this._ActualWidth;
-            return this._ActualHeight;
-        }
-        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError) { }
-        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
-    }
 
     interface IInheritedProvider extends IPropertyProvider {
         PropagateInheritedProperty(store: ProviderStore, propd: DependencyProperty, source: DependencyObject, subtree: DependencyObject);
@@ -335,7 +315,7 @@ module Fayde.Provider {
 
         private _InheritedIsEnabledProvider: IInheritedIsEnabledProvider;
         private _LocalValueProvider: LocalValueProvider;
-        private _DynamicValueProvider: FrameworkElementDynamicProvider;
+        private _DynamicValueProvider: IPropertyProvider;
         private _LocalStyleProvider: LocalStyleProvider;
         private _ImplicitStyleProvider: ImplicitStyleProvider;
         private _InheritedProvider: IInheritedProvider;
