@@ -1,9 +1,9 @@
 var Fayde;
 (function (Fayde) {
-    /// <reference path="ProviderStore.ts" />
+    /// <reference path="IProviderStore.ts" />
     /// CODE
-    /// <reference path="../Controls/Control.ts" />
-    (function (Provider) {
+    /// <reference path="../../Controls/Control.ts" />
+    (function (Providers) {
         var InheritedIsEnabledProvider = (function () {
             function InheritedIsEnabledProvider(store) {
                 this._CurrentValue = true;
@@ -64,7 +64,7 @@ var Fayde;
                     return false;
                 }
                 var store = this._Store;
-                var localEnabled = store.GetValueSpec(Fayde.Controls.Control.IsEnabledProperty, Provider._PropertyPrecedence.LocalValue);
+                var localEnabled = store.GetValueSpec(Fayde.Controls.Control.IsEnabledProperty, Providers._PropertyPrecedence.LocalValue);
                 var parentEnabled = false;
                 var source = this._Source;
                 if(source && (store._Object.XamlNode).VisualParentNode) {
@@ -75,7 +75,7 @@ var Fayde;
                     var oldValue = this._CurrentValue;
                     this._CurrentValue = newValue;
                     var error = new BError();
-                    store._ProviderValueChanged(Provider._PropertyPrecedence.IsEnabled, Fayde.Controls.Control.IsEnabledProperty, oldValue, newValue, true, false, false, error);
+                    store._ProviderValueChanged(Providers._PropertyPrecedence.IsEnabled, Fayde.Controls.Control.IsEnabledProperty, oldValue, newValue, true, false, false, error);
                     return true;
                 }
                 return false;
@@ -86,8 +86,8 @@ var Fayde;
             };
             return InheritedIsEnabledProvider;
         })();
-        Provider.InheritedIsEnabledProvider = InheritedIsEnabledProvider;        
-    })(Fayde.Provider || (Fayde.Provider = {}));
-    var Provider = Fayde.Provider;
+        Providers.InheritedIsEnabledProvider = InheritedIsEnabledProvider;        
+    })(Fayde.Providers || (Fayde.Providers = {}));
+    var Providers = Fayde.Providers;
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=InheritedIsEnabledProvider.js.map

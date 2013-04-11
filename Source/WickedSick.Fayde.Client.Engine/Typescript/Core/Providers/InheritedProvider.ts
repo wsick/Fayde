@@ -1,9 +1,9 @@
+/// <reference path="IProviderStore.ts" />
 /// CODE
-/// <reference path="ProviderStore.ts" />
-/// <reference path="../Controls/Image.ts" />
-/// <reference path="../Controls/MediaElement.ts" />
+/// <reference path="../../Controls/Image.ts" />
+/// <reference path="../../Controls/MediaElement.ts" />
 
-module Fayde.Provider.Inherited {
+module Fayde.Providers {
     export class _InheritedContext {
         ForegroundSource: DependencyObject;
         FontFamilySource: DependencyObject;
@@ -155,7 +155,7 @@ module Fayde.Provider.Inherited {
     }
     export class InheritedProvider implements IPropertyProvider {
         private _ht: DependencyObject[] = [];
-        GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
+        GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
             if (!getInheritable(store._Object, propd))
                 return undefined;
 
@@ -240,7 +240,7 @@ module Fayde.Provider.Inherited {
             if (source === getInheritedValueSource.call(element, prop))
                 propagateInheritedValue.call(element._Store, prop, undefined, undefined);
         }
-        PropagateInheritedPropertiesOnAddingToTree(store: ProviderStore, subtree: DependencyObject) {
+        PropagateInheritedPropertiesOnAddingToTree(store: IProviderStore, subtree: DependencyObject) {
             var inhEnum = _Inheritable;
             var baseContext = _InheritedContext.FromSources(
                     this._GetPropertySource(inhEnum.Foreground),
@@ -256,14 +256,14 @@ module Fayde.Provider.Inherited {
             var objContext = _InheritedContext.FromObject(store._Object, baseContext);
             this.WalkTree(store._Object, subtree, objContext, inhEnum.All, true);
         }
-        PropagateInheritedProperty(store: ProviderStore, propd: DependencyProperty, source: DependencyObject, subtree: DependencyObject) {
+        PropagateInheritedProperty(store: IProviderStore, propd: DependencyProperty, source: DependencyObject, subtree: DependencyObject) {
             var inheritable = getInheritable(source, propd);
             if (inheritable === 0)
                 return;
             var objContext = _InheritedContext.FromObject(store._Object, null);
             this.WalkSubtree(source, subtree, objContext, inheritable, true);
         }
-        ClearInheritedPropertiesOnRemovingFromTree(store: ProviderStore, subtree: DependencyObject) {
+        ClearInheritedPropertiesOnRemovingFromTree(store: IProviderStore, subtree: DependencyObject) {
             var baseContext = _InheritedContext.FromSources(
                     this._GetPropertySource(_Inheritable.Foreground),
                     this._GetPropertySource(_Inheritable.FontFamily),

@@ -1,7 +1,7 @@
 /// <reference path="XamlObject.ts" />
 /// CODE
 /// <reference path="DependencyProperty.ts" />
-/// <reference path="ProviderStore.ts" />
+/// <reference path="Providers/BasicProviderStore.ts" />
 /// <reference path="Expression.ts" />
 /// <reference path="../Data/BindingExpressionBase.ts" />
 
@@ -10,12 +10,12 @@ module Fayde {
 
     export class DependencyObject extends XamlObject {
         private _Expressions: Expression[] = [];
-        _Store: Provider.ProviderStore;
+        _Store: Providers.ProviderStore;
         _CachedValues: any[] = [];
 
         constructor() {
             super();
-            this._Store = new Provider.ProviderStore(this);
+            this._Store = new Providers.ProviderStore(this);
         }
 
         GetValue(propd: DependencyProperty): any {

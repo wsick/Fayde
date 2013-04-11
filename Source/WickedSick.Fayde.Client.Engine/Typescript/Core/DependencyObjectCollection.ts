@@ -3,7 +3,7 @@
 /// <reference path="DependencyObject.ts" />
 
 module Fayde {
-    export class DependencyObjectCollection extends XamlObjectCollection implements Provider.IPropertyChangedListener {
+    export class DependencyObjectCollection extends XamlObjectCollection implements Providers.IPropertyChangedListener {
         private _HandleItemChanged: bool;
         constructor(handleItemChanged: bool) {
             super();

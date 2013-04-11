@@ -20,7 +20,10 @@ var Fayde;
             _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
             //Update total render visibility
             if(!newIsAttached) {
-            }
+                //cache invalidate hint
+                //Remove dirty element from surface
+                //If surface focused element === this --> focus element to null on surface
+                            }
         };
         UINode.prototype._ElementAdded = function (uie) {
             uie.XamlNode.VisualParentNode = this;

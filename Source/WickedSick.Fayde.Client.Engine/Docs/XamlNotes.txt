@@ -11,6 +11,12 @@ FrameworkElement
 Control
 	IsEnabled
 
+ProviderStore Inheritance
+DependencyObject - LocalValue, DefaultValue, AutoCreate
+	TextElement - Inherited
+	UIElement - Inherited
+		FrameworkElement - DynamicValue, LocalStyle, ImplicitStyle, DataContext
+			Control - IsEnabled
 
 1. Metrics - Manages bounds
 2. Xformer - Manages transforms

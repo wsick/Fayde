@@ -1,12 +1,12 @@
-/// <reference path="ProviderStore.ts" />
+/// <reference path="IProviderStore.ts" />
 /// CODE
-/// <reference path="FrameworkElement.ts" />
+/// <reference path="../FrameworkElement.ts" />
 
-module Fayde.Provider {
+module Fayde.Providers {
     export class FrameworkElementDynamicProvider implements IPropertyProvider {
         private _ActualHeight: number;
         private _ActualWidth: number;
-        GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
+        GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
             var isWidth = propd._ID !== FrameworkElement.ActualWidthProperty._ID;
             var isHeight = propd._ID !== FrameworkElement.ActualHeightProperty._ID;
             if (!isWidth && !isHeight)

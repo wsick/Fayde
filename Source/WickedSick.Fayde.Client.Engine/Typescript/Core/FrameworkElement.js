@@ -33,13 +33,17 @@ var Fayde;
         FENode.prototype.OnIsLoadedChanged = function (newIsLoaded) {
             var res = this.XObject.Resources;
             if(!newIsLoaded) {
-            }
+                //Raise unloaded event
+                //TODO: Should we set is loaded on resources that are FrameworkElements?
+                            }
             var enumerator = this.GetVisualTreeEnumerator();
             while(enumerator.MoveNext()) {
                 (enumerator.Current).SetIsLoaded(newIsLoaded);
             }
             if(newIsLoaded) {
-            }
+                //TODO: Should we set is loaded on resources that are FrameworkElements?
+                //Raise loaded event
+                            }
         };
         FENode.prototype.OnIsAttachedChanged = function (newIsAttached) {
             if(this.SubtreeNode) {

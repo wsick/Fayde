@@ -1,9 +1,9 @@
 var Fayde;
 (function (Fayde) {
-    /// <reference path="ProviderStore.ts" />
+    /// <reference path="IProviderStore.ts" />
     /// CODE
-    /// <reference path="FrameworkElement.ts" />
-    (function (Provider) {
+    /// <reference path="../FrameworkElement.ts" />
+    (function (Providers) {
         var InheritedDataContextProvider = (function () {
             function InheritedDataContextProvider(store) {
                 this._Store = store;
@@ -30,7 +30,7 @@ var Fayde;
                 this._AttachListener(source);
                 if(!Nullstone.Equals(oldValue, newValue)) {
                     var error = new BError();
-                    this._Store._ProviderValueChanged(Provider._PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, oldValue, newValue, false, false, false, error);
+                    this._Store._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, oldValue, newValue, false, false, false, error);
                 }
             };
             InheritedDataContextProvider.prototype._AttachListener = function (source) {
@@ -53,12 +53,12 @@ var Fayde;
                             };
             InheritedDataContextProvider.prototype._SourceDataContextChanged = function (sender, args) {
                 var error = new BError();
-                this._Store._ProviderValueChanged(Provider._PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, args.OldValue, args.NewValue, true, false, false, error);
+                this._Store._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, args.OldValue, args.NewValue, true, false, false, error);
             };
             InheritedDataContextProvider.prototype.EmitChanged = function () {
                 if(this._Source) {
                     var error = new BError();
-                    this._Store._ProviderValueChanged(Provider._PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, undefined, this._Source._Store.GetValue(Fayde.FrameworkElement.DataContextProperty), true, false, false, error);
+                    this._Store._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, undefined, this._Source._Store.GetValue(Fayde.FrameworkElement.DataContextProperty), true, false, false, error);
                 }
             };
             InheritedDataContextProvider.prototype.RecomputePropertyValueOnClear = function (propd, error) {
@@ -67,8 +67,8 @@ var Fayde;
             };
             return InheritedDataContextProvider;
         })();
-        Provider.InheritedDataContextProvider = InheritedDataContextProvider;        
-    })(Fayde.Provider || (Fayde.Provider = {}));
-    var Provider = Fayde.Provider;
+        Providers.InheritedDataContextProvider = InheritedDataContextProvider;        
+    })(Fayde.Providers || (Fayde.Providers = {}));
+    var Providers = Fayde.Providers;
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=InheritedDataContextProvider.js.map

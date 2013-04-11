@@ -1,48 +1,10 @@
+/// <reference path="IProviderStore.ts" />
 /// CODE
-/// <reference path="DependencyObject.ts" />
-/// <reference path="../Runtime/BError.ts" />
-/// <reference path="../Runtime/Nullstone.ts" />
+/// <reference path="../DependencyObject.ts" />
+/// <reference path="../../Runtime/BError.ts" />
+/// <reference path="../../Runtime/Nullstone.ts" />
 
-module Fayde.Provider {
-    export enum _PropertyPrecedence {
-        IsEnabled = 0,
-        LocalValue = 1,
-        DynamicValue = 2,
-
-        LocalStyle = 3,
-        ImplicitStyle = 4,
-
-        Inherited = 5,
-        InheritedDataContext = 6,
-        DefaultValue = 7,
-        AutoCreate = 8,
-        Lowest = 8,
-        Highest = 0,
-        Count = 9,
-    }
-    export enum _StyleIndex {
-        VisualTree = 0,
-        ApplicationResources = 1,
-        GenericXaml = 2,
-        Count = 3,
-    }
-    export enum _StyleMask {
-        None = 0,
-        VisualTree = 1 << _StyleIndex.VisualTree,
-        ApplicationResources = 1 << _StyleIndex.ApplicationResources,
-        GenericXaml = 1 << _StyleIndex.GenericXaml,
-        All = _StyleMask.VisualTree | _StyleMask.ApplicationResources | _StyleMask.GenericXaml,
-    }
-    
-    export interface IPropertyChangedListener {
-        OnPropertyChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs);
-    }
-
-    export interface IPropertyProvider {
-        GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any;
-        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError);
-        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError);
-    }
+module Fayde.Providers {
     export class DefaultValueProvider implements IPropertyProvider {
         GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
             return propd.DefaultValue;
@@ -91,218 +53,11 @@ module Fayde.Provider {
         RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError) { }
         RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
     }
-    export class LocalStyleProvider implements IPropertyProvider {
-        private _ht: any[] = [];
-        private _Style: Style;
-        private _Store: ProviderStore;
-        constructor(store: ProviderStore) {
-            this._Store = store;
-        }
-        GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
-            return this._ht[propd._ID];
-        }
-        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError) {
-            var oldValue;
-            var newValue;
-            var walkPropd;
 
-            var walker = SingleStyleWalker(this._Style);
-            var setter: Setter;
-            while (setter = walker.Step()) {
-                walkPropd = setter.Property;
-                if (walkPropd._ID !== propd._ID)
-                    continue;
-
-                newValue = setter.ConvertedValue;
-                oldValue = this._ht[propd._ID];
-                this._ht[propd._ID] = newValue;
-                this._Store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, propd, oldValue, newValue, true, true, true, error);
-                if (error.Message)
-                    return;
-            }
-        }
-        UpdateStyle(style: Style, error: BError) {
-            var store = this._Store;
-            var oldValue = undefined;
-            var newValue = undefined;
-
-            var oldWalker = SingleStyleWalker(this._Style);
-            var newWalker = SingleStyleWalker(style);
-            style.Seal();
-
-            var oldSetter = oldWalker.Step();
-            var newSetter = newWalker.Step();
-            var oldProp: DependencyProperty;
-            var newProp: DependencyProperty;
-
-            while (oldSetter || newSetter) {
-                if (oldSetter)
-                    oldProp = oldSetter.Property;
-                if (newSetter)
-                    newProp = newSetter.Property;
-                if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
-                    //Property in old style, not in new style
-                    oldValue = oldSetter.ConvertedValue;
-                    newValue = undefined;
-                    this._ht[oldProp._ID] = undefined;
-                    store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, oldProp, oldValue, newValue, true, true, false, error);
-                    oldSetter = oldWalker.Step();
-                } else if (oldProp === newProp) {
-                    //Property in both styles
-                    oldValue = oldSetter.ConvertedValue;
-                    newValue = newSetter.ConvertedValue;
-                    this._ht[oldProp._ID] = newValue;
-                    store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, oldProp, oldValue, newValue, true, true, false, error);
-                    oldSetter = oldWalker.Step();
-                    newSetter = newWalker.Step();
-                } else {
-                    //Property in new style, not in old style
-                    oldValue = undefined;
-                    newValue = newSetter.ConvertedValue;
-                    this._ht[newProp._ID] = newValue;
-                    store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, newProp, oldValue, newValue, true, true, false, error);
-                    newSetter = newWalker.Step();
-                }
-            }
-
-            this._Style = style;
-        }
-        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
-    }
-    export class ImplicitStyleProvider implements IPropertyProvider {
-        private _ht: any[] = [];
-        private _Styles: any[] = [null, null, null];
-        private _StyleMask: _StyleMask = _StyleMask.None;
-        private _Store: ProviderStore;
-        constructor(store: ProviderStore) {
-            this._Store = store;
-        }
-        GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
-            return this._ht[propd._ID];
-        }
-        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError) {
-            if (!this._Styles)
-                return;
-
-            var oldValue;
-            var newValue;
-            var prop;
-
-            var walker = MultipleStylesWalker(this._Styles);
-            var setter: Setter;
-            while (setter = walker.Step()) {
-                prop = setter.Property;
-                if (prop._ID !== propd._ID)
-                    continue;
-
-                newValue = setter.ConvertedValue;
-                oldValue = this._ht[propd._ID];
-                this._ht[propd._ID] = newValue;
-                this._Store._ProviderValueChanged(_PropertyPrecedence.ImplicitStyle, propd, oldValue, newValue, true, true, true, error);
-                if (error.Message)
-                    return;
-            }
-        }
-        SetStyles(styleMask: _StyleMask, styles: Style[], error: BError) {
-            if (!styles)
-                return;
-
-            var newStyles = [null, null, null];
-            if (this._Styles) {
-                newStyles[_StyleIndex.GenericXaml] = this._Styles[_StyleIndex.GenericXaml];
-                newStyles[_StyleIndex.ApplicationResources] = this._Styles[_StyleIndex.ApplicationResources];
-                newStyles[_StyleIndex.VisualTree] = this._Styles[_StyleIndex.VisualTree];
-            }
-            if (styleMask & _StyleMask.GenericXaml)
-                newStyles[_StyleIndex.GenericXaml] = styles[_StyleIndex.GenericXaml];
-            if (styleMask & _StyleMask.ApplicationResources)
-                newStyles[_StyleIndex.ApplicationResources] = styles[_StyleIndex.ApplicationResources];
-            if (styleMask & _StyleMask.VisualTree)
-                newStyles[_StyleIndex.VisualTree] = styles[_StyleIndex.VisualTree];
-
-            this._ApplyStyles(this._StyleMask | styleMask, newStyles, error);
-        }
-        ClearStyles(styleMask: _StyleMask, error: BError) {
-            if (!this._Styles)
-                return;
-
-            var newStyles = this._Styles.slice(0);
-            //TODO: Do we need a deep copy?
-            if (styleMask & _StyleMask.GenericXaml)
-                newStyles[_StyleIndex.GenericXaml] = null;
-            if (styleMask & _StyleMask.ApplicationResources)
-                newStyles[_StyleIndex.ApplicationResources] = null;
-            if (styleMask & _StyleMask.VisualTree)
-                newStyles[_StyleIndex.VisualTree] = null;
-
-            this._ApplyStyles(this._StyleMask & ~styleMask, newStyles, error);
-        }
-        private _ApplyStyles(styleMask: _StyleMask, styles: Style[], error: BError) {
-            var isChanged = !this._Styles || styleMask !== this._StyleMask;
-            if (!isChanged) {
-                for (var i = 0; i < _StyleIndex.Count; i++) {
-                    if (styles[i] !== this._Styles[i]) {
-                        isChanged = true;
-                        break;
-                    }
-                }
-            }
-            if (!isChanged)
-                return;
-
-            var oldValue;
-            var newValue;
-
-            var oldWalker = MultipleStylesWalker(this._Styles);
-            var newWalker = MultipleStylesWalker(styles);
-
-            var oldSetter = oldWalker.Step();
-            var newSetter = newWalker.Step();
-            
-            var oldProp: DependencyProperty;
-            var newProp: DependencyProperty;
-            while (oldSetter || newSetter) {
-                if (oldSetter)
-                    oldProp = oldSetter.Property;
-                if (newSetter)
-                    newProp = newSetter.Property;
-
-                if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
-                    //Property in old style, not in new style
-                    oldValue = oldSetter.ConvertedValue;
-                    newValue = undefined;
-                    this._ht[oldProp._ID] = undefined;
-                    this._Store._ProviderValueChanged(_PropertyPrecedence.ImplicitStyle, oldProp, oldValue, newValue, true, true, false, error);
-                    oldSetter = oldWalker.Step();
-                }
-                else if (oldProp === newProp) {
-                    //Property in both styles
-                    oldValue = oldSetter.ConvertedValue;
-                    newValue = newSetter.ConvertedValue;
-                    this._ht[oldProp._ID] = newValue;
-                    this._Store._ProviderValueChanged(_PropertyPrecedence.ImplicitStyle, oldProp, oldValue, newValue, true, true, false, error);
-                    oldSetter = oldWalker.Step();
-                    newSetter = newWalker.Step();
-                } else {
-                    //Property in new style, not in old style
-                    oldValue = undefined;
-                    newValue = newSetter.ConvertedValue;
-                    this._ht[newProp._ID] = newValue;
-                    this._Store._ProviderValueChanged(_PropertyPrecedence.ImplicitStyle, newProp, oldValue, newValue, true, true, false, error);
-                    newSetter = newWalker.Step();
-                }
-            }
-
-            this._Styles = styles;
-            this._StyleMask = styleMask;
-        }
-        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
-    }
-
-    interface IInheritedProvider extends IPropertyProvider {
+    export interface IInheritedProvider extends IPropertyProvider {
         PropagateInheritedProperty(store: ProviderStore, propd: DependencyProperty, source: DependencyObject, subtree: DependencyObject);
     }
-    interface IInheritedIsEnabledProvider extends IPropertyProvider {
+    export interface IInheritedIsEnabledProvider extends IPropertyProvider {
         LocalValueChanged(propd?: DependencyProperty): bool;
     }
 
@@ -316,8 +71,8 @@ module Fayde.Provider {
         private _InheritedIsEnabledProvider: IInheritedIsEnabledProvider;
         private _LocalValueProvider: LocalValueProvider;
         private _DynamicValueProvider: IPropertyProvider;
-        private _LocalStyleProvider: LocalStyleProvider;
-        private _ImplicitStyleProvider: ImplicitStyleProvider;
+        private _LocalStyleProvider: IPropertyProvider;
+        private _ImplicitStyleProvider: IPropertyProvider;
         private _InheritedProvider: IInheritedProvider;
         private _InheritedDataContextProvider: IPropertyProvider;
         private _DefaultValueProvider: DefaultValueProvider;
@@ -336,7 +91,7 @@ module Fayde.Provider {
             return bitmask;
         }
 
-        GetValue(propd: DependencyProperty) {
+        GetValue(propd: DependencyProperty):any {
             var startingPrecedence = _PropertyPrecedence.Highest;
             var endingPrecedence = _PropertyPrecedence.Lowest;
 
@@ -440,7 +195,7 @@ module Fayde.Provider {
                 if (propd._IsAutoCreated)
                     oldLocalValue = this._AutoCreateProvider.ReadLocalValue(propd);
             }
-            
+
             var error = new BError();
             if (oldLocalValue !== undefined) {
                 this._DetachValue(oldLocalValue);
@@ -616,7 +371,7 @@ module Fayde.Provider {
                     provider.RecomputePropertyValueOnLower(propd, error);
             }
         }
-        
+
         _SubscribePropertyChanged(listener: IPropertyChangedListener) {
             var l = this._PropertyChangedListeners;
             if (l.indexOf(listener) < 0)
@@ -658,12 +413,29 @@ module Fayde.Provider {
                 //TODO: 
                 //  RemovePropertyChangedListener (SubPropertyChanged)
                 //if (value instanceof XamlObjectCollection) {
-                    //(<XamlObjectCollection>value).StopListenToChanged(this);
-                    //      Unsubscribe ItemChanged
+                //(<XamlObjectCollection>value).StopListenToChanged(this);
+                //      Unsubscribe ItemChanged
                 //}
             } else if (value instanceof XamlObject) {
                 (<XamlObject>value).XamlNode.Detach();
             }
+        }
+
+        SetImplicitStyles(styleMask, styles) {
+        }
+        ClearImplicitStyles(styleMask) {
+        }
+        SetLocalStyle() {
+        }
+        EmitDataContextChanged() {
+        }
+        SetDataContextSource(source) {
+        }
+        SetIsEnabledSource(source) {
+        }
+        PropagateInheritedOnAdd() {
+        }
+        ClearInheritedOnRemove() {
         }
     }
 }

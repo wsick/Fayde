@@ -1,15 +1,15 @@
-/// <reference path="ProviderStore.ts" />
+/// <reference path="IProviderStore.ts" />
 /// CODE
-/// <reference path="FrameworkElement.ts" />
+/// <reference path="../FrameworkElement.ts" />
 
-module Fayde.Provider {
+module Fayde.Providers {
     export class InheritedDataContextProvider implements IPropertyProvider {
         private _Source: FrameworkElement;
-        private _Store: ProviderStore;
-        constructor(store: ProviderStore) {
+        private _Store: IProviderStore;
+        constructor(store: IProviderStore) {
             this._Store = store;
         }
-        GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
+        GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
             var source = this._Source;
             if (!source)
                 return;

@@ -1,9 +1,9 @@
 var Fayde;
 (function (Fayde) {
-    /// <reference path="ProviderStore.ts" />
+    /// <reference path="IProviderStore.ts" />
     /// CODE
-    /// <reference path="FrameworkElement.ts" />
-    (function (Provider) {
+    /// <reference path="../FrameworkElement.ts" />
+    (function (Providers) {
         var FrameworkElementDynamicProvider = (function () {
             function FrameworkElementDynamicProvider() { }
             FrameworkElementDynamicProvider.prototype.GetPropertyValue = function (store, propd) {
@@ -26,8 +26,8 @@ var Fayde;
             };
             return FrameworkElementDynamicProvider;
         })();
-        Provider.FrameworkElementDynamicProvider = FrameworkElementDynamicProvider;        
-    })(Fayde.Provider || (Fayde.Provider = {}));
-    var Provider = Fayde.Provider;
+        Providers.FrameworkElementDynamicProvider = FrameworkElementDynamicProvider;        
+    })(Fayde.Providers || (Fayde.Providers = {}));
+    var Providers = Fayde.Providers;
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=FrameworkElementDynamicProvider.js.map

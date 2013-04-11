@@ -6,7 +6,7 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path="XamlObject.ts" />
 /// CODE
 /// <reference path="DependencyProperty.ts" />
-/// <reference path="ProviderStore.ts" />
+/// <reference path="Providers/BasicProviderStore.ts" />
 /// <reference path="Expression.ts" />
 /// <reference path="../Data/BindingExpressionBase.ts" />
 var Fayde;
@@ -22,7 +22,7 @@ var Fayde;
                 _super.call(this);
             this._Expressions = [];
             this._CachedValues = [];
-            this._Store = new Fayde.Provider.ProviderStore(this);
+            this._Store = new Fayde.Providers.ProviderStore(this);
         }
         DependencyObject.prototype.GetValue = function (propd) {
             if(!propd) {

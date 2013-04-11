@@ -1,17 +1,17 @@
-/// <reference path="ProviderStore.ts" />
+/// <reference path="IProviderStore.ts" />
 /// CODE
-/// <reference path="../Controls/Control.ts" />
+/// <reference path="../../Controls/Control.ts" />
 
-module Fayde.Provider {
+module Fayde.Providers {
     export class InheritedIsEnabledProvider implements IPropertyProvider {
         private _Source: Fayde.Controls.Control;
         private _CurrentValue: bool = true;
-        private _Store: ProviderStore;
-        constructor(store: ProviderStore) {
+        private _Store: IProviderStore;
+        constructor(store: IProviderStore) {
             this._Store = store;
         }
 
-        GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
+        GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
             if (propd._ID === Controls.Control.IsEnabledProperty._ID)
                 return this._CurrentValue;
             return undefined;
