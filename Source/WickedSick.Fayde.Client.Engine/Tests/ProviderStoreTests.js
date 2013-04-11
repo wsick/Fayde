@@ -1,10 +1,17 @@
 /// <reference path="qunit-1.10.0.d.ts" />
 /// <reference path="../Typescript/Core/DependencyObject.ts" />
 /// <reference path="../Typescript/Core/Providers/BasicProviderStore.ts" />
-var Mock1Property = DependencyProperty.Register("Mock1", function () {
+var Mock1Property = DependencyProperty.RegisterFull("Mock1", function () {
+    return String;
+}, Fayde.DependencyObject, undefined, undefined, {
+    GetValue: function () {
+        return "AutoCreated";
+    }
+});
+var Mock2Property = DependencyProperty.RegisterFull("Mock2", function () {
     return String;
 }, Fayde.DependencyObject, "Default");
-test("Test Basic Provider Storage", function () {
+test("ProviderStoreTests.BasicProvider", function () {
     var d = new Fayde.DependencyObject();
     var store = d._Store;
     store.SetProviders([
@@ -16,12 +23,26 @@ test("Test Basic Provider Storage", function () {
         null, 
         null, 
         new Fayde.Providers.DefaultValueProvider(), 
-        null
+        new Fayde.Providers.AutoCreateProvider()
     ]);
-    var val = store.GetValue(Mock1Property);
-    strictEqual(val, "Default", "Initial GetValue should return value from default value provider.");
+    var val;
+    val = store.GetValue(Mock1Property);
+    strictEqual(val, "AutoCreated", "Initial GetValue (Mock1) should return value from auto creator provider.");
+    val = store.ReadLocalValue(Mock1Property);
+    ok(val instanceof Fayde.UnsetValue, "ReadLocalValue (Mock1) should return UnsetValue since value has not been set.");
     store.SetValue(Mock1Property, "Modified");
     val = store.GetValue(Mock1Property);
-    strictEqual(val, "Modified", "GetValue should return value from local value provider after a SetValue.");
+    strictEqual(val, "Modified", "GetValue (Mock1) should return value from local value provider after a SetValue.");
+    val = store.ClearValue(Mock1Property);
+    val = store.GetValue(Mock1Property);
+    strictEqual(val, "AutoCreated", "GetValue (Mock1) after ClearValue should revert to using auto creator provider.");
+    val = store.GetValue(Mock2Property);
+    strictEqual(val, "Default", "Initial GetValue (Mock2) should return value from default value provider.");
+    store.SetValue(Mock2Property, "Modified");
+    val = store.GetValue(Mock2Property);
+    strictEqual(val, "Modified", "GetValue (Mock2) should return value from local value provider after a SetValue.");
+    val = store.ClearValue(Mock2Property);
+    val = store.GetValue(Mock2Property);
+    strictEqual(val, "Default", "GetValue (Mock2) after ClearValue should revert to using default value provider.");
 });
 //@ sourceMappingURL=ProviderStoreTests.js.map
