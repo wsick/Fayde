@@ -54,7 +54,7 @@ var Fayde;
                     newValue = setter.ConvertedValue;
                     oldValue = this._ht[propd._ID];
                     this._ht[propd._ID] = newValue;
-                    this._Store._ProviderValueChanged(Providers._PropertyPrecedence.ImplicitStyle, propd, oldValue, newValue, true, true, true, error);
+                    this._Store._ProviderValueChanged(Providers._PropertyPrecedence.ImplicitStyle, propd, oldValue, newValue, true, error);
                     if(error.Message) {
                         return;
                     }
@@ -136,14 +136,14 @@ var Fayde;
                         oldValue = oldSetter.ConvertedValue;
                         newValue = undefined;
                         this._ht[oldProp._ID] = undefined;
-                        this._Store._ProviderValueChanged(Providers._PropertyPrecedence.ImplicitStyle, oldProp, oldValue, newValue, true, true, false, error);
+                        this._Store._ProviderValueChanged(Providers._PropertyPrecedence.ImplicitStyle, oldProp, oldValue, newValue, true, error);
                         oldSetter = oldWalker.Step();
                     } else if(oldProp === newProp) {
                         //Property in both styles
                         oldValue = oldSetter.ConvertedValue;
                         newValue = newSetter.ConvertedValue;
                         this._ht[oldProp._ID] = newValue;
-                        this._Store._ProviderValueChanged(Providers._PropertyPrecedence.ImplicitStyle, oldProp, oldValue, newValue, true, true, false, error);
+                        this._Store._ProviderValueChanged(Providers._PropertyPrecedence.ImplicitStyle, oldProp, oldValue, newValue, true, error);
                         oldSetter = oldWalker.Step();
                         newSetter = newWalker.Step();
                     } else {
@@ -151,14 +151,12 @@ var Fayde;
                         oldValue = undefined;
                         newValue = newSetter.ConvertedValue;
                         this._ht[newProp._ID] = newValue;
-                        this._Store._ProviderValueChanged(Providers._PropertyPrecedence.ImplicitStyle, newProp, oldValue, newValue, true, true, false, error);
+                        this._Store._ProviderValueChanged(Providers._PropertyPrecedence.ImplicitStyle, newProp, oldValue, newValue, true, error);
                         newSetter = newWalker.Step();
                     }
                 }
                 this._Styles = styles;
                 this._StyleMask = styleMask;
-            };
-            ImplicitStyleProvider.prototype.RecomputePropertyValueOnLower = function (propd, error) {
             };
             return ImplicitStyleProvider;
         })();

@@ -3,6 +3,7 @@
 /// <reference path="../Runtime/Enumerable.ts" />
 /// <reference path="../Primitives/size.ts" />
 /// <reference path="ResourceDictionary.ts" />
+/// <reference path="Providers/FrameworkProviderStore.ts" />
 
 module Fayde {
     export class FENode extends UINode {
@@ -63,6 +64,10 @@ module Fayde {
                 value: new ResourceDictionary(),
                 writable: false
             });
+        }
+        _Store: Providers.FrameworkProviderStore;
+        CreateStore() {
+            return new Providers.FrameworkProviderStore(this);
         }
         CreateNode(): XamlNode {
             return new FENode(this);

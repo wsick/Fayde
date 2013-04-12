@@ -1,4 +1,5 @@
 /// CODE
+/// <reference path="UIElement.ts" />
 /// <reference path="Style.ts" />
 
 module Fayde {

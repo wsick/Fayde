@@ -6,15 +6,13 @@
 
 module Fayde.Providers {
     export class DefaultValueProvider implements IPropertyProvider {
-        GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
+        GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
             return propd.DefaultValue;
         }
-        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError) { }
-        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
     }
     export class AutoCreateProvider implements IPropertyProvider {
         private _ht: any[] = [];
-        GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
+        GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
             var value = this.ReadLocalValue(propd);
             if (value !== undefined)
                 return value;
@@ -25,7 +23,7 @@ module Fayde.Providers {
 
             this._ht[propd._ID] = value;
             var error = new BError();
-            store._ProviderValueChanged(_PropertyPrecedence.AutoCreate, propd, undefined, value, false, true, false, error);
+            store._ProviderValueChanged(_PropertyPrecedence.AutoCreate, propd, undefined, value, false, error);
             return value;
         }
         ReadLocalValue(propd: DependencyProperty): any {
@@ -37,11 +35,10 @@ module Fayde.Providers {
         ClearValue(propd: DependencyProperty) {
             this._ht[propd._ID] = undefined;
         }
-        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
     }
     export class LocalValueProvider implements IPropertyProvider {
         private _ht: any[] = [];
-        GetPropertyValue(store: ProviderStore, propd: DependencyProperty): any {
+        GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
             return this._ht[propd._ID];
         }
         SetValue(propd: DependencyProperty, value: any) {
@@ -50,31 +47,16 @@ module Fayde.Providers {
         ClearValue(propd: DependencyProperty) {
             this._ht[propd._ID] = undefined;
         }
-        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError) { }
-        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
     }
 
-    export interface IInheritedProvider extends IPropertyProvider {
-        PropagateInheritedProperty(store: ProviderStore, propd: DependencyProperty, source: DependencyObject, subtree: DependencyObject);
-    }
-    export interface IInheritedIsEnabledProvider extends IPropertyProvider {
-        LocalValueChanged(propd?: DependencyProperty): bool;
-    }
-
-    export class ProviderStore {
+    export class BasicProviderStore {
         _Object: DependencyObject;
         private _Providers: IPropertyProvider[] = [null, null, null, null, null, null, null, null, null];
         private _PropertyChangedListeners: IPropertyChangedListener[] = [];
         _ProviderBitmasks: number[] = [];
         private _AnimStorage: any[][] = [];
 
-        private _InheritedIsEnabledProvider: IInheritedIsEnabledProvider;
         private _LocalValueProvider: LocalValueProvider;
-        private _DynamicValueProvider: IPropertyProvider;
-        private _LocalStyleProvider: IPropertyProvider;
-        private _ImplicitStyleProvider: IPropertyProvider;
-        private _InheritedProvider: IInheritedProvider;
-        private _InheritedDataContextProvider: IPropertyProvider;
         private _DefaultValueProvider: DefaultValueProvider;
         private _AutoCreateProvider: AutoCreateProvider;
 
@@ -83,13 +65,7 @@ module Fayde.Providers {
         }
 
         SetProviders(providerArr: IPropertyProvider[]) {
-            this._InheritedIsEnabledProvider = this._Providers[0] = <IInheritedIsEnabledProvider>providerArr[0];
             this._LocalValueProvider = this._Providers[1] = <LocalValueProvider>providerArr[1];
-            this._DynamicValueProvider = this._Providers[2] = providerArr[2];
-            this._LocalStyleProvider = this._Providers[3] = providerArr[3];
-            this._ImplicitStyleProvider = this._Providers[4] = providerArr[4];
-            this._InheritedProvider = this._Providers[5] = <IInheritedProvider>providerArr[5];
-            this._InheritedDataContextProvider = this._Providers[6] = providerArr[6];
             this._DefaultValueProvider = this._Providers[7] = <DefaultValueProvider>providerArr[7];
             this._AutoCreateProvider = this._Providers[8] = <AutoCreateProvider>providerArr[8];
         }
@@ -189,7 +165,7 @@ module Fayde.Providers {
                     this._LocalValueProvider.SetValue(propd, newValue);
                 }
                 var error = new BError();
-                this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, currentValue, newValue, true, true, true, error);
+                this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, currentValue, newValue, true, error);
                 if (error.Message)
                     throw new Exception(error.Message);
             }
@@ -216,15 +192,17 @@ module Fayde.Providers {
                     this._AutoCreateProvider.ClearValue(propd);
             }
 
+            /*
             var count = _PropertyPrecedence.Count;
             for (var i = _PropertyPrecedence.LocalValue + 1; i < count; i++) {
                 var provider = this._Providers[i];
                 if (provider)
                     provider.RecomputePropertyValueOnClear(propd, error);
             }
+            */
 
             if (oldLocalValue !== undefined) {
-                this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, oldLocalValue, undefined, notifyListeners, true, false, error);
+                this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, oldLocalValue, undefined, notifyListeners, error);
                 if (error.Message)
                     throw new Exception(error.Message);
             }
@@ -237,7 +215,7 @@ module Fayde.Providers {
             return val;
         }
 
-        _ProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldProviderValue: any, newProviderValue: any, notifyListeners: bool, setParent: bool, mergeNamesOnSetParent: bool, error: BError) {
+        _ProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldProviderValue: any, newProviderValue: any, notifyListeners: bool, error: BError) {
             delete this._Object._CachedValues[propd._ID];
 
             var bitmask = this._ProviderBitmasks[propd._ID] | 0;
@@ -256,10 +234,8 @@ module Fayde.Providers {
                 var provider = this._Providers[j];
                 if (!provider)
                     continue;
-                if (provider.GetPropertyValue(this, propd) !== undefined) {
-                    this._CallRecomputePropertyValueForProviders(propd, providerPrecedence);
+                if (provider.GetPropertyValue(this, propd) !== undefined)
                     return;
-                }
             }
 
             var oldValue;
@@ -287,14 +263,9 @@ module Fayde.Providers {
             if (!propd._AlwaysChange && Nullstone.Equals(oldValue, newValue))
                 return;
 
-            var iiep: IInheritedIsEnabledProvider;
-            if (providerPrecedence !== _PropertyPrecedence.IsEnabled && (iiep = this._InheritedIsEnabledProvider) && iiep.LocalValueChanged(propd))
-                return;
-
-            this._CallRecomputePropertyValueForProviders(propd, providerPrecedence);
-
-            var setsParent = setParent && !propd.IsCustom;
-
+            this._PostProviderValueChanged(providerPrecedence, propd, oldValue, newValue, notifyListeners, error);
+        }
+        _PostProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldValue: any, newValue: any, notifyListeners: bool, error: BError) {
             this._DetachValue(oldValue);
             this._AttachValue(newValue, error);
 
@@ -310,14 +281,6 @@ module Fayde.Providers {
                 this._RaisePropertyChanged(args);
                 if (propd && propd._ChangedCallback)
                     propd._ChangedCallback(this._Object, args);
-
-                if (propd._Inheritable > 0 && providerPrecedence !== _PropertyPrecedence.Inherited) {
-                    // NOTE: We only propagate if inherited exists and has the highest priority in the bitmask
-                    var inheritedProvider = this._InheritedProvider;
-                    // GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited
-                    if (inheritedProvider && ((this._ProviderBitmasks[propd._ID] & ((1 << _PropertyPrecedence.Inherited) - 1)) !== 0))
-                        inheritedProvider.PropagateInheritedProperty(this, propd, this._Object, this._Object);
-                }
             }
         }
 
@@ -327,7 +290,7 @@ module Fayde.Providers {
                 return list[list.length - 1];
             return undefined;
         }
-        private _CloneAnimationStorage(sourceStore: ProviderStore) {
+        private _CloneAnimationStorage(sourceStore: BasicProviderStore) {
             var srcRepo = sourceStore._AnimStorage;
             var thisRepo = this._AnimStorage;
             var list;
@@ -375,15 +338,6 @@ module Fayde.Providers {
             }
         }
 
-        private _CallRecomputePropertyValueForProviders(propd: DependencyProperty, providerPrecedence: _PropertyPrecedence) {
-            var error = new BError();
-            for (var i = 0; i < providerPrecedence; i++) {
-                var provider = this._Providers[i];
-                if (provider)
-                    provider.RecomputePropertyValueOnLower(propd, error);
-            }
-        }
-
         _SubscribePropertyChanged(listener: IPropertyChangedListener) {
             var l = this._PropertyChangedListeners;
             if (l.indexOf(listener) < 0)
@@ -395,14 +349,14 @@ module Fayde.Providers {
             if (index > -1)
                 l.splice(index, 1);
         }
-        private _RaisePropertyChanged(args: IDependencyPropertyChangedEventArgs) {
+        _RaisePropertyChanged(args: IDependencyPropertyChangedEventArgs) {
             var l = this._PropertyChangedListeners;
             var len = l.length;
             for (var i = 0; i < len; i++) {
                 l[i].OnPropertyChanged(this._Object, args);
             }
         }
-        private _AttachValue(value: any, error: BError): bool {
+        _AttachValue(value: any, error: BError): bool {
             if (!value)
                 return true;
             if (value instanceof DependencyObject) {
@@ -417,7 +371,7 @@ module Fayde.Providers {
                 return (<XamlObject>value).XamlNode.AttachTo(this._Object.XamlNode, error);
             }
         }
-        private _DetachValue(value: any) {
+        _DetachValue(value: any) {
             if (!value)
                 return;
             if (value instanceof DependencyObject) {
@@ -431,23 +385,6 @@ module Fayde.Providers {
             } else if (value instanceof XamlObject) {
                 (<XamlObject>value).XamlNode.Detach();
             }
-        }
-
-        SetImplicitStyles(styleMask, styles) {
-        }
-        ClearImplicitStyles(styleMask) {
-        }
-        SetLocalStyle() {
-        }
-        EmitDataContextChanged() {
-        }
-        SetDataContextSource(source) {
-        }
-        SetIsEnabledSource(source) {
-        }
-        PropagateInheritedOnAdd() {
-        }
-        ClearInheritedOnRemove() {
         }
     }
 }

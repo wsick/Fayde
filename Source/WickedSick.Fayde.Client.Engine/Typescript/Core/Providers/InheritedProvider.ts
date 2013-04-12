@@ -119,7 +119,7 @@ module Fayde.Providers {
                 return propd;
         }
     }
-    /// "this" needs to be scoped to a ProviderStore
+    /// "this" needs to be scoped to a InheritedProviderStore
     function propagateInheritedValue(inheritable, source, newValue) {
         var provider: InheritedProvider = this._InheritedProvider;
         if (!provider)
@@ -131,9 +131,9 @@ module Fayde.Providers {
             return false;
 
         var error = new BError();
-        this._ProviderValueChanged(_PropertyPrecedence.Inherited, propd, undefined, newValue, true, false, false, error);
+        this._ProviderValueChanged(_PropertyPrecedence.Inherited, propd, undefined, newValue, true, error);
     }
-    /// "this" needs to be scoped to a ProviderStore
+    /// "this" needs to be scoped to a InheritedProviderStore
     function getInheritedValueSource(inheritable: _Inheritable): DependencyObject {
         var provider: InheritedProvider = this._InheritedProvider;
         if (provider)
@@ -287,7 +287,5 @@ module Fayde.Providers {
             else
                 this._ht[inheritable] = undefined;
         }
-        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError) { }
-        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
     }
 }

@@ -10,12 +10,15 @@ module Fayde {
 
     export class DependencyObject extends XamlObject {
         private _Expressions: Expression[] = [];
-        _Store: Providers.ProviderStore;
+        _Store: Providers.BasicProviderStore;
         _CachedValues: any[] = [];
 
         constructor() {
             super();
-            this._Store = new Providers.ProviderStore(this);
+            this._Store = this.CreateStore();
+        }
+        CreateStore(): Providers.BasicProviderStore {
+            return new Providers.BasicProviderStore(this);
         }
 
         GetValue(propd: DependencyProperty): any {

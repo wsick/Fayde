@@ -30,7 +30,7 @@ var Fayde;
                 this._AttachListener(source);
                 if(!Nullstone.Equals(oldValue, newValue)) {
                     var error = new BError();
-                    this._Store._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, oldValue, newValue, false, false, false, error);
+                    this._Store._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, oldValue, newValue, false, error);
                 }
             };
             InheritedDataContextProvider.prototype._AttachListener = function (source) {
@@ -53,17 +53,13 @@ var Fayde;
                             };
             InheritedDataContextProvider.prototype._SourceDataContextChanged = function (sender, args) {
                 var error = new BError();
-                this._Store._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, args.OldValue, args.NewValue, true, false, false, error);
+                this._Store._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, args.OldValue, args.NewValue, true, error);
             };
             InheritedDataContextProvider.prototype.EmitChanged = function () {
                 if(this._Source) {
                     var error = new BError();
-                    this._Store._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, undefined, this._Source._Store.GetValue(Fayde.FrameworkElement.DataContextProperty), true, false, false, error);
+                    this._Store._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, undefined, this._Source._Store.GetValue(Fayde.FrameworkElement.DataContextProperty), true, error);
                 }
-            };
-            InheritedDataContextProvider.prototype.RecomputePropertyValueOnClear = function (propd, error) {
-            };
-            InheritedDataContextProvider.prototype.RecomputePropertyValueOnLower = function (propd, error) {
             };
             return InheritedDataContextProvider;
         })();

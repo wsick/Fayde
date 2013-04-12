@@ -21,8 +21,6 @@ module Fayde.Providers {
     }
     export interface IPropertyProvider {
         GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any;
-        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError);
-        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError);
     }
     export interface IPropertyChangedListener {
         OnPropertyChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs);
@@ -34,6 +32,6 @@ module Fayde.Providers {
         ClearValue(propd: DependencyProperty, notifyListeners?: bool);
         ReadLocalValue(propd: DependencyProperty): any;
         _Object: DependencyObject;
-        _ProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldProviderValue: any, newProviderValue: any, notifyListeners: bool, setParent: bool, mergeNamesOnSetParent: bool, error: BError);
+        _ProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldProviderValue: any, newProviderValue: any, notifyListeners: bool, error: BError);
     }
 }

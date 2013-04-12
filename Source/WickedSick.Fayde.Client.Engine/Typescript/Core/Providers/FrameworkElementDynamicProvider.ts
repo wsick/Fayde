@@ -20,7 +20,5 @@ module Fayde.Providers {
                 return this._ActualWidth;
             return this._ActualHeight;
         }
-        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError) { }
-        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
     }
 }

@@ -22,8 +22,11 @@ var Fayde;
                 _super.call(this);
             this._Expressions = [];
             this._CachedValues = [];
-            this._Store = new Fayde.Providers.ProviderStore(this);
+            this._Store = this.CreateStore();
         }
+        DependencyObject.prototype.CreateStore = function () {
+            return new Fayde.Providers.BasicProviderStore(this);
+        };
         DependencyObject.prototype.GetValue = function (propd) {
             if(!propd) {
                 throw new ArgumentException("No property specified.");

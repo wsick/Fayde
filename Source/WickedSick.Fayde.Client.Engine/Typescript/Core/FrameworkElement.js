@@ -8,6 +8,7 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path="../Runtime/Enumerable.ts" />
 /// <reference path="../Primitives/size.ts" />
 /// <reference path="ResourceDictionary.ts" />
+/// <reference path="Providers/FrameworkProviderStore.ts" />
 var Fayde;
 (function (Fayde) {
     var FENode = (function (_super) {
@@ -73,6 +74,9 @@ var Fayde;
                 writable: false
             });
         }
+        FrameworkElement.prototype.CreateStore = function () {
+            return new Fayde.Providers.FrameworkProviderStore(this);
+        };
         FrameworkElement.prototype.CreateNode = function () {
             return new FENode(this);
         };

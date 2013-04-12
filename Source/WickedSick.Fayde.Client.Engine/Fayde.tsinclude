@@ -40,6 +40,7 @@ Typescript\Core\Providers\ImplicitStyleProvider.ts
 Typescript\Core\Providers\InheritedDataContextProvider.ts
 Typescript\Core\Providers\InheritedIsEnabledProvider.ts
 Typescript\Core\Providers\InheritedProvider.ts
+Typescript\Core\Providers\InheritedProviderStore.ts
 Typescript\Core\Providers\LocalStyleProvider.ts
 Typescript\Data\BindingExpressionBase.ts
 Typescript\Documents\TextElement.ts
@@ -48,6 +49,7 @@ Typescript\Core\DependencyObjectCollection.ts
 Typescript\Core\FrameworkElement.ts
 Typescript\Core\ResourceDictionary.ts
 Typescript\Core\Setter.ts
+Typescript\Core\Providers\FrameworkProviderStore.ts
 Typescript\Documents\Block.ts
 Typescript\Documents\Inline.ts
 Typescript\Documents\Paragraph.ts
@@ -59,3 +61,4 @@ Typescript\Controls\MediaElement.ts
 Typescript\Controls\Panel.ts
 Typescript\Controls\TextBlock.ts
 Typescript\Controls\Primitives\Popup.ts
+Typescript\Core\Providers\ControlProviderStore.ts

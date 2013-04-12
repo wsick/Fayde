@@ -30,7 +30,7 @@ module Fayde.Providers {
                 newValue = setter.ConvertedValue;
                 oldValue = this._ht[propd._ID];
                 this._ht[propd._ID] = newValue;
-                this._Store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, propd, oldValue, newValue, true, true, true, error);
+                this._Store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, propd, oldValue, newValue, true, error);
                 if (error.Message)
                     return;
             }
@@ -59,14 +59,14 @@ module Fayde.Providers {
                     oldValue = oldSetter.ConvertedValue;
                     newValue = undefined;
                     this._ht[oldProp._ID] = undefined;
-                    store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, oldProp, oldValue, newValue, true, true, false, error);
+                    store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, oldProp, oldValue, newValue, true, error);
                     oldSetter = oldWalker.Step();
                 } else if (oldProp === newProp) {
                     //Property in both styles
                     oldValue = oldSetter.ConvertedValue;
                     newValue = newSetter.ConvertedValue;
                     this._ht[oldProp._ID] = newValue;
-                    store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, oldProp, oldValue, newValue, true, true, false, error);
+                    store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, oldProp, oldValue, newValue, true, error);
                     oldSetter = oldWalker.Step();
                     newSetter = newWalker.Step();
                 } else {
@@ -74,13 +74,12 @@ module Fayde.Providers {
                     oldValue = undefined;
                     newValue = newSetter.ConvertedValue;
                     this._ht[newProp._ID] = newValue;
-                    store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, newProp, oldValue, newValue, true, true, false, error);
+                    store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, newProp, oldValue, newValue, true, error);
                     newSetter = newWalker.Step();
                 }
             }
 
             this._Style = style;
         }
-        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
     }
 }

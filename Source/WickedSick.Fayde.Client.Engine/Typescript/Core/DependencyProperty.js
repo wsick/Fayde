@@ -48,7 +48,7 @@ var DependencyProperty = (function () {
         propd.IsReadOnly = isReadOnly === true;
         propd._IsAttached = isAttached === true;
         propd._ID = DependencyProperty._LastID = DependencyProperty._LastID + 1;
-        propd._BitmaskCache = Fayde.Providers.ProviderStore.BuildBitmask(propd);
+        propd._BitmaskCache = Fayde.Providers.BasicProviderStore.BuildBitmask(propd);
         propd._Inheritable = inheritable;
         if(inheritable !== undefined) {
             var i = DependencyProperty._Inherited;

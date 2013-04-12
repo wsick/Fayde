@@ -20,10 +20,6 @@ var Fayde;
                 }
                 return this._ActualHeight;
             };
-            FrameworkElementDynamicProvider.prototype.RecomputePropertyValueOnClear = function (propd, error) {
-            };
-            FrameworkElementDynamicProvider.prototype.RecomputePropertyValueOnLower = function (propd, error) {
-            };
             return FrameworkElementDynamicProvider;
         })();
         Providers.FrameworkElementDynamicProvider = FrameworkElementDynamicProvider;        

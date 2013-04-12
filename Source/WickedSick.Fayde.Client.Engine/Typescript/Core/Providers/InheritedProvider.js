@@ -136,7 +136,7 @@ var Fayde;
                 }
             }
         }
-        /// "this" needs to be scoped to a ProviderStore
+        /// "this" needs to be scoped to a InheritedProviderStore
         function propagateInheritedValue(inheritable, source, newValue) {
             var provider = this._InheritedProvider;
             if(!provider) {
@@ -148,9 +148,9 @@ var Fayde;
                 return false;
             }
             var error = new BError();
-            this._ProviderValueChanged(Providers._PropertyPrecedence.Inherited, propd, undefined, newValue, true, false, false, error);
+            this._ProviderValueChanged(Providers._PropertyPrecedence.Inherited, propd, undefined, newValue, true, error);
         }
-        /// "this" needs to be scoped to a ProviderStore
+        /// "this" needs to be scoped to a InheritedProviderStore
         function getInheritedValueSource(inheritable) {
             var provider = this._InheritedProvider;
             if(provider) {
@@ -297,10 +297,6 @@ var Fayde;
                 } else {
                     this._ht[inheritable] = undefined;
                 }
-            };
-            InheritedProvider.prototype.RecomputePropertyValueOnClear = function (propd, error) {
-            };
-            InheritedProvider.prototype.RecomputePropertyValueOnLower = function (propd, error) {
             };
             return InheritedProvider;
         })();

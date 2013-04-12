@@ -504,8 +504,16 @@
     <TypeScriptCompile Include="Typescript\Core\Providers\InheritedIsEnabledProvider.ts" />
     <TypeScriptCompile Include="Typescript\Core\Providers\InheritedDataContextProvider.ts" />
     <TypeScriptCompile Include="Typescript\Core\Providers\FrameworkElementDynamicProvider.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Providers\ControlProviderStore.ts" />
+    <Content Include="Typescript\Core\Providers\ControlProviderStore.js">
+      <DependentUpon>ControlProviderStore.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\Providers\FrameworkElementDynamicProvider.js">
       <DependentUpon>FrameworkElementDynamicProvider.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\Providers\FrameworkProviderStore.ts" />
+    <Content Include="Typescript\Core\Providers\FrameworkProviderStore.js">
+      <DependentUpon>FrameworkProviderStore.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Core\Providers\InheritedDataContextProvider.js">
       <DependentUpon>InheritedDataContextProvider.ts</DependentUpon>
@@ -523,6 +531,10 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Core\Providers\LocalStyleProvider.ts" />
     <TypeScriptCompile Include="Typescript\Core\Providers\IProviderStore.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Providers\InheritedProviderStore.ts" />
+    <Content Include="Typescript\Core\Providers\InheritedProviderStore.js">
+      <DependentUpon>InheritedProviderStore.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\Providers\IProviderStore.js">
       <DependentUpon>IProviderStore.ts</DependentUpon>
     </Content>

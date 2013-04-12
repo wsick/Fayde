@@ -1,6 +1,7 @@
 /// <reference path="DependencyObject.ts" />
 /// CODE
 /// <reference path="Walkers.ts" />
+/// <reference path="Providers/InheritedProviderStore.ts"/>
 
 module Fayde {
     export class UINode extends XamlNode {
@@ -53,6 +54,10 @@ module Fayde {
     }
     export class UIElement extends DependencyObject {
         XamlNode: UINode;
+        _Store: Providers.InheritedProviderStore;
+        CreateStore() {
+            return new Providers.InheritedProviderStore(this);
+        }
         CreateNode(): XamlNode {
             return new UINode(this);
         }

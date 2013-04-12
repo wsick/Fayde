@@ -7,6 +7,7 @@ var Fayde;
 (function (Fayde) {
     /// <reference path="../Core/FrameworkElement.ts" />
     /// CODE
+    /// <reference path="../Core/Providers/ControlProviderStore.ts" />
     (function (Controls) {
         var Control = (function (_super) {
             __extends(Control, _super);
@@ -14,6 +15,9 @@ var Fayde;
                 _super.apply(this, arguments);
 
             }
+            Control.prototype.CreateStore = function () {
+                return new Fayde.Providers.ControlProviderStore(this);
+            };
             return Control;
         })(Fayde.FrameworkElement);
         Controls.Control = Control;        

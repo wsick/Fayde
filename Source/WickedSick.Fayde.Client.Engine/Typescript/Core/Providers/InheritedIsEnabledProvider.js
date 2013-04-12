@@ -75,14 +75,10 @@ var Fayde;
                     var oldValue = this._CurrentValue;
                     this._CurrentValue = newValue;
                     var error = new BError();
-                    store._ProviderValueChanged(Providers._PropertyPrecedence.IsEnabled, Fayde.Controls.Control.IsEnabledProperty, oldValue, newValue, true, false, false, error);
+                    store._ProviderValueChanged(Providers._PropertyPrecedence.IsEnabled, Fayde.Controls.Control.IsEnabledProperty, oldValue, newValue, true, error);
                     return true;
                 }
                 return false;
-            };
-            InheritedIsEnabledProvider.prototype.RecomputePropertyValueOnClear = function (propd, error) {
-            };
-            InheritedIsEnabledProvider.prototype.RecomputePropertyValueOnLower = function (propd, error) {
             };
             return InheritedIsEnabledProvider;
         })();

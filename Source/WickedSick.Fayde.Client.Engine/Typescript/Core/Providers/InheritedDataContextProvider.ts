@@ -31,7 +31,7 @@ module Fayde.Providers {
 
             if (!Nullstone.Equals(oldValue, newValue)) {
                 var error = new BError();
-                this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, FrameworkElement.DataContextProperty, oldValue, newValue, false, false, false, error);
+                this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, FrameworkElement.DataContextProperty, oldValue, newValue, false, error);
             }
         }
         private _AttachListener(source: FrameworkElement) {
@@ -51,15 +51,13 @@ module Fayde.Providers {
         }
         private _SourceDataContextChanged(sender, args) {
             var error = new BError();
-            this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, FrameworkElement.DataContextProperty, args.OldValue, args.NewValue, true, false, false, error);
+            this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, FrameworkElement.DataContextProperty, args.OldValue, args.NewValue, true, error);
         }
         private EmitChanged() {
             if (this._Source) {
                 var error = new BError();
-                this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, FrameworkElement.DataContextProperty, undefined, this._Source._Store.GetValue(FrameworkElement.DataContextProperty), true, false, false, error);
+                this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, FrameworkElement.DataContextProperty, undefined, this._Source._Store.GetValue(FrameworkElement.DataContextProperty), true, error);
             }
         }
-        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError) { }
-        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
     }
 }

@@ -40,6 +40,7 @@ Core/Providers/ImplicitStyleProvider.js
 Core/Providers/InheritedDataContextProvider.js
 Core/Providers/InheritedIsEnabledProvider.js
 Core/Providers/InheritedProvider.js
+Core/Providers/InheritedProviderStore.js
 Core/Providers/LocalStyleProvider.js
 Data/BindingExpressionBase.js
 Documents/TextElement.js
@@ -48,6 +49,7 @@ Core/DependencyObjectCollection.js
 Core/FrameworkElement.js
 Core/ResourceDictionary.js
 Core/Setter.js
+Core/Providers/FrameworkProviderStore.js
 Documents/Block.js
 Documents/Inline.js
 Documents/Paragraph.js
@@ -59,3 +61,4 @@ Controls/MediaElement.js
 Controls/Panel.js
 Controls/TextBlock.js
 Controls/Primitives/Popup.js
+Core/Providers/ControlProviderStore.js

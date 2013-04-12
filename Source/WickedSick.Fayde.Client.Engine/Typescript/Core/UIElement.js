@@ -6,6 +6,7 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path="DependencyObject.ts" />
 /// CODE
 /// <reference path="Walkers.ts" />
+/// <reference path="Providers/InheritedProviderStore.ts"/>
 var Fayde;
 (function (Fayde) {
     var UINode = (function (_super) {
@@ -60,6 +61,9 @@ var Fayde;
             _super.apply(this, arguments);
 
         }
+        UIElement.prototype.CreateStore = function () {
+            return new Fayde.Providers.InheritedProviderStore(this);
+        };
         UIElement.prototype.CreateNode = function () {
             return new UINode(this);
         };

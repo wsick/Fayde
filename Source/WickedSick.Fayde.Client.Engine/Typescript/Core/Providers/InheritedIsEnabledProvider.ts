@@ -71,12 +71,10 @@ module Fayde.Providers {
                 this._CurrentValue = newValue;
 
                 var error = new BError();
-                store._ProviderValueChanged(_PropertyPrecedence.IsEnabled, Controls.Control.IsEnabledProperty, oldValue, newValue, true, false, false, error);
+                store._ProviderValueChanged(_PropertyPrecedence.IsEnabled, Controls.Control.IsEnabledProperty, oldValue, newValue, true, error);
                 return true;
             }
             return false;
         }
-        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError) { }
-        RecomputePropertyValueOnLower(propd: DependencyProperty, error: BError) { }
     }
 }

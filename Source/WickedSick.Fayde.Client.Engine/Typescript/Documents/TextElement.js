@@ -7,6 +7,8 @@ var Fayde;
 (function (Fayde) {
     /// <reference path="../Core/DependencyObject.ts"/>
     /// CODE
+    /// <reference path="../Core/XamlObjectCollection.ts"/>
+    /// <reference path="../Core/Providers/InheritedProviderStore.ts"/>
     (function (Documents) {
         var TextElementNode = (function (_super) {
             __extends(TextElementNode, _super);
@@ -29,6 +31,9 @@ var Fayde;
                 _super.apply(this, arguments);
 
             }
+            TextElement.prototype.CreateStore = function () {
+                return new Fayde.Providers.InheritedProviderStore(this);
+            };
             TextElement.prototype.CreateNode = function () {
                 return new TextElementNode(this);
             };
