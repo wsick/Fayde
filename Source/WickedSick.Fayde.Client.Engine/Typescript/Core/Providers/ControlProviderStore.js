@@ -33,6 +33,7 @@ var Fayde;
                 _super.prototype._PostProviderValueChanged.call(this, providerPrecedence, propd, oldValue, newValue, notifyListeners, error);
             };
             ControlProviderStore.prototype.SetIsEnabledSource = function (source) {
+                this._InheritedIsEnabledProvider.SetDataSource(source);
             };
             return ControlProviderStore;
         })(Providers.FrameworkProviderStore);

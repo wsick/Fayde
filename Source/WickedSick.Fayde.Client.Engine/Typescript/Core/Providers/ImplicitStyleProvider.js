@@ -6,23 +6,6 @@ var Fayde;
     /// <reference path="../Style.ts" />
     /// <reference path="../Walkers.ts" />
     (function (Providers) {
-        (function (_StyleIndex) {
-            _StyleIndex._map = [];
-            _StyleIndex.VisualTree = 0;
-            _StyleIndex.ApplicationResources = 1;
-            _StyleIndex.GenericXaml = 2;
-            _StyleIndex.Count = 3;
-        })(Providers._StyleIndex || (Providers._StyleIndex = {}));
-        var _StyleIndex = Providers._StyleIndex;
-        (function (_StyleMask) {
-            _StyleMask._map = [];
-            _StyleMask.None = 0;
-            _StyleMask.VisualTree = 1 << _StyleIndex.VisualTree;
-            _StyleMask.ApplicationResources = 1 << _StyleIndex.ApplicationResources;
-            _StyleMask.GenericXaml = 1 << _StyleIndex.GenericXaml;
-            _StyleMask.All = _StyleMask.VisualTree | _StyleMask.ApplicationResources | _StyleMask.GenericXaml;
-        })(Providers._StyleMask || (Providers._StyleMask = {}));
-        var _StyleMask = Providers._StyleMask;
         var ImplicitStyleProvider = (function () {
             function ImplicitStyleProvider(store) {
                 this._ht = [];
@@ -31,7 +14,7 @@ var Fayde;
                     null, 
                     null
                 ];
-                this._StyleMask = _StyleMask.None;
+                this._StyleMask = Providers._StyleMask.None;
                 this._Store = store;
             }
             ImplicitStyleProvider.prototype.GetPropertyValue = function (store, propd) {
@@ -70,18 +53,18 @@ var Fayde;
                     null
                 ];
                 if(this._Styles) {
-                    newStyles[_StyleIndex.GenericXaml] = this._Styles[_StyleIndex.GenericXaml];
-                    newStyles[_StyleIndex.ApplicationResources] = this._Styles[_StyleIndex.ApplicationResources];
-                    newStyles[_StyleIndex.VisualTree] = this._Styles[_StyleIndex.VisualTree];
+                    newStyles[Providers._StyleIndex.GenericXaml] = this._Styles[Providers._StyleIndex.GenericXaml];
+                    newStyles[Providers._StyleIndex.ApplicationResources] = this._Styles[Providers._StyleIndex.ApplicationResources];
+                    newStyles[Providers._StyleIndex.VisualTree] = this._Styles[Providers._StyleIndex.VisualTree];
                 }
-                if(styleMask & _StyleMask.GenericXaml) {
-                    newStyles[_StyleIndex.GenericXaml] = styles[_StyleIndex.GenericXaml];
+                if(styleMask & Providers._StyleMask.GenericXaml) {
+                    newStyles[Providers._StyleIndex.GenericXaml] = styles[Providers._StyleIndex.GenericXaml];
                 }
-                if(styleMask & _StyleMask.ApplicationResources) {
-                    newStyles[_StyleIndex.ApplicationResources] = styles[_StyleIndex.ApplicationResources];
+                if(styleMask & Providers._StyleMask.ApplicationResources) {
+                    newStyles[Providers._StyleIndex.ApplicationResources] = styles[Providers._StyleIndex.ApplicationResources];
                 }
-                if(styleMask & _StyleMask.VisualTree) {
-                    newStyles[_StyleIndex.VisualTree] = styles[_StyleIndex.VisualTree];
+                if(styleMask & Providers._StyleMask.VisualTree) {
+                    newStyles[Providers._StyleIndex.VisualTree] = styles[Providers._StyleIndex.VisualTree];
                 }
                 this._ApplyStyles(this._StyleMask | styleMask, newStyles, error);
             };
@@ -91,21 +74,21 @@ var Fayde;
                 }
                 var newStyles = this._Styles.slice(0);
                 //TODO: Do we need a deep copy?
-                if(styleMask & _StyleMask.GenericXaml) {
-                    newStyles[_StyleIndex.GenericXaml] = null;
+                if(styleMask & Providers._StyleMask.GenericXaml) {
+                    newStyles[Providers._StyleIndex.GenericXaml] = null;
                 }
-                if(styleMask & _StyleMask.ApplicationResources) {
-                    newStyles[_StyleIndex.ApplicationResources] = null;
+                if(styleMask & Providers._StyleMask.ApplicationResources) {
+                    newStyles[Providers._StyleIndex.ApplicationResources] = null;
                 }
-                if(styleMask & _StyleMask.VisualTree) {
-                    newStyles[_StyleIndex.VisualTree] = null;
+                if(styleMask & Providers._StyleMask.VisualTree) {
+                    newStyles[Providers._StyleIndex.VisualTree] = null;
                 }
                 this._ApplyStyles(this._StyleMask & ~styleMask, newStyles, error);
             };
             ImplicitStyleProvider.prototype._ApplyStyles = function (styleMask, styles, error) {
                 var isChanged = !this._Styles || styleMask !== this._StyleMask;
                 if(!isChanged) {
-                    for(var i = 0; i < _StyleIndex.Count; i++) {
+                    for(var i = 0; i < Providers._StyleIndex.Count; i++) {
                         if(styles[i] !== this._Styles[i]) {
                             isChanged = true;
                             break;

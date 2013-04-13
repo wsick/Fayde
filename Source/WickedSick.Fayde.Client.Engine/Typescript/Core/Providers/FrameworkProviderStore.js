@@ -7,6 +7,7 @@ var Fayde;
 (function (Fayde) {
     /// <reference path="InheritedProviderStore.ts" />
     /// CODE
+    /// <reference path="../FrameworkElement.ts" />
     (function (Providers) {
         var FrameworkProviderStore = (function (_super) {
             __extends(FrameworkProviderStore, _super);
@@ -24,15 +25,20 @@ var Fayde;
                 this._DefaultValueProvider = this._Providers[7] = providerArr[7];
                 this._AutoCreateProvider = this._Providers[8] = providerArr[8];
             };
-            FrameworkProviderStore.prototype.SetImplicitStyles = function (styleMask, styles) {
+            FrameworkProviderStore.prototype.SetImplicitStyles = function (styleMask, styles, error) {
+                this._ImplicitStyleProvider.SetStyles(styleMask, styles, error);
             };
-            FrameworkProviderStore.prototype.ClearImplicitStyles = function (styleMask) {
+            FrameworkProviderStore.prototype.ClearImplicitStyles = function (styleMask, error) {
+                this._ImplicitStyleProvider.ClearStyles(styleMask, error);
             };
-            FrameworkProviderStore.prototype.SetLocalStyle = function () {
+            FrameworkProviderStore.prototype.SetLocalStyle = function (style, error) {
+                this._LocalStyleProvider.UpdateStyle(style, error);
             };
             FrameworkProviderStore.prototype.EmitDataContextChanged = function () {
+                this._InheritedDataContextProvider.EmitChanged();
             };
             FrameworkProviderStore.prototype.SetDataContextSource = function (source) {
+                this._InheritedDataContextProvider.SetDataSource(source);
             };
             return FrameworkProviderStore;
         })(Providers.InheritedProviderStore);

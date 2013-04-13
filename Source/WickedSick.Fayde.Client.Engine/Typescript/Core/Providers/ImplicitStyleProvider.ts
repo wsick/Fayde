@@ -5,19 +5,6 @@
 /// <reference path="../Walkers.ts" />
 
 module Fayde.Providers {
-    export enum _StyleIndex {
-        VisualTree = 0,
-        ApplicationResources = 1,
-        GenericXaml = 2,
-        Count = 3,
-    }
-    export enum _StyleMask {
-        None = 0,
-        VisualTree = 1 << _StyleIndex.VisualTree,
-        ApplicationResources = 1 << _StyleIndex.ApplicationResources,
-        GenericXaml = 1 << _StyleIndex.GenericXaml,
-        All = _StyleMask.VisualTree | _StyleMask.ApplicationResources | _StyleMask.GenericXaml,
-    }
     export class ImplicitStyleProvider implements IPropertyProvider {
         private _ht: any[] = [];
         private _Styles: any[] = [null, null, null];

@@ -4,6 +4,7 @@
 module Fayde.Providers {
     export interface IInheritedIsEnabledProvider extends IPropertyProvider {
         LocalValueChanged(propd?: DependencyProperty): bool;
+        SetDataSource(source: DependencyObject);
     }
 
     export class ControlProviderStore extends FrameworkProviderStore {
@@ -37,7 +38,8 @@ module Fayde.Providers {
             super._PostProviderValueChanged(providerPrecedence, propd, oldValue, newValue, notifyListeners, error);
         }
 
-        SetIsEnabledSource(source) {
+        SetIsEnabledSource(source: DependencyObject) {
+            this._InheritedIsEnabledProvider.SetDataSource(source);
         }
     }
 }

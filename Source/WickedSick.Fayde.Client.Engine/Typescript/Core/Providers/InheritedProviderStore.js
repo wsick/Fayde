@@ -34,9 +34,11 @@ var Fayde;
                     }
                 }
             };
-            InheritedProviderStore.prototype.PropagateInheritedOnAdd = function () {
+            InheritedProviderStore.prototype.PropagateInheritedOnAdd = function (subtree) {
+                this._InheritedProvider.PropagateInheritedPropertiesOnAddingToTree(this, subtree);
             };
-            InheritedProviderStore.prototype.ClearInheritedOnRemove = function () {
+            InheritedProviderStore.prototype.ClearInheritedOnRemove = function (subtree) {
+                this._InheritedProvider.ClearInheritedPropertiesOnRemovingFromTree(this, subtree);
             };
             return InheritedProviderStore;
         })(Providers.BasicProviderStore);

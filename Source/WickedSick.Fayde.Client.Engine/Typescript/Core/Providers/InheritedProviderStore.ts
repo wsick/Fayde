@@ -4,6 +4,8 @@
 module Fayde.Providers {
     export interface IInheritedProvider extends IPropertyProvider {
         PropagateInheritedProperty(store: IProviderStore, propd: DependencyProperty, source: DependencyObject, subtree: DependencyObject);
+        PropagateInheritedPropertiesOnAddingToTree(store: IProviderStore, subtree: DependencyObject);
+        ClearInheritedPropertiesOnRemovingFromTree(store: IProviderStore, subtree: DependencyObject);
     }
 
     export class InheritedProviderStore extends BasicProviderStore {
@@ -33,9 +35,11 @@ module Fayde.Providers {
             }
         }
 
-        PropagateInheritedOnAdd() {
+        PropagateInheritedOnAdd(subtree: DependencyObject) {
+            this._InheritedProvider.PropagateInheritedPropertiesOnAddingToTree(this, subtree);
         }
-        ClearInheritedOnRemove() {
+        ClearInheritedOnRemove(subtree: DependencyObject) {
+            this._InheritedProvider.ClearInheritedPropertiesOnRemovingFromTree(this, subtree);
         }
     }
 }
