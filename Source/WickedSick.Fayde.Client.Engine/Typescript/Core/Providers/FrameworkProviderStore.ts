@@ -3,6 +3,8 @@
 /// <reference path="../FrameworkElement.ts" />
 
 module Fayde.Providers {
+    declare var App;
+
     export interface ILocalStylesProvider extends IPropertyProvider {
         UpdateStyle(style: Style, error: BError);
     }
@@ -37,10 +39,30 @@ module Fayde.Providers {
         private _DefaultValueProvider: DefaultValueProvider;
         private _AutoCreateProvider: AutoCreateProvider;
 
-        SetImplicitStyles(styleMask: _StyleMask, styles: Style[], error: BError) {
+        SetImplicitStyles(styleMask: _StyleMask, styles?: Style[]) {
+            var app = (<any>App).Instance;
+            if (!app)
+                return;
+            if (!styles)
+                styles = app._GetImplicitStyles(this, styleMask);
+            var error = new BError();
+            if (styles) {
+                for (var i = 0; i < Providers._StyleIndex.Count; i++) {
+                    var style = styles[i];
+                    if (!style)
+                        continue;
+                    if (!style.Validate(this._Object, FrameworkElement.StyleProperty, error)) {
+                        error.ThrowException();
+                        //Warn("Style validation failed. [" + error.Message + "]");
+                        return;
+                    }
+                }
+            }
+
             this._ImplicitStyleProvider.SetStyles(styleMask, styles, error);
         }
-        ClearImplicitStyles(styleMask: _StyleMask, error: BError) {
+        ClearImplicitStyles(styleMask: _StyleMask) {
+            var error = new BError();
             this._ImplicitStyleProvider.ClearStyles(styleMask, error);
         }
         SetLocalStyle(style: Style, error: BError) {

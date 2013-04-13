@@ -25,10 +25,32 @@ var Fayde;
                 this._DefaultValueProvider = this._Providers[7] = providerArr[7];
                 this._AutoCreateProvider = this._Providers[8] = providerArr[8];
             };
-            FrameworkProviderStore.prototype.SetImplicitStyles = function (styleMask, styles, error) {
+            FrameworkProviderStore.prototype.SetImplicitStyles = function (styleMask, styles) {
+                var app = (App).Instance;
+                if(!app) {
+                    return;
+                }
+                if(!styles) {
+                    styles = app._GetImplicitStyles(this, styleMask);
+                }
+                var error = new BError();
+                if(styles) {
+                    for(var i = 0; i < Fayde.Providers._StyleIndex.Count; i++) {
+                        var style = styles[i];
+                        if(!style) {
+                            continue;
+                        }
+                        if(!style.Validate(this._Object, Fayde.FrameworkElement.StyleProperty, error)) {
+                            error.ThrowException();
+                            //Warn("Style validation failed. [" + error.Message + "]");
+                            return;
+                        }
+                    }
+                }
                 this._ImplicitStyleProvider.SetStyles(styleMask, styles, error);
             };
-            FrameworkProviderStore.prototype.ClearImplicitStyles = function (styleMask, error) {
+            FrameworkProviderStore.prototype.ClearImplicitStyles = function (styleMask) {
+                var error = new BError();
                 this._ImplicitStyleProvider.ClearStyles(styleMask, error);
             };
             FrameworkProviderStore.prototype.SetLocalStyle = function (style, error) {

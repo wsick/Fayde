@@ -10,4 +10,11 @@ class Nullstone {
             return val1.Equals(val2);
         return false;
     }
+    static DoesInheritFrom(t: Function, type: Function) {
+        var temp = t;
+        while (temp && temp !== type) {
+            temp = (<any>temp)._BaseClass;
+        }
+        return temp != null;
+    }
 }

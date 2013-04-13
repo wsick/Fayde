@@ -33,10 +33,14 @@ var Fayde;
         };
         FENode.prototype.OnIsLoadedChanged = function (newIsLoaded) {
             var res = this.XObject.Resources;
+            var store = this.XObject._Store;
             if(!newIsLoaded) {
+                store.ClearImplicitStyles(Fayde.Providers._StyleMask.VisualTree);
                 //Raise unloaded event
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
-                            }
+                            } else {
+                store.SetImplicitStyles(Fayde.Providers._StyleMask.All);
+            }
             var enumerator = this.GetVisualTreeEnumerator();
             while(enumerator.MoveNext()) {
                 (enumerator.Current).SetIsLoaded(newIsLoaded);
@@ -44,7 +48,23 @@ var Fayde;
             if(newIsLoaded) {
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
                 //Raise loaded event
-                            }
+                this.XObject.InvokeLoaded();
+                store.EmitDataContextChanged();
+            }
+        };
+        FENode.prototype.OnParentChanged = function (oldParentNode, newParentNode) {
+            var store = this.XObject._Store;
+            var visualParentNode;
+            if(newParentNode && newParentNode instanceof FENode) {
+                store.SetDataContextSource(newParentNode.XObject);
+            } else if((visualParentNode = this.VisualParentNode) && visualParentNode instanceof FENode) {
+                store.SetDataContextSource(visualParentNode.XObject);
+            } else {
+                store.SetDataContextSource(null);
+            }
+            if(this.IsLoaded) {
+                store.EmitDataContextChanged();
+            }
         };
         FENode.prototype.OnIsAttachedChanged = function (newIsAttached) {
             if(this.SubtreeNode) {
@@ -82,6 +102,8 @@ var Fayde;
         };
         FrameworkElement.prototype._ComputeActualSize = function () {
             return new size();
+        };
+        FrameworkElement.prototype.InvokeLoaded = function () {
         };
         return FrameworkElement;
     })(Fayde.UIElement);

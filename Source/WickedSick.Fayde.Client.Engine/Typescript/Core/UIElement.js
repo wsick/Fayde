@@ -30,7 +30,7 @@ var Fayde;
             uie.XamlNode.VisualParentNode = this;
             //Update uie Total Render+HitTest Visibility
             //Invalidate uie
-            //Propagate inherited props on adding to tree
+            this.XObject._Store.PropagateInheritedOnAdd(uie);
             //set loaded to this.IsLoaded
             //Update this Bounds(true)
             //Invalidate this measure
@@ -50,8 +50,8 @@ var Fayde;
             //LayoutInformation.SetLayoutSlot(uie, emptySlot);
             //LayoutInformation.SetLayoutClip(uie, undefined);
             //Invalidate this measure
-            //Clear inherited properties on removing from tree
-                    };
+            this.XObject._Store.ClearInheritedOnRemove(uie);
+        };
         return UINode;
     })(Fayde.XamlNode);
     Fayde.UINode = UINode;    

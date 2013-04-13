@@ -28,9 +28,13 @@ module Fayde {
         }
         OnIsLoadedChanged(newIsLoaded: bool) {
             var res = this.XObject.Resources;
+            var store = this.XObject._Store;
             if (!newIsLoaded) {
+                store.ClearImplicitStyles(Providers._StyleMask.VisualTree);
                 //Raise unloaded event
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
+            } else {
+                store.SetImplicitStyles(Providers._StyleMask.All);
             }
             var enumerator = this.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {
@@ -39,7 +43,23 @@ module Fayde {
             if (newIsLoaded) {
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
                 //Raise loaded event
+                this.XObject.InvokeLoaded();
+                store.EmitDataContextChanged();
             }
+        }
+
+        OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
+            var store = this.XObject._Store;
+            var visualParentNode: FENode;
+            if (newParentNode && newParentNode instanceof FENode)
+                store.SetDataContextSource(<FrameworkElement>newParentNode.XObject);
+            else if ((visualParentNode = <FENode>this.VisualParentNode) && visualParentNode instanceof FENode)
+                store.SetDataContextSource(visualParentNode.XObject);
+            else
+                store.SetDataContextSource(null);
+
+            if (this.IsLoaded)
+                store.EmitDataContextChanged();
         }
 
         OnIsAttachedChanged(newIsAttached: bool) {
@@ -76,9 +96,13 @@ module Fayde {
         static DataContextProperty: DependencyProperty;
         static ActualWidthProperty: DependencyProperty;
         static ActualHeightProperty: DependencyProperty;
+        static StyleProperty: DependencyProperty;
 
         _ComputeActualSize(): size {
             return new size();
+        }
+
+        InvokeLoaded() {
         }
     }
 }

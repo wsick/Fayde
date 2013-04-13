@@ -90,7 +90,9 @@ var Fayde;
                 }
                 this._OwnerNameScope = parentScope;
             }
+            var old = this.ParentNode;
             this.ParentNode = parentNode;
+            this.OnParentChanged(old, parentNode);
             return true;
         };
         XamlNode.prototype.Detach = function () {
@@ -103,7 +105,11 @@ var Fayde;
             }
             this.SetIsAttached(false);
             this._OwnerNameScope = null;
+            var old = this.ParentNode;
             this.ParentNode = null;
+            this.OnParentChanged(old, null);
+        };
+        XamlNode.prototype.OnParentChanged = function (oldParentNode, newParentNode) {
         };
         XamlNode.prototype.GetInheritedEnumerator = function () {
             return undefined;

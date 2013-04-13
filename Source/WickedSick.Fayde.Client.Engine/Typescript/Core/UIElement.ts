@@ -9,7 +9,9 @@ module Fayde {
         constructor(xobj: UIElement) {
             super(xobj);
         }
+
         VisualParentNode: UINode;
+
         GetInheritedEnumerator(): IEnumerator {
             return this.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
         }
@@ -27,7 +29,7 @@ module Fayde {
             uie.XamlNode.VisualParentNode = this;
             //Update uie Total Render+HitTest Visibility
             //Invalidate uie
-            //Propagate inherited props on adding to tree
+            this.XObject._Store.PropagateInheritedOnAdd(uie);
             //set loaded to this.IsLoaded
             //Update this Bounds(true)
             //Invalidate this measure
@@ -49,7 +51,7 @@ module Fayde {
 
             //Invalidate this measure
 
-            //Clear inherited properties on removing from tree
+            this.XObject._Store.ClearInheritedOnRemove(uie);
         }
     }
     export class UIElement extends DependencyObject {

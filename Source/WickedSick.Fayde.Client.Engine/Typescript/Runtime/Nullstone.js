@@ -15,6 +15,13 @@ var Nullstone = (function () {
         }
         return false;
     };
+    Nullstone.DoesInheritFrom = function DoesInheritFrom(t, type) {
+        var temp = t;
+        while(temp && temp !== type) {
+            temp = (temp)._BaseClass;
+        }
+        return temp != null;
+    };
     return Nullstone;
 })();
 //@ sourceMappingURL=Nullstone.js.map

@@ -97,7 +97,9 @@ module Fayde {
                 this._OwnerNameScope = parentScope;
             }
 
+            var old = this.ParentNode;
             this.ParentNode = parentNode;
+            this.OnParentChanged(old, parentNode);
             return true;
         }
         Detach() {
@@ -108,8 +110,11 @@ module Fayde {
             }
             this.SetIsAttached(false);
             this._OwnerNameScope = null;
+            var old = this.ParentNode;
             this.ParentNode = null;
+            this.OnParentChanged(old, null);
         }
+        OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) { }
 
         GetInheritedEnumerator(): IEnumerator { return undefined; }
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator { return undefined; }
