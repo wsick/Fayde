@@ -138,7 +138,7 @@ module Fayde.Providers {
 
             var isValidOut = { IsValid: false };
             value = propd.ValidateSetValue(this._Object, value, isValidOut);
-            if (!isValidOut)
+            if (!isValidOut.IsValid)
                 return;
 
             var currentValue;

@@ -25,7 +25,19 @@ var Fayde;
             this._Store = this.CreateStore();
         }
         DependencyObject.prototype.CreateStore = function () {
-            return new Fayde.Providers.BasicProviderStore(this);
+            var s = new Fayde.Providers.BasicProviderStore(this);
+            s.SetProviders([
+                null, 
+                new Fayde.Providers.LocalValueProvider(), 
+                null, 
+                null, 
+                null, 
+                null, 
+                null, 
+                new Fayde.Providers.DefaultValueProvider(), 
+                new Fayde.Providers.AutoCreateProvider()
+            ]);
+            return s;
         };
         DependencyObject.prototype.GetValue = function (propd) {
             if(!propd) {

@@ -4,6 +4,7 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 /// <reference path="DependencyObject.ts" />
+/// <reference path="Providers/Enums.ts" />
 /// CODE
 /// <reference path="Walkers.ts" />
 /// <reference path="Providers/InheritedProviderStore.ts"/>
@@ -62,11 +63,26 @@ var Fayde;
 
         }
         UIElement.prototype.CreateStore = function () {
-            return new Fayde.Providers.InheritedProviderStore(this);
+            var s = new Fayde.Providers.InheritedProviderStore(this);
+            s.SetProviders([
+                null, 
+                new Fayde.Providers.LocalValueProvider(), 
+                null, 
+                null, 
+                null, 
+                new Fayde.Providers.InheritedProvider(), 
+                null, 
+                new Fayde.Providers.DefaultValueProvider(), 
+                new Fayde.Providers.AutoCreateProvider()
+            ]);
+            return s;
         };
         UIElement.prototype.CreateNode = function () {
             return new UINode(this);
         };
+        UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () {
+            return Boolean;
+        }, UIElement, true, undefined, undefined, Fayde.Providers._Inheritable.UseLayoutRounding);
         return UIElement;
     })(Fayde.DependencyObject);
     Fayde.UIElement = UIElement;    

@@ -18,6 +18,13 @@ DependencyObject - LocalValue, DefaultValue, AutoCreate
 		FrameworkElement - DynamicValue, LocalStyle, ImplicitStyle, DataContext
 			Control - IsEnabled
 
+FrameworkElementDynamicProvider --> ComputeActualSize Dependencies
+	Visibility
+	VisualParent
+	IsLayoutContainer
+		RenderSize
+
+
 1. Metrics - Manages bounds
 2. Xformer - Manages transforms
 3. UpdateMetrics - Holds cache of metrics used during update

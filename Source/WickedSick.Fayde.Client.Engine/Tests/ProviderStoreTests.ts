@@ -1,14 +1,15 @@
 /// <reference path="qunit-1.10.0.d.ts" />
 /// <reference path="../Typescript/Core/DependencyObject.ts" />
 /// <reference path="../Typescript/Core/Providers/BasicProviderStore.ts" />
+/// <reference path="../Typescript/Core/UIElement.ts" />
+/// <reference path="../Typescript/Core/Providers/InheritedProvider.ts" />
 
-var Mock1Property = DependencyProperty.RegisterFull("Mock1", () => { return String; }, Fayde.DependencyObject, undefined, undefined, { GetValue: () => { return "AutoCreated"; } });
+var Mock1Property = DependencyProperty.RegisterFull("Mock1", () =>{ return String; }, Fayde.DependencyObject, undefined, undefined, { GetValue: () => { return "AutoCreated"; } });
 var Mock2Property = DependencyProperty.RegisterFull("Mock2", () => { return String; }, Fayde.DependencyObject, "Default");
 
 test("ProviderStoreTests.BasicProvider", () => {
     var d = new Fayde.DependencyObject();
     var store = d._Store;
-    store.SetProviders([null, new Fayde.Providers.LocalValueProvider(), null, null, null, null, null, new Fayde.Providers.DefaultValueProvider(), new Fayde.Providers.AutoCreateProvider()]);
 
     var val;
 
@@ -37,4 +38,28 @@ test("ProviderStoreTests.BasicProvider", () => {
     val = store.ClearValue(Mock2Property);
     val = store.GetValue(Mock2Property);
     strictEqual(val, "Default", "GetValue (Mock2) after ClearValue should revert to using default value provider.");
+});
+
+test("ProviderStoreTests.InheritedProviderStore", () => {
+    var root = new Fayde.FrameworkElement();
+    var rootStore = root._Store;
+    var child = new Fayde.FrameworkElement();
+    var childStore = child._Store;
+
+    rootStore.SetValue(Fayde.UIElement.UseLayoutRoundingProperty, false);
+
+    var val;
+    val = childStore.GetValue(Fayde.UIElement.UseLayoutRoundingProperty);
+    strictEqual(val, true, "Inherited property that hasn't been propagated should default to true.");
+
+    try {
+        root.XamlNode.SetSubtreeNode(child.XamlNode);
+        ok(true, "Attaching child to root should not fail.");
+    } catch (err) {
+        ok(false, "Attaching child to root should not fail.");
+        return;
+    }
+    root.XamlNode._ElementAdded(child);
+    val = childStore.GetValue(Fayde.UIElement.UseLayoutRoundingProperty);
+    strictEqual(val, false, "Inherited property should be propagated from root to false.");
 });

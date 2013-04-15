@@ -1,11 +1,13 @@
 /// <reference path="IProviderStore.ts" />
 /// CODE
 /// <reference path="../FrameworkElement.ts" />
+/// <reference path="../PropertyChangedListener.ts" />
 
 module Fayde.Providers {
     export class InheritedDataContextProvider implements IPropertyProvider {
         private _Source: FrameworkElement;
         private _Store: IProviderStore;
+        private _Listener = null;
         constructor(store: IProviderStore) {
             this._Store = store;
         }
@@ -37,21 +39,26 @@ module Fayde.Providers {
         private _AttachListener(source: FrameworkElement) {
             if (!source)
                 return;
-            var matchFunc = function (sender, args) {
-                return this === args.Property; //Closure - FrameworkElement.DataContextProperty
-            };
-            (<any>source).PropertyChanged.SubscribeSpecific(this._SourceDataContextChanged, this, matchFunc, FrameworkElement.DataContextProperty);
+            var listener = Fayde.CreatePropertyChangedListener(this._SourceDataContextChanged, this);
+            this._Listener = listener;
+            source._Store._SubscribePropertyChanged(listener);
             //TODO: Add Handler - Destroyed Event
         }
         private _DetachListener(source: FrameworkElement) {
             if (!source)
                 return;
-            (<any>source).PropertyChanged.Unsubscribe(this._SourceDataContextChanged, this, FrameworkElement.DataContextProperty);
+            if (this._Listener) {
+                source._Store._UnsubscribePropertyChanged(this._Listener);
+                this._Listener = null;
+            }
             //TODO: Remove Handler - Destroyed Event
         }
         private _SourceDataContextChanged(sender, args) {
+            var propd = args.Property;
+            if (propd !== FrameworkElement.DataContextProperty)
+                return;
             var error = new BError();
-            this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, FrameworkElement.DataContextProperty, args.OldValue, args.NewValue, true, error);
+            this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, propd, args.OldValue, args.NewValue, true, error);
         }
         private EmitChanged() {
             if (this._Source) {

@@ -9,6 +9,7 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path="../Primitives/size.ts" />
 /// <reference path="ResourceDictionary.ts" />
 /// <reference path="Providers/FrameworkProviderStore.ts" />
+/// <reference path="Providers/InheritedDataContextProvider.ts" />
 var Fayde;
 (function (Fayde) {
     var FENode = (function (_super) {
@@ -95,11 +96,35 @@ var Fayde;
             });
         }
         FrameworkElement.prototype.CreateStore = function () {
-            return new Fayde.Providers.FrameworkProviderStore(this);
+            var s = new Fayde.Providers.FrameworkProviderStore(this);
+            s.SetProviders([
+                null, 
+                new Fayde.Providers.LocalValueProvider(), 
+                null, 
+                null, 
+                null, 
+                new Fayde.Providers.InheritedProvider(), 
+                new Fayde.Providers.InheritedDataContextProvider(s), 
+                new Fayde.Providers.DefaultValueProvider(), 
+                new Fayde.Providers.AutoCreateProvider()
+            ]);
+            return s;
         };
         FrameworkElement.prototype.CreateNode = function () {
             return new FENode(this);
         };
+        FrameworkElement.ActualHeightProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", function () {
+            return Number;
+        }, FrameworkElement);
+        FrameworkElement.ActualWidthProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", function () {
+            return Number;
+        }, FrameworkElement);
+        FrameworkElement.DataContextProperty = DependencyProperty.RegisterCore("DataContext", function () {
+            return Object;
+        }, FrameworkElement);
+        FrameworkElement.StyleProperty = DependencyProperty.RegisterCore("Style", function () {
+            return Fayde.Style;
+        }, FrameworkElement);
         FrameworkElement.prototype._ComputeActualSize = function () {
             return new size();
         };

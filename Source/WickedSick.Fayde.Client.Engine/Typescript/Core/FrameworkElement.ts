@@ -4,6 +4,7 @@
 /// <reference path="../Primitives/size.ts" />
 /// <reference path="ResourceDictionary.ts" />
 /// <reference path="Providers/FrameworkProviderStore.ts" />
+/// <reference path="Providers/InheritedDataContextProvider.ts" />
 
 module Fayde {
     export class FENode extends UINode {
@@ -77,6 +78,7 @@ module Fayde {
     }
 
     export class FrameworkElement extends UIElement {
+        XamlNode: FENode;
         Resources: ResourceDictionary;
         constructor() {
             super();
@@ -87,16 +89,18 @@ module Fayde {
         }
         _Store: Providers.FrameworkProviderStore;
         CreateStore() {
-            return new Providers.FrameworkProviderStore(this);
+            var s = new Providers.FrameworkProviderStore(this);
+            s.SetProviders([null, new Fayde.Providers.LocalValueProvider(), null, null, null, new Fayde.Providers.InheritedProvider(), new Fayde.Providers.InheritedDataContextProvider(s), new Fayde.Providers.DefaultValueProvider(), new Fayde.Providers.AutoCreateProvider()]);
+            return s;
         }
         CreateNode(): XamlNode {
             return new FENode(this);
         }
 
-        static DataContextProperty: DependencyProperty;
-        static ActualWidthProperty: DependencyProperty;
-        static ActualHeightProperty: DependencyProperty;
-        static StyleProperty: DependencyProperty;
+        static ActualHeightProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", function () { return Number; }, FrameworkElement);
+        static ActualWidthProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", function () { return Number; }, FrameworkElement);
+        static DataContextProperty = DependencyProperty.RegisterCore("DataContext", function () { return Object; }, FrameworkElement);
+        static StyleProperty = DependencyProperty.RegisterCore("Style", function () { return Style; }, FrameworkElement);
 
         _ComputeActualSize(): size {
             return new size();

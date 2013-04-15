@@ -505,8 +505,16 @@
     <TypeScriptCompile Include="Typescript\Core\Providers\InheritedDataContextProvider.ts" />
     <TypeScriptCompile Include="Typescript\Core\Providers\FrameworkElementDynamicProvider.ts" />
     <TypeScriptCompile Include="Typescript\Core\Providers\ControlProviderStore.ts" />
+    <TypeScriptCompile Include="Typescript\Core\PropertyChangedListener.ts" />
+    <Content Include="Typescript\Core\PropertyChangedListener.js">
+      <DependentUpon>PropertyChangedListener.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\Providers\ControlProviderStore.js">
       <DependentUpon>ControlProviderStore.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\Providers\Enums.ts" />
+    <Content Include="Typescript\Core\Providers\Enums.js">
+      <DependentUpon>Enums.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Core\Providers\FrameworkElementDynamicProvider.js">
       <DependentUpon>FrameworkElementDynamicProvider.ts</DependentUpon>

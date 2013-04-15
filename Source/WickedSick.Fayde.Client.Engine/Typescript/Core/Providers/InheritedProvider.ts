@@ -1,5 +1,6 @@
 /// <reference path="IProviderStore.ts" />
 /// CODE
+/// <reference path="Enums.ts" />
 /// <reference path="../../Controls/Image.ts" />
 /// <reference path="../../Controls/MediaElement.ts" />
 
@@ -126,7 +127,7 @@ module Fayde.Providers {
             return true;
 
         provider._SetPropertySource(inheritable, source);
-        var propd = getProperty(inheritable, this);
+        var propd = getProperty(inheritable, this._Object);
         if (!propd)
             return false;
 
@@ -139,27 +140,13 @@ module Fayde.Providers {
         if (provider)
             return provider._GetPropertySource(inheritable);
     }
-    export enum _Inheritable {
-        Foreground = 1 << 0,
-        FontFamily = 1 << 1,
-        FontStretch = 1 << 2,
-        FontStyle = 1 << 3,
-        FontWeight = 1 << 4,
-        FontSize = 1 << 5,
-        Language = 1 << 6,
-        FlowDirection = 1 << 7,
-        UseLayoutRounding = 1 << 8,
-        TextDecorations = 1 << 9,
-        All = 0x7ff,
-        None = 0,
-    }
     export class InheritedProvider implements IPropertyProvider {
         private _ht: DependencyObject[] = [];
         GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
-            if (!getInheritable(store._Object, propd))
+            var inheritable = getInheritable(store._Object, propd);
+            if (!inheritable)
                 return undefined;
 
-            var inheritable = getInheritable(store._Object, propd);
             var ancestor = this._GetPropertySource(inheritable);
             if (!ancestor)
                 return undefined;
@@ -167,10 +154,7 @@ module Fayde.Providers {
             var ancestorPropd = getProperty(inheritable, ancestor);
             if (!ancestorPropd)
                 return undefined;
-            var v = ancestor.GetValue(ancestorPropd);
-            if (v)
-                return v;
-            return undefined;
+            return ancestor.GetValue(ancestorPropd);
         }
         WalkSubtree(rootParent: DependencyObject, element: DependencyObject, context: _InheritedContext, props, adding) {
             var enumerator = element.XamlNode.GetInheritedEnumerator();
@@ -230,7 +214,7 @@ module Fayde.Providers {
 
             var sourceProperty = getProperty(prop, source);
             var value = source.GetValue(sourceProperty);
-            if (value)
+            if (value !== undefined)
                 propagateInheritedValue.call(element._Store, prop, source, value);
         }
         MaybeRemoveInheritedValue(source: DependencyObject, prop, props, element: DependencyObject) {

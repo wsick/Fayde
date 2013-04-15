@@ -1,10 +1,12 @@
 Typescript\Core\DependencyProperty.ts
 Typescript\Core\Expression.ts
 Typescript\Core\NameScope.ts
+Typescript\Core\PropertyChangedListener.ts
 Typescript\Core\TypeConverter.ts
 Typescript\Core\Walkers.ts
 Typescript\Core\XamlNode.ts
 Typescript\Core\XamlObject.ts
+Typescript\Core\Providers\Enums.ts
 Typescript\Core\Providers\IProviderStore.ts
 Typescript\Data\Enums.ts
 Typescript\Engine\Exceptions.ts

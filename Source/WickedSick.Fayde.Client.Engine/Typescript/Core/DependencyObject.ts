@@ -18,7 +18,9 @@ module Fayde {
             this._Store = this.CreateStore();
         }
         CreateStore(): Providers.BasicProviderStore {
-            return new Providers.BasicProviderStore(this);
+            var s = new Providers.BasicProviderStore(this);
+            s.SetProviders([null, new Fayde.Providers.LocalValueProvider(), null, null, null, null, null, new Fayde.Providers.DefaultValueProvider(), new Fayde.Providers.AutoCreateProvider()]);
+            return s;
         }
 
         GetValue(propd: DependencyProperty): any {

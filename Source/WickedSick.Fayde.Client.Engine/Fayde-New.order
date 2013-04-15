@@ -1,10 +1,12 @@
 Core/DependencyProperty.js
 Core/Expression.js
 Core/NameScope.js
+Core/PropertyChangedListener.js
 Core/TypeConverter.js
 Core/Walkers.js
 Core/XamlNode.js
 Core/XamlObject.js
+Core/Providers/Enums.js
 Core/Providers/IProviderStore.js
 Data/Enums.js
 Engine/Exceptions.js

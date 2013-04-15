@@ -2,6 +2,7 @@ var Fayde;
 (function (Fayde) {
     /// <reference path="IProviderStore.ts" />
     /// CODE
+    /// <reference path="Enums.ts" />
     /// <reference path="../../Controls/Image.ts" />
     /// <reference path="../../Controls/MediaElement.ts" />
     (function (Providers) {
@@ -23,79 +24,79 @@ var Fayde;
             };
             _InheritedContext.FromObject = function FromObject(dobj, parentContext) {
                 var ic = new _InheritedContext();
-                ic.ForegroundSource = ic.GetLocalSource(dobj, _Inheritable.Foreground);
+                ic.ForegroundSource = ic.GetLocalSource(dobj, Providers._Inheritable.Foreground);
                 if(!ic.ForegroundSource && parentContext) {
                     ic.ForegroundSource = parentContext.ForegroundSource;
                 }
-                ic.FontFamilySource = ic.GetLocalSource(dobj, _Inheritable.FontFamily);
+                ic.FontFamilySource = ic.GetLocalSource(dobj, Providers._Inheritable.FontFamily);
                 if(!ic.FontFamilySource && parentContext) {
                     ic.FontFamilySource = parentContext.FontFamilySource;
                 }
-                ic.FontStretchSource = ic.GetLocalSource(dobj, _Inheritable.FontStretch);
+                ic.FontStretchSource = ic.GetLocalSource(dobj, Providers._Inheritable.FontStretch);
                 if(!ic.FontStretchSource && parentContext) {
                     ic.FontStretchSource = parentContext.FontStretchSource;
                 }
-                ic.FontStyleSource = ic.GetLocalSource(dobj, _Inheritable.FontStyle);
+                ic.FontStyleSource = ic.GetLocalSource(dobj, Providers._Inheritable.FontStyle);
                 if(!ic.FontStretchSource && parentContext) {
                     ic.FontStretchSource = parentContext.FontStretchSource;
                 }
-                ic.FontWeightSource = ic.GetLocalSource(dobj, _Inheritable.FontWeight);
+                ic.FontWeightSource = ic.GetLocalSource(dobj, Providers._Inheritable.FontWeight);
                 if(!ic.FontWeightSource && parentContext) {
                     ic.FontWeightSource = parentContext.FontWeightSource;
                 }
-                ic.FontSizeSource = ic.GetLocalSource(dobj, _Inheritable.FontSize);
+                ic.FontSizeSource = ic.GetLocalSource(dobj, Providers._Inheritable.FontSize);
                 if(!ic.FontSizeSource && parentContext) {
                     ic.FontSizeSource = parentContext.FontSizeSource;
                 }
-                ic.LanguageSource = ic.GetLocalSource(dobj, _Inheritable.Language);
+                ic.LanguageSource = ic.GetLocalSource(dobj, Providers._Inheritable.Language);
                 if(!ic.LanguageSource && parentContext) {
                     ic.LanguageSource = parentContext.LanguageSource;
                 }
-                ic.FlowDirectionSource = ic.GetLocalSource(dobj, _Inheritable.FlowDirection);
+                ic.FlowDirectionSource = ic.GetLocalSource(dobj, Providers._Inheritable.FlowDirection);
                 if(!ic.FlowDirectionSource && parentContext) {
                     ic.FlowDirectionSource = parentContext.FlowDirectionSource;
                 }
-                ic.UseLayoutRoundingSource = ic.GetLocalSource(dobj, _Inheritable.UseLayoutRounding);
+                ic.UseLayoutRoundingSource = ic.GetLocalSource(dobj, Providers._Inheritable.UseLayoutRounding);
                 if(!ic.UseLayoutRoundingSource && parentContext) {
                     ic.UseLayoutRoundingSource = parentContext.UseLayoutRoundingSource;
                 }
-                ic.TextDecorationsSource = ic.GetLocalSource(dobj, _Inheritable.TextDecorations);
+                ic.TextDecorationsSource = ic.GetLocalSource(dobj, Providers._Inheritable.TextDecorations);
                 if(!ic.TextDecorationsSource && parentContext) {
                     ic.TextDecorationsSource = parentContext.TextDecorationsSource;
                 }
                 return ic;
             };
             _InheritedContext.prototype.Compare = function (withContext, props) {
-                var rv = _Inheritable.None;
-                if(props & _Inheritable.Foreground && withContext.ForegroundSource === this.ForegroundSource) {
-                    rv |= _Inheritable.Foreground;
+                var rv = Providers._Inheritable.None;
+                if(props & Providers._Inheritable.Foreground && withContext.ForegroundSource === this.ForegroundSource) {
+                    rv |= Providers._Inheritable.Foreground;
                 }
-                if(props & _Inheritable.FontFamily && withContext.FontFamilySource === this.FontFamilySource) {
-                    rv |= _Inheritable.FontFamily;
+                if(props & Providers._Inheritable.FontFamily && withContext.FontFamilySource === this.FontFamilySource) {
+                    rv |= Providers._Inheritable.FontFamily;
                 }
-                if(props & _Inheritable.FontStretch && withContext.FontStretchSource === this.FontStretchSource) {
-                    rv |= _Inheritable.FontStretch;
+                if(props & Providers._Inheritable.FontStretch && withContext.FontStretchSource === this.FontStretchSource) {
+                    rv |= Providers._Inheritable.FontStretch;
                 }
-                if(props & _Inheritable.FontStyle && withContext.FontStyleSource === this.FontStyleSource) {
-                    rv |= _Inheritable.FontStyle;
+                if(props & Providers._Inheritable.FontStyle && withContext.FontStyleSource === this.FontStyleSource) {
+                    rv |= Providers._Inheritable.FontStyle;
                 }
-                if(props & _Inheritable.FontWeight && withContext.FontWeightSource === this.FontWeightSource) {
-                    rv |= _Inheritable.FontWeight;
+                if(props & Providers._Inheritable.FontWeight && withContext.FontWeightSource === this.FontWeightSource) {
+                    rv |= Providers._Inheritable.FontWeight;
                 }
-                if(props & _Inheritable.FontSize && withContext.FontSizeSource === this.FontSizeSource) {
-                    rv |= _Inheritable.FontSize;
+                if(props & Providers._Inheritable.FontSize && withContext.FontSizeSource === this.FontSizeSource) {
+                    rv |= Providers._Inheritable.FontSize;
                 }
-                if(props & _Inheritable.Language && withContext.LanguageSource === this.LanguageSource) {
-                    rv |= _Inheritable.Language;
+                if(props & Providers._Inheritable.Language && withContext.LanguageSource === this.LanguageSource) {
+                    rv |= Providers._Inheritable.Language;
                 }
-                if(props & _Inheritable.FlowDirection && withContext.FlowDirectionSource === this.FlowDirectionSource) {
-                    rv |= _Inheritable.FlowDirection;
+                if(props & Providers._Inheritable.FlowDirection && withContext.FlowDirectionSource === this.FlowDirectionSource) {
+                    rv |= Providers._Inheritable.FlowDirection;
                 }
-                if(props & _Inheritable.UseLayoutRounding && withContext.UseLayoutRoundingSource === this.UseLayoutRoundingSource) {
-                    rv |= _Inheritable.UseLayoutRounding;
+                if(props & Providers._Inheritable.UseLayoutRounding && withContext.UseLayoutRoundingSource === this.UseLayoutRoundingSource) {
+                    rv |= Providers._Inheritable.UseLayoutRounding;
                 }
-                if(props & _Inheritable.TextDecorations && withContext.TextDecorationsSource === this.TextDecorationsSource) {
-                    rv |= _Inheritable.TextDecorations;
+                if(props & Providers._Inheritable.TextDecorations && withContext.TextDecorationsSource === this.TextDecorationsSource) {
+                    rv |= Providers._Inheritable.TextDecorations;
                 }
                 return rv;
             };
@@ -143,7 +144,7 @@ var Fayde;
                 return true;
             }
             provider._SetPropertySource(inheritable, source);
-            var propd = getProperty(inheritable, this);
+            var propd = getProperty(inheritable, this._Object);
             if(!propd) {
                 return false;
             }
@@ -157,31 +158,15 @@ var Fayde;
                 return provider._GetPropertySource(inheritable);
             }
         }
-        (function (_Inheritable) {
-            _Inheritable._map = [];
-            _Inheritable.Foreground = 1 << 0;
-            _Inheritable.FontFamily = 1 << 1;
-            _Inheritable.FontStretch = 1 << 2;
-            _Inheritable.FontStyle = 1 << 3;
-            _Inheritable.FontWeight = 1 << 4;
-            _Inheritable.FontSize = 1 << 5;
-            _Inheritable.Language = 1 << 6;
-            _Inheritable.FlowDirection = 1 << 7;
-            _Inheritable.UseLayoutRounding = 1 << 8;
-            _Inheritable.TextDecorations = 1 << 9;
-            _Inheritable.All = 0x7ff;
-            _Inheritable.None = 0;
-        })(Providers._Inheritable || (Providers._Inheritable = {}));
-        var _Inheritable = Providers._Inheritable;
         var InheritedProvider = (function () {
             function InheritedProvider() {
                 this._ht = [];
             }
             InheritedProvider.prototype.GetPropertyValue = function (store, propd) {
-                if(!getInheritable(store._Object, propd)) {
+                var inheritable = getInheritable(store._Object, propd);
+                if(!inheritable) {
                     return undefined;
                 }
-                var inheritable = getInheritable(store._Object, propd);
                 var ancestor = this._GetPropertySource(inheritable);
                 if(!ancestor) {
                     return undefined;
@@ -190,11 +175,7 @@ var Fayde;
                 if(!ancestorPropd) {
                     return undefined;
                 }
-                var v = ancestor.GetValue(ancestorPropd);
-                if(v) {
-                    return v;
-                }
-                return undefined;
+                return ancestor.GetValue(ancestorPropd);
             };
             InheritedProvider.prototype.WalkSubtree = function (rootParent, element, context, props, adding) {
                 var enumerator = element.XamlNode.GetInheritedEnumerator();
@@ -206,40 +187,40 @@ var Fayde;
                 }
             };
             InheritedProvider.prototype.WalkTree = function (rootParent, element, context, props, adding) {
-                if(props === _Inheritable.None) {
+                if(props === Providers._Inheritable.None) {
                     return;
                 }
                 if(adding) {
-                    this.MaybePropagateInheritedValue(context.ForegroundSource, _Inheritable.Foreground, props, element);
-                    this.MaybePropagateInheritedValue(context.FontFamilySource, _Inheritable.FontFamily, props, element);
-                    this.MaybePropagateInheritedValue(context.FontStretchSource, _Inheritable.FontStretch, props, element);
-                    this.MaybePropagateInheritedValue(context.FontStyleSource, _Inheritable.FontStyle, props, element);
-                    this.MaybePropagateInheritedValue(context.FontWeightSource, _Inheritable.FontWeight, props, element);
-                    this.MaybePropagateInheritedValue(context.FontSizeSource, _Inheritable.FontSize, props, element);
-                    this.MaybePropagateInheritedValue(context.LanguageSource, _Inheritable.Language, props, element);
-                    this.MaybePropagateInheritedValue(context.FlowDirectionSource, _Inheritable.FlowDirection, props, element);
-                    this.MaybePropagateInheritedValue(context.UseLayoutRoundingSource, _Inheritable.UseLayoutRounding, props, element);
-                    this.MaybePropagateInheritedValue(context.TextDecorationsSource, _Inheritable.TextDecorations, props, element);
+                    this.MaybePropagateInheritedValue(context.ForegroundSource, Providers._Inheritable.Foreground, props, element);
+                    this.MaybePropagateInheritedValue(context.FontFamilySource, Providers._Inheritable.FontFamily, props, element);
+                    this.MaybePropagateInheritedValue(context.FontStretchSource, Providers._Inheritable.FontStretch, props, element);
+                    this.MaybePropagateInheritedValue(context.FontStyleSource, Providers._Inheritable.FontStyle, props, element);
+                    this.MaybePropagateInheritedValue(context.FontWeightSource, Providers._Inheritable.FontWeight, props, element);
+                    this.MaybePropagateInheritedValue(context.FontSizeSource, Providers._Inheritable.FontSize, props, element);
+                    this.MaybePropagateInheritedValue(context.LanguageSource, Providers._Inheritable.Language, props, element);
+                    this.MaybePropagateInheritedValue(context.FlowDirectionSource, Providers._Inheritable.FlowDirection, props, element);
+                    this.MaybePropagateInheritedValue(context.UseLayoutRoundingSource, Providers._Inheritable.UseLayoutRounding, props, element);
+                    this.MaybePropagateInheritedValue(context.TextDecorationsSource, Providers._Inheritable.TextDecorations, props, element);
                     var eleContext = _InheritedContext.FromObject(element, context);
                     props = eleContext.Compare(context, props);
-                    if(props === _Inheritable.None) {
+                    if(props === Providers._Inheritable.None) {
                         return;
                     }
                     this.WalkSubtree(rootParent, element, eleContext, props, adding);
                 } else {
                     var eleContext2 = _InheritedContext.FromObject(element, context);
-                    this.MaybeRemoveInheritedValue(context.ForegroundSource, _Inheritable.Foreground, props, element);
-                    this.MaybeRemoveInheritedValue(context.FontFamilySource, _Inheritable.FontFamily, props, element);
-                    this.MaybeRemoveInheritedValue(context.FontStretchSource, _Inheritable.FontStretch, props, element);
-                    this.MaybeRemoveInheritedValue(context.FontStyleSource, _Inheritable.FontStyle, props, element);
-                    this.MaybeRemoveInheritedValue(context.FontWeightSource, _Inheritable.FontWeight, props, element);
-                    this.MaybeRemoveInheritedValue(context.FontSizeSource, _Inheritable.FontSize, props, element);
-                    this.MaybeRemoveInheritedValue(context.LanguageSource, _Inheritable.Language, props, element);
-                    this.MaybeRemoveInheritedValue(context.FlowDirectionSource, _Inheritable.FlowDirection, props, element);
-                    this.MaybeRemoveInheritedValue(context.UseLayoutRoundingSource, _Inheritable.UseLayoutRounding, props, element);
-                    this.MaybeRemoveInheritedValue(context.TextDecorationsSource, _Inheritable.TextDecorations, props, element);
+                    this.MaybeRemoveInheritedValue(context.ForegroundSource, Providers._Inheritable.Foreground, props, element);
+                    this.MaybeRemoveInheritedValue(context.FontFamilySource, Providers._Inheritable.FontFamily, props, element);
+                    this.MaybeRemoveInheritedValue(context.FontStretchSource, Providers._Inheritable.FontStretch, props, element);
+                    this.MaybeRemoveInheritedValue(context.FontStyleSource, Providers._Inheritable.FontStyle, props, element);
+                    this.MaybeRemoveInheritedValue(context.FontWeightSource, Providers._Inheritable.FontWeight, props, element);
+                    this.MaybeRemoveInheritedValue(context.FontSizeSource, Providers._Inheritable.FontSize, props, element);
+                    this.MaybeRemoveInheritedValue(context.LanguageSource, Providers._Inheritable.Language, props, element);
+                    this.MaybeRemoveInheritedValue(context.FlowDirectionSource, Providers._Inheritable.FlowDirection, props, element);
+                    this.MaybeRemoveInheritedValue(context.UseLayoutRoundingSource, Providers._Inheritable.UseLayoutRounding, props, element);
+                    this.MaybeRemoveInheritedValue(context.TextDecorationsSource, Providers._Inheritable.TextDecorations, props, element);
                     props = eleContext2.Compare(context, props);
-                    if(props === _Inheritable.None) {
+                    if(props === Providers._Inheritable.None) {
                         return;
                     }
                     this.WalkSubtree(rootParent, element, context, props, adding);
@@ -254,7 +235,7 @@ var Fayde;
                 }
                 var sourceProperty = getProperty(prop, source);
                 var value = source.GetValue(sourceProperty);
-                if(value) {
+                if(value !== undefined) {
                     propagateInheritedValue.call(element._Store, prop, source, value);
                 }
             };
@@ -270,7 +251,7 @@ var Fayde;
                 }
             };
             InheritedProvider.prototype.PropagateInheritedPropertiesOnAddingToTree = function (store, subtree) {
-                var inhEnum = _Inheritable;
+                var inhEnum = Providers._Inheritable;
                 var baseContext = _InheritedContext.FromSources(this._GetPropertySource(inhEnum.Foreground), this._GetPropertySource(inhEnum.FontFamily), this._GetPropertySource(inhEnum.FontStretch), this._GetPropertySource(inhEnum.FontStyle), this._GetPropertySource(inhEnum.FontWeight), this._GetPropertySource(inhEnum.FontSize), this._GetPropertySource(inhEnum.Language), this._GetPropertySource(inhEnum.FlowDirection), this._GetPropertySource(inhEnum.UseLayoutRounding), this._GetPropertySource(inhEnum.TextDecorations));
                 var objContext = _InheritedContext.FromObject(store._Object, baseContext);
                 this.WalkTree(store._Object, subtree, objContext, inhEnum.All, true);
@@ -284,9 +265,9 @@ var Fayde;
                 this.WalkSubtree(source, subtree, objContext, inheritable, true);
             };
             InheritedProvider.prototype.ClearInheritedPropertiesOnRemovingFromTree = function (store, subtree) {
-                var baseContext = _InheritedContext.FromSources(this._GetPropertySource(_Inheritable.Foreground), this._GetPropertySource(_Inheritable.FontFamily), this._GetPropertySource(_Inheritable.FontStretch), this._GetPropertySource(_Inheritable.FontStyle), this._GetPropertySource(_Inheritable.FontWeight), this._GetPropertySource(_Inheritable.FontSize), this._GetPropertySource(_Inheritable.Language), this._GetPropertySource(_Inheritable.FlowDirection), this._GetPropertySource(_Inheritable.UseLayoutRounding), this._GetPropertySource(_Inheritable.TextDecorations));
+                var baseContext = _InheritedContext.FromSources(this._GetPropertySource(Providers._Inheritable.Foreground), this._GetPropertySource(Providers._Inheritable.FontFamily), this._GetPropertySource(Providers._Inheritable.FontStretch), this._GetPropertySource(Providers._Inheritable.FontStyle), this._GetPropertySource(Providers._Inheritable.FontWeight), this._GetPropertySource(Providers._Inheritable.FontSize), this._GetPropertySource(Providers._Inheritable.Language), this._GetPropertySource(Providers._Inheritable.FlowDirection), this._GetPropertySource(Providers._Inheritable.UseLayoutRounding), this._GetPropertySource(Providers._Inheritable.TextDecorations));
                 var objContext = _InheritedContext.FromObject(store._Object, baseContext);
-                this.WalkTree(store._Object, subtree, objContext, _Inheritable.All, false);
+                this.WalkTree(store._Object, subtree, objContext, Providers._Inheritable.All, false);
             };
             InheritedProvider.prototype._GetPropertySource = function (inheritable) {
                 return this._ht[inheritable];

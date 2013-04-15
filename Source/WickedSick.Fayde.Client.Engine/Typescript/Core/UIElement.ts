@@ -1,4 +1,5 @@
 /// <reference path="DependencyObject.ts" />
+/// <reference path="Providers/Enums.ts" />
 /// CODE
 /// <reference path="Walkers.ts" />
 /// <reference path="Providers/InheritedProviderStore.ts"/>
@@ -58,10 +59,14 @@ module Fayde {
         XamlNode: UINode;
         _Store: Providers.InheritedProviderStore;
         CreateStore() {
-            return new Providers.InheritedProviderStore(this);
+            var s = new Providers.InheritedProviderStore(this);
+            s.SetProviders([null, new Fayde.Providers.LocalValueProvider(), null, null, null, new Fayde.Providers.InheritedProvider(), null, new Fayde.Providers.DefaultValueProvider(), new Fayde.Providers.AutoCreateProvider()]);
+            return s;
         }
         CreateNode(): XamlNode {
             return new UINode(this);
         }
+        
+        static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, UIElement, true, undefined, undefined, Providers._Inheritable.UseLayoutRounding);
     }
 }
