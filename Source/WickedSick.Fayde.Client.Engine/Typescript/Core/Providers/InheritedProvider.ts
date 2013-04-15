@@ -104,7 +104,7 @@ module Fayde.Providers {
             inh = 0;
         return inh;
     }
-    function getProperty(inheritable, ancestor: DependencyObject) {
+    function getProperty(inheritable: _Inheritable, ancestor: DependencyObject) {
         var list = DependencyProperty._Inherited[inheritable];
         if (!list)
             return;
@@ -121,7 +121,7 @@ module Fayde.Providers {
         }
     }
     /// "this" needs to be scoped to a InheritedProviderStore
-    function propagateInheritedValue(inheritable, source, newValue) {
+    function propagateInheritedValue(inheritable: _Inheritable, source: DependencyObject, newValue: any) {
         var provider: InheritedProvider = this._InheritedProvider;
         if (!provider)
             return true;
