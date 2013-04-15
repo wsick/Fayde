@@ -70,6 +70,8 @@ test("ProviderStoreTests.FrameworkProviderStore", () => {
     var child = new Fayde.FrameworkElement();
     var childStore = child._Store;
 
+
+    //Test inherited DataContext
     var effectiveDataContext = { };
 
     rootStore.SetValue(Fayde.FrameworkElement.DataContextProperty, effectiveDataContext);
@@ -88,4 +90,16 @@ test("ProviderStoreTests.FrameworkProviderStore", () => {
     root.XamlNode._ElementAdded(child);
     val = childStore.GetValue(Fayde.FrameworkElement.DataContextProperty);
     strictEqual(val, effectiveDataContext, "Child DataContext should inherit DataContext from root after attaching to tree.");
+
+    rootStore.ClearValue(Fayde.FrameworkElement.DataContextProperty, true);
+    val = childStore.GetValue(Fayde.FrameworkElement.DataContextProperty);
+    strictEqual(val, undefined, "Child DataContext should be undefined after clearing root DataContext value.");
+
+
+    //Test implicit style
+    //  Set
+    //  Clear
+
+    //Test local style
+    //  Should override implicit
 });
