@@ -110,10 +110,8 @@ var Fayde;
             }
             var tc;
             if(propd._IsAttached) {
-                //TODO: Find type converter for attached property
-                            } else {
-                //TODO: Find type converter
-                            }
+            } else {
+            }
             return val;
             //TODO: Default to basic type converter, return
             //if (tc == null)
