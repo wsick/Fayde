@@ -19,7 +19,16 @@ module Fayde {
         }
         CreateStore(): Providers.BasicProviderStore {
             var s = new Providers.BasicProviderStore(this);
-            s.SetProviders([null, new Fayde.Providers.LocalValueProvider(), null, null, null, null, null, new Fayde.Providers.DefaultValueProvider(), new Fayde.Providers.AutoCreateProvider()]);
+            s.SetProviders([null, 
+                new Providers.LocalValueProvider(), 
+                null,
+                null,
+                null,
+                null,
+                null,
+                new Providers.DefaultValueProvider(),
+                new Providers.AutoCreateProvider()]
+            );
             return s;
         }
 

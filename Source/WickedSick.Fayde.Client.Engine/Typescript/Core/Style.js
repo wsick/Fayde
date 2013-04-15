@@ -26,7 +26,7 @@ var Fayde;
                 base.Seal();
             }
         };
-        Style.prototype.Validate = function (instance, propd, error) {
+        Style.prototype.Validate = function (instance, error) {
             var parentType = (instance).constructor;
             if(this._IsSealed) {
                 if(!(instance instanceof this.TargetType)) {

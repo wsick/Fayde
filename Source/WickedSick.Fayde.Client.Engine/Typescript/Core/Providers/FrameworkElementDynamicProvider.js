@@ -7,8 +7,8 @@ var Fayde;
         var FrameworkElementDynamicProvider = (function () {
             function FrameworkElementDynamicProvider() { }
             FrameworkElementDynamicProvider.prototype.GetPropertyValue = function (store, propd) {
-                var isWidth = propd._ID !== Fayde.FrameworkElement.ActualWidthProperty._ID;
-                var isHeight = propd._ID !== Fayde.FrameworkElement.ActualHeightProperty._ID;
+                var isWidth = propd._ID === Fayde.FrameworkElement.ActualWidthProperty._ID;
+                var isHeight = propd._ID === Fayde.FrameworkElement.ActualHeightProperty._ID;
                 if(!isWidth && !isHeight) {
                     return undefined;
                 }

@@ -40,18 +40,17 @@ module Fayde.Providers {
         private _AutoCreateProvider: AutoCreateProvider;
 
         SetImplicitStyles(styleMask: _StyleMask, styles?: Style[]) {
-            var app = (<any>App).Instance;
-            if (!app)
-                return;
-            if (!styles)
+            var app;
+            if (!styles && App && (app = App.Instance))
                 styles = app._GetImplicitStyles(this, styleMask);
-            var error = new BError();
             if (styles) {
-                for (var i = 0; i < Providers._StyleIndex.Count; i++) {
+                var error = new BError();
+                var len = Providers._StyleIndex.Count;
+                for (var i = 0; i < len; i++) {
                     var style = styles[i];
                     if (!style)
                         continue;
-                    if (!style.Validate(this._Object, FrameworkElement.StyleProperty, error)) {
+                    if (!style.Validate(this._Object, error)) {
                         error.ThrowException();
                         //Warn("Style validation failed. [" + error.Message + "]");
                         return;

@@ -7,8 +7,8 @@ module Fayde.Providers {
         private _ActualHeight: number;
         private _ActualWidth: number;
         GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
-            var isWidth = propd._ID !== FrameworkElement.ActualWidthProperty._ID;
-            var isHeight = propd._ID !== FrameworkElement.ActualHeightProperty._ID;
+            var isWidth = propd._ID === FrameworkElement.ActualWidthProperty._ID;
+            var isHeight = propd._ID === FrameworkElement.ActualHeightProperty._ID;
             if (!isWidth && !isHeight)
                 return undefined;
 

@@ -72,6 +72,17 @@ var Fayde;
                 new Fayde.Providers.DefaultValueProvider(), 
                 new Fayde.Providers.AutoCreateProvider()
             ]);
+            s.SetProviders([
+                null, 
+                new Fayde.Providers.LocalValueProvider(), 
+                null, 
+                null, 
+                null, 
+                new Fayde.Providers.InheritedProvider(), 
+                null, 
+                new Fayde.Providers.DefaultValueProvider(), 
+                new Fayde.Providers.AutoCreateProvider()
+            ]);
             return s;
         };
         UIElement.prototype.CreateNode = function () {

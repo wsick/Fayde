@@ -4,7 +4,10 @@
 /// <reference path="../Primitives/size.ts" />
 /// <reference path="ResourceDictionary.ts" />
 /// <reference path="Providers/FrameworkProviderStore.ts" />
+/// <reference path="Providers/FrameworkElementDynamicProvider.ts" />
 /// <reference path="Providers/InheritedDataContextProvider.ts" />
+/// <reference path="Providers/LocalStyleProvider.ts" />
+/// <reference path="Providers/ImplicitStyleProvider.ts" />
 
 module Fayde {
     export class FENode extends UINode {
@@ -90,7 +93,16 @@ module Fayde {
         _Store: Providers.FrameworkProviderStore;
         CreateStore() {
             var s = new Providers.FrameworkProviderStore(this);
-            s.SetProviders([null, new Fayde.Providers.LocalValueProvider(), null, null, null, new Fayde.Providers.InheritedProvider(), new Fayde.Providers.InheritedDataContextProvider(s), new Fayde.Providers.DefaultValueProvider(), new Fayde.Providers.AutoCreateProvider()]);
+            s.SetProviders([null,
+                new Providers.LocalValueProvider(),
+                new Providers.FrameworkElementDynamicProvider(),
+                new Providers.LocalStyleProvider(s),
+                new Providers.ImplicitStyleProvider(s),
+                new Providers.InheritedProvider(),
+                new Providers.InheritedDataContextProvider(s),
+                new Providers.DefaultValueProvider(),
+                new Providers.AutoCreateProvider()]
+            );
             return s;
         }
         CreateNode(): XamlNode {

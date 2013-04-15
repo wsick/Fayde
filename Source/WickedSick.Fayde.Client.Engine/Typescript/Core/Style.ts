@@ -21,7 +21,7 @@ module Fayde {
                 base.Seal();
         }
 
-        Validate(instance: DependencyObject, propd: DependencyProperty, error: BError): bool {
+        Validate(instance: DependencyObject, error: BError): bool {
             var parentType = <Function>(<any>instance).constructor;
 
             if (this._IsSealed) {

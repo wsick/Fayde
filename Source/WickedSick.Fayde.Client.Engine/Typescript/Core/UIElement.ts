@@ -60,6 +60,16 @@ module Fayde {
         _Store: Providers.InheritedProviderStore;
         CreateStore() {
             var s = new Providers.InheritedProviderStore(this);
+            s.SetProviders([null, 
+                new Providers.LocalValueProvider(), 
+                null,
+                null,
+                null,
+                new Providers.InheritedProvider(),
+                null,
+                new Providers.DefaultValueProvider(),
+                new Providers.AutoCreateProvider()]
+            );
             s.SetProviders([null, new Fayde.Providers.LocalValueProvider(), null, null, null, new Fayde.Providers.InheritedProvider(), null, new Fayde.Providers.DefaultValueProvider(), new Fayde.Providers.AutoCreateProvider()]);
             return s;
         }

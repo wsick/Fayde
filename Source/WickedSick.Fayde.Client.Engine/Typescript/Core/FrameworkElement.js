@@ -9,7 +9,10 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path="../Primitives/size.ts" />
 /// <reference path="ResourceDictionary.ts" />
 /// <reference path="Providers/FrameworkProviderStore.ts" />
+/// <reference path="Providers/FrameworkElementDynamicProvider.ts" />
 /// <reference path="Providers/InheritedDataContextProvider.ts" />
+/// <reference path="Providers/LocalStyleProvider.ts" />
+/// <reference path="Providers/ImplicitStyleProvider.ts" />
 var Fayde;
 (function (Fayde) {
     var FENode = (function (_super) {
@@ -100,9 +103,9 @@ var Fayde;
             s.SetProviders([
                 null, 
                 new Fayde.Providers.LocalValueProvider(), 
-                null, 
-                null, 
-                null, 
+                new Fayde.Providers.FrameworkElementDynamicProvider(), 
+                new Fayde.Providers.LocalStyleProvider(s), 
+                new Fayde.Providers.ImplicitStyleProvider(s), 
                 new Fayde.Providers.InheritedProvider(), 
                 new Fayde.Providers.InheritedDataContextProvider(s), 
                 new Fayde.Providers.DefaultValueProvider(), 
