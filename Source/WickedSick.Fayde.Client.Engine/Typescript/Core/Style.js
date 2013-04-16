@@ -11,9 +11,11 @@ var Fayde;
     var Style = (function (_super) {
         __extends(Style, _super);
         function Style() {
-            _super.apply(this, arguments);
-
+                _super.call(this);
             this._IsSealed = false;
+            var coll = new Fayde.SetterCollection();
+            coll.XamlNode.AttachTo(this.XamlNode, undefined);
+            this.Setters = coll;
         }
         Style.prototype.Seal = function () {
             if(this._IsSealed) {

@@ -10,6 +10,13 @@ module Fayde {
         BasedOn: Style;
         TargetType: Function;
 
+        constructor() {
+            super();
+            var coll = new SetterCollection();
+            coll.XamlNode.AttachTo(this.XamlNode, undefined);
+            this.Setters = coll;
+        }
+
         Seal() {
             if (this._IsSealed)
                 return;
