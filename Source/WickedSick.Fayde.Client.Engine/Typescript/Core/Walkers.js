@@ -49,7 +49,7 @@ var Fayde;
             var dps = [];
             var stylesSeen = [];
             var len = styles.length;
-            for(var i = 0; i < length; i++) {
+            for(var i = 0; i < len; i++) {
                 var style = styles[i];
                 while(style) {
                     if(stylesSeen.indexOf(style) > -1) {
