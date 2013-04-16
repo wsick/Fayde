@@ -1,8 +1,10 @@
 /// <reference path="DependencyObject.ts" />
+/// <reference path="XamlNode.ts" />
 /// <reference path="Providers/Enums.ts" />
 /// <reference path="Enums.ts" />
 /// CODE
 /// <reference path="Walkers.ts" />
+/// <reference path="Providers/InheritedProvider.ts" />
 /// <reference path="Providers/InheritedProviderStore.ts"/>
 
 module Fayde {
@@ -59,7 +61,7 @@ module Fayde {
     export class UIElement extends DependencyObject {
         XamlNode: UINode;
         _Store: Providers.InheritedProviderStore;
-        CreateStore() {
+        CreateStore(): Providers.InheritedProviderStore {
             var s = new Providers.InheritedProviderStore(this);
             s.SetProviders([null, 
                 new Providers.LocalValueProvider(), 
@@ -71,7 +73,6 @@ module Fayde {
                 new Providers.DefaultValueProvider(),
                 new Providers.AutoCreateProvider()]
             );
-            s.SetProviders([null, new Fayde.Providers.LocalValueProvider(), null, null, null, new Fayde.Providers.InheritedProvider(), null, new Fayde.Providers.DefaultValueProvider(), new Fayde.Providers.AutoCreateProvider()]);
             return s;
         }
         CreateNode(): XamlNode {

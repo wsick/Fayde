@@ -1,3 +1,21 @@
+var Fayde;
+(function (Fayde) {
+    (function (Providers) {
+        var pp = Providers._PropertyPrecedence;
+        function BuildBitmask(propd) {
+            var bitmask = (1 << pp.Inherited) | (1 << pp.DynamicValue);
+            if(propd._IsAutoCreated) {
+                bitmask |= (1 << pp.AutoCreate);
+            }
+            if(propd._HasDefaultValue) {
+                bitmask |= (1 << pp.DefaultValue);
+            }
+            return bitmask;
+        }
+        Providers.BuildBitmask = BuildBitmask;
+    })(Fayde.Providers || (Fayde.Providers = {}));
+    var Providers = Fayde.Providers;
+})(Fayde || (Fayde = {}));
 var DependencyProperty = (function () {
     function DependencyProperty() { }
     DependencyProperty._IDs = [];
@@ -48,7 +66,7 @@ var DependencyProperty = (function () {
         propd.IsReadOnly = isReadOnly === true;
         propd._IsAttached = isAttached === true;
         propd._ID = DependencyProperty._LastID = DependencyProperty._LastID + 1;
-        propd._BitmaskCache = Fayde.Providers.BasicProviderStore.BuildBitmask(propd);
+        propd._BitmaskCache = Fayde.Providers.BuildBitmask(propd);
         propd._Inheritable = inheritable;
         if(inheritable !== undefined) {
             var i = DependencyProperty._Inherited;

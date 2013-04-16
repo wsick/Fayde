@@ -8,6 +8,9 @@ module Fayde.Providers {
     }
 
     export class ControlProviderStore extends FrameworkProviderStore {
+        constructor(dobj: DependencyObject) {
+            super(dobj);
+        }
         SetProviders(providerArr: IPropertyProvider[]) {
             this._InheritedIsEnabledProvider = this._Providers[0] = <IInheritedIsEnabledProvider>providerArr[0];
             this._LocalValueProvider = this._Providers[1] = <LocalValueProvider>providerArr[1];

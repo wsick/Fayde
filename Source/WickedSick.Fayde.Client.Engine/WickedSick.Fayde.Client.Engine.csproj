@@ -79,6 +79,7 @@
     <Content Include="Docs\Plugins.txt" />
     <Content Include="Docs\XamlNotes.txt" />
     <Content Include="Fayde-New.js" />
+    <Content Include="Fayde-New.ts" />
     <Content Include="Fayde.Generic.js" />
     <Content Include="Fayde.js" />
     <None Include="Fayde.tsinclude" />
@@ -510,6 +511,10 @@
     <TypeScriptCompile Include="Typescript\Core\Providers\FrameworkElementDynamicProvider.ts" />
     <TypeScriptCompile Include="Typescript\Core\Providers\ControlProviderStore.ts" />
     <TypeScriptCompile Include="Typescript\Core\PropertyChangedListener.ts" />
+    <TypeScriptCompile Include="Typescript\Core\LayoutInformation.ts" />
+    <Content Include="Typescript\Core\LayoutInformation.js">
+      <DependentUpon>LayoutInformation.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\PropertyChangedListener.js">
       <DependentUpon>PropertyChangedListener.ts</DependentUpon>
     </Content>

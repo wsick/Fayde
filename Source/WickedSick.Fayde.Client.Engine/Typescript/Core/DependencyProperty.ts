@@ -1,3 +1,4 @@
+/// <reference path="Providers/Enums.ts" />
 /// CODE
 /// <reference path="DependencyObject.ts" />
 
@@ -11,6 +12,18 @@ interface IDependencyPropertyChangedEventArgs {
 }
 interface IOutIsValid {
     IsValid: bool;
+}
+
+module Fayde.Providers {
+    var pp = _PropertyPrecedence;
+    export function BuildBitmask(propd: DependencyProperty): number {
+        var bitmask = (1 << pp.Inherited) | (1 << pp.DynamicValue);
+        if (propd._IsAutoCreated)
+            bitmask |= (1 << pp.AutoCreate);
+        if (propd._HasDefaultValue)
+            bitmask |= (1 << pp.DefaultValue);
+        return bitmask;
+    }
 }
 
 class DependencyProperty {
@@ -84,7 +97,7 @@ class DependencyProperty {
         propd.IsReadOnly = isReadOnly === true;
         propd._IsAttached = isAttached === true;
         propd._ID = _LastID = _LastID + 1;
-        propd._BitmaskCache = Fayde.Providers.BasicProviderStore.BuildBitmask(propd);
+        propd._BitmaskCache = Fayde.Providers.BuildBitmask(propd);
         propd._Inheritable = inheritable;
         
         if (inheritable !== undefined) {

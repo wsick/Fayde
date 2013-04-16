@@ -64,19 +64,10 @@ module Fayde.Providers {
             this._Object = dobj;
         }
 
-        SetProviders(providerArr: IPropertyProvider[]) {
+        SetProviders(providerArr: Providers.IPropertyProvider[]) {
             this._LocalValueProvider = this._Providers[1] = <LocalValueProvider>providerArr[1];
             this._DefaultValueProvider = this._Providers[7] = <DefaultValueProvider>providerArr[7];
             this._AutoCreateProvider = this._Providers[8] = <AutoCreateProvider>providerArr[8];
-        }
-
-        static BuildBitmask(propd: DependencyProperty): number {
-            var bitmask = (1 << _PropertyPrecedence.Inherited) | (1 << _PropertyPrecedence.DynamicValue);
-            if (propd._IsAutoCreated)
-                bitmask |= (1 << _PropertyPrecedence.AutoCreate);
-            if (propd._HasDefaultValue)
-                bitmask |= (1 << _PropertyPrecedence.DefaultValue);
-            return bitmask;
         }
 
         GetValue(propd: DependencyProperty):any {

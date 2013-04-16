@@ -10,9 +10,8 @@ var Fayde;
     (function (Providers) {
         var ControlProviderStore = (function (_super) {
             __extends(ControlProviderStore, _super);
-            function ControlProviderStore() {
-                _super.apply(this, arguments);
-
+            function ControlProviderStore(dobj) {
+                        _super.call(this, dobj);
             }
             ControlProviderStore.prototype.SetProviders = function (providerArr) {
                 this._InheritedIsEnabledProvider = this._Providers[0] = providerArr[0];

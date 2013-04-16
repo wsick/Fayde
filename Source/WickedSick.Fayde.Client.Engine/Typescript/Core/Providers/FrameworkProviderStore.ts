@@ -18,7 +18,11 @@ module Fayde.Providers {
     }
 
     export class FrameworkProviderStore extends InheritedProviderStore {
-        SetProviders(providerArr: IPropertyProvider[]) {
+        constructor(dobj: DependencyObject) {
+            super(dobj);
+        }
+
+        SetProviders(providerArr: Providers.IPropertyProvider[]) {
             this._LocalValueProvider = this._Providers[1] = <LocalValueProvider>providerArr[1];
             this._DynamicValueProvider = this._Providers[2] = providerArr[2];
             this._LocalStyleProvider = this._Providers[3] = <ILocalStylesProvider>providerArr[3];

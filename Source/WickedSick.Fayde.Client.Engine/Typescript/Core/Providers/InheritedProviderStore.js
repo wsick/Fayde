@@ -10,9 +10,8 @@ var Fayde;
     (function (Providers) {
         var InheritedProviderStore = (function (_super) {
             __extends(InheritedProviderStore, _super);
-            function InheritedProviderStore() {
-                _super.apply(this, arguments);
-
+            function InheritedProviderStore(dobj) {
+                        _super.call(this, dobj);
             }
             InheritedProviderStore.prototype.SetProviders = function (providerArr) {
                 this._LocalValueProvider = this._Providers[1] = providerArr[1];

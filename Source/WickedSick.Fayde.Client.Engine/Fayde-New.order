@@ -1,6 +1,6 @@
-Core/DependencyProperty.js
 Core/Enums.js
 Core/Expression.js
+Core/LayoutInformation.js
 Core/NameScope.js
 Core/PropertyChangedListener.js
 Core/TypeConverter.js
@@ -34,6 +34,7 @@ Runtime/Nullstone.js
 Shapes/PointCollection.js
 Shapes/ShapesParser.js
 Core/DependencyObject.js
+Core/DependencyProperty.js
 Core/Style.js
 Core/UIElement.js
 Core/XamlObjectCollection.js

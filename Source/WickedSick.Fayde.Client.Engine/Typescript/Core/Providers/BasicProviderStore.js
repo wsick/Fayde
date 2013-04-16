@@ -83,16 +83,6 @@ var Fayde;
                 this._DefaultValueProvider = this._Providers[7] = providerArr[7];
                 this._AutoCreateProvider = this._Providers[8] = providerArr[8];
             };
-            BasicProviderStore.BuildBitmask = function BuildBitmask(propd) {
-                var bitmask = (1 << Providers._PropertyPrecedence.Inherited) | (1 << Providers._PropertyPrecedence.DynamicValue);
-                if(propd._IsAutoCreated) {
-                    bitmask |= (1 << Providers._PropertyPrecedence.AutoCreate);
-                }
-                if(propd._HasDefaultValue) {
-                    bitmask |= (1 << Providers._PropertyPrecedence.DefaultValue);
-                }
-                return bitmask;
-            };
             BasicProviderStore.prototype.GetValue = function (propd) {
                 var startingPrecedence = Providers._PropertyPrecedence.Highest;
                 var endingPrecedence = Providers._PropertyPrecedence.Lowest;

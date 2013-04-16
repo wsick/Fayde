@@ -11,9 +11,8 @@ var Fayde;
     (function (Providers) {
         var FrameworkProviderStore = (function (_super) {
             __extends(FrameworkProviderStore, _super);
-            function FrameworkProviderStore() {
-                _super.apply(this, arguments);
-
+            function FrameworkProviderStore(dobj) {
+                        _super.call(this, dobj);
             }
             FrameworkProviderStore.prototype.SetProviders = function (providerArr) {
                 this._LocalValueProvider = this._Providers[1] = providerArr[1];

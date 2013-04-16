@@ -91,7 +91,7 @@ module Fayde {
             });
         }
         _Store: Providers.FrameworkProviderStore;
-        CreateStore() {
+        CreateStore(): Providers.FrameworkProviderStore {
             var s = new Providers.FrameworkProviderStore(this);
             s.SetProviders([null,
                 new Providers.LocalValueProvider(),

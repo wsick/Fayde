@@ -4,10 +4,12 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 /// <reference path="DependencyObject.ts" />
+/// <reference path="XamlNode.ts" />
 /// <reference path="Providers/Enums.ts" />
 /// <reference path="Enums.ts" />
 /// CODE
 /// <reference path="Walkers.ts" />
+/// <reference path="Providers/InheritedProvider.ts" />
 /// <reference path="Providers/InheritedProviderStore.ts"/>
 var Fayde;
 (function (Fayde) {
@@ -23,10 +25,7 @@ var Fayde;
             _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
             //Update total render visibility
             if(!newIsAttached) {
-                //cache invalidate hint
-                //Remove dirty element from surface
-                //If surface focused element === this --> focus element to null on surface
-                            }
+            }
         };
         UINode.prototype._ElementAdded = function (uie) {
             uie.XamlNode.VisualParentNode = this;
@@ -65,17 +64,6 @@ var Fayde;
         }
         UIElement.prototype.CreateStore = function () {
             var s = new Fayde.Providers.InheritedProviderStore(this);
-            s.SetProviders([
-                null, 
-                new Fayde.Providers.LocalValueProvider(), 
-                null, 
-                null, 
-                null, 
-                new Fayde.Providers.InheritedProvider(), 
-                null, 
-                new Fayde.Providers.DefaultValueProvider(), 
-                new Fayde.Providers.AutoCreateProvider()
-            ]);
             s.SetProviders([
                 null, 
                 new Fayde.Providers.LocalValueProvider(), 
