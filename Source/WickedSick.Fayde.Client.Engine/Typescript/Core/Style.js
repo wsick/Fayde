@@ -78,6 +78,7 @@ var Fayde;
             }
             // 3 This style is now OK and never needs to be checked again.
             this.Seal();
+            return true;
         };
         return Style;
     })(Fayde.XamlObject);

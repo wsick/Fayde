@@ -5,6 +5,7 @@ var __extends = this.__extends || function (d, b) {
 };
 /// <reference path="DependencyObject.ts" />
 /// <reference path="Providers/Enums.ts" />
+/// <reference path="Enums.ts" />
 /// CODE
 /// <reference path="Walkers.ts" />
 /// <reference path="Providers/InheritedProviderStore.ts"/>
@@ -22,7 +23,10 @@ var Fayde;
             _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
             //Update total render visibility
             if(!newIsAttached) {
-            }
+                //cache invalidate hint
+                //Remove dirty element from surface
+                //If surface focused element === this --> focus element to null on surface
+                            }
         };
         UINode.prototype._ElementAdded = function (uie) {
             uie.XamlNode.VisualParentNode = this;
@@ -88,6 +92,12 @@ var Fayde;
         UIElement.prototype.CreateNode = function () {
             return new UINode(this);
         };
+        UIElement.TagProperty = DependencyProperty.Register("Tag", function () {
+            return Object;
+        }, UIElement);
+        UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () {
+            return new Enum(Fayde.Visibility);
+        }, UIElement, Fayde.Visibility.Visible);
         UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () {
             return Boolean;
         }, UIElement, true, undefined, undefined, Fayde.Providers._Inheritable.UseLayoutRounding);

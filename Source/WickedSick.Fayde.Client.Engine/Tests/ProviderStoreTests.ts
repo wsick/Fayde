@@ -62,6 +62,10 @@ test("ProviderStoreTests.InheritedProviderStore", () => {
     root.XamlNode._ElementAdded(child);
     val = childStore.GetValue(Fayde.UIElement.UseLayoutRoundingProperty);
     strictEqual(val, false, "Inherited property should be propagated from root to false.");
+
+    rootStore.ClearValue(Fayde.UIElement.UseLayoutRoundingProperty);
+    val = childStore.GetValue(Fayde.UIElement.UseLayoutRoundingProperty);
+    strictEqual(val, true, "Inherited property should be reset to true after value at root is cleared.");
 });
 
 test("ProviderStoreTests.FrameworkProviderStore", () => {
@@ -97,9 +101,47 @@ test("ProviderStoreTests.FrameworkProviderStore", () => {
 
 
     //Test implicit style
-    //  Set
-    //  Clear
+    val = childStore.GetValue(Fayde.UIElement.TagProperty);
+    strictEqual(val, undefined, "Child Tag should be undefined by default.");
+    var visualTreeStyle = new Fayde.Style();
+    visualTreeStyle.TargetType = Fayde.FrameworkElement;
+    var s1 = new Fayde.Setter();
+    s1.Property = Fayde.UIElement.TagProperty;
+    s1.Value = "TagValue";
+    visualTreeStyle.Setters.Add(s1);
 
+    childStore.SetImplicitStyles(Fayde.Providers._StyleMask.VisualTree, [visualTreeStyle, null, null]);
+    val = childStore.GetValue(Fayde.UIElement.TagProperty);
+    strictEqual(val, "TagValue", "Child Tag should be \"TagValue\" after setting implicit style.");
+    
+    childStore.ClearImplicitStyles(Fayde.Providers._StyleMask.VisualTree);
+    val = childStore.GetValue(Fayde.UIElement.TagProperty);
+    strictEqual(val, undefined, "Child Tag should be undefined after clearing implicit style.");
+
+    childStore.SetImplicitStyles(Fayde.Providers._StyleMask.VisualTree, [visualTreeStyle, null, null]);
+
+
+    val = childStore.GetValue(Fayde.UIElement.VisibilityProperty);
+    strictEqual(val, Fayde.Visibility.Visible, "Child Visibility should default to Visible.");
     //Test local style
-    //  Should override implicit
+    var localStyle = new Fayde.Style();
+    var s2 = new Fayde.Setter();
+    s2.Property = Fayde.UIElement.TagProperty;
+    s2.Value = "Overridden Value";
+    localStyle.Setters.Add(s2);
+    var s3 = new Fayde.Setter();
+    s3.Property = Fayde.UIElement.VisibilityProperty;
+    s3.Value = "Collapsed";
+    localStyle.Setters.Add(s3);
+    var error = new BError();
+    childStore.SetLocalStyle(localStyle, error);
+    val = childStore.GetValue(Fayde.UIElement.VisibilityProperty);
+    strictEqual(val, Fayde.Visibility.Collapsed, "Child Visibility should have changed to default by local style.");
+
+    val = childStore.GetValue(Fayde.UIElement.TagProperty);
+    strictEqual(val, "Overridden Value", "Child Tag property should be overriden by a new local style over the implicit style.");
+
+    childStore.SetLocalStyle(new Fayde.Style(), error);
+    val = childStore.GetValue(Fayde.UIElement.VisibilityProperty);
+    strictEqual(val, Fayde.Visibility.Visible, "After a new style is applied without Visibility property, Visibility revert to default value.");
 });

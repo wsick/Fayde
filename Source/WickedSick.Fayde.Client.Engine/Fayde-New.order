@@ -1,4 +1,5 @@
 Core/DependencyProperty.js
+Core/Enums.js
 Core/Expression.js
 Core/NameScope.js
 Core/PropertyChangedListener.js

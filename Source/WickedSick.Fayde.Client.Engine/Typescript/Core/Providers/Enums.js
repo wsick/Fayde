@@ -13,7 +13,7 @@ var Fayde;
             _Inheritable.FlowDirection = 1 << 7;
             _Inheritable.UseLayoutRounding = 1 << 8;
             _Inheritable.TextDecorations = 1 << 9;
-            _Inheritable.All = 2047;
+            _Inheritable.All = 0x7ff;
             _Inheritable.None = 0;
         })(Providers._Inheritable || (Providers._Inheritable = {}));
         var _Inheritable = Providers._Inheritable;

@@ -491,6 +491,10 @@
       <DependentUpon>DependencyProperty.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Core\Expression.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Enums.ts" />
+    <Content Include="Typescript\Core\Enums.js">
+      <DependentUpon>Enums.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\Expression.js">
       <DependentUpon>Expression.ts</DependentUpon>
     </Content>

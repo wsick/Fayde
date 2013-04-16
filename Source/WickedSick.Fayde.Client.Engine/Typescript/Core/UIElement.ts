@@ -1,5 +1,6 @@
 /// <reference path="DependencyObject.ts" />
 /// <reference path="Providers/Enums.ts" />
+/// <reference path="Enums.ts" />
 /// CODE
 /// <reference path="Walkers.ts" />
 /// <reference path="Providers/InheritedProviderStore.ts"/>
@@ -76,7 +77,9 @@ module Fayde {
         CreateNode(): XamlNode {
             return new UINode(this);
         }
-        
+
+        static TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
+        static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Fayde.Visibility); }, UIElement, Fayde.Visibility.Visible);
         static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, UIElement, true, undefined, undefined, Providers._Inheritable.UseLayoutRounding);
     }
 }

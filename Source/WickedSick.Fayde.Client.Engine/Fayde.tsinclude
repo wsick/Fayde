@@ -1,4 +1,5 @@
 Typescript\Core\DependencyProperty.ts
+Typescript\Core\Enums.ts
 Typescript\Core\Expression.ts
 Typescript\Core\NameScope.ts
 Typescript\Core\PropertyChangedListener.ts

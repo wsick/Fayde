@@ -99,7 +99,8 @@ var Fayde;
             };
             PanelNode.prototype._InvalidateChildrenZIndices = function () {
                 if(this.IsAttached) {
-                }
+                    //TODO: Invalidate ChildrenZIndices
+                                    }
             };
             return PanelNode;
         })(Fayde.FENode);
