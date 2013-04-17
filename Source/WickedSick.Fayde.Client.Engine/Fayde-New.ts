@@ -1009,7 +1009,7 @@ class Surface {
         if (!(r.Width > 0 && r.Height > 0))
             return;
         if (!this._RenderContext)
-            this._RenderContext = new Fayde.RenderContext(this);
+            this._RenderContext = new Fayde.RenderContext(this._Ctx);
         this._RenderContext.DoRender(this._Layers, r);
     }
     private _HandleResize(evt) {
@@ -1138,7 +1138,7 @@ class Surface {
             this._EmitMouseList(type, button, pos, delta, this._InputList);
         } else {
             this.ProcessDirtyElements();
-            var ctx = new Fayde.RenderContext(this);
+            var ctx = this._RenderContext;
             var newInputList: Fayde.UINode[] = [];
             var layers = this._Layers;
             var layerCount = layers.length;
@@ -1419,6 +1419,11 @@ module Fayde.Input {
 
 module Fayde.Media {
     export class Brush {
+        SetupBrush(ctx: CanvasRenderingContext2D, r: rect) {
+        }
+        ToHtml5Object(): any {
+            return undefined;
+        }
     }
 }
 
@@ -1427,6 +1432,14 @@ module Fayde.Media {
         GetBounds(): rect {
             return new rect();
         }
+        Draw(ctx: Fayde.RenderContext) {
+        }
+    }
+}
+
+module Fayde.Media {
+    export class Matrix {
+        raw: number[];
     }
 }
 
@@ -1443,6 +1456,7 @@ module Fayde.Media {
 
 module Fayde.Media {
     export class Transform {
+        Value: Matrix;
     }
 }
 
@@ -4517,19 +4531,25 @@ module Fayde.Documents {
 
 module Fayde {
     export class RenderContext implements IRenderContext {
-        Surface: Surface;
         CanvasContext: CanvasRenderingContext2D;
-        constructor(surface: Surface) {
-            this.Surface = surface;
-        }
-        Clear(r: rect) {
-        }
-        Clip(r: rect) {
+        CurrentTransform: number[] = null;
+        private _Transforms: number[][] = [];
+        constructor(ctx: CanvasRenderingContext2D) {
+            this.CanvasContext = ctx;
+            if (!ctx.hasOwnProperty("currentTransform")) {
+                Object.defineProperty(ctx, "currentTransform", {
+                    get: () => this.CurrentTransform,
+                    set: (value: number[]) => {
+                        ctx.setTransform(value[0], value[1], value[3], value[4], value[2], value[5]);
+                        this.CurrentTransform = value;
+                    }
+                });
+            }
         }
         DoRender(layers: Fayde.UINode[], r: rect) {
             this.Clear(r);
             this.CanvasContext.save();
-            this.Clip(r);
+            this.ClipRect(r);
             if (layers) {
                 var len = layers.length;
                 for (var i = 0; i < len; i++) {
@@ -4537,6 +4557,112 @@ module Fayde {
                 }
             }
             this.CanvasContext.restore();
+        }
+        Save() {
+            this.CanvasContext.save();
+            var ct = this.CurrentTransform;
+            this._Transforms.push(ct);
+            this.CurrentTransform = ct == null ? mat3.identity() : mat3.create(ct);
+        }
+        Restore() {
+            var curXform = this._Transforms.pop();
+            this.CurrentTransform = curXform;
+            this.CanvasContext.restore();
+        }
+        ClipRect(r: rect) {
+            var cc = this.CanvasContext;
+            cc.beginPath();
+            cc.rect(r.X, r.Y, r.Width, r.Height);
+            cc.clip();
+        }
+        ClipGeometry(g: Media.Geometry) {
+            g.Draw(this);
+            this.CanvasContext.clip();
+        }
+        ClipRawPath(p: any/* Change to Fayde.Shapes.RawPath */) {
+            p.Draw(this);
+            this.CanvasContext.clip();
+        }
+        IsPointInPath(p: Point): bool {
+            return this.CanvasContext.isPointInPath(p.X, p.Y);
+        }
+        IsPointInClipPath(clip: Media.Geometry, p: Point): bool {
+            clip.Draw(this);
+            return this.CanvasContext.isPointInPath(p.X, p.Y);
+        }
+        Rect(r: rect) {
+            var cc = this.CanvasContext;
+            cc.beginPath();
+            cc.rect(r.X, r.Y, r.Width, r.Height);
+        }
+        Fill(brush: Media.Brush, r: rect) {
+            var cc = this.CanvasContext;
+            brush.SetupBrush(cc, r);
+            cc.fillStyle = brush.ToHtml5Object();
+            cc.fill();
+        }
+        FillRect(brush: Media.Brush, r: rect) {
+            var cc = this.CanvasContext;
+            brush.SetupBrush(cc, r);
+            cc.beginPath();
+            cc.rect(r.X, r.Y, r.Width, r.Height);
+            cc.fillStyle = brush.ToHtml5Object();
+            cc.fill();
+        }
+        StrokeAndFillRect(strokeBrush: Media.Brush, thickness: number, strokeRect: rect, fillBrush: Media.Brush, fillRect: rect) {
+            var cc = this.CanvasContext;
+            strokeBrush.SetupBrush(cc, strokeRect);
+            fillBrush.SetupBrush(cc, fillRect);
+            cc.beginPath();
+            cc.rect(fillRect.X, fillRect.Y, fillRect.Width, fillRect.Height);
+            cc.fillStyle = fillBrush.ToHtml5Object();
+            cc.fill();
+            cc.lineWidth = thickness;
+            cc.strokeStyle = strokeBrush.ToHtml5Object();
+            cc.stroke();
+        }
+        Stroke(stroke: Media.Brush, thickness: number, region: rect) {
+            var cc = this.CanvasContext;
+            stroke.SetupBrush(cc, region);
+            cc.lineWidth = thickness;
+            cc.strokeStyle = stroke.ToHtml5Object();
+            cc.stroke();
+        }
+        Clear(r: rect) {
+            this.CanvasContext.clearRect(r.X, r.Y, r.Width, r.Height);
+        }
+        PreTransformMatrix(mat: number[]) {
+            var ct = this.CurrentTransform;
+            mat3.multiply(mat, ct, ct); //ct = ct * matrix
+            this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
+            this.CurrentTransform = ct;
+        }
+        PreTransform(transform: Fayde.Media.Transform) {
+            var mat: number[] = transform.Value.raw;
+            var ct = this.CurrentTransform;
+            mat3.multiply(mat, ct, ct); //ct = ct * matrix
+            this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
+            this.CurrentTransform = ct;
+        }
+        TransformMatrix(mat: number[]) {
+            var ct = this.CurrentTransform;
+            mat3.multiply(ct, mat, ct); //ct = matrix * ct
+            var cc = this.CanvasContext;
+            this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
+            this.CurrentTransform = ct;
+        }
+        Transform(transform: Fayde.Media.Transform) {
+            var mat: number[] = transform.Value.raw;
+            var ct = this.CurrentTransform;
+            mat3.multiply(ct, mat, ct); //ct = matrix * ct
+            var cc = this.CanvasContext;
+            this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
+            this.CurrentTransform = ct;
+        }
+        Translate(x: number, y: number) {
+            var ct = this.CurrentTransform;
+            mat3.translate(ct, x, y);
+            this.CanvasContext.translate(x, y);
         }
     }
 }

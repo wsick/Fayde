@@ -362,7 +362,7 @@ class Surface {
         if (!(r.Width > 0 && r.Height > 0))
             return;
         if (!this._RenderContext)
-            this._RenderContext = new Fayde.RenderContext(this);
+            this._RenderContext = new Fayde.RenderContext(this._Ctx);
 
         //var startRenderTime;
         //var isRenderPassTimed;
@@ -518,7 +518,7 @@ class Surface {
             this._EmitMouseList(type, button, pos, delta, this._InputList);
         } else {
             this.ProcessDirtyElements();
-            var ctx = new Fayde.RenderContext(this);
+            var ctx = this._RenderContext;
             var newInputList: Fayde.UINode[] = [];
             var layers = this._Layers;
             var layerCount = layers.length;

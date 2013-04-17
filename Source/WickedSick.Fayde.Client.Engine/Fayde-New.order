@@ -18,6 +18,7 @@ Engine/Surface.js
 Input/Keyboard.js
 Media/Brush.js
 Media/Geometry.js
+Media/Matrix.js
 Media/MediaParser.js
 Media/Projection.js
 Media/Transform.js

@@ -648,6 +648,10 @@
     <Content Include="Typescript\Media\Geometry.js">
       <DependentUpon>Geometry.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Media\Matrix.ts" />
+    <Content Include="Typescript\Media\Matrix.js">
+      <DependentUpon>Matrix.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\MediaParser.js">
       <DependentUpon>MediaParser.ts</DependentUpon>
     </Content>

@@ -1,5 +1,7 @@
 var Fayde;
 (function (Fayde) {
+    /// CODE
+    /// <reference path="Matrix.ts" />
     (function (Media) {
         var Transform = (function () {
             function Transform() { }

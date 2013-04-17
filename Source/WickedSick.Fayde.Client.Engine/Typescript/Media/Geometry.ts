@@ -7,5 +7,8 @@ module Fayde.Media {
             //TODO: Implement
             return new rect();
         }
+        Draw(ctx: Fayde.RenderContext) {
+            //TODO: Implement
+        }
     }
 }

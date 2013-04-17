@@ -9,6 +9,9 @@ var Fayde;
                 //TODO: Implement
                 return new rect();
             };
+            Geometry.prototype.Draw = function (ctx) {
+                //TODO: Implement
+                            };
             return Geometry;
         })();
         Media.Geometry = Geometry;        

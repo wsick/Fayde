@@ -347,7 +347,7 @@ var Surface = (function () {
             return;
         }
         if(!this._RenderContext) {
-            this._RenderContext = new Fayde.RenderContext(this);
+            this._RenderContext = new Fayde.RenderContext(this._Ctx);
         }
         //var startRenderTime;
         //var isRenderPassTimed;
@@ -506,7 +506,7 @@ var Surface = (function () {
             this._EmitMouseList(type, button, pos, delta, this._InputList);
         } else {
             this.ProcessDirtyElements();
-            var ctx = new Fayde.RenderContext(this);
+            var ctx = this._RenderContext;
             var newInputList = [];
             var layers = this._Layers;
             var layerCount = layers.length;
