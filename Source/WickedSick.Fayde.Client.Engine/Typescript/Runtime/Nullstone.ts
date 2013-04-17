@@ -10,11 +10,28 @@ class Nullstone {
             return val1.Equals(val2);
         return false;
     }
-    static DoesInheritFrom(t: Function, type: Function) {
+    static DoesInheritFrom(t: Function, type: Function): bool {
         var temp = t;
         while (temp && temp !== type) {
             temp = (<any>temp)._BaseClass;
         }
         return temp != null;
+    }
+    static GetPropertyDescriptor(obj: any, name: string): PropertyDescriptor {
+        if (!obj)
+            return;
+        var type: Function = (<any>obj).constructor;
+        var propDesc = Object.getOwnPropertyDescriptor(type.prototype, name);
+        if (propDesc)
+            return propDesc;
+        return Object.getOwnPropertyDescriptor(obj, name);
+    }
+    static HasProperty(obj: any, name: string): bool {
+        if (!obj)
+            return false;
+        if (obj.hasOwnProperty(name))
+            return true;
+        var type = obj.constructor;
+        return type.prototype.hasOwnProperty(name);
     }
 }

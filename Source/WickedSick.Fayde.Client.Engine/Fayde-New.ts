@@ -522,6 +522,7 @@ module Fayde {
 module Fayde {
     export class XamlObject {
         XamlNode: Fayde.XamlNode;
+        TemplateOwner: DependencyObject = null;
         constructor() {
             this.XamlNode = this.CreateNode();
         }
@@ -1511,10 +1512,21 @@ module Fayde.Input {
 }
 
 module Fayde {
+    export interface IAttachedDefinition {
+        Owner: Function;
+        Prop: string;
+        Value: any;
+    }
+    function isArray(o) {
+        if (Array.isArray)
+            return Array.isArray(o);
+        return o && o.constructor === Array;
+    }
     export class JsonParser {
-        private _ResChain: any[] = [];
+        private _ResChain: Fayde.ResourceDictionary[] = [];
         private _RootXamlObject: XamlObject = null;
         private _TemplateBindingSource: DependencyObject = null;
+        private _SRExpressions: any[] = [];
         static Parse(json: any, templateBindingSource?: DependencyObject, namescope?: NameScope, resChain?: Fayde.ResourceDictionary[], rootXamlObject?: XamlObject): XamlObject {
             var parser = new JsonParser();
             if (resChain)
@@ -1537,7 +1549,7 @@ module Fayde {
             parser.SetObject(json, rd, rd.XamlNode.NameScope);
         }
         CreateObject(json: any, namescope: NameScope, ignoreResolve?: bool): XamlObject {
-            var type = json.Type;
+            var type = json.ParseType;
             if (!type)
                 return json;
             if (type === Number || type === String || type === Boolean)
@@ -1557,6 +1569,210 @@ module Fayde {
         SetObject(json: any, xobj: XamlObject, namescope: NameScope, ignoreResolve?: bool) {
             if (xobj && namescope)
                 xobj.XamlNode.NameScope = namescope;
+            var name = json.Name;
+            if (name)
+                xobj.XamlNode.SetName(name);
+            xobj.TemplateOwner = this._TemplateBindingSource;
+            var dobj: DependencyObject;
+            if (xobj instanceof DependencyObject)
+                dobj = <DependencyObject>xobj;
+            var type = json.ParseType;
+            var propd: DependencyProperty;
+            var propValue;
+            if (json.Props) {
+                for (var propName in json.Props) {
+                    propValue = json.Props[propName];
+                    if (propValue === undefined)
+                        continue;
+                    var ctor = (<any>xobj).constructor;
+                    if (dobj)
+                        propd = DependencyProperty.GetDependencyProperty(ctor, propName);
+                    this.TrySetPropertyValue(xobj, propd, propValue, namescope, false, ctor, propName);
+                }
+            }
+            var attachedProps: IAttachedDefinition[] = json.AttachedProps;
+            if (attachedProps) {
+                if (!isArray(attachedProps))
+                    throw new Exception("json.AttachedProps is not an array");
+                for (var i in attachedProps) {
+                    var attachedDef: IAttachedDefinition = attachedProps[i];
+                    propd = DependencyProperty.GetDependencyProperty(attachedDef.Owner, attachedDef.Prop);
+                    propValue = attachedDef.Value;
+                    this.TrySetPropertyValue(xobj, propd, propValue, namescope, true, attachedDef.Owner, attachedDef.Prop);
+                }
+            }
+            if (json.Events) {
+                for (var i in json.Events) {
+                    var targetEvent = xobj[i];
+                    if (!targetEvent || !(targetEvent instanceof MulticastEvent))
+                        throw new ArgumentException("Could not locate event '" + i + "' on object '" + type._TypeName + "'.");
+                    var root = this._RootXamlObject;
+                    var callbackName = json.Events[i];
+                    var targetCallback = root[callbackName];
+                    if (!targetCallback || typeof targetCallback !== "function")
+                        throw new ArgumentException("Could not locate event callback '" + callbackName + "' on object '" + (<any>root).constructor._TypeName + "'.");
+                    targetEvent.Subscribe(targetCallback, root);
+                }
+            }
+            var contentProp = this.GetAnnotationMember(type, "ContentProperty");
+            var pd: DependencyProperty;
+            var pn: string;
+            if (contentProp) {
+                if (contentProp instanceof DependencyProperty) {
+                    pd = contentProp;
+                    pn = pd.Name;
+                } else if (typeof contentProp === "string") {
+                    pn = contentProp;
+                }
+                var content = json.Content;
+                if (content) {
+                    if (content instanceof Markup)
+                        content = content.Transmute(xobj, contentProp, "Content", this._TemplateBindingSource);
+                    else
+                        content = this.CreateObject(content, namescope, true);
+                    this.SetValue(xobj, pd, pn, content);
+                }
+            }
+            if (json.Children) {
+                this.TrySetCollectionProperty(<any[]>json.Children, xobj, pd, pn, namescope);
+            }
+            if (!ignoreResolve) {
+                this.ResolveStaticResourceExpressions();
+            }
+        }
+        TrySetPropertyValue(xobj: XamlObject, propd: DependencyProperty, propValue: any, namescope: NameScope, isAttached: bool, ownerType: Function, propName: string) {
+            if (propValue.ParseType) {
+                propValue = this.CreateObject(propValue, namescope, true);
+            }
+            if (propValue instanceof Markup)
+                propValue = propValue.Transmute(xobj, propd, propName, this._TemplateBindingSource);
+            if (propValue instanceof StaticResourceExpression) {
+                this.SetValue(xobj, propd, propName, propValue);
+                return;
+            }
+            if (propd) {
+                if (this.TrySetCollectionProperty(propValue, xobj, propd, undefined, namescope))
+                    return;
+                if (!(propValue instanceof Fayde.Expression)) {
+                    var targetType = propd.GetTargetType();
+                    if (!(propValue instanceof targetType)) {
+                        var propDesc = Nullstone.GetPropertyDescriptor(xobj, propName);
+                        if (propDesc) {
+                            var setFunc = propDesc.set;
+                            var converter: (val: any) => any;
+                            if (setFunc && (converter = (<any>setFunc).Converter) && converter instanceof Function)
+                                propValue = converter(propValue);
+                        }
+                    }
+                }
+                this.SetValue(xobj, propd, propName, propValue);
+            } else if (!isAttached) {
+                if (Nullstone.HasProperty(xobj, propName)) {
+                    xobj[propName] = propValue;
+                } else {
+                    var func = xobj["Set" + propName];
+                    if (func && func instanceof Function)
+                        func.call(xobj, propValue);
+                }
+            } else {
+                Warn("Could not find attached property: " + (<any>ownerType)._TypeName + "." + propName);
+            }
+        }
+        TrySetCollectionProperty(subJson: any[], xobj: XamlObject, propd: DependencyProperty, propertyName: string, namescope: NameScope) {
+            if (!subJson)
+                return false;
+            if (!((Array.isArray && Array.isArray(subJson)) || (<any>subJson).constructor === Array))
+                return false;
+            var coll: XamlObjectCollection;
+            if (propd) {
+                var targetType = propd.GetTargetType();
+                if (!Nullstone.DoesInheritFrom(targetType, XamlObjectCollection))
+                    return false;
+                if (propd._IsAutoCreated) {
+                    coll = (<DependencyObject>xobj).GetValue(propd);
+                } else {
+                    coll = <XamlObjectCollection>(new <any>targetType());
+                    (<DependencyObject>xobj).SetValue(propd, coll);
+                }
+            } else if (typeof propertyName === "string") {
+                coll = xobj[propertyName];
+            } else if (xobj instanceof XamlObjectCollection) {
+                coll = <XamlObjectCollection>xobj;
+            }
+            if (!(coll instanceof XamlObjectCollection))
+                return false;
+            if (coll instanceof ResourceDictionary) {
+                this.SetResourceDictionary(<ResourceDictionary>coll, subJson, namescope);
+            } else {
+                for (var i = 0; i < subJson.length; i++) {
+                    coll.Add(this.CreateObject(subJson[i], namescope, true));
+                }
+            }
+            return true;
+        }
+        SetResourceDictionary(rd: ResourceDictionary, subJson: any[], namescope: NameScope) {
+            var oldChain = this._ResChain;
+            this._ResChain = this._ResChain.slice(0);
+            this._ResChain.push(rd);
+            var fobj: XamlObject;
+            var cur: any;
+            var key: any;
+            var val: any;
+            for (var i = 0; i < subJson.length; i++) {
+                cur = subJson[i];
+                key = cur.Key;
+                val = cur.Value;
+                if (val.ParseType === Style) {
+                    fobj = this.CreateObject(val, namescope, true);
+                    if (!key)
+                        key = (<Style>fobj).TargetType;
+                } else {
+                    fobj = new ResourceTarget(val, namescope, this._TemplateBindingSource, this._ResChain);
+                }
+                if (key)
+                    rd.Set(key, fobj);
+            }
+            this._ResChain = oldChain;
+        }
+        ResolveStaticResourceExpressions() {
+            var srs = this._SRExpressions;
+            if (!srs || srs.length === 0)
+                return;
+            var cur: any;
+            while (cur = srs.shift()) {
+                cur.Resolve(this);
+            }
+        }
+        SetValue(xobj:XamlObject, propd: DependencyProperty, propName: string, value: any) {
+            if (propd) {
+                if (value instanceof StaticResourceExpression) {
+                    this._SRExpressions.push(value);
+                    (<DependencyObject>xobj).SetValueInternal(propd, new DeferredValueExpression());
+                } else if (value instanceof Expression) {
+                    (<DependencyObject>xobj).SetValueInternal(propd, value);
+                } else {
+                    (<DependencyObject>xobj)._Store.SetValue(propd, value);
+                }
+            } else if (propName) {
+                xobj[propName] = value;
+            }
+        }
+        private GetAnnotationMember(type: Function, member: string) {
+            if (!type)
+                return;
+            var t = <any>type;
+            var anns = t.Annotations;
+            var annotation;
+            if (anns && (annotation = anns[member]))
+                return annotation;
+            return this.GetAnnotationMember(t._BaseClass, member);
+        }
+    }
+}
+
+module Fayde {
+    export class Markup {
+        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject) {
         }
     }
 }
@@ -2758,12 +2974,29 @@ class Nullstone {
             return val1.Equals(val2);
         return false;
     }
-    static DoesInheritFrom(t: Function, type: Function) {
+    static DoesInheritFrom(t: Function, type: Function): bool {
         var temp = t;
         while (temp && temp !== type) {
             temp = (<any>temp)._BaseClass;
         }
         return temp != null;
+    }
+    static GetPropertyDescriptor(obj: any, name: string): PropertyDescriptor {
+        if (!obj)
+            return;
+        var type: Function = (<any>obj).constructor;
+        var propDesc = Object.getOwnPropertyDescriptor(type.prototype, name);
+        if (propDesc)
+            return propDesc;
+        return Object.getOwnPropertyDescriptor(obj, name);
+    }
+    static HasProperty(obj: any, name: string): bool {
+        if (!obj)
+            return false;
+        if (obj.hasOwnProperty(name))
+            return true;
+        var type = obj.constructor;
+        return type.prototype.hasOwnProperty(name);
     }
 }
 
@@ -2775,6 +3008,14 @@ module Fayde.Shapes {
 module Fayde.Shapes {
     export function ParsePointCollection(val: string): PointCollection {
         return new PointCollection();
+    }
+}
+
+module Fayde {
+    export class DeferredValueExpression extends Expression {
+        GetValue(propd: DependencyProperty): any {
+            return undefined;
+        }
     }
 }
 
@@ -2958,7 +3199,7 @@ class DependencyProperty {
         return RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, undefined, undefined, undefined, undefined, undefined, undefined, inheritable);
     }
     static RegisterFull(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void, autocreator?: IAutoCreator, coercer?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any, alwaysChange?: bool, validator?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => bool, isCustom?: bool, isReadOnly?: bool, isAttached?: bool, inheritable?): DependencyProperty {
-        var registeredDPs = (<any>ownerType)._RegisteredDPs;
+        var registeredDPs: DependencyProperty[] = (<any>ownerType)._RegisteredDPs;
         if (!registeredDPs)
             (<any>ownerType)._RegisteredDPs = registeredDPs = [];
         if (registeredDPs[name] !== undefined)
@@ -3004,6 +3245,17 @@ class DependencyProperty {
             return coerced;
         isValidOut.IsValid = true;
         return coerced;
+    }
+    static GetDependencyProperty(ownerType: Function, name: string) {
+        if (!ownerType)
+            return null;
+        var reg: DependencyProperty[] = (<any>ownerType)._RegisteredDPs;
+        var propd: DependencyProperty;
+        if (reg)
+            propd = reg[name];
+        if (!propd)
+            propd = DependencyProperty.GetDependencyProperty((<any>ownerType)._BaseClass, name);
+        return propd;
     }
 }
 
@@ -3386,6 +3638,25 @@ module Fayde {
 }
 
 module Fayde {
+    export class ResourceTarget extends XamlObject {
+        private _Json: any;
+        private _Namescope: NameScope;
+        private _TemplateBindingSource: DependencyObject;
+        private _ResChain: ResourceDictionary[];
+        constructor(json: any, namescope: NameScope, templateBindingSource: DependencyObject, resChain: ResourceDictionary[]) {
+            super();
+            this._Json = json;
+            this._Namescope = namescope;
+            this._TemplateBindingSource = templateBindingSource;
+            this._ResChain = resChain;
+        }
+        CreateResource(): XamlObject {
+            return JsonParser.Parse(this._Json, this._TemplateBindingSource, this._Namescope, this._ResChain);
+        }
+    }
+}
+
+module Fayde {
     export class RoutedEvent extends MulticastEvent {
         Raise(sender: any, args: RoutedEventArgs) {
         }
@@ -3411,6 +3682,64 @@ module Fayde {
             Object.defineProperty(this, "NewSize", {
                 get: function () { return size.clone(newSize); }
             });
+        }
+    }
+}
+
+module Fayde {
+    export class StaticResourceExpression extends Expression {
+        Key: any;
+        Target: XamlObject;
+        Property: DependencyProperty;
+        PropertyName: string;
+        constructor(key, target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: XamlObject) {
+            super();
+            this.Key = key;
+            this.Target = target;
+            this.Property = propd;
+            this.PropertyName = propName;
+        }
+        GetValue(propd: DependencyProperty): any {
+            return undefined;
+        }
+        private _GetValue(resChain: ResourceDictionary[]): any {
+            var o: XamlObject;
+            var key = this.Key;
+            var len = resChain.length;
+            for (var i = len - 1; i >= 0; i--) {
+                o = resChain[i].Get(key);
+                if (o)
+                    return o;
+            }
+            var cur = this.Target;
+            var rd: ResourceDictionary;
+            var curNode = cur ? cur.XamlNode : null;
+            while (curNode) {
+                cur = curNode.XObject;
+                if (cur instanceof FrameworkElement)
+                    rd = (<FrameworkElement>cur).Resources;
+                else if (cur instanceof ResourceDictionary)
+                    rd = <ResourceDictionary>cur;
+                if (rd && (o = rd.Get(key)))
+                    return o;
+                curNode = curNode.ParentNode;
+            }
+            return App.Instance.Resources.Get(key);
+        }
+        Resolve(parser: JsonParser, resChain: ResourceDictionary[]) {
+            var isAttached = false;
+            var ownerType;
+            var propd = this.Property;
+            if (propd) {
+                isAttached = propd._IsAttached;
+                ownerType = propd.OwnerType;
+            }
+            var value = this._GetValue(resChain);
+            if (value instanceof ResourceTarget)
+                value = value.CreateResource();
+            if (!value)
+                throw new XamlParseException("Could not resolve StaticResource: '" + this.Key.toString() + "'.");
+            parser.TrySetPropertyValue(this.Target, propd, value, null, isAttached, ownerType, this.PropertyName);
         }
     }
 }
@@ -3482,6 +3811,92 @@ module Fayde {
             }
             this.Seal();
             return true;
+        }
+    }
+}
+
+module Fayde {
+    export class TemplateBindingExpression extends Expression {
+        private _Target: DependencyObject;
+        private _Listener: Providers.IPropertyChangedListener;
+        SourceProperty: DependencyProperty;
+        TargetProperty: DependencyProperty;
+        TargetPropertyName: string;
+        private _SetsParent: bool = false;
+        constructor(sourcePropd: DependencyProperty, targetPropd: DependencyProperty, targetPropName) {
+            super();
+            this.SourceProperty = sourcePropd;
+            this.TargetProperty = targetPropd;
+            this.TargetPropertyName = targetPropName;
+        }
+        GetValue(propd: DependencyProperty) {
+            var target = this._Target;
+            var source = target.TemplateOwner;
+            var value;
+            if (source)
+                value = source._Store.GetValue(this.SourceProperty);
+            value = TypeConverter.ConvertObject(this.TargetProperty, value, (<any>target).constructor, true);
+            return value;
+        }
+        OnAttached(dobj: DependencyObject) {
+            super.OnAttached(dobj);
+            this._Target = dobj;
+            this._DetachListener();
+            var cc: Controls.ContentControl;
+            if (this._Target instanceof Controls.ContentControl)
+                cc = <Controls.ContentControl>this._Target;
+            if (cc && this.TargetProperty._ID === Controls.ContentControl.ContentProperty._ID) {
+                this._SetsParent = cc._ContentSetsParent;
+                cc._ContentSetsParent = false;
+            }
+            this._AttachListener();
+        }
+        OnDetached(dobj: DependencyObject) {
+            super.OnDetached(dobj);
+            var listener = this._Listener;
+            if (!listener)
+                return;
+            var cc: Controls.ContentControl;
+            if (this._Target instanceof Controls.ContentControl)
+                cc = <Controls.ContentControl>this._Target;
+            if (cc)
+                cc._ContentSetsParent = this._SetsParent;
+            this._DetachListener();
+            this._Target = null;
+        }
+        OnPropertyChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
+            if (this.SourceProperty._ID !== args.Property._ID)
+                return;
+            try {
+                this.IsUpdating = true;
+                var store = this._Target._Store;
+                var targetProp = this.TargetProperty;
+                try {
+                    store.SetValue(targetProp, this.GetValue(null));
+                } catch (err2) {
+                    var val = targetProp.DefaultValue;
+                    if (val === undefined)
+                        val = targetProp._IsAutoCreated ? targetProp._AutoCreator.GetValue(targetProp, this._Target) : undefined;
+                    store.SetValue(targetProp, val);
+                }
+            } catch (err) {
+            } finally {
+                this.IsUpdating = false;
+            }
+        }
+        private _AttachListener() {
+            var source = this._Target.TemplateOwner;
+            if (!source)
+                return;
+            this._Listener = this;
+            source._Store._SubscribePropertyChanged(this);
+        }
+        private _DetachListener() {
+            var listener = this._Listener;
+            if (!listener)
+                return;
+            this._Target.TemplateOwner._Store._UnsubscribePropertyChanged(listener);
+            this._Listener = listener = null;
         }
     }
 }
@@ -4031,12 +4446,12 @@ module Fayde.Providers {
                     list[i - 1].StopValue = storage.StopValue;
             }
         }
-        _SubscribePropertyChanged(listener: IPropertyChangedListener) {
+        _SubscribePropertyChanged(listener: Providers.IPropertyChangedListener) {
             var l = this._PropertyChangedListeners;
             if (l.indexOf(listener) < 0)
                 l.push(listener);
         }
-        _UnsubscribePropertyChanged(listener: IPropertyChangedListener) {
+        _UnsubscribePropertyChanged(listener: Providers.IPropertyChangedListener) {
             var l = this._PropertyChangedListeners;
             var index = l.indexOf(listener);
             if (index > -1)
@@ -5197,6 +5612,33 @@ module Fayde.Input {
     }
 }
 
+module Fayde {
+    export class StaticResourceMarkup extends Markup {
+        Key: any;
+        constructor(key: any) {
+            super();
+            this.Key = key;
+        }
+        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject) {
+            return new StaticResourceExpression(this.Key, target, propd, propName, templateBindingSource);
+        }
+    }
+}
+
+module Fayde {
+    export class TemplateBindingMarkup extends Markup {
+        Path: string;
+        constructor(path: string) {
+            super();
+            this.Path = path;
+        }
+        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject) {
+            var sourcePropd = DependencyProperty.GetDependencyProperty((<any>templateBindingSource).constructor, this.Path);
+            return new TemplateBindingExpression(sourcePropd, propd, propName);
+        }
+    }
+}
+
 module Fayde.Media {
     export class SolidColorBrush extends Brush {
         Color: Color;
@@ -5850,6 +6292,16 @@ module Fayde.Providers {
         SetIsEnabledSource(source: DependencyObject) {
             this._InheritedIsEnabledProvider.SetDataSource(source);
         }
+    }
+}
+
+module Fayde.Controls {
+    export class ContentControl extends Control {
+        _ContentSetsParent: bool = true;
+        static ContentProperty: DependencyProperty = DependencyProperty.RegisterCore("Content", function () { return Object; }, ContentControl, undefined, function (d, args) { (<ContentControl>d).OnContentChanged(args.OldValue, args.NewValue); });
+        static ContentTemplateProperty = DependencyProperty.RegisterCore("ContentTemplate", function () { return ControlTemplate; }, ContentControl, undefined, function (d, args) { (<ContentControl>d).OnContentTemplateChanged(args.OldValue, args.NewValue); });
+        OnContentChanged(oldContent: any, newContent: any) { }
+        OnContentTemplateChanged(oldContentTemplate: ControlTemplate, newContentTemplate: ControlTemplate) { }
     }
 }
 

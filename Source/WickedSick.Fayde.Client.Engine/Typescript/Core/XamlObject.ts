@@ -4,6 +4,7 @@
 module Fayde {
     export class XamlObject {
         XamlNode: Fayde.XamlNode;
+        TemplateOwner: DependencyObject = null;
         constructor() {
             this.XamlNode = this.CreateNode();
         }

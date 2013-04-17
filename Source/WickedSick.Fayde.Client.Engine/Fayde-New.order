@@ -18,6 +18,7 @@ Engine/Interfaces.js
 Engine/Surface.js
 Input/Keyboard.js
 Markup/JsonParser.js
+Markup/Markup.js
 Media/Brush.js
 Media/Geometry.js
 Media/Matrix.js
@@ -47,14 +48,18 @@ Runtime/MulticastEvent.js
 Runtime/Nullstone.js
 Shapes/PointCollection.js
 Shapes/ShapesParser.js
+Core/DeferredValueExpression.js
 Core/DependencyObject.js
 Core/DependencyProperty.js
 Core/FrameworkTemplate.js
 Core/LayoutUpdater.js
+Core/ResourceTarget.js
 Core/RoutedEvent.js
 Core/RoutedEventArgs.js
 Core/SizeChangedEventArgs.js
+Core/StaticResourceExpression.js
 Core/Style.js
+Core/TemplateBindingExpression.js
 Core/UIElement.js
 Core/XamlObjectCollection.js
 Core/Providers/BasicProviderStore.js
@@ -71,6 +76,8 @@ Engine/RenderContext.js
 Input/KeyEventArgs.js
 Input/KeyInterop.js
 Input/MouseEventArgs.js
+Markup/StaticResourceMarkup.js
+Markup/TemplateBindingMarkup.js
 Media/SolidColorBrush.js
 Controls/ControlTemplate.js
 Core/DataTemplate.js
@@ -92,3 +99,4 @@ Controls/TextBlock.js
 Controls/UserControl.js
 Controls/Primitives/Popup.js
 Core/Providers/ControlProviderStore.js
+Controls/ContentControl.js

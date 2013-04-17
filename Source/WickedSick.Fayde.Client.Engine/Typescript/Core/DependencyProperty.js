@@ -95,6 +95,20 @@ var DependencyProperty = (function () {
         isValidOut.IsValid = true;
         return coerced;
     };
+    DependencyProperty.GetDependencyProperty = function GetDependencyProperty(ownerType, name) {
+        if(!ownerType) {
+            return null;
+        }
+        var reg = (ownerType)._RegisteredDPs;
+        var propd;
+        if(reg) {
+            propd = reg[name];
+        }
+        if(!propd) {
+            propd = DependencyProperty.GetDependencyProperty((ownerType)._BaseClass, name);
+        }
+        return propd;
+    };
     return DependencyProperty;
 })();
 //@ sourceMappingURL=DependencyProperty.js.map

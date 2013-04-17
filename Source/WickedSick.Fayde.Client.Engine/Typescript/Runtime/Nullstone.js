@@ -22,6 +22,27 @@ var Nullstone = (function () {
         }
         return temp != null;
     };
+    Nullstone.GetPropertyDescriptor = function GetPropertyDescriptor(obj, name) {
+        if(!obj) {
+            return;
+        }
+        var type = (obj).constructor;
+        var propDesc = Object.getOwnPropertyDescriptor(type.prototype, name);
+        if(propDesc) {
+            return propDesc;
+        }
+        return Object.getOwnPropertyDescriptor(obj, name);
+    };
+    Nullstone.HasProperty = function HasProperty(obj, name) {
+        if(!obj) {
+            return false;
+        }
+        if(obj.hasOwnProperty(name)) {
+            return true;
+        }
+        var type = obj.constructor;
+        return type.prototype.hasOwnProperty(name);
+    };
     return Nullstone;
 })();
 //@ sourceMappingURL=Nullstone.js.map

@@ -329,12 +329,12 @@ module Fayde.Providers {
             }
         }
 
-        _SubscribePropertyChanged(listener: IPropertyChangedListener) {
+        _SubscribePropertyChanged(listener: Providers.IPropertyChangedListener) {
             var l = this._PropertyChangedListeners;
             if (l.indexOf(listener) < 0)
                 l.push(listener);
         }
-        _UnsubscribePropertyChanged(listener: IPropertyChangedListener) {
+        _UnsubscribePropertyChanged(listener: Providers.IPropertyChangedListener) {
             var l = this._PropertyChangedListeners;
             var index = l.indexOf(listener);
             if (index > -1)

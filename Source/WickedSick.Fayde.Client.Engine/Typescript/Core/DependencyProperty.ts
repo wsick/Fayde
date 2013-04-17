@@ -75,7 +75,7 @@ class DependencyProperty {
     }
 
     static RegisterFull(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void, autocreator?: IAutoCreator, coercer?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any, alwaysChange?: bool, validator?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => bool, isCustom?: bool, isReadOnly?: bool, isAttached?: bool, inheritable?): DependencyProperty {
-        var registeredDPs = (<any>ownerType)._RegisteredDPs;
+        var registeredDPs: DependencyProperty[] = (<any>ownerType)._RegisteredDPs;
         if (!registeredDPs)
             (<any>ownerType)._RegisteredDPs = registeredDPs = [];
         if (registeredDPs[name] !== undefined)
@@ -125,5 +125,17 @@ class DependencyProperty {
             return coerced;
         isValidOut.IsValid = true;
         return coerced;
+    }
+
+    static GetDependencyProperty(ownerType: Function, name: string) {
+        if (!ownerType)
+            return null;
+        var reg: DependencyProperty[] = (<any>ownerType)._RegisteredDPs;
+        var propd: DependencyProperty;
+        if (reg)
+            propd = reg[name];
+        if (!propd)
+            propd = DependencyProperty.GetDependencyProperty((<any>ownerType)._BaseClass, name);
+        return propd;
     }
 }

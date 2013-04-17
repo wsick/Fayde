@@ -464,6 +464,10 @@
     <Content Include="Tests\XamlNodeTests.js">
       <DependentUpon>XamlNodeTests.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ContentControl.ts" />
+    <Content Include="Typescript\Controls\ContentControl.js">
+      <DependentUpon>ContentControl.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Control.js">
       <DependentUpon>Control.ts</DependentUpon>
     </Content>
@@ -496,6 +500,10 @@
     <TypeScriptCompile Include="Typescript\Core\DataTemplate.ts" />
     <Content Include="Typescript\Core\DataTemplate.js">
       <DependentUpon>DataTemplate.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\DeferredValueExpression.ts" />
+    <Content Include="Typescript\Core\DeferredValueExpression.js">
+      <DependentUpon>DeferredValueExpression.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Core\DependencyObjectCollection.js">
       <DependentUpon>DependencyObjectCollection.ts</DependentUpon>
@@ -588,6 +596,10 @@
     <TypeScriptCompile Include="Typescript\Core\Setter.ts" />
     <TypeScriptCompile Include="Typescript\Core\RoutedEventArgs.ts" />
     <TypeScriptCompile Include="Typescript\Core\RoutedEvent.ts" />
+    <TypeScriptCompile Include="Typescript\Core\ResourceTarget.ts" />
+    <Content Include="Typescript\Core\ResourceTarget.js">
+      <DependentUpon>ResourceTarget.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\RoutedEvent.js">
       <DependentUpon>RoutedEvent.ts</DependentUpon>
     </Content>
@@ -601,11 +613,19 @@
     <Content Include="Typescript\Core\SizeChangedEventArgs.js">
       <DependentUpon>SizeChangedEventArgs.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Core\StaticResourceExpression.ts" />
+    <Content Include="Typescript\Core\StaticResourceExpression.js">
+      <DependentUpon>StaticResourceExpression.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\Style.js">
       <DependentUpon>Style.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Core\Walkers.ts" />
     <TypeScriptCompile Include="Typescript\Core\TypeConverter.ts" />
+    <TypeScriptCompile Include="Typescript\Core\TemplateBindingExpression.ts" />
+    <Content Include="Typescript\Core\TemplateBindingExpression.js">
+      <DependentUpon>TemplateBindingExpression.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\TypeConverter.js">
       <DependentUpon>TypeConverter.ts</DependentUpon>
     </Content>
@@ -661,6 +681,18 @@
     <TypeScriptCompile Include="Typescript\Markup\JsonParser.ts" />
     <Content Include="Typescript\Markup\JsonParser.js">
       <DependentUpon>JsonParser.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Markup\Markup.ts" />
+    <Content Include="Typescript\Markup\Markup.js">
+      <DependentUpon>Markup.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Markup\StaticResourceMarkup.ts" />
+    <Content Include="Typescript\Markup\StaticResourceMarkup.js">
+      <DependentUpon>StaticResourceMarkup.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Markup\TemplateBindingMarkup.ts" />
+    <Content Include="Typescript\Markup\TemplateBindingMarkup.js">
+      <DependentUpon>TemplateBindingMarkup.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Media\Brush.js">
       <DependentUpon>Brush.ts</DependentUpon>

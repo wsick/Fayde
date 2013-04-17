@@ -4,6 +4,7 @@ var Fayde;
 (function (Fayde) {
     var XamlObject = (function () {
         function XamlObject() {
+            this.TemplateOwner = null;
             this.XamlNode = this.CreateNode();
         }
         XamlObject.prototype.CreateNode = function () {

@@ -18,6 +18,7 @@ Typescript\Engine\Interfaces.ts
 Typescript\Engine\Surface.ts
 Typescript\Input\Keyboard.ts
 Typescript\Markup\JsonParser.ts
+Typescript\Markup\Markup.ts
 Typescript\Media\Brush.ts
 Typescript\Media\Geometry.ts
 Typescript\Media\Matrix.ts
@@ -47,14 +48,18 @@ Typescript\Runtime\MulticastEvent.ts
 Typescript\Runtime\Nullstone.ts
 Typescript\Shapes\PointCollection.ts
 Typescript\Shapes\ShapesParser.ts
+Typescript\Core\DeferredValueExpression.ts
 Typescript\Core\DependencyObject.ts
 Typescript\Core\DependencyProperty.ts
 Typescript\Core\FrameworkTemplate.ts
 Typescript\Core\LayoutUpdater.ts
+Typescript\Core\ResourceTarget.ts
 Typescript\Core\RoutedEvent.ts
 Typescript\Core\RoutedEventArgs.ts
 Typescript\Core\SizeChangedEventArgs.ts
+Typescript\Core\StaticResourceExpression.ts
 Typescript\Core\Style.ts
+Typescript\Core\TemplateBindingExpression.ts
 Typescript\Core\UIElement.ts
 Typescript\Core\XamlObjectCollection.ts
 Typescript\Core\Providers\BasicProviderStore.ts
@@ -71,6 +76,8 @@ Typescript\Engine\RenderContext.ts
 Typescript\Input\KeyEventArgs.ts
 Typescript\Input\KeyInterop.ts
 Typescript\Input\MouseEventArgs.ts
+Typescript\Markup\StaticResourceMarkup.ts
+Typescript\Markup\TemplateBindingMarkup.ts
 Typescript\Media\SolidColorBrush.ts
 Typescript\Controls\ControlTemplate.ts
 Typescript\Core\DataTemplate.ts
@@ -92,3 +99,4 @@ Typescript\Controls\TextBlock.ts
 Typescript\Controls\UserControl.ts
 Typescript\Controls\Primitives\Popup.ts
 Typescript\Core\Providers\ControlProviderStore.ts
+Typescript\Controls\ContentControl.ts
