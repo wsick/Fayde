@@ -456,5 +456,8 @@ module Fayde {
         private _DoArrangeWithError(error: BError) {
             //TODO: Implement
         }
+        DoRender(ctx: Fayde.RenderContext, r: rect) {
+            //TODO: Implement
+        }
     }
 }

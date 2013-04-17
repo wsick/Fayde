@@ -329,7 +329,35 @@ var Surface = (function () {
     };
     Surface.prototype._Invalidate = // RENDER
     function (r) {
-        //TODO: Implement
+        if(!r) {
+            r = rect.fromSize(this.Extents);
+        }
+        if(!this._InvalidatedRect) {
+            this._InvalidatedRect = rect.clone(r);
+        } else {
+            rect.union(this._InvalidatedRect, r);
+        }
+    };
+    Surface.prototype.Render = function () {
+        var r = this._InvalidatedRect;
+        if(!r) {
+            return;
+        }
+        if(!(r.Width > 0 && r.Height > 0)) {
+            return;
+        }
+        if(!this._RenderContext) {
+            this._RenderContext = new Fayde.RenderContext(this);
+        }
+        //var startRenderTime;
+        //var isRenderPassTimed;
+        //if (isRenderPassTimed = (this._App._DebugFunc[4] != null))
+        //startRenderTime = new Date().getTime();
+        //if (window.RenderDebug) RenderDebug.Count = 0;
+        this._RenderContext.DoRender(this._Layers, r);
+        //if (window.RenderDebug) RenderDebug("UIElement Count: " + RenderDebug.Count);
+        //if (isRenderPassTimed)
+        //this._App._NotifyDebugRenderPass(new Date().getTime() - startRenderTime);
             };
     Surface.prototype._HandleResize = // RESIZE
     function (evt) {

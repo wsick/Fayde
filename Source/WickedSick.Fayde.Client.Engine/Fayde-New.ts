@@ -624,6 +624,8 @@ class App {
     static Instance: App;
     MainSurface: Surface;
     Resources: Fayde.ResourceDictionary;
+    private _IsRunning: bool = false;
+    private _Storyboards: any[] = [];
     constructor() {
         this.MainSurface = new Surface(this);
         Object.defineProperty(this, "Resources", {
@@ -633,6 +635,28 @@ class App {
     }
     get RootVisual(): Fayde.UIElement {
         return this.MainSurface._TopLevel;
+    }
+    private _Tick(lastTime:number, nowTime:number) {
+        this.ProcessStoryboards(lastTime, nowTime);
+        this.Update();
+        this.Render();
+    }
+    private ProcessStoryboards(lastTime: number, nowTime: number) {
+        var sbs = this._Storyboards;
+        var len = sbs.length;
+        for (var i = 0; i < len; i++) {
+            sbs[i].Update(nowTime);
+        }
+    }
+    private Update() {
+        if (this._IsRunning)
+            return;
+        this._IsRunning = true;
+        var updated = this.MainSurface.ProcessDirtyElements();
+        this._IsRunning = false;
+    }
+    private Render() {
+        this.MainSurface.Render();
     }
 }
 
@@ -720,6 +744,8 @@ class Surface {
     private _CurrentPos: Point = null;
     private _EmittingMouseEvent: bool = false;
     private _Cursor: string = Fayde.CursorType.Default;
+    private _InvalidatedRect: rect;
+    private _RenderContext: Fayde.RenderContext;
     constructor(app: App) {
         this._App = app;
         this._KeyInterop = Fayde.Input.KeyInterop.CreateInterop(this);
@@ -969,6 +995,22 @@ class Surface {
         this._RemoveFocusFrom(lu);
     }
     _Invalidate(r?: rect) {
+        if (!r)
+            r = rect.fromSize(this.Extents);
+        if (!this._InvalidatedRect)
+            this._InvalidatedRect = rect.clone(r);
+        else
+            rect.union(this._InvalidatedRect, r);
+    }
+    Render() {
+        var r = this._InvalidatedRect;
+        if (!r)
+            return;
+        if (!(r.Width > 0 && r.Height > 0))
+            return;
+        if (!this._RenderContext)
+            this._RenderContext = new Fayde.RenderContext(this);
+        this._RenderContext.DoRender(this._Layers, r);
     }
     private _HandleResize(evt) {
         if (resizeTimeout)
@@ -3134,6 +3176,8 @@ module Fayde {
         }
         private _DoArrangeWithError(error: BError) {
         }
+        DoRender(ctx: Fayde.RenderContext, r: rect) {
+        }
     }
 }
 
@@ -4474,8 +4518,25 @@ module Fayde.Documents {
 module Fayde {
     export class RenderContext implements IRenderContext {
         Surface: Surface;
+        CanvasContext: CanvasRenderingContext2D;
         constructor(surface: Surface) {
             this.Surface = surface;
+        }
+        Clear(r: rect) {
+        }
+        Clip(r: rect) {
+        }
+        DoRender(layers: Fayde.UINode[], r: rect) {
+            this.Clear(r);
+            this.CanvasContext.save();
+            this.Clip(r);
+            if (layers) {
+                var len = layers.length;
+                for (var i = 0; i < len; i++) {
+                    layers[i].LayoutUpdater.DoRender(this, r);
+                }
+            }
+            this.CanvasContext.restore();
         }
     }
 }

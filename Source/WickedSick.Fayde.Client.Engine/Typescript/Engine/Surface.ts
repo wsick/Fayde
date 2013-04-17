@@ -43,6 +43,8 @@ class Surface {
     private _CurrentPos: Point = null;
     private _EmittingMouseEvent: bool = false;
     private _Cursor: string = Fayde.CursorType.Default;
+    private _InvalidatedRect: rect;
+    private _RenderContext: Fayde.RenderContext;
     constructor(app: App) {
         this._App = app;
         this._KeyInterop = Fayde.Input.KeyInterop.CreateInterop(this);
@@ -346,7 +348,33 @@ class Surface {
 
     // RENDER
     _Invalidate(r?: rect) {
-        //TODO: Implement
+        if (!r)
+            r = rect.fromSize(this.Extents);
+        if (!this._InvalidatedRect)
+            this._InvalidatedRect = rect.clone(r);
+        else
+            rect.union(this._InvalidatedRect, r);
+    }
+    Render() {
+        var r = this._InvalidatedRect;
+        if (!r)
+            return;
+        if (!(r.Width > 0 && r.Height > 0))
+            return;
+        if (!this._RenderContext)
+            this._RenderContext = new Fayde.RenderContext(this);
+
+        //var startRenderTime;
+        //var isRenderPassTimed;
+        //if (isRenderPassTimed = (this._App._DebugFunc[4] != null))
+            //startRenderTime = new Date().getTime();
+
+        //if (window.RenderDebug) RenderDebug.Count = 0;
+        this._RenderContext.DoRender(this._Layers, r);
+        //if (window.RenderDebug) RenderDebug("UIElement Count: " + RenderDebug.Count);
+
+        //if (isRenderPassTimed)
+            //this._App._NotifyDebugRenderPass(new Date().getTime() - startRenderTime);
     }
 
     // RESIZE

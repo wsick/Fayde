@@ -420,6 +420,9 @@ var Fayde;
         LayoutUpdater.prototype._DoArrangeWithError = function (error) {
             //TODO: Implement
                     };
+        LayoutUpdater.prototype.DoRender = function (ctx, r) {
+            //TODO: Implement
+                    };
         return LayoutUpdater;
     })();
     Fayde.LayoutUpdater = LayoutUpdater;    
