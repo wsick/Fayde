@@ -22,35 +22,6 @@ module Fayde {
                 error.ThrowException();
             this.SubtreeNode = subtreeNode;
         }
-        
-        IsLoaded: bool = false;
-        SetIsLoaded(value: bool) {
-            if (this.IsLoaded === value)
-                return;
-            this.IsLoaded = value;
-            this.OnIsLoadedChanged(value);
-        }
-        OnIsLoadedChanged(newIsLoaded: bool) {
-            var res = this.XObject.Resources;
-            var store = this.XObject._Store;
-            if (!newIsLoaded) {
-                store.ClearImplicitStyles(Providers._StyleMask.VisualTree);
-                //Raise unloaded event
-                //TODO: Should we set is loaded on resources that are FrameworkElements?
-            } else {
-                store.SetImplicitStyles(Providers._StyleMask.All);
-            }
-            var enumerator = this.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                (<FENode>enumerator.Current).SetIsLoaded(newIsLoaded);
-            }
-            if (newIsLoaded) {
-                //TODO: Should we set is loaded on resources that are FrameworkElements?
-                //Raise loaded event
-                this.XObject.InvokeLoaded();
-                store.EmitDataContextChanged();
-            }
-        }
 
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
             var store = this.XObject._Store;
@@ -65,12 +36,33 @@ module Fayde {
             if (this.IsLoaded)
                 store.EmitDataContextChanged();
         }
-
         OnIsAttachedChanged(newIsAttached: bool) {
             if (this.SubtreeNode)
                 this.SubtreeNode.SetIsAttached(newIsAttached);
             super.OnIsAttachedChanged(newIsAttached);
         }
+        OnIsLoadedChanged(newIsLoaded: bool) {
+            var res = this.XObject.Resources;
+            var store = this.XObject._Store;
+            if (!newIsLoaded) {
+                store.ClearImplicitStyles(Providers._StyleMask.VisualTree);
+                //Raise unloaded event
+                //TODO: Should we set is loaded on resources that are FrameworkElements?
+            } else {
+                store.SetImplicitStyles(Providers._StyleMask.All);
+            }
+            var enumerator = this.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                (<UINode>enumerator.Current).SetIsLoaded(newIsLoaded);
+            }
+            if (newIsLoaded) {
+                //TODO: Should we set is loaded on resources that are FrameworkElements?
+                //Raise loaded event
+                this.XObject.InvokeLoaded();
+                store.EmitDataContextChanged();
+            }
+        }
+
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
             if (this.SubtreeNode) {
                 if (this.SubtreeNode instanceof XamlObjectCollection)

@@ -19,7 +19,6 @@ var Fayde;
         __extends(FENode, _super);
         function FENode(xobj) {
                 _super.call(this, xobj);
-            this.IsLoaded = false;
         }
         FENode.prototype.SetSubtreeNode = function (subtreeNode) {
             var error = new BError();
@@ -28,12 +27,25 @@ var Fayde;
             }
             this.SubtreeNode = subtreeNode;
         };
-        FENode.prototype.SetIsLoaded = function (value) {
-            if(this.IsLoaded === value) {
-                return;
+        FENode.prototype.OnParentChanged = function (oldParentNode, newParentNode) {
+            var store = this.XObject._Store;
+            var visualParentNode;
+            if(newParentNode && newParentNode instanceof FENode) {
+                store.SetDataContextSource(newParentNode.XObject);
+            } else if((visualParentNode = this.VisualParentNode) && visualParentNode instanceof FENode) {
+                store.SetDataContextSource(visualParentNode.XObject);
+            } else {
+                store.SetDataContextSource(null);
             }
-            this.IsLoaded = value;
-            this.OnIsLoadedChanged(value);
+            if(this.IsLoaded) {
+                store.EmitDataContextChanged();
+            }
+        };
+        FENode.prototype.OnIsAttachedChanged = function (newIsAttached) {
+            if(this.SubtreeNode) {
+                this.SubtreeNode.SetIsAttached(newIsAttached);
+            }
+            _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
         };
         FENode.prototype.OnIsLoadedChanged = function (newIsLoaded) {
             var res = this.XObject.Resources;
@@ -55,26 +67,6 @@ var Fayde;
                 this.XObject.InvokeLoaded();
                 store.EmitDataContextChanged();
             }
-        };
-        FENode.prototype.OnParentChanged = function (oldParentNode, newParentNode) {
-            var store = this.XObject._Store;
-            var visualParentNode;
-            if(newParentNode && newParentNode instanceof FENode) {
-                store.SetDataContextSource(newParentNode.XObject);
-            } else if((visualParentNode = this.VisualParentNode) && visualParentNode instanceof FENode) {
-                store.SetDataContextSource(visualParentNode.XObject);
-            } else {
-                store.SetDataContextSource(null);
-            }
-            if(this.IsLoaded) {
-                store.EmitDataContextChanged();
-            }
-        };
-        FENode.prototype.OnIsAttachedChanged = function (newIsAttached) {
-            if(this.SubtreeNode) {
-                this.SubtreeNode.SetIsAttached(newIsAttached);
-            }
-            _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
         };
         FENode.prototype.GetVisualTreeEnumerator = function (direction) {
             if(this.SubtreeNode) {

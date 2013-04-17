@@ -9,6 +9,18 @@ var Fayde;
     /// CODE
     /// <reference path="../Core/Providers/ControlProviderStore.ts" />
     (function (Controls) {
+        var ControlNode = (function (_super) {
+            __extends(ControlNode, _super);
+            function ControlNode(xobj) {
+                        _super.call(this, xobj);
+            }
+            ControlNode.prototype.TabTo = function () {
+                var xobj = this.XObject;
+                return xobj.IsEnabled && xobj.IsTabStop && xobj.Focus();
+            };
+            return ControlNode;
+        })(Fayde.FENode);
+        Controls.ControlNode = ControlNode;        
         var Control = (function (_super) {
             __extends(Control, _super);
             function Control() {
@@ -17,6 +29,12 @@ var Fayde;
             }
             Control.prototype.CreateStore = function () {
                 return new Fayde.Providers.ControlProviderStore(this);
+            };
+            Control.prototype.CreateNode = function () {
+                return new ControlNode(this);
+            };
+            Control.prototype.Focus = function () {
+                return App.Instance.MainSurface.Focus(this);
             };
             return Control;
         })(Fayde.FrameworkElement);

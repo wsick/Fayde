@@ -5,8 +5,8 @@ IF NOT EXIST %progpath% GOTO NOSINGULARITY
 
 %progpath% "%BD%." -DeployPath:"%BD%Fayde.js" -ScriptsFolder:"%BD%Javascript" -BaseIncludesPath:"%BD%Javascript" -IncludeSubdirectories:true -IncludesFile:"%BD%Fayde.order" -Debug:true
 %progpath% "%BD%." -ts:true -DeployPath:"%BD%Fayde-New.ts" -ScriptsFolder:"%BD%Typescript" -BaseIncludesPath:"%BD%Typescript" -IncludeSubdirectories:true -IncludesFile:"%BD%Fayde-New.order" -Debug:true -TsIncludeFile:"%BD%Fayde.tsinclude" -TsIncludeFormat:"?s||Typescript\{0}"
-CD %BD%
-tsc --declaration --target ES5 Fayde-New.ts
+tsc -c --sourcemap --target ES5 @Fayde.tsinclude
+tsc --declaration --target ES5 "%BD%Fayde-New.ts"
 EXIT
 
 :NOSINGULARITY

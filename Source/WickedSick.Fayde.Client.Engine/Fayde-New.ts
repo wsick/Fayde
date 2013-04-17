@@ -3,6 +3,16 @@ module Fayde {
         Visible = 0,
         Collapsed = 1,
     }
+    export var CursorType = {
+        Default: "",
+        Hand: "pointer",
+        IBeam: "text",
+        Wait: "wait",
+        SizeNESW: "ne-resize",
+        SizeNWSE: "nw-resize",
+        SizeNS: "n-resize",
+        SizeWE: "w-resize"
+    }
 }
 
 module Fayde {
@@ -21,20 +31,94 @@ module Fayde {
 
 module Fayde {
     export class LayoutInformation {
-        /*
         static GetLayoutClip(uie: UIElement): Media.Geometry {
+            return uie.XamlNode.LayoutUpdater.LayoutClip;
         }
         static SetLayoutClip(uie: UIElement, value: Media.Geometry) {
+            uie.XamlNode.LayoutUpdater.LayoutClip = value;
         }
         static GetLayoutExceptionElement(uie: UIElement): UIElement {
+            return uie.XamlNode.LayoutUpdater.LayoutExceptionElement;
         }
         static SetLayoutExceptionElement(uie: UIElement, value: UIElement) {
+            uie.XamlNode.LayoutUpdater.LayoutExceptionElement = value;
         }
         static GetLayoutSlot(uie: UIElement): rect {
+            return uie.XamlNode.LayoutUpdater.LayoutSlot;
         }
         static SetLayoutSlot(uie: UIElement, value: rect) {
+            uie.XamlNode.LayoutUpdater.LayoutSlot = value;
         }
-        */
+    }
+}
+
+module Fayde {
+    export class LayoutUpdater {
+        private _Surface: Surface;
+        LayoutClip: Media.Geometry = undefined;
+        LayoutExceptionElement: UIElement = undefined;
+        LayoutSlot: rect = undefined;
+        PreviousConstraint: size = undefined;
+        LastRenderSize: size = undefined;
+        RenderSize: size = new size();
+        SubtreeBounds: rect = new rect();
+        DirtyFlags: _Dirty = 0;
+        UpDirtyIndex: number = -1;
+        DownDirtyIndex: number = -1;
+        constructor(public Node: UINode) { }
+        SetSurface(surface: Surface) {
+            this._Surface = surface;
+        }
+        OnIsAttachedChanged(newIsAttached: bool, visualParentNode: UINode) {
+            this.UpdateTotalRenderVisibility();
+            if (!newIsAttached) {
+                this._Surface.OnNodeDetached(this);
+            } else if (visualParentNode) {
+                this._Surface = visualParentNode.LayoutUpdater._Surface;
+            }
+        }
+        OnAddedToTree() {
+            this.UpdateTotalRenderVisibility();
+            this.UpdateTotalHitTestVisibility();
+            this.Invalidate();
+            this.LayoutClip = undefined;
+            size.clear(this.RenderSize);
+            this.UpdateTransform();
+            this.UpdateProjection();
+            this.InvalidateMeasure();
+            this.InvalidateArrange();
+        }
+        OnRemovedFromTree() {
+            this.LayoutSlot = new rect();
+            this.LayoutClip = undefined;
+        }
+        FullInvalidate(invTransforms?:bool) {
+            this.Invalidate();
+            if (invTransforms) {
+                this.UpdateTransform();
+                this.UpdateProjection();
+            }
+            this.UpdateBounds(true);
+        }
+        Invalidate(r?: rect) {
+        }
+        InvalidateMeasure() {
+        }
+        InvalidateArrange() {
+        }
+        UpdateBounds(forceRedraw?: bool) {
+        }
+        UpdateTransform() {
+        }
+        UpdateProjection() {
+        }
+        UpdateTotalRenderVisibility() {
+        }
+        UpdateTotalHitTestVisibility() {
+        }
+        GetRenderVisible(): bool {
+            return true;
+        }
     }
 }
 
@@ -186,6 +270,9 @@ module Fayde {
         Step(): UINode;
         SkipBranch();
     }
+    export interface ITabNavigationWalker {
+        FocusChild(): bool;
+    }
     function setterSort(setter1: Setter, setter2: Setter) {
         var a = setter1.Property;
         var b = setter2.Property;
@@ -274,6 +361,126 @@ module Fayde {
                 last = undefined;
             }
         };
+    }
+    function compare(left: Controls.ControlNode, right: Controls.ControlNode) {
+        if (!left)
+            return !right ? 0 : -1;
+        if (!right)
+            return 1;
+        var v1 = left.XObject.TabIndex;
+        var v2 = right.XObject.TabIndex;
+        if (v1 == null) {
+            return v2 != null ? -1 : 0;
+        } else if (v2 == null) {
+            return 1;
+        }
+        if (v1 > v2)
+            return 1;
+        return v1 === v2 ? 0 : -1;
+    }
+    function getParentNavigationMode(uin: UINode): Input.KeyboardNavigationMode {
+        while (uin) {
+            if (uin instanceof Controls.ControlNode)
+                return (<Controls.ControlNode>uin).XObject.TabNavigation;
+            return Input.KeyboardNavigationMode.Local;
+        }
+        return Input.KeyboardNavigationMode.Local;
+    }
+    function getActiveNavigationMode(uin: UINode): Input.KeyboardNavigationMode {
+        while (uin) {
+            if (uin instanceof Controls.ControlNode)
+                return (<Controls.ControlNode>uin).XObject.TabNavigation;
+            uin = uin.VisualParentNode;
+        }
+        return Input.KeyboardNavigationMode.Local;
+    }
+    function walkChildren(root: UINode, cur?: UINode, forwards?: bool) {
+        var walker = new TabNavigationWalker(root, cur, forwards);
+        return walker.FocusChild();
+    }
+    export class TabNavigationWalker implements ITabNavigationWalker {
+        private _Root: UINode;
+        private _Current: UINode;
+        private _Forwards: bool;
+        private _TabSorted: UINode[];
+        constructor(root: UINode, cur: UINode, forwards: bool) {
+            this._Root = root;
+            this._Current = cur;
+            this._Forwards = forwards;
+            this._TabSorted = [];
+        }
+        FocusChild(): bool {
+            var childNode: UINode;
+            var childIsControl;
+            var curIndex = -1;
+            var childWalker = DeepTreeWalker(this._Root.XObject);
+            while (childNode = childWalker.Step()) {
+                if (childNode === this._Root || !(childNode instanceof Controls.ControlNode))
+                    continue;
+                this._TabSorted.push(childNode);
+                childWalker.SkipBranch();
+            }
+            if (this._TabSorted.length > 1) {
+                this._TabSorted.sort(compare);
+                if (!this._Forwards)
+                    this._TabSorted = this._TabSorted.reverse();
+            }
+            var len = this._TabSorted.length;
+            for (var i = 0; i < len; i++) {
+                if (this._TabSorted[i] === this._Current)
+                    curIndex = i;
+            }
+            if (curIndex !== -1 && getActiveNavigationMode(this._Root) === Input.KeyboardNavigationMode.Once) {
+                if (!this._Forwards && this._Root instanceof Controls.ControlNode)
+                    return (<Controls.ControlNode>this._Root).TabTo();
+                return false;
+            }
+            var len = this._TabSorted.length;
+            if (len > 0) {
+                for (var j = 0; j < len; j++) {
+                    if ((j + curIndex + 1) === len && getActiveNavigationMode(this._Root) !== Input.KeyboardNavigationMode.Cycle)
+                        break;
+                    childNode = this._TabSorted[(j + curIndex + 1) % len];
+                    childIsControl = childNode instanceof Controls.ControlNode;
+                    if (childIsControl && !(<Controls.ControlNode>childNode).XObject.IsEnabled)
+                        continue;
+                    if (!this._Forwards && walkChildren(childNode))
+                        return true;
+                    if (childIsControl && (<Controls.ControlNode>childNode).TabTo())
+                        return true;
+                    if (this._Forwards && walkChildren(childNode))
+                        return true;
+                }
+            }
+            if (curIndex !== -1 && !this._Forwards) {
+                if (this._Root instanceof Controls.ControlNode)
+                    return (<Controls.ControlNode>this._Root).TabTo();
+            }
+            return false;
+        }
+        static Focus(uin: UINode, forwards?: bool): bool {
+            var focused = false;
+            var cur = uin;
+            var root = uin;
+            if ((root.VisualParentNode && getParentNavigationMode(root.VisualParentNode) === Input.KeyboardNavigationMode.Once)
+                || (!forwards && root && root.VisualParentNode)) {
+                while (root = root.VisualParentNode)
+                    if (root.XObject instanceof Fayde.Controls.Control || !root.VisualParentNode)
+                        break;
+            }
+            do {
+                focused = focused || walkChildren(root, cur, forwards);
+                if (!focused && getActiveNavigationMode(root) === Fayde.Input.KeyboardNavigationMode.Cycle)
+                    return true;
+                cur = root;
+                root = root.VisualParentNode;
+                while (root && !(root.XObject instanceof Fayde.Controls.Control) && root.VisualParentNode)
+                    root = root.VisualParentNode
+            } while (!focused && root);
+            if (!focused)
+                focused = focused || walkChildren(cur, null, forwards);
+            return focused;
+        }
     }
 }
 
@@ -482,6 +689,44 @@ module Fayde.Data {
     }
 }
 
+class App {
+    static Version: string = "0.9.4.0";
+    static Instance: App;
+    MainSurface: Surface;
+    Resources: Fayde.ResourceDictionary;
+    constructor() {
+        this.MainSurface = new Surface(this);
+        Object.defineProperty(this, "Resources", {
+            value: new Fayde.ResourceDictionary(),
+            writable: false
+        });
+    }
+    get RootVisual(): Fayde.UIElement {
+        return this.MainSurface._TopLevel;
+    }
+}
+
+enum _Dirty {
+    Transform = 1 << 0,
+    LocalTransform = 1 << 1,
+    LocalProjection = 1 << 2,
+    Clip = 1 << 3,
+    LocalClip = 1 << 4,
+    RenderVisibility = 1 << 5,
+    HitTestVisibility = 1 << 6,
+    Measure = 1 << 7,
+    Arrange = 1 << 8,
+    ChildrenZIndices = 1 << 9,
+    Bounds = 1 << 20,
+    NewBounds = 1 << 21,
+    Invalidate = 1 << 22,
+    InUpDirtyList = 1 << 30,
+    InDownDirtyList = 1 << 31,
+    DownDirtyState = Transform | LocalTransform | LocalProjection 
+        | Clip | LocalClip | RenderVisibility | HitTestVisibility | ChildrenZIndices,
+    UpDirtyState = Bounds | Invalidate,
+}
+
 class Exception {
     Message: string;
     constructor(message: string) {
@@ -509,6 +754,802 @@ class NotSupportedException extends Exception {
     }
 }
 
+module Fayde {
+    export interface IRenderContext {
+    }
+}
+
+var resizeTimeout: number;
+interface IFocusChangedEvents {
+    GotFocus: Fayde.UINode[];
+    LostFocus: Fayde.UINode[];
+}
+class Surface {
+    static TestCanvas: HTMLCanvasElement = <HTMLCanvasElement>document.createElement("canvas");
+    private _App: App;
+    _TopLevel: Fayde.UIElement;
+    private _Layers: Fayde.UINode[] = [];
+    private _UpDirty: Fayde.LayoutUpdater[] = [];
+    private _DownDirty: Fayde.LayoutUpdater[] = [];
+    private _Canvas: HTMLCanvasElement = null;
+    private _Ctx: CanvasRenderingContext2D = null;
+    private _PercentageWidth: number = 0;
+    private _PercentageHeight: number = 0;
+    private _CanvasOffset: any = null;
+    private _Extents: size = null;
+    private _KeyInterop: Fayde.Input.KeyInterop;
+    private _InputList: Fayde.UINode[] = [];
+    private _FocusedNode: Fayde.UINode = null;
+    private _FocusChangedEvents: IFocusChangedEvents[] = [];
+    private _FirstUserInitiatedEvent: bool = false;
+    private _UserInitiatedEvent: bool = false;
+    private _Captured: Fayde.UINode = null;
+    private _PendingCapture: Fayde.UINode = null;
+    private _PendingReleaseCapture: bool = false;
+    private _CurrentPos: Point = null;
+    private _EmittingMouseEvent: bool = false;
+    private _Cursor: string = Fayde.CursorType.Default;
+    constructor(app: App) {
+        this._App = app;
+        this._KeyInterop = Fayde.Input.KeyInterop.CreateInterop(this);
+    }
+    get Extents(): size {
+        if (!this._Extents)
+            this._Extents = size.fromRaw(this._Canvas.offsetWidth, this._Canvas.offsetHeight);
+        return this._Extents;
+    }
+    Register(canvas: HTMLCanvasElement, width, widthType, height, heightType) {
+        this._Canvas = canvas;
+        this._Ctx = this._Canvas.getContext("2d");
+        if (!width) {
+            width = 100;
+            widthType = "Percentage";
+        } else if (!widthType) {
+            widthType = "Percentage";
+        }
+        if (!height) {
+            height = 100;
+            heightType = "Percentage";
+        } else if (!heightType) {
+            heightType = "Percentage";
+        }
+        this._InitializeCanvas(canvas, width, widthType, height, heightType);
+        this._CalculateOffset();
+        this._RegisterEvents();
+    }
+    private _InitializeCanvas(canvas: HTMLCanvasElement, width, widthType, height, heightType) {
+        var resizesWithWindow = false;
+        if (widthType === "Percentage") {
+            resizesWithWindow = true;
+            this._PercentageWidth = width;
+        } else {
+            canvas.width = width;
+        }
+        if (heightType === "Percentage") {
+            resizesWithWindow = true;
+            this._PercentageHeight = height;
+        } else {
+            canvas.height = height;
+        }
+        if (resizesWithWindow) {
+            this._ResizeCanvas();
+            window.onresize = (e) => this._HandleResize(window.event ? <any>window.event : e);
+        }
+    }
+    private _CalculateOffset() {
+        var left = 0;
+        var top = 0;
+        var cur: HTMLElement = this._Canvas;
+        if (cur.offsetParent) {
+            do {
+                left += cur.offsetLeft;
+                top += cur.offsetTop;
+            } while (cur = <HTMLElement>cur.offsetParent);
+        }
+        this._CanvasOffset = { left: left, top: top };
+    }
+    private _RegisterEvents() {
+        var canvas = this._Canvas;
+        canvas.addEventListener("mousedown", (e) => this._HandleButtonPress(window.event ? <any>window.event : e));
+        canvas.addEventListener("mouseup", (e) => this._HandleButtonRelease(window.event ? <any>window.event : e));
+        canvas.addEventListener("mouseout", (e) => this._HandleOut(window.event ? <any>window.event : e));
+        canvas.addEventListener("mousemove", (e) => this._HandleMove(window.event ? <any>window.event : e));
+        canvas.addEventListener("mousewheel", (e) => this._HandleWheel(window.event ? <any>window.event : e));
+        canvas.addEventListener("DOMMouseScroll", (e) => this._HandleWheel(window.event ? <any>window.event : e));
+        this._KeyInterop.RegisterEvents();
+    }
+    Attach(uie: Fayde.UIElement) {
+        if (this._TopLevel)
+            this._DetachLayer(this._TopLevel);
+        if (!uie) {
+            this._Invalidate();
+            return;
+        }
+        if (!(uie instanceof Fayde.UIElement))
+            throw new Exception("Unsupported top level element.");
+        var un = uie.XamlNode;
+        if (un.NameScope == null)
+            un.NameScope = new Fayde.NameScope(true);
+        else if (!un.NameScope.IsRoot)
+            un.NameScope.IsRoot = true;
+        this._TopLevel = uie;
+        this._AttachLayer(uie);
+    }
+    private _AttachLayer(layer: Fayde.UIElement) {
+        var n = layer.XamlNode;
+        this._Layers.unshift(n);
+        n.IsTopLevel = true;
+        var lu = n.LayoutUpdater;
+        lu.SetSurface(this);
+        lu.FullInvalidate(true);
+        lu.InvalidateMeasure();
+        n.SetIsAttached(true);
+        n.SetIsLoaded(true);
+    }
+    private _DetachLayer(layer: Fayde.UIElement) {
+        var n = layer.XamlNode;
+        n.IsTopLevel = false;
+        var il = this._InputList;
+        if (il[il.length - 1] === n)
+            this._InputList = [];
+        var f = this._FocusedNode;
+        if (f) {
+            while (f) {
+                if (f === n) {
+                    this._FocusNode();
+                    break;
+                }
+                f = f.VisualParentNode;
+            }
+        }
+        var index = this._Layers.indexOf(layer.XamlNode);
+        if (index > -1)
+            this._Layers.splice(index, 1);
+        n.SetIsLoaded(false);
+        n.SetIsAttached(false);
+        this._Invalidate(n.LayoutUpdater.SubtreeBounds);
+    }
+    ProcessDirtyElements() {
+    }
+    private _HandleResize(evt) {
+        if (resizeTimeout)
+            clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => this._HandleResizeTimeout(evt), 20);
+    }
+    private _HandleResizeTimeout(evt) {
+        this._ResizeCanvas();
+        this._Extents = null;
+        var layers = this._Layers;
+        var len = layers.length;
+        var node: Fayde.UINode;
+        for (var i = 0; i < len; i++) {
+            node = layers[i];
+            node.LayoutUpdater.InvalidateMeasure();
+        }
+        resizeTimeout = null;
+    }
+    private _ResizeCanvas() {
+        var width = this._PercentageWidth;
+        var height = this._PercentageHeight;
+        if (width != null)
+            this._Canvas.width = window.innerWidth * width / 100.0;
+        if (height != null)
+            this._Canvas.height = window.innerHeight * height / 100.0;
+    }
+    private _UpdateCursorFromInputList() {
+        var newCursor = Fayde.CursorType.Default;
+        var list = this._InputList;
+        var len = list.length;
+        for (var i = 0; i < len; i++) {
+            newCursor = list[i].XObject.Cursor;
+            if (newCursor !== Fayde.CursorType.Default)
+                break;
+        }
+        this._SetCursor(newCursor);
+    }
+    private _SetCursor(cursor: string) {
+        this._Cursor = cursor;
+        this._Canvas.style.cursor = cursor;
+    }
+    _HandleKeyDown(args): bool {
+        this._SetUserInitiatedEvent(true);
+        Fayde.Input.Keyboard.RefreshModifiers(args);
+        var handled = false;
+        if (this._FocusedNode) {
+            var focusToRoot = Surface._ElementPathToRoot(this._FocusedNode);
+            handled = this._EmitKeyDown(focusToRoot, args);
+        }
+        if (!handled && args.Key === Fayde.Input.Key.Tab) {
+            if (this._FocusedNode)
+                Fayde.TabNavigationWalker.Focus(this._FocusedNode, args.Shift);
+            else
+                this._EnsureElementFocused();
+        }
+        this._SetUserInitiatedEvent(false);
+        return handled;
+    }
+    private _EmitKeyDown(list: Fayde.UINode[], args, endIndex?: number) {
+        if (endIndex === 0)
+            return;
+        if (!endIndex || endIndex === -1)
+            endIndex = list.length;
+        var i = 0;
+        var cur = list.shift();
+        while (cur && i < endIndex) {
+            cur._EmitKeyDown(args);
+            cur = list.shift();
+            i++;
+        }
+        return args.Handled;
+    }
+    private _HandleButtonPress(evt) {
+        Fayde.Input.Keyboard.RefreshModifiers(evt);
+        var button = evt.which ? evt.which : evt.button;
+        var pos = this._GetMousePosition(evt);
+        this._SetUserInitiatedEvent(true);
+        this._HandleMouseEvent("down", button, pos);
+        this._UpdateCursorFromInputList();
+        this._SetUserInitiatedEvent(false);
+    }
+    private _HandleButtonRelease(evt) {
+        Fayde.Input.Keyboard.RefreshModifiers(evt);
+        var button = evt.which ? evt.which : evt.button;
+        var pos = this._GetMousePosition(evt);
+        this._SetUserInitiatedEvent(true);
+        this._HandleMouseEvent("up", button, pos);
+        this._UpdateCursorFromInputList();
+        this._SetUserInitiatedEvent(false);
+        if (this._Captured)
+            this._PerformReleaseCapture();
+    }
+    private _HandleOut(evt) {
+        Fayde.Input.Keyboard.RefreshModifiers(evt);
+        var pos = this._GetMousePosition(evt);
+        this._HandleMouseEvent("out", null, pos);
+    }
+    private _HandleMove(evt) {
+        Fayde.Input.Keyboard.RefreshModifiers(evt);
+        var pos = this._GetMousePosition(evt);
+        this._HandleMouseEvent("move", null, pos);
+        this._UpdateCursorFromInputList();
+    }
+    private _HandleWheel(evt) {
+        Fayde.Input.Keyboard.RefreshModifiers(evt);
+        var delta = 0;
+        if (evt.wheelDelta)
+            delta = evt.wheelDelta / 120;
+        else if (evt.detail)
+            delta = -evt.detail / 3;
+        if (evt.preventDefault)
+            evt.preventDefault();
+        evt.returnValue = false;
+        this._HandleMouseEvent("wheel", null, this._GetMousePosition(evt), delta);
+        this._UpdateCursorFromInputList();
+    }
+    private _HandleMouseEvent(type: string, button: number, pos: Point, delta?: number, emitLeave?: bool, emitEnter?: bool) {
+        this._CurrentPos = pos;
+        if (this._EmittingMouseEvent)
+            return false;
+        if (this._TopLevel == null)
+            return false;
+        this._EmittingMouseEvent = true;
+        if (this._Captured) {
+            this._EmitMouseList(type, button, pos, delta, this._InputList);
+        } else {
+            this.ProcessDirtyElements();
+            var ctx = new Fayde.RenderContext(this);
+            var newInputList: Fayde.UINode[] = [];
+            var layers = this._Layers;
+            var layerCount = layers.length;
+            for (var i = layerCount - 1; i >= 0 && newInputList.length === 0; i--) {
+                var layer = layers[i];
+                layer._HitTestPoint(ctx, pos, newInputList);
+            }
+            var indices = { Index1: -1, Index2: -1 };
+            this._FindFirstCommonElement(this._InputList, newInputList, indices);
+            if (emitLeave === undefined || emitLeave === true)
+                this._EmitMouseList("leave", button, pos, delta, this._InputList, indices.Index1);
+            if (emitEnter === undefined || emitEnter === true)
+                this._EmitMouseList("enter", button, pos, delta, newInputList, indices.Index2);
+            if (type !== "noop")
+                this._EmitMouseList(type, button, pos, delta, newInputList);
+            this._InputList = newInputList;
+        }
+        if (this._PendingCapture)
+            this._PerformCapture(this._PendingCapture);
+        if (this._PendingReleaseCapture || (this._Captured && !this._Captured.CanCaptureMouse()))
+            this._PerformReleaseCapture();
+        this._EmittingMouseEvent = false;
+    }
+    private _GetMousePosition(evt): Point {
+        return new Point(
+            evt.clientX + window.pageXOffset + this._CanvasOffset.left,
+            evt.clientY + window.pageYOffset + this._CanvasOffset.top);
+    }
+    private _FindFirstCommonElement(list1: Fayde.UINode[], list2: Fayde.UINode[], outObj) {
+        var len1 = list1.length;
+        var len2 = list2.length;
+        outObj.Index1 = -1;
+        outObj.Index2 = -1;
+        var i = 0;
+        var j = 0;
+        for (i = 0; i < len1 && j < len2; i++, j++) {
+            var n1 = list1[i];
+            var n2 = list2[i];
+            if (n1 !== n2)
+                return;
+            outObj.Index1 = i;
+            outObj.Index2 = j;
+        }
+    }
+    private _EmitMouseList(type: string, button: number, pos: Point, delta: number, list: Fayde.UINode[], endIndex?: number) {
+        var handled = false;
+        if (endIndex === 0)
+            return handled;
+        if (!endIndex || endIndex === -1)
+            endIndex = list.length;
+        var args = this._CreateEventArgs(type, pos, delta);
+        var node = list[0];
+        if (node && args instanceof Fayde.RoutedEventArgs)
+            args.Source = node.XObject;
+        var isL = Surface.IsLeftButton(button);
+        var isR = Surface.IsRightButton(button);
+        for (var i = 0; i < endIndex; i++) {
+            node = list[i];
+            if (type === "leave")
+                args.Source = node.XObject;
+            if (node._EmitMouseEvent(type, isL, isR, args))
+                handled = true;
+            if (type === "leave") //MouseLeave gets new event args on each emit
+                args = this._CreateEventArgs(type, pos, delta);
+        }
+        return handled;
+    }
+    private _CreateEventArgs(type: string, pos: Point, delta: number): Fayde.Input.MouseEventArgs {
+        if (type === "up") {
+            return new Fayde.Input.MouseButtonEventArgs(pos);
+        } else if (type === "down") {
+            return new Fayde.Input.MouseButtonEventArgs(pos);
+        } else if (type === "leave") {
+            return new Fayde.Input.MouseEventArgs(pos);
+        } else if (type === "enter") {
+            return new Fayde.Input.MouseEventArgs(pos);
+        } else if (type === "move") {
+            return new Fayde.Input.MouseEventArgs(pos);
+        } else if (type === "wheel") {
+            return new Fayde.Input.MouseWheelEventArgs(pos, delta);
+        }
+    }
+    SetMouseCapture(uin: Fayde.UINode) {
+        if (this._Captured || this._PendingCapture)
+            return uin === this._Captured || uin === this._PendingCapture;
+        if (!this._EmittingMouseEvent)
+            return false;
+        this._PendingCapture = uin;
+        return true;
+    }
+    ReleaseMouseCapture(uin: Fayde.UINode) {
+        if (uin !== this._Captured && uin !== this._PendingCapture)
+            return;
+        if (this._EmittingMouseEvent)
+            this._PendingReleaseCapture = true;
+        else
+            this._PerformReleaseCapture();
+    }
+    private _PerformCapture(uin: Fayde.UINode) {
+        this._Captured = uin;
+        var newInputList = [];
+        while (uin != null) {
+            newInputList.push(uin);
+            uin = uin.VisualParentNode;
+        }
+        this._InputList = newInputList;
+        this._PendingCapture = null;
+    }
+    private _PerformReleaseCapture() {
+        var oldCaptured = this._Captured;
+        this._Captured = null;
+        this._PendingReleaseCapture = false;
+        oldCaptured._EmitLostMouseCapture(this._CurrentPos);
+        this._HandleMouseEvent("noop", null, this._CurrentPos, undefined, false, true);
+    }
+    private _SetUserInitiatedEvent(val: bool) {
+        this._EmitFocusChangeEvents();
+        this._FirstUserInitiatedEvent = this._FirstUserInitiatedEvent || val;
+        this._UserInitiatedEvent = val;
+    }
+    _Invalidate(r?: rect) {
+    }
+    _AddDirtyElement(lu: Fayde.LayoutUpdater, dirt) {
+        if (lu.Node.VisualParentNode == null && !lu.Node.IsTopLevel)
+            return;
+        lu.DirtyFlags |= dirt;
+        if (dirt & _Dirty.DownDirtyState && lu.DownDirtyIndex === -1)
+            lu.DownDirtyIndex = this._DownDirty.push(lu) - 1;
+        if (dirt & _Dirty.UpDirtyState && lu.UpDirtyIndex === -1)
+            lu.UpDirtyIndex = this._UpDirty.push(lu) - 1;
+    }
+    private _RemoveDirtyElement(lu: Fayde.LayoutUpdater) {
+        if (lu.UpDirtyIndex > -1) {
+            this._UpDirty.splice(lu.UpDirtyIndex, 1);
+            lu.UpDirtyIndex = -1;
+        }
+        if (lu.DownDirtyIndex > -1) {
+            this._DownDirty.splice(lu.DownDirtyIndex, 1);
+            lu.DownDirtyIndex = -1;
+        }
+    }
+    OnNodeDetached(lu: Fayde.LayoutUpdater) {
+        this._RemoveDirtyElement(lu);
+        this._RemoveFocusFrom(lu);
+    }
+    Focus(ctrl: Fayde.Controls.Control, recurse?: bool): bool {
+        recurse = recurse === undefined || recurse === true;
+        if (!ctrl.XamlNode.IsAttached)
+            return false;
+        var surface = App.Instance.MainSurface;
+        var walker = Fayde.DeepTreeWalker(ctrl);
+        var uin: Fayde.UINode;
+        while (uin = walker.Step()) {
+            if (uin.XObject.Visibility !== Fayde.Visibility.Visible) {
+                walker.SkipBranch();
+                continue;
+            }
+            if (!(uin instanceof Fayde.Controls.ControlNode))
+                continue;
+            var cn = <Fayde.Controls.ControlNode>uin;
+            var c = cn.XObject;
+            if (!c.IsEnabled) {
+                if (!recurse)
+                    return false;
+                walker.SkipBranch();
+                continue;
+            }
+            var loaded = false;
+            for (var check = <Fayde.UINode>ctrl.XamlNode; !loaded && check != null; check = check.VisualParentNode)
+                loaded = loaded || check.IsLoaded;
+            if (loaded && cn.LayoutUpdater.GetRenderVisible() && c.IsTabStop)
+                return this._FocusNode(cn);
+            if (!recurse)
+                return false;
+        }
+        return false;
+    }
+    private _FocusNode(uin?: Fayde.UINode) {
+        if (uin === this._FocusedNode)
+            return true;
+        var fn = this._FocusedNode;
+        if (fn) {
+            this._FocusChangedEvents.push({
+                LostFocus: Surface._ElementPathToRoot(fn),
+                GotFocus: null
+            });
+        }
+        this._FocusedNode = uin;
+        if (uin) {
+            this._FocusChangedEvents.push({
+                LostFocus: null,
+                GotFocus: Surface._ElementPathToRoot(uin)
+            });
+        }
+        if (this._FirstUserInitiatedEvent)
+            this._EmitFocusChangeEventsAsync();
+        return true;
+    }
+    private _EnsureElementFocused() {
+        var layers = this._Layers;
+        if (!this._FocusedNode) {
+            var last = layers.length - 1;
+            for (var i = last; i >= 0; i--) {
+                if (Fayde.TabNavigationWalker.Focus(layers[i]))
+                    break;
+            }
+            if (!this._FocusedNode && last !== -1)
+                this._FocusNode(layers[last]);
+        }
+        if (this._FirstUserInitiatedEvent)
+            this._EmitFocusChangeEventsAsync();
+    }
+    private _RemoveFocusFrom(lu: Fayde.LayoutUpdater) {
+        if (this._FocusedNode === lu.Node)
+            this._FocusNode(null);
+    }
+    private _EmitFocusChangeEventsAsync() {
+        setTimeout(() => this._EmitFocusChangeEvents(), 1);
+    }
+    private _EmitFocusChangeEvents() {
+        var evts = this._FocusChangedEvents;
+        var cur = evts.shift();
+        while (cur) {
+            this._EmitFocusList("lost", cur.LostFocus);
+            this._EmitFocusList("got", cur.GotFocus);
+            cur = evts.shift();
+        }
+    }
+    private _EmitFocusList(type: string, list: Fayde.UINode[]) {
+        if (!list)
+            return;
+        var cur = list.shift();
+        while (cur) {
+            cur._EmitFocusChange(type);
+            cur = list.shift();
+        }
+    }
+    private static _ElementPathToRoot(source: Fayde.UINode): Fayde.UINode[] {
+        var list: Fayde.UINode[] = [];
+        while (source) {
+            list.push(source);
+            source = source.VisualParentNode;
+        }
+        return list;
+    }
+    private static IsLeftButton(button: number): bool {
+        return button === 1;
+    }
+    private static IsRightButton(button: number): bool {
+        return button === 2;
+    }
+}
+
+module Fayde.Input {
+    export enum KeyboardNavigationMode {
+        Continue = 0,
+        Once = 1,
+        Cycle = 2,
+        None = 3,
+        Contained = 4,
+        Local = 5,
+    }
+    export enum ModifierKeys {
+        None = 0,
+        Alt = 1,
+        Control = 2,
+        Shift = 4,
+        Windows = 8,
+        Apple = 16,
+    }
+    export interface IModifiersOn {
+        Shift: bool;
+        Ctrl: bool;
+        Alt: bool;
+    }
+    export class Keyboard {
+        static Modifiers: ModifierKeys = ModifierKeys.None;
+        static RefreshModifiers(e: Fayde.Input.IModifiersOn) {
+            if (e.Shift)
+                Keyboard.Modifiers |= ModifierKeys.Shift;
+            else
+                Keyboard.Modifiers &= ~ModifierKeys.Shift;
+            if (e.Ctrl)
+                Keyboard.Modifiers |= ModifierKeys.Control;
+            else
+                Keyboard.Modifiers &= ~ModifierKeys.Control;
+            if (e.Alt)
+                Keyboard.Modifiers |= ModifierKeys.Alt;
+            else
+                Keyboard.Modifiers &= ~ModifierKeys.Alt;
+        }
+        static HasControl() {
+            return (Keyboard.Modifiers & ModifierKeys.Control) === ModifierKeys.Control;
+        }
+        static HasAlt() {
+            return (Keyboard.Modifiers & ModifierKeys.Alt) === ModifierKeys.Alt;
+        }
+        static HasShift() {
+            return (Keyboard.Modifiers & ModifierKeys.Shift) === ModifierKeys.Shift;
+        }
+    }
+}
+
+module Fayde.Input {
+    var keyFromKeyCode: Key[] = [];
+    keyFromKeyCode[8] = Key.Back;
+    keyFromKeyCode[9] = Key.Tab;
+    keyFromKeyCode[13] = Key.Enter;
+    keyFromKeyCode[16] = Key.Shift;
+    keyFromKeyCode[17] = Key.Ctrl;
+    keyFromKeyCode[18] = Key.Alt;
+    keyFromKeyCode[20] = Key.CapsLock;
+    keyFromKeyCode[27] = Key.Escape;
+    keyFromKeyCode[32] = Key.Space;
+    keyFromKeyCode[33] = Key.PageUp;
+    keyFromKeyCode[34] = Key.PageDown;
+    keyFromKeyCode[35] = Key.End;
+    keyFromKeyCode[36] = Key.Home;
+    keyFromKeyCode[37] = Key.Left;
+    keyFromKeyCode[38] = Key.Up;
+    keyFromKeyCode[39] = Key.Right;
+    keyFromKeyCode[40] = Key.Down;
+    keyFromKeyCode[45] = Key.Insert;
+    keyFromKeyCode[46] = Key.Delete;
+    keyFromKeyCode[48] = Key.D0;
+    keyFromKeyCode[49] = Key.D1;
+    keyFromKeyCode[50] = Key.D2;
+    keyFromKeyCode[51] = Key.D3;
+    keyFromKeyCode[52] = Key.D4;
+    keyFromKeyCode[53] = Key.D5;
+    keyFromKeyCode[54] = Key.D6;
+    keyFromKeyCode[55] = Key.D7;
+    keyFromKeyCode[56] = Key.D8;
+    keyFromKeyCode[57] = Key.D9;
+    keyFromKeyCode[65] = Key.A;
+    keyFromKeyCode[66] = Key.B;
+    keyFromKeyCode[67] = Key.C;
+    keyFromKeyCode[68] = Key.D;
+    keyFromKeyCode[69] = Key.E;
+    keyFromKeyCode[70] = Key.F;
+    keyFromKeyCode[71] = Key.G;
+    keyFromKeyCode[72] = Key.H;
+    keyFromKeyCode[73] = Key.I;
+    keyFromKeyCode[74] = Key.J;
+    keyFromKeyCode[75] = Key.K;
+    keyFromKeyCode[76] = Key.L;
+    keyFromKeyCode[77] = Key.M;
+    keyFromKeyCode[78] = Key.N;
+    keyFromKeyCode[79] = Key.O;
+    keyFromKeyCode[80] = Key.P;
+    keyFromKeyCode[81] = Key.Q;
+    keyFromKeyCode[82] = Key.R;
+    keyFromKeyCode[83] = Key.S;
+    keyFromKeyCode[84] = Key.T;
+    keyFromKeyCode[85] = Key.U;
+    keyFromKeyCode[86] = Key.V;
+    keyFromKeyCode[87] = Key.W;
+    keyFromKeyCode[88] = Key.X;
+    keyFromKeyCode[89] = Key.Y;
+    keyFromKeyCode[90] = Key.Z;
+    keyFromKeyCode[96] = Key.NumPad0;
+    keyFromKeyCode[97] = Key.NumPad1;
+    keyFromKeyCode[98] = Key.NumPad2;
+    keyFromKeyCode[99] = Key.NumPad3;
+    keyFromKeyCode[100] = Key.NumPad4;
+    keyFromKeyCode[101] = Key.NumPad5;
+    keyFromKeyCode[102] = Key.NumPad6;
+    keyFromKeyCode[103] = Key.NumPad7;
+    keyFromKeyCode[104] = Key.NumPad8;
+    keyFromKeyCode[105] = Key.NumPad9;
+    keyFromKeyCode[106] = Key.Multiply;
+    keyFromKeyCode[107] = Key.Add;
+    keyFromKeyCode[109] = Key.Subtract;
+    keyFromKeyCode[110] = Key.Decimal;
+    keyFromKeyCode[111] = Key.Divide;
+    keyFromKeyCode[112] = Key.F1;
+    keyFromKeyCode[113] = Key.F2;
+    keyFromKeyCode[114] = Key.F3;
+    keyFromKeyCode[115] = Key.F4;
+    keyFromKeyCode[116] = Key.F5;
+    keyFromKeyCode[117] = Key.F6;
+    keyFromKeyCode[118] = Key.F7;
+    keyFromKeyCode[119] = Key.F8;
+    keyFromKeyCode[120] = Key.F9;
+    keyFromKeyCode[121] = Key.F10;
+    keyFromKeyCode[122] = Key.F11;
+    keyFromKeyCode[123] = Key.F12;
+    export class KeyInterop {
+        constructor(public Surface: Surface) { }
+        RegisterEvents() {
+            document.onkeypress = (e) => {
+                var args = this.CreateArgsPress(e);
+                if (args) {
+                    if (this.Surface._HandleKeyDown(args)) {
+                        return false;
+                    }
+                }
+            };
+            document.onkeydown = (e) => {
+                var args = this.CreateArgsDown(e);
+                if (args) {
+                    if (this.Surface._HandleKeyDown(args)) {
+                        return false;
+                    }
+                }
+            };
+        }
+        CreateArgsPress(e): Fayde.Input.KeyEventArgs { return undefined; }
+        CreateArgsDown(e): Fayde.Input.KeyEventArgs { return undefined; }
+        static CreateInterop(surface: Surface): KeyInterop {
+            if (navigator.appName === "Microsoft Internet Explorer")
+                return new IEKeyInterop(surface);
+            else if (navigator.appName === "Netscape")
+                return new NetscapeKeyInterop(surface);
+            return new KeyInterop(surface);
+        }
+    }
+    var udkie = [];
+    udkie[41] = 48;
+    udkie[33] = 49;
+    udkie[64] = 50;
+    udkie[35] = 51;
+    udkie[36] = 52;
+    udkie[37] = 53;
+    udkie[94] = 54;
+    udkie[38] = 55;
+    udkie[42] = 56;
+    udkie[34] = Key.Unknown;
+    export class IEKeyInterop extends KeyInterop {
+        constructor(surface: Surface) {
+            super(surface);
+        }
+        CreateArgsPress(e): Fayde.Input.KeyEventArgs {
+            if (e.char == null)
+                return;
+            var modifiers = {
+                Shift: e.shiftKey,
+                Ctrl: e.ctrlKey,
+                Alt: e.altKey
+            };
+            var keyCode = e.keyCode;
+            var unshifted = udkie[keyCode];
+            if (unshifted)
+                keyCode = unshifted;
+            return new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], e.char);
+        }
+        CreateArgsDown(e): Fayde.Input.KeyEventArgs {
+            if (e.char != null && e.keyCode !== 8)
+                return;
+            var modifiers = {
+                Shift: e.shiftKey,
+                Ctrl: e.ctrlKey,
+                Alt: e.altKey
+            };
+            return new Fayde.Input.KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode]);
+        }
+    }
+    var sknet = [];
+    sknet[8] = Key.Back;
+    sknet[9] = Key.Tab;
+    sknet[20] = Key.CapsLock;
+    sknet[27] = Key.Escape;
+    sknet[33] = Key.PageUp;
+    sknet[34] = Key.PageDown;
+    sknet[35] = Key.End;
+    sknet[36] = Key.Home;
+    sknet[37] = Key.Left;
+    sknet[38] = Key.Up;
+    sknet[39] = Key.Right;
+    sknet[40] = Key.Down;
+    sknet[45] = Key.Insert;
+    sknet[46] = Key.Delete;
+    var udknet = [];
+    udknet[41] = 48;
+    udknet[33] = 49;
+    udknet[64] = 50;
+    udknet[35] = 51;
+    udknet[36] = 52;
+    udknet[37] = 53;
+    udknet[94] = 54;
+    udknet[38] = 55;
+    udknet[42] = 56;
+    udknet[34] = Key.Unknown;
+    export class NetscapeKeyInterop extends KeyInterop {
+        constructor(surface: Surface) {
+            super(surface);
+        }
+        CreateArgsPress(e): Fayde.Input.KeyEventArgs {
+            var modifiers = {
+                Shift: e.shiftKey,
+                Ctrl: e.ctrlKey,
+                Alt: e.altKey
+            };
+            var keyCode = e.keyCode;
+            var unshifted = udknet[keyCode];
+            if (unshifted)
+                keyCode = unshifted;
+            return new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], String.fromCharCode(e.which || e.keyCode));
+        }
+        CreateArgsDown(e): Fayde.Input.KeyEventArgs {
+            if (sknet[e.keyCode] === undefined)
+                return null;
+            var modifiers = {
+                Shift: e.shiftKey,
+                Ctrl: e.ctrlKey,
+                Alt: e.altKey
+            };
+            return new Fayde.Input.KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode]);
+        }
+    }
+}
+
 module Fayde.Media {
     export class Brush {
     }
@@ -522,6 +1563,21 @@ module Fayde.Media {
 module Fayde.Media {
     export function ParseGeometry(val: string): Geometry {
         return new Geometry();
+    }
+}
+
+module Fayde.Media {
+    export class Projection {
+    }
+}
+
+module Fayde.Media {
+    export class Transform {
+    }
+}
+
+module Fayde.Media.Effects {
+    export class Effect {
     }
 }
 
@@ -1624,6 +2680,14 @@ module Fayde {
     }
 }
 
+class EventArgs {
+}
+
+class MulticastEvent {
+    Raise(sender: any, args: EventArgs) {
+    }
+}
+
 class Nullstone {
     static Equals(val1: any, val2: any): bool {
         if (val1 == null && val2 == null)
@@ -1886,6 +2950,20 @@ class DependencyProperty {
 }
 
 module Fayde {
+    export class RoutedEvent extends MulticastEvent {
+        Raise(sender: any, args: RoutedEventArgs) {
+        }
+    }
+}
+
+module Fayde {
+    export class RoutedEventArgs extends EventArgs {
+        Handled: bool = false;
+        Source: any = null;
+    }
+}
+
+module Fayde {
     export class Style extends XamlObject {
         private _IsSealed: bool = false;
         Setters: SetterCollection;
@@ -1959,26 +3037,113 @@ module Fayde {
 module Fayde {
     export class UINode extends XamlNode {
         XObject: UIElement;
+        LayoutUpdater: LayoutUpdater;
+        IsTopLevel: bool = false;
         constructor(xobj: UIElement) {
             super(xobj);
+            this.LayoutUpdater = new LayoutUpdater(this);
         }
         VisualParentNode: UINode;
         GetInheritedEnumerator(): IEnumerator {
             return this.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
         }
         OnIsAttachedChanged(newIsAttached: bool) {
-            super.OnIsAttachedChanged(newIsAttached);
-            if (!newIsAttached) {
-            }
+            this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
         }
         _ElementAdded(uie: UIElement) {
-            uie.XamlNode.VisualParentNode = this;
+            var lu = this.LayoutUpdater;
+            lu.UpdateBounds(true);
+            lu.InvalidateMeasure();
+            lu.PreviousConstraint = undefined;
+            var un = uie.XamlNode;
+            un.VisualParentNode = this;
             this.XObject._Store.PropagateInheritedOnAdd(uie);
+            un.LayoutUpdater.OnAddedToTree();
+            un.SetIsLoaded(this.IsLoaded);
         }
         _ElementRemoved(uie: UIElement) {
-            uie.XamlNode.VisualParentNode = null;
+            var lu = this.LayoutUpdater;
+            var un = uie.XamlNode;
+            lu.Invalidate(un.LayoutUpdater.SubtreeBounds);
+            lu.InvalidateMeasure();
+            un.VisualParentNode = null;
+            un.SetIsLoaded(false);
+            un.LayoutUpdater.OnRemovedFromTree();
             this.XObject._Store.ClearInheritedOnRemove(uie);
         }
+        IsLoaded: bool = false;
+        SetIsLoaded(value: bool) {
+            if (this.IsLoaded === value)
+                return;
+            this.IsLoaded = value;
+            this.OnIsLoadedChanged(value);
+        }
+        OnIsLoadedChanged(newIsLoaded: bool) { }
+        _EmitFocusChange(type: string) {
+            if (type === "got")
+                this._EmitGotFocus();
+            else if (type === "lost")
+                this._EmitLostFocus();
+        }
+        private _EmitLostFocus() {
+            var e = new Fayde.RoutedEventArgs();
+            var x = this.XObject;
+            x.OnLostFocus(e);
+            x.LostFocus.Raise(x, e);
+        }
+        private _EmitGotFocus() {
+            var e = new Fayde.RoutedEventArgs();
+            var x = this.XObject;
+            x.OnGotFocus(e);
+            x.GotFocus.Raise(x, e);
+        }
+        _EmitKeyDown(args: Fayde.Input.KeyEventArgs) {
+            var x = this.XObject;
+            x.OnKeyDown(args);
+            x.KeyDown.Raise(x, args);
+        }
+        _EmitKeyUp(args: Fayde.Input.KeyEventArgs) {
+            var x = this.XObject;
+            x.OnKeyUp(args);
+            x.KeyUp.Raise(x, args);
+        }
+        _EmitLostMouseCapture(pos: Point) {
+        }
+        _EmitMouseEvent(type: string, isLeftButton: bool, isRightButton: bool, args: Input.MouseEventArgs): bool {
+            var x = this.XObject;
+            if (type === "up") {
+                if (isLeftButton) {
+                    x.MouseLeftButtonUp.Raise(x, args);
+                } else if (isRightButton) {
+                    x.MouseRightButtonUp.Raise(x, args);
+                }
+            } else if (type === "down") {
+                if (isLeftButton) {
+                    x.MouseLeftButtonDown.Raise(x, args);
+                } else if (isRightButton) {
+                    x.MouseRightButtonDown.Raise(x, args);
+                }
+            } else if (type === "leave") {
+                (<any>x)._IsMouseOver = false;
+                x.OnMouseLeave(args);
+                x.MouseLeave.Raise(x, args);
+            } else if (type === "enter") {
+                (<any>x)._IsMouseOver = true;
+                x.OnMouseEnter(args);
+                x.MouseEnter.Raise(x, args);
+            } else if (type === "move") {
+                x.MouseMove.Raise(x, args);
+            } else if (type === "wheel") {
+                x.MouseWheel.Raise(x, args);
+            } else {
+                return false;
+            }
+            return args.Handled;
+        }
+        _HitTestPoint(ctx: IRenderContext, p: Point, uielist: UINode[]) {
+            uielist.unshift(this);
+        }
+        CanCaptureMouse(): bool { return true; }
     }
     export class UIElement extends DependencyObject {
         XamlNode: UINode;
@@ -2000,9 +3165,40 @@ module Fayde {
         CreateNode(): XamlNode {
             return new UINode(this);
         }
+        static ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Media.Geometry; }, UIElement);
+        static EffectProperty = DependencyProperty.Register("Effect", function () { return Media.Effects.Effect; }, UIElement);
+        static IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
+        static OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Media.Brush; }, UIElement);
+        static OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0);
+        static ProjectionProperty = DependencyProperty.Register("Projection", function () { return Media.Projection; }, UIElement);
+        static RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () { return Media.Transform; }, UIElement);
+        static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () { return Point; }, UIElement);
         static TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
-        static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Fayde.Visibility); }, UIElement, Fayde.Visibility.Visible);
         static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, UIElement, true, undefined, undefined, Providers._Inheritable.UseLayoutRounding);
+        static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
+        private _IsMouseOver: bool = false;
+        get IsMouseOver() { return this._IsMouseOver; }
+        Cursor: string;
+        Visibility: Visibility;
+        LostFocus: RoutedEvent = new RoutedEvent();
+        GotFocus: RoutedEvent = new RoutedEvent();
+        Focus(): bool { return false; }
+        OnGotFocus(e: RoutedEventArgs) { }
+        OnLostFocus(e: RoutedEventArgs) { }
+        KeyDown: MulticastEvent = new MulticastEvent();
+        KeyUp: MulticastEvent = new MulticastEvent();
+        OnKeyDown(args: Input.KeyEventArgs) { }
+        OnKeyUp(args: Input.KeyEventArgs) { }
+        MouseLeftButtonUp: RoutedEvent = new RoutedEvent();
+        MouseRightButtonUp: RoutedEvent = new RoutedEvent();
+        MouseLeftButtonDown: RoutedEvent = new RoutedEvent();
+        MouseRightButtonDown: RoutedEvent = new RoutedEvent();
+        MouseLeave: RoutedEvent = new RoutedEvent();
+        OnMouseLeave(args: Input.MouseEventArgs) { }
+        MouseEnter: RoutedEvent = new RoutedEvent();
+        OnMouseEnter(args: Input.MouseEventArgs) { }
+        MouseMove: RoutedEvent = new RoutedEvent();
+        MouseWheel: RoutedEvent = new RoutedEvent();
     }
 }
 
@@ -3068,6 +4264,146 @@ module Fayde.Documents {
     }
 }
 
+module Fayde {
+    export class RenderContext implements IRenderContext {
+        Surface: Surface;
+        constructor(surface: Surface) {
+            this.Surface = surface;
+        }
+    }
+}
+
+module Fayde.Input {
+    export enum Key {
+        None = 0,
+        Back = 1,
+        Tab = 2,
+        Enter = 3,
+        Shift = 4,
+        Ctrl = 5,
+        Alt = 6,
+        CapsLock = 7,
+        Escape = 8,
+        Space = 9,
+        PageUp = 10,
+        PageDown = 11,
+        End = 12,
+        Home = 13,
+        Left = 14,
+        Up = 15,
+        Right = 16,
+        Down = 17,
+        Insert = 18,
+        Delete = 19,
+        D0 = 20,
+        D1 = 21,
+        D2 = 22,
+        D3 = 23,
+        D4 = 24,
+        D5 = 25,
+        D6 = 26,
+        D7 = 27,
+        D8 = 28,
+        D9 = 29,
+        A = 30,
+        B = 31,
+        C = 32,
+        D = 33,
+        E = 34,
+        F = 35,
+        G = 36,
+        H = 37,
+        I = 38,
+        J = 39,
+        K = 40,
+        L = 41,
+        M = 42,
+        N = 43,
+        O = 44,
+        P = 45,
+        Q = 46,
+        R = 47,
+        S = 48,
+        T = 49,
+        U = 50,
+        V = 51,
+        W = 52,
+        X = 53,
+        Y = 54,
+        Z = 55,
+        F1 = 56,
+        F2 = 57,
+        F3 = 58,
+        F4 = 59,
+        F5 = 60,
+        F6 = 61,
+        F7 = 62,
+        F8 = 63,
+        F9 = 64,
+        F10 = 65,
+        F11 = 66,
+        F12 = 67,
+        NumPad0 = 68,
+        NumPad1 = 69,
+        NumPad2 = 70,
+        NumPad3 = 71,
+        NumPad4 = 72,
+        NumPad5 = 73,
+        NumPad6 = 74,
+        NumPad7 = 75,
+        NumPad8 = 76,
+        NumPad9 = 77,
+        Multiply = 78,
+        Add = 79,
+        Subtract = 80,
+        Decimal = 81,
+        Divide = 82,
+        Unknown = 255,
+    }
+    export class KeyboardEventArgs extends RoutedEventArgs {
+    }
+    export class KeyEventArgs extends KeyboardEventArgs {
+        Modifiers: any;
+        PlatformKeyCode: number;
+        Key: Key;
+        Char: string;
+        constructor(modifiers: any, keyCode: number, key: Key, char?: string) {
+            super();
+            this.Modifiers = modifiers;
+            this.PlatformKeyCode = keyCode;
+            this.Key = key;
+            if (this.Key == null)
+                this.Key = Key.Unknown;
+            this.Char = char;
+        }
+    }
+}
+
+module Fayde.Input {
+    export class MouseEventArgs extends RoutedEventArgs {
+        private _AbsolutePos: Point;
+        constructor(absolutePos: Point) {
+            super();
+            this._AbsolutePos = absolutePos;
+        }
+        GetPosition(relativeTo: UIElement): Point {
+            return new Point();
+        }
+    }
+    export class MouseButtonEventArgs extends MouseEventArgs {
+        constructor(absolutePos: Point) {
+            super(absolutePos);
+        }
+    }
+    export class MouseWheelEventArgs extends MouseEventArgs {
+        Delta: number;
+        constructor(absolutePos: Point, delta: number) {
+            super(absolutePos);
+            this.Delta = delta;
+        }
+    }
+}
+
 module Fayde.Media {
     export class SolidColorBrush extends Brush {
         Color: Color;
@@ -3112,30 +4448,6 @@ module Fayde {
                 error.ThrowException();
             this.SubtreeNode = subtreeNode;
         }
-        IsLoaded: bool = false;
-        SetIsLoaded(value: bool) {
-            if (this.IsLoaded === value)
-                return;
-            this.IsLoaded = value;
-            this.OnIsLoadedChanged(value);
-        }
-        OnIsLoadedChanged(newIsLoaded: bool) {
-            var res = this.XObject.Resources;
-            var store = this.XObject._Store;
-            if (!newIsLoaded) {
-                store.ClearImplicitStyles(Providers._StyleMask.VisualTree);
-            } else {
-                store.SetImplicitStyles(Providers._StyleMask.All);
-            }
-            var enumerator = this.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                (<FENode>enumerator.Current).SetIsLoaded(newIsLoaded);
-            }
-            if (newIsLoaded) {
-                this.XObject.InvokeLoaded();
-                store.EmitDataContextChanged();
-            }
-        }
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
             var store = this.XObject._Store;
             var visualParentNode: FENode;
@@ -3152,6 +4464,23 @@ module Fayde {
             if (this.SubtreeNode)
                 this.SubtreeNode.SetIsAttached(newIsAttached);
             super.OnIsAttachedChanged(newIsAttached);
+        }
+        OnIsLoadedChanged(newIsLoaded: bool) {
+            var res = this.XObject.Resources;
+            var store = this.XObject._Store;
+            if (!newIsLoaded) {
+                store.ClearImplicitStyles(Providers._StyleMask.VisualTree);
+            } else {
+                store.SetImplicitStyles(Providers._StyleMask.All);
+            }
+            var enumerator = this.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                (<UINode>enumerator.Current).SetIsLoaded(newIsLoaded);
+            }
+            if (newIsLoaded) {
+                this.XObject.InvokeLoaded();
+                store.EmitDataContextChanged();
+            }
         }
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
             if (this.SubtreeNode) {
@@ -3457,12 +4786,33 @@ module Fayde.Documents {
 }
 
 module Fayde.Controls {
+    export class ControlNode extends FENode {
+        XObject: Control;
+        constructor(xobj: Control) {
+            super(xobj);
+        }
+        TabTo() {
+            var xobj = this.XObject;
+            return xobj.IsEnabled && xobj.IsTabStop && xobj.Focus();
+        }
+    }
     export class Control extends FrameworkElement {
+        XamlNode: ControlNode;
         _Store: Providers.ControlProviderStore;
-        CreateStore() {
+        CreateStore(): Providers.ControlProviderStore {
             return new Providers.ControlProviderStore(this);
         }
+        CreateNode(): XamlNode {
+            return new ControlNode(this);
+        }
+        IsEnabled: bool;
+        IsTabStop: bool;
+        TabNavigation: Input.KeyboardNavigationMode;
+        TabIndex: number;
         static IsEnabledProperty: DependencyProperty;
+        Focus(): bool {
+            return App.Instance.MainSurface.Focus(this);
+        }
     }
 }
 
