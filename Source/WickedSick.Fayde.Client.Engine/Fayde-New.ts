@@ -53,76 +53,6 @@ module Fayde {
 }
 
 module Fayde {
-    export class LayoutUpdater {
-        private _Surface: Surface;
-        LayoutClip: Media.Geometry = undefined;
-        LayoutExceptionElement: UIElement = undefined;
-        LayoutSlot: rect = undefined;
-        PreviousConstraint: size = undefined;
-        LastRenderSize: size = undefined;
-        RenderSize: size = new size();
-        SubtreeBounds: rect = new rect();
-        DirtyFlags: _Dirty = 0;
-        UpDirtyIndex: number = -1;
-        DownDirtyIndex: number = -1;
-        constructor(public Node: UINode) { }
-        SetSurface(surface: Surface) {
-            this._Surface = surface;
-        }
-        OnIsAttachedChanged(newIsAttached: bool, visualParentNode: UINode) {
-            this.UpdateTotalRenderVisibility();
-            if (!newIsAttached) {
-                this._Surface.OnNodeDetached(this);
-            } else if (visualParentNode) {
-                this._Surface = visualParentNode.LayoutUpdater._Surface;
-            }
-        }
-        OnAddedToTree() {
-            this.UpdateTotalRenderVisibility();
-            this.UpdateTotalHitTestVisibility();
-            this.Invalidate();
-            this.LayoutClip = undefined;
-            size.clear(this.RenderSize);
-            this.UpdateTransform();
-            this.UpdateProjection();
-            this.InvalidateMeasure();
-            this.InvalidateArrange();
-        }
-        OnRemovedFromTree() {
-            this.LayoutSlot = new rect();
-            this.LayoutClip = undefined;
-        }
-        FullInvalidate(invTransforms?:bool) {
-            this.Invalidate();
-            if (invTransforms) {
-                this.UpdateTransform();
-                this.UpdateProjection();
-            }
-            this.UpdateBounds(true);
-        }
-        Invalidate(r?: rect) {
-        }
-        InvalidateMeasure() {
-        }
-        InvalidateArrange() {
-        }
-        UpdateBounds(forceRedraw?: bool) {
-        }
-        UpdateTransform() {
-        }
-        UpdateProjection() {
-        }
-        UpdateTotalRenderVisibility() {
-        }
-        UpdateTotalHitTestVisibility() {
-        }
-        GetRenderVisible(): bool {
-            return true;
-        }
-    }
-}
-
-module Fayde {
     export class NameScope {
         IsRoot: bool = false;
         private XNodes = {};
@@ -759,6 +689,7 @@ module Fayde {
     }
 }
 
+declare var Warn;
 var resizeTimeout: number;
 interface IFocusChangedEvents {
     GotFocus: Fayde.UINode[];
@@ -909,7 +840,135 @@ class Surface {
         n.SetIsAttached(false);
         this._Invalidate(n.LayoutUpdater.SubtreeBounds);
     }
-    ProcessDirtyElements() {
+    ProcessDirtyElements(): bool {
+        var error = new BError();
+        var dirty = this._UpdateLayout(error);
+        if (error.Message)
+            error.ThrowException();
+        if (!dirty)
+            return false;
+        return true;
+    }
+    private _UpdateLayout(error: BError): bool {
+        var maxPassCount = 250;
+        var layers = this._Layers;
+        if (!layers)
+            return false;
+        var pass = {
+            MeasureList: [],
+            ArrangeList: [],
+            SizeList: [],
+            Count: 0,
+            Updated: true
+        };
+        var dirty = false;
+        var updatedLayout = false;
+        while (pass.Count < maxPassCount && pass.Updated) {
+            pass.Updated = false;
+            for (var i = 0; i < layers.length; i++) {
+                var node = layers[i];
+                var lu = node.LayoutUpdater;
+                if (!lu.HasMeasureArrangeHint())
+                    continue;
+                var last = lu.PreviousConstraint;
+                var available = size.clone(this.Extents);
+                if (lu.IsContainer() && (!last || (!size.isEqual(last, available)))) {
+                    lu.InvalidateMeasure();
+                    lu.PreviousConstraint = available;
+                }
+                lu.UpdateLayer(pass, error);
+            }
+            dirty = dirty || this._DownDirty.length > 0 || this._UpDirty.length > 0;
+            this._ProcessDownDirtyElements();
+            this._ProcessUpDirtyElements();
+            if (pass.Updated || dirty)
+                updatedLayout = true;
+        }
+        if (pass.Count >= maxPassCount) {
+            if (error)
+                error.Message = "UpdateLayout has entered infinite loop and has been aborted.";
+        }
+        return updatedLayout;
+    }
+    private _ProcessDownDirtyElements() {
+        var list = this._DownDirty;
+        var lu: Fayde.LayoutUpdater;
+        while ((lu = list[0])) {
+            if (!lu.InDownDirty) {
+                list.shift();
+                continue;
+            }
+            var vp = lu.Node.VisualParentNode;
+            if (vp && vp.LayoutUpdater.InDownDirty) {
+                list.push(list.shift());
+                continue;
+            }
+            if (lu.ProcessDown()) {
+                lu.InDownDirty = false;
+                list.shift();
+            }
+        }
+        if (list.length > 0) {
+            Warn("Finished DownDirty pass, not empty.");
+        }
+    }
+    private _ProcessUpDirtyElements() {
+        var list = this._UpDirty;
+        var lu: Fayde.LayoutUpdater;
+        while ((lu = list[0])) {
+            if (!lu.InUpDirty) {
+                list.shift();
+                continue;
+            }
+            var childNodeIndex = this._GetChildNodeInUpListIndex(lu);
+            if (childNodeIndex > -1) {
+                list.splice(childNodeIndex + 1, 0, list.shift());
+                continue;
+            }
+            if (lu.ProcessUp()) {
+                lu.InUpDirty = false;
+                list.shift();
+            }
+        }
+        if (list.length > 0) {
+            Warn("Finished UpDirty pass, not empty.");
+        }
+    }
+    private _GetChildNodeInUpListIndex(lu: Fayde.LayoutUpdater): number {
+        var list = this._UpDirty;
+        var len = list.length;
+        var node = lu.Node;
+        for (var i = len - 1; i >= 0; i--) {
+            var cur = list[i];
+            if (cur.InUpDirty && cur.Node.VisualParentNode === node)
+                return i;
+        }
+        return -1;
+    }
+    private _PropagateDirtyFlagToChildren(element, dirt) {
+    }
+    _AddDirtyElement(lu: Fayde.LayoutUpdater, dirt) {
+        if (lu.Node.VisualParentNode == null && !lu.Node.IsTopLevel)
+            return;
+        lu.DirtyFlags |= dirt;
+        if (dirt & _Dirty.DownDirtyState && !lu.InDownDirty) {
+            this._DownDirty.push(lu);
+            lu.InDownDirty = true;
+        }
+        if (dirt & _Dirty.UpDirtyState && !lu.InUpDirty) {
+            this._UpDirty.push(lu);
+            lu.InUpDirty = true;
+        }
+    }
+    private _RemoveDirtyElement(lu: Fayde.LayoutUpdater) {
+        lu.InUpDirty = false;
+        lu.InDownDirty = false;
+    }
+    OnNodeDetached(lu: Fayde.LayoutUpdater) {
+        this._RemoveDirtyElement(lu);
+        this._RemoveFocusFrom(lu);
+    }
+    _Invalidate(r?: rect) {
     }
     private _HandleResize(evt) {
         if (resizeTimeout)
@@ -1158,31 +1217,6 @@ class Surface {
         this._FirstUserInitiatedEvent = this._FirstUserInitiatedEvent || val;
         this._UserInitiatedEvent = val;
     }
-    _Invalidate(r?: rect) {
-    }
-    _AddDirtyElement(lu: Fayde.LayoutUpdater, dirt) {
-        if (lu.Node.VisualParentNode == null && !lu.Node.IsTopLevel)
-            return;
-        lu.DirtyFlags |= dirt;
-        if (dirt & _Dirty.DownDirtyState && lu.DownDirtyIndex === -1)
-            lu.DownDirtyIndex = this._DownDirty.push(lu) - 1;
-        if (dirt & _Dirty.UpDirtyState && lu.UpDirtyIndex === -1)
-            lu.UpDirtyIndex = this._UpDirty.push(lu) - 1;
-    }
-    private _RemoveDirtyElement(lu: Fayde.LayoutUpdater) {
-        if (lu.UpDirtyIndex > -1) {
-            this._UpDirty.splice(lu.UpDirtyIndex, 1);
-            lu.UpDirtyIndex = -1;
-        }
-        if (lu.DownDirtyIndex > -1) {
-            this._DownDirty.splice(lu.DownDirtyIndex, 1);
-            lu.DownDirtyIndex = -1;
-        }
-    }
-    OnNodeDetached(lu: Fayde.LayoutUpdater) {
-        this._RemoveDirtyElement(lu);
-        this._RemoveFocusFrom(lu);
-    }
     Focus(ctrl: Fayde.Controls.Control, recurse?: bool): bool {
         recurse = recurse === undefined || recurse === true;
         if (!ctrl.XamlNode.IsAttached)
@@ -1348,6 +1382,9 @@ module Fayde.Media {
 
 module Fayde.Media {
     export class Geometry {
+        GetBounds(): rect {
+            return new rect();
+        }
     }
 }
 
@@ -2741,6 +2778,366 @@ class DependencyProperty {
 }
 
 module Fayde {
+    var dirtyEnum = _Dirty;
+    var localTransformFlag = _Dirty.LocalTransform;
+    var localProjectionFlag = _Dirty.LocalProjection;
+    var transformFlag = _Dirty.Transform;
+    var rvFlag = _Dirty.RenderVisibility;
+    var htvFlag = _Dirty.HitTestVisibility;
+    var localClipFlag = _Dirty.LocalClip;
+    var clipFlag = _Dirty.Clip;
+    var downDirtyFlag = _Dirty.DownDirtyState
+    var upDirtyFlag = _Dirty.UpDirtyState;
+    export enum UIElementFlags {
+        None = 0,
+        RenderVisible = 0x02,
+        HitTestVisible = 0x04,
+        TotalRenderVisible = 0x08,
+        TotalHitTestVisible = 0x10,
+        DirtyArrangeHint = 0x800,
+        DirtyMeasureHint = 0x1000,
+        DirtySizeHint = 0x2000,
+        RenderProjection = 0x4000,
+    }
+    export interface ILayoutPass {
+        MeasureList: LayoutUpdater[];
+        ArrangeList: LayoutUpdater[];
+        SizeList: LayoutUpdater[];
+        Count: number;
+        Updated: bool;
+    }
+    var maxPassCount = 250;
+    export class LayoutUpdater {
+        private _Surface: Surface;
+        LayoutClip: Media.Geometry = undefined;
+        LayoutExceptionElement: UIElement = undefined;
+        LayoutSlot: rect = undefined;
+        PreviousConstraint: size = undefined;
+        LastRenderSize: size = undefined;
+        RenderSize: size = new size();
+        TotalIsRenderVisible: bool = true;
+        Extents: rect = new rect();
+        Bounds: rect = new rect();
+        Global: rect = new rect();
+        Surface: rect = new rect();
+        EffectPadding: Thickness = new Thickness();
+        ClipBounds: rect = new rect();
+        SubtreeExtents: rect;
+        SubtreeBounds: rect;
+        GlobalBounds: rect;
+        LayoutClipBounds: rect = new rect();
+        Flags: Fayde.UIElementFlags = Fayde.UIElementFlags.None;
+        DirtyFlags: _Dirty = 0;
+        InUpDirty: bool = false;
+        InDownDirty: bool = false;
+        DirtyRegion: rect = null;
+        private _ForceInvalidateOfNewBounds: bool = false;
+        constructor(public Node: UINode) { }
+        SetSurface(surface: Surface) {
+            this._Surface = surface;
+        }
+        OnIsAttachedChanged(newIsAttached: bool, visualParentNode: UINode) {
+            this.UpdateTotalRenderVisibility();
+            if (!newIsAttached) {
+                this._CacheInvalidateHint();
+                this._Surface.OnNodeDetached(this);
+            } else if (visualParentNode) {
+                this._Surface = visualParentNode.LayoutUpdater._Surface;
+            }
+        }
+        OnAddedToTree() {
+            this.UpdateTotalRenderVisibility();
+            this.UpdateTotalHitTestVisibility();
+            this.Invalidate();
+            this.SetLayoutClip(undefined);
+            size.clear(this.RenderSize);
+            this.UpdateTransform();
+            this.UpdateProjection();
+            this.InvalidateMeasure();
+            this.InvalidateArrange();
+            if (this._HasFlag(UIElementFlags.DirtySizeHint) || this.LastRenderSize !== undefined)
+                this._PropagateFlagUp(UIElementFlags.DirtySizeHint);
+        }
+        OnRemovedFromTree() {
+            this.LayoutSlot = new rect();
+            this.SetLayoutClip(undefined);
+        }
+        IsContainer() {
+        }
+        HasMeasureArrangeHint(): bool {
+            return (this.Flags & (UIElementFlags.DirtyMeasureHint | UIElementFlags.DirtyArrangeHint)) > 0;
+        }
+        ProcessDown() {
+            var thisNode = this.Node;
+            var visualParentNode = thisNode.VisualParentNode;
+            var visualParentLu: Fayde.LayoutUpdater;
+            if (visualParentNode)
+                visualParentLu = visualParentNode.LayoutUpdater;
+            var f = this.DirtyFlags;
+            /*
+            DirtyDebug.Level++;
+            DirtyDebug("[" + uie.__DebugToString() + "]" + uie.__DebugDownDirtyFlags());
+            */
+            if (f & rvFlag) {
+                f &= ~rvFlag;
+                var ovisible = this.TotalIsRenderVisible;
+                this.UpdateBounds();
+                if (visualParentLu)
+                    visualParentLu.UpdateBounds();
+                this.UpdateRenderVisibility(visualParentLu);
+                if (!this.TotalIsRenderVisible)
+                    this._CacheInvalidateHint();
+                if (ovisible !== this.TotalIsRenderVisible)
+                    this._Surface._AddDirtyElement(this, dirtyEnum.NewBounds);
+                this._PropagateDirtyFlagToChildren(rvFlag);
+            }
+            if (f & htvFlag) {
+                f &= ~htvFlag;
+                this.UpdateHitTestVisibility(visualParentLu);
+                this._PropagateDirtyFlagToChildren(htvFlag);
+            }
+            var isLT = f & localTransformFlag;
+            var isLP = f & localProjectionFlag;
+            var isT = isLT || isLP || f & transformFlag;
+            f &= ~(localTransformFlag | localProjectionFlag | transformFlag);
+            if (isLT) {
+                this.ComputeLocalTransform();
+            }
+            if (isLP) {
+                this.ComputeLocalProjection();
+            }
+            if (isT) {
+                this.ComputeTransform();
+                if (visualParentLu)
+                    visualParentLu.UpdateBounds();
+                this._PropagateDirtyFlagToChildren(dirtyEnum.Transform);
+            }
+            var isLocalClip = f & localClipFlag;
+            var isClip = isLocalClip || f & clipFlag;
+            f &= ~(localClipFlag | clipFlag);
+            if (isClip)
+                this._PropagateDirtyFlagToChildren(dirtyEnum.Clip);
+            if (f & dirtyEnum.ChildrenZIndices) {
+                f &= ~dirtyEnum.ChildrenZIndices;
+                thisNode._ResortChildrenByZIndex();
+            }
+            this.DirtyFlags = f;
+            return !(f & downDirtyFlag);
+        }
+        ProcessUp(): bool {
+            var thisNode = this.Node;
+            var visualParentNode = thisNode.VisualParentNode;
+            var visualParentLu: Fayde.LayoutUpdater;
+            if (visualParentNode)
+                visualParentLu = visualParentNode.LayoutUpdater;
+            var f = this.DirtyFlags;
+            var invalidateSubtreePaint = false;
+            if (f & dirtyEnum.Bounds) {
+                f &= ~dirtyEnum.Bounds;
+                var oextents = rect.clone(this.SubtreeExtents);
+                var oglobalbounds = rect.clone(this.GlobalBounds);
+                var osubtreebounds = rect.clone(this.SubtreeBounds);
+                this.ComputeBounds();
+                if (!rect.isEqual(oglobalbounds, this.GlobalBounds)) {
+                    if (visualParentLu) {
+                        visualParentLu.UpdateBounds();
+                        visualParentLu.Invalidate(osubtreebounds);
+                        visualParentLu.Invalidate(this.SubtreeBounds);
+                    }
+                }
+                invalidateSubtreePaint = !rect.isEqual(oextents, this.SubtreeExtents) || this._ForceInvalidateOfNewBounds;
+                this._ForceInvalidateOfNewBounds = false;
+            }
+            if (f & dirtyEnum.NewBounds) {
+                if (visualParentLu)
+                    visualParentLu.Invalidate(this.SubtreeBounds);
+                else if (thisNode.IsTopLevel)
+                    invalidateSubtreePaint = true;
+                f &= ~dirtyEnum.NewBounds;
+            }
+            if (invalidateSubtreePaint)
+                this.Invalidate(this.SubtreeBounds);
+            if (f & dirtyEnum.Invalidate) {
+                f &= ~dirtyEnum.Invalidate;
+                var dirty = this.DirtyRegion;
+                if (visualParentLu) {
+                    visualParentLu.Invalidate(dirty);
+                } else {
+                    if (thisNode.IsAttached) {
+                        this._Surface._Invalidate(dirty);
+                        /*
+                        OPTIMIZATION NOT IMPLEMENTED
+                        var count = dirty.GetRectangleCount();
+                        for (var i = count - 1; i >= 0; i--) {
+                        surface._Invalidate(dirty.GetRectangle(i));
+                        }
+                        */
+                    }
+                }
+                rect.clear(dirty);
+            }
+            this.DirtyFlags = f;
+            return !(f & upDirtyFlag);
+        }
+        private _PropagateDirtyFlagToChildren(dirt: _Dirty) {
+            var enumerator = this.Node.GetVisualTreeEnumerator();
+            if (!enumerator)
+                return;
+            var s = this._Surface;
+            while (enumerator.MoveNext()) {
+                s._AddDirtyElement((<UINode>enumerator.Current).LayoutUpdater, dirt);
+            }
+        }
+        FullInvalidate(invTransforms?: bool) {
+            this.Invalidate();
+            if (invTransforms) {
+                this.UpdateTransform();
+                this.UpdateProjection();
+            }
+            this.UpdateBounds(true);
+        }
+        Invalidate(r?: rect) {
+        }
+        private _CacheInvalidateHint() {
+        }
+        InvalidateMeasure() {
+        }
+        InvalidateArrange() {
+        }
+        UpdateBounds(forceRedraw?: bool) {
+        }
+        UpdateTransform() {
+        }
+        ComputeLocalTransform() {
+        }
+        ComputeLocalProjection() {
+        }
+        ComputeTransform() {
+        }
+        UpdateProjection() {
+        }
+        UpdateRenderVisibility(vpLu: Fayde.LayoutUpdater) {
+        }
+        UpdateTotalRenderVisibility() {
+        }
+        UpdateHitTestVisibility(vpLu: Fayde.LayoutUpdater) {
+        }
+        UpdateTotalHitTestVisibility() {
+        }
+        ComputeBounds() {
+        }
+        SetLayoutClip(layoutClip: Media.Geometry) {
+            this.LayoutClip = layoutClip;
+            if (!layoutClip)
+                rect.clear(this.LayoutClipBounds);
+            else
+                rect.copyTo(layoutClip.GetBounds(), this.LayoutClipBounds);
+        }
+        GetRenderVisible(): bool {
+            return true;
+        }
+        UpdateLayer(pass: Fayde.ILayoutPass, error: BError) {
+            var elNode = this.Node;
+            var parentNode: Fayde.UINode;
+            while (parentNode = elNode.VisualParentNode)
+                elNode = parentNode;
+            var element = elNode.XObject;
+            var layout = elNode.LayoutUpdater;
+            var lu: Fayde.LayoutUpdater;
+            while (pass.Count < maxPassCount) {
+                while (lu = pass.ArrangeList.shift()) {
+                    lu._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
+                }
+                while (lu = pass.SizeList.shift()) {
+                    lu._PropagateFlagUp(UIElementFlags.DirtySizeHint);
+                }
+                pass.Count = pass.Count + 1;
+                var flag = UIElementFlags.None;
+                if (element.Visibility === Fayde.Visibility.Visible) {
+                    if (layout._HasFlag(UIElementFlags.DirtyMeasureHint))
+                        flag = UIElementFlags.DirtyMeasureHint;
+                    else if (layout._HasFlag(UIElementFlags.DirtyArrangeHint))
+                        flag = UIElementFlags.DirtyArrangeHint;
+                    else if (layout._HasFlag(UIElementFlags.DirtySizeHint))
+                        flag = UIElementFlags.DirtySizeHint;
+                }
+                if (flag !== UIElementFlags.None) {
+                    var measureWalker = Fayde.DeepTreeWalker(element);
+                    var childNode: Fayde.UINode;
+                    while (childNode = measureWalker.Step()) {
+                        lu = childNode.LayoutUpdater;
+                        if (childNode.XObject.Visibility !== Fayde.Visibility.Visible || !lu._HasFlag(flag)) {
+                            measureWalker.SkipBranch();
+                            continue;
+                        }
+                        lu._ClearFlag(flag);
+                        switch (flag) {
+                            case UIElementFlags.DirtyMeasureHint:
+                                if (lu.DirtyFlags & _Dirty.Measure)
+                                    pass.MeasureList.push(lu);
+                                break;
+                            case UIElementFlags.DirtyArrangeHint:
+                                if (lu.DirtyFlags & _Dirty.Arrange)
+                                    pass.ArrangeList.push(lu);
+                                break;
+                            case UIElementFlags.DirtySizeHint:
+                                if (lu.LastRenderSize !== undefined)
+                                    pass.SizeList.push(lu);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+                if (flag === UIElementFlags.DirtyMeasureHint) {
+                    while (lu = pass.MeasureList.shift()) {
+                        lu._DoMeasureWithError(error);
+                        pass.Updated = true;
+                    }
+                } else if (flag === UIElementFlags.DirtyArrangeHint) {
+                    while (lu = pass.ArrangeList.shift()) {
+                        lu._DoArrangeWithError(error);
+                        pass.Updated = true;
+                        if (layout._HasFlag(UIElementFlags.DirtyMeasureHint))
+                            break;
+                    }
+                } else if (flag === UIElementFlags.DirtySizeHint) {
+                    while (lu = pass.SizeList.shift()) {
+                        pass.Updated = true;
+                        var last = lu.LastRenderSize
+                        if (last) {
+                            lu.LastRenderSize = undefined;
+                            lu._UpdateActualSize();
+                            var fe = <FrameworkElement>lu.Node.XObject;
+                            fe.SizeChanged.Raise(fe, new Fayde.SizeChangedEventArgs(last, lu.RenderSize));
+                        }
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+        private _UpdateActualSize() {
+        }
+        private _HasFlag(flag: Fayde.UIElementFlags): bool { return (this.Flags & flag) === flag; }
+        private _ClearFlag(flag: Fayde.UIElementFlags) { this.Flags &= ~flag; }
+        private _SetFlag(flag: Fayde.UIElementFlags) { this.Flags |= flag; }
+        private _PropagateFlagUp(flag: Fayde.UIElementFlags) {
+            this.Flags |= flag;
+            var node = this.Node;
+            var lu: Fayde.LayoutUpdater;
+            while ((node = node.VisualParentNode) && (lu = node.LayoutUpdater) && !lu._HasFlag(flag)) {
+                lu.Flags |= flag;
+            }
+        }
+        private _DoMeasureWithError(error: BError) {
+        }
+        private _DoArrangeWithError(error: BError) {
+        }
+    }
+}
+
+module Fayde {
     export class RoutedEvent extends MulticastEvent {
         Raise(sender: any, args: RoutedEventArgs) {
         }
@@ -2751,6 +3148,22 @@ module Fayde {
     export class RoutedEventArgs extends EventArgs {
         Handled: bool = false;
         Source: any = null;
+    }
+}
+
+module Fayde {
+    export class SizeChangedEventArgs extends RoutedEventArgs {
+        PreviousSize: size;
+        NewSize: size;
+        constructor(previousSize: size, newSize: size) {
+            super();
+            Object.defineProperty(this, "PreviousSize", {
+                get: function () { return size.clone(previousSize); }
+            });
+            Object.defineProperty(this, "NewSize", {
+                get: function () { return size.clone(newSize); }
+            });
+        }
     }
 }
 
@@ -2935,6 +3348,9 @@ module Fayde {
             uielist.unshift(this);
         }
         CanCaptureMouse(): bool { return true; }
+        _ResortChildrenByZIndex() {
+            Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
+        }
     }
     export class UIElement extends DependencyObject {
         XamlNode: UINode;
@@ -4522,6 +4938,7 @@ module Fayde {
         static ActualWidthProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", function () { return Number; }, FrameworkElement);
         static DataContextProperty = DependencyProperty.RegisterCore("DataContext", function () { return Object; }, FrameworkElement);
         static StyleProperty = DependencyProperty.RegisterCore("Style", function () { return Style; }, FrameworkElement);
+        SizeChanged: RoutedEvent;
         _ComputeActualSize(): size {
             return new size();
         }
@@ -4908,6 +5325,9 @@ module Fayde.Controls {
         _InvalidateChildrenZIndices() {
             if (this.IsAttached) {
             }
+        }
+        _ResortChildrenByZIndex() {
+            (<PanelChildrenCollection>this.XObject.Children).XamlNode.ResortByZIndex();
         }
     }
     function zIndexPropertyChanged(dobj: DependencyObject, args) {

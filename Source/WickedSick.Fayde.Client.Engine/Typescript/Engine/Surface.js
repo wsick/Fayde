@@ -1,12 +1,3 @@
-/// CODE
-/// <reference path="App.ts" />
-/// <reference path="RenderContext.ts" />
-/// <reference path="../Core/UIElement.ts" />
-/// <reference path="Dirty.ts" />
-/// <reference path="../Input/KeyInterop.ts" />
-/// <reference path="../Input/Keyboard.ts" />
-/// <reference path="../Core/Walkers.ts" />
-/// <reference path="../Input/MouseEventArgs.ts" />
 var resizeTimeout;
 var Surface = (function () {
     function Surface(app) {
@@ -184,6 +175,160 @@ var Surface = (function () {
     };
     Surface.prototype.ProcessDirtyElements = // UPDATE
     function () {
+        var error = new BError();
+        var dirty = this._UpdateLayout(error);
+        if(error.Message) {
+            error.ThrowException();
+        }
+        if(!dirty) {
+            return false;
+        }
+        //this.LayoutUpdated.Raise(this, new EventArgs());
+        return true;
+    };
+    Surface.prototype._UpdateLayout = function (error) {
+        //var startTime;
+        var maxPassCount = 250;
+        var layers = this._Layers;
+        if(!layers) {
+            return false;
+        }
+        var pass = {
+            MeasureList: [],
+            ArrangeList: [],
+            SizeList: [],
+            Count: 0,
+            Updated: true
+        };
+        var dirty = false;
+        var updatedLayout = false;
+        while(pass.Count < maxPassCount && pass.Updated) {
+            pass.Updated = false;
+            for(var i = 0; i < layers.length; i++) {
+                var node = layers[i];
+                var lu = node.LayoutUpdater;
+                if(!lu.HasMeasureArrangeHint()) {
+                    continue;
+                }
+                var last = lu.PreviousConstraint;
+                var available = size.clone(this.Extents);
+                if(lu.IsContainer() && (!last || (!size.isEqual(last, available)))) {
+                    lu.InvalidateMeasure();
+                    lu.PreviousConstraint = available;
+                }
+                lu.UpdateLayer(pass, error);
+            }
+            dirty = dirty || this._DownDirty.length > 0 || this._UpDirty.length > 0;
+            //startTime = new Date().getTime();
+            this._ProcessDownDirtyElements();
+            //var elapsed = new Date().getTime() - startTime;
+            //if (elapsed > 0)
+            //DirtyDebug.DownTiming.push(elapsed);
+            //startTime = new Date().getTime();
+            this._ProcessUpDirtyElements();
+            //var elapsed = new Date().getTime() - startTime;
+            //if (elapsed > 0)
+            //DirtyDebug.UpTiming.push(elapsed);
+            if(pass.Updated || dirty) {
+                updatedLayout = true;
+            }
+        }
+        if(pass.Count >= maxPassCount) {
+            if(error) {
+                error.Message = "UpdateLayout has entered infinite loop and has been aborted.";
+            }
+        }
+        return updatedLayout;
+    };
+    Surface.prototype._ProcessDownDirtyElements = //Down --> RenderVisibility, HitTestVisibility, Transformation, Clip, ChildrenZIndices
+    function () {
+        var list = this._DownDirty;
+        var lu;
+        while((lu = list[0])) {
+            if(!lu.InDownDirty) {
+                list.shift();
+                continue;
+            }
+            var vp = lu.Node.VisualParentNode;
+            if(vp && vp.LayoutUpdater.InDownDirty) {
+                //OPTIMIZATION: uie is overzealous. His parent will invalidate him later
+                list.push(list.shift());
+                continue;
+            }
+            if(lu.ProcessDown()) {
+                lu.InDownDirty = false;
+                list.shift();
+            }
+        }
+        if(list.length > 0) {
+            Warn("Finished DownDirty pass, not empty.");
+        }
+    };
+    Surface.prototype._ProcessUpDirtyElements = //Up --> Bounds, Invalidation
+    function () {
+        var list = this._UpDirty;
+        var lu;
+        while((lu = list[0])) {
+            if(!lu.InUpDirty) {
+                list.shift();
+                continue;
+            }
+            var childNodeIndex = this._GetChildNodeInUpListIndex(lu);
+            if(childNodeIndex > -1) {
+                // OPTIMIZATION: Parent is overzealous, children will invalidate him
+                list.splice(childNodeIndex + 1, 0, list.shift());
+                //this._UpDirty.Remove(node);
+                //this._UpDirty.InsertAfter(node, childNode);
+                continue;
+            }
+            if(lu.ProcessUp()) {
+                lu.InUpDirty = false;
+                list.shift();
+            }
+        }
+        if(list.length > 0) {
+            Warn("Finished UpDirty pass, not empty.");
+        }
+    };
+    Surface.prototype._GetChildNodeInUpListIndex = function (lu) {
+        var list = this._UpDirty;
+        var len = list.length;
+        var node = lu.Node;
+        for(var i = len - 1; i >= 0; i--) {
+            var cur = list[i];
+            if(cur.InUpDirty && cur.Node.VisualParentNode === node) {
+                return i;
+            }
+        }
+        return -1;
+    };
+    Surface.prototype._PropagateDirtyFlagToChildren = function (element, dirt) {
+    };
+    Surface.prototype._AddDirtyElement = // DIRTY
+    function (lu, dirt) {
+        if(lu.Node.VisualParentNode == null && !lu.Node.IsTopLevel) {
+            return;
+        }
+        lu.DirtyFlags |= dirt;
+        if(dirt & _Dirty.DownDirtyState && !lu.InDownDirty) {
+            this._DownDirty.push(lu);
+            lu.InDownDirty = true;
+        }
+        if(dirt & _Dirty.UpDirtyState && !lu.InUpDirty) {
+            this._UpDirty.push(lu);
+            lu.InUpDirty = true;
+        }
+    };
+    Surface.prototype._RemoveDirtyElement = function (lu) {
+        lu.InUpDirty = false;
+        lu.InDownDirty = false;
+    };
+    Surface.prototype.OnNodeDetached = function (lu) {
+        this._RemoveDirtyElement(lu);
+        this._RemoveFocusFrom(lu);
+    };
+    Surface.prototype._Invalidate = // RENDER
+    function (r) {
         //TODO: Implement
             };
     Surface.prototype._HandleResize = // RESIZE
@@ -474,34 +619,6 @@ var Surface = (function () {
         this._EmitFocusChangeEvents();
         this._FirstUserInitiatedEvent = this._FirstUserInitiatedEvent || val;
         this._UserInitiatedEvent = val;
-    };
-    Surface.prototype._Invalidate = function (r) {
-    };
-    Surface.prototype._AddDirtyElement = function (lu, dirt) {
-        if(lu.Node.VisualParentNode == null && !lu.Node.IsTopLevel) {
-            return;
-        }
-        lu.DirtyFlags |= dirt;
-        if(dirt & _Dirty.DownDirtyState && lu.DownDirtyIndex === -1) {
-            lu.DownDirtyIndex = this._DownDirty.push(lu) - 1;
-        }
-        if(dirt & _Dirty.UpDirtyState && lu.UpDirtyIndex === -1) {
-            lu.UpDirtyIndex = this._UpDirty.push(lu) - 1;
-        }
-    };
-    Surface.prototype._RemoveDirtyElement = function (lu) {
-        if(lu.UpDirtyIndex > -1) {
-            this._UpDirty.splice(lu.UpDirtyIndex, 1);
-            lu.UpDirtyIndex = -1;
-        }
-        if(lu.DownDirtyIndex > -1) {
-            this._DownDirty.splice(lu.DownDirtyIndex, 1);
-            lu.DownDirtyIndex = -1;
-        }
-    };
-    Surface.prototype.OnNodeDetached = function (lu) {
-        this._RemoveDirtyElement(lu);
-        this._RemoveFocusFrom(lu);
     };
     Surface.prototype.Focus = // FOCUS
     function (ctrl, recurse) {

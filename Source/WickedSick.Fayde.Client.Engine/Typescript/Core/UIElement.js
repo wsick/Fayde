@@ -134,6 +134,9 @@ var Fayde;
         UINode.prototype.CanCaptureMouse = function () {
             return true;
         };
+        UINode.prototype._ResortChildrenByZIndex = function () {
+            Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
+        };
         return UINode;
     })(Fayde.XamlNode);
     Fayde.UINode = UINode;    

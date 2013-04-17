@@ -1,7 +1,6 @@
 Typescript\Core\Enums.ts
 Typescript\Core\Expression.ts
 Typescript\Core\LayoutInformation.ts
-Typescript\Core\LayoutUpdater.ts
 Typescript\Core\NameScope.ts
 Typescript\Core\PropertyChangedListener.ts
 Typescript\Core\TypeConverter.ts
@@ -46,8 +45,10 @@ Typescript\Shapes\PointCollection.ts
 Typescript\Shapes\ShapesParser.ts
 Typescript\Core\DependencyObject.ts
 Typescript\Core\DependencyProperty.ts
+Typescript\Core\LayoutUpdater.ts
 Typescript\Core\RoutedEvent.ts
 Typescript\Core\RoutedEventArgs.ts
+Typescript\Core\SizeChangedEventArgs.ts
 Typescript\Core\Style.ts
 Typescript\Core\UIElement.ts
 Typescript\Core\XamlObjectCollection.ts

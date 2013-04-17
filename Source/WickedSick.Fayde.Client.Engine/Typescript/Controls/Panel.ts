@@ -89,6 +89,9 @@ module Fayde.Controls {
                 //TODO: Invalidate ChildrenZIndices
             }
         }
+        _ResortChildrenByZIndex() {
+            (<PanelChildrenCollection>this.XObject.Children).XamlNode.ResortByZIndex();
+        }
     }
     function zIndexPropertyChanged(dobj: DependencyObject, args) {
         //if (dobj instanceof UIElement) {

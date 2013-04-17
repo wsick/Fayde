@@ -581,6 +581,10 @@
     <Content Include="Typescript\Core\Setter.js">
       <DependentUpon>Setter.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Core\SizeChangedEventArgs.ts" />
+    <Content Include="Typescript\Core\SizeChangedEventArgs.js">
+      <DependentUpon>SizeChangedEventArgs.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\Style.js">
       <DependentUpon>Style.ts</DependentUpon>
     </Content>
@@ -859,8 +863,8 @@
     <TypeScriptSourceMap> --sourcemap</TypeScriptSourceMap>
   </PropertyGroup>
   <Target Name="BeforeBuild">
-	<Message Text="Running JsSingularity" />
-	<Exec Command="&quot;$(ProjectDir)PackageAssemblies.bat&quot; &quot;$(ProjectDir)&quot;" />
+    <Message Text="Running JsSingularity" />
+    <Exec Command="&quot;$(ProjectDir)PackageAssemblies.bat&quot; &quot;$(ProjectDir)&quot;" />
   </Target>
   <PropertyGroup>
     <PostBuildEvent>xcopy /s /y "$(ProjectDir)Fayde.js" "$(SolutionDir)..\JsBin\"

@@ -137,6 +137,10 @@ module Fayde {
         }
 
         CanCaptureMouse(): bool { return true; }
+
+        _ResortChildrenByZIndex() {
+            Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
+        }
     }
     export class UIElement extends DependencyObject {
         XamlNode: UINode;

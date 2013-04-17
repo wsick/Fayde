@@ -8,6 +8,8 @@
 /// <reference path="../Core/Walkers.ts" />
 /// <reference path="../Input/MouseEventArgs.ts" />
 
+declare var Warn;
+
 var resizeTimeout: number;
 
 interface IFocusChangedEvents {
@@ -122,7 +124,6 @@ class Surface {
 
         this._KeyInterop.RegisterEvents();
     }
-
     Attach(uie: Fayde.UIElement) {
         if (this._TopLevel)
             this._DetachLayer(this._TopLevel);
@@ -183,7 +184,168 @@ class Surface {
     }
 
     // UPDATE
-    ProcessDirtyElements() {
+    ProcessDirtyElements(): bool {
+        var error = new BError();
+        var dirty = this._UpdateLayout(error);
+        if (error.Message)
+            error.ThrowException();
+        if (!dirty)
+            return false;
+        //this.LayoutUpdated.Raise(this, new EventArgs());
+        return true;
+    }
+    private _UpdateLayout(error: BError): bool {
+        //var startTime;
+        var maxPassCount = 250;
+        var layers = this._Layers;
+        if (!layers)
+            return false;
+        var pass = {
+            MeasureList: [],
+            ArrangeList: [],
+            SizeList: [],
+            Count: 0,
+            Updated: true
+        };
+        var dirty = false;
+        var updatedLayout = false;
+        while (pass.Count < maxPassCount && pass.Updated) {
+            pass.Updated = false;
+            for (var i = 0; i < layers.length; i++) {
+                var node = layers[i];
+                var lu = node.LayoutUpdater;
+                if (!lu.HasMeasureArrangeHint())
+                    continue;
+
+                var last = lu.PreviousConstraint;
+                var available = size.clone(this.Extents);
+                if (lu.IsContainer() && (!last || (!size.isEqual(last, available)))) {
+                    lu.InvalidateMeasure();
+                    lu.PreviousConstraint = available;
+                }
+
+                lu.UpdateLayer(pass, error);
+            }
+
+            dirty = dirty || this._DownDirty.length > 0 || this._UpDirty.length > 0;
+
+            //startTime = new Date().getTime();
+            this._ProcessDownDirtyElements();
+            //var elapsed = new Date().getTime() - startTime;
+            //if (elapsed > 0)
+            //DirtyDebug.DownTiming.push(elapsed);
+
+            //startTime = new Date().getTime();
+            this._ProcessUpDirtyElements();
+            //var elapsed = new Date().getTime() - startTime;
+            //if (elapsed > 0)
+            //DirtyDebug.UpTiming.push(elapsed);
+
+            if (pass.Updated || dirty)
+                updatedLayout = true;
+        }
+
+        if (pass.Count >= maxPassCount) {
+            if (error)
+                error.Message = "UpdateLayout has entered infinite loop and has been aborted.";
+        }
+
+        return updatedLayout;
+    }
+    //Down --> RenderVisibility, HitTestVisibility, Transformation, Clip, ChildrenZIndices
+    private _ProcessDownDirtyElements() {
+        var list = this._DownDirty;
+        var lu: Fayde.LayoutUpdater;
+        while ((lu = list[0])) {
+            if (!lu.InDownDirty) {
+                list.shift();
+                continue;
+            }
+            var vp = lu.Node.VisualParentNode;
+            if (vp && vp.LayoutUpdater.InDownDirty) {
+                //OPTIMIZATION: uie is overzealous. His parent will invalidate him later
+                list.push(list.shift());
+                continue;
+            }
+
+            if (lu.ProcessDown()) {
+                lu.InDownDirty = false;
+                list.shift();
+            }
+        }
+
+        if (list.length > 0) {
+            Warn("Finished DownDirty pass, not empty.");
+        }
+    }
+    //Up --> Bounds, Invalidation
+    private _ProcessUpDirtyElements() {
+        var list = this._UpDirty;
+        var lu: Fayde.LayoutUpdater;
+        while ((lu = list[0])) {
+            if (!lu.InUpDirty) {
+                list.shift();
+                continue;
+            }
+            var childNodeIndex = this._GetChildNodeInUpListIndex(lu);
+            if (childNodeIndex > -1) {
+                // OPTIMIZATION: Parent is overzealous, children will invalidate him
+                list.splice(childNodeIndex + 1, 0, list.shift());
+                //this._UpDirty.Remove(node);
+                //this._UpDirty.InsertAfter(node, childNode);
+                continue;
+            }
+            if (lu.ProcessUp()) {
+                lu.InUpDirty = false;
+                list.shift();
+            }
+        }
+
+        if (list.length > 0) {
+            Warn("Finished UpDirty pass, not empty.");
+        }
+    }
+    private _GetChildNodeInUpListIndex(lu: Fayde.LayoutUpdater): number {
+        var list = this._UpDirty;
+        var len = list.length;
+        var node = lu.Node;
+        for (var i = len - 1; i >= 0; i--) {
+            var cur = list[i];
+            if (cur.InUpDirty && cur.Node.VisualParentNode === node)
+                return i;
+        }
+        return -1;
+    }
+    private _PropagateDirtyFlagToChildren(element, dirt) {
+        
+    }
+
+    // DIRTY
+    _AddDirtyElement(lu: Fayde.LayoutUpdater, dirt) {
+        if (lu.Node.VisualParentNode == null && !lu.Node.IsTopLevel)
+            return;
+
+        lu.DirtyFlags |= dirt;
+        if (dirt & _Dirty.DownDirtyState && !lu.InDownDirty) {
+            this._DownDirty.push(lu);
+            lu.InDownDirty = true;
+        }
+        if (dirt & _Dirty.UpDirtyState && !lu.InUpDirty) {
+            this._UpDirty.push(lu);
+            lu.InUpDirty = true;
+        }
+    }
+    private _RemoveDirtyElement(lu: Fayde.LayoutUpdater) {
+        lu.InUpDirty = false;
+        lu.InDownDirty = false;
+    }
+    OnNodeDetached(lu: Fayde.LayoutUpdater) {
+        this._RemoveDirtyElement(lu);
+        this._RemoveFocusFrom(lu);
+    }
+
+    // RENDER
+    _Invalidate(r?: rect) {
         //TODO: Implement
     }
 
@@ -458,33 +620,6 @@ class Surface {
         this._EmitFocusChangeEvents();
         this._FirstUserInitiatedEvent = this._FirstUserInitiatedEvent || val;
         this._UserInitiatedEvent = val;
-    }
-
-    _Invalidate(r?: rect) {
-    }
-    _AddDirtyElement(lu: Fayde.LayoutUpdater, dirt) {
-        if (lu.Node.VisualParentNode == null && !lu.Node.IsTopLevel)
-            return;
-
-        lu.DirtyFlags |= dirt;
-        if (dirt & _Dirty.DownDirtyState && lu.DownDirtyIndex === -1)
-            lu.DownDirtyIndex = this._DownDirty.push(lu) - 1;
-        if (dirt & _Dirty.UpDirtyState && lu.UpDirtyIndex === -1)
-            lu.UpDirtyIndex = this._UpDirty.push(lu) - 1;
-    }
-    private _RemoveDirtyElement(lu: Fayde.LayoutUpdater) {
-        if (lu.UpDirtyIndex > -1) {
-            this._UpDirty.splice(lu.UpDirtyIndex, 1);
-            lu.UpDirtyIndex = -1;
-        }
-        if (lu.DownDirtyIndex > -1) {
-            this._DownDirty.splice(lu.DownDirtyIndex, 1);
-            lu.DownDirtyIndex = -1;
-        }
-    }
-    OnNodeDetached(lu: Fayde.LayoutUpdater) {
-        this._RemoveDirtyElement(lu);
-        this._RemoveFocusFrom(lu);
     }
 
     // FOCUS

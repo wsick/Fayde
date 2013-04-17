@@ -106,6 +106,8 @@ module Fayde {
         static DataContextProperty = DependencyProperty.RegisterCore("DataContext", function () { return Object; }, FrameworkElement);
         static StyleProperty = DependencyProperty.RegisterCore("Style", function () { return Style; }, FrameworkElement);
 
+        SizeChanged: RoutedEvent;
+
         _ComputeActualSize(): size {
             return new size();
         }

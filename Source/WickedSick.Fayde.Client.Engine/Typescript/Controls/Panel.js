@@ -101,6 +101,9 @@ var Fayde;
                 if(this.IsAttached) {
                 }
             };
+            PanelNode.prototype._ResortChildrenByZIndex = function () {
+                (this.XObject.Children).XamlNode.ResortByZIndex();
+            };
             return PanelNode;
         })(Fayde.FENode);
         Controls.PanelNode = PanelNode;        
