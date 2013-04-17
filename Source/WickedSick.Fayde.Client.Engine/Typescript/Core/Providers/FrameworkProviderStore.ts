@@ -1,10 +1,9 @@
 /// <reference path="InheritedProviderStore.ts" />
 /// CODE
 /// <reference path="../FrameworkElement.ts" />
+/// <reference path="../../Engine/App.ts" />
 
 module Fayde.Providers {
-    declare var App;
-
     export interface ILocalStylesProvider extends IPropertyProvider {
         UpdateStyle(style: Style, error: BError);
     }
@@ -44,9 +43,8 @@ module Fayde.Providers {
         private _AutoCreateProvider: AutoCreateProvider;
 
         SetImplicitStyles(styleMask: _StyleMask, styles?: Style[]) {
-            var app;
-            if (!styles && App && (app = App.Instance))
-                styles = app._GetImplicitStyles(this, styleMask);
+            if (!styles)
+                styles = this._GetImplicitStyles(styleMask);
             if (styles) {
                 var error = new BError();
                 var len = Providers._StyleIndex.Count;
@@ -63,6 +61,74 @@ module Fayde.Providers {
             }
 
             this._ImplicitStyleProvider.SetStyles(styleMask, styles, error);
+        }
+        private _GetImplicitStyles(styleMask: _StyleMask): Style[] {
+            var fe = <FrameworkElement>this._Object;
+            var feType = (<any>fe).constructor;
+            var feTypeName = (<any>fe)._TypeName;
+
+            var genericXamlStyle: Style = undefined;
+            if ((styleMask & _StyleMask.GenericXaml) != 0) {
+                if (fe instanceof Controls.Control) {
+                    genericXamlStyle = (<Controls.Control>fe).GetDefaultStyle();
+                    if (!genericXamlStyle) {
+                        var styleKey = fe.DefaultStyleKey;
+                        if (styleKey)
+                            genericXamlStyle = this._GetGenericXamlStyleFor(styleKey);
+                    }
+                }
+            }
+            
+            var appResourcesStyle: Style = undefined;
+            var rd = App.Instance.Resources;
+            if ((styleMask & _StyleMask.ApplicationResources) != 0) {
+                appResourcesStyle = <Style>rd.Get(feType);
+                if (!appResourcesStyle)
+                    appResourcesStyle = <Style>rd.Get(feTypeName);
+                //if (appResourcesStyle)
+                    //appResourcesStyle._ResChain = [rd];
+            }
+
+
+            var visualTreeStyle: Style = undefined;
+            if ((styleMask & _StyleMask.VisualTree) != 0) {
+                var cur = fe;
+                var curNode = fe.XamlNode;
+                var isControl = curNode instanceof Controls.ControlNode;
+
+                while (curNode) {
+                    cur = curNode.XObject;
+                    if (cur.TemplateOwner && !fe.TemplateOwner) {
+                        cur = <FrameworkElement>cur.TemplateOwner;
+                        curNode = cur.XamlNode;
+                        continue;
+                    }
+                    if (!isControl && cur === fe.TemplateOwner)
+                        break;
+
+                    rd = cur.Resources;
+                    if (rd) {
+                        visualTreeStyle = <Style>rd.Get(feType);
+                        if (!visualTreeStyle)
+                            visualTreeStyle = <Style>rd.Get(feTypeName);
+                        if (visualTreeStyle)
+                            break;
+                    }
+
+                    curNode = <FENode>curNode.VisualParentNode;
+                }
+            }
+
+            var styles = [];
+            styles[_StyleIndex.GenericXaml] = genericXamlStyle;
+            styles[_StyleIndex.ApplicationResources] = appResourcesStyle;
+            styles[_StyleIndex.VisualTree] = visualTreeStyle;
+            return styles;
+        }
+        private _GetGenericXamlStyleFor(type: any): Style {
+            var rd = App.GetGenericResourceDictionary();
+            if (rd)
+                return <Style>rd.Get(type);
         }
         ClearImplicitStyles(styleMask: _StyleMask) {
             var error = new BError();

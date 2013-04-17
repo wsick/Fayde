@@ -36,6 +36,9 @@ var Fayde;
             Control.prototype.Focus = function () {
                 return App.Instance.MainSurface.Focus(this);
             };
+            Control.prototype.GetDefaultStyle = function () {
+                return undefined;
+            };
             return Control;
         })(Fayde.FrameworkElement);
         Controls.Control = Control;        

@@ -18,6 +18,7 @@ class App {
     private _IsRunning: bool = false;
     private _Storyboards: Fayde.IStoryboard[] = [];
     private _ClockTimer: Fayde.ClockTimer = new Fayde.ClockTimer();
+    private static _GenericResourceDictionary: Fayde.ResourceDictionary = null;
     constructor() {
         this.MainSurface = new Surface(this);
         Object.defineProperty(this, "Resources", {
@@ -111,4 +112,12 @@ class App {
         if (index !== -1)
             sbs.splice(index, 1);
     }
+
+    static GetGenericResourceDictionary(): Fayde.ResourceDictionary {
+        var rd = App._GenericResourceDictionary;
+        if (!rd)
+            App._GenericResourceDictionary = rd = App.GetGenericResourceDictionaryImpl();
+        return rd;
+    }
+    private static GetGenericResourceDictionaryImpl(): Fayde.ResourceDictionary { return undefined; }
 }

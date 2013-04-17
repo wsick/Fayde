@@ -198,11 +198,11 @@
         return styles;
     };
     App.Instance._GetGenericXamlStyleFor = function (type) {
-        if (!App.GenericResourceDictionary && App.GetGenericResourceDictionary) {
-            App.GenericResourceDictionary = App.GetGenericResourceDictionary();
+        if (!App._GenericResourceDictionary && App.GetGenericResourceDictionaryImpl) {
+            App._GenericResourceDictionary = App.GetGenericResourceDictionaryImpl();
         }
-        if (App.GenericResourceDictionary)
-            return App.GenericResourceDictionary.Get(type);
+        if (App._GenericResourceDictionary)
+            return App._GenericResourceDictionary.Get(type);
     };
 
     //#region Debug Service

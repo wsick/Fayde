@@ -34,5 +34,9 @@ module Fayde.Controls {
         Focus(): bool {
             return App.Instance.MainSurface.Focus(this);
         }
+        
+        GetDefaultStyle(): Style {
+            return undefined;
+        }
     }
 }

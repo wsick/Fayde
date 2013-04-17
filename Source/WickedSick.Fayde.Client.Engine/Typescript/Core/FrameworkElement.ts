@@ -73,6 +73,7 @@ module Fayde {
     }
 
     export class FrameworkElement extends UIElement {
+        DefaultStyleKey: any;
         XamlNode: FENode;
         Resources: ResourceDictionary;
         constructor() {

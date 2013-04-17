@@ -21,6 +21,7 @@ var App = (function () {
         this.Resources.XamlNode.NameScope = new Fayde.NameScope(true);
     }
     App.Version = "0.9.4.0";
+    App._GenericResourceDictionary = null;
     Object.defineProperty(App.prototype, "RootVisual", {
         get: function () {
             return this.MainSurface._TopLevel;
@@ -102,6 +103,16 @@ var App = (function () {
         if(index !== -1) {
             sbs.splice(index, 1);
         }
+    };
+    App.GetGenericResourceDictionary = function GetGenericResourceDictionary() {
+        var rd = App._GenericResourceDictionary;
+        if(!rd) {
+            App._GenericResourceDictionary = rd = App.GetGenericResourceDictionaryImpl();
+        }
+        return rd;
+    };
+    App.GetGenericResourceDictionaryImpl = function GetGenericResourceDictionaryImpl() {
+        return undefined;
     };
     return App;
 })();

@@ -8,6 +8,7 @@ var Fayde;
     /// <reference path="InheritedProviderStore.ts" />
     /// CODE
     /// <reference path="../FrameworkElement.ts" />
+    /// <reference path="../../Engine/App.ts" />
     (function (Providers) {
         var FrameworkProviderStore = (function (_super) {
             __extends(FrameworkProviderStore, _super);
@@ -25,9 +26,8 @@ var Fayde;
                 this._AutoCreateProvider = this._Providers[8] = providerArr[8];
             };
             FrameworkProviderStore.prototype.SetImplicitStyles = function (styleMask, styles) {
-                var app;
-                if(!styles && App && (app = App.Instance)) {
-                    styles = app._GetImplicitStyles(this, styleMask);
+                if(!styles) {
+                    styles = this._GetImplicitStyles(styleMask);
                 }
                 if(styles) {
                     var error = new BError();
@@ -45,6 +45,72 @@ var Fayde;
                     }
                 }
                 this._ImplicitStyleProvider.SetStyles(styleMask, styles, error);
+            };
+            FrameworkProviderStore.prototype._GetImplicitStyles = function (styleMask) {
+                var fe = this._Object;
+                var feType = (fe).constructor;
+                var feTypeName = (fe)._TypeName;
+                var genericXamlStyle = undefined;
+                if((styleMask & Providers._StyleMask.GenericXaml) != 0) {
+                    if(fe instanceof Fayde.Controls.Control) {
+                        genericXamlStyle = (fe).GetDefaultStyle();
+                        if(!genericXamlStyle) {
+                            var styleKey = fe.DefaultStyleKey;
+                            if(styleKey) {
+                                genericXamlStyle = this._GetGenericXamlStyleFor(styleKey);
+                            }
+                        }
+                    }
+                }
+                var appResourcesStyle = undefined;
+                var rd = App.Instance.Resources;
+                if((styleMask & Providers._StyleMask.ApplicationResources) != 0) {
+                    appResourcesStyle = rd.Get(feType);
+                    if(!appResourcesStyle) {
+                        appResourcesStyle = rd.Get(feTypeName);
+                    }
+                    //if (appResourcesStyle)
+                    //appResourcesStyle._ResChain = [rd];
+                                    }
+                var visualTreeStyle = undefined;
+                if((styleMask & Providers._StyleMask.VisualTree) != 0) {
+                    var cur = fe;
+                    var curNode = fe.XamlNode;
+                    var isControl = curNode instanceof Fayde.Controls.ControlNode;
+                    while(curNode) {
+                        cur = curNode.XObject;
+                        if(cur.TemplateOwner && !fe.TemplateOwner) {
+                            cur = cur.TemplateOwner;
+                            curNode = cur.XamlNode;
+                            continue;
+                        }
+                        if(!isControl && cur === fe.TemplateOwner) {
+                            break;
+                        }
+                        rd = cur.Resources;
+                        if(rd) {
+                            visualTreeStyle = rd.Get(feType);
+                            if(!visualTreeStyle) {
+                                visualTreeStyle = rd.Get(feTypeName);
+                            }
+                            if(visualTreeStyle) {
+                                break;
+                            }
+                        }
+                        curNode = curNode.VisualParentNode;
+                    }
+                }
+                var styles = [];
+                styles[Providers._StyleIndex.GenericXaml] = genericXamlStyle;
+                styles[Providers._StyleIndex.ApplicationResources] = appResourcesStyle;
+                styles[Providers._StyleIndex.VisualTree] = visualTreeStyle;
+                return styles;
+            };
+            FrameworkProviderStore.prototype._GetGenericXamlStyleFor = function (type) {
+                var rd = App.GetGenericResourceDictionary();
+                if(rd) {
+                    return rd.Get(type);
+                }
             };
             FrameworkProviderStore.prototype.ClearImplicitStyles = function (styleMask) {
                 var error = new BError();

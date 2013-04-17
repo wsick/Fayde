@@ -1,6 +1,6 @@
 ﻿/// <reference path="Fayde.js"/>
 
-App.GetGenericResourceDictionary = function () {
+App.GetGenericResourceDictionaryImpl = function () {
     var ResourceDictionary = Fayde.ResourceDictionary;
     var SolidColorBrush = Fayde.Media.SolidColorBrush;
     var StaticResourceMarkup = Fayde.StaticResourceMarkup;
