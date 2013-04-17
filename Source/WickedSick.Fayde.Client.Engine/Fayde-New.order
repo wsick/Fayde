@@ -17,7 +17,6 @@ Engine/Exceptions.js
 Engine/Interfaces.js
 Engine/Surface.js
 Input/Keyboard.js
-Input/KeyInterop.js
 Media/Brush.js
 Media/Geometry.js
 Media/MediaParser.js
@@ -64,6 +63,7 @@ Data/BindingExpressionBase.js
 Documents/TextElement.js
 Engine/RenderContext.js
 Input/KeyEventArgs.js
+Input/KeyInterop.js
 Input/MouseEventArgs.js
 Media/SolidColorBrush.js
 Core/DependencyObjectCollection.js

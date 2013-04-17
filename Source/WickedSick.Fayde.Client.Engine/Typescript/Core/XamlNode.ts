@@ -50,7 +50,7 @@ module Fayde {
 
         IsAttached: bool = false;
         SetIsAttached(value: bool) {
-            if (this.IsAttached !== value)
+            if (this.IsAttached === value)
                 return;
             this.IsAttached = value;
             this.OnIsAttachedChanged(value);

@@ -46,7 +46,7 @@ var Fayde;
             return undefined;
         };
         XamlNode.prototype.SetIsAttached = function (value) {
-            if(this.IsAttached !== value) {
+            if(this.IsAttached === value) {
                 return;
             }
             this.IsAttached = value;

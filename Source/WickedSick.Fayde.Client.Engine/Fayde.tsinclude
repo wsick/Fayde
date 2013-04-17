@@ -17,7 +17,6 @@ Typescript\Engine\Exceptions.ts
 Typescript\Engine\Interfaces.ts
 Typescript\Engine\Surface.ts
 Typescript\Input\Keyboard.ts
-Typescript\Input\KeyInterop.ts
 Typescript\Media\Brush.ts
 Typescript\Media\Geometry.ts
 Typescript\Media\MediaParser.ts
@@ -64,6 +63,7 @@ Typescript\Data\BindingExpressionBase.ts
 Typescript\Documents\TextElement.ts
 Typescript\Engine\RenderContext.ts
 Typescript\Input\KeyEventArgs.ts
+Typescript\Input\KeyInterop.ts
 Typescript\Input\MouseEventArgs.ts
 Typescript\Media\SolidColorBrush.ts
 Typescript\Core\DependencyObjectCollection.ts
