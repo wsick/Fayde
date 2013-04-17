@@ -624,22 +624,49 @@ class App {
     static Instance: App;
     MainSurface: Surface;
     Resources: Fayde.ResourceDictionary;
+    Loaded: MulticastEvent = new MulticastEvent();
+    Address: Uri = null;
+    NavService: Fayde.Navigation.NavService;
     private _IsRunning: bool = false;
-    private _Storyboards: any[] = [];
+    private _Storyboards: Fayde.IStoryboard[] = [];
+    private _ClockTimer: Fayde.ClockTimer = new Fayde.ClockTimer();
     constructor() {
         this.MainSurface = new Surface(this);
         Object.defineProperty(this, "Resources", {
             value: new Fayde.ResourceDictionary(),
             writable: false
         });
+        this.Resources.XamlNode.NameScope = new Fayde.NameScope(true);
     }
     get RootVisual(): Fayde.UIElement {
         return this.MainSurface._TopLevel;
     }
-    private _Tick(lastTime:number, nowTime:number) {
+    LoadResources(json: any) {
+        Fayde.JsonParser.ParseResourceDictionary(this.Resources, json);
+    }
+    LoadInitial(canvas: HTMLCanvasElement, json: any) {
+        this.Address = new Uri(document.URL);
+        this.MainSurface.Register(canvas);
+        this.NavService = new Fayde.Navigation.NavService(this);
+        var element = Fayde.JsonParser.Parse(json);
+        if (element instanceof Fayde.UIElement)
+            this.MainSurface.Attach(<Fayde.UIElement>element);
+        this.Start();
+        this.EmitLoaded();
+    }
+    private EmitLoaded() {
+        this.Loaded.RaiseAsync(this, EventArgs.Empty);
+    }
+    private Start() {
+        this._ClockTimer.RegisterTimer(this);
+    }
+    private Tick(lastTime: number, nowTime: number) {
         this.ProcessStoryboards(lastTime, nowTime);
         this.Update();
         this.Render();
+    }
+    private Stop() {
+        this._ClockTimer.UnregisterTimer(this);
     }
     private ProcessStoryboards(lastTime: number, nowTime: number) {
         var sbs = this._Storyboards;
@@ -657,6 +684,69 @@ class App {
     }
     private Render() {
         this.MainSurface.Render();
+    }
+    RegisterStoryboard(storyboard: Fayde.IStoryboard) {
+        var sbs = this._Storyboards;
+        var index = sbs.indexOf(storyboard);
+        if (index === -1)
+            sbs.push(storyboard);
+    }
+    UnregisterStoryboard(storyboard: Fayde.IStoryboard) {
+        var sbs = this._Storyboards;
+        var index = sbs.indexOf(storyboard);
+        if (index !== -1)
+            sbs.splice(index, 1);
+    }
+}
+
+module Fayde {
+    export interface ITimerListener {
+        Tick(lastTime: number, nowTime: number);
+    }
+    var requestAnimFrame = (function () {
+        return window.requestAnimationFrame ||
+            (<any>window).webkitRequestAnimationFrame ||
+            (<any>window).mozRequestAnimationFrame ||
+            (<any>window).oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            function (callback) {
+                window.setTimeout(callback, 1000 / 200);
+            };
+    })();
+    export class ClockTimer {
+        private _Listeners: Fayde.ITimerListener[] = [];
+        private _LastTime: number = 0;
+        RegisterTimer(listener: Fayde.ITimerListener) {
+            var ls = this._Listeners;
+            var index = ls.indexOf(listener);
+            if (index > -1)
+                return;
+            ls.push(listener);
+            if (ls.length === 1)
+                this._RequestAnimationTick();
+        }
+        UnregisterTimer(listener: Fayde.ITimerListener) {
+            var ls = this._Listeners;
+            var index = ls.indexOf(listener);
+            if (index > -1)
+                ls.splice(index, 1);
+        }
+        private _DoTick() {
+            var nowTime = new Date().getTime();
+            var lastTime = this._LastTime;
+            this._LastTime = nowTime;
+            var ls = this._Listeners;
+            var len = ls.length;
+            if (len === 0)
+                return;
+            for (var i = 0; i < len; i++) {
+                ls[i].Tick(lastTime, nowTime);
+            }
+            this._RequestAnimationTick();
+        }
+        private _RequestAnimationTick() {
+            requestAnimFrame(() => this._DoTick());
+        }
     }
 }
 
@@ -711,6 +801,9 @@ class NotSupportedException extends Exception {
 module Fayde {
     export interface IRenderContext {
     }
+    export interface IStoryboard {
+        Update(nowTime: number);
+    }
 }
 
 declare var Warn;
@@ -755,7 +848,7 @@ class Surface {
             this._Extents = size.fromRaw(this._Canvas.offsetWidth, this._Canvas.offsetHeight);
         return this._Extents;
     }
-    Register(canvas: HTMLCanvasElement, width, widthType, height, heightType) {
+    Register(canvas: HTMLCanvasElement, width?: number, widthType?: string, height?: number, heightType?: string) {
         this._Canvas = canvas;
         this._Ctx = this._Canvas.getContext("2d");
         if (!width) {
@@ -1417,6 +1510,57 @@ module Fayde.Input {
     }
 }
 
+module Fayde {
+    export class JsonParser {
+        private _ResChain: any[] = [];
+        private _RootXamlObject: XamlObject = null;
+        private _TemplateBindingSource: DependencyObject = null;
+        static Parse(json: any, templateBindingSource?: DependencyObject, namescope?: NameScope, resChain?: Fayde.ResourceDictionary[], rootXamlObject?: XamlObject): XamlObject {
+            var parser = new JsonParser();
+            if (resChain)
+                parser._ResChain = resChain;
+            parser._TemplateBindingSource = templateBindingSource;
+            parser._RootXamlObject = rootXamlObject;
+            if (!namescope)
+                namescope = new Fayde.NameScope();
+            var xobj = parser.CreateObject(json, namescope);
+            return xobj;
+        }
+        static ParseUserControl(uc: Controls.UserControl, json: any) {
+            var parser = new JsonParser();
+            parser._RootXamlObject = uc;
+            parser.SetObject(json, uc, new Fayde.NameScope(true));
+        }
+        static ParseResourceDictionary(rd: Fayde.ResourceDictionary, json: any) {
+            var parser = new JsonParser();
+            parser._RootXamlObject = rd;
+            parser.SetObject(json, rd, rd.XamlNode.NameScope);
+        }
+        CreateObject(json: any, namescope: NameScope, ignoreResolve?: bool): XamlObject {
+            var type = json.Type;
+            if (!type)
+                return json;
+            if (type === Number || type === String || type === Boolean)
+                return json.Value;
+            if (type === Controls.ControlTemplate) {
+                var targetType = json.Props == null ? null : json.Props.TargetType;
+                return new Controls.ControlTemplate(targetType, json.Content, this._ResChain);
+            }
+            if (type === DataTemplate)
+                return new DataTemplate(json.Content, this._ResChain);
+            var xobj = new type();
+            if (!this._RootXamlObject)
+                this._RootXamlObject = xobj;
+            this.SetObject(json, xobj, namescope, ignoreResolve);
+            return xobj;
+        }
+        SetObject(json: any, xobj: XamlObject, namescope: NameScope, ignoreResolve?: bool) {
+            if (xobj && namescope)
+                xobj.XamlNode.NameScope = namescope;
+        }
+    }
+}
+
 module Fayde.Media {
     export class Brush {
         SetupBrush(ctx: CanvasRenderingContext2D, r: rect) {
@@ -1462,6 +1606,33 @@ module Fayde.Media {
 
 module Fayde.Media.Effects {
     export class Effect {
+    }
+}
+
+module Fayde.Navigation {
+    export class NavService {
+        App: App;
+        Href: string;
+        Hash: string;
+        LocationChanged: MulticastEvent = new MulticastEvent();
+        constructor(app: App) {
+            this.App = app;
+            this.Href = window.location.href;
+            this.Hash = window.location.hash;
+            if (this.Hash) {
+                this.Hash = this.Hash.substr(1);
+                this.Href = this.Href.substring(0, this.Href.indexOf('#'));
+            }
+            window.onhashchange = () => this._HandleFragmentChange();
+        }
+        private _HandleFragmentChange() {
+            this.App.Address = new Uri(document.URL);
+            this.Hash = window.location.hash;
+            if (this.Hash) {
+                this.Hash = this.Hash.substr(1);
+            }
+            this.LocationChanged.Raise(this, EventArgs.Empty);
+        }
     }
 }
 
@@ -2565,10 +2736,13 @@ module Fayde {
 }
 
 class EventArgs {
+    static Empty: EventArgs = new EventArgs();
 }
 
 class MulticastEvent {
     Raise(sender: any, args: EventArgs) {
+    }
+    RaiseAsync(sender: any, args: EventArgs) {
     }
 }
 
@@ -2830,6 +3004,22 @@ class DependencyProperty {
             return coerced;
         isValidOut.IsValid = true;
         return coerced;
+    }
+}
+
+module Fayde {
+    export class FrameworkTemplate extends XamlObject {
+        GetVisualTree(bindingSource: DependencyObject): XamlObject {
+            var error = new BError();
+            var vt = this._GetVisualTreeWithError(bindingSource, error);
+            if (error.Message)
+                error.ThrowException();
+            return vt;
+        }
+        _GetVisualTreeWithError(templateBindingSource: DependencyObject, error: BError): XamlObject {
+            error.Message = "Abstract Method";
+            return undefined;
+        }
     }
 }
 
@@ -5013,6 +5203,45 @@ module Fayde.Media {
     }
 }
 
+module Fayde.Controls {
+    export class ControlTemplate extends FrameworkTemplate {
+        private _TempJson: any;
+        private _ResChain: ResourceDictionary[];
+        TargetType: Function;
+        constructor(targetType: Function, json: any, resChain: ResourceDictionary[]) {
+            super();
+            Object.defineProperty(this, "TargetType", {
+                value: targetType,
+                writable: false
+            });
+            this._TempJson = json;
+            this._ResChain = resChain;
+        }
+        _GetVisualTreeWithError(templateBindingSource: FrameworkElement, error: BError): XamlObject {
+            if (this._TempJson)
+                return Fayde.JsonParser.Parse(this._TempJson, templateBindingSource, new Fayde.NameScope(), this._ResChain);
+            return super._GetVisualTreeWithError(templateBindingSource, error);
+        }
+    }
+}
+
+module Fayde {
+    export class DataTemplate extends FrameworkTemplate {
+        private _TempJson: any;
+        private _ResChain: ResourceDictionary[];
+        constructor(json: any, resChain: ResourceDictionary[]) {
+            super();
+            this._TempJson = json;
+            this._ResChain = resChain;
+        }
+        _GetVisualTreeWithError(templateBindingSource: FrameworkElement, error: BError): XamlObject {
+            if (this._TempJson)
+                return Fayde.JsonParser.Parse(this._TempJson, templateBindingSource);
+            return super._GetVisualTreeWithError(templateBindingSource, error);
+        }
+    }
+}
+
 module Fayde {
     export class DependencyObjectCollection extends XamlObjectCollection implements Providers.IPropertyChangedListener {
         private _HandleItemChanged: bool;
@@ -5550,6 +5779,11 @@ module Fayde.Controls {
         CreateNode(): XamlNode {
             return new TextBlockNode(this);
         }
+    }
+}
+
+module Fayde.Controls {
+    export class UserControl extends Control {
     }
 }
 

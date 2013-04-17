@@ -11,11 +11,13 @@ Typescript\Core\Providers\Enums.ts
 Typescript\Core\Providers\IProviderStore.ts
 Typescript\Data\Enums.ts
 Typescript\Engine\App.ts
+Typescript\Engine\ClockTimer.ts
 Typescript\Engine\Dirty.ts
 Typescript\Engine\Exceptions.ts
 Typescript\Engine\Interfaces.ts
 Typescript\Engine\Surface.ts
 Typescript\Input\Keyboard.ts
+Typescript\Markup\JsonParser.ts
 Typescript\Media\Brush.ts
 Typescript\Media\Geometry.ts
 Typescript\Media\Matrix.ts
@@ -23,6 +25,7 @@ Typescript\Media\MediaParser.ts
 Typescript\Media\Projection.ts
 Typescript\Media\Transform.ts
 Typescript\Media\Effects\Effect.ts
+Typescript\Navigation\NavService.ts
 Typescript\Primitives\Clip.ts
 Typescript\Primitives\Color.ts
 Typescript\Primitives\CornerRadius.ts
@@ -46,6 +49,7 @@ Typescript\Shapes\PointCollection.ts
 Typescript\Shapes\ShapesParser.ts
 Typescript\Core\DependencyObject.ts
 Typescript\Core\DependencyProperty.ts
+Typescript\Core\FrameworkTemplate.ts
 Typescript\Core\LayoutUpdater.ts
 Typescript\Core\RoutedEvent.ts
 Typescript\Core\RoutedEventArgs.ts
@@ -68,6 +72,8 @@ Typescript\Input\KeyEventArgs.ts
 Typescript\Input\KeyInterop.ts
 Typescript\Input\MouseEventArgs.ts
 Typescript\Media\SolidColorBrush.ts
+Typescript\Controls\ControlTemplate.ts
+Typescript\Core\DataTemplate.ts
 Typescript\Core\DependencyObjectCollection.ts
 Typescript\Core\FrameworkElement.ts
 Typescript\Core\ResourceDictionary.ts
@@ -83,5 +89,6 @@ Typescript\Controls\Image.ts
 Typescript\Controls\MediaElement.ts
 Typescript\Controls\Panel.ts
 Typescript\Controls\TextBlock.ts
+Typescript\Controls\UserControl.ts
 Typescript\Controls\Primitives\Popup.ts
 Typescript\Core\Providers\ControlProviderStore.ts

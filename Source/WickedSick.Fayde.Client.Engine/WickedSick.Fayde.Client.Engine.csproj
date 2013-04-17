@@ -467,6 +467,10 @@
     <Content Include="Typescript\Controls\Control.js">
       <DependentUpon>Control.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ControlTemplate.ts" />
+    <Content Include="Typescript\Controls\ControlTemplate.js">
+      <DependentUpon>ControlTemplate.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Image.js">
       <DependentUpon>Image.ts</DependentUpon>
     </Content>
@@ -485,6 +489,14 @@
       <DependentUpon>TextBlock.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Core\DependencyObjectCollection.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\UserControl.ts" />
+    <Content Include="Typescript\Controls\UserControl.js">
+      <DependentUpon>UserControl.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\DataTemplate.ts" />
+    <Content Include="Typescript\Core\DataTemplate.js">
+      <DependentUpon>DataTemplate.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\DependencyObjectCollection.js">
       <DependentUpon>DependencyObjectCollection.ts</DependentUpon>
     </Content>
@@ -516,6 +528,10 @@
     <TypeScriptCompile Include="Typescript\Core\Providers\ControlProviderStore.ts" />
     <TypeScriptCompile Include="Typescript\Core\PropertyChangedListener.ts" />
     <TypeScriptCompile Include="Typescript\Core\LayoutInformation.ts" />
+    <TypeScriptCompile Include="Typescript\Core\FrameworkTemplate.ts" />
+    <Content Include="Typescript\Core\FrameworkTemplate.js">
+      <DependentUpon>FrameworkTemplate.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\LayoutInformation.js">
       <DependentUpon>LayoutInformation.ts</DependentUpon>
     </Content>
@@ -612,6 +628,10 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Engine\Surface.ts" />
     <TypeScriptCompile Include="Typescript\Engine\Dirty.ts" />
+    <TypeScriptCompile Include="Typescript\Engine\ClockTimer.ts" />
+    <Content Include="Typescript\Engine\ClockTimer.js">
+      <DependentUpon>ClockTimer.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Engine\Dirty.js">
       <DependentUpon>Dirty.ts</DependentUpon>
     </Content>
@@ -637,6 +657,10 @@
     <TypeScriptCompile Include="Typescript\Input\MouseEventArgs.ts" />
     <Content Include="Typescript\Input\MouseEventArgs.js">
       <DependentUpon>MouseEventArgs.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Markup\JsonParser.ts" />
+    <Content Include="Typescript\Markup\JsonParser.js">
+      <DependentUpon>JsonParser.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Media\Brush.js">
       <DependentUpon>Brush.ts</DependentUpon>
@@ -667,6 +691,10 @@
     <TypeScriptCompile Include="Typescript\Media\Transform.ts" />
     <Content Include="Typescript\Media\Transform.js">
       <DependentUpon>Transform.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Navigation\NavService.ts" />
+    <Content Include="Typescript\Navigation\NavService.js">
+      <DependentUpon>NavService.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Primitives\Clip.js">
       <DependentUpon>Clip.ts</DependentUpon>

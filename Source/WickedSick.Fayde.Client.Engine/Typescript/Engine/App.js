@@ -1,15 +1,24 @@
 /// CODE
+/// <reference path="Interfaces.ts" />
 /// <reference path="Surface.ts" />
 /// <reference path="../Core/ResourceDictionary.ts" />
+/// <reference path="../Primitives/Uri.ts" />
+/// <reference path="ClockTimer.ts" />
+/// <reference path="../Markup/JsonParser.ts" />
+/// <reference path="../Navigation/NavService.ts" />
 var App = (function () {
     function App() {
+        this.Loaded = new MulticastEvent();
+        this.Address = null;
         this._IsRunning = false;
         this._Storyboards = [];
+        this._ClockTimer = new Fayde.ClockTimer();
         this.MainSurface = new Surface(this);
         Object.defineProperty(this, "Resources", {
             value: new Fayde.ResourceDictionary(),
             writable: false
         });
+        this.Resources.XamlNode.NameScope = new Fayde.NameScope(true);
     }
     App.Version = "0.9.4.0";
     Object.defineProperty(App.prototype, "RootVisual", {
@@ -19,10 +28,38 @@ var App = (function () {
         enumerable: true,
         configurable: true
     });
-    App.prototype._Tick = function (lastTime, nowTime) {
+    App.prototype.LoadResources = function (json) {
+        Fayde.JsonParser.ParseResourceDictionary(this.Resources, json);
+    };
+    App.prototype.LoadInitial = function (canvas, json) {
+        this.Address = new Uri(document.URL);
+        this.MainSurface.Register(canvas);
+        this.NavService = new Fayde.Navigation.NavService(this);
+        //canProfile = profiles.initialParse;
+        //profile("Initial Parse");
+        var element = Fayde.JsonParser.Parse(json);
+        //profileEnd();
+        //canProfile = false;
+        if(element instanceof Fayde.UIElement) {
+            this.MainSurface.Attach(element);
+        }
+        //canProfile = profiles.initialUpdate;
+        this.Start();
+        this.EmitLoaded();
+    };
+    App.prototype.EmitLoaded = function () {
+        this.Loaded.RaiseAsync(this, EventArgs.Empty);
+    };
+    App.prototype.Start = function () {
+        this._ClockTimer.RegisterTimer(this);
+    };
+    App.prototype.Tick = function (lastTime, nowTime) {
         this.ProcessStoryboards(lastTime, nowTime);
         this.Update();
         this.Render();
+    };
+    App.prototype.Stop = function () {
+        this._ClockTimer.UnregisterTimer(this);
     };
     App.prototype.ProcessStoryboards = function (lastTime, nowTime) {
         var sbs = this._Storyboards;
@@ -51,6 +88,20 @@ var App = (function () {
             };
     App.prototype.Render = function () {
         this.MainSurface.Render();
+    };
+    App.prototype.RegisterStoryboard = function (storyboard) {
+        var sbs = this._Storyboards;
+        var index = sbs.indexOf(storyboard);
+        if(index === -1) {
+            sbs.push(storyboard);
+        }
+    };
+    App.prototype.UnregisterStoryboard = function (storyboard) {
+        var sbs = this._Storyboards;
+        var index = sbs.indexOf(storyboard);
+        if(index !== -1) {
+            sbs.splice(index, 1);
+        }
     };
     return App;
 })();

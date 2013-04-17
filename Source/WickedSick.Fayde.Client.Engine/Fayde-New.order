@@ -11,11 +11,13 @@ Core/Providers/Enums.js
 Core/Providers/IProviderStore.js
 Data/Enums.js
 Engine/App.js
+Engine/ClockTimer.js
 Engine/Dirty.js
 Engine/Exceptions.js
 Engine/Interfaces.js
 Engine/Surface.js
 Input/Keyboard.js
+Markup/JsonParser.js
 Media/Brush.js
 Media/Geometry.js
 Media/Matrix.js
@@ -23,6 +25,7 @@ Media/MediaParser.js
 Media/Projection.js
 Media/Transform.js
 Media/Effects/Effect.js
+Navigation/NavService.js
 Primitives/Clip.js
 Primitives/Color.js
 Primitives/CornerRadius.js
@@ -46,6 +49,7 @@ Shapes/PointCollection.js
 Shapes/ShapesParser.js
 Core/DependencyObject.js
 Core/DependencyProperty.js
+Core/FrameworkTemplate.js
 Core/LayoutUpdater.js
 Core/RoutedEvent.js
 Core/RoutedEventArgs.js
@@ -68,6 +72,8 @@ Input/KeyEventArgs.js
 Input/KeyInterop.js
 Input/MouseEventArgs.js
 Media/SolidColorBrush.js
+Controls/ControlTemplate.js
+Core/DataTemplate.js
 Core/DependencyObjectCollection.js
 Core/FrameworkElement.js
 Core/ResourceDictionary.js
@@ -83,5 +89,6 @@ Controls/Image.js
 Controls/MediaElement.js
 Controls/Panel.js
 Controls/TextBlock.js
+Controls/UserControl.js
 Controls/Primitives/Popup.js
 Core/Providers/ControlProviderStore.js

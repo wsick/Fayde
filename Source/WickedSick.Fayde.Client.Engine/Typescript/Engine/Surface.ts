@@ -57,7 +57,7 @@ class Surface {
     }
 
     // INITIALIZATION
-    Register(canvas: HTMLCanvasElement, width, widthType, height, heightType) {
+    Register(canvas: HTMLCanvasElement, width?: number, widthType?: string, height?: number, heightType?: string) {
         this._Canvas = canvas;
         this._Ctx = this._Canvas.getContext("2d");
 
