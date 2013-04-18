@@ -15,4 +15,5 @@ module Fayde {
             return undefined;
         }
     }
+    Nullstone.RegisterType(FrameworkTemplate, "FrameworkTemplate");
 }

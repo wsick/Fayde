@@ -1,3 +1,5 @@
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
 var CornerRadius = (function () {
     function CornerRadius(topLeft, topRight, bottomRight, bottomLeft) {
         this.TopLeft = topLeft == null ? 0 : topLeft;
@@ -5,7 +7,6 @@ var CornerRadius = (function () {
         this.BottomRight = bottomRight == null ? 0 : bottomRight;
         this.BottomLeft = bottomLeft == null ? 0 : bottomLeft;
     }
-    CornerRadius._TypeName = "CornerRadius";
     CornerRadius.prototype.IsZero = function () {
         return this.TopLeft === 0 && this.TopRight === 0 && this.BottomRight === 0 && this.BottomLeft === 0;
     };
@@ -17,4 +18,5 @@ var CornerRadius = (function () {
     };
     return CornerRadius;
 })();
+Nullstone.RegisterType(CornerRadius, "CornerRadius");
 //@ sourceMappingURL=CornerRadius.js.map

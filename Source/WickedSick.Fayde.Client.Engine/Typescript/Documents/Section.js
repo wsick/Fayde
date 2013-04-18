@@ -22,6 +22,7 @@ var Fayde;
             return Section;
         })(Documents.TextElement);
         Documents.Section = Section;        
+        Nullstone.RegisterType(Section, "Section");
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));

@@ -140,6 +140,7 @@ var Fayde;
         return UINode;
     })(Fayde.XamlNode);
     Fayde.UINode = UINode;    
+    Nullstone.RegisterType(UINode, "UINode");
     var UIElement = (function (_super) {
         __extends(UIElement, _super);
         function UIElement() {
@@ -235,5 +236,6 @@ var Fayde;
         return UIElement;
     })(Fayde.DependencyObject);
     Fayde.UIElement = UIElement;    
+    Nullstone.RegisterType(UIElement, "UIElement");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=UIElement.js.map

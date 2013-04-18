@@ -1,4 +1,9 @@
 class Nullstone {
+    static RegisterType(type: Function, name: string) {
+        var t: any = type;
+        t._TypeName = name;
+        t._BaseClass = Object.getPrototypeOf(type.prototype).constructor;
+    }
     static Equals(val1: any, val2: any): bool {
         if (val1 == null && val2 == null)
             return true;

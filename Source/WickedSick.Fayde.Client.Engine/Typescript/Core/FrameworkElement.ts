@@ -71,6 +71,7 @@ module Fayde {
             }
         }
     }
+    Nullstone.RegisterType(FENode, "FENode");
 
     export class FrameworkElement extends UIElement {
         DefaultStyleKey: any;
@@ -116,4 +117,5 @@ module Fayde {
         InvokeLoaded() {
         }
     }
+    Nullstone.RegisterType(FrameworkElement, "FrameworkElement");
 }

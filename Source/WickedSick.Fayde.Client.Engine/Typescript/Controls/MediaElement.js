@@ -17,6 +17,7 @@ var Fayde;
             return MediaElement;
         })(Fayde.FrameworkElement);
         Controls.MediaElement = MediaElement;        
+        Nullstone.RegisterType(MediaElement, "MediaElement");
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

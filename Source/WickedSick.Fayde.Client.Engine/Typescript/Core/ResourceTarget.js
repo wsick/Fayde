@@ -26,5 +26,6 @@ var Fayde;
         return ResourceTarget;
     })(Fayde.XamlObject);
     Fayde.ResourceTarget = ResourceTarget;    
+    Nullstone.RegisterType(ResourceTarget, "ResourceTarget");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=ResourceTarget.js.map

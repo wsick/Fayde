@@ -1,4 +1,5 @@
 /// <reference path="Interfaces.ts" />
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="Surface.ts" />
 
@@ -170,4 +171,5 @@ module Fayde {
             //TransformDebug("Translate", ct);
         }
     }
+    Nullstone.RegisterType(RenderContext, "RenderContext");
 }

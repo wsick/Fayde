@@ -1,6 +1,7 @@
-class Point {
-    static _TypeName = "Point";
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
 
+class Point {
     X: number;
     Y: number;
     constructor(x?: number, y?: number) {
@@ -27,3 +28,4 @@ class Point {
         return new Point(x, y);
     }
 }
+Nullstone.RegisterType(Point, "Point");

@@ -13,6 +13,7 @@ module Fayde.Documents {
                 return (<XamlObjectCollection>coll).GetEnumerator();
         }
     }
+    Nullstone.RegisterType(TextElementNode, "TextElementNode");
 
     export class TextElement extends DependencyObject {
         _Store: Providers.InheritedProviderStore;
@@ -23,4 +24,5 @@ module Fayde.Documents {
             return new TextElementNode(this);
         }
     }
+    Nullstone.RegisterType(TextElement, "TextElement");
 }

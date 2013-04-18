@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="XamlObject.ts" />
 /// <reference path="NameScope.ts" />
@@ -120,5 +121,6 @@ var Fayde;
         return XamlNode;
     })();
     Fayde.XamlNode = XamlNode;    
+    Nullstone.RegisterType(XamlNode, "XamlNode");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=XamlNode.js.map

@@ -1,4 +1,5 @@
 /// <reference path="Interfaces.ts" />
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="Surface.ts" />
 var Fayde;
@@ -165,5 +166,6 @@ var Fayde;
         return RenderContext;
     })();
     Fayde.RenderContext = RenderContext;    
+    Nullstone.RegisterType(RenderContext, "RenderContext");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=RenderContext.js.map

@@ -15,4 +15,5 @@ module Fayde {
             return new TemplateBindingExpression(sourcePropd, propd, propName);
         }
     }
+    Nullstone.RegisterType(TemplateBindingMarkup, "TemplateBindingMarkup");
 }

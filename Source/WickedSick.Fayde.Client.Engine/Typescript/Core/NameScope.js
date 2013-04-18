@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="../Engine/Exceptions.ts" />
 var Fayde;
@@ -36,5 +37,6 @@ var Fayde;
         return NameScope;
     })();
     Fayde.NameScope = NameScope;    
+    Nullstone.RegisterType(NameScope, "NameScope");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=NameScope.js.map

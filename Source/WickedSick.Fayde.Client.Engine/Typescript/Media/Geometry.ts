@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="../Primitives/rect.ts" />
 
@@ -11,4 +12,5 @@ module Fayde.Media {
             //TODO: Implement
         }
     }
+    Nullstone.RegisterType(Geometry, "Geometry");
 }

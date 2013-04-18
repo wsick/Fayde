@@ -27,6 +27,7 @@ var Fayde;
             return BindingExpressionBase;
         })(Fayde.Expression);
         Data.BindingExpressionBase = BindingExpressionBase;        
+        Nullstone.RegisterType(BindingExpressionBase, "BindingExpressionBase");
     })(Fayde.Data || (Fayde.Data = {}));
     var Data = Fayde.Data;
 })(Fayde || (Fayde = {}));

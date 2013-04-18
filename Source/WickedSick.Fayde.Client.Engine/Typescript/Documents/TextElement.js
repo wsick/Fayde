@@ -25,6 +25,7 @@ var Fayde;
             return TextElementNode;
         })(Fayde.XamlNode);
         Documents.TextElementNode = TextElementNode;        
+        Nullstone.RegisterType(TextElementNode, "TextElementNode");
         var TextElement = (function (_super) {
             __extends(TextElement, _super);
             function TextElement() {
@@ -40,6 +41,7 @@ var Fayde;
             return TextElement;
         })(Fayde.DependencyObject);
         Documents.TextElement = TextElement;        
+        Nullstone.RegisterType(TextElement, "TextElement");
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));

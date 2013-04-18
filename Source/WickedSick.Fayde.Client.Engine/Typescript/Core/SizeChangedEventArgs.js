@@ -26,5 +26,6 @@ var Fayde;
         return SizeChangedEventArgs;
     })(Fayde.RoutedEventArgs);
     Fayde.SizeChangedEventArgs = SizeChangedEventArgs;    
+    Nullstone.RegisterType(SizeChangedEventArgs, "SizeChangedEventArgs");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=SizeChangedEventArgs.js.map

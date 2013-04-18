@@ -4,4 +4,5 @@
 module Fayde.Controls {
     export class Image extends FrameworkElement {
     }
+    Nullstone.RegisterType(Image, "Image");
 }

@@ -7,4 +7,5 @@ module Fayde {
             return undefined;
         }
     }
+    Nullstone.RegisterType(DeferredValueExpression, "DeferredValueExpression");
 }

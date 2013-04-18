@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="../Core/XamlObject.ts" />
 /// <reference path="../Core/DependencyProperty.ts" />
@@ -8,4 +9,5 @@ module Fayde {
             //Abstract Method
         }
     }
+    Nullstone.RegisterType(Markup, "Markup");
 }

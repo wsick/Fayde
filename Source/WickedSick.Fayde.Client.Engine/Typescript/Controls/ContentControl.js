@@ -32,6 +32,7 @@ var Fayde;
             return ContentControl;
         })(Controls.Control);
         Controls.ContentControl = ContentControl;        
+        Nullstone.RegisterType(ContentControl, "ContentControl");
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

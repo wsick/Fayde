@@ -1,3 +1,6 @@
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
+
 class Color {
     private static __NoAlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
     private static __AlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
@@ -221,3 +224,4 @@ class Color {
         YellowGreen: Color.FromHex("#FF9ACD32")
     }
 }
+Nullstone.RegisterType(Color, "Color");

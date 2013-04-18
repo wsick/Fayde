@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="../Engine/App.ts" />
 /// <reference path="../Runtime/MulticastEvent.ts" />
@@ -30,4 +31,5 @@ module Fayde.Navigation {
             this.LocationChanged.Raise(this, EventArgs.Empty);
         }
     }
+    Nullstone.RegisterType(NavService, "NavService");
 }

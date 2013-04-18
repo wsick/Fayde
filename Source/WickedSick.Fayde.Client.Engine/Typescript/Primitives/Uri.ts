@@ -1,6 +1,7 @@
-class Uri {
-    static _TypeName = "Uri";
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
 
+class Uri {
     private _OriginalString: string;
     constructor(originalString: string) {
         this._OriginalString = originalString;
@@ -22,3 +23,4 @@ class Uri {
         return true;
     }
 }
+Nullstone.RegisterType(Uri, "Uri");

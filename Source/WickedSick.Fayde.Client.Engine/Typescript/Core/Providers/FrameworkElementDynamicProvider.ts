@@ -1,4 +1,5 @@
 /// <reference path="IProviderStore.ts" />
+/// <reference path="../../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="../FrameworkElement.ts" />
 
@@ -21,4 +22,5 @@ module Fayde.Providers {
             return this._ActualHeight;
         }
     }
+    Nullstone.RegisterType(FrameworkElementDynamicProvider, "FrameworkElementDynamicProvider");
 }

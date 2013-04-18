@@ -1,4 +1,5 @@
 /// <reference path="IProviderStore.ts" />
+/// <reference path="../../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="../DependencyObject.ts" />
 /// <reference path="../../Runtime/BError.ts" />
@@ -10,6 +11,7 @@ module Fayde.Providers {
             return propd.DefaultValue;
         }
     }
+    Nullstone.RegisterType(DefaultValueProvider, "DefaultValueProvider");
     export class AutoCreateProvider implements IPropertyProvider {
         private _ht: any[] = [];
         GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
@@ -36,6 +38,7 @@ module Fayde.Providers {
             this._ht[propd._ID] = undefined;
         }
     }
+    Nullstone.RegisterType(AutoCreateProvider, "AutoCreateProvider");
     export class LocalValueProvider implements IPropertyProvider {
         private _ht: any[] = [];
         GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
@@ -48,6 +51,7 @@ module Fayde.Providers {
             this._ht[propd._ID] = undefined;
         }
     }
+    Nullstone.RegisterType(LocalValueProvider, "LocalValueProvider");
 
     export class BasicProviderStore {
         _Object: DependencyObject;
@@ -378,4 +382,5 @@ module Fayde.Providers {
             }
         }
     }
+    Nullstone.RegisterType(BasicProviderStore, "BasicProviderStore");
 }

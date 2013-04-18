@@ -17,6 +17,7 @@ var Fayde;
             return UserControl;
         })(Controls.Control);
         Controls.UserControl = UserControl;        
+        Nullstone.RegisterType(UserControl, "UserControl");
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

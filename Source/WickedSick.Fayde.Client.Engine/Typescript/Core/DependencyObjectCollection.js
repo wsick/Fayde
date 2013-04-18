@@ -35,5 +35,6 @@ var Fayde;
         return DependencyObjectCollection;
     })(Fayde.XamlObjectCollection);
     Fayde.DependencyObjectCollection = DependencyObjectCollection;    
+    Nullstone.RegisterType(DependencyObjectCollection, "DependencyObjectCollection");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=DependencyObjectCollection.js.map

@@ -1,5 +1,7 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="XamlNode.ts" />
+/// <reference path="DependencyObject.ts" />
 
 module Fayde {
     export class XamlObject {
@@ -13,4 +15,5 @@ module Fayde {
         }
         get Name() { return this.XamlNode.Name; }
     }
+    Nullstone.RegisterType(XamlObject, "XamlObject");
 }

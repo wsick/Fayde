@@ -17,6 +17,7 @@ var Fayde;
             return Block;
         })(Documents.TextElement);
         Documents.Block = Block;        
+        Nullstone.RegisterType(Block, "Block");
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));

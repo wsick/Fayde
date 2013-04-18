@@ -1,6 +1,7 @@
 var Fayde;
 (function (Fayde) {
     /// <reference path="IProviderStore.ts" />
+    /// <reference path="../../Runtime/Nullstone.ts" />
     /// CODE
     /// <reference path="../Setter.ts" />
     /// <reference path="../Style.ts" />
@@ -82,6 +83,7 @@ var Fayde;
             return LocalStyleProvider;
         })();
         Providers.LocalStyleProvider = LocalStyleProvider;        
+        Nullstone.RegisterType(LocalStyleProvider, "LocalStyleProvider");
     })(Fayde.Providers || (Fayde.Providers = {}));
     var Providers = Fayde.Providers;
 })(Fayde || (Fayde = {}));

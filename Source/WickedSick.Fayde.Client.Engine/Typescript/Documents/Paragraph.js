@@ -22,6 +22,7 @@ var Fayde;
             return Paragraph;
         })(Documents.Block);
         Documents.Paragraph = Paragraph;        
+        Nullstone.RegisterType(Paragraph, "Paragraph");
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));

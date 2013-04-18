@@ -1,8 +1,9 @@
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
 var TimeSpan = (function () {
     function TimeSpan() {
         this._Ticks = 0;
     }
-    TimeSpan._TypeName = "TimeSpan";
     TimeSpan._TicksPerMillisecond = 1;
     TimeSpan._TicksPerSecond = 1000;
     TimeSpan._TicksPerMinute = TimeSpan._TicksPerSecond * 60;
@@ -151,4 +152,5 @@ var TimeSpan = (function () {
     };
     return TimeSpan;
 })();
+Nullstone.RegisterType(TimeSpan, "TimeSpan");
 //@ sourceMappingURL=TimeSpan.js.map

@@ -57,6 +57,7 @@ var Fayde;
             };
             return PanelChildrenNode;
         })(Fayde.XamlNode);        
+        Nullstone.RegisterType(PanelChildrenNode, "PanelChildrenNode");
         var PanelChildrenCollection = (function (_super) {
             __extends(PanelChildrenCollection, _super);
             function PanelChildrenCollection() {
@@ -78,6 +79,7 @@ var Fayde;
             };
             return PanelChildrenCollection;
         })(Fayde.DependencyObjectCollection);        
+        Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");
         var PanelNode = (function (_super) {
             __extends(PanelNode, _super);
             function PanelNode(xobj) {
@@ -107,6 +109,7 @@ var Fayde;
             return PanelNode;
         })(Fayde.FENode);
         Controls.PanelNode = PanelNode;        
+        Nullstone.RegisterType(PanelNode, "PanelNode");
         function zIndexPropertyChanged(dobj, args) {
             //if (dobj instanceof UIElement) {
             //  (<UIElement>dobj)._Invalidate();
@@ -149,6 +152,7 @@ var Fayde;
             return Panel;
         })(Fayde.FrameworkElement);
         Controls.Panel = Panel;        
+        Nullstone.RegisterType(Panel, "Panel");
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

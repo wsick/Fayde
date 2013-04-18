@@ -21,6 +21,7 @@ var Fayde;
             return ControlNode;
         })(Fayde.FENode);
         Controls.ControlNode = ControlNode;        
+        Nullstone.RegisterType(ControlNode, "ControlNode");
         var Control = (function (_super) {
             __extends(Control, _super);
             function Control() {
@@ -42,6 +43,7 @@ var Fayde;
             return Control;
         })(Fayde.FrameworkElement);
         Controls.Control = Control;        
+        Nullstone.RegisterType(Control, "Control");
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

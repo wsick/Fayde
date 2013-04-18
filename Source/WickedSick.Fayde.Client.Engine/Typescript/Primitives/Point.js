@@ -1,9 +1,10 @@
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
 var Point = (function () {
     function Point(x, y) {
         this.X = x == null ? 0 : x;
         this.Y = y == null ? 0 : y;
     }
-    Point._TypeName = "Point";
     Point.prototype.toString = function () {
         return "X=" + this.X.toString() + ";Y=" + this.Y.toString();
     };
@@ -26,4 +27,5 @@ var Point = (function () {
     };
     return Point;
 })();
+Nullstone.RegisterType(Point, "Point");
 //@ sourceMappingURL=Point.js.map

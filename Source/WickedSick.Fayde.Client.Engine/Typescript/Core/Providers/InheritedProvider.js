@@ -1,6 +1,7 @@
 var Fayde;
 (function (Fayde) {
     /// <reference path="IProviderStore.ts" />
+    /// <reference path="../Runtime/Nullstone.ts" />
     /// CODE
     /// <reference path="Enums.ts" />
     /// <reference path="../../Controls/Image.ts" />
@@ -282,6 +283,7 @@ var Fayde;
             return InheritedProvider;
         })();
         Providers.InheritedProvider = InheritedProvider;        
+        Nullstone.RegisterType(InheritedProvider, "InheritedProvider");
     })(Fayde.Providers || (Fayde.Providers = {}));
     var Providers = Fayde.Providers;
 })(Fayde || (Fayde = {}));

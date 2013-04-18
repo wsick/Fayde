@@ -49,6 +49,7 @@ var Fayde;
         return ResourceDictionaryCollection;
     })(Fayde.XamlObjectCollection);
     Fayde.ResourceDictionaryCollection = ResourceDictionaryCollection;    
+    Nullstone.RegisterType(ResourceDictionaryCollection, "ResourceDictionaryCollection");
     var ResourceDictionary = (function (_super) {
         __extends(ResourceDictionary, _super);
         function ResourceDictionary() {
@@ -105,5 +106,6 @@ var Fayde;
         return ResourceDictionary;
     })(Fayde.XamlObjectCollection);
     Fayde.ResourceDictionary = ResourceDictionary;    
+    Nullstone.RegisterType(ResourceDictionary, "ResourceDictionary");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=ResourceDictionary.js.map

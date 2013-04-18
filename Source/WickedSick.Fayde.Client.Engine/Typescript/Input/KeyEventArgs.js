@@ -189,6 +189,7 @@ var Fayde;
             return KeyboardEventArgs;
         })(Fayde.RoutedEventArgs);
         Input.KeyboardEventArgs = KeyboardEventArgs;        
+        Nullstone.RegisterType(KeyboardEventArgs, "KeyboardEventArgs");
         ///Modifers = { Shift: <bool>, Ctrl: <bool>, Alt: <bool> }
         var KeyEventArgs = (function (_super) {
             __extends(KeyEventArgs, _super);
@@ -205,6 +206,7 @@ var Fayde;
             return KeyEventArgs;
         })(KeyboardEventArgs);
         Input.KeyEventArgs = KeyEventArgs;        
+        Nullstone.RegisterType(KeyEventArgs, "KeyEventArgs");
     })(Fayde.Input || (Fayde.Input = {}));
     var Input = Fayde.Input;
 })(Fayde || (Fayde = {}));

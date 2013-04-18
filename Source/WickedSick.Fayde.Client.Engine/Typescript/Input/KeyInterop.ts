@@ -127,6 +127,7 @@ module Fayde.Input {
             return new KeyInterop(surface);
         }
     }
+    Nullstone.RegisterType(KeyInterop, "KeyInterop");
     
     var udkie = [];
     udkie[41] = 48;
@@ -171,6 +172,7 @@ module Fayde.Input {
             return new Fayde.Input.KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode]);
         }
     }
+    Nullstone.RegisterType(IEKeyInterop, "IEKeyInterop");
     
     var sknet = [];
     sknet[8] = Key.Back;
@@ -230,4 +232,5 @@ module Fayde.Input {
             return new Fayde.Input.KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode]);
         }
     }
+    Nullstone.RegisterType(NetscapeKeyInterop, "NetscapeKeyInterop");
 }

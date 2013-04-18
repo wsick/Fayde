@@ -142,6 +142,7 @@ module Fayde {
             Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
         }
     }
+    Nullstone.RegisterType(UINode, "UINode");
     export class UIElement extends DependencyObject {
         XamlNode: UINode;
         _Store: Providers.InheritedProviderStore;
@@ -203,4 +204,5 @@ module Fayde {
         MouseMove: RoutedEvent = new RoutedEvent();
         MouseWheel: RoutedEvent = new RoutedEvent();
     }
+    Nullstone.RegisterType(UIElement, "UIElement");
 }

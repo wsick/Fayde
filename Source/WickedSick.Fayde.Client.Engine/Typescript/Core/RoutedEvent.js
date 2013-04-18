@@ -20,5 +20,6 @@ var Fayde;
         return RoutedEvent;
     })(MulticastEvent);
     Fayde.RoutedEvent = RoutedEvent;    
+    Nullstone.RegisterType(RoutedEvent, "RoutedEvent");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=RoutedEvent.js.map

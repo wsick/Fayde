@@ -10,4 +10,5 @@ module Fayde.Data {
         _TryUpdateSourceObject(value) {
         }
     }
+    Nullstone.RegisterType(BindingExpressionBase, "BindingExpressionBase");
 }

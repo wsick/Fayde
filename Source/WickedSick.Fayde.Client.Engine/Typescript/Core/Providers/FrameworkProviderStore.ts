@@ -144,4 +144,5 @@ module Fayde.Providers {
             this._InheritedDataContextProvider.SetDataSource(source);
         }
     }
+    Nullstone.RegisterType(FrameworkProviderStore, "FrameworkProviderStore");
 }

@@ -10,6 +10,7 @@ module Fayde.Controls {
                 return (<XamlObjectCollection>coll).GetEnumerator();
         }
     }
+    Nullstone.RegisterType(TextBlockNode, "TextBlockNode");
 
     export class TextBlock extends FrameworkElement {
         static InlinesProperty;
@@ -17,4 +18,5 @@ module Fayde.Controls {
             return new TextBlockNode(this);
         }
     }
+    Nullstone.RegisterType(TextBlock, "TextBlock");
 }

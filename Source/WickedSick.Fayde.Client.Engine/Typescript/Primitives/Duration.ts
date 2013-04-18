@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="TimeSpan.ts" />
 /// <reference path="../Engine/Exceptions.ts" />
@@ -9,8 +10,6 @@ enum DurationType {
 }
 
 class Duration {
-    static _TypeName = "Duration";
-
     private _Type: DurationType;
     private _TimeSpan: TimeSpan;
 
@@ -42,3 +41,4 @@ class Duration {
     get IsForever(): bool { return this._Type === DurationType.Forever; }
     get IsAutomatic(): bool { return this._Type === DurationType.Automatic; }
 }
+Nullstone.RegisterType(Duration, "Duration");

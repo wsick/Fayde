@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="UIElement.ts" />
 /// <reference path="../Media/Geometry.ts" />
@@ -26,4 +27,5 @@ module Fayde {
             uie.XamlNode.LayoutUpdater.LayoutSlot = value;
         }
     }
+    Nullstone.RegisterType(LayoutInformation, "LayoutInformation");
 }

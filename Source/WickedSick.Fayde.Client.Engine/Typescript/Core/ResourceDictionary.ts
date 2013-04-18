@@ -37,6 +37,7 @@ module Fayde {
             return true;
         }
     }
+    Nullstone.RegisterType(ResourceDictionaryCollection, "ResourceDictionaryCollection");
 
     export class ResourceDictionary extends XamlObjectCollection {
         private _KeyIndex: number[] = [];
@@ -96,4 +97,5 @@ module Fayde {
             return undefined;
         }
     }
+    Nullstone.RegisterType(ResourceDictionary, "ResourceDictionary");
 }

@@ -100,5 +100,6 @@ var Fayde;
         return TemplateBindingExpression;
     })(Fayde.Expression);
     Fayde.TemplateBindingExpression = TemplateBindingExpression;    
+    Nullstone.RegisterType(TemplateBindingExpression, "TemplateBindingExpression");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=TemplateBindingExpression.js.map

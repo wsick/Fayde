@@ -37,6 +37,7 @@ var Fayde;
             return ControlProviderStore;
         })(Providers.FrameworkProviderStore);
         Providers.ControlProviderStore = ControlProviderStore;        
+        Nullstone.RegisterType(ControlProviderStore, "ControlProviderStore");
     })(Fayde.Providers || (Fayde.Providers = {}));
     var Providers = Fayde.Providers;
 })(Fayde || (Fayde = {}));

@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="EventArgs.ts" />
 var MulticastEvent = (function () {
@@ -10,4 +11,5 @@ var MulticastEvent = (function () {
             };
     return MulticastEvent;
 })();
+Nullstone.RegisterType(MulticastEvent, "MulticastEvent");
 //@ sourceMappingURL=MulticastEvent.js.map

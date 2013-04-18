@@ -16,4 +16,5 @@ module Fayde {
             });
         }
     }
+    Nullstone.RegisterType(SizeChangedEventArgs, "SizeChangedEventArgs");
 }

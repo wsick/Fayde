@@ -83,5 +83,6 @@ var Fayde;
         return Style;
     })(Fayde.XamlObject);
     Fayde.Style = Style;    
+    Nullstone.RegisterType(Style, "Style");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=Style.js.map

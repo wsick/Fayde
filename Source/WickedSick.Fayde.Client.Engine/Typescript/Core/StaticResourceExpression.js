@@ -70,5 +70,6 @@ var Fayde;
         return StaticResourceExpression;
     })(Fayde.Expression);
     Fayde.StaticResourceExpression = StaticResourceExpression;    
+    Nullstone.RegisterType(StaticResourceExpression, "StaticResourceExpression");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=StaticResourceExpression.js.map

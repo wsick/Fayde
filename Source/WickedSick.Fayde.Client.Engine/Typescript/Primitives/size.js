@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="rect.ts" />
 var size = (function () {
@@ -8,7 +9,6 @@ var size = (function () {
     size.prototype.toString = function () {
         return "{" + this.Width + "," + this.Height + "}";
     };
-    size._TypeName = "size";
     size.fromRaw = function fromRaw(width, height) {
         var s = new size();
         s.Width = width;
@@ -114,4 +114,5 @@ var size = (function () {
     };
     return size;
 })();
+Nullstone.RegisterType(size, "size");
 //@ sourceMappingURL=size.js.map

@@ -32,6 +32,7 @@ var Fayde;
                 return PopupNode;
             })(Fayde.UINode);
             Primitives.PopupNode = PopupNode;            
+            Nullstone.RegisterType(PopupNode, "PopupNode");
             var Popup = (function (_super) {
                 __extends(Popup, _super);
                 function Popup() {
@@ -44,6 +45,7 @@ var Fayde;
                 return Popup;
             })(Fayde.FrameworkElement);
             Primitives.Popup = Popup;            
+            Nullstone.RegisterType(Popup, "Popup");
         })(Controls.Primitives || (Controls.Primitives = {}));
         var Primitives = Controls.Primitives;
     })(Fayde.Controls || (Fayde.Controls = {}));

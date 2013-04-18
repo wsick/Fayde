@@ -18,5 +18,6 @@ var Fayde;
         return RoutedEventArgs;
     })(EventArgs);
     Fayde.RoutedEventArgs = RoutedEventArgs;    
+    Nullstone.RegisterType(RoutedEventArgs, "RoutedEventArgs");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=RoutedEventArgs.js.map

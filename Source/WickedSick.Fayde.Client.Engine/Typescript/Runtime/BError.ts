@@ -1,3 +1,6 @@
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
+
 class BError {
     static Argument: number = 2;
     static InvalidOperation: number = 3;
@@ -8,3 +11,4 @@ class BError {
         throw new Exception(this.Message);
     }
 }
+Nullstone.RegisterType(BError, "BError");

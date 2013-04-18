@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="Interfaces.ts" />
 /// <reference path="Surface.ts" />
@@ -116,4 +117,5 @@ var App = (function () {
     };
     return App;
 })();
+Nullstone.RegisterType(App, "App");
 //@ sourceMappingURL=App.js.map

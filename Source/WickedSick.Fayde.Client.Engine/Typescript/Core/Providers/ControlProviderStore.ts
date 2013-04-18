@@ -45,4 +45,5 @@ module Fayde.Providers {
             this._InheritedIsEnabledProvider.SetDataSource(source);
         }
     }
+    Nullstone.RegisterType(ControlProviderStore, "ControlProviderStore");
 }

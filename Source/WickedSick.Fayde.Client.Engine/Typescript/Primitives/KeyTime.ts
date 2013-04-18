@@ -1,9 +1,8 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="TimeSpan.ts" />
 
 class KeyTime {
-    static _TypeName = "KeyTime";
-
     private _IsPaced: bool = false;
     private _IsUniform: bool = false;
     private _TimeSpan: TimeSpan = null;
@@ -27,3 +26,4 @@ class KeyTime {
     get HasPercent(): bool { return this._Percent != null; }
     get Percent(): number { return this._Percent; }
 }
+Nullstone.RegisterType(KeyTime, "KeyTime");

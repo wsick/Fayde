@@ -17,6 +17,7 @@ var Fayde;
             return Image;
         })(Fayde.FrameworkElement);
         Controls.Image = Image;        
+        Nullstone.RegisterType(Image, "Image");
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

@@ -20,5 +20,6 @@ var Fayde;
         return StaticResourceMarkup;
     })(Fayde.Markup);
     Fayde.StaticResourceMarkup = StaticResourceMarkup;    
+    Nullstone.RegisterType(StaticResourceMarkup, "StaticResourceMarkup");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=StaticResourceMarkup.js.map

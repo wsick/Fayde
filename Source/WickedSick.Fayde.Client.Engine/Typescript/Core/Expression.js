@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="DependencyObject.ts" />
 var Fayde;
@@ -15,5 +16,6 @@ var Fayde;
         return Expression;
     })();
     Fayde.Expression = Expression;    
+    Nullstone.RegisterType(Expression, "Expression");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=Expression.js.map

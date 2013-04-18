@@ -97,4 +97,5 @@ module Fayde {
             this._Listener = listener = null;
         }
     }
+    Nullstone.RegisterType(TemplateBindingExpression, "TemplateBindingExpression");
 }

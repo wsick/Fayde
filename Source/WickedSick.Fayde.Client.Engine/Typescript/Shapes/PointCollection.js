@@ -6,6 +6,7 @@ var Fayde;
             return PointCollection;
         })();
         Shapes.PointCollection = PointCollection;        
+        Nullstone.RegisterType(PointCollection, "PointCollection");
     })(Fayde.Shapes || (Fayde.Shapes = {}));
     var Shapes = Fayde.Shapes;
 })(Fayde || (Fayde = {}));

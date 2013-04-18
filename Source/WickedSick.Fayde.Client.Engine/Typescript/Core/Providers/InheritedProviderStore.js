@@ -42,6 +42,7 @@ var Fayde;
             return InheritedProviderStore;
         })(Providers.BasicProviderStore);
         Providers.InheritedProviderStore = InheritedProviderStore;        
+        Nullstone.RegisterType(InheritedProviderStore, "InheritedProviderStore");
     })(Fayde.Providers || (Fayde.Providers = {}));
     var Providers = Fayde.Providers;
 })(Fayde || (Fayde = {}));

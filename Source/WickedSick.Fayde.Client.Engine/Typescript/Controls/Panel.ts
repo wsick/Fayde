@@ -43,6 +43,7 @@ module Fayde.Controls {
             }
         }
     }
+    Nullstone.RegisterType(PanelChildrenNode, "PanelChildrenNode");
     class PanelChildrenCollection extends DependencyObjectCollection {
         XamlNode: PanelChildrenNode;
         constructor() {
@@ -63,6 +64,7 @@ module Fayde.Controls {
             panelNode._ElementAdded(added);
         }
     }
+    Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");
 
     export class PanelNode extends FENode {
         XObject: Panel;
@@ -93,6 +95,7 @@ module Fayde.Controls {
             (<PanelChildrenCollection>this.XObject.Children).XamlNode.ResortByZIndex();
         }
     }
+    Nullstone.RegisterType(PanelNode, "PanelNode");
     function zIndexPropertyChanged(dobj: DependencyObject, args) {
         //if (dobj instanceof UIElement) {
         //  (<UIElement>dobj)._Invalidate();
@@ -119,4 +122,5 @@ module Fayde.Controls {
             return new PanelNode(this);
         }
     }
+    Nullstone.RegisterType(Panel, "Panel");
 }

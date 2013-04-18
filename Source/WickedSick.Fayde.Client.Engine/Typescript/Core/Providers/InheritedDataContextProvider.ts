@@ -1,4 +1,5 @@
 /// <reference path="IProviderStore.ts" />
+/// <reference path="../../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="../FrameworkElement.ts" />
 /// <reference path="../PropertyChangedListener.ts" />
@@ -67,4 +68,5 @@ module Fayde.Providers {
             }
         }
     }
+    Nullstone.RegisterType(InheritedDataContextProvider, "InheritedDataContextProvider");
 }

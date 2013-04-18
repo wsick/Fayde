@@ -1,6 +1,7 @@
-class TimeSpan {
-    static _TypeName = "TimeSpan";
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
 
+class TimeSpan {
     private static _TicksPerMillisecond = 1;
     private static _TicksPerSecond = 1000;
     private static _TicksPerMinute = TimeSpan._TicksPerSecond * 60;
@@ -96,3 +97,4 @@ class TimeSpan {
         return this._Ticks * TimeSpan._TicksPerMillisecond;
     }
 }
+Nullstone.RegisterType(TimeSpan, "TimeSpan");

@@ -1,5 +1,10 @@
 var Nullstone = (function () {
     function Nullstone() { }
+    Nullstone.RegisterType = function RegisterType(type, name) {
+        var t = type;
+        t._TypeName = name;
+        t._BaseClass = Object.getPrototypeOf(type.prototype).constructor;
+    };
     Nullstone.Equals = function Equals(val1, val2) {
         if(val1 == null && val2 == null) {
             return true;

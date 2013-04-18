@@ -17,6 +17,7 @@ var Fayde;
             return Inline;
         })(Documents.TextElement);
         Documents.Inline = Inline;        
+        Nullstone.RegisterType(Inline, "Inline");
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));

@@ -85,4 +85,5 @@ module Fayde {
             return true;
         }
     }
+    Nullstone.RegisterType(Style, "Style");
 }

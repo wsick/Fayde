@@ -1,3 +1,5 @@
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
 
 module Fayde.Input {
     // http://msdn.microsoft.com/en-us/library/system.windows.input.keyboardnavigationmode.aspx
@@ -53,4 +55,5 @@ module Fayde.Input {
             return (Keyboard.Modifiers & ModifierKeys.Shift) === ModifierKeys.Shift;
         }
     }
+    Nullstone.RegisterType(Keyboard, "Keyboard");
 }

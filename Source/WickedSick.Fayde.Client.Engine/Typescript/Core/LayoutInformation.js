@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="UIElement.ts" />
 /// <reference path="../Media/Geometry.ts" />
@@ -27,5 +28,6 @@ var Fayde;
         return LayoutInformation;
     })();
     Fayde.LayoutInformation = LayoutInformation;    
+    Nullstone.RegisterType(LayoutInformation, "LayoutInformation");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=LayoutInformation.js.map

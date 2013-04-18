@@ -22,6 +22,7 @@ var Fayde;
             return Span;
         })(Documents.Inline);
         Documents.Span = Span;        
+        Nullstone.RegisterType(Span, "Span");
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));

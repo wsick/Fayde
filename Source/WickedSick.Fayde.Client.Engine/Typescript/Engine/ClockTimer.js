@@ -1,3 +1,5 @@
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
 var Fayde;
 (function (Fayde) {
     var requestAnimFrame = (function () {
@@ -51,5 +53,6 @@ var Fayde;
         return ClockTimer;
     })();
     Fayde.ClockTimer = ClockTimer;    
+    Nullstone.RegisterType(ClockTimer, "ClockTimer");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=ClockTimer.js.map

@@ -1,4 +1,5 @@
 /// <reference path="IProviderStore.ts" />
+/// <reference path="../../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="../../Controls/Control.ts" />
 
@@ -77,4 +78,5 @@ module Fayde.Providers {
             return false;
         }
     }
+    Nullstone.RegisterType(InheritedIsEnabledProvider, "InheritedIsEnabledProvider");
 }

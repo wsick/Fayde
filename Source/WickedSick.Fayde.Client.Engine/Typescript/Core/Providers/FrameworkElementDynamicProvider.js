@@ -1,6 +1,7 @@
 var Fayde;
 (function (Fayde) {
     /// <reference path="IProviderStore.ts" />
+    /// <reference path="../../Runtime/Nullstone.ts" />
     /// CODE
     /// <reference path="../FrameworkElement.ts" />
     (function (Providers) {
@@ -23,6 +24,7 @@ var Fayde;
             return FrameworkElementDynamicProvider;
         })();
         Providers.FrameworkElementDynamicProvider = FrameworkElementDynamicProvider;        
+        Nullstone.RegisterType(FrameworkElementDynamicProvider, "FrameworkElementDynamicProvider");
     })(Fayde.Providers || (Fayde.Providers = {}));
     var Providers = Fayde.Providers;
 })(Fayde || (Fayde = {}));

@@ -25,4 +25,5 @@ module Fayde {
         }
         _RaiseItemChanged(item, propd: DependencyProperty, oldValue: DependencyObject, newValue: DependencyObject) { }
     }
+    Nullstone.RegisterType(DependencyObjectCollection, "DependencyObjectCollection");
 }

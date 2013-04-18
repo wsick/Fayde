@@ -68,4 +68,5 @@ module Fayde {
             parser.TrySetPropertyValue(this.Target, propd, value, null, isAttached, ownerType, this.PropertyName);
         }
     }
+    Nullstone.RegisterType(StaticResourceExpression, "StaticResourceExpression");
 }

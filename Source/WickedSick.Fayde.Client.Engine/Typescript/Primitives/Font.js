@@ -1,3 +1,5 @@
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
 var FontStyle = {
     Normal: "normal",
     Italic: "italic",
@@ -34,7 +36,6 @@ var Font = (function () {
         this._Weight = Font.DEFAULT_WEIGHT;
         this._Size = Font.DEFAULT_SIZE;
     }
-    Font._TypeName = "Font";
     Font.DEFAULT_FAMILY = "Segoe UI, Lucida Sans Unicode, Verdana";
     Font.DEFAULT_STRETCH = FontStretch.Normal;
     Font.DEFAULT_STYLE = FontStyle.Normal;
@@ -168,4 +169,5 @@ var Font = (function () {
     };
     return Font;
 })();
+Nullstone.RegisterType(Font, "Font");
 //@ sourceMappingURL=Font.js.map

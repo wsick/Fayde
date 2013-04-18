@@ -773,4 +773,5 @@ var Surface = (function () {
     };
     return Surface;
 })();
+Nullstone.RegisterType(Surface, "Surface");
 //@ sourceMappingURL=Surface.js.map

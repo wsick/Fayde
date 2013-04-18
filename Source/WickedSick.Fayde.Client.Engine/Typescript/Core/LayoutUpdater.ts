@@ -460,4 +460,5 @@ module Fayde {
             //TODO: Implement
         }
     }
+    Nullstone.RegisterType(LayoutUpdater, "LayoutUpdater");
 }

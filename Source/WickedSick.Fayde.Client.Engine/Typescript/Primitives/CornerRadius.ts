@@ -1,6 +1,7 @@
-class CornerRadius {
-    static _TypeName = "CornerRadius";
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
 
+class CornerRadius {
     TopLeft: number;
     TopRight: number;
     BottomRight: number;
@@ -27,3 +28,4 @@ class CornerRadius {
         return "(" + this.TopLeft + ", " + this.TopRight + ", " + this.BottomRight + ", " + this.BottomLeft + ")";
     }
 }
+Nullstone.RegisterType(CornerRadius, "CornerRadius");

@@ -23,6 +23,7 @@ var Fayde;
             return MouseEventArgs;
         })(Fayde.RoutedEventArgs);
         Input.MouseEventArgs = MouseEventArgs;        
+        Nullstone.RegisterType(MouseEventArgs, "MouseEventArgs");
         var MouseButtonEventArgs = (function (_super) {
             __extends(MouseButtonEventArgs, _super);
             function MouseButtonEventArgs(absolutePos) {
@@ -31,6 +32,7 @@ var Fayde;
             return MouseButtonEventArgs;
         })(MouseEventArgs);
         Input.MouseButtonEventArgs = MouseButtonEventArgs;        
+        Nullstone.RegisterType(MouseButtonEventArgs, "MouseButtonEventArgs");
         var MouseWheelEventArgs = (function (_super) {
             __extends(MouseWheelEventArgs, _super);
             function MouseWheelEventArgs(absolutePos, delta) {
@@ -40,6 +42,7 @@ var Fayde;
             return MouseWheelEventArgs;
         })(MouseEventArgs);
         Input.MouseWheelEventArgs = MouseWheelEventArgs;        
+        Nullstone.RegisterType(MouseWheelEventArgs, "MouseWheelEventArgs");
     })(Fayde.Input || (Fayde.Input = {}));
     var Input = Fayde.Input;
 })(Fayde || (Fayde = {}));

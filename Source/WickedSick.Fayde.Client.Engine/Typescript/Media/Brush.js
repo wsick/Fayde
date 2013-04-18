@@ -1,5 +1,7 @@
 var Fayde;
 (function (Fayde) {
+    /// <reference path="../Runtime/Nullstone.ts" />
+    /// CODE
     (function (Media) {
         var Brush = (function () {
             function Brush() { }
@@ -13,6 +15,7 @@ var Fayde;
             return Brush;
         })();
         Media.Brush = Brush;        
+        Nullstone.RegisterType(Brush, "Brush");
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));

@@ -175,6 +175,7 @@ module Fayde.Input {
 
     export class KeyboardEventArgs extends RoutedEventArgs {
     }
+    Nullstone.RegisterType(KeyboardEventArgs, "KeyboardEventArgs");
 
     ///Modifers = { Shift: <bool>, Ctrl: <bool>, Alt: <bool> }
     export class KeyEventArgs extends KeyboardEventArgs {
@@ -192,4 +193,5 @@ module Fayde.Input {
             this.Char = char;
         }
     }
+    Nullstone.RegisterType(KeyEventArgs, "KeyEventArgs");
 }

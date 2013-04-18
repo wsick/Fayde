@@ -128,6 +128,7 @@ var Fayde;
             return FrameworkProviderStore;
         })(Providers.InheritedProviderStore);
         Providers.FrameworkProviderStore = FrameworkProviderStore;        
+        Nullstone.RegisterType(FrameworkProviderStore, "FrameworkProviderStore");
     })(Fayde.Providers || (Fayde.Providers = {}));
     var Providers = Fayde.Providers;
 })(Fayde || (Fayde = {}));

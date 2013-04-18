@@ -17,6 +17,7 @@ module Fayde.Controls.Primitives {
             };
         }
     }
+    Nullstone.RegisterType(PopupNode, "PopupNode");
 
     export class Popup extends Fayde.FrameworkElement {
         Child: UIElement;
@@ -24,4 +25,5 @@ module Fayde.Controls.Primitives {
             return new PopupNode(this);
         }
     }
+    Nullstone.RegisterType(Popup, "Popup");
 }

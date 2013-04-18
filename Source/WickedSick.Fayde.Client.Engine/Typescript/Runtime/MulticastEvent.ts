@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="EventArgs.ts" />
 
@@ -9,3 +10,4 @@ class MulticastEvent {
         //TODO: Implement
     }
 }
+Nullstone.RegisterType(MulticastEvent, "MulticastEvent");

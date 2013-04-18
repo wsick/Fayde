@@ -24,6 +24,7 @@ var Fayde;
             return TextBlockNode;
         })(Fayde.UINode);
         Controls.TextBlockNode = TextBlockNode;        
+        Nullstone.RegisterType(TextBlockNode, "TextBlockNode");
         var TextBlock = (function (_super) {
             __extends(TextBlock, _super);
             function TextBlock() {
@@ -36,6 +37,7 @@ var Fayde;
             return TextBlock;
         })(Fayde.FrameworkElement);
         Controls.TextBlock = TextBlock;        
+        Nullstone.RegisterType(TextBlock, "TextBlock");
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="../Engine/Exceptions.ts" />
 
@@ -33,4 +34,5 @@ module Fayde {
             }
         }
     }
+    Nullstone.RegisterType(NameScope, "NameScope");
 }

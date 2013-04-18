@@ -17,6 +17,7 @@ var Fayde;
             return SolidColorBrush;
         })(Media.Brush);
         Media.SolidColorBrush = SolidColorBrush;        
+        Nullstone.RegisterType(SolidColorBrush, "SolidColorBrush");
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));

@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="XamlObject.ts" />
 /// <reference path="NameScope.ts" />
@@ -119,4 +120,5 @@ module Fayde {
         GetInheritedEnumerator(): IEnumerator { return undefined; }
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator { return undefined; }
     }
+    Nullstone.RegisterType(XamlNode, "XamlNode");
 }

@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="Interfaces.ts" />
 /// <reference path="Surface.ts" />
@@ -121,3 +122,4 @@ class App {
     }
     private static GetGenericResourceDictionaryImpl(): Fayde.ResourceDictionary { return undefined; }
 }
+Nullstone.RegisterType(App, "App");

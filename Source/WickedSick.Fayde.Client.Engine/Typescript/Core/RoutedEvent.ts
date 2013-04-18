@@ -8,4 +8,5 @@ module Fayde {
             //TODO: Implement
         }
     }
+    Nullstone.RegisterType(RoutedEvent, "RoutedEvent");
 }

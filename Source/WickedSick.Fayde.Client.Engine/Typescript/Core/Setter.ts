@@ -42,6 +42,7 @@ module Fayde {
             return true;
         }
     }
+    Nullstone.RegisterType(SetterCollection, "SetterCollection");
 
     export class Setter extends XamlObject {
         private _IsSealed: bool = false;
@@ -68,4 +69,5 @@ module Fayde {
             this._IsSealed = true;
         }
     }
+    Nullstone.RegisterType(Setter, "Setter");
 }

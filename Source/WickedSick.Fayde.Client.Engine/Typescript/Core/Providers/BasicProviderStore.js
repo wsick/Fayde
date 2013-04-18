@@ -1,6 +1,7 @@
 var Fayde;
 (function (Fayde) {
     /// <reference path="IProviderStore.ts" />
+    /// <reference path="../../Runtime/Nullstone.ts" />
     /// CODE
     /// <reference path="../DependencyObject.ts" />
     /// <reference path="../../Runtime/BError.ts" />
@@ -14,6 +15,7 @@ var Fayde;
             return DefaultValueProvider;
         })();
         Providers.DefaultValueProvider = DefaultValueProvider;        
+        Nullstone.RegisterType(DefaultValueProvider, "DefaultValueProvider");
         var AutoCreateProvider = (function () {
             function AutoCreateProvider() {
                 this._ht = [];
@@ -44,6 +46,7 @@ var Fayde;
             return AutoCreateProvider;
         })();
         Providers.AutoCreateProvider = AutoCreateProvider;        
+        Nullstone.RegisterType(AutoCreateProvider, "AutoCreateProvider");
         var LocalValueProvider = (function () {
             function LocalValueProvider() {
                 this._ht = [];
@@ -60,6 +63,7 @@ var Fayde;
             return LocalValueProvider;
         })();
         Providers.LocalValueProvider = LocalValueProvider;        
+        Nullstone.RegisterType(LocalValueProvider, "LocalValueProvider");
         var BasicProviderStore = (function () {
             function BasicProviderStore(dobj) {
                 this._Providers = [
@@ -406,6 +410,7 @@ var Fayde;
             return BasicProviderStore;
         })();
         Providers.BasicProviderStore = BasicProviderStore;        
+        Nullstone.RegisterType(BasicProviderStore, "BasicProviderStore");
     })(Fayde.Providers || (Fayde.Providers = {}));
     var Providers = Fayde.Providers;
 })(Fayde || (Fayde = {}));

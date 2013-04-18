@@ -1,6 +1,7 @@
 var Fayde;
 (function (Fayde) {
     /// <reference path="IProviderStore.ts" />
+    /// <reference path="../../Runtime/Nullstone.ts" />
     /// CODE
     /// <reference path="../../Controls/Control.ts" />
     (function (Providers) {
@@ -83,6 +84,7 @@ var Fayde;
             return InheritedIsEnabledProvider;
         })();
         Providers.InheritedIsEnabledProvider = InheritedIsEnabledProvider;        
+        Nullstone.RegisterType(InheritedIsEnabledProvider, "InheritedIsEnabledProvider");
     })(Fayde.Providers || (Fayde.Providers = {}));
     var Providers = Fayde.Providers;
 })(Fayde || (Fayde = {}));

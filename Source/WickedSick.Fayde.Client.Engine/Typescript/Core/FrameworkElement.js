@@ -81,6 +81,7 @@ var Fayde;
         return FENode;
     })(Fayde.UINode);
     Fayde.FENode = FENode;    
+    Nullstone.RegisterType(FENode, "FENode");
     var FrameworkElement = (function (_super) {
         __extends(FrameworkElement, _super);
         function FrameworkElement() {
@@ -128,5 +129,6 @@ var Fayde;
         return FrameworkElement;
     })(Fayde.UIElement);
     Fayde.FrameworkElement = FrameworkElement;    
+    Nullstone.RegisterType(FrameworkElement, "FrameworkElement");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=FrameworkElement.js.map

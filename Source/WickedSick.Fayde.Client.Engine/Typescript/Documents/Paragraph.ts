@@ -10,4 +10,5 @@ module Fayde.Documents {
             return tenode;
         }
     }
+    Nullstone.RegisterType(Paragraph, "Paragraph");
 }

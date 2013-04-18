@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="TimeSpan.ts" />
 /// <reference path="../Engine/Exceptions.ts" />
@@ -10,7 +11,6 @@ var DurationType;
 })(DurationType || (DurationType = {}));
 var Duration = (function () {
     function Duration() { }
-    Duration._TypeName = "Duration";
     Duration.CreateAutomatic = function CreateAutomatic() {
         var d = new Duration();
         d._Type = DurationType.Automatic;
@@ -67,4 +67,5 @@ var Duration = (function () {
     });
     return Duration;
 })();
+Nullstone.RegisterType(Duration, "Duration");
 //@ sourceMappingURL=Duration.js.map

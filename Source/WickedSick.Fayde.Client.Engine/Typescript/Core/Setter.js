@@ -52,6 +52,7 @@ var Fayde;
         return SetterCollection;
     })(Fayde.XamlObjectCollection);
     Fayde.SetterCollection = SetterCollection;    
+    Nullstone.RegisterType(SetterCollection, "SetterCollection");
     var Setter = (function (_super) {
         __extends(Setter, _super);
         function Setter() {
@@ -79,5 +80,6 @@ var Fayde;
         return Setter;
     })(Fayde.XamlObject);
     Fayde.Setter = Setter;    
+    Nullstone.RegisterType(Setter, "Setter");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=Setter.js.map

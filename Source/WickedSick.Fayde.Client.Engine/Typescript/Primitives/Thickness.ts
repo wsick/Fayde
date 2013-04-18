@@ -1,5 +1,7 @@
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
+
 class Thickness {
-    static _TypeName = "Thickness";
     Left: number;
     Top: number;
     Right: number;
@@ -43,3 +45,4 @@ class Thickness {
             && thickness1.Bottom === thickness2.Bottom;
     }
 }
+Nullstone.RegisterType(Thickness, "Thickness");

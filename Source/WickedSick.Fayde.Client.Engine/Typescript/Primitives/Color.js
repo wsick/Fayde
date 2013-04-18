@@ -1,3 +1,5 @@
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
 var Color = (function () {
     function Color() {
         this.R = 0;
@@ -217,4 +219,5 @@ var Color = (function () {
     };
     return Color;
 })();
+Nullstone.RegisterType(Color, "Color");
 //@ sourceMappingURL=Color.js.map

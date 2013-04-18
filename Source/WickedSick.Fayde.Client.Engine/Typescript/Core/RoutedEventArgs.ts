@@ -6,4 +6,5 @@ module Fayde {
         Handled: bool = false;
         Source: any = null;
     }
+    Nullstone.RegisterType(RoutedEventArgs, "RoutedEventArgs");
 }

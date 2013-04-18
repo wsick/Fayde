@@ -1,8 +1,9 @@
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
 var Uri = (function () {
     function Uri(originalString) {
         this._OriginalString = originalString;
     }
-    Uri._TypeName = "Uri";
     Uri.prototype.GetFragment = function () {
         //this._OriginalString.lastIndexOf("");
         return "";
@@ -21,4 +22,5 @@ var Uri = (function () {
     };
     return Uri;
 })();
+Nullstone.RegisterType(Uri, "Uri");
 //@ sourceMappingURL=Uri.js.map

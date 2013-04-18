@@ -1,5 +1,7 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="XamlNode.ts" />
+/// <reference path="DependencyObject.ts" />
 var Fayde;
 (function (Fayde) {
     var XamlObject = (function () {
@@ -20,5 +22,6 @@ var Fayde;
         return XamlObject;
     })();
     Fayde.XamlObject = XamlObject;    
+    Nullstone.RegisterType(XamlObject, "XamlObject");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=XamlObject.js.map

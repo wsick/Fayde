@@ -1,5 +1,7 @@
 var Fayde;
 (function (Fayde) {
+    /// <reference path="../Runtime/Nullstone.ts" />
+    /// CODE
     (function (Input) {
         // http://msdn.microsoft.com/en-us/library/system.windows.input.keyboardnavigationmode.aspx
         (function (KeyboardNavigationMode) {
@@ -54,6 +56,7 @@ var Fayde;
             return Keyboard;
         })();
         Input.Keyboard = Keyboard;        
+        Nullstone.RegisterType(Keyboard, "Keyboard");
     })(Fayde.Input || (Fayde.Input = {}));
     var Input = Fayde.Input;
 })(Fayde || (Fayde = {}));

@@ -1,4 +1,5 @@
 /// <reference path="IProviderStore.ts" />
+/// <reference path="../../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="../Setter.ts" />
 /// <reference path="../Style.ts" />
@@ -133,4 +134,5 @@ module Fayde.Providers {
             this._StyleMask = styleMask;
         }
     }
+    Nullstone.RegisterType(ImplicitStyleProvider, "ImplicitStyleProvider");
 }

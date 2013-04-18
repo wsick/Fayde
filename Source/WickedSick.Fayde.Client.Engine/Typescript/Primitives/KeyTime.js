@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="TimeSpan.ts" />
 var KeyTime = (function () {
@@ -7,7 +8,6 @@ var KeyTime = (function () {
         this._TimeSpan = null;
         this._Percent = 0;
     }
-    KeyTime._TypeName = "KeyTime";
     KeyTime.CreateUniform = function CreateUniform() {
         var kt = new KeyTime();
         kt._IsUniform = true;
@@ -62,4 +62,5 @@ var KeyTime = (function () {
     });
     return KeyTime;
 })();
+Nullstone.RegisterType(KeyTime, "KeyTime");
 //@ sourceMappingURL=KeyTime.js.map

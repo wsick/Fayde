@@ -1,6 +1,7 @@
 var Fayde;
 (function (Fayde) {
     /// <reference path="IProviderStore.ts" />
+    /// <reference path="../../Runtime/Nullstone.ts" />
     /// CODE
     /// <reference path="../Setter.ts" />
     /// <reference path="../Style.ts" />
@@ -144,6 +145,7 @@ var Fayde;
             return ImplicitStyleProvider;
         })();
         Providers.ImplicitStyleProvider = ImplicitStyleProvider;        
+        Nullstone.RegisterType(ImplicitStyleProvider, "ImplicitStyleProvider");
     })(Fayde.Providers || (Fayde.Providers = {}));
     var Providers = Fayde.Providers;
 })(Fayde || (Fayde = {}));

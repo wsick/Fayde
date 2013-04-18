@@ -127,4 +127,5 @@ module Fayde {
             }
         }
     }
+    Nullstone.RegisterType(DependencyObject, "DependencyObject");
 }

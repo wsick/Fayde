@@ -139,3 +139,4 @@ class DependencyProperty {
         return propd;
     }
 }
+Nullstone.RegisterType(DependencyProperty, "DependencyProperty");

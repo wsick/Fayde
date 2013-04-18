@@ -1,6 +1,7 @@
 var Fayde;
 (function (Fayde) {
     /// <reference path="IProviderStore.ts" />
+    /// <reference path="../../Runtime/Nullstone.ts" />
     /// CODE
     /// <reference path="../FrameworkElement.ts" />
     /// <reference path="../PropertyChangedListener.ts" />
@@ -71,6 +72,7 @@ var Fayde;
             return InheritedDataContextProvider;
         })();
         Providers.InheritedDataContextProvider = InheritedDataContextProvider;        
+        Nullstone.RegisterType(InheritedDataContextProvider, "InheritedDataContextProvider");
     })(Fayde.Providers || (Fayde.Providers = {}));
     var Providers = Fayde.Providers;
 })(Fayde || (Fayde = {}));

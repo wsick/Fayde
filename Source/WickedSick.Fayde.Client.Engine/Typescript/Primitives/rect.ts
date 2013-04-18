@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="size.ts" />
 
@@ -20,8 +21,6 @@ class rect {
     toString(): string {
         return "{" + this.X + "," + this.Y + "," + this.Width + "," + this.Height + "}";
     }
-
-    static _TypeName = "rect";
 
     static fromSize(size: size): rect {
         var r = new rect();
@@ -339,3 +338,4 @@ class rect {
         return !rect.isEqual(src, copy);
     }
 }
+Nullstone.RegisterType(rect, "rect");

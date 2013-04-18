@@ -46,4 +46,5 @@ module Fayde.Providers {
             this._InheritedProvider.ClearInheritedPropertiesOnRemovingFromTree(this, subtree);
         }
     }
+    Nullstone.RegisterType(InheritedProviderStore, "InheritedProviderStore");
 }

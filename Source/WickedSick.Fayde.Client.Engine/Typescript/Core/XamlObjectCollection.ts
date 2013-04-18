@@ -109,4 +109,5 @@ module Fayde {
         //_RaiseClearing() { }
         _RaiseCleared() { }
     }
+    Nullstone.RegisterType(XamlObjectCollection, "XamlObjectCollection");
 }

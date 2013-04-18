@@ -28,6 +28,7 @@ var Fayde;
             return ControlTemplate;
         })(Fayde.FrameworkTemplate);
         Controls.ControlTemplate = ControlTemplate;        
+        Nullstone.RegisterType(ControlTemplate, "ControlTemplate");
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

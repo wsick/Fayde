@@ -21,5 +21,6 @@ var Fayde;
         return TemplateBindingMarkup;
     })(Fayde.Markup);
     Fayde.TemplateBindingMarkup = TemplateBindingMarkup;    
+    Nullstone.RegisterType(TemplateBindingMarkup, "TemplateBindingMarkup");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=TemplateBindingMarkup.js.map

@@ -15,12 +15,14 @@ module Fayde.Input {
             return new Point();
         }
     }
+    Nullstone.RegisterType(MouseEventArgs, "MouseEventArgs");
 
     export class MouseButtonEventArgs extends MouseEventArgs {
         constructor(absolutePos: Point) {
             super(absolutePos);
         }
     }
+    Nullstone.RegisterType(MouseButtonEventArgs, "MouseButtonEventArgs");
 
     export class MouseWheelEventArgs extends MouseEventArgs {
         Delta: number;
@@ -29,4 +31,5 @@ module Fayde.Input {
             this.Delta = delta;
         }
     }
+    Nullstone.RegisterType(MouseWheelEventArgs, "MouseWheelEventArgs");
 }

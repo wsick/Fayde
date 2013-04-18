@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="DependencyObject.ts" />
 
@@ -13,4 +14,5 @@ module Fayde {
             this.IsAttached = false;
         }
     }
+    Nullstone.RegisterType(Expression, "Expression");
 }

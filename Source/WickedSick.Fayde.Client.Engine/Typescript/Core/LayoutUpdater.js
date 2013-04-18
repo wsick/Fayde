@@ -426,5 +426,6 @@ var Fayde;
         return LayoutUpdater;
     })();
     Fayde.LayoutUpdater = LayoutUpdater;    
+    Nullstone.RegisterType(LayoutUpdater, "LayoutUpdater");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=LayoutUpdater.js.map

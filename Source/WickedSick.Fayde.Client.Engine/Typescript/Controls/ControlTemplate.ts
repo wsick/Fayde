@@ -21,4 +21,5 @@ module Fayde.Controls {
             return super._GetVisualTreeWithError(templateBindingSource, error);
         }
     }
+    Nullstone.RegisterType(ControlTemplate, "ControlTemplate");
 }

@@ -10,4 +10,5 @@ module Fayde.Controls {
         OnContentChanged(oldContent: any, newContent: any) { }
         OnContentTemplateChanged(oldContentTemplate: ControlTemplate, newContentTemplate: ControlTemplate) { }
     }
+    Nullstone.RegisterType(ContentControl, "ContentControl");
 }

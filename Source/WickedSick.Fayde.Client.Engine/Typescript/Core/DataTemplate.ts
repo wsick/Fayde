@@ -1,5 +1,8 @@
 /// <reference path="FrameworkTemplate.ts" />
 /// CODE
+/// <reference path="ResourceDictionary.ts" />
+/// <reference path="FrameworkElement.ts" />
+/// <reference path="../Markup/JsonParser.ts" />
 
 module Fayde {
     export class DataTemplate extends FrameworkTemplate {
@@ -13,8 +16,9 @@ module Fayde {
 
         _GetVisualTreeWithError(templateBindingSource: FrameworkElement, error: BError): XamlObject {
             if (this._TempJson)
-                return Fayde.JsonParser.Parse(this._TempJson, templateBindingSource);
+                return JsonParser.Parse(this._TempJson, templateBindingSource);
             return super._GetVisualTreeWithError(templateBindingSource, error);
         }
     }
+    Nullstone.RegisterType(DataTemplate, "DataTemplate");
 }

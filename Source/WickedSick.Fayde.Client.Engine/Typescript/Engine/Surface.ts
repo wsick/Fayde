@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="App.ts" />
 /// <reference path="RenderContext.ts" />
@@ -767,3 +768,4 @@ class Surface {
         return button === 2;
     }
 }
+Nullstone.RegisterType(Surface, "Surface");

@@ -1,3 +1,6 @@
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
+
 module Fayde {
     export interface ITimerListener {
         Tick(lastTime: number, nowTime: number);
@@ -51,4 +54,5 @@ module Fayde {
             requestAnimFrame(() => this._DoTick());
         }
     }
+    Nullstone.RegisterType(ClockTimer, "ClockTimer");
 }

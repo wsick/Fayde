@@ -1,3 +1,5 @@
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
 var Thickness = (function () {
     function Thickness(left, top, right, bottom) {
         this.Left = left == null ? 0 : left;
@@ -5,7 +7,6 @@ var Thickness = (function () {
         this.Right = right == null ? 0 : right;
         this.Bottom = bottom == null ? 0 : bottom;
     }
-    Thickness._TypeName = "Thickness";
     Thickness.prototype.Plus = function (thickness2) {
         var t = new Thickness();
         t.Left = this.Left + thickness2.Left;
@@ -34,4 +35,5 @@ var Thickness = (function () {
     };
     return Thickness;
 })();
+Nullstone.RegisterType(Thickness, "Thickness");
 //@ sourceMappingURL=Thickness.js.map

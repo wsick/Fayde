@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="../Core/XamlObject.ts" />
 /// <reference path="../Core/DependencyProperty.ts" />
@@ -11,5 +12,6 @@ var Fayde;
         return Markup;
     })();
     Fayde.Markup = Markup;    
+    Nullstone.RegisterType(Markup, "Markup");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=Markup.js.map

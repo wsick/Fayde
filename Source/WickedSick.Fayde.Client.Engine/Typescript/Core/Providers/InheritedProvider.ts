@@ -1,4 +1,5 @@
 /// <reference path="IProviderStore.ts" />
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="Enums.ts" />
 /// <reference path="../../Controls/Image.ts" />
@@ -272,4 +273,5 @@ module Fayde.Providers {
                 this._ht[inheritable] = undefined;
         }
     }
+    Nullstone.RegisterType(InheritedProvider, "InheritedProvider");
 }

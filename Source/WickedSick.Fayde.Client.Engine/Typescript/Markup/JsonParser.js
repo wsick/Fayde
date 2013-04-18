@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="../Core/NameScope.ts" />
 /// <reference path="../Core/ResourceDictionary.ts" />
@@ -306,5 +307,6 @@ var Fayde;
         return JsonParser;
     })();
     Fayde.JsonParser = JsonParser;    
+    Nullstone.RegisterType(JsonParser, "JsonParser");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=JsonParser.js.map

@@ -13,7 +13,6 @@ var rect = (function () {
     rect.prototype.toString = function () {
         return "{" + this.X + "," + this.Y + "," + this.Width + "," + this.Height + "}";
     };
-    rect._TypeName = "rect";
     rect.fromSize = function fromSize(size) {
         var r = new rect();
         r.Width = size.Width;
@@ -324,4 +323,5 @@ var rect = (function () {
     };
     return rect;
 })();
+Nullstone.RegisterType(rect, "rect");
 //@ sourceMappingURL=rect.js.map

@@ -1,5 +1,6 @@
 var Fayde;
 (function (Fayde) {
+    /// <reference path="../Runtime/Nullstone.ts" />
     /// CODE
     /// <reference path="../Engine/App.ts" />
     /// <reference path="../Runtime/MulticastEvent.ts" />
@@ -31,6 +32,7 @@ var Fayde;
             return NavService;
         })();
         Navigation.NavService = NavService;        
+        Nullstone.RegisterType(NavService, "NavService");
     })(Fayde.Navigation || (Fayde.Navigation = {}));
     var Navigation = Fayde.Navigation;
 })(Fayde || (Fayde = {}));

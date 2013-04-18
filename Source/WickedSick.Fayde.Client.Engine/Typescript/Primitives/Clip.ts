@@ -1,8 +1,8 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="rect.ts" />
 
 class Clip {
-    static _TypeName = "Clip";
     X: number;
     Y: number;
     Width: number;
@@ -15,3 +15,4 @@ class Clip {
         this.Height = rounded.Height;
     }
 }
+Nullstone.RegisterType(Clip, "Clip");

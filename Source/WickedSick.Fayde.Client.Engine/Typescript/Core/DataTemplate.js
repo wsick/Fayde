@@ -5,6 +5,9 @@ var __extends = this.__extends || function (d, b) {
 };
 /// <reference path="FrameworkTemplate.ts" />
 /// CODE
+/// <reference path="ResourceDictionary.ts" />
+/// <reference path="FrameworkElement.ts" />
+/// <reference path="../Markup/JsonParser.ts" />
 var Fayde;
 (function (Fayde) {
     var DataTemplate = (function (_super) {
@@ -23,5 +26,6 @@ var Fayde;
         return DataTemplate;
     })(Fayde.FrameworkTemplate);
     Fayde.DataTemplate = DataTemplate;    
+    Nullstone.RegisterType(DataTemplate, "DataTemplate");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=DataTemplate.js.map

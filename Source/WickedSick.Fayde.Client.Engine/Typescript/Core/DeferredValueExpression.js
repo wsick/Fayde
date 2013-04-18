@@ -19,5 +19,6 @@ var Fayde;
         return DeferredValueExpression;
     })(Fayde.Expression);
     Fayde.DeferredValueExpression = DeferredValueExpression;    
+    Nullstone.RegisterType(DeferredValueExpression, "DeferredValueExpression");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=DeferredValueExpression.js.map

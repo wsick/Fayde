@@ -1,3 +1,6 @@
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
+
 var FontStyle = {
     Normal: "normal",
     Italic: "italic",
@@ -27,8 +30,6 @@ var FontWeight = {
     ExtraBlack: 950
 };
 class Font {
-    static _TypeName = "Font";
-
     static DEFAULT_FAMILY = "Segoe UI, Lucida Sans Unicode, Verdana";
     static DEFAULT_STRETCH = FontStretch.Normal;
     static DEFAULT_STYLE = FontStyle.Normal;
@@ -131,3 +132,4 @@ class Font {
         return result;
     }
 }
+Nullstone.RegisterType(Font, "Font");

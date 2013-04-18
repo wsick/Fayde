@@ -28,5 +28,6 @@ var Fayde;
         return FrameworkTemplate;
     })(Fayde.XamlObject);
     Fayde.FrameworkTemplate = FrameworkTemplate;    
+    Nullstone.RegisterType(FrameworkTemplate, "FrameworkTemplate");
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=FrameworkTemplate.js.map

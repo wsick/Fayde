@@ -111,4 +111,5 @@ var DependencyProperty = (function () {
     };
     return DependencyProperty;
 })();
+Nullstone.RegisterType(DependencyProperty, "DependencyProperty");
 //@ sourceMappingURL=DependencyProperty.js.map

@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="rect.ts" />
 var Clip = (function () {
@@ -8,7 +9,7 @@ var Clip = (function () {
         this.Width = rounded.Width;
         this.Height = rounded.Height;
     }
-    Clip._TypeName = "Clip";
     return Clip;
 })();
+Nullstone.RegisterType(Clip, "Clip");
 //@ sourceMappingURL=Clip.js.map

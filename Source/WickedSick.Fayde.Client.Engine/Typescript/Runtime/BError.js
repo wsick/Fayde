@@ -1,3 +1,5 @@
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
 var BError = (function () {
     function BError() { }
     BError.Argument = 2;
@@ -8,4 +10,5 @@ var BError = (function () {
     };
     return BError;
 })();
+Nullstone.RegisterType(BError, "BError");
 //@ sourceMappingURL=BError.js.map

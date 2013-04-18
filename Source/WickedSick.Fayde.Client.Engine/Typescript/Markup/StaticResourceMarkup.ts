@@ -14,4 +14,5 @@ module Fayde {
             return new StaticResourceExpression(this.Key, target, propd, propName, templateBindingSource);
         }
     }
+    Nullstone.RegisterType(StaticResourceMarkup, "StaticResourceMarkup");
 }

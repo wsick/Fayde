@@ -1,5 +1,6 @@
 var Fayde;
 (function (Fayde) {
+    /// <reference path="../Runtime/Nullstone.ts" />
     /// CODE
     /// <reference path="../Primitives/rect.ts" />
     (function (Media) {
@@ -15,6 +16,7 @@ var Fayde;
             return Geometry;
         })();
         Media.Geometry = Geometry;        
+        Nullstone.RegisterType(Geometry, "Geometry");
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));

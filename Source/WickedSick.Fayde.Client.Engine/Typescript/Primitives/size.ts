@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="rect.ts" />
 
@@ -8,8 +9,6 @@ class size {
         return "{" + this.Width + "," + this.Height + "}";
     }
     
-    static _TypeName = "size";
-
     static fromRaw(width: number, height: number): size {
         var s = new size();
         s.Width = width;
@@ -108,3 +107,4 @@ class size {
         return dest;
     }
 }
+Nullstone.RegisterType(size, "size");

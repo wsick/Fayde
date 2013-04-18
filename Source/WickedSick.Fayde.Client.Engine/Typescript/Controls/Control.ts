@@ -14,6 +14,7 @@ module Fayde.Controls {
             return xobj.IsEnabled && xobj.IsTabStop && xobj.Focus();
         }
     }
+    Nullstone.RegisterType(ControlNode, "ControlNode");
     export class Control extends FrameworkElement {
         XamlNode: ControlNode;
         _Store: Providers.ControlProviderStore;
@@ -39,4 +40,5 @@ module Fayde.Controls {
             return undefined;
         }
     }
+    Nullstone.RegisterType(Control, "Control");
 }

@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="../Core/NameScope.ts" />
 /// <reference path="../Core/ResourceDictionary.ts" />
@@ -311,4 +312,5 @@ module Fayde {
             return this.GetAnnotationMember(t._BaseClass, member);
         }
     }
+    Nullstone.RegisterType(JsonParser, "JsonParser");
 }

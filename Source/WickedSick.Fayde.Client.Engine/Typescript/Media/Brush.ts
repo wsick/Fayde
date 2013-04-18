@@ -1,3 +1,6 @@
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
+
 module Fayde.Media {
     export class Brush {
         SetupBrush(ctx: CanvasRenderingContext2D, r: rect) {
@@ -8,4 +11,5 @@ module Fayde.Media {
             return undefined;
         }
     }
+    Nullstone.RegisterType(Brush, "Brush");
 }
