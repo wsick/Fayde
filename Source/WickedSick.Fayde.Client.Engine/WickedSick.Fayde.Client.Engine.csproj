@@ -698,6 +698,14 @@
       <DependentUpon>Brush.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Media\Effects\Effect.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Effects\DropShadowEffect.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Effects\BlurEffect.ts" />
+    <Content Include="Typescript\Media\Effects\BlurEffect.js">
+      <DependentUpon>BlurEffect.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Effects\DropShadowEffect.js">
+      <DependentUpon>DropShadowEffect.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\Effects\Effect.js">
       <DependentUpon>Effect.ts</DependentUpon>
     </Content>

@@ -46,7 +46,6 @@ Markup/TemplateBindingMarkup.js
 Media/Geometry.js
 Media/Matrix.js
 Media/Projection.js
-Media/Effects/Effect.js
 Navigation/NavService.js
 Primitives/Clip.js
 Primitives/Color.js
@@ -85,6 +84,7 @@ Media/GeneralTransform.js
 Media/GradientStop.js
 Media/Transform.js
 Media/Transforms.js
+Media/Effects/Effect.js
 Media/Imaging/ImageSource.js
 Controls/ControlTemplate.js
 Core/DataTemplate.js
@@ -101,6 +101,8 @@ Media/LinearGradientBrush.js
 Media/RadialGradientBrush.js
 Media/SolidColorBrush.js
 Media/TileBrush.js
+Media/Effects/BlurEffect.js
+Media/Effects/DropShadowEffect.js
 Media/Imaging/BitmapSource.js
 Media/Imaging/ImageBrush.js
 Core/FrameworkElement.js

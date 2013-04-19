@@ -46,7 +46,6 @@ Typescript\Markup\TemplateBindingMarkup.ts
 Typescript\Media\Geometry.ts
 Typescript\Media\Matrix.ts
 Typescript\Media\Projection.ts
-Typescript\Media\Effects\Effect.ts
 Typescript\Navigation\NavService.ts
 Typescript\Primitives\Clip.ts
 Typescript\Primitives\Color.ts
@@ -85,6 +84,7 @@ Typescript\Media\GeneralTransform.ts
 Typescript\Media\GradientStop.ts
 Typescript\Media\Transform.ts
 Typescript\Media\Transforms.ts
+Typescript\Media\Effects\Effect.ts
 Typescript\Media\Imaging\ImageSource.ts
 Typescript\Controls\ControlTemplate.ts
 Typescript\Core\DataTemplate.ts
@@ -101,6 +101,8 @@ Typescript\Media\LinearGradientBrush.ts
 Typescript\Media\RadialGradientBrush.ts
 Typescript\Media\SolidColorBrush.ts
 Typescript\Media\TileBrush.ts
+Typescript\Media\Effects\BlurEffect.ts
+Typescript\Media\Effects\DropShadowEffect.ts
 Typescript\Media\Imaging\BitmapSource.ts
 Typescript\Media\Imaging\ImageBrush.ts
 Typescript\Core\FrameworkElement.ts
