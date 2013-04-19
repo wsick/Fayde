@@ -465,6 +465,112 @@ module Fayde {
 }
 
 module Fayde.Media {
+    export interface ICoordinates {
+        x: number;
+        y: number;
+    }
+    export class GradientMetrics {
+        static Calculate(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: rect) {
+            if (dir.y === 0) {
+                if (dir.x < 0)
+                    W(dir, first, last, bounds);
+                else
+                    E(dir, first, last, bounds);
+            } else if (dir.x === 0) {
+                if (dir.y < 0)
+                    N(dir, first, last, bounds);
+                else
+                    S(dir, first, last, bounds);
+            } else if (dir.x < 0 && dir.y < 0) { // e\s
+                NW(dir, first, last, bounds);
+            } else if (dir.x < 0 && dir.y > 0) { // e/s
+                SW(dir, first, last, bounds);
+            } else if (dir.x > 0 && dir.y < 0) { // s/e
+                NE(dir, first, last, bounds);
+            } else if (dir.x > 0 && dir.y > 0) { // s\e
+                SE(dir, first, last, bounds);
+            }
+        }
+        private static E(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: rect) {
+            var maxX = bounds.X + bounds.Width;
+            while (first.x >= bounds.X)
+                first.x -= dir.x;
+            while (last.x <= maxX)
+                last.x += dir.x;
+        }
+        private static W(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: rect) {
+            var maxX = bounds.X + bounds.Width;
+            while (first.x <= maxX)
+                first.x -= dir.x;
+            while (last.x >= bounds.X)
+                last.x += dir.x;
+        }
+        private static S(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: rect) {
+            var maxY = bounds.Y + bounds.Height;
+            while (first.y >= bounds.Y)
+                first.y -= dir.y;
+            while (last.y <= maxY)
+                last.y += dir.y;
+        }
+        private static N(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: rect) {
+            var maxY = bounds.Y + bounds.Height;
+            while (first.y <= maxY)
+                first.y -= dir.y;
+            while (last.y >= bounds.Y)
+                last.y += dir.y;
+        }
+        private static NW(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: rect) {
+            var maxX = bounds.X + bounds.Width;
+            var maxY = bounds.Y + bounds.Height;
+            while (first.x <= maxX && first.y <= maxY) {
+                first.x -= dir.x;
+                first.y -= dir.y;
+            }
+            while (last.x >= bounds.X && last.y >= bounds.Y) {
+                last.x += dir.x;
+                last.y += dir.y;
+            }
+        }
+        private static SW(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: rect) {
+            var maxX = bounds.X + bounds.Width;
+            var maxY = bounds.Y + bounds.Height;
+            while (first.x <= maxX && first.y >= bounds.Y) {
+                first.x -= dir.x;
+                first.y -= dir.y;
+            }
+            while (last.x >= bounds.X && last.y <= maxY) {
+                last.x += dir.x;
+                last.y += dir.y;
+            }
+        }
+        private static NE(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: rect) {
+            var maxX = bounds.X + bounds.Width;
+            var maxY = bounds.Y + bounds.Height;
+            while (first.x >= bounds.X && first.y <= maxY) {
+                first.x -= dir.x;
+                first.y -= dir.y;
+            }
+            while (last.x <= maxX && last.y >= bounds.Y) {
+                last.x += dir.x;
+                last.y += dir.y;
+            }
+        }
+        private static SE(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: rect) {
+            var maxX = bounds.X + bounds.Width;
+            var maxY = bounds.Y + bounds.Height;
+            while (first.x >= bounds.X && first.y >= bounds.Y) {
+                first.x -= dir.x;
+                first.y -= dir.y;
+            }
+            while (last.x <= maxX && last.y <= maxY) {
+                last.x += dir.x;
+                last.y += dir.y;
+            }
+        }
+    }
+}
+
+module Fayde.Media {
     export function ParseGeometry(val: string): Geometry {
         return new Geometry();
     }
@@ -6586,6 +6692,77 @@ module Fayde.Media {
         private GradientStopsChanged(newGradientStops: GradientStopCollection) { this.InvalidateBrush(); }
     }
     Nullstone.RegisterType(GradientBrush, "GradientBrush");
+}
+
+module Fayde.Media {
+    export class LinearGradientBrush extends GradientBrush {
+        static StartPointProperty: DependencyProperty = DependencyProperty.RegisterCore("StartPoint", () => Point, LinearGradientBrush);
+        static EndPointProperty: DependencyProperty = DependencyProperty.RegisterCore("EndPoint", () => Point, LinearGradientBrush);
+        StartPoint: Point;
+        EndPoint: Point;
+        private _CreatePad(ctx: CanvasRenderingContext2D, bounds: rect) {
+            var data = this._GetPointData(bounds);
+            var start = data.start;
+            var end = data.end;
+            var grd = ctx.createLinearGradient(start.X, start.Y, end.X, end.Y);
+            var enumerator = this.GradientStops.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                var stop: GradientStop = enumerator.Current;
+                grd.addColorStop(stop.Offset, stop.Color.toString());
+            }
+            return grd;
+        }
+        private _CreateRepeat(ctx: CanvasRenderingContext2D, bounds: rect) {
+            var data = this._GetPointData(bounds);
+            var start = data.start;
+            var end = data.end;
+            var dir = { x: end.X - start.X, y: end.Y - start.Y };
+            var first = { x: start.X, y: start.Y };
+            var last = { x: end.X, y: end.Y };
+            GradientMetrics.Calculate(dir, first, last, bounds);
+            var grd = ctx.createLinearGradient(first.x, first.y, last.x, last.y);
+            var steps = (last.x - first.x) / dir.x;
+            var curOffset = 0.0;
+            for (var i = 0; i < steps; i++) {
+                var enumerator = this.GradientStops.GetEnumerator();
+                while (enumerator.MoveNext()) {
+                    var stop: GradientStop = enumerator.Current;
+                    grd.addColorStop(curOffset + (stop.Offset / steps), stop.Color.toString());
+                }
+                curOffset += (1.0 / steps);
+            }
+            return grd;
+        }
+        private _CreateReflect(ctx: CanvasRenderingContext2D, bounds: rect) {
+            var data = this._GetPointData(bounds);
+            var start = data.start;
+            var end = data.end;
+        }
+        private _GetPointData(bounds: rect) {
+            var transform = this._GetMappingModeTransform(bounds);
+            var sp = this.StartPoint;
+            var ep = this.EndPoint;
+            var s = mat3.transformVec2(transform, vec2.createFrom(sp.X, sp.Y));
+            var e = mat3.transformVec2(transform, vec2.createFrom(ep.X, ep.Y));
+            return {
+                start: new Point(s[0], s[1]),
+                end: new Point(e[0], e[1])
+            };
+        }
+        toString(): string {
+            var enumerator = this.GradientStops.GetEnumerator();
+            var ser = [];
+            while (enumerator.MoveNext()) {
+                ser.push(enumerator.Current.toString());
+            }
+            return "LinearGradientBrush(" + this.StartPoint.toString() + " --> " + this.EndPoint.toString() + " [" + ser.toString() + "])";
+        }
+    }
+}
+
+module Fayde.Media {
+    export class RadialGradientBrush extends GradientBrush {
+    }
 }
 
 module Fayde.Media {

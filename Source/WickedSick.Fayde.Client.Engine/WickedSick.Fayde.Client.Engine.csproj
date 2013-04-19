@@ -714,8 +714,16 @@
       <DependentUpon>GradientBrush.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Media\GradientStop.ts" />
+    <TypeScriptCompile Include="Typescript\Media\GradientMetrics.ts" />
+    <Content Include="Typescript\Media\GradientMetrics.js">
+      <DependentUpon>GradientMetrics.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\GradientStop.js">
       <DependentUpon>GradientStop.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\LinearGradientBrush.ts" />
+    <Content Include="Typescript\Media\LinearGradientBrush.js">
+      <DependentUpon>LinearGradientBrush.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Media\Matrix.js">
       <DependentUpon>Matrix.ts</DependentUpon>
@@ -727,6 +735,10 @@
     <TypeScriptCompile Include="Typescript\Media\Projection.ts" />
     <Content Include="Typescript\Media\Projection.js">
       <DependentUpon>Projection.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\RadialGradientBrush.ts" />
+    <Content Include="Typescript\Media\RadialGradientBrush.js">
+      <DependentUpon>RadialGradientBrush.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Media\SolidColorBrush.js">
       <DependentUpon>SolidColorBrush.ts</DependentUpon>
