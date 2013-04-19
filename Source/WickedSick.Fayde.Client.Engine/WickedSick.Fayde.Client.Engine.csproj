@@ -701,6 +701,10 @@
     <Content Include="Typescript\Media\Effects\Effect.js">
       <DependentUpon>Effect.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Media\GeneralTransform.ts" />
+    <Content Include="Typescript\Media\GeneralTransform.js">
+      <DependentUpon>GeneralTransform.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\Geometry.js">
       <DependentUpon>Geometry.ts</DependentUpon>
     </Content>
@@ -725,6 +729,10 @@
       <DependentUpon>Transform.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Navigation\NavService.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Transforms.ts" />
+    <Content Include="Typescript\Media\Transforms.js">
+      <DependentUpon>Transforms.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Navigation\NavService.js">
       <DependentUpon>NavService.ts</DependentUpon>
     </Content>

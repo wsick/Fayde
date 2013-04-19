@@ -166,9 +166,9 @@ class rect {
         rect1.Height = rh;
     }
 
-    static transform(dest: rect, xform) {
+    static transform(dest: rect, xform: number[]): rect {
         if (!xform)
-            return;
+            return dest;
         var x = dest.X;
         var y = dest.Y;
         var width = dest.Width;
@@ -193,6 +193,7 @@ class rect {
         dest.Y = t;
         dest.Width = r - l;
         dest.Height = b - t;
+        return dest;
     }
     private static clipmask(clip) {
         var mask = 0;
@@ -206,9 +207,9 @@ class rect {
 
         return mask;
     };
-    static transform4(dest: rect, projection) {
+    static transform4(dest: rect, projection: number[]): rect {
         if (!projection)
-            return;
+            return dest;
 
         var x = dest.X;
         var y = dest.Y;
@@ -272,6 +273,7 @@ class rect {
             rect.extendTo(dest, p3[0], p3[1]);
             rect.extendTo(dest, p4[0], p4[1]);
         }
+        return dest;
     }
 
     static round(dest: rect): rect {

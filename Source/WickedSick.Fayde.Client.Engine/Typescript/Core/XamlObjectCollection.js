@@ -90,8 +90,8 @@ var Fayde;
             return true;
         };
         XamlObjectCollection.prototype.Clear = function () {
-            //LOOKS_USELESS: this._RaiseClearing();
             var old = this._ht;
+            this._RaiseClearing(old);
             this._ht = [];
             var len = old.length;
             for(var i = 0; i < len; i++) {
@@ -130,8 +130,9 @@ var Fayde;
         };
         XamlObjectCollection.prototype._RaiseItemReplaced = function (removed, added, index) {
         };
-        XamlObjectCollection.prototype._RaiseCleared = //_RaiseClearing() { }
-        function () {
+        XamlObjectCollection.prototype._RaiseClearing = function (arr) {
+        };
+        XamlObjectCollection.prototype._RaiseCleared = function () {
         };
         return XamlObjectCollection;
     })(Fayde.XamlObject);

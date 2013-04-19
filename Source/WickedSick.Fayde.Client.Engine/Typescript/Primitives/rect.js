@@ -158,7 +158,7 @@ var rect = (function () {
     };
     rect.transform = function transform(dest, xform) {
         if(!xform) {
-            return;
+            return dest;
         }
         var x = dest.X;
         var y = dest.Y;
@@ -180,6 +180,7 @@ var rect = (function () {
         dest.Y = t;
         dest.Width = r - l;
         dest.Height = b - t;
+        return dest;
     };
     rect.clipmask = function clipmask(clip) {
         var mask = 0;
@@ -205,7 +206,7 @@ var rect = (function () {
     };
     rect.transform4 = function transform4(dest, projection) {
         if(!projection) {
-            return;
+            return dest;
         }
         var x = dest.X;
         var y = dest.Y;
@@ -263,6 +264,7 @@ var rect = (function () {
             rect.extendTo(dest, p3[0], p3[1]);
             rect.extendTo(dest, p4[0], p4[1]);
         }
+        return dest;
     };
     rect.round = function round(dest) {
         dest.X = Math.round(dest.X);

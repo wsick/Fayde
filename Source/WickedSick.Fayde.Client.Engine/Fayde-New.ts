@@ -1454,6 +1454,7 @@ module Fayde {
         }
         Clear(): bool {
             var old = this._ht;
+            this._RaiseClearing(old);
             this._ht = [];
             var len = old.length;
             for (var i = 0; i < len; i++) {
@@ -1484,6 +1485,7 @@ module Fayde {
         _RaiseItemAdded(value: XamlObject, index: number) { }
         _RaiseItemRemoved(value: XamlObject, index: number) { }
         _RaiseItemReplaced(removed: XamlObject, added: XamlObject, index: number) { }
+        _RaiseClearing(arr: XamlObject[]) { }
         _RaiseCleared() { }
     }
     Nullstone.RegisterType(XamlObjectCollection, "XamlObjectCollection");
@@ -2727,7 +2729,10 @@ module Fayde {
             this.CurrentTransform = ct;
         }
         PreTransform(transform: Fayde.Media.Transform) {
-            var mat: number[] = transform.Value.raw;
+            var v = transform.Value;
+            var mat: number[];
+            if (!v || !(mat = v._Raw))
+                return;
             var ct = this.CurrentTransform;
             mat3.multiply(mat, ct, ct); //ct = ct * matrix
             this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
@@ -2741,7 +2746,10 @@ module Fayde {
             this.CurrentTransform = ct;
         }
         Transform(transform: Fayde.Media.Transform) {
-            var mat: number[] = transform.Value.raw;
+            var v = transform.Value;
+            var mat: number[];
+            if (!v || !(mat = v._Raw))
+                return;
             var ct = this.CurrentTransform;
             mat3.multiply(ct, mat, ct); //ct = matrix * ct
             var cc = this.CanvasContext;
@@ -3761,17 +3769,6 @@ module Fayde {
 }
 
 module Fayde.Media {
-    export class Brush {
-        SetupBrush(ctx: CanvasRenderingContext2D, r: rect) {
-        }
-        ToHtml5Object(): any {
-            return undefined;
-        }
-    }
-    Nullstone.RegisterType(Brush, "Brush");
-}
-
-module Fayde.Media {
     export class Geometry {
         GetBounds(): rect {
             return new rect();
@@ -3783,8 +3780,51 @@ module Fayde.Media {
 }
 
 module Fayde.Media {
+    export interface IMatrixChangedListener {
+        MatrixChanged(newMatrix: Matrix);
+    }
     export class Matrix {
-        raw: number[];
+        _Raw: number[];
+        private _Inverse: Matrix = null;
+        private _Listener: IMatrixChangedListener;
+        get M11() { return this._Raw[0]; }
+        set M11(val: number) { this._Raw[0] = val; this._OnChanged(); }
+        get M12() { return this._Raw[1]; }
+        set M12(val: number) { this._Raw[1] = val; this._OnChanged(); }
+        get M21() { return this._Raw[3]; }
+        set M21(val: number) { this._Raw[3] = val; this._OnChanged(); }
+        get M22() { return this._Raw[4]; }
+        set M22(val: number) { this._Raw[4] = val; this._OnChanged(); }
+        get OffsetX() { return this._Raw[2]; }
+        set OffsetX(val: number) { this._Raw[2] = val; this._OnChanged(); }
+        get OffsetY() { return this._Raw[5]; }
+        set OffsetY(val: number) { this._Raw[5] = val; this._OnChanged(); }
+        get Inverse(): Matrix {
+            var inverse = this._Inverse;
+            if (!inverse) {
+                var i = mat3.identity();
+                mat3.inverse(this._Raw, i);
+                if (!i)
+                    return;
+                inverse = new Matrix();
+                inverse._Raw = i;
+                this._Inverse = inverse;
+            }
+            return inverse;
+        }
+        Listen(listener: IMatrixChangedListener) {
+            this._Listener = listener;
+        }
+        Unlisten(listener: IMatrixChangedListener) {
+            this._Listener = null;
+        }
+        private _OnChanged() {
+            this._Inverse = null;
+            var listener = this._Listener;
+            if (listener)
+                listener.MatrixChanged(this);
+        }
+        toString(): string { return mat3.str(this._Raw); }
     }
     Nullstone.RegisterType(Matrix, "Matrix");
 }
@@ -3793,20 +3833,6 @@ module Fayde.Media {
     export class Projection {
     }
     Nullstone.RegisterType(Projection, "Projection");
-}
-
-module Fayde.Media {
-    export class SolidColorBrush extends Brush {
-        Color: Color;
-    }
-    Nullstone.RegisterType(SolidColorBrush, "SolidColorBrush");
-}
-
-module Fayde.Media {
-    export class Transform {
-        Value: Matrix;
-    }
-    Nullstone.RegisterType(Transform, "Transform");
 }
 
 module Fayde.Media.Effects {
@@ -4473,9 +4499,9 @@ class rect {
         rect1.Width = rw;
         rect1.Height = rh;
     }
-    static transform(dest: rect, xform) {
+    static transform(dest: rect, xform: number[]): rect {
         if (!xform)
-            return;
+            return dest;
         var x = dest.X;
         var y = dest.Y;
         var width = dest.Width;
@@ -4496,6 +4522,7 @@ class rect {
         dest.Y = t;
         dest.Width = r - l;
         dest.Height = b - t;
+        return dest;
     }
     private static clipmask(clip) {
         var mask = 0;
@@ -4507,9 +4534,9 @@ class rect {
         if (-clip[2] + clip[3] < 0) mask |= (1 << 5);
         return mask;
     };
-    static transform4(dest: rect, projection) {
+    static transform4(dest: rect, projection: number[]): rect {
         if (!projection)
-            return;
+            return dest;
         var x = dest.X;
         var y = dest.Y;
         var width = dest.Width;
@@ -4561,6 +4588,7 @@ class rect {
             rect.extendTo(dest, p3[0], p3[1]);
             rect.extendTo(dest, p4[0], p4[1]);
         }
+        return dest;
     }
     static round(dest: rect): rect {
         dest.X = Math.round(dest.X);
@@ -5355,179 +5383,6 @@ module Fayde {
     Nullstone.RegisterType(Style, "Style");
 }
 
-module Fayde {
-    export class UINode extends XamlNode {
-        XObject: UIElement;
-        LayoutUpdater: LayoutUpdater;
-        IsTopLevel: bool = false;
-        constructor(xobj: UIElement) {
-            super(xobj);
-            this.LayoutUpdater = new LayoutUpdater(this);
-        }
-        VisualParentNode: UINode;
-        GetInheritedEnumerator(): IEnumerator {
-            return this.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
-        }
-        OnIsAttachedChanged(newIsAttached: bool) {
-            this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
-        }
-        _ElementAdded(uie: UIElement) {
-            var lu = this.LayoutUpdater;
-            lu.UpdateBounds(true);
-            lu.InvalidateMeasure();
-            lu.PreviousConstraint = undefined;
-            var un = uie.XamlNode;
-            un.VisualParentNode = this;
-            this.XObject._Store.PropagateInheritedOnAdd(uie);
-            un.LayoutUpdater.OnAddedToTree();
-            un.SetIsLoaded(this.IsLoaded);
-        }
-        _ElementRemoved(uie: UIElement) {
-            var lu = this.LayoutUpdater;
-            var un = uie.XamlNode;
-            lu.Invalidate(un.LayoutUpdater.SubtreeBounds);
-            lu.InvalidateMeasure();
-            un.VisualParentNode = null;
-            un.SetIsLoaded(false);
-            un.LayoutUpdater.OnRemovedFromTree();
-            this.XObject._Store.ClearInheritedOnRemove(uie);
-        }
-        IsLoaded: bool = false;
-        SetIsLoaded(value: bool) {
-            if (this.IsLoaded === value)
-                return;
-            this.IsLoaded = value;
-            this.OnIsLoadedChanged(value);
-        }
-        OnIsLoadedChanged(newIsLoaded: bool) { }
-        _EmitFocusChange(type: string) {
-            if (type === "got")
-                this._EmitGotFocus();
-            else if (type === "lost")
-                this._EmitLostFocus();
-        }
-        private _EmitLostFocus() {
-            var e = new Fayde.RoutedEventArgs();
-            var x = this.XObject;
-            x.OnLostFocus(e);
-            x.LostFocus.Raise(x, e);
-        }
-        private _EmitGotFocus() {
-            var e = new Fayde.RoutedEventArgs();
-            var x = this.XObject;
-            x.OnGotFocus(e);
-            x.GotFocus.Raise(x, e);
-        }
-        _EmitKeyDown(args: Fayde.Input.KeyEventArgs) {
-            var x = this.XObject;
-            x.OnKeyDown(args);
-            x.KeyDown.Raise(x, args);
-        }
-        _EmitKeyUp(args: Fayde.Input.KeyEventArgs) {
-            var x = this.XObject;
-            x.OnKeyUp(args);
-            x.KeyUp.Raise(x, args);
-        }
-        _EmitLostMouseCapture(pos: Point) {
-        }
-        _EmitMouseEvent(type: string, isLeftButton: bool, isRightButton: bool, args: Input.MouseEventArgs): bool {
-            var x = this.XObject;
-            if (type === "up") {
-                if (isLeftButton) {
-                    x.MouseLeftButtonUp.Raise(x, args);
-                } else if (isRightButton) {
-                    x.MouseRightButtonUp.Raise(x, args);
-                }
-            } else if (type === "down") {
-                if (isLeftButton) {
-                    x.MouseLeftButtonDown.Raise(x, args);
-                } else if (isRightButton) {
-                    x.MouseRightButtonDown.Raise(x, args);
-                }
-            } else if (type === "leave") {
-                (<any>x)._IsMouseOver = false;
-                x.OnMouseLeave(args);
-                x.MouseLeave.Raise(x, args);
-            } else if (type === "enter") {
-                (<any>x)._IsMouseOver = true;
-                x.OnMouseEnter(args);
-                x.MouseEnter.Raise(x, args);
-            } else if (type === "move") {
-                x.MouseMove.Raise(x, args);
-            } else if (type === "wheel") {
-                x.MouseWheel.Raise(x, args);
-            } else {
-                return false;
-            }
-            return args.Handled;
-        }
-        _HitTestPoint(ctx: IRenderContext, p: Point, uielist: UINode[]) {
-            uielist.unshift(this);
-        }
-        CanCaptureMouse(): bool { return true; }
-        _ResortChildrenByZIndex() {
-            Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
-        }
-    }
-    Nullstone.RegisterType(UINode, "UINode");
-    export class UIElement extends DependencyObject {
-        XamlNode: UINode;
-        _Store: Providers.InheritedProviderStore;
-        CreateStore(): Providers.InheritedProviderStore {
-            var s = new Providers.InheritedProviderStore(this);
-            s.SetProviders([null, 
-                new Providers.LocalValueProvider(), 
-                null,
-                null,
-                null,
-                new Providers.InheritedProvider(),
-                null,
-                new Providers.DefaultValueProvider(),
-                new Providers.AutoCreateProvider()]
-            );
-            return s;
-        }
-        CreateNode(): XamlNode {
-            return new UINode(this);
-        }
-        static ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Media.Geometry; }, UIElement);
-        static EffectProperty = DependencyProperty.Register("Effect", function () { return Media.Effects.Effect; }, UIElement);
-        static IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
-        static OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Media.Brush; }, UIElement);
-        static OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0);
-        static ProjectionProperty = DependencyProperty.Register("Projection", function () { return Media.Projection; }, UIElement);
-        static RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () { return Media.Transform; }, UIElement);
-        static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () { return Point; }, UIElement);
-        static TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
-        static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, UIElement, true, undefined, undefined, Providers._Inheritable.UseLayoutRounding);
-        static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
-        private _IsMouseOver: bool = false;
-        get IsMouseOver() { return this._IsMouseOver; }
-        Cursor: string;
-        Visibility: Visibility;
-        LostFocus: RoutedEvent = new RoutedEvent();
-        GotFocus: RoutedEvent = new RoutedEvent();
-        Focus(): bool { return false; }
-        OnGotFocus(e: RoutedEventArgs) { }
-        OnLostFocus(e: RoutedEventArgs) { }
-        KeyDown: MulticastEvent = new MulticastEvent();
-        KeyUp: MulticastEvent = new MulticastEvent();
-        OnKeyDown(args: Input.KeyEventArgs) { }
-        OnKeyUp(args: Input.KeyEventArgs) { }
-        MouseLeftButtonUp: RoutedEvent = new RoutedEvent();
-        MouseRightButtonUp: RoutedEvent = new RoutedEvent();
-        MouseLeftButtonDown: RoutedEvent = new RoutedEvent();
-        MouseRightButtonDown: RoutedEvent = new RoutedEvent();
-        MouseLeave: RoutedEvent = new RoutedEvent();
-        OnMouseLeave(args: Input.MouseEventArgs) { }
-        MouseEnter: RoutedEvent = new RoutedEvent();
-        OnMouseEnter(args: Input.MouseEventArgs) { }
-        MouseMove: RoutedEvent = new RoutedEvent();
-        MouseWheel: RoutedEvent = new RoutedEvent();
-    }
-    Nullstone.RegisterType(UIElement, "UIElement");
-}
-
 module Fayde.Providers {
     export interface ILocalStylesProvider extends IPropertyProvider {
         UpdateStyle(style: Style, error: BError);
@@ -6027,6 +5882,246 @@ module Fayde.Input {
     Nullstone.RegisterType(MouseWheelEventArgs, "MouseWheelEventArgs");
 }
 
+module Fayde.Media {
+    export class GeneralTransform extends DependencyObject {
+        Inverse: GeneralTransform;
+        Transform(p: Point): Point { return p; }
+        TransformBounds(r: rect): rect { return r; }
+        TryTransform(inPoint: Point, outPoint: Point): bool { return false; }
+    }
+    Nullstone.RegisterType(GeneralTransform, "GeneralTransform");
+    export class InternalTransform extends GeneralTransform {
+        private _Raw: number[] = mat4.identity();
+        get Inverse(): InternalTransform {
+            var it = new InternalTransform();
+            it._Raw = mat4.create();
+            mat4.inverse(this._Raw, it._Raw);
+            return it;
+        }
+        get Value(): Matrix {
+            var m = new Matrix();
+            m._Raw = mat4.create(this._Raw);
+            return m;
+        }
+        Transform(p: Point): Point {
+            var pi = vec4.createFrom(p.X, p.Y, 0.0, 1.0);
+            var po = vec4.create();
+            mat4.transformVec4(this._Raw, pi, po);
+            if (po[3] !== 0.0) {
+                var w = 1.0 / po[3];
+                return new Point(po[0] * w, p[1] * w);
+            }
+            return new Point(NaN, NaN);
+        }
+        TransformBounds(r: rect): rect {
+            if (r)
+                return rect.transform4(rect.clone(r), this._Raw);
+            return undefined;
+        }
+    }
+    Nullstone.RegisterType(InternalTransform, "InternalTransform");
+}
+
+module Fayde.Media {
+    export interface ITransformChangedListener {
+        TransformChanged(source: Transform);
+    }
+    export class Transform extends GeneralTransform {
+        private _Value: Matrix;
+        _Listener: ITransformChangedListener = null;
+        get Value(): Matrix {
+            var val = this._Value;
+            if (!val) {
+                var val = new Matrix();
+                val._Raw = this._BuildValue();
+                this._Value = val;
+            }
+            return val;
+        }
+        get Inverse(): Transform {
+            var inverse = this.Value.Inverse;
+            if (inverse == null)
+                return;
+            var mt = new MatrixTransform();
+            mt.Matrix = inverse;
+            return mt;
+        }
+        Transform(p: Point): Point {
+            var v = this.Value;
+            if (!v || !v._Raw)
+                return new Point(p.X, p.Y);
+            var v = mat3.transformVec2(v._Raw, vec2.createFrom(p.X, p.Y));
+            return new Point(v[0], v[1]);
+        }
+        TransformBounds(r: rect): rect {
+            if (!r)
+                return undefined;
+            var v = this.Value;
+            if (!v || !v._Raw)
+                return rect.clone(r);
+            return rect.transform(rect.clone(r), v._Raw);
+        }
+        TryTransform(inPoint: Point, outPoint: Point): bool {
+            return false;
+        }
+        Listen(listener: ITransformChangedListener) { this._Listener = listener; }
+        Unlisten(listener: ITransformChangedListener) { if (this._Listener === listener) this._Listener = null; }
+        _InvalidateValue() {
+            if (this._Value === undefined)
+                return;
+            this._Value = undefined;
+            var listener = this._Listener;
+            if (listener) listener.TransformChanged(this);
+        }
+        _BuildValue(): number[] {
+            return undefined;
+        }
+    }
+    Nullstone.RegisterType(Transform, "Transform");
+    export class MatrixTransform extends Transform implements IMatrixChangedListener {
+        static MatrixProperty: DependencyProperty = DependencyProperty.RegisterFull("Matrix", () => Matrix, MatrixTransform, undefined, (d, args) => (<MatrixTransform>d)._MatrixChanged(args), { GetValue: () => new Matrix() });
+        Matrix: Matrix;
+        _BuildValue(): number[] {
+            var m = this.Matrix;
+            if (m)
+                return m._Raw;
+            return mat3.identity();
+        }
+        private _MatrixChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldv: Matrix = args.OldValue;
+            var newv: Matrix = args.NewValue;
+            if (oldv)
+                oldv.Unlisten(this);
+            if (newv)
+                newv.Listen(this);
+            this.MatrixChanged(newv);
+        }
+        MatrixChanged(newMatrix: Matrix) {
+            var listener = this._Listener;
+            if (listener) listener.TransformChanged(this);
+        }
+    }
+    Nullstone.RegisterType(MatrixTransform, "MatrixTransform");
+}
+
+module Fayde.Media {
+    export class RotateTransform extends Transform {
+        static AngleProperty: DependencyProperty = DependencyProperty.Register("Angle", () => Number, RotateTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        static CenterXProperty: DependencyProperty = DependencyProperty.Register("CenterX", () => Number, RotateTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        static CenterYProperty: DependencyProperty = DependencyProperty.Register("CenterY", () => Number, RotateTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        Angle: number;
+        CenterX: number;
+        CenterY: number;
+        private _BuildValue(): number[] {
+            var cx = this.CenterX;
+            var cy = this.CenterY;
+            var angleRad = Math.PI / 180 * this.Angle;
+            var m = mat3.createRotate(angleRad);
+            if (cx === 0 && cy === 0)
+                return m;
+            mat3.multiply(mat3.createTranslate(-cx, -cy), m, m); //m = m * translation
+            mat3.translate(m, cx, cy);
+            return m;
+        }
+    }
+    Nullstone.RegisterType(RotateTransform, "RotateTransform");
+    export class ScaleTransform extends Transform {
+        static CenterXProperty: DependencyProperty = DependencyProperty.Register("CenterX", () => Number, ScaleTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        static CenterYProperty: DependencyProperty = DependencyProperty.Register("CenterY", () => Number, ScaleTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        static ScaleXProperty: DependencyProperty = DependencyProperty.Register("ScaleX", () => Number, ScaleTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        static ScaleYProperty: DependencyProperty = DependencyProperty.Register("ScaleY", () => Number, ScaleTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        CenterX: number;
+        CenterY: number;
+        ScaleX: number;
+        ScaleY: number;
+        private _BuildValue(): number[] {
+            var cx = this.CenterX;
+            var cy = this.CenterY;
+            var m = mat3.createScale(this.ScaleX, this.ScaleY);
+            if (cx === 0 && cy === 0)
+                return m;
+            mat3.multiply(mat3.createTranslate(-cx, -cy), m, m); //m = m * translation
+            mat3.translate(m, cx, cy);
+            return m;
+        }
+    }
+    Nullstone.RegisterType(ScaleTransform, "ScaleTransform");
+    export class SkewTransform extends Transform {
+        static AngleXProperty: DependencyProperty = DependencyProperty.Register("AngleX", () => Number, SkewTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        static AngleYProperty: DependencyProperty = DependencyProperty.Register("AngleY", () => Number, SkewTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        static CenterXProperty: DependencyProperty = DependencyProperty.Register("CenterX", () => Number, SkewTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        static CenterYProperty: DependencyProperty = DependencyProperty.Register("CenterY", () => Number, SkewTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        AngleX: number;
+        AngleY: number;
+        CenterX: number;
+        CenterY: number;
+        private _BuildValue(): number[] {
+            var cx = this.CenterX;
+            var cy = this.CenterY;
+            var angleXRad = Math.PI / 180 * this.AngleX;
+            var angleYRad = Math.PI / 180 * this.AngleY;
+            var m = mat3.createSkew(angleXRad, angleYRad);
+            if (cx === 0 && cy === 0)
+                return m;
+            mat3.multiply(mat3.createTranslate(-cx, -cy), m, m); //m = m * translation
+            mat3.translate(m, cx, cy);
+            return m;
+        }
+    }
+    Nullstone.RegisterType(SkewTransform, "SkewTransform");
+    export class TranslateTransform extends Transform {
+        static XProperty: DependencyProperty = DependencyProperty.Register("X", () => Number, SkewTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        static YProperty: DependencyProperty = DependencyProperty.Register("Y", () => Number, SkewTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        X: number;
+        Y: number;
+        private _BuildValue(): number[] {
+            return mat3.createTranslate(this.X, this.Y);
+        }
+    }
+    Nullstone.RegisterType(TranslateTransform, "TranslateTransform");
+    export class TransformCollection extends XamlObjectCollection implements ITransformChangedListener {
+        private _Listener: ITransformChangedListener;
+        Listen(listener: ITransformChangedListener) { this._Listener = listener; }
+        Unlisten(listener: ITransformChangedListener) { if (this._Listener === listener) this._Listener = null; }
+        private _RaiseItemAdded(value: Transform, index: number) { value.Listen(this); }
+        private _RaiseItemRemoved(value: Transform, index: number) { value.Unlisten(this); }
+        private _RaiseItemReplaced(removed: Transform, added: Transform, index: number) { removed.Unlisten(this); added.Listen(this); }
+        private _RaiseClearing(arr: Transform[]) {
+            var len = arr.length;
+            for (var i = 0; i < len; i++) {
+                arr[i].Unlisten(this);
+            }
+        }
+        private TransformChanged(transform: Transform) {
+            var listener = this._Listener;
+            if (listener) listener.TransformChanged(undefined);
+        }
+    }
+    Nullstone.RegisterType(TransformCollection, "TransformCollection");
+    export class TransformGroup extends Transform implements ITransformChangedListener {
+        Children: TransformCollection;
+        constructor() {
+            super();
+            var coll = new TransformCollection();
+            coll.Listen(this);
+            Object.defineProperty(this, "Children", {
+                value: coll,
+                writable: false
+            });
+        }
+        private TransformChanged(source: Transform) { this._InvalidateValue(); }
+        private _BuildValue(): number[] {
+            var enumerator = this.Children.GetEnumerator(true);
+            var cur = mat3.identity();
+            while (enumerator.MoveNext()) {
+                mat3.multiply((<Transform>enumerator.Current).Value._Raw, cur, cur); //cur = cur * child
+            }
+            return cur;
+        }
+    }
+    Nullstone.RegisterType(TransformGroup, "TransformGroup");
+}
+
 module Fayde.Controls {
     export class ControlTemplate extends FrameworkTemplate {
         private _TempJson: any;
@@ -6066,6 +6161,336 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(DataTemplate, "DataTemplate");
+}
+
+module Fayde {
+    export class UINode extends XamlNode {
+        XObject: UIElement;
+        LayoutUpdater: LayoutUpdater;
+        IsTopLevel: bool = false;
+        constructor(xobj: UIElement) {
+            super(xobj);
+            this.LayoutUpdater = new LayoutUpdater(this);
+        }
+        VisualParentNode: UINode;
+        GetInheritedEnumerator(): IEnumerator {
+            return this.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
+        }
+        OnIsAttachedChanged(newIsAttached: bool) {
+            this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
+        }
+        _ElementAdded(uie: UIElement) {
+            var lu = this.LayoutUpdater;
+            lu.UpdateBounds(true);
+            lu.InvalidateMeasure();
+            lu.PreviousConstraint = undefined;
+            var un = uie.XamlNode;
+            un.VisualParentNode = this;
+            this.XObject._Store.PropagateInheritedOnAdd(uie);
+            un.LayoutUpdater.OnAddedToTree();
+            un.SetIsLoaded(this.IsLoaded);
+        }
+        _ElementRemoved(uie: UIElement) {
+            var lu = this.LayoutUpdater;
+            var un = uie.XamlNode;
+            lu.Invalidate(un.LayoutUpdater.SubtreeBounds);
+            lu.InvalidateMeasure();
+            un.VisualParentNode = null;
+            un.SetIsLoaded(false);
+            un.LayoutUpdater.OnRemovedFromTree();
+            this.XObject._Store.ClearInheritedOnRemove(uie);
+        }
+        IsLoaded: bool = false;
+        SetIsLoaded(value: bool) {
+            if (this.IsLoaded === value)
+                return;
+            this.IsLoaded = value;
+            this.OnIsLoadedChanged(value);
+        }
+        OnIsLoadedChanged(newIsLoaded: bool) { }
+        _EmitFocusChange(type: string) {
+            if (type === "got")
+                this._EmitGotFocus();
+            else if (type === "lost")
+                this._EmitLostFocus();
+        }
+        private _EmitLostFocus() {
+            var e = new Fayde.RoutedEventArgs();
+            var x = this.XObject;
+            x.OnLostFocus(e);
+            x.LostFocus.Raise(x, e);
+        }
+        private _EmitGotFocus() {
+            var e = new Fayde.RoutedEventArgs();
+            var x = this.XObject;
+            x.OnGotFocus(e);
+            x.GotFocus.Raise(x, e);
+        }
+        _EmitKeyDown(args: Fayde.Input.KeyEventArgs) {
+            var x = this.XObject;
+            x.OnKeyDown(args);
+            x.KeyDown.Raise(x, args);
+        }
+        _EmitKeyUp(args: Fayde.Input.KeyEventArgs) {
+            var x = this.XObject;
+            x.OnKeyUp(args);
+            x.KeyUp.Raise(x, args);
+        }
+        _EmitLostMouseCapture(pos: Point) {
+        }
+        _EmitMouseEvent(type: string, isLeftButton: bool, isRightButton: bool, args: Input.MouseEventArgs): bool {
+            var x = this.XObject;
+            if (type === "up") {
+                if (isLeftButton) {
+                    x.MouseLeftButtonUp.Raise(x, args);
+                } else if (isRightButton) {
+                    x.MouseRightButtonUp.Raise(x, args);
+                }
+            } else if (type === "down") {
+                if (isLeftButton) {
+                    x.MouseLeftButtonDown.Raise(x, args);
+                } else if (isRightButton) {
+                    x.MouseRightButtonDown.Raise(x, args);
+                }
+            } else if (type === "leave") {
+                (<any>x)._IsMouseOver = false;
+                x.OnMouseLeave(args);
+                x.MouseLeave.Raise(x, args);
+            } else if (type === "enter") {
+                (<any>x)._IsMouseOver = true;
+                x.OnMouseEnter(args);
+                x.MouseEnter.Raise(x, args);
+            } else if (type === "move") {
+                x.MouseMove.Raise(x, args);
+            } else if (type === "wheel") {
+                x.MouseWheel.Raise(x, args);
+            } else {
+                return false;
+            }
+            return args.Handled;
+        }
+        _HitTestPoint(ctx: IRenderContext, p: Point, uielist: UINode[]) {
+            uielist.unshift(this);
+        }
+        CanCaptureMouse(): bool { return true; }
+        _ResortChildrenByZIndex() {
+            Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
+        }
+    }
+    Nullstone.RegisterType(UINode, "UINode");
+    export class UIElement extends DependencyObject {
+        XamlNode: UINode;
+        _Store: Providers.InheritedProviderStore;
+        CreateStore(): Providers.InheritedProviderStore {
+            var s = new Providers.InheritedProviderStore(this);
+            s.SetProviders([null, 
+                new Providers.LocalValueProvider(), 
+                null,
+                null,
+                null,
+                new Providers.InheritedProvider(),
+                null,
+                new Providers.DefaultValueProvider(),
+                new Providers.AutoCreateProvider()]
+            );
+            return s;
+        }
+        CreateNode(): XamlNode {
+            return new UINode(this);
+        }
+        static ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Media.Geometry; }, UIElement);
+        static EffectProperty = DependencyProperty.Register("Effect", function () { return Media.Effects.Effect; }, UIElement);
+        static IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
+        static OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Media.Brush; }, UIElement);
+        static OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0);
+        static ProjectionProperty = DependencyProperty.Register("Projection", function () { return Media.Projection; }, UIElement);
+        static RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () { return Media.Transform; }, UIElement);
+        static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () { return Point; }, UIElement);
+        static TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
+        static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, UIElement, true, undefined, undefined, Providers._Inheritable.UseLayoutRounding);
+        static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
+        private _IsMouseOver: bool = false;
+        get IsMouseOver() { return this._IsMouseOver; }
+        Cursor: string;
+        Visibility: Visibility;
+        LostFocus: RoutedEvent = new RoutedEvent();
+        GotFocus: RoutedEvent = new RoutedEvent();
+        Focus(): bool { return false; }
+        OnGotFocus(e: RoutedEventArgs) { }
+        OnLostFocus(e: RoutedEventArgs) { }
+        KeyDown: MulticastEvent = new MulticastEvent();
+        KeyUp: MulticastEvent = new MulticastEvent();
+        OnKeyDown(args: Input.KeyEventArgs) { }
+        OnKeyUp(args: Input.KeyEventArgs) { }
+        MouseLeftButtonUp: RoutedEvent = new RoutedEvent();
+        MouseRightButtonUp: RoutedEvent = new RoutedEvent();
+        MouseLeftButtonDown: RoutedEvent = new RoutedEvent();
+        MouseRightButtonDown: RoutedEvent = new RoutedEvent();
+        MouseLeave: RoutedEvent = new RoutedEvent();
+        OnMouseLeave(args: Input.MouseEventArgs) { }
+        MouseEnter: RoutedEvent = new RoutedEvent();
+        OnMouseEnter(args: Input.MouseEventArgs) { }
+        MouseMove: RoutedEvent = new RoutedEvent();
+        MouseWheel: RoutedEvent = new RoutedEvent();
+    }
+    Nullstone.RegisterType(UIElement, "UIElement");
+}
+
+module Fayde.Providers {
+    export interface IInheritedIsEnabledProvider extends IPropertyProvider {
+        LocalValueChanged(propd?: DependencyProperty): bool;
+        SetDataSource(source: DependencyObject);
+    }
+    export class ControlProviderStore extends FrameworkProviderStore {
+        constructor(dobj: DependencyObject) {
+            super(dobj);
+        }
+        SetProviders(providerArr: IPropertyProvider[]) {
+            this._InheritedIsEnabledProvider = this._Providers[0] = <IInheritedIsEnabledProvider>providerArr[0];
+            this._LocalValueProvider = this._Providers[1] = <LocalValueProvider>providerArr[1];
+            this._DynamicValueProvider = this._Providers[2] = providerArr[2];
+            this._LocalStyleProvider = this._Providers[3] = providerArr[3];
+            this._ImplicitStyleProvider = this._Providers[4] = providerArr[4];
+            this._InheritedProvider = this._Providers[5] = <IInheritedProvider>providerArr[5];
+            this._InheritedDataContextProvider = this._Providers[6] = providerArr[6];
+            this._DefaultValueProvider = this._Providers[7] = <DefaultValueProvider>providerArr[7];
+            this._AutoCreateProvider = this._Providers[8] = <AutoCreateProvider>providerArr[8];
+        }
+        private _Providers: IPropertyProvider[];
+        private _InheritedIsEnabledProvider: IInheritedIsEnabledProvider;
+        private _LocalValueProvider: LocalValueProvider;
+        private _DynamicValueProvider: IPropertyProvider;
+        private _LocalStyleProvider: IPropertyProvider;
+        private _ImplicitStyleProvider: IPropertyProvider;
+        private _InheritedProvider: IInheritedProvider;
+        private _InheritedDataContextProvider: IPropertyProvider;
+        private _DefaultValueProvider: DefaultValueProvider;
+        private _AutoCreateProvider: AutoCreateProvider;
+        _PostProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldValue: any, newValue: any, notifyListeners: bool, error: BError) {
+            var iiep: IInheritedIsEnabledProvider;
+            if (providerPrecedence !== _PropertyPrecedence.IsEnabled && (iiep = this._InheritedIsEnabledProvider) && iiep.LocalValueChanged(propd))
+                return;
+            super._PostProviderValueChanged(providerPrecedence, propd, oldValue, newValue, notifyListeners, error);
+        }
+        SetIsEnabledSource(source: DependencyObject) {
+            this._InheritedIsEnabledProvider.SetDataSource(source);
+        }
+    }
+    Nullstone.RegisterType(ControlProviderStore, "ControlProviderStore");
+}
+
+module Fayde.Documents {
+    export class Block extends TextElement {
+    }
+    Nullstone.RegisterType(Block, "Block");
+}
+
+module Fayde.Documents {
+    export class Inline extends TextElement {
+    }
+    Nullstone.RegisterType(Inline, "Inline");
+}
+
+module Fayde.Documents {
+    export class Paragraph extends Block {
+        static InlinesProperty;
+        CreateNode(): XamlNode {
+            var tenode = new TextElementNode(this)
+            tenode.InheritedWalkProperty = Paragraph.InlinesProperty;
+            return tenode;
+        }
+    }
+    Nullstone.RegisterType(Paragraph, "Paragraph");
+}
+
+module Fayde.Documents {
+    export class Section extends TextElement {
+        static BlocksProperty;
+        CreateNode(): XamlNode {
+            var tenode = new TextElementNode(this);
+            tenode.InheritedWalkProperty = Section.BlocksProperty;
+            return tenode;
+        }
+    }
+    Nullstone.RegisterType(Section, "Section");
+}
+
+module Fayde.Documents {
+    export class Span extends Inline {
+        static InlinesProperty;
+        CreateNode(): XamlNode {
+            var tenode = new TextElementNode(this);
+            tenode.InheritedWalkProperty = Span.InlinesProperty;
+            return tenode;
+        }
+    }
+    Nullstone.RegisterType(Span, "Span");
+}
+
+module Fayde.Media {
+    export interface IBrushChangedListener {
+        BrushChanged(newBrush: Brush);
+    }
+    export class Brush extends DependencyObject implements ITransformChangedListener {
+        static TransformProperty: DependencyProperty = DependencyProperty.RegisterCore("Transform", () => Fayde.Media.Transform, Brush, undefined, (d, args) => (<Brush>d)._TransformChanged(args));
+        Transform: Fayde.Media.Transform;
+        private _CachedBounds: rect = null;
+        private _CachedBrush: any = null;
+        private _Listener: IBrushChangedListener = null;
+        SetupBrush(ctx: CanvasRenderingContext2D, bounds: rect) {
+            if (this._CachedBrush && this._CachedBounds && rect.isEqual(this._CachedBounds, bounds))
+                return;
+            this._CachedBounds = bounds;
+            var transform = this.Transform;
+            if (transform) {
+                var transformedBounds = transform.TransformBounds(bounds);
+                var raw = transform.Value._Raw;
+                var tmpBrush = this.CreateBrush(ctx, bounds);
+                var fillExtents = rect.clone(bounds);
+                rect.growBy(fillExtents, raw[2], raw[5], 0, 0);
+                var tmpCanvas = <HTMLCanvasElement>document.createElement("canvas");
+                tmpCanvas.width = Math.max(transformedBounds.Width, bounds.Width);
+                tmpCanvas.height = Math.max(transformedBounds.Height, bounds.Height);
+                var tmpCtx = tmpCanvas.getContext("2d");
+                tmpCtx.setTransform(raw[0], raw[1], raw[3], raw[4], raw[2], raw[5]);
+                tmpCtx.fillStyle = tmpBrush;
+                tmpCtx.fillRect(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height);
+                this._CachedBrush = ctx.createPattern(tmpCanvas, "no-repeat");
+            } else {
+                this._CachedBrush = this.CreateBrush(ctx, bounds);
+            }
+        }
+        CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any { return undefined; }
+        ToHtml5Object(): any { return this._CachedBrush; }
+        Listen(listener: IBrushChangedListener) { this._Listener = listener; }
+        Unlisten(listener: IBrushChangedListener) { if (this._Listener === listener) this._Listener = null; }
+        InvalidateBrush() {
+            this._CachedBrush = null;
+            this._CachedBounds = null;
+            var listener = this._Listener;
+            if (listener) listener.BrushChanged(this);
+        }
+        private TransformChanged(source: Transform) {
+            this.InvalidateBrush();
+        }
+        private _TransformChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldt = <Transform>args.OldValue;
+            var newt = <Transform>args.NewValue;
+            if (oldt)
+                oldt.Unlisten(this);
+            if (newt)
+                newt.Listen(this);
+            this.InvalidateBrush();
+        }
+    }
+    Nullstone.RegisterType(Brush, "Brush");
+}
+
+module Fayde.Media {
+    export class SolidColorBrush extends Brush {
+        Color: Color;
+    }
+    Nullstone.RegisterType(SolidColorBrush, "SolidColorBrush");
 }
 
 module Fayde {
@@ -6165,97 +6590,6 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(FrameworkElement, "FrameworkElement");
-}
-
-module Fayde.Providers {
-    export interface IInheritedIsEnabledProvider extends IPropertyProvider {
-        LocalValueChanged(propd?: DependencyProperty): bool;
-        SetDataSource(source: DependencyObject);
-    }
-    export class ControlProviderStore extends FrameworkProviderStore {
-        constructor(dobj: DependencyObject) {
-            super(dobj);
-        }
-        SetProviders(providerArr: IPropertyProvider[]) {
-            this._InheritedIsEnabledProvider = this._Providers[0] = <IInheritedIsEnabledProvider>providerArr[0];
-            this._LocalValueProvider = this._Providers[1] = <LocalValueProvider>providerArr[1];
-            this._DynamicValueProvider = this._Providers[2] = providerArr[2];
-            this._LocalStyleProvider = this._Providers[3] = providerArr[3];
-            this._ImplicitStyleProvider = this._Providers[4] = providerArr[4];
-            this._InheritedProvider = this._Providers[5] = <IInheritedProvider>providerArr[5];
-            this._InheritedDataContextProvider = this._Providers[6] = providerArr[6];
-            this._DefaultValueProvider = this._Providers[7] = <DefaultValueProvider>providerArr[7];
-            this._AutoCreateProvider = this._Providers[8] = <AutoCreateProvider>providerArr[8];
-        }
-        private _Providers: IPropertyProvider[];
-        private _InheritedIsEnabledProvider: IInheritedIsEnabledProvider;
-        private _LocalValueProvider: LocalValueProvider;
-        private _DynamicValueProvider: IPropertyProvider;
-        private _LocalStyleProvider: IPropertyProvider;
-        private _ImplicitStyleProvider: IPropertyProvider;
-        private _InheritedProvider: IInheritedProvider;
-        private _InheritedDataContextProvider: IPropertyProvider;
-        private _DefaultValueProvider: DefaultValueProvider;
-        private _AutoCreateProvider: AutoCreateProvider;
-        _PostProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldValue: any, newValue: any, notifyListeners: bool, error: BError) {
-            var iiep: IInheritedIsEnabledProvider;
-            if (providerPrecedence !== _PropertyPrecedence.IsEnabled && (iiep = this._InheritedIsEnabledProvider) && iiep.LocalValueChanged(propd))
-                return;
-            super._PostProviderValueChanged(providerPrecedence, propd, oldValue, newValue, notifyListeners, error);
-        }
-        SetIsEnabledSource(source: DependencyObject) {
-            this._InheritedIsEnabledProvider.SetDataSource(source);
-        }
-    }
-    Nullstone.RegisterType(ControlProviderStore, "ControlProviderStore");
-}
-
-module Fayde.Documents {
-    export class Block extends TextElement {
-    }
-    Nullstone.RegisterType(Block, "Block");
-}
-
-module Fayde.Documents {
-    export class Inline extends TextElement {
-    }
-    Nullstone.RegisterType(Inline, "Inline");
-}
-
-module Fayde.Documents {
-    export class Paragraph extends Block {
-        static InlinesProperty;
-        CreateNode(): XamlNode {
-            var tenode = new TextElementNode(this)
-            tenode.InheritedWalkProperty = Paragraph.InlinesProperty;
-            return tenode;
-        }
-    }
-    Nullstone.RegisterType(Paragraph, "Paragraph");
-}
-
-module Fayde.Documents {
-    export class Section extends TextElement {
-        static BlocksProperty;
-        CreateNode(): XamlNode {
-            var tenode = new TextElementNode(this);
-            tenode.InheritedWalkProperty = Section.BlocksProperty;
-            return tenode;
-        }
-    }
-    Nullstone.RegisterType(Section, "Section");
-}
-
-module Fayde.Documents {
-    export class Span extends Inline {
-        static InlinesProperty;
-        CreateNode(): XamlNode {
-            var tenode = new TextElementNode(this);
-            tenode.InheritedWalkProperty = Span.InlinesProperty;
-            return tenode;
-        }
-    }
-    Nullstone.RegisterType(Span, "Span");
 }
 
 module Fayde.Controls {

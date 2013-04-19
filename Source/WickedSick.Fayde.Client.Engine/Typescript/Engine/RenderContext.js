@@ -130,7 +130,11 @@ var Fayde;
             //TransformDebug("PreTransform", ct);
                     };
         RenderContext.prototype.PreTransform = function (transform) {
-            var mat = transform.Value.raw;
+            var v = transform.Value;
+            var mat;
+            if(!v || !(mat = v._Raw)) {
+                return;
+            }
             var ct = this.CurrentTransform;
             mat3.multiply(mat, ct, ct)//ct = ct * matrix
             ;
@@ -148,7 +152,11 @@ var Fayde;
             //TransformDebug("Transform", ct);
                     };
         RenderContext.prototype.Transform = function (transform) {
-            var mat = transform.Value.raw;
+            var v = transform.Value;
+            var mat;
+            if(!v || !(mat = v._Raw)) {
+                return;
+            }
             var ct = this.CurrentTransform;
             mat3.multiply(ct, mat, ct)//ct = matrix * ct
             ;

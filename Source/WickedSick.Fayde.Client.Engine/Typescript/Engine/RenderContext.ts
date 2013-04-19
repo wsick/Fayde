@@ -134,7 +134,10 @@ module Fayde {
             //TransformDebug("PreTransform", ct);
         }
         PreTransform(transform: Fayde.Media.Transform) {
-            var mat: number[] = transform.Value.raw;
+            var v = transform.Value;
+            var mat: number[];
+            if (!v || !(mat = v._Raw))
+                return;
 
             var ct = this.CurrentTransform;
             mat3.multiply(mat, ct, ct); //ct = ct * matrix
@@ -153,7 +156,10 @@ module Fayde {
             //TransformDebug("Transform", ct);
         }
         Transform(transform: Fayde.Media.Transform) {
-            var mat: number[] = transform.Value.raw;
+            var v = transform.Value;
+            var mat: number[];
+            if (!v || !(mat = v._Raw))
+                return;
 
             var ct = this.CurrentTransform;
             mat3.multiply(ct, mat, ct); //ct = matrix * ct
