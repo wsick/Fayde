@@ -17,16 +17,24 @@ var Fayde;
             }
             RadialGradientBrush.CenterProperty = DependencyProperty.RegisterCore("Center", function () {
                 return Point;
-            }, RadialGradientBrush, new Point(0.5, 0.5));
+            }, RadialGradientBrush, new Point(0.5, 0.5), function (d, args) {
+                return (d).InvalidateBrush();
+            });
             RadialGradientBrush.GradientOriginProperty = DependencyProperty.RegisterCore("GradientOrigin", function () {
                 return Point;
-            }, RadialGradientBrush, new Point(0.5, 0.5));
+            }, RadialGradientBrush, new Point(0.5, 0.5), function (d, args) {
+                return (d).InvalidateBrush();
+            });
             RadialGradientBrush.RadiusXProperty = DependencyProperty.RegisterCore("RadiusX", function () {
                 return Number;
-            }, RadialGradientBrush, 0.5);
+            }, RadialGradientBrush, 0.5, function (d, args) {
+                return (d).InvalidateBrush();
+            });
             RadialGradientBrush.RadiusYProperty = DependencyProperty.RegisterCore("RadiusY", function () {
                 return Number;
-            }, RadialGradientBrush, 0.5);
+            }, RadialGradientBrush, 0.5, function (d, args) {
+                return (d).InvalidateBrush();
+            });
             RadialGradientBrush.prototype.CreateBrush = function (ctx, bounds) {
                 //TODO: Implement
                 return undefined;

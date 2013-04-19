@@ -19,10 +19,14 @@ var Fayde;
             }
             LinearGradientBrush.StartPointProperty = DependencyProperty.RegisterCore("StartPoint", function () {
                 return Point;
-            }, LinearGradientBrush);
+            }, LinearGradientBrush, undefined, function (d, args) {
+                return (d).InvalidateBrush();
+            });
             LinearGradientBrush.EndPointProperty = DependencyProperty.RegisterCore("EndPoint", function () {
                 return Point;
-            }, LinearGradientBrush);
+            }, LinearGradientBrush, undefined, function (d, args) {
+                return (d).InvalidateBrush();
+            });
             LinearGradientBrush.prototype._CreatePad = function (ctx, bounds) {
                 var data = this._GetPointData(bounds);
                 var start = data.start;
