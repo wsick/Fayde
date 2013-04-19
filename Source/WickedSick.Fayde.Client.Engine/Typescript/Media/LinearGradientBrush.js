@@ -96,6 +96,7 @@ var Fayde;
             return LinearGradientBrush;
         })(Media.GradientBrush);
         Media.LinearGradientBrush = LinearGradientBrush;        
+        Nullstone.RegisterType(LinearGradientBrush, "LinearGradientBrush");
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));

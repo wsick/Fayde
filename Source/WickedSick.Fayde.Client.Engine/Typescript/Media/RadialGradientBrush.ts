@@ -18,4 +18,5 @@ module Fayde.Media {
             return undefined;
         }
     }
+    Nullstone.RegisterType(RadialGradientBrush, "RadialGradientBrush");
 }

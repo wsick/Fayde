@@ -7,22 +7,10 @@ var Fayde;
 (function (Fayde) {
     /// <reference path="Brush.ts" />
     /// <reference path="../Runtime/Enum.ts" />
+    /// <reference path="Enums.ts" />
     /// CODE
     /// <reference path="GradientStop.ts" />
     (function (Media) {
-        (function (BrushMappingMode) {
-            BrushMappingMode._map = [];
-            BrushMappingMode.Absolute = 0;
-            BrushMappingMode.RelativeToBoundingBox = 1;
-        })(Media.BrushMappingMode || (Media.BrushMappingMode = {}));
-        var BrushMappingMode = Media.BrushMappingMode;
-        (function (GradientSpreadMethod) {
-            GradientSpreadMethod._map = [];
-            GradientSpreadMethod.Pad = 0;
-            GradientSpreadMethod.Reflect = 1;
-            GradientSpreadMethod.Repeat = 2;
-        })(Media.GradientSpreadMethod || (Media.GradientSpreadMethod = {}));
-        var GradientSpreadMethod = Media.GradientSpreadMethod;
         var GradientBrush = (function (_super) {
             __extends(GradientBrush, _super);
             function GradientBrush() {
@@ -35,13 +23,13 @@ var Fayde;
                 });
             }
             GradientBrush.MappingModeProperty = DependencyProperty.Register("MappingMode", function () {
-                return new Enum(BrushMappingMode);
-            }, GradientBrush, BrushMappingMode.RelativeToBoundingBox, function (d, args) {
+                return new Enum(Media.BrushMappingMode);
+            }, GradientBrush, Media.BrushMappingMode.RelativeToBoundingBox, function (d, args) {
                 return (d).InvalidateBrush();
             });
             GradientBrush.SpreadMethodProperty = DependencyProperty.Register("SpreadMethod", function () {
-                return new Enum(GradientSpreadMethod);
-            }, GradientBrush, GradientSpreadMethod.Pad, function (d, args) {
+                return new Enum(Media.GradientSpreadMethod);
+            }, GradientBrush, Media.GradientSpreadMethod.Pad, function (d, args) {
                 return (d).InvalidateBrush();
             });
             GradientBrush.Annotations = {
@@ -50,12 +38,12 @@ var Fayde;
             GradientBrush.prototype.CreateBrush = function (ctx, bounds) {
                 var spread = this.SpreadMethod;
                 switch(spread) {
-                    case GradientSpreadMethod.Pad:
+                    case Media.GradientSpreadMethod.Pad:
                     default:
                         return this._CreatePad(ctx, bounds);
-                    case GradientSpreadMethod.Repeat:
+                    case Media.GradientSpreadMethod.Repeat:
                         return this._CreateRepeat(ctx, bounds);
-                    case GradientSpreadMethod.Reflect:
+                    case Media.GradientSpreadMethod.Reflect:
                         return this._CreateReflect(ctx, bounds);
                 }
             };
@@ -69,7 +57,7 @@ var Fayde;
                 if(!bounds) {
                     return mat3.identity();
                 }
-                if(this.MappingMode === BrushMappingMode.Absolute) {
+                if(this.MappingMode === Media.BrushMappingMode.Absolute) {
                     return mat3.identity();
                 }
                 return mat3.createScale(bounds.Width, bounds.Height);

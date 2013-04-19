@@ -42,6 +42,7 @@ var Fayde;
             return RadialGradientBrush;
         })(Media.GradientBrush);
         Media.RadialGradientBrush = RadialGradientBrush;        
+        Nullstone.RegisterType(RadialGradientBrush, "RadialGradientBrush");
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));

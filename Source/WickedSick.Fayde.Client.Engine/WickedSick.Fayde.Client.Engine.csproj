@@ -702,6 +702,10 @@
       <DependentUpon>Effect.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Media\GeneralTransform.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Enums.ts" />
+    <Content Include="Typescript\Media\Enums.js">
+      <DependentUpon>Enums.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\GeneralTransform.js">
       <DependentUpon>GeneralTransform.ts</DependentUpon>
     </Content>
@@ -745,6 +749,10 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Primitives\Clip.ts" />
     <TypeScriptCompile Include="Typescript\Media\Transform.ts" />
+    <TypeScriptCompile Include="Typescript\Media\TileBrush.ts" />
+    <Content Include="Typescript\Media\TileBrush.js">
+      <DependentUpon>TileBrush.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\Transform.js">
       <DependentUpon>Transform.ts</DependentUpon>
     </Content>

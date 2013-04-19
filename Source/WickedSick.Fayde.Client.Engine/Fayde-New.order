@@ -7,6 +7,7 @@ Core/Providers/IProviderStore.js
 Data/Enums.js
 Engine/Dirty.js
 Engine/Interfaces.js
+Media/Enums.js
 Media/GradientMetrics.js
 Media/MediaParser.js
 Runtime/Enumerable.js
@@ -98,6 +99,7 @@ Media/GradientBrush.js
 Media/LinearGradientBrush.js
 Media/RadialGradientBrush.js
 Media/SolidColorBrush.js
+Media/TileBrush.js
 Core/FrameworkElement.js
 Controls/Control.js
 Controls/Image.js

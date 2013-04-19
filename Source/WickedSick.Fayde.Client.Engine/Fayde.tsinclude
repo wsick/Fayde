@@ -7,6 +7,7 @@ Typescript\Core\Providers\IProviderStore.ts
 Typescript\Data\Enums.ts
 Typescript\Engine\Dirty.ts
 Typescript\Engine\Interfaces.ts
+Typescript\Media\Enums.ts
 Typescript\Media\GradientMetrics.ts
 Typescript\Media\MediaParser.ts
 Typescript\Runtime\Enumerable.ts
@@ -98,6 +99,7 @@ Typescript\Media\GradientBrush.ts
 Typescript\Media\LinearGradientBrush.ts
 Typescript\Media\RadialGradientBrush.ts
 Typescript\Media\SolidColorBrush.ts
+Typescript\Media\TileBrush.ts
 Typescript\Core\FrameworkElement.ts
 Typescript\Controls\Control.ts
 Typescript\Controls\Image.ts

@@ -1,19 +1,10 @@
 /// <reference path="Brush.ts" />
 /// <reference path="../Runtime/Enum.ts" />
+/// <reference path="Enums.ts" />
 /// CODE
 /// <reference path="GradientStop.ts" />
 
 module Fayde.Media {
-    export enum BrushMappingMode {
-        Absolute = 0,
-        RelativeToBoundingBox = 1,
-    }
-    export enum GradientSpreadMethod {
-        Pad = 0,
-        Reflect = 1,
-        Repeat = 2,
-    }
-
     export class GradientBrush extends Brush implements IGradientStopsListener {
         static MappingModeProperty = DependencyProperty.Register("MappingMode", () => new Enum(BrushMappingMode), GradientBrush, BrushMappingMode.RelativeToBoundingBox, (d, args) => (<Brush>d).InvalidateBrush());
         static SpreadMethodProperty = DependencyProperty.Register("SpreadMethod", () => new Enum(GradientSpreadMethod), GradientBrush, GradientSpreadMethod.Pad, (d, args) => (<Brush>d).InvalidateBrush());
