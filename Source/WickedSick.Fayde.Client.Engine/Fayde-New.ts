@@ -6305,6 +6305,17 @@ module Fayde.Media {
     Nullstone.RegisterType(TransformGroup, "TransformGroup");
 }
 
+module Fayde.Media.Imaging {
+    export class ImageSource extends DependencyObject {
+        PixelWidth: number = 0;
+        PixelHeight: number = 0;
+        Lock() { }
+        Unlock() { }
+        get Image(): HTMLImageElement { return undefined; }
+    }
+    Nullstone.RegisterType(ImageSource, "ImageSource");
+}
+
 module Fayde.Controls {
     export class ControlTemplate extends FrameworkTemplate {
         private _TempJson: any;
@@ -6893,6 +6904,90 @@ module Fayde.Media {
     Nullstone.RegisterType(TileBrush, "TileBrush");
 }
 
+module Fayde.Media.Imaging {
+    declare var Info;
+    export interface IImageLoadListener {
+        OnImageErrored(source: BitmapSource, e: Event);
+        OnImageLoaded(source: BitmapSource, e: Event);
+    }
+    function intGreaterThanZeroValidator(instance: DependencyObject, propd: DependencyProperty, value: any) {
+        if (typeof value !== "number")
+            return false;
+        return value > 0;
+    }
+    export class BitmapSource extends ImageSource {
+        static PixelWidthProperty: DependencyProperty = DependencyProperty.RegisterFull("PixelWidth", () => Number, BitmapSource, 0, undefined, undefined, undefined, undefined, intGreaterThanZeroValidator);
+        static PixelHeightProperty: DependencyProperty = DependencyProperty.RegisterFull("PixelHeight", () => Number, BitmapSource, 0, undefined, undefined, undefined, undefined, intGreaterThanZeroValidator);
+        private _Listener: IImageLoadListener = null;
+        private _Image: HTMLImageElement;
+        ResetImage() {
+            this._Image = new Image();
+            this._Image.onerror = (e) => this._OnErrored(e);
+            this._Image.onload = (e) => this._OnLoad(e);
+            this.PixelWidth = 0;
+            this.PixelHeight = 0;
+        }
+        UriSourceChanged(oldValue: Uri, newValue: Uri) {
+            this._Image.src = newValue.toString();
+        }
+        Listen(listener: IImageLoadListener) { this._Listener = listener; }
+        Unlisten(listener: IImageLoadListener) { if (this._Listener === listener) this._Listener = null; }
+        _OnErrored(e: Event) {
+            Info("Failed to load: " + this._Image.src.toString());
+            var listener = this._Listener;
+            if (listener)
+                listener.OnImageErrored(this, e);
+        }
+        _OnLoad(e: Event) {
+            this.PixelWidth = this._Image.naturalWidth;
+            this.PixelHeight = this._Image.naturalHeight;
+            var listener = this._Listener;
+            if (listener)
+                listener.OnImageLoaded(this, e);
+        }
+    }
+    Nullstone.RegisterType(BitmapSource, "BitmapSource");
+}
+
+module Fayde.Media.Imaging {
+    export class ImageBrush extends TileBrush implements IImageLoadListener {
+        static ImageSourceProperty: DependencyProperty = DependencyProperty.RegisterFull("ImageSource", () => ImageSource, ImageBrush, undefined, (d, args) => (<ImageBrush>d)._ImageSourceChanged(args)/*, ... */);
+        ImageSource: ImageSource;
+        ImageFailed: MulticastEvent = new MulticastEvent();
+        ImageOpened: MulticastEvent = new MulticastEvent();
+        SetupBrush(ctx: CanvasRenderingContext2D, bounds: rect) {
+            var source = this.ImageSource;
+            if (source && source.Image)
+                super.SetupBrush(ctx, bounds);
+        }
+        private GetTileExtents(): rect {
+            var source = this.ImageSource;
+            var r = new rect();
+            r.Width = source.PixelWidth;
+            r.Height = source.PixelHeight;
+            return r;
+        }
+        private DrawTile(canvasCtx: CanvasRenderingContext2D, bounds: rect) {
+            var source = this.ImageSource;
+            canvasCtx.rect(0, 0, bounds.Width, bounds.Height);
+            canvasCtx.fillStyle = canvasCtx.createPattern(source.Image, "no-repeat");
+            canvasCtx.fill();
+        }
+        private _ImageSourceChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldSrc: BitmapSource;
+            if ((oldSrc = args.OldValue) && (oldSrc instanceof BitmapSource))
+                oldSrc.Unlisten(this);
+            var newSrc: BitmapSource;
+            if ((newSrc = args.NewValue) && (newSrc instanceof BitmapSource))
+                newSrc.Listen(this);
+            this.InvalidateBrush();
+        }
+        private OnImageErrored(source: BitmapSource, e: Event) { this.ImageFailed.Raise(this, EventArgs.Empty); }
+        private OnImageLoaded(source: BitmapSource, e: Event) { this.ImageOpened.Raise(this, EventArgs.Empty); }
+    }
+    Nullstone.RegisterType(ImageBrush, "ImageBrush");
+}
+
 module Fayde {
     export class FENode extends UINode {
         XObject: FrameworkElement;
@@ -6990,6 +7085,36 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(FrameworkElement, "FrameworkElement");
+}
+
+module Fayde.Media.Imaging {
+    export class BitmapImage extends BitmapSource {
+        static UriSourceProperty: DependencyProperty = DependencyProperty.RegisterFull("UriSource", () => Uri, BitmapImage, undefined, undefined, undefined, undefined, true);
+        UriSource: Uri;
+        ImageFailed: MulticastEvent = new MulticastEvent();
+        ImageOpened: MulticastEvent = new MulticastEvent();
+        constructor(uri?: Uri) {
+            super();
+            if (uri)
+                this.UriSource = uri;
+        }
+        private _UriSourceChanged(args: IDependencyPropertyChangedEventArgs) {
+            var uri: Uri = args.NewValue;
+            if (Uri.IsNullOrEmpty(uri))
+                this.ResetImage();
+            else
+                this.UriSourceChanged(args.OldValue, uri);
+        }
+        private _OnErrored(e: Event) {
+            super._OnErrored(e);
+            this.ImageFailed.Raise(this, EventArgs.Empty);
+        }
+        private _OnLoad(e: Event) {
+            super._OnLoad(e);
+            this.ImageOpened.Raise(this, EventArgs.Empty);
+        }
+    }
+    Nullstone.RegisterType(BitmapImage, "BitmapImage");
 }
 
 module Fayde.Controls {

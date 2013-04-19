@@ -85,6 +85,7 @@ Typescript\Media\GeneralTransform.ts
 Typescript\Media\GradientStop.ts
 Typescript\Media\Transform.ts
 Typescript\Media\Transforms.ts
+Typescript\Media\Imaging\ImageSource.ts
 Typescript\Controls\ControlTemplate.ts
 Typescript\Core\DataTemplate.ts
 Typescript\Core\UIElement.ts
@@ -100,7 +101,10 @@ Typescript\Media\LinearGradientBrush.ts
 Typescript\Media\RadialGradientBrush.ts
 Typescript\Media\SolidColorBrush.ts
 Typescript\Media\TileBrush.ts
+Typescript\Media\Imaging\BitmapSource.ts
+Typescript\Media\Imaging\ImageBrush.ts
 Typescript\Core\FrameworkElement.ts
+Typescript\Media\Imaging\BitmapImage.ts
 Typescript\Controls\Control.ts
 Typescript\Controls\Image.ts
 Typescript\Controls\MediaElement.ts

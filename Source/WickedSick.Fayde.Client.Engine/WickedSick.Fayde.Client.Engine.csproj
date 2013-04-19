@@ -726,6 +726,22 @@
       <DependentUpon>GradientStop.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Media\LinearGradientBrush.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Imaging\BitmapImage.ts" />
+    <Content Include="Typescript\Media\Imaging\BitmapImage.js">
+      <DependentUpon>BitmapImage.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Imaging\BitmapSource.ts" />
+    <Content Include="Typescript\Media\Imaging\BitmapSource.js">
+      <DependentUpon>BitmapSource.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Imaging\ImageBrush.ts" />
+    <Content Include="Typescript\Media\Imaging\ImageBrush.js">
+      <DependentUpon>ImageBrush.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Imaging\ImageSource.ts" />
+    <Content Include="Typescript\Media\Imaging\ImageSource.js">
+      <DependentUpon>ImageSource.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\LinearGradientBrush.js">
       <DependentUpon>LinearGradientBrush.ts</DependentUpon>
     </Content>

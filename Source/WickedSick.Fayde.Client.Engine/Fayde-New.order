@@ -85,6 +85,7 @@ Media/GeneralTransform.js
 Media/GradientStop.js
 Media/Transform.js
 Media/Transforms.js
+Media/Imaging/ImageSource.js
 Controls/ControlTemplate.js
 Core/DataTemplate.js
 Core/UIElement.js
@@ -100,7 +101,10 @@ Media/LinearGradientBrush.js
 Media/RadialGradientBrush.js
 Media/SolidColorBrush.js
 Media/TileBrush.js
+Media/Imaging/BitmapSource.js
+Media/Imaging/ImageBrush.js
 Core/FrameworkElement.js
+Media/Imaging/BitmapImage.js
 Controls/Control.js
 Controls/Image.js
 Controls/MediaElement.js
