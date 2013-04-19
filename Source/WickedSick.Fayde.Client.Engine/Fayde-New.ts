@@ -1454,7 +1454,6 @@ module Fayde {
         }
         Clear(): bool {
             var old = this._ht;
-            this._RaiseClearing(old);
             this._ht = [];
             var len = old.length;
             for (var i = 0; i < len; i++) {
@@ -1485,7 +1484,6 @@ module Fayde {
         _RaiseItemAdded(value: XamlObject, index: number) { }
         _RaiseItemRemoved(value: XamlObject, index: number) { }
         _RaiseItemReplaced(removed: XamlObject, added: XamlObject, index: number) { }
-        _RaiseClearing(arr: XamlObject[]) { }
         _RaiseCleared() { }
     }
     Nullstone.RegisterType(XamlObjectCollection, "XamlObjectCollection");
@@ -5923,6 +5921,54 @@ module Fayde.Media {
 }
 
 module Fayde.Media {
+    export interface IGradientStopListener {
+        GradientStopChanged(newGradientStop: GradientStop);
+    }
+    export class GradientStop extends DependencyObject {
+        private _Listener: IGradientStopListener;
+        static ColorProperty: DependencyProperty = DependencyProperty.Register("Color", () => Color, GradientStop, undefined, (d, args) => (<GradientStop>d)._GradientStopChanged());
+        static OffsetProperty: DependencyProperty = DependencyProperty.Register("Offset", () => Number, GradientStop, 0.0, (d, args) => (<GradientStop>d)._GradientStopChanged());
+        Color: Color;
+        Offset: number;
+        Listen(listener: IGradientStopListener) { this._Listener = listener; }
+        Unlisten(listener: IGradientStopListener) { if (this._Listener === listener) this._Listener = null; }
+        private _GradientStopChanged() {
+            var listener = this._Listener;
+            if (listener) listener.GradientStopChanged(this);
+        }
+        toString(): string { return this.Color.toString() + " @ " + this.Offset.toString(); }
+    }
+    Nullstone.RegisterType(GradientStop, "GradientStop");
+    export interface IGradientStopsListener {
+        GradientStopsChanged(newGradientStops: GradientStopCollection);
+    }
+    export class GradientStopCollection extends XamlObjectCollection implements IGradientStopListener {
+        private _Listener: IGradientStopsListener;
+        Listen(listener: IGradientStopsListener) { this._Listener = listener; }
+        Unlisten(listener: IGradientStopsListener) { if (this._Listener === listener) this._Listener = null; }
+        private AddedToCollection(value: GradientStop, error: BError): bool {
+            if (!super.AddedToCollection(value, error))
+                return false;
+            value.Listen(this);
+            var listener = this._Listener;
+            if (listener) listener.GradientStopsChanged(this);
+        }
+        private RemovedFromCollection(value: GradientStop, isValueSafe: bool) {
+            if (!super.RemovedFromCollection(value, isValueSafe))
+                return false;
+            value.Unlisten(this);
+            var listener = this._Listener;
+            if (listener) listener.GradientStopsChanged(this);
+        }
+        private GradientStopChanged(newGradientStop: GradientStop) {
+            var listener = this._Listener;
+            if (listener) listener.GradientStopsChanged(this);
+        }
+    }
+    Nullstone.RegisterType(GradientStopCollection, "GradientStopCollection");
+}
+
+module Fayde.Media {
     export interface ITransformChangedListener {
         TransformChanged(source: Transform);
     }
@@ -6083,18 +6129,21 @@ module Fayde.Media {
         private _Listener: ITransformChangedListener;
         Listen(listener: ITransformChangedListener) { this._Listener = listener; }
         Unlisten(listener: ITransformChangedListener) { if (this._Listener === listener) this._Listener = null; }
-        private _RaiseItemAdded(value: Transform, index: number) { value.Listen(this); }
-        private _RaiseItemRemoved(value: Transform, index: number) { value.Unlisten(this); }
-        private _RaiseItemReplaced(removed: Transform, added: Transform, index: number) { removed.Unlisten(this); added.Listen(this); }
-        private _RaiseClearing(arr: Transform[]) {
-            var len = arr.length;
-            for (var i = 0; i < len; i++) {
-                arr[i].Unlisten(this);
-            }
+        AddedToCollection(value: Transform, error: BError): bool {
+            if (!super.AddedToCollection(value, error))
+                return false;
+            value.Listen(this);
+            this.TransformChanged();
         }
-        private TransformChanged(transform: Transform) {
+        RemovedFromCollection(value: Transform, isValueSafe: bool) {
+            if (!super.RemovedFromCollection(value, isValueSafe))
+                return false;
+            value.Unlisten(this);
+            this.TransformChanged();
+        }
+        private TransformChanged(transform?: Transform) {
             var listener = this._Listener;
-            if (listener) listener.TransformChanged(undefined);
+            if (listener) listener.TransformChanged(transform);
         }
     }
     Nullstone.RegisterType(TransformCollection, "TransformCollection");
@@ -6487,8 +6536,73 @@ module Fayde.Media {
 }
 
 module Fayde.Media {
+    export enum BrushMappingMode {
+        Absolute = 0,
+        RelativeToBoundingBox = 1,
+    }
+    export enum GradientSpreadMethod {
+        Pad = 0,
+        Reflect = 1,
+        Repeat = 2,
+    }
+    export class GradientBrush extends Brush implements IGradientStopsListener {
+        static MappingModeProperty = DependencyProperty.Register("MappingMode", () => new Enum(BrushMappingMode), GradientBrush, BrushMappingMode.RelativeToBoundingBox, (d, args) => (<Brush>d).InvalidateBrush());
+        static SpreadMethodProperty = DependencyProperty.Register("SpreadMethod", () => new Enum(GradientSpreadMethod), GradientBrush, GradientSpreadMethod.Pad, (d, args) => (<Brush>d).InvalidateBrush());
+        GradientStops: GradientStopCollection;
+        MappingMode: BrushMappingMode;
+        SpreadMethod: GradientSpreadMethod;
+        static Annotations = { ContentProperty: "GradientStops" }
+        constructor() {
+            super();
+            var coll = new GradientStopCollection();
+            coll.Listen(this);
+            Object.defineProperty(this, "GradientStops", {
+                value: coll,
+                writable: false
+            });
+        }
+        private CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any {
+            var spread = this.SpreadMethod;
+            switch (spread) {
+                case GradientSpreadMethod.Pad:
+                default:
+                    return this._CreatePad(ctx, bounds);
+                case GradientSpreadMethod.Repeat:
+                    return this._CreateRepeat(ctx, bounds);
+                case GradientSpreadMethod.Reflect:
+                    return this._CreateReflect(ctx, bounds);
+            }
+        }
+        _CreatePad(ctx: CanvasRenderingContext2D, bounds: rect) { }
+        _CreateRepeat(ctx: CanvasRenderingContext2D, bounds: rect) { }
+        _CreateReflect(ctx: CanvasRenderingContext2D, bounds: rect) { }
+        _GetMappingModeTransform(bounds: rect): number[] {
+            if (!bounds)
+                return mat3.identity();
+            if (this.MappingMode === BrushMappingMode.Absolute)
+                return mat3.identity();
+            return mat3.createScale(bounds.Width, bounds.Height);
+        }
+        private GradientStopsChanged(newGradientStops: GradientStopCollection) { this.InvalidateBrush(); }
+    }
+    Nullstone.RegisterType(GradientBrush, "GradientBrush");
+}
+
+module Fayde.Media {
     export class SolidColorBrush extends Brush {
+        static ColorProperty: DependencyProperty = DependencyProperty.Register("Color", () => Color, SolidColorBrush, undefined, (d, args) => (<Brush>d).InvalidateBrush());
         Color: Color;
+        constructor() {
+            super();
+            if (arguments.length === 1 && arguments[0] instanceof Color)
+                this.Color = arguments[0];
+        }
+        private CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any {
+            var color = this.Color;
+            if (color)
+                return "#000000";
+            return color.toString();
+        }
     }
     Nullstone.RegisterType(SolidColorBrush, "SolidColorBrush");
 }

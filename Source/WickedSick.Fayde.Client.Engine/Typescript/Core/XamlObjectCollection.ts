@@ -73,7 +73,7 @@ module Fayde {
         }
         Clear(): bool {
             var old = this._ht;
-            this._RaiseClearing(old);
+            //LOOKS USELESS: this._RaiseClearing(old);
             this._ht = [];
             var len = old.length;
             for (var i = 0; i < len; i++) {
@@ -106,7 +106,7 @@ module Fayde {
         _RaiseItemAdded(value: XamlObject, index: number) { }
         _RaiseItemRemoved(value: XamlObject, index: number) { }
         _RaiseItemReplaced(removed: XamlObject, added: XamlObject, index: number) { }
-        _RaiseClearing(arr: XamlObject[]) { }
+        //_RaiseClearing(arr: XamlObject[]) { }
         _RaiseCleared() { }
     }
     Nullstone.RegisterType(XamlObjectCollection, "XamlObjectCollection");

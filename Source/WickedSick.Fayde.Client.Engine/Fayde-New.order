@@ -80,6 +80,7 @@ Input/KeyEventArgs.js
 Input/KeyInterop.js
 Input/MouseEventArgs.js
 Media/GeneralTransform.js
+Media/GradientStop.js
 Media/Transform.js
 Media/Transforms.js
 Controls/ControlTemplate.js
@@ -92,6 +93,7 @@ Documents/Paragraph.js
 Documents/Section.js
 Documents/Span.js
 Media/Brush.js
+Media/GradientBrush.js
 Media/SolidColorBrush.js
 Core/FrameworkElement.js
 Controls/Control.js

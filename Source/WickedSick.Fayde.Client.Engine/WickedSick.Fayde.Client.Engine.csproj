@@ -709,6 +709,14 @@
       <DependentUpon>Geometry.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Media\Matrix.ts" />
+    <TypeScriptCompile Include="Typescript\Media\GradientBrush.ts" />
+    <Content Include="Typescript\Media\GradientBrush.js">
+      <DependentUpon>GradientBrush.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\GradientStop.ts" />
+    <Content Include="Typescript\Media\GradientStop.js">
+      <DependentUpon>GradientStop.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\Matrix.js">
       <DependentUpon>Matrix.ts</DependentUpon>
     </Content>

@@ -173,26 +173,24 @@ var Fayde;
                     this._Listener = null;
                 }
             };
-            TransformCollection.prototype._RaiseItemAdded = function (value, index) {
-                value.Listen(this);
-            };
-            TransformCollection.prototype._RaiseItemRemoved = function (value, index) {
-                value.Unlisten(this);
-            };
-            TransformCollection.prototype._RaiseItemReplaced = function (removed, added, index) {
-                removed.Unlisten(this);
-                added.Listen(this);
-            };
-            TransformCollection.prototype._RaiseClearing = function (arr) {
-                var len = arr.length;
-                for(var i = 0; i < len; i++) {
-                    arr[i].Unlisten(this);
+            TransformCollection.prototype.AddedToCollection = function (value, error) {
+                if(!_super.prototype.AddedToCollection.call(this, value, error)) {
+                    return false;
                 }
+                value.Listen(this);
+                this.TransformChanged();
+            };
+            TransformCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
+                if(!_super.prototype.RemovedFromCollection.call(this, value, isValueSafe)) {
+                    return false;
+                }
+                value.Unlisten(this);
+                this.TransformChanged();
             };
             TransformCollection.prototype.TransformChanged = function (transform) {
                 var listener = this._Listener;
                 if(listener) {
-                    listener.TransformChanged(undefined);
+                    listener.TransformChanged(transform);
                 }
             };
             return TransformCollection;

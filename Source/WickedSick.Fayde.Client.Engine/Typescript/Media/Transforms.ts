@@ -97,18 +97,21 @@ module Fayde.Media {
         Listen(listener: ITransformChangedListener) { this._Listener = listener; }
         Unlisten(listener: ITransformChangedListener) { if (this._Listener === listener) this._Listener = null; }
 
-        private _RaiseItemAdded(value: Transform, index: number) { value.Listen(this); }
-        private _RaiseItemRemoved(value: Transform, index: number) { value.Unlisten(this); }
-        private _RaiseItemReplaced(removed: Transform, added: Transform, index: number) { removed.Unlisten(this); added.Listen(this); }
-        private _RaiseClearing(arr: Transform[]) {
-            var len = arr.length;
-            for (var i = 0; i < len; i++) {
-                arr[i].Unlisten(this);
-            }
+        AddedToCollection(value: Transform, error: BError): bool {
+            if (!super.AddedToCollection(value, error))
+                return false;
+            value.Listen(this);
+            this.TransformChanged();
         }
-        private TransformChanged(transform: Transform) {
+        RemovedFromCollection(value: Transform, isValueSafe: bool) {
+            if (!super.RemovedFromCollection(value, isValueSafe))
+                return false;
+            value.Unlisten(this);
+            this.TransformChanged();
+        }
+        private TransformChanged(transform?: Transform) {
             var listener = this._Listener;
-            if (listener) listener.TransformChanged(undefined);
+            if (listener) listener.TransformChanged(transform);
         }
     }
     Nullstone.RegisterType(TransformCollection, "TransformCollection");
