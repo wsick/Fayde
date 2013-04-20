@@ -42,6 +42,9 @@ var Color = (function () {
     Color.prototype.ToHexStringNoAlpha = function () {
         return "#" + this.R.toString(16) + this.G.toString(16) + this.B.toString(16);
     };
+    Color.prototype.Clone = function () {
+        return Color.FromRgba(this.R, this.G, this.B, this.A);
+    };
     Color.LERP = function LERP(start, end, p) {
         var c = new Color();
         c.R = start.R + (end.R - start.R) * p;

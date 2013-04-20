@@ -142,6 +142,10 @@ var Fayde;
                 expr.OnDetached(this);
             }
         };
+        DependencyObject.prototype.Clone = function () {
+            //TODO: Implement
+            return this;
+        };
         return DependencyObject;
     })(Fayde.XamlObject);
     Fayde.DependencyObject = DependencyObject;    

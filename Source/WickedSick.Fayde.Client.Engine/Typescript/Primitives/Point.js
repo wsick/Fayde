@@ -11,6 +11,9 @@ var Point = (function () {
     Point.prototype.Equals = function (other) {
         return this.X === other.X && this.Y === other.Y;
     };
+    Point.prototype.Clone = function () {
+        return new Point(this.X, this.Y);
+    };
     Point.Equals = function Equals(p1, p2) {
         if(p1 == null) {
             return p2 == null;

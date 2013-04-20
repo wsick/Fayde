@@ -1,7 +1,7 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 
-class Thickness {
+class Thickness implements ICloneable {
     Left: number;
     Top: number;
     Right: number;
@@ -32,6 +32,10 @@ class Thickness {
 
     toString(): string {
         return "(" + this.Left + ", " + this.Top + ", " + this.Right + ", " + this.Bottom + ")";
+    }
+
+    Clone(): Thickness {
+        return new Thickness(this.Left, this.Top, this.Right, this.Bottom);
     }
 
     static Equals(thickness1: Thickness, thickness2: Thickness) {

@@ -1,3 +1,9 @@
+interface IOutValue {
+    Value: any;
+}
+interface ICloneable {
+    Clone(): any;
+}
 class Nullstone {
     static RegisterType(type: Function, name: string) {
         var t: any = type;

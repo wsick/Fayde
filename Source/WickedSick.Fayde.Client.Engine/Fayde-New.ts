@@ -1,3 +1,53 @@
+module Fayde.Controls {
+    export enum GridUnitType {
+        Auto = 0,
+        Pixel = 1,
+        Star = 2,
+    }
+    export class GridLength implements ICloneable {
+        Value: number;
+        Type: GridUnitType;
+        constructor(value?: number, unitType?: GridUnitType) {
+            this.Value = value == null ? 0 : value;
+            this.Type = unitType == null ? GridUnitType.Auto : unitType;
+        }
+        static Equals(gl1: GridLength, gl2: GridLength): bool {
+            return Math.abs(gl1.Value - gl2.Value) < 0.001 && gl1.Type == gl2.Type;
+        }
+        Clone(): GridLength {
+            return new Controls.GridLength(this.Value, this.Type);
+        }
+    }
+    Nullstone.RegisterType(GridLength, "GridLength");
+}
+
+module Fayde {
+    export function Clone(value: any): any {
+        if (value instanceof DependencyObject)
+            return (<DependencyObject>value).Clone();
+        if (typeof value === "number" || typeof value === "string")
+            return value;
+        var typeName = value.constructor._TypeName;
+        switch (typeName) {
+            case "Uri":
+            case "rect":
+            case "size":
+            case "FontFamily":
+            case "Point":
+            case "Color":
+            case "PropertyPath":
+            case "RepeatBehavior":
+            case "Duration":
+            case "KeyTime":
+            case "GridLength":
+            case "CornerRadius":
+            case "Thickness":
+                return (<ICloneable>value).Clone();
+        }
+        return new value.constructor();
+    }
+}
+
 module Fayde {
     export enum Visibility {
         Visible = 0,
@@ -604,6 +654,18 @@ module Fayde.Media {
     }
 }
 
+module Fayde.Media.Animation {
+    export enum EasingMode {
+        EaseOut = 0,
+        EaseIn = 1,
+        EaseInOut = 2,
+    }
+    export enum FillBehavior {
+        HoldEnd = 0,
+        Stop = 1,
+    }
+}
+
 module Fayde {
     export interface IEnumerable {
         GetEnumerator(reverse?: bool): IEnumerator;
@@ -645,6 +707,12 @@ module Fayde {
     }
 }
 
+interface IOutValue {
+    Value: any;
+}
+interface ICloneable {
+    Clone(): any;
+}
 class Nullstone {
     static RegisterType(type: Function, name: string) {
         var t: any = type;
@@ -1421,6 +1489,14 @@ module Fayde {
         constructor(xobj: XamlObject) {
             this.XObject = xobj;
         }
+        FindName(name: string) {
+            var scope = this.FindNameScope();
+            if (scope)
+                return scope.FindName(name);
+            if (this.ParentNode)
+                this.ParentNode.FindName(name);
+            return undefined;
+        }
         SetName(name: string) {
             this.Name = name;
             var ns = this.FindNameScope();
@@ -1673,7 +1749,7 @@ module Fayde.Providers {
         private _Providers: IPropertyProvider[] = [null, null, null, null, null, null, null, null, null];
         private _PropertyChangedListeners: IPropertyChangedListener[] = [];
         _ProviderBitmasks: number[] = [];
-        private _AnimStorage: any[][] = [];
+        private _AnimStorage: Media.Animation.AnimationStorage[][] = [];
         private _LocalValueProvider: LocalValueProvider;
         private _DefaultValueProvider: DefaultValueProvider;
         private _AutoCreateProvider: AutoCreateProvider;
@@ -1867,7 +1943,7 @@ module Fayde.Providers {
                 thisRepo[key] = srcRepo[0].slice(0);
             }
         }
-        private _AttachAnimationStorage(propd: DependencyProperty, storage) {
+        _AttachAnimationStorage(propd: DependencyProperty, storage): Media.Animation.AnimationStorage {
             var list = this._AnimStorage[propd._ID];
             if (!list) {
                 this._AnimStorage[propd._ID] = list = [storage];
@@ -1879,7 +1955,7 @@ module Fayde.Providers {
             list.push(storage);
             return attached;
         }
-        private _DetachAnimationStorage(propd: DependencyProperty, storage) {
+        _DetachAnimationStorage(propd: DependencyProperty, storage: Media.Animation.AnimationStorage) {
             var list = this._AnimStorage[propd._ID];
             if (!list)
                 return;
@@ -1887,7 +1963,7 @@ module Fayde.Providers {
             if (len < 1)
                 return;
             var i;
-            var cur;
+            var cur: Media.Animation.AnimationStorage;
             for (i = len - 1; i >= 0; i++) {
                 cur = list[i];
                 if (cur === storage)
@@ -3967,6 +4043,125 @@ module Fayde.Media {
     Nullstone.RegisterType(Projection, "Projection");
 }
 
+module Fayde.Media.Animation {
+    export class AnimationStorage {
+        private _Animation: Animation;
+        private _TargetObj: DependencyObject;
+        private _TargetProp: DependencyProperty;
+        private _Disabled: bool = false;
+        private _BaseValue: any;
+        private _CurrentValue: any = undefined;
+        StopValue: any;
+        constructor(animation: Animation, targetObj: DependencyObject, targetProp: DependencyProperty) {
+            this._Animation = animation;
+            this._TargetObj = targetObj;
+            this._TargetProp = targetProp;
+            var store = targetObj._Store;
+            var prevStorage = store._AttachAnimationStorage(targetProp, this);
+            this._BaseValue = store.GetValue(targetProp);
+            if (this._BaseValue === undefined) {
+                var targetType = targetProp.GetTargetType();
+                if (targetType === Number)
+                    this._BaseValue = 0;
+                else if (targetType === String)
+                    this._BaseValue = "";
+                else
+                    this._BaseValue = new (<any>targetType)();
+            }
+            if (prevStorage)
+                this.StopValue = prevStorage.StopValue;
+            else
+                this.StopValue = store.ReadLocalValue(targetProp);
+        }
+        SwitchTarget(target: DependencyObject) {
+            var wasDisabled = this._Disabled;
+            if (!this._Disabled)
+                this.Disable();
+            this._TargetObj = target;
+            this._Disabled = wasDisabled;
+        }
+        Enable() {
+            this._Disabled = false;
+            this.ApplyCurrentValue();
+        }
+        Disable() { this._Disabled = true; }
+        Stop() {
+            this.DetachFromObject();
+            this.ResetPropertyValue();
+        }
+        DetachFromObject() {
+            var to = this._TargetObj;
+            if (!to)
+                return;
+            var tp = this._TargetProp;
+            if (!tp)
+                return;
+            to._Store._DetachAnimationStorage(tp, this);
+        }
+        ResetPropertyValue() {
+            var to = this._TargetObj;
+            if (!to)
+                return;
+            var tp = this._TargetProp;
+            if (!tp)
+                return;
+            to._Store.SetValue(tp, this.StopValue);
+        }
+        UpdateCurrentValueAndApply(clockData: IClockData) {
+            if (this._Disabled)
+                return;
+            if (!this._TargetObj)
+                return;
+            var oldValue = this._CurrentValue;
+            this._CurrentValue = this._Animation.GetCurrentValue(this._BaseValue, this.StopValue !== undefined ? this.StopValue : this._BaseValue, clockData);
+            if (Nullstone.Equals(oldValue, this._CurrentValue))
+                return;
+            this.ApplyCurrentValue();
+        }
+        ApplyCurrentValue() {
+            if (this._CurrentValue == null)
+                return;
+            this._TargetObj._Store.SetValue(this._TargetProp, this._CurrentValue);
+        }
+    }
+    Nullstone.RegisterType(AnimationStorage, "AnimationStorage");
+}
+
+module Fayde.Media.Animation {
+    export class RepeatBehavior {
+        private _Duration: Duration = null;
+        private _Count: number = null;
+        IsForever: bool = false;
+        static FromRepeatDuration(duration: Duration): RepeatBehavior {
+            var rb = new RepeatBehavior();
+            rb._Duration = duration;
+            return rb;
+        }
+        static FromIterationCount(count: number): RepeatBehavior {
+            var rb = new RepeatBehavior();
+            rb._Count = count;
+            return rb;
+        }
+        static FromForever(): RepeatBehavior {
+            var rb = new RepeatBehavior();
+            rb.IsForever = true;
+            return rb;
+        }
+        get HasCount(): bool { return this._Count != null; }
+        get Count(): number { return this._Count; }
+        get HasDuration(): bool { return this._Duration != null; }
+        get Duration(): Duration { return this._Duration; }
+        Clone(): RepeatBehavior {
+            var rb = new RepeatBehavior();
+            rb._Duration = this._Duration;
+            rb._Count = this._Count;
+            rb.IsForever = this.IsForever;
+            return rb;
+        }
+    }
+    Nullstone.RegisterType(RepeatBehavior, "RepeatBehavior");
+}
+
 module Fayde.Navigation {
     export class NavService {
         App: App;
@@ -4010,7 +4205,7 @@ class Clip {
 }
 Nullstone.RegisterType(Clip, "Clip");
 
-class Color {
+class Color implements ICloneable {
     private static __NoAlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
     private static __AlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
     R: number = 0;
@@ -4052,6 +4247,9 @@ class Color {
     }
     ToHexStringNoAlpha(): string {
         return "#" + this.R.toString(16) + this.G.toString(16) + this.B.toString(16);
+    }
+    Clone(): Color {
+        return Color.FromRgba(this.R, this.G, this.B, this.A);
     }
     static LERP(start: Color, end: Color, p: number): Color {
         var c = new Color();
@@ -4231,7 +4429,7 @@ class Color {
 }
 Nullstone.RegisterType(Color, "Color");
 
-class CornerRadius {
+class CornerRadius implements ICloneable {
     TopLeft: number;
     TopRight: number;
     BottomRight: number;
@@ -4257,6 +4455,9 @@ class CornerRadius {
     toString(): string {
         return "(" + this.TopLeft + ", " + this.TopRight + ", " + this.BottomRight + ", " + this.BottomLeft + ")";
     }
+    Clone(): CornerRadius {
+        return new CornerRadius(this.TopLeft, this.TopRight, this.BottomRight, this.BottomLeft);
+    }
 }
 Nullstone.RegisterType(CornerRadius, "CornerRadius");
 
@@ -4265,7 +4466,7 @@ enum DurationType {
     Forever = 1,
     TimeSpan = 2,
 }
-class Duration {
+class Duration implements ICloneable {
     private _Type: DurationType;
     private _TimeSpan: TimeSpan;
     static CreateAutomatic(): Duration {
@@ -4283,6 +4484,12 @@ class Duration {
         d._Type = DurationType.TimeSpan;
         d._TimeSpan = ts;
         return d;
+    }
+    Clone(): Duration {
+        var dur = new Duration();
+        dur._Type = this._Type;
+        dur._TimeSpan = this._TimeSpan;
+        return dur;
     }
     get Type(): DurationType { return this._Type; }
     get TimeSpan(): TimeSpan {
@@ -4411,16 +4618,18 @@ class Font {
 }
 Nullstone.RegisterType(Font, "Font");
 
-class FontFamily {
-    constructor(public FamilyNames: string) {
-    }
+class FontFamily implements ICloneable {
+    constructor(public FamilyNames: string) { }
     toString(): string {
         return this.FamilyNames;
+    }
+    Clone(): FontFamily {
+        return new FontFamily(this.FamilyNames);
     }
 }
 Nullstone.RegisterType(FontFamily, "FontFamily");
 
-class KeyTime {
+class KeyTime implements ICloneable {
     private _IsPaced: bool = false;
     private _IsUniform: bool = false;
     private _TimeSpan: TimeSpan = null;
@@ -4435,6 +4644,14 @@ class KeyTime {
         kt._TimeSpan = ts;
         return kt;
     }
+    Clone(): KeyTime {
+        var kt = new KeyTime();
+        kt._TimeSpan = this._TimeSpan;
+        kt._IsPaced = this._IsPaced;
+        kt._IsUniform = this._IsUniform;
+        kt._Percent = this._Percent;
+        return kt;
+    }
     get IsPaced(): bool { return this._IsPaced; }
     get IsUniform(): bool { return this._IsUniform; }
     get HasTimeSpan(): bool { return this._TimeSpan != null; }
@@ -4444,7 +4661,7 @@ class KeyTime {
 }
 Nullstone.RegisterType(KeyTime, "KeyTime");
 
-class Point {
+class Point implements ICloneable {
     X: number;
     Y: number;
     constructor(x?: number, y?: number) {
@@ -4456,6 +4673,9 @@ class Point {
     };
     Equals(other: Point): bool {
         return this.X === other.X && this.Y === other.Y;
+    }
+    Clone(): Point {
+        return new Point(this.X, this.Y);
     }
     static Equals(p1: Point, p2: Point) {
         if (p1 == null)
@@ -4481,13 +4701,21 @@ var RectOverlap = {
     In: 1,
     Part: 2
 };
-class rect {
+class rect implements ICloneable {
     X: number = 0;
     Y: number = 0;
     Width: number = 0;
     Height: number = 0;
     toString(): string {
         return "{" + this.X + "," + this.Y + "," + this.Width + "," + this.Height + "}";
+    }
+    Clone(): rect {
+        var r = new rect();
+        r.X = this.X;
+        r.Y = this.Y;
+        r.Width = this.Width;
+        r.Height = this.Height;
+        return r;
     }
     static fromSize(size: size): rect {
         var r = new rect();
@@ -4780,11 +5008,17 @@ class rect {
 }
 Nullstone.RegisterType(rect, "rect");
 
-class size {
+class size implements ICloneable {
     Width: number = 0;
     Height: number = 0;
     toString(): string {
         return "{" + this.Width + "," + this.Height + "}";
+    }
+    Clone(): size {
+        var s = new size();
+        s.Width = this.Width;
+        s.Height = this.Height;
+        return s;
     }
     static fromRaw(width: number, height: number): size {
         var s = new size();
@@ -4885,7 +5119,7 @@ class size {
 }
 Nullstone.RegisterType(size, "size");
 
-class Thickness {
+class Thickness implements ICloneable {
     Left: number;
     Top: number;
     Right: number;
@@ -4914,6 +5148,9 @@ class Thickness {
     }
     toString(): string {
         return "(" + this.Left + ", " + this.Top + ", " + this.Right + ", " + this.Bottom + ")";
+    }
+    Clone(): Thickness {
+        return new Thickness(this.Left, this.Top, this.Right, this.Bottom);
     }
     static Equals(thickness1: Thickness, thickness2: Thickness) {
         if (thickness1 == null && thickness2 == null)
@@ -5019,7 +5256,7 @@ class TimeSpan {
 }
 Nullstone.RegisterType(TimeSpan, "TimeSpan");
 
-class Uri {
+class Uri implements ICloneable {
     private _OriginalString: string;
     constructor(originalString: string) {
         this._OriginalString = originalString;
@@ -5029,6 +5266,9 @@ class Uri {
     }
     toString(): string {
         return this._OriginalString;
+    }
+    Clone():Uri {
+        return new Uri(this._OriginalString);
     }
     static IsNullOrEmpty(uri: Uri): bool {
         if (uri == null)
@@ -5082,7 +5322,7 @@ module Fayde {
 
 module Fayde {
     export class UnsetValue { }
-    export class DependencyObject extends XamlObject {
+    export class DependencyObject extends XamlObject implements ICloneable {
         private _Expressions: Expression[] = [];
         _Store: Providers.BasicProviderStore;
         _CachedValues: any[] = [];
@@ -5191,6 +5431,9 @@ module Fayde {
                 this._Expressions[propd._ID] = undefined;
                 expr.OnDetached(this);
             }
+        }
+        Clone(): DependencyObject {
+            return this;
         }
     }
     Nullstone.RegisterType(DependencyObject, "DependencyObject");
@@ -6299,6 +6542,160 @@ module Fayde.Media {
     Nullstone.RegisterType(TransformGroup, "TransformGroup");
 }
 
+module Fayde.Media.Animation {
+    export interface IClockData {
+        CurrentTime: TimeSpan;
+        Progress: number;
+        Completed: bool;
+    }
+    export class Timeline extends DependencyObject {
+        static AutoReverseProperty: DependencyProperty = DependencyProperty.Register("AutoReverse", () => Boolean, Timeline, false);
+        static BeginTimeProperty: DependencyProperty = DependencyProperty.Register("BeginTime", () => TimeSpan, Timeline);
+        static DurationProperty: DependencyProperty = DependencyProperty.Register("Duration", () => Duration, Timeline);
+        static RepeatBehaviorProperty: DependencyProperty = DependencyProperty.Register("RepeatBehavior", () => RepeatBehavior, Timeline);
+        static SpeedRatioProperty: DependencyProperty = DependencyProperty.Register("SpeedRatio", () => Number, Timeline, 1.0);
+        static FillBehaviorProperty: DependencyProperty = DependencyProperty.Register("FillBehavior", () => new Enum(FillBehavior), Timeline, FillBehavior.HoldEnd);
+        AutoReverse: bool;
+        BeginTime: TimeSpan;
+        Duration: Duration;
+        RepeatBehavior: RepeatBehavior;
+        SpeedRatio: number;
+        FillBehavior: FillBehavior;
+        Completed: MulticastEvent = new MulticastEvent();
+        private _IsPaused: bool = false;
+        private _BeginPauseTime: number = 0;
+        private _TicksPaused: number = 0;
+        private _IsFirstUpdate: bool = true;
+        private _HasBegun: bool = false;
+        private _BeginTicks: number = undefined;
+        private _InitialStep: number = undefined;
+        private _ManualTarget: DependencyObject = undefined;
+        get HasManualTarget():bool { return this._ManualTarget != null; }
+        get ManualTarget(): DependencyObject { return this._ManualTarget; }
+        Reset() {
+            this._TicksPaused = 0;
+            this._IsFirstUpdate = true;
+            this._BeginTicks = undefined;
+            this._HasBegun = false;
+        }
+        Pause() {
+            if (this._IsPaused)
+                return;
+            this._BeginPauseTime = new Date().getTime();
+            this._IsPaused = true;
+        }
+        Resume() {
+            if (!this._IsPaused)
+                return;
+            this._IsPaused = false;
+            var nowTime = new Date().getTime();
+            this._TicksPaused = nowTime - this._BeginPauseTime;
+        }
+        Stop() {
+            this.Reset();
+        }
+        OnCompleted() {
+            var fill = this.FillBehavior;
+            switch (fill) {
+                case FillBehavior.HoldEnd:
+                    this.Disable();
+                    break;
+                case FillBehavior.Stop:
+                    this.Stop();
+                    break;
+            }
+            this.Completed.Raise(this, EventArgs.Empty);
+        }
+        Update(nowTime: number) {
+            var clockData = this.CreateClockData(nowTime);
+            if (!clockData)
+                return;
+            if (this._IsPaused)
+                return;
+            this.UpdateInternal(clockData);
+            if (clockData.Completed)
+                this.OnCompleted();
+        }
+        UpdateInternal(clockData: IClockData) { }
+        Disable() { }
+        CreateClockData(nowTime: number): IClockData {
+            if (this._IsFirstUpdate) {
+                this._InitialStep = nowTime;
+                this._HasBegun = false;
+                this._IsFirstUpdate = false;
+            }
+            if (!this._HasBegun) {
+                if (!this.IsAfterBeginTime(nowTime))
+                    return;
+                this._BeginTicks = nowTime;
+                this._HasBegun = true;
+            }
+            var elapsedTicks = nowTime - this._BeginTicks - this._TicksPaused;
+            var currentTimeTicks = elapsedTicks;
+            var progress = 0.0;
+            var completed = false;
+            var duration = this.GetNaturalDuration();
+            if (!duration || duration.IsAutomatic) {
+                progress = 1.0;
+                completed = true;
+            } else if (duration.HasTimeSpan) {
+                var d = duration.TimeSpan.Ticks;
+                if (d === 0) {
+                    progress = 1.0;
+                } else if (this.AutoReverse === true) {
+                    d = d / 2;
+                    progress = 1 - (Math.abs((elapsedTicks % (d + d)) - d) / d);
+                } else {
+                    progress = (elapsedTicks / d) - Math.floor(elapsedTicks / d);
+                }
+                var repeat = this.RepeatBehavior;
+                if (repeat.IsForever) {
+                } else if (repeat.HasCount) {
+                    if ((d === 0) || (Math.floor(elapsedTicks / d) >= repeat.Count)) {
+                        progress = 1.0;
+                        completed = true;
+                    }
+                } else if (repeat.HasDuration) {
+                    if (elapsedTicks >= repeat.Duration.TimeSpan.Ticks) {
+                        progress = 1.0;
+                        completed = true;
+                    }
+                }
+                if (d !== 0)
+                    currentTimeTicks = progress * d; //normalizes CurrentTime within [0,duration] constraints
+            }
+            return {
+                CurrentTime: TimeSpan.FromTicks(currentTimeTicks),
+                Progress: progress,
+                Completed: completed
+            };
+        }
+        IsAfterBeginTime(nowTime: number): bool {
+            var beginTime = this.BeginTime;
+            if (beginTime == null)
+                return true;
+            var beginTicks = beginTime.Ticks;
+            if (beginTicks <= 0)
+                return true;
+            var elapsedTicks = nowTime - this._InitialStep;
+            if (elapsedTicks < beginTicks)
+                return false;
+            return true;
+        }
+        GetNaturalDuration(): Duration {
+            var d = this.Duration;
+            if (d.IsAutomatic)
+                return this.GetNaturalDurationCore();
+            return d;
+        }
+        GetNaturalDurationCore(): Duration { return Duration.CreateAutomatic(); }
+    }
+    Nullstone.RegisterType(Timeline, "Timeline");
+    export class TimelineCollection extends XamlObjectCollection {
+    }
+    Nullstone.RegisterType(TimelineCollection, "TimelineCollection");
+}
+
 module Fayde.Media.Effects {
     export class Effect extends DependencyObject {
         static EffectMappingProperty: DependencyProperty = DependencyProperty.Register("EffectMapping", () => GeneralTransform, Effect);
@@ -6910,6 +7307,168 @@ module Fayde.Media {
     Nullstone.RegisterType(TileBrush, "TileBrush");
 }
 
+module Fayde.Media.Animation {
+    export class Animation extends Timeline {
+        private _Storage: AnimationStorage;
+        Resolve(target: DependencyObject, propd: DependencyProperty) { return true; }
+        HookupStorage(targetObj: DependencyObject, targetProp: DependencyProperty): AnimationStorage {
+            return (this._Storage = new AnimationStorage(this, targetObj, targetProp));
+        }
+        Disable() {
+            var storage = this._Storage;
+            if (storage)
+                storage.Disable();
+        }
+        Stop() {
+            var storage = this._Storage;
+            if (storage)
+                storage.Stop();
+        }
+        UpdateInternal(clockData: IClockData) {
+            var storage = this._Storage;
+            if (storage)
+                storage.UpdateCurrentValueAndApply(clockData);
+        }
+        GetNaturalDurationCore(): Duration { return Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 1)); }
+        GetTargetValue(defaultOriginalValue: any): any { return undefined; }
+        GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): any { return undefined; }
+    }
+    Nullstone.RegisterType(Animation, "Animation");
+}
+
+module Fayde.Media.Animation {
+    export class Storyboard extends Timeline {
+        static TargetNameProperty: DependencyProperty = DependencyProperty.RegisterAttached("TargetName", () => String, Storyboard);
+        static GetTargetName(d: DependencyObject): string { return d.GetValue(TargetNameProperty); }
+        static SetTargetName(d: DependencyObject, value: string) { return d.SetValue(TargetNameProperty, value); }
+        static TargetPropertyProperty: DependencyProperty = DependencyProperty.RegisterAttached("TargetProperty", () => Data.PropertyPath, Storyboard);
+        static GetTargetProperty(d: DependencyObject): Data.PropertyPath { return d.GetValue(TargetPropertyProperty); }
+        static SetTargetProperty(d: DependencyObject, value: Data.PropertyPath) { return d.SetValue(TargetPropertyProperty, value); }
+        TargetName: string;
+        TargetProperty: Data.PropertyPath;
+        Children: TimelineCollection;
+        static Annotations = { ContentProperty: "Children" }
+        constructor() {
+            super();
+            Object.defineProperty(this, "Children", {
+                value: new TimelineCollection(),
+                writable: false
+            });
+        }
+        Begin() {
+            this.Reset();
+            var error = new BError();
+            var promotedValues: any[] = [];
+            if (this._HookupAnimations(promotedValues, error)) {
+                App.Instance.RegisterStoryboard(this);
+            } else {
+                error.ThrowException();
+            }
+        }
+        Pause() {
+            super.Pause();
+            var enumerator = this.Children.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                (<Timeline>enumerator.Current).Pause();
+            }
+        }
+        Resume() {
+            super.Resume();
+            var enumerator = this.Children.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                (<Timeline>enumerator.Current).Resume();
+            }
+        }
+        Stop() {
+            super.Stop();
+            App.Instance.UnregisterStoryboard(this);
+            var enumerator = this.Children.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                (<Timeline>enumerator.Current).Stop();
+            }
+        }
+        private _HookupAnimations(promotedValues: any[], error: BError): bool {
+            var enumerator = this.Children.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                if (!this._HookupAnimation((<Animation>enumerator.Current), null, null, promotedValues, error))
+                    return false;
+            }
+            return true;
+        }
+        private _HookupAnimation(animation: Animation, targetObject: DependencyObject, targetPropertyPath: Data.PropertyPath, promotedValues: any[], error: BError): bool {
+            animation.Reset();
+            var localTargetObject = null;
+            var localTargetPropertyPath = null;
+            if (animation.HasManualTarget) {
+                localTargetObject = animation.ManualTarget;
+            } else {
+                var name = Storyboard.GetTargetName(animation);
+                if (name)
+                    localTargetObject = animation.XamlNode.FindName(name);
+            }
+            localTargetPropertyPath = Storyboard.GetTargetProperty(animation);
+            if (localTargetObject != null)
+                targetObject = localTargetObject;
+            if (localTargetPropertyPath != null)
+                targetPropertyPath = localTargetPropertyPath;
+            var refobj = {
+                Value: targetObject
+            };
+            targetPropertyPath.TryResolveDependencyProperty(targetObject);
+            var targetProperty = Data.PropertyPath.ResolvePropertyPath(refobj, targetPropertyPath, promotedValues);
+            if (targetProperty == null) {
+                error.Number = BError.XamlParse;
+                error.Message = "Could not resolve property for storyboard. [" + localTargetPropertyPath.Path.toString() + "]";
+                return false;
+            }
+            if (!animation.Resolve(refobj.Value, targetProperty)) {
+                error.Number = BError.InvalidOperation;
+                error.Message = "Storyboard value could not be converted to the correct type";
+                return false;
+            }
+            animation.HookupStorage(refobj.Value, targetProperty);
+            return true;
+        }
+        UpdateInternal(clockData: IClockData) {
+            var enumerator = this.Children.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                (<Timeline>enumerator.Current).Update(clockData.CurrentTime.Ticks);
+            }
+        }
+        GetNaturalDurationCore(): Duration {
+            var fullTicks = 0;
+            var enumerator = this.Children.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                var timeline = <Timeline>enumerator.Current;
+                var dur = timeline.GetNaturalDuration();
+                if (dur.IsAutomatic)
+                    continue;
+                if (dur.IsForever)
+                    return Duration.CreateForever();
+                var spanTicks = dur.TimeSpan.Ticks;
+                var repeat = timeline.RepeatBehavior;
+                if (repeat.IsForever)
+                    return Duration.CreateForever();
+                if (repeat.HasCount)
+                    spanTicks = spanTicks * repeat.Count;
+                if (timeline.AutoReverse)
+                    spanTicks *= 2;
+                if (repeat.HasDuration)
+                    spanTicks = repeat.Duration.TimeSpan.Ticks;
+                if (spanTicks !== 0)
+                    spanTicks = spanTicks / timeline.SpeedRatio;
+                spanTicks += timeline.BeginTime.Ticks;
+                if (fullTicks === 0 || fullTicks <= spanTicks)
+                    fullTicks = spanTicks;
+            }
+            if (!fullTicks)
+                return Duration.CreateAutomatic();
+            return Duration.CreateTimeSpan(TimeSpan.FromTicks(fullTicks));
+        }
+    }
+    Nullstone.RegisterType(Storyboard, "Storyboard");
+}
+
 module Fayde.Media.Effects {
     export class BlurEffect extends Effect {
         static RadiusProperty: DependencyProperty = DependencyProperty.Register("Radius", () => Number, BlurEffect);
@@ -7420,6 +7979,269 @@ module Fayde.Controls.Primitives {
         }
     }
     Nullstone.RegisterType(Popup, "Popup");
+}
+
+module Fayde.Data {
+    declare var Warn;
+    interface IParseData {
+        index: number;
+        i: number;
+        end: number;
+        path: string;
+        parenOpen: bool;
+        tickOpen: bool;
+        prop: string;
+        res: DependencyProperty;
+        cloned: bool;
+        expressionFound: bool;
+        lu: DependencyObject;
+        collection: XamlObjectCollection;
+        promotedValues: any[];
+        explicitType: bool;
+        type: Function;
+    }
+    var lookupNamespaces;
+    function lookupType(name: string) {
+        lookupNamespaces.push(Fayde);
+        lookupNamespaces.push(Fayde.Controls);
+        lookupNamespaces.push(Fayde.Media);
+        lookupNamespaces.push(Fayde.Controls.Primitives);
+        lookupNamespaces.push(window);
+        var len = lookupNamespaces.length;
+        for (var i = 0; i < len; i++) {
+            var potentialType = lookupNamespaces[i][name];
+            if (potentialType)
+                return potentialType;
+        }
+        return eval(name);
+    }
+    function handlePeriod(data: IParseData): bool {
+        if (data.tickOpen)
+            return true;
+        if (data.res != null) {
+            var value = null;
+            if ((value = data.lu._Store.GetValue(data.res)) == null)
+                return false;
+            if (!(value instanceof DependencyObject))
+                return false;
+            var newLu = value;
+            if (data.promotedValues && data.promotedValues[value._ID] == null && !(value instanceof UIElement)) {
+                var clonedValue = Fayde.Clone(value);
+                if (clonedValue instanceof DependencyObject) {
+                    newLu = clonedValue;
+                    data.lu._Store.SetValue(data.res, clonedValue);
+                    clonedValue = data.lu._Store.GetValue(data.res);
+                    data.promotedValues[clonedValue._ID] = clonedValue;
+                }
+            }
+            data.lu = newLu;
+        }
+        data.expressionFound = false;
+        data.prop = data.path.substr(data.index);
+        return true;
+    }
+    function handleLeftBracket (data: IParseData): bool {
+        if (data.index >= data.end)
+            return;
+        var hasLeadingZeroes = false;
+        while (data.path.charAt(data.index) === '0') {
+            hasLeadingZeroes = true;
+            data.index++;
+        }
+        data.i = parseInt(data.path.substr(data.index), 10);
+        if (!isNaN(data.i))
+            data.index += data.i.toString().length;
+        if (isNaN(data.i) && hasLeadingZeroes)
+            data.i = 0;
+        if (data.path.charAt(data.index) !== ']' || data.path.charAt(data.index + 1) !== '.')
+            return true;
+        data.prop = data.path = data.path.substr(data.index + 2);
+        data.index = 0;
+        data.end = data.path.length;
+        var value = null;
+        if (data.expressionFound) {
+            data.expressionFound = false;
+            if ((value = data.lu.GetValue(data.res)) == null)
+                return false;
+        }
+        if (value instanceof XamlObjectCollection) {
+            data.collection = <XamlObjectCollection>value;
+        } else {
+            data.collection = null;
+            return false;
+        }
+        if ((value = (<XamlObjectCollection>data.collection).GetValueAt(data.i)) == null)
+            return false;
+        if (value instanceof DependencyObject) {
+            data.lu = <DependencyObject>value;
+        } else {
+            data.lu = null;
+            return false;
+        }
+        return true;
+    }
+    function handleDefault(data: IParseData): bool {
+        var explicitType = false;
+        data.expressionFound = true;
+        var start = data.index - 1;
+        var c;
+        while (data.index < data.end) {
+            c = data.path.charAt(data.index);
+            if (!((c !== '.' || data.tickOpen) && (!data.parenOpen || c !== ')') && c !== '['))
+                break;
+            data.index++;
+            if (c === '\'') {
+                data.tickOpen = !data.tickOpen;
+                if (!data.tickOpen)
+                    break;
+            }
+        }
+        if (data.index === data.end) {
+            data.type = (<any>data.lu).constructor;
+        } else {
+            c = data.path.charAt(data.index);
+            if (c === '.') {
+                if ((data.index - start) === 11 && data.path.substr(start, 11).toLowerCase() === "textelement") { //bug workaround from Blend
+                    data.type = Controls.TextBlock;
+                    data.explicitType = true;
+                } else {
+                    var s = data.index;
+                    if (data.path.charAt(data.index - 1) === '\'' && !data.tickOpen) {
+                        s = data.index - 1;
+                    }
+                    var name = data.path.slice(start, s);
+                    data.type = lookupType(name);
+                    data.explicitType = true;
+                    if (!data.type)
+                        data.type = (<any>data.lu).constructor;
+                }
+                data.index++;
+                start = data.index;
+                while (data.index < data.end) {
+                    c = data.path.charAt(data.index);
+                    if (!((!data.parenOpen || c !== ')') && (c !== '.' || data.tickOpen)))
+                        break;
+                    data.index++;
+                    if (c === '\'') {
+                        data.tickOpen = !data.tickOpen;
+                        if (!data.tickOpen)
+                            break;
+                    }
+                }
+                if (data.index === start)
+                    return false;
+            } else {
+                data.type = (<any>data.lu).constructor;
+                data.explicitType = false;
+            }
+            c = data.path.charAt(data.index);
+            if ((c !== ')' && data.parenOpen) || data.type == null)
+                return false;
+        }
+        name = data.path.slice(start, data.index);
+        if ((data.res = DependencyProperty.GetDependencyProperty(data.type, name)) == null && data.lu)
+            data.res = DependencyProperty.GetDependencyProperty((<any>data.lu).constructor, name);
+        if (data.res == null)
+            return false;
+        if (!data.res._IsAttached && !(data.lu instanceof data.type)) {
+            if ((data.res = DependencyProperty.GetDependencyProperty((<any>data.lu).constructor, name)) == null)
+                return false;
+        }
+        if (data.res._IsAttached && data.explicitType && !data.parenOpen)
+            return false;
+        return true;
+    }
+    export class PropertyPath implements ICloneable {
+        private _Path: string;
+        private _ExpandedPath: string;
+        private _Propd: DependencyProperty = null;
+        constructor(path?: string, expandedPath?: string) {
+            this._Path = path;
+            this._ExpandedPath = expandedPath;
+        }
+        static CreateFromParameter(parameter) {
+            var p = new PropertyPath();
+            if (parameter instanceof DependencyProperty)
+                p._Propd = <DependencyProperty>parameter;
+            p._Path = null;
+            if (parameter instanceof String)
+                p._Path = parameter;
+            return p;
+        }
+        TryResolveDependencyProperty(dobj: DependencyObject) {
+            if (this.HasDependencyProperty)
+                return;
+            if (dobj)
+                this._Propd = DependencyProperty.GetDependencyProperty((<any>dobj).constructor, this.Path);
+        }
+        get Path(): string { return !this._Propd ? this._Path : "(0)"; }
+        get ExpandedPath(): string { return !this._Propd ? this._ExpandedPath : "(0)"; }
+        get ParsePath(): string {
+            if (this._Propd)
+                return "(0)";
+            if (this._ExpandedPath)
+                return this._ExpandedPath;
+            return this._Path;
+        }
+        get HasDependencyProperty() { return this._Propd != null; }
+        get DependencyProperty() { return this._Propd; }
+        static ResolvePropertyPath(refobj: IOutValue, propertyPath: PropertyPath, promotedValues: any[]): DependencyProperty {
+            if (propertyPath.HasDependencyProperty)
+                return propertyPath.DependencyProperty;
+            var path = propertyPath.Path;
+            if (propertyPath.ExpandedPath != null)
+                path = propertyPath.ExpandedPath;
+            var data: IParseData = {
+                index: 0,
+                i: 0,
+                end: path.length,
+                path: path,
+                parenOpen: false,
+                tickOpen: false,
+                prop: path,
+                res: null,
+                cloned: false,
+                expressionFound: false,
+                lu: refobj.Value,
+                collection: null,
+                promotedValues: promotedValues,
+                explicitType: false,
+                type: null
+            };
+            var success;
+            while (data.index < data.end) {
+                success = true;
+                var c = data.path.charAt(data.index);
+                data.index++;
+                if (c === '(') {
+                    data.parenOpen = true;
+                } else if (c === ')') {
+                    data.parenOpen = false;
+                } else if (c === '\'') {//Ticks only legal in expanded path
+                    if (propertyPath.ExpandedPath == null)
+                        Warn("The ' character is not legal in property paths.");
+                    else
+                        data.tickOpen = !data.tickOpen;
+                } else if (c === '.') {
+                    success = handlePeriod(data);
+                } else if (c === '[') {
+                    success = handleLeftBracket(data);
+                } else {
+                    success = handleDefault(data);
+                }
+                if (!success) {
+                    refobj.Value = null;
+                    return null;
+                }
+            }
+            refobj.Value = data.lu;
+            return data.res;
+        }
+        Clone(): PropertyPath {
+            return new PropertyPath(this._Path, this._ExpandedPath);
+        }
+    }
+    Nullstone.RegisterType(PropertyPath, "PropertyPath");
 }
 
 module Fayde.Controls {

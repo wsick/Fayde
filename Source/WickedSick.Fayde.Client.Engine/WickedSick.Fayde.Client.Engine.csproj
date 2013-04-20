@@ -475,6 +475,10 @@
     <Content Include="Typescript\Controls\ControlTemplate.js">
       <DependentUpon>ControlTemplate.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Controls\GridLength.ts" />
+    <Content Include="Typescript\Controls\GridLength.js">
+      <DependentUpon>GridLength.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Image.js">
       <DependentUpon>Image.ts</DependentUpon>
     </Content>
@@ -498,6 +502,10 @@
       <DependentUpon>UserControl.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Core\DataTemplate.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Clone.ts" />
+    <Content Include="Typescript\Core\Clone.js">
+      <DependentUpon>Clone.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\DataTemplate.js">
       <DependentUpon>DataTemplate.ts</DependentUpon>
     </Content>
@@ -643,6 +651,10 @@
     <TypeScriptCompile Include="Typescript\Media\Geometry.ts" />
     <TypeScriptCompile Include="Typescript\Media\Brush.ts" />
     <TypeScriptCompile Include="Typescript\Engine\App.ts" />
+    <TypeScriptCompile Include="Typescript\Data\PropertyPath.ts" />
+    <Content Include="Typescript\Data\PropertyPath.js">
+      <DependentUpon>PropertyPath.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Engine\App.js">
       <DependentUpon>App.ts</DependentUpon>
     </Content>
@@ -693,6 +705,30 @@
     <TypeScriptCompile Include="Typescript\Markup\TemplateBindingMarkup.ts" />
     <Content Include="Typescript\Markup\TemplateBindingMarkup.js">
       <DependentUpon>TemplateBindingMarkup.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\Animation.ts" />
+    <Content Include="Typescript\Media\Animation\Animation.js">
+      <DependentUpon>Animation.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\Timeline.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\Enums.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\AnimationStorage.ts" />
+    <Content Include="Typescript\Media\Animation\AnimationStorage.js">
+      <DependentUpon>AnimationStorage.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Animation\Enums.js">
+      <DependentUpon>Enums.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\RepeatBehavior.ts" />
+    <Content Include="Typescript\Media\Animation\RepeatBehavior.js">
+      <DependentUpon>RepeatBehavior.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\Storyboard.ts" />
+    <Content Include="Typescript\Media\Animation\Storyboard.js">
+      <DependentUpon>Storyboard.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Animation\Timeline.js">
+      <DependentUpon>Timeline.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Media\Brush.js">
       <DependentUpon>Brush.ts</DependentUpon>

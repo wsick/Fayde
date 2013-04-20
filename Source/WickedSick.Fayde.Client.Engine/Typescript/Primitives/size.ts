@@ -2,11 +2,18 @@
 /// CODE
 /// <reference path="rect.ts" />
 
-class size {
+class size implements ICloneable {
     Width: number = 0;
     Height: number = 0;
     toString(): string {
         return "{" + this.Width + "," + this.Height + "}";
+    }
+
+    Clone(): size {
+        var s = new size();
+        s.Width = this.Width;
+        s.Height = this.Height;
+        return s;
     }
     
     static fromRaw(width: number, height: number): size {

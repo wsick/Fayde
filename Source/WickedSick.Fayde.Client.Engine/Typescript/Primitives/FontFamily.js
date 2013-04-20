@@ -7,6 +7,9 @@ var FontFamily = (function () {
     FontFamily.prototype.toString = function () {
         return this.FamilyNames;
     };
+    FontFamily.prototype.Clone = function () {
+        return new FontFamily(this.FamilyNames);
+    };
     return FontFamily;
 })();
 Nullstone.RegisterType(FontFamily, "FontFamily");

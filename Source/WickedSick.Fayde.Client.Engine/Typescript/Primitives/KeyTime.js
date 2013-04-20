@@ -18,6 +18,14 @@ var KeyTime = (function () {
         kt._TimeSpan = ts;
         return kt;
     };
+    KeyTime.prototype.Clone = function () {
+        var kt = new KeyTime();
+        kt._TimeSpan = this._TimeSpan;
+        kt._IsPaced = this._IsPaced;
+        kt._IsUniform = this._IsUniform;
+        kt._Percent = this._Percent;
+        return kt;
+    };
     Object.defineProperty(KeyTime.prototype, "IsPaced", {
         get: function () {
             return this._IsPaced;

@@ -11,6 +11,9 @@ var Uri = (function () {
     Uri.prototype.toString = function () {
         return this._OriginalString;
     };
+    Uri.prototype.Clone = function () {
+        return new Uri(this._OriginalString);
+    };
     Uri.IsNullOrEmpty = function IsNullOrEmpty(uri) {
         if(uri == null) {
             return true;

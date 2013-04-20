@@ -24,6 +24,9 @@ var Thickness = (function () {
     Thickness.prototype.toString = function () {
         return "(" + this.Left + ", " + this.Top + ", " + this.Right + ", " + this.Bottom + ")";
     };
+    Thickness.prototype.Clone = function () {
+        return new Thickness(this.Left, this.Top, this.Right, this.Bottom);
+    };
     Thickness.Equals = function Equals(thickness1, thickness2) {
         if(thickness1 == null && thickness2 == null) {
             return true;

@@ -9,6 +9,12 @@ var size = (function () {
     size.prototype.toString = function () {
         return "{" + this.Width + "," + this.Height + "}";
     };
+    size.prototype.Clone = function () {
+        var s = new size();
+        s.Width = this.Width;
+        s.Height = this.Height;
+        return s;
+    };
     size.fromRaw = function fromRaw(width, height) {
         var s = new size();
         s.Width = width;

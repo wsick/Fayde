@@ -1,7 +1,7 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 
-class Uri {
+class Uri implements ICloneable {
     private _OriginalString: string;
     constructor(originalString: string) {
         this._OriginalString = originalString;
@@ -13,6 +13,9 @@ class Uri {
     }
     toString(): string {
         return this._OriginalString;
+    }
+    Clone():Uri {
+        return new Uri(this._OriginalString);
     }
 
     static IsNullOrEmpty(uri: Uri): bool {

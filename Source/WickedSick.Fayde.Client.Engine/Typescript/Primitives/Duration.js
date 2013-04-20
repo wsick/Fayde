@@ -27,6 +27,12 @@ var Duration = (function () {
         d._TimeSpan = ts;
         return d;
     };
+    Duration.prototype.Clone = function () {
+        var dur = new Duration();
+        dur._Type = this._Type;
+        dur._TimeSpan = this._TimeSpan;
+        return dur;
+    };
     Object.defineProperty(Duration.prototype, "Type", {
         get: function () {
             return this._Type;

@@ -8,7 +8,7 @@
 module Fayde {
     export class UnsetValue { }
 
-    export class DependencyObject extends XamlObject {
+    export class DependencyObject extends XamlObject implements ICloneable {
         private _Expressions: Expression[] = [];
         _Store: Providers.BasicProviderStore;
         _CachedValues: any[] = [];
@@ -125,6 +125,11 @@ module Fayde {
                 this._Expressions[propd._ID] = undefined;
                 expr.OnDetached(this);
             }
+        }
+
+        Clone(): DependencyObject {
+            //TODO: Implement
+            return this;
         }
     }
     Nullstone.RegisterType(DependencyObject, "DependencyObject");

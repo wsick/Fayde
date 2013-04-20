@@ -1,7 +1,7 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 
-class CornerRadius {
+class CornerRadius implements ICloneable {
     TopLeft: number;
     TopRight: number;
     BottomRight: number;
@@ -26,6 +26,10 @@ class CornerRadius {
     }
     toString(): string {
         return "(" + this.TopLeft + ", " + this.TopRight + ", " + this.BottomRight + ", " + this.BottomLeft + ")";
+    }
+
+    Clone(): CornerRadius {
+        return new CornerRadius(this.TopLeft, this.TopRight, this.BottomRight, this.BottomLeft);
     }
 }
 Nullstone.RegisterType(CornerRadius, "CornerRadius");

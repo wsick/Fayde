@@ -9,7 +9,7 @@ enum DurationType {
     TimeSpan = 2,
 }
 
-class Duration {
+class Duration implements ICloneable {
     private _Type: DurationType;
     private _TimeSpan: TimeSpan;
 
@@ -30,6 +30,12 @@ class Duration {
         return d;
     }
 
+    Clone(): Duration {
+        var dur = new Duration();
+        dur._Type = this._Type;
+        dur._TimeSpan = this._TimeSpan;
+        return dur;
+    }
 
     get Type(): DurationType { return this._Type; }
     get TimeSpan(): TimeSpan {

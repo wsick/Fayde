@@ -2,7 +2,7 @@
 /// CODE
 /// <reference path="TimeSpan.ts" />
 
-class KeyTime {
+class KeyTime implements ICloneable {
     private _IsPaced: bool = false;
     private _IsUniform: bool = false;
     private _TimeSpan: TimeSpan = null;
@@ -16,6 +16,15 @@ class KeyTime {
     static CreateTimeSpan(ts: TimeSpan): KeyTime {
         var kt = new KeyTime();
         kt._TimeSpan = ts;
+        return kt;
+    }
+
+    Clone(): KeyTime {
+        var kt = new KeyTime();
+        kt._TimeSpan = this._TimeSpan;
+        kt._IsPaced = this._IsPaced;
+        kt._IsUniform = this._IsUniform;
+        kt._Percent = this._Percent;
         return kt;
     }
 

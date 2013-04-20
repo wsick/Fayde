@@ -25,7 +25,15 @@ module Fayde {
         constructor(xobj: XamlObject) {
             this.XObject = xobj;
         }
-        
+
+        FindName(name: string) {
+            var scope = this.FindNameScope();
+            if (scope)
+                return scope.FindName(name);
+            if (this.ParentNode)
+                this.ParentNode.FindName(name);
+            return undefined;
+        }
         SetName(name: string) {
             this.Name = name;
             var ns = this.FindNameScope();

@@ -1,3 +1,5 @@
+Controls/GridLength.js
+Core/Clone.js
 Core/Enums.js
 Core/PropertyChangedListener.js
 Core/TypeConverter.js
@@ -10,6 +12,7 @@ Engine/Interfaces.js
 Media/Enums.js
 Media/GradientMetrics.js
 Media/MediaParser.js
+Media/Animation/Enums.js
 Runtime/Enumerable.js
 Runtime/Nullstone.js
 Shapes/PointCollection.js
@@ -46,6 +49,8 @@ Markup/TemplateBindingMarkup.js
 Media/Geometry.js
 Media/Matrix.js
 Media/Projection.js
+Media/Animation/AnimationStorage.js
+Media/Animation/RepeatBehavior.js
 Navigation/NavService.js
 Primitives/Clip.js
 Primitives/Color.js
@@ -84,6 +89,7 @@ Media/GeneralTransform.js
 Media/GradientStop.js
 Media/Transform.js
 Media/Transforms.js
+Media/Animation/Timeline.js
 Media/Effects/Effect.js
 Media/Imaging/ImageSource.js
 Controls/ControlTemplate.js
@@ -101,6 +107,8 @@ Media/LinearGradientBrush.js
 Media/RadialGradientBrush.js
 Media/SolidColorBrush.js
 Media/TileBrush.js
+Media/Animation/Animation.js
+Media/Animation/Storyboard.js
 Media/Effects/BlurEffect.js
 Media/Effects/DropShadowEffect.js
 Media/Imaging/BitmapSource.js
@@ -114,4 +122,5 @@ Controls/Panel.js
 Controls/TextBlock.js
 Controls/UserControl.js
 Controls/Primitives/Popup.js
+Data/PropertyPath.js
 Controls/ContentControl.js

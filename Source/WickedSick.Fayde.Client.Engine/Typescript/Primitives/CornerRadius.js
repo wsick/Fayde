@@ -16,6 +16,9 @@ var CornerRadius = (function () {
     CornerRadius.prototype.toString = function () {
         return "(" + this.TopLeft + ", " + this.TopRight + ", " + this.BottomRight + ", " + this.BottomLeft + ")";
     };
+    CornerRadius.prototype.Clone = function () {
+        return new CornerRadius(this.TopLeft, this.TopRight, this.BottomRight, this.BottomLeft);
+    };
     return CornerRadius;
 })();
 Nullstone.RegisterType(CornerRadius, "CornerRadius");

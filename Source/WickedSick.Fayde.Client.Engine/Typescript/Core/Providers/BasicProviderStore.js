@@ -6,6 +6,7 @@ var Fayde;
     /// <reference path="../DependencyObject.ts" />
     /// <reference path="../../Runtime/BError.ts" />
     /// <reference path="../../Runtime/Nullstone.ts" />
+    /// <reference path="../../Media/Animation/AnimationStorage.ts" />
     (function (Providers) {
         var DefaultValueProvider = (function () {
             function DefaultValueProvider() { }

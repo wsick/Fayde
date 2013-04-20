@@ -4,6 +4,7 @@
 /// <reference path="../DependencyObject.ts" />
 /// <reference path="../../Runtime/BError.ts" />
 /// <reference path="../../Runtime/Nullstone.ts" />
+/// <reference path="../../Media/Animation/AnimationStorage.ts" />
 
 module Fayde.Providers {
     export class DefaultValueProvider implements IPropertyProvider {
@@ -58,7 +59,7 @@ module Fayde.Providers {
         private _Providers: IPropertyProvider[] = [null, null, null, null, null, null, null, null, null];
         private _PropertyChangedListeners: IPropertyChangedListener[] = [];
         _ProviderBitmasks: number[] = [];
-        private _AnimStorage: any[][] = [];
+        private _AnimStorage: Media.Animation.AnimationStorage[][] = [];
 
         private _LocalValueProvider: LocalValueProvider;
         private _DefaultValueProvider: DefaultValueProvider;
@@ -293,7 +294,7 @@ module Fayde.Providers {
                 thisRepo[key] = srcRepo[0].slice(0);
             }
         }
-        private _AttachAnimationStorage(propd: DependencyProperty, storage) {
+        _AttachAnimationStorage(propd: DependencyProperty, storage): Media.Animation.AnimationStorage {
             var list = this._AnimStorage[propd._ID];
             if (!list) {
                 this._AnimStorage[propd._ID] = list = [storage];
@@ -306,7 +307,7 @@ module Fayde.Providers {
             list.push(storage);
             return attached;
         }
-        private _DetachAnimationStorage(propd: DependencyProperty, storage) {
+        _DetachAnimationStorage(propd: DependencyProperty, storage: Media.Animation.AnimationStorage) {
             var list = this._AnimStorage[propd._ID];
             if (!list)
                 return;
@@ -316,7 +317,7 @@ module Fayde.Providers {
                 return;
 
             var i;
-            var cur;
+            var cur: Media.Animation.AnimationStorage;
             for (i = len - 1; i >= 0; i++) {
                 cur = list[i];
                 if (cur === storage)

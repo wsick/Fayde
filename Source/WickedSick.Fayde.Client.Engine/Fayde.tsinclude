@@ -1,3 +1,5 @@
+Typescript\Controls\GridLength.ts
+Typescript\Core\Clone.ts
 Typescript\Core\Enums.ts
 Typescript\Core\PropertyChangedListener.ts
 Typescript\Core\TypeConverter.ts
@@ -10,6 +12,7 @@ Typescript\Engine\Interfaces.ts
 Typescript\Media\Enums.ts
 Typescript\Media\GradientMetrics.ts
 Typescript\Media\MediaParser.ts
+Typescript\Media\Animation\Enums.ts
 Typescript\Runtime\Enumerable.ts
 Typescript\Runtime\Nullstone.ts
 Typescript\Shapes\PointCollection.ts
@@ -46,6 +49,8 @@ Typescript\Markup\TemplateBindingMarkup.ts
 Typescript\Media\Geometry.ts
 Typescript\Media\Matrix.ts
 Typescript\Media\Projection.ts
+Typescript\Media\Animation\AnimationStorage.ts
+Typescript\Media\Animation\RepeatBehavior.ts
 Typescript\Navigation\NavService.ts
 Typescript\Primitives\Clip.ts
 Typescript\Primitives\Color.ts
@@ -84,6 +89,7 @@ Typescript\Media\GeneralTransform.ts
 Typescript\Media\GradientStop.ts
 Typescript\Media\Transform.ts
 Typescript\Media\Transforms.ts
+Typescript\Media\Animation\Timeline.ts
 Typescript\Media\Effects\Effect.ts
 Typescript\Media\Imaging\ImageSource.ts
 Typescript\Controls\ControlTemplate.ts
@@ -101,6 +107,8 @@ Typescript\Media\LinearGradientBrush.ts
 Typescript\Media\RadialGradientBrush.ts
 Typescript\Media\SolidColorBrush.ts
 Typescript\Media\TileBrush.ts
+Typescript\Media\Animation\Animation.ts
+Typescript\Media\Animation\Storyboard.ts
 Typescript\Media\Effects\BlurEffect.ts
 Typescript\Media\Effects\DropShadowEffect.ts
 Typescript\Media\Imaging\BitmapSource.ts
@@ -114,4 +122,5 @@ Typescript\Controls\Panel.ts
 Typescript\Controls\TextBlock.ts
 Typescript\Controls\UserControl.ts
 Typescript\Controls\Primitives\Popup.ts
+Typescript\Data\PropertyPath.ts
 Typescript\Controls\ContentControl.ts

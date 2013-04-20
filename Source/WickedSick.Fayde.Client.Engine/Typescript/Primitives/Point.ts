@@ -1,7 +1,7 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 
-class Point {
+class Point implements ICloneable {
     X: number;
     Y: number;
     constructor(x?: number, y?: number) {
@@ -13,6 +13,10 @@ class Point {
     };
     Equals(other: Point): bool {
         return this.X === other.X && this.Y === other.Y;
+    }
+
+    Clone(): Point {
+        return new Point(this.X, this.Y);
     }
 
     static Equals(p1: Point, p2: Point) {

@@ -13,13 +13,22 @@ var RectOverlap = {
     Part: 2
 };
 
-class rect {
+class rect implements ICloneable {
     X: number = 0;
     Y: number = 0;
     Width: number = 0;
     Height: number = 0;
     toString(): string {
         return "{" + this.X + "," + this.Y + "," + this.Width + "," + this.Height + "}";
+    }
+
+    Clone(): rect {
+        var r = new rect();
+        r.X = this.X;
+        r.Y = this.Y;
+        r.Width = this.Width;
+        r.Height = this.Height;
+        return r;
     }
 
     static fromSize(size: size): rect {

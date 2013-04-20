@@ -1,7 +1,7 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 
-class Color {
+class Color implements ICloneable {
     private static __NoAlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
     private static __AlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
 
@@ -45,6 +45,10 @@ class Color {
     }
     ToHexStringNoAlpha(): string {
         return "#" + this.R.toString(16) + this.G.toString(16) + this.B.toString(16);
+    }
+
+    Clone(): Color {
+        return Color.FromRgba(this.R, this.G, this.B, this.A);
     }
 
     static LERP(start: Color, end: Color, p: number): Color {

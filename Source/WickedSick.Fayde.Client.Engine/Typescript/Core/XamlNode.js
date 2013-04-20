@@ -23,6 +23,16 @@ var Fayde;
             this.IsAttached = false;
             this.XObject = xobj;
         }
+        XamlNode.prototype.FindName = function (name) {
+            var scope = this.FindNameScope();
+            if(scope) {
+                return scope.FindName(name);
+            }
+            if(this.ParentNode) {
+                this.ParentNode.FindName(name);
+            }
+            return undefined;
+        };
         XamlNode.prototype.SetName = function (name) {
             this.Name = name;
             var ns = this.FindNameScope();

@@ -13,6 +13,14 @@ var rect = (function () {
     rect.prototype.toString = function () {
         return "{" + this.X + "," + this.Y + "," + this.Width + "," + this.Height + "}";
     };
+    rect.prototype.Clone = function () {
+        var r = new rect();
+        r.X = this.X;
+        r.Y = this.Y;
+        r.Width = this.Width;
+        r.Height = this.Height;
+        return r;
+    };
     rect.fromSize = function fromSize(size) {
         var r = new rect();
         r.Width = size.Width;
