@@ -1,9 +1,9 @@
 /// CODE
-/// <reference path="DependencyObject.ts" />
+/// <reference path="XamlObject.ts" />
 var Fayde;
 (function (Fayde) {
     function Clone(value) {
-        if(value instanceof Fayde.DependencyObject) {
+        if(value instanceof Fayde.XamlObject) {
             return (value).Clone();
         }
         if(typeof value === "number" || typeof value === "string") {

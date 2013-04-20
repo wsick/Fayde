@@ -1,6 +1,7 @@
 /// <reference path="XamlObject.ts" />
 /// <reference path="../Runtime/Enumerable.ts" />
 /// CODE
+/// <reference path="Clone.ts" />
 /// <reference path="../Runtime/BError.ts" />
 /// <reference path="../Runtime/Nullstone.ts" />
 
@@ -108,6 +109,13 @@ module Fayde {
         _RaiseItemReplaced(removed: XamlObject, added: XamlObject, index: number) { }
         //_RaiseClearing(arr: XamlObject[]) { }
         _RaiseCleared() { }
+        
+        CloneCore(source: XamlObjectCollection) {
+            var enumerator = ArrayEx.GetEnumerator(this._ht);
+            while (enumerator.MoveNext()) {
+                this.Add(Fayde.Clone(enumerator.Current));
+            }
+        }
     }
     Nullstone.RegisterType(XamlObjectCollection, "XamlObjectCollection");
 }

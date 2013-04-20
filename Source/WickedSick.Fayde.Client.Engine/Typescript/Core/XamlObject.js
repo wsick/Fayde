@@ -19,6 +19,13 @@ var Fayde;
             enumerable: true,
             configurable: true
         });
+        XamlObject.prototype.Clone = function () {
+            var xobj = new (this).constructor();
+            xobj.CloneCore(this);
+            return xobj;
+        };
+        XamlObject.prototype.CloneCore = function (source) {
+        };
         return XamlObject;
     })();
     Fayde.XamlObject = XamlObject;    

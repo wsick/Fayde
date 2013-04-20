@@ -6,6 +6,7 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path="XamlObject.ts" />
 /// <reference path="../Runtime/Enumerable.ts" />
 /// CODE
+/// <reference path="Clone.ts" />
 /// <reference path="../Runtime/BError.ts" />
 /// <reference path="../Runtime/Nullstone.ts" />
 var Fayde;
@@ -132,6 +133,12 @@ var Fayde;
         };
         XamlObjectCollection.prototype._RaiseCleared = //_RaiseClearing(arr: XamlObject[]) { }
         function () {
+        };
+        XamlObjectCollection.prototype.CloneCore = function (source) {
+            var enumerator = Fayde.ArrayEx.GetEnumerator(this._ht);
+            while(enumerator.MoveNext()) {
+                this.Add(Fayde.Clone(enumerator.Current));
+            }
         };
         return XamlObjectCollection;
     })(Fayde.XamlObject);

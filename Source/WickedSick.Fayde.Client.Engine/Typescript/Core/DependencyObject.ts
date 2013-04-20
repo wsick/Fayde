@@ -127,9 +127,8 @@ module Fayde {
             }
         }
 
-        Clone(): DependencyObject {
-            //TODO: Implement
-            return this;
+        CloneCore(source: DependencyObject) {
+            this._Store.CloneCore(source._Store);
         }
     }
     Nullstone.RegisterType(DependencyObject, "DependencyObject");

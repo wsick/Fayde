@@ -382,6 +382,17 @@ module Fayde.Providers {
                 (<XamlObject>value).XamlNode.Detach();
             }
         }
+
+        CloneCore(sourceStore: BasicProviderStore) {
+            var dpIds = DependencyProperty._IDs;
+
+            var localStorage = (<any>this._LocalValueProvider)._ht;
+            for (var id in localStorage) {
+                this.SetValue(dpIds[id], localStorage[id]);
+            }
+
+            this._CloneAnimationStorage(sourceStore);
+        }
     }
     Nullstone.RegisterType(BasicProviderStore, "BasicProviderStore");
 }

@@ -14,6 +14,13 @@ module Fayde {
             return new XamlNode(this);
         }
         get Name() { return this.XamlNode.Name; }
+
+        Clone(): XamlObject {
+            var xobj: XamlObject = new (<any>this).constructor();
+            xobj.CloneCore(this);
+            return xobj;
+        }
+        CloneCore(source: XamlObject) { }
     }
     Nullstone.RegisterType(XamlObject, "XamlObject");
 }

@@ -23,8 +23,8 @@ module Fayde.Controls {
 
 module Fayde {
     export function Clone(value: any): any {
-        if (value instanceof DependencyObject)
-            return (<DependencyObject>value).Clone();
+        if (value instanceof XamlObject)
+            return (<XamlObject>value).Clone();
         if (typeof value === "number" || typeof value === "string")
             return value;
         var typeName = value.constructor._TypeName;
@@ -1597,6 +1597,12 @@ module Fayde {
             return new XamlNode(this);
         }
         get Name() { return this.XamlNode.Name; }
+        Clone(): XamlObject {
+            var xobj: XamlObject = new (<any>this).constructor();
+            xobj.CloneCore(this);
+            return xobj;
+        }
+        CloneCore(source: XamlObject) { }
     }
     Nullstone.RegisterType(XamlObject, "XamlObject");
 }
@@ -1695,6 +1701,12 @@ module Fayde {
         _RaiseItemRemoved(value: XamlObject, index: number) { }
         _RaiseItemReplaced(removed: XamlObject, added: XamlObject, index: number) { }
         _RaiseCleared() { }
+        CloneCore(source: XamlObjectCollection) {
+            var enumerator = ArrayEx.GetEnumerator(this._ht);
+            while (enumerator.MoveNext()) {
+                this.Add(Fayde.Clone(enumerator.Current));
+            }
+        }
     }
     Nullstone.RegisterType(XamlObjectCollection, "XamlObjectCollection");
 }
@@ -2014,6 +2026,14 @@ module Fayde.Providers {
             } else if (value instanceof XamlObject) {
                 (<XamlObject>value).XamlNode.Detach();
             }
+        }
+        CloneCore(sourceStore: BasicProviderStore) {
+            var dpIds = DependencyProperty._IDs;
+            var localStorage = (<any>this._LocalValueProvider)._ht;
+            for (var id in localStorage) {
+                this.SetValue(dpIds[id], localStorage[id]);
+            }
+            this._CloneAnimationStorage(sourceStore);
         }
     }
     Nullstone.RegisterType(BasicProviderStore, "BasicProviderStore");
@@ -5432,8 +5452,8 @@ module Fayde {
                 expr.OnDetached(this);
             }
         }
-        Clone(): DependencyObject {
-            return this;
+        CloneCore(source: DependencyObject) {
+            this._Store.CloneCore(source._Store);
         }
     }
     Nullstone.RegisterType(DependencyObject, "DependencyObject");

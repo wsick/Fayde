@@ -1,10 +1,10 @@
 /// CODE
-/// <reference path="DependencyObject.ts" />
+/// <reference path="XamlObject.ts" />
 
 module Fayde {
     export function Clone(value: any): any {
-        if (value instanceof DependencyObject)
-            return (<DependencyObject>value).Clone();
+        if (value instanceof XamlObject)
+            return (<XamlObject>value).Clone();
 
         if (typeof value === "number" || typeof value === "string")
             return value;

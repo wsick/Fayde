@@ -408,6 +408,14 @@ var Fayde;
                     (value).XamlNode.Detach();
                 }
             };
+            BasicProviderStore.prototype.CloneCore = function (sourceStore) {
+                var dpIds = DependencyProperty._IDs;
+                var localStorage = (this._LocalValueProvider)._ht;
+                for(var id in localStorage) {
+                    this.SetValue(dpIds[id], localStorage[id]);
+                }
+                this._CloneAnimationStorage(sourceStore);
+            };
             return BasicProviderStore;
         })();
         Providers.BasicProviderStore = BasicProviderStore;        
