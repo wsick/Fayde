@@ -706,20 +706,88 @@
     <Content Include="Typescript\Markup\TemplateBindingMarkup.js">
       <DependentUpon>TemplateBindingMarkup.ts</DependentUpon>
     </Content>
-    <TypeScriptCompile Include="Typescript\Media\Animation\Animation.ts" />
-    <Content Include="Typescript\Media\Animation\Animation.js">
-      <DependentUpon>Animation.ts</DependentUpon>
-    </Content>
     <TypeScriptCompile Include="Typescript\Media\Animation\Timeline.ts" />
     <TypeScriptCompile Include="Typescript\Media\Animation\Enums.ts" />
     <TypeScriptCompile Include="Typescript\Media\Animation\AnimationStorage.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\AnimationBase.ts" />
+    <Content Include="Typescript\Media\Animation\AnimationBase.js">
+      <DependentUpon>AnimationBase.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\Animation\AnimationStorage.js">
       <DependentUpon>AnimationStorage.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\AnimationUsingKeyFrames.ts" />
+    <Content Include="Typescript\Media\Animation\AnimationUsingKeyFrames.js">
+      <DependentUpon>AnimationUsingKeyFrames.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\ColorKeyFrame.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\ColorAnimation.ts" />
+    <Content Include="Typescript\Media\Animation\ColorAnimation.js">
+      <DependentUpon>ColorAnimation.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\ColorAnimationUsingKeyFrames.ts" />
+    <Content Include="Typescript\Media\Animation\ColorAnimationUsingKeyFrames.js">
+      <DependentUpon>ColorAnimationUsingKeyFrames.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Animation\ColorKeyFrame.js">
+      <DependentUpon>ColorKeyFrame.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\EasingFunctionBase.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\Curves.ts" />
+    <Content Include="Typescript\Media\Animation\Curves.js">
+      <DependentUpon>Curves.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\DoubleAnimation.ts" />
+    <Content Include="Typescript\Media\Animation\DoubleAnimation.js">
+      <DependentUpon>DoubleAnimation.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\DoubleAnimationUsingKeyFrames.ts" />
+    <Content Include="Typescript\Media\Animation\DoubleAnimationUsingKeyFrames.js">
+      <DependentUpon>DoubleAnimationUsingKeyFrames.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\DoubleKeyFrame.ts" />
+    <Content Include="Typescript\Media\Animation\DoubleKeyFrame.js">
+      <DependentUpon>DoubleKeyFrame.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Animation\EasingFunctionBase.js">
+      <DependentUpon>EasingFunctionBase.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\EasingFunctions.ts" />
+    <Content Include="Typescript\Media\Animation\EasingFunctions.js">
+      <DependentUpon>EasingFunctions.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Media\Animation\Enums.js">
       <DependentUpon>Enums.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Media\Animation\RepeatBehavior.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\KeyFrame.ts" />
+    <Content Include="Typescript\Media\Animation\KeyFrame.js">
+      <DependentUpon>KeyFrame.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\KeySpline.ts" />
+    <Content Include="Typescript\Media\Animation\KeySpline.js">
+      <DependentUpon>KeySpline.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\ObjectKeyFrame.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\ObjectAnimationUsingKeyFrames.ts" />
+    <Content Include="Typescript\Media\Animation\ObjectAnimationUsingKeyFrames.js">
+      <DependentUpon>ObjectAnimationUsingKeyFrames.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Animation\ObjectKeyFrame.js">
+      <DependentUpon>ObjectKeyFrame.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\PointAnimation.ts" />
+    <Content Include="Typescript\Media\Animation\PointAnimation.js">
+      <DependentUpon>PointAnimation.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\PointAnimationUsingKeyFrames.ts" />
+    <Content Include="Typescript\Media\Animation\PointAnimationUsingKeyFrames.js">
+      <DependentUpon>PointAnimationUsingKeyFrames.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\PointKeyFrame.ts" />
+    <Content Include="Typescript\Media\Animation\PointKeyFrame.js">
+      <DependentUpon>PointKeyFrame.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\Animation\RepeatBehavior.js">
       <DependentUpon>RepeatBehavior.ts</DependentUpon>
     </Content>

@@ -1,5 +1,7 @@
 var Fayde;
 (function (Fayde) {
+    /// <reference path="../Runtime/Nullstone.ts" />
+    /// CODE
     (function (Controls) {
         (function (GridUnitType) {
             GridUnitType._map = [];
@@ -17,7 +19,7 @@ var Fayde;
                 return Math.abs(gl1.Value - gl2.Value) < 0.001 && gl1.Type == gl2.Type;
             };
             GridLength.prototype.Clone = function () {
-                return new Controls.GridLength(this.Value, this.Type);
+                return new Fayde.Controls.GridLength(this.Value, this.Type);
             };
             return GridLength;
         })();

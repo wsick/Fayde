@@ -10,52 +10,52 @@ var Fayde;
         /// CODE
         /// <reference path="AnimationStorage.ts"/>
         (function (Animation) {
-            var Animation = (function (_super) {
-                __extends(Animation, _super);
-                function Animation() {
+            var AnimationBase = (function (_super) {
+                __extends(AnimationBase, _super);
+                function AnimationBase() {
                     _super.apply(this, arguments);
 
                 }
-                Animation.prototype.Resolve = function (target, propd) {
+                AnimationBase.prototype.Resolve = function (target, propd) {
                     return true;
                 };
-                Animation.prototype.HookupStorage = function (targetObj, targetProp) {
+                AnimationBase.prototype.HookupStorage = function (targetObj, targetProp) {
                     return (this._Storage = new Animation.AnimationStorage(this, targetObj, targetProp));
                 };
-                Animation.prototype.Disable = function () {
+                AnimationBase.prototype.Disable = function () {
                     var storage = this._Storage;
                     if(storage) {
                         storage.Disable();
                     }
                 };
-                Animation.prototype.Stop = function () {
+                AnimationBase.prototype.Stop = function () {
                     var storage = this._Storage;
                     if(storage) {
                         storage.Stop();
                     }
                 };
-                Animation.prototype.UpdateInternal = function (clockData) {
+                AnimationBase.prototype.UpdateInternal = function (clockData) {
                     var storage = this._Storage;
                     if(storage) {
                         storage.UpdateCurrentValueAndApply(clockData);
                     }
                 };
-                Animation.prototype.GetNaturalDurationCore = function () {
+                AnimationBase.prototype.GetNaturalDurationCore = function () {
                     return Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 1));
                 };
-                Animation.prototype.GetTargetValue = function (defaultOriginalValue) {
+                AnimationBase.prototype.GetTargetValue = function (defaultOriginalValue) {
                     return undefined;
                 };
-                Animation.prototype.GetCurrentValue = function (defaultOriginalValue, defaultDestinationValue, clockData) {
+                AnimationBase.prototype.GetCurrentValue = function (defaultOriginalValue, defaultDestinationValue, clockData) {
                     return undefined;
                 };
-                return Animation;
+                return AnimationBase;
             })(Animation.Timeline);
-            Animation.Animation = Animation;            
-            Nullstone.RegisterType(Animation, "Animation");
+            Animation.AnimationBase = AnimationBase;            
+            Nullstone.RegisterType(AnimationBase, "AnimationBase");
         })(Media.Animation || (Media.Animation = {}));
         var Animation = Media.Animation;
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
-//@ sourceMappingURL=Animation.js.map
+//@ sourceMappingURL=AnimationBase.js.map

@@ -7,6 +7,7 @@ var KeyTime = (function () {
         this._IsUniform = false;
         this._TimeSpan = null;
         this._Percent = 0;
+        this.IsValid = true;
     }
     KeyTime.CreateUniform = function CreateUniform() {
         var kt = new KeyTime();

@@ -64,12 +64,12 @@ module Fayde.Media.Animation {
         private _HookupAnimations(promotedValues: any[], error: BError): bool {
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.MoveNext()) {
-                if (!this._HookupAnimation((<Animation>enumerator.Current), null, null, promotedValues, error))
+                if (!this._HookupAnimation((<AnimationBase>enumerator.Current), null, null, promotedValues, error))
                     return false;
             }
             return true;
         }
-        private _HookupAnimation(animation: Animation, targetObject: DependencyObject, targetPropertyPath: Data.PropertyPath, promotedValues: any[], error: BError): bool {
+        private _HookupAnimation(animation: AnimationBase, targetObject: DependencyObject, targetPropertyPath: Data.PropertyPath, promotedValues: any[], error: BError): bool {
             animation.Reset();
             var localTargetObject = null;
             var localTargetPropertyPath = null;

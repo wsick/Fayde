@@ -3,7 +3,7 @@ var Fayde;
     (function (Media) {
         /// <reference path="../../Runtime/Nullstone.ts"/>
         /// CODE
-        /// <reference path="Animation.ts"/>
+        /// <reference path="AnimationBase.ts"/>
         /// <reference path="../../Core/DependencyObject.ts"/>
         /// <reference path="../../Core/DependencyProperty.ts"/>
         (function (Animation) {

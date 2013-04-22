@@ -1,12 +1,12 @@
 /// <reference path="../../Runtime/Nullstone.ts"/>
 /// CODE
-/// <reference path="Animation.ts"/>
+/// <reference path="AnimationBase.ts"/>
 /// <reference path="../../Core/DependencyObject.ts"/>
 /// <reference path="../../Core/DependencyProperty.ts"/>
 
 module Fayde.Media.Animation {
     export class AnimationStorage {
-        private _Animation: Animation;
+        private _Animation: AnimationBase;
         private _TargetObj: DependencyObject;
         private _TargetProp: DependencyProperty;
         private _Disabled: bool = false;
@@ -14,7 +14,7 @@ module Fayde.Media.Animation {
         private _CurrentValue: any = undefined;
         StopValue: any;
 
-        constructor(animation: Animation, targetObj: DependencyObject, targetProp: DependencyProperty) {
+        constructor(animation: AnimationBase, targetObj: DependencyObject, targetProp: DependencyProperty) {
             this._Animation = animation;
             this._TargetObj = targetObj;
             this._TargetProp = targetProp;

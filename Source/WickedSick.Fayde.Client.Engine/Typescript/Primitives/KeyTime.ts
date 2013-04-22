@@ -7,6 +7,7 @@ class KeyTime implements ICloneable {
     private _IsUniform: bool = false;
     private _TimeSpan: TimeSpan = null;
     private _Percent: number = 0;
+    IsValid: bool = true;
 
     static CreateUniform(): KeyTime {
         var kt = new KeyTime();

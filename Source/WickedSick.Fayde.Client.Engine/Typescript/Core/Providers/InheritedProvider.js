@@ -1,7 +1,7 @@
 var Fayde;
 (function (Fayde) {
     /// <reference path="IProviderStore.ts" />
-    /// <reference path="../Runtime/Nullstone.ts" />
+    /// <reference path="../../Runtime/Nullstone.ts" />
     /// CODE
     /// <reference path="Enums.ts" />
     /// <reference path="../../Controls/Image.ts" />

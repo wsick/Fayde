@@ -1,3 +1,6 @@
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
+
 module Fayde.Controls {
     export enum GridUnitType {
         Auto = 0,

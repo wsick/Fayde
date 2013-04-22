@@ -1,26 +1,3 @@
-module Fayde.Controls {
-    export enum GridUnitType {
-        Auto = 0,
-        Pixel = 1,
-        Star = 2,
-    }
-    export class GridLength implements ICloneable {
-        Value: number;
-        Type: GridUnitType;
-        constructor(value?: number, unitType?: GridUnitType) {
-            this.Value = value == null ? 0 : value;
-            this.Type = unitType == null ? GridUnitType.Auto : unitType;
-        }
-        static Equals(gl1: GridLength, gl2: GridLength): bool {
-            return Math.abs(gl1.Value - gl2.Value) < 0.001 && gl1.Type == gl2.Type;
-        }
-        Clone(): GridLength {
-            return new Controls.GridLength(this.Value, this.Type);
-        }
-    }
-    Nullstone.RegisterType(GridLength, "GridLength");
-}
-
 module Fayde {
     export function Clone(value: any): any {
         if (value instanceof XamlObject)
@@ -655,6 +632,111 @@ module Fayde.Media {
 }
 
 module Fayde.Media.Animation {
+    export interface ICurvePoint {
+        x: number;
+        y: number;
+    }
+    export interface IQuadraticCurve {
+        c0: ICurvePoint;
+        c1: ICurvePoint;
+        c2: ICurvePoint;
+    }
+    export interface ICubicCurve {
+        c0: ICurvePoint;
+        c1: ICurvePoint;
+        c2: ICurvePoint;
+        c3: ICurvePoint;
+    }
+    export interface ISubdiviedCubicCurve {
+        b1: ICubicCurve;
+        b2: ICubicCurve;
+    }
+    export class Curves {
+        static QuadraticArrayYForX(arr: IQuadraticCurve[], x: number, count: number): number {
+            for (var i = 0; i < count; i++) {
+                if (x < arr[i].c2.x)
+                    return QuadraticYForX(x, arr[i]);
+            }
+            return 0.0;
+        }
+        static QuadraticYForX(x: number, src: IQuadraticCurve): number {
+            var l = src.c2.x - src.c0.x;
+            if (l <= 0)
+                return 0.0;
+            x = (x - src.c0.x) / l;
+            return ((1 - x) * (1 - x)) * src.c0.y + ((2 * x) * (1 - x) * src.c1.y) + ((x * x) * src.c2.y);
+        }
+        static SubdivideCubicAtLevel(b: ICubicCurve[], lvl: number, src: ICubicCurve) {
+            RecursiveSubdivide(b, lvl, 1, 0, src);
+        }
+        static RecursiveSubdivide(b: ICubicCurve[], lvl: number, currentlvl: number, pos: number, src: ICubicCurve) {
+            var data: ISubdiviedCubicCurve = { b1: null, b2: null };
+            SubdivideCubic(data, src);
+            var b1 = data.b1;
+            var b2 = data.b2;
+            if (currentlvl === lvl) {
+                b[pos] = b1;
+                b[pos + 1] = b2;
+                return pos + 2;
+            }
+            pos = Curves.RecursiveSubdivide(b, lvl, currentlvl + 1, pos, b1);
+            pos = Curves.RecursiveSubdivide(b, lvl, currentlvl + 1, pos, b2);
+            return pos;
+        }
+        static SubdivideCubic(data: ISubdiviedCubicCurve, src: ICubicCurve) {
+            var p01 = { x: 0, y: 0 }, p012 = { x: 0, y: 0 }, p0123 = { x: 0, y: 0 };
+            var p12 = { x: 0, y: 0 }, p123 = { x: 0, y: 0 };
+            var p23 = { x: 0, y: 0 };
+            Curves.HalfLerpPoint(p01, src.c0, src.c1);
+            Curves.HalfLerpPoint(p12, src.c1, src.c2);
+            Curves.HalfLerpPoint(p23, src.c2, src.c3);
+            Curves.HalfLerpPoint(p012, p01, p12);
+            Curves.HalfLerpPoint(p123, p12, p23);
+            Curves.HalfLerpPoint(p0123, p012, p123);
+            data.b1 = {
+                c0: src.c0,
+                c1: p01,
+                c2: p012,
+                c3: p0123
+            };
+            data.b2 = {
+                c0: p0123,
+                c1: p123,
+                c2: p23,
+                c3: src.c3
+            };
+        }
+        static HalfLerpPoint(p: ICurvePoint, p1: ICurvePoint, p2: ICurvePoint) {
+            p.x = p1.x + (p2.x - p1.x) * 0.5;
+            p.y = p1.y + (p2.y - p1.y) * 0.5;
+        }
+        static ConvertCubicsToQuadratics(srcArray: ICubicCurve[], count: number): IQuadraticCurve[] {
+            var destArray: IQuadraticCurve[] = [];
+            for (var i = 0; i < count; i++) {
+                destArray.push(QuadraticFromCubic(srcArray[i]));
+            }
+            return destArray;
+        }
+        static QuadraticFromCubic(src: ICubicCurve): IQuadraticCurve {
+            return {
+                c0: {
+                    x: src.c0.x,
+                    y: src.c0.y
+                },
+                c1: {
+                    x: (src.c1.x + src.c2.x) / 2.0,
+                    y: (src.c1.y + src.c2.y) / 2.0
+                },
+                c2: {
+                    x: src.c3.x,
+                    y: src.c3.y
+                }
+            };
+        }
+    }
+}
+
+module Fayde.Media.Animation {
     export enum EasingMode {
         EaseOut = 0,
         EaseIn = 1,
@@ -766,6 +848,29 @@ module Fayde.Shapes {
     export function ParsePointCollection(val: string): PointCollection {
         return new PointCollection();
     }
+}
+
+module Fayde.Controls {
+    export enum GridUnitType {
+        Auto = 0,
+        Pixel = 1,
+        Star = 2,
+    }
+    export class GridLength implements ICloneable {
+        Value: number;
+        Type: GridUnitType;
+        constructor(value?: number, unitType?: GridUnitType) {
+            this.Value = value == null ? 0 : value;
+            this.Type = unitType == null ? GridUnitType.Auto : unitType;
+        }
+        static Equals(gl1: GridLength, gl2: GridLength): bool {
+            return Math.abs(gl1.Value - gl2.Value) < 0.001 && gl1.Type == gl2.Type;
+        }
+        Clone(): GridLength {
+            return new Controls.GridLength(this.Value, this.Type);
+        }
+    }
+    Nullstone.RegisterType(GridLength, "GridLength");
 }
 
 interface IAutoCreator {
@@ -4065,14 +4170,14 @@ module Fayde.Media {
 
 module Fayde.Media.Animation {
     export class AnimationStorage {
-        private _Animation: Animation;
+        private _Animation: AnimationBase;
         private _TargetObj: DependencyObject;
         private _TargetProp: DependencyProperty;
         private _Disabled: bool = false;
         private _BaseValue: any;
         private _CurrentValue: any = undefined;
         StopValue: any;
-        constructor(animation: Animation, targetObj: DependencyObject, targetProp: DependencyProperty) {
+        constructor(animation: AnimationBase, targetObj: DependencyObject, targetProp: DependencyProperty) {
             this._Animation = animation;
             this._TargetObj = targetObj;
             this._TargetProp = targetProp;
@@ -4654,6 +4759,7 @@ class KeyTime implements ICloneable {
     private _IsUniform: bool = false;
     private _TimeSpan: TimeSpan = null;
     private _Percent: number = 0;
+    IsValid: bool = true;
     static CreateUniform(): KeyTime {
         var kt = new KeyTime();
         kt._IsUniform = true;
@@ -6563,6 +6669,436 @@ module Fayde.Media {
 }
 
 module Fayde.Media.Animation {
+    export interface IEasingFunction {
+        Ease(normalizedTime: number): number;
+    }
+    export class EasingFunctionBase extends DependencyObject implements IEasingFunction {
+        static EasingModeProperty: DependencyProperty = DependencyProperty.Register("EasingMode", () => new Enum(EasingMode), EasingFunctionBase);
+        EasingMode: EasingMode;
+        Ease(normalizedTime: number): number {
+            var easingMode = this.EasingMode;
+            switch (easingMode) {
+                case EasingMode.EaseIn:
+                    return this.EaseInCore(normalizedTime);
+                case EasingMode.EaseOut:
+                    return this.EaseInCore(1.0 - normalizedTime);
+                case EasingMode.EaseInOut:
+                    return normalizedTime <= 0.5 ?
+                        this.EaseInCore(normalizedTime * 2) * 0.5 :
+                        1.0 - this.EaseInCore(((1.0 - normalizedTime) * 2) * 0.5);
+                default:
+                    return 0.0;
+            }
+        }
+        EaseInCore(t: number): number {
+            return t;
+        }
+    }
+}
+
+module Fayde.Media.Animation {
+    export class BackEase extends EasingFunctionBase {
+        static AmplitudeProperty: DependencyProperty = DependencyProperty.Register("Amplitude", () => Number, BackEase);
+        Amplitude: number;
+        EaseInCore(t: number): number {
+            var a = this.Amplitude;
+            return (t * t * t) - (t * a * Math.sin(t * Math.PI));
+        }
+    }
+    Nullstone.RegisterType(BackEase, "BackEase");
+    export class BounceEase extends EasingFunctionBase {
+        static BouncesProperty:DependencyProperty = DependencyProperty.Register("Bounces", () => Number, BounceEase, 3);
+        static BouncinessProperty:DependencyProperty = DependencyProperty.Register("Bounciness", () => Number, BounceEase, 2);
+        Bounces: number;
+        Bounciness: number;
+        EaseInCore(t: number): number {
+            t = 1 - t;
+            var bounces = this.Bounces;
+            var bounciness = this.Bounciness;
+            var r = -1;
+            var period = 2;
+            for (var i = 0; i <= bounces; i++) {
+                r += (period * Math.pow(1 + (bounciness / 2), -i));
+            }
+            var x1 = -1.0;
+            var x2 = 0;
+            var r_sq = r * r;
+            var val = 100;
+            var p = 0;
+            while (val > 0.0) {
+                x2 = x1 + period * Math.pow(1 + (bounciness / 2), -p++);
+                val = r_sq * (t - x1 / r) * (t - x2 / r);
+                x1 = x2;
+            }
+            return -val;
+        }
+    }
+    Nullstone.RegisterType(BounceEase, "BounceEase");
+    export class CircleEase extends EasingFunctionBase {
+        EaseInCore(t: number): number {
+            return 1 - Math.sqrt(1 - (t * t));
+        }
+    }
+    Nullstone.RegisterType(CircleEase, "CircleEase");
+    export class CubicEase extends EasingFunctionBase {
+        EaseInCore(t: number): number {
+            return t * t * t;
+        }
+    }
+    Nullstone.RegisterType(CubicEase, "CubicEase");
+    export class ElasticEase extends EasingFunctionBase {
+        static OscillationsProperty: DependencyProperty = DependencyProperty.Register("Oscillations", () => Number, ElasticEase);
+        static SpringinessProperty: DependencyProperty = DependencyProperty.Register("Springiness", () => Number, ElasticEase);
+        Oscillations: number;
+        Springiness: number;
+        EaseInCore(t: number): number {
+            var period = 1.0 / (this.Oscillations + .25);
+            var offset = period / 4;
+            t = t - 1;
+            return t * -Math.pow(2.0, this.Springiness * t) * Math.sin(((t - offset) * Math.PI * 2) / period);
+        }
+    }
+    Nullstone.RegisterType(ElasticEase, "ElasticEase");
+    export class ExponentialEase extends EasingFunctionBase {
+        static ExponentProperty: DependencyProperty = DependencyProperty.Register("Exponent", () => Number, ExponentialEase);
+        Exponent: number;
+        EaseInCore(t: number): number {
+            var e = this.Exponent;
+            return (Math.exp(e * t) - 1) / (Math.exp(e) - 1);
+        }
+    }
+    Nullstone.RegisterType(ExponentialEase, "ExponentialEase");
+    export class PowerEase extends EasingFunctionBase {
+        static PowerProperty: DependencyProperty = DependencyProperty.Register("Power", () => Number, PowerEase);
+        Power: number;
+        EaseInCore(t: number): number {
+            return Math.pow(t, this.Power);
+        }
+    }
+    Nullstone.RegisterType(PowerEase, "PowerEase");
+    export class QuadraticEase extends EasingFunctionBase {
+        EaseInCore(t: number): number {
+            return t * t;
+        }
+    }
+    Nullstone.RegisterType(QuadraticEase, "QuadraticEase");
+    export class QuarticEase extends EasingFunctionBase {
+        EaseInCore(t: number): number {
+            return t * t * t * t;
+        }
+    }
+    Nullstone.RegisterType(QuarticEase, "QuarticEase");
+    export class QuinticEase extends EasingFunctionBase {
+        EaseInCore(t: number): number {
+            return t * t * t * t * t;
+        }
+    }
+    Nullstone.RegisterType(QuinticEase, "QuinticEase");
+    export class SineEase extends EasingFunctionBase {
+        EaseInCore(t: number): number {
+            return 1 - (Math.sin(1 - t) * (Math.PI / 2));
+        }
+    }
+    Nullstone.RegisterType(SineEase, "SineEase");
+}
+
+module Fayde.Media.Animation {
+    export interface IKeyFrameListener {
+        KeyFrameChanged(source: KeyFrame);
+    }
+    export interface IKeyFrame {
+        _ResolvedKeyTime: TimeSpan;
+        _Resolved: bool;
+        Value: any;
+        InterpolateValue(baseValue: any, keyFrameProgress: number): any;
+    }
+    export class KeyFrame extends DependencyObject implements IKeyFrame {
+        private _ResolvedKeyTime: TimeSpan = null;
+        private _Resolved: bool = false;
+        private _Listener: IKeyFrameListener;
+        static KeyTimeProperty: DependencyProperty = DependencyProperty.Register("KeyTime", () => KeyTime, KeyFrame, undefined, (d, args) => (<KeyFrame>d).InvalidateKeyFrame());
+        KeyTime: KeyTime;
+        Value: any;
+        CoerceKeyTime(dobj: DependencyObject, propd: DependencyProperty, value: any, coerced: IOutValue, error: BError): bool {
+            if (!value)
+                coerced.Value = this.KeyTime;
+            else
+                coerced.Value = value;
+            return true;
+        }
+        InterpolateValue(baseValue: any, keyFrameProgress: number): any {
+            return undefined;
+        }
+        CompareToTimeSpan(otherTs: TimeSpan): number {
+            return this._ResolvedKeyTime.CompareTo(otherTs);
+        }
+        Listen(listener: IKeyFrameListener) { this._Listener = listener; }
+        Unlisten(listener: IKeyFrameListener) { if (this._Listener === listener) this._Listener = null; }
+        InvalidateKeyFrame() {
+            var listener = this._Listener;
+            if (listener) listener.KeyFrameChanged(this);
+        }
+        static Comparer(kf1: KeyFrame, kf2: KeyFrame): number {
+            var ts1 = kf1._ResolvedKeyTime;
+            var ts2 = kf2._ResolvedKeyTime;
+            return ts1.CompareTo(ts2);
+        }
+        static ResolveKeyFrames(animation: AnimationBase): KeyFrame[] {
+            var totalInterpolationTime: TimeSpan;
+            var hasTimeSpanKeyFrame = false;
+            var highestKeyTimeTimeSpan = new TimeSpan();
+            var keyFrame: KeyFrame;
+            var arr: KeyFrame[] = (this)._ht;
+            var len = arr.length;
+            var i: number;
+            for (i = 0; i < len; i++) {
+                keyFrame = arr[i];
+                keyFrame._ResolvedKeyTime = new TimeSpan();
+                keyFrame._Resolved = false;
+            }
+            var keyTime;
+            for (i = 0; i < len; i++) {
+                keyFrame = arr[i];
+                keyTime = keyFrame.KeyTime;
+                if (keyTime.HasTimeSpan) {
+                    hasTimeSpanKeyFrame = true;
+                    var ts = keyTime.TimeSpan;
+                    if (ts.CompareTo(highestKeyTimeTimeSpan) > 0)
+                        highestKeyTimeTimeSpan = ts;
+                    keyFrame._ResolvedKeyTime = ts;
+                    keyFrame._Resolved = true;
+                }
+            }
+            var d = animation._Store.GetValue(Timeline.DurationProperty);
+            if (d.HasTimeSpan) {
+                totalInterpolationTime = d.TimeSpan;
+            } else if (hasTimeSpanKeyFrame) {
+                totalInterpolationTime = highestKeyTimeTimeSpan;
+            } else {
+                totalInterpolationTime = TimeSpan.FromTicks(TimeSpan._TicksPerSecond);
+            }
+            for (i = 0; i < len; i++) {
+                keyFrame = arr[i];
+                keyTime = keyFrame.KeyTime;
+                if (keyTime.HasPercent) {
+                    keyFrame._ResolvedKeyTime = totalInterpolationTime.Multiply(keyTime.Percent)
+                    keyFrame._Resolved = true;
+                }
+            }
+            if (len > 0) {
+                keyFrame = arr[len - 1];
+                keyTime = keyFrame.KeyTime;
+                if (keyTime.IsPaced || keyTime.IsUniform) {
+                    keyFrame._ResolvedKeyTime = totalInterpolationTime;
+                    keyFrame._Resolved = true;
+                }
+            }
+            /* if the first frame is KeyTime Paced:
+            **   1. if there is only 1 frame, its KeyTime is the total interpolation time.
+            **   2. if there is more than 1 frame, its KeyTime is 0.
+            **
+            ** note 1 is handled in the above block so we only have to
+            ** handle 2 here.
+            */
+            if (len > 0) {
+                keyFrame = arr[len - 1];
+                keyTime = keyFrame.KeyTime;
+                if (!keyFrame._Resolved && keyTime.IsPaced) {
+                    keyFrame._ResolvedKeyTime = new TimeSpan();
+                    keyFrame._Resolved = true;
+                }
+            }
+            return arr;
+        }
+    }
+    Nullstone.RegisterType(KeyFrame, "KeyFrame");
+    export class KeyFrameCollection extends XamlObjectCollection {
+        private _Resolved: bool = false;
+        private _SortedList: KeyFrame[] = [];
+        GetKeyFrameForTime(t: TimeSpan, prevFrameRef: IOutValue): KeyFrame {
+            var currentKeyFrame: KeyFrame = null;
+            var previousKeyFrame: KeyFrame = null;
+            var i;
+            var sortedList = this._SortedList;
+            if (sortedList.length == 0) {
+                prevFrameRef.Value = null;
+                return null;
+            }
+            var keyFrame: KeyFrame;
+            var valuePropd;
+            for (i = 0; i < sortedList.length; i++) {
+                keyFrame = sortedList[i];
+                if (keyFrame.CompareToTimeSpan(t) >= 0 || (i + 1) >= sortedList.length)
+                    break;
+            }
+            for (; i >= 0; i--) {
+                keyFrame = sortedList[i];
+                valuePropd = DependencyProperty.GetDependencyProperty((<any>keyFrame).constructor, "Value");
+                if (keyFrame._Store.GetValue(valuePropd) !== undefined) {
+                    currentKeyFrame = keyFrame;
+                    break;
+                }
+            }
+            for (i--; i >= 0; i--) {
+                keyFrame = sortedList[i];
+                valuePropd = DependencyProperty.GetDependencyProperty((<any>keyFrame).constructor, "Value");
+                if (keyFrame._Store.GetValue(valuePropd) !== undefined) {
+                    previousKeyFrame = keyFrame;
+                    break;
+                }
+            }
+            prevFrameRef.Value = previousKeyFrame;
+            return currentKeyFrame;
+        }
+        Clear(): bool {
+            this._Resolved = false;
+            this._SortedList = [];
+            return super.Clear();
+        }
+        private AddedToCollection(value: KeyFrame, error: BError): bool {
+            if (!super.AddedToCollection(value, error))
+                return false;
+            this._Resolved = false;
+            value.Listen(this);
+            return true;
+        }
+        private RemovedFromCollection(value: KeyFrame, isValueSafe: bool) {
+            super.RemovedFromCollection(value, isValueSafe);
+            this._Resolved = false;
+            value.Unlisten(this);
+        }
+        private KeyFrameChanged(source: KeyFrame) {
+            this._Resolved = false;
+        }
+        static ResolveKeyFrames(animation: AnimationBase, coll: KeyFrameCollection): KeyFrame[] {
+            if (coll._Resolved)
+                return;
+            coll._SortedList = KeyFrame.ResolveKeyFrames(animation).slice(0);
+            coll._SortedList.sort(KeyFrame.Comparer);
+            coll._Resolved = true;
+            return coll._SortedList;
+        }
+    }
+    Nullstone.RegisterType(KeyFrameCollection, "KeyFrameCollection");
+}
+
+module Fayde.Media.Animation {
+    export class KeySpline extends DependencyObject {
+        static PRECISION_LEVEL: number = 4;
+        static TOTAL_COUNT: number = Math.pow(2, KeySpline.PRECISION_LEVEL);
+        static ControlPoint1Property: DependencyProperty = DependencyProperty.RegisterCore("ControlPoint1", function () { return Point; }, KeySpline, new Point(0, 0), (d, args) => (<KeySpline>d).InvalidateControlPoints());
+        static ControlPoint2Property: DependencyProperty = DependencyProperty.RegisterCore("ControlPoint2", function () { return Point; }, KeySpline, new Point(1.0, 1.0), (d, args) => (<KeySpline>d).InvalidateControlPoints());
+        ControlPoint1: Point;
+        ControlPoint2: Point;
+        private _QuadraticsArray: IQuadraticCurve[] = null;
+        GetSplineProgress(linearProgress: number): number {
+            if (linearProgress >= 1.0)
+                return 1.0;
+            if (linearProgress <= 0.0)
+                return 0.0;
+            if (!this._QuadraticsArray)
+                this._RegenerateQuadratics();
+            return Curves.QuadraticArrayYForX(this._QuadraticsArray, linearProgress, KeySpline.TOTAL_COUNT);
+        }
+        private InvalidateControlPoints() {
+            this._QuadraticsArray = null;
+        }
+        private _RegenerateQuadratics() {
+            var c1 = this.ControlPoint1;
+            var c2 = this.ControlPoint2;
+            var src: ICubicCurve = {
+                c0: { x: 0.0, y: 0.0 },
+                c1: { x: c1.X, y: c1.Y },
+                c2: { x: c2.X, y: c2.Y },
+                c3: { x: 1.0, y: 1.0 }
+            };
+            var carr: ICubicCurve[] = [];
+            Curves.SubdivideCubicAtLevel(carr, KeySpline.PRECISION_LEVEL, src);
+            this._QuadraticsArray = Curves.ConvertCubicsToQuadratics(carr, KeySpline.TOTAL_COUNT);
+        }
+    }
+    Nullstone.RegisterType(KeySpline, "KeySpline");
+}
+
+module Fayde.Media.Animation {
+    export class ObjectKeyFrame extends KeyFrame {
+        static ValueProperty: DependencyProperty = DependencyProperty.Register("Value", () => Object, ObjectKeyFrame);
+        Value: any;
+        ConvertedValue: any = undefined;
+    }
+    Nullstone.RegisterType(ObjectKeyFrame, "ObjectKeyFrame");
+    export class DiscreteObjectKeyFrame extends ObjectKeyFrame {
+        InterpolateValue(baseValue: any, keyFrameProgress: number): any {
+            if (keyFrameProgress >= 1.0)
+                return this.ConvertedValue;
+            return baseValue;
+        }
+    }
+    Nullstone.RegisterType(DiscreteObjectKeyFrame, "DiscreteObjectKeyFrame");
+}
+
+module Fayde.Media.Animation {
+    export class PointKeyFrame extends KeyFrame {
+        static ValueProperty: DependencyProperty = DependencyProperty.Register("Value", () => Point, PointKeyFrame);
+        Value: Point;
+    }
+    Nullstone.RegisterType(PointKeyFrame, "PointKeyFrame");
+    export class DiscretePointKeyFrame extends PointKeyFrame {
+        InterpolateValue(baseValue: Point, keyFrameProgress: number): Point {
+            if (keyFrameProgress >= 1.0)
+                return this.Value;
+            return baseValue;
+        }
+    }
+    Nullstone.RegisterType(DiscretePointKeyFrame, "DiscretePointKeyFrame");
+    export class EasingPointKeyFrame extends PointKeyFrame {
+        static EasingFunctionProperty: DependencyProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, EasingPointKeyFrame);
+        EasingFunction: EasingFunctionBase;
+        InterpolateValue(baseValue: Point, keyFrameProgress: number): Point {
+            if (keyFrameProgress >= 1.0)
+                return this.Value;
+            var start = baseValue;
+            var end = this.Value;
+            var easingFunction = this.EasingFunction;
+            if (easingFunction)
+                keyFrameProgress = easingFunction.Ease(keyFrameProgress);
+            return Point.LERP(start, end, keyFrameProgress);
+        }
+    }
+    Nullstone.RegisterType(EasingPointKeyFrame, "EasingPointKeyFrame");
+    export class LinearPointKeyFrame extends PointKeyFrame {
+        InterpolateValue(baseValue: Point, keyFrameProgress: number): Point {
+            return Point.LERP(baseValue, this.Value, keyFrameProgress);
+        }
+    }
+    Nullstone.RegisterType(LinearPointKeyFrame, "LinearPointKeyFrame");
+    export class SplinePointKeyFrame extends PointKeyFrame {
+        static KeySplineProperty: DependencyProperty = DependencyProperty.Register("KeySpline", () => KeySpline, SplinePointKeyFrame);
+        KeySpline: KeySpline;
+        InterpolateValue(baseValue: Point, keyFrameProgress: number): Point {
+            if (keyFrameProgress >= 1.0)
+                return this.Value;
+            var start = baseValue;
+            var end = this.Value;
+            var splineProgress = keyFrameProgress;
+            var keySpline = this.KeySpline;
+            if (keySpline)
+                splineProgress = keySpline.GetSplineProgress(keyFrameProgress);
+            if (isNaN(start.X))
+                start.X = 0;
+            if (isNaN(start.Y))
+                start.Y = 0;
+            if (isNaN(end.X))
+                end.X = 0;
+            if (isNaN(end.Y))
+                end.Y = 0;
+            return Point.LERP(start, end, splineProgress);
+        }
+    }
+    Nullstone.RegisterType(SplinePointKeyFrame, "SplinePointKeyFrame");
+}
+
+module Fayde.Media.Animation {
     export interface IClockData {
         CurrentTime: TimeSpan;
         Progress: number;
@@ -7328,7 +7864,7 @@ module Fayde.Media {
 }
 
 module Fayde.Media.Animation {
-    export class Animation extends Timeline {
+    export class AnimationBase extends Timeline {
         private _Storage: AnimationStorage;
         Resolve(target: DependencyObject, propd: DependencyProperty) { return true; }
         HookupStorage(targetObj: DependencyObject, targetProp: DependencyProperty): AnimationStorage {
@@ -7353,7 +7889,431 @@ module Fayde.Media.Animation {
         GetTargetValue(defaultOriginalValue: any): any { return undefined; }
         GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): any { return undefined; }
     }
-    Nullstone.RegisterType(Animation, "Animation");
+    Nullstone.RegisterType(AnimationBase, "AnimationBase");
+}
+
+module Fayde.Media.Animation {
+    export class AnimationUsingKeyFrames extends AnimationBase {
+        KeyFrames: KeyFrameCollection;
+        constructor() {
+            super();
+            Object.defineProperty(this, "KeyFrames", {
+                value: new KeyFrameCollection(),
+                writable: false
+            });
+        }
+        Resolve(target: DependencyObject, propd: DependencyProperty): bool {
+            var keyFrames = this.KeyFrames;
+            var sortedList = KeyFrameCollection.ResolveKeyFrames(this, keyFrames);
+            var count = sortedList.length;
+            for (var j = 0; j < count; j++) {
+                if (!sortedList[j].KeyTime.IsValid)
+                    return false;
+            }
+            return true;
+        }
+        GetCurrentValue(defaultOriginValue: any, defaultDestinationValue: any, clockData: IClockData): any {
+            var keyFrames = this.KeyFrames;
+            var prevFrameRef = { Value: null };
+            var currentKeyFrame: IKeyFrame = keyFrames.GetKeyFrameForTime(clockData.CurrentTime, prevFrameRef);
+            var prevFrame: IKeyFrame = prevFrameRef.Value;
+            if (!currentKeyFrame)
+                return null;
+            var baseValue: any;
+            var keyStartTime: TimeSpan;
+            var keyEndTime = currentKeyFrame._ResolvedKeyTime;
+            if (!prevFrame) {
+                baseValue = defaultOriginValue;
+                keyStartTime = new TimeSpan();
+            } else {
+                if (prevFrame instanceof ObjectKeyFrame) {
+                    baseValue = (<ObjectKeyFrame>prevFrame).ConvertedValue;
+                } else {
+                    baseValue = prevFrame.Value;
+                }
+                keyStartTime = prevFrame._ResolvedKeyTime;
+            }
+            var progress: number;
+            if (clockData.CurrentTime.CompareTo(keyEndTime) >= 0) {
+                progress = 1.0;
+            } else {
+                var keyDuration = keyEndTime.Ticks - keyStartTime.Ticks;
+                if (keyDuration <= 0)
+                    progress = 1.0;
+                else
+                    progress = (clockData.CurrentTime.Ticks - keyStartTime.Ticks) / keyDuration;
+            }
+            return currentKeyFrame.InterpolateValue(baseValue, progress);
+        }
+        GetNaturalDurationCore(): Duration {
+            var keyFrames = this.KeyFrames;
+            var sortedList: IKeyFrame[] = KeyFrameCollection.ResolveKeyFrames(this, keyFrames);
+            var len = sortedList.length;
+            var ts: TimeSpan;
+            if (len > 0)
+                ts = sortedList[len - 1]._ResolvedKeyTime;
+            else
+                ts = new TimeSpan();
+            return Duration.CreateTimeSpan(ts);
+        }
+        AddKeyFrame(kf: KeyFrame) { this.KeyFrames.Add(kf); }
+        RemoveKeyFrame(kf: KeyFrame) { this.KeyFrames.Remove(kf); }
+    }
+    Nullstone.RegisterType(AnimationUsingKeyFrames, "AnimationUsingKeyFrames");
+}
+
+module Fayde.Media.Animation {
+    export class ColorAnimation extends AnimationBase {
+        static ByProperty: DependencyProperty = DependencyProperty.Register("By", () => Color, ColorAnimation, undefined, (d, args) => (<ColorAnimation>d)._InvalidateCache());
+        static EasingFunctionProperty: DependencyProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, ColorAnimation, undefined, (d, args) => (<ColorAnimation>d)._InvalidateCache());
+        static FromProperty: DependencyProperty = DependencyProperty.Register("From", () => Color, ColorAnimation, undefined, (d, args) => (<ColorAnimation>d)._InvalidateCache());
+        static ToProperty: DependencyProperty = DependencyProperty.Register("To", () => Color, ColorAnimation, undefined, (d, args) => (<ColorAnimation>d)._InvalidateCache());
+        By: Color;
+        EasingFunction: IEasingFunction;
+        From: Color;
+        To: Color;
+        private _HasCached: bool = false;
+        private _FromCached: Color = null;
+        private _ToCached: Color = null;
+        private _ByCached: Color = null;
+        GetTargetValue(defaultOriginalValue: any): Color {
+            this._EnsureCache();
+            var start = new Color();
+            if (this._FromCached != null)
+                start = this._FromCached;
+            else if (defaultOriginalValue != null && defaultOriginalValue instanceof Color)
+                start = defaultOriginalValue;
+            if (this._ToCached != null)
+                return this._ToCached;
+            else if (this._ByCached != null)
+                return start.Add(this._ByCached);
+            return start;
+        }
+        GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): Color {
+            this._EnsureCache();
+            var start = new Color();
+            if (this._FromCached != null)
+                start = this._FromCached;
+            else if (defaultOriginalValue != null && defaultOriginalValue instanceof Color)
+                start = defaultOriginalValue;
+            var end = start;
+            if (this._ToCached != null)
+                end = this._ToCached;
+            else if (this._ByCached != null)
+                end = start.Add(this._ByCached);
+            else if (defaultDestinationValue != null && defaultDestinationValue instanceof Color)
+                end = defaultDestinationValue;
+            var easingFunc = this.EasingFunction;
+            if (easingFunc != null)
+                clockData.Progress = easingFunc.Ease(clockData.Progress);
+            return Color.LERP(start, end, clockData.Progress);
+        }
+        private _EnsureCache() {
+            if (this._HasCached)
+                return;
+            this._FromCached = this.From;
+            this._ToCached = this.To;
+            this._ByCached = this.By;
+            this._HasCached = true;
+        }
+        private _InvalidateCache() {
+            this._FromCached = null;
+            this._ToCached = null;
+            this._ByCached = null;
+            this._HasCached = false;
+        }
+    }
+    Nullstone.RegisterType(ColorAnimation, "ColorAnimation");
+}
+
+module Fayde.Media.Animation {
+    export class ColorAnimationUsingKeyFrames extends AnimationUsingKeyFrames {
+        static Annotations = { ContentProperty: "KeyFrames" };
+    }
+    Nullstone.RegisterType(ColorAnimationUsingKeyFrames, "ColorAnimationUsingKeyFrames");
+}
+
+module Fayde.Media.Animation {
+    export class ColorKeyFrame extends KeyFrame {
+        static ValueProperty: DependencyProperty = DependencyProperty.Register("Value", () => Color, ColorKeyFrame);
+        Value: Color;
+    }
+    Nullstone.RegisterType(ColorKeyFrame, "ColorKeyFrame");
+    export class DiscreteColorKeyFrame extends ColorKeyFrame {
+        InterpolateValue(baseValue: Color, keyFrameProgress: number): Color {
+            if (keyFrameProgress >= 1.0)
+                return this.Value;
+            return baseValue;
+        }
+    }
+    Nullstone.RegisterType(DiscreteColorKeyFrame, "DiscreteColorKeyFrame");
+    export class EasingColorKeyFrame extends ColorKeyFrame {
+        static EasingFunctionProperty: DependencyProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, EasingColorKeyFrame);
+        EasingFunction: EasingFunctionBase;
+        InterpolateValue(baseValue: Color, keyFrameProgress: number): Color {
+            if (keyFrameProgress >= 1.0)
+                return this.Value;
+            var start = baseValue;
+            var end = this.Value;
+            var easingFunction = this.EasingFunction;
+            if (easingFunction)
+                keyFrameProgress = easingFunction.Ease(keyFrameProgress);
+            return Color.LERP(start, end, keyFrameProgress);
+        }
+    }
+    Nullstone.RegisterType(EasingColorKeyFrame, "EasingColorKeyFrame");
+    export class LinearColorKeyFrame extends ColorKeyFrame {
+        InterpolateValue(baseValue: Color, keyFrameProgress: number): Color {
+            return Color.LERP(baseValue, this.Value, keyFrameProgress);
+        }
+    }
+    Nullstone.RegisterType(LinearColorKeyFrame, "LinearColorKeyFrame");
+    export class SplineColorKeyFrame extends ColorKeyFrame {
+        static KeySplineProperty: DependencyProperty = DependencyProperty.Register("KeySpline", () => KeySpline, SplineColorKeyFrame);
+        KeySpline: KeySpline;
+        InterpolateValue(baseValue: Color, keyFrameProgress: number): Color {
+            if (keyFrameProgress >= 1.0)
+                return this.Value;
+            var start = baseValue;
+            var end = this.Value;
+            var splineProgress = keyFrameProgress;
+            var keySpline = this.KeySpline;
+            if (keySpline)
+                splineProgress = keySpline.GetSplineProgress(keyFrameProgress);
+            return Color.LERP(start, end, splineProgress);
+        }
+    }
+    Nullstone.RegisterType(SplineColorKeyFrame, "SplineColorKeyFrame");
+}
+
+module Fayde.Media.Animation {
+    export class DoubleAnimation extends AnimationBase {
+        static ByProperty: DependencyProperty = DependencyProperty.Register("By", () => Number, DoubleAnimation, undefined, (d, args) => (<DoubleAnimation>d)._InvalidateCache());
+        static EasingFunctionProperty: DependencyProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, DoubleAnimation, undefined, (d, args) => (<DoubleAnimation>d)._InvalidateCache());
+        static FromProperty: DependencyProperty = DependencyProperty.Register("From", () => Number, DoubleAnimation, undefined, (d, args) => (<DoubleAnimation>d)._InvalidateCache());
+        static ToProperty: DependencyProperty = DependencyProperty.Register("To", () => Number, DoubleAnimation, undefined, (d, args) => (<DoubleAnimation>d)._InvalidateCache());
+        By: number;
+        EasingFunction: IEasingFunction;
+        From: number;
+        To: number;
+        private _HasCached: bool = false;
+        private _FromCached: number = 0.0;
+        private _ToCached: number = 0.0;
+        private _ByCached: number = 0.0;
+        GetTargetValue(defaultOriginalValue: any): number {
+            this._EnsureCache();
+            var start = 0.0;
+            if (this._FromCached != null)
+                start = this._FromCached;
+            else if (defaultOriginalValue != null && typeof defaultOriginalValue === "number")
+                start = defaultOriginalValue;
+            if (this._ToCached != null)
+                return this._ToCached;
+            else if (this._ByCached != null)
+                return start + this._ByCached;
+            return start;
+        }
+        GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): number {
+            this._EnsureCache();
+            var start = 0.0;
+            if (this._FromCached != null)
+                start = this._FromCached;
+            else if (defaultOriginalValue != null && typeof defaultOriginalValue === "number")
+                start = defaultOriginalValue;
+            var end = start;
+            if (this._ToCached != null)
+                end = this._ToCached;
+            else if (this._ByCached != null)
+                end = start + this._ByCached;
+            else if (defaultDestinationValue != null && typeof defaultDestinationValue === "number")
+                end = defaultDestinationValue;
+            var easingFunc = this.EasingFunction;
+            if (easingFunc != null)
+                clockData.Progress = easingFunc.Ease(clockData.Progress);
+            return start + ((end - start) * clockData.Progress);
+        }
+        private _EnsureCache() {
+            if (this._HasCached)
+                return;
+            this._FromCached = this.From;
+            this._ToCached = this.To;
+            this._ByCached = this.By;
+            this._HasCached = true;
+        }
+        private _InvalidateCache() {
+            this._FromCached = 0.0;
+            this._ToCached = 0.0;
+            this._ByCached = 0.0;
+            this._HasCached = false;
+        }
+    }
+    Nullstone.RegisterType(DoubleAnimation, "DoubleAnimation");
+}
+
+module Fayde.Media.Animation {
+    export class DoubleAnimationUsingKeyFrames extends AnimationUsingKeyFrames {
+        static Annotations = { ContentProperty: "KeyFrames" };
+    }
+    Nullstone.RegisterType(DoubleAnimationUsingKeyFrames, "DoubleAnimationUsingKeyFrames");
+}
+
+module Fayde.Media.Animation {
+    export class DoubleKeyFrame extends KeyFrame {
+        static ValueProperty: DependencyProperty = DependencyProperty.Register("Value", () => Number, DoubleKeyFrame);
+        Value: number;
+    }
+    Nullstone.RegisterType(DoubleKeyFrame, "DoubleKeyFrame");
+    export class DiscreteDoubleKeyFrame extends DoubleKeyFrame {
+        InterpolateValue(baseValue: number, keyFrameProgress: number): number {
+            if (keyFrameProgress >= 1.0)
+                return this.Value;
+            return baseValue;
+        }
+    }
+    Nullstone.RegisterType(DiscreteDoubleKeyFrame, "DiscreteDoubleKeyFrame");
+    export class EasingDoubleKeyFrame extends DoubleKeyFrame {
+        static EasingFunctionProperty: DependencyProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, EasingDoubleKeyFrame);
+        EasingFunction: EasingFunctionBase;
+        InterpolateValue(baseValue: number, keyFrameProgress: number): number {
+            if (keyFrameProgress >= 1.0)
+                return this.Value;
+            var start = baseValue;
+            var end = this.Value;
+            var easingFunction = this.EasingFunction;
+            if (easingFunction)
+                keyFrameProgress = easingFunction.Ease(keyFrameProgress);
+            if (isNaN(start))
+                start = 0;
+            if (isNaN(end))
+                end = 0;
+            return start + (end - start) * keyFrameProgress;
+        }
+    }
+    Nullstone.RegisterType(EasingDoubleKeyFrame, "EasingDoubleKeyFrame");
+    export class LinearDoubleKeyFrame extends DoubleKeyFrame {
+        InterpolateValue(baseValue: number, keyFrameProgress: number): number {
+            var start = baseValue;
+            var end = this.Value;
+            if (isNaN(start))
+                start = 0;
+            if (isNaN(end))
+                end = 0;
+            return start + (end - start) * keyFrameProgress;
+        }
+    }
+    Nullstone.RegisterType(LinearDoubleKeyFrame, "LinearDoubleKeyFrame");
+    export class SplineDoubleKeyFrame extends DoubleKeyFrame {
+        static KeySplineProperty: DependencyProperty = DependencyProperty.Register("KeySpline", () => KeySpline, SplineDoubleKeyFrame);
+        KeySpline: KeySpline;
+        InterpolateValue(baseValue: number, keyFrameProgress: number): number {
+            if (keyFrameProgress >= 1.0)
+                return this.Value;
+            var start = baseValue;
+            var end = this.Value;
+            var splineProgress = keyFrameProgress;
+            var keySpline = this.KeySpline;
+            if (keySpline)
+                splineProgress = keySpline.GetSplineProgress(keyFrameProgress);
+            if (isNaN(start))
+                start = 0;
+            if (isNaN(end))
+                end = 0;
+            return start + (end - start) * splineProgress;
+        }
+    }
+    Nullstone.RegisterType(SplineDoubleKeyFrame, "SplineDoubleKeyFrame");
+}
+
+module Fayde.Media.Animation {
+    export class ObjectAnimationUsingKeyFrames extends AnimationUsingKeyFrames {
+        static Annotations = { ContentProperty: "KeyFrames" };
+        Resolve(target: DependencyObject, propd: DependencyProperty): bool {
+            var enumerator = this.KeyFrames.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                var keyFrame: ObjectKeyFrame = enumerator.Current;
+                var value = keyFrame.Value;
+                if (value == null) {
+                    keyFrame.ConvertedValue = undefined;
+                } else {
+                    var converted = value;
+                    keyFrame.ConvertedValue = converted;
+                }
+            }
+            return super.Resolve(target, propd);
+        }
+    }
+    Nullstone.RegisterType(ObjectAnimationUsingKeyFrames, "ObjectAnimationUsingKeyFrames");
+}
+
+module Fayde.Media.Animation {
+    export class PointAnimation extends AnimationBase {
+        static ByProperty: DependencyProperty = DependencyProperty.Register("By", () => Point, PointAnimation, undefined, (d, args) => (<PointAnimation>d)._InvalidateCache());
+        static EasingFunctionProperty: DependencyProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, PointAnimation, undefined, (d, args) => (<PointAnimation>d)._InvalidateCache());
+        static FromProperty: DependencyProperty = DependencyProperty.Register("From", () => Point, PointAnimation, undefined, (d, args) => (<PointAnimation>d)._InvalidateCache());
+        static ToProperty: DependencyProperty = DependencyProperty.Register("To", () => Point, PointAnimation, undefined, (d, args) => (<PointAnimation>d)._InvalidateCache());
+        By: Point;
+        EasingFunction: IEasingFunction;
+        From: Point;
+        To: Point;
+        private _HasCached: bool = false;
+        private _FromCached: Point = null;
+        private _ToCached: Point = null;
+        private _ByCached: Point = null;
+        GetTargetValue(defaultOriginalValue: any): Point {
+            this._EnsureCache();
+            var start = new Point();
+            if (this._FromCached != null)
+                start = this._FromCached;
+            else if (defaultOriginalValue != null && defaultOriginalValue instanceof Point)
+                start = defaultOriginalValue;
+            if (this._ToCached != null)
+                return this._ToCached;
+            else if (this._ByCached != null)
+                return new Point(start.X + this._ByCached.X, start.Y + this._ByCached.Y);
+            return start;
+        }
+        GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): Point {
+            this._EnsureCache();
+            var start = new Point();
+            if (this._FromCached != null)
+                start = this._FromCached;
+            else if (defaultOriginalValue != null && defaultOriginalValue instanceof Point)
+                start = defaultOriginalValue;
+            var end = start;
+            if (this._ToCached != null)
+                end = this._ToCached;
+            else if (this._ByCached != null)
+                end = new Point(start.X + this._ByCached.X, start.Y + this._ByCached.Y);
+            else if (defaultDestinationValue != null && defaultDestinationValue instanceof Point)
+                end = defaultDestinationValue;
+            var easingFunc = this.EasingFunction;
+            if (easingFunc != null)
+                clockData.Progress = easingFunc.Ease(clockData.Progress);
+            return Point.LERP(start, end, clockData.Progress);
+        }
+        private _EnsureCache() {
+            if (this._HasCached)
+                return;
+            this._FromCached = this.From;
+            this._ToCached = this.To;
+            this._ByCached = this.By;
+            this._HasCached = true;
+        }
+        private _InvalidateCache() {
+            this._FromCached = null;
+            this._ToCached = null;
+            this._ByCached = null;
+            this._HasCached = false;
+        }
+    }
+    Nullstone.RegisterType(PointAnimation, "PointAnimation");
+}
+
+module Fayde.Media.Animation {
+    export class PointAnimationUsingKeyFrames extends AnimationUsingKeyFrames {
+        static Annotations = { ContentProperty: "KeyFrames" };
+    }
+    Nullstone.RegisterType(PointAnimationUsingKeyFrames, "PointAnimationUsingKeyFrames");
 }
 
 module Fayde.Media.Animation {
@@ -7410,12 +8370,12 @@ module Fayde.Media.Animation {
         private _HookupAnimations(promotedValues: any[], error: BError): bool {
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.MoveNext()) {
-                if (!this._HookupAnimation((<Animation>enumerator.Current), null, null, promotedValues, error))
+                if (!this._HookupAnimation((<AnimationBase>enumerator.Current), null, null, promotedValues, error))
                     return false;
             }
             return true;
         }
-        private _HookupAnimation(animation: Animation, targetObject: DependencyObject, targetPropertyPath: Data.PropertyPath, promotedValues: any[], error: BError): bool {
+        private _HookupAnimation(animation: AnimationBase, targetObject: DependencyObject, targetPropertyPath: Data.PropertyPath, promotedValues: any[], error: BError): bool {
             animation.Reset();
             var localTargetObject = null;
             var localTargetPropertyPath = null;

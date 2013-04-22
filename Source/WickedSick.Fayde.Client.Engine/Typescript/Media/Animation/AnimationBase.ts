@@ -3,7 +3,7 @@
 /// <reference path="AnimationStorage.ts"/>
 
 module Fayde.Media.Animation {
-    export class Animation extends Timeline {
+    export class AnimationBase extends Timeline {
         private _Storage: AnimationStorage;
 
         Resolve(target: DependencyObject, propd: DependencyProperty) { return true; }
@@ -31,5 +31,5 @@ module Fayde.Media.Animation {
         GetTargetValue(defaultOriginalValue: any): any { return undefined; }
         GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): any { return undefined; }
     }
-    Nullstone.RegisterType(Animation, "Animation");
+    Nullstone.RegisterType(AnimationBase, "AnimationBase");
 }
