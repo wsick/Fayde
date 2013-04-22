@@ -99,6 +99,10 @@ Media/Animation/PointKeyFrame.js
 Media/Animation/Timeline.js
 Media/Effects/Effect.js
 Media/Imaging/ImageSource.js
+Media/VSM/VisualState.js
+Media/VSM/VisualStateGroup.js
+Media/VSM/VisualStateManager.js
+Media/VSM/VisualTransition.js
 Controls/ControlTemplate.js
 Core/DataTemplate.js
 Core/UIElement.js

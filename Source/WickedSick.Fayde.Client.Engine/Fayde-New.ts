@@ -5430,6 +5430,10 @@ class EventArgs {
 Nullstone.RegisterType(EventArgs, "EventArgs");
 
 class MulticastEvent {
+    Subscribe(callback: (sender: any, e: EventArgs) => void , closure: any) {
+    }
+    Unsubscribe(callback: (sender: any, e: EventArgs) => void , closure: any) {
+    }
     Raise(sender: any, args: EventArgs) {
     }
     RaiseAsync(sender: any, args: EventArgs) {
@@ -7275,6 +7279,301 @@ module Fayde.Media.Imaging {
     Nullstone.RegisterType(ImageSource, "ImageSource");
 }
 
+module Fayde.Media.VSM {
+    export class VisualState extends DependencyObject {
+        static StoryboardProperty: DependencyProperty = DependencyProperty.Register("Storyboard", () => Animation.Storyboard, VisualState);
+        Storyboard: Animation.Storyboard;
+        static Annotations = { ContentProperty: VisualState.StoryboardProperty };
+    }
+    Nullstone.RegisterType(VisualState, "VisualState");
+    export class VisualStateCollection extends XamlObjectCollection {
+    }
+    Nullstone.RegisterType(VisualStateCollection, "VisualStateCollection");
+}
+
+module Fayde.Media.VSM {
+    export class VisualStateChangedEventArgs extends EventArgs {
+        constructor(public OldState: VisualState, public NewState: VisualState, public Control: Controls.Control) {
+            super();
+        }
+    }
+    export class VisualStateGroup extends DependencyObject {
+        static Annotations = { ContentProperty: "States" };
+        private _CurrentStoryboards: Animation.Storyboard[] = [];
+        private _Transitions: VisualTransition[] = null;
+        Transitions: VisualTransition[];
+        States: VisualStateCollection;
+        CurrentStateChanging: MulticastEvent = new MulticastEvent();
+        CurrentStateChanged: MulticastEvent = new MulticastEvent();
+        CurrentState: VisualState = null;
+        constructor() {
+            super();
+            Object.defineProperty(this, "States", {
+                value: new VisualStateCollection(),
+                writable: false
+            });
+            Object.defineProperty(this, "Transitions", {
+                get: function() {
+                    if (!this._Transitions)
+                        this._Transitions = [];
+                    return this._Transitions;
+                }
+            });
+        }
+        GetState(stateName: string): VisualState {
+            var enumerator = this.States.GetEnumerator();
+            var state: VisualState;
+            while (enumerator.MoveNext()) {
+                state = enumerator.Current;
+                if (state.Name === stateName)
+                    return state;
+            }
+            return null;
+        }
+        StartNewThenStopOld(element: FrameworkElement, newStoryboards: Animation.Storyboard[]) {
+            var i;
+            var storyboard;
+            for (i = 0; i < newStoryboards.length; i++) {
+                storyboard = newStoryboards[i];
+                if (storyboard == null)
+                    continue;
+                element.Resources.Set(storyboard._ID, storyboard);
+                try {
+                    storyboard.Begin();
+                } catch (err) {
+                    for (var j = 0; j <= i; j++) {
+                        if (newStoryboards[j] != null)
+                            element.Resources.Remove((<any>newStoryboards[j])._ID);
+                    }
+                    throw err;
+                }
+            }
+            this.StopCurrentStoryboards(element);
+            var curStoryboards = this._CurrentStoryboards;
+            for (i = 0; i < newStoryboards.length; i++) {
+                if (newStoryboards[i] == null)
+                    continue;
+                curStoryboards.push(newStoryboards[i]);
+            }
+        }
+        StopCurrentStoryboards(element: FrameworkElement) {
+            var curStoryboards = this._CurrentStoryboards;
+            var enumerator = ArrayEx.GetEnumerator(curStoryboards);
+            var storyboard: Animation.Storyboard;
+            while (enumerator.MoveNext()) {
+                storyboard = enumerator.Current;
+                if (!storyboard)
+                    continue;
+                element.Resources.Remove((<any>storyboard)._ID);
+                storyboard.Stop();
+            }
+            this._CurrentStoryboards = [];
+        }
+        RaiseCurrentStateChanging(element: FrameworkElement, oldState: VisualState, newState: VisualState, control: Controls.Control) {
+            this.CurrentStateChanging.Raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
+        }
+        RaiseCurrentStateChanged(element: FrameworkElement, oldState: VisualState, newState: VisualState, control: Controls.Control) {
+            this.CurrentStateChanged.Raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
+        }
+    }
+    Nullstone.RegisterType(VisualStateGroup, "VisualStateGroup");
+    export class VisualStateGroupCollection extends XamlObjectCollection {
+    }
+    Nullstone.RegisterType(VisualStateGroupCollection, "VisualStateGroupCollection");
+}
+
+module Fayde.Media.VSM {
+    declare var NotImplemented;
+    export interface IStateData {
+        state: VisualState;
+        group: VisualStateGroup;
+    }
+    export class VisualStateManager extends DependencyObject {
+        static VisualStateGroupsProperty: DependencyProperty = DependencyProperty.RegisterAttachedCore("VisualStateGroups", () => VisualStateGroupCollection, VisualStateManager);
+        static GetVisualStateGroups(d: DependencyObject): VisualStateGroupCollection { return d.GetValue(VisualStateGroupsProperty); }
+        static SetVisualStateGroups(d: DependencyObject, value: VisualStateGroupCollection) { d.SetValue(VisualStateGroupsProperty, value); }
+        private static _GetVisualStateGroupsInternal(d: DependencyObject): VisualStateGroupCollection {
+            var groups = this.GetVisualStateGroups(d);
+            if (!groups) {
+                groups = new VisualStateGroupCollection();
+                VisualStateManager.SetVisualStateGroups(d, groups);
+            }
+            return groups;
+        }
+        static CustomVisualStateManagerProperty: DependencyProperty = DependencyProperty.RegisterAttachedCore("CustomVisualStateManager", () => VisualStateManager, VisualStateManager);
+        static GetCustomVisualStateManager(d: DependencyObject): VisualStateManager { return d.GetValue(CustomVisualStateManagerProperty); }
+        static SetCustomVisualStateManager(d: DependencyObject, value: VisualStateManager) { d.SetValue(CustomVisualStateManagerProperty, value); }
+        static GoToState(control: Controls.Control, stateName: string, useTransitions: bool): bool {
+            var root = VisualStateManager._GetTemplateRoot(control);
+            if (!root)
+                return false;
+            var groups = VisualStateManager._GetVisualStateGroupsInternal(root);
+            if (!groups)
+                return false;
+            var data: IStateData = { group: null, state: null };
+            if (!VisualStateManager._TryGetState(groups, stateName, data))
+                return false;
+            var customVsm = VisualStateManager.GetCustomVisualStateManager(root);
+            if (customVsm) {
+                return customVsm.GoToStateCore(control, root, stateName, data.group, data.state, useTransitions);
+            } else if (data.state != null) {
+                return VisualStateManager.GoToStateInternal(control, root, data.group, data.state, useTransitions);
+            }
+            return false;
+        }
+        GoToStateCore(control: Controls.Control, element: FrameworkElement, stateName: string, group: VisualStateGroup, state: VisualState, useTransitions: bool): bool {
+            return VisualStateManager.GoToStateInternal(control, element, group, state, useTransitions);
+        }
+        private static GoToStateInternal(control: Controls.Control, element: FrameworkElement, group: VisualStateGroup, state: VisualState, useTransitions: bool): bool {
+            var lastState = group.CurrentState;
+            if (lastState === state)
+                return true;
+            var transition = useTransitions ? VisualStateManager._GetTransition(element, group, lastState, state) : null;
+            var storyboard;
+            if (transition == null || (transition.GeneratedDuration.IsZero() && ((storyboard = transition.Storyboard) == null || storyboard.Duration.IsZero()))) {
+                if (transition != null && storyboard != null) {
+                    group.StartNewThenStopOld(element, [storyboard, state.Storyboard]);
+                } else {
+                    group.StartNewThenStopOld(element, [state.Storyboard]);
+                }
+                group.RaiseCurrentStateChanging(element, lastState, state, control);
+                group.RaiseCurrentStateChanged(element, lastState, state, control);
+            } else {
+                var dynamicTransition = VisualStateManager._GenerateDynamicTransitionAnimations(element, group, state, transition);
+                transition.DynamicStoryboardCompleted = false;
+                var dynamicCompleted = function (sender, e) {
+                    if (transition.Storyboard == null || transition.ExplicitStoryboardCompleted === true) {
+                        group.StartNewThenStopOld(element, [state.Storyboard]);
+                        group.RaiseCurrentStateChanged(element, lastState, state, control);
+                    }
+                    transition.DynamicStoryboardCompleted = true;
+                };
+                var eventClosure = {};
+                dynamicTransition.Completed.Subscribe(dynamicCompleted, eventClosure);
+                if (transition.Storyboard != null && transition.ExplicitStoryboardCompleted === true) {
+                    var transitionCompleted = function (sender, e) {
+                        if (transition.DynamicStoryboardCompleted === true) {
+                            group.StartNewThenStopOld(element, [state.Storyboard]);
+                            group.RaiseCurrentStateChanged(element, lastState, state, control);
+                        }
+                        transition.Storyboard.Completed.Unsubscribe(transitionCompleted, eventClosure);
+                        transition.ExplicitStoryboardCompleted = true;
+                    };
+                    transition.ExplicitStoryboardCompleted = false;
+                    transition.Storyboard.Completed.Subscribe(transitionCompleted, eventClosure);
+                }
+                group.StartNewThenStopOld(element, [transition.Storyboard, dynamicTransition]);
+                group.RaiseCurrentStateChanging(element, lastState, state, control);
+            }
+            group.CurrentState = state;
+            return true;
+        }
+        private static DestroyStoryboards(control) {
+            var root = VisualStateManager._GetTemplateRoot(control);
+            if (!root)
+                return false;
+            var groups = VisualStateManager._GetVisualStateGroupsInternal(root);
+            if (!groups)
+                return false;
+            var enumerator = groups.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                (<VisualStateGroup>enumerator.Current).StopCurrentStoryboards(root);
+            }
+        }
+        private static _GetTemplateRoot(control: Controls.Control): FrameworkElement {
+            if (control instanceof Controls.UserControl)
+                return (<Controls.UserControl>control).Content;
+            var enumerator = control.XamlNode.GetVisualTreeEnumerator();
+            var fe: FrameworkElement = null;
+            if (enumerator.MoveNext()) {
+                fe = enumerator.Current;
+                if (!(fe instanceof FrameworkElement))
+                    fe = null;
+            }
+            return fe;
+        }
+        private static _TryGetState(groups: VisualStateGroupCollection, stateName: string, data: IStateData): bool {
+            var enumerator = groups.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                data.group = enumerator.Current;
+                data.state = data.group.GetState(stateName);
+                if (data.state)
+                    return true;
+            }
+            data.group = null;
+            data.state = null;
+            return false;
+        }
+        private static _GetTransition(element: FrameworkElement, group: VisualStateGroup, from: VisualState, to: VisualState): VisualTransition {
+            if (!element)
+                throw new ArgumentException("element");
+            if (!group)
+                throw new ArgumentException("group");
+            if (!to)
+                throw new ArgumentException("to");
+            var best = null;
+            var defaultTransition = null;
+            var bestScore = -1;
+            var transitions = group.Transitions;
+            if (transitions) {
+                var enumerator = ArrayEx.GetEnumerator(transitions);
+                var transition: VisualTransition;
+                while (enumerator.MoveNext()) {
+                    transition = enumerator.Current;
+                    if (!defaultTransition && transition.IsDefault) {
+                        defaultTransition = transition;
+                        continue;
+                    }
+                    var score = -1;
+                    var transFromState = group.GetState(transition.From);
+                    var transToState = group.GetState(transition.To);
+                    if (from === transFromState)
+                        score += 1;
+                    else if (transFromState != null)
+                        continue;
+                    if (to === transToState)
+                        score += 2;
+                    else if (transToState != null)
+                        continue;
+                    if (score > bestScore) {
+                        bestScore = score;
+                        best = transition;
+                    }
+                }
+            }
+            if (best != null)
+                return best;
+            return defaultTransition;
+        }
+        private static _GenerateDynamicTransitionAnimations(root: FrameworkElement, group: VisualStateGroup, state: VisualState, transition: VisualTransition): Animation.Storyboard {
+            var dynamic = new Animation.Storyboard();
+            if (transition != null) {
+                dynamic.Duration = transition.GeneratedDuration;
+            } else {
+                dynamic.Duration = Duration.CreateTimeSpan(new TimeSpan());
+            }
+            var currentAnimations; //FlattenTimelines
+            var transitionAnimations; //FlattenTimelines
+            var newStateAnimations; //FlattenTimelines
+            NotImplemented("VisualStateManager._GenerateDynamicTransitionAnimations");
+            return dynamic;
+        }
+    }
+}
+
+module Fayde.Media.VSM {
+    export class VisualTransition {
+        From;
+        To;
+        Storyboard;
+        GeneratedDuration;
+        DynamicStoryboardCompleted;
+        ExplicitStoryboardCompleted;
+        GeneratedEasingFunction;
+        IsDefault: bool = false;
+    }
+}
+
 module Fayde.Controls {
     export class ControlTemplate extends FrameworkTemplate {
         private _TempJson: any;
@@ -8931,6 +9230,7 @@ module Fayde.Controls {
 
 module Fayde.Controls {
     export class UserControl extends Control {
+        Content: any;
     }
     Nullstone.RegisterType(UserControl, "UserControl");
 }
@@ -9229,6 +9529,8 @@ module Fayde.Controls {
         _ContentSetsParent: bool = true;
         static ContentProperty: DependencyProperty = DependencyProperty.RegisterCore("Content", function () { return Object; }, ContentControl, undefined, function (d, args) { (<ContentControl>d).OnContentChanged(args.OldValue, args.NewValue); });
         static ContentTemplateProperty = DependencyProperty.RegisterCore("ContentTemplate", function () { return ControlTemplate; }, ContentControl, undefined, function (d, args) { (<ContentControl>d).OnContentTemplateChanged(args.OldValue, args.NewValue); });
+        Content: any;
+        ContentTemplate: ControlTemplate;
         OnContentChanged(oldContent: any, newContent: any) { }
         OnContentTemplateChanged(oldContentTemplate: ControlTemplate, newContentTemplate: ControlTemplate) { }
     }

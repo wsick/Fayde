@@ -889,6 +889,22 @@
     <Content Include="Typescript\Media\Transforms.js">
       <DependentUpon>Transforms.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Media\VSM\VisualState.ts" />
+    <Content Include="Typescript\Media\VSM\VisualState.js">
+      <DependentUpon>VisualState.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\VSM\VisualStateGroup.ts" />
+    <Content Include="Typescript\Media\VSM\VisualStateGroup.js">
+      <DependentUpon>VisualStateGroup.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\VSM\VisualStateManager.ts" />
+    <Content Include="Typescript\Media\VSM\VisualStateManager.js">
+      <DependentUpon>VisualStateManager.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\VSM\VisualTransition.ts" />
+    <Content Include="Typescript\Media\VSM\VisualTransition.js">
+      <DependentUpon>VisualTransition.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Navigation\NavService.js">
       <DependentUpon>NavService.ts</DependentUpon>
     </Content>
