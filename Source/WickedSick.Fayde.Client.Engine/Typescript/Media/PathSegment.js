@@ -19,6 +19,14 @@ var Fayde;
             PathSegment.prototype._Append = function (path) {
                 //Abstract method
                             };
+            PathSegment.prototype.Listen = function (listener) {
+                this._Listener = listener;
+            };
+            PathSegment.prototype.Unlisten = function (listener) {
+                if(this._Listener === listener) {
+                    this._Listener = null;
+                }
+            };
             return PathSegment;
         })(Fayde.DependencyObject);
         Media.PathSegment = PathSegment;        
@@ -29,6 +37,38 @@ var Fayde;
                 _super.apply(this, arguments);
 
             }
+            PathSegmentCollection.prototype.AddedToCollection = function (value, error) {
+                if(!_super.prototype.AddedToCollection.call(this, value, error)) {
+                    return false;
+                }
+                value.Listen(this);
+                var listener = this._Listener;
+                if(listener) {
+                    listener.PathSegmentChanged(value);
+                }
+            };
+            PathSegmentCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
+                _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);
+                value.Unlisten(this);
+                var listener = this._Listener;
+                if(listener) {
+                    listener.PathSegmentChanged(value);
+                }
+            };
+            PathSegmentCollection.prototype.Listen = function (listener) {
+                this._Listener = listener;
+            };
+            PathSegmentCollection.prototype.Unlisten = function (listener) {
+                if(this._Listener === listener) {
+                    this._Listener = null;
+                }
+            };
+            PathSegmentCollection.prototype.PathSegmentChanged = function (newPathSegment) {
+                var listener = this._Listener;
+                if(listener) {
+                    listener.PathSegmentChanged(newPathSegment);
+                }
+            };
             return PathSegmentCollection;
         })(Fayde.XamlObjectCollection);
         Media.PathSegmentCollection = PathSegmentCollection;        

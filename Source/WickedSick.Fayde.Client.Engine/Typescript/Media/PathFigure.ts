@@ -6,35 +6,95 @@
 /// <reference path="PathSegment.ts" />
 
 module Fayde.Media {
-    export class PathFigure extends DependencyObject {
+    export interface IPathFigureListener {
+        PathFigureChanged(newPathFigure: PathFigure);
+    }
+
+    export class PathFigure extends DependencyObject implements IPathSegmentListener {
         static Annotations = { ContentProperty: "Segments" }
-        static IsClosedProperty: DependencyProperty = DependencyProperty.RegisterCore("IsClosed", () => Boolean, PathFigure, false);
-        static StartPointProperty: DependencyProperty = DependencyProperty.RegisterCore("StartPoint", () => Point, PathFigure);
-        static IsFilledProperty: DependencyProperty = DependencyProperty.RegisterCore("IsFilled", () => Boolean, PathFigure, true);
+        static IsClosedProperty: DependencyProperty = DependencyProperty.RegisterCore("IsClosed", () => Boolean, PathFigure, false, (d, args) => (<PathFigure>d).InvalidatePathFigure());
+        static StartPointProperty: DependencyProperty = DependencyProperty.RegisterCore("StartPoint", () => Point, PathFigure, undefined, (d, args) => (<PathFigure>d).InvalidatePathFigure());
+        static IsFilledProperty: DependencyProperty = DependencyProperty.RegisterCore("IsFilled", () => Boolean, PathFigure, true, (d, args) => (<PathFigure>d).InvalidatePathFigure());
         IsClosed: bool;
         Segments: PathSegmentCollection;
         StartPoint: Point;
         IsFilled: bool;
 
-        private _Path: Shapes.IPathEntry[] = [];
+        private _Path: Shapes.RawPath = null;
+        private _Listener: IPathFigureListener;
 
-        private _Build() {
-            this._Path = [];
+        constructor() {
+            super();
+            var coll = new PathSegmentCollection();
+            coll.Listen(this);
+            Object.defineProperty(this, "Segments", {
+                value: coll,
+                writable: false
+            });
+        }
+
+        private _Build(): Shapes.RawPath {
+            var p = new Shapes.RawPath();
 
             var start = this.StartPoint;
-            this._Path.push({ type: Shapes.PathEntryType.Move, x: start.X, y: start.Y });
+            p.Move(start.X, start.Y);
 
             var enumerator = this.Segments.GetEnumerator();
             while (enumerator.MoveNext()) {
-                (<PathSegment>enumerator.Current)._Append(this._Path);
+                (<PathSegment>enumerator.Current)._Append(p);
             }
             if (this.IsClosed)
-                this._Path.push({ type: Shapes.PathEntryType.Close });
+                p.Close();
+
+            return p;
+        }
+
+        private PathSegmentChanged(newPathSegment: PathSegment) {
+            this._Path = null;
+            var listener = this._Listener;
+            if (listener) listener.PathFigureChanged(this);
+        }
+        private InvalidatePathFigure() {
+            this._Path = null;
+            var listener = this._Listener;
+            if (listener) listener.PathFigureChanged(this);
+        }
+
+        Listen(listener: IPathFigureListener) { this._Listener = listener; }
+        Unlisten(listener: IPathFigureListener) { if (this._Listener === listener) this._Listener = null; }
+
+        MergeInto(rp: Shapes.RawPath) {
+            if (!this._Path)
+                this._Path = this._Build();
+            Shapes.RawPath.Merge(rp, this._Path);
         }
     }
     Nullstone.RegisterType(PathFigure, "PathFigure");
 
-    export class PathFigureCollection extends XamlObjectCollection {
+    export class PathFigureCollection extends XamlObjectCollection implements IPathFigureListener {
+        private _Listener: IPathFigureListener;
+
+        AddedToCollection(value: PathFigure, error: BError): bool {
+            if (!super.AddedToCollection(value, error))
+                return false;
+            value.Listen(this);
+            var listener = this._Listener;
+            if (listener) listener.PathFigureChanged(value);
+        }
+        RemovedFromCollection(value: PathFigure, isValueSafe: bool) {
+            super.RemovedFromCollection(value, isValueSafe);
+            value.Unlisten(this);
+            var listener = this._Listener;
+            if (listener) listener.PathFigureChanged(value);
+        }
+
+        Listen(listener: IPathFigureListener) { this._Listener = listener; }
+        Unlisten(listener: IPathFigureListener) { if (this._Listener === listener) this._Listener = null; }
+        
+        private PathFigureChanged(newPathFigure: PathFigure) {
+            var listener = this._Listener;
+            if (listener) listener.PathFigureChanged(newPathFigure);
+        }
     }
     Nullstone.RegisterType(PathFigureCollection, "PathFigureCollection");
 }

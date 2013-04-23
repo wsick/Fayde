@@ -15,39 +15,73 @@ var Fayde;
         var PathFigure = (function (_super) {
             __extends(PathFigure, _super);
             function PathFigure() {
-                _super.apply(this, arguments);
-
-                this._Path = [];
+                        _super.call(this);
+                this._Path = null;
+                var coll = new Media.PathSegmentCollection();
+                coll.Listen(this);
+                Object.defineProperty(this, "Segments", {
+                    value: coll,
+                    writable: false
+                });
             }
             PathFigure.Annotations = {
                 ContentProperty: "Segments"
             };
             PathFigure.IsClosedProperty = DependencyProperty.RegisterCore("IsClosed", function () {
                 return Boolean;
-            }, PathFigure, false);
+            }, PathFigure, false, function (d, args) {
+                return (d).InvalidatePathFigure();
+            });
             PathFigure.StartPointProperty = DependencyProperty.RegisterCore("StartPoint", function () {
                 return Point;
-            }, PathFigure);
+            }, PathFigure, undefined, function (d, args) {
+                return (d).InvalidatePathFigure();
+            });
             PathFigure.IsFilledProperty = DependencyProperty.RegisterCore("IsFilled", function () {
                 return Boolean;
-            }, PathFigure, true);
+            }, PathFigure, true, function (d, args) {
+                return (d).InvalidatePathFigure();
+            });
             PathFigure.prototype._Build = function () {
-                this._Path = [];
+                var p = new Fayde.Shapes.RawPath();
                 var start = this.StartPoint;
-                this._Path.push({
-                    type: Fayde.Shapes.PathEntryType.Move,
-                    x: start.X,
-                    y: start.Y
-                });
+                p.Move(start.X, start.Y);
                 var enumerator = this.Segments.GetEnumerator();
                 while(enumerator.MoveNext()) {
-                    (enumerator.Current)._Append(this._Path);
+                    (enumerator.Current)._Append(p);
                 }
                 if(this.IsClosed) {
-                    this._Path.push({
-                        type: Fayde.Shapes.PathEntryType.Close
-                    });
+                    p.Close();
                 }
+                return p;
+            };
+            PathFigure.prototype.PathSegmentChanged = function (newPathSegment) {
+                this._Path = null;
+                var listener = this._Listener;
+                if(listener) {
+                    listener.PathFigureChanged(this);
+                }
+            };
+            PathFigure.prototype.InvalidatePathFigure = function () {
+                this._Path = null;
+                var listener = this._Listener;
+                if(listener) {
+                    listener.PathFigureChanged(this);
+                }
+            };
+            PathFigure.prototype.Listen = function (listener) {
+                this._Listener = listener;
+            };
+            PathFigure.prototype.Unlisten = function (listener) {
+                if(this._Listener === listener) {
+                    this._Listener = null;
+                }
+            };
+            PathFigure.prototype.MergeInto = function (rp) {
+                if(!this._Path) {
+                    this._Path = this._Build();
+                }
+                Fayde.Shapes.RawPath.Merge(rp, this._Path);
             };
             return PathFigure;
         })(Fayde.DependencyObject);
@@ -59,6 +93,38 @@ var Fayde;
                 _super.apply(this, arguments);
 
             }
+            PathFigureCollection.prototype.AddedToCollection = function (value, error) {
+                if(!_super.prototype.AddedToCollection.call(this, value, error)) {
+                    return false;
+                }
+                value.Listen(this);
+                var listener = this._Listener;
+                if(listener) {
+                    listener.PathFigureChanged(value);
+                }
+            };
+            PathFigureCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
+                _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);
+                value.Unlisten(this);
+                var listener = this._Listener;
+                if(listener) {
+                    listener.PathFigureChanged(value);
+                }
+            };
+            PathFigureCollection.prototype.Listen = function (listener) {
+                this._Listener = listener;
+            };
+            PathFigureCollection.prototype.Unlisten = function (listener) {
+                if(this._Listener === listener) {
+                    this._Listener = null;
+                }
+            };
+            PathFigureCollection.prototype.PathFigureChanged = function (newPathFigure) {
+                var listener = this._Listener;
+                if(listener) {
+                    listener.PathFigureChanged(newPathFigure);
+                }
+            };
             return PathFigureCollection;
         })(Fayde.XamlObjectCollection);
         Media.PathFigureCollection = PathFigureCollection;        

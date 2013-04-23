@@ -4,14 +4,46 @@
 /// <reference path="../Shapes/RawPath.ts" />
 
 module Fayde.Media {
+    export interface IPathSegmentListener {
+        PathSegmentChanged(newPathSegment: PathSegment);
+    }
+
     export class PathSegment extends DependencyObject {
-        _Append(path: Shapes.IPathEntry[]) {
+        private _Listener: IPathSegmentListener;
+
+        _Append(path: Shapes.RawPath) {
             //Abstract method
         }
+
+        Listen(listener: IPathSegmentListener) { this._Listener = listener; }
+        Unlisten(listener: IPathSegmentListener) { if (this._Listener === listener) this._Listener = null; }
     }
     Nullstone.RegisterType(PathSegment, "PathSegment");
 
-    export class PathSegmentCollection extends XamlObjectCollection {
+    export class PathSegmentCollection extends XamlObjectCollection implements IPathSegmentListener {
+        private _Listener: IPathSegmentListener;
+
+        AddedToCollection(value: PathSegment, error: BError): bool {
+            if (!super.AddedToCollection(value, error))
+                return false;
+            value.Listen(this);
+            var listener = this._Listener;
+            if (listener) listener.PathSegmentChanged(value);
+        }
+        RemovedFromCollection(value: PathSegment, isValueSafe: bool) {
+            super.RemovedFromCollection(value, isValueSafe);
+            value.Unlisten(this);
+            var listener = this._Listener;
+            if (listener) listener.PathSegmentChanged(value);
+        }
+
+        Listen(listener: IPathSegmentListener) { this._Listener = listener; }
+        Unlisten(listener: IPathSegmentListener) { if (this._Listener === listener) this._Listener = null; }
+        
+        private PathSegmentChanged(newPathSegment: PathSegment) {
+            var listener = this._Listener;
+            if (listener) listener.PathSegmentChanged(newPathSegment);
+        }
     }
     Nullstone.RegisterType(PathSegmentCollection, "PathSegmentCollection");
 }

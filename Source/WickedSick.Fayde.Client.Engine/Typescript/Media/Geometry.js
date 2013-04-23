@@ -104,6 +104,13 @@ var Fayde;
                     listener.GeometryChanged(this);
                 }
             };
+            Geometry.prototype.Serialize = function () {
+                var path = this._Path;
+                if(!path) {
+                    return;
+                }
+                return path.Serialize();
+            };
             return Geometry;
         })(Fayde.DependencyObject);
         Media.Geometry = Geometry;        

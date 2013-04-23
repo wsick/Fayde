@@ -17,7 +17,7 @@ module Fayde.Media {
         Size: size;
         SweepDirection: Shapes.SweepDirection;
 
-        _Append(path: Shapes.IPathEntry[]) {
+        _Append(path: Shapes.RawPath) {
             NotImplemented("ArcSegment._Append");
         }
     }
@@ -31,7 +31,7 @@ module Fayde.Media {
         Point2: Point;
         Point3: Point;
 
-        _Append(path: Shapes.IPathEntry[]) {
+        _Append(path: Shapes.RawPath) {
             NotImplemented("BezierSegment._Append");
         }
     }
@@ -41,7 +41,7 @@ module Fayde.Media {
         static PointProperty: DependencyProperty = DependencyProperty.Register("Point", () => Point, LineSegment);
         Point: Point;
 
-        _Append(path: Shapes.IPathEntry[]) {
+        _Append(path: Shapes.RawPath) {
             NotImplemented("LineSegment._Append");
         }
     }
@@ -51,7 +51,7 @@ module Fayde.Media {
         static Annotations = { ContentProperty: "Points" }
         Points: Shapes.PointCollection;
 
-        _Append(path: Shapes.IPathEntry[]) {
+        _Append(path: Shapes.RawPath) {
             NotImplemented("PolyBezierSegment._Append");
         }
     }
@@ -61,7 +61,7 @@ module Fayde.Media {
         static Annotations = { ContentProperty: "Points" }
         Points: Shapes.PointCollection;
 
-        _Append(path: Shapes.IPathEntry[]) {
+        _Append(path: Shapes.RawPath) {
             NotImplemented("PolyLineSegment._Append");
         }
     }
@@ -71,7 +71,7 @@ module Fayde.Media {
         static Annotations = { ContentProperty: "Points" }
         Points: Shapes.PointCollection;
 
-        _Append(path: Shapes.IPathEntry[]) {
+        _Append(path: Shapes.RawPath) {
             NotImplemented("PolyQuadraticBezierSegment._Append");
         }
     }
@@ -83,7 +83,7 @@ module Fayde.Media {
         Point1: Point;
         Point2: Point;
 
-        _Append(path: Shapes.IPathEntry[]) {
+        _Append(path: Shapes.RawPath) {
             NotImplemented("QuadraticBezierSegment._Append");
         }
     }

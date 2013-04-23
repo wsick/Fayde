@@ -88,6 +88,13 @@ module Fayde.Media {
             var listener = this._Listener;
             if (listener) listener.GeometryChanged(this);
         }
+        
+        Serialize(): string {
+            var path = this._Path;
+            if (!path)
+                return;
+            return path.Serialize();
+        }
     }
     Nullstone.RegisterType(Geometry, "Geometry");
 

@@ -14,17 +14,39 @@ var Fayde;
         var PathGeometry = (function (_super) {
             __extends(PathGeometry, _super);
             function PathGeometry() {
-                _super.apply(this, arguments);
-
+                        _super.call(this);
+                var coll = new Media.PathFigureCollection();
+                coll.Listen(this);
+                Object.defineProperty(this, "Figures", {
+                    value: coll,
+                    writable: false
+                });
             }
+            PathGeometry.Annotations = {
+                ContentProperty: "Figures"
+            };
             PathGeometry.FillRuleProperty = DependencyProperty.Register("FillRule", function () {
                 return new Enum(Fayde.Shapes.FillRule);
-            }, PathGeometry, Fayde.Shapes.FillRule.EvenOdd);
-            PathGeometry.FiguresProperty = DependencyProperty.Register("Figures", function () {
-                return Media.PathFigureCollection;
-            }, PathGeometry);
+            }, PathGeometry, Fayde.Shapes.FillRule.EvenOdd, function (d, args) {
+                return (d)._InvalidateGeometry();
+            });
             PathGeometry.prototype.SetPath = function (path) {
                 (this)._Path = path;
+            };
+            PathGeometry.prototype._Build = function () {
+                var p = new Fayde.Shapes.RawPath();
+                var figures = this.Figures;
+                if(!figures) {
+                    return;
+                }
+                var enumerator = figures.GetEnumerator();
+                while(enumerator.MoveNext()) {
+                    (enumerator.Current).MergeInto(p);
+                }
+                return p;
+            };
+            PathGeometry.prototype.PathFigureChanged = function (newPathFigure) {
+                this._InvalidateGeometry();
             };
             return PathGeometry;
         })(Media.Geometry);
