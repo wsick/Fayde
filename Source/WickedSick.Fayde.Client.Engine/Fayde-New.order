@@ -15,8 +15,8 @@ Media/Animation/Curves.js
 Media/Animation/Enums.js
 Runtime/Enumerable.js
 Runtime/Nullstone.js
-Shapes/PointCollection.js
-Shapes/ShapesParser.js
+Shapes/Enums.js
+Shapes/RawPath.js
 Controls/GridLength.js
 Core/DependencyProperty.js
 Core/Expression.js
@@ -47,9 +47,7 @@ Markup/JsonParser.js
 Markup/Markup.js
 Markup/StaticResourceMarkup.js
 Markup/TemplateBindingMarkup.js
-Media/Geometry.js
 Media/Matrix.js
-Media/Projection.js
 Media/Animation/AnimationStorage.js
 Media/Animation/RepeatBehavior.js
 Navigation/NavService.js
@@ -70,6 +68,8 @@ Runtime/BError.js
 Runtime/Enum.js
 Runtime/EventArgs.js
 Runtime/MulticastEvent.js
+Shapes/DoubleCollection.js
+Shapes/PointCollection.js
 Core/DeferredValueExpression.js
 Core/DependencyObject.js
 Core/DependencyObjectCollection.js
@@ -87,7 +87,16 @@ Input/KeyEventArgs.js
 Input/KeyInterop.js
 Input/MouseEventArgs.js
 Media/GeneralTransform.js
+Media/Geometry.js
+Media/GeometryGroup.js
 Media/GradientStop.js
+Media/LineGeometry.js
+Media/PathFigure.js
+Media/PathGeometry.js
+Media/PathSegment.js
+Media/PathSegments.js
+Media/Projection.js
+Media/RectangleGeometry.js
 Media/Transform.js
 Media/Transforms.js
 Media/Animation/EasingFunctionBase.js
@@ -113,8 +122,10 @@ Documents/Paragraph.js
 Documents/Section.js
 Documents/Span.js
 Media/Brush.js
+Media/EllipseGeometry.js
 Media/GradientBrush.js
 Media/LinearGradientBrush.js
+Media/Matrix3DProjection.js
 Media/RadialGradientBrush.js
 Media/SolidColorBrush.js
 Media/TileBrush.js
@@ -136,6 +147,7 @@ Media/Imaging/BitmapSource.js
 Media/Imaging/ImageBrush.js
 Core/FrameworkElement.js
 Media/Imaging/BitmapImage.js
+Shapes/Shape.js
 Controls/Control.js
 Controls/Image.js
 Controls/MediaElement.js

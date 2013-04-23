@@ -1,8 +1,8 @@
-/// <reference path="../Runtime/Nullstone.ts" />
+/// <reference path="../Core/DependencyObject.ts" />
 /// CODE
 
 module Fayde.Media {
-    export class Projection {
+    export class Projection extends DependencyObject {
     }
     Nullstone.RegisterType(Projection, "Projection");
 }

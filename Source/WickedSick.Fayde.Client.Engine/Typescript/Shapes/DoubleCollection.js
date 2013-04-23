@@ -8,17 +8,17 @@ var Fayde;
     /// <reference path="../Core/XamlObjectCollection.ts" />
     /// CODE
     (function (Shapes) {
-        var PointCollection = (function (_super) {
-            __extends(PointCollection, _super);
-            function PointCollection() {
+        var DoubleCollection = (function (_super) {
+            __extends(DoubleCollection, _super);
+            function DoubleCollection() {
                 _super.apply(this, arguments);
 
             }
-            return PointCollection;
+            return DoubleCollection;
         })(Fayde.XamlObjectCollection);
-        Shapes.PointCollection = PointCollection;        
-        Nullstone.RegisterType(PointCollection, "PointCollection");
+        Shapes.DoubleCollection = DoubleCollection;        
+        Nullstone.RegisterType(DoubleCollection, "DoubleCollection");
     })(Fayde.Shapes || (Fayde.Shapes = {}));
     var Shapes = Fayde.Shapes;
 })(Fayde || (Fayde = {}));
-//@ sourceMappingURL=PointCollection.js.map
+//@ sourceMappingURL=DoubleCollection.js.map

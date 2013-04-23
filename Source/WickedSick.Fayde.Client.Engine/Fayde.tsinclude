@@ -15,8 +15,8 @@ Typescript\Media\Animation\Curves.ts
 Typescript\Media\Animation\Enums.ts
 Typescript\Runtime\Enumerable.ts
 Typescript\Runtime\Nullstone.ts
-Typescript\Shapes\PointCollection.ts
-Typescript\Shapes\ShapesParser.ts
+Typescript\Shapes\Enums.ts
+Typescript\Shapes\RawPath.ts
 Typescript\Controls\GridLength.ts
 Typescript\Core\DependencyProperty.ts
 Typescript\Core\Expression.ts
@@ -47,9 +47,7 @@ Typescript\Markup\JsonParser.ts
 Typescript\Markup\Markup.ts
 Typescript\Markup\StaticResourceMarkup.ts
 Typescript\Markup\TemplateBindingMarkup.ts
-Typescript\Media\Geometry.ts
 Typescript\Media\Matrix.ts
-Typescript\Media\Projection.ts
 Typescript\Media\Animation\AnimationStorage.ts
 Typescript\Media\Animation\RepeatBehavior.ts
 Typescript\Navigation\NavService.ts
@@ -70,6 +68,8 @@ Typescript\Runtime\BError.ts
 Typescript\Runtime\Enum.ts
 Typescript\Runtime\EventArgs.ts
 Typescript\Runtime\MulticastEvent.ts
+Typescript\Shapes\DoubleCollection.ts
+Typescript\Shapes\PointCollection.ts
 Typescript\Core\DeferredValueExpression.ts
 Typescript\Core\DependencyObject.ts
 Typescript\Core\DependencyObjectCollection.ts
@@ -87,7 +87,16 @@ Typescript\Input\KeyEventArgs.ts
 Typescript\Input\KeyInterop.ts
 Typescript\Input\MouseEventArgs.ts
 Typescript\Media\GeneralTransform.ts
+Typescript\Media\Geometry.ts
+Typescript\Media\GeometryGroup.ts
 Typescript\Media\GradientStop.ts
+Typescript\Media\LineGeometry.ts
+Typescript\Media\PathFigure.ts
+Typescript\Media\PathGeometry.ts
+Typescript\Media\PathSegment.ts
+Typescript\Media\PathSegments.ts
+Typescript\Media\Projection.ts
+Typescript\Media\RectangleGeometry.ts
 Typescript\Media\Transform.ts
 Typescript\Media\Transforms.ts
 Typescript\Media\Animation\EasingFunctionBase.ts
@@ -113,8 +122,10 @@ Typescript\Documents\Paragraph.ts
 Typescript\Documents\Section.ts
 Typescript\Documents\Span.ts
 Typescript\Media\Brush.ts
+Typescript\Media\EllipseGeometry.ts
 Typescript\Media\GradientBrush.ts
 Typescript\Media\LinearGradientBrush.ts
+Typescript\Media\Matrix3DProjection.ts
 Typescript\Media\RadialGradientBrush.ts
 Typescript\Media\SolidColorBrush.ts
 Typescript\Media\TileBrush.ts
@@ -136,6 +147,7 @@ Typescript\Media\Imaging\BitmapSource.ts
 Typescript\Media\Imaging\ImageBrush.ts
 Typescript\Core\FrameworkElement.ts
 Typescript\Media\Imaging\BitmapImage.ts
+Typescript\Shapes\Shape.ts
 Typescript\Controls\Control.ts
 Typescript\Controls\Image.ts
 Typescript\Controls\MediaElement.ts

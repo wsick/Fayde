@@ -5,7 +5,6 @@
 /// <reference path="../Primitives/Color.ts" />
 /// <reference path="../Primitives/Thickness.ts" />
 /// <reference path="../Media/MediaParser.ts" />
-/// <reference path="../Shapes/ShapesParser.ts" />
 /// <reference path="../Media/SolidColorBrush.ts" />
 
 module Fayde {
@@ -114,7 +113,7 @@ module Fayde {
             return Media.ParseGeometry(val);
         }
         static PointCollectionFromString(val: string): Shapes.PointCollection {
-            return Shapes.ParsePointCollection(val);
+            return Media.ParsePointCollection(val);
         }
     }
 }

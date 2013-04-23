@@ -145,7 +145,7 @@ module Fayde {
             return Media.ParseGeometry(val);
         }
         static PointCollectionFromString(val: string): Shapes.PointCollection {
-            return Shapes.ParsePointCollection(val);
+            return Media.ParsePointCollection(val);
         }
     }
 }
@@ -627,7 +627,372 @@ module Fayde.Media {
 
 module Fayde.Media {
     export function ParseGeometry(val: string): Geometry {
-        return new Geometry();
+        return (new MediaParser(val)).ParseGeometryImpl();
+    }
+    export function ParsePointCollection(val: string): Shapes.PointCollection {
+        return (new MediaParser(val)).ParsePointCollectionImpl();
+    }
+    class MediaParser {
+        private str: string;
+        private len: number;
+        private index: number = 0;
+        constructor(str: string) {
+            this.str = str;
+            this.len = str.length;
+        }
+        ParseGeometryImpl():Geometry {
+            var cp = new Point();
+            var cp1: Point, cp2: Point, cp3: Point;
+            var start = new Point();
+            var fillRule = Shapes.FillRule.EvenOdd;
+            var cbz = false; // last figure is a cubic bezier curve
+            var qbz = false; // last figure is a quadratic bezier curve
+            var cbzp = new Point(); // points needed to create "smooth" beziers
+            var qbzp = new Point(); // points needed to create "smooth" beziers
+            var path = new Shapes.RawPath();
+            while (this.index < this.len) {
+                var c;
+                while (this.index < this.len && (c = this.str.charAt(this.index)) === ' ') {
+                    this.index++;
+                }
+                this.index++
+                var relative = false;
+                switch (c) {
+                    case 'f':
+                    case 'F':
+                        c = this.str.charAt(this.index);
+                        if (c === '0')
+                            fillRule = Shapes.FillRule.EvenOdd;
+                        else if (c === '1')
+                            fillRule = Shapes.FillRule.NonZero;
+                        else
+                            return null;
+                        this.index++
+                        c = this.str.charAt(this.index);
+                        break;
+                    case 'm':
+                        relative = true;
+                    case 'M':
+                        cp1 = this.ParsePoint();
+                        if (cp1 == null)
+                            break;
+                        if (relative) {
+                            cp1.X += cp.X;
+                            cp1.Y += cp.Y;
+                        }
+                        path.Move(cp1.X, cp1.Y);
+                        start.X = cp.X = cp1.X;
+                        start.Y = cp.Y = cp1.Y;
+                        this.Advance();
+                        while (this.MorePointsAvailable()) {
+                            if ((cp1 = this.ParsePoint()) == null)
+                                break;
+                            if (relative) {
+                                cp1.X += cp.X;
+                                cp1.Y += cp.Y;
+                            }
+                            path.Line(cp1.X, cp1.Y);
+                        }
+                        cp.X = cp1.X;
+                        cp.Y = cp1.Y;
+                        cbz = qbz = false;
+                        break;
+                    case 'l':
+                        relative = true;
+                    case 'L':
+                        while (this.MorePointsAvailable()) {
+                            if ((cp1 = this.ParsePoint()) == null)
+                                break;
+                            if (relative) {
+                                cp1.X += cp.X;
+                                cp1.Y += cp.Y;
+                            }
+                            path.Line(cp1.X, cp1.Y);
+                            cp.X = cp1.X;
+                            cp.Y = cp1.Y;
+                            this.Advance();
+                        }
+                        cbz = qbz = false;
+                        break;
+                    case 'h':
+                        relative = true;
+                    case 'H':
+                        var x = this.ParseDouble();
+                        if (x == null)
+                            break;
+                        if (relative)
+                            x += cp.X;
+                        cp = new Point(x, cp.Y);
+                        path.Line(cp.X, cp.Y);
+                        cbz = qbz = false;
+                        break;
+                    case 'v':
+                        relative = true;
+                    case 'V':
+                        var y = this.ParseDouble();
+                        if (y == null)
+                            break;
+                        if (relative)
+                            y += cp.Y;
+                        cp = new Point(cp.X, y);
+                        path.Line(cp.X, cp.Y);
+                        cbz = qbz = false;
+                        break;
+                    case 'c':
+                        relative = true;
+                    case 'C':
+                        while (this.MorePointsAvailable()) {
+                            if ((cp1 = this.ParsePoint()) == null)
+                                break;
+                            if (relative) {
+                                cp1.X += cp.X;
+                                cp1.Y += cp.Y;
+                            }
+                            this.Advance();
+                            if ((cp2 = this.ParsePoint()) == null)
+                                break;
+                            if (relative) {
+                                cp2.X += cp.X;
+                                cp2.Y += cp.Y;
+                            }
+                            this.Advance();
+                            if ((cp3 = this.ParsePoint()) == null)
+                                break;
+                            if (relative) {
+                                cp3.X += cp.X;
+                                cp3.Y += cp.Y;
+                            }
+                            this.Advance();
+                            path.Bezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
+                            cp1.X = cp3.X;
+                            cp1.Y = cp3.Y;
+                        }
+                        cp.X = cp3.X;
+                        cp.Y = cp3.Y;
+                        cbz = true;
+                        cbzp.X = cp2.X;
+                        cbzp.Y = cp2.Y;
+                        qbz = false;
+                        break;
+                    case 's':
+                        relative = true;
+                    case 'S':
+                        while (this.MorePointsAvailable()) {
+                            if ((cp2 = this.ParsePoint()) == null)
+                                break;
+                            if (relative) {
+                                cp2.X += cp.X;
+                                cp2.Y += cp.Y;
+                            }
+                            this.Advance();
+                            if ((cp3 = this.ParsePoint()) == null)
+                                break;
+                            if (relative) {
+                                cp3.X += cp.X;
+                                cp3.Y += cp.Y;
+                            }
+                            if (cbz) {
+                                cp1.X = 2 * cp.X - cbzp.X;
+                                cp1.Y = 2 * cp.Y - cbzp.Y;
+                            } else
+                                cp1 = cp;
+                            path.Bezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
+                            cbz = true;
+                            cbzp.X = cp2.X;
+                            cbzp.Y = cp2.Y;
+                            cp.X = cp3.X;
+                            cp.Y = cp3.Y;
+                            this.Advance();
+                        }
+                        qbz = false;
+                        break;
+                    case 'q':
+                        relative = true;
+                    case 'Q':
+                        while (this.MorePointsAvailable()) {
+                            if ((cp1 = this.ParsePoint()) == null)
+                                break;
+                            if (relative) {
+                                cp1.X += cp.X;
+                                cp1.Y += cp.Y;
+                            }
+                            this.Advance();
+                            if ((cp2 = this.ParsePoint()) == null)
+                                break;
+                            if (relative) {
+                                cp2.X += cp.X;
+                                cp2.Y += cp.Y;
+                            }
+                            this.Advance();
+                            path.Quadratic(cp1.X, cp1.Y, cp2.X, cp2.Y);
+                            cp.X = cp2.X;
+                            cp.Y = cp2.Y;
+                        }
+                        qbz = true;
+                        qbzp.X = cp1.X;
+                        qbzp.Y = cp1.Y;
+                        cbz = false;
+                        break;
+                    case 't':
+                        relative = true;
+                    case 'T':
+                        while (this.MorePointsAvailable()) {
+                            if ((cp2 = this.ParsePoint()) == null)
+                                break;
+                            if (relative) {
+                                cp2.X += cp.X;
+                                cp2.Y += cp.Y;
+                            }
+                            if (qbz) {
+                                cp1.X = 2 * cp.X - qbzp.X;
+                                cp1.Y = 2 * cp.Y - qbzp.Y;
+                            } else
+                                cp1 = cp;
+                            path.Quadratic(cp1.X, cp1.Y, cp2.X, cp2.Y);
+                            qbz = true;
+                            qbzp.X = cp1.X;
+                            qbzp.Y = cp1.Y;
+                            cp.X = cp2.X;
+                            cp.Y = cp2.Y;
+                            this.Advance();
+                        }
+                        cbz = false;
+                        break;
+                    case 'a':
+                        relative = true;
+                    case 'A':
+                        while (this.MorePointsAvailable()) {
+                            if ((cp1 = this.ParsePoint()) == null)
+                                break;
+                            var angle = this.ParseDouble();
+                            var is_large = this.ParseDouble() !== 0;
+                            var sweep = this.ParseDouble() !== 0;
+                            if ((cp2 = this.ParsePoint()) == null)
+                                break;
+                            if (relative) {
+                                cp2.X += cp.X;
+                                cp2.Y += cp.Y;
+                            }
+                            path.EllipticalArc(cp1.X, cp1.Y, angle, is_large, sweep, cp2.X, cp2.Y);
+                            cp.X = cp2.X;
+                            cp.Y = cp2.Y;
+                            this.Advance();
+                        }
+                        cbz = qbz = false;
+                        break;
+                    case 'z':
+                    case 'Z':
+                        path.Close();
+                        cp.X = start.X;
+                        cp.Y = start.Y;
+                        cbz = qbz = false;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            var pg = new PathGeometry();
+            pg.SetPath(path);
+            pg.FillRule = fillRule;
+            return pg;
+        }
+        ParsePointCollectionImpl(): Shapes.PointCollection {
+            var p;
+            var points = new Shapes.PointCollection();
+            while (this.MorePointsAvailable() && (p = this.ParsePoint()) != null) {
+                points.Add(p);
+            }
+            return points;
+        }
+        private ParsePoint(): Point {
+            var x = this.ParseDouble();
+            if (x == null)
+                return null;
+            var c;
+            while (this.index < this.len && ((c = this.str.charAt(this.index)) === ' ' || c === ',')) {
+                this.index++;
+            }
+            if (this.index >= this.len)
+                return null;
+            var y = this.ParseDouble();
+            if (y == null)
+                return null;
+            return new Point(x, y);
+        }
+        private ParseDouble(): number {
+            this.Advance();
+            var isNegative = false;
+            if (this.Match('-')) {
+                isNegative = true;
+                this.index++;
+            } else if (this.Match('+')) {
+                this.index++;
+            }
+            if (this.Match('Infinity')) {
+                this.index += 8;
+                return isNegative ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
+            }
+            if (this.Match('NaN'))
+                return NaN;
+            var temp = '';
+            while (this.index < this.len) {
+                var code = this.str.charCodeAt(this.index);
+                var c = String.fromCharCode(code);
+                if (code >= 48 && code <= 57)
+                    temp += c;
+                else if (code === 46)
+                    temp += c;
+                else if (c === 'E' || c === 'e')
+                    temp += c;
+                else
+                    break;
+                this.index++;
+            }
+            if (temp.length === 0)
+                return null;
+            var f = parseFloat(temp);
+            return isNegative ? -f : f;
+        }
+        private Match(matchStr: string): bool {
+            var c1: string;
+            var c2: string;
+            for (var i = 0; i < matchStr.length && (this.index + i) < this.len; i++) {
+                c1 = matchStr.charAt(i);
+                c2 = this.str.charAt(this.index + i);
+                if (c1 !== c2)
+                    return false;
+            }
+            return true;
+        }
+        private Advance() {
+            var code: number;
+            var c: string;
+            while (this.index < this.len) {
+                code = this.str.charCodeAt(this.index);
+                if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122) || (code >= 48 && code <= 57))
+                    break;
+                c = String.fromCharCode(code);
+                if (c === '.')
+                    break;
+                if (c === '-')
+                    break;
+                if (c === '+')
+                    break;
+                this.index++;
+            }
+        }
+        private MorePointsAvailable(): bool {
+            var c;
+            while (this.index < this.len && ((c = this.str.charAt(this.index)) === ',' || c === ' ')) {
+                this.index++;
+            }
+            if (this.index >= this.len)
+                return false;
+            if (c === '.' || c === '-' || c === '+')
+                return true;
+            var code = this.str.charCodeAt(this.index);
+            return code >= 48 && code <= 57;
+        }
     }
 }
 
@@ -839,14 +1204,490 @@ class Nullstone {
 }
 
 module Fayde.Shapes {
-    export class PointCollection {
+    export enum PathEntryType {
+        Move = 0,
+        Line = 1,
+        Rect = 2,
+        Quadratic = 3,
+        Bezier = 4,
+        EllipticalArc = 5,
+        Arc = 6,
+        ArcTo = 7,
+        Close = 8,
     }
-    Nullstone.RegisterType(PointCollection, "PointCollection");
+    export enum ShapeFlags {
+        Empty = 1,
+        Normal = 2,
+        Degenerate = 4,
+        Radii = 8,
+    }
+    export enum PenLineCap {
+        Flat = 0,
+        Square = 1,
+        Round = 2,
+        Triangle = 3,
+    }
+    export enum PenLineJoin {
+        Miter = 0,
+        Bevel = 1,
+        Round = 2,
+    }
+    export enum FillRule {
+        EvenOdd = 0,
+        NonZero = 1,
+    }
+    export enum SweepDirection {
+        Counterclockwise = 0,
+        Clockwise = 1,
+    }
 }
 
 module Fayde.Shapes {
-    export function ParsePointCollection(val: string): PointCollection {
-        return new PointCollection();
+    declare var NotImplemented;
+    export interface IRange {
+        min: number;
+        max: number;
+    }
+    export interface IPointRange {
+        xMin: number;
+        xMax: number;
+        yMin: number;
+        yMax: number;
+    }
+    export interface IPathEntry {
+        type: PathEntryType;
+    }
+    export class RawPath {
+        private _Path: IPathEntry[] = [];
+        Move(x: number, y: number) {
+            this._Path.push({
+                type: PathEntryType.Move,
+                x: x,
+                y: y
+            });
+        }
+        Line(x: number, y: number) {
+            this._Path.push({
+                type: PathEntryType.Line,
+                x: x,
+                y: y
+            });
+        }
+        Rect(x: number, y: number, width: number, height: number) {
+            this._Path.push({
+                type: PathEntryType.Rect,
+                x: x,
+                y: y,
+                width: width,
+                height: height
+            });
+        }
+        RoundedRectFull(left: number, top: number, width: number, height: number, topLeft: number, topRight: number, bottomRight: number, bottomLeft: number) {
+            var right = left + width;
+            var bottom = top + height;
+            this.Move(left + topLeft, top);
+            this.Line(right - topRight, top);
+            if (topRight > 0)
+                this.Quadratic(right, top, right, top + topRight);
+            this.Line(right, bottom - bottomRight);
+            if (bottomRight > 0)
+                this.Quadratic(right, bottom, right - bottomRight, bottom);
+            this.Line(left + bottomLeft, bottom);
+            if (bottomLeft > 0)
+                this.Quadratic(left, bottom, left, bottom - bottomLeft);
+            this.Line(left, top + topLeft);
+            if (topLeft > 0)
+                this.Quadratic(left, top, left + topLeft, top);
+            this.Close();
+        }
+        RoundedRect(left: number, top: number, width: number, height: number, radiusX: number, radiusY: number) {
+            if (radiusX === 0.0 && radiusY === 0.0) {
+                this.Rect(left, top, width, height);
+                return;
+            }
+            var right = left + width;
+            var bottom = top + height;
+            this.Move(left + radiusX, top);
+            this.Line(right - radiusX, top);
+            this.Quadratic(right, top, right, top + radiusY);
+            this.Line(right, bottom - radiusY);
+            this.Quadratic(right, bottom, right - radiusX, bottom);
+            this.Line(left + radiusX, bottom);
+            this.Quadratic(left, bottom, left, bottom - radiusY);
+            this.Line(left, top + radiusY);
+            this.Quadratic(left, top, left + radiusX, top);
+            this.Close();
+        }
+        Quadratic(cpx: number, cpy: number, x: number, y: number) {
+            this._Path.push({
+                type: PathEntryType.Quadratic,
+                cpx: cpx,
+                cpy: cpy,
+                x: x,
+                y: y
+            });
+        }
+        Bezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number) {
+            this._Path.push({
+                type: PathEntryType.Bezier,
+                cp1x: cp1x,
+                cp1y: cp1y,
+                cp2x: cp2x,
+                cp2y: cp2y,
+                x: x,
+                y: y
+            });
+        }
+        Ellipse(x: number, y: number, width: number, height: number) {
+            var radiusX = width / 2;
+            var radiusY = height / 2;
+            var right = x + width;
+            var bottom = y + height;
+            var centerX = x + radiusX;
+            var centerY = y + radiusY;
+            if (width === height) { //circle
+                this.Arc(centerX, centerY, radiusX, 0, Math.PI * 2, false);
+            } else { //oval
+                var kappa = .5522848; // 4 * ((sqrt(2) - 1) / 3)
+                var ox = radiusX * kappa;
+                var oy = radiusY * kappa;
+                this.Move(x, centerY);
+                this.Bezier(x, centerY - oy, centerX - ox, y, centerX, y);
+                this.Bezier(centerX + ox, y, right, centerY - oy, right, centerY);
+                this.Bezier(right, centerY + oy, centerX + ox, bottom, centerX, bottom);
+                this.Bezier(centerX - ox, bottom, x, centerY + oy, x, centerY);
+                this.Close();
+            }
+        }
+        EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: bool, sweepDirectionFlag: bool, ex: number, ey: number) {
+            this._Path.push({
+                type: PathEntryType.EllipticalArc,
+                width: width,
+                height: height,
+                rotationAngle: rotationAngle,
+                isLargeArcFlag: isLargeArcFlag,
+                sweepDirectionFlag: sweepDirectionFlag,
+                ex: ex,
+                ey: ey
+            });
+        }
+        Arc(x: number, y: number, r: number, sAngle: number, eAngle: number, aClockwise: bool) {
+            this._Path.push({
+                type: PathEntryType.Arc,
+                x: x,
+                y: y,
+                r: r,
+                sAngle: sAngle,
+                eAngle: eAngle,
+                aClockwise: aClockwise
+            });
+        }
+        ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number) {
+            this._Path.push({
+                type: PathEntryType.ArcTo,
+                cpx: cpx,
+                cpy: cpy,
+                x: x,
+                y: y,
+                r: radius
+            });
+        }
+        Close() {
+            this._Path.push({
+                type: PathEntryType.Close
+            });
+        }
+        Draw(ctx: any) {
+            var canvasCtx: CanvasRenderingContext2D = ctx;
+            if (ctx instanceof RenderContext)
+                canvasCtx = ctx.CanvasContext;
+            canvasCtx.beginPath();
+            var backing = this._Path;
+            for (var i = 0; i < backing.length; i++) {
+                var p: any = backing[i];
+                switch (p.type) {
+                    case PathEntryType.Move:
+                        canvasCtx.moveTo(p.x, p.y);
+                        break;
+                    case PathEntryType.Line:
+                        canvasCtx.lineTo(p.x, p.y);
+                        break;
+                    case PathEntryType.Rect:
+                        canvasCtx.rect(p.x, p.y, p.width, p.height);
+                        break;
+                    case PathEntryType.Quadratic:
+                        canvasCtx.quadraticCurveTo(p.cpx, p.cpy, p.x, p.y);
+                        break;
+                    case PathEntryType.Bezier:
+                        canvasCtx.bezierCurveTo(p.cp1x, p.cp1y, p.cp2x, p.cp2y, p.x, p.y);
+                        break;
+                    case PathEntryType.Arc:
+                        canvasCtx.arc(p.x, p.y, p.r, p.sAngle, p.eAngle, p.aClockwise);
+                        break;
+                    case PathEntryType.ArcTo:
+                        canvasCtx.arcTo(p.cpx, p.cpy, p.x, p.y, p.r);
+                        break;
+                    case PathEntryType.Close:
+                        canvasCtx.closePath();
+                        break;
+                }
+            }
+        }
+        CalculateBounds(thickness: number): rect {
+            var backing = this._Path;
+            var startX: number = null;
+            var startY: number = null;
+            var xMin: number = null;
+            var xMax: number = null;
+            var yMin: number = null;
+            var yMax: number = null;
+            var xRange: IRange = null;
+            var yRange: IRange = null;
+            for (var i = 0; i < backing.length; i++) {
+                var p: any = backing[i];
+                switch (p.type) {
+                    case PathEntryType.Move:
+                        if (xMin == null && yMin == null) {
+                            xMin = xMax = p.x;
+                            yMin = yMax = p.y;
+                        } else {
+                            xMin = Math.min(p.x, xMin);
+                            yMin = Math.min(p.y, yMin);
+                            xMax = Math.max(p.x, xMax);
+                            yMax = Math.max(p.y, yMax);
+                        }
+                        startX = p.x;
+                        startY = p.y;
+                        break;
+                    case PathEntryType.Line:
+                        xMin = Math.min(p.x, xMin);
+                        yMin = Math.min(p.y, yMin);
+                        xMax = Math.max(p.x, xMax);
+                        yMax = Math.max(p.y, yMax);
+                        startX = p.x;
+                        startY = p.y;
+                        break;
+                    case PathEntryType.Rect: //does not use current x,y
+                        xMin = Math.min(p.x, xMin);
+                        yMin = Math.min(p.y, yMin);
+                        xMax = Math.max(p.x + p.width, xMax);
+                        yMax = Math.max(p.y + p.height, yMax);
+                        break;
+                    case PathEntryType.Quadratic:
+                        xRange = RawPath._CalculateQuadraticBezierRange(startX, p.cpx, p.x);
+                        xMin = Math.min(xMin, xRange.min);
+                        xMax = Math.max(xMax, xRange.max);
+                        yRange = RawPath._CalculateQuadraticBezierRange(startY, p.cpy, p.y);
+                        yMin = Math.min(yMin, yRange.min);
+                        yMax = Math.max(yMax, yRange.max);
+                        startX = p.x;
+                        startY = p.y;
+                        break;
+                    case PathEntryType.Bezier:
+                        xRange = RawPath._CalculateCubicBezierRange(startX, p.cp1x, p.cp2x, p.x);
+                        xMin = Math.min(xMin, xRange.min);
+                        xMax = Math.max(xMax, xRange.max);
+                        yRange = RawPath._CalculateCubicBezierRange(startY, p.cp1y, p.cp2y, p.y);
+                        yMin = Math.min(yMin, yRange.min);
+                        yMax = Math.max(yMax, yRange.max);
+                        startX = p.x;
+                        startY = p.y;
+                        break;
+                    case PathEntryType.Arc: //does not use current x,y
+                        if (p.sAngle !== p.eAngle) {
+                            var r = RawPath._CalculateArcRange(p.x, p.y, p.r, p.sAngle, p.eAngle, p.aClockwise);
+                            xMin = Math.min(xMin, r.xMin);
+                            xMax = Math.max(xMax, r.xMax);
+                            yMin = Math.min(yMin, r.yMin);
+                            yMax = Math.max(yMax, r.yMax);
+                        }
+                        break;
+                    case PathEntryType.ArcTo:
+                        var r = RawPath._CalculateArcToRange(startX, startY, p.cpx, p.cpy, p.x, p.y, p.r);
+                        xMin = Math.min(xMin, r.xMin);
+                        xMax = Math.max(xMax, r.xMax);
+                        yMin = Math.min(yMin, r.yMin);
+                        yMax = Math.max(yMax, r.yMax);
+                        startX = p.x;
+                        startY = p.y;
+                        break;
+                }
+            }
+            var r2 = new rect();
+            rect.set(r2, xMin, yMin, xMax - xMin, yMax - yMin);
+            return r2;
+        }
+        private static _CalculateQuadraticBezierRange(a: number, b: number, c: number): IRange {
+            var min = Math.min(a, c);
+            var max = Math.max(a, c);
+            if (min <= b && b <= max) {
+                return {
+                    min: min,
+                    max: max
+                };
+            }
+            var t = (a - b) / (a - 2 * b + c);
+            var xt = (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
+            if (min > b) {
+                min = Math.min(min, xt);
+            } else {
+                max = Math.max(max, xt);
+            }
+            return {
+                min: min,
+                max: max
+            };
+        }
+        private static _CalculateCubicBezierRange(a: number, b: number, c: number, d: number): IRange {
+            var min = Math.min(a, d);
+            var max = Math.max(a, d);
+            if ((min <= b && b <= max) && (min <= c && c <= max)) {
+                return {
+                    min: min,
+                    max: max
+                };
+            }
+            var u = 2 * a - 4 * b + 2 * c;
+            var v = b - a;
+            var w = -a + 3 * b + d - 3 * c;
+            var rt = Math.sqrt(u * u - 4 * v * w);
+            if (!isNaN(rt)) {
+                var t;
+                t = (-u + rt) / (2 * w);
+                if (t >= 0 && t <= 1) {
+                    var ot = 1 - t;
+                    var xt = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
+                    min = Math.min(min, xt);
+                    max = Math.max(max, xt);
+                }
+                t = (-u - rt) / (2 * w);
+                if (t >= 0 && t <= 1) {
+                    var ot = 1 - t;
+                    var xt = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
+                    min = Math.min(min, xt);
+                    max = Math.max(max, xt);
+                }
+            }
+            return {
+                min: min,
+                max: max
+            };
+        }
+        private static _CalculateArcRange(cx: number, cy: number, r: number, sa: number, ea: number, cc: bool): IPointRange {
+            var sx = cx + (r * Math.cos(sa));
+            var sy = cy + (r * Math.sin(sa));
+            var ex = cx + (r * Math.cos(ea));
+            var ey = cy + (r * Math.sin(ea));
+            return _CalculateArcPointsRange(cx, cy, sx, sy, ex, ey, r, cc);
+        }
+        private static _CalculateArcToRange(sx: number, sy: number, cpx: number, cpy: number, ex: number, ey: number, r: number): IPointRange {
+            NotImplemented("RawPath._CalculateArcToRange");
+            return {
+                xMin: sx,
+                xMax: sx,
+                yMin: sy,
+                yMax: sy
+            };
+            var v1x = cpx - sx;
+            var v1y = cpy - sy;
+            var v2x = ex - cpx;
+            var v2y = ey - cpy;
+            var theta_outer1 = Math.atan2(Math.abs(v1y), Math.abs(v1x));
+            var theta_outer2 = Math.atan2(Math.abs(v2y), Math.abs(v2x));
+            var inner_theta = Math.PI - theta_outer1 - theta_outer2;
+            var h = r / Math.sin(inner_theta / 2);
+            var cx = cpx + h * Math.cos(inner_theta / 2 + theta_outer2);
+            var cy = cpy + h * Math.sin(inner_theta / 2 + theta_outer2);
+            var a = r / Math.tan(inner_theta / 2);
+            var sx = cpx + a * Math.cos(theta_outer2 + inner_theta);
+            var sy = cpy + a * Math.sin(theta_outer2 + inner_theta);
+            var ex = cpx + a * Math.cos(theta_outer2);
+            var ey = cpy + a * Math.sin(theta_outer2);
+            var cc = true;
+            var r = _CalculateArcPointsRange(cx, cy, sx, sy, ex, ey, r, cc);
+            return {
+                xMin: Math.min(sx, r.xMin),
+                xMax: Math.max(sx, r.xMax),
+                yMin: Math.min(sy, r.yMin),
+                yMax: Math.max(sy, r.yMax)
+            };
+        }
+        private static _CalculateArcPointsRange(cx: number, cy: number, sx: number, sy: number, ex: number, ey: number, r: number, cc: bool): IPointRange {
+            var xMin = Math.min(sx, ex);
+            var xMax = Math.max(sx, ex);
+            var yMin = Math.min(sy, ey);
+            var yMax = Math.max(sy, ey);
+            var xLeft = cx - r;
+            if (_ArcContainsPoint(sx, sy, ex, ey, xLeft, cy, cc)) {
+                xMin = Math.min(xMin, xLeft);
+            }
+            var xRight = cx + r;
+            if (_ArcContainsPoint(sx, sy, ex, ey, xRight, cy, cc)) {
+                xMax = Math.max(xMax, xRight);
+            }
+            var yTop = cy - r;
+            if (_ArcContainsPoint(sx, sy, ex, ey, cx, yTop, cc)) {
+                yMin = Math.min(yMin, yTop);
+            }
+            var yBottom = cy + r;
+            if (_ArcContainsPoint(sx, sy, ex, ey, cx, yBottom, cc)) {
+                yMax = Math.max(yMax, yBottom);
+            }
+            return {
+                xMin: xMin,
+                xMax: xMax,
+                yMin: yMin,
+                yMax: yMax
+            };
+        }
+        private static _ArcContainsPoint(sx: number, sy: number, ex: number, ey: number, cpx: number, cpy: number, cc: bool): bool {
+            var n = (ex - sx) * (cpy - sy) - (cpx - sx) * (ey - sy);
+            if (n === 0)
+                return true;
+            if (n > 0 && cc)
+                return true;
+            if (n < 0 && !cc)
+                return true;
+            return false;
+        }
+        static Merge(path1: RawPath, path2: RawPath) {
+            NotImplemented("RawPath.Merge");
+        }
+        Serialize(): string {
+            var s = "";
+            var len = this._Path.length;
+            var backing = this._Path;
+            for (var i = 0; i < len; i++) {
+                if (i > 0)
+                    s += " ";
+                var p: any = backing[i];
+                switch (p.type) {
+                    case PathEntryType.Move:
+                        s += "M" + p.x.toString() + " " + p.y.toString();
+                        break;
+                    case PathEntryType.Line:
+                        s += "L" + p.x.toString() + " " + p.y.toString();
+                        break;
+                    case PathEntryType.Rect:
+                        break;
+                    case PathEntryType.Quadratic:
+                        s += "Q" + p.cpx.toString() + " " + p.cpy.toString() + ", " + p.x.toString() + " " + p.y.toString();
+                        break;
+                    case PathEntryType.Bezier:
+                        s += "C" + p.cp1x.toString() + " " + p.cp1y.toString() + ", " + p.cp2x.toString() + " " + p.cp2y.toString() + ", " + p.x.toString() + " " + p.y.toString();
+                        break;
+                    case PathEntryType.EllipticalArc:
+                        s += "A" + p.width.toString() + " " + p.height.toString() + " " + p.rotationAngle.toString() + " " + p.isLargeArcFlag.toString() + " " + p.sweepDirectionFlag.toString() + " " + p.ex.toString() + " " + p.ey.toString();
+                        break;
+                    case PathEntryType.ArcTo:
+                        break;
+                    case PathEntryType.Close:
+                        s += "Z";
+                        break;
+                }
+            }
+            return s;
+        }
     }
 }
 
@@ -4102,17 +4943,6 @@ module Fayde {
 }
 
 module Fayde.Media {
-    export class Geometry {
-        GetBounds(): rect {
-            return new rect();
-        }
-        Draw(ctx: Fayde.RenderContext) {
-        }
-    }
-    Nullstone.RegisterType(Geometry, "Geometry");
-}
-
-module Fayde.Media {
     export interface IMatrixChangedListener {
         MatrixChanged(newMatrix: Matrix);
     }
@@ -4160,12 +4990,6 @@ module Fayde.Media {
         toString(): string { return mat3.str(this._Raw); }
     }
     Nullstone.RegisterType(Matrix, "Matrix");
-}
-
-module Fayde.Media {
-    export class Projection {
-    }
-    Nullstone.RegisterType(Projection, "Projection");
 }
 
 module Fayde.Media.Animation {
@@ -5441,6 +6265,18 @@ class MulticastEvent {
 }
 Nullstone.RegisterType(MulticastEvent, "MulticastEvent");
 
+module Fayde.Shapes {
+    export class DoubleCollection extends XamlObjectCollection {
+    }
+    Nullstone.RegisterType(DoubleCollection, "DoubleCollection");
+}
+
+module Fayde.Shapes {
+    export class PointCollection extends XamlObjectCollection {
+    }
+    Nullstone.RegisterType(PointCollection, "PointCollection");
+}
+
 module Fayde {
     export class DeferredValueExpression extends Expression {
         GetValue(propd: DependencyProperty): any {
@@ -6422,6 +7258,144 @@ module Fayde.Media {
 }
 
 module Fayde.Media {
+    export interface IGeometryListener {
+        GeometryChanged(newGeometry: Geometry);
+    }
+    export class Geometry extends DependencyObject {
+        private _Path: Shapes.RawPath = null;
+        private _LocalBounds: rect = new rect();
+        private _Listener: IGeometryListener = null;
+        static TransformProperty: DependencyProperty = DependencyProperty.Register("Transform", () => Transform, Geometry, undefined, (d, args) => (<Geometry>d)._TransformChanged(args));
+        Transform: Transform;
+        constructor() {
+            super();
+            this._LocalBounds.Width = Number.NEGATIVE_INFINITY;
+            this._LocalBounds.Height = Number.NEGATIVE_INFINITY;
+        }
+        GetBounds(thickness?: number): rect {
+            var compute = rect.isEmpty(this._LocalBounds);
+            if (!this._Path) {
+                this._Path = this._Build();
+                compute = true;
+            }
+            if (compute)
+                rect.copyTo(this.ComputePathBounds(thickness), this._LocalBounds);
+            var bounds = rect.clone(this._LocalBounds);
+            var transform = this.Transform
+            if (transform != null)
+                bounds = transform.TransformBounds(bounds);
+            return bounds;
+        }
+        Draw(ctx: RenderContext) {
+            if (!this._Path)
+                return;
+            var transform = this.Transform;
+            if (transform != null) {
+                ctx.Save();
+                ctx.Transform(transform);
+            }
+            this._Path.Draw(ctx);
+            if (transform != null)
+                ctx.Restore();
+        }
+        ComputePathBounds(thickness: number): rect {
+            if (!this._Path)
+                this._Path = this._Build();
+            if (!this._Path)
+                return new rect();
+            return this._Path.CalculateBounds(thickness);
+        }
+        _InvalidateGeometry() {
+            this._Path = null;
+            rect.set(this._LocalBounds, 0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+        }
+        _Build(): Shapes.RawPath { return undefined; }
+        Listen(listener: IGeometryListener) { this._Listener = listener; }
+        Unlisten(listener: IGeometryListener) { if (this._Listener === listener) this._Listener = null; }
+        private TransformChanged(source: Transform) {
+            this._InvalidateGeometry();
+            var listener = this._Listener;
+            if (listener) listener.GeometryChanged(this);
+        }
+        private _TransformChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldt = <Transform>args.OldValue;
+            var newt = <Transform>args.NewValue;
+            if (oldt)
+                oldt.Unlisten(this);
+            if (newt)
+                newt.Listen(this);
+            this._InvalidateGeometry();
+            var listener = this._Listener;
+            if (listener) listener.GeometryChanged(this);
+        }
+    }
+    Nullstone.RegisterType(Geometry, "Geometry");
+    export class GeometryCollection extends XamlObjectCollection implements IGeometryListener {
+        private _Listener: IGeometryListener;
+        Listen(listener: IGeometryListener) { this._Listener = listener; }
+        Unlisten(listener: IGeometryListener) { if (this._Listener === listener) this._Listener = null; }
+        AddedToCollection(value: Geometry, error: BError): bool {
+            if (!super.AddedToCollection(value, error))
+                return false;
+            value.Listen(this);
+            var listener = this._Listener;
+            if (listener) listener.GeometryChanged(value);
+        }
+        RemovedFromCollection(value: Geometry, isValueSafe: bool) {
+            super.RemovedFromCollection(value, isValueSafe);
+            value.Unlisten(this);
+            var listener = this._Listener;
+            if (listener) listener.GeometryChanged(value);
+        }
+        private GeometryChanged(newGeometry: Geometry) {
+            var listener = this._Listener;
+            if (listener) listener.GeometryChanged(newGeometry);
+        }
+    }
+    Nullstone.RegisterType(GeometryCollection, "GeometryCollection");
+}
+
+module Fayde.Media {
+    export class GeometryGroup extends Geometry implements IGeometryListener {
+        static FillRulleProperty: DependencyProperty = DependencyProperty.Register("FillRule", () => new Enum(Shapes.FillRule), GeometryGroup, Shapes.FillRule.EvenOdd);
+        FillRule: Shapes.FillRule;
+        Children: GeometryCollection;
+        constructor() {
+            super();
+            var coll = new GeometryCollection();
+            coll.Listen(this);
+            Object.defineProperty(this, "Children", {
+                value: coll,
+                writable: false
+            });
+        }
+        ComputePathBounds(thickness: number): rect {
+            var bounds = new rect();
+            var enumerator = this.Children.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                rect.unionLogical(bounds, (<Geometry>enumerator.Current).GetBounds(thickness));
+            }
+            return bounds;
+        }
+        Draw(ctx: RenderContext) {
+            var transform = this.Transform;
+            if (transform != null) {
+                ctx.Save();
+                ctx.Transform(transform);
+            }
+            var enumerator = this.Children.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                (<Geometry>enumerator.Current).Draw(ctx);
+            }
+            if (transform != null)
+                ctx.Restore();
+        }
+        private GeometryChanged(newGeometry: Geometry) { this._InvalidateGeometry(); }
+    }
+    Nullstone.RegisterType(GeometryGroup, "GeometryGroup");
+}
+
+module Fayde.Media {
     export interface IGradientStopListener {
         GradientStopChanged(newGradientStop: GradientStop);
     }
@@ -6467,6 +7441,179 @@ module Fayde.Media {
         }
     }
     Nullstone.RegisterType(GradientStopCollection, "GradientStopCollection");
+}
+
+module Fayde.Media {
+    export class LineGeometry extends Geometry {
+        static StartPointProperty: DependencyProperty = DependencyProperty.Register("StartPoint", () => Point, LineGeometry, undefined, (d, args) => (<Geometry>d)._InvalidateGeometry());
+        static EndPointProperty: DependencyProperty = DependencyProperty.Register("EndPoint", () => Point, LineGeometry, undefined, (d, args) => (<Geometry>d)._InvalidateGeometry());
+        StartPoint: Point;
+        EndPoint: Point;
+        private _Build(): Shapes.RawPath {
+            var p1 = this.StartPoint;
+            var p2 = this.EndPoint;
+            var p = new Shapes.RawPath();
+            p.Move(p1.X, p1.Y);
+            p.Line(p2.X, p2.Y);
+            return p;
+        }
+    }
+    Nullstone.RegisterType(LineGeometry, "LineGeometry");
+}
+
+module Fayde.Media {
+    export class PathFigure extends DependencyObject {
+        static Annotations = { ContentProperty: "Segments" }
+        static IsClosedProperty: DependencyProperty = DependencyProperty.RegisterCore("IsClosed", () => Boolean, PathFigure, false);
+        static StartPointProperty: DependencyProperty = DependencyProperty.RegisterCore("StartPoint", () => Point, PathFigure);
+        static IsFilledProperty: DependencyProperty = DependencyProperty.RegisterCore("IsFilled", () => Boolean, PathFigure, true);
+        IsClosed: bool;
+        Segments: PathSegmentCollection;
+        StartPoint: Point;
+        IsFilled: bool;
+        private _Path: Shapes.IPathEntry[] = [];
+        private _Build() {
+            this._Path = [];
+            var start = this.StartPoint;
+            this._Path.push({ type: Shapes.PathEntryType.Move, x: start.X, y: start.Y });
+            var enumerator = this.Segments.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                (<PathSegment>enumerator.Current)._Append(this._Path);
+            }
+            if (this.IsClosed)
+                this._Path.push({ type: Shapes.PathEntryType.Close });
+        }
+    }
+    Nullstone.RegisterType(PathFigure, "PathFigure");
+    export class PathFigureCollection extends XamlObjectCollection {
+    }
+    Nullstone.RegisterType(PathFigureCollection, "PathFigureCollection");
+}
+
+module Fayde.Media {
+    export class PathGeometry extends Geometry {
+        static FillRuleProperty: DependencyProperty = DependencyProperty.Register("FillRule", () => new Enum(Shapes.FillRule), PathGeometry, Shapes.FillRule.EvenOdd);
+        static FiguresProperty: DependencyProperty = DependencyProperty.Register("Figures", () => PathFigureCollection, PathGeometry);
+        FillRule: Shapes.FillRule;
+        Figures: PathFigureCollection;
+        SetPath(path: Shapes.RawPath) {
+            (<any>this)._Path = path;
+        }
+    }
+    Nullstone.RegisterType(PathGeometry, "PathGeometry");
+}
+
+module Fayde.Media {
+    export class PathSegment extends DependencyObject {
+        _Append(path: Shapes.IPathEntry[]) {
+        }
+    }
+    Nullstone.RegisterType(PathSegment, "PathSegment");
+    export class PathSegmentCollection extends XamlObjectCollection {
+    }
+    Nullstone.RegisterType(PathSegmentCollection, "PathSegmentCollection");
+}
+
+module Fayde.Media {
+    declare var NotImplemented;
+    export class ArcSegment extends PathSegment {
+        static IsLargeArcProperty: DependencyProperty = DependencyProperty.RegisterCore("IsLargeArc", () => Boolean, ArcSegment, false);
+        static PointProperty: DependencyProperty = DependencyProperty.Register("Point", () => Point, ArcSegment);
+        static RotationAngleProperty: DependencyProperty = DependencyProperty.Register("RotationAngle", () => Number, ArcSegment, 0.0);
+        static SizeProperty: DependencyProperty = DependencyProperty.Register("Size", () => size, ArcSegment);
+        static SweepDirectionProperty: DependencyProperty = DependencyProperty.Register("SweepDirection", () => new Enum(Shapes.SweepDirection), ArcSegment, Shapes.SweepDirection.Counterclockwise);
+        IsLargeArc: bool;
+        Point: Point;
+        RotationAngle: number;
+        Size: size;
+        SweepDirection: Shapes.SweepDirection;
+        _Append(path: Shapes.IPathEntry[]) {
+            NotImplemented("ArcSegment._Append");
+        }
+    }
+    Nullstone.RegisterType(ArcSegment, "ArcSegment");
+    export class BezierSegment extends PathSegment {
+        static Point1Property: DependencyProperty = DependencyProperty.Register("Point1", () => Point, BezierSegment);
+        static Point2Property: DependencyProperty = DependencyProperty.Register("Point2", () => Point, BezierSegment);
+        static Point3Property: DependencyProperty = DependencyProperty.Register("Point3", () => Point, BezierSegment);
+        Point1: Point;
+        Point2: Point;
+        Point3: Point;
+        _Append(path: Shapes.IPathEntry[]) {
+            NotImplemented("BezierSegment._Append");
+        }
+    }
+    Nullstone.RegisterType(BezierSegment, "BezierSegment");
+    export class LineSegment extends PathSegment {
+        static PointProperty: DependencyProperty = DependencyProperty.Register("Point", () => Point, LineSegment);
+        Point: Point;
+        _Append(path: Shapes.IPathEntry[]) {
+            NotImplemented("LineSegment._Append");
+        }
+    }
+    Nullstone.RegisterType(LineSegment, "LineSegment");
+    export class PolyBezierSegment extends PathSegment {
+        static Annotations = { ContentProperty: "Points" }
+        Points: Shapes.PointCollection;
+        _Append(path: Shapes.IPathEntry[]) {
+            NotImplemented("PolyBezierSegment._Append");
+        }
+    }
+    Nullstone.RegisterType(PolyBezierSegment, "PolyBezierSegment");
+    export class PolyLineSegment extends PathSegment {
+        static Annotations = { ContentProperty: "Points" }
+        Points: Shapes.PointCollection;
+        _Append(path: Shapes.IPathEntry[]) {
+            NotImplemented("PolyLineSegment._Append");
+        }
+    }
+    Nullstone.RegisterType(PolyLineSegment, "PolyLineSegment");
+    export class PolyQuadraticBezierSegment extends PathSegment {
+        static Annotations = { ContentProperty: "Points" }
+        Points: Shapes.PointCollection;
+        _Append(path: Shapes.IPathEntry[]) {
+            NotImplemented("PolyQuadraticBezierSegment._Append");
+        }
+    }
+    Nullstone.RegisterType(PolyQuadraticBezierSegment, "PolyQuadraticBezierSegment");
+    export class QuadraticBezierSegment extends PathSegment {
+        static Point1Property: DependencyProperty = DependencyProperty.Register("Point1", () => Point, QuadraticBezierSegment);
+        static Point2Property: DependencyProperty = DependencyProperty.Register("Point2", () => Point, QuadraticBezierSegment);
+        Point1: Point;
+        Point2: Point;
+        _Append(path: Shapes.IPathEntry[]) {
+            NotImplemented("QuadraticBezierSegment._Append");
+        }
+    }
+    Nullstone.RegisterType(QuadraticBezierSegment, "QuadraticBezierSegment");
+}
+
+module Fayde.Media {
+    export class Projection extends DependencyObject {
+    }
+    Nullstone.RegisterType(Projection, "Projection");
+}
+
+module Fayde.Media {
+    export class RectangleGeometry extends Geometry {
+        static RectProperty: DependencyProperty = DependencyProperty.RegisterCore("Rect", () => rect, RectangleGeometry, undefined, (d, args) => (<Geometry>d)._InvalidateGeometry());
+        static RadiusXProperty: DependencyProperty = DependencyProperty.RegisterCore("RadiusX", () => Number, RectangleGeometry, 0, (d, args) => (<Geometry>d)._InvalidateGeometry());
+        static RadiusYProperty: DependencyProperty = DependencyProperty.RegisterCore("RadiusY", () => Number, RectangleGeometry, 0, (d, args) => (<Geometry>d)._InvalidateGeometry());
+        Rect: rect;
+        RadiusX: number;
+        RadiusY: number;
+        private _Build(): Shapes.RawPath {
+            var irect = this.Rect;
+            if (!irect)
+                return;
+            var radiusX = this.RadiusX;
+            var radiusY = this.RadiusY;
+            var p = new Shapes.RawPath();
+            p.RoundedRect(irect.X, irect.Y, irect.Width, irect.Height, radiusX, radiusY);
+            return p;
+        }
+    }
+    Nullstone.RegisterType(RectangleGeometry, "RectangleGeometry");
 }
 
 module Fayde.Media {
@@ -7939,6 +9086,28 @@ module Fayde.Media {
 }
 
 module Fayde.Media {
+    export class EllipseGeometry extends Geometry {
+        static CenterProperty: DependencyProperty = DependencyProperty.Register("Center", () => Point, EllipseGeometry, undefined, (d, args) => (<Geometry>d)._InvalidateGeometry());
+        static RadiusXProperty: DependencyProperty = DependencyProperty.Register("RadiusX", () => Number, EllipseGeometry, 0.0, (d, args) => (<Geometry>d)._InvalidateGeometry());
+        static RadiusYProperty: DependencyProperty = DependencyProperty.Register("RadiusY", () => Number, EllipseGeometry, 0.0, (d, args) => (<Geometry>d)._InvalidateGeometry());
+        Center: Point;
+        RadiusX: number;
+        RadiusY: number;
+        private _Build(): Shapes.RawPath {
+            var rx = this.RadiusX;
+            var ry = this.RadiusY;
+            var center = this.Center;
+            var x = center ? center.X : 0.0;
+            var y = center ? center.Y : 0.0;
+            var p = new Shapes.RawPath();
+            p.Ellipse(x - rx, y - ry, rx * 2.0, ry * 2.0);
+            return p;
+        }
+    }
+    Nullstone.RegisterType(EllipseGeometry, "EllipseGeometry");
+}
+
+module Fayde.Media {
     export class GradientBrush extends Brush implements IGradientStopsListener {
         static MappingModeProperty = DependencyProperty.Register("MappingMode", () => new Enum(BrushMappingMode), GradientBrush, BrushMappingMode.RelativeToBoundingBox, (d, args) => (<Brush>d).InvalidateBrush());
         static SpreadMethodProperty = DependencyProperty.Register("SpreadMethod", () => new Enum(GradientSpreadMethod), GradientBrush, GradientSpreadMethod.Pad, (d, args) => (<Brush>d).InvalidateBrush());
@@ -8047,6 +9216,12 @@ module Fayde.Media {
         }
     }
     Nullstone.RegisterType(LinearGradientBrush, "LinearGradientBrush");
+}
+
+module Fayde.Media {
+    export class Matrix3DProjection extends Projection {
+    }
+    Nullstone.RegisterType(Matrix3DProjection, "Matrix3DProjection");
 }
 
 module Fayde.Media {
@@ -9049,6 +10224,37 @@ module Fayde.Media.Imaging {
         }
     }
     Nullstone.RegisterType(BitmapImage, "BitmapImage");
+}
+
+module Fayde.Shapes {
+    export class Shape extends FrameworkElement {
+        private _ShapeFlags = 0;
+        private _StretchXform: number[] = mat3.identity();
+        private _NaturalBounds: rect = new rect();
+        static FillProperty: DependencyProperty = DependencyProperty.Register("Fill", () => Media.Brush, Shape);
+        static StretchProperty: DependencyProperty = DependencyProperty.Register("Stretch", () => new Enum(Media.Stretch), Shape, Media.Stretch.None);
+        static StrokeProperty: DependencyProperty = DependencyProperty.Register("Stroke", () => Media.Brush, Shape);
+        static StrokeThicknessProperty: DependencyProperty = DependencyProperty.Register("StrokeThickness", () => Number, Shape, 1.0);
+        static StrokeDashArrayProperty: DependencyProperty = DependencyProperty.Register("StrokeDashArray", () => DoubleCollection, Shape);
+        static StrokeDashCapProperty: DependencyProperty = DependencyProperty.Register("StrokeDashCap", () => new Enum(PenLineCap), Shape, PenLineCap.Flat);
+        static StrokeDashOffsetProperty: DependencyProperty = DependencyProperty.Register("StrokeDashOffset", () => Number, Shape, 0.0);
+        static StrokeEndLineCapProperty: DependencyProperty = DependencyProperty.Register("StrokeEndLineCap", () => new Enum(PenLineCap), Shape, PenLineCap.Flat);
+        static StrokeLineJoinProperty: DependencyProperty = DependencyProperty.Register("StrokeLineJoin", () => new Enum(PenLineJoin), Shape, PenLineJoin.Miter);
+        static StrokeMiterLimitProperty: DependencyProperty = DependencyProperty.Register("StrokeMiterLimit", () => Number, Shape, 10.0);
+        static StrokeStartLineCapProperty: DependencyProperty = DependencyProperty.Register("StrokeStartLineCap", () => new Enum(PenLineCap), Shape, PenLineCap.Flat);
+        Fill: Media.Brush;
+        Stretch: Media.Stretch;
+        Stroke: Media.Brush;
+        StrokeThickness: number;
+        StrokeDashArray: DoubleCollection;
+        StrokeDashCap: PenLineCap;
+        StrokeDashOffset: number;
+        StrokeEndLineCap: PenLineCap;
+        StrokeLineJoin: PenLineJoin;
+        StrokeMiterLimit: number;
+        StrokeStartLineCap: PenLineCap;
+    }
+    Nullstone.RegisterType(Shape, "Shape");
 }
 
 module Fayde.Controls {

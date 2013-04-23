@@ -5,7 +5,6 @@
 /// <reference path="../Primitives/Color.ts" />
 /// <reference path="../Primitives/Thickness.ts" />
 /// <reference path="../Media/MediaParser.ts" />
-/// <reference path="../Shapes/ShapesParser.ts" />
 /// <reference path="../Media/SolidColorBrush.ts" />
 var Fayde;
 (function (Fayde) {
@@ -122,7 +121,7 @@ var Fayde;
             return Fayde.Media.ParseGeometry(val);
         };
         TypeConverter.PointCollectionFromString = function PointCollectionFromString(val) {
-            return Fayde.Shapes.ParsePointCollection(val);
+            return Fayde.Media.ParsePointCollection(val);
         };
         return TypeConverter;
     })();

@@ -815,6 +815,10 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Media\GeneralTransform.ts" />
     <TypeScriptCompile Include="Typescript\Media\Enums.ts" />
+    <TypeScriptCompile Include="Typescript\Media\EllipseGeometry.ts" />
+    <Content Include="Typescript\Media\EllipseGeometry.js">
+      <DependentUpon>EllipseGeometry.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\Enums.js">
       <DependentUpon>Enums.ts</DependentUpon>
     </Content>
@@ -826,6 +830,10 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Media\Matrix.ts" />
     <TypeScriptCompile Include="Typescript\Media\GradientBrush.ts" />
+    <TypeScriptCompile Include="Typescript\Media\GeometryGroup.ts" />
+    <Content Include="Typescript\Media\GeometryGroup.js">
+      <DependentUpon>GeometryGroup.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\GradientBrush.js">
       <DependentUpon>GradientBrush.ts</DependentUpon>
     </Content>
@@ -857,20 +865,48 @@
     <Content Include="Typescript\Media\LinearGradientBrush.js">
       <DependentUpon>LinearGradientBrush.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Media\LineGeometry.ts" />
+    <Content Include="Typescript\Media\LineGeometry.js">
+      <DependentUpon>LineGeometry.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\Matrix.js">
       <DependentUpon>Matrix.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Matrix3DProjection.ts" />
+    <Content Include="Typescript\Media\Matrix3DProjection.js">
+      <DependentUpon>Matrix3DProjection.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Media\MediaParser.js">
       <DependentUpon>MediaParser.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Media\SolidColorBrush.ts" />
     <TypeScriptCompile Include="Typescript\Media\Projection.ts" />
+    <TypeScriptCompile Include="Typescript\Media\PathGeometry.ts" />
+    <TypeScriptCompile Include="Typescript\Media\PathFigure.ts" />
+    <Content Include="Typescript\Media\PathFigure.js">
+      <DependentUpon>PathFigure.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\PathGeometry.js">
+      <DependentUpon>PathGeometry.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\PathSegment.ts" />
+    <Content Include="Typescript\Media\PathSegment.js">
+      <DependentUpon>PathSegment.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\PathSegments.ts" />
+    <Content Include="Typescript\Media\PathSegments.js">
+      <DependentUpon>PathSegments.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\Projection.js">
       <DependentUpon>Projection.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Media\RadialGradientBrush.ts" />
     <Content Include="Typescript\Media\RadialGradientBrush.js">
       <DependentUpon>RadialGradientBrush.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\RectangleGeometry.ts" />
+    <Content Include="Typescript\Media\RectangleGeometry.js">
+      <DependentUpon>RectangleGeometry.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Media\SolidColorBrush.js">
       <DependentUpon>SolidColorBrush.ts</DependentUpon>
@@ -1036,13 +1072,25 @@
     <Content Include="Typescript\Runtime\Nullstone.js">
       <DependentUpon>Nullstone.ts</DependentUpon>
     </Content>
-    <TypeScriptCompile Include="Typescript\Shapes\ShapesParser.ts" />
     <TypeScriptCompile Include="Typescript\Shapes\PointCollection.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\DoubleCollection.ts" />
+    <Content Include="Typescript\Shapes\DoubleCollection.js">
+      <DependentUpon>DoubleCollection.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Shapes\Enums.ts" />
+    <Content Include="Typescript\Shapes\Enums.js">
+      <DependentUpon>Enums.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Shapes\PointCollection.js">
       <DependentUpon>PointCollection.ts</DependentUpon>
     </Content>
-    <Content Include="Typescript\Shapes\ShapesParser.js">
-      <DependentUpon>ShapesParser.ts</DependentUpon>
+    <TypeScriptCompile Include="Typescript\Shapes\Shape.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\RawPath.ts" />
+    <Content Include="Typescript\Shapes\RawPath.js">
+      <DependentUpon>RawPath.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Shapes\Shape.js">
+      <DependentUpon>Shape.ts</DependentUpon>
     </Content>
     <Content Include="Web.config">
       <SubType>Designer</SubType>
