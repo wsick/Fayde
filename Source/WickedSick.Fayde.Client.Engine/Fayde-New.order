@@ -97,6 +97,7 @@ Media/PathSegment.js
 Media/PathSegments.js
 Media/Projection.js
 Media/RectangleGeometry.js
+Media/TextOptions.js
 Media/Transform.js
 Media/Transforms.js
 Media/Animation/EasingFunctionBase.js

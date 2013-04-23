@@ -24,4 +24,8 @@ module Fayde.Media {
         Center = 1,
         Bottom = 2,
     }
+    export enum TextHintingMode {
+        Fixed = 0,
+        Animated = 1,
+    }
 }

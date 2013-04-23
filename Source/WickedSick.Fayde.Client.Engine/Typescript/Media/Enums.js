@@ -36,6 +36,12 @@ var Fayde;
             AlignmentY.Bottom = 2;
         })(Media.AlignmentY || (Media.AlignmentY = {}));
         var AlignmentY = Media.AlignmentY;
+        (function (TextHintingMode) {
+            TextHintingMode._map = [];
+            TextHintingMode.Fixed = 0;
+            TextHintingMode.Animated = 1;
+        })(Media.TextHintingMode || (Media.TextHintingMode = {}));
+        var TextHintingMode = Media.TextHintingMode;
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));

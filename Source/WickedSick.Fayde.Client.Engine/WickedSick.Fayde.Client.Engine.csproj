@@ -914,6 +914,10 @@
     <TypeScriptCompile Include="Typescript\Primitives\Clip.ts" />
     <TypeScriptCompile Include="Typescript\Media\Transform.ts" />
     <TypeScriptCompile Include="Typescript\Media\TileBrush.ts" />
+    <TypeScriptCompile Include="Typescript\Media\TextOptions.ts" />
+    <Content Include="Typescript\Media\TextOptions.js">
+      <DependentUpon>TextOptions.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\TileBrush.js">
       <DependentUpon>TileBrush.ts</DependentUpon>
     </Content>

@@ -517,6 +517,10 @@ module Fayde.Media {
         Center = 1,
         Bottom = 2,
     }
+    export enum TextHintingMode {
+        Fixed = 0,
+        Animated = 1,
+    }
 }
 
 module Fayde.Media {
@@ -7720,6 +7724,15 @@ module Fayde.Media {
         }
     }
     Nullstone.RegisterType(RectangleGeometry, "RectangleGeometry");
+}
+
+module Fayde.Media {
+    export class TextOptions {
+        static TextHintingModeProperty: DependencyProperty = DependencyProperty.RegisterAttached("TextHintingMode", () => new Enum(TextHintingMode), TextOptions);
+        static GetTextHintingMode(d: DependencyObject): TextHintingMode { return d.GetValue(TextHintingModeProperty); }
+        static SetTextHintingMode(d: DependencyObject, value: TextHintingMode) { d.SetValue(TextHintingModeProperty, value); }
+    }
+    Nullstone.RegisterType(TextOptions, "TextOptions");
 }
 
 module Fayde.Media {

@@ -97,6 +97,7 @@ Typescript\Media\PathSegment.ts
 Typescript\Media\PathSegments.ts
 Typescript\Media\Projection.ts
 Typescript\Media\RectangleGeometry.ts
+Typescript\Media\TextOptions.ts
 Typescript\Media\Transform.ts
 Typescript\Media\Transforms.ts
 Typescript\Media\Animation\EasingFunctionBase.ts
