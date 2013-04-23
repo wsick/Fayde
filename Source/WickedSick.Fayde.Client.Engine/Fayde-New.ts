@@ -1968,7 +1968,11 @@ module Fayde {
             this.LayoutSlot = new rect();
             this.SetLayoutClip(undefined);
         }
-        IsContainer() {
+        IsContainer(): bool {
+            return true;
+        }
+        IsLayoutContainer(): bool {
+            return true;
         }
         HasMeasureArrangeHint(): bool {
             return (this.Flags & (UIElementFlags.DirtyMeasureHint | UIElementFlags.DirtyArrangeHint)) > 0;
@@ -2210,13 +2214,7 @@ module Fayde {
                 } else if (flag === UIElementFlags.DirtySizeHint) {
                     while (lu = pass.SizeList.shift()) {
                         pass.Updated = true;
-                        var last = lu.LastRenderSize
-                        if (last) {
-                            lu.LastRenderSize = undefined;
-                            lu._UpdateActualSize();
-                            var fe = <FrameworkElement>lu.Node.XObject;
-                            fe.SizeChanged.Raise(fe, new Fayde.SizeChangedEventArgs(last, lu.RenderSize));
-                        }
+                        lu._UpdateActualSize();
                     }
                 } else {
                     break;
@@ -2224,6 +2222,46 @@ module Fayde {
             }
         }
         private _UpdateActualSize() {
+            var last = this.LastRenderSize;
+            var s = this._ComputeActualSize();
+            if (last && size.isEqual(last, s))
+                return;
+            this.LastRenderSize = s;
+            var fe = <FrameworkElement>this.Node.XObject;
+            fe.SizeChanged.Raise(fe, new SizeChangedEventArgs(last, s));
+        }
+        private _ComputeActualSize(): size {
+            var node = this.Node;
+            if (node.XObject.Visibility !== Fayde.Visibility.Visible)
+                return new size();
+            var parentNode = node.VisualParentNode;
+            if ((parentNode && !(parentNode.XObject instanceof Controls.Canvas)) || this.IsLayoutContainer())
+                return size.clone(this.RenderSize);
+            return this._CoerceSize(new size());
+        }
+        private _CoerceSize(s: size): size {
+            var fe = <FrameworkElement>this.Node.XObject;
+            var spw = fe.Width;
+            var sph = fe.Height;
+            var minw = fe.MinWidth;
+            var minh = fe.MinHeight;
+            var cw = minw;
+            var ch = minh;
+            cw = Math.max(cw, s.Width);
+            ch = Math.max(ch, s.Height);
+            if (!isNaN(spw))
+                cw = spw;
+            if (!isNaN(sph))
+                ch = sph;
+            cw = Math.max(Math.min(cw, fe.MaxWidth), minw);
+            ch = Math.max(Math.min(ch, fe.MaxHeight), minh);
+            if (fe.UseLayoutRounding) {
+                cw = Math.round(cw);
+                ch = Math.round(ch);
+            }
+            s.Width = cw;
+            s.Height = ch;
+            return s;
         }
         private _HasFlag(flag: Fayde.UIElementFlags): bool { return (this.Flags & flag) === flag; }
         private _ClearFlag(flag: Fayde.UIElementFlags) { this.Flags &= ~flag; }
@@ -9030,6 +9068,10 @@ module Fayde {
         private _IsMouseOver: bool = false;
         get IsMouseOver() { return this._IsMouseOver; }
         Cursor: string;
+        RenderTransform: Media.Transform;
+        RenderTransformOrigin: Point;
+        Tag: any;
+        UseLayoutRounding: bool;
         Visibility: Visibility;
         LostFocus: RoutedEvent = new RoutedEvent();
         GotFocus: RoutedEvent = new RoutedEvent();
@@ -10301,10 +10343,20 @@ module Fayde {
         CreateNode(): XamlNode {
             return new FENode(this);
         }
-        static ActualHeightProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", function () { return Number; }, FrameworkElement);
-        static ActualWidthProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", function () { return Number; }, FrameworkElement);
-        static DataContextProperty = DependencyProperty.RegisterCore("DataContext", function () { return Object; }, FrameworkElement);
-        static StyleProperty = DependencyProperty.RegisterCore("Style", function () { return Style; }, FrameworkElement);
+        static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", () => Number, FrameworkElement);
+        static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", () => Number, FrameworkElement);
+        static DataContextProperty: DependencyProperty = DependencyProperty.RegisterCore("DataContext", () => Object, FrameworkElement);
+        static StyleProperty: DependencyProperty = DependencyProperty.RegisterCore("Style", () => Style, FrameworkElement);
+        ActualWidth: number;
+        ActualHeight: number;
+        DataContext: any;
+        Style: Style;
+        Width: number;
+        Height: number;
+        MinWidth: number;
+        MinHeight: number;
+        MaxWidth: number;
+        MaxHeight: number;
         SizeChanged: RoutedEvent;
         _ComputeActualSize(): size {
             return new size();
@@ -10847,6 +10899,12 @@ module Fayde.Data {
         }
     }
     Nullstone.RegisterType(PropertyPath, "PropertyPath");
+}
+
+module Fayde.Controls {
+    export class Canvas extends Panel {
+    }
+    Nullstone.RegisterType(Canvas, "Canvas");
 }
 
 module Fayde.Controls {

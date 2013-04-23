@@ -180,6 +180,10 @@ module Fayde {
         get IsMouseOver() { return this._IsMouseOver; }
 
         Cursor: string;
+        RenderTransform: Media.Transform;
+        RenderTransformOrigin: Point;
+        Tag: any;
+        UseLayoutRounding: bool;
         Visibility: Visibility;
         
         LostFocus: RoutedEvent = new RoutedEvent();

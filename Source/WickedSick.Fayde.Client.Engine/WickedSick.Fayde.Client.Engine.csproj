@@ -465,6 +465,10 @@
       <DependentUpon>XamlNodeTests.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Controls\ContentControl.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Canvas.ts" />
+    <Content Include="Typescript\Controls\Canvas.js">
+      <DependentUpon>Canvas.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\ContentControl.js">
       <DependentUpon>ContentControl.ts</DependentUpon>
     </Content>

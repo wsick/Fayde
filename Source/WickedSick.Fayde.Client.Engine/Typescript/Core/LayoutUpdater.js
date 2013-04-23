@@ -6,6 +6,7 @@
 /// <reference path="../Primitives/size.ts" />
 /// <reference path="../Primitives/Thickness.ts" />
 /// <reference path="SizeChangedEventArgs.ts" />
+/// <reference path="../Controls/Canvas.ts" />
 var Fayde;
 (function (Fayde) {
     var dirtyEnum = _Dirty;
@@ -88,7 +89,12 @@ var Fayde;
         };
         LayoutUpdater.prototype.IsContainer = function () {
             //TODO: Implement
-                    };
+            return true;
+        };
+        LayoutUpdater.prototype.IsLayoutContainer = function () {
+            //TODO: Implement
+            return true;
+        };
         LayoutUpdater.prototype.HasMeasureArrangeHint = function () {
             return (this.Flags & (UIElementFlags.DirtyMeasureHint | UIElementFlags.DirtyArrangeHint)) > 0;
         };
@@ -380,13 +386,7 @@ var Fayde;
                 } else if(flag === UIElementFlags.DirtySizeHint) {
                     while(lu = pass.SizeList.shift()) {
                         pass.Updated = true;
-                        var last = lu.LastRenderSize;
-                        if(last) {
-                            lu.LastRenderSize = undefined;
-                            lu._UpdateActualSize();
-                            var fe = lu.Node.XObject;
-                            fe.SizeChanged.Raise(fe, new Fayde.SizeChangedEventArgs(last, lu.RenderSize));
-                        }
+                        lu._UpdateActualSize();
                     }
                     //LayoutDebug(function () { return "Completed _SizeList Update"; });
                                     } else {
@@ -395,8 +395,52 @@ var Fayde;
             }
         };
         LayoutUpdater.prototype._UpdateActualSize = function () {
-            //TODO: Implement
-                    };
+            var last = this.LastRenderSize;
+            var s = this._ComputeActualSize();
+            if(last && size.isEqual(last, s)) {
+                return;
+            }
+            this.LastRenderSize = s;
+            var fe = this.Node.XObject;
+            fe.SizeChanged.Raise(fe, new Fayde.SizeChangedEventArgs(last, s));
+        };
+        LayoutUpdater.prototype._ComputeActualSize = function () {
+            var node = this.Node;
+            if(node.XObject.Visibility !== Fayde.Visibility.Visible) {
+                return new size();
+            }
+            var parentNode = node.VisualParentNode;
+            if((parentNode && !(parentNode.XObject instanceof Fayde.Controls.Canvas)) || this.IsLayoutContainer()) {
+                return size.clone(this.RenderSize);
+            }
+            return this._CoerceSize(new size());
+        };
+        LayoutUpdater.prototype._CoerceSize = function (s) {
+            var fe = this.Node.XObject;
+            var spw = fe.Width;
+            var sph = fe.Height;
+            var minw = fe.MinWidth;
+            var minh = fe.MinHeight;
+            var cw = minw;
+            var ch = minh;
+            cw = Math.max(cw, s.Width);
+            ch = Math.max(ch, s.Height);
+            if(!isNaN(spw)) {
+                cw = spw;
+            }
+            if(!isNaN(sph)) {
+                ch = sph;
+            }
+            cw = Math.max(Math.min(cw, fe.MaxWidth), minw);
+            ch = Math.max(Math.min(ch, fe.MaxHeight), minh);
+            if(fe.UseLayoutRounding) {
+                cw = Math.round(cw);
+                ch = Math.round(ch);
+            }
+            s.Width = cw;
+            s.Height = ch;
+            return s;
+        };
         LayoutUpdater.prototype._HasFlag = function (flag) {
             return (this.Flags & flag) === flag;
         };

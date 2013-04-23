@@ -157,4 +157,5 @@ Controls/TextBlock.js
 Controls/UserControl.js
 Controls/Primitives/Popup.js
 Data/PropertyPath.js
+Controls/Canvas.js
 Controls/ContentControl.js

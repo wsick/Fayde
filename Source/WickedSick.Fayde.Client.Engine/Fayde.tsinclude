@@ -157,4 +157,5 @@ Typescript\Controls\TextBlock.ts
 Typescript\Controls\UserControl.ts
 Typescript\Controls\Primitives\Popup.ts
 Typescript\Data\PropertyPath.ts
+Typescript\Controls\Canvas.ts
 Typescript\Controls\ContentControl.ts

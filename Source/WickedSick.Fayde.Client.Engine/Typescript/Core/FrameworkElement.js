@@ -109,10 +109,10 @@ var Fayde;
         FrameworkElement.prototype.CreateNode = function () {
             return new FENode(this);
         };
-        FrameworkElement.ActualHeightProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", function () {
+        FrameworkElement.ActualWidthProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", function () {
             return Number;
         }, FrameworkElement);
-        FrameworkElement.ActualWidthProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", function () {
+        FrameworkElement.ActualHeightProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", function () {
             return Number;
         }, FrameworkElement);
         FrameworkElement.DataContextProperty = DependencyProperty.RegisterCore("DataContext", function () {
