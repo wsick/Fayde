@@ -160,8 +160,10 @@ module Fayde {
             );
             return s;
         }
-        CreateNode(): XamlNode {
-            return new UINode(this);
+        CreateNode(): UINode {
+            var uin = new UINode(this);
+            uin.LayoutUpdater.SetContainerMode(false);
+            return uin;
         }
         
         static ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Media.Geometry; }, UIElement);

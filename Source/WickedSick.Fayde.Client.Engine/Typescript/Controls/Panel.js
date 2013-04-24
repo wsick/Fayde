@@ -147,7 +147,9 @@ var Fayde;
                 uie.SetValue(Panel.ZProperty, value);
             };
             Panel.prototype.CreateNode = function () {
-                return new PanelNode(this);
+                var n = new PanelNode(this);
+                n.LayoutUpdater.SetContainerMode(true, true);
+                return n;
             };
             return Panel;
         })(Fayde.FrameworkElement);

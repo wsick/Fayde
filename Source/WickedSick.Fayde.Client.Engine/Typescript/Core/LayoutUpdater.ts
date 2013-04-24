@@ -54,6 +54,7 @@ module Fayde {
         PreviousConstraint: size = undefined;
         LastRenderSize: size = undefined;
 
+        DesiredSize: size = new size();
         RenderSize: size = new size();
 
         TotalIsRenderVisible: bool = true;
@@ -68,6 +69,9 @@ module Fayde {
         SubtreeBounds: rect;
         GlobalBounds: rect;
         LayoutClipBounds: rect = new rect();
+
+        IsContainer: bool = false;
+        IsLayoutContainer: bool = false;
 
         Flags: Fayde.UIElementFlags = Fayde.UIElementFlags.None;
 
@@ -111,13 +115,13 @@ module Fayde {
             this.SetLayoutClip(undefined);
         }
         
-        IsContainer(): bool {
-            //TODO: Implement
-            return true;
-        }
-        IsLayoutContainer(): bool {
-            //TODO: Implement
-            return true;
+        SetContainerMode(isLayoutContainer: bool, isContainer?: bool) {
+            if (isLayoutContainer != null)
+                this.IsLayoutContainer = isLayoutContainer;
+            if (isContainer != null)
+                this.IsContainer = isContainer;
+            else
+                this.IsContainer = isLayoutContainer;
         }
 
         HasMeasureArrangeHint(): bool {
@@ -451,7 +455,7 @@ module Fayde {
                 return new size();
 
             var parentNode = node.VisualParentNode;
-            if ((parentNode && !(parentNode.XObject instanceof Controls.Canvas)) || this.IsLayoutContainer())
+            if ((parentNode && !(parentNode.XObject instanceof Controls.Canvas)) || this.IsLayoutContainer)
                 return size.clone(this.RenderSize);
 
             return this._CoerceSize(new size());

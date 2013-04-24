@@ -32,7 +32,9 @@ var Fayde;
                 return new Fayde.Providers.ControlProviderStore(this);
             };
             Control.prototype.CreateNode = function () {
-                return new ControlNode(this);
+                var n = new ControlNode(this);
+                n.LayoutUpdater.SetContainerMode(true);
+                return n;
             };
             Control.prototype.Focus = function () {
                 return App.Instance.MainSurface.Focus(this);

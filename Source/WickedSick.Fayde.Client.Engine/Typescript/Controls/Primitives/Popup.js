@@ -30,7 +30,7 @@ var Fayde;
                     };
                 };
                 return PopupNode;
-            })(Fayde.UINode);
+            })(Fayde.FENode);
             Primitives.PopupNode = PopupNode;            
             Nullstone.RegisterType(PopupNode, "PopupNode");
             var Popup = (function (_super) {

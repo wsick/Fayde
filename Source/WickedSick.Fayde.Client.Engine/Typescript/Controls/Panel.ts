@@ -118,8 +118,10 @@ module Fayde.Controls {
         static GetZ(uie: UIElement): number { return uie.GetValue(ZProperty); }
         static SetZ(uie: UIElement, value: number) { uie.SetValue(ZProperty, value); }
 
-        CreateNode(): XamlNode {
-            return new PanelNode(this);
+        CreateNode(): PanelNode {
+            var n = new PanelNode(this);
+            n.LayoutUpdater.SetContainerMode(true, true);
+            return n;
         }
     }
     Nullstone.RegisterType(Panel, "Panel");

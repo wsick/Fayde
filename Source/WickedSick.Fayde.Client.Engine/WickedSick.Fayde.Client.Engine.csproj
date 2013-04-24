@@ -466,6 +466,10 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Controls\ContentControl.ts" />
     <TypeScriptCompile Include="Typescript\Controls\Canvas.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Border.ts" />
+    <Content Include="Typescript\Controls\Border.js">
+      <DependentUpon>Border.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Canvas.js">
       <DependentUpon>Canvas.ts</DependentUpon>
     </Content>

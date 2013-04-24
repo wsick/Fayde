@@ -21,8 +21,10 @@ module Fayde.Controls {
         CreateStore(): Providers.ControlProviderStore {
             return new Providers.ControlProviderStore(this);
         }
-        CreateNode(): XamlNode {
-            return new ControlNode(this);
+        CreateNode(): ControlNode {
+            var n = new ControlNode(this);
+            n.LayoutUpdater.SetContainerMode(true);
+            return n;
         }
 
         IsEnabled: bool;

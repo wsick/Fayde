@@ -212,7 +212,7 @@ var Surface = (function () {
                 }
                 var last = lu.PreviousConstraint;
                 var available = size.clone(this.Extents);
-                if(lu.IsContainer() && (!last || (!size.isEqual(last, available)))) {
+                if(lu.IsContainer && (!last || (!size.isEqual(last, available)))) {
                     lu.InvalidateMeasure();
                     lu.PreviousConstraint = available;
                 }

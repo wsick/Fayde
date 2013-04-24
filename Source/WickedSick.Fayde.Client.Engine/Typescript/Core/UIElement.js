@@ -176,7 +176,9 @@ var Fayde;
             return s;
         };
         UIElement.prototype.CreateNode = function () {
-            return new UINode(this);
+            var uin = new UINode(this);
+            uin.LayoutUpdater.SetContainerMode(false);
+            return uin;
         };
         UIElement.ClipProperty = DependencyProperty.RegisterCore("Clip", function () {
             return Fayde.Media.Geometry;

@@ -3,7 +3,7 @@
 /// <reference path="../Core/XamlObjectCollection.ts" />
 
 module Fayde.Controls {
-    export class TextBlockNode extends UINode {
+    export class TextBlockNode extends FENode {
         GetInheritedWalker(): IEnumerator {
             var coll = (<DependencyObject>this.XObject).GetValue(TextBlock.InlinesProperty);
             if (coll)
@@ -14,7 +14,7 @@ module Fayde.Controls {
 
     export class TextBlock extends FrameworkElement {
         static InlinesProperty;
-        CreateNode(): XamlNode {
+        CreateNode(): TextBlockNode {
             return new TextBlockNode(this);
         }
     }

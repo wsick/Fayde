@@ -22,7 +22,7 @@ var Fayde;
                 }
             };
             return TextBlockNode;
-        })(Fayde.UINode);
+        })(Fayde.FENode);
         Controls.TextBlockNode = TextBlockNode;        
         Nullstone.RegisterType(TextBlockNode, "TextBlockNode");
         var TextBlock = (function (_super) {

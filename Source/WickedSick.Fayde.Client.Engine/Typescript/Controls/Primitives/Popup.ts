@@ -2,7 +2,7 @@
 /// CODE
 
 module Fayde.Controls.Primitives {
-    export class PopupNode extends UINode {
+    export class PopupNode extends FENode {
         GetInheritedWalker(): IEnumerator {
             var popup = (<Popup>this.XObject);
             if (!popup)
@@ -19,9 +19,9 @@ module Fayde.Controls.Primitives {
     }
     Nullstone.RegisterType(PopupNode, "PopupNode");
 
-    export class Popup extends Fayde.FrameworkElement {
+    export class Popup extends FrameworkElement {
         Child: UIElement;
-        CreateNode(): XamlNode {
+        CreateNode(): PopupNode {
             return new PopupNode(this);
         }
     }

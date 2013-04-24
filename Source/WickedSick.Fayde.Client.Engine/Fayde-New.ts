@@ -1920,6 +1920,7 @@ module Fayde {
         LayoutSlot: rect = undefined;
         PreviousConstraint: size = undefined;
         LastRenderSize: size = undefined;
+        DesiredSize: size = new size();
         RenderSize: size = new size();
         TotalIsRenderVisible: bool = true;
         Extents: rect = new rect();
@@ -1932,6 +1933,8 @@ module Fayde {
         SubtreeBounds: rect;
         GlobalBounds: rect;
         LayoutClipBounds: rect = new rect();
+        IsContainer: bool = false;
+        IsLayoutContainer: bool = false;
         Flags: Fayde.UIElementFlags = Fayde.UIElementFlags.None;
         DirtyFlags: _Dirty = 0;
         InUpDirty: bool = false;
@@ -1968,11 +1971,13 @@ module Fayde {
             this.LayoutSlot = new rect();
             this.SetLayoutClip(undefined);
         }
-        IsContainer(): bool {
-            return true;
-        }
-        IsLayoutContainer(): bool {
-            return true;
+        SetContainerMode(isLayoutContainer: bool, isContainer?: bool) {
+            if (isLayoutContainer != null)
+                this.IsLayoutContainer = isLayoutContainer;
+            if (isContainer != null)
+                this.IsContainer = isContainer;
+            else
+                this.IsContainer = isLayoutContainer;
         }
         HasMeasureArrangeHint(): bool {
             return (this.Flags & (UIElementFlags.DirtyMeasureHint | UIElementFlags.DirtyArrangeHint)) > 0;
@@ -2235,7 +2240,7 @@ module Fayde {
             if (node.XObject.Visibility !== Fayde.Visibility.Visible)
                 return new size();
             var parentNode = node.VisualParentNode;
-            if ((parentNode && !(parentNode.XObject instanceof Controls.Canvas)) || this.IsLayoutContainer())
+            if ((parentNode && !(parentNode.XObject instanceof Controls.Canvas)) || this.IsLayoutContainer)
                 return size.clone(this.RenderSize);
             return this._CoerceSize(new size());
         }
@@ -4166,7 +4171,7 @@ class Surface {
                     continue;
                 var last = lu.PreviousConstraint;
                 var available = size.clone(this.Extents);
-                if (lu.IsContainer() && (!last || (!size.isEqual(last, available)))) {
+                if (lu.IsContainer && (!last || (!size.isEqual(last, available)))) {
                     lu.InvalidateMeasure();
                     lu.PreviousConstraint = available;
                 }
@@ -9051,8 +9056,10 @@ module Fayde {
             );
             return s;
         }
-        CreateNode(): XamlNode {
-            return new UINode(this);
+        CreateNode(): UINode {
+            var uin = new UINode(this);
+            uin.LayoutUpdater.SetContainerMode(false);
+            return uin;
         }
         static ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Media.Geometry; }, UIElement);
         static EffectProperty = DependencyProperty.Register("Effect", function () { return Media.Effects.Effect; }, UIElement);
@@ -10340,7 +10347,7 @@ module Fayde {
             );
             return s;
         }
-        CreateNode(): XamlNode {
+        CreateNode(): FENode {
             return new FENode(this);
         }
         static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", () => Number, FrameworkElement);
@@ -10429,6 +10436,16 @@ module Fayde.Shapes {
 }
 
 module Fayde.Controls {
+    export class Border extends FrameworkElement {
+        CreateNode(): FENode {
+            var n = super.CreateNode();
+            n.LayoutUpdater.SetContainerMode(true);
+            return n;
+        }
+    }
+}
+
+module Fayde.Controls {
     export class ControlNode extends FENode {
         XObject: Control;
         constructor(xobj: Control) {
@@ -10446,8 +10463,10 @@ module Fayde.Controls {
         CreateStore(): Providers.ControlProviderStore {
             return new Providers.ControlProviderStore(this);
         }
-        CreateNode(): XamlNode {
-            return new ControlNode(this);
+        CreateNode(): ControlNode {
+            var n = new ControlNode(this);
+            n.LayoutUpdater.SetContainerMode(true);
+            return n;
         }
         IsEnabled: bool;
         IsTabStop: bool;
@@ -10580,15 +10599,17 @@ module Fayde.Controls {
         static SetZIndex(uie: UIElement, value: number) { uie.SetValue(ZIndexProperty, value); }
         static GetZ(uie: UIElement): number { return uie.GetValue(ZProperty); }
         static SetZ(uie: UIElement, value: number) { uie.SetValue(ZProperty, value); }
-        CreateNode(): XamlNode {
-            return new PanelNode(this);
+        CreateNode(): PanelNode {
+            var n = new PanelNode(this);
+            n.LayoutUpdater.SetContainerMode(true, true);
+            return n;
         }
     }
     Nullstone.RegisterType(Panel, "Panel");
 }
 
 module Fayde.Controls {
-    export class TextBlockNode extends UINode {
+    export class TextBlockNode extends FENode {
         GetInheritedWalker(): IEnumerator {
             var coll = (<DependencyObject>this.XObject).GetValue(TextBlock.InlinesProperty);
             if (coll)
@@ -10598,7 +10619,7 @@ module Fayde.Controls {
     Nullstone.RegisterType(TextBlockNode, "TextBlockNode");
     export class TextBlock extends FrameworkElement {
         static InlinesProperty;
-        CreateNode(): XamlNode {
+        CreateNode(): TextBlockNode {
             return new TextBlockNode(this);
         }
     }
@@ -10613,7 +10634,7 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls.Primitives {
-    export class PopupNode extends UINode {
+    export class PopupNode extends FENode {
         GetInheritedWalker(): IEnumerator {
             var popup = (<Popup>this.XObject);
             if (!popup)
@@ -10629,9 +10650,9 @@ module Fayde.Controls.Primitives {
         }
     }
     Nullstone.RegisterType(PopupNode, "PopupNode");
-    export class Popup extends Fayde.FrameworkElement {
+    export class Popup extends FrameworkElement {
         Child: UIElement;
-        CreateNode(): XamlNode {
+        CreateNode(): PopupNode {
             return new PopupNode(this);
         }
     }
@@ -10902,7 +10923,82 @@ module Fayde.Data {
 }
 
 module Fayde.Controls {
+    export class CanvasNode extends PanelNode {
+        _ElementAdded(uie: UIElement) {
+            super._ElementAdded(uie);
+            this._UpdateIsLayoutContainerOnAdd(uie);
+        }
+        _ElementRemoved(uie: UIElement) {
+            super._ElementRemoved(uie);
+            this._UpdateIsLayoutContainerOnRemove(uie);
+        }
+        private _UpdateIsLayoutContainerOnAdd(uie: UIElement) {
+            var lu = this.LayoutUpdater;
+            if (lu.IsLayoutContainer)
+                return;
+            var walker = DeepTreeWalker(uie);
+            var childNode: UINode;
+            while (childNode = walker.Step()) {
+                if (!(childNode instanceof CanvasNode) && childNode.LayoutUpdater.IsLayoutContainer) {
+                    lu.IsLayoutContainer = true;
+                    break;
+                }
+            }
+        }
+        private _UpdateIsLayoutContainerOnRemove(uie: UIElement) {
+            var lu = this.LayoutUpdater;
+            if (!lu.IsLayoutContainer)
+                return;
+            var walker = DeepTreeWalker(this.XObject);
+            var childNode: UINode;
+            while (childNode = walker.Step()) {
+                if (!(childNode instanceof CanvasNode) && childNode.LayoutUpdater.IsLayoutContainer) {
+                    lu.IsLayoutContainer = true;
+                    break;
+                }
+            }
+            lu.IsLayoutContainer = false;
+        }
+    }
+    Nullstone.RegisterType(CanvasNode, "CanvasNode");
+    function invalidateTopLeft(d: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
+        if (!(d instanceof UIElement))
+            return;
+        var n: UINode;
+        var lu: LayoutUpdater;
+        var uie = <UIElement>d;
+        if (uie instanceof Canvas) {
+            n = uie.XamlNode;
+            if (n.VisualParentNode == null) {
+                lu = n.LayoutUpdater;
+                lu.UpdateTransform();
+                lu.InvalidateArrange();
+            }
+        }
+        var vpNode = uie.XamlNode.VisualParentNode;
+        if (!(vpNode instanceof CanvasNode))
+            return;
+        n = uie.XamlNode;
+        lu = n.LayoutUpdater;
+        var childFinal = rect.fromSize(lu.DesiredSize);
+        childFinal.X = Canvas.GetLeft(uie);
+        childFinal.Y = Canvas.GetTop(uie);
+        if (uie.UseLayoutRounding) {
+            childFinal.X = Math.round(childFinal.X);
+            childFinal.Y = Math.round(childFinal.Y);
+            childFinal.Width = Math.round(childFinal.Width);
+            childFinal.Height = Math.round(childFinal.Height);
+        }
+        lu.LayoutSlot = childFinal;
+        lu.InvalidateArrange();
+    }
     export class Canvas extends Panel {
+        static TopProperty: DependencyProperty = DependencyProperty.RegisterAttached("Top", () => Number, Canvas, 0.0, invalidateTopLeft);
+        static GetTop(d: DependencyObject): number { return d.GetValue(TopProperty); }
+        static SetTop(d: DependencyObject, value: number) { d.SetValue(TopProperty, value); }
+        static LeftProperty: DependencyProperty = DependencyProperty.RegisterAttached("Left", () => Number, Canvas, 0.0, invalidateTopLeft);
+        static GetLeft(d: DependencyObject): number { return d.GetValue(LeftProperty); }
+        static SetLeft(d: DependencyObject, value: number) { d.SetValue(LeftProperty, value); }
     }
     Nullstone.RegisterType(Canvas, "Canvas");
 }

@@ -99,7 +99,7 @@ module Fayde {
             );
             return s;
         }
-        CreateNode(): XamlNode {
+        CreateNode(): FENode {
             return new FENode(this);
         }
 

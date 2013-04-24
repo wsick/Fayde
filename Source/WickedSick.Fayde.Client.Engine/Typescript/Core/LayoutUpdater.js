@@ -41,6 +41,7 @@ var Fayde;
             this.LayoutSlot = undefined;
             this.PreviousConstraint = undefined;
             this.LastRenderSize = undefined;
+            this.DesiredSize = new size();
             this.RenderSize = new size();
             this.TotalIsRenderVisible = true;
             this.Extents = new rect();
@@ -50,6 +51,8 @@ var Fayde;
             this.EffectPadding = new Thickness();
             this.ClipBounds = new rect();
             this.LayoutClipBounds = new rect();
+            this.IsContainer = false;
+            this.IsLayoutContainer = false;
             this.Flags = Fayde.UIElementFlags.None;
             this.DirtyFlags = 0;
             this.InUpDirty = false;
@@ -87,13 +90,15 @@ var Fayde;
             this.LayoutSlot = new rect();
             this.SetLayoutClip(undefined);
         };
-        LayoutUpdater.prototype.IsContainer = function () {
-            //TODO: Implement
-            return true;
-        };
-        LayoutUpdater.prototype.IsLayoutContainer = function () {
-            //TODO: Implement
-            return true;
+        LayoutUpdater.prototype.SetContainerMode = function (isLayoutContainer, isContainer) {
+            if(isLayoutContainer != null) {
+                this.IsLayoutContainer = isLayoutContainer;
+            }
+            if(isContainer != null) {
+                this.IsContainer = isContainer;
+            } else {
+                this.IsContainer = isLayoutContainer;
+            }
         };
         LayoutUpdater.prototype.HasMeasureArrangeHint = function () {
             return (this.Flags & (UIElementFlags.DirtyMeasureHint | UIElementFlags.DirtyArrangeHint)) > 0;
@@ -410,7 +415,7 @@ var Fayde;
                 return new size();
             }
             var parentNode = node.VisualParentNode;
-            if((parentNode && !(parentNode.XObject instanceof Fayde.Controls.Canvas)) || this.IsLayoutContainer()) {
+            if((parentNode && !(parentNode.XObject instanceof Fayde.Controls.Canvas)) || this.IsLayoutContainer) {
                 return size.clone(this.RenderSize);
             }
             return this._CoerceSize(new size());

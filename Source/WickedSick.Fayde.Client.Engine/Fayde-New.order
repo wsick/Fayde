@@ -149,6 +149,7 @@ Media/Imaging/ImageBrush.js
 Core/FrameworkElement.js
 Media/Imaging/BitmapImage.js
 Shapes/Shape.js
+Controls/Border.js
 Controls/Control.js
 Controls/Image.js
 Controls/MediaElement.js
