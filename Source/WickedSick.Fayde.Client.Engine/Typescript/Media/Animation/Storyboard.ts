@@ -71,14 +71,16 @@ module Fayde.Media.Animation {
         }
         private _HookupAnimation(animation: AnimationBase, targetObject: DependencyObject, targetPropertyPath: Data.PropertyPath, promotedValues: any[], error: BError): bool {
             animation.Reset();
-            var localTargetObject = null;
-            var localTargetPropertyPath = null;
+            var localTargetObject: DependencyObject = null;
+            var localTargetPropertyPath: Data.PropertyPath = null;
             if (animation.HasManualTarget) {
                 localTargetObject = animation.ManualTarget;
             } else {
                 var name = Storyboard.GetTargetName(animation);
-                if (name)
-                    localTargetObject = animation.XamlNode.FindName(name);
+                if (name) {
+                    var n = animation.XamlNode.FindName(name);
+                    localTargetObject = <DependencyObject>n.XObject;
+                }
             }
             localTargetPropertyPath = Storyboard.GetTargetProperty(animation);
 

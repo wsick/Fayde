@@ -45,9 +45,10 @@ var Fayde;
             return xobj;
         };
         JsonParser.ParseUserControl = function ParseUserControl(uc, json) {
+            //Sets up UserControl, then returns root element
             var parser = new JsonParser();
             parser._RootXamlObject = uc;
-            parser.SetObject(json, uc, new Fayde.NameScope(true));
+            return parser.SetObject(json, uc, new Fayde.NameScope(true));
         };
         JsonParser.ParseResourceDictionary = function ParseResourceDictionary(rd, json) {
             var parser = new JsonParser();
@@ -77,6 +78,7 @@ var Fayde;
             return xobj;
         };
         JsonParser.prototype.SetObject = function (json, xobj, namescope, ignoreResolve) {
+            //Sets object properties; will return Children/Content object if exists
             if(xobj && namescope) {
                 xobj.XamlNode.NameScope = namescope;
             }
@@ -133,6 +135,7 @@ var Fayde;
                     targetEvent.Subscribe(targetCallback, root);
                 }
             }
+            var content;
             var contentProp = this.GetAnnotationMember(type, "ContentProperty");
             var pd;
             var pn;
@@ -143,7 +146,7 @@ var Fayde;
                 } else if(typeof contentProp === "string") {
                     pn = contentProp;
                 }
-                var content = json.Content;
+                content = json.Content;
                 if(content) {
                     if(content instanceof Fayde.Markup) {
                         content = content.Transmute(xobj, contentProp, "Content", this._TemplateBindingSource);
@@ -159,6 +162,7 @@ var Fayde;
             if(!ignoreResolve) {
                 this.ResolveStaticResourceExpressions();
             }
+            return content;
         };
         JsonParser.prototype.TrySetPropertyValue = function (xobj, propd, propValue, namescope, isAttached, ownerType, propName) {
             if(propValue.ParseType) {

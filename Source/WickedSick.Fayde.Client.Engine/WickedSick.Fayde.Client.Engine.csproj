@@ -660,8 +660,24 @@
     <TypeScriptCompile Include="Typescript\Media\Brush.ts" />
     <TypeScriptCompile Include="Typescript\Engine\App.ts" />
     <TypeScriptCompile Include="Typescript\Data\PropertyPath.ts" />
+    <TypeScriptCompile Include="Typescript\Data\BindingExpression.ts" />
+    <TypeScriptCompile Include="Typescript\Data\BindingBase.ts" />
+    <TypeScriptCompile Include="Typescript\Data\Binding.ts" />
+    <Content Include="Typescript\Data\Binding.js">
+      <DependentUpon>Binding.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Data\BindingBase.js">
+      <DependentUpon>BindingBase.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Data\BindingExpression.js">
+      <DependentUpon>BindingExpression.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Data\PropertyPath.js">
       <DependentUpon>PropertyPath.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Data\RelativeSource.ts" />
+    <Content Include="Typescript\Data\RelativeSource.js">
+      <DependentUpon>RelativeSource.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Engine\App.js">
       <DependentUpon>App.ts</DependentUpon>

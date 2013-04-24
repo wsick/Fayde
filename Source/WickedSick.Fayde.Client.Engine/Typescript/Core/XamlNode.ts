@@ -26,7 +26,7 @@ module Fayde {
             this.XObject = xobj;
         }
 
-        FindName(name: string) {
+        FindName(name: string): XamlNode {
             var scope = this.FindNameScope();
             if (scope)
                 return scope.FindName(name);

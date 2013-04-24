@@ -36,7 +36,9 @@ Typescript\Core\Providers\InheritedIsEnabledProvider.ts
 Typescript\Core\Providers\InheritedProvider.ts
 Typescript\Core\Providers\InheritedProviderStore.ts
 Typescript\Core\Providers\LocalStyleProvider.ts
+Typescript\Data\BindingBase.ts
 Typescript\Data\BindingExpressionBase.ts
+Typescript\Data\RelativeSource.ts
 Typescript\Engine\App.ts
 Typescript\Engine\ClockTimer.ts
 Typescript\Engine\Exceptions.ts
@@ -82,6 +84,8 @@ Typescript\Core\Setter.ts
 Typescript\Core\SizeChangedEventArgs.ts
 Typescript\Core\Style.ts
 Typescript\Core\Providers\FrameworkProviderStore.ts
+Typescript\Data\Binding.ts
+Typescript\Data\BindingExpression.ts
 Typescript\Documents\TextElement.ts
 Typescript\Input\KeyEventArgs.ts
 Typescript\Input\KeyInterop.ts

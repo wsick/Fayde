@@ -132,8 +132,7 @@ var Fayde;
                     group.CurrentState = state;
                     return true;
                 };
-                VisualStateManager.DestroyStoryboards = function DestroyStoryboards(control) {
-                    var root = VisualStateManager._GetTemplateRoot(control);
+                VisualStateManager.DestroyStoryboards = function DestroyStoryboards(control, root) {
                     if(!root) {
                         return false;
                     }
@@ -148,7 +147,7 @@ var Fayde;
                 };
                 VisualStateManager._GetTemplateRoot = function _GetTemplateRoot(control) {
                     if(control instanceof Fayde.Controls.UserControl) {
-                        return (control).Content;
+                        return (control).XamlNode.TemplateRoot;
                     }
                     var enumerator = control.XamlNode.GetVisualTreeEnumerator();
                     var fe = null;

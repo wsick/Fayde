@@ -8,7 +8,7 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path="DependencyProperty.ts" />
 /// <reference path="Providers/BasicProviderStore.ts" />
 /// <reference path="Expression.ts" />
-/// <reference path="../Data/BindingExpressionBase.ts" />
+/// <reference path="../Data/BindingExpression.ts" />
 var Fayde;
 (function (Fayde) {
     var UnsetValue = (function () {
@@ -141,6 +141,23 @@ var Fayde;
                 this._Expressions[propd._ID] = undefined;
                 expr.OnDetached(this);
             }
+        };
+        DependencyObject.prototype.GetBindingExpression = function (propd) {
+            var expr = this._Expressions[propd._ID];
+            if(expr instanceof Fayde.Data.BindingExpressionBase) {
+                return expr;
+            }
+        };
+        DependencyObject.prototype.SetBinding = function (propd, binding) {
+            if(!propd) {
+                throw new ArgumentException("propd");
+            }
+            if(!binding) {
+                throw new ArgumentException("binding");
+            }
+            var e = new Fayde.Data.BindingExpression(binding, this, propd);
+            this.SetValueInternal(propd, e);
+            return e;
         };
         DependencyObject.prototype.CloneCore = function (source) {
             this._Store.CloneCore(source._Store);

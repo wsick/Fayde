@@ -2482,7 +2482,7 @@ module Fayde {
         constructor(xobj: XamlObject) {
             this.XObject = xobj;
         }
-        FindName(name: string) {
+        FindName(name: string): XamlNode {
             var scope = this.FindNameScope();
             if (scope)
                 return scope.FindName(name);
@@ -3659,13 +3659,61 @@ module Fayde.Providers {
 }
 
 module Fayde.Data {
+    export class BindingBase {
+        private _IsSealed: bool = false;
+        private _StringFormat: string = undefined;
+        private _FallbackValue: any = undefined;
+        private _TargetNullValue: any = undefined;
+        get StringFormat(): string { return this._StringFormat; }
+        set StringFormat(value: string) {
+            this.CheckSealed();
+            this._StringFormat = value;
+        }
+        get FallbackValue(): any { return this._FallbackValue; }
+        set FallbackValue(value: any) {
+            this.CheckSealed();
+            this._FallbackValue = value;
+        }
+        get TargetNullValue():any { return this._TargetNullValue; }
+        set TargetNullValue(value: any) {
+            this.CheckSealed();
+            this._TargetNullValue = value;
+        }
+        CheckSealed() {
+            if (this._IsSealed)
+                throw new InvalidOperationException("The Binding cannot be changed after it has been used.");
+        }
+        Seal() { this._IsSealed = true; }
+    }
+    Nullstone.RegisterType(BindingBase, "BindingBase");
+}
+
+module Fayde.Data {
     export class BindingExpressionBase extends Fayde.Expression {
-        private _Binding;
-        get Binding() { return this._Binding; }
+        private _Binding: Data.Binding;
+        Target: DependencyObject;
+        Property: DependencyProperty;
+        get Binding(): Data.Binding { return this._Binding; }
+        constructor(binding: Data.Binding, target: DependencyObject, propd: DependencyProperty) {
+            super();
+            this._Binding = binding;
+            this.Target = target;
+            this.Property = propd;
+        }
         _TryUpdateSourceObject(value) {
         }
     }
     Nullstone.RegisterType(BindingExpressionBase, "BindingExpressionBase");
+}
+
+module Fayde.Data {
+    export class RelativeSource {
+        Mode: RelativeSourceMode = RelativeSourceMode.TemplatedParent;
+        constructor(mode?: RelativeSourceMode) {
+            if (mode) this.Mode = mode;
+        }
+    }
+    Nullstone.RegisterType(RelativeSource, "RelativeSource");
 }
 
 class App {
@@ -4719,10 +4767,10 @@ module Fayde {
             var xobj = parser.CreateObject(json, namescope);
             return xobj;
         }
-        static ParseUserControl(uc: Controls.UserControl, json: any) {
+        static ParseUserControl(uc: Controls.UserControl, json: any): UIElement {
             var parser = new JsonParser();
             parser._RootXamlObject = uc;
-            parser.SetObject(json, uc, new Fayde.NameScope(true));
+            return <UIElement>parser.SetObject(json, uc, new Fayde.NameScope(true));
         }
         static ParseResourceDictionary(rd: Fayde.ResourceDictionary, json: any) {
             var parser = new JsonParser();
@@ -4747,7 +4795,7 @@ module Fayde {
             this.SetObject(json, xobj, namescope, ignoreResolve);
             return xobj;
         }
-        SetObject(json: any, xobj: XamlObject, namescope: NameScope, ignoreResolve?: bool) {
+        SetObject(json: any, xobj: XamlObject, namescope: NameScope, ignoreResolve?: bool): any {
             if (xobj && namescope)
                 xobj.XamlNode.NameScope = namescope;
             var name = json.Name;
@@ -4795,6 +4843,7 @@ module Fayde {
                     targetEvent.Subscribe(targetCallback, root);
                 }
             }
+            var content: any;
             var contentProp = this.GetAnnotationMember(type, "ContentProperty");
             var pd: DependencyProperty;
             var pn: string;
@@ -4805,7 +4854,7 @@ module Fayde {
                 } else if (typeof contentProp === "string") {
                     pn = contentProp;
                 }
-                var content = json.Content;
+                content = json.Content;
                 if (content) {
                     if (content instanceof Markup)
                         content = content.Transmute(xobj, contentProp, "Content", this._TemplateBindingSource);
@@ -4820,6 +4869,7 @@ module Fayde {
             if (!ignoreResolve) {
                 this.ResolveStaticResourceExpressions();
             }
+            return content;
         }
         TrySetPropertyValue(xobj: XamlObject, propd: DependencyProperty, propValue: any, namescope: NameScope, isAttached: bool, ownerType: Function, propName: string) {
             if (propValue.ParseType) {
@@ -6370,13 +6420,13 @@ module Fayde {
             this.SetValueInternal(propd, value);
         }
         SetValueInternal(propd: DependencyProperty, value: any) {
-            var expression: Fayde.Expression;
-            if (value instanceof Fayde.Expression)
+            var expression: Expression;
+            if (value instanceof Expression)
                 expression = value;
-            if (expression instanceof Fayde.Data.BindingExpressionBase) {
+            if (expression instanceof Data.BindingExpressionBase) {
                 var binding = (<Data.BindingExpressionBase>expression).Binding;
                 var path = binding.Path.Path;
-                if ((!path || path === ".") && binding.Mode === Fayde.Data.BindingMode.TwoWay)
+                if ((!path || path === ".") && binding.Mode === Data.BindingMode.TwoWay)
                     throw new ArgumentException("TwoWay bindings require a non-empty Path.");
                 binding.Seal();
             }
@@ -6394,11 +6444,11 @@ module Fayde {
                 addingExpression = true;
                 value = expression.GetValue(propd);
             } else if (existing) {
-                if (existing instanceof Fayde.Data.BindingExpressionBase) {
+                if (existing instanceof Data.BindingExpressionBase) {
                     var binding = (<Data.BindingExpressionBase>existing).Binding;
-                    if (binding.Mode === Fayde.Data.BindingMode.TwoWay) {
+                    if (binding.Mode === Data.BindingMode.TwoWay) {
                         updateTwoWay = !existing.IsUpdating && !propd.IsCustom;
-                    } else if (!existing.IsUpdating || binding.Mode === Fayde.Data.BindingMode.OneTime) {
+                    } else if (!existing.IsUpdating || binding.Mode === Data.BindingMode.OneTime) {
                         this._RemoveExpression(propd);
                     }
                 } else if (!existing.IsUpdating) {
@@ -6444,6 +6494,20 @@ module Fayde {
                 this._Expressions[propd._ID] = undefined;
                 expr.OnDetached(this);
             }
+        }
+        GetBindingExpression(propd: DependencyProperty): Data.BindingExpressionBase {
+            var expr = this._Expressions[propd._ID];
+            if (expr instanceof Data.BindingExpressionBase)
+                return <Data.BindingExpressionBase>expr;
+        }
+        SetBinding(propd: DependencyProperty, binding: Data.Binding): Data.BindingExpressionBase {
+            if (!propd)
+                throw new ArgumentException("propd");
+            if (!binding)
+                throw new ArgumentException("binding");
+            var e = new Data.BindingExpression(binding, this, propd);
+            this.SetValueInternal(propd, e);
+            return e;
         }
         CloneCore(source: DependencyObject) {
             this._Store.CloneCore(source._Store);
@@ -6891,6 +6955,102 @@ module Fayde.Providers {
         }
     }
     Nullstone.RegisterType(FrameworkProviderStore, "FrameworkProviderStore");
+}
+
+module Fayde.Data {
+    export interface IValueConverter {
+        Convert(value: any, targetType: Function, parameter: any, culture: any): any;
+        ConvertBack(value: any, targetType: Function, parameter: any, culture: any): any;
+    }
+    export class Binding extends BindingBase {
+        private _Converter: IValueConverter;
+        private _ConverterCulture: any;
+        private _ElementName: string;
+        private _Mode: BindingMode = BindingMode.OneWay;
+        private _NotifyOnValidationError: bool = false;
+        private _RelativeSource: RelativeSource;
+        private _Path: PropertyPath;
+        private _Source: any;
+        private _UpdateSourceTrigger: UpdateSourceTrigger = UpdateSourceTrigger.Default;
+        private _ValidationsOnExceptions: bool = false;
+        private _ValidatesOnDataErrors: bool = false;
+        private _ValidatesOnNotifyDataErrors: bool = true;
+        constructor(path: string) {
+            super();
+            if (!path) path = "";
+            this._Path = new PropertyPath(path);
+        }
+        get Converter(): IValueConverter { return this._Converter; }
+        set Converter(value: IValueConverter) {
+            this.CheckSealed();
+            this._Converter = value;
+        }
+        get ConverterCulture(): any { return this._ConverterCulture; }
+        set ConverterCulture(value: any) {
+            this.CheckSealed();
+            this._ConverterCulture = value;
+        }
+        get ElementName(): string { return this._ElementName; }
+        set ElementName(value: string) {
+            this.CheckSealed();
+            this._ElementName = value;
+        }
+        get Mode(): BindingMode { return this._Mode; }
+        set Mode(value: BindingMode) {
+            this.CheckSealed();
+            this._Mode = value;
+        }
+        get NotifyOnValidationError(): bool { return this._NotifyOnValidationError; }
+        set NotifyOnValidationError(value: bool) {
+            this.CheckSealed();
+            this._NotifyOnValidationError = value;
+        }
+        get RelativeSource(): RelativeSource { return this._RelativeSource; }
+        set RelativeSource(value: RelativeSource) {
+            this.CheckSealed();
+            this._RelativeSource = value;
+        }
+        get Path(): PropertyPath { return this._Path; }
+        set Path(value: PropertyPath) {
+            this.CheckSealed();
+            this._Path = value;
+        }
+        get Source(): any { return this._Source; }
+        set Source(value: any) {
+            this.CheckSealed();
+            this._Source = value;
+        }
+        get UpdateSourceTrigger(): UpdateSourceTrigger { return this._UpdateSourceTrigger; }
+        set UpdateSourceTrigger(value: UpdateSourceTrigger) {
+            this.CheckSealed();
+            this._UpdateSourceTrigger = value;
+        }
+        get ValidationsOnExceptions(): bool { return this._ValidationsOnExceptions; }
+        set ValidationsOnExceptions(value: bool) {
+            this.CheckSealed();
+            this._ValidationsOnExceptions = value;
+        }
+        get ValidatesOnDataErrors(): bool { return this._ValidatesOnDataErrors; }
+        set ValidatesOnDataErrors(value: bool) {
+            this.CheckSealed();
+            this._ValidatesOnDataErrors = value;
+        }
+        get ValidatesOnNotifyDataErrors(): bool { return this._ValidatesOnNotifyDataErrors; }
+        set ValidatesOnNotifyDataErrors(value: bool) {
+            this.CheckSealed();
+            this._ValidatesOnNotifyDataErrors = value;
+        }
+    }
+    Nullstone.RegisterType(Binding, "Binding");
+}
+
+module Fayde.Data {
+    export class BindingExpression extends BindingExpressionBase {
+        constructor(binding: Data.Binding, target: DependencyObject, propd: DependencyProperty) {
+            super(binding, target, propd);
+        }
+    }
+    Nullstone.RegisterType(BindingExpression, "BindingExpression");
 }
 
 module Fayde.Documents {
@@ -8777,8 +8937,7 @@ module Fayde.Media.VSM {
             group.CurrentState = state;
             return true;
         }
-        private static DestroyStoryboards(control) {
-            var root = VisualStateManager._GetTemplateRoot(control);
+        private static DestroyStoryboards(control: Controls.Control, root: FrameworkElement) {
             if (!root)
                 return false;
             var groups = VisualStateManager._GetVisualStateGroupsInternal(root);
@@ -8791,7 +8950,7 @@ module Fayde.Media.VSM {
         }
         private static _GetTemplateRoot(control: Controls.Control): FrameworkElement {
             if (control instanceof Controls.UserControl)
-                return (<Controls.UserControl>control).Content;
+                return (<Controls.UserControl>control).XamlNode.TemplateRoot;
             var enumerator = control.XamlNode.GetVisualTreeEnumerator();
             var fe: FrameworkElement = null;
             if (enumerator.MoveNext()) {
@@ -10019,14 +10178,16 @@ module Fayde.Media.Animation {
         }
         private _HookupAnimation(animation: AnimationBase, targetObject: DependencyObject, targetPropertyPath: Data.PropertyPath, promotedValues: any[], error: BError): bool {
             animation.Reset();
-            var localTargetObject = null;
-            var localTargetPropertyPath = null;
+            var localTargetObject: DependencyObject = null;
+            var localTargetPropertyPath: Data.PropertyPath = null;
             if (animation.HasManualTarget) {
                 localTargetObject = animation.ManualTarget;
             } else {
                 var name = Storyboard.GetTargetName(animation);
-                if (name)
-                    localTargetObject = animation.XamlNode.FindName(name);
+                if (name) {
+                    var n = animation.XamlNode.FindName(name);
+                    localTargetObject = <DependencyObject>n.XObject;
+                }
             }
             localTargetPropertyPath = Storyboard.GetTargetProperty(animation);
             if (localTargetObject != null)
@@ -10274,7 +10435,7 @@ module Fayde {
         SubtreeNode: XamlNode;
         SetSubtreeNode(subtreeNode: XamlNode) {
             var error = new BError();
-            if (!subtreeNode.AttachTo(this, error))
+            if (subtreeNode && !subtreeNode.AttachTo(this, error))
                 error.ThrowException();
             this.SubtreeNode = subtreeNode;
         }
@@ -10312,6 +10473,25 @@ module Fayde {
                 store.EmitDataContextChanged();
             }
         }
+        _ApplyTemplateWithError(error: BError): bool {
+            if (this.SubtreeNode)
+                return false;
+            var result = this._DoApplyTemplateWithError(error);
+            if (result)
+                this.XObject.OnApplyTemplate();
+            return result;
+        }
+        _DoApplyTemplateWithError(error: BError): bool {
+            var uie = <UIElement>this._GetDefaultTemplate();
+            if (uie) {
+                if (error.Message)
+                    return false;
+                this.SetSubtreeNode(uie.XamlNode);
+                this._ElementAdded(uie);
+            }
+            return uie != null;
+        }
+        _GetDefaultTemplate(): UIElement { return undefined; }
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
             if (this.SubtreeNode) {
                 if (this.SubtreeNode instanceof XamlObjectCollection)
@@ -10369,6 +10549,14 @@ module Fayde {
             return new size();
         }
         InvokeLoaded() {
+        }
+        MeasureOverride(availableSize: size): size { return undefined; }
+        ArrangeOverride(finalSize: size): size { return undefined; }
+        OnApplyTemplate() { }
+        FindName(name: string): any {
+            var n = this.XamlNode.FindName(name);
+            if (n)
+                return n.XObject;
         }
     }
     Nullstone.RegisterType(FrameworkElement, "FrameworkElement");
@@ -10448,12 +10636,47 @@ module Fayde.Controls {
 module Fayde.Controls {
     export class ControlNode extends FENode {
         XObject: Control;
+        TemplateRoot: FrameworkElement;
+        IsFocused: bool = false;
         constructor(xobj: Control) {
             super(xobj);
         }
         TabTo() {
             var xobj = this.XObject;
             return xobj.IsEnabled && xobj.IsTabStop && xobj.Focus();
+        }
+        _ElementAdded(uie: UIElement) {
+            this.SetSubtreeNode(uie.XamlNode);
+            super._ElementAdded(uie);
+        }
+        _ElementRemoved(uie: UIElement) {
+            this.SetSubtreeNode(null);
+            super._ElementRemoved(uie);
+        }
+        _DoApplyTemplateWithError(error: BError): bool {
+            var xobj = this.XObject;
+            var t = xobj.Template;
+            if (!t)
+                return super._DoApplyTemplateWithError(error);
+            var root = <UIElement>t._GetVisualTreeWithError(xobj, error);
+            if (root && !(root instanceof UIElement)) {
+                Warn("Root element in template was not a UIElement.");
+                root = null;
+            }
+            if (!root)
+                return super._DoApplyTemplateWithError(error);
+            if (this.TemplateRoot && this.TemplateRoot !== root) {
+                this._ElementRemoved(this.TemplateRoot);
+                this.TemplateRoot = null;
+            }
+            this.TemplateRoot = <FrameworkElement>root;
+            this._ElementAdded(this.TemplateRoot);
+            return true;
+        }
+        OnIsAttachedChanged(newIsAttached: bool) {
+            super.OnIsAttachedChanged(newIsAttached);
+            if (!newIsAttached)
+                Media.VSM.VisualStateManager.DestroyStoryboards(this.XObject, this.TemplateRoot);
         }
     }
     Nullstone.RegisterType(ControlNode, "ControlNode");
@@ -10472,13 +10695,38 @@ module Fayde.Controls {
         IsTabStop: bool;
         TabNavigation: Input.KeyboardNavigationMode;
         TabIndex: number;
+        Template: ControlTemplate;
         static IsEnabledProperty: DependencyProperty;
-        Focus(): bool {
-            return App.Instance.MainSurface.Focus(this);
+        GetTemplateChild(childName: string): DependencyObject {
+            var root = this.XamlNode.TemplateRoot;
+            if (root) {
+                var n = root.XamlNode.FindName(name);
+                if (n) return <DependencyObject>n.XObject;
+            }
+        }
+        ApplyTemplate(): bool {
+            var error = new BError();
+            var result = this.XamlNode._ApplyTemplateWithError(error);
+            if (error.Message)
+                error.ThrowException();
+            return result;
         }
         GetDefaultStyle(): Style {
             return undefined;
         }
+        Focus(): bool { return App.Instance.MainSurface.Focus(this); }
+        OnGotFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = true; }
+        OnLostFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = false; }
+        OnKeyDown(e: Input.KeyEventArgs) { }
+        OnKeyUp(e: Input.KeyEventArgs) { }
+        OnMouseEnter(e: Input.MouseEventArgs) { }
+        OnMouseLeave(e: Input.MouseEventArgs) { }
+        OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) { }
+        OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs) { }
+        OnMouseMove(e: Input.MouseEventArgs) { }
+        OnMouseRightButtonDown(e: Input.MouseButtonEventArgs) { }
+        OnMouseRightButtonUp(e: Input.MouseButtonEventArgs) { }
+        OnMouseWheel(e: Input.MouseWheelEventArgs) { }
     }
     Nullstone.RegisterType(Control, "Control");
 }
@@ -10627,8 +10875,52 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
+    export class UCNode extends ControlNode {
+        _IsParsing: bool = false;
+        XObject: UserControl;
+        constructor(xobj: UserControl) {
+            super(xobj);
+        }
+        _GetDefaultTemplate(): UIElement {
+            var xobj = this.XObject;
+            var type = (<any>xobj).constructor;
+            var json = type.__TemplateJson;
+            if (json) {
+                this._IsParsing = true;
+                return JsonParser.ParseUserControl(json, this);
+                this._IsParsing = false;
+            }
+        }
+    }
+    Nullstone.RegisterType(UCNode, "UCNode");
     export class UserControl extends Control {
+        XamlNode: UCNode;
+        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, UserControl, undefined, (d, args) => (<UserControl>d)._InvalidateContent(args));
         Content: any;
+        static Annotations = { ContentProperty: UserControl.ContentProperty }
+        CreateNode(): UCNode {
+            var n = new UCNode(this);
+            n.LayoutUpdater.SetContainerMode(true);
+            return n;
+        }
+        InitializeComponent() {
+            this.ApplyTemplate();
+        }
+        private _InvalidateContent(args: IDependencyPropertyChangedEventArgs) {
+            var n = this.XamlNode;
+            if (n._IsParsing)
+                return;
+            if (args.OldValue instanceof UIElement) {
+                n.SetSubtreeNode(null);
+                n._ElementRemoved(<UIElement>args.OldValue);
+            }
+            if (args.NewValue instanceof UIElement) {
+                var newContent: UIElement = args.NewValue;
+                n.SetSubtreeNode(newContent.XamlNode);
+                n._ElementAdded(newContent);
+            }
+            n.LayoutUpdater.UpdateBounds();
+        }
     }
     Nullstone.RegisterType(UserControl, "UserControl");
 }

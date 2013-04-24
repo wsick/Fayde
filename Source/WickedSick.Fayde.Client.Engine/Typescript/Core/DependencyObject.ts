@@ -3,7 +3,7 @@
 /// <reference path="DependencyProperty.ts" />
 /// <reference path="Providers/BasicProviderStore.ts" />
 /// <reference path="Expression.ts" />
-/// <reference path="../Data/BindingExpressionBase.ts" />
+/// <reference path="../Data/BindingExpression.ts" />
 
 module Fayde {
     export class UnsetValue { }
@@ -45,13 +45,13 @@ module Fayde {
             this.SetValueInternal(propd, value);
         }
         SetValueInternal(propd: DependencyProperty, value: any) {
-            var expression: Fayde.Expression;
-            if (value instanceof Fayde.Expression)
+            var expression: Expression;
+            if (value instanceof Expression)
                 expression = value;
-            if (expression instanceof Fayde.Data.BindingExpressionBase) {
+            if (expression instanceof Data.BindingExpressionBase) {
                 var binding = (<Data.BindingExpressionBase>expression).Binding;
                 var path = binding.Path.Path;
-                if ((!path || path === ".") && binding.Mode === Fayde.Data.BindingMode.TwoWay)
+                if ((!path || path === ".") && binding.Mode === Data.BindingMode.TwoWay)
                     throw new ArgumentException("TwoWay bindings require a non-empty Path.");
                 binding.Seal();
             }
@@ -72,11 +72,11 @@ module Fayde {
                 addingExpression = true;
                 value = expression.GetValue(propd);
             } else if (existing) {
-                if (existing instanceof Fayde.Data.BindingExpressionBase) {
+                if (existing instanceof Data.BindingExpressionBase) {
                     var binding = (<Data.BindingExpressionBase>existing).Binding;
-                    if (binding.Mode === Fayde.Data.BindingMode.TwoWay) {
+                    if (binding.Mode === Data.BindingMode.TwoWay) {
                         updateTwoWay = !existing.IsUpdating && !propd.IsCustom;
-                    } else if (!existing.IsUpdating || binding.Mode === Fayde.Data.BindingMode.OneTime) {
+                    } else if (!existing.IsUpdating || binding.Mode === Data.BindingMode.OneTime) {
                         this._RemoveExpression(propd);
                     }
                 } else if (!existing.IsUpdating) {
@@ -125,6 +125,21 @@ module Fayde {
                 this._Expressions[propd._ID] = undefined;
                 expr.OnDetached(this);
             }
+        }
+        GetBindingExpression(propd: DependencyProperty): Data.BindingExpressionBase {
+            var expr = this._Expressions[propd._ID];
+            if (expr instanceof Data.BindingExpressionBase)
+                return <Data.BindingExpressionBase>expr;
+        }
+        SetBinding(propd: DependencyProperty, binding: Data.Binding): Data.BindingExpressionBase {
+            if (!propd)
+                throw new ArgumentException("propd");
+            if (!binding)
+                throw new ArgumentException("binding");
+
+            var e = new Data.BindingExpression(binding, this, propd);
+            this.SetValueInternal(propd, e);
+            return e;
         }
 
         CloneCore(source: DependencyObject) {

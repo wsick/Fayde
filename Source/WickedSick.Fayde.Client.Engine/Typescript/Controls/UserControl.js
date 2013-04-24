@@ -8,12 +8,64 @@ var Fayde;
     /// <reference path="Control.ts" />
     /// CODE
     (function (Controls) {
+        var UCNode = (function (_super) {
+            __extends(UCNode, _super);
+            function UCNode(xobj) {
+                        _super.call(this, xobj);
+                this._IsParsing = false;
+            }
+            UCNode.prototype._GetDefaultTemplate = function () {
+                var xobj = this.XObject;
+                var type = (xobj).constructor;
+                var json = type.__TemplateJson;
+                if(json) {
+                    this._IsParsing = true;
+                    return Fayde.JsonParser.ParseUserControl(json, this);
+                    this._IsParsing = false;
+                }
+            };
+            return UCNode;
+        })(Controls.ControlNode);
+        Controls.UCNode = UCNode;        
+        Nullstone.RegisterType(UCNode, "UCNode");
         var UserControl = (function (_super) {
             __extends(UserControl, _super);
             function UserControl() {
                 _super.apply(this, arguments);
 
             }
+            UserControl.ContentProperty = DependencyProperty.Register("Content", function () {
+                return Object;
+            }, UserControl, undefined, function (d, args) {
+                return (d)._InvalidateContent(args);
+            });
+            UserControl.Annotations = {
+                ContentProperty: UserControl.ContentProperty
+            };
+            UserControl.prototype.CreateNode = function () {
+                var n = new UCNode(this);
+                n.LayoutUpdater.SetContainerMode(true);
+                return n;
+            };
+            UserControl.prototype.InitializeComponent = function () {
+                this.ApplyTemplate();
+            };
+            UserControl.prototype._InvalidateContent = function (args) {
+                var n = this.XamlNode;
+                if(n._IsParsing) {
+                    return;
+                }
+                if(args.OldValue instanceof Fayde.UIElement) {
+                    n.SetSubtreeNode(null);
+                    n._ElementRemoved(args.OldValue);
+                }
+                if(args.NewValue instanceof Fayde.UIElement) {
+                    var newContent = args.NewValue;
+                    n.SetSubtreeNode(newContent.XamlNode);
+                    n._ElementAdded(newContent);
+                }
+                n.LayoutUpdater.UpdateBounds();
+            };
             return UserControl;
         })(Controls.Control);
         Controls.UserControl = UserControl;        

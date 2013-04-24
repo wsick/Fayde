@@ -22,7 +22,7 @@ var Fayde;
         }
         FENode.prototype.SetSubtreeNode = function (subtreeNode) {
             var error = new BError();
-            if(!subtreeNode.AttachTo(this, error)) {
+            if(subtreeNode && !subtreeNode.AttachTo(this, error)) {
                 error.ThrowException();
             }
             this.SubtreeNode = subtreeNode;
@@ -67,6 +67,30 @@ var Fayde;
                 this.XObject.InvokeLoaded();
                 store.EmitDataContextChanged();
             }
+        };
+        FENode.prototype._ApplyTemplateWithError = function (error) {
+            if(this.SubtreeNode) {
+                return false;
+            }
+            var result = this._DoApplyTemplateWithError(error);
+            if(result) {
+                this.XObject.OnApplyTemplate();
+            }
+            return result;
+        };
+        FENode.prototype._DoApplyTemplateWithError = function (error) {
+            var uie = this._GetDefaultTemplate();
+            if(uie) {
+                if(error.Message) {
+                    return false;
+                }
+                this.SetSubtreeNode(uie.XamlNode);
+                this._ElementAdded(uie);
+            }
+            return uie != null;
+        };
+        FENode.prototype._GetDefaultTemplate = function () {
+            return undefined;
         };
         FENode.prototype.GetVisualTreeEnumerator = function (direction) {
             if(this.SubtreeNode) {
@@ -125,6 +149,20 @@ var Fayde;
             return new size();
         };
         FrameworkElement.prototype.InvokeLoaded = function () {
+        };
+        FrameworkElement.prototype.MeasureOverride = function (availableSize) {
+            return undefined;
+        };
+        FrameworkElement.prototype.ArrangeOverride = function (finalSize) {
+            return undefined;
+        };
+        FrameworkElement.prototype.OnApplyTemplate = function () {
+        };
+        FrameworkElement.prototype.FindName = function (name) {
+            var n = this.XamlNode.FindName(name);
+            if(n) {
+                return n.XObject;
+            }
         };
         return FrameworkElement;
     })(Fayde.UIElement);

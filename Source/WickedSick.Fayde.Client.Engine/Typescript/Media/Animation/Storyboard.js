@@ -91,7 +91,8 @@ var Fayde;
                     } else {
                         var name = Storyboard.GetTargetName(animation);
                         if(name) {
-                            localTargetObject = animation.XamlNode.FindName(name);
+                            var n = animation.XamlNode.FindName(name);
+                            localTargetObject = n.XObject;
                         }
                     }
                     localTargetPropertyPath = Storyboard.GetTargetProperty(animation);

@@ -50,10 +50,11 @@ module Fayde {
 
             return xobj;
         }
-        static ParseUserControl(uc: Controls.UserControl, json: any) {
+        static ParseUserControl(uc: Controls.UserControl, json: any): UIElement {
+            //Sets up UserControl, then returns root element
             var parser = new JsonParser();
             parser._RootXamlObject = uc;
-            parser.SetObject(json, uc, new Fayde.NameScope(true));
+            return <UIElement>parser.SetObject(json, uc, new Fayde.NameScope(true));
         }
         static ParseResourceDictionary(rd: Fayde.ResourceDictionary, json: any) {
             var parser = new JsonParser();
@@ -82,7 +83,8 @@ module Fayde {
             this.SetObject(json, xobj, namescope, ignoreResolve);
             return xobj;
         }
-        SetObject(json: any, xobj: XamlObject, namescope: NameScope, ignoreResolve?: bool) {
+        SetObject(json: any, xobj: XamlObject, namescope: NameScope, ignoreResolve?: bool): any {
+            //Sets object properties; will return Children/Content object if exists
             if (xobj && namescope)
                 xobj.XamlNode.NameScope = namescope;
 
@@ -140,6 +142,7 @@ module Fayde {
                 }
             }
 
+            var content: any;
             var contentProp = this.GetAnnotationMember(type, "ContentProperty");
             var pd: DependencyProperty;
             var pn: string;
@@ -150,7 +153,7 @@ module Fayde {
                 } else if (typeof contentProp === "string") {
                     pn = contentProp;
                 }
-                var content = json.Content;
+                content = json.Content;
                 if (content) {
                     if (content instanceof Markup)
                         content = content.Transmute(xobj, contentProp, "Content", this._TemplateBindingSource);
@@ -166,6 +169,7 @@ module Fayde {
             if (!ignoreResolve) {
                 this.ResolveStaticResourceExpressions();
             }
+            return content;
         }
 
         TrySetPropertyValue(xobj: XamlObject, propd: DependencyProperty, propValue: any, namescope: NameScope, isAttached: bool, ownerType: Function, propName: string) {

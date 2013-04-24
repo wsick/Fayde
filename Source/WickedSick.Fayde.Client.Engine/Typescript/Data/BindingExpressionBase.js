@@ -8,12 +8,15 @@ var Fayde;
     /// <reference path="../Core/Expression.ts" />
     /// CODE
     /// <reference path="Enums.ts" />
+    /// <reference path="Binding.ts" />
     (function (Data) {
         var BindingExpressionBase = (function (_super) {
             __extends(BindingExpressionBase, _super);
-            function BindingExpressionBase() {
-                _super.apply(this, arguments);
-
+            function BindingExpressionBase(binding, target, propd) {
+                        _super.call(this);
+                this._Binding = binding;
+                this.Target = target;
+                this.Property = propd;
             }
             Object.defineProperty(BindingExpressionBase.prototype, "Binding", {
                 get: function () {

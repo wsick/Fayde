@@ -107,8 +107,7 @@ module Fayde.Media.VSM {
             return true;
         }
 
-        private static DestroyStoryboards(control) {
-            var root = VisualStateManager._GetTemplateRoot(control);
+        private static DestroyStoryboards(control: Controls.Control, root: FrameworkElement) {
             if (!root)
                 return false;
             var groups = VisualStateManager._GetVisualStateGroupsInternal(root);
@@ -122,7 +121,7 @@ module Fayde.Media.VSM {
 
         private static _GetTemplateRoot(control: Controls.Control): FrameworkElement {
             if (control instanceof Controls.UserControl)
-                return (<Controls.UserControl>control).Content;
+                return (<Controls.UserControl>control).XamlNode.TemplateRoot;
 
             var enumerator = control.XamlNode.GetVisualTreeEnumerator();
             var fe: FrameworkElement = null;

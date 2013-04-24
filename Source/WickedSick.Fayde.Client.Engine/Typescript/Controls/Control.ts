@@ -1,10 +1,14 @@
 /// <reference path="../Core/FrameworkElement.ts" />
 /// CODE
 /// <reference path="../Core/Providers/ControlProviderStore.ts" />
+/// <reference path="../Media/VSM/VisualStateManager.ts" />
 
 module Fayde.Controls {
     export class ControlNode extends FENode {
         XObject: Control;
+        TemplateRoot: FrameworkElement;
+        IsFocused: bool = false;
+
         constructor(xobj: Control) {
             super(xobj);
         }
@@ -12,6 +16,49 @@ module Fayde.Controls {
         TabTo() {
             var xobj = this.XObject;
             return xobj.IsEnabled && xobj.IsTabStop && xobj.Focus();
+        }
+
+        _ElementAdded(uie: UIElement) {
+            this.SetSubtreeNode(uie.XamlNode);
+            super._ElementAdded(uie);
+        }
+        _ElementRemoved(uie: UIElement) {
+            this.SetSubtreeNode(null);
+            super._ElementRemoved(uie);
+        }
+
+        _DoApplyTemplateWithError(error: BError): bool {
+            var xobj = this.XObject;
+            var t = xobj.Template;
+            if (!t)
+                return super._DoApplyTemplateWithError(error);
+
+            var root = <UIElement>t._GetVisualTreeWithError(xobj, error);
+            if (root && !(root instanceof UIElement)) {
+                Warn("Root element in template was not a UIElement.");
+                root = null;
+            }
+
+            if (!root)
+                return super._DoApplyTemplateWithError(error);
+
+            if (this.TemplateRoot && this.TemplateRoot !== root) {
+                this._ElementRemoved(this.TemplateRoot);
+                this.TemplateRoot = null;
+            }
+            this.TemplateRoot = <FrameworkElement>root;
+            this._ElementAdded(this.TemplateRoot);
+
+            //TODO: Deployment Loaded Event (Async)
+
+            return true;
+        }
+
+        OnIsAttachedChanged(newIsAttached: bool) {
+            super.OnIsAttachedChanged(newIsAttached);
+            //TODO: Propagate IsEnabled DataSource
+            if (!newIsAttached)
+                Media.VSM.VisualStateManager.DestroyStoryboards(this.XObject, this.TemplateRoot);
         }
     }
     Nullstone.RegisterType(ControlNode, "ControlNode");
@@ -31,16 +78,44 @@ module Fayde.Controls {
         IsTabStop: bool;
         TabNavigation: Input.KeyboardNavigationMode;
         TabIndex: number;
+        Template: ControlTemplate;
 
         static IsEnabledProperty: DependencyProperty;
 
-        Focus(): bool {
-            return App.Instance.MainSurface.Focus(this);
+        GetTemplateChild(childName: string): DependencyObject {
+            var root = this.XamlNode.TemplateRoot;
+            if (root) {
+                var n = root.XamlNode.FindName(name);
+                if (n) return <DependencyObject>n.XObject;
+            }
+        }
+
+        ApplyTemplate(): bool {
+            var error = new BError();
+            var result = this.XamlNode._ApplyTemplateWithError(error);
+            if (error.Message)
+                error.ThrowException();
+            return result;
         }
         
         GetDefaultStyle(): Style {
             return undefined;
         }
+        
+        Focus(): bool { return App.Instance.MainSurface.Focus(this); }
+        OnGotFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = true; }
+        OnLostFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = false; }
+
+        OnKeyDown(e: Input.KeyEventArgs) { }
+        OnKeyUp(e: Input.KeyEventArgs) { }
+        OnMouseEnter(e: Input.MouseEventArgs) { }
+        OnMouseLeave(e: Input.MouseEventArgs) { }
+        OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) { }
+        OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs) { }
+        OnMouseMove(e: Input.MouseEventArgs) { }
+        OnMouseRightButtonDown(e: Input.MouseButtonEventArgs) { }
+        OnMouseRightButtonUp(e: Input.MouseButtonEventArgs) { }
+        OnMouseWheel(e: Input.MouseWheelEventArgs) { }
     }
     Nullstone.RegisterType(Control, "Control");
 }

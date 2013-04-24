@@ -18,7 +18,7 @@ module Fayde {
         SubtreeNode: XamlNode;
         SetSubtreeNode(subtreeNode: XamlNode) {
             var error = new BError();
-            if (!subtreeNode.AttachTo(this, error))
+            if (subtreeNode && !subtreeNode.AttachTo(this, error))
                 error.ThrowException();
             this.SubtreeNode = subtreeNode;
         }
@@ -62,6 +62,26 @@ module Fayde {
                 store.EmitDataContextChanged();
             }
         }
+
+        _ApplyTemplateWithError(error: BError): bool {
+            if (this.SubtreeNode)
+                return false;
+            var result = this._DoApplyTemplateWithError(error);
+            if (result)
+                this.XObject.OnApplyTemplate();
+            return result;
+        }
+        _DoApplyTemplateWithError(error: BError): bool {
+            var uie = <UIElement>this._GetDefaultTemplate();
+            if (uie) {
+                if (error.Message)
+                    return false;
+                this.SetSubtreeNode(uie.XamlNode);
+                this._ElementAdded(uie);
+            }
+            return uie != null;
+        }
+        _GetDefaultTemplate(): UIElement { return undefined; }
 
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
             if (this.SubtreeNode) {
@@ -126,6 +146,15 @@ module Fayde {
         }
 
         InvokeLoaded() {
+        }
+
+        MeasureOverride(availableSize: size): size { return undefined; }
+        ArrangeOverride(finalSize: size): size { return undefined; }
+        OnApplyTemplate() { }
+        FindName(name: string): any {
+            var n = this.XamlNode.FindName(name);
+            if (n)
+                return n.XObject;
         }
     }
     Nullstone.RegisterType(FrameworkElement, "FrameworkElement");

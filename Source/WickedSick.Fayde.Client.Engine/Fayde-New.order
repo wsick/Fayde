@@ -36,7 +36,9 @@ Core/Providers/InheritedIsEnabledProvider.js
 Core/Providers/InheritedProvider.js
 Core/Providers/InheritedProviderStore.js
 Core/Providers/LocalStyleProvider.js
+Data/BindingBase.js
 Data/BindingExpressionBase.js
+Data/RelativeSource.js
 Engine/App.js
 Engine/ClockTimer.js
 Engine/Exceptions.js
@@ -82,6 +84,8 @@ Core/Setter.js
 Core/SizeChangedEventArgs.js
 Core/Style.js
 Core/Providers/FrameworkProviderStore.js
+Data/Binding.js
+Data/BindingExpression.js
 Documents/TextElement.js
 Input/KeyEventArgs.js
 Input/KeyInterop.js
