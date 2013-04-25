@@ -501,6 +501,10 @@
     <Content Include="Typescript\Controls\Primitives\Popup.js">
       <DependentUpon>Popup.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Controls\StackPanel.ts" />
+    <Content Include="Typescript\Controls\StackPanel.js">
+      <DependentUpon>StackPanel.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\TextBlock.js">
       <DependentUpon>TextBlock.ts</DependentUpon>
     </Content>

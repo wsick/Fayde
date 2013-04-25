@@ -1,4 +1,8 @@
 module Fayde {
+    export enum Orientation {
+        Horizontal = 0,
+        Vertical = 1,
+    }
     export enum Visibility {
         Visible = 0,
         Collapsed = 1,

@@ -158,6 +158,7 @@ Controls/Control.js
 Controls/Image.js
 Controls/MediaElement.js
 Controls/Panel.js
+Controls/StackPanel.js
 Controls/TextBlock.js
 Controls/UserControl.js
 Controls/Primitives/Popup.js

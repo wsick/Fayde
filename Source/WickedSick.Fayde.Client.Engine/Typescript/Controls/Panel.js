@@ -128,7 +128,9 @@ var Fayde;
             }
             Panel.BackgroundProperty = DependencyProperty.Register("Background", function () {
                 return Fayde.Media.Brush;
-            }, Panel);
+            }, Panel, undefined, function (d, args) {
+                return (d)._BackgroundChanged(args);
+            });
             Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemHost", function () {
                 return Boolean;
             }, Panel, false);
@@ -138,6 +140,9 @@ var Fayde;
             Panel.ZProperty = DependencyProperty.RegisterAttached("Z", function () {
                 return Number;
             }, Panel, NaN);
+            Panel.Annotations = {
+                ContentProperty: "Children"
+            };
             Panel.GetZIndex = function GetZIndex(uie) {
                 return uie.GetValue(Panel.ZIndexProperty);
             };
@@ -154,6 +159,37 @@ var Fayde;
                 var n = new PanelNode(this);
                 n.LayoutUpdater.SetContainerMode(true, true);
                 return n;
+            };
+            Panel.prototype._BackgroundChanged = function (args) {
+                var oldBrush = args.OldValue;
+                var newBrush = args.NewValue;
+                if(oldBrush) {
+                    oldBrush.Unlisten(this);
+                }
+                if(newBrush) {
+                    newBrush.Listen(this);
+                }
+                var lu = this.XamlNode.LayoutUpdater;
+                lu.UpdateBounds();
+                lu.Invalidate();
+            };
+            Panel.prototype.BrushChanged = function (newBrush) {
+                this.XamlNode.LayoutUpdater.Invalidate();
+            };
+            Panel.prototype.Render = function (ctx, lu, region) {
+                var background = this.Background;
+                if(!background) {
+                    return;
+                }
+                var framework = lu.CoerceSize(size.fromRaw(this.ActualWidth, this.ActualHeight));
+                if(framework.Width <= 0 || framework.Height <= 0) {
+                    return;
+                }
+                var area = rect.fromSize(framework);
+                ctx.Save();
+                lu._RenderLayoutClip(ctx);
+                ctx.FillRect(background, area);
+                ctx.Restore();
             };
             return Panel;
         })(Fayde.FrameworkElement);

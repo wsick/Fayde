@@ -26,6 +26,10 @@ module Fayde {
 }
 
 module Fayde {
+    export enum Orientation {
+        Horizontal = 0,
+        Vertical = 1,
+    }
     export enum Visibility {
         Visible = 0,
         Collapsed = 1,
@@ -2311,9 +2315,9 @@ module Fayde {
             var parentNode = node.VisualParentNode;
             if ((parentNode && !(parentNode.XObject instanceof Controls.Canvas)) || this.IsLayoutContainer)
                 return size.clone(this.RenderSize);
-            return this._CoerceSize(new size());
+            return this.CoerceSize(new size());
         }
-        private _CoerceSize(s: size): size {
+        CoerceSize(s: size): size {
             var fe = <FrameworkElement>this.Node.XObject;
             var spw = fe.Width;
             var sph = fe.Height;
@@ -2393,7 +2397,7 @@ module Fayde {
             var margin = fe.Margin;
             if (margin)
                 size.shrinkByThickness(s, margin);
-            this._CoerceSize(s);
+            this.CoerceSize(s);
             if ((<any>fe).MeasureOverride) {
                 s = (<IMeasurable><any>fe).MeasureOverride(s);
             } else {
@@ -2410,7 +2414,7 @@ module Fayde {
                     return;
                 }
             }
-            this._CoerceSize(s);
+            this.CoerceSize(s);
             if (margin)
                 size.growByThickness(s, margin);
             size.min(s, availableSize);
@@ -2492,8 +2496,8 @@ module Fayde {
             this.UpdateProjection();
             this.UpdateBounds();
             var offer = size.clone(this.HiddenDesire);
-            var stretched = this._CoerceSize(size.fromRect(childRect));
-            var framework = this._CoerceSize(new size());
+            var stretched = this.CoerceSize(size.fromRect(childRect));
+            var framework = this.CoerceSize(new size());
             var horiz = fe.HorizontalAlignment;
             var vert = fe.VerticalAlignment;
             if (horiz === HorizontalAlignment.Stretch)
@@ -2539,7 +2543,7 @@ module Fayde {
                 response.Height = Math.round(response.Height);
             }
             size.copyTo(response, this.RenderSize);
-            var constrainedResponse = this._CoerceSize(size.clone(response));
+            var constrainedResponse = this.CoerceSize(size.clone(response));
             size.min(constrainedResponse, response);
             if (!visualParentNode || visualParentNode instanceof Controls.CanvasNode) {
                 if (!this.IsLayoutContainer) {
@@ -2598,7 +2602,7 @@ module Fayde {
             }
             if (((!isTopLevel && rect.isRectContainedIn(element, layoutClip)) || !size.isEqual(constrainedResponse, response))
                 && !(node instanceof Controls.CanvasNode) && ((visualParentNode && !(visualParentNode instanceof Controls.CanvasNode)) || this.IsContainer)) {
-                var frameworkClip = this._CoerceSize(size.createInfinite());
+                var frameworkClip = this.CoerceSize(size.createInfinite());
                 var frect = rect.fromSize(frameworkClip);
                 rect.intersection(layoutClip, frect);
                 var rectangle = new Media.RectangleGeometry();
@@ -11444,11 +11448,14 @@ module Fayde.Controls {
     }
     export class Panel extends FrameworkElement {
         XamlNode: PanelNode;
-        static BackgroundProperty: DependencyProperty = DependencyProperty.Register("Background", () => { return Media.Brush; }, Panel);
+        static BackgroundProperty: DependencyProperty = DependencyProperty.Register("Background", () => { return Media.Brush; }, Panel, undefined, (d, args) => (<Panel>d)._BackgroundChanged(args));
         static IsItemsHostProperty: DependencyProperty = DependencyProperty.Register("IsItemHost", () => { return Boolean; }, Panel, false);
         static ZIndexProperty: DependencyProperty = DependencyProperty.RegisterAttached("ZIndex", () => { return Number; }, Panel, 0, zIndexPropertyChanged);
         static ZProperty: DependencyProperty = DependencyProperty.RegisterAttached("Z", () => { return Number; }, Panel, NaN);
+        Background: Media.Brush;
+        IsItemsHost: bool;
         Children: DependencyObjectCollection;
+        static Annotations = { ContentProperty: "Children" }
         static GetZIndex(uie: UIElement): number { return uie.GetValue(ZIndexProperty); }
         static SetZIndex(uie: UIElement, value: number) { uie.SetValue(ZIndexProperty, value); }
         static GetZ(uie: UIElement): number { return uie.GetValue(ZProperty); }
@@ -11458,8 +11465,117 @@ module Fayde.Controls {
             n.LayoutUpdater.SetContainerMode(true, true);
             return n;
         }
+        private _BackgroundChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldBrush = <Media.Brush>args.OldValue;
+            var newBrush = <Media.Brush>args.NewValue;
+            if (oldBrush)
+                oldBrush.Unlisten(this);
+            if (newBrush)
+                newBrush.Listen(this);
+            var lu = this.XamlNode.LayoutUpdater;
+            lu.UpdateBounds();
+            lu.Invalidate();
+        }
+        private BrushChanged(newBrush: Media.Brush) { this.XamlNode.LayoutUpdater.Invalidate(); }
+        private Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
+            var background = this.Background;
+            if (!background)
+                return;
+            var framework = lu.CoerceSize(size.fromRaw(this.ActualWidth, this.ActualHeight));
+            if (framework.Width <= 0 || framework.Height <= 0)
+                return;
+            var area = rect.fromSize(framework);
+            ctx.Save();
+            lu._RenderLayoutClip(ctx);
+            ctx.FillRect(background, area);
+            ctx.Restore();
+        }
     }
     Nullstone.RegisterType(Panel, "Panel");
+}
+
+module Fayde.Controls {
+    export class StackPanel extends Panel {
+        static OrientationProperty: DependencyProperty = DependencyProperty.Register("Orientation", () => Orientation, StackPanel, Orientation.Vertical, (d, args) => (<StackPanel>d)._OrientationChanged(args));
+        Orientation: Orientation;
+        private _OrientationChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
+            lu.InvalidateMeasure();
+            lu.InvalidateArrange();
+        }
+        private _MeasureOverride(availableSize: size, error: BError): size {
+            var childAvailable = size.createInfinite();
+            var measured = new size();
+            var isVertical = this.Orientation === Orientation.Vertical;
+            if (isVertical) {
+                childAvailable.Width = availableSize.Width;
+                var width = this.Width;
+                if (!isNaN(width))
+                    childAvailable.Width = width;
+                childAvailable.Width = Math.min(childAvailable.Width, this.MaxWidth);
+                childAvailable.Width = Math.max(childAvailable.Width, this.MinWidth);
+            } else {
+                childAvailable.Height = availableSize.Height;
+                var height = this.Height;
+                if (!isNaN(height))
+                    childAvailable.Height = height;
+                childAvailable.Height = Math.min(childAvailable.Height, this.MaxHeight);
+                childAvailable.Height = Math.max(childAvailable.Height, this.MinHeight);
+            }
+            var enumerator = this.Children.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                var childLu = (<UINode>enumerator.Current).LayoutUpdater;
+                childLu._Measure(childAvailable, error);
+                var s = childLu.DesiredSize;
+                if (isVertical) {
+                    measured.Height += s.Height;
+                    measured.Width = Math.max(measured.Width, s.Width);
+                } else {
+                    measured.Width += s.Width;
+                    measured.Height = Math.max(measured.Height, s.Height);
+                }
+            }
+            return measured;
+        }
+        private _ArrangeOverride(finalSize: size, error: BError): size {
+            var arranged = size.clone(finalSize);
+            var isVertical = this.Orientation === Orientation.Vertical;
+            if (isVertical)
+                arranged.Height = 0;
+            else
+                arranged.Width = 0;
+            var enumerator = this.Children.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                var childLu = (<UINode>enumerator.Current).LayoutUpdater;
+                var s = size.clone(childLu.DesiredSize);
+                if (isVertical) {
+                    s.Width = finalSize.Width;
+                    var childFinal = rect.fromSize(s);
+                    childFinal.Y = arranged.Height;
+                    if (rect.isEmpty(childFinal))
+                        rect.clear(childFinal);
+                    childLu._Arrange(childFinal, error);
+                    arranged.Width = Math.max(arranged.Width, s.Width);
+                    arranged.Height += s.Height;
+                } else {
+                    s.Height = finalSize.Height;
+                    var childFinal = rect.fromSize(s);
+                    childFinal.X = arranged.Width;
+                    if (rect.isEmpty(childFinal))
+                        rect.clear(childFinal);
+                    childLu._Arrange(childFinal, error);
+                    arranged.Width += s.Width;
+                    arranged.Height = Math.max(arranged.Height, s.Height);
+                }
+            }
+            if (isVertical)
+                arranged.Height = Math.max(arranged.Height, finalSize.Height);
+            else
+                arranged.Width = Math.max(arranged.Width, finalSize.Width);
+            return arranged;
+        }
+    }
+    Nullstone.RegisterType(StackPanel, "StackPanel");
 }
 
 module Fayde.Controls {

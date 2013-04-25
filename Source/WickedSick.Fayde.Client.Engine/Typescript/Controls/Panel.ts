@@ -109,13 +109,17 @@ module Fayde.Controls {
     }
     export class Panel extends FrameworkElement {
         XamlNode: PanelNode;
-        static BackgroundProperty: DependencyProperty = DependencyProperty.Register("Background", () => { return Media.Brush; }, Panel);
+        static BackgroundProperty: DependencyProperty = DependencyProperty.Register("Background", () => { return Media.Brush; }, Panel, undefined, (d, args) => (<Panel>d)._BackgroundChanged(args));
         static IsItemsHostProperty: DependencyProperty = DependencyProperty.Register("IsItemHost", () => { return Boolean; }, Panel, false);
 
         static ZIndexProperty: DependencyProperty = DependencyProperty.RegisterAttached("ZIndex", () => { return Number; }, Panel, 0, zIndexPropertyChanged);
         static ZProperty: DependencyProperty = DependencyProperty.RegisterAttached("Z", () => { return Number; }, Panel, NaN);
 
+        Background: Media.Brush;
+        IsItemsHost: bool;
         Children: DependencyObjectCollection;
+
+        static Annotations = { ContentProperty: "Children" }
 
         static GetZIndex(uie: UIElement): number { return uie.GetValue(ZIndexProperty); }
         static SetZIndex(uie: UIElement, value: number) { uie.SetValue(ZIndexProperty, value); }
@@ -127,6 +131,36 @@ module Fayde.Controls {
             var n = new PanelNode(this);
             n.LayoutUpdater.SetContainerMode(true, true);
             return n;
+        }
+
+        private _BackgroundChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldBrush = <Media.Brush>args.OldValue;
+            var newBrush = <Media.Brush>args.NewValue;
+            if (oldBrush)
+                oldBrush.Unlisten(this);
+            if (newBrush)
+                newBrush.Listen(this);
+
+            var lu = this.XamlNode.LayoutUpdater;
+            lu.UpdateBounds();
+            lu.Invalidate();
+        }
+        private BrushChanged(newBrush: Media.Brush) { this.XamlNode.LayoutUpdater.Invalidate(); }
+
+        private Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
+            var background = this.Background;
+            if (!background)
+                return;
+            
+            var framework = lu.CoerceSize(size.fromRaw(this.ActualWidth, this.ActualHeight));
+            if (framework.Width <= 0 || framework.Height <= 0)
+                return;
+
+            var area = rect.fromSize(framework);
+            ctx.Save();
+            lu._RenderLayoutClip(ctx);
+            ctx.FillRect(background, area);
+            ctx.Restore();
         }
     }
     Nullstone.RegisterType(Panel, "Panel");

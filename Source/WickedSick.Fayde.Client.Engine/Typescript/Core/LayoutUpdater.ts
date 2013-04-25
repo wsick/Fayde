@@ -505,9 +505,9 @@ module Fayde {
             if ((parentNode && !(parentNode.XObject instanceof Controls.Canvas)) || this.IsLayoutContainer)
                 return size.clone(this.RenderSize);
 
-            return this._CoerceSize(new size());
+            return this.CoerceSize(new size());
         }
-        private _CoerceSize(s: size): size {
+        CoerceSize(s: size): size {
             var fe = <FrameworkElement>this.Node.XObject;
             var spw = fe.Width;
             var sph = fe.Height;
@@ -608,7 +608,7 @@ module Fayde {
             var margin = fe.Margin;
             if (margin)
                 size.shrinkByThickness(s, margin);
-            this._CoerceSize(s);
+            this.CoerceSize(s);
 
             if ((<any>fe).MeasureOverride) {
                 s = (<IMeasurable><any>fe).MeasureOverride(s);
@@ -630,7 +630,7 @@ module Fayde {
                 }
             }
 
-            this._CoerceSize(s);
+            this.CoerceSize(s);
             if (margin)
                 size.growByThickness(s, margin);
             size.min(s, availableSize);
@@ -729,8 +729,8 @@ module Fayde {
 
             var offer = size.clone(this.HiddenDesire);
 
-            var stretched = this._CoerceSize(size.fromRect(childRect));
-            var framework = this._CoerceSize(new size());
+            var stretched = this.CoerceSize(size.fromRect(childRect));
+            var framework = this.CoerceSize(new size());
 
             var horiz = fe.HorizontalAlignment;
             var vert = fe.VerticalAlignment;
@@ -791,7 +791,7 @@ module Fayde {
             }
 
             size.copyTo(response, this.RenderSize);
-            var constrainedResponse = this._CoerceSize(size.clone(response));
+            var constrainedResponse = this.CoerceSize(size.clone(response));
             size.min(constrainedResponse, response);
 
             if (!visualParentNode || visualParentNode instanceof Controls.CanvasNode) {
@@ -857,7 +857,7 @@ module Fayde {
 
             if (((!isTopLevel && rect.isRectContainedIn(element, layoutClip)) || !size.isEqual(constrainedResponse, response))
                 && !(node instanceof Controls.CanvasNode) && ((visualParentNode && !(visualParentNode instanceof Controls.CanvasNode)) || this.IsContainer)) {
-                var frameworkClip = this._CoerceSize(size.createInfinite());
+                var frameworkClip = this.CoerceSize(size.createInfinite());
                 var frect = rect.fromSize(frameworkClip);
                 rect.intersection(layoutClip, frect);
                 var rectangle = new Media.RectangleGeometry();

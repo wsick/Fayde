@@ -1,5 +1,11 @@
 var Fayde;
 (function (Fayde) {
+    (function (Orientation) {
+        Orientation._map = [];
+        Orientation.Horizontal = 0;
+        Orientation.Vertical = 1;
+    })(Fayde.Orientation || (Fayde.Orientation = {}));
+    var Orientation = Fayde.Orientation;
     (function (Visibility) {
         Visibility._map = [];
         Visibility.Visible = 0;

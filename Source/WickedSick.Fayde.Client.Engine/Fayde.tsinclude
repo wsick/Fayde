@@ -158,6 +158,7 @@ Typescript\Controls\Control.ts
 Typescript\Controls\Image.ts
 Typescript\Controls\MediaElement.ts
 Typescript\Controls\Panel.ts
+Typescript\Controls\StackPanel.ts
 Typescript\Controls\TextBlock.ts
 Typescript\Controls\UserControl.ts
 Typescript\Controls\Primitives\Popup.ts
