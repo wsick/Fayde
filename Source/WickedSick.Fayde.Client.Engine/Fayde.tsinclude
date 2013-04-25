@@ -166,6 +166,8 @@ Typescript\Data\PropertyPath.ts
 Typescript\Shapes\Ellipse.ts
 Typescript\Shapes\Line.ts
 Typescript\Shapes\Path.ts
+Typescript\Shapes\Polygon.ts
+Typescript\Shapes\Polyline.ts
 Typescript\Shapes\Rectangle.ts
 Typescript\Controls\Canvas.ts
 Typescript\Controls\ContentControl.ts

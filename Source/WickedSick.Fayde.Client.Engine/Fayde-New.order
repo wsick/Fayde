@@ -166,6 +166,8 @@ Data/PropertyPath.js
 Shapes/Ellipse.js
 Shapes/Line.js
 Shapes/Path.js
+Shapes/Polygon.js
+Shapes/Polyline.js
 Shapes/Rectangle.js
 Controls/Canvas.js
 Controls/ContentControl.js

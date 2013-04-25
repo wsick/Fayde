@@ -14,6 +14,22 @@ var Fayde;
                 _super.apply(this, arguments);
 
             }
+            PointCollection.prototype._RaiseItemAdded = function (value, index) {
+                var shapeNode = this.XamlNode.ParentNode;
+                shapeNode.XObject._InvalidateNaturalBounds();
+            };
+            PointCollection.prototype._RaiseItemRemoved = function (value, index) {
+                var shapeNode = this.XamlNode.ParentNode;
+                shapeNode.XObject._InvalidateNaturalBounds();
+            };
+            PointCollection.prototype._RaiseItemReplaced = function (removed, added, index) {
+                var shapeNode = this.XamlNode.ParentNode;
+                shapeNode.XObject._InvalidateNaturalBounds();
+            };
+            PointCollection.prototype._RaiseCleared = function () {
+                var shapeNode = this.XamlNode.ParentNode;
+                shapeNode.XObject._InvalidateNaturalBounds();
+            };
             return PointCollection;
         })(Fayde.XamlObjectCollection);
         Shapes.PointCollection = PointCollection;        

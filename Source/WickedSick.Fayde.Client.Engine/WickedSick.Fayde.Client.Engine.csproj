@@ -1130,6 +1130,14 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Shapes\Shape.ts" />
     <TypeScriptCompile Include="Typescript\Shapes\RawPath.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\Polygon.ts" />
+    <Content Include="Typescript\Shapes\Polygon.js">
+      <DependentUpon>Polygon.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Shapes\Polyline.ts" />
+    <Content Include="Typescript\Shapes\Polyline.js">
+      <DependentUpon>Polyline.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Shapes\RawPath.js">
       <DependentUpon>RawPath.ts</DependentUpon>
     </Content>
