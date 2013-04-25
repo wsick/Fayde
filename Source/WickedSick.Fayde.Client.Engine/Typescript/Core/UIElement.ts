@@ -21,6 +21,12 @@ module Fayde {
         XObject: UIElement;
         LayoutUpdater: LayoutUpdater;
         IsTopLevel: bool = false;
+        private _Surface: Surface;
+
+        SetSurface(surface: Surface) {
+            this._Surface = surface;
+            this.LayoutUpdater.Surface = surface;
+        }
 
         constructor(xobj: UIElement) {
             super(xobj);
@@ -37,7 +43,8 @@ module Fayde {
         OnIsAttachedChanged(newIsAttached: bool) {
             this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
         }
-        _ElementAdded(uie: UIElement) {
+
+        AttachVisualChild(uie: UIElement) {
             var lu = this.LayoutUpdater;
             lu.UpdateBounds(true);
             lu.InvalidateMeasure();
@@ -45,16 +52,18 @@ module Fayde {
 
             var un = uie.XamlNode;
             un.VisualParentNode = this;
+            un.VisualParentNode.SetSurface(this._Surface);
             this.XObject._Store.PropagateInheritedOnAdd(uie);
             un.LayoutUpdater.OnAddedToTree();
             un.SetIsLoaded(this.IsLoaded);
         }
-        _ElementRemoved(uie: UIElement) {
+        DetachVisualChild(uie: UIElement) {
             var lu = this.LayoutUpdater;
             var un = uie.XamlNode;
             lu.Invalidate(un.LayoutUpdater.SubtreeBounds);
             lu.InvalidateMeasure();
 
+            un.VisualParentNode.SetSurface(null);
             un.VisualParentNode = null;
             un.SetIsLoaded(false);
             un.LayoutUpdater.OnRemovedFromTree();
@@ -99,20 +108,27 @@ module Fayde {
             x.KeyUp.Raise(x, args);
         }
         _EmitLostMouseCapture(pos: Point) {
+            var x = this.XObject;
+            var e = new Input.MouseEventArgs(pos);
+            x.OnLostMouseCapture(e);
+            x.LostMouseCapture.Raise(x, e);
         }
-        
         _EmitMouseEvent(type: string, isLeftButton: bool, isRightButton: bool, args: Input.MouseEventArgs): bool {
             var x = this.XObject;
             if (type === "up") {
                 if (isLeftButton) {
+                    x.OnMouseLeftButtonUp(<Input.MouseButtonEventArgs>args);
                     x.MouseLeftButtonUp.Raise(x, args);
                 } else if (isRightButton) {
+                    x.OnMouseRightButtonUp(<Input.MouseButtonEventArgs>args);
                     x.MouseRightButtonUp.Raise(x, args);
                 }
             } else if (type === "down") {
                 if (isLeftButton) {
+                    x.OnMouseLeftButtonDown(<Input.MouseButtonEventArgs>args);
                     x.MouseLeftButtonDown.Raise(x, args);
                 } else if (isRightButton) {
+                    x.OnMouseRightButtonDown(<Input.MouseButtonEventArgs>args);
                     x.MouseRightButtonDown.Raise(x, args);
                 }
             } else if (type === "leave") {
@@ -124,8 +140,10 @@ module Fayde {
                 x.OnMouseEnter(args);
                 x.MouseEnter.Raise(x, args);
             } else if (type === "move") {
+                x.OnMouseMove(args);
                 x.MouseMove.Raise(x, args);
             } else if (type === "wheel") {
+                x.OnMouseWheel(<Input.MouseWheelEventArgs>args);
                 x.MouseWheel.Raise(x, args);
             } else {
                 return false;
@@ -133,7 +151,7 @@ module Fayde {
             return args.Handled;
         }
 
-        _HitTestPoint(ctx: IRenderContext, p: Point, uielist: UINode[]) {
+        _HitTestPoint(ctx: RenderContext, p: Point, uielist: UINode[]) {
             uielist.unshift(this);
         }
         _InsideClip(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
@@ -151,6 +169,17 @@ module Fayde {
         }
 
         CanCaptureMouse(): bool { return true; }
+        CaptureMouse(): bool {
+            if (!this.IsAttached)
+                return false;
+            this._Surface.SetMouseCapture(this);
+            return true;
+        }
+        ReleaseMouseCapture() {
+            if (!this.IsAttached)
+                return;
+            this._Surface.ReleaseMouseCapture(this);
+        }
 
         _ResortChildrenByZIndex() {
             Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
@@ -204,27 +233,35 @@ module Fayde {
         UseLayoutRounding: bool;
         Visibility: Visibility;
         
+        Focus(): bool { return false; }
+
         LostFocus: RoutedEvent = new RoutedEvent();
         GotFocus: RoutedEvent = new RoutedEvent();
-        Focus(): bool { return false; }
-        OnGotFocus(e: RoutedEventArgs) { }
-        OnLostFocus(e: RoutedEventArgs) { }
-
+        LostMouseCapture: RoutedEvent = new RoutedEvent();
         KeyDown: MulticastEvent = new MulticastEvent();
         KeyUp: MulticastEvent = new MulticastEvent();
-        OnKeyDown(args: Input.KeyEventArgs) { }
-        OnKeyUp(args: Input.KeyEventArgs) { }
-        
         MouseLeftButtonUp: RoutedEvent = new RoutedEvent();
         MouseRightButtonUp: RoutedEvent = new RoutedEvent();
         MouseLeftButtonDown: RoutedEvent = new RoutedEvent();
         MouseRightButtonDown: RoutedEvent = new RoutedEvent();
         MouseLeave: RoutedEvent = new RoutedEvent();
-        OnMouseLeave(args: Input.MouseEventArgs) { }
         MouseEnter: RoutedEvent = new RoutedEvent();
-        OnMouseEnter(args: Input.MouseEventArgs) { }
         MouseMove: RoutedEvent = new RoutedEvent();
         MouseWheel: RoutedEvent = new RoutedEvent();
+        
+        OnGotFocus(e: RoutedEventArgs) { }
+        OnLostFocus(e: RoutedEventArgs) { }
+        OnLostMouseCapture(e: Input.MouseEventArgs) { }
+        OnKeyDown(e: Input.KeyEventArgs) { }
+        OnKeyUp(e: Input.KeyEventArgs) { }
+        OnMouseEnter(e: Input.MouseEventArgs) { }
+        OnMouseLeave(e: Input.MouseEventArgs) { }
+        OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) { }
+        OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs) { }
+        OnMouseMove(e: Input.MouseEventArgs) { }
+        OnMouseRightButtonDown(e: Input.MouseButtonEventArgs) { }
+        OnMouseRightButtonUp(e: Input.MouseButtonEventArgs) { }
+        OnMouseWheel(e: Input.MouseWheelEventArgs) { }
     }
     Nullstone.RegisterType(UIElement, "UIElement");
 }

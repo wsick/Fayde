@@ -1962,7 +1962,7 @@ module Fayde {
     var maxPassCount = 250;
     export class LayoutUpdater {
         static LayoutExceptionUpdater: LayoutUpdater = undefined;
-        private _Surface: Surface;
+        Surface: Surface;
         LayoutClip: Media.Geometry = undefined;
         LayoutSlot: rect = undefined;
         PreviousConstraint: size = undefined;
@@ -1985,7 +1985,7 @@ module Fayde {
         ExtentsWithChildren: rect = new rect();
         Bounds: rect = new rect();
         Global: rect = new rect();
-        Surface: rect = new rect();
+        SurfaceBounds: rect = new rect();
         EffectPadding: Thickness = new Thickness();
         ClipBounds: rect = new rect();
         SubtreeExtents: rect;
@@ -2002,16 +2002,12 @@ module Fayde {
         DirtyRegion: rect = null;
         private _ForceInvalidateOfNewBounds: bool = false;
         constructor(public Node: UINode) { }
-        SetSurface(surface: Surface) {
-            this._Surface = surface;
-        }
         OnIsAttachedChanged(newIsAttached: bool, visualParentNode: UINode) {
             this.UpdateTotalRenderVisibility();
             if (!newIsAttached) {
                 this._CacheInvalidateHint();
-                this._Surface.OnNodeDetached(this);
-            } else if (visualParentNode) {
-                this._Surface = visualParentNode.LayoutUpdater._Surface;
+                var surface = this.Surface;
+                if (surface) surface.OnNodeDetached(this);
             }
         }
         OnAddedToTree() {
@@ -2063,7 +2059,7 @@ module Fayde {
                 if (!this.TotalIsRenderVisible)
                     this._CacheInvalidateHint();
                 if (ovisible !== this.TotalIsRenderVisible)
-                    this._Surface._AddDirtyElement(this, dirtyEnum.NewBounds);
+                    this.Surface._AddDirtyElement(this, dirtyEnum.NewBounds);
                 this._PropagateDirtyFlagToChildren(rvFlag);
             }
             if (f & htvFlag) {
@@ -2139,7 +2135,7 @@ module Fayde {
                     visualParentLu.Invalidate(dirty);
                 } else {
                     if (thisNode.IsAttached) {
-                        this._Surface._Invalidate(dirty);
+                        this.Surface._Invalidate(dirty);
                         /*
                         OPTIMIZATION NOT IMPLEMENTED
                         var count = dirty.GetRectangleCount();
@@ -2158,7 +2154,7 @@ module Fayde {
             var enumerator = this.Node.GetVisualTreeEnumerator();
             if (!enumerator)
                 return;
-            var s = this._Surface;
+            var s = this.Surface;
             while (enumerator.MoveNext()) {
                 s._AddDirtyElement((<UINode>enumerator.Current).LayoutUpdater, dirt);
             }
@@ -2185,7 +2181,7 @@ module Fayde {
         }
         UpdateTransform() {
             if (this.Node.IsAttached)
-                this._Surface._AddDirtyElement(this, _Dirty.LocalTransform);
+                this.Surface._AddDirtyElement(this, _Dirty.LocalTransform);
         }
         ComputeLocalTransform() {
         }
@@ -2195,7 +2191,7 @@ module Fayde {
         }
         UpdateProjection() {
             if (this.Node.IsAttached)
-                this._Surface._AddDirtyElement(this, _Dirty.LocalProjection);
+                this.Surface._AddDirtyElement(this, _Dirty.LocalProjection);
         }
         TransformPoint(p: Point) {
         }
@@ -2212,7 +2208,7 @@ module Fayde {
         }
         UpdateTotalRenderVisibility() {
             if (this.Node.IsAttached)
-                this._Surface._AddDirtyElement(this, _Dirty.RenderVisibility);
+                this.Surface._AddDirtyElement(this, _Dirty.RenderVisibility);
         }
         UpdateHitTestVisibility(vpLu: Fayde.LayoutUpdater) {
             var uie = this.Node.XObject;
@@ -2224,11 +2220,11 @@ module Fayde {
         }
         UpdateTotalHitTestVisibility() {
             if (this.Node.IsAttached)
-                this._Surface._AddDirtyElement(this, _Dirty.HitTestVisibility);
+                this.Surface._AddDirtyElement(this, _Dirty.HitTestVisibility);
         }
         UpdateBounds(forceRedraw?: bool) {
             if (this.Node.IsAttached)
-                this._Surface._AddDirtyElement(this, _Dirty.Bounds);
+                this.Surface._AddDirtyElement(this, _Dirty.Bounds);
             this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
         }
         ComputeBounds() {
@@ -2456,7 +2452,7 @@ module Fayde {
             var fe = n.XObject;
             var visualParentNode = n.VisualParentNode;
             if (!visualParentNode) {
-                var surface = this._Surface;
+                var surface = this.Surface;
                 var desired: size;
                 if (this.IsLayoutContainer) {
                     desired = size.clone(this.DesiredSize);
@@ -2957,7 +2953,6 @@ module Fayde {
         }
         OnIsAttachedChanged(newIsAttached: bool) { }
         AttachTo(parentNode: XamlNode, error: BError): bool {
-            this.SetIsAttached(parentNode.IsAttached);
             var curNode = parentNode;
             while (curNode) {
                 if (curNode === this) {
@@ -2995,6 +2990,7 @@ module Fayde {
             var old = this.ParentNode;
             this.ParentNode = parentNode;
             this.OnParentChanged(old, parentNode);
+            this.SetIsAttached(parentNode.IsAttached);
             return true;
         }
         Detach() {
@@ -4591,26 +4587,26 @@ class Surface {
         this._AttachLayer(uie);
     }
     private _AttachLayer(layer: Fayde.UIElement) {
-        var n = layer.XamlNode;
-        this._Layers.unshift(n);
-        n.IsTopLevel = true;
-        var lu = n.LayoutUpdater;
-        lu.SetSurface(this);
+        var node = layer.XamlNode;
+        this._Layers.unshift(node);
+        node.IsTopLevel = true;
+        node.SetSurface(this);
+        var lu = node.LayoutUpdater;
         lu.FullInvalidate(true);
         lu.InvalidateMeasure();
-        n.SetIsAttached(true);
-        n.SetIsLoaded(true);
+        node.SetIsAttached(true);
+        node.SetIsLoaded(true);
     }
     private _DetachLayer(layer: Fayde.UIElement) {
-        var n = layer.XamlNode;
-        n.IsTopLevel = false;
+        var node = layer.XamlNode;
+        node.IsTopLevel = false;
         var il = this._InputList;
-        if (il[il.length - 1] === n)
+        if (il[il.length - 1] === node)
             this._InputList = [];
         var f = this._FocusedNode;
         if (f) {
             while (f) {
-                if (f === n) {
+                if (f === node) {
                     this._FocusNode();
                     break;
                 }
@@ -4620,9 +4616,9 @@ class Surface {
         var index = this._Layers.indexOf(layer.XamlNode);
         if (index > -1)
             this._Layers.splice(index, 1);
-        n.SetIsLoaded(false);
-        n.SetIsAttached(false);
-        this._Invalidate(n.LayoutUpdater.SubtreeBounds);
+        node.SetIsLoaded(false);
+        node.SetIsAttached(false);
+        this._Invalidate(node.LayoutUpdater.SubtreeBounds);
     }
     ProcessDirtyElements(): bool {
         var error = new BError();
@@ -9593,6 +9589,11 @@ module Fayde {
         XObject: UIElement;
         LayoutUpdater: LayoutUpdater;
         IsTopLevel: bool = false;
+        private _Surface: Surface;
+        SetSurface(surface: Surface) {
+            this._Surface = surface;
+            this.LayoutUpdater.Surface = surface;
+        }
         constructor(xobj: UIElement) {
             super(xobj);
             this.LayoutUpdater = new LayoutUpdater(this);
@@ -9605,22 +9606,24 @@ module Fayde {
         OnIsAttachedChanged(newIsAttached: bool) {
             this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
         }
-        _ElementAdded(uie: UIElement) {
+        AttachVisualChild(uie: UIElement) {
             var lu = this.LayoutUpdater;
             lu.UpdateBounds(true);
             lu.InvalidateMeasure();
             lu.PreviousConstraint = undefined;
             var un = uie.XamlNode;
             un.VisualParentNode = this;
+            un.VisualParentNode.SetSurface(this._Surface);
             this.XObject._Store.PropagateInheritedOnAdd(uie);
             un.LayoutUpdater.OnAddedToTree();
             un.SetIsLoaded(this.IsLoaded);
         }
-        _ElementRemoved(uie: UIElement) {
+        DetachVisualChild(uie: UIElement) {
             var lu = this.LayoutUpdater;
             var un = uie.XamlNode;
             lu.Invalidate(un.LayoutUpdater.SubtreeBounds);
             lu.InvalidateMeasure();
+            un.VisualParentNode.SetSurface(null);
             un.VisualParentNode = null;
             un.SetIsLoaded(false);
             un.LayoutUpdater.OnRemovedFromTree();
@@ -9663,19 +9666,27 @@ module Fayde {
             x.KeyUp.Raise(x, args);
         }
         _EmitLostMouseCapture(pos: Point) {
+            var x = this.XObject;
+            var e = new Input.MouseEventArgs(pos);
+            x.OnLostMouseCapture(e);
+            x.LostMouseCapture.Raise(x, e);
         }
         _EmitMouseEvent(type: string, isLeftButton: bool, isRightButton: bool, args: Input.MouseEventArgs): bool {
             var x = this.XObject;
             if (type === "up") {
                 if (isLeftButton) {
+                    x.OnMouseLeftButtonUp(<Input.MouseButtonEventArgs>args);
                     x.MouseLeftButtonUp.Raise(x, args);
                 } else if (isRightButton) {
+                    x.OnMouseRightButtonUp(<Input.MouseButtonEventArgs>args);
                     x.MouseRightButtonUp.Raise(x, args);
                 }
             } else if (type === "down") {
                 if (isLeftButton) {
+                    x.OnMouseLeftButtonDown(<Input.MouseButtonEventArgs>args);
                     x.MouseLeftButtonDown.Raise(x, args);
                 } else if (isRightButton) {
+                    x.OnMouseRightButtonDown(<Input.MouseButtonEventArgs>args);
                     x.MouseRightButtonDown.Raise(x, args);
                 }
             } else if (type === "leave") {
@@ -9687,15 +9698,17 @@ module Fayde {
                 x.OnMouseEnter(args);
                 x.MouseEnter.Raise(x, args);
             } else if (type === "move") {
+                x.OnMouseMove(args);
                 x.MouseMove.Raise(x, args);
             } else if (type === "wheel") {
+                x.OnMouseWheel(<Input.MouseWheelEventArgs>args);
                 x.MouseWheel.Raise(x, args);
             } else {
                 return false;
             }
             return args.Handled;
         }
-        _HitTestPoint(ctx: IRenderContext, p: Point, uielist: UINode[]) {
+        _HitTestPoint(ctx: RenderContext, p: Point, uielist: UINode[]) {
             uielist.unshift(this);
         }
         _InsideClip(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
@@ -9709,6 +9722,17 @@ module Fayde {
             return ctx.IsPointInClipPath(clip, np);
         }
         CanCaptureMouse(): bool { return true; }
+        CaptureMouse(): bool {
+            if (!this.IsAttached)
+                return false;
+            this._Surface.SetMouseCapture(this);
+            return true;
+        }
+        ReleaseMouseCapture() {
+            if (!this.IsAttached)
+                return;
+            this._Surface.ReleaseMouseCapture(this);
+        }
         _ResortChildrenByZIndex() {
             Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
         }
@@ -9756,25 +9780,33 @@ module Fayde {
         Tag: any;
         UseLayoutRounding: bool;
         Visibility: Visibility;
+        Focus(): bool { return false; }
         LostFocus: RoutedEvent = new RoutedEvent();
         GotFocus: RoutedEvent = new RoutedEvent();
-        Focus(): bool { return false; }
-        OnGotFocus(e: RoutedEventArgs) { }
-        OnLostFocus(e: RoutedEventArgs) { }
+        LostMouseCapture: RoutedEvent = new RoutedEvent();
         KeyDown: MulticastEvent = new MulticastEvent();
         KeyUp: MulticastEvent = new MulticastEvent();
-        OnKeyDown(args: Input.KeyEventArgs) { }
-        OnKeyUp(args: Input.KeyEventArgs) { }
         MouseLeftButtonUp: RoutedEvent = new RoutedEvent();
         MouseRightButtonUp: RoutedEvent = new RoutedEvent();
         MouseLeftButtonDown: RoutedEvent = new RoutedEvent();
         MouseRightButtonDown: RoutedEvent = new RoutedEvent();
         MouseLeave: RoutedEvent = new RoutedEvent();
-        OnMouseLeave(args: Input.MouseEventArgs) { }
         MouseEnter: RoutedEvent = new RoutedEvent();
-        OnMouseEnter(args: Input.MouseEventArgs) { }
         MouseMove: RoutedEvent = new RoutedEvent();
         MouseWheel: RoutedEvent = new RoutedEvent();
+        OnGotFocus(e: RoutedEventArgs) { }
+        OnLostFocus(e: RoutedEventArgs) { }
+        OnLostMouseCapture(e: Input.MouseEventArgs) { }
+        OnKeyDown(e: Input.KeyEventArgs) { }
+        OnKeyUp(e: Input.KeyEventArgs) { }
+        OnMouseEnter(e: Input.MouseEventArgs) { }
+        OnMouseLeave(e: Input.MouseEventArgs) { }
+        OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) { }
+        OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs) { }
+        OnMouseMove(e: Input.MouseEventArgs) { }
+        OnMouseRightButtonDown(e: Input.MouseButtonEventArgs) { }
+        OnMouseRightButtonUp(e: Input.MouseButtonEventArgs) { }
+        OnMouseWheel(e: Input.MouseWheelEventArgs) { }
     }
     Nullstone.RegisterType(UIElement, "UIElement");
 }
@@ -10999,6 +11031,14 @@ module Fayde {
                 store.EmitDataContextChanged();
             }
         }
+        AttachVisualChild(uie: UIElement) {
+            super.AttachVisualChild(uie);
+            this.SetSubtreeNode(uie.XamlNode);
+        }
+        DetachVisualChild(uie: UIElement) {
+            this.SetSubtreeNode(null);
+            super.DetachVisualChild(uie);
+        }
         _ApplyTemplateWithError(error: BError): bool {
             if (this.SubtreeNode)
                 return false;
@@ -11012,8 +11052,7 @@ module Fayde {
             if (uie) {
                 if (error.Message)
                     return false;
-                this.SetSubtreeNode(uie.XamlNode);
-                this._ElementAdded(uie);
+                this.AttachVisualChild(uie);
             }
             return uie != null;
         }
@@ -11653,14 +11692,10 @@ module Fayde.Controls {
             var olduie = <UIElement>args.OldValue;
             var newuie = <UIElement>args.NewValue;
             var node = this.XamlNode;
-            if (olduie instanceof UIElement) {
-                node._ElementRemoved(olduie);
-                node.SetSubtreeNode(null);
-            }
-            if (newuie instanceof UIElement) {
-                node.SetSubtreeNode(newuie.XamlNode);
-                node._ElementAdded(newuie);
-            }
+            if (olduie instanceof UIElement)
+                node.DetachVisualChild(olduie);
+            if (newuie instanceof UIElement)
+                node.AttachVisualChild(newuie);
             var lu = node.LayoutUpdater;
             lu.UpdateBounds();
             lu.InvalidateMeasure();
@@ -11798,14 +11833,6 @@ module Fayde.Controls {
             var xobj = this.XObject;
             return xobj.IsEnabled && xobj.IsTabStop && xobj.Focus();
         }
-        _ElementAdded(uie: UIElement) {
-            this.SetSubtreeNode(uie.XamlNode);
-            super._ElementAdded(uie);
-        }
-        _ElementRemoved(uie: UIElement) {
-            this.SetSubtreeNode(null);
-            super._ElementRemoved(uie);
-        }
         _DoApplyTemplateWithError(error: BError): bool {
             var xobj = this.XObject;
             var t = xobj.Template;
@@ -11819,11 +11846,11 @@ module Fayde.Controls {
             if (!root)
                 return super._DoApplyTemplateWithError(error);
             if (this.TemplateRoot && this.TemplateRoot !== root) {
-                this._ElementRemoved(this.TemplateRoot);
+                this.DetachVisualChild(this.TemplateRoot);
                 this.TemplateRoot = null;
             }
             this.TemplateRoot = <FrameworkElement>root;
-            this._ElementAdded(this.TemplateRoot);
+            this.AttachVisualChild(this.TemplateRoot);
             return true;
         }
         OnIsAttachedChanged(newIsAttached: bool) {
@@ -11901,8 +11928,10 @@ module Fayde.Controls {
             return undefined;
         }
         Focus(): bool { return App.Instance.MainSurface.Focus(this); }
+        IsEnabledChanged: MulticastEvent = new MulticastEvent();
         OnGotFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = true; }
         OnLostFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = false; }
+        OnLostMouseCapture(e: Input.MouseEventArgs) { }
         OnKeyDown(e: Input.KeyEventArgs) { }
         OnKeyUp(e: Input.KeyEventArgs) { }
         OnMouseEnter(e: Input.MouseEventArgs) { }
@@ -12255,15 +12284,15 @@ module Fayde.Controls {
             return new PanelChildrenNode(this);
         }
         _RaiseItemAdded(value: UIElement, index: number) {
-            this.XamlNode.ParentNode._ElementAdded(value);
+            this.XamlNode.ParentNode.AttachVisualChild(value);
         }
         _RaiseItemRemoved(value: UIElement, index: number) {
-            this.XamlNode.ParentNode._ElementRemoved(value);
+            this.XamlNode.ParentNode.DetachVisualChild(value);
         }
         _RaiseItemReplaced(removed: UIElement, added: UIElement, index: number) {
             var panelNode = this.XamlNode.ParentNode;
-            panelNode._ElementRemoved(removed);
-            panelNode._ElementAdded(added);
+            panelNode.DetachVisualChild(removed);
+            panelNode.AttachVisualChild(added);
         }
     }
     Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");
@@ -12279,12 +12308,12 @@ module Fayde.Controls {
             });
             this.SetSubtreeNode(coll.XamlNode);
         }
-        _ElementAdded(uie: UIElement) {
-            super._ElementAdded(uie);
+        AttachVisualChild(uie: UIElement) {
+            super.AttachVisualChild(uie);
             this._InvalidateChildrenZIndices();
         }
-        _ElementRemoved(uie: UIElement) {
-            super._ElementRemoved(uie);
+        DetachVisualChild(uie: UIElement) {
+            super.DetachVisualChild(uie);
             this._InvalidateChildrenZIndices();
         }
         _InvalidateChildrenZIndices() {
@@ -12486,15 +12515,10 @@ module Fayde.Controls {
             var n = this.XamlNode;
             if (n._IsParsing)
                 return;
-            if (args.OldValue instanceof UIElement) {
-                n.SetSubtreeNode(null);
-                n._ElementRemoved(<UIElement>args.OldValue);
-            }
-            if (args.NewValue instanceof UIElement) {
-                var newContent: UIElement = args.NewValue;
-                n.SetSubtreeNode(newContent.XamlNode);
-                n._ElementAdded(newContent);
-            }
+            if (args.OldValue instanceof UIElement)
+                n.DetachVisualChild(<UIElement>args.OldValue);
+            if (args.NewValue instanceof UIElement)
+                n.AttachVisualChild(<UIElement>args.NewValue);
             n.LayoutUpdater.UpdateBounds();
         }
         private _MeasureOverride(availableSize: size, error: BError): size {
@@ -13325,12 +13349,12 @@ module Fayde.Controls {
             super(xobj);
             this.LayoutUpdater.BreaksLayoutClipRender = true;
         }
-        _ElementAdded(uie: UIElement) {
-            super._ElementAdded(uie);
+        AttachVisualChild(uie: UIElement) {
+            super.AttachVisualChild(uie);
             this._UpdateIsLayoutContainerOnAdd(uie);
         }
-        _ElementRemoved(uie: UIElement) {
-            super._ElementRemoved(uie);
+        DetachVisualChild(uie: UIElement) {
+            super.DetachVisualChild(uie);
             this._UpdateIsLayoutContainerOnRemove(uie);
         }
         private _UpdateIsLayoutContainerOnAdd(uie: UIElement) {

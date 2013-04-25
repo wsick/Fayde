@@ -67,7 +67,7 @@ module Fayde {
     export class LayoutUpdater {
         static LayoutExceptionUpdater: LayoutUpdater = undefined;
 
-        private _Surface: Surface;
+        Surface: Surface;
 
         LayoutClip: Media.Geometry = undefined;
         LayoutSlot: rect = undefined;
@@ -94,7 +94,7 @@ module Fayde {
         ExtentsWithChildren: rect = new rect();
         Bounds: rect = new rect();
         Global: rect = new rect();
-        Surface: rect = new rect();
+        SurfaceBounds: rect = new rect();
         EffectPadding: Thickness = new Thickness();
         ClipBounds: rect = new rect();
         SubtreeExtents: rect;
@@ -116,16 +116,12 @@ module Fayde {
 
         constructor(public Node: UINode) { }
 
-        SetSurface(surface: Surface) {
-            this._Surface = surface;
-        }
         OnIsAttachedChanged(newIsAttached: bool, visualParentNode: UINode) {
             this.UpdateTotalRenderVisibility();
             if (!newIsAttached) {
                 this._CacheInvalidateHint();
-                this._Surface.OnNodeDetached(this);
-            } else if (visualParentNode) {
-                this._Surface = visualParentNode.LayoutUpdater._Surface;
+                var surface = this.Surface;
+                if (surface) surface.OnNodeDetached(this);
             }
         }
         OnAddedToTree() {
@@ -191,7 +187,7 @@ module Fayde {
                     this._CacheInvalidateHint();
 
                 if (ovisible !== this.TotalIsRenderVisible)
-                    this._Surface._AddDirtyElement(this, dirtyEnum.NewBounds);
+                    this.Surface._AddDirtyElement(this, dirtyEnum.NewBounds);
 
                 this._PropagateDirtyFlagToChildren(rvFlag);
             }
@@ -293,7 +289,7 @@ module Fayde {
                     visualParentLu.Invalidate(dirty);
                 } else {
                     if (thisNode.IsAttached) {
-                        this._Surface._Invalidate(dirty);
+                        this.Surface._Invalidate(dirty);
                         /*
                         OPTIMIZATION NOT IMPLEMENTED
                         var count = dirty.GetRectangleCount();
@@ -312,7 +308,7 @@ module Fayde {
             var enumerator = this.Node.GetVisualTreeEnumerator();
             if (!enumerator)
                 return;
-            var s = this._Surface;
+            var s = this.Surface;
             while (enumerator.MoveNext()) {
                 s._AddDirtyElement((<UINode>enumerator.Current).LayoutUpdater, dirt);
             }
@@ -342,7 +338,7 @@ module Fayde {
 
         UpdateTransform() {
             if (this.Node.IsAttached)
-                this._Surface._AddDirtyElement(this, _Dirty.LocalTransform);
+                this.Surface._AddDirtyElement(this, _Dirty.LocalTransform);
         }
         ComputeLocalTransform() {
             //TODO: Implement
@@ -355,7 +351,7 @@ module Fayde {
         }
         UpdateProjection() {
             if (this.Node.IsAttached)
-                this._Surface._AddDirtyElement(this, _Dirty.LocalProjection);
+                this.Surface._AddDirtyElement(this, _Dirty.LocalProjection);
         }
         TransformPoint(p: Point) {
             //TODO: Implement
@@ -374,7 +370,7 @@ module Fayde {
         }
         UpdateTotalRenderVisibility() {
             if (this.Node.IsAttached)
-                this._Surface._AddDirtyElement(this, _Dirty.RenderVisibility);
+                this.Surface._AddDirtyElement(this, _Dirty.RenderVisibility);
         }
         UpdateHitTestVisibility(vpLu: Fayde.LayoutUpdater) {
             var uie = this.Node.XObject;
@@ -386,12 +382,12 @@ module Fayde {
         }
         UpdateTotalHitTestVisibility() {
             if (this.Node.IsAttached)
-                this._Surface._AddDirtyElement(this, _Dirty.HitTestVisibility);
+                this.Surface._AddDirtyElement(this, _Dirty.HitTestVisibility);
         }
         
         UpdateBounds(forceRedraw?: bool) {
             if (this.Node.IsAttached)
-                this._Surface._AddDirtyElement(this, _Dirty.Bounds);
+                this.Surface._AddDirtyElement(this, _Dirty.Bounds);
             this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
         }
         ComputeBounds() {
@@ -667,7 +663,7 @@ module Fayde {
             var fe = n.XObject;
             var visualParentNode = n.VisualParentNode;
             if (!visualParentNode) {
-                var surface = this._Surface;
+                var surface = this.Surface;
                 var desired: size;
                 if (this.IsLayoutContainer) {
                     desired = size.clone(this.DesiredSize);

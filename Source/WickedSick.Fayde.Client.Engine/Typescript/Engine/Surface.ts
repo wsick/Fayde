@@ -149,28 +149,28 @@ class Surface {
         this._AttachLayer(uie);
     }
     private _AttachLayer(layer: Fayde.UIElement) {
-        var n = layer.XamlNode;
-        this._Layers.unshift(n);
-        n.IsTopLevel = true;
-        var lu = n.LayoutUpdater;
-        lu.SetSurface(this);
+        var node = layer.XamlNode;
+        this._Layers.unshift(node);
+        node.IsTopLevel = true;
+        node.SetSurface(this);
+        var lu = node.LayoutUpdater;
         lu.FullInvalidate(true);
         lu.InvalidateMeasure();
-        n.SetIsAttached(true);
-        n.SetIsLoaded(true);
+        node.SetIsAttached(true);
+        node.SetIsLoaded(true);
     }
     private _DetachLayer(layer: Fayde.UIElement) {
-        var n = layer.XamlNode;
-        n.IsTopLevel = false;
+        var node = layer.XamlNode;
+        node.IsTopLevel = false;
 
         var il = this._InputList;
-        if (il[il.length - 1] === n)
+        if (il[il.length - 1] === node)
             this._InputList = [];
 
         var f = this._FocusedNode;
         if (f) {
             while (f) {
-                if (f === n) {
+                if (f === node) {
                     this._FocusNode();
                     break;
                 }
@@ -181,9 +181,9 @@ class Surface {
         var index = this._Layers.indexOf(layer.XamlNode);
         if (index > -1)
             this._Layers.splice(index, 1);
-        n.SetIsLoaded(false);
-        n.SetIsAttached(false);
-        this._Invalidate(n.LayoutUpdater.SubtreeBounds);
+        node.SetIsLoaded(false);
+        node.SetIsAttached(false);
+        this._Invalidate(node.LayoutUpdater.SubtreeBounds);
     }
 
     // UPDATE

@@ -8,12 +8,13 @@ module Fayde.Controls {
             super(xobj);
             this.LayoutUpdater.BreaksLayoutClipRender = true;
         }
-        _ElementAdded(uie: UIElement) {
-            super._ElementAdded(uie);
+
+        AttachVisualChild(uie: UIElement) {
+            super.AttachVisualChild(uie);
             this._UpdateIsLayoutContainerOnAdd(uie);
         }
-        _ElementRemoved(uie: UIElement) {
-            super._ElementRemoved(uie);
+        DetachVisualChild(uie: UIElement) {
+            super.DetachVisualChild(uie);
             this._UpdateIsLayoutContainerOnRemove(uie);
         }
         private _UpdateIsLayoutContainerOnAdd(uie: UIElement) {

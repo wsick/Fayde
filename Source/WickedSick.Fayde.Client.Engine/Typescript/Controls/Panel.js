@@ -67,15 +67,15 @@ var Fayde;
                 return new PanelChildrenNode(this);
             };
             PanelChildrenCollection.prototype._RaiseItemAdded = function (value, index) {
-                this.XamlNode.ParentNode._ElementAdded(value);
+                this.XamlNode.ParentNode.AttachVisualChild(value);
             };
             PanelChildrenCollection.prototype._RaiseItemRemoved = function (value, index) {
-                this.XamlNode.ParentNode._ElementRemoved(value);
+                this.XamlNode.ParentNode.DetachVisualChild(value);
             };
             PanelChildrenCollection.prototype._RaiseItemReplaced = function (removed, added, index) {
                 var panelNode = this.XamlNode.ParentNode;
-                panelNode._ElementRemoved(removed);
-                panelNode._ElementAdded(added);
+                panelNode.DetachVisualChild(removed);
+                panelNode.AttachVisualChild(added);
             };
             return PanelChildrenCollection;
         })(Fayde.DependencyObjectCollection);        
@@ -92,12 +92,12 @@ var Fayde;
                 });
                 this.SetSubtreeNode(coll.XamlNode);
             }
-            PanelNode.prototype._ElementAdded = function (uie) {
-                _super.prototype._ElementAdded.call(this, uie);
+            PanelNode.prototype.AttachVisualChild = function (uie) {
+                _super.prototype.AttachVisualChild.call(this, uie);
                 this._InvalidateChildrenZIndices();
             };
-            PanelNode.prototype._ElementRemoved = function (uie) {
-                _super.prototype._ElementRemoved.call(this, uie);
+            PanelNode.prototype.DetachVisualChild = function (uie) {
+                _super.prototype.DetachVisualChild.call(this, uie);
                 this._InvalidateChildrenZIndices();
             };
             PanelNode.prototype._InvalidateChildrenZIndices = function () {

@@ -21,14 +21,6 @@ var Fayde;
                 var xobj = this.XObject;
                 return xobj.IsEnabled && xobj.IsTabStop && xobj.Focus();
             };
-            ControlNode.prototype._ElementAdded = function (uie) {
-                this.SetSubtreeNode(uie.XamlNode);
-                _super.prototype._ElementAdded.call(this, uie);
-            };
-            ControlNode.prototype._ElementRemoved = function (uie) {
-                this.SetSubtreeNode(null);
-                _super.prototype._ElementRemoved.call(this, uie);
-            };
             ControlNode.prototype._DoApplyTemplateWithError = function (error) {
                 var xobj = this.XObject;
                 var t = xobj.Template;
@@ -44,11 +36,11 @@ var Fayde;
                     return _super.prototype._DoApplyTemplateWithError.call(this, error);
                 }
                 if(this.TemplateRoot && this.TemplateRoot !== root) {
-                    this._ElementRemoved(this.TemplateRoot);
+                    this.DetachVisualChild(this.TemplateRoot);
                     this.TemplateRoot = null;
                 }
                 this.TemplateRoot = root;
-                this._ElementAdded(this.TemplateRoot);
+                this.AttachVisualChild(this.TemplateRoot);
                 //TODO: Deployment Loaded Event (Async)
                 return true;
             };
@@ -82,6 +74,7 @@ var Fayde;
             function Control() {
                 _super.apply(this, arguments);
 
+                this.IsEnabledChanged = new MulticastEvent();
             }
             Control.prototype.CreateStore = function () {
                 return new Fayde.Providers.ControlProviderStore(this);
@@ -117,6 +110,8 @@ var Fayde;
             };
             Control.prototype.OnLostFocus = function (e) {
                 this.XamlNode.IsFocused = false;
+            };
+            Control.prototype.OnLostMouseCapture = function (e) {
             };
             Control.prototype.OnKeyDown = function (e) {
             };

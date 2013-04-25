@@ -2,6 +2,7 @@ var Fayde;
 (function (Fayde) {
     /// <reference path="../Core/XamlObjectCollection.ts" />
     /// CODE
+    /// <reference path="Shape.ts" />
     (function (Shapes) {
         var PointCollection = (function () {
             function PointCollection() {

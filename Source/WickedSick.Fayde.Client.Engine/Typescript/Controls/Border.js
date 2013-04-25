@@ -84,12 +84,10 @@ var Fayde;
                 var newuie = args.NewValue;
                 var node = this.XamlNode;
                 if(olduie instanceof Fayde.UIElement) {
-                    node._ElementRemoved(olduie);
-                    node.SetSubtreeNode(null);
+                    node.DetachVisualChild(olduie);
                 }
                 if(newuie instanceof Fayde.UIElement) {
-                    node.SetSubtreeNode(newuie.XamlNode);
-                    node._ElementAdded(newuie);
+                    node.AttachVisualChild(newuie);
                 }
                 var lu = node.LayoutUpdater;
                 lu.UpdateBounds();

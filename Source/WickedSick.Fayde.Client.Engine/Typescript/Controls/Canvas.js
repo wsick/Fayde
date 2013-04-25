@@ -14,12 +14,12 @@ var Fayde;
                         _super.call(this, xobj);
                 this.LayoutUpdater.BreaksLayoutClipRender = true;
             }
-            CanvasNode.prototype._ElementAdded = function (uie) {
-                _super.prototype._ElementAdded.call(this, uie);
+            CanvasNode.prototype.AttachVisualChild = function (uie) {
+                _super.prototype.AttachVisualChild.call(this, uie);
                 this._UpdateIsLayoutContainerOnAdd(uie);
             };
-            CanvasNode.prototype._ElementRemoved = function (uie) {
-                _super.prototype._ElementRemoved.call(this, uie);
+            CanvasNode.prototype.DetachVisualChild = function (uie) {
+                _super.prototype.DetachVisualChild.call(this, uie);
                 this._UpdateIsLayoutContainerOnRemove(uie);
             };
             CanvasNode.prototype._UpdateIsLayoutContainerOnAdd = function (uie) {

@@ -67,8 +67,6 @@ module Fayde {
         OnIsAttachedChanged(newIsAttached: bool) { }
 
         AttachTo(parentNode: XamlNode, error: BError): bool {
-            this.SetIsAttached(parentNode.IsAttached);
-
             var curNode = parentNode;
             while (curNode) {
                 if (curNode === this) {
@@ -109,6 +107,9 @@ module Fayde {
             var old = this.ParentNode;
             this.ParentNode = parentNode;
             this.OnParentChanged(old, parentNode);
+            
+            this.SetIsAttached(parentNode.IsAttached);
+
             return true;
         }
         Detach() {

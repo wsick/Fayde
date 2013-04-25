@@ -19,15 +19,6 @@ module Fayde.Controls {
             return xobj.IsEnabled && xobj.IsTabStop && xobj.Focus();
         }
 
-        _ElementAdded(uie: UIElement) {
-            this.SetSubtreeNode(uie.XamlNode);
-            super._ElementAdded(uie);
-        }
-        _ElementRemoved(uie: UIElement) {
-            this.SetSubtreeNode(null);
-            super._ElementRemoved(uie);
-        }
-
         _DoApplyTemplateWithError(error: BError): bool {
             var xobj = this.XObject;
             var t = xobj.Template;
@@ -44,11 +35,11 @@ module Fayde.Controls {
                 return super._DoApplyTemplateWithError(error);
 
             if (this.TemplateRoot && this.TemplateRoot !== root) {
-                this._ElementRemoved(this.TemplateRoot);
+                this.DetachVisualChild(this.TemplateRoot);
                 this.TemplateRoot = null;
             }
             this.TemplateRoot = <FrameworkElement>root;
-            this._ElementAdded(this.TemplateRoot);
+            this.AttachVisualChild(this.TemplateRoot);
 
             //TODO: Deployment Loaded Event (Async)
 
@@ -140,9 +131,12 @@ module Fayde.Controls {
         }
         
         Focus(): bool { return App.Instance.MainSurface.Focus(this); }
+
+        IsEnabledChanged: MulticastEvent = new MulticastEvent();
+
         OnGotFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = true; }
         OnLostFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = false; }
-
+        OnLostMouseCapture(e: Input.MouseEventArgs) { }
         OnKeyDown(e: Input.KeyEventArgs) { }
         OnKeyUp(e: Input.KeyEventArgs) { }
         OnMouseEnter(e: Input.MouseEventArgs) { }

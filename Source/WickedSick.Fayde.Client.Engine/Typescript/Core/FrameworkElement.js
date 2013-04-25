@@ -68,6 +68,14 @@ var Fayde;
                 store.EmitDataContextChanged();
             }
         };
+        FENode.prototype.AttachVisualChild = function (uie) {
+            _super.prototype.AttachVisualChild.call(this, uie);
+            this.SetSubtreeNode(uie.XamlNode);
+        };
+        FENode.prototype.DetachVisualChild = function (uie) {
+            this.SetSubtreeNode(null);
+            _super.prototype.DetachVisualChild.call(this, uie);
+        };
         FENode.prototype._ApplyTemplateWithError = function (error) {
             if(this.SubtreeNode) {
                 return false;
@@ -84,8 +92,7 @@ var Fayde;
                 if(error.Message) {
                     return false;
                 }
-                this.SetSubtreeNode(uie.XamlNode);
-                this._ElementAdded(uie);
+                this.AttachVisualChild(uie);
             }
             return uie != null;
         };

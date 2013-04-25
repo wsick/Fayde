@@ -53,15 +53,15 @@ module Fayde.Controls {
             return new PanelChildrenNode(this);
         }
         _RaiseItemAdded(value: UIElement, index: number) {
-            this.XamlNode.ParentNode._ElementAdded(value);
+            this.XamlNode.ParentNode.AttachVisualChild(value);
         }
         _RaiseItemRemoved(value: UIElement, index: number) {
-            this.XamlNode.ParentNode._ElementRemoved(value);
+            this.XamlNode.ParentNode.DetachVisualChild(value);
         }
         _RaiseItemReplaced(removed: UIElement, added: UIElement, index: number) {
             var panelNode = this.XamlNode.ParentNode;
-            panelNode._ElementRemoved(removed);
-            panelNode._ElementAdded(added);
+            panelNode.DetachVisualChild(removed);
+            panelNode.AttachVisualChild(added);
         }
     }
     Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");
@@ -79,12 +79,12 @@ module Fayde.Controls {
             });
             this.SetSubtreeNode(coll.XamlNode);
         }
-        _ElementAdded(uie: UIElement) {
-            super._ElementAdded(uie);
+        AttachVisualChild(uie: UIElement) {
+            super.AttachVisualChild(uie);
             this._InvalidateChildrenZIndices();
         }
-        _ElementRemoved(uie: UIElement) {
-            super._ElementRemoved(uie);
+        DetachVisualChild(uie: UIElement) {
+            super.DetachVisualChild(uie);
             this._InvalidateChildrenZIndices();
         }
         _InvalidateChildrenZIndices() {

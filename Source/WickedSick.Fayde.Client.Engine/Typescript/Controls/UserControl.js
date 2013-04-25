@@ -56,13 +56,10 @@ var Fayde;
                     return;
                 }
                 if(args.OldValue instanceof Fayde.UIElement) {
-                    n.SetSubtreeNode(null);
-                    n._ElementRemoved(args.OldValue);
+                    n.DetachVisualChild(args.OldValue);
                 }
                 if(args.NewValue instanceof Fayde.UIElement) {
-                    var newContent = args.NewValue;
-                    n.SetSubtreeNode(newContent.XamlNode);
-                    n._ElementAdded(newContent);
+                    n.AttachVisualChild(args.NewValue);
                 }
                 n.LayoutUpdater.UpdateBounds();
             };

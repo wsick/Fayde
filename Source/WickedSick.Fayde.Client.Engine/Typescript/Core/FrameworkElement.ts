@@ -63,6 +63,15 @@ module Fayde {
             }
         }
 
+        AttachVisualChild(uie: UIElement) {
+            super.AttachVisualChild(uie);
+            this.SetSubtreeNode(uie.XamlNode);
+        }
+        DetachVisualChild(uie: UIElement) {
+            this.SetSubtreeNode(null);
+            super.DetachVisualChild(uie);
+        }
+
         _ApplyTemplateWithError(error: BError): bool {
             if (this.SubtreeNode)
                 return false;
@@ -76,8 +85,7 @@ module Fayde {
             if (uie) {
                 if (error.Message)
                     return false;
-                this.SetSubtreeNode(uie.XamlNode);
-                this._ElementAdded(uie);
+                this.AttachVisualChild(uie);
             }
             return uie != null;
         }

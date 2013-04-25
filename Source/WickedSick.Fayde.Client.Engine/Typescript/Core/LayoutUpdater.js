@@ -53,7 +53,7 @@ var Fayde;
             this.ExtentsWithChildren = new rect();
             this.Bounds = new rect();
             this.Global = new rect();
-            this.Surface = new rect();
+            this.SurfaceBounds = new rect();
             this.EffectPadding = new Thickness();
             this.ClipBounds = new rect();
             this.LayoutClipBounds = new rect();
@@ -68,16 +68,14 @@ var Fayde;
             this._ForceInvalidateOfNewBounds = false;
         }
         LayoutUpdater.LayoutExceptionUpdater = undefined;
-        LayoutUpdater.prototype.SetSurface = function (surface) {
-            this._Surface = surface;
-        };
         LayoutUpdater.prototype.OnIsAttachedChanged = function (newIsAttached, visualParentNode) {
             this.UpdateTotalRenderVisibility();
             if(!newIsAttached) {
                 this._CacheInvalidateHint();
-                this._Surface.OnNodeDetached(this);
-            } else if(visualParentNode) {
-                this._Surface = visualParentNode.LayoutUpdater._Surface;
+                var surface = this.Surface;
+                if(surface) {
+                    surface.OnNodeDetached(this);
+                }
             }
         };
         LayoutUpdater.prototype.OnAddedToTree = function () {
@@ -139,7 +137,7 @@ var Fayde;
                     this._CacheInvalidateHint();
                 }
                 if(ovisible !== this.TotalIsRenderVisible) {
-                    this._Surface._AddDirtyElement(this, dirtyEnum.NewBounds);
+                    this.Surface._AddDirtyElement(this, dirtyEnum.NewBounds);
                 }
                 this._PropagateDirtyFlagToChildren(rvFlag);
             }
@@ -230,7 +228,7 @@ var Fayde;
                     visualParentLu.Invalidate(dirty);
                 } else {
                     if(thisNode.IsAttached) {
-                        this._Surface._Invalidate(dirty);
+                        this.Surface._Invalidate(dirty);
                         /*
                         OPTIMIZATION NOT IMPLEMENTED
                         var count = dirty.GetRectangleCount();
@@ -250,7 +248,7 @@ var Fayde;
             if(!enumerator) {
                 return;
             }
-            var s = this._Surface;
+            var s = this.Surface;
             while(enumerator.MoveNext()) {
                 s._AddDirtyElement((enumerator.Current).LayoutUpdater, dirt);
             }
@@ -278,7 +276,7 @@ var Fayde;
         };
         LayoutUpdater.prototype.UpdateTransform = function () {
             if(this.Node.IsAttached) {
-                this._Surface._AddDirtyElement(this, _Dirty.LocalTransform);
+                this.Surface._AddDirtyElement(this, _Dirty.LocalTransform);
             }
         };
         LayoutUpdater.prototype.ComputeLocalTransform = function () {
@@ -292,7 +290,7 @@ var Fayde;
                     };
         LayoutUpdater.prototype.UpdateProjection = function () {
             if(this.Node.IsAttached) {
-                this._Surface._AddDirtyElement(this, _Dirty.LocalProjection);
+                this.Surface._AddDirtyElement(this, _Dirty.LocalProjection);
             }
         };
         LayoutUpdater.prototype.TransformPoint = function (p) {
@@ -311,7 +309,7 @@ var Fayde;
         };
         LayoutUpdater.prototype.UpdateTotalRenderVisibility = function () {
             if(this.Node.IsAttached) {
-                this._Surface._AddDirtyElement(this, _Dirty.RenderVisibility);
+                this.Surface._AddDirtyElement(this, _Dirty.RenderVisibility);
             }
         };
         LayoutUpdater.prototype.UpdateHitTestVisibility = function (vpLu) {
@@ -324,12 +322,12 @@ var Fayde;
         };
         LayoutUpdater.prototype.UpdateTotalHitTestVisibility = function () {
             if(this.Node.IsAttached) {
-                this._Surface._AddDirtyElement(this, _Dirty.HitTestVisibility);
+                this.Surface._AddDirtyElement(this, _Dirty.HitTestVisibility);
             }
         };
         LayoutUpdater.prototype.UpdateBounds = function (forceRedraw) {
             if(this.Node.IsAttached) {
-                this._Surface._AddDirtyElement(this, _Dirty.Bounds);
+                this.Surface._AddDirtyElement(this, _Dirty.Bounds);
             }
             this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
         };
@@ -593,7 +591,7 @@ var Fayde;
             var fe = n.XObject;
             var visualParentNode = n.VisualParentNode;
             if(!visualParentNode) {
-                var surface = this._Surface;
+                var surface = this.Surface;
                 var desired;
                 if(this.IsLayoutContainer) {
                     desired = size.clone(this.DesiredSize);

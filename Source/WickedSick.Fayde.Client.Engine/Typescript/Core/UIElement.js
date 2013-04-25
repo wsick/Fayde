@@ -31,28 +31,34 @@ var Fayde;
             this.LayoutUpdater = new Fayde.LayoutUpdater(this);
             this.LayoutUpdater.SetContainerMode(false);
         }
+        UINode.prototype.SetSurface = function (surface) {
+            this._Surface = surface;
+            this.LayoutUpdater.Surface = surface;
+        };
         UINode.prototype.GetInheritedEnumerator = function () {
             return this.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.Logical);
         };
         UINode.prototype.OnIsAttachedChanged = function (newIsAttached) {
             this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
         };
-        UINode.prototype._ElementAdded = function (uie) {
+        UINode.prototype.AttachVisualChild = function (uie) {
             var lu = this.LayoutUpdater;
             lu.UpdateBounds(true);
             lu.InvalidateMeasure();
             lu.PreviousConstraint = undefined;
             var un = uie.XamlNode;
             un.VisualParentNode = this;
+            un.VisualParentNode.SetSurface(this._Surface);
             this.XObject._Store.PropagateInheritedOnAdd(uie);
             un.LayoutUpdater.OnAddedToTree();
             un.SetIsLoaded(this.IsLoaded);
         };
-        UINode.prototype._ElementRemoved = function (uie) {
+        UINode.prototype.DetachVisualChild = function (uie) {
             var lu = this.LayoutUpdater;
             var un = uie.XamlNode;
             lu.Invalidate(un.LayoutUpdater.SubtreeBounds);
             lu.InvalidateMeasure();
+            un.VisualParentNode.SetSurface(null);
             un.VisualParentNode = null;
             un.SetIsLoaded(false);
             un.LayoutUpdater.OnRemovedFromTree();
@@ -97,19 +103,27 @@ var Fayde;
             x.KeyUp.Raise(x, args);
         };
         UINode.prototype._EmitLostMouseCapture = function (pos) {
+            var x = this.XObject;
+            var e = new Fayde.Input.MouseEventArgs(pos);
+            x.OnLostMouseCapture(e);
+            x.LostMouseCapture.Raise(x, e);
         };
         UINode.prototype._EmitMouseEvent = function (type, isLeftButton, isRightButton, args) {
             var x = this.XObject;
             if(type === "up") {
                 if(isLeftButton) {
+                    x.OnMouseLeftButtonUp(args);
                     x.MouseLeftButtonUp.Raise(x, args);
                 } else if(isRightButton) {
+                    x.OnMouseRightButtonUp(args);
                     x.MouseRightButtonUp.Raise(x, args);
                 }
             } else if(type === "down") {
                 if(isLeftButton) {
+                    x.OnMouseLeftButtonDown(args);
                     x.MouseLeftButtonDown.Raise(x, args);
                 } else if(isRightButton) {
+                    x.OnMouseRightButtonDown(args);
                     x.MouseRightButtonDown.Raise(x, args);
                 }
             } else if(type === "leave") {
@@ -121,8 +135,10 @@ var Fayde;
                 x.OnMouseEnter(args);
                 x.MouseEnter.Raise(x, args);
             } else if(type === "move") {
+                x.OnMouseMove(args);
                 x.MouseMove.Raise(x, args);
             } else if(type === "wheel") {
+                x.OnMouseWheel(args);
                 x.MouseWheel.Raise(x, args);
             } else {
                 return false;
@@ -147,6 +163,19 @@ var Fayde;
         UINode.prototype.CanCaptureMouse = function () {
             return true;
         };
+        UINode.prototype.CaptureMouse = function () {
+            if(!this.IsAttached) {
+                return false;
+            }
+            this._Surface.SetMouseCapture(this);
+            return true;
+        };
+        UINode.prototype.ReleaseMouseCapture = function () {
+            if(!this.IsAttached) {
+                return;
+            }
+            this._Surface.ReleaseMouseCapture(this);
+        };
         UINode.prototype._ResortChildrenByZIndex = function () {
             Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
         };
@@ -162,6 +191,7 @@ var Fayde;
             this._IsMouseOver = false;
             this.LostFocus = new Fayde.RoutedEvent();
             this.GotFocus = new Fayde.RoutedEvent();
+            this.LostMouseCapture = new Fayde.RoutedEvent();
             this.KeyDown = new MulticastEvent();
             this.KeyUp = new MulticastEvent();
             this.MouseLeftButtonUp = new Fayde.RoutedEvent();
@@ -238,13 +268,27 @@ var Fayde;
         };
         UIElement.prototype.OnLostFocus = function (e) {
         };
-        UIElement.prototype.OnKeyDown = function (args) {
+        UIElement.prototype.OnLostMouseCapture = function (e) {
         };
-        UIElement.prototype.OnKeyUp = function (args) {
+        UIElement.prototype.OnKeyDown = function (e) {
         };
-        UIElement.prototype.OnMouseLeave = function (args) {
+        UIElement.prototype.OnKeyUp = function (e) {
         };
-        UIElement.prototype.OnMouseEnter = function (args) {
+        UIElement.prototype.OnMouseEnter = function (e) {
+        };
+        UIElement.prototype.OnMouseLeave = function (e) {
+        };
+        UIElement.prototype.OnMouseLeftButtonDown = function (e) {
+        };
+        UIElement.prototype.OnMouseLeftButtonUp = function (e) {
+        };
+        UIElement.prototype.OnMouseMove = function (e) {
+        };
+        UIElement.prototype.OnMouseRightButtonDown = function (e) {
+        };
+        UIElement.prototype.OnMouseRightButtonUp = function (e) {
+        };
+        UIElement.prototype.OnMouseWheel = function (e) {
         };
         return UIElement;
     })(Fayde.DependencyObject);

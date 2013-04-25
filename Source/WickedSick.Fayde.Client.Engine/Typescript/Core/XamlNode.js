@@ -66,7 +66,6 @@ var Fayde;
         XamlNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
         };
         XamlNode.prototype.AttachTo = function (parentNode, error) {
-            this.SetIsAttached(parentNode.IsAttached);
             var curNode = parentNode;
             while(curNode) {
                 if(curNode === this) {
@@ -104,6 +103,7 @@ var Fayde;
             var old = this.ParentNode;
             this.ParentNode = parentNode;
             this.OnParentChanged(old, parentNode);
+            this.SetIsAttached(parentNode.IsAttached);
             return true;
         };
         XamlNode.prototype.Detach = function () {
