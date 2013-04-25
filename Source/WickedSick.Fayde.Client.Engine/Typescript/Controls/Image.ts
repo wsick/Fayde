@@ -70,6 +70,7 @@ module Fayde.Controls {
         ImageFailed: MulticastEvent = new MulticastEvent();
 
         static SourceProperty: DependencyProperty = DependencyProperty.RegisterFull("Source", () => Media.Imaging.ImageSource, Image, undefined, (d, args) => (<Image>d)._SourceChanged(args));
+        // http: //msdn.microsoft.com/en-us/library/system.windows.media.stretch(v=vs.95).aspx
         static StretchProperty: DependencyProperty = DependencyProperty.RegisterCore("Stretch", () => new Enum(Media.Stretch), Image, Media.Stretch.Uniform);
         Source: Media.Imaging.ImageSource;
         Stretch: Media.Stretch;
