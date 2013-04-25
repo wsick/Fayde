@@ -53,13 +53,12 @@ test("ProviderStoreTests.InheritedProviderStore", () => {
     strictEqual(val, true, "Inherited property that hasn't been propagated should default to true.");
 
     try {
-        root.XamlNode.SetSubtreeNode(child.XamlNode);
+        root.XamlNode.AttachVisualChild(child);
         ok(true, "Attaching child to root should not fail.");
     } catch (err) {
         ok(false, "Attaching child to root should not fail.");
         return;
     }
-    root.XamlNode._ElementAdded(child);
     val = childStore.GetValue(Fayde.UIElement.UseLayoutRoundingProperty);
     strictEqual(val, false, "Inherited property should be propagated from root to false.");
 
@@ -85,13 +84,12 @@ test("ProviderStoreTests.FrameworkProviderStore", () => {
     strictEqual(val, undefined, "Child DataContext should be undefined before attaching to tree.");
     
     try {
-        root.XamlNode.SetSubtreeNode(child.XamlNode);
+        root.XamlNode.AttachVisualChild(child);
         ok(true, "Attaching child to root should not fail.");
     } catch (err) {
         ok(false, "Attaching child to root should not fail.");
         return;
     }
-    root.XamlNode._ElementAdded(child);
     val = childStore.GetValue(Fayde.FrameworkElement.DataContextProperty);
     strictEqual(val, effectiveDataContext, "Child DataContext should inherit DataContext from root after attaching to tree.");
 

@@ -1,8 +1,3 @@
-/// <reference path="qunit-1.10.0.d.ts" />
-/// <reference path="../Typescript/Core/DependencyObject.ts" />
-/// <reference path="../Typescript/Core/Providers/BasicProviderStore.ts" />
-/// <reference path="../Typescript/Core/UIElement.ts" />
-/// <reference path="../Typescript/Core/Providers/InheritedProvider.ts" />
 var Mock1Property = DependencyProperty.RegisterFull("Mock1", function () {
     return String;
 }, Fayde.DependencyObject, undefined, undefined, {
@@ -46,13 +41,12 @@ test("ProviderStoreTests.InheritedProviderStore", function () {
     val = childStore.GetValue(Fayde.UIElement.UseLayoutRoundingProperty);
     strictEqual(val, true, "Inherited property that hasn't been propagated should default to true.");
     try  {
-        root.XamlNode.SetSubtreeNode(child.XamlNode);
+        root.XamlNode.AttachVisualChild(child);
         ok(true, "Attaching child to root should not fail.");
     } catch (err) {
         ok(false, "Attaching child to root should not fail.");
         return;
     }
-    root.XamlNode._ElementAdded(child);
     val = childStore.GetValue(Fayde.UIElement.UseLayoutRoundingProperty);
     strictEqual(val, false, "Inherited property should be propagated from root to false.");
     rootStore.ClearValue(Fayde.UIElement.UseLayoutRoundingProperty);
@@ -64,7 +58,6 @@ test("ProviderStoreTests.FrameworkProviderStore", function () {
     var rootStore = root._Store;
     var child = new Fayde.FrameworkElement();
     var childStore = child._Store;
-    //Test inherited DataContext
     var effectiveDataContext = {
     };
     rootStore.SetValue(Fayde.FrameworkElement.DataContextProperty, effectiveDataContext);
@@ -72,19 +65,17 @@ test("ProviderStoreTests.FrameworkProviderStore", function () {
     val = childStore.GetValue(Fayde.FrameworkElement.DataContextProperty);
     strictEqual(val, undefined, "Child DataContext should be undefined before attaching to tree.");
     try  {
-        root.XamlNode.SetSubtreeNode(child.XamlNode);
+        root.XamlNode.AttachVisualChild(child);
         ok(true, "Attaching child to root should not fail.");
     } catch (err) {
         ok(false, "Attaching child to root should not fail.");
         return;
     }
-    root.XamlNode._ElementAdded(child);
     val = childStore.GetValue(Fayde.FrameworkElement.DataContextProperty);
     strictEqual(val, effectiveDataContext, "Child DataContext should inherit DataContext from root after attaching to tree.");
     rootStore.ClearValue(Fayde.FrameworkElement.DataContextProperty, true);
     val = childStore.GetValue(Fayde.FrameworkElement.DataContextProperty);
     strictEqual(val, undefined, "Child DataContext should be undefined after clearing root DataContext value.");
-    //Test implicit style
     val = childStore.GetValue(Fayde.UIElement.TagProperty);
     strictEqual(val, undefined, "Child Tag should be undefined by default.");
     var visualTreeStyle = new Fayde.Style();
@@ -110,7 +101,6 @@ test("ProviderStoreTests.FrameworkProviderStore", function () {
     ]);
     val = childStore.GetValue(Fayde.UIElement.VisibilityProperty);
     strictEqual(val, Fayde.Visibility.Visible, "Child Visibility should default to Visible.");
-    //Test local style
     var localStyle = new Fayde.Style();
     var s2 = new Fayde.Setter();
     s2.Property = Fayde.UIElement.TagProperty;
@@ -130,4 +120,3 @@ test("ProviderStoreTests.FrameworkProviderStore", function () {
     val = childStore.GetValue(Fayde.UIElement.VisibilityProperty);
     strictEqual(val, Fayde.Visibility.Visible, "After a new style is applied without Visibility property, Visibility revert to default value.");
 });
-//@ sourceMappingURL=ProviderStoreTests.js.map
