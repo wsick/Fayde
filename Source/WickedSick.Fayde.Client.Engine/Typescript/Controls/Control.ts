@@ -11,6 +11,7 @@ module Fayde.Controls {
 
         constructor(xobj: Control) {
             super(xobj);
+            this.LayoutUpdater.SetContainerMode(true);
         }
 
         TabTo() {
@@ -60,6 +61,15 @@ module Fayde.Controls {
             if (!newIsAttached)
                 Media.VSM.VisualStateManager.DestroyStoryboards(this.XObject, this.TemplateRoot);
         }
+
+        _HitTestPoint(ctx: RenderContext, p: Point, uielist: UINode[]) {
+            if (this.XObject.IsEnabled)
+                super._HitTestPoint(ctx, p, uielist);
+        }
+        _CanFindElement(): bool { return this.XObject.IsEnabled; }
+        _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool { return false; }
+        
+        CanCaptureMouse(): bool { return this.XObject.IsEnabled; }
     }
     Nullstone.RegisterType(ControlNode, "ControlNode");
 
@@ -69,11 +79,7 @@ module Fayde.Controls {
         CreateStore(): Providers.ControlProviderStore {
             return new Providers.ControlProviderStore(this);
         }
-        CreateNode(): ControlNode {
-            var n = new ControlNode(this);
-            n.LayoutUpdater.SetContainerMode(true);
-            return n;
-        }
+        CreateNode(): ControlNode { return new ControlNode(this); }
         
         static BackgroundProperty: DependencyProperty;
         static BorderBrushProperty: DependencyProperty;

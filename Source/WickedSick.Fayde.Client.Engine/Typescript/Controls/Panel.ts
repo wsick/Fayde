@@ -70,6 +70,7 @@ module Fayde.Controls {
         XObject: Panel;
         constructor(xobj: Panel) {
             super(xobj);
+            this.LayoutUpdater.SetContainerMode(true, true);
             
             var coll = new PanelChildrenCollection();
             Object.defineProperty(xobj, "Children", {
@@ -99,6 +100,11 @@ module Fayde.Controls {
             //Abstract Method
             return new size();
         }
+
+        _CanFindElement(): bool { return this.XObject.Background != null; }
+        _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
+            return (this.XObject.Background != null) && super._InsideObject(ctx, lu, x, y);
+        }
     }
     Nullstone.RegisterType(PanelNode, "PanelNode");
     function zIndexPropertyChanged(dobj: DependencyObject, args) {
@@ -109,6 +115,8 @@ module Fayde.Controls {
     }
     export class Panel extends FrameworkElement {
         XamlNode: PanelNode;
+        CreateNode(): PanelNode { return new PanelNode(this); }
+
         static BackgroundProperty: DependencyProperty = DependencyProperty.Register("Background", () => { return Media.Brush; }, Panel, undefined, (d, args) => (<Panel>d)._BackgroundChanged(args));
         static IsItemsHostProperty: DependencyProperty = DependencyProperty.Register("IsItemHost", () => { return Boolean; }, Panel, false);
 
@@ -126,12 +134,6 @@ module Fayde.Controls {
         
         static GetZ(uie: UIElement): number { return uie.GetValue(ZProperty); }
         static SetZ(uie: UIElement, value: number) { uie.SetValue(ZProperty, value); }
-
-        CreateNode(): PanelNode {
-            var n = new PanelNode(this);
-            n.LayoutUpdater.SetContainerMode(true, true);
-            return n;
-        }
 
         private _BackgroundChanged(args: IDependencyPropertyChangedEventArgs) {
             var oldBrush = <Media.Brush>args.OldValue;

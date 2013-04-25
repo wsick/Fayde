@@ -83,6 +83,67 @@ module Fayde {
         }
         _GetDefaultTemplate(): UIElement { return undefined; }
 
+        _HitTestPoint(ctx: RenderContext, p: Point, uielist: UINode[]) {
+            var lu = this.LayoutUpdater;
+            if (!lu.TotalIsRenderVisible)
+                return;
+            if (!lu.TotalIsHitTestVisible)
+                return;
+            if (!this._InsideClip(ctx, lu, p.X, p.Y))
+                return;
+
+            uielist.unshift(this);
+            var hit = false;
+            var enumerator = this.GetVisualTreeEnumerator(VisualTreeDirection.ZReverse);
+            while (enumerator.MoveNext()) {
+                var childNode = (<FENode>enumerator.Current);
+                childNode._HitTestPoint(ctx, p, uielist);
+                if (this !== uielist[0]) {
+                    hit = true;
+                    break;
+                }
+            }
+
+            if (!hit && !(this._CanFindElement() && this._InsideObject(ctx, lu, p.X, p.Y))) {
+                //We're really trying to remove "this", is there a chance "this" is not at the head?
+                if (uielist.shift() !== this) {
+                    throw new Exception("Look at my code! -> FENode._HitTestPoint");
+                }
+            }
+        }
+        _CanFindElement(): bool { return false; }
+        _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
+            var np = new Point(x, y);
+            lu.TransformPoint(np);
+            var fe = this.XObject;
+            if (np.X < 0 || np.Y < 0 || np.X > fe.ActualWidth || np.Y > fe.ActualHeight)
+                return false;
+
+            if (!this._InsideLayoutClip(lu, x, y))
+                return false;
+                
+            return this._InsideClip(ctx, lu, x, y);
+        }
+        _InsideLayoutClip(lu: LayoutUpdater, x: number, y: number): bool {
+            //TODO: Implement
+            /*
+            Geometry * composite_clip = LayoutInformation:: GetCompositeClip(this);
+            bool inside = true;
+
+            if (!composite_clip)
+                return inside;
+
+            var np = new Point();
+            lu.TransformPoint(np);
+
+            inside = composite_clip - > GetBounds().PointInside(x, y);
+            composite_clip - > unref();
+
+            return inside;
+            */
+            return true;
+        }
+
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
             if (this.SubtreeNode) {
                 if (this.SubtreeNode instanceof XamlObjectCollection)
@@ -119,14 +180,14 @@ module Fayde {
             );
             return s;
         }
-        CreateNode(): FENode {
-            return new FENode(this);
-        }
+        CreateNode(): FENode { return new FENode(this); }
 
         static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", () => Number, FrameworkElement);
         static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", () => Number, FrameworkElement);
         static DataContextProperty: DependencyProperty = DependencyProperty.RegisterCore("DataContext", () => Object, FrameworkElement);
         static StyleProperty: DependencyProperty = DependencyProperty.RegisterCore("Style", () => Style, FrameworkElement);
+        static WidthProperty: DependencyProperty = DependencyProperty.RegisterCore("Width", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._WidthChanged(args));
+        static HeightProperty: DependencyProperty = DependencyProperty.RegisterCore("Height", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._HeightChanged(args));
         ActualWidth: number;
         ActualHeight: number;
         DataContext: any;
@@ -189,6 +250,11 @@ module Fayde {
             }
 
             return arranged;
+        }
+        
+        _WidthChanged(args: IDependencyPropertyChangedEventArgs) {
+        }
+        _HeightChanged(args: IDependencyPropertyChangedEventArgs) {
         }
     }
     Nullstone.RegisterType(FrameworkElement, "FrameworkElement");

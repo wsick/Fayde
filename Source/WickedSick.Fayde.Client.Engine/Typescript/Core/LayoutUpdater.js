@@ -50,6 +50,7 @@ var Fayde;
             this.TotalIsRenderVisible = true;
             this.TotalIsHitTestVisible = true;
             this.Extents = new rect();
+            this.ExtentsWithChildren = new rect();
             this.Bounds = new rect();
             this.Global = new rect();
             this.Surface = new rect();
@@ -275,12 +276,6 @@ var Fayde;
             this.DirtyFlags |= _Dirty.Arrange;
             this._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
         };
-        LayoutUpdater.prototype.UpdateBounds = function (forceRedraw) {
-            if(this.Node.IsAttached) {
-                this._Surface._AddDirtyElement(this, _Dirty.Bounds);
-            }
-            this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
-        };
         LayoutUpdater.prototype.UpdateTransform = function () {
             if(this.Node.IsAttached) {
                 this._Surface._AddDirtyElement(this, _Dirty.LocalTransform);
@@ -300,6 +295,9 @@ var Fayde;
                 this._Surface._AddDirtyElement(this, _Dirty.LocalProjection);
             }
         };
+        LayoutUpdater.prototype.TransformPoint = function (p) {
+            //TODO: Implement
+                    };
         LayoutUpdater.prototype.UpdateRenderVisibility = function (vpLu) {
             var uie = this.Node.XObject;
             if(vpLu) {
@@ -329,9 +327,19 @@ var Fayde;
                 this._Surface._AddDirtyElement(this, _Dirty.HitTestVisibility);
             }
         };
+        LayoutUpdater.prototype.UpdateBounds = function (forceRedraw) {
+            if(this.Node.IsAttached) {
+                this._Surface._AddDirtyElement(this, _Dirty.Bounds);
+            }
+            this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
+        };
         LayoutUpdater.prototype.ComputeBounds = function () {
             //TODO: Implement
                     };
+        LayoutUpdater.prototype.UpdateStretch = function () {
+            rect.clear(this.Extents);
+            rect.clear(this.ExtentsWithChildren);
+        };
         LayoutUpdater.prototype.SetLayoutClip = function (layoutClip) {
             this.LayoutClip = layoutClip;
             if(!layoutClip) {

@@ -8,6 +8,7 @@ module Fayde.Controls {
         constructor(xobj: UserControl) {
             super(xobj);
             this.LayoutUpdater.BreaksLayoutClipRender = true;
+            this.LayoutUpdater.SetContainerMode(true);
         }
         _GetDefaultTemplate(): UIElement {
             var xobj = this.XObject;
@@ -28,11 +29,7 @@ module Fayde.Controls {
         Content: any;
         static Annotations = { ContentProperty: UserControl.ContentProperty }
 
-        CreateNode(): UCNode {
-            var n = new UCNode(this);
-            n.LayoutUpdater.SetContainerMode(true);
-            return n;
-        }
+        CreateNode(): UCNode { return new UCNode(this); }
 
         InitializeComponent() {
             this.ApplyTemplate();

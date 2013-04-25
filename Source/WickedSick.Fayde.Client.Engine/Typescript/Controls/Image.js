@@ -63,6 +63,82 @@ var Fayde;
             mat3.translate(m, dx, dy);
             return m;
         }
+        function calculateRenderMetrics(img, source, lu) {
+            var stretch = img.Stretch;
+            var specified = size.fromRaw(img.ActualWidth, img.ActualHeight);
+            var stretched = lu.CoerceSize(size.clone(specified));
+            var adjust = !size.isEqual(specified, lu.RenderSize);
+            var pixelWidth = source.PixelWidth;
+            var pixelHeight = source.PixelHeight;
+            if(pixelWidth === 0 || pixelHeight === 0) {
+                return null;
+            }
+            if(stretch !== Fayde.Media.Stretch.UniformToFill) {
+                size.min(specified, stretched);
+            }
+            var paint = rect.fromSize(specified);
+            var image = new rect();
+            image.Width = pixelWidth;
+            image.Height = pixelHeight;
+            if(stretch === Fayde.Media.Stretch.None) {
+                rect.union(paint, image);
+            }
+            var matrix = computeMatrix(paint.Width, paint.Height, image.Width, image.Height, stretch, Fayde.Media.AlignmentX.Center, Fayde.Media.AlignmentY.Center);
+            if(adjust) {
+                (img)._MeasureOverride(specified, null);
+                rect.set(paint, (stretched.Width - specified.Width) * 0.5, (stretched.Height - specified.Height) * 0.5, specified.Width, specified.Height);
+            }
+            var overlap = RectOverlap.In;
+            if(stretch === Fayde.Media.Stretch.UniformToFill || adjust) {
+                var bounds = rect.clone(paint);
+                rect.roundOut(bounds);
+                var box = rect.clone(image);
+                rect.transform(box, matrix);
+                rect.roundIn(box);
+                overlap = rect.rectIn(bounds, box);
+            }
+            return {
+                Matrix: matrix,
+                Overlap: overlap
+            };
+        }
+        var ImageNode = (function (_super) {
+            __extends(ImageNode, _super);
+            function ImageNode(xobj) {
+                        _super.call(this, xobj);
+            }
+            ImageNode.prototype._CanFindElement = function () {
+                return true;
+            };
+            ImageNode.prototype._InsideObject = function (ctx, lu, x, y) {
+                if(!_super.prototype._InsideObject.call(this, ctx, lu, x, y)) {
+                    return false;
+                }
+                var img = this.XObject;
+                var source = img.Source;
+                if(!source) {
+                    return false;
+                }
+                var stretch = img.Stretch;
+                if(stretch === Fayde.Media.Stretch.Fill || stretch === Fayde.Media.Stretch.UniformToFill) {
+                    return true;
+                }
+                var metrics = calculateRenderMetrics(img, source, lu);
+                if(!metrics) {
+                    return null;
+                }
+                var irect = new rect();
+                irect.Width = source.PixelWidth;
+                irect.Height = source.PixelHeight;
+                rect.transform(irect, metrics.Matrix);
+                var np = new Point(x, y);
+                lu.TransformPoint(np);
+                return rect.containsPoint(irect, np);
+            };
+            return ImageNode;
+        })(Fayde.FENode);
+        Controls.ImageNode = ImageNode;        
+        Nullstone.RegisterType(ImageNode, "ImageNode");
         var Image = (function (_super) {
             __extends(Image, _super);
             function Image() {
@@ -71,6 +147,9 @@ var Fayde;
                 this.ImageOpened = new MulticastEvent();
                 this.ImageFailed = new MulticastEvent();
             }
+            Image.prototype.CreateNode = function () {
+                return new ImageNode(this);
+            };
             Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () {
                 return Fayde.Media.Imaging.ImageSource;
             }, Image, undefined, function (d, args) {
@@ -169,45 +248,6 @@ var Fayde;
                 arranged.Height = shapeBounds.Height * sy;
                 return arranged;
             };
-            Image.prototype._CalculateRenderMetrics = function (source, lu) {
-                var stretch = this.Stretch;
-                var specified = size.fromRaw(this.ActualWidth, this.ActualHeight);
-                var stretched = lu.CoerceSize(size.clone(specified));
-                var adjust = !size.isEqual(specified, lu.RenderSize);
-                var pixelWidth = source.PixelWidth;
-                var pixelHeight = source.PixelHeight;
-                if(pixelWidth === 0 || pixelHeight === 0) {
-                    return null;
-                }
-                if(stretch !== Fayde.Media.Stretch.UniformToFill) {
-                    size.min(specified, stretched);
-                }
-                var paint = rect.fromSize(specified);
-                var image = new rect();
-                image.Width = pixelWidth;
-                image.Height = pixelHeight;
-                if(stretch === Fayde.Media.Stretch.None) {
-                    rect.union(paint, image);
-                }
-                var matrix = computeMatrix(paint.Width, paint.Height, image.Width, image.Height, stretch, Fayde.Media.AlignmentX.Center, Fayde.Media.AlignmentY.Center);
-                if(adjust) {
-                    this._MeasureOverride(specified, null);
-                    rect.set(paint, (stretched.Width - specified.Width) * 0.5, (stretched.Height - specified.Height) * 0.5, specified.Width, specified.Height);
-                }
-                var overlap = RectOverlap.In;
-                if(stretch === Fayde.Media.Stretch.UniformToFill || adjust) {
-                    var bounds = rect.clone(paint);
-                    rect.roundOut(bounds);
-                    var box = rect.clone(image);
-                    rect.transform(box, matrix);
-                    rect.roundIn(box);
-                    overlap = rect.rectIn(bounds, box);
-                }
-                return {
-                    Matrix: matrix,
-                    Overlap: overlap
-                };
-            };
             Image.prototype.Render = function (ctx, lu, region) {
                 // Just to get something working, we do all the matrix transforms for stretching.
                 // Eventually, we can let the html5 canvas do all the dirty work.
@@ -216,7 +256,7 @@ var Fayde;
                     return;
                 }
                 source.Lock();
-                var metrics = this._CalculateRenderMetrics(source, lu);
+                var metrics = calculateRenderMetrics(this, source, lu);
                 if(!metrics) {
                     source.Unlock();
                     return;

@@ -1110,8 +1110,16 @@
       <DependentUpon>DoubleCollection.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Shapes\Enums.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\Ellipse.ts" />
+    <Content Include="Typescript\Shapes\Ellipse.js">
+      <DependentUpon>Ellipse.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Shapes\Enums.js">
       <DependentUpon>Enums.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Shapes\Line.ts" />
+    <Content Include="Typescript\Shapes\Line.js">
+      <DependentUpon>Line.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Shapes\PointCollection.js">
       <DependentUpon>PointCollection.ts</DependentUpon>
@@ -1120,6 +1128,10 @@
     <TypeScriptCompile Include="Typescript\Shapes\RawPath.ts" />
     <Content Include="Typescript\Shapes\RawPath.js">
       <DependentUpon>RawPath.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Shapes\Rectangle.ts" />
+    <Content Include="Typescript\Shapes\Rectangle.js">
+      <DependentUpon>Rectangle.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Shapes\Shape.js">
       <DependentUpon>Shape.ts</DependentUpon>

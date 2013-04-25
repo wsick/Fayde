@@ -16,6 +16,7 @@ var Fayde;
         var PathEntryType = Shapes.PathEntryType;
         (function (ShapeFlags) {
             ShapeFlags._map = [];
+            ShapeFlags.None = 0;
             ShapeFlags.Empty = 1;
             ShapeFlags.Normal = 2;
             ShapeFlags.Degenerate = 4;

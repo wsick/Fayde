@@ -11,6 +11,7 @@ module Fayde.Shapes {
         Close = 8,
     }
     export enum ShapeFlags {
+        None = 0,
         Empty = 1,
         Normal = 2,
         Degenerate = 4,

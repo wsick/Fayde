@@ -84,6 +84,7 @@ var Fayde;
             __extends(PanelNode, _super);
             function PanelNode(xobj) {
                         _super.call(this, xobj);
+                this.LayoutUpdater.SetContainerMode(true, true);
                 var coll = new PanelChildrenCollection();
                 Object.defineProperty(xobj, "Children", {
                     value: coll,
@@ -110,6 +111,12 @@ var Fayde;
                 //Abstract Method
                 return new size();
             };
+            PanelNode.prototype._CanFindElement = function () {
+                return this.XObject.Background != null;
+            };
+            PanelNode.prototype._InsideObject = function (ctx, lu, x, y) {
+                return (this.XObject.Background != null) && _super.prototype._InsideObject.call(this, ctx, lu, x, y);
+            };
             return PanelNode;
         })(Fayde.FENode);
         Controls.PanelNode = PanelNode;        
@@ -126,6 +133,9 @@ var Fayde;
                 _super.apply(this, arguments);
 
             }
+            Panel.prototype.CreateNode = function () {
+                return new PanelNode(this);
+            };
             Panel.BackgroundProperty = DependencyProperty.Register("Background", function () {
                 return Fayde.Media.Brush;
             }, Panel, undefined, function (d, args) {
@@ -154,11 +164,6 @@ var Fayde;
             };
             Panel.SetZ = function SetZ(uie, value) {
                 uie.SetValue(Panel.ZProperty, value);
-            };
-            Panel.prototype.CreateNode = function () {
-                var n = new PanelNode(this);
-                n.LayoutUpdater.SetContainerMode(true, true);
-                return n;
             };
             Panel.prototype._BackgroundChanged = function (args) {
                 var oldBrush = args.OldValue;

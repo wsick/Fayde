@@ -25,6 +25,7 @@ module Fayde {
         constructor(xobj: UIElement) {
             super(xobj);
             this.LayoutUpdater = new LayoutUpdater(this);
+            this.LayoutUpdater.SetContainerMode(false);
         }
 
         VisualParentNode: UINode;
@@ -135,6 +136,19 @@ module Fayde {
         _HitTestPoint(ctx: IRenderContext, p: Point, uielist: UINode[]) {
             uielist.unshift(this);
         }
+        _InsideClip(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
+            var clip = this.XObject.Clip;
+            if (!clip)
+                return true;
+
+            var np = new Point(x, y);
+            lu.TransformPoint(np);
+
+            if (!rect.containsPoint(clip.GetBounds(), np))
+                return false;
+
+            return ctx.IsPointInClipPath(clip, np);
+        }
 
         CanCaptureMouse(): bool { return true; }
 
@@ -161,11 +175,7 @@ module Fayde {
             );
             return s;
         }
-        CreateNode(): UINode {
-            var uin = new UINode(this);
-            uin.LayoutUpdater.SetContainerMode(false);
-            return uin;
-        }
+        CreateNode(): UINode { return new UINode(this); }
         
         static ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Media.Geometry; }, UIElement);
         static EffectProperty = DependencyProperty.Register("Effect", function () { return Media.Effects.Effect; }, UIElement);

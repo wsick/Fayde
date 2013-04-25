@@ -163,5 +163,8 @@ Controls/TextBlock.js
 Controls/UserControl.js
 Controls/Primitives/Popup.js
 Data/PropertyPath.js
+Shapes/Ellipse.js
+Shapes/Line.js
+Shapes/Rectangle.js
 Controls/Canvas.js
 Controls/ContentControl.js

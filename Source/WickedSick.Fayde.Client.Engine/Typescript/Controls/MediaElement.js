@@ -8,12 +8,28 @@ var Fayde;
     /// <reference path="../Core/FrameworkElement.ts" />
     /// CODE
     (function (Controls) {
+        var MENode = (function (_super) {
+            __extends(MENode, _super);
+            function MENode(xobj) {
+                        _super.call(this, xobj);
+            }
+            MENode.prototype._InsideObject = function (ctx, lu, x, y) {
+                //TODO: Implement
+                return false;
+            };
+            return MENode;
+        })(Fayde.FENode);
+        Controls.MENode = MENode;        
+        Nullstone.RegisterType(MENode, "MENode");
         var MediaElement = (function (_super) {
             __extends(MediaElement, _super);
             function MediaElement() {
                 _super.apply(this, arguments);
 
             }
+            MediaElement.prototype.CreateNode = function () {
+                return new MENode(this);
+            };
             return MediaElement;
         })(Fayde.FrameworkElement);
         Controls.MediaElement = MediaElement;        

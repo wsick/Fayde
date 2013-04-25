@@ -15,6 +15,7 @@ var Fayde;
             function ControlNode(xobj) {
                         _super.call(this, xobj);
                 this.IsFocused = false;
+                this.LayoutUpdater.SetContainerMode(true);
             }
             ControlNode.prototype.TabTo = function () {
                 var xobj = this.XObject;
@@ -58,6 +59,20 @@ var Fayde;
                     Fayde.Media.VSM.VisualStateManager.DestroyStoryboards(this.XObject, this.TemplateRoot);
                 }
             };
+            ControlNode.prototype._HitTestPoint = function (ctx, p, uielist) {
+                if(this.XObject.IsEnabled) {
+                    _super.prototype._HitTestPoint.call(this, ctx, p, uielist);
+                }
+            };
+            ControlNode.prototype._CanFindElement = function () {
+                return this.XObject.IsEnabled;
+            };
+            ControlNode.prototype._InsideObject = function (ctx, lu, x, y) {
+                return false;
+            };
+            ControlNode.prototype.CanCaptureMouse = function () {
+                return this.XObject.IsEnabled;
+            };
             return ControlNode;
         })(Fayde.FENode);
         Controls.ControlNode = ControlNode;        
@@ -72,9 +87,7 @@ var Fayde;
                 return new Fayde.Providers.ControlProviderStore(this);
             };
             Control.prototype.CreateNode = function () {
-                var n = new ControlNode(this);
-                n.LayoutUpdater.SetContainerMode(true);
-                return n;
+                return new ControlNode(this);
             };
             Control.prototype.GetTemplateChild = function (childName) {
                 var root = this.XamlNode.TemplateRoot;

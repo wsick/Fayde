@@ -163,5 +163,8 @@ Typescript\Controls\TextBlock.ts
 Typescript\Controls\UserControl.ts
 Typescript\Controls\Primitives\Popup.ts
 Typescript\Data\PropertyPath.ts
+Typescript\Shapes\Ellipse.ts
+Typescript\Shapes\Line.ts
+Typescript\Shapes\Rectangle.ts
 Typescript\Controls\Canvas.ts
 Typescript\Controls\ContentControl.ts

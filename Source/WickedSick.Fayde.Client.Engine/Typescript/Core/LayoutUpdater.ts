@@ -91,6 +91,7 @@ module Fayde {
         TotalIsHitTestVisible: bool = true;
 
         Extents: rect = new rect();
+        ExtentsWithChildren: rect = new rect();
         Bounds: rect = new rect();
         Global: rect = new rect();
         Surface: rect = new rect();
@@ -339,11 +340,6 @@ module Fayde {
             this._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
         }
 
-        UpdateBounds(forceRedraw?: bool) {
-            if (this.Node.IsAttached)
-                this._Surface._AddDirtyElement(this, _Dirty.Bounds);
-            this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
-        }
         UpdateTransform() {
             if (this.Node.IsAttached)
                 this._Surface._AddDirtyElement(this, _Dirty.LocalTransform);
@@ -361,6 +357,10 @@ module Fayde {
             if (this.Node.IsAttached)
                 this._Surface._AddDirtyElement(this, _Dirty.LocalProjection);
         }
+        TransformPoint(p: Point) {
+            //TODO: Implement
+        }
+
         UpdateRenderVisibility(vpLu: Fayde.LayoutUpdater) {
             var uie = this.Node.XObject;
             if (vpLu) {
@@ -388,10 +388,21 @@ module Fayde {
             if (this.Node.IsAttached)
                 this._Surface._AddDirtyElement(this, _Dirty.HitTestVisibility);
         }
-
+        
+        UpdateBounds(forceRedraw?: bool) {
+            if (this.Node.IsAttached)
+                this._Surface._AddDirtyElement(this, _Dirty.Bounds);
+            this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
+        }
         ComputeBounds() {
             //TODO: Implement
         }
+
+        UpdateStretch() {
+            rect.clear(this.Extents);
+            rect.clear(this.ExtentsWithChildren);
+        }
+
         SetLayoutClip(layoutClip: Media.Geometry) {
             this.LayoutClip = layoutClip;
             if (!layoutClip)

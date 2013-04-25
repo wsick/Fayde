@@ -92,6 +92,69 @@ var Fayde;
         FENode.prototype._GetDefaultTemplate = function () {
             return undefined;
         };
+        FENode.prototype._HitTestPoint = function (ctx, p, uielist) {
+            var lu = this.LayoutUpdater;
+            if(!lu.TotalIsRenderVisible) {
+                return;
+            }
+            if(!lu.TotalIsHitTestVisible) {
+                return;
+            }
+            if(!this._InsideClip(ctx, lu, p.X, p.Y)) {
+                return;
+            }
+            uielist.unshift(this);
+            var hit = false;
+            var enumerator = this.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.ZReverse);
+            while(enumerator.MoveNext()) {
+                var childNode = (enumerator.Current);
+                childNode._HitTestPoint(ctx, p, uielist);
+                if(this !== uielist[0]) {
+                    hit = true;
+                    break;
+                }
+            }
+            if(!hit && !(this._CanFindElement() && this._InsideObject(ctx, lu, p.X, p.Y))) {
+                //We're really trying to remove "this", is there a chance "this" is not at the head?
+                if(uielist.shift() !== this) {
+                    throw new Exception("Look at my code! -> FENode._HitTestPoint");
+                }
+            }
+        };
+        FENode.prototype._CanFindElement = function () {
+            return false;
+        };
+        FENode.prototype._InsideObject = function (ctx, lu, x, y) {
+            var np = new Point(x, y);
+            lu.TransformPoint(np);
+            var fe = this.XObject;
+            if(np.X < 0 || np.Y < 0 || np.X > fe.ActualWidth || np.Y > fe.ActualHeight) {
+                return false;
+            }
+            if(!this._InsideLayoutClip(lu, x, y)) {
+                return false;
+            }
+            return this._InsideClip(ctx, lu, x, y);
+        };
+        FENode.prototype._InsideLayoutClip = function (lu, x, y) {
+            //TODO: Implement
+            /*
+            Geometry * composite_clip = LayoutInformation:: GetCompositeClip(this);
+            bool inside = true;
+            
+            if (!composite_clip)
+            return inside;
+            
+            var np = new Point();
+            lu.TransformPoint(np);
+            
+            inside = composite_clip - > GetBounds().PointInside(x, y);
+            composite_clip - > unref();
+            
+            return inside;
+            */
+            return true;
+        };
         FENode.prototype.GetVisualTreeEnumerator = function (direction) {
             if(this.SubtreeNode) {
                 if(this.SubtreeNode instanceof Fayde.XamlObjectCollection) {
@@ -145,6 +208,16 @@ var Fayde;
         FrameworkElement.StyleProperty = DependencyProperty.RegisterCore("Style", function () {
             return Fayde.Style;
         }, FrameworkElement);
+        FrameworkElement.WidthProperty = DependencyProperty.RegisterCore("Width", function () {
+            return Number;
+        }, FrameworkElement, NaN, function (d, args) {
+            return (d)._WidthChanged(args);
+        });
+        FrameworkElement.HeightProperty = DependencyProperty.RegisterCore("Height", function () {
+            return Number;
+        }, FrameworkElement, NaN, function (d, args) {
+            return (d)._HeightChanged(args);
+        });
         FrameworkElement.prototype._ComputeActualSize = function () {
             return new size();
         };
@@ -184,6 +257,10 @@ var Fayde;
                 size.max(arranged, finalSize);
             }
             return arranged;
+        };
+        FrameworkElement.prototype._WidthChanged = function (args) {
+        };
+        FrameworkElement.prototype._HeightChanged = function (args) {
         };
         return FrameworkElement;
     })(Fayde.UIElement);

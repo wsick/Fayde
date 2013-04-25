@@ -14,6 +14,7 @@ var Fayde;
                         _super.call(this, xobj);
                 this._IsParsing = false;
                 this.LayoutUpdater.BreaksLayoutClipRender = true;
+                this.LayoutUpdater.SetContainerMode(true);
             }
             UCNode.prototype._GetDefaultTemplate = function () {
                 var xobj = this.XObject;
@@ -44,9 +45,7 @@ var Fayde;
                 ContentProperty: UserControl.ContentProperty
             };
             UserControl.prototype.CreateNode = function () {
-                var n = new UCNode(this);
-                n.LayoutUpdater.SetContainerMode(true);
-                return n;
+                return new UCNode(this);
             };
             UserControl.prototype.InitializeComponent = function () {
                 this.ApplyTemplate();

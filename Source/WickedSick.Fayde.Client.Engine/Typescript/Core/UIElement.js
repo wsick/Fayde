@@ -29,6 +29,7 @@ var Fayde;
             this.IsTopLevel = false;
             this.IsLoaded = false;
             this.LayoutUpdater = new Fayde.LayoutUpdater(this);
+            this.LayoutUpdater.SetContainerMode(false);
         }
         UINode.prototype.GetInheritedEnumerator = function () {
             return this.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.Logical);
@@ -131,6 +132,18 @@ var Fayde;
         UINode.prototype._HitTestPoint = function (ctx, p, uielist) {
             uielist.unshift(this);
         };
+        UINode.prototype._InsideClip = function (ctx, lu, x, y) {
+            var clip = this.XObject.Clip;
+            if(!clip) {
+                return true;
+            }
+            var np = new Point(x, y);
+            lu.TransformPoint(np);
+            if(!rect.containsPoint(clip.GetBounds(), np)) {
+                return false;
+            }
+            return ctx.IsPointInClipPath(clip, np);
+        };
         UINode.prototype.CanCaptureMouse = function () {
             return true;
         };
@@ -176,9 +189,7 @@ var Fayde;
             return s;
         };
         UIElement.prototype.CreateNode = function () {
-            var uin = new UINode(this);
-            uin.LayoutUpdater.SetContainerMode(false);
-            return uin;
+            return new UINode(this);
         };
         UIElement.ClipProperty = DependencyProperty.RegisterCore("Clip", function () {
             return Fayde.Media.Geometry;
