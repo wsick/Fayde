@@ -205,8 +205,8 @@ module Fayde.Shapes {
             ctx.Restore();
         }
 
-        private _BuildPath() { }
-        private _DrawPath(ctx: RenderContext) { this._Path.DrawRenderCtx(ctx); }
+        _BuildPath() { }
+        _DrawPath(ctx: RenderContext) { this._Path.DrawRenderCtx(ctx); }
         
         private ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater) {
             var desired = baseComputer.call(this);
@@ -377,10 +377,10 @@ module Fayde.Shapes {
                 this._NaturalBounds = this._ComputeShapeBoundsImpl(false);
             return this._NaturalBounds;
         }
-        private _ComputeShapeBounds(logical: bool) {
+        _ComputeShapeBounds(logical: bool) {
             this._ComputeShapeBoundsImpl(logical, null);
         }
-        private _ComputeShapeBoundsImpl(logical: bool, matrix?): rect {
+        _ComputeShapeBoundsImpl(logical: bool, matrix?): rect {
             var thickness = (logical || !this._Stroke) ? 0.0 : this.StrokeThickness;
 
             if (!this._Path)
@@ -405,7 +405,7 @@ module Fayde.Shapes {
             this._StretchXform = mat3.identity();
             this._InvalidatePathCache();
         }
-        private _InvalidatePathCache(free?: bool) {
+        _InvalidatePathCache(free?: bool) {
             this._Path = null;
             if (!free)
                 this.XamlNode.LayoutUpdater.UpdateBounds(true);
