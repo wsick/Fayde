@@ -64,8 +64,32 @@ var Fayde;
             Polygon.PointsProperty = DependencyProperty.RegisterFull("Points", function () {
                 return Shapes.PointCollection;
             }, Polygon, undefined, function (d, args) {
-                return (d)._InvalidateNaturalBounds();
+                return (d)._PointsChanged(args);
             });
+            Object.defineProperty(Polygon.prototype, "Points", {
+                get: function () {
+                    return this.GetValue(Polygon.PointsProperty);
+                },
+                set: function (value) {
+                    if(typeof value === "string") {
+                        value = Shapes.PointCollection.FromData(value);
+                    }
+                    this.SetValue(Polygon.PointsProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Polygon.prototype._PointsChanged = function (args) {
+                var oldColl = args.OldValue;
+                var newColl = args.NewValue;
+                if(oldColl instanceof Shapes.PointCollection) {
+                    (oldColl).Owner = null;
+                }
+                if(newColl instanceof Shapes.PointCollection) {
+                    (newColl).Owner = this;
+                }
+                this._InvalidateNaturalBounds();
+            };
             Polygon.prototype._BuildPath = function () {
                 var points = this.Points;
                 var count;

@@ -120,9 +120,6 @@ var Fayde;
         TypeConverter.GeometryFromString = function GeometryFromString(val) {
             return Fayde.Media.ParseGeometry(val);
         };
-        TypeConverter.PointCollectionFromString = function PointCollectionFromString(val) {
-            return Fayde.Media.ParsePointCollection(val);
-        };
         return TypeConverter;
     })();
     Fayde.TypeConverter = TypeConverter;    

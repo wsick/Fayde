@@ -51,10 +51,23 @@ module Fayde.Shapes {
         private _Stroke: Media.Brush; //defined in Shape
 
         static FillRuleProperty: DependencyProperty = DependencyProperty.RegisterCore("FillRule", () => new Enum(FillRule), Polyline, FillRule.EvenOdd, (d, args) => (<Polyline>d)._FillRuleChanged(args));
-        //TODO: Points Converter
-        static PointsProperty: DependencyProperty = DependencyProperty.RegisterFull("Points", () => PointCollection, Polyline, undefined, (d, args) => (<Shape>d)._InvalidateNaturalBounds());
+        static PointsProperty: DependencyProperty = DependencyProperty.RegisterFull("Points", () => PointCollection, Polyline, undefined, (d, args) => (<Polyline>d)._PointsChanged(args));
         FillRule: FillRule;
-        Points: PointCollection;
+        get Points(): PointCollection { return this.GetValue(Polyline.PointsProperty); }
+        set Points(value) {
+            if (typeof value === "string")
+                value = PointCollection.FromData(<string>value);
+            this.SetValue(Polyline.PointsProperty, value);
+        }
+        private _PointsChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldColl = args.OldValue;
+            var newColl = args.NewValue;
+            if (oldColl instanceof PointCollection)
+                (<PointCollection>oldColl).Owner = null;
+            if (newColl instanceof PointCollection)
+                (<PointCollection>newColl).Owner = this;
+            this._InvalidateNaturalBounds();
+        }
 
         private _BuildPath() {
             var points = this.Points;

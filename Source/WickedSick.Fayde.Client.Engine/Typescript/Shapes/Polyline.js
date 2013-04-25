@@ -64,8 +64,32 @@ var Fayde;
             Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () {
                 return Shapes.PointCollection;
             }, Polyline, undefined, function (d, args) {
-                return (d)._InvalidateNaturalBounds();
+                return (d)._PointsChanged(args);
             });
+            Object.defineProperty(Polyline.prototype, "Points", {
+                get: function () {
+                    return this.GetValue(Polyline.PointsProperty);
+                },
+                set: function (value) {
+                    if(typeof value === "string") {
+                        value = Shapes.PointCollection.FromData(value);
+                    }
+                    this.SetValue(Polyline.PointsProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Polyline.prototype._PointsChanged = function (args) {
+                var oldColl = args.OldValue;
+                var newColl = args.NewValue;
+                if(oldColl instanceof Shapes.PointCollection) {
+                    (oldColl).Owner = null;
+                }
+                if(newColl instanceof Shapes.PointCollection) {
+                    (newColl).Owner = this;
+                }
+                this._InvalidateNaturalBounds();
+            };
             Polyline.prototype._BuildPath = function () {
                 var points = this.Points;
                 var count;

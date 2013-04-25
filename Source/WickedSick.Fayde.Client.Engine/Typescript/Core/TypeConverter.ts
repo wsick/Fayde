@@ -112,8 +112,5 @@ module Fayde {
         static GeometryFromString(val: string): Media.Geometry {
             return Media.ParseGeometry(val);
         }
-        static PointCollectionFromString(val: string): Shapes.PointCollection {
-            return Media.ParsePointCollection(val);
-        }
     }
 }

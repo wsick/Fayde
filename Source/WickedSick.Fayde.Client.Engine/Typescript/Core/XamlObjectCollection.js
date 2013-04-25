@@ -75,7 +75,7 @@ var Fayde;
         };
         XamlObjectCollection.prototype.Remove = function (value) {
             var index = this.IndexOf(value);
-            if(index == -1) {
+            if(index === -1) {
                 return false;
             }
             return this.RemoveAt(index);

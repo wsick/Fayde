@@ -44,10 +44,10 @@ var Fayde;
             return (new MediaParser(val)).ParseGeometryImpl();
         }
         Media.ParseGeometry = ParseGeometry;
-        function ParsePointCollection(val) {
-            return (new MediaParser(val)).ParsePointCollectionImpl();
+        function ParseShapePoints(val) {
+            return (new MediaParser(val)).ParseShapePoints();
         }
-        Media.ParsePointCollection = ParsePointCollection;
+        Media.ParseShapePoints = ParseShapePoints;
         var MediaParser = (function () {
             function MediaParser(str) {
                 this.index = 0;
@@ -336,11 +336,11 @@ var Fayde;
                 pg.FillRule = fillRule;
                 return pg;
             };
-            MediaParser.prototype.ParsePointCollectionImpl = function () {
+            MediaParser.prototype.ParseShapePoints = function () {
+                var points = [];
                 var p;
-                var points = new Fayde.Shapes.PointCollection();
                 while(this.MorePointsAvailable() && (p = this.ParsePoint()) != null) {
-                    points.Add(p);
+                    points.push(p);
                 }
                 return points;
             };

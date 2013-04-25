@@ -176,9 +176,6 @@ module Fayde {
         static GeometryFromString(val: string): Media.Geometry {
             return Media.ParseGeometry(val);
         }
-        static PointCollectionFromString(val: string): Shapes.PointCollection {
-            return Media.ParsePointCollection(val);
-        }
     }
 }
 
@@ -665,8 +662,8 @@ module Fayde.Media {
     export function ParseGeometry(val: string): Geometry {
         return (new MediaParser(val)).ParseGeometryImpl();
     }
-    export function ParsePointCollection(val: string): Shapes.PointCollection {
-        return (new MediaParser(val)).ParsePointCollectionImpl();
+    export function ParseShapePoints(val: string): Point[] {
+        return (new MediaParser(val)).ParseShapePoints();
     }
     class MediaParser {
         private str: string;
@@ -932,11 +929,11 @@ module Fayde.Media {
             pg.FillRule = fillRule;
             return pg;
         }
-        ParsePointCollectionImpl(): Shapes.PointCollection {
-            var p;
-            var points = new Shapes.PointCollection();
+        ParseShapePoints(): Point[] {
+            var points: Point[] = [];
+            var p: Point;
             while (this.MorePointsAvailable() && (p = this.ParsePoint()) != null) {
-                points.Add(p);
+                points.push(p);
             }
             return points;
         }
@@ -3088,7 +3085,7 @@ module Fayde {
         }
         Remove(value: XamlObject): bool {
             var index = this.IndexOf(value);
-            if (index == -1)
+            if (index === -1)
                 return false;
             return this.RemoveAt(index);
         }
@@ -6809,23 +6806,75 @@ module Fayde.Shapes {
 }
 
 module Fayde.Shapes {
-    export class PointCollection extends XamlObjectCollection {
-        _RaiseItemAdded(value: XamlObject, index: number) {
-            var shapeNode = <ShapeNode>this.XamlNode.ParentNode;
-            shapeNode.XObject._InvalidateNaturalBounds();
+    export class PointCollection implements IEnumerable {
+        private _ht: Point[] = [];
+        Owner: Shape;
+        get Count() { return this._ht.length; }
+        static FromData(data: string): PointCollection {
+            var pc = new PointCollection();
+            pc._ht.concat(Media.ParseShapePoints(data));
+            return pc;
         }
-        _RaiseItemRemoved(value: XamlObject, index: number) {
-            var shapeNode = <ShapeNode>this.XamlNode.ParentNode;
-            shapeNode.XObject._InvalidateNaturalBounds();
+        GetValueAt(index: number): Point { return this._ht[index]; }
+        SetValueAt(index: number, value: Point): bool {
+            if (index < 0 || index >= this._ht.length)
+                return false;
+            var removed = this._ht[index];
+            var added = value;
+            this._ht[index] = added;
+            var owner = this.Owner;
+            if (owner) owner._InvalidateNaturalBounds();
         }
-        _RaiseItemReplaced(removed: XamlObject, added: XamlObject, index: number) {
-            var shapeNode = <ShapeNode>this.XamlNode.ParentNode;
-            shapeNode.XObject._InvalidateNaturalBounds();
+        Add(value: Point) {
+            this._ht.push(value);
+            var owner = this.Owner;
+            if (owner) owner._InvalidateNaturalBounds();
         }
-        _RaiseCleared() {
-            var shapeNode = <ShapeNode>this.XamlNode.ParentNode;
-            shapeNode.XObject._InvalidateNaturalBounds();
+        AddRange(points: Point[]) {
+            this._ht.concat(points);
+            var owner = this.Owner;
+            if (owner) owner._InvalidateNaturalBounds();
         }
+        Insert(index: number, value: Point) {
+            if (index < 0)
+                return;
+            var len = this._ht.length;
+            if (index > len)
+                index = len;
+            this._ht.splice(index, 0, value);
+            var owner = this.Owner;
+            if (owner) owner._InvalidateNaturalBounds();
+        }
+        Remove(value: Point) {
+            var index = this.IndexOf(value);
+            if (index === -1)
+                return;
+            this.RemoveAt(index);
+            var owner = this.Owner;
+            if (owner) owner._InvalidateNaturalBounds();
+        }
+        RemoveAt(index: number) {
+            if (index < 0 || index >= this._ht.length)
+                return;
+            var value = this._ht.splice(index, 1)[0];
+            var owner = this.Owner;
+            if (owner) owner._InvalidateNaturalBounds();
+        }
+        Clear() {
+            this._ht = [];
+            var owner = this.Owner;
+            if (owner) owner._InvalidateNaturalBounds();
+        }
+        IndexOf(value: Point): number {
+            var count = this._ht.length;
+            for (var i = 0; i < count; i++) {
+                if (Nullstone.Equals(value, this._ht[i]))
+                    return i;
+            }
+            return -1;
+        }
+        Contains(value: Point): bool { return this.IndexOf(value) > -1; }
+        GetEnumerator(reverse?: bool): IEnumerator { return ArrayEx.GetEnumerator(this._ht, reverse); }
     }
     Nullstone.RegisterType(PointCollection, "PointCollection");
 }
@@ -13007,9 +13056,23 @@ module Fayde.Shapes {
         private _ShapeFlags: ShapeFlags; //defined in Shape
         private _Stroke: Media.Brush; //defined in Shape
         static FillRuleProperty: DependencyProperty = DependencyProperty.RegisterCore("FillRule", () => new Enum(FillRule), Polygon, FillRule.EvenOdd, (d, args) => (<Polygon>d)._FillRuleChanged(args));
-        static PointsProperty: DependencyProperty = DependencyProperty.RegisterFull("Points", () => PointCollection, Polygon, undefined, (d, args) => (<Shape>d)._InvalidateNaturalBounds());
+        static PointsProperty: DependencyProperty = DependencyProperty.RegisterFull("Points", () => PointCollection, Polygon, undefined, (d, args) => (<Polygon>d)._PointsChanged(args));
         FillRule: FillRule;
-        Points: PointCollection;
+        get Points(): PointCollection { return this.GetValue(Polygon.PointsProperty); }
+        set Points(value) {
+            if (typeof value === "string")
+                value = PointCollection.FromData(<string>value);
+            this.SetValue(Polygon.PointsProperty, value);
+        }
+        private _PointsChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldColl = args.OldValue;
+            var newColl = args.NewValue;
+            if (oldColl instanceof PointCollection)
+                (<PointCollection>oldColl).Owner = null;
+            if (newColl instanceof PointCollection)
+                (<PointCollection>newColl).Owner = this;
+            this._InvalidateNaturalBounds();
+        }
         private _BuildPath() {
             var points = this.Points;
             var count;
@@ -13085,9 +13148,23 @@ module Fayde.Shapes {
         private _ShapeFlags: ShapeFlags; //defined in Shape
         private _Stroke: Media.Brush; //defined in Shape
         static FillRuleProperty: DependencyProperty = DependencyProperty.RegisterCore("FillRule", () => new Enum(FillRule), Polyline, FillRule.EvenOdd, (d, args) => (<Polyline>d)._FillRuleChanged(args));
-        static PointsProperty: DependencyProperty = DependencyProperty.RegisterFull("Points", () => PointCollection, Polyline, undefined, (d, args) => (<Shape>d)._InvalidateNaturalBounds());
+        static PointsProperty: DependencyProperty = DependencyProperty.RegisterFull("Points", () => PointCollection, Polyline, undefined, (d, args) => (<Polyline>d)._PointsChanged(args));
         FillRule: FillRule;
-        Points: PointCollection;
+        get Points(): PointCollection { return this.GetValue(Polyline.PointsProperty); }
+        set Points(value) {
+            if (typeof value === "string")
+                value = PointCollection.FromData(<string>value);
+            this.SetValue(Polyline.PointsProperty, value);
+        }
+        private _PointsChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldColl = args.OldValue;
+            var newColl = args.NewValue;
+            if (oldColl instanceof PointCollection)
+                (<PointCollection>oldColl).Owner = null;
+            if (newColl instanceof PointCollection)
+                (<PointCollection>newColl).Owner = this;
+            this._InvalidateNaturalBounds();
+        }
         private _BuildPath() {
             var points = this.Points;
             var count;

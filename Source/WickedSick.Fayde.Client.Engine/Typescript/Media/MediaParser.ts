@@ -48,8 +48,8 @@ module Fayde.Media {
     export function ParseGeometry(val: string): Geometry {
         return (new MediaParser(val)).ParseGeometryImpl();
     }
-    export function ParsePointCollection(val: string): Shapes.PointCollection {
-        return (new MediaParser(val)).ParsePointCollectionImpl();
+    export function ParseShapePoints(val: string): Point[] {
+        return (new MediaParser(val)).ParseShapePoints();
     }
 
     class MediaParser {
@@ -348,11 +348,11 @@ module Fayde.Media {
             pg.FillRule = fillRule;
             return pg;
         }
-        ParsePointCollectionImpl(): Shapes.PointCollection {
-            var p;
-            var points = new Shapes.PointCollection();
+        ParseShapePoints(): Point[] {
+            var points: Point[] = [];
+            var p: Point;
             while (this.MorePointsAvailable() && (p = this.ParsePoint()) != null) {
-                points.Add(p);
+                points.push(p);
             }
             return points;
         }
