@@ -77,13 +77,13 @@ module Fayde {
         RenderSize: size = new size();
         VisualOffset: Point = new Point();
 
-        AbsoluteXform: number[] = mat3.identity();
-        LayoutXform: number[] = mat3.identity();
-        LocalXform: number[] = mat3.identity();
-        RenderXform: number[] = mat3.identity();
-        LocalProjection: number[] = mat4.identity();
-        AbsoluteProjection: number[] = mat4.identity();
-        RenderProjection: number[] = mat4.identity();
+        AbsoluteXform: number[]         ;//= mat3.identity();
+        LayoutXform: number[]           ;//= mat3.identity();
+        LocalXform: number[]            ;//= mat3.identity();
+        RenderXform: number[]           ;//= mat3.identity();
+        LocalProjection: number[]       ;//= mat4.identity();
+        AbsoluteProjection: number[]    ;//= mat4.identity();
+        RenderProjection: number[]      ;//= mat4.identity();
 
         TotalOpacity: number = 1.0;
         TotalIsRenderVisible: bool = true;

@@ -62,6 +62,7 @@ module Fayde.Controls {
         }
     }
     Nullstone.RegisterType(ControlNode, "ControlNode");
+
     export class Control extends FrameworkElement {
         XamlNode: ControlNode;
         _Store: Providers.ControlProviderStore;
@@ -73,14 +74,44 @@ module Fayde.Controls {
             n.LayoutUpdater.SetContainerMode(true);
             return n;
         }
+        
+        static BackgroundProperty: DependencyProperty;
+        static BorderBrushProperty: DependencyProperty;
+        static BorderThicknessProperty: DependencyProperty;
+        static FontFamilyProperty: DependencyProperty;
+        static FontSizeProperty: DependencyProperty;
+        static FontStretchProperty: DependencyProperty;
+        static FontStyleProperty: DependencyProperty;
+        static FontWeightProperty: DependencyProperty;
+        static ForegroundProperty: DependencyProperty;
+        static HorizontalContentAlignmentProperty: DependencyProperty;
+        static IsEnabledProperty: DependencyProperty;
+        static IsTabStopProperty: DependencyProperty;
+        static PaddingProperty: DependencyProperty;
+        static TabIndexProperty: DependencyProperty;
+        static TabNavigationProperty: DependencyProperty;
+        static TemplateProperty: DependencyProperty;
+        static VerticalContentAlignmentProperty: DependencyProperty;
+        static DefaultStyleKeyProperty: DependencyProperty;
 
+        Background: Media.Brush;
+        BorderBrush: Media.Brush;
+        BorderThickness: Thickness;
+        FontFamily: string;
+        FontSize: number;
+        FontStretch: string;
+        FontStyle: string;
+        FontWeight: FontWeight;
+        Foreground: Media.Brush;
+        HorizontalContentAlignment: HorizontalAlignment;
         IsEnabled: bool;
         IsTabStop: bool;
-        TabNavigation: Input.KeyboardNavigationMode;
+        Padding: Thickness;
         TabIndex: number;
+        TabNavigation: Input.KeyboardNavigationMode;
         Template: ControlTemplate;
-
-        static IsEnabledProperty: DependencyProperty;
+        VerticalContentAlignment: VerticalAlignment;
+        DefaultStyleKey: Function;
 
         GetTemplateChild(childName: string): DependencyObject {
             var root = this.XamlNode.TemplateRoot;

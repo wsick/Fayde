@@ -60,6 +60,18 @@ module Fayde {
         LeftToRight = 0,
         RightToLeft = 1,
     }
+    export enum FontWeight {
+        Thin = 100,
+        ExtraLight = 200,
+        Light = 300,
+        Normal = 400,
+        Medium = 500,
+        SemiBold = 600,
+        Bold = 700,
+        ExtraBold = 800,
+        Black = 900,
+        ExtraBlack = 950,
+    }
 }
 
 module Fayde {
@@ -1958,13 +1970,13 @@ module Fayde {
         DesiredSize: size = new size();
         RenderSize: size = new size();
         VisualOffset: Point = new Point();
-        AbsoluteXform: number[] = mat3.identity();
-        LayoutXform: number[] = mat3.identity();
-        LocalXform: number[] = mat3.identity();
-        RenderXform: number[] = mat3.identity();
-        LocalProjection: number[] = mat4.identity();
-        AbsoluteProjection: number[] = mat4.identity();
-        RenderProjection: number[] = mat4.identity();
+        AbsoluteXform: number[]         ;//= mat3.identity();
+        LayoutXform: number[]           ;//= mat3.identity();
+        LocalXform: number[]            ;//= mat3.identity();
+        RenderXform: number[]           ;//= mat3.identity();
+        LocalProjection: number[]       ;//= mat4.identity();
+        AbsoluteProjection: number[]    ;//= mat4.identity();
+        RenderProjection: number[]      ;//= mat4.identity();
         TotalOpacity: number = 1.0;
         TotalIsRenderVisible: bool = true;
         TotalIsHitTestVisible: bool = true;
@@ -11298,12 +11310,42 @@ module Fayde.Controls {
             n.LayoutUpdater.SetContainerMode(true);
             return n;
         }
+        static BackgroundProperty: DependencyProperty;
+        static BorderBrushProperty: DependencyProperty;
+        static BorderThicknessProperty: DependencyProperty;
+        static FontFamilyProperty: DependencyProperty;
+        static FontSizeProperty: DependencyProperty;
+        static FontStretchProperty: DependencyProperty;
+        static FontStyleProperty: DependencyProperty;
+        static FontWeightProperty: DependencyProperty;
+        static ForegroundProperty: DependencyProperty;
+        static HorizontalContentAlignmentProperty: DependencyProperty;
+        static IsEnabledProperty: DependencyProperty;
+        static IsTabStopProperty: DependencyProperty;
+        static PaddingProperty: DependencyProperty;
+        static TabIndexProperty: DependencyProperty;
+        static TabNavigationProperty: DependencyProperty;
+        static TemplateProperty: DependencyProperty;
+        static VerticalContentAlignmentProperty: DependencyProperty;
+        static DefaultStyleKeyProperty: DependencyProperty;
+        Background: Media.Brush;
+        BorderBrush: Media.Brush;
+        BorderThickness: Thickness;
+        FontFamily: string;
+        FontSize: number;
+        FontStretch: string;
+        FontStyle: string;
+        FontWeight: FontWeight;
+        Foreground: Media.Brush;
+        HorizontalContentAlignment: HorizontalAlignment;
         IsEnabled: bool;
         IsTabStop: bool;
-        TabNavigation: Input.KeyboardNavigationMode;
+        Padding: Thickness;
         TabIndex: number;
+        TabNavigation: Input.KeyboardNavigationMode;
         Template: ControlTemplate;
-        static IsEnabledProperty: DependencyProperty;
+        VerticalContentAlignment: VerticalAlignment;
+        DefaultStyleKey: Function;
         GetTemplateChild(childName: string): DependencyObject {
             var root = this.XamlNode.TemplateRoot;
             if (root) {
@@ -11643,6 +11685,38 @@ module Fayde.Controls {
                 n._ElementAdded(newContent);
             }
             n.LayoutUpdater.UpdateBounds();
+        }
+        private _MeasureOverride(availableSize: size, error: BError): size {
+            var desired: size;
+            availableSize = size.clone(availableSize);
+            var border = this.Padding.Plus(this.BorderThickness);
+            size.shrinkByThickness(availableSize, border);
+            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                var childLu = (<UINode>enumerator.Current).LayoutUpdater;
+                childLu._Measure(availableSize, error);
+                desired = size.clone(childLu.DesiredSize);
+            }
+            if (!desired)
+                desired = new size();
+            size.growByThickness(desired, border);
+            return desired;
+        }
+        private _ArrangeOverride(finalSize: size, error: BError): size {
+            var border = this.Padding.Plus(this.BorderThickness);
+            var arranged;
+            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                var childLu = (<UINode>enumerator.Current).LayoutUpdater;
+                var childRect = rect.fromSize(finalSize);
+                rect.shrinkByThickness(childRect, border);
+                childLu._Arrange(childRect, error);
+                arranged = size.fromRect(childRect);
+                size.growByThickness(arranged, border);
+            }
+            if (!arranged)
+                return finalSize;
+            return arranged;
         }
     }
     Nullstone.RegisterType(UserControl, "UserControl");

@@ -45,5 +45,19 @@ var Fayde;
         FlowDirection.RightToLeft = 1;
     })(Fayde.FlowDirection || (Fayde.FlowDirection = {}));
     var FlowDirection = Fayde.FlowDirection;
+    (function (FontWeight) {
+        FontWeight._map = [];
+        FontWeight.Thin = 100;
+        FontWeight.ExtraLight = 200;
+        FontWeight.Light = 300;
+        FontWeight.Normal = 400;
+        FontWeight.Medium = 500;
+        FontWeight.SemiBold = 600;
+        FontWeight.Bold = 700;
+        FontWeight.ExtraBold = 800;
+        FontWeight.Black = 900;
+        FontWeight.ExtraBlack = 950;
+    })(Fayde.FontWeight || (Fayde.FontWeight = {}));
+    var FontWeight = Fayde.FontWeight;
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=Enums.js.map

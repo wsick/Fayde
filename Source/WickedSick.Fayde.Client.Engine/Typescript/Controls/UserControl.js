@@ -67,6 +67,40 @@ var Fayde;
                 }
                 n.LayoutUpdater.UpdateBounds();
             };
+            UserControl.prototype._MeasureOverride = function (availableSize, error) {
+                var desired;
+                availableSize = size.clone(availableSize);
+                var border = this.Padding.Plus(this.BorderThickness);
+                size.shrinkByThickness(availableSize, border);
+                var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+                while(enumerator.MoveNext()) {
+                    var childLu = (enumerator.Current).LayoutUpdater;
+                    childLu._Measure(availableSize, error);
+                    desired = size.clone(childLu.DesiredSize);
+                }
+                if(!desired) {
+                    desired = new size();
+                }
+                size.growByThickness(desired, border);
+                return desired;
+            };
+            UserControl.prototype._ArrangeOverride = function (finalSize, error) {
+                var border = this.Padding.Plus(this.BorderThickness);
+                var arranged;
+                var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+                while(enumerator.MoveNext()) {
+                    var childLu = (enumerator.Current).LayoutUpdater;
+                    var childRect = rect.fromSize(finalSize);
+                    rect.shrinkByThickness(childRect, border);
+                    childLu._Arrange(childRect, error);
+                    arranged = size.fromRect(childRect);
+                    size.growByThickness(arranged, border);
+                }
+                if(!arranged) {
+                    return finalSize;
+                }
+                return arranged;
+            };
             return UserControl;
         })(Controls.Control);
         Controls.UserControl = UserControl;        

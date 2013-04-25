@@ -53,6 +53,41 @@ module Fayde.Controls {
             }
             n.LayoutUpdater.UpdateBounds();
         }
+
+        private _MeasureOverride(availableSize: size, error: BError): size {
+            var desired: size;
+            availableSize = size.clone(availableSize);
+            var border = this.Padding.Plus(this.BorderThickness);
+            size.shrinkByThickness(availableSize, border);
+
+            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                var childLu = (<UINode>enumerator.Current).LayoutUpdater;
+                childLu._Measure(availableSize, error);
+                desired = size.clone(childLu.DesiredSize);
+            }
+            if (!desired)
+                desired = new size();
+            size.growByThickness(desired, border);
+            return desired;
+        }
+        private _ArrangeOverride(finalSize: size, error: BError): size {
+            var border = this.Padding.Plus(this.BorderThickness);
+            var arranged;
+            
+            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                var childLu = (<UINode>enumerator.Current).LayoutUpdater;
+                var childRect = rect.fromSize(finalSize);
+                rect.shrinkByThickness(childRect, border);
+                childLu._Arrange(childRect, error);
+                arranged = size.fromRect(childRect);
+                size.growByThickness(arranged, border);
+            }
+            if (!arranged)
+                return finalSize;
+            return arranged;
+        }
     }
     Nullstone.RegisterType(UserControl, "UserControl");
 }
