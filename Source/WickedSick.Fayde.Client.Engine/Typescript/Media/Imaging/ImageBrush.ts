@@ -6,7 +6,7 @@
 /// <reference path="BitmapSource.ts"/>
 
 module Fayde.Media.Imaging {
-    export class ImageBrush extends TileBrush implements IImageLoadListener {
+    export class ImageBrush extends TileBrush implements IImageChangedListener {
         static ImageSourceProperty: DependencyProperty = DependencyProperty.RegisterFull("ImageSource", () => ImageSource, ImageBrush, undefined, (d, args) => (<ImageBrush>d)._ImageSourceChanged(args)/*, ... */);
         ImageSource: ImageSource;
         ImageFailed: MulticastEvent = new MulticastEvent();
@@ -41,6 +41,7 @@ module Fayde.Media.Imaging {
         }
         private OnImageErrored(source: BitmapSource, e: Event) { this.ImageFailed.Raise(this, EventArgs.Empty); }
         private OnImageLoaded(source: BitmapSource, e: Event) { this.ImageOpened.Raise(this, EventArgs.Empty); }
+        private ImageChanged(source: BitmapSource) { }
     }
     Nullstone.RegisterType(ImageBrush, "ImageBrush");
 }

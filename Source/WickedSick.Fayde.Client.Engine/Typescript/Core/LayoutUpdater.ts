@@ -59,6 +59,9 @@ module Fayde {
     export interface IRenderable {
         Render(ctx: RenderContext, lu:LayoutUpdater, region: rect);
     }
+    export interface IActualSizeComputable {
+        ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater);
+    }
 
     var maxPassCount = 250;
     export class LayoutUpdater {
@@ -68,10 +71,8 @@ module Fayde {
 
         LayoutClip: Media.Geometry = undefined;
         LayoutSlot: rect = undefined;
-
         PreviousConstraint: size = undefined;
         LastRenderSize: size = undefined;
-
         HiddenDesire: size = new size();
         DesiredSize: size = new size();
         RenderSize: size = new size();
@@ -488,11 +489,15 @@ module Fayde {
 
         private _UpdateActualSize() {
             var last = this.LastRenderSize;
-            var s = this._ComputeActualSize();
+            var fe = <FrameworkElement>this.Node.XObject;
+            var s: size;
+            if ((<IActualSizeComputable><any>fe).ComputeActualSize)
+                s = (<IActualSizeComputable><any>fe).ComputeActualSize(this._ComputeActualSize, this);
+            else
+                s = this._ComputeActualSize();
             if (last && size.isEqual(last, s))
                 return;
             this.LastRenderSize = s;
-            var fe = <FrameworkElement>this.Node.XObject;
             fe.SizeChanged.Raise(fe, new SizeChangedEventArgs(last, s));
         }
         private _ComputeActualSize(): size {
@@ -955,6 +960,19 @@ module Fayde {
                 curNode = curNode.VisualParentNode;
             }
             ctx.Translate(iX, iY);
+        }
+        _HasLayoutClip(): bool {
+            var curNode = this.Node;
+            var lu: LayoutUpdater;
+            while (curNode) {
+                lu = curNode.LayoutUpdater;
+                if (lu.LayoutClip)
+                    return true;
+                if (lu.BreaksLayoutClipRender)
+                    break;
+                curNode = curNode.VisualParentNode;
+            }
+            return false;
         }
     }
     Nullstone.RegisterType(LayoutUpdater, "LayoutUpdater");

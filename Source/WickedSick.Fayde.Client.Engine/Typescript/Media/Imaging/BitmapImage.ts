@@ -6,7 +6,7 @@
 
 module Fayde.Media.Imaging {
     export class BitmapImage extends BitmapSource {
-        static UriSourceProperty: DependencyProperty = DependencyProperty.RegisterFull("UriSource", () => Uri, BitmapImage, undefined, undefined, undefined, undefined, true);
+        static UriSourceProperty: DependencyProperty = DependencyProperty.RegisterFull("UriSource", () => Uri, BitmapImage, undefined, (d, args) => (<BitmapImage>d)._UriSourceChanged(args), undefined, undefined, true);
         UriSource: Uri;
         ImageFailed: MulticastEvent = new MulticastEvent();
         ImageOpened: MulticastEvent = new MulticastEvent();

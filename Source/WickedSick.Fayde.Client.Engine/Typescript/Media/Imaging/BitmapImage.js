@@ -24,7 +24,9 @@ var Fayde;
                 }
                 BitmapImage.UriSourceProperty = DependencyProperty.RegisterFull("UriSource", function () {
                     return Uri;
-                }, BitmapImage, undefined, undefined, undefined, undefined, true);
+                }, BitmapImage, undefined, function (d, args) {
+                    return (d)._UriSourceChanged(args);
+                }, undefined, undefined, true);
                 BitmapImage.prototype._UriSourceChanged = function (args) {
                     var uri = args.NewValue;
                     if(Uri.IsNullOrEmpty(uri)) {

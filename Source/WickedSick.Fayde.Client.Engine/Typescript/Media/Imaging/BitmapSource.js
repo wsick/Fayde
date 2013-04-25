@@ -30,6 +30,13 @@ var Fayde;
                 BitmapSource.PixelHeightProperty = DependencyProperty.RegisterFull("PixelHeight", function () {
                     return Number;
                 }, BitmapSource, 0, undefined, undefined, undefined, undefined, intGreaterThanZeroValidator);
+                Object.defineProperty(BitmapSource.prototype, "Image", {
+                    get: function () {
+                        return this._Image;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
                 BitmapSource.prototype.ResetImage = function () {
                     var _this = this;
                     this._Image = new Image();
@@ -41,9 +48,17 @@ var Fayde;
                     };
                     this.PixelWidth = 0;
                     this.PixelHeight = 0;
+                    var listener = this._Listener;
+                    if(listener) {
+                        listener.ImageChanged(this);
+                    }
                 };
                 BitmapSource.prototype.UriSourceChanged = function (oldValue, newValue) {
                     this._Image.src = newValue.toString();
+                    var listener = this._Listener;
+                    if(listener) {
+                        listener.ImageChanged(this);
+                    }
                 };
                 BitmapSource.prototype.Listen = function (listener) {
                     this._Listener = listener;
@@ -66,6 +81,7 @@ var Fayde;
                     var listener = this._Listener;
                     if(listener) {
                         listener.OnImageLoaded(this, e);
+                        listener.ImageChanged(this);
                     }
                 };
                 return BitmapSource;

@@ -62,6 +62,8 @@ var Fayde;
                 ImageBrush.prototype.OnImageLoaded = function (source, e) {
                     this.ImageOpened.Raise(this, EventArgs.Empty);
                 };
+                ImageBrush.prototype.ImageChanged = function (source) {
+                };
                 return ImageBrush;
             })(Media.TileBrush);
             Imaging.ImageBrush = ImageBrush;            
