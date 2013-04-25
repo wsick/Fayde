@@ -93,14 +93,17 @@ module Fayde {
         Extents: rect = new rect();
         ExtentsWithChildren: rect = new rect();
         Bounds: rect = new rect();
-        Global: rect = new rect();
+        BoundsWithChildren: rect = new rect();
+        GlobalBounds: rect = new rect();
+        GlobalBoundsWithChildren: rect = new rect();
         SurfaceBounds: rect = new rect();
+        SurfaceBoundsWithChildren: rect = new rect();
+        LayoutClipBounds: rect = new rect();
         EffectPadding: Thickness = new Thickness();
         ClipBounds: rect = new rect();
+
         SubtreeExtents: rect;
         SubtreeBounds: rect;
-        GlobalBounds: rect;
-        LayoutClipBounds: rect = new rect();
 
         IsContainer: bool = false;
         IsLayoutContainer: bool = false;
