@@ -12,7 +12,7 @@ module Fayde.Shapes {
             this.Stretch = Media.Stretch.Fill;
         }
 
-        private _DrawPath(ctx) {
+        private _DrawPath(ctx: RenderContext) {
             if (!this._Path)
                 this._BuildPath();
             super._DrawPath(ctx);

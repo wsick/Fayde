@@ -406,7 +406,7 @@ var Fayde;
                 return this._NaturalBounds;
             };
             Shape.prototype._ComputeShapeBounds = function (logical) {
-                this._ComputeShapeBoundsImpl(logical, null);
+                return this._ComputeShapeBoundsImpl(logical, null);
             };
             Shape.prototype._ComputeShapeBoundsImpl = function (logical, matrix) {
                 var thickness = (logical || !this._Stroke) ? 0.0 : this.StrokeThickness;

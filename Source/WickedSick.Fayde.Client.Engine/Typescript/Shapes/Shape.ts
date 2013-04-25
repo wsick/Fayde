@@ -377,8 +377,8 @@ module Fayde.Shapes {
                 this._NaturalBounds = this._ComputeShapeBoundsImpl(false);
             return this._NaturalBounds;
         }
-        _ComputeShapeBounds(logical: bool) {
-            this._ComputeShapeBoundsImpl(logical, null);
+        _ComputeShapeBounds(logical: bool): rect {
+            return this._ComputeShapeBoundsImpl(logical, null);
         }
         _ComputeShapeBoundsImpl(logical: bool, matrix?): rect {
             var thickness = (logical || !this._Stroke) ? 0.0 : this.StrokeThickness;
@@ -410,7 +410,7 @@ module Fayde.Shapes {
             if (!free)
                 this.XamlNode.LayoutUpdater.UpdateBounds(true);
         }
-        private _InvalidateNaturalBounds() {
+        _InvalidateNaturalBounds() {
             rect.clear(this._NaturalBounds);
             this._InvalidateStretch();
             this.XamlNode.LayoutUpdater.Invalidate();
