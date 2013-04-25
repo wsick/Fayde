@@ -251,6 +251,9 @@ var Fayde;
                 }
                 ctx.Restore();
             };
+            Shape.prototype._GetFillRule = function () {
+                return Shapes.FillRule.NonZero;
+            };
             Shape.prototype._BuildPath = function () {
             };
             Shape.prototype._DrawPath = function (ctx) {

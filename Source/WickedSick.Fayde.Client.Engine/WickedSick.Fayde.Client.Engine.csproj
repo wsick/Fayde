@@ -1121,6 +1121,10 @@
     <Content Include="Typescript\Shapes\Line.js">
       <DependentUpon>Line.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Shapes\Path.ts" />
+    <Content Include="Typescript\Shapes\Path.js">
+      <DependentUpon>Path.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Shapes\PointCollection.js">
       <DependentUpon>PointCollection.ts</DependentUpon>
     </Content>

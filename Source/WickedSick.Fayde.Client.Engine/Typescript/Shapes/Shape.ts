@@ -205,6 +205,7 @@ module Fayde.Shapes {
             ctx.Restore();
         }
 
+        _GetFillRule(): FillRule { return FillRule.NonZero; }
         _BuildPath() { }
         _DrawPath(ctx: RenderContext) { this._Path.DrawRenderCtx(ctx); }
         

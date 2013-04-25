@@ -11308,6 +11308,7 @@ module Fayde.Shapes {
                 ctx.Stroke(this._Stroke, this.StrokeThickness, area);
             ctx.Restore();
         }
+        _GetFillRule(): FillRule { return FillRule.NonZero; }
         _BuildPath() { }
         _DrawPath(ctx: RenderContext) { this._Path.DrawRenderCtx(ctx); }
         private ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater) {
@@ -12907,6 +12908,39 @@ module Fayde.Shapes {
         }
     }
     Nullstone.RegisterType(Line, "Line");
+}
+
+module Fayde.Shapes {
+    export class Path extends Shape {
+        private _ShapeFlags: ShapeFlags; //defined in Shape
+        private _Stroke: Media.Brush; //defined in Shape
+        static DataProperty: DependencyProperty = DependencyProperty.RegisterCore("Data", () => Media.Geometry, Path, undefined, (d, args) => (<Shape>d)._InvalidateNaturalBounds());
+        Data: Media.Geometry;
+        private _GetFillRule(): FillRule {
+            var geom = this.Data;
+            if (!geom)
+                return super._GetFillRule();
+            return (<Media.PathGeometry>geom).FillRule;
+        }
+        private _DrawPath(ctx: RenderContext) {
+            var geom = this.Data;
+            if (!geom)
+                return;
+            geom.Draw(ctx);
+        }
+        private _ComputeShapeBoundsImpl(logical: bool, matrix: number[]): rect {
+            var geom = this.Data;
+            if (geom == null) {
+                this._ShapeFlags = ShapeFlags.Empty;
+                return new rect();
+            }
+            if (logical)
+                return geom.GetBounds();
+            var thickness = (logical || this._Stroke != null) ? 0.0 : this.StrokeThickness;
+            return geom.GetBounds(thickness);
+        }
+    }
+    Nullstone.RegisterType(Path, "Path");
 }
 
 module Fayde.Shapes {
