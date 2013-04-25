@@ -13,11 +13,10 @@ module Fayde {
             uie.XamlNode.LayoutUpdater.LayoutClip = value;
         }
 
-        static GetLayoutExceptionElement(uie: UIElement): UIElement {
-            return uie.XamlNode.LayoutUpdater.LayoutExceptionElement;
-        }
-        static SetLayoutExceptionElement(uie: UIElement, value: UIElement) {
-            uie.XamlNode.LayoutUpdater.LayoutExceptionElement = value;
+        static GetLayoutExceptionElement(): UIElement {
+            var lu = LayoutUpdater.LayoutExceptionUpdater;
+            if (lu)
+                return lu.Node.XObject;
         }
         
         static GetLayoutSlot(uie: UIElement): rect {

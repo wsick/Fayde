@@ -17,5 +17,27 @@ var Fayde;
         SizeWE: "w-resize"
     };
     //TODO: Add cursor types
-    })(Fayde || (Fayde = {}));
+    (function (HorizontalAlignment) {
+        HorizontalAlignment._map = [];
+        HorizontalAlignment.Left = 0;
+        HorizontalAlignment.Center = 1;
+        HorizontalAlignment.Right = 2;
+        HorizontalAlignment.Stretch = 3;
+    })(Fayde.HorizontalAlignment || (Fayde.HorizontalAlignment = {}));
+    var HorizontalAlignment = Fayde.HorizontalAlignment;
+    (function (VerticalAlignment) {
+        VerticalAlignment._map = [];
+        VerticalAlignment.Top = 0;
+        VerticalAlignment.Center = 1;
+        VerticalAlignment.Bottom = 2;
+        VerticalAlignment.Stretch = 3;
+    })(Fayde.VerticalAlignment || (Fayde.VerticalAlignment = {}));
+    var VerticalAlignment = Fayde.VerticalAlignment;
+    (function (FlowDirection) {
+        FlowDirection._map = [];
+        FlowDirection.LeftToRight = 0;
+        FlowDirection.RightToLeft = 1;
+    })(Fayde.FlowDirection || (Fayde.FlowDirection = {}));
+    var FlowDirection = Fayde.FlowDirection;
+})(Fayde || (Fayde = {}));
 //@ sourceMappingURL=Enums.js.map

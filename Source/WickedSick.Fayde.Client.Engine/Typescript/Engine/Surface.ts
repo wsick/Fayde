@@ -682,7 +682,7 @@ class Surface {
             for (var check = <Fayde.UINode>ctrl.XamlNode; !loaded && check != null; check = check.VisualParentNode)
                 loaded = loaded || check.IsLoaded;
 
-            if (loaded && cn.LayoutUpdater.GetRenderVisible() && c.IsTabStop)
+            if (loaded && cn.LayoutUpdater.TotalIsRenderVisible && c.IsTabStop)
                 return this._FocusNode(cn);
 
             if (!recurse)

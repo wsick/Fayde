@@ -10,9 +10,9 @@ var Fayde;
     (function (Controls) {
         var CanvasNode = (function (_super) {
             __extends(CanvasNode, _super);
-            function CanvasNode() {
-                _super.apply(this, arguments);
-
+            function CanvasNode(xobj) {
+                        _super.call(this, xobj);
+                this.LayoutUpdater.BreaksLayoutClipRender = true;
             }
             CanvasNode.prototype._ElementAdded = function (uie) {
                 _super.prototype._ElementAdded.call(this, uie);
@@ -113,6 +113,27 @@ var Fayde;
             };
             Canvas.SetLeft = function SetLeft(d, value) {
                 d.SetValue(Canvas.LeftProperty, value);
+            };
+            Canvas.prototype._MeasureOverride = function (availableSize, error) {
+                var childSize = size.createInfinite();
+                var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+                while(enumerator.MoveNext()) {
+                    var childNode = enumerator.Current;
+                    childNode.LayoutUpdater._Measure(childSize, error);
+                }
+                return new size();
+            };
+            Canvas.prototype._ArrangeOverride = function (finalSize, error) {
+                var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+                while(enumerator.MoveNext()) {
+                    var childNode = enumerator.Current;
+                    var lu = childNode.LayoutUpdater;
+                    var childFinal = rect.fromSize(lu.DesiredSize);
+                    childFinal.X = Canvas.GetLeft(childNode.XObject);
+                    childFinal.Y = Canvas.GetTop(childNode.XObject);
+                    lu._Arrange(childFinal, error);
+                }
+                return finalSize;
             };
             return Canvas;
         })(Controls.Panel);

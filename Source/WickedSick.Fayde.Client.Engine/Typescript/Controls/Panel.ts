@@ -94,6 +94,11 @@ module Fayde.Controls {
         _ResortChildrenByZIndex() {
             (<PanelChildrenCollection>this.XObject.Children).XamlNode.ResortByZIndex();
         }
+        
+        _MeasureOverride(availableSize: size, error: BError): size {
+            //Abstract Method
+            return new size();
+        }
     }
     Nullstone.RegisterType(PanelNode, "PanelNode");
     function zIndexPropertyChanged(dobj: DependencyObject, args) {

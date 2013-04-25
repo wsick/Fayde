@@ -184,10 +184,10 @@ module Fayde.Shapes {
             });
         }
 
-        Draw(ctx: any) {
-            var canvasCtx: CanvasRenderingContext2D = ctx;
-            if (ctx instanceof RenderContext)
-                canvasCtx = ctx.CanvasContext;
+        DrawRenderCtx(ctx: RenderContext) {
+            this.DrawCanvasCtx(ctx.CanvasContext);
+        }
+        DrawCanvasCtx(canvasCtx: CanvasRenderingContext2D) {
             canvasCtx.beginPath();
             var backing = this._Path;
             for (var i = 0; i < backing.length; i++) {

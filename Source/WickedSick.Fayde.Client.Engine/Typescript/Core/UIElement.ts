@@ -143,6 +143,7 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(UINode, "UINode");
+
     export class UIElement extends DependencyObject {
         XamlNode: UINode;
         _Store: Providers.InheritedProviderStore;
@@ -181,7 +182,12 @@ module Fayde {
         private _IsMouseOver: bool = false;
         get IsMouseOver() { return this._IsMouseOver; }
 
+        Clip: Media.Geometry;
+        Effect: Media.Effects.Effect;
+        IsHitTestVisible: bool;
         Cursor: string;
+        OpacityMask: Media.Brush;
+        Opacity: number;
         RenderTransform: Media.Transform;
         RenderTransformOrigin: Point;
         Tag: any;

@@ -7,6 +7,7 @@ module Fayde.Controls {
         XObject: UserControl;
         constructor(xobj: UserControl) {
             super(xobj);
+            this.LayoutUpdater.BreaksLayoutClipRender = true;
         }
         _GetDefaultTemplate(): UIElement {
             var xobj = this.XObject;

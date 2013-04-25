@@ -40,6 +40,22 @@ module Fayde {
         SizeNS: "n-resize",
         SizeWE: "w-resize"
     }
+    export enum HorizontalAlignment {
+        Left = 0,
+        Center = 1,
+        Right = 2,
+        Stretch = 3,
+    }
+    export enum VerticalAlignment {
+        Top = 0,
+        Center = 1,
+        Bottom = 2,
+        Stretch = 3,
+    }
+    export enum FlowDirection {
+        LeftToRight = 0,
+        RightToLeft = 1,
+    }
 }
 
 module Fayde {
@@ -1401,10 +1417,10 @@ module Fayde.Shapes {
                 type: PathEntryType.Close
             });
         }
-        Draw(ctx: any) {
-            var canvasCtx: CanvasRenderingContext2D = ctx;
-            if (ctx instanceof RenderContext)
-                canvasCtx = ctx.CanvasContext;
+        DrawRenderCtx(ctx: RenderContext) {
+            this.DrawCanvasCtx(ctx.CanvasContext);
+        }
+        DrawCanvasCtx(canvasCtx: CanvasRenderingContext2D) {
             canvasCtx.beginPath();
             var backing = this._Path;
             for (var i = 0; i < backing.length; i++) {
@@ -1867,11 +1883,10 @@ module Fayde {
         static SetLayoutClip(uie: UIElement, value: Media.Geometry) {
             uie.XamlNode.LayoutUpdater.LayoutClip = value;
         }
-        static GetLayoutExceptionElement(uie: UIElement): UIElement {
-            return uie.XamlNode.LayoutUpdater.LayoutExceptionElement;
-        }
-        static SetLayoutExceptionElement(uie: UIElement, value: UIElement) {
-            uie.XamlNode.LayoutUpdater.LayoutExceptionElement = value;
+        static GetLayoutExceptionElement(): UIElement {
+            var lu = LayoutUpdater.LayoutExceptionUpdater;
+            if (lu)
+                return lu.Node.XObject;
         }
         static GetLayoutSlot(uie: UIElement): rect {
             return uie.XamlNode.LayoutUpdater.LayoutSlot;
@@ -1912,17 +1927,43 @@ module Fayde {
         Count: number;
         Updated: bool;
     }
+    export interface IMeasurable {
+        MeasureOverride(availableSize: size): size;
+    }
+    export interface IMeasurableHidden {
+        _MeasureOverride(availableSize: size, error: BError): size;
+    }
+    export interface IArrangeable {
+        ArrangeOverride(finalSize: size): size;
+    }
+    export interface IArrangeableHidden {
+        _ArrangeOverride(finalSize: size, error: BError): size;
+    }
+    export interface IRenderable {
+        Render(ctx: RenderContext, lu:LayoutUpdater, region: rect);
+    }
     var maxPassCount = 250;
     export class LayoutUpdater {
+        static LayoutExceptionUpdater: LayoutUpdater = undefined;
         private _Surface: Surface;
         LayoutClip: Media.Geometry = undefined;
-        LayoutExceptionElement: UIElement = undefined;
         LayoutSlot: rect = undefined;
         PreviousConstraint: size = undefined;
         LastRenderSize: size = undefined;
+        HiddenDesire: size = new size();
         DesiredSize: size = new size();
         RenderSize: size = new size();
+        VisualOffset: Point = new Point();
+        AbsoluteXform: number[] = mat3.identity();
+        LayoutXform: number[] = mat3.identity();
+        LocalXform: number[] = mat3.identity();
+        RenderXform: number[] = mat3.identity();
+        LocalProjection: number[] = mat4.identity();
+        AbsoluteProjection: number[] = mat4.identity();
+        RenderProjection: number[] = mat4.identity();
+        TotalOpacity: number = 1.0;
         TotalIsRenderVisible: bool = true;
+        TotalIsHitTestVisible: bool = true;
         Extents: rect = new rect();
         Bounds: rect = new rect();
         Global: rect = new rect();
@@ -1935,6 +1976,7 @@ module Fayde {
         LayoutClipBounds: rect = new rect();
         IsContainer: bool = false;
         IsLayoutContainer: bool = false;
+        BreaksLayoutClipRender: bool = false;
         Flags: Fayde.UIElementFlags = Fayde.UIElementFlags.None;
         DirtyFlags: _Dirty = 0;
         InUpDirty: bool = false;
@@ -2116,12 +2158,21 @@ module Fayde {
         private _CacheInvalidateHint() {
         }
         InvalidateMeasure() {
+            this.DirtyFlags |= _Dirty.Measure;
+            this._PropagateFlagUp(UIElementFlags.DirtyMeasureHint);
         }
         InvalidateArrange() {
+            this.DirtyFlags |= _Dirty.Arrange;
+            this._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
         }
         UpdateBounds(forceRedraw?: bool) {
+            if (this.Node.IsAttached)
+                this._Surface._AddDirtyElement(this, _Dirty.Bounds);
+            this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
         }
         UpdateTransform() {
+            if (this.Node.IsAttached)
+                this._Surface._AddDirtyElement(this, _Dirty.LocalTransform);
         }
         ComputeLocalTransform() {
         }
@@ -2130,14 +2181,35 @@ module Fayde {
         ComputeTransform() {
         }
         UpdateProjection() {
+            if (this.Node.IsAttached)
+                this._Surface._AddDirtyElement(this, _Dirty.LocalProjection);
         }
         UpdateRenderVisibility(vpLu: Fayde.LayoutUpdater) {
+            var uie = this.Node.XObject;
+            if (vpLu) {
+                var vp = vpLu.Node.XObject;
+                this.TotalOpacity = vpLu.TotalOpacity * uie.Opacity;
+                this.TotalIsRenderVisible = (vp.Visibility === 0) && (uie.Visibility === 0);
+            } else {
+                this.TotalOpacity = uie.Opacity;
+                this.TotalIsRenderVisible = (uie.Visibility === 0);
+            }
         }
         UpdateTotalRenderVisibility() {
+            if (this.Node.IsAttached)
+                this._Surface._AddDirtyElement(this, _Dirty.RenderVisibility);
         }
         UpdateHitTestVisibility(vpLu: Fayde.LayoutUpdater) {
+            var uie = this.Node.XObject;
+            if (vpLu) {
+                this.TotalIsHitTestVisible = vpLu.TotalIsHitTestVisible && uie.IsHitTestVisible;
+            } else {
+                this.TotalIsHitTestVisible = uie.IsHitTestVisible;
+            }
         }
         UpdateTotalHitTestVisibility() {
+            if (this.Node.IsAttached)
+                this._Surface._AddDirtyElement(this, _Dirty.HitTestVisibility);
         }
         ComputeBounds() {
         }
@@ -2147,9 +2219,6 @@ module Fayde {
                 rect.clear(this.LayoutClipBounds);
             else
                 rect.copyTo(layoutClip.GetBounds(), this.LayoutClipBounds);
-        }
-        GetRenderVisible(): bool {
-            return true;
         }
         UpdateLayer(pass: Fayde.ILayoutPass, error: BError) {
             var elNode = this.Node;
@@ -2280,10 +2349,337 @@ module Fayde {
             }
         }
         private _DoMeasureWithError(error: BError) {
+            var last = this.PreviousConstraint;
+            var node = this.Node;
+            var visualParentNode = node.VisualParentNode;
+            if (!node.IsAttached && !last && !visualParentNode && this.IsLayoutContainer) {
+                last = size.createInfinite();
+            }
+            if (last) {
+                var previousDesired = size.clone(this.DesiredSize);
+                this._Measure(last, error);
+                if (size.isEqual(previousDesired, this.DesiredSize))
+                    return;
+            }
+            if (visualParentNode)
+                visualParentNode.LayoutUpdater.InvalidateMeasure();
+            this.DirtyFlags &= ~_Dirty.Measure;
+        }
+        _Measure(availableSize: size, error: BError) {
+            if (error.Message)
+                return;
+            var node = <FENode>this.Node;
+            var fe = node.XObject;
+            if (isNaN(availableSize.Width) || isNaN(availableSize.Height)) {
+                error.Message = "Cannot call Measure using a size with NaN values";
+                LayoutUpdater.LayoutExceptionUpdater = this;
+                return;
+            }
+            var last = this.PreviousConstraint;
+            var shouldMeasure = (this.DirtyFlags & _Dirty.Measure) > 0;
+            shouldMeasure = shouldMeasure || (!last || last.Width !== availableSize.Width || last.Height !== availableSize.Height);
+            if (fe.Visibility !== Fayde.Visibility.Visible) {
+                this.PreviousConstraint = availableSize;
+                size.clear(this.DesiredSize);
+                return;
+            }
+            node._ApplyTemplateWithError(error);
+            if (!shouldMeasure)
+                return;
+            this.PreviousConstraint = availableSize;
+            this.InvalidateArrange();
+            this.UpdateBounds();
+            var s = size.clone(availableSize);
+            var margin = fe.Margin;
+            if (margin)
+                size.shrinkByThickness(s, margin);
+            this._CoerceSize(s);
+            if ((<any>fe).MeasureOverride) {
+                s = (<IMeasurable><any>fe).MeasureOverride(s);
+            } else {
+                s = (<IMeasurableHidden>fe)._MeasureOverride(s, error);
+            }
+            if (error.Message)
+                return;
+            this.DirtyFlags &= ~_Dirty.Measure;
+            this.HiddenDesire = size.clone(s);
+            var visualParentNode = node.VisualParentNode;
+            if (!visualParentNode || visualParentNode instanceof Controls.CanvasNode) {
+                if (node instanceof Controls.CanvasNode || !this.IsLayoutContainer) {
+                    size.clear(this.DesiredSize);
+                    return;
+                }
+            }
+            this._CoerceSize(s);
+            if (margin)
+                size.growByThickness(s, margin);
+            size.min(s, availableSize);
+            if (fe.UseLayoutRounding) {
+                s.Width = Math.round(s.Width);
+                s.Height = Math.round(s.Height);
+            }
+            size.copyTo(s, this.DesiredSize);
         }
         private _DoArrangeWithError(error: BError) {
+            var last = this.LayoutSlot;
+            if (last === null)
+                last = undefined;
+            var n = <FENode>this.Node;
+            var fe = n.XObject;
+            var visualParentNode = n.VisualParentNode;
+            if (!visualParentNode) {
+                var surface = this._Surface;
+                var desired: size;
+                if (this.IsLayoutContainer) {
+                    desired = size.clone(this.DesiredSize);
+                    if (n.IsAttached && n.IsTopLevel && !n.ParentNode) {
+                        var measure = this.PreviousConstraint;
+                        if (measure)
+                            size.max(desired, measure);
+                        else
+                            desired = size.clone(surface.Extents);
+                    }
+                } else {
+                    desired.Width = fe.ActualWidth;
+                    desired.Height = fe.ActualHeight;
+                }
+                var viewport = rect.fromSize(desired);
+                viewport.X = Controls.Canvas.GetLeft(fe);
+                viewport.Y = Controls.Canvas.GetTop(fe);
+                last = viewport;
+            }
+            if (last) {
+                this._Arrange(last, error);
+            } else {
+                if (visualParentNode)
+                    visualParentNode.LayoutUpdater.InvalidateArrange();
+            }
+        }
+        _Arrange(finalRect: rect, error: BError) {
+            if (error.Message)
+                return;
+            var node = <FENode>this.Node;
+            var fe = node.XObject;
+            if (fe.UseLayoutRounding) {
+                rect.round(finalRect);
+            }
+            if (finalRect.Width < 0 || finalRect.Height < 0
+                    || !isFinite(finalRect.Width) || !isFinite(finalRect.Height)
+                    || isNaN(finalRect.Width) || isNaN(finalRect.Height)) {
+                var desired = this.DesiredSize;
+                Warn("Invalid arguments to Arrange. Desired = " + desired.toString());
+                return;
+            }
+            if (fe.Visibility !== Fayde.Visibility.Visible) {
+                this.LayoutSlot = finalRect;
+                return;
+            }
+            var slot = this.LayoutSlot;
+            var shouldArrange = (this.DirtyFlags & _Dirty.Arrange) > 0 || !slot || !rect.isEqual(slot, finalRect);
+            if (!shouldArrange)
+                return;
+            var measure = this.PreviousConstraint;
+            if (this.IsContainer && !measure) {
+                this._Measure(size.fromRect(finalRect), error);
+            }
+            measure = this.PreviousConstraint;
+            this.SetLayoutClip(undefined);
+            var childRect = rect.clone(finalRect);
+            var margin = fe.Margin;
+            if (margin)
+                rect.shrinkByThickness(childRect, margin);
+            this.UpdateTransform();
+            this.UpdateProjection();
+            this.UpdateBounds();
+            var offer = size.clone(this.HiddenDesire);
+            var stretched = this._CoerceSize(size.fromRect(childRect));
+            var framework = this._CoerceSize(new size());
+            var horiz = fe.HorizontalAlignment;
+            var vert = fe.VerticalAlignment;
+            if (horiz === HorizontalAlignment.Stretch)
+                framework.Width = Math.max(framework.Width, stretched.Width);
+            if (vert === VerticalAlignment.Stretch)
+                framework.Height = Math.max(framework.Height, stretched.Height);
+            size.max(offer, framework);
+            this.LayoutSlot = finalRect;
+            var response: size;
+            if ((<any>fe).ArrangeOverride) {
+                response = (<IArrangeable><any>fe).ArrangeOverride(offer);
+            } else {
+                response = (<IArrangeableHidden>fe)._ArrangeOverride(offer, error);
+            }
+            if (horiz === HorizontalAlignment.Stretch)
+                response.Width = Math.max(response.Width, framework.Width);
+            if (vert === VerticalAlignment.Stretch)
+                response.Height = Math.max(response.Height, framework.Height);
+            var flipHoriz = false;
+            var flowDirection = fe.FlowDirection;
+            var visualParentNode = <FENode>node.VisualParentNode;
+            if (visualParentNode)
+                flipHoriz = visualParentNode.XObject.FlowDirection !== flowDirection;
+            else if (node.ParentNode instanceof Controls.Primitives.PopupNode)
+                flipHoriz = (<Controls.Primitives.PopupNode>node.ParentNode).XObject.FlowDirection !== flowDirection;
+            else
+                flipHoriz = flowDirection === FlowDirection.RightToLeft;
+            var layoutXform = mat3.identity(this.LayoutXform);
+            mat3.translate(layoutXform, childRect.X, childRect.Y);
+            if (flipHoriz) {
+                mat3.translate(layoutXform, offer.Width, 0);
+                mat3.scale(layoutXform, -1, 1);
+            }
+            if (error.Message)
+                return;
+            this.DirtyFlags &= ~_Dirty.Arrange;
+            var visualOffset = this.VisualOffset;
+            visualOffset.X = childRect.X;
+            visualOffset.Y = childRect.Y;
+            var oldSize = size.clone(this.RenderSize);
+            if (fe.UseLayoutRounding) {
+                response.Width = Math.round(response.Width);
+                response.Height = Math.round(response.Height);
+            }
+            size.copyTo(response, this.RenderSize);
+            var constrainedResponse = this._CoerceSize(size.clone(response));
+            size.min(constrainedResponse, response);
+            if (!visualParentNode || visualParentNode instanceof Controls.CanvasNode) {
+                if (!this.IsLayoutContainer) {
+                    size.clear(this.RenderSize);
+                    return;
+                }
+            }
+            var isTopLevel = node.IsAttached && node.IsTopLevel;
+            if (!isTopLevel) {
+                switch (horiz) {
+                    case HorizontalAlignment.Left:
+                        break;
+                    case HorizontalAlignment.Right:
+                        visualOffset.X += childRect.Width - constrainedResponse.Width;
+                        break;
+                    case HorizontalAlignment.Center:
+                        visualOffset.X += (childRect.Width - constrainedResponse.Width) * 0.5;
+                        break;
+                    default:
+                        visualOffset.X += Math.max((childRect.Width - constrainedResponse.Width) * 0.5, 0);
+                        break;
+                }
+                switch (vert) {
+                    case VerticalAlignment.Top:
+                        break;
+                    case VerticalAlignment.Bottom:
+                        visualOffset.Y += childRect.Height - constrainedResponse.Height;
+                        break;
+                    case VerticalAlignment.Center:
+                        visualOffset.Y += (childRect.Height - constrainedResponse.Height) * 0.5;
+                        break;
+                    default:
+                        visualOffset.Y += Math.max((childRect.Height - constrainedResponse.Height) * 0.5, 0);
+                        break;
+                }
+            }
+            if (fe.UseLayoutRounding) {
+                visualOffset.X = Math.round(visualOffset.X);
+                visualOffset.Y = Math.round(visualOffset.Y);
+            }
+            layoutXform = mat3.identity(this.LayoutXform);
+            mat3.translate(layoutXform, visualOffset.X, visualOffset.Y);
+            if (flipHoriz) {
+                mat3.translate(layoutXform, response.Width, 0);
+                mat3.scale(layoutXform, -1, 1);
+            }
+            var element = new rect();
+            element.Width = response.Width;
+            element.Height = response.Height;
+            var layoutClip = rect.clone(childRect);
+            layoutClip.X = Math.max(childRect.X - visualOffset.X, 0);
+            layoutClip.Y = Math.max(childRect.Y - visualOffset.Y, 0);
+            if (fe.UseLayoutRounding) {
+                layoutClip.X = Math.round(layoutClip.X);
+                layoutClip.Y = Math.round(layoutClip.Y);
+            }
+            if (((!isTopLevel && rect.isRectContainedIn(element, layoutClip)) || !size.isEqual(constrainedResponse, response))
+                && !(node instanceof Controls.CanvasNode) && ((visualParentNode && !(visualParentNode instanceof Controls.CanvasNode)) || this.IsContainer)) {
+                var frameworkClip = this._CoerceSize(size.createInfinite());
+                var frect = rect.fromSize(frameworkClip);
+                rect.intersection(layoutClip, frect);
+                var rectangle = new Media.RectangleGeometry();
+                rectangle.Rect = layoutClip;
+                this.SetLayoutClip(rectangle);
+            }
+            if (!size.isEqual(oldSize, response)) {
+                if (!this.LastRenderSize) {
+                    this.LastRenderSize = oldSize;
+                    this._PropagateFlagUp(UIElementFlags.DirtySizeHint);
+                }
+            }
         }
         DoRender(ctx: Fayde.RenderContext, r: rect) {
+            if (!this.TotalIsRenderVisible)
+                return;
+            if ((this.TotalOpacity * 255) < 0.5)
+                return;
+            var region = new rect();
+            if (false) {
+            } else {
+                rect.copyTo(this.SubtreeExtents, region);
+                rect.transform(region, this.RenderXform);
+                rect.transform(region, ctx.CurrentTransform);
+                rect.roundOut(region);
+                rect.intersection(region, r);
+            }
+            if (rect.isEmpty(region))
+                return;
+            ctx.Save();
+            ctx.TransformMatrix(this.RenderXform);
+            ctx.CanvasContext.globalAlpha = this.TotalOpacity;
+            var uie = this.Node.XObject;
+            var canvasCtx = ctx.CanvasContext;
+            var clip = uie.Clip;
+            if (clip) {
+                clip.Draw(ctx);
+                canvasCtx.clip();
+            }
+            /*
+            if (window.RenderDebug) {
+                RenderDebug.Count++;
+                RenderDebug(this.__DebugToString());
+            }
+            */
+            var effect = uie.Effect;
+            if (effect) {
+                canvasCtx.save();
+                effect.PreRender(ctx);
+            }
+            if ((<IRenderable><any>uie).Render)
+                (<IRenderable><any>uie).Render(ctx, this, region);
+            if (effect) {
+                canvasCtx.restore();
+            }
+            var enumerator = this.Node.GetVisualTreeEnumerator(VisualTreeDirection.ZFoward);
+            while (enumerator.MoveNext()) {
+                (<UINode>enumerator.Current).LayoutUpdater.DoRender(ctx, region);
+            }
+            ctx.Restore();
+        }
+        _RenderLayoutClip(ctx: RenderContext) {
+            var iX = 0;
+            var iY = 0;
+            var curNode = this.Node;
+            while (curNode) {
+                var lu = curNode.LayoutUpdater;
+                var geom = lu.LayoutClip;
+                if (geom)
+                    ctx.ClipGeometry(geom);
+                if (lu.BreaksLayoutClipRender) //Canvas or UserControl
+                    break;
+                var visualOffset = lu.VisualOffset;
+                if (visualOffset) {
+                    ctx.Translate(-visualOffset.X, -visualOffset.Y);
+                    iX += visualOffset.X;
+                    iY += visualOffset.Y;
+                }
+                curNode = curNode.VisualParentNode;
+            }
+            ctx.Translate(iX, iY);
         }
     }
     Nullstone.RegisterType(LayoutUpdater, "LayoutUpdater");
@@ -4605,7 +5001,7 @@ class Surface {
             var loaded = false;
             for (var check = <Fayde.UINode>ctrl.XamlNode; !loaded && check != null; check = check.VisualParentNode)
                 loaded = loaded || check.IsLoaded;
-            if (loaded && cn.LayoutUpdater.GetRenderVisible() && c.IsTabStop)
+            if (loaded && cn.LayoutUpdater.TotalIsRenderVisible && c.IsTabStop)
                 return this._FocusNode(cn);
             if (!recurse)
                 return false;
@@ -7501,7 +7897,7 @@ module Fayde.Media {
                 ctx.Save();
                 ctx.Transform(transform);
             }
-            this._Path.Draw(ctx);
+            this._Path.DrawRenderCtx(ctx);
             if (transform != null)
                 ctx.Restore();
         }
@@ -9233,7 +9629,12 @@ module Fayde {
         static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
         private _IsMouseOver: bool = false;
         get IsMouseOver() { return this._IsMouseOver; }
+        Clip: Media.Geometry;
+        Effect: Media.Effects.Effect;
+        IsHitTestVisible: bool;
         Cursor: string;
+        OpacityMask: Media.Brush;
+        Opacity: number;
         RenderTransform: Media.Transform;
         RenderTransformOrigin: Point;
         Tag: any;
@@ -10501,7 +10902,7 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(FENode, "FENode");
-    export class FrameworkElement extends UIElement {
+    export class FrameworkElement extends UIElement implements IMeasurableHidden, IArrangeableHidden {
         DefaultStyleKey: any;
         XamlNode: FENode;
         Resources: ResourceDictionary;
@@ -10538,25 +10939,52 @@ module Fayde {
         ActualHeight: number;
         DataContext: any;
         Style: Style;
+        HorizontalAlignment: HorizontalAlignment;
+        VerticalAlignment: VerticalAlignment;
         Width: number;
         Height: number;
         MinWidth: number;
         MinHeight: number;
         MaxWidth: number;
         MaxHeight: number;
+        Margin: Thickness;
+        FlowDirection: FlowDirection;
         SizeChanged: RoutedEvent;
         _ComputeActualSize(): size {
             return new size();
         }
         InvokeLoaded() {
         }
-        MeasureOverride(availableSize: size): size { return undefined; }
-        ArrangeOverride(finalSize: size): size { return undefined; }
         OnApplyTemplate() { }
         FindName(name: string): any {
             var n = this.XamlNode.FindName(name);
             if (n)
                 return n.XObject;
+        }
+        private _MeasureOverride(availableSize: size, error: BError): size {
+            var desired = new size();
+            availableSize = size.clone(availableSize);
+            size.max(availableSize, desired);
+            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                var childNode = <FENode>enumerator.Current;
+                var childLu = childNode.LayoutUpdater;
+                childLu._Measure(availableSize, error);
+                desired = size.clone(childLu.DesiredSize);
+            }
+            size.min(desired, availableSize);
+            return desired;
+        }
+        private _ArrangeOverride(finalSize: size, error: BError): size {
+            var arranged = size.clone(finalSize);
+            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                var childNode = <FENode>enumerator.Current;
+                var childRect = rect.fromSize(finalSize);
+                childNode.LayoutUpdater._Arrange(childRect, error);
+                size.max(arranged, finalSize);
+            }
+            return arranged;
         }
     }
     Nullstone.RegisterType(FrameworkElement, "FrameworkElement");
@@ -10630,7 +11058,182 @@ module Fayde.Controls {
             n.LayoutUpdater.SetContainerMode(true);
             return n;
         }
+        static BackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Border, undefined, (d, args) => (<Border>d)._BackgroundChanged(args));
+        static BorderBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderBrush", () => Media.Brush, Border, undefined, (d, args) => (<Border>d)._BorderBrushChanged(args));
+        static BorderThicknessProperty: DependencyProperty = DependencyProperty.RegisterFull("BorderThickness", () => Thickness, Border, undefined, (d, args) => (<Border>d)._BorderThicknessChanged(args)); //TODO: Validator
+        static ChildProperty: DependencyProperty = DependencyProperty.RegisterCore("Child", () => UIElement, Border, undefined, (d, args) => (<Border>d)._ChildChanged(args));
+        static CornerRadiusProperty: DependencyProperty = DependencyProperty.RegisterFull("CornerRadius", () => CornerRadius, Border); //TODO: Validator
+        static PaddingProperty: DependencyProperty = DependencyProperty.RegisterFull("Padding", () => Thickness, Border, undefined, (d, args) => (<Border>d)._PaddingChanged(args)); //TODO: Validator
+        Background: Media.Brush;
+        BorderBrush: Media.Brush;
+        BorderThickness: Thickness;
+        Child: UIElement;
+        CornerRadius: CornerRadius;
+        Padding: Thickness;
+        static Annotations = { ContentProperty: Border.ChildProperty }
+        private _MeasureOverride(availableSize: size, error: BError): size {
+            var border = this.Padding.Plus(this.BorderThickness);
+            var desired = new size();
+            availableSize = size.shrinkByThickness(size.clone(availableSize), border);
+            var child = this.Child;
+            if (child) {
+                var lu = child.XamlNode.LayoutUpdater;
+                lu._Measure(availableSize, error);
+                desired = size.clone(lu.DesiredSize);
+            }
+            size.growByThickness(desired, border);
+            size.min(desired, availableSize);
+            return desired;
+        }
+        private _ArrangeOverride(finalSize: size, error: BError): size {
+            var child = this.Child;
+            if (child) {
+                var border = this.Padding.Plus(this.BorderThickness);
+                var childRect = rect.fromSize(finalSize);
+                rect.shrinkByThickness(childRect, border);
+                child.XamlNode.LayoutUpdater._Arrange(childRect, error);
+                /*
+                arranged = size.fromRect(childRect);
+                size.growByThickness(arranged, border);
+                size.max(arranged, finalSize);
+                */
+            }
+            return finalSize;
+        }
+        private _ChildChanged(args: IDependencyPropertyChangedEventArgs) {
+            var olduie = <UIElement>args.OldValue;
+            var newuie = <UIElement>args.NewValue;
+            var node = this.XamlNode;
+            if (olduie instanceof UIElement) {
+                node._ElementRemoved(olduie);
+                node.SetSubtreeNode(null);
+            }
+            if (newuie instanceof UIElement) {
+                node.SetSubtreeNode(newuie.XamlNode);
+                node._ElementAdded(newuie);
+            }
+            var lu = node.LayoutUpdater;
+            lu.UpdateBounds();
+            lu.InvalidateMeasure();
+        }
+        private _BackgroundChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldBrush = <Media.Brush>args.OldValue;
+            var newBrush = <Media.Brush>args.NewValue;
+            if (oldBrush)
+                oldBrush.Unlisten(this);
+            if (newBrush)
+                newBrush.Listen(this);
+            this.BrushChanged(newBrush);
+        }
+        private _BorderBrushChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldBrush = <Media.Brush>args.OldValue;
+            var newBrush = <Media.Brush>args.NewValue;
+            if (oldBrush)
+                oldBrush.Unlisten(this);
+            if (newBrush)
+                newBrush.Listen(this);
+            this.BrushChanged(newBrush);
+        }
+        private _BorderThicknessChanged(args: IDependencyPropertyChangedEventArgs) {
+            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+        }
+        private _PaddingChanged(args: IDependencyPropertyChangedEventArgs) {
+            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+        }
+        private BrushChanged(newBrush: Media.Brush) { this.XamlNode.LayoutUpdater.Invalidate(); }
+        private Render(ctx: RenderContext, lu:LayoutUpdater, region: rect) {
+            var borderBrush = this.BorderBrush;
+            var extents = lu.Extents;
+            var backgroundBrush = this.Background;
+            if (!backgroundBrush && !borderBrush)
+                return;
+            if (rect.isEmpty(extents))
+                return;
+            var thickness = this.BorderThickness;
+            var fillOnly = !borderBrush || thickness.IsEmpty();
+            if (fillOnly && !backgroundBrush)
+                return;
+            ctx.Save();
+            lu._RenderLayoutClip(ctx);
+            if (fillOnly)
+                this._RenderFillOnly(ctx, extents, backgroundBrush, thickness, this.CornerRadius);
+            else if (thickness.IsBalanced())
+                this._RenderBalanced(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
+            else
+                this._RenderUnbalanced(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
+            ctx.Restore();
+        }
+        private _RenderFillOnly(ctx: RenderContext, extents: rect, backgroundBrush: Media.Brush, thickness: Thickness, cornerRadius: CornerRadius) {
+            var fillExtents = rect.clone(extents);
+            if (!thickness.IsEmpty())
+                rect.shrinkByThickness(fillExtents, thickness);
+            if (cornerRadius.IsZero()) {
+                ctx.FillRect(backgroundBrush, fillExtents);
+                return;
+            }
+            var rawPath = new Shapes.RawPath();
+            rawPath.RoundedRectFull(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height,
+                cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
+            rawPath.DrawRenderCtx(ctx);
+            ctx.Fill(backgroundBrush, fillExtents);
+        }
+        private _RenderBalanced(ctx: RenderContext, extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cornerRadius: CornerRadius) {
+            var full = thickness.Left;
+            var half = full * 0.5;
+            var strokeExtents = rect.clone(extents);
+            rect.shrinkBy(strokeExtents, half, half, half, half);
+            var fillExtents = rect.clone(extents);
+            rect.shrinkBy(fillExtents, full, full, full, full);
+            if (cornerRadius.IsZero()) {
+                if (backgroundBrush) {
+                    ctx.StrokeAndFillRect(borderBrush, thickness.Left, strokeExtents, backgroundBrush, fillExtents);
+                } else {
+                    ctx.Rect(fillExtents);
+                    ctx.Stroke(borderBrush, thickness.Left, extents);
+                }
+            } else {
+                var rawPath = new Shapes.RawPath();
+                rawPath.RoundedRectFull(strokeExtents.X, strokeExtents.Y, strokeExtents.Width, strokeExtents.Height,
+                    cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
+                rawPath.DrawRenderCtx(ctx);
+                if (backgroundBrush)
+                    ctx.Fill(backgroundBrush, fillExtents);
+                ctx.Stroke(borderBrush, thickness.Left, extents);
+            }
+        }
+        private _RenderUnbalanced(ctx: RenderContext, extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cornerRadius: CornerRadius) {
+            var hasCornerRadius = !cornerRadius.IsZero();
+            var innerExtents = rect.clone(extents);
+            rect.shrinkByThickness(innerExtents, thickness);
+            var innerPath = new Fayde.Shapes.RawPath();
+            var outerPath = new Fayde.Shapes.RawPath();
+            if (hasCornerRadius) {
+                outerPath.RoundedRectFull(0, 0, extents.Width, extents.Height,
+                    cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
+                innerPath.RoundedRectFull(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height,
+                    cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
+            } else {
+                outerPath.Rect(0, 0, extents.Width, extents.Height);
+                innerPath.Rect(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height);
+            }
+            var tmpCanvas = <HTMLCanvasElement>document.createElement("canvas");
+            tmpCanvas.width = extents.Width;
+            tmpCanvas.height = extents.Height;
+            var tmpCtx = tmpCanvas.getContext("2d");
+            outerPath.DrawCanvasCtx(tmpCtx);
+            borderBrush.SetupBrush(tmpCtx, extents);
+            tmpCtx.fillStyle = borderBrush.ToHtml5Object();
+            tmpCtx.fill();
+            tmpCtx.globalCompositeOperation = "xor";
+            innerPath.DrawCanvasCtx(tmpCtx);
+            tmpCtx.fill();
+            ctx.CanvasContext.drawImage(tmpCanvas, extents.X, extents.Y);
+            innerPath.DrawRenderCtx(ctx);
+            if (backgroundBrush)
+                ctx.Fill(backgroundBrush, innerExtents);
+        }
     }
+    Nullstone.RegisterType(Border, "Border");
 }
 
 module Fayde.Controls {
@@ -10831,6 +11434,9 @@ module Fayde.Controls {
         _ResortChildrenByZIndex() {
             (<PanelChildrenCollection>this.XObject.Children).XamlNode.ResortByZIndex();
         }
+        _MeasureOverride(availableSize: size, error: BError): size {
+            return new size();
+        }
     }
     Nullstone.RegisterType(PanelNode, "PanelNode");
     function zIndexPropertyChanged(dobj: DependencyObject, args) {
@@ -10880,6 +11486,7 @@ module Fayde.Controls {
         XObject: UserControl;
         constructor(xobj: UserControl) {
             super(xobj);
+            this.LayoutUpdater.BreaksLayoutClipRender = true;
         }
         _GetDefaultTemplate(): UIElement {
             var xobj = this.XObject;
@@ -10927,6 +11534,7 @@ module Fayde.Controls {
 
 module Fayde.Controls.Primitives {
     export class PopupNode extends FENode {
+        XObject: Popup;
         GetInheritedWalker(): IEnumerator {
             var popup = (<Popup>this.XObject);
             if (!popup)
@@ -11216,6 +11824,11 @@ module Fayde.Data {
 
 module Fayde.Controls {
     export class CanvasNode extends PanelNode {
+        XObject: Canvas;
+        constructor(xobj: Canvas) {
+            super(xobj);
+            this.LayoutUpdater.BreaksLayoutClipRender = true;
+        }
         _ElementAdded(uie: UIElement) {
             super._ElementAdded(uie);
             this._UpdateIsLayoutContainerOnAdd(uie);
@@ -11284,13 +11897,34 @@ module Fayde.Controls {
         lu.LayoutSlot = childFinal;
         lu.InvalidateArrange();
     }
-    export class Canvas extends Panel {
+    export class Canvas extends Panel implements IMeasurableHidden, IArrangeableHidden {
         static TopProperty: DependencyProperty = DependencyProperty.RegisterAttached("Top", () => Number, Canvas, 0.0, invalidateTopLeft);
         static GetTop(d: DependencyObject): number { return d.GetValue(TopProperty); }
         static SetTop(d: DependencyObject, value: number) { d.SetValue(TopProperty, value); }
         static LeftProperty: DependencyProperty = DependencyProperty.RegisterAttached("Left", () => Number, Canvas, 0.0, invalidateTopLeft);
         static GetLeft(d: DependencyObject): number { return d.GetValue(LeftProperty); }
         static SetLeft(d: DependencyObject, value: number) { d.SetValue(LeftProperty, value); }
+        private _MeasureOverride(availableSize: size, error: BError): size {
+            var childSize = size.createInfinite();
+            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                var childNode = <FENode>enumerator.Current;
+                childNode.LayoutUpdater._Measure(childSize, error);
+            }
+            return new size();
+        }
+        private _ArrangeOverride(finalSize: size, error: BError): size {
+            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                var childNode = <FENode>enumerator.Current;
+                var lu = childNode.LayoutUpdater;
+                var childFinal = rect.fromSize(lu.DesiredSize);
+                childFinal.X = Canvas.GetLeft(childNode.XObject);
+                childFinal.Y = Canvas.GetTop(childNode.XObject);
+                lu._Arrange(childFinal, error);
+            }
+            return finalSize;
+        }
     }
     Nullstone.RegisterType(Canvas, "Canvas");
 }

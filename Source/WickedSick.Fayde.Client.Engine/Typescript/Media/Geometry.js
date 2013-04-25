@@ -53,7 +53,7 @@ var Fayde;
                     ctx.Save();
                     ctx.Transform(transform);
                 }
-                this._Path.Draw(ctx);
+                this._Path.DrawRenderCtx(ctx);
                 if(transform != null) {
                     ctx.Restore();
                 }

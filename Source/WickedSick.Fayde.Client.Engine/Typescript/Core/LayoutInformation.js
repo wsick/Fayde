@@ -13,11 +13,11 @@ var Fayde;
         LayoutInformation.SetLayoutClip = function SetLayoutClip(uie, value) {
             uie.XamlNode.LayoutUpdater.LayoutClip = value;
         };
-        LayoutInformation.GetLayoutExceptionElement = function GetLayoutExceptionElement(uie) {
-            return uie.XamlNode.LayoutUpdater.LayoutExceptionElement;
-        };
-        LayoutInformation.SetLayoutExceptionElement = function SetLayoutExceptionElement(uie, value) {
-            uie.XamlNode.LayoutUpdater.LayoutExceptionElement = value;
+        LayoutInformation.GetLayoutExceptionElement = function GetLayoutExceptionElement() {
+            var lu = Fayde.LayoutUpdater.LayoutExceptionUpdater;
+            if(lu) {
+                return lu.Node.XObject;
+            }
         };
         LayoutInformation.GetLayoutSlot = function GetLayoutSlot(uie) {
             return uie.XamlNode.LayoutUpdater.LayoutSlot;

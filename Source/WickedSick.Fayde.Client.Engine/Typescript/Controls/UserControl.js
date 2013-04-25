@@ -13,6 +13,7 @@ var Fayde;
             function UCNode(xobj) {
                         _super.call(this, xobj);
                 this._IsParsing = false;
+                this.LayoutUpdater.BreaksLayoutClipRender = true;
             }
             UCNode.prototype._GetDefaultTemplate = function () {
                 var xobj = this.XObject;

@@ -3,6 +3,7 @@
 
 module Fayde.Controls.Primitives {
     export class PopupNode extends FENode {
+        XObject: Popup;
         GetInheritedWalker(): IEnumerator {
             var popup = (<Popup>this.XObject);
             if (!popup)

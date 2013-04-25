@@ -3,6 +3,11 @@
 
 module Fayde.Controls {
     export class CanvasNode extends PanelNode {
+        XObject: Canvas;
+        constructor(xobj: Canvas) {
+            super(xobj);
+            this.LayoutUpdater.BreaksLayoutClipRender = true;
+        }
         _ElementAdded(uie: UIElement) {
             super._ElementAdded(uie);
             this._UpdateIsLayoutContainerOnAdd(uie);
@@ -79,13 +84,35 @@ module Fayde.Controls {
         lu.InvalidateArrange();
     }
 
-    export class Canvas extends Panel {
+    export class Canvas extends Panel implements IMeasurableHidden, IArrangeableHidden {
         static TopProperty: DependencyProperty = DependencyProperty.RegisterAttached("Top", () => Number, Canvas, 0.0, invalidateTopLeft);
         static GetTop(d: DependencyObject): number { return d.GetValue(TopProperty); }
         static SetTop(d: DependencyObject, value: number) { d.SetValue(TopProperty, value); }
         static LeftProperty: DependencyProperty = DependencyProperty.RegisterAttached("Left", () => Number, Canvas, 0.0, invalidateTopLeft);
         static GetLeft(d: DependencyObject): number { return d.GetValue(LeftProperty); }
         static SetLeft(d: DependencyObject, value: number) { d.SetValue(LeftProperty, value); }
+
+        private _MeasureOverride(availableSize: size, error: BError): size {
+            var childSize = size.createInfinite();
+            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                var childNode = <FENode>enumerator.Current;
+                childNode.LayoutUpdater._Measure(childSize, error);
+            }
+            return new size();
+        }
+        private _ArrangeOverride(finalSize: size, error: BError): size {
+            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                var childNode = <FENode>enumerator.Current;
+                var lu = childNode.LayoutUpdater;
+                var childFinal = rect.fromSize(lu.DesiredSize);
+                childFinal.X = Canvas.GetLeft(childNode.XObject);
+                childFinal.Y = Canvas.GetTop(childNode.XObject);
+                lu._Arrange(childFinal, error);
+            }
+            return finalSize;
+        }
     }
     Nullstone.RegisterType(Canvas, "Canvas");
 }

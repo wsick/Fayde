@@ -175,11 +175,10 @@ var Fayde;
                     type: Shapes.PathEntryType.Close
                 });
             };
-            RawPath.prototype.Draw = function (ctx) {
-                var canvasCtx = ctx;
-                if(ctx instanceof Fayde.RenderContext) {
-                    canvasCtx = ctx.CanvasContext;
-                }
+            RawPath.prototype.DrawRenderCtx = function (ctx) {
+                this.DrawCanvasCtx(ctx.CanvasContext);
+            };
+            RawPath.prototype.DrawCanvasCtx = function (canvasCtx) {
                 canvasCtx.beginPath();
                 var backing = this._Path;
                 for(var i = 0; i < backing.length; i++) {

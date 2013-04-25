@@ -93,7 +93,7 @@ module Fayde {
     }
     Nullstone.RegisterType(FENode, "FENode");
 
-    export class FrameworkElement extends UIElement {
+    export class FrameworkElement extends UIElement implements IMeasurableHidden, IArrangeableHidden {
         DefaultStyleKey: any;
         XamlNode: FENode;
         Resources: ResourceDictionary;
@@ -131,13 +131,16 @@ module Fayde {
         ActualHeight: number;
         DataContext: any;
         Style: Style;
-
+        HorizontalAlignment: HorizontalAlignment;
+        VerticalAlignment: VerticalAlignment;
         Width: number;
         Height: number;
         MinWidth: number;
         MinHeight: number;
         MaxWidth: number;
         MaxHeight: number;
+        Margin: Thickness;
+        FlowDirection: FlowDirection;
 
         SizeChanged: RoutedEvent;
 
@@ -148,13 +151,44 @@ module Fayde {
         InvokeLoaded() {
         }
 
-        MeasureOverride(availableSize: size): size { return undefined; }
-        ArrangeOverride(finalSize: size): size { return undefined; }
+        //MeasureOverride(availableSize: size): size { return undefined; }
+        //ArrangeOverride(finalSize: size): size { return undefined; }
         OnApplyTemplate() { }
         FindName(name: string): any {
             var n = this.XamlNode.FindName(name);
             if (n)
                 return n.XObject;
+        }
+
+        private _MeasureOverride(availableSize: size, error: BError): size {
+            var desired = new size();
+
+            availableSize = size.clone(availableSize);
+            size.max(availableSize, desired);
+
+            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                var childNode = <FENode>enumerator.Current;
+                var childLu = childNode.LayoutUpdater;
+                childLu._Measure(availableSize, error);
+                desired = size.clone(childLu.DesiredSize);
+            }
+
+            size.min(desired, availableSize);
+            return desired;
+        }
+        private _ArrangeOverride(finalSize: size, error: BError): size {
+            var arranged = size.clone(finalSize);
+
+            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                var childNode = <FENode>enumerator.Current;
+                var childRect = rect.fromSize(finalSize);
+                childNode.LayoutUpdater._Arrange(childRect, error);
+                size.max(arranged, finalSize);
+            }
+
+            return arranged;
         }
     }
     Nullstone.RegisterType(FrameworkElement, "FrameworkElement");

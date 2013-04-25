@@ -150,19 +150,40 @@ var Fayde;
         };
         FrameworkElement.prototype.InvokeLoaded = function () {
         };
-        FrameworkElement.prototype.MeasureOverride = function (availableSize) {
-            return undefined;
-        };
-        FrameworkElement.prototype.ArrangeOverride = function (finalSize) {
-            return undefined;
-        };
-        FrameworkElement.prototype.OnApplyTemplate = function () {
+        FrameworkElement.prototype.OnApplyTemplate = //MeasureOverride(availableSize: size): size { return undefined; }
+        //ArrangeOverride(finalSize: size): size { return undefined; }
+        function () {
         };
         FrameworkElement.prototype.FindName = function (name) {
             var n = this.XamlNode.FindName(name);
             if(n) {
                 return n.XObject;
             }
+        };
+        FrameworkElement.prototype._MeasureOverride = function (availableSize, error) {
+            var desired = new size();
+            availableSize = size.clone(availableSize);
+            size.max(availableSize, desired);
+            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            while(enumerator.MoveNext()) {
+                var childNode = enumerator.Current;
+                var childLu = childNode.LayoutUpdater;
+                childLu._Measure(availableSize, error);
+                desired = size.clone(childLu.DesiredSize);
+            }
+            size.min(desired, availableSize);
+            return desired;
+        };
+        FrameworkElement.prototype._ArrangeOverride = function (finalSize, error) {
+            var arranged = size.clone(finalSize);
+            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            while(enumerator.MoveNext()) {
+                var childNode = enumerator.Current;
+                var childRect = rect.fromSize(finalSize);
+                childNode.LayoutUpdater._Arrange(childRect, error);
+                size.max(arranged, finalSize);
+            }
+            return arranged;
         };
         return FrameworkElement;
     })(Fayde.UIElement);

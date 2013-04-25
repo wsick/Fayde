@@ -106,6 +106,10 @@ var Fayde;
             PanelNode.prototype._ResortChildrenByZIndex = function () {
                 (this.XObject.Children).XamlNode.ResortByZIndex();
             };
+            PanelNode.prototype._MeasureOverride = function (availableSize, error) {
+                //Abstract Method
+                return new size();
+            };
             return PanelNode;
         })(Fayde.FENode);
         Controls.PanelNode = PanelNode;        
