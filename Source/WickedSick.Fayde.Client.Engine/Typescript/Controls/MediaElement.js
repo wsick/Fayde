@@ -30,6 +30,14 @@ var Fayde;
             MediaElement.prototype.CreateNode = function () {
                 return new MENode(this);
             };
+            MediaElement.prototype._MeasureOverride = function (availableSize, error) {
+                //NotImplemented
+                return availableSize;
+            };
+            MediaElement.prototype._ArrangeOverride = function (finalSize, error) {
+                //NotImplemented
+                return finalSize;
+            };
             return MediaElement;
         })(Fayde.FrameworkElement);
         Controls.MediaElement = MediaElement;        

@@ -1,3 +1,6 @@
+Controls/Enums.js
+Controls/ItemContainerGenerator.js
+Controls/Primitives/IScrollInfo.js
 Core/Clone.js
 Core/Enums.js
 Core/PropertyChangedListener.js
@@ -118,6 +121,7 @@ Media/VSM/VisualStateGroup.js
 Media/VSM/VisualStateManager.js
 Media/VSM/VisualTransition.js
 Controls/ControlTemplate.js
+Controls/ItemsPanelTemplate.js
 Core/DataTemplate.js
 Core/UIElement.js
 Core/Providers/ControlProviderStore.js
@@ -156,11 +160,16 @@ Shapes/Shape.js
 Controls/Border.js
 Controls/Control.js
 Controls/Image.js
+Controls/ItemsControl.js
+Controls/ItemsPresenter.js
+Controls/ListBox.js
 Controls/MediaElement.js
 Controls/Panel.js
 Controls/StackPanel.js
 Controls/TextBlock.js
 Controls/UserControl.js
+Controls/VirtualizingPanel.js
+Controls/VirtualizingStackPanel.js
 Controls/Primitives/Popup.js
 Data/PropertyPath.js
 Shapes/Ellipse.js
@@ -172,3 +181,4 @@ Shapes/Rectangle.js
 Controls/Canvas.js
 Controls/ContentControl.js
 Controls/Grid.js
+Controls/ScrollViewer.js

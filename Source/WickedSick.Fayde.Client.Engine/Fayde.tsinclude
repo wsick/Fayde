@@ -1,3 +1,6 @@
+Typescript\Controls\Enums.ts
+Typescript\Controls\ItemContainerGenerator.ts
+Typescript\Controls\Primitives\IScrollInfo.ts
 Typescript\Core\Clone.ts
 Typescript\Core\Enums.ts
 Typescript\Core\PropertyChangedListener.ts
@@ -118,6 +121,7 @@ Typescript\Media\VSM\VisualStateGroup.ts
 Typescript\Media\VSM\VisualStateManager.ts
 Typescript\Media\VSM\VisualTransition.ts
 Typescript\Controls\ControlTemplate.ts
+Typescript\Controls\ItemsPanelTemplate.ts
 Typescript\Core\DataTemplate.ts
 Typescript\Core\UIElement.ts
 Typescript\Core\Providers\ControlProviderStore.ts
@@ -156,11 +160,16 @@ Typescript\Shapes\Shape.ts
 Typescript\Controls\Border.ts
 Typescript\Controls\Control.ts
 Typescript\Controls\Image.ts
+Typescript\Controls\ItemsControl.ts
+Typescript\Controls\ItemsPresenter.ts
+Typescript\Controls\ListBox.ts
 Typescript\Controls\MediaElement.ts
 Typescript\Controls\Panel.ts
 Typescript\Controls\StackPanel.ts
 Typescript\Controls\TextBlock.ts
 Typescript\Controls\UserControl.ts
+Typescript\Controls\VirtualizingPanel.ts
+Typescript\Controls\VirtualizingStackPanel.ts
 Typescript\Controls\Primitives\Popup.ts
 Typescript\Data\PropertyPath.ts
 Typescript\Shapes\Ellipse.ts
@@ -172,3 +181,4 @@ Typescript\Shapes\Rectangle.ts
 Typescript\Controls\Canvas.ts
 Typescript\Controls\ContentControl.ts
 Typescript\Controls\Grid.ts
+Typescript\Controls\ScrollViewer.ts

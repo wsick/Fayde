@@ -23,7 +23,7 @@ module Fayde.Controls {
     }
     Nullstone.RegisterType(UCNode, "UCNode");
 
-    export class UserControl extends Control {
+    export class UserControl extends Control implements IMeasurableHidden, IArrangeableHidden {
         XamlNode: UCNode;
         static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, UserControl, undefined, (d, args) => (<UserControl>d)._InvalidateContent(args));
         Content: any;

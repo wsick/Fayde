@@ -95,11 +95,6 @@ module Fayde.Controls {
         _ResortChildrenByZIndex() {
             (<PanelChildrenCollection>this.XObject.Children).XamlNode.ResortByZIndex();
         }
-        
-        _MeasureOverride(availableSize: size, error: BError): size {
-            //Abstract Method
-            return new size();
-        }
 
         _CanFindElement(): bool { return this.XObject.Background != null; }
         _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
@@ -137,7 +132,7 @@ module Fayde.Controls {
         //}
         (<PanelNode>dobj.XamlNode.ParentNode)._InvalidateChildrenZIndices();
     }
-    export class Panel extends FrameworkElement {
+    export class Panel extends FrameworkElement implements IMeasurableHidden {
         XamlNode: PanelNode;
         CreateNode(): PanelNode { return new PanelNode(this); }
 
@@ -172,7 +167,11 @@ module Fayde.Controls {
             lu.Invalidate();
         }
         private BrushChanged(newBrush: Media.Brush) { this.XamlNode.LayoutUpdater.Invalidate(); }
-
+        
+        private _MeasureOverride(availableSize: size, error: BError): size {
+            //Abstract Method
+            return new size();
+        }
         private Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
             var background = this.Background;
             if (!background)

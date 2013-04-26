@@ -10,11 +10,11 @@ var Fayde;
     /// <reference path="../Core/DependencyObjectCollection.ts" />
     (function (Controls) {
         function zIndexComparer(uin1, uin2) {
-            var zi1 = Controls.Panel.GetZIndex(uin1.XObject);
-            var zi2 = Controls.Panel.GetZIndex(uin2.XObject);
+            var zi1 = Fayde.Controls.Panel.GetZIndex(uin1.XObject);
+            var zi2 = Fayde.Controls.Panel.GetZIndex(uin2.XObject);
             if(zi1 === zi2) {
-                var z1 = Controls.Panel.GetZ(uin1.XObject);
-                var z2 = Controls.Panel.GetZ(uin2.XObject);
+                var z1 = Fayde.Controls.Panel.GetZ(uin1.XObject);
+                var z2 = Fayde.Controls.Panel.GetZ(uin2.XObject);
                 if(isNaN(z1) || isNaN(z2)) {
                     return 0;
                 }
@@ -107,10 +107,6 @@ var Fayde;
             PanelNode.prototype._ResortChildrenByZIndex = function () {
                 (this.XObject.Children).XamlNode.ResortByZIndex();
             };
-            PanelNode.prototype._MeasureOverride = function (availableSize, error) {
-                //Abstract Method
-                return new size();
-            };
             PanelNode.prototype._CanFindElement = function () {
                 return this.XObject.Background != null;
             };
@@ -200,6 +196,10 @@ var Fayde;
             };
             Panel.prototype.BrushChanged = function (newBrush) {
                 this.XamlNode.LayoutUpdater.Invalidate();
+            };
+            Panel.prototype._MeasureOverride = function (availableSize, error) {
+                //Abstract Method
+                return new size();
             };
             Panel.prototype.Render = function (ctx, lu, region) {
                 var background = this.Background;

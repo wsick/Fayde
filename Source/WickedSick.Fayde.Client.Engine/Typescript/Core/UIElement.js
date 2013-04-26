@@ -406,6 +406,10 @@ var Fayde;
             var uin = (uie) ? uie.XamlNode : null;
             return this.XamlNode.TranformToVisual(uin);
         };
+        UIElement.prototype.Measure = function (availableSize) {
+        };
+        UIElement.prototype.Arrange = function (finalRect) {
+        };
         UIElement.prototype.OnGotFocus = function (e) {
         };
         UIElement.prototype.OnLostFocus = function (e) {

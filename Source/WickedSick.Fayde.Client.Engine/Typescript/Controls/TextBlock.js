@@ -31,6 +31,20 @@ var Fayde;
                 lu.ComputeGlobalBounds();
                 lu.ComputeSurfaceBounds();
             };
+            TextBlockNode.prototype.Measure = function (constraint) {
+                this.Layout(constraint);
+                return size.fromRaw(this._ActualWidth, this._ActualHeight);
+            };
+            TextBlockNode.prototype.Arrange = function (constraint, padding) {
+                this.Layout(constraint);
+                var arranged = size.fromRaw(this._ActualWidth, this._ActualHeight);
+                size.max(arranged, constraint);
+                this._Layout.SetAvailableWidth(constraint.Width);
+                size.growByThickness(arranged, padding);
+            };
+            TextBlockNode.prototype.Layout = function (constraint) {
+                //TODO: Implement
+                            };
             return TextBlockNode;
         })(Fayde.FENode);
         Controls.TextBlockNode = TextBlockNode;        
@@ -43,6 +57,21 @@ var Fayde;
             }
             TextBlock.prototype.CreateNode = function () {
                 return new TextBlockNode(this);
+            };
+            TextBlock.prototype._MeasureOverride = function (availableSize, error) {
+                var padding = this.Padding;
+                var constraint = size.clone(availableSize);
+                size.shrinkByThickness(constraint, padding);
+                var desired = this.XamlNode.Measure(constraint);
+                size.growByThickness(desired, padding);
+                return desired;
+            };
+            TextBlock.prototype._ArrangeOverride = function (finalSize, error) {
+                var padding = this.Padding;
+                var constraint = size.clone(finalSize);
+                size.shrinkByThickness(constraint, padding);
+                this.XamlNode.Arrange(constraint, padding);
+                return finalSize;
             };
             return TextBlock;
         })(Fayde.FrameworkElement);

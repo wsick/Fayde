@@ -355,6 +355,11 @@ module Fayde {
             return this.XamlNode.TranformToVisual(uin);
         }
 
+        Measure(availableSize: size) {
+        }
+        Arrange(finalRect: rect) {
+        }
+
         LostFocus: RoutedEvent = new RoutedEvent();
         GotFocus: RoutedEvent = new RoutedEvent();
         LostMouseCapture: RoutedEvent = new RoutedEvent();

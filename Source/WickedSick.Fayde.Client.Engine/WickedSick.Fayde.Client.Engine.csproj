@@ -485,6 +485,10 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Controls\GridLength.ts" />
     <TypeScriptCompile Include="Typescript\Controls\Grid.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Enums.ts" />
+    <Content Include="Typescript\Controls\Enums.js">
+      <DependentUpon>Enums.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Grid.js">
       <DependentUpon>Grid.ts</DependentUpon>
     </Content>
@@ -495,6 +499,26 @@
       <DependentUpon>Image.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Controls\MediaElement.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ItemContainerGenerator.ts" />
+    <Content Include="Typescript\Controls\ItemContainerGenerator.js">
+      <DependentUpon>ItemContainerGenerator.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ItemsControl.ts" />
+    <Content Include="Typescript\Controls\ItemsControl.js">
+      <DependentUpon>ItemsControl.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ItemsPresenter.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ItemsPanelTemplate.ts" />
+    <Content Include="Typescript\Controls\ItemsPanelTemplate.js">
+      <DependentUpon>ItemsPanelTemplate.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\ItemsPresenter.js">
+      <DependentUpon>ItemsPresenter.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ListBox.ts" />
+    <Content Include="Typescript\Controls\ListBox.js">
+      <DependentUpon>ListBox.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\MediaElement.js">
       <DependentUpon>MediaElement.ts</DependentUpon>
     </Content>
@@ -502,10 +526,18 @@
     <Content Include="Typescript\Controls\Panel.js">
       <DependentUpon>Panel.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\IScrollInfo.ts" />
+    <Content Include="Typescript\Controls\Primitives\IScrollInfo.js">
+      <DependentUpon>IScrollInfo.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Primitives\Popup.js">
       <DependentUpon>Popup.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Controls\StackPanel.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ScrollViewer.ts" />
+    <Content Include="Typescript\Controls\ScrollViewer.js">
+      <DependentUpon>ScrollViewer.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\StackPanel.js">
       <DependentUpon>StackPanel.ts</DependentUpon>
     </Content>
@@ -519,6 +551,14 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Core\DataTemplate.ts" />
     <TypeScriptCompile Include="Typescript\Core\Clone.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\VirtualizingPanel.ts" />
+    <Content Include="Typescript\Controls\VirtualizingPanel.js">
+      <DependentUpon>VirtualizingPanel.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\VirtualizingStackPanel.ts" />
+    <Content Include="Typescript\Controls\VirtualizingStackPanel.js">
+      <DependentUpon>VirtualizingStackPanel.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\Clone.js">
       <DependentUpon>Clone.ts</DependentUpon>
     </Content>
