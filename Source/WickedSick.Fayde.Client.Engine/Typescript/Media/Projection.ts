@@ -7,6 +7,10 @@ module Fayde.Media {
             //TODO: Implement
             return NaN;
         }
+        GetTransform(): number[] {
+            //TODO: Implement
+            return undefined;
+        }
     }
     Nullstone.RegisterType(Projection, "Projection");
 }

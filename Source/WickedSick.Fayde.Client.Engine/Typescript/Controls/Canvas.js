@@ -53,6 +53,21 @@ var Fayde;
                 }
                 lu.IsLayoutContainer = false;
             };
+            CanvasNode.prototype.ComputeBounds = function (baseComputer, lu) {
+                var surface = this._Surface;
+                if(surface && this.IsAttached && this.IsTopLevel) {
+                    // a toplevel (non-popup) canvas doesn't subscribe to the same bounds computation as others
+                    var surfaceSize = surface.Extents;
+                    rect.set(lu.Extents, 0, 0, surfaceSize.Width, surfaceSize.Height);
+                    rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
+                    rect.copyTo(lu.Extents, lu.Bounds);
+                    rect.copyTo(lu.Bounds, lu.BoundsWithChildren);
+                    lu.ComputeGlobalBounds();
+                    lu.ComputeSurfaceBounds();
+                } else {
+                    _super.prototype.ComputeBounds.call(this, baseComputer, lu);
+                }
+            };
             return CanvasNode;
         })(Controls.PanelNode);
         Controls.CanvasNode = CanvasNode;        

@@ -11,7 +11,7 @@
 module Fayde.Shapes {
     declare var NotImplemented;
 
-    export class ShapeNode extends FENode {
+    export class ShapeNode extends FENode implements IBoundsComputable {
         XObject: Shape;
         constructor(xobj: Shape) {
             super(xobj);
@@ -31,9 +31,45 @@ module Fayde.Shapes {
             x = p.X;
             y = p.Y;
             var shape = this.XObject;
-            if (!rect.containsPointXY(shape.GetStretchExtents(lu), x, y))
+            if (!rect.containsPointXY(this.GetStretchExtents(shape, lu), x, y))
                 return false;
             return shape._InsideShape(ctx, lu, x, y);
+        }
+
+        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
+            this.IntersectBaseBoundsWithClipPath(lu, lu.Bounds, this.GetStretchExtents(this.XObject, lu), lu.AbsoluteXform);
+            rect.copyTo(lu.Bounds, lu.BoundsWithChildren);
+            lu.ComputeGlobalBounds();
+            lu.ComputeSurfaceBounds();
+        }
+        private IntersectBaseBoundsWithClipPath(lu: LayoutUpdater, dest: rect, baseBounds: rect, xform: number[]) {
+            var isClipEmpty = rect.isEmpty(lu.ClipBounds);
+            var isLayoutClipEmpty = rect.isEmpty(lu.LayoutClipBounds);
+
+            if ((!isClipEmpty || !isLayoutClipEmpty) && !lu.TotalIsRenderVisible) {
+                rect.clear(dest);
+                return;
+            }
+
+            rect.copyGrowTransform(dest, baseBounds, lu.EffectPadding, xform);
+
+            if (!isClipEmpty)
+                rect.intersection(dest, lu.ClipBounds);
+            if (!isLayoutClipEmpty)
+                rect.intersection(dest, lu.LayoutClipBounds);
+        }
+
+        UpdateStretch() {
+            var lu = this.LayoutUpdater;
+            rect.clear(lu.Extents);
+            rect.clear(lu.ExtentsWithChildren);
+        }
+        GetStretchExtents(shape: Shapes.Shape, lu: LayoutUpdater) {
+            if (rect.isEmpty(lu.Extents)) {
+                rect.copyTo(shape._ComputeStretchBounds(), lu.Extents);
+                rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
+            }
+            return lu.Extents;
         }
     }
 
@@ -80,7 +116,7 @@ module Fayde.Shapes {
             if (this._ShapeFlags & ShapeFlags.Empty)
                 return false;
             var ret = false;
-            var area = this.GetStretchExtents(lu);
+            var area = this.XamlNode.GetStretchExtents(this, lu);
             ctx.Save();
             ctx.PreTransformMatrix(this._StretchXform);
             if (this._Fill != null) {
@@ -194,7 +230,7 @@ module Fayde.Shapes {
         private Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
             if (this._ShapeFlags & ShapeFlags.Empty)
                 return;
-            var area = this.GetStretchExtents(lu);
+            var area = this.XamlNode.GetStretchExtents(this, lu);
             ctx.Save();
             ctx.PreTransformMatrix(this._StretchXform);
             this._DrawPath(ctx);
@@ -261,7 +297,7 @@ module Fayde.Shapes {
             desired.Height = Math.min(desired.Height, shapeBounds.Height * sy);
             return desired;
         }
-        private _ComputeStretchBounds(): rect {
+        _ComputeStretchBounds(): rect {
             var shapeBounds = this._GetNaturalBounds();
             if (!shapeBounds || shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
                 this._ShapeFlags = ShapeFlags.Empty;
@@ -402,7 +438,7 @@ module Fayde.Shapes {
         }
 
         private _InvalidateStretch() {
-            this.XamlNode.LayoutUpdater.UpdateStretch();
+            this.XamlNode.UpdateStretch();
             this._StretchXform = mat3.identity();
             this._InvalidatePathCache();
         }
@@ -415,13 +451,6 @@ module Fayde.Shapes {
             rect.clear(this._NaturalBounds);
             this._InvalidateStretch();
             this.XamlNode.LayoutUpdater.Invalidate();
-        }
-        GetStretchExtents(lu: LayoutUpdater) {
-            if (rect.isEmpty(lu.Extents)) {
-                rect.copyTo(this._ComputeStretchBounds(), lu.Extents);
-                rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
-            }
-            return lu.Extents;
         }
         
         private _FillChanged(args: IDependencyPropertyChangedEventArgs) {

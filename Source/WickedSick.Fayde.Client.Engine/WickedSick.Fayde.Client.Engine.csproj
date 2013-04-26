@@ -484,6 +484,10 @@
       <DependentUpon>ControlTemplate.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Controls\GridLength.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Grid.ts" />
+    <Content Include="Typescript\Controls\Grid.js">
+      <DependentUpon>Grid.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\GridLength.js">
       <DependentUpon>GridLength.ts</DependentUpon>
     </Content>

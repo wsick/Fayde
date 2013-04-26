@@ -117,6 +117,26 @@ var Fayde;
             PanelNode.prototype._InsideObject = function (ctx, lu, x, y) {
                 return (this.XObject.Background != null) && _super.prototype._InsideObject.call(this, ctx, lu, x, y);
             };
+            PanelNode.prototype.ComputeBounds = function (baseComputer, lu) {
+                rect.clear(lu.Extents);
+                rect.clear(lu.ExtentsWithChildren);
+                var enumerator = this.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.Logical);
+                while(enumerator.MoveNext()) {
+                    var item = enumerator.Current;
+                    var itemlu = item.LayoutUpdater;
+                    if(itemlu.TotalIsRenderVisible) {
+                        rect.union(lu.ExtentsWithChildren, itemlu.GlobalBounds);
+                    }
+                }
+                if(this.XObject.Background) {
+                    rect.set(lu.Extents, 0, 0, lu.ActualWidth, lu.ActualHeight);
+                    rect.union(lu.ExtentsWithChildren, lu.Extents);
+                }
+                rect.copyGrowTransform(lu.Bounds, lu.Extents, lu.EffectPadding, lu.AbsoluteXform);
+                rect.copyGrowTransform(lu.BoundsWithChildren, lu.ExtentsWithChildren, lu.EffectPadding, lu.AbsoluteXform);
+                lu.ComputeGlobalBounds();
+                lu.ComputeSurfaceBounds();
+            };
             return PanelNode;
         })(Fayde.FENode);
         Controls.PanelNode = PanelNode;        

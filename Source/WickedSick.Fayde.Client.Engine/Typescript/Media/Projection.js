@@ -18,6 +18,10 @@ var Fayde;
                 //TODO: Implement
                 return NaN;
             };
+            Projection.prototype.GetTransform = function () {
+                //TODO: Implement
+                return undefined;
+            };
             return Projection;
         })(Fayde.DependencyObject);
         Media.Projection = Projection;        

@@ -3,6 +3,7 @@
 
 module Fayde.Controls {
     export class CanvasNode extends PanelNode {
+        private _Surface: Surface;
         XObject: Canvas;
         constructor(xobj: Canvas) {
             super(xobj);
@@ -45,6 +46,23 @@ module Fayde.Controls {
                 }
             }
             lu.IsLayoutContainer = false;
+        }
+
+        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
+            var surface = this._Surface;
+            if (surface && this.IsAttached && this.IsTopLevel) {
+                // a toplevel (non-popup) canvas doesn't subscribe to the same bounds computation as others
+                var surfaceSize = surface.Extents;
+                rect.set(lu.Extents, 0, 0, surfaceSize.Width, surfaceSize.Height);
+                rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
+                rect.copyTo(lu.Extents, lu.Bounds);
+                rect.copyTo(lu.Bounds, lu.BoundsWithChildren);
+
+                lu.ComputeGlobalBounds();
+                lu.ComputeSurfaceBounds();
+            } else {
+                super.ComputeBounds(baseComputer, lu);
+            }
         }
     }
     Nullstone.RegisterType(CanvasNode, "CanvasNode");

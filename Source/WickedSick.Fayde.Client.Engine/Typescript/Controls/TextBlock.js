@@ -11,15 +11,25 @@ var Fayde;
     (function (Controls) {
         var TextBlockNode = (function (_super) {
             __extends(TextBlockNode, _super);
-            function TextBlockNode() {
-                _super.apply(this, arguments);
-
+            function TextBlockNode(xobj) {
+                        _super.call(this, xobj);
             }
             TextBlockNode.prototype.GetInheritedWalker = function () {
                 var coll = (this.XObject).GetValue(TextBlock.InlinesProperty);
                 if(coll) {
                     return (coll).GetEnumerator();
                 }
+            };
+            TextBlockNode.prototype.ComputeBounds = function (baseComputer, lu) {
+                rect.copyTo(this._Layout.GetRenderExtents(), lu.Extents);
+                var padding = this.XObject.Padding;
+                lu.Extents.X += padding.Left;
+                lu.Extents.Y += padding.Top;
+                rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
+                lu.IntersectBoundsWithClipPath(lu.Bounds, lu.AbsoluteXform);
+                rect.copyTo(lu.Bounds, lu.BoundsWithChildren);
+                lu.ComputeGlobalBounds();
+                lu.ComputeSurfaceBounds();
             };
             return TextBlockNode;
         })(Fayde.FENode);

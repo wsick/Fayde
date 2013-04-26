@@ -4,8 +4,9 @@ var Fayde;
     /// CODE
     (function (Media) {
         var Matrix = (function () {
-            function Matrix() {
+            function Matrix(raw) {
                 this._Inverse = null;
+                this._Raw = raw;
             }
             Object.defineProperty(Matrix.prototype, "M11", {
                 get: function () {

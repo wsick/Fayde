@@ -66,7 +66,7 @@ module Fayde.Controls {
     }
     Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");
 
-    export class PanelNode extends FENode {
+    export class PanelNode extends FENode implements IBoundsComputable {
         XObject: Panel;
         constructor(xobj: Panel) {
             super(xobj);
@@ -104,6 +104,30 @@ module Fayde.Controls {
         _CanFindElement(): bool { return this.XObject.Background != null; }
         _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
             return (this.XObject.Background != null) && super._InsideObject(ctx, lu, x, y);
+        }
+        
+        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
+            rect.clear(lu.Extents);
+            rect.clear(lu.ExtentsWithChildren);
+
+            var enumerator = this.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
+            while (enumerator.MoveNext()) {
+                var item = <UINode>enumerator.Current;
+                var itemlu = item.LayoutUpdater;
+                if (itemlu.TotalIsRenderVisible)
+                    rect.union(lu.ExtentsWithChildren, itemlu.GlobalBounds);
+            }
+
+            if (this.XObject.Background) {
+                rect.set(lu.Extents, 0, 0, lu.ActualWidth, lu.ActualHeight);
+                rect.union(lu.ExtentsWithChildren, lu.Extents);
+            }
+
+            rect.copyGrowTransform(lu.Bounds, lu.Extents, lu.EffectPadding, lu.AbsoluteXform);
+            rect.copyGrowTransform(lu.BoundsWithChildren, lu.ExtentsWithChildren, lu.EffectPadding, lu.AbsoluteXform);
+
+            lu.ComputeGlobalBounds();
+            lu.ComputeSurfaceBounds();
         }
     }
     Nullstone.RegisterType(PanelNode, "PanelNode");

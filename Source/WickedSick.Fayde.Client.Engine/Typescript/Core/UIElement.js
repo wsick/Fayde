@@ -20,6 +20,7 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path="../Runtime/MulticastEvent.ts"/>
 /// <reference path="RoutedEvent.ts"/>
 /// <reference path="../Engine/Interfaces.ts"/>
+/// <reference path="../Media/GeneralTransform.ts"/>
 var Fayde;
 (function (Fayde) {
     var UINode = (function (_super) {
@@ -34,6 +35,14 @@ var Fayde;
         UINode.prototype.SetSurface = function (surface) {
             this._Surface = surface;
             this.LayoutUpdater.Surface = surface;
+        };
+        UINode.prototype.GetVisualRoot = function () {
+            var curNode = this;
+            var vpNode;
+            while(vpNode = curNode.VisualParentNode) {
+                curNode = vpNode;
+            }
+            return curNode;
         };
         UINode.prototype.GetInheritedEnumerator = function () {
             return this.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.Logical);
@@ -104,38 +113,45 @@ var Fayde;
         };
         UINode.prototype._EmitMouseEvent = function (type, isLeftButton, isRightButton, args) {
             var x = this.XObject;
-            if(type === "up") {
-                if(isLeftButton) {
-                    x.OnMouseLeftButtonUp(args);
-                    x.MouseLeftButtonUp.Raise(x, args);
-                } else if(isRightButton) {
-                    x.OnMouseRightButtonUp(args);
-                    x.MouseRightButtonUp.Raise(x, args);
-                }
-            } else if(type === "down") {
-                if(isLeftButton) {
-                    x.OnMouseLeftButtonDown(args);
-                    x.MouseLeftButtonDown.Raise(x, args);
-                } else if(isRightButton) {
-                    x.OnMouseRightButtonDown(args);
-                    x.MouseRightButtonDown.Raise(x, args);
-                }
-            } else if(type === "leave") {
-                (x)._IsMouseOver = false;
-                x.OnMouseLeave(args);
-                x.MouseLeave.Raise(x, args);
-            } else if(type === "enter") {
-                (x)._IsMouseOver = true;
-                x.OnMouseEnter(args);
-                x.MouseEnter.Raise(x, args);
-            } else if(type === "move") {
-                x.OnMouseMove(args);
-                x.MouseMove.Raise(x, args);
-            } else if(type === "wheel") {
-                x.OnMouseWheel(args);
-                x.MouseWheel.Raise(x, args);
-            } else {
-                return false;
+            switch(type) {
+                case InputType.MouseUp:
+                    if(isLeftButton) {
+                        x.OnMouseLeftButtonUp(args);
+                        x.MouseLeftButtonUp.Raise(x, args);
+                    } else if(isRightButton) {
+                        x.OnMouseRightButtonUp(args);
+                        x.MouseRightButtonUp.Raise(x, args);
+                    }
+                    break;
+                case InputType.MouseDown:
+                    if(isLeftButton) {
+                        x.OnMouseLeftButtonDown(args);
+                        x.MouseLeftButtonDown.Raise(x, args);
+                    } else if(isRightButton) {
+                        x.OnMouseRightButtonDown(args);
+                        x.MouseRightButtonDown.Raise(x, args);
+                    }
+                    break;
+                case InputType.MouseLeave:
+                    (x)._IsMouseOver = false;
+                    x.OnMouseLeave(args);
+                    x.MouseLeave.Raise(x, args);
+                    break;
+                case InputType.MouseEnter:
+                    (x)._IsMouseOver = true;
+                    x.OnMouseEnter(args);
+                    x.MouseEnter.Raise(x, args);
+                    break;
+                case InputType.MouseMove:
+                    x.OnMouseMove(args);
+                    x.MouseMove.Raise(x, args);
+                    break;
+                case InputType.MouseWheel:
+                    x.OnMouseWheel(args);
+                    x.MouseWheel.Raise(x, args);
+                    break;
+                default:
+                    return false;
             }
             return args.Handled;
         };
@@ -172,6 +188,81 @@ var Fayde;
         };
         UINode.prototype._ResortChildrenByZIndex = function () {
             Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
+        };
+        UINode.prototype.InvalidateParent = function (r) {
+            var vpNode = this.VisualParentNode;
+            if(vpNode) {
+                vpNode.LayoutUpdater.Invalidate(r);
+            } else if(this.IsAttached) {
+                this._Surface._Invalidate(r);
+            }
+        };
+        UINode.prototype.InvalidateClip = function (newClip) {
+            var lu = this.LayoutUpdater;
+            if(!newClip) {
+                rect.clear(lu.ClipBounds);
+            } else {
+                rect.copyTo(newClip.GetBounds(), lu.ClipBounds);
+            }
+            this.InvalidateParent(lu.SubtreeBounds);
+            lu.UpdateBounds(true);
+            lu.ComputeComposite();
+        };
+        UINode.prototype.InvalidateEffect = function (newEffect) {
+            var lu = this.LayoutUpdater;
+            var changed = (newEffect) ? newEffect.GetPadding(lu.EffectPadding) : false;
+            this.InvalidateParent(lu.SubtreeBounds);
+            if(changed) {
+                lu.UpdateBounds();
+            }
+            lu.ComputeComposite();
+        };
+        UINode.prototype.InvalidateVisibility = function () {
+            var lu = this.LayoutUpdater;
+            lu.UpdateTotalRenderVisibility();
+            this.InvalidateParent(lu.SubtreeBounds);
+        };
+        UINode.prototype.IsAncestorOf = function (uin) {
+            var vpNode = uin;
+            while(vpNode && vpNode !== this) {
+                vpNode = vpNode.VisualParentNode;
+            }
+            return vpNode === this;
+        };
+        UINode.prototype.TranformToVisual = function (uin) {
+            if(uin && !uin.IsAttached) {
+                throw new ArgumentException("UIElement not attached.");
+            }
+            var curNode = this;
+            var ok = false;
+            var surface = this._Surface;
+            if(this.IsAttached) {
+                while(curNode) {
+                    if(curNode.IsTopLevel) {
+                        ok = true;
+                    }
+                    curNode = curNode.VisualParentNode;
+                }
+            }
+            if(!ok) {
+                throw new ArgumentException("UIElement not attached.");
+            }
+            if(uin && !uin.IsTopLevel) {
+                ok = false;
+                curNode = uin.VisualParentNode;
+                if(curNode && uin.IsAttached) {
+                    while(curNode) {
+                        if(curNode.IsTopLevel) {
+                            ok = true;
+                        }
+                        curNode.VisualParentNode;
+                    }
+                }
+                if(!ok) {
+                    throw new ArgumentException("UIElement not attached.");
+                }
+            }
+            return this.LayoutUpdater.TransformToVisual(uin);
         };
         return UINode;
     })(Fayde.XamlNode);
@@ -257,6 +348,10 @@ var Fayde;
         });
         UIElement.prototype.Focus = function () {
             return this.XamlNode.Focus();
+        };
+        UIElement.prototype.TranformToVisual = function (uie) {
+            var uin = (uie) ? uie.XamlNode : null;
+            return this.XamlNode.TranformToVisual(uin);
         };
         UIElement.prototype.OnGotFocus = function (e) {
         };

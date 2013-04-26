@@ -15,6 +15,7 @@
 /// <reference path="../Runtime/MulticastEvent.ts"/>
 /// <reference path="RoutedEvent.ts"/>
 /// <reference path="../Engine/Interfaces.ts"/>
+/// <reference path="../Media/GeneralTransform.ts"/>
 
 module Fayde {
     export class UINode extends XamlNode {
@@ -35,6 +36,14 @@ module Fayde {
         }
 
         VisualParentNode: UINode;
+        GetVisualRoot(): UINode {
+            var curNode = this;
+            var vpNode: UINode;
+            while (vpNode = curNode.VisualParentNode) {
+                curNode = vpNode;
+            }
+            return curNode;
+        }
 
         GetInheritedEnumerator(): IEnumerator {
             return this.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
@@ -107,40 +116,47 @@ module Fayde {
             x.OnLostMouseCapture(e);
             x.LostMouseCapture.Raise(x, e);
         }
-        _EmitMouseEvent(type: string, isLeftButton: bool, isRightButton: bool, args: Input.MouseEventArgs): bool {
+        _EmitMouseEvent(type: InputType, isLeftButton: bool, isRightButton: bool, args: Input.MouseEventArgs): bool {
             var x = this.XObject;
-            if (type === "up") {
-                if (isLeftButton) {
-                    x.OnMouseLeftButtonUp(<Input.MouseButtonEventArgs>args);
-                    x.MouseLeftButtonUp.Raise(x, args);
-                } else if (isRightButton) {
-                    x.OnMouseRightButtonUp(<Input.MouseButtonEventArgs>args);
-                    x.MouseRightButtonUp.Raise(x, args);
-                }
-            } else if (type === "down") {
-                if (isLeftButton) {
-                    x.OnMouseLeftButtonDown(<Input.MouseButtonEventArgs>args);
-                    x.MouseLeftButtonDown.Raise(x, args);
-                } else if (isRightButton) {
-                    x.OnMouseRightButtonDown(<Input.MouseButtonEventArgs>args);
-                    x.MouseRightButtonDown.Raise(x, args);
-                }
-            } else if (type === "leave") {
-                (<any>x)._IsMouseOver = false;
-                x.OnMouseLeave(args);
-                x.MouseLeave.Raise(x, args);
-            } else if (type === "enter") {
-                (<any>x)._IsMouseOver = true;
-                x.OnMouseEnter(args);
-                x.MouseEnter.Raise(x, args);
-            } else if (type === "move") {
-                x.OnMouseMove(args);
-                x.MouseMove.Raise(x, args);
-            } else if (type === "wheel") {
-                x.OnMouseWheel(<Input.MouseWheelEventArgs>args);
-                x.MouseWheel.Raise(x, args);
-            } else {
-                return false;
+            switch (type) {
+                case InputType.MouseUp:
+                    if (isLeftButton) {
+                        x.OnMouseLeftButtonUp(<Input.MouseButtonEventArgs>args);
+                        x.MouseLeftButtonUp.Raise(x, args);
+                    } else if (isRightButton) {
+                        x.OnMouseRightButtonUp(<Input.MouseButtonEventArgs>args);
+                        x.MouseRightButtonUp.Raise(x, args);
+                    }
+                    break;
+                case InputType.MouseDown:
+                    if (isLeftButton) {
+                        x.OnMouseLeftButtonDown(<Input.MouseButtonEventArgs>args);
+                        x.MouseLeftButtonDown.Raise(x, args);
+                    } else if (isRightButton) {
+                        x.OnMouseRightButtonDown(<Input.MouseButtonEventArgs>args);
+                        x.MouseRightButtonDown.Raise(x, args);
+                    }
+                    break;
+                case InputType.MouseLeave:
+                    (<any>x)._IsMouseOver = false;
+                    x.OnMouseLeave(args);
+                    x.MouseLeave.Raise(x, args);
+                    break;
+                case InputType.MouseEnter:
+                    (<any>x)._IsMouseOver = true;
+                    x.OnMouseEnter(args);
+                    x.MouseEnter.Raise(x, args);
+                    break;
+                case InputType.MouseMove:
+                    x.OnMouseMove(args);
+                    x.MouseMove.Raise(x, args);
+                    break;
+                case InputType.MouseWheel:
+                    x.OnMouseWheel(<Input.MouseWheelEventArgs>args);
+                    x.MouseWheel.Raise(x, args);
+                    break;
+                default:
+                    return false;
             }
             return args.Handled;
         }
@@ -177,6 +193,79 @@ module Fayde {
 
         _ResortChildrenByZIndex() {
             Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
+        }
+
+        InvalidateParent(r: rect) {
+            var vpNode = this.VisualParentNode;
+            if (vpNode)
+                vpNode.LayoutUpdater.Invalidate(r);
+            else if (this.IsAttached)
+                this._Surface._Invalidate(r);
+        }
+        InvalidateClip(newClip: Media.Geometry) {
+            var lu = this.LayoutUpdater;
+            if (!newClip)
+                rect.clear(lu.ClipBounds);
+            else
+                rect.copyTo(newClip.GetBounds(), lu.ClipBounds);
+            this.InvalidateParent(lu.SubtreeBounds);
+            lu.UpdateBounds(true);
+            lu.ComputeComposite();
+        }
+        InvalidateEffect(newEffect: Media.Effects.Effect) {
+            var lu = this.LayoutUpdater;
+            var changed = (newEffect) ? newEffect.GetPadding(lu.EffectPadding) : false;
+            this.InvalidateParent(lu.SubtreeBounds);
+            if (changed)
+                lu.UpdateBounds();
+            lu.ComputeComposite();
+        }
+        InvalidateVisibility() {
+            var lu = this.LayoutUpdater;
+            lu.UpdateTotalRenderVisibility();
+            this.InvalidateParent(lu.SubtreeBounds);
+        }
+
+        IsAncestorOf(uin: UINode) {
+            var vpNode = uin;
+            while (vpNode && vpNode !== this)
+                vpNode = vpNode.VisualParentNode;
+            return vpNode === this;
+        }
+
+        TranformToVisual(uin: UINode): Media.GeneralTransform {
+            if (uin && !uin.IsAttached)
+                throw new ArgumentException("UIElement not attached.");
+
+            var curNode = this;
+            var ok = false;
+            var surface = this._Surface;
+            if (this.IsAttached) {
+                while (curNode) {
+                    if (curNode.IsTopLevel)
+                        ok = true;
+                    curNode = curNode.VisualParentNode;
+                }
+            }
+
+            if (!ok)
+                throw new ArgumentException("UIElement not attached.");
+
+            if (uin && !uin.IsTopLevel) {
+                ok = false;
+                curNode = uin.VisualParentNode;
+                if (curNode && uin.IsAttached) {
+                    while (curNode) {
+                        if (curNode.IsTopLevel)
+                            ok = true;
+                        curNode.VisualParentNode;
+                    }
+                }
+                if (!ok)
+                    throw new ArgumentException("UIElement not attached.");
+            }
+
+            return this.LayoutUpdater.TransformToVisual(uin);
         }
     }
     Nullstone.RegisterType(UINode, "UINode");
@@ -229,6 +318,11 @@ module Fayde {
         Visibility: Visibility;
         
         Focus(): bool { return this.XamlNode.Focus(); }
+
+        TranformToVisual(uie: UIElement): Media.GeneralTransform {
+            var uin = (uie) ? uie.XamlNode : null;
+            return this.XamlNode.TranformToVisual(uin);
+        }
 
         LostFocus: RoutedEvent = new RoutedEvent();
         GotFocus: RoutedEvent = new RoutedEvent();

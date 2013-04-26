@@ -1959,6 +1959,9 @@ module Fayde {
     export interface IActualSizeComputable {
         ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater);
     }
+    export interface IBoundsComputable {
+        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater);
+    }
     var maxPassCount = 250;
     export class LayoutUpdater {
         static LayoutExceptionUpdater: LayoutUpdater = undefined;
@@ -1967,7 +1970,7 @@ module Fayde {
         LayoutSlot: rect = undefined;
         PreviousConstraint: size = undefined;
         LastRenderSize: size = undefined;
-        HiddenDesire: size = new size();
+        HiddenDesire: size = size.createNegativeInfinite();
         DesiredSize: size = new size();
         RenderSize: size = new size();
         VisualOffset: Point = new Point();
@@ -1999,7 +2002,7 @@ module Fayde {
         IsContainer: bool = false;
         IsLayoutContainer: bool = false;
         BreaksLayoutClipRender: bool = false;
-        Flags: Fayde.UIElementFlags = Fayde.UIElementFlags.None;
+        Flags: Fayde.UIElementFlags = Fayde.UIElementFlags.RenderVisible | Fayde.UIElementFlags.HitTestVisible;
         DirtyFlags: _Dirty = 0;
         InUpDirty: bool = false;
         InDownDirty: bool = false;
@@ -2083,7 +2086,7 @@ module Fayde {
                 this.ComputeLocalProjection(thisUie);
             }
             if (isT) {
-                this.ComputeTransform();
+                this.ComputeTransform(thisNode, visualParentLu);
                 if (visualParentLu)
                     visualParentLu.UpdateBounds();
                 this._PropagateDirtyFlagToChildren(dirtyEnum.Transform);
@@ -2113,7 +2116,10 @@ module Fayde {
                 var oextents = rect.clone(this.SubtreeExtents);
                 var oglobalbounds = rect.clone(this.GlobalBounds);
                 var osubtreebounds = rect.clone(this.SubtreeBounds);
-                this.ComputeBounds();
+                if ((<IBoundsComputable><any>thisNode).ComputeBounds)
+                    (<IBoundsComputable><any>thisNode).ComputeBounds(this.ComputeBounds, this);
+                else
+                    this.ComputeBounds();
                 if (!rect.isEqual(oglobalbounds, this.GlobalBounds)) {
                     if (visualParentLu) {
                         visualParentLu.UpdateBounds();
@@ -2173,8 +2179,25 @@ module Fayde {
             this.UpdateBounds(true);
         }
         Invalidate(r?: rect) {
+            if (!r)
+                r = this.SurfaceBounds;
+            if (!this.TotalIsRenderVisible || (this.TotalOpacity * 255) < 0.5)
+                return;
+            if (this.Node.IsAttached) {
+                App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Invalidate);
+                this.InvalidateBitmapCache();
+                if (false) {
+                    rect.union(this.DirtyRegion, this.SubtreeBounds);
+                } else {
+                    rect.union(this.DirtyRegion, r);
+                }
+            }
         }
         private _CacheInvalidateHint() {
+        }
+        ComputeComposite() {
+        }
+        InvalidateBitmapCache() {
         }
         InvalidateMeasure() {
             this.DirtyFlags |= _Dirty.Measure;
@@ -2183,6 +2206,9 @@ module Fayde {
         InvalidateArrange() {
             this.DirtyFlags |= _Dirty.Arrange;
             this._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
+        }
+        InvalidateSubtreePaint() {
+            this.Invalidate(this.SubtreeBounds);
         }
         UpdateTransform() {
             if (this.Node.IsAttached)
@@ -2214,13 +2240,115 @@ module Fayde {
             var z = projection.GetDistanceFromXYPlane(objectSize);
             Controls.Panel.SetZ(uie, z);
         }
-        ComputeTransform() {
+        ComputeTransform(uin: UINode, vplu: LayoutUpdater) {
+            var uie = uin.XObject;
+            var projection = uie.Projection;
+            var oldProjection = mat4.clone(this.LocalProjection);
+            var old = mat3.clone(this.AbsoluteXform);
+            var renderXform = mat3.identity(this.RenderXform);
+            mat4.identity(this.LocalProjection);
+            this._CarryParentTransform(vplu, uin.ParentNode);
+            mat3.multiply(renderXform, this.LayoutXform, renderXform); //render = layout * render
+            mat3.multiply(renderXform, this.LocalXform, renderXform); //render = local * render
+            var m = mat3.toAffineMat4(renderXform);
+            mat4.multiply(this.LocalProjection, m, this.LocalProjection); //local = m * local
+            if (false) {
+            } else {
+                mat3.multiply(this.AbsoluteXform, this.RenderXform, this.AbsoluteXform); //abs = render * abs
+            }
+            if (projection) {
+                m = projection.GetTransform();
+                mat4.multiply(m, this.LocalProjection, this.LocalProjection); //local = local * m
+                this.Flags |= UIElementFlags.RenderProjection;
+            }
+            mat4.multiply(this.LocalProjection, this.AbsoluteProjection, this.AbsoluteProjection); //abs = abs * local
+            if (uin instanceof Controls.Primitives.PopupNode) {
+                var popupChildNode = <UINode>(<Controls.Primitives.PopupNode>uin).SubtreeNode;
+                if (popupChildNode)
+                    popupChildNode.LayoutUpdater.UpdateTransform();
+            }
+            if (!mat4.equal(oldProjection, this.LocalProjection)) {
+                if (vplu)
+                    vplu.Invalidate(this.SubtreeBounds);
+                else if (uin.IsTopLevel)
+                    this.InvalidateSubtreePaint();
+                if (uin.IsAttached)
+                    this.Surface._AddDirtyElement(this, _Dirty.NewBounds);
+            }
+            mat4.set(this.LocalProjection, this.RenderProjection);
+            this.UpdateBounds();
+            this.ComputeComposite();
+        }
+        private _CarryParentTransform(vpLu: LayoutUpdater, parentNode: XamlNode) {
+            if (vpLu) {
+                mat3.set(vpLu.AbsoluteXform, this.AbsoluteXform);
+                mat4.set(vpLu.AbsoluteProjection, this.AbsoluteProjection);
+                return;
+            }
+            mat3.identity(this.AbsoluteXform);
+            mat4.identity(this.AbsoluteProjection);
+            if (parentNode instanceof Controls.Primitives.PopupNode) {
+                var popupNode = <Controls.Primitives.PopupNode>parentNode;
+                var elNode: UINode = popupNode;
+                while (elNode) {
+                    this.Flags |= (elNode.LayoutUpdater.Flags & UIElementFlags.RenderProjection);
+                    elNode = elNode.VisualParentNode;
+                }
+                var popup = popupNode.XObject;
+                var popupLu = popupNode.LayoutUpdater;
+                if (this.Flags & UIElementFlags.RenderProjection) {
+                    mat4.set(popupLu.AbsoluteProjection, this.LocalProjection);
+                    var m = mat4.createTranslate(popup.HorizontalOffset, popup.VerticalOffset, 0.0);
+                    mat4.multiply(m, this.LocalProjection, this.LocalProjection); //local = local * m
+                } else {
+                    var pap = popupLu.AbsoluteProjection;
+                    var renderXform = this.RenderXform;
+                    renderXform[0] = pap[0];
+                    renderXform[1] = pap[1];
+                    renderXform[2] = pap[3];
+                    renderXform[3] = pap[4];
+                    renderXform[4] = pap[5];
+                    renderXform[5] = pap[7];
+                    mat3.translate(renderXform, popup.HorizontalOffset, popup.VerticalOffset);
+                }
+            }
         }
         UpdateProjection() {
             if (this.Node.IsAttached)
                 this.Surface._AddDirtyElement(this, _Dirty.LocalProjection);
         }
         TransformPoint(p: Point) {
+            var inverse: number[] = mat4.inverse(this.AbsoluteProjection, mat4.create());
+            if (!inverse) {
+                Warn("Could not get inverse of Absolute Projection for UIElement.");
+                return;
+            }
+            var p4: number[] = vec4.createFrom(p.X, p.Y, 0.0, 1.0);
+            var m20 = inverse[2];
+            var m21 = inverse[6];
+            var m22 = inverse[10];
+            var m23 = inverse[14];
+            p4[2] = -(m20 * p4[0] + m21 * p4[1] + m23) / m22;
+            mat4.transformVec4(inverse, p4);
+            p.X = p4[0] / p4[3];
+            p.Y = p4[1] / p4[3];
+        }
+        TransformToVisual(toUin: UINode): Media.GeneralTransform {
+            var result = mat4.create();
+            if (toUin) {
+                var inverse = mat4.create();
+                mat4.inverse(toUin.LayoutUpdater.AbsoluteProjection, inverse);
+                mat4.multiply(this.AbsoluteProjection, inverse, result); //result = inverse * abs
+            } else {
+                mat4.set(this.AbsoluteProjection, result); //result = absolute
+            }
+            var raw = mat4.toAffineMat3(result);
+            if (raw) {
+                var mt = new Media.MatrixTransform();
+                mt._Store.SetValue(Media.MatrixTransform.MatrixProperty, new Media.Matrix(raw));
+                return mt;
+            }
+            return new Media.InternalTransform(result);
         }
         GetTransformOrigin(uie: UIElement): IPoint {
             var userXformOrigin = uie.RenderTransformOrigin;
@@ -2271,10 +2399,42 @@ module Fayde {
             this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
         }
         ComputeBounds() {
+            var s = this.CoerceSize(size.fromRaw(this.ActualWidth, this.ActualHeight));
+            rect.set(this.Extents, 0, 0, s.Width, s.Height);
+            rect.copyTo(this.Extents, this.ExtentsWithChildren);
+            var node = this.Node;
+            var enumerator = node.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                var item = <UINode>enumerator.Current;
+                var itemlu = item.LayoutUpdater;
+                if (itemlu.TotalIsRenderVisible)
+                    rect.union(this.ExtentsWithChildren, itemlu.GlobalBounds);
+            }
+            this.IntersectBoundsWithClipPath(this.Bounds, this.AbsoluteXform);
+            rect.copyGrowTransform(this.BoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, this.AbsoluteXform);
+            this.ComputeGlobalBounds();
+            this.ComputeSurfaceBounds();
         }
-        UpdateStretch() {
-            rect.clear(this.Extents);
-            rect.clear(this.ExtentsWithChildren);
+        ComputeGlobalBounds() {
+            this.IntersectBoundsWithClipPath(this.GlobalBounds, this.LocalXform);
+            rect.copyGrowTransform4(this.GlobalBoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, this.LocalProjection);
+        }
+        ComputeSurfaceBounds() {
+            this.IntersectBoundsWithClipPath(this.SurfaceBounds, this.AbsoluteXform);
+            rect.copyGrowTransform4(this.SurfaceBoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, this.AbsoluteProjection);
+        }
+        IntersectBoundsWithClipPath(dest: rect, xform: number[]) {
+            var isClipEmpty = rect.isEmpty(this.ClipBounds);
+            var isLayoutClipEmpty = rect.isEmpty(this.LayoutClipBounds);
+            if ((!isClipEmpty || !isLayoutClipEmpty) && !this.TotalIsRenderVisible) {
+                rect.clear(dest);
+                return;
+            }
+            rect.copyGrowTransform(dest, this.Extents, this.EffectPadding, xform);
+            if (!isClipEmpty)
+                rect.intersection(dest, this.ClipBounds);
+            if (!isLayoutClipEmpty)
+                rect.intersection(dest, this.LayoutClipBounds);
         }
         SetLayoutClip(layoutClip: Media.Geometry) {
             this.LayoutClip = layoutClip;
@@ -2389,7 +2549,7 @@ module Fayde {
             };
         }
         private _GetShapeBrushSize(shape: Shapes.Shape): ISize {
-            return size.fromRect(shape.GetStretchExtents(this));
+            return size.fromRect(shape.XamlNode.GetStretchExtents(shape, this));
         }
         CoerceSize(s: size): size {
             var fe = <FrameworkElement>this.Node.XObject;
@@ -4526,6 +4686,15 @@ interface IFocusChangedEvents {
     GotFocus: Fayde.UINode[];
     LostFocus: Fayde.UINode[];
 }
+enum InputType {
+    NoOp = 0,
+    MouseUp = 1,
+    MouseDown = 2,
+    MouseLeave = 3,
+    MouseEnter = 4,
+    MouseMove = 5,
+    MouseWheel = 6,
+}
 class Surface {
     static TestCanvas: HTMLCanvasElement = <HTMLCanvasElement>document.createElement("canvas");
     private _App: App;
@@ -4896,7 +5065,7 @@ class Surface {
         var button = evt.which ? evt.which : evt.button;
         var pos = this._GetMousePosition(evt);
         this._SetUserInitiatedEvent(true);
-        this._HandleMouseEvent("down", button, pos);
+        this._HandleMouseEvent(InputType.MouseDown, button, pos);
         this._UpdateCursorFromInputList();
         this._SetUserInitiatedEvent(false);
     }
@@ -4905,7 +5074,7 @@ class Surface {
         var button = evt.which ? evt.which : evt.button;
         var pos = this._GetMousePosition(evt);
         this._SetUserInitiatedEvent(true);
-        this._HandleMouseEvent("up", button, pos);
+        this._HandleMouseEvent(InputType.MouseUp, button, pos);
         this._UpdateCursorFromInputList();
         this._SetUserInitiatedEvent(false);
         if (this._Captured)
@@ -4914,12 +5083,12 @@ class Surface {
     private _HandleOut(evt) {
         Fayde.Input.Keyboard.RefreshModifiers(evt);
         var pos = this._GetMousePosition(evt);
-        this._HandleMouseEvent("out", null, pos);
+        this._HandleMouseEvent(InputType.MouseLeave, null, pos);
     }
     private _HandleMove(evt) {
         Fayde.Input.Keyboard.RefreshModifiers(evt);
         var pos = this._GetMousePosition(evt);
-        this._HandleMouseEvent("move", null, pos);
+        this._HandleMouseEvent(InputType.MouseMove, null, pos);
         this._UpdateCursorFromInputList();
     }
     private _HandleWheel(evt) {
@@ -4932,10 +5101,10 @@ class Surface {
         if (evt.preventDefault)
             evt.preventDefault();
         evt.returnValue = false;
-        this._HandleMouseEvent("wheel", null, this._GetMousePosition(evt), delta);
+        this._HandleMouseEvent(InputType.MouseWheel, null, this._GetMousePosition(evt), delta);
         this._UpdateCursorFromInputList();
     }
-    private _HandleMouseEvent(type: string, button: number, pos: Point, delta?: number, emitLeave?: bool, emitEnter?: bool) {
+    private _HandleMouseEvent(type: InputType, button: number, pos: Point, delta?: number, emitLeave?: bool, emitEnter?: bool) {
         this._CurrentPos = pos;
         if (this._EmittingMouseEvent)
             return false;
@@ -4957,10 +5126,10 @@ class Surface {
             var indices = { Index1: -1, Index2: -1 };
             this._FindFirstCommonElement(this._InputList, newInputList, indices);
             if (emitLeave === undefined || emitLeave === true)
-                this._EmitMouseList("leave", button, pos, delta, this._InputList, indices.Index1);
+                this._EmitMouseList(InputType.MouseLeave, button, pos, delta, this._InputList, indices.Index1);
             if (emitEnter === undefined || emitEnter === true)
-                this._EmitMouseList("enter", button, pos, delta, newInputList, indices.Index2);
-            if (type !== "noop")
+                this._EmitMouseList(InputType.MouseEnter, button, pos, delta, newInputList, indices.Index2);
+            if (type !== InputType.NoOp)
                 this._EmitMouseList(type, button, pos, delta, newInputList);
             this._InputList = newInputList;
         }
@@ -4991,7 +5160,7 @@ class Surface {
             outObj.Index2 = j;
         }
     }
-    private _EmitMouseList(type: string, button: number, pos: Point, delta: number, list: Fayde.UINode[], endIndex?: number) {
+    private _EmitMouseList(type: InputType, button: number, pos: Point, delta: number, list: Fayde.UINode[], endIndex?: number) {
         var handled = false;
         if (endIndex === 0)
             return handled;
@@ -5005,28 +5174,29 @@ class Surface {
         var isR = Surface.IsRightButton(button);
         for (var i = 0; i < endIndex; i++) {
             node = list[i];
-            if (type === "leave")
+            if (type === InputType.MouseLeave)
                 args.Source = node.XObject;
             if (node._EmitMouseEvent(type, isL, isR, args))
                 handled = true;
-            if (type === "leave") //MouseLeave gets new event args on each emit
+            if (type === InputType.MouseLeave) //MouseLeave gets new event args on each emit
                 args = this._CreateEventArgs(type, pos, delta);
         }
         return handled;
     }
-    private _CreateEventArgs(type: string, pos: Point, delta: number): Fayde.Input.MouseEventArgs {
-        if (type === "up") {
-            return new Fayde.Input.MouseButtonEventArgs(pos);
-        } else if (type === "down") {
-            return new Fayde.Input.MouseButtonEventArgs(pos);
-        } else if (type === "leave") {
-            return new Fayde.Input.MouseEventArgs(pos);
-        } else if (type === "enter") {
-            return new Fayde.Input.MouseEventArgs(pos);
-        } else if (type === "move") {
-            return new Fayde.Input.MouseEventArgs(pos);
-        } else if (type === "wheel") {
-            return new Fayde.Input.MouseWheelEventArgs(pos, delta);
+    private _CreateEventArgs(type: InputType, pos: Point, delta: number): Fayde.Input.MouseEventArgs {
+        switch (type) {
+            case InputType.MouseUp:
+                return new Fayde.Input.MouseButtonEventArgs(pos);
+            case InputType.MouseDown:
+                return new Fayde.Input.MouseButtonEventArgs(pos);
+            case InputType.MouseLeave:
+                return new Fayde.Input.MouseEventArgs(pos);
+            case InputType.MouseEnter:
+                return new Fayde.Input.MouseEventArgs(pos);
+            case InputType.MouseMove:
+                return new Fayde.Input.MouseEventArgs(pos);
+            case InputType.MouseWheel:
+                return new Fayde.Input.MouseWheelEventArgs(pos, delta);
         }
     }
     SetMouseCapture(uin: Fayde.UINode) {
@@ -5060,7 +5230,7 @@ class Surface {
         this._Captured = null;
         this._PendingReleaseCapture = false;
         oldCaptured._EmitLostMouseCapture(this._CurrentPos);
-        this._HandleMouseEvent("noop", null, this._CurrentPos, undefined, false, true);
+        this._HandleMouseEvent(InputType.NoOp, null, this._CurrentPos, undefined, false, true);
     }
     private _SetUserInitiatedEvent(val: bool) {
         this._EmitFocusChangeEvents();
@@ -5535,6 +5705,9 @@ module Fayde.Media {
         _Raw: number[];
         private _Inverse: Matrix = null;
         private _Listener: IMatrixChangedListener;
+        constructor(raw?: number[]) {
+            this._Raw = raw;
+        }
         get M11() { return this._Raw[0]; }
         set M11(val: number) { this._Raw[0] = val; this._OnChanged(); }
         get M12() { return this._Raw[1]; }
@@ -7997,10 +8170,13 @@ module Fayde.Media {
     }
     Nullstone.RegisterType(GeneralTransform, "GeneralTransform");
     export class InternalTransform extends GeneralTransform {
-        private _Raw: number[] = mat4.identity();
+        private _Raw: number[];
+        constructor(raw: number[]) {
+            super();
+            this._Raw = raw;
+        }
         get Inverse(): InternalTransform {
-            var it = new InternalTransform();
-            it._Raw = mat4.create();
+            var it = new InternalTransform(mat4.create());
             mat4.inverse(this._Raw, it._Raw);
             return it;
         }
@@ -8470,6 +8646,9 @@ module Fayde.Media {
         GetDistanceFromXYPlane(objectSize: ISize): number {
             return NaN;
         }
+        GetTransform(): number[] {
+            return undefined;
+        }
     }
     Nullstone.RegisterType(Projection, "Projection");
 }
@@ -8562,7 +8741,7 @@ module Fayde.Media {
     }
     Nullstone.RegisterType(Transform, "Transform");
     export class MatrixTransform extends Transform implements IMatrixChangedListener {
-        static MatrixProperty: DependencyProperty = DependencyProperty.RegisterFull("Matrix", () => Matrix, MatrixTransform, undefined, (d, args) => (<MatrixTransform>d)._MatrixChanged(args), { GetValue: () => new Matrix() });
+        static MatrixProperty: DependencyProperty = DependencyProperty.RegisterFull("Matrix", () => Matrix, MatrixTransform, undefined, (d, args) => (<MatrixTransform>d)._MatrixChanged(args));
         Matrix: Matrix;
         _BuildValue(): number[] {
             var m = this.Matrix;
@@ -8570,7 +8749,7 @@ module Fayde.Media {
                 return m._Raw;
             return mat3.identity();
         }
-        private _MatrixChanged(args: IDependencyPropertyChangedEventArgs) {
+        _MatrixChanged(args: IDependencyPropertyChangedEventArgs) {
             var oldv: Matrix = args.OldValue;
             var newv: Matrix = args.NewValue;
             if (oldv)
@@ -9666,6 +9845,14 @@ module Fayde {
             this.LayoutUpdater.SetContainerMode(false);
         }
         VisualParentNode: UINode;
+        GetVisualRoot(): UINode {
+            var curNode = this;
+            var vpNode: UINode;
+            while (vpNode = curNode.VisualParentNode) {
+                curNode = vpNode;
+            }
+            return curNode;
+        }
         GetInheritedEnumerator(): IEnumerator {
             return this.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
         }
@@ -9730,40 +9917,47 @@ module Fayde {
             x.OnLostMouseCapture(e);
             x.LostMouseCapture.Raise(x, e);
         }
-        _EmitMouseEvent(type: string, isLeftButton: bool, isRightButton: bool, args: Input.MouseEventArgs): bool {
+        _EmitMouseEvent(type: InputType, isLeftButton: bool, isRightButton: bool, args: Input.MouseEventArgs): bool {
             var x = this.XObject;
-            if (type === "up") {
-                if (isLeftButton) {
-                    x.OnMouseLeftButtonUp(<Input.MouseButtonEventArgs>args);
-                    x.MouseLeftButtonUp.Raise(x, args);
-                } else if (isRightButton) {
-                    x.OnMouseRightButtonUp(<Input.MouseButtonEventArgs>args);
-                    x.MouseRightButtonUp.Raise(x, args);
-                }
-            } else if (type === "down") {
-                if (isLeftButton) {
-                    x.OnMouseLeftButtonDown(<Input.MouseButtonEventArgs>args);
-                    x.MouseLeftButtonDown.Raise(x, args);
-                } else if (isRightButton) {
-                    x.OnMouseRightButtonDown(<Input.MouseButtonEventArgs>args);
-                    x.MouseRightButtonDown.Raise(x, args);
-                }
-            } else if (type === "leave") {
-                (<any>x)._IsMouseOver = false;
-                x.OnMouseLeave(args);
-                x.MouseLeave.Raise(x, args);
-            } else if (type === "enter") {
-                (<any>x)._IsMouseOver = true;
-                x.OnMouseEnter(args);
-                x.MouseEnter.Raise(x, args);
-            } else if (type === "move") {
-                x.OnMouseMove(args);
-                x.MouseMove.Raise(x, args);
-            } else if (type === "wheel") {
-                x.OnMouseWheel(<Input.MouseWheelEventArgs>args);
-                x.MouseWheel.Raise(x, args);
-            } else {
-                return false;
+            switch (type) {
+                case InputType.MouseUp:
+                    if (isLeftButton) {
+                        x.OnMouseLeftButtonUp(<Input.MouseButtonEventArgs>args);
+                        x.MouseLeftButtonUp.Raise(x, args);
+                    } else if (isRightButton) {
+                        x.OnMouseRightButtonUp(<Input.MouseButtonEventArgs>args);
+                        x.MouseRightButtonUp.Raise(x, args);
+                    }
+                    break;
+                case InputType.MouseDown:
+                    if (isLeftButton) {
+                        x.OnMouseLeftButtonDown(<Input.MouseButtonEventArgs>args);
+                        x.MouseLeftButtonDown.Raise(x, args);
+                    } else if (isRightButton) {
+                        x.OnMouseRightButtonDown(<Input.MouseButtonEventArgs>args);
+                        x.MouseRightButtonDown.Raise(x, args);
+                    }
+                    break;
+                case InputType.MouseLeave:
+                    (<any>x)._IsMouseOver = false;
+                    x.OnMouseLeave(args);
+                    x.MouseLeave.Raise(x, args);
+                    break;
+                case InputType.MouseEnter:
+                    (<any>x)._IsMouseOver = true;
+                    x.OnMouseEnter(args);
+                    x.MouseEnter.Raise(x, args);
+                    break;
+                case InputType.MouseMove:
+                    x.OnMouseMove(args);
+                    x.MouseMove.Raise(x, args);
+                    break;
+                case InputType.MouseWheel:
+                    x.OnMouseWheel(<Input.MouseWheelEventArgs>args);
+                    x.MouseWheel.Raise(x, args);
+                    break;
+                default:
+                    return false;
             }
             return args.Handled;
         }
@@ -9794,6 +9988,72 @@ module Fayde {
         }
         _ResortChildrenByZIndex() {
             Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
+        }
+        InvalidateParent(r: rect) {
+            var vpNode = this.VisualParentNode;
+            if (vpNode)
+                vpNode.LayoutUpdater.Invalidate(r);
+            else if (this.IsAttached)
+                this._Surface._Invalidate(r);
+        }
+        InvalidateClip(newClip: Media.Geometry) {
+            var lu = this.LayoutUpdater;
+            if (!newClip)
+                rect.clear(lu.ClipBounds);
+            else
+                rect.copyTo(newClip.GetBounds(), lu.ClipBounds);
+            this.InvalidateParent(lu.SubtreeBounds);
+            lu.UpdateBounds(true);
+            lu.ComputeComposite();
+        }
+        InvalidateEffect(newEffect: Media.Effects.Effect) {
+            var lu = this.LayoutUpdater;
+            var changed = (newEffect) ? newEffect.GetPadding(lu.EffectPadding) : false;
+            this.InvalidateParent(lu.SubtreeBounds);
+            if (changed)
+                lu.UpdateBounds();
+            lu.ComputeComposite();
+        }
+        InvalidateVisibility() {
+            var lu = this.LayoutUpdater;
+            lu.UpdateTotalRenderVisibility();
+            this.InvalidateParent(lu.SubtreeBounds);
+        }
+        IsAncestorOf(uin: UINode) {
+            var vpNode = uin;
+            while (vpNode && vpNode !== this)
+                vpNode = vpNode.VisualParentNode;
+            return vpNode === this;
+        }
+        TranformToVisual(uin: UINode): Media.GeneralTransform {
+            if (uin && !uin.IsAttached)
+                throw new ArgumentException("UIElement not attached.");
+            var curNode = this;
+            var ok = false;
+            var surface = this._Surface;
+            if (this.IsAttached) {
+                while (curNode) {
+                    if (curNode.IsTopLevel)
+                        ok = true;
+                    curNode = curNode.VisualParentNode;
+                }
+            }
+            if (!ok)
+                throw new ArgumentException("UIElement not attached.");
+            if (uin && !uin.IsTopLevel) {
+                ok = false;
+                curNode = uin.VisualParentNode;
+                if (curNode && uin.IsAttached) {
+                    while (curNode) {
+                        if (curNode.IsTopLevel)
+                            ok = true;
+                        curNode.VisualParentNode;
+                    }
+                }
+                if (!ok)
+                    throw new ArgumentException("UIElement not attached.");
+            }
+            return this.LayoutUpdater.TransformToVisual(uin);
         }
     }
     Nullstone.RegisterType(UINode, "UINode");
@@ -9841,6 +10101,10 @@ module Fayde {
         UseLayoutRounding: bool;
         Visibility: Visibility;
         Focus(): bool { return this.XamlNode.Focus(); }
+        TranformToVisual(uie: UIElement): Media.GeneralTransform {
+            var uin = (uie) ? uie.XamlNode : null;
+            return this.XamlNode.TranformToVisual(uin);
+        }
         LostFocus: RoutedEvent = new RoutedEvent();
         GotFocus: RoutedEvent = new RoutedEvent();
         LostMouseCapture: RoutedEvent = new RoutedEvent();
@@ -11351,7 +11615,7 @@ module Fayde.Media.Imaging {
 
 module Fayde.Shapes {
     declare var NotImplemented;
-    export class ShapeNode extends FENode {
+    export class ShapeNode extends FENode implements IBoundsComputable {
         XObject: Shape;
         constructor(xobj: Shape) {
             super(xobj);
@@ -11370,9 +11634,40 @@ module Fayde.Shapes {
             x = p.X;
             y = p.Y;
             var shape = this.XObject;
-            if (!rect.containsPointXY(shape.GetStretchExtents(lu), x, y))
+            if (!rect.containsPointXY(this.GetStretchExtents(shape, lu), x, y))
                 return false;
             return shape._InsideShape(ctx, lu, x, y);
+        }
+        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
+            this.IntersectBaseBoundsWithClipPath(lu, lu.Bounds, this.GetStretchExtents(this.XObject, lu), lu.AbsoluteXform);
+            rect.copyTo(lu.Bounds, lu.BoundsWithChildren);
+            lu.ComputeGlobalBounds();
+            lu.ComputeSurfaceBounds();
+        }
+        private IntersectBaseBoundsWithClipPath(lu: LayoutUpdater, dest: rect, baseBounds: rect, xform: number[]) {
+            var isClipEmpty = rect.isEmpty(lu.ClipBounds);
+            var isLayoutClipEmpty = rect.isEmpty(lu.LayoutClipBounds);
+            if ((!isClipEmpty || !isLayoutClipEmpty) && !lu.TotalIsRenderVisible) {
+                rect.clear(dest);
+                return;
+            }
+            rect.copyGrowTransform(dest, baseBounds, lu.EffectPadding, xform);
+            if (!isClipEmpty)
+                rect.intersection(dest, lu.ClipBounds);
+            if (!isLayoutClipEmpty)
+                rect.intersection(dest, lu.LayoutClipBounds);
+        }
+        UpdateStretch() {
+            var lu = this.LayoutUpdater;
+            rect.clear(lu.Extents);
+            rect.clear(lu.ExtentsWithChildren);
+        }
+        GetStretchExtents(shape: Shapes.Shape, lu: LayoutUpdater) {
+            if (rect.isEmpty(lu.Extents)) {
+                rect.copyTo(shape._ComputeStretchBounds(), lu.Extents);
+                rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
+            }
+            return lu.Extents;
         }
     }
     function isSignificant(dx: number, x: number): bool {
@@ -11413,7 +11708,7 @@ module Fayde.Shapes {
             if (this._ShapeFlags & ShapeFlags.Empty)
                 return false;
             var ret = false;
-            var area = this.GetStretchExtents(lu);
+            var area = this.XamlNode.GetStretchExtents(this, lu);
             ctx.Save();
             ctx.PreTransformMatrix(this._StretchXform);
             if (this._Fill != null) {
@@ -11513,7 +11808,7 @@ module Fayde.Shapes {
         private Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
             if (this._ShapeFlags & ShapeFlags.Empty)
                 return;
-            var area = this.GetStretchExtents(lu);
+            var area = this.XamlNode.GetStretchExtents(this, lu);
             ctx.Save();
             ctx.PreTransformMatrix(this._StretchXform);
             this._DrawPath(ctx);
@@ -11568,7 +11863,7 @@ module Fayde.Shapes {
             desired.Height = Math.min(desired.Height, shapeBounds.Height * sy);
             return desired;
         }
-        private _ComputeStretchBounds(): rect {
+        _ComputeStretchBounds(): rect {
             var shapeBounds = this._GetNaturalBounds();
             if (!shapeBounds || shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
                 this._ShapeFlags = ShapeFlags.Empty;
@@ -11688,7 +11983,7 @@ module Fayde.Shapes {
             return new rect();
         }
         private _InvalidateStretch() {
-            this.XamlNode.LayoutUpdater.UpdateStretch();
+            this.XamlNode.UpdateStretch();
             this._StretchXform = mat3.identity();
             this._InvalidatePathCache();
         }
@@ -11701,13 +11996,6 @@ module Fayde.Shapes {
             rect.clear(this._NaturalBounds);
             this._InvalidateStretch();
             this.XamlNode.LayoutUpdater.Invalidate();
-        }
-        GetStretchExtents(lu: LayoutUpdater) {
-            if (rect.isEmpty(lu.Extents)) {
-                rect.copyTo(this._ComputeStretchBounds(), lu.Extents);
-                rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
-            }
-            return lu.Extents;
         }
         private _FillChanged(args: IDependencyPropertyChangedEventArgs) {
             var oldFill = <Media.Brush>args.OldValue;
@@ -12408,7 +12696,7 @@ module Fayde.Controls {
         }
     }
     Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");
-    export class PanelNode extends FENode {
+    export class PanelNode extends FENode implements IBoundsComputable {
         XObject: Panel;
         constructor(xobj: Panel) {
             super(xobj);
@@ -12441,6 +12729,25 @@ module Fayde.Controls {
         _CanFindElement(): bool { return this.XObject.Background != null; }
         _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
             return (this.XObject.Background != null) && super._InsideObject(ctx, lu, x, y);
+        }
+        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
+            rect.clear(lu.Extents);
+            rect.clear(lu.ExtentsWithChildren);
+            var enumerator = this.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
+            while (enumerator.MoveNext()) {
+                var item = <UINode>enumerator.Current;
+                var itemlu = item.LayoutUpdater;
+                if (itemlu.TotalIsRenderVisible)
+                    rect.union(lu.ExtentsWithChildren, itemlu.GlobalBounds);
+            }
+            if (this.XObject.Background) {
+                rect.set(lu.Extents, 0, 0, lu.ActualWidth, lu.ActualHeight);
+                rect.union(lu.ExtentsWithChildren, lu.Extents);
+            }
+            rect.copyGrowTransform(lu.Bounds, lu.Extents, lu.EffectPadding, lu.AbsoluteXform);
+            rect.copyGrowTransform(lu.BoundsWithChildren, lu.ExtentsWithChildren, lu.EffectPadding, lu.AbsoluteXform);
+            lu.ComputeGlobalBounds();
+            lu.ComputeSurfaceBounds();
         }
     }
     Nullstone.RegisterType(PanelNode, "PanelNode");
@@ -12576,19 +12883,35 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
-    export class TextBlockNode extends FENode {
+    export class TextBlockNode extends FENode implements IBoundsComputable {
+        XObject: TextBlock;
+        private _Layout: any;
+        constructor(xobj: TextBlock) {
+            super(xobj);
+        }
         GetInheritedWalker(): IEnumerator {
             var coll = (<DependencyObject>this.XObject).GetValue(TextBlock.InlinesProperty);
             if (coll)
                 return (<XamlObjectCollection>coll).GetEnumerator();
         }
+        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
+            rect.copyTo(this._Layout.GetRenderExtents(), lu.Extents);
+            var padding = this.XObject.Padding;
+            lu.Extents.X += padding.Left;
+            lu.Extents.Y += padding.Top;
+            rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
+            lu.IntersectBoundsWithClipPath(lu.Bounds, lu.AbsoluteXform);
+            rect.copyTo(lu.Bounds, lu.BoundsWithChildren);
+            lu.ComputeGlobalBounds();
+            lu.ComputeSurfaceBounds();
+        }
     }
     Nullstone.RegisterType(TextBlockNode, "TextBlockNode");
     export class TextBlock extends FrameworkElement {
-        static InlinesProperty;
-        CreateNode(): TextBlockNode {
-            return new TextBlockNode(this);
-        }
+        CreateNode(): TextBlockNode { return new TextBlockNode(this); }
+        static InlinesProperty: DependencyProperty;
+        static PaddingPropert: DependencyProperty;
+        Padding: Thickness;
     }
     Nullstone.RegisterType(TextBlock, "TextBlock");
 }
@@ -12670,7 +12993,7 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls.Primitives {
-    export class PopupNode extends FENode {
+    export class PopupNode extends FENode implements IBoundsComputable {
         XObject: Popup;
         GetInheritedWalker(): IEnumerator {
             var popup = (<Popup>this.XObject);
@@ -12685,13 +13008,16 @@ module Fayde.Controls.Primitives {
                 Current: popup.Child
             };
         }
+        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) { }
     }
     Nullstone.RegisterType(PopupNode, "PopupNode");
     export class Popup extends FrameworkElement {
-        Child: UIElement;
         CreateNode(): PopupNode {
             return new PopupNode(this);
         }
+        Child: UIElement;
+        HorizontalOffset: number;
+        VerticalOffset: number;
     }
     Nullstone.RegisterType(Popup, "Popup");
 }
@@ -13456,6 +13782,7 @@ module Fayde.Shapes {
 
 module Fayde.Controls {
     export class CanvasNode extends PanelNode {
+        private _Surface: Surface;
         XObject: Canvas;
         constructor(xobj: Canvas) {
             super(xobj);
@@ -13495,6 +13822,20 @@ module Fayde.Controls {
                 }
             }
             lu.IsLayoutContainer = false;
+        }
+        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
+            var surface = this._Surface;
+            if (surface && this.IsAttached && this.IsTopLevel) {
+                var surfaceSize = surface.Extents;
+                rect.set(lu.Extents, 0, 0, surfaceSize.Width, surfaceSize.Height);
+                rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
+                rect.copyTo(lu.Extents, lu.Bounds);
+                rect.copyTo(lu.Bounds, lu.BoundsWithChildren);
+                lu.ComputeGlobalBounds();
+                lu.ComputeSurfaceBounds();
+            } else {
+                super.ComputeBounds(baseComputer, lu);
+            }
         }
     }
     Nullstone.RegisterType(CanvasNode, "CanvasNode");
@@ -13572,5 +13913,31 @@ module Fayde.Controls {
         OnContentTemplateChanged(oldContentTemplate: ControlTemplate, newContentTemplate: ControlTemplate) { }
     }
     Nullstone.RegisterType(ContentControl, "ContentControl");
+}
+
+module Fayde.Controls {
+    export class GridNode extends PanelNode {
+        XObject: Grid;
+        constructor(xobj: Grid) {
+            super(xobj);
+        }
+        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
+            super.ComputeBounds(baseComputer, lu);
+            if (this.XObject.ShowGridLines) {
+                rect.set(lu.Extents, 0, 0, lu.ActualWidth, lu.ActualHeight);
+                rect.union(lu.ExtentsWithChildren, lu.Extents);
+                lu.IntersectBoundsWithClipPath(lu.Bounds, lu.AbsoluteXform);
+                rect.union(lu.BoundsWithChildren, lu.Bounds);
+                lu.ComputeGlobalBounds();
+                lu.ComputeSurfaceBounds();
+            }
+        }
+    }
+    Nullstone.RegisterType(GridNode, "GridNode");
+    export class Grid extends Panel {
+        CreateNode():GridNode { return new GridNode(this); }
+        ShowGridLines: bool;
+    }
+    Nullstone.RegisterType(Grid, "Grid");
 }
 

@@ -171,3 +171,4 @@ Shapes/Polyline.js
 Shapes/Rectangle.js
 Controls/Canvas.js
 Controls/ContentControl.js
+Controls/Grid.js

@@ -15,10 +15,15 @@ module Fayde.Media {
     Nullstone.RegisterType(GeneralTransform, "GeneralTransform");
 
     export class InternalTransform extends GeneralTransform {
-        private _Raw: number[] = mat4.identity();
+        private _Raw: number[];
+        
+        constructor(raw: number[]) {
+            super();
+            this._Raw = raw;
+        }
+
         get Inverse(): InternalTransform {
-            var it = new InternalTransform();
-            it._Raw = mat4.create();
+            var it = new InternalTransform(mat4.create());
             mat4.inverse(this._Raw, it._Raw);
             return it;
         }

@@ -67,7 +67,7 @@ module Fayde.Media {
     Nullstone.RegisterType(Transform, "Transform");
 
     export class MatrixTransform extends Transform implements IMatrixChangedListener {
-        static MatrixProperty: DependencyProperty = DependencyProperty.RegisterFull("Matrix", () => Matrix, MatrixTransform, undefined, (d, args) => (<MatrixTransform>d)._MatrixChanged(args), { GetValue: () => new Matrix() });
+        static MatrixProperty: DependencyProperty = DependencyProperty.RegisterFull("Matrix", () => Matrix, MatrixTransform, undefined, (d, args) => (<MatrixTransform>d)._MatrixChanged(args));
         Matrix: Matrix;
 
         _BuildValue(): number[] {
@@ -77,7 +77,7 @@ module Fayde.Media {
             return mat3.identity();
         }
 
-        private _MatrixChanged(args: IDependencyPropertyChangedEventArgs) {
+        _MatrixChanged(args: IDependencyPropertyChangedEventArgs) {
             var oldv: Matrix = args.OldValue;
             var newv: Matrix = args.NewValue;
             if (oldv)

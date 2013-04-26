@@ -171,3 +171,4 @@ Typescript\Shapes\Polyline.ts
 Typescript\Shapes\Rectangle.ts
 Typescript\Controls\Canvas.ts
 Typescript\Controls\ContentControl.ts
+Typescript\Controls\Grid.ts

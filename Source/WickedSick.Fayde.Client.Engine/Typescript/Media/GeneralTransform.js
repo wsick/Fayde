@@ -33,15 +33,13 @@ var Fayde;
         Nullstone.RegisterType(GeneralTransform, "GeneralTransform");
         var InternalTransform = (function (_super) {
             __extends(InternalTransform, _super);
-            function InternalTransform() {
-                _super.apply(this, arguments);
-
-                this._Raw = mat4.identity();
+            function InternalTransform(raw) {
+                        _super.call(this);
+                this._Raw = raw;
             }
             Object.defineProperty(InternalTransform.prototype, "Inverse", {
                 get: function () {
-                    var it = new InternalTransform();
-                    it._Raw = mat4.create();
+                    var it = new InternalTransform(mat4.create());
                     mat4.inverse(this._Raw, it._Raw);
                     return it;
                 },

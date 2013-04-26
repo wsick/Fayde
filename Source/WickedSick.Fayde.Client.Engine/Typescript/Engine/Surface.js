@@ -1,4 +1,15 @@
 var resizeTimeout;
+var InputType;
+(function (InputType) {
+    InputType._map = [];
+    InputType.NoOp = 0;
+    InputType.MouseUp = 1;
+    InputType.MouseDown = 2;
+    InputType.MouseLeave = 3;
+    InputType.MouseEnter = 4;
+    InputType.MouseMove = 5;
+    InputType.MouseWheel = 6;
+})(InputType || (InputType = {}));
 var Surface = (function () {
     function Surface(app) {
         this._Layers = [];
@@ -456,7 +467,7 @@ var Surface = (function () {
         var button = evt.which ? evt.which : evt.button;
         var pos = this._GetMousePosition(evt);
         this._SetUserInitiatedEvent(true);
-        this._HandleMouseEvent("down", button, pos);
+        this._HandleMouseEvent(InputType.MouseDown, button, pos);
         this._UpdateCursorFromInputList();
         this._SetUserInitiatedEvent(false);
     };
@@ -465,7 +476,7 @@ var Surface = (function () {
         var button = evt.which ? evt.which : evt.button;
         var pos = this._GetMousePosition(evt);
         this._SetUserInitiatedEvent(true);
-        this._HandleMouseEvent("up", button, pos);
+        this._HandleMouseEvent(InputType.MouseUp, button, pos);
         this._UpdateCursorFromInputList();
         this._SetUserInitiatedEvent(false);
         if(this._Captured) {
@@ -475,12 +486,12 @@ var Surface = (function () {
     Surface.prototype._HandleOut = function (evt) {
         Fayde.Input.Keyboard.RefreshModifiers(evt);
         var pos = this._GetMousePosition(evt);
-        this._HandleMouseEvent("out", null, pos);
+        this._HandleMouseEvent(InputType.MouseLeave, null, pos);
     };
     Surface.prototype._HandleMove = function (evt) {
         Fayde.Input.Keyboard.RefreshModifiers(evt);
         var pos = this._GetMousePosition(evt);
-        this._HandleMouseEvent("move", null, pos);
+        this._HandleMouseEvent(InputType.MouseMove, null, pos);
         this._UpdateCursorFromInputList();
     };
     Surface.prototype._HandleWheel = function (evt) {
@@ -495,7 +506,7 @@ var Surface = (function () {
             evt.preventDefault();
         }
         evt.returnValue = false;
-        this._HandleMouseEvent("wheel", null, this._GetMousePosition(evt), delta);
+        this._HandleMouseEvent(InputType.MouseWheel, null, this._GetMousePosition(evt), delta);
         this._UpdateCursorFromInputList();
     };
     Surface.prototype._HandleMouseEvent = function (type, button, pos, delta, emitLeave, emitEnter) {
@@ -528,12 +539,12 @@ var Surface = (function () {
             };
             this._FindFirstCommonElement(this._InputList, newInputList, indices);
             if(emitLeave === undefined || emitLeave === true) {
-                this._EmitMouseList("leave", button, pos, delta, this._InputList, indices.Index1);
+                this._EmitMouseList(InputType.MouseLeave, button, pos, delta, this._InputList, indices.Index1);
             }
             if(emitEnter === undefined || emitEnter === true) {
-                this._EmitMouseList("enter", button, pos, delta, newInputList, indices.Index2);
+                this._EmitMouseList(InputType.MouseEnter, button, pos, delta, newInputList, indices.Index2);
             }
-            if(type !== "noop") {
+            if(type !== InputType.NoOp) {
                 this._EmitMouseList(type, button, pos, delta, newInputList);
             }
             //app._NotifyDebugHitTest(newInputList, new Date().getTime() - startTime);
@@ -584,13 +595,13 @@ var Surface = (function () {
         var isR = Surface.IsRightButton(button);
         for(var i = 0; i < endIndex; i++) {
             node = list[i];
-            if(type === "leave") {
+            if(type === InputType.MouseLeave) {
                 args.Source = node.XObject;
             }
             if(node._EmitMouseEvent(type, isL, isR, args)) {
                 handled = true;
             }
-            if(type === "leave") {
+            if(type === InputType.MouseLeave) {
                 //MouseLeave gets new event args on each emit
                 args = this._CreateEventArgs(type, pos, delta);
             }
@@ -598,18 +609,19 @@ var Surface = (function () {
         return handled;
     };
     Surface.prototype._CreateEventArgs = function (type, pos, delta) {
-        if(type === "up") {
-            return new Fayde.Input.MouseButtonEventArgs(pos);
-        } else if(type === "down") {
-            return new Fayde.Input.MouseButtonEventArgs(pos);
-        } else if(type === "leave") {
-            return new Fayde.Input.MouseEventArgs(pos);
-        } else if(type === "enter") {
-            return new Fayde.Input.MouseEventArgs(pos);
-        } else if(type === "move") {
-            return new Fayde.Input.MouseEventArgs(pos);
-        } else if(type === "wheel") {
-            return new Fayde.Input.MouseWheelEventArgs(pos, delta);
+        switch(type) {
+            case InputType.MouseUp:
+                return new Fayde.Input.MouseButtonEventArgs(pos);
+            case InputType.MouseDown:
+                return new Fayde.Input.MouseButtonEventArgs(pos);
+            case InputType.MouseLeave:
+                return new Fayde.Input.MouseEventArgs(pos);
+            case InputType.MouseEnter:
+                return new Fayde.Input.MouseEventArgs(pos);
+            case InputType.MouseMove:
+                return new Fayde.Input.MouseEventArgs(pos);
+            case InputType.MouseWheel:
+                return new Fayde.Input.MouseWheelEventArgs(pos, delta);
         }
     };
     Surface.prototype.SetMouseCapture = function (uin) {
@@ -648,7 +660,7 @@ var Surface = (function () {
         this._PendingReleaseCapture = false;
         oldCaptured._EmitLostMouseCapture(this._CurrentPos);
         //force "MouseEnter" on any new elements
-        this._HandleMouseEvent("noop", null, this._CurrentPos, undefined, false, true);
+        this._HandleMouseEvent(InputType.NoOp, null, this._CurrentPos, undefined, false, true);
     };
     Surface.prototype._SetUserInitiatedEvent = function (val) {
         this._EmitFocusChangeEvents();

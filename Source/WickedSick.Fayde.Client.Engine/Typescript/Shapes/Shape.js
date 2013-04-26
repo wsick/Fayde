@@ -36,10 +36,43 @@ var Fayde;
                 x = p.X;
                 y = p.Y;
                 var shape = this.XObject;
-                if(!rect.containsPointXY(shape.GetStretchExtents(lu), x, y)) {
+                if(!rect.containsPointXY(this.GetStretchExtents(shape, lu), x, y)) {
                     return false;
                 }
                 return shape._InsideShape(ctx, lu, x, y);
+            };
+            ShapeNode.prototype.ComputeBounds = function (baseComputer, lu) {
+                this.IntersectBaseBoundsWithClipPath(lu, lu.Bounds, this.GetStretchExtents(this.XObject, lu), lu.AbsoluteXform);
+                rect.copyTo(lu.Bounds, lu.BoundsWithChildren);
+                lu.ComputeGlobalBounds();
+                lu.ComputeSurfaceBounds();
+            };
+            ShapeNode.prototype.IntersectBaseBoundsWithClipPath = function (lu, dest, baseBounds, xform) {
+                var isClipEmpty = rect.isEmpty(lu.ClipBounds);
+                var isLayoutClipEmpty = rect.isEmpty(lu.LayoutClipBounds);
+                if((!isClipEmpty || !isLayoutClipEmpty) && !lu.TotalIsRenderVisible) {
+                    rect.clear(dest);
+                    return;
+                }
+                rect.copyGrowTransform(dest, baseBounds, lu.EffectPadding, xform);
+                if(!isClipEmpty) {
+                    rect.intersection(dest, lu.ClipBounds);
+                }
+                if(!isLayoutClipEmpty) {
+                    rect.intersection(dest, lu.LayoutClipBounds);
+                }
+            };
+            ShapeNode.prototype.UpdateStretch = function () {
+                var lu = this.LayoutUpdater;
+                rect.clear(lu.Extents);
+                rect.clear(lu.ExtentsWithChildren);
+            };
+            ShapeNode.prototype.GetStretchExtents = function (shape, lu) {
+                if(rect.isEmpty(lu.Extents)) {
+                    rect.copyTo(shape._ComputeStretchBounds(), lu.Extents);
+                    rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
+                }
+                return lu.Extents;
             };
             return ShapeNode;
         })(Fayde.FENode);
@@ -122,7 +155,7 @@ var Fayde;
                     return false;
                 }
                 var ret = false;
-                var area = this.GetStretchExtents(lu);
+                var area = this.XamlNode.GetStretchExtents(this, lu);
                 ctx.Save();
                 ctx.PreTransformMatrix(this._StretchXform);
                 if(this._Fill != null) {
@@ -239,7 +272,7 @@ var Fayde;
                 if(this._ShapeFlags & Shapes.ShapeFlags.Empty) {
                     return;
                 }
-                var area = this.GetStretchExtents(lu);
+                var area = this.XamlNode.GetStretchExtents(this, lu);
                 ctx.Save();
                 ctx.PreTransformMatrix(this._StretchXform);
                 this._DrawPath(ctx);
@@ -427,7 +460,7 @@ var Fayde;
                 return new rect();
             };
             Shape.prototype._InvalidateStretch = function () {
-                this.XamlNode.LayoutUpdater.UpdateStretch();
+                this.XamlNode.UpdateStretch();
                 this._StretchXform = mat3.identity();
                 this._InvalidatePathCache();
             };
@@ -441,13 +474,6 @@ var Fayde;
                 rect.clear(this._NaturalBounds);
                 this._InvalidateStretch();
                 this.XamlNode.LayoutUpdater.Invalidate();
-            };
-            Shape.prototype.GetStretchExtents = function (lu) {
-                if(rect.isEmpty(lu.Extents)) {
-                    rect.copyTo(this._ComputeStretchBounds(), lu.Extents);
-                    rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
-                }
-                return lu.Extents;
             };
             Shape.prototype._FillChanged = function (args) {
                 var oldFill = args.OldValue;

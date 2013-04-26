@@ -29,6 +29,8 @@ var Fayde;
                         Current: popup.Child
                     };
                 };
+                PopupNode.prototype.ComputeBounds = function (baseComputer, lu) {
+                };
                 return PopupNode;
             })(Fayde.FENode);
             Primitives.PopupNode = PopupNode;            

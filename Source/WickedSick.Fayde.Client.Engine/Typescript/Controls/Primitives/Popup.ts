@@ -2,7 +2,7 @@
 /// CODE
 
 module Fayde.Controls.Primitives {
-    export class PopupNode extends FENode {
+    export class PopupNode extends FENode implements IBoundsComputable {
         XObject: Popup;
         GetInheritedWalker(): IEnumerator {
             var popup = (<Popup>this.XObject);
@@ -17,14 +17,19 @@ module Fayde.Controls.Primitives {
                 Current: popup.Child
             };
         }
+
+        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) { }
     }
     Nullstone.RegisterType(PopupNode, "PopupNode");
 
     export class Popup extends FrameworkElement {
-        Child: UIElement;
         CreateNode(): PopupNode {
             return new PopupNode(this);
         }
+
+        Child: UIElement;
+        HorizontalOffset: number;
+        VerticalOffset: number;
     }
     Nullstone.RegisterType(Popup, "Popup");
 }

@@ -11,6 +11,10 @@ module Fayde.Media {
         private _Inverse: Matrix = null;
         private _Listener: IMatrixChangedListener;
 
+        constructor(raw?: number[]) {
+            this._Raw = raw;
+        }
+
         get M11() { return this._Raw[0]; }
         set M11(val: number) { this._Raw[0] = val; this._OnChanged(); }
 

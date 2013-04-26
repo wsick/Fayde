@@ -99,10 +99,6 @@ var Fayde;
                 return Media.Matrix;
             }, MatrixTransform, undefined, function (d, args) {
                 return (d)._MatrixChanged(args);
-            }, {
-                GetValue: function () {
-                    return new Media.Matrix();
-                }
             });
             MatrixTransform.prototype._BuildValue = function () {
                 var m = this.Matrix;
