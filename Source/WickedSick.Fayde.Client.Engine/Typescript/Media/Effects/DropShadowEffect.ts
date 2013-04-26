@@ -9,11 +9,11 @@ module Fayde.Media.Effects {
         static MAX_BLUR_RADIUS: number = 20;
         static MAX_SHADOW_DEPTH: number = 300;
 
-        static BlurRadiusProperty: DependencyProperty = DependencyProperty.Register("BlurRadius", () => Number, DropShadowEffect, 5.0);
-        static ColorProperty: DependencyProperty = DependencyProperty.Register("Color", () => Color, DropShadowEffect, Color.KnownColors.Black);
-        static DirectionProperty: DependencyProperty = DependencyProperty.Register("Direction", () => Number, DropShadowEffect, 315.0);
-        static OpacityProperty: DependencyProperty = DependencyProperty.Register("Opacity", () => Number, DropShadowEffect, 1.0);
-        static ShadowDepthProperty: DependencyProperty = DependencyProperty.Register("ShadowDepth", () => Number, DropShadowEffect, 5.0);
+        static BlurRadiusProperty: DependencyProperty = DependencyProperty.Register("BlurRadius", () => Number, DropShadowEffect, 5.0, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
+        static ColorProperty: DependencyProperty = DependencyProperty.Register("Color", () => Color, DropShadowEffect, Color.KnownColors.Black, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
+        static DirectionProperty: DependencyProperty = DependencyProperty.Register("Direction", () => Number, DropShadowEffect, 315.0, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
+        static OpacityProperty: DependencyProperty = DependencyProperty.Register("Opacity", () => Number, DropShadowEffect, 1.0, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
+        static ShadowDepthProperty: DependencyProperty = DependencyProperty.Register("ShadowDepth", () => Number, DropShadowEffect, 5.0, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
         BlurRadius: number;
         Color: Color;
         Direction: number;

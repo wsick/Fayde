@@ -17,7 +17,9 @@ var Fayde;
                 }
                 BlurEffect.RadiusProperty = DependencyProperty.Register("Radius", function () {
                     return Number;
-                }, BlurEffect);
+                }, BlurEffect, undefined, function (d, args) {
+                    return (d)._EffectChanged(args);
+                });
                 return BlurEffect;
             })(Effects.Effect);
             Effects.BlurEffect = BlurEffect;            

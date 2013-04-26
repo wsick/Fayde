@@ -8,6 +8,20 @@ var Fayde;
     /// <reference path="../Core/FrameworkElement.ts" />
     /// CODE
     (function (Controls) {
+        var BorderNode = (function (_super) {
+            __extends(BorderNode, _super);
+            function BorderNode(xobj) {
+                        _super.call(this, xobj);
+                this.LayoutUpdater.SetContainerMode(true);
+            }
+            BorderNode.prototype._CanFindElement = function () {
+                var xobj = this.XObject;
+                return xobj.Background != null || xobj.BorderBrush != null;
+            };
+            return BorderNode;
+        })(Fayde.FENode);
+        Controls.BorderNode = BorderNode;        
+        Nullstone.RegisterType(BorderNode, "BorderNode");
         var Border = (function (_super) {
             __extends(Border, _super);
             function Border() {
@@ -15,9 +29,7 @@ var Fayde;
 
             }
             Border.prototype.CreateNode = function () {
-                var n = _super.prototype.CreateNode.call(this);
-                n.LayoutUpdater.SetContainerMode(true);
-                return n;
+                return new BorderNode(this);
             };
             Border.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () {
                 return Fayde.Media.Brush;

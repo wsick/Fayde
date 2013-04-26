@@ -202,7 +202,7 @@ module Fayde {
             else if (this.IsAttached)
                 this._Surface._Invalidate(r);
         }
-        InvalidateClip(newClip: Media.Geometry) {
+        InvalidateClip(oldClip: Media.Geometry, newClip: Media.Geometry) {
             var lu = this.LayoutUpdater;
             if (!newClip)
                 rect.clear(lu.ClipBounds);
@@ -212,18 +212,38 @@ module Fayde {
             lu.UpdateBounds(true);
             lu.ComputeComposite();
         }
-        InvalidateEffect(newEffect: Media.Effects.Effect) {
+        InvalidateEffect(oldEffect: Media.Effects.Effect, newEffect: Media.Effects.Effect) {
             var lu = this.LayoutUpdater;
             var changed = (newEffect) ? newEffect.GetPadding(lu.EffectPadding) : false;
             this.InvalidateParent(lu.SubtreeBounds);
             if (changed)
                 lu.UpdateBounds();
             lu.ComputeComposite();
+
+            if (oldEffect !== newEffect && this.IsAttached)
+                this._Surface._AddDirtyElement(this.LayoutUpdater, _Dirty.Transform);
         }
-        InvalidateVisibility() {
+        InvalidateOpacity() {
             var lu = this.LayoutUpdater;
             lu.UpdateTotalRenderVisibility();
             this.InvalidateParent(lu.SubtreeBounds);
+        }
+        InvalidateVisibility(newVisibility: Visibility) {
+            var lu = this.LayoutUpdater;
+
+            if (newVisibility === Visibility.Visible)
+                lu.Flags |= UIElementFlags.RenderVisible;
+            else
+                lu.Flags &= ~UIElementFlags.RenderVisible;
+
+            lu.UpdateTotalRenderVisibility();
+            this.InvalidateParent(lu.SubtreeBounds);
+
+            lu.InvalidateMeasure();
+            var vpNode = this.VisualParentNode;
+            if (vpNode)
+                vpNode.LayoutUpdater.InvalidateMeasure();
+            this._Surface._RemoveFocusFrom(lu);
         }
 
         IsAncestorOf(uin: UINode) {
@@ -273,6 +293,8 @@ module Fayde {
     export class UIElement extends DependencyObject {
         XamlNode: UINode;
         _Store: Providers.InheritedProviderStore;
+        private _ClipListener: Media.IGeometryListener = null;
+        private _EffectListener: Media.Effects.IEffectListener = null;
         CreateStore(): Providers.InheritedProviderStore {
             var s = new Providers.InheritedProviderStore(this);
             s.SetProviders([null, 
@@ -289,21 +311,29 @@ module Fayde {
         }
         CreateNode(): UINode { return new UINode(this); }
         
-        static ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Media.Geometry; }, UIElement);
-        static EffectProperty = DependencyProperty.Register("Effect", function () { return Media.Effects.Effect; }, UIElement);
-        static IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
+        static AllowDropProperty: DependencyProperty;
+        static CacheModeProperty: DependencyProperty;
+        static ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Media.Geometry; }, UIElement, undefined, (d, args) => (<UIElement>d)._ClipChanged(args));
+        static EffectProperty = DependencyProperty.Register("Effect", function () { return Media.Effects.Effect; }, UIElement, undefined, (d, args) => (<UIElement>d)._EffectChanged(args));
+        static IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true, (d, args) => (<UIElement>d)._IsHitTestVisibleChanged(args));
         static OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Media.Brush; }, UIElement);
-        static OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0);
-        static ProjectionProperty = DependencyProperty.Register("Projection", function () { return Media.Projection; }, UIElement);
-        static RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () { return Media.Transform; }, UIElement);
-        static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () { return Point; }, UIElement);
+        static OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0, (d, args) => (<UIElement>d).XamlNode.InvalidateOpacity());
+        static ProjectionProperty = DependencyProperty.Register("Projection", function () { return Media.Projection; }, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateProjection());
+        static RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () { return Media.Transform; }, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
+        static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () { return Point; }, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
         static TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
-        static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, UIElement, true, undefined, undefined, Providers._Inheritable.UseLayoutRounding);
-        static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
+        //static TriggersProperty: DependencyProperty;
+        static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, UIElement, true, (d, args) => (<UIElement>d)._UseLayoutRoundingChanged(args), undefined, Providers._Inheritable.UseLayoutRounding);
+        static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible, (d, args) => (<UIElement>d).XamlNode.InvalidateVisibility(args.NewValue));
 
         private _IsMouseOver: bool = false;
         get IsMouseOver() { return this._IsMouseOver; }
 
+        get DesiredSize(): size { return this.XamlNode.LayoutUpdater.DesiredSize; }
+        get RenderSize(): size { return this.XamlNode.LayoutUpdater.RenderSize; }
+
+        //AllowDrop: bool;
+        //CacheMode;
         Clip: Media.Geometry;
         Effect: Media.Effects.Effect;
         IsHitTestVisible: bool;
@@ -314,6 +344,7 @@ module Fayde {
         RenderTransform: Media.Transform;
         RenderTransformOrigin: Point;
         Tag: any;
+        //Triggers;
         UseLayoutRounding: bool;
         Visibility: Visibility;
         
@@ -351,6 +382,49 @@ module Fayde {
         OnMouseRightButtonDown(e: Input.MouseButtonEventArgs) { }
         OnMouseRightButtonUp(e: Input.MouseButtonEventArgs) { }
         OnMouseWheel(e: Input.MouseWheelEventArgs) { }
+
+        private _ClipChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldClip: Media.Geometry = args.OldValue;
+            var newClip: Media.Geometry = args.NewValue;
+            this.XamlNode.InvalidateClip(oldClip, newClip);
+            if (oldClip == newClip)
+                return;
+            if (oldClip)
+                oldClip.Unlisten(this._ClipListener);
+            if (newClip) {
+                if (!this._ClipListener)
+                    this._ClipListener = { GeometryChanged: (newGeometry: Media.Geometry) => this.XamlNode.InvalidateClip(newGeometry, newGeometry) };
+                newClip.Listen(this._ClipListener);
+            }
+        }
+        private _EffectChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldEffect: Media.Effects.Effect = args.OldValue;
+            var newEffect: Media.Effects.Effect = args.NewValue;
+            this.XamlNode.InvalidateEffect(oldEffect, newEffect);
+            if (oldEffect === newEffect)
+                return;
+            if (oldEffect)
+                oldEffect.Unlisten(this._EffectListener);
+            if (newEffect) {
+                if (!this._EffectListener)
+                    this._EffectListener = { EffectChanged: (effect: Media.Effects.Effect) => this.XamlNode.InvalidateEffect(effect, effect) };
+                newEffect.Listen(this._EffectListener);
+            }
+        }
+        private _UseLayoutRoundingChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
+            lu.InvalidateMeasure();
+            lu.InvalidateArrange();
+        }
+        private _IsHitTestVisibleChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
+            if (args.NewValue === true) {
+                lu.Flags |= UIElementFlags.HitTestVisible;
+            } else {
+                lu.Flags &= ~UIElementFlags.HitTestVisible;
+            }
+            lu.UpdateTotalHitTestVisibility();
+        }
     }
     Nullstone.RegisterType(UIElement, "UIElement");
 }

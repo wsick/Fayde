@@ -2184,7 +2184,7 @@ module Fayde {
             if (!this.TotalIsRenderVisible || (this.TotalOpacity * 255) < 0.5)
                 return;
             if (this.Node.IsAttached) {
-                App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Invalidate);
+                this.Surface._AddDirtyElement(this, _Dirty.Invalidate);
                 this.InvalidateBitmapCache();
                 if (false) {
                     rect.union(this.DirtyRegion, this.SubtreeBounds);
@@ -5305,7 +5305,7 @@ class Surface {
         if (this._FirstUserInitiatedEvent)
             this._EmitFocusChangeEventsAsync();
     }
-    private _RemoveFocusFrom(lu: Fayde.LayoutUpdater) {
+    _RemoveFocusFrom(lu: Fayde.LayoutUpdater) {
         if (this._FocusedNode === lu.Node)
             this._FocusNode(null);
     }
@@ -9472,12 +9472,22 @@ module Fayde.Media.Animation {
 }
 
 module Fayde.Media.Effects {
+    export interface IEffectListener {
+        EffectChanged(effect: Media.Effects.Effect);
+    }
     export class Effect extends DependencyObject {
-        static EffectMappingProperty: DependencyProperty = DependencyProperty.Register("EffectMapping", () => GeneralTransform, Effect);
+        private _Listener: Media.Effects.IEffectListener;
+        static EffectMappingProperty: DependencyProperty = DependencyProperty.Register("EffectMapping", () => GeneralTransform, Effect, undefined, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
         EffectMapping: GeneralTransform;
         Padding(): Thickness { return new Thickness(); }
         GetPadding(thickness: Thickness): bool { return false; }
         PreRender(ctx: RenderContext) {
+        }
+        Listen(listener: Media.Effects.IEffectListener) { this._Listener = listener; }
+        Unlisten(listener: Media.Effects.IEffectListener) { if (this._Listener === listener) this._Listener = null; }
+        _EffectChanged(args: IDependencyPropertyChangedEventArgs) {
+            var listener = this._Listener;
+            if (listener) listener.EffectChanged(this);
         }
     }
     Nullstone.RegisterType(Effect, "Effect");
@@ -9996,7 +10006,7 @@ module Fayde {
             else if (this.IsAttached)
                 this._Surface._Invalidate(r);
         }
-        InvalidateClip(newClip: Media.Geometry) {
+        InvalidateClip(oldClip: Media.Geometry, newClip: Media.Geometry) {
             var lu = this.LayoutUpdater;
             if (!newClip)
                 rect.clear(lu.ClipBounds);
@@ -10006,18 +10016,34 @@ module Fayde {
             lu.UpdateBounds(true);
             lu.ComputeComposite();
         }
-        InvalidateEffect(newEffect: Media.Effects.Effect) {
+        InvalidateEffect(oldEffect: Media.Effects.Effect, newEffect: Media.Effects.Effect) {
             var lu = this.LayoutUpdater;
             var changed = (newEffect) ? newEffect.GetPadding(lu.EffectPadding) : false;
             this.InvalidateParent(lu.SubtreeBounds);
             if (changed)
                 lu.UpdateBounds();
             lu.ComputeComposite();
+            if (oldEffect !== newEffect && this.IsAttached)
+                this._Surface._AddDirtyElement(this.LayoutUpdater, _Dirty.Transform);
         }
-        InvalidateVisibility() {
+        InvalidateOpacity() {
             var lu = this.LayoutUpdater;
             lu.UpdateTotalRenderVisibility();
             this.InvalidateParent(lu.SubtreeBounds);
+        }
+        InvalidateVisibility(newVisibility: Visibility) {
+            var lu = this.LayoutUpdater;
+            if (newVisibility === Visibility.Visible)
+                lu.Flags |= UIElementFlags.RenderVisible;
+            else
+                lu.Flags &= ~UIElementFlags.RenderVisible;
+            lu.UpdateTotalRenderVisibility();
+            this.InvalidateParent(lu.SubtreeBounds);
+            lu.InvalidateMeasure();
+            var vpNode = this.VisualParentNode;
+            if (vpNode)
+                vpNode.LayoutUpdater.InvalidateMeasure();
+            this._Surface._RemoveFocusFrom(lu);
         }
         IsAncestorOf(uin: UINode) {
             var vpNode = uin;
@@ -10060,6 +10086,8 @@ module Fayde {
     export class UIElement extends DependencyObject {
         XamlNode: UINode;
         _Store: Providers.InheritedProviderStore;
+        private _ClipListener: Media.IGeometryListener = null;
+        private _EffectListener: Media.Effects.IEffectListener = null;
         CreateStore(): Providers.InheritedProviderStore {
             var s = new Providers.InheritedProviderStore(this);
             s.SetProviders([null, 
@@ -10075,19 +10103,23 @@ module Fayde {
             return s;
         }
         CreateNode(): UINode { return new UINode(this); }
-        static ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Media.Geometry; }, UIElement);
-        static EffectProperty = DependencyProperty.Register("Effect", function () { return Media.Effects.Effect; }, UIElement);
-        static IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
+        static AllowDropProperty: DependencyProperty;
+        static CacheModeProperty: DependencyProperty;
+        static ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Media.Geometry; }, UIElement, undefined, (d, args) => (<UIElement>d)._ClipChanged(args));
+        static EffectProperty = DependencyProperty.Register("Effect", function () { return Media.Effects.Effect; }, UIElement, undefined, (d, args) => (<UIElement>d)._EffectChanged(args));
+        static IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true, (d, args) => (<UIElement>d)._IsHitTestVisibleChanged(args));
         static OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Media.Brush; }, UIElement);
-        static OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0);
-        static ProjectionProperty = DependencyProperty.Register("Projection", function () { return Media.Projection; }, UIElement);
-        static RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () { return Media.Transform; }, UIElement);
-        static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () { return Point; }, UIElement);
+        static OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0, (d, args) => (<UIElement>d).XamlNode.InvalidateOpacity());
+        static ProjectionProperty = DependencyProperty.Register("Projection", function () { return Media.Projection; }, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateProjection());
+        static RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () { return Media.Transform; }, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
+        static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () { return Point; }, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
         static TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
-        static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, UIElement, true, undefined, undefined, Providers._Inheritable.UseLayoutRounding);
-        static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
+        static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, UIElement, true, (d, args) => (<UIElement>d)._UseLayoutRoundingChanged(args), undefined, Providers._Inheritable.UseLayoutRounding);
+        static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible, (d, args) => (<UIElement>d).XamlNode.InvalidateVisibility(args.NewValue));
         private _IsMouseOver: bool = false;
         get IsMouseOver() { return this._IsMouseOver; }
+        get DesiredSize(): size { return this.XamlNode.LayoutUpdater.DesiredSize; }
+        get RenderSize(): size { return this.XamlNode.LayoutUpdater.RenderSize; }
         Clip: Media.Geometry;
         Effect: Media.Effects.Effect;
         IsHitTestVisible: bool;
@@ -10131,6 +10163,48 @@ module Fayde {
         OnMouseRightButtonDown(e: Input.MouseButtonEventArgs) { }
         OnMouseRightButtonUp(e: Input.MouseButtonEventArgs) { }
         OnMouseWheel(e: Input.MouseWheelEventArgs) { }
+        private _ClipChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldClip: Media.Geometry = args.OldValue;
+            var newClip: Media.Geometry = args.NewValue;
+            this.XamlNode.InvalidateClip(oldClip, newClip);
+            if (oldClip == newClip)
+                return;
+            if (oldClip)
+                oldClip.Unlisten(this._ClipListener);
+            if (newClip) {
+                if (!this._ClipListener)
+                    this._ClipListener = { GeometryChanged: (newGeometry: Media.Geometry) => this.XamlNode.InvalidateClip(newGeometry, newGeometry) };
+                newClip.Listen(this._ClipListener);
+            }
+        }
+        private _EffectChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldEffect: Media.Effects.Effect = args.OldValue;
+            var newEffect: Media.Effects.Effect = args.NewValue;
+            this.XamlNode.InvalidateEffect(oldEffect, newEffect);
+            if (oldEffect === newEffect)
+                return;
+            if (oldEffect)
+                oldEffect.Unlisten(this._EffectListener);
+            if (newEffect) {
+                if (!this._EffectListener)
+                    this._EffectListener = { EffectChanged: (effect: Media.Effects.Effect) => this.XamlNode.InvalidateEffect(effect, effect) };
+                newEffect.Listen(this._EffectListener);
+            }
+        }
+        private _UseLayoutRoundingChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
+            lu.InvalidateMeasure();
+            lu.InvalidateArrange();
+        }
+        private _IsHitTestVisibleChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
+            if (args.NewValue === true) {
+                lu.Flags |= UIElementFlags.HitTestVisible;
+            } else {
+                lu.Flags &= ~UIElementFlags.HitTestVisible;
+            }
+            lu.UpdateTotalHitTestVisibility();
+        }
     }
     Nullstone.RegisterType(UIElement, "UIElement");
 }
@@ -11127,7 +11201,7 @@ module Fayde.Media.Animation {
 
 module Fayde.Media.Effects {
     export class BlurEffect extends Effect {
-        static RadiusProperty: DependencyProperty = DependencyProperty.Register("Radius", () => Number, BlurEffect);
+        static RadiusProperty: DependencyProperty = DependencyProperty.Register("Radius", () => Number, BlurEffect, undefined, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
         Radius: number;
     }
     Nullstone.RegisterType(BlurEffect, "BlurEffect");
@@ -11137,11 +11211,11 @@ module Fayde.Media.Effects {
     export class DropShadowEffect extends Effect {
         static MAX_BLUR_RADIUS: number = 20;
         static MAX_SHADOW_DEPTH: number = 300;
-        static BlurRadiusProperty: DependencyProperty = DependencyProperty.Register("BlurRadius", () => Number, DropShadowEffect, 5.0);
-        static ColorProperty: DependencyProperty = DependencyProperty.Register("Color", () => Color, DropShadowEffect, Color.KnownColors.Black);
-        static DirectionProperty: DependencyProperty = DependencyProperty.Register("Direction", () => Number, DropShadowEffect, 315.0);
-        static OpacityProperty: DependencyProperty = DependencyProperty.Register("Opacity", () => Number, DropShadowEffect, 1.0);
-        static ShadowDepthProperty: DependencyProperty = DependencyProperty.Register("ShadowDepth", () => Number, DropShadowEffect, 5.0);
+        static BlurRadiusProperty: DependencyProperty = DependencyProperty.Register("BlurRadius", () => Number, DropShadowEffect, 5.0, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
+        static ColorProperty: DependencyProperty = DependencyProperty.Register("Color", () => Color, DropShadowEffect, Color.KnownColors.Black, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
+        static DirectionProperty: DependencyProperty = DependencyProperty.Register("Direction", () => Number, DropShadowEffect, 315.0, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
+        static OpacityProperty: DependencyProperty = DependencyProperty.Register("Opacity", () => Number, DropShadowEffect, 1.0, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
+        static ShadowDepthProperty: DependencyProperty = DependencyProperty.Register("ShadowDepth", () => Number, DropShadowEffect, 5.0, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
         BlurRadius: number;
         Color: Color;
         Direction: number;
@@ -12039,12 +12113,21 @@ module Fayde.Shapes {
 }
 
 module Fayde.Controls {
-    export class Border extends FrameworkElement {
-        CreateNode(): FENode {
-            var n = super.CreateNode();
-            n.LayoutUpdater.SetContainerMode(true);
-            return n;
+    export class BorderNode extends FENode {
+        XObject: Border;
+        constructor(xobj: Border) {
+            super(xobj);
+            this.LayoutUpdater.SetContainerMode(true);
         }
+        _CanFindElement(): bool {
+            var xobj = this.XObject;
+            return xobj.Background != null || xobj.BorderBrush != null;
+        }
+    }
+    Nullstone.RegisterType(BorderNode, "BorderNode");
+    export class Border extends FrameworkElement {
+        XamlNode: BorderNode;
+        CreateNode(): BorderNode { return new BorderNode(this); }
         static BackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Border, undefined, (d, args) => (<Border>d)._BackgroundChanged(args));
         static BorderBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderBrush", () => Media.Brush, Border, undefined, (d, args) => (<Border>d)._BorderBrushChanged(args));
         static BorderThicknessProperty: DependencyProperty = DependencyProperty.RegisterFull("BorderThickness", () => Thickness, Border, undefined, (d, args) => (<Border>d)._BorderThicknessChanged(args)); //TODO: Validator

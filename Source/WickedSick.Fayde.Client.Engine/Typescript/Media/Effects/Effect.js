@@ -21,7 +21,9 @@ var Fayde;
                 }
                 Effect.EffectMappingProperty = DependencyProperty.Register("EffectMapping", function () {
                     return Media.GeneralTransform;
-                }, Effect);
+                }, Effect, undefined, function (d, args) {
+                    return (d)._EffectChanged(args);
+                });
                 Effect.prototype.Padding = function () {
                     return new Thickness();
                 };
@@ -31,6 +33,20 @@ var Fayde;
                 Effect.prototype.PreRender = function (ctx) {
                     //Abstract Method
                                     };
+                Effect.prototype.Listen = function (listener) {
+                    this._Listener = listener;
+                };
+                Effect.prototype.Unlisten = function (listener) {
+                    if(this._Listener === listener) {
+                        this._Listener = null;
+                    }
+                };
+                Effect.prototype._EffectChanged = function (args) {
+                    var listener = this._Listener;
+                    if(listener) {
+                        listener.EffectChanged(this);
+                    }
+                };
                 return Effect;
             })(Fayde.DependencyObject);
             Effects.Effect = Effect;            

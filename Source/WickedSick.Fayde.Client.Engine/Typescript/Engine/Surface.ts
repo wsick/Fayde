@@ -740,7 +740,7 @@ class Surface {
         if (this._FirstUserInitiatedEvent)
             this._EmitFocusChangeEventsAsync();
     }
-    private _RemoveFocusFrom(lu: Fayde.LayoutUpdater) {
+    _RemoveFocusFrom(lu: Fayde.LayoutUpdater) {
         if (this._FocusedNode === lu.Node)
             this._FocusNode(null);
     }

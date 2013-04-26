@@ -197,7 +197,7 @@ var Fayde;
                 this._Surface._Invalidate(r);
             }
         };
-        UINode.prototype.InvalidateClip = function (newClip) {
+        UINode.prototype.InvalidateClip = function (oldClip, newClip) {
             var lu = this.LayoutUpdater;
             if(!newClip) {
                 rect.clear(lu.ClipBounds);
@@ -208,7 +208,7 @@ var Fayde;
             lu.UpdateBounds(true);
             lu.ComputeComposite();
         };
-        UINode.prototype.InvalidateEffect = function (newEffect) {
+        UINode.prototype.InvalidateEffect = function (oldEffect, newEffect) {
             var lu = this.LayoutUpdater;
             var changed = (newEffect) ? newEffect.GetPadding(lu.EffectPadding) : false;
             this.InvalidateParent(lu.SubtreeBounds);
@@ -216,11 +216,30 @@ var Fayde;
                 lu.UpdateBounds();
             }
             lu.ComputeComposite();
+            if(oldEffect !== newEffect && this.IsAttached) {
+                this._Surface._AddDirtyElement(this.LayoutUpdater, _Dirty.Transform);
+            }
         };
-        UINode.prototype.InvalidateVisibility = function () {
+        UINode.prototype.InvalidateOpacity = function () {
             var lu = this.LayoutUpdater;
             lu.UpdateTotalRenderVisibility();
             this.InvalidateParent(lu.SubtreeBounds);
+        };
+        UINode.prototype.InvalidateVisibility = function (newVisibility) {
+            var lu = this.LayoutUpdater;
+            if(newVisibility === Fayde.Visibility.Visible) {
+                lu.Flags |= Fayde.UIElementFlags.RenderVisible;
+            } else {
+                lu.Flags &= ~Fayde.UIElementFlags.RenderVisible;
+            }
+            lu.UpdateTotalRenderVisibility();
+            this.InvalidateParent(lu.SubtreeBounds);
+            lu.InvalidateMeasure();
+            var vpNode = this.VisualParentNode;
+            if(vpNode) {
+                vpNode.LayoutUpdater.InvalidateMeasure();
+            }
+            this._Surface._RemoveFocusFrom(lu);
         };
         UINode.prototype.IsAncestorOf = function (uin) {
             var vpNode = uin;
@@ -273,6 +292,8 @@ var Fayde;
         function UIElement() {
             _super.apply(this, arguments);
 
+            this._ClipListener = null;
+            this._EffectListener = null;
             this._IsMouseOver = false;
             this.LostFocus = new Fayde.RoutedEvent();
             this.GotFocus = new Fayde.RoutedEvent();
@@ -308,40 +329,72 @@ var Fayde;
         };
         UIElement.ClipProperty = DependencyProperty.RegisterCore("Clip", function () {
             return Fayde.Media.Geometry;
-        }, UIElement);
+        }, UIElement, undefined, function (d, args) {
+            return (d)._ClipChanged(args);
+        });
         UIElement.EffectProperty = DependencyProperty.Register("Effect", function () {
             return Fayde.Media.Effects.Effect;
-        }, UIElement);
+        }, UIElement, undefined, function (d, args) {
+            return (d)._EffectChanged(args);
+        });
         UIElement.IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () {
             return Boolean;
-        }, UIElement, true);
+        }, UIElement, true, function (d, args) {
+            return (d)._IsHitTestVisibleChanged(args);
+        });
         UIElement.OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () {
             return Fayde.Media.Brush;
         }, UIElement);
         UIElement.OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () {
             return Number;
-        }, UIElement, 1.0);
+        }, UIElement, 1.0, function (d, args) {
+            return (d).XamlNode.InvalidateOpacity();
+        });
         UIElement.ProjectionProperty = DependencyProperty.Register("Projection", function () {
             return Fayde.Media.Projection;
-        }, UIElement);
+        }, UIElement, undefined, function (d, args) {
+            return (d).XamlNode.LayoutUpdater.UpdateProjection();
+        });
         UIElement.RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () {
             return Fayde.Media.Transform;
-        }, UIElement);
+        }, UIElement, undefined, function (d, args) {
+            return (d).XamlNode.LayoutUpdater.UpdateTransform();
+        });
         UIElement.RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () {
             return Point;
-        }, UIElement);
+        }, UIElement, undefined, function (d, args) {
+            return (d).XamlNode.LayoutUpdater.UpdateTransform();
+        });
         UIElement.TagProperty = DependencyProperty.Register("Tag", function () {
             return Object;
         }, UIElement);
         UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () {
             return Boolean;
-        }, UIElement, true, undefined, undefined, Fayde.Providers._Inheritable.UseLayoutRounding);
+        }, UIElement, true, function (d, args) {
+            return (d)._UseLayoutRoundingChanged(args);
+        }, undefined, Fayde.Providers._Inheritable.UseLayoutRounding);
         UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () {
             return new Enum(Fayde.Visibility);
-        }, UIElement, Fayde.Visibility.Visible);
+        }, UIElement, Fayde.Visibility.Visible, function (d, args) {
+            return (d).XamlNode.InvalidateVisibility(args.NewValue);
+        });
         Object.defineProperty(UIElement.prototype, "IsMouseOver", {
             get: function () {
                 return this._IsMouseOver;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(UIElement.prototype, "DesiredSize", {
+            get: function () {
+                return this.XamlNode.LayoutUpdater.DesiredSize;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(UIElement.prototype, "RenderSize", {
+            get: function () {
+                return this.XamlNode.LayoutUpdater.RenderSize;
             },
             enumerable: true,
             configurable: true
@@ -378,6 +431,64 @@ var Fayde;
         UIElement.prototype.OnMouseRightButtonUp = function (e) {
         };
         UIElement.prototype.OnMouseWheel = function (e) {
+        };
+        UIElement.prototype._ClipChanged = function (args) {
+            var _this = this;
+            var oldClip = args.OldValue;
+            var newClip = args.NewValue;
+            this.XamlNode.InvalidateClip(oldClip, newClip);
+            if(oldClip == newClip) {
+                return;
+            }
+            if(oldClip) {
+                oldClip.Unlisten(this._ClipListener);
+            }
+            if(newClip) {
+                if(!this._ClipListener) {
+                    this._ClipListener = {
+                        GeometryChanged: function (newGeometry) {
+                            return _this.XamlNode.InvalidateClip(newGeometry, newGeometry);
+                        }
+                    };
+                }
+                newClip.Listen(this._ClipListener);
+            }
+        };
+        UIElement.prototype._EffectChanged = function (args) {
+            var _this = this;
+            var oldEffect = args.OldValue;
+            var newEffect = args.NewValue;
+            this.XamlNode.InvalidateEffect(oldEffect, newEffect);
+            if(oldEffect === newEffect) {
+                return;
+            }
+            if(oldEffect) {
+                oldEffect.Unlisten(this._EffectListener);
+            }
+            if(newEffect) {
+                if(!this._EffectListener) {
+                    this._EffectListener = {
+                        EffectChanged: function (effect) {
+                            return _this.XamlNode.InvalidateEffect(effect, effect);
+                        }
+                    };
+                }
+                newEffect.Listen(this._EffectListener);
+            }
+        };
+        UIElement.prototype._UseLayoutRoundingChanged = function (args) {
+            var lu = this.XamlNode.LayoutUpdater;
+            lu.InvalidateMeasure();
+            lu.InvalidateArrange();
+        };
+        UIElement.prototype._IsHitTestVisibleChanged = function (args) {
+            var lu = this.XamlNode.LayoutUpdater;
+            if(args.NewValue === true) {
+                lu.Flags |= Fayde.UIElementFlags.HitTestVisible;
+            } else {
+                lu.Flags &= ~Fayde.UIElementFlags.HitTestVisible;
+            }
+            lu.UpdateTotalHitTestVisibility();
         };
         return UIElement;
     })(Fayde.DependencyObject);

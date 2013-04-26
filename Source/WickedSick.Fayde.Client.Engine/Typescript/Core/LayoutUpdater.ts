@@ -342,7 +342,7 @@ module Fayde {
                 return;
 
             if (this.Node.IsAttached) {
-                App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Invalidate);
+                this.Surface._AddDirtyElement(this, _Dirty.Invalidate);
                 this.InvalidateBitmapCache();
                 if (false) {
                     //TODO: Render Intermediate not implemented

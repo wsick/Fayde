@@ -2,12 +2,23 @@
 /// CODE
 
 module Fayde.Controls {
-    export class Border extends FrameworkElement {
-        CreateNode(): FENode {
-            var n = super.CreateNode();
-            n.LayoutUpdater.SetContainerMode(true);
-            return n;
+    export class BorderNode extends FENode {
+        XObject: Border;
+        constructor(xobj: Border) {
+            super(xobj);
+            this.LayoutUpdater.SetContainerMode(true);
         }
+
+        _CanFindElement(): bool {
+            var xobj = this.XObject;
+            return xobj.Background != null || xobj.BorderBrush != null;
+        }
+    }
+    Nullstone.RegisterType(BorderNode, "BorderNode");
+
+    export class Border extends FrameworkElement {
+        XamlNode: BorderNode;
+        CreateNode(): BorderNode { return new BorderNode(this); }
 
         static BackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Border, undefined, (d, args) => (<Border>d)._BackgroundChanged(args));
         static BorderBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderBrush", () => Media.Brush, Border, undefined, (d, args) => (<Border>d)._BorderBrushChanged(args));

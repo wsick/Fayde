@@ -22,19 +22,29 @@ var Fayde;
                 DropShadowEffect.MAX_SHADOW_DEPTH = 300;
                 DropShadowEffect.BlurRadiusProperty = DependencyProperty.Register("BlurRadius", function () {
                     return Number;
-                }, DropShadowEffect, 5.0);
+                }, DropShadowEffect, 5.0, function (d, args) {
+                    return (d)._EffectChanged(args);
+                });
                 DropShadowEffect.ColorProperty = DependencyProperty.Register("Color", function () {
                     return Color;
-                }, DropShadowEffect, Color.KnownColors.Black);
+                }, DropShadowEffect, Color.KnownColors.Black, function (d, args) {
+                    return (d)._EffectChanged(args);
+                });
                 DropShadowEffect.DirectionProperty = DependencyProperty.Register("Direction", function () {
                     return Number;
-                }, DropShadowEffect, 315.0);
+                }, DropShadowEffect, 315.0, function (d, args) {
+                    return (d)._EffectChanged(args);
+                });
                 DropShadowEffect.OpacityProperty = DependencyProperty.Register("Opacity", function () {
                     return Number;
-                }, DropShadowEffect, 1.0);
+                }, DropShadowEffect, 1.0, function (d, args) {
+                    return (d)._EffectChanged(args);
+                });
                 DropShadowEffect.ShadowDepthProperty = DependencyProperty.Register("ShadowDepth", function () {
                     return Number;
-                }, DropShadowEffect, 5.0);
+                }, DropShadowEffect, 5.0, function (d, args) {
+                    return (d)._EffectChanged(args);
+                });
                 DropShadowEffect.prototype.Padding = function () {
                     var radius = Math.min(this.BlurRadius, DropShadowEffect.MAX_BLUR_RADIUS);
                     var depth = Math.min(Math.max(0, this.ShadowDepth), DropShadowEffect.MAX_SHADOW_DEPTH);
