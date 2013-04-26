@@ -36,3 +36,10 @@ class NotSupportedException extends Exception {
     }
 }
 Nullstone.RegisterType(NotSupportedException, "NotSupportedException");
+
+class IndexOutOfRangeException extends Exception {
+    constructor(index: number) {
+        super("Index is out of range: " + index.toString());
+    }
+}
+Nullstone.RegisterType(IndexOutOfRangeException, "IndexOutOfRangeException");

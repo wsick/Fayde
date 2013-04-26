@@ -1,3 +1,4 @@
+Typescript\Controls\ContainerMap.ts
 Typescript\Controls\Enums.ts
 Typescript\Controls\ItemContainerGenerator.ts
 Typescript\Controls\Primitives\IScrollInfo.ts
@@ -158,6 +159,7 @@ Typescript\Core\FrameworkElement.ts
 Typescript\Media\Imaging\BitmapImage.ts
 Typescript\Shapes\Shape.ts
 Typescript\Controls\Border.ts
+Typescript\Controls\ContentPresenter.ts
 Typescript\Controls\Control.ts
 Typescript\Controls\Image.ts
 Typescript\Controls\ItemsControl.ts

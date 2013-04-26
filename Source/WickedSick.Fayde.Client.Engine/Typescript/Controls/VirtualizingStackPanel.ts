@@ -214,7 +214,7 @@ module Fayde.Controls {
                     var child: UIElement;
                     var childlu: LayoutUpdater;
                     for (var i = 0; i < itemCount && beyond < 2; i++, insertAt++) {
-                        child = generator.GenerateNext(isNewlyRealized);
+                        child = <UIElement>generator.GenerateNext(isNewlyRealized);
                         childlu = child.XamlNode.LayoutUpdater;
                         if (isNewlyRealized.Value || insertAt >= children.Count || children.GetValueAt(insertAt) !== child) {
                             if (insertAt < children.Count)

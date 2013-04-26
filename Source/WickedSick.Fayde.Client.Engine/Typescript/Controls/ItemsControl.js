@@ -10,19 +10,27 @@ var Fayde;
     /// <reference path="Panel.ts" />
     /// <reference path="ItemsPresenter.ts" />
     /// <reference path="ItemContainerGenerator.ts" />
+    /// <reference path="ContentPresenter.ts" />
     (function (Controls) {
         var ItemsControl = (function (_super) {
             __extends(ItemsControl, _super);
             function ItemsControl() {
                         _super.call(this);
-                var icg = new Controls.ItemContainerGenerator();
+                var icg = new Controls.ItemContainerGenerator(this);
                 Object.defineProperty(this, "ItemContainerGenerator", {
                     value: icg,
                     writable: false
                 });
             }
-            ItemsControl.GetItemsOwner = //TODO: Implement
-            function GetItemsOwner(uie) {
+            Object.defineProperty(ItemsControl.prototype, "Panel", {
+                get: //TODO: Implement
+                function () {
+                    return this._Presenter.XamlNode._ElementRoot;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            ItemsControl.GetItemsOwner = function GetItemsOwner(uie) {
                 if(!(uie instanceof Controls.Panel)) {
                     return null;
                 }
@@ -50,6 +58,22 @@ var Fayde;
             ItemsControl.prototype.AddItemsToPresenter = function (positionIndex, positionOffset, count) {
                 //TODO: Implement
                             };
+            ItemsControl.prototype.PrepareContainerForItem = function (container, item) {
+                /*
+                if (this.DisplayMemberPath != null && this.ItemTemplate != null)
+                throw new InvalidOperationException("Cannot set 'DisplayMemberPath' and 'ItemTemplate' simultaenously");
+                
+                this.UpdateContentTemplateOnContainer(element, item);
+                */
+                            };
+            ItemsControl.prototype.ClearContainerForItem = function (container, item) {
+            };
+            ItemsControl.prototype.GetContainerForItem = function () {
+                return new Controls.ContentPresenter();
+            };
+            ItemsControl.prototype.IsItemItsOwnContainer = function (item) {
+                return item instanceof Fayde.FrameworkElement;
+            };
             return ItemsControl;
         })(Controls.Control);
         Controls.ItemsControl = ItemsControl;        

@@ -473,8 +473,16 @@
     <Content Include="Typescript\Controls\Canvas.js">
       <DependentUpon>Canvas.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ContainerMap.ts" />
+    <Content Include="Typescript\Controls\ContainerMap.js">
+      <DependentUpon>ContainerMap.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\ContentControl.js">
       <DependentUpon>ContentControl.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ContentPresenter.ts" />
+    <Content Include="Typescript\Controls\ContentPresenter.js">
+      <DependentUpon>ContentPresenter.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Controls\Control.js">
       <DependentUpon>Control.ts</DependentUpon>

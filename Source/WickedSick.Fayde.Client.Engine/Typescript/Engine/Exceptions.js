@@ -44,4 +44,12 @@ var NotSupportedException = (function (_super) {
     return NotSupportedException;
 })(Exception);
 Nullstone.RegisterType(NotSupportedException, "NotSupportedException");
+var IndexOutOfRangeException = (function (_super) {
+    __extends(IndexOutOfRangeException, _super);
+    function IndexOutOfRangeException(index) {
+        _super.call(this, "Index is out of range: " + index.toString());
+    }
+    return IndexOutOfRangeException;
+})(Exception);
+Nullstone.RegisterType(IndexOutOfRangeException, "IndexOutOfRangeException");
 //@ sourceMappingURL=Exceptions.js.map

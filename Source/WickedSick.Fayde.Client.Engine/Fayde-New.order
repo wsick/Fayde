@@ -1,3 +1,4 @@
+Controls/ContainerMap.js
 Controls/Enums.js
 Controls/ItemContainerGenerator.js
 Controls/Primitives/IScrollInfo.js
@@ -158,6 +159,7 @@ Core/FrameworkElement.js
 Media/Imaging/BitmapImage.js
 Shapes/Shape.js
 Controls/Border.js
+Controls/ContentPresenter.js
 Controls/Control.js
 Controls/Image.js
 Controls/ItemsControl.js
