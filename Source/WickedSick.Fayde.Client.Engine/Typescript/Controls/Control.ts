@@ -5,6 +5,7 @@
 
 module Fayde.Controls {
     export class ControlNode extends FENode {
+        private _Surface: Surface;
         XObject: Control;
         TemplateRoot: FrameworkElement;
         IsFocused: bool = false;
@@ -16,7 +17,7 @@ module Fayde.Controls {
 
         TabTo() {
             var xobj = this.XObject;
-            return xobj.IsEnabled && xobj.IsTabStop && xobj.Focus();
+            return xobj.IsEnabled && xobj.IsTabStop && this.Focus();
         }
 
         _DoApplyTemplateWithError(error: BError): bool {
@@ -59,6 +60,8 @@ module Fayde.Controls {
         }
         _CanFindElement(): bool { return this.XObject.IsEnabled; }
         _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool { return false; }
+        
+        Focus(): bool { return this._Surface.Focus(this); }
         
         CanCaptureMouse(): bool { return this.XObject.IsEnabled; }
     }
@@ -130,8 +133,6 @@ module Fayde.Controls {
             return undefined;
         }
         
-        Focus(): bool { return App.Instance.MainSurface.Focus(this); }
-
         IsEnabledChanged: MulticastEvent = new MulticastEvent();
 
         OnGotFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = true; }

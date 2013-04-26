@@ -80,11 +80,11 @@ module Fayde {
             }
         };
     }
-
-    export function DeepTreeWalker(top: UIElement, direction?: VisualTreeDirection): IDeepTreeWalker {
+    
+    export function DeepTreeWalker(topNode: UINode, direction?: VisualTreeDirection): IDeepTreeWalker {
         var last: UINode = undefined;
         var dir = VisualTreeDirection.Logical;
-        var walkList: UINode[] = [top.XamlNode];
+        var walkList: UINode[] = [topNode];
         if (direction)
             dir = direction;
 
@@ -170,7 +170,7 @@ module Fayde {
             var childIsControl;
             var curIndex = -1;
 
-            var childWalker = DeepTreeWalker(this._Root.XObject);
+            var childWalker = DeepTreeWalker(this._Root);
             while (childNode = childWalker.Step()) {
                 if (childNode === this._Root || !(childNode instanceof Controls.ControlNode))
                     continue;
@@ -234,19 +234,19 @@ module Fayde {
             if ((root.VisualParentNode && getParentNavigationMode(root.VisualParentNode) === Input.KeyboardNavigationMode.Once)
                 || (!forwards && root && root.VisualParentNode)) {
                 while (root = root.VisualParentNode)
-                    if (root.XObject instanceof Fayde.Controls.Control || !root.VisualParentNode)
+                    if (root instanceof Controls.ControlNode || !root.VisualParentNode)
                         break;
             }
 
             do {
                 focused = focused || walkChildren(root, cur, forwards);
 
-                if (!focused && getActiveNavigationMode(root) === Fayde.Input.KeyboardNavigationMode.Cycle)
+                if (!focused && getActiveNavigationMode(root) === Input.KeyboardNavigationMode.Cycle)
                     return true;
 
                 cur = root;
                 root = root.VisualParentNode;
-                while (root && !(root.XObject instanceof Fayde.Controls.Control) && root.VisualParentNode)
+                while (root && !(root instanceof Controls.ControlNode) && root.VisualParentNode)
                     root = root.VisualParentNode
             } while (!focused && root);
 

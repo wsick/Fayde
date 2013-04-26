@@ -35,6 +35,7 @@ class Surface {
     private _KeyInterop: Fayde.Input.KeyInterop;
     private _InputList: Fayde.UINode[] = [];
     private _FocusedNode: Fayde.UINode = null;
+    get FocusedNode(): Fayde.UINode { return this._FocusedNode; }
     private _FocusChangedEvents: IFocusChangedEvents[] = [];
     private _FirstUserInitiatedEvent: bool = false;
     private _UserInitiatedEvent: bool = false;
@@ -652,13 +653,12 @@ class Surface {
     }
 
     // FOCUS
-    Focus(ctrl: Fayde.Controls.Control, recurse?: bool): bool {
+    Focus(ctrlNode: Fayde.Controls.ControlNode, recurse?: bool): bool {
         recurse = recurse === undefined || recurse === true;
-        if (!ctrl.XamlNode.IsAttached)
+        if (!ctrlNode.IsAttached)
             return false;
 
-        var surface = App.Instance.MainSurface;
-        var walker = Fayde.DeepTreeWalker(ctrl);
+        var walker = Fayde.DeepTreeWalker(ctrlNode);
         var uin: Fayde.UINode;
         while (uin = walker.Step()) {
             if (uin.XObject.Visibility !== Fayde.Visibility.Visible) {
@@ -678,9 +678,11 @@ class Surface {
                 continue;
             }
 
-            var loaded = false;
-            for (var check = <Fayde.UINode>ctrl.XamlNode; !loaded && check != null; check = check.VisualParentNode)
+            var loaded = ctrlNode.IsLoaded;
+            var check: Fayde.UINode = ctrlNode;
+            while (!loaded && (check = check.VisualParentNode)) {
                 loaded = loaded || check.IsLoaded;
+            }
 
             if (loaded && cn.LayoutUpdater.TotalIsRenderVisible && c.IsTabStop)
                 return this._FocusNode(cn);

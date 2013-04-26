@@ -70,11 +70,11 @@ var Fayde;
         };
     }
     Fayde.MultipleStylesWalker = MultipleStylesWalker;
-    function DeepTreeWalker(top, direction) {
+    function DeepTreeWalker(topNode, direction) {
         var last = undefined;
         var dir = Fayde.VisualTreeDirection.Logical;
         var walkList = [
-            top.XamlNode
+            topNode
         ];
         if(direction) {
             dir = direction;
@@ -155,7 +155,7 @@ var Fayde;
             var childNode;
             var childIsControl;
             var curIndex = -1;
-            var childWalker = DeepTreeWalker(this._Root.XObject);
+            var childWalker = DeepTreeWalker(this._Root);
             while(childNode = childWalker.Step()) {
                 if(childNode === this._Root || !(childNode instanceof Fayde.Controls.ControlNode)) {
                     continue;
@@ -216,7 +216,7 @@ var Fayde;
             var root = uin;
             if((root.VisualParentNode && getParentNavigationMode(root.VisualParentNode) === Fayde.Input.KeyboardNavigationMode.Once) || (!forwards && root && root.VisualParentNode)) {
                 while(root = root.VisualParentNode) {
-                    if(root.XObject instanceof Fayde.Controls.Control || !root.VisualParentNode) {
+                    if(root instanceof Fayde.Controls.ControlNode || !root.VisualParentNode) {
                         break;
                     }
                 }
@@ -228,7 +228,7 @@ var Fayde;
                 }
                 cur = root;
                 root = root.VisualParentNode;
-                while(root && !(root.XObject instanceof Fayde.Controls.Control) && root.VisualParentNode) {
+                while(root && !(root instanceof Fayde.Controls.ControlNode) && root.VisualParentNode) {
                     root = root.VisualParentNode;
                 }
             }while(!focused && root);

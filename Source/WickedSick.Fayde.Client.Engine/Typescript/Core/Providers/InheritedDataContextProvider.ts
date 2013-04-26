@@ -5,7 +5,7 @@
 /// <reference path="../PropertyChangedListener.ts" />
 
 module Fayde.Providers {
-    export class InheritedDataContextProvider implements IPropertyProvider {
+    export class InheritedDataContextProvider implements IPropertyProvider, IInheritedDataContextProvider {
         private _Source: FrameworkElement;
         private _Store: IProviderStore;
         private _Listener = null;

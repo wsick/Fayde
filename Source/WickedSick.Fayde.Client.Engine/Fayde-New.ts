@@ -253,10 +253,10 @@ module Fayde {
             }
         };
     }
-    export function DeepTreeWalker(top: UIElement, direction?: VisualTreeDirection): IDeepTreeWalker {
+    export function DeepTreeWalker(topNode: UINode, direction?: VisualTreeDirection): IDeepTreeWalker {
         var last: UINode = undefined;
         var dir = VisualTreeDirection.Logical;
-        var walkList: UINode[] = [top.XamlNode];
+        var walkList: UINode[] = [topNode];
         if (direction)
             dir = direction;
         return {
@@ -333,7 +333,7 @@ module Fayde {
             var childNode: UINode;
             var childIsControl;
             var curIndex = -1;
-            var childWalker = DeepTreeWalker(this._Root.XObject);
+            var childWalker = DeepTreeWalker(this._Root);
             while (childNode = childWalker.Step()) {
                 if (childNode === this._Root || !(childNode instanceof Controls.ControlNode))
                     continue;
@@ -385,16 +385,16 @@ module Fayde {
             if ((root.VisualParentNode && getParentNavigationMode(root.VisualParentNode) === Input.KeyboardNavigationMode.Once)
                 || (!forwards && root && root.VisualParentNode)) {
                 while (root = root.VisualParentNode)
-                    if (root.XObject instanceof Fayde.Controls.Control || !root.VisualParentNode)
+                    if (root instanceof Controls.ControlNode || !root.VisualParentNode)
                         break;
             }
             do {
                 focused = focused || walkChildren(root, cur, forwards);
-                if (!focused && getActiveNavigationMode(root) === Fayde.Input.KeyboardNavigationMode.Cycle)
+                if (!focused && getActiveNavigationMode(root) === Input.KeyboardNavigationMode.Cycle)
                     return true;
                 cur = root;
                 root = root.VisualParentNode;
-                while (root && !(root.XObject instanceof Fayde.Controls.Control) && root.VisualParentNode)
+                while (root && !(root instanceof Controls.ControlNode) && root.VisualParentNode)
                     root = root.VisualParentNode
             } while (!focused && root);
             if (!focused)
@@ -1971,6 +1971,8 @@ module Fayde {
         DesiredSize: size = new size();
         RenderSize: size = new size();
         VisualOffset: Point = new Point();
+        ActualHeight: number = NaN;
+        ActualWidth: number = NaN;
         AbsoluteXform: number[]         ;//= mat3.identity();
         LayoutXform: number[]           ;//= mat3.identity();
         LocalXform: number[]            ;//= mat3.identity();
@@ -2042,6 +2044,7 @@ module Fayde {
         }
         ProcessDown() {
             var thisNode = this.Node;
+            var thisUie = thisNode.XObject;
             var visualParentNode = thisNode.VisualParentNode;
             var visualParentLu: Fayde.LayoutUpdater;
             if (visualParentNode)
@@ -2074,10 +2077,10 @@ module Fayde {
             var isT = isLT || isLP || f & transformFlag;
             f &= ~(localTransformFlag | localProjectionFlag | transformFlag);
             if (isLT) {
-                this.ComputeLocalTransform();
+                this.ComputeLocalTransform(thisUie);
             }
             if (isLP) {
-                this.ComputeLocalProjection();
+                this.ComputeLocalProjection(thisUie);
             }
             if (isT) {
                 this.ComputeTransform();
@@ -2185,9 +2188,31 @@ module Fayde {
             if (this.Node.IsAttached)
                 this.Surface._AddDirtyElement(this, _Dirty.LocalTransform);
         }
-        ComputeLocalTransform() {
+        ComputeLocalTransform(uie: UIElement) {
+            var transform = uie.RenderTransform;
+            if (!transform)
+                return;
+            var transformOrigin: IPoint;
+            if (uie instanceof Controls.TextBlock)
+                transformOrigin = this.GetTextBlockTransformOrigin(<Controls.TextBlock>uie);
+            else
+                transformOrigin = this.GetTransformOrigin(uie);
+            mat3.identity(this.LocalXform);
+            var render = mat3.create();
+            mat3.set(transform.Value._Raw, render);
+            mat3.translate(this.LocalXform, transformOrigin.X, transformOrigin.Y);
+            mat3.multiply(this.LocalXform, render, this.LocalXform); //local = render * local
+            mat3.translate(this.LocalXform, -transformOrigin.X, -transformOrigin.Y);
         }
-        ComputeLocalProjection() {
+        ComputeLocalProjection(uie: UIElement) {
+            var projection = uie.Projection;
+            if (!projection) {
+                Controls.Panel.SetZ(uie, NaN);
+                return;
+            }
+            var objectSize: ISize = (uie instanceof Shapes.Shape) ? this._GetShapeBrushSize(<Shapes.Shape>uie) : this._GetBrushSize();
+            var z = projection.GetDistanceFromXYPlane(objectSize);
+            Controls.Panel.SetZ(uie, z);
         }
         ComputeTransform() {
         }
@@ -2196,6 +2221,22 @@ module Fayde {
                 this.Surface._AddDirtyElement(this, _Dirty.LocalProjection);
         }
         TransformPoint(p: Point) {
+        }
+        GetTransformOrigin(uie: UIElement): IPoint {
+            var userXformOrigin = uie.RenderTransformOrigin;
+            if (!userXformOrigin)
+                return { X: 0, Y: 0 };
+            return { X: this.ActualWidth * userXformOrigin.X, Y: this.ActualHeight * userXformOrigin.Y };
+        }
+        GetTextBlockTransformOrigin(tb: Controls.TextBlock): IPoint {
+            var userXformOrigin = tb.RenderTransformOrigin;
+            if (!userXformOrigin)
+                return { X: 0, Y: 0 };
+            var xformSize = this.CoerceSize(this.RenderSize);
+            return {
+                X: xformSize.Width * userXformOrigin.X,
+                Y: xformSize.Height * userXformOrigin.Y
+            };
         }
         UpdateRenderVisibility(vpLu: Fayde.LayoutUpdater) {
             var uie = this.Node.XObject;
@@ -2268,7 +2309,7 @@ module Fayde {
                         flag = UIElementFlags.DirtySizeHint;
                 }
                 if (flag !== UIElementFlags.None) {
-                    var measureWalker = Fayde.DeepTreeWalker(element);
+                    var measureWalker = Fayde.DeepTreeWalker(elNode);
                     var childNode: Fayde.UINode;
                     while (childNode = measureWalker.Step()) {
                         lu = childNode.LayoutUpdater;
@@ -2325,6 +2366,8 @@ module Fayde {
                 s = (<IActualSizeComputable><any>fe).ComputeActualSize(this._ComputeActualSize, this);
             else
                 s = this._ComputeActualSize();
+            this.ActualWidth = s.Width;
+            this.ActualHeight;
             if (last && size.isEqual(last, s))
                 return;
             this.LastRenderSize = s;
@@ -2338,6 +2381,15 @@ module Fayde {
             if ((parentNode && !(parentNode.XObject instanceof Controls.Canvas)) || this.IsLayoutContainer)
                 return size.clone(this.RenderSize);
             return this.CoerceSize(new size());
+        }
+        private _GetBrushSize(): ISize {
+            return {
+                Width: this.ActualWidth,
+                Height: this.ActualHeight
+            };
+        }
+        private _GetShapeBrushSize(shape: Shapes.Shape): ISize {
+            return size.fromRect(shape.GetStretchExtents(this));
         }
         CoerceSize(s: size): size {
             var fe = <FrameworkElement>this.Node.XObject;
@@ -3474,21 +3526,20 @@ module Fayde.Providers {
         GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
             var isWidth = propd._ID === FrameworkElement.ActualWidthProperty._ID;
             var isHeight = propd._ID === FrameworkElement.ActualHeightProperty._ID;
-            if (!isWidth && !isHeight)
-                return undefined;
-            var actual = (<FrameworkElement>store._Object)._ComputeActualSize();
-            this._ActualWidth = actual.Width;
-            this._ActualHeight = actual.Height;
-            if (isWidth)
-                return this._ActualWidth;
-            return this._ActualHeight;
+            if (isWidth) {
+                var feNode = (<FrameworkElement>store._Object).XamlNode;
+                return feNode.LayoutUpdater.ActualWidth;
+            } else if (isHeight) {
+                var feNode = (<FrameworkElement>store._Object).XamlNode;
+                return feNode.LayoutUpdater.ActualHeight;
+            }
         }
     }
     Nullstone.RegisterType(FrameworkElementDynamicProvider, "FrameworkElementDynamicProvider");
 }
 
 module Fayde.Providers {
-    export class ImplicitStyleProvider implements IPropertyProvider {
+    export class ImplicitStyleProvider implements IPropertyProvider, IImplicitStylesProvider {
         private _ht: any[] = [];
         private _Styles: any[] = [null, null, null];
         private _StyleMask: _StyleMask = _StyleMask.None;
@@ -3603,7 +3654,7 @@ module Fayde.Providers {
 }
 
 module Fayde.Providers {
-    export class InheritedDataContextProvider implements IPropertyProvider {
+    export class InheritedDataContextProvider implements IPropertyProvider, IInheritedDataContextProvider {
         private _Source: FrameworkElement;
         private _Store: IProviderStore;
         private _Listener = null;
@@ -4022,7 +4073,7 @@ module Fayde.Providers {
 }
 
 module Fayde.Providers {
-    export class LocalStyleProvider implements IPropertyProvider {
+    export class LocalStyleProvider implements IPropertyProvider, ILocalStylesProvider {
         private _ht: any[] = [];
         private _Style: Style;
         private _Store: IProviderStore;
@@ -4491,6 +4542,7 @@ class Surface {
     private _KeyInterop: Fayde.Input.KeyInterop;
     private _InputList: Fayde.UINode[] = [];
     private _FocusedNode: Fayde.UINode = null;
+    get FocusedNode(): Fayde.UINode { return this._FocusedNode; }
     private _FocusChangedEvents: IFocusChangedEvents[] = [];
     private _FirstUserInitiatedEvent: bool = false;
     private _UserInitiatedEvent: bool = false;
@@ -5015,12 +5067,11 @@ class Surface {
         this._FirstUserInitiatedEvent = this._FirstUserInitiatedEvent || val;
         this._UserInitiatedEvent = val;
     }
-    Focus(ctrl: Fayde.Controls.Control, recurse?: bool): bool {
+    Focus(ctrlNode: Fayde.Controls.ControlNode, recurse?: bool): bool {
         recurse = recurse === undefined || recurse === true;
-        if (!ctrl.XamlNode.IsAttached)
+        if (!ctrlNode.IsAttached)
             return false;
-        var surface = App.Instance.MainSurface;
-        var walker = Fayde.DeepTreeWalker(ctrl);
+        var walker = Fayde.DeepTreeWalker(ctrlNode);
         var uin: Fayde.UINode;
         while (uin = walker.Step()) {
             if (uin.XObject.Visibility !== Fayde.Visibility.Visible) {
@@ -5037,9 +5088,11 @@ class Surface {
                 walker.SkipBranch();
                 continue;
             }
-            var loaded = false;
-            for (var check = <Fayde.UINode>ctrl.XamlNode; !loaded && check != null; check = check.VisualParentNode)
+            var loaded = ctrlNode.IsLoaded;
+            var check: Fayde.UINode = ctrlNode;
+            while (!loaded && (check = check.VisualParentNode)) {
                 loaded = loaded || check.IsLoaded;
+            }
             if (loaded && cn.LayoutUpdater.TotalIsRenderVisible && c.IsTabStop)
                 return this._FocusNode(cn);
             if (!recurse)
@@ -6143,7 +6196,11 @@ class KeyTime implements ICloneable {
 }
 Nullstone.RegisterType(KeyTime, "KeyTime");
 
-class Point implements ICloneable {
+interface IPoint {
+    X: number;
+    Y: number;
+}
+class Point implements ICloneable, IPoint {
     X: number;
     Y: number;
     constructor(x?: number, y?: number) {
@@ -6490,7 +6547,11 @@ class rect implements ICloneable {
 }
 Nullstone.RegisterType(rect, "rect");
 
-class size implements ICloneable {
+interface ISize {
+    Width: number;
+    Height: number;
+}
+class size implements ICloneable, ISize {
     Width: number = 0;
     Height: number = 0;
     toString(): string {
@@ -8406,6 +8467,9 @@ module Fayde.Media {
 
 module Fayde.Media {
     export class Projection extends DependencyObject {
+        GetDistanceFromXYPlane(objectSize: ISize): number {
+            return NaN;
+        }
     }
     Nullstone.RegisterType(Projection, "Projection");
 }
@@ -9608,6 +9672,8 @@ module Fayde {
         OnIsAttachedChanged(newIsAttached: bool) {
             this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
         }
+        IsLoaded: bool = false;
+        SetIsLoaded(value: bool) { }
         AttachVisualChild(uie: UIElement) {
             var lu = this.LayoutUpdater;
             lu.UpdateBounds(true);
@@ -9618,7 +9684,6 @@ module Fayde {
             un.VisualParentNode.SetSurface(this._Surface);
             this.XObject._Store.PropagateInheritedOnAdd(uie);
             un.LayoutUpdater.OnAddedToTree();
-            un.SetIsLoaded(this.IsLoaded);
         }
         DetachVisualChild(uie: UIElement) {
             var lu = this.LayoutUpdater;
@@ -9627,18 +9692,10 @@ module Fayde {
             lu.InvalidateMeasure();
             un.VisualParentNode.SetSurface(null);
             un.VisualParentNode = null;
-            un.SetIsLoaded(false);
             un.LayoutUpdater.OnRemovedFromTree();
             this.XObject._Store.ClearInheritedOnRemove(uie);
         }
-        IsLoaded: bool = false;
-        SetIsLoaded(value: bool) {
-            if (this.IsLoaded === value)
-                return;
-            this.IsLoaded = value;
-            this.OnIsLoadedChanged(value);
-        }
-        OnIsLoadedChanged(newIsLoaded: bool) { }
+        Focus(): bool { return false; }
         _EmitFocusChange(type: string) {
             if (type === "got")
                 this._EmitGotFocus();
@@ -9777,12 +9834,13 @@ module Fayde {
         Cursor: string;
         OpacityMask: Media.Brush;
         Opacity: number;
+        Projection: Media.Projection;
         RenderTransform: Media.Transform;
         RenderTransformOrigin: Point;
         Tag: any;
         UseLayoutRounding: bool;
         Visibility: Visibility;
-        Focus(): bool { return false; }
+        Focus(): bool { return this.XamlNode.Focus(); }
         LostFocus: RoutedEvent = new RoutedEvent();
         GotFocus: RoutedEvent = new RoutedEvent();
         LostMouseCapture: RoutedEvent = new RoutedEvent();
@@ -10988,6 +11046,7 @@ module Fayde.Media.Imaging {
 
 module Fayde {
     export class FENode extends UINode {
+        private _Surface: Surface;
         XObject: FrameworkElement;
         constructor(xobj: FrameworkElement) {
             super(xobj);
@@ -11016,9 +11075,16 @@ module Fayde {
                 this.SubtreeNode.SetIsAttached(newIsAttached);
             super.OnIsAttachedChanged(newIsAttached);
         }
+        SetIsLoaded(value: bool) {
+            if (this.IsLoaded === value)
+                return;
+            this.IsLoaded = value;
+            this.OnIsLoadedChanged(value);
+        }
         OnIsLoadedChanged(newIsLoaded: bool) {
-            var res = this.XObject.Resources;
-            var store = this.XObject._Store;
+            var xobj = this.XObject;
+            var res = xobj.Resources;
+            var store = xobj._Store;
             if (!newIsLoaded) {
                 store.ClearImplicitStyles(Providers._StyleMask.VisualTree);
             } else {
@@ -11029,17 +11095,19 @@ module Fayde {
                 (<UINode>enumerator.Current).SetIsLoaded(newIsLoaded);
             }
             if (newIsLoaded) {
-                this.XObject.InvokeLoaded();
+                xobj.InvokeLoaded();
                 store.EmitDataContextChanged();
             }
         }
         AttachVisualChild(uie: UIElement) {
             super.AttachVisualChild(uie);
             this.SetSubtreeNode(uie.XamlNode);
+            uie.XamlNode.SetIsLoaded(this.IsLoaded);
         }
         DetachVisualChild(uie: UIElement) {
             this.SetSubtreeNode(null);
             super.DetachVisualChild(uie);
+            uie.XamlNode.SetIsLoaded(false);
         }
         _ApplyTemplateWithError(error: BError): bool {
             if (this.SubtreeNode)
@@ -11109,6 +11177,15 @@ module Fayde {
             */
             return true;
         }
+        _HasFocus(): bool {
+            var curNode = this._Surface.FocusedNode
+            while (curNode) {
+                if (curNode === this)
+                    return true;
+                curNode = curNode.VisualParentNode;
+            }
+            return false;
+        }
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
             if (this.SubtreeNode) {
                 if (this.SubtreeNode instanceof XamlObjectCollection)
@@ -11145,30 +11222,38 @@ module Fayde {
             return s;
         }
         CreateNode(): FENode { return new FENode(this); }
-        static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", () => Number, FrameworkElement);
         static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", () => Number, FrameworkElement);
+        static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", () => Number, FrameworkElement);
+        static CursorProperty: DependencyProperty = DependencyProperty.RegisterFull("Cursor", () => new Enum(CursorType), FrameworkElement, CursorType.Default);
         static DataContextProperty: DependencyProperty = DependencyProperty.RegisterCore("DataContext", () => Object, FrameworkElement);
-        static StyleProperty: DependencyProperty = DependencyProperty.RegisterCore("Style", () => Style, FrameworkElement);
-        static WidthProperty: DependencyProperty = DependencyProperty.RegisterCore("Width", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._WidthChanged(args));
+        static FlowDirectionProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FlowDirection", () => new Enum(FlowDirection), FrameworkElement, FlowDirection.LeftToRight, (d, args) => (<FrameworkElement>d)._SizeChanged(args), undefined, Providers._Inheritable.FlowDirection);
         static HeightProperty: DependencyProperty = DependencyProperty.RegisterCore("Height", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._HeightChanged(args));
-        ActualWidth: number;
+        static HorizontalAlignmentProperty: DependencyProperty = DependencyProperty.RegisterCore("HorizontalAlignment", () => new Enum(HorizontalAlignment), FrameworkElement, HorizontalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
+        static MarginProperty: DependencyProperty = DependencyProperty.RegisterCore("Margin", () => Thickness, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d)._SizeChanged(args));
+        static MaxHeightProperty: DependencyProperty = DependencyProperty.RegisterCore("MaxHeight", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d)._SizeChanged(args));
+        static MaxWidthProperty: DependencyProperty = DependencyProperty.RegisterCore("MaxWidth", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d)._SizeChanged(args));
+        static MinHeightProperty: DependencyProperty = DependencyProperty.RegisterCore("MinHeight", () => Number, FrameworkElement, 0.0, (d, args) => (<FrameworkElement>d)._SizeChanged(args));
+        static MinWidthProperty: DependencyProperty = DependencyProperty.RegisterCore("MinWidth", () => Number, FrameworkElement, 0.0, (d, args) => (<FrameworkElement>d)._SizeChanged(args));
+        static StyleProperty: DependencyProperty = DependencyProperty.RegisterCore("Style", () => Style, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d)._StyleChanged(args));
+        static VerticalAlignmentProperty: DependencyProperty = DependencyProperty.RegisterCore("VerticalAlignment", () => new Enum(VerticalAlignment), FrameworkElement, VerticalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
+        static WidthProperty: DependencyProperty = DependencyProperty.RegisterCore("Width", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._WidthChanged(args));
         ActualHeight: number;
+        ActualWidth: number;
         DataContext: any;
-        Style: Style;
-        HorizontalAlignment: HorizontalAlignment;
-        VerticalAlignment: VerticalAlignment;
-        Width: number;
+        FlowDirection: FlowDirection;
         Height: number;
-        MinWidth: number;
-        MinHeight: number;
+        HorizontalAlignment: HorizontalAlignment;
+        Margin: Thickness;
         MaxWidth: number;
         MaxHeight: number;
-        Margin: Thickness;
-        FlowDirection: FlowDirection;
-        SizeChanged: RoutedEvent;
-        _ComputeActualSize(): size {
-            return new size();
-        }
+        MinWidth: number;
+        MinHeight: number;
+        Style: Style;
+        VerticalAlignment: VerticalAlignment;
+        Width: number;
+        SizeChanged: RoutedEvent = new RoutedEvent();
+        Loaded: RoutedEvent = new RoutedEvent();
+        Unloaded: RoutedEvent = new RoutedEvent();
         InvokeLoaded() {
         }
         OnApplyTemplate() { }
@@ -11202,9 +11287,33 @@ module Fayde {
             }
             return arranged;
         }
+        private _StyleChanged(args: IDependencyPropertyChangedEventArgs) {
+            var error = new BError();
+            this._Store.SetLocalStyle(args.NewValue, error);
+            if (error.Message)
+                error.ThrowException();
+        }
+        private _SizeChanged(args: IDependencyPropertyChangedEventArgs) {
+            var node = this.XamlNode;
+            var lu = node.LayoutUpdater;
+            lu.FullInvalidate(false);
+            var vpNode = node.VisualParentNode;
+            if (vpNode)
+                vpNode.LayoutUpdater.InvalidateMeasure();
+            lu.InvalidateMeasure();
+            lu.InvalidateArrange();
+            lu.UpdateBounds();
+        }
+        private _AlignmentChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
+            lu.InvalidateArrange();
+            lu.FullInvalidate(true);
+        }
         _WidthChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._SizeChanged(args);
         }
         _HeightChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._SizeChanged(args);
         }
     }
     Nullstone.RegisterType(FrameworkElement, "FrameworkElement");
@@ -11824,6 +11933,7 @@ module Fayde.Controls {
 
 module Fayde.Controls {
     export class ControlNode extends FENode {
+        private _Surface: Surface;
         XObject: Control;
         TemplateRoot: FrameworkElement;
         IsFocused: bool = false;
@@ -11833,7 +11943,7 @@ module Fayde.Controls {
         }
         TabTo() {
             var xobj = this.XObject;
-            return xobj.IsEnabled && xobj.IsTabStop && xobj.Focus();
+            return xobj.IsEnabled && xobj.IsTabStop && this.Focus();
         }
         _DoApplyTemplateWithError(error: BError): bool {
             var xobj = this.XObject;
@@ -11866,6 +11976,7 @@ module Fayde.Controls {
         }
         _CanFindElement(): bool { return this.XObject.IsEnabled; }
         _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool { return false; }
+        Focus(): bool { return this._Surface.Focus(this); }
         CanCaptureMouse(): bool { return this.XObject.IsEnabled; }
     }
     Nullstone.RegisterType(ControlNode, "ControlNode");
@@ -11929,7 +12040,6 @@ module Fayde.Controls {
         GetDefaultStyle(): Style {
             return undefined;
         }
-        Focus(): bool { return App.Instance.MainSurface.Focus(this); }
         IsEnabledChanged: MulticastEvent = new MulticastEvent();
         OnGotFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = true; }
         OnLostFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = false; }
@@ -13363,7 +13473,7 @@ module Fayde.Controls {
             var lu = this.LayoutUpdater;
             if (lu.IsLayoutContainer)
                 return;
-            var walker = DeepTreeWalker(uie);
+            var walker = DeepTreeWalker(uie.XamlNode);
             var childNode: UINode;
             while (childNode = walker.Step()) {
                 if (!(childNode instanceof CanvasNode) && childNode.LayoutUpdater.IsLayoutContainer) {
@@ -13376,7 +13486,7 @@ module Fayde.Controls {
             var lu = this.LayoutUpdater;
             if (!lu.IsLayoutContainer)
                 return;
-            var walker = DeepTreeWalker(this.XObject);
+            var walker = DeepTreeWalker(this);
             var childNode: UINode;
             while (childNode = walker.Step()) {
                 if (!(childNode instanceof CanvasNode) && childNode.LayoutUpdater.IsLayoutContainer) {

@@ -25,6 +25,13 @@ var Surface = (function () {
         this._KeyInterop = Fayde.Input.KeyInterop.CreateInterop(this);
     }
     Surface.TestCanvas = document.createElement("canvas");
+    Object.defineProperty(Surface.prototype, "FocusedNode", {
+        get: function () {
+            return this._FocusedNode;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(Surface.prototype, "Extents", {
         get: function () {
             if(!this._Extents) {
@@ -649,13 +656,12 @@ var Surface = (function () {
         this._UserInitiatedEvent = val;
     };
     Surface.prototype.Focus = // FOCUS
-    function (ctrl, recurse) {
+    function (ctrlNode, recurse) {
         recurse = recurse === undefined || recurse === true;
-        if(!ctrl.XamlNode.IsAttached) {
+        if(!ctrlNode.IsAttached) {
             return false;
         }
-        var surface = App.Instance.MainSurface;
-        var walker = Fayde.DeepTreeWalker(ctrl);
+        var walker = Fayde.DeepTreeWalker(ctrlNode);
         var uin;
         while(uin = walker.Step()) {
             if(uin.XObject.Visibility !== Fayde.Visibility.Visible) {
@@ -674,8 +680,9 @@ var Surface = (function () {
                 walker.SkipBranch();
                 continue;
             }
-            var loaded = false;
-            for(var check = ctrl.XamlNode; !loaded && check != null; check = check.VisualParentNode) {
+            var loaded = ctrlNode.IsLoaded;
+            var check = ctrlNode;
+            while(!loaded && (check = check.VisualParentNode)) {
                 loaded = loaded || check.IsLoaded;
             }
             if(loaded && cn.LayoutUpdater.TotalIsRenderVisible && c.IsTabStop) {

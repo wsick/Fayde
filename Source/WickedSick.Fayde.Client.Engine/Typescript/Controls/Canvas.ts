@@ -22,7 +22,7 @@ module Fayde.Controls {
             var lu = this.LayoutUpdater;
             if (lu.IsLayoutContainer)
                 return;
-            var walker = DeepTreeWalker(uie);
+            var walker = DeepTreeWalker(uie.XamlNode);
             var childNode: UINode;
             while (childNode = walker.Step()) {
                 if (!(childNode instanceof CanvasNode) && childNode.LayoutUpdater.IsLayoutContainer) {
@@ -36,7 +36,7 @@ module Fayde.Controls {
             var lu = this.LayoutUpdater;
             if (!lu.IsLayoutContainer)
                 return;
-            var walker = DeepTreeWalker(this.XObject);
+            var walker = DeepTreeWalker(this);
             var childNode: UINode;
             while (childNode = walker.Step()) {
                 if (!(childNode instanceof CanvasNode) && childNode.LayoutUpdater.IsLayoutContainer) {

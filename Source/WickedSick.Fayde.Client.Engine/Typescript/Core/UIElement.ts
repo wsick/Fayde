@@ -44,6 +44,9 @@ module Fayde {
             this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
         }
 
+        IsLoaded: bool = false;
+        SetIsLoaded(value: bool) { }
+
         AttachVisualChild(uie: UIElement) {
             var lu = this.LayoutUpdater;
             lu.UpdateBounds(true);
@@ -55,7 +58,6 @@ module Fayde {
             un.VisualParentNode.SetSurface(this._Surface);
             this.XObject._Store.PropagateInheritedOnAdd(uie);
             un.LayoutUpdater.OnAddedToTree();
-            un.SetIsLoaded(this.IsLoaded);
         }
         DetachVisualChild(uie: UIElement) {
             var lu = this.LayoutUpdater;
@@ -65,19 +67,11 @@ module Fayde {
 
             un.VisualParentNode.SetSurface(null);
             un.VisualParentNode = null;
-            un.SetIsLoaded(false);
             un.LayoutUpdater.OnRemovedFromTree();
             this.XObject._Store.ClearInheritedOnRemove(uie);
         }
 
-        IsLoaded: bool = false;
-        SetIsLoaded(value: bool) {
-            if (this.IsLoaded === value)
-                return;
-            this.IsLoaded = value;
-            this.OnIsLoadedChanged(value);
-        }
-        OnIsLoadedChanged(newIsLoaded: bool) { }
+        Focus(): bool { return false; }
 
         _EmitFocusChange(type: string) {
             if (type === "got")
@@ -227,13 +221,14 @@ module Fayde {
         Cursor: string;
         OpacityMask: Media.Brush;
         Opacity: number;
+        Projection: Media.Projection;
         RenderTransform: Media.Transform;
         RenderTransformOrigin: Point;
         Tag: any;
         UseLayoutRounding: bool;
         Visibility: Visibility;
         
-        Focus(): bool { return false; }
+        Focus(): bool { return this.XamlNode.Focus(); }
 
         LostFocus: RoutedEvent = new RoutedEvent();
         GotFocus: RoutedEvent = new RoutedEvent();

@@ -19,7 +19,7 @@ var Fayde;
             }
             ControlNode.prototype.TabTo = function () {
                 var xobj = this.XObject;
-                return xobj.IsEnabled && xobj.IsTabStop && xobj.Focus();
+                return xobj.IsEnabled && xobj.IsTabStop && this.Focus();
             };
             ControlNode.prototype._DoApplyTemplateWithError = function (error) {
                 var xobj = this.XObject;
@@ -62,6 +62,9 @@ var Fayde;
             ControlNode.prototype._InsideObject = function (ctx, lu, x, y) {
                 return false;
             };
+            ControlNode.prototype.Focus = function () {
+                return this._Surface.Focus(this);
+            };
             ControlNode.prototype.CanCaptureMouse = function () {
                 return this.XObject.IsEnabled;
             };
@@ -101,9 +104,6 @@ var Fayde;
             };
             Control.prototype.GetDefaultStyle = function () {
                 return undefined;
-            };
-            Control.prototype.Focus = function () {
-                return App.Instance.MainSurface.Focus(this);
             };
             Control.prototype.OnGotFocus = function (e) {
                 this.XamlNode.IsFocused = true;

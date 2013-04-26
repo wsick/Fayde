@@ -6,7 +6,7 @@
 /// <reference path="../Walkers.ts" />
 
 module Fayde.Providers {
-    export class ImplicitStyleProvider implements IPropertyProvider {
+    export class ImplicitStyleProvider implements IPropertyProvider, IImplicitStylesProvider {
         private _ht: any[] = [];
         private _Styles: any[] = [null, null, null];
         private _StyleMask: _StyleMask = _StyleMask.None;

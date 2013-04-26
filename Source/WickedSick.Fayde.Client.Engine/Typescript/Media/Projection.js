@@ -14,6 +14,10 @@ var Fayde;
                 _super.apply(this, arguments);
 
             }
+            Projection.prototype.GetDistanceFromXYPlane = function (objectSize) {
+                //TODO: Implement
+                return NaN;
+            };
             return Projection;
         })(Fayde.DependencyObject);
         Media.Projection = Projection;        

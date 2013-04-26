@@ -77,6 +77,9 @@ module Fayde {
         DesiredSize: size = new size();
         RenderSize: size = new size();
         VisualOffset: Point = new Point();
+        
+        ActualHeight: number = NaN;
+        ActualWidth: number = NaN;
 
         AbsoluteXform: number[]         ;//= mat3.identity();
         LayoutXform: number[]           ;//= mat3.identity();
@@ -161,6 +164,7 @@ module Fayde {
         }
         ProcessDown() {
             var thisNode = this.Node;
+            var thisUie = thisNode.XObject;
             var visualParentNode = thisNode.VisualParentNode;
             var visualParentLu: Fayde.LayoutUpdater;
             if (visualParentNode)
@@ -209,12 +213,12 @@ module Fayde {
 
             if (isLT) {
                 //DirtyDebug("ComputeLocalTransform: [" + uie.__DebugToString() + "]");
-                this.ComputeLocalTransform();
+                this.ComputeLocalTransform(thisUie);
                 //DirtyDebug("--> " + xformer.LocalXform._Elements.toString());
             }
             if (isLP) {
                 //DirtyDebug("ComputeLocalProjection: [" + uie.__DebugToString() + "]");
-                this.ComputeLocalProjection();
+                this.ComputeLocalProjection(thisUie);
             }
             if (isT) {
                 //DirtyDebug("ComputeTransform: [" + uie.__DebugToString() + "]");
@@ -343,11 +347,34 @@ module Fayde {
             if (this.Node.IsAttached)
                 this.Surface._AddDirtyElement(this, _Dirty.LocalTransform);
         }
-        ComputeLocalTransform() {
-            //TODO: Implement
+        ComputeLocalTransform(uie: UIElement) {
+            var transform = uie.RenderTransform;
+            if (!transform)
+                return;
+
+            var transformOrigin: IPoint;
+            if (uie instanceof Controls.TextBlock)
+                transformOrigin = this.GetTextBlockTransformOrigin(<Controls.TextBlock>uie);
+            else
+                transformOrigin = this.GetTransformOrigin(uie);
+            mat3.identity(this.LocalXform);
+            var render = mat3.create();
+            mat3.set(transform.Value._Raw, render);
+
+            mat3.translate(this.LocalXform, transformOrigin.X, transformOrigin.Y);
+            mat3.multiply(this.LocalXform, render, this.LocalXform); //local = render * local
+            mat3.translate(this.LocalXform, -transformOrigin.X, -transformOrigin.Y);
         }
-        ComputeLocalProjection() {
-            //TODO: Implement
+        ComputeLocalProjection(uie: UIElement) {
+            var projection = uie.Projection;
+            if (!projection) {
+                Controls.Panel.SetZ(uie, NaN);
+                return;
+            }
+
+            var objectSize: ISize = (uie instanceof Shapes.Shape) ? this._GetShapeBrushSize(<Shapes.Shape>uie) : this._GetBrushSize();
+            var z = projection.GetDistanceFromXYPlane(objectSize);
+            Controls.Panel.SetZ(uie, z);
         }
         ComputeTransform() {
             //TODO: Implement
@@ -358,6 +385,22 @@ module Fayde {
         }
         TransformPoint(p: Point) {
             //TODO: Implement
+        }
+        GetTransformOrigin(uie: UIElement): IPoint {
+            var userXformOrigin = uie.RenderTransformOrigin;
+            if (!userXformOrigin)
+                return { X: 0, Y: 0 };
+            return { X: this.ActualWidth * userXformOrigin.X, Y: this.ActualHeight * userXformOrigin.Y };
+        }
+        GetTextBlockTransformOrigin(tb: Controls.TextBlock): IPoint {
+            var userXformOrigin = tb.RenderTransformOrigin;
+            if (!userXformOrigin)
+                return { X: 0, Y: 0 };
+            var xformSize = this.CoerceSize(this.RenderSize);
+            return {
+                X: xformSize.Width * userXformOrigin.X,
+                Y: xformSize.Height * userXformOrigin.Y
+            };
         }
 
         UpdateRenderVisibility(vpLu: Fayde.LayoutUpdater) {
@@ -441,7 +484,7 @@ module Fayde {
                 }
 
                 if (flag !== UIElementFlags.None) {
-                    var measureWalker = Fayde.DeepTreeWalker(element);
+                    var measureWalker = Fayde.DeepTreeWalker(elNode);
                     var childNode: Fayde.UINode;
                     while (childNode = measureWalker.Step()) {
                         lu = childNode.LayoutUpdater;
@@ -505,6 +548,8 @@ module Fayde {
                 s = (<IActualSizeComputable><any>fe).ComputeActualSize(this._ComputeActualSize, this);
             else
                 s = this._ComputeActualSize();
+            this.ActualWidth = s.Width;
+            this.ActualHeight;
             if (last && size.isEqual(last, s))
                 return;
             this.LastRenderSize = s;
@@ -521,6 +566,15 @@ module Fayde {
                 return size.clone(this.RenderSize);
 
             return this.CoerceSize(new size());
+        }
+        private _GetBrushSize(): ISize {
+            return {
+                Width: this.ActualWidth,
+                Height: this.ActualHeight
+            };
+        }
+        private _GetShapeBrushSize(shape: Shapes.Shape): ISize {
+            return size.fromRect(shape.GetStretchExtents(this));
         }
         CoerceSize(s: size): size {
             var fe = <FrameworkElement>this.Node.XObject;

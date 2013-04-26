@@ -1,6 +1,3 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-/// CODE
-/// <reference path="rect.ts" />
 var size = (function () {
     function size() {
         this.Width = 0;

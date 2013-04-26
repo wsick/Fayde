@@ -45,6 +45,8 @@ var Fayde;
             this.DesiredSize = new size();
             this.RenderSize = new size();
             this.VisualOffset = new Point();
+            this.ActualHeight = NaN;
+            this.ActualWidth = NaN;
             //= mat4.identity();
             this.TotalOpacity = 1.0;
             this.TotalIsRenderVisible = true;
@@ -114,6 +116,7 @@ var Fayde;
         };
         LayoutUpdater.prototype.ProcessDown = function () {
             var thisNode = this.Node;
+            var thisUie = thisNode.XObject;
             var visualParentNode = thisNode.VisualParentNode;
             var visualParentLu;
             if(visualParentNode) {
@@ -156,12 +159,12 @@ var Fayde;
             f &= ~(localTransformFlag | localProjectionFlag | transformFlag);
             if(isLT) {
                 //DirtyDebug("ComputeLocalTransform: [" + uie.__DebugToString() + "]");
-                this.ComputeLocalTransform();
+                this.ComputeLocalTransform(thisUie);
                 //DirtyDebug("--> " + xformer.LocalXform._Elements.toString());
                             }
             if(isLP) {
                 //DirtyDebug("ComputeLocalProjection: [" + uie.__DebugToString() + "]");
-                this.ComputeLocalProjection();
+                this.ComputeLocalProjection(thisUie);
             }
             if(isT) {
                 //DirtyDebug("ComputeTransform: [" + uie.__DebugToString() + "]");
@@ -282,12 +285,35 @@ var Fayde;
                 this.Surface._AddDirtyElement(this, _Dirty.LocalTransform);
             }
         };
-        LayoutUpdater.prototype.ComputeLocalTransform = function () {
-            //TODO: Implement
-                    };
-        LayoutUpdater.prototype.ComputeLocalProjection = function () {
-            //TODO: Implement
-                    };
+        LayoutUpdater.prototype.ComputeLocalTransform = function (uie) {
+            var transform = uie.RenderTransform;
+            if(!transform) {
+                return;
+            }
+            var transformOrigin;
+            if(uie instanceof Fayde.Controls.TextBlock) {
+                transformOrigin = this.GetTextBlockTransformOrigin(uie);
+            } else {
+                transformOrigin = this.GetTransformOrigin(uie);
+            }
+            mat3.identity(this.LocalXform);
+            var render = mat3.create();
+            mat3.set(transform.Value._Raw, render);
+            mat3.translate(this.LocalXform, transformOrigin.X, transformOrigin.Y);
+            mat3.multiply(this.LocalXform, render, this.LocalXform)//local = render * local
+            ;
+            mat3.translate(this.LocalXform, -transformOrigin.X, -transformOrigin.Y);
+        };
+        LayoutUpdater.prototype.ComputeLocalProjection = function (uie) {
+            var projection = uie.Projection;
+            if(!projection) {
+                Fayde.Controls.Panel.SetZ(uie, NaN);
+                return;
+            }
+            var objectSize = (uie instanceof Fayde.Shapes.Shape) ? this._GetShapeBrushSize(uie) : this._GetBrushSize();
+            var z = projection.GetDistanceFromXYPlane(objectSize);
+            Fayde.Controls.Panel.SetZ(uie, z);
+        };
         LayoutUpdater.prototype.ComputeTransform = function () {
             //TODO: Implement
                     };
@@ -299,6 +325,33 @@ var Fayde;
         LayoutUpdater.prototype.TransformPoint = function (p) {
             //TODO: Implement
                     };
+        LayoutUpdater.prototype.GetTransformOrigin = function (uie) {
+            var userXformOrigin = uie.RenderTransformOrigin;
+            if(!userXformOrigin) {
+                return {
+                    X: 0,
+                    Y: 0
+                };
+            }
+            return {
+                X: this.ActualWidth * userXformOrigin.X,
+                Y: this.ActualHeight * userXformOrigin.Y
+            };
+        };
+        LayoutUpdater.prototype.GetTextBlockTransformOrigin = function (tb) {
+            var userXformOrigin = tb.RenderTransformOrigin;
+            if(!userXformOrigin) {
+                return {
+                    X: 0,
+                    Y: 0
+                };
+            }
+            var xformSize = this.CoerceSize(this.RenderSize);
+            return {
+                X: xformSize.Width * userXformOrigin.X,
+                Y: xformSize.Height * userXformOrigin.Y
+            };
+        };
         LayoutUpdater.prototype.UpdateRenderVisibility = function (vpLu) {
             var uie = this.Node.XObject;
             if(vpLu) {
@@ -379,7 +432,7 @@ var Fayde;
                     }
                 }
                 if(flag !== UIElementFlags.None) {
-                    var measureWalker = Fayde.DeepTreeWalker(element);
+                    var measureWalker = Fayde.DeepTreeWalker(elNode);
                     var childNode;
                     while(childNode = measureWalker.Step()) {
                         lu = childNode.LayoutUpdater;
@@ -446,6 +499,8 @@ var Fayde;
             } else {
                 s = this._ComputeActualSize();
             }
+            this.ActualWidth = s.Width;
+            this.ActualHeight;
             if(last && size.isEqual(last, s)) {
                 return;
             }
@@ -462,6 +517,15 @@ var Fayde;
                 return size.clone(this.RenderSize);
             }
             return this.CoerceSize(new size());
+        };
+        LayoutUpdater.prototype._GetBrushSize = function () {
+            return {
+                Width: this.ActualWidth,
+                Height: this.ActualHeight
+            };
+        };
+        LayoutUpdater.prototype._GetShapeBrushSize = function (shape) {
+            return size.fromRect(shape.GetStretchExtents(this));
         };
         LayoutUpdater.prototype.CoerceSize = function (s) {
             var fe = this.Node.XObject;

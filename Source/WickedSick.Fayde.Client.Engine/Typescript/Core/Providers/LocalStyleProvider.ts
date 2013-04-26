@@ -6,7 +6,7 @@
 /// <reference path="../Walkers.ts" />
 
 module Fayde.Providers {
-    export class LocalStyleProvider implements IPropertyProvider {
+    export class LocalStyleProvider implements IPropertyProvider, ILocalStylesProvider {
         private _ht: any[] = [];
         private _Style: Style;
         private _Store: IProviderStore;

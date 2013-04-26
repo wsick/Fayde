@@ -10,16 +10,13 @@ module Fayde.Providers {
         GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
             var isWidth = propd._ID === FrameworkElement.ActualWidthProperty._ID;
             var isHeight = propd._ID === FrameworkElement.ActualHeightProperty._ID;
-            if (!isWidth && !isHeight)
-                return undefined;
-
-            var actual = (<FrameworkElement>store._Object)._ComputeActualSize();
-            this._ActualWidth = actual.Width;
-            this._ActualHeight = actual.Height;
-
-            if (isWidth)
-                return this._ActualWidth;
-            return this._ActualHeight;
+            if (isWidth) {
+                var feNode = (<FrameworkElement>store._Object).XamlNode;
+                return feNode.LayoutUpdater.ActualWidth;
+            } else if (isHeight) {
+                var feNode = (<FrameworkElement>store._Object).XamlNode;
+                return feNode.LayoutUpdater.ActualHeight;
+            }
         }
     }
     Nullstone.RegisterType(FrameworkElementDynamicProvider, "FrameworkElementDynamicProvider");

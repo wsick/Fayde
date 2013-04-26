@@ -10,16 +10,13 @@ var Fayde;
             FrameworkElementDynamicProvider.prototype.GetPropertyValue = function (store, propd) {
                 var isWidth = propd._ID === Fayde.FrameworkElement.ActualWidthProperty._ID;
                 var isHeight = propd._ID === Fayde.FrameworkElement.ActualHeightProperty._ID;
-                if(!isWidth && !isHeight) {
-                    return undefined;
-                }
-                var actual = (store._Object)._ComputeActualSize();
-                this._ActualWidth = actual.Width;
-                this._ActualHeight = actual.Height;
                 if(isWidth) {
-                    return this._ActualWidth;
+                    var feNode = (store._Object).XamlNode;
+                    return feNode.LayoutUpdater.ActualWidth;
+                } else if(isHeight) {
+                    var feNode = (store._Object).XamlNode;
+                    return feNode.LayoutUpdater.ActualHeight;
                 }
-                return this._ActualHeight;
             };
             return FrameworkElementDynamicProvider;
         })();

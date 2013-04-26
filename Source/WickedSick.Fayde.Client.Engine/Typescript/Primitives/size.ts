@@ -2,7 +2,12 @@
 /// CODE
 /// <reference path="rect.ts" />
 
-class size implements ICloneable {
+interface ISize {
+    Width: number;
+    Height: number;
+}
+
+class size implements ICloneable, ISize {
     Width: number = 0;
     Height: number = 0;
     toString(): string {

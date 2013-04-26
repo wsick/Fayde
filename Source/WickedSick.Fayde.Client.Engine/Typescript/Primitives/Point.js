@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-/// CODE
 var Point = (function () {
     function Point(x, y) {
         this.X = x == null ? 0 : x;

@@ -1,7 +1,12 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 
-class Point implements ICloneable {
+interface IPoint {
+    X: number;
+    Y: number;
+}
+
+class Point implements ICloneable, IPoint {
     X: number;
     Y: number;
     constructor(x?: number, y?: number) {

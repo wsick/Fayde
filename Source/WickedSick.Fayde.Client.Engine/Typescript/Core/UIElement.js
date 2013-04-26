@@ -41,6 +41,8 @@ var Fayde;
         UINode.prototype.OnIsAttachedChanged = function (newIsAttached) {
             this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
         };
+        UINode.prototype.SetIsLoaded = function (value) {
+        };
         UINode.prototype.AttachVisualChild = function (uie) {
             var lu = this.LayoutUpdater;
             lu.UpdateBounds(true);
@@ -51,7 +53,6 @@ var Fayde;
             un.VisualParentNode.SetSurface(this._Surface);
             this.XObject._Store.PropagateInheritedOnAdd(uie);
             un.LayoutUpdater.OnAddedToTree();
-            un.SetIsLoaded(this.IsLoaded);
         };
         UINode.prototype.DetachVisualChild = function (uie) {
             var lu = this.LayoutUpdater;
@@ -60,18 +61,11 @@ var Fayde;
             lu.InvalidateMeasure();
             un.VisualParentNode.SetSurface(null);
             un.VisualParentNode = null;
-            un.SetIsLoaded(false);
             un.LayoutUpdater.OnRemovedFromTree();
             this.XObject._Store.ClearInheritedOnRemove(uie);
         };
-        UINode.prototype.SetIsLoaded = function (value) {
-            if(this.IsLoaded === value) {
-                return;
-            }
-            this.IsLoaded = value;
-            this.OnIsLoadedChanged(value);
-        };
-        UINode.prototype.OnIsLoadedChanged = function (newIsLoaded) {
+        UINode.prototype.Focus = function () {
+            return false;
         };
         UINode.prototype._EmitFocusChange = function (type) {
             if(type === "got") {
@@ -262,7 +256,7 @@ var Fayde;
             configurable: true
         });
         UIElement.prototype.Focus = function () {
-            return false;
+            return this.XamlNode.Focus();
         };
         UIElement.prototype.OnGotFocus = function (e) {
         };

@@ -28,7 +28,7 @@ var Fayde;
                 if(lu.IsLayoutContainer) {
                     return;
                 }
-                var walker = Fayde.DeepTreeWalker(uie);
+                var walker = Fayde.DeepTreeWalker(uie.XamlNode);
                 var childNode;
                 while(childNode = walker.Step()) {
                     if(!(childNode instanceof CanvasNode) && childNode.LayoutUpdater.IsLayoutContainer) {
@@ -43,7 +43,7 @@ var Fayde;
                 if(!lu.IsLayoutContainer) {
                     return;
                 }
-                var walker = Fayde.DeepTreeWalker(this.XObject);
+                var walker = Fayde.DeepTreeWalker(this);
                 var childNode;
                 while(childNode = walker.Step()) {
                     if(!(childNode instanceof CanvasNode) && childNode.LayoutUpdater.IsLayoutContainer) {
