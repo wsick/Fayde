@@ -8,7 +8,6 @@
 module Fayde {
     export class XamlObjectCollection extends XamlObject implements IEnumerable {
         private _ht: XamlObject[] = [];
-        private _listeners = [];
         
         get Count() { return this._ht.length; }
 

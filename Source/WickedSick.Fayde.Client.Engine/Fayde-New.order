@@ -123,8 +123,10 @@ Media/VSM/VisualState.js
 Media/VSM/VisualStateGroup.js
 Media/VSM/VisualStateManager.js
 Media/VSM/VisualTransition.js
+Controls/ColumnDefinition.js
 Controls/ControlTemplate.js
 Controls/ItemsPanelTemplate.js
+Controls/RowDefinition.js
 Core/DataTemplate.js
 Core/UIElement.js
 Core/Providers/ControlProviderStore.js

@@ -474,6 +474,10 @@
       <DependentUpon>Canvas.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Controls\ContainerMap.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ColumnDefinition.ts" />
+    <Content Include="Typescript\Controls\ColumnDefinition.js">
+      <DependentUpon>ColumnDefinition.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\ContainerMap.js">
       <DependentUpon>ContainerMap.ts</DependentUpon>
     </Content>
@@ -551,6 +555,10 @@
     <TypeScriptCompile Include="Typescript\Controls\RichTextBox.ts" />
     <Content Include="Typescript\Controls\RichTextBox.js">
       <DependentUpon>RichTextBox.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\RowDefinition.ts" />
+    <Content Include="Typescript\Controls\RowDefinition.js">
+      <DependentUpon>RowDefinition.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Controls\ScrollContentPresenter.js">
       <DependentUpon>ScrollContentPresenter.ts</DependentUpon>

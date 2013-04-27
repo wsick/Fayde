@@ -123,8 +123,10 @@ Typescript\Media\VSM\VisualState.ts
 Typescript\Media\VSM\VisualStateGroup.ts
 Typescript\Media\VSM\VisualStateManager.ts
 Typescript\Media\VSM\VisualTransition.ts
+Typescript\Controls\ColumnDefinition.ts
 Typescript\Controls\ControlTemplate.ts
 Typescript\Controls\ItemsPanelTemplate.ts
+Typescript\Controls\RowDefinition.ts
 Typescript\Core\DataTemplate.ts
 Typescript\Core\UIElement.ts
 Typescript\Core\Providers\ControlProviderStore.ts

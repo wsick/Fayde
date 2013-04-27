@@ -17,7 +17,6 @@ var Fayde;
             _super.apply(this, arguments);
 
             this._ht = [];
-            this._listeners = [];
         }
         Object.defineProperty(XamlObjectCollection.prototype, "Count", {
             get: function () {
