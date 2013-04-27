@@ -1,7 +1,7 @@
 Typescript\Controls\ContainerMap.ts
 Typescript\Controls\Enums.ts
 Typescript\Controls\ItemContainerGenerator.ts
-Typescript\Controls\Primitives\IScrollInfo.ts
+Typescript\Controls\Primitives\ScrollData.ts
 Typescript\Core\Clone.ts
 Typescript\Core\Enums.ts
 Typescript\Core\PropertyChangedListener.ts
@@ -22,6 +22,7 @@ Typescript\Runtime\Nullstone.ts
 Typescript\Shapes\Enums.ts
 Typescript\Shapes\RawPath.ts
 Typescript\Controls\GridLength.ts
+Typescript\Controls\Primitives\IScrollInfo.ts
 Typescript\Core\DependencyProperty.ts
 Typescript\Core\Expression.ts
 Typescript\Core\LayoutInformation.ts
@@ -167,8 +168,11 @@ Typescript\Controls\ItemsPresenter.ts
 Typescript\Controls\ListBox.ts
 Typescript\Controls\MediaElement.ts
 Typescript\Controls\Panel.ts
+Typescript\Controls\RichTextBox.ts
+Typescript\Controls\ScrollContentPresenter.ts
 Typescript\Controls\StackPanel.ts
 Typescript\Controls\TextBlock.ts
+Typescript\Controls\TextBox.ts
 Typescript\Controls\UserControl.ts
 Typescript\Controls\VirtualizingPanel.ts
 Typescript\Controls\VirtualizingStackPanel.ts

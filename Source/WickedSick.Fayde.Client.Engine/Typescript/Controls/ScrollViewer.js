@@ -7,6 +7,7 @@ var Fayde;
 (function (Fayde) {
     /// <reference path="ContentControl.ts" />
     /// CODE
+    /// <reference path="Enums.ts" />
     (function (Controls) {
         var ScrollViewer = (function (_super) {
             __extends(ScrollViewer, _super);
@@ -14,6 +15,20 @@ var Fayde;
                 _super.apply(this, arguments);
 
             }
+            Object.defineProperty(ScrollViewer.prototype, "ScrollInfo", {
+                get: function () {
+                    return this._ScrollInfo;
+                },
+                set: function (value) {
+                    this._ScrollInfo = value;
+                    if(value) {
+                        value.CanHorizontallyScroll = this.HorizontalScrollBarVisibility !== Controls.ScrollBarVisibility.Disabled;
+                        value.CanVerticallyScroll = this.VerticalScrollBarVisibility !== Controls.ScrollBarVisibility.Disabled;
+                    }
+                },
+                enumerable: true,
+                configurable: true
+            });
             ScrollViewer.prototype.InvalidateScrollInfo = function () {
                 //TODO: Implement
                             };

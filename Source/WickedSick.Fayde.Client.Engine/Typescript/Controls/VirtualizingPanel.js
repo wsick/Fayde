@@ -24,7 +24,7 @@ var Fayde;
                         if(!icOwner) {
                             throw new InvalidOperationException("VirtualizingPanels must be in the Template of an ItemsControl in order to generate items");
                         }
-                        var icg = icOwner.ItemContainerGenerator;
+                        var icg = this._ICG = icOwner.ItemContainerGenerator;
                         icg.Listen(this);
                     }
                     return this._ICG;

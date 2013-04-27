@@ -60,7 +60,7 @@ module Fayde.Controls {
                 this.SetHorizontalOffset(this._HorizontalOffset - LineDelta);
             else
                 this.SetHorizontalOffset(this._HorizontalOffset - 1);
-        };
+        }
         LineRight() {
             if (this.Orientation === Fayde.Orientation.Vertical)
                 this.SetHorizontalOffset(this._HorizontalOffset + LineDelta);
@@ -455,5 +455,5 @@ module Fayde.Controls {
             if (scrollOwner) scrollOwner.InvalidateScrollInfo();
         }
     }
-    Nullstone.RegisterType(VirtualizingStackPanel, "VirtualizingStackPanel");
+    Nullstone.RegisterType(VirtualizingStackPanel, "VirtualizingStackPanel", [Primitives.IScrollInfo_]);
 }

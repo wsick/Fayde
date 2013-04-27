@@ -243,7 +243,8 @@ module Fayde {
             var vpNode = this.VisualParentNode;
             if (vpNode)
                 vpNode.LayoutUpdater.InvalidateMeasure();
-            this._Surface._RemoveFocusFrom(lu);
+            var surface = this._Surface;
+            if (surface) surface._RemoveFocusFrom(lu);
         }
 
         IsAncestorOf(uin: UINode) {

@@ -25,7 +25,7 @@ var Fayde;
             Object.defineProperty(ItemsControl.prototype, "Panel", {
                 get: //TODO: Implement
                 function () {
-                    return this._Presenter.XamlNode._ElementRoot;
+                    return this._Presenter.ElementRoot;
                 },
                 enumerable: true,
                 configurable: true
@@ -50,7 +50,7 @@ var Fayde;
             };
             ItemsControl.prototype._SetItemsPresenter = function (presenter) {
                 if(this._Presenter) {
-                    this._Presenter.XamlNode._ElementRoot.Children.Clear();
+                    this._Presenter.ElementRoot.Children.Clear();
                 }
                 this._Presenter = presenter;
                 this.AddItemsToPresenter(-1, 1, this.Items.Count);

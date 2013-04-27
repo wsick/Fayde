@@ -4,11 +4,15 @@ interface IOutValue {
 interface ICloneable {
     Clone(): any;
 }
+interface IInterfaceDeclaration {
+    Name: string;
+}
 class Nullstone {
-    static RegisterType(type: Function, name: string) {
+    static RegisterType(type: Function, name: string, interfaces?: IInterfaceDeclaration[]) {
         var t: any = type;
         t._TypeName = name;
         t._BaseClass = Object.getPrototypeOf(type.prototype).constructor;
+        t._Interfaces = interfaces;
     }
     static Equals(val1: any, val2: any): bool {
         if (val1 == null && val2 == null)
@@ -44,5 +48,25 @@ class Nullstone {
             return true;
         var type = obj.constructor;
         return type.prototype.hasOwnProperty(name);
+    }
+
+    static RegisterInterface(name: string): IInterfaceDeclaration {
+        return { Name: name };
+    }
+    static ImplementsInterface(obj: any, i: IInterfaceDeclaration): bool {
+        if (!obj)
+            return false;
+        var curType: any = obj.constructor;
+        if (!curType)
+            return false;
+        var is: IInterfaceDeclaration[];
+        do {
+            is = curType._Interfaces;
+            if (!is)
+                continue;
+            if (is.indexOf(i) > -1)
+                return true;
+        } while (curType = curType._BaseClass);
+        return false;
     }
 }

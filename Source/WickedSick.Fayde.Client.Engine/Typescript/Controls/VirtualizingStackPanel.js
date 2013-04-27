@@ -537,7 +537,9 @@ var Fayde;
             return VirtualizingStackPanel;
         })(Controls.VirtualizingPanel);
         Controls.VirtualizingStackPanel = VirtualizingStackPanel;        
-        Nullstone.RegisterType(VirtualizingStackPanel, "VirtualizingStackPanel");
+        Nullstone.RegisterType(VirtualizingStackPanel, "VirtualizingStackPanel", [
+            Controls.Primitives.IScrollInfo_
+        ]);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

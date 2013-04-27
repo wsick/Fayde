@@ -543,6 +543,18 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Controls\StackPanel.ts" />
     <TypeScriptCompile Include="Typescript\Controls\ScrollViewer.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ScrollContentPresenter.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\ScrollData.ts" />
+    <Content Include="Typescript\Controls\Primitives\ScrollData.js">
+      <DependentUpon>ScrollData.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\RichTextBox.ts" />
+    <Content Include="Typescript\Controls\RichTextBox.js">
+      <DependentUpon>RichTextBox.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\ScrollContentPresenter.js">
+      <DependentUpon>ScrollContentPresenter.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\ScrollViewer.js">
       <DependentUpon>ScrollViewer.ts</DependentUpon>
     </Content>
@@ -554,6 +566,10 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Core\DependencyObjectCollection.ts" />
     <TypeScriptCompile Include="Typescript\Controls\UserControl.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\TextBox.ts" />
+    <Content Include="Typescript\Controls\TextBox.js">
+      <DependentUpon>TextBox.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\UserControl.js">
       <DependentUpon>UserControl.ts</DependentUpon>
     </Content>

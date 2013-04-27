@@ -18,6 +18,20 @@ var Fayde;
             function ItemsPresenterNode(xobj) {
                         _super.call(this, xobj);
             }
+            Object.defineProperty(ItemsPresenterNode.prototype, "ElementRoot", {
+                get: function () {
+                    if(!this._ElementRoot) {
+                        var error = new BError();
+                        this._DoApplyTemplateWithError(error);
+                        if(error.Message) {
+                            error.ThrowException();
+                        }
+                    }
+                    return this._ElementRoot;
+                },
+                enumerable: true,
+                configurable: true
+            });
             Object.defineProperty(ItemsPresenterNode.prototype, "StackPanelFallbackTemplate", {
                 get: function () {
                     var spft = this._SPFT;
@@ -85,6 +99,13 @@ var Fayde;
             ItemsPresenter.prototype.CreateNode = function () {
                 return new ItemsPresenterNode(this);
             };
+            Object.defineProperty(ItemsPresenter.prototype, "ElementRoot", {
+                get: function () {
+                    return this.XamlNode.ElementRoot;
+                },
+                enumerable: true,
+                configurable: true
+            });
             ItemsPresenter.prototype.OnApplyTemplate = function () {
                 this.TemplateOwner._SetItemsPresenter(this);
                 _super.prototype.OnApplyTemplate.call(this);

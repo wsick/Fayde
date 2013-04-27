@@ -20,7 +20,7 @@ module Fayde.Controls {
 
         Items: XamlObjectCollection; //TODO: Implement
         ItemsPanel: ItemsPanelTemplate; //TODO: Implement
-        get Panel(): Panel { return this._Presenter.XamlNode._ElementRoot; }
+        get Panel(): Panel { return this._Presenter.ElementRoot; }
 
         static GetItemsOwner(uie: UIElement): ItemsControl {
             if (!(uie instanceof Panel))
@@ -39,7 +39,7 @@ module Fayde.Controls {
 
         _SetItemsPresenter(presenter: ItemsPresenter) {
             if (this._Presenter)
-                this._Presenter.XamlNode._ElementRoot.Children.Clear();
+                this._Presenter.ElementRoot.Children.Clear();
 
             this._Presenter = presenter;
             this.AddItemsToPresenter(-1, 1, this.Items.Count);

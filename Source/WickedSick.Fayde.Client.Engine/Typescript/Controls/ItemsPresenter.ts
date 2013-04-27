@@ -9,11 +9,21 @@
 module Fayde.Controls {
     export class ItemsPresenterNode extends FENode {
         XObject: ItemsPresenter;
-        _ElementRoot: Panel;
+        private _ElementRoot: Panel;
         private _SPFT: ItemsPanelTemplate;
         private _VSPFT: ItemsPanelTemplate;
         constructor(xobj: ItemsPresenter) {
             super(xobj);
+        }
+
+        get ElementRoot(): Panel {
+            if (!this._ElementRoot) {
+                var error = new BError();
+                this._DoApplyTemplateWithError(error);
+                if (error.Message)
+                    error.ThrowException();
+            }
+            return this._ElementRoot;
         }
 
         get StackPanelFallbackTemplate(): ItemsPanelTemplate {
@@ -64,6 +74,8 @@ module Fayde.Controls {
         TemplateOwner: ItemsControl;
         XamlNode: ItemsPresenterNode;
         CreateNode(): ItemsPresenterNode { return new ItemsPresenterNode(this); }
+
+        get ElementRoot(): Panel { return this.XamlNode.ElementRoot; }
 
         OnApplyTemplate() {
             this.TemplateOwner._SetItemsPresenter(this);

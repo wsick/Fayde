@@ -1,9 +1,10 @@
 var Nullstone = (function () {
     function Nullstone() { }
-    Nullstone.RegisterType = function RegisterType(type, name) {
+    Nullstone.RegisterType = function RegisterType(type, name, interfaces) {
         var t = type;
         t._TypeName = name;
         t._BaseClass = Object.getPrototypeOf(type.prototype).constructor;
+        t._Interfaces = interfaces;
     };
     Nullstone.Equals = function Equals(val1, val2) {
         if(val1 == null && val2 == null) {
@@ -47,6 +48,31 @@ var Nullstone = (function () {
         }
         var type = obj.constructor;
         return type.prototype.hasOwnProperty(name);
+    };
+    Nullstone.RegisterInterface = function RegisterInterface(name) {
+        return {
+            Name: name
+        };
+    };
+    Nullstone.ImplementsInterface = function ImplementsInterface(obj, i) {
+        if(!obj) {
+            return false;
+        }
+        var curType = obj.constructor;
+        if(!curType) {
+            return false;
+        }
+        var is;
+        do {
+            is = curType._Interfaces;
+            if(!is) {
+                continue;
+            }
+            if(is.indexOf(i) > -1) {
+                return true;
+            }
+        }while(curType = curType._BaseClass);
+        return false;
     };
     return Nullstone;
 })();

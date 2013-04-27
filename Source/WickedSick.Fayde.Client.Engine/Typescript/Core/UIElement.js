@@ -239,7 +239,10 @@ var Fayde;
             if(vpNode) {
                 vpNode.LayoutUpdater.InvalidateMeasure();
             }
-            this._Surface._RemoveFocusFrom(lu);
+            var surface = this._Surface;
+            if(surface) {
+                surface._RemoveFocusFrom(lu);
+            }
         };
         UINode.prototype.IsAncestorOf = function (uin) {
             var vpNode = uin;

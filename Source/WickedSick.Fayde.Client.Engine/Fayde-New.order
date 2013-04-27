@@ -1,7 +1,7 @@
 Controls/ContainerMap.js
 Controls/Enums.js
 Controls/ItemContainerGenerator.js
-Controls/Primitives/IScrollInfo.js
+Controls/Primitives/ScrollData.js
 Core/Clone.js
 Core/Enums.js
 Core/PropertyChangedListener.js
@@ -22,6 +22,7 @@ Runtime/Nullstone.js
 Shapes/Enums.js
 Shapes/RawPath.js
 Controls/GridLength.js
+Controls/Primitives/IScrollInfo.js
 Core/DependencyProperty.js
 Core/Expression.js
 Core/LayoutInformation.js
@@ -167,8 +168,11 @@ Controls/ItemsPresenter.js
 Controls/ListBox.js
 Controls/MediaElement.js
 Controls/Panel.js
+Controls/RichTextBox.js
+Controls/ScrollContentPresenter.js
 Controls/StackPanel.js
 Controls/TextBlock.js
+Controls/TextBox.js
 Controls/UserControl.js
 Controls/VirtualizingPanel.js
 Controls/VirtualizingStackPanel.js
