@@ -1,13 +1,9 @@
-/// <reference path="Control.ts" />
+/// <reference path="TextBoxBase.ts" />
 /// CODE
 /// <reference path="Enums.ts" />
 
 module Fayde.Controls {
-    export class _TextBoxView {
-    }
-    Nullstone.RegisterType(_TextBoxView, "_TextBoxView");
-
-    export class TextBox extends Control {
+    export class TextBox extends TextBoxBase {
         HorizontalScrollBarVisibility: ScrollBarVisibility;
         TextWrapping: TextWrapping;
     }

@@ -59,5 +59,19 @@ var Fayde;
         FontWeight.ExtraBlack = 950;
     })(Fayde.FontWeight || (Fayde.FontWeight = {}));
     var FontWeight = Fayde.FontWeight;
+    (function (TextAlignment) {
+        TextAlignment._map = [];
+        TextAlignment.Left = 0;
+        TextAlignment.Center = 1;
+        TextAlignment.Right = 2;
+    })(Fayde.TextAlignment || (Fayde.TextAlignment = {}));
+    var TextAlignment = Fayde.TextAlignment;
+    //FLAGS
+    (function (TextDecorations) {
+        TextDecorations._map = [];
+        TextDecorations.None = 0;
+        TextDecorations.Underline = 1;
+    })(Fayde.TextDecorations || (Fayde.TextDecorations = {}));
+    var TextDecorations = Fayde.TextDecorations;
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=Enums.js.map

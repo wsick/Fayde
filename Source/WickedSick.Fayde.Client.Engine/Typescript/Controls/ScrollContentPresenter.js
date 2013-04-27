@@ -12,6 +12,7 @@ var Fayde;
     /// <reference path="Primitives/ScrollData.ts" />
     /// <reference path="Enums.ts" />
     /// <reference path="TextBox.ts" />
+    /// <reference path="TextBoxView.ts" />
     /// <reference path="RichTextBox.ts" />
     (function (Controls) {
         function validateInputOffset(offset) {
@@ -340,7 +341,7 @@ var Fayde;
                     this._IsClipPropertySet = true;
                 }
                 var content;
-                if(this.TemplateOwner instanceof Fayde.Controls.ScrollViewer && (content = this.Content) && (content instanceof Fayde.Controls._TextBoxView || content instanceof Fayde.Controls._RichTextBoxView)) {
+                if(this.TemplateOwner instanceof Fayde.Controls.ScrollViewer && (content = this.Content) && (content instanceof Fayde.Controls.Internal.TextBoxView || content instanceof Fayde.Controls._RichTextBoxView)) {
                     //ScrollViewer inside TextBox/RichTextBox
                     this._ClippingRectangle.Rect = this._CalculateTextBoxClipRect(arrangeSize);
                 } else {

@@ -46,4 +46,14 @@ module Fayde {
         Black = 900,
         ExtraBlack = 950,
     }
+    export enum TextAlignment {
+        Left = 0,
+        Center = 1,
+        Right = 2,
+    }
+    //FLAGS
+    export enum TextDecorations {
+        None = 0,
+        Underline = 1,
+    }
 }

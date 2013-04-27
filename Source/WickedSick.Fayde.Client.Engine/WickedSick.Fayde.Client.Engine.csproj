@@ -578,6 +578,14 @@
     <Content Include="Typescript\Controls\TextBox.js">
       <DependentUpon>TextBox.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Controls\TextBoxView.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\TextBoxBase.ts" />
+    <Content Include="Typescript\Controls\TextBoxBase.js">
+      <DependentUpon>TextBoxBase.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\TextBoxView.js">
+      <DependentUpon>TextBoxView.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\UserControl.js">
       <DependentUpon>UserControl.ts</DependentUpon>
     </Content>
@@ -1227,6 +1235,14 @@
     </Content>
     <Content Include="Typescript\Shapes\Shape.js">
       <DependentUpon>Shape.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Text\TextLayout.ts" />
+    <TypeScriptCompile Include="Typescript\Text\TextAttributes.ts" />
+    <Content Include="Typescript\Text\TextAttributes.js">
+      <DependentUpon>TextAttributes.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Text\TextLayout.js">
+      <DependentUpon>TextLayout.ts</DependentUpon>
     </Content>
     <Content Include="Web.config">
       <SubType>Designer</SubType>

@@ -5,6 +5,7 @@
 /// <reference path="Primitives/ScrollData.ts" />
 /// <reference path="Enums.ts" />
 /// <reference path="TextBox.ts" />
+/// <reference path="TextBoxView.ts" />
 /// <reference path="RichTextBox.ts" />
 
 module Fayde.Controls {
@@ -253,7 +254,7 @@ module Fayde.Controls {
             }
 
             var content;
-            if (this.TemplateOwner instanceof Controls.ScrollViewer && (content = this.Content) && (content instanceof Controls._TextBoxView || content instanceof Controls._RichTextBoxView)) {
+            if (this.TemplateOwner instanceof Controls.ScrollViewer && (content = this.Content) && (content instanceof Controls.Internal.TextBoxView || content instanceof Controls._RichTextBoxView)) {
                 //ScrollViewer inside TextBox/RichTextBox
                 this._ClippingRectangle.Rect = this._CalculateTextBoxClipRect(arrangeSize);
             } else {

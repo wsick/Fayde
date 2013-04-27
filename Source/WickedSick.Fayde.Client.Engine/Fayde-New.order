@@ -21,6 +21,8 @@ Runtime/Enumerable.js
 Runtime/Nullstone.js
 Shapes/Enums.js
 Shapes/RawPath.js
+Text/TextAttributes.js
+Text/TextLayout.js
 Controls/GridLength.js
 Controls/Primitives/IScrollInfo.js
 Core/DependencyProperty.js
@@ -175,7 +177,8 @@ Controls/RichTextBox.js
 Controls/ScrollContentPresenter.js
 Controls/StackPanel.js
 Controls/TextBlock.js
-Controls/TextBox.js
+Controls/TextBoxBase.js
+Controls/TextBoxView.js
 Controls/UserControl.js
 Controls/VirtualizingPanel.js
 Controls/VirtualizingStackPanel.js
@@ -191,3 +194,4 @@ Controls/Canvas.js
 Controls/ContentControl.js
 Controls/Grid.js
 Controls/ScrollViewer.js
+Controls/TextBox.js

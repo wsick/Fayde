@@ -22,6 +22,11 @@ var Fayde;
             }, SolidColorBrush, undefined, function (d, args) {
                 return (d).InvalidateBrush();
             });
+            SolidColorBrush.FromColor = function FromColor(color) {
+                var scb = new SolidColorBrush();
+                scb.Color = color;
+                return scb;
+            };
             SolidColorBrush.prototype.CreateBrush = function (ctx, bounds) {
                 var color = this.Color;
                 if(color) {

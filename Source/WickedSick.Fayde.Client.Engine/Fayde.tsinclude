@@ -21,6 +21,8 @@ Typescript\Runtime\Enumerable.ts
 Typescript\Runtime\Nullstone.ts
 Typescript\Shapes\Enums.ts
 Typescript\Shapes\RawPath.ts
+Typescript\Text\TextAttributes.ts
+Typescript\Text\TextLayout.ts
 Typescript\Controls\GridLength.ts
 Typescript\Controls\Primitives\IScrollInfo.ts
 Typescript\Core\DependencyProperty.ts
@@ -175,7 +177,8 @@ Typescript\Controls\RichTextBox.ts
 Typescript\Controls\ScrollContentPresenter.ts
 Typescript\Controls\StackPanel.ts
 Typescript\Controls\TextBlock.ts
-Typescript\Controls\TextBox.ts
+Typescript\Controls\TextBoxBase.ts
+Typescript\Controls\TextBoxView.ts
 Typescript\Controls\UserControl.ts
 Typescript\Controls\VirtualizingPanel.ts
 Typescript\Controls\VirtualizingStackPanel.ts
@@ -191,3 +194,4 @@ Typescript\Controls\Canvas.ts
 Typescript\Controls\ContentControl.ts
 Typescript\Controls\Grid.ts
 Typescript\Controls\ScrollViewer.ts
+Typescript\Controls\TextBox.ts

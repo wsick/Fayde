@@ -13,6 +13,12 @@ module Fayde.Media {
                 this.Color = arguments[0];
         }
 
+        static FromColor(color: Color): SolidColorBrush {
+            var scb = new SolidColorBrush();
+            scb.Color = color;
+            return scb;
+        }
+
         private CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any {
             var color = this.Color;
             if (color)

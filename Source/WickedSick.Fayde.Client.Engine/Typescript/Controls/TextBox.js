@@ -5,16 +5,10 @@ var __extends = this.__extends || function (d, b) {
 };
 var Fayde;
 (function (Fayde) {
-    /// <reference path="Control.ts" />
+    /// <reference path="TextBoxBase.ts" />
     /// CODE
     /// <reference path="Enums.ts" />
     (function (Controls) {
-        var _TextBoxView = (function () {
-            function _TextBoxView() { }
-            return _TextBoxView;
-        })();
-        Controls._TextBoxView = _TextBoxView;        
-        Nullstone.RegisterType(_TextBoxView, "_TextBoxView");
         var TextBox = (function (_super) {
             __extends(TextBox, _super);
             function TextBox() {
@@ -22,7 +16,7 @@ var Fayde;
 
             }
             return TextBox;
-        })(Controls.Control);
+        })(Controls.TextBoxBase);
         Controls.TextBox = TextBox;        
         Nullstone.RegisterType(TextBox, "TextBox");
     })(Fayde.Controls || (Fayde.Controls = {}));
