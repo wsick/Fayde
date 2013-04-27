@@ -9,7 +9,6 @@ module Fayde.Controls {
     }
 
     export class RowDefinition extends DependencyObject {
-        //TODO: new GridLength(1.0, GridUnitType.Star)
         //NOTE: Will not receive property changes from GridLength
         static HeightProperty: DependencyProperty = DependencyProperty.RegisterCore("Height", () => GridLength, RowDefinition, undefined, (d, args) => (<RowDefinition>d)._HeightsChanged(args));
         static MaxHeightProperty: DependencyProperty = DependencyProperty.RegisterCore("MaxHeight", () => Number, RowDefinition, Number.POSITIVE_INFINITY, (d, args) => (<RowDefinition>d)._HeightsChanged(args));

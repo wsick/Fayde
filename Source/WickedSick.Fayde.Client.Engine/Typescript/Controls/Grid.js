@@ -214,6 +214,7 @@ var Fayde;
                 this._CreateMatrices(rowCount, colCount);
                 var rm = this._RowMatrix;
                 var cm = this._ColMatrix;
+                var defaultGridLength = new Controls.GridLength(1.0, Controls.GridUnitType.Star);
                 var i = 0;
                 var cell = null;
                 var enumerator;
@@ -230,6 +231,9 @@ var Fayde;
                     while(enumerator.MoveNext()) {
                         rowdef = enumerator.Current;
                         height = rowdef.Height;
+                        if(!height) {
+                            height = defaultGridLength;
+                        }
                         rowdef.SetValueInternal(Controls.RowDefinition.ActualHeightProperty, Number.POSITIVE_INFINITY);
                         cell = createSegment(0.0, rowdef.MinHeight, rowdef.MaxHeight, height.Type);
                         if(height.Type === Controls.GridUnitType.Pixel) {
@@ -259,6 +263,9 @@ var Fayde;
                     while(enumerator.MoveNext()) {
                         coldef = enumerator.Current;
                         var width = coldef.Width;
+                        if(!width) {
+                            width = defaultGridLength;
+                        }
                         coldef.SetValueInternal(Controls.ColumnDefinition.ActualWidthProperty, Number.POSITIVE_INFINITY);
                         cell = createSegment(0.0, coldef.MinWidth, coldef.MaxWidth, width.Type);
                         if(width.Type === Controls.GridUnitType.Pixel) {

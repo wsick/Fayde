@@ -15896,6 +15896,7 @@ module Fayde.Controls {
             this._CreateMatrices(rowCount, colCount);
             var rm = this._RowMatrix;
             var cm = this._ColMatrix;
+            var defaultGridLength: GridLength = new GridLength(1.0, GridUnitType.Star);
             var i: number = 0;
             var cell: ISegment = null;
             var enumerator: IEnumerator;
@@ -15912,6 +15913,7 @@ module Fayde.Controls {
                 while (enumerator.MoveNext()) {
                     rowdef = enumerator.Current;
                     height = rowdef.Height;
+                    if (!height) height = defaultGridLength;
                     rowdef.SetValueInternal(RowDefinition.ActualHeightProperty, Number.POSITIVE_INFINITY);
                     cell = createSegment(0.0, rowdef.MinHeight, rowdef.MaxHeight, height.Type);
                     if (height.Type === GridUnitType.Pixel) {
@@ -15941,6 +15943,7 @@ module Fayde.Controls {
                 while (enumerator.MoveNext()) {
                     coldef = enumerator.Current;
                     var width = coldef.Width;
+                    if (!width) width = defaultGridLength;
                     coldef.SetValueInternal(ColumnDefinition.ActualWidthProperty, Number.POSITIVE_INFINITY);
                     cell = createSegment(0.0, coldef.MinWidth, coldef.MaxWidth, width.Type);
                     if (width.Type === GridUnitType.Pixel) {

@@ -9,7 +9,6 @@ module Fayde.Controls {
     }
 
     export class ColumnDefinition extends DependencyObject {
-        //TODO: new GridLength(1.0, GridUnitType.Star)
         //NOTE: Will not receive property changes from GridLength
         static WidthProperty: DependencyProperty = DependencyProperty.RegisterCore("Width", () => GridLength, ColumnDefinition, undefined, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
         static MaxWidthProperty: DependencyProperty = DependencyProperty.RegisterCore("MaxWidth", () => Number, ColumnDefinition, Number.POSITIVE_INFINITY, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
