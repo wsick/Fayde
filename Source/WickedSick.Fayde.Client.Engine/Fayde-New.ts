@@ -14992,6 +14992,7 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
+    declare var NotImplemented;
     export class TextBlockNode extends FENode implements IBoundsComputable {
         XObject: TextBlock;
         private _ActualWidth: number;
@@ -15031,7 +15032,8 @@ module Fayde.Controls {
         }
     }
     Nullstone.RegisterType(TextBlockNode, "TextBlockNode");
-    export class TextBlock extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden {
+    export class TextBlock extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable {
+        private _Layout: Text.TextLayout = new Text.TextLayout();
         XamlNode: TextBlockNode;
         CreateNode(): TextBlockNode { return new TextBlockNode(this); }
         static InlinesProperty: DependencyProperty;
@@ -15051,6 +15053,17 @@ module Fayde.Controls {
             size.shrinkByThickness(constraint, padding);
             this.XamlNode.Arrange(constraint, padding);
             return finalSize;
+        }
+        Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
+            ctx.Save();
+            lu._RenderLayoutClip(ctx);
+            var padding = this.Padding;
+            var offset = new Point(padding.Left, padding.Top);
+            if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
+                NotImplemented("TextBlock._Render: Right to left");
+            }
+            this._Layout.Render(ctx, null, offset);
+            ctx.Restore();
         }
     }
     Nullstone.RegisterType(TextBlock, "TextBlock");

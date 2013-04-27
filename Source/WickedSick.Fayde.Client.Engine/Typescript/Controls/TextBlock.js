@@ -8,6 +8,7 @@ var Fayde;
     /// <reference path="../Core/FrameworkElement.ts" />
     /// CODE
     /// <reference path="../Core/XamlObjectCollection.ts" />
+    /// <reference path="../Text/TextLayout.ts" />
     (function (Controls) {
         var TextBlockNode = (function (_super) {
             __extends(TextBlockNode, _super);
@@ -54,6 +55,7 @@ var Fayde;
             function TextBlock() {
                 _super.apply(this, arguments);
 
+                this._Layout = new Fayde.Text.TextLayout();
             }
             TextBlock.prototype.CreateNode = function () {
                 return new TextBlockNode(this);
@@ -72,6 +74,17 @@ var Fayde;
                 size.shrinkByThickness(constraint, padding);
                 this.XamlNode.Arrange(constraint, padding);
                 return finalSize;
+            };
+            TextBlock.prototype.Render = function (ctx, lu, region) {
+                ctx.Save();
+                lu._RenderLayoutClip(ctx);
+                var padding = this.Padding;
+                var offset = new Point(padding.Left, padding.Top);
+                if(this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
+                    NotImplemented("TextBlock._Render: Right to left");
+                }
+                this._Layout.Render(ctx, null, offset);
+                ctx.Restore();
             };
             return TextBlock;
         })(Fayde.FrameworkElement);
