@@ -10,14 +10,15 @@ module Fayde.Text {
         Font: Font;
         Direction: FlowDirection;
         IsUnderlined: bool;
+        Start: number;
     }
 
     export class TextLayoutAttributes implements ITextAttributes {
         private _Source;
-        private _Start: number;
+        Start: number;
         constructor(source, start?: number) {
             this._Source = source;
-            this._Start = (start == null) ? 0 : start;
+            this.Start = (start == null) ? 0 : start;
         }
         GetBackground(selected: bool): Media.Brush {
             if (selected)

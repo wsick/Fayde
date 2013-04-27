@@ -173,7 +173,7 @@ var Fayde;
                     if(invalidate && this._CursorVisible) {
                         this._InvalidateCursor();
                     }
-                    this._Cursor = this._Layout.GetSelectionCursor(new Point(), cur);
+                    this._Cursor = this._Layout.GetSelectionCursor(null, cur);
                     //TODO: ...
                     // var irect = rect.clone(this._Cursor);
                     // rect.transform(irect, this._Xformer.AbsoluteXform);
@@ -221,13 +221,13 @@ var Fayde;
                     return this._Layout.GetBaselineOffset();
                 };
                 TextBoxView.prototype.GetLineFromY = function (y) {
-                    return this._Layout.GetLineFromY(new Point(), y);
+                    return this._Layout.GetLineFromY(null, y);
                 };
                 TextBoxView.prototype.GetLineFromIndex = function (index) {
                     return this._Layout.GetLineFromIndex(index);
                 };
                 TextBoxView.prototype.GetCursorFromXY = function (x, y) {
-                    return this._Layout.GetCursorFromXY(new Point(), x, y);
+                    return this._Layout.GetCursorFromXY(null, x, y);
                 };
                 TextBoxView.prototype.Render = function (ctx, lu, region) {
                     var renderSize = lu.RenderSize;

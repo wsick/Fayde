@@ -11,4 +11,7 @@ module Fayde.Controls {
         Hidden = 2,
         Visible = 3,
     }
+    export enum TextTrimming {
+        None = 0,
+    }
 }

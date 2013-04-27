@@ -8,6 +8,7 @@
 /// <reference path="../Input/Keyboard.ts" />
 /// <reference path="../Core/Walkers.ts" />
 /// <reference path="../Input/MouseEventArgs.ts" />
+/// <reference path="../Primitives/Font.ts" />
 
 declare var Warn;
 
@@ -779,6 +780,12 @@ class Surface {
     }
     private static IsRightButton(button: number): bool {
         return button === 2;
+    }
+
+    static MeasureWidth(text: string, font: Font): number {
+        var ctx = Surface.TestCanvas.getContext("2d");
+        ctx.font = font.ToHtml5Object();
+        return ctx.measureText(text).width;
     }
 }
 Nullstone.RegisterType(Surface, "Surface");

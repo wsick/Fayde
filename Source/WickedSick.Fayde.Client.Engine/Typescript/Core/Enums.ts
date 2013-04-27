@@ -56,4 +56,8 @@ module Fayde {
         None = 0,
         Underline = 1,
     }
+    export enum LineStackingStrategy {
+        MaxHeight = 0,
+        BlockLineHeight = 1,
+    }
 }

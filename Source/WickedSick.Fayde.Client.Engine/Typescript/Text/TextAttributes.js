@@ -8,7 +8,7 @@ var Fayde;
         var TextLayoutAttributes = (function () {
             function TextLayoutAttributes(source, start) {
                 this._Source = source;
-                this._Start = (start == null) ? 0 : start;
+                this.Start = (start == null) ? 0 : start;
             }
             TextLayoutAttributes.prototype.GetBackground = function (selected) {
                 if(selected) {

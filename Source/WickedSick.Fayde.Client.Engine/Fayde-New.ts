@@ -78,6 +78,9 @@ module Fayde.Controls {
         Hidden = 2,
         Visible = 3,
     }
+    export enum TextTrimming {
+        None = 0,
+    }
 }
 
 module Fayde.Controls {
@@ -598,6 +601,10 @@ module Fayde {
     export enum TextDecorations {
         None = 0,
         Underline = 1,
+    }
+    export enum LineStackingStrategy {
+        MaxHeight = 0,
+        BlockLineHeight = 1,
     }
 }
 
@@ -2282,13 +2289,14 @@ module Fayde.Text {
         Font: Font;
         Direction: FlowDirection;
         IsUnderlined: bool;
+        Start: number;
     }
     export class TextLayoutAttributes implements ITextAttributes {
         private _Source;
-        private _Start: number;
+        Start: number;
         constructor(source, start?: number) {
             this._Source = source;
-            this._Start = (start == null) ? 0 : start;
+            this.Start = (start == null) ? 0 : start;
         }
         GetBackground(selected: bool): Media.Brush {
             if (selected)
@@ -2307,57 +2315,727 @@ module Fayde.Text {
 }
 
 module Fayde.Text {
-    export interface ITextAttributes {
+    export interface IBreakOp {
+        Advance: number;
+        Index: number;
+        Btype: number;
+        c: string;
+    }
+    export interface ILayoutWord {
+        Advance: number;
+        LineAdvance: number;
+        Length: number;
+        BreakOps: IBreakOp[];
+        Font: Font;
+    }
+    export class TextLayoutGlyphCluster {
+        private _Text: string;
+        private _Selected: bool = false;
+        _Advance: number = 0;
+        constructor(text: string, font: Font, selected?: bool) {
+            this._Text = text;
+            this._Selected = selected == true;
+            this._Advance = Surface.MeasureWidth(text, font);
+        }
+        _Render(ctx: RenderContext, origin: Point, attrs: ITextAttributes, x: number, y: number) {
+            if (this._Text.length == 0 || this._Advance == 0.0)
+                return;
+            var font = attrs.Font;
+            var y0 = font._Ascender();
+            ctx.Translate(x, y - y0);
+            var brush: Media.Brush;
+            var fontHeight = font.GetActualHeight();
+            var area = new rect();
+            var ox = 0;
+            var oy = 0;
+            if (origin) {
+                ox = origin.X;
+                oy = origin.Y;
+            }
+            rect.set(area, ox, oy, this._Advance, fontHeight);
+            if (this._Selected && (brush = attrs.GetBackground(true))) {
+                ctx.FillRect(brush, area); //selection background
+            }
+            if (!(brush = attrs.GetForeground(this._Selected)))
+                return;
+            var canvasCtx = ctx.CanvasContext;
+            brush.SetupBrush(canvasCtx, area);
+            var brushHtml5 = brush.ToHtml5Object();
+            canvasCtx.fillStyle = brushHtml5;
+            canvasCtx.font = font.ToHtml5Object();
+            canvasCtx.textAlign = "left";
+            canvasCtx.textBaseline = "top";
+            canvasCtx.fillText(this._Text, 0, 0);
+            if (attrs.IsUnderlined) {
+                canvasCtx.beginPath();
+                canvasCtx.moveTo(0, fontHeight);
+                canvasCtx.lineTo(this._Advance, fontHeight);
+                canvasCtx.lineWidth = 2;
+                canvasCtx.strokeStyle = brushHtml5;
+                canvasCtx.stroke();
+            }
+        }
+    }
+    export class TextLayoutRun {
+        private _Clusters: TextLayoutGlyphCluster[] = [];
+        _Attrs: ITextAttributes = null;
+        _Start: number = 0;
+        private _Line: TextLayoutLine = null;
+        _Advance: number = 0.0; //after layout, will contain horizontal distance this run advances
+        _Length: number = 0;
+        constructor(line: TextLayoutLine, attrs: ITextAttributes, start: number) {
+            this._Attrs = attrs;
+            this._Start = start;
+            this._Line = line;
+        }
+        _GenerateCache() {
+            var layout = this._Line._Layout;
+            var selectionLength = layout.SelectionLength;
+            var selectionStart = layout.SelectionStart;
+            var text = layout.Text;
+            var font = this._Attrs.Font;
+            var len;
+            var index = this._Start;
+            var cluster1;
+            var cluster2;
+            if (selectionLength === 0 || this._Start < selectionStart) {
+                len = selectionLength > 0 ? Math.min(selectionStart - this._Start, this._Length) : this._Length;
+                cluster1 = new TextLayoutGlyphCluster(text.substr(this._Start, len), font);
+                this._Clusters.push(cluster1);
+                index += len;
+            }
+            var selectionEnd = selectionStart + selectionLength;
+            var runEnd = this._Start + this._Length;
+            if (index < runEnd && index < selectionEnd) {
+                len = Math.min(runEnd - index, selectionEnd - index);
+                cluster2 = new TextLayoutGlyphCluster(text.substr(index, len), font, true);
+                this._Clusters.push(cluster2);
+                index += len;
+            }
+            var cluster3;
+            if (index < runEnd) {
+                len = runEnd - index;
+                cluster3 = new TextLayoutGlyphCluster(text.substr(index, len), font);
+                this._Clusters.push(cluster3);
+                index += len;
+            }
+        }
+        _ClearCache() {
+            this._Clusters = [];
+        }
+        _Render(ctx: RenderContext, origin: Point, x: number, y: number) {
+            var x0 = x;
+            if (this._Clusters.length === 0)
+                this._GenerateCache();
+            for (var i = 0; i < this._Clusters.length; i++) {
+                var cluster = this._Clusters[i];
+                ctx.Save();
+                cluster._Render(ctx, origin, this._Attrs, x0, y);
+                ctx.Restore();
+                x0 += cluster._Advance;
+            }
+        }
+        __Debug(allText) {
+            return allText.substr(this._Start, this._Length);
+        }
     }
     export class TextLayoutLine {
+        _Runs: TextLayoutRun[] = [];
+        _Layout: TextLayout = null;
+        _Start: number = 0;
+        private _Offset: number = 0;
+        _Advance: number = 0.0; //after layout, will contain horizontal distance this line advances
+        _Descend: number = 0.0;
+        _Height: number = 0.0;
+        _Width: number = 0.0;
+        _Length: number = 0;
+        constructor(layout: TextLayout, start: number, offset: number) {
+            this._Layout = layout;
+            this._Start = start;
+            this._Offset = offset;
+        }
+        GetCursorFromX(offset: Point, x: number): number {
+            var run = null;
+            var layout = this._Layout;
+            var ox: number = 0;
+            if (offset) ox = offset.X;
+            var x0 = ox + layout._HorizontalAlignment(this._Advance);
+            var cursor = this._Offset;
+            var text = layout.Text;
+            var index = this._Start;
+            var end: number = 0;
+            var c: string = null;
+            var i: number;
+            for (i = 0; i < this._Runs.length; i++) {
+                run = this._Runs[i];
+                if (x < (x0 + run._Advance))
+                    break; // x is somewhere inside this run
+                cursor += run._Length;
+                index += run._Length;
+                x0 += run._Advance;
+                run = null;
+            }
+            if (run != null) {
+                index = run._Start;
+                end = run._Start + run._Length;
+                var font = run._Attrs.GetFont();
+                var m: number = 0;
+                var ch: number = 0;
+                while (index < end) {
+                    ch = index;
+                    cursor++;
+                    c = text.charAt(index);
+                    index++;
+                    if (c === '\t')
+                        c = ' ';
+                    m = Surface.MeasureWidth(c, font);
+                    if (x <= x0 + (m / 2.0)) {
+                        index = ch;
+                        cursor--;
+                        break;
+                    }
+                    x0 += m;
+                }
+            } else if (i > 0) {
+                run = this._Runs[i - 1];
+                end = run._Start + run._Length;
+                index = run._Start;
+                c = end - 1 < 0 ? null : text.charAt(end - 1);
+                if (c == '\n') {
+                    cursor--;
+                    end--;
+                    c = end - 1 < 0 ? null : text.charAt(end - 1);
+                    if (c == '\r') {
+                        cursor--;
+                        end--;
+                    }
+                }
+            }
+            return cursor;
+        }
+        _Render(ctx, origin: Point, left: number, top: number) {
+            var run: TextLayoutRun = null;
+            var x0 = left;
+            var y0 = top;
+            for (var i = 0; i < this._Runs.length; i++) {
+                run = this._Runs[i];
+                run._Render(ctx, origin, x0, y0);
+                x0 += run._Advance;
+            }
+        }
+        __Debug(allText) {
+            var t = "";
+            t += "\t\tRuns: " + this._Runs.length.toString() + "\n";
+            for (var i = 0; i < this._Runs.length; i++) {
+                t += "\t\t\tRun " + i.toString() + ": ";
+                t += this._Runs[i].__Debug(allText);
+                t += "\n";
+            }
+            return t;
+        }
+    }
+    function cloneBreakOp(bop: IBreakOp):IBreakOp {
+        return {
+            Advance: bop.Advance,
+            Index: bop.Index,
+            Btype: bop.Btype,
+            c: bop.c
+        };
+    }
+    function setWordBasics(bop: IBreakOp, word: ILayoutWord) {
+        word.Length = this.Index;
+        word.Advance = this.Advance;
+    }
+    function layoutLwsp(word:ILayoutWord, text: string, font: Font) {
+        var advance = Surface.MeasureWidth(text, font);
+        word.Advance = advance;
+        word.LineAdvance += advance;
+        word.Length = text.length;
+    }
+    function isLineBreak(text: string): number {
+        var c0 = text.charAt(0);
+        if (c0 === '\n')
+            return 1;
+        var c1 = text.charAt(1);
+        if (c0 === '\r' && c1 === '\n')
+            return 2;
+        return 0;
+    }
+    function getWidthConstraint(availWidth: number, maxWidth: number, actualWidth: number): number {
+        if (!isFinite(availWidth)) {
+            if (!isFinite(maxWidth))
+                return actualWidth;
+            else
+                return Math.min(actualWidth, maxWidth);
+        }
+        return availWidth;
+    }
+    function validateAttributes(attributes: ITextAttributes[]): bool {
+        var len = attributes.length;
+        var attr: ITextAttributes = attributes[0];
+        if (!attr || attr.Start !== 0)
+            return false;
+        for (var i = 0 ; i < len; i++) {
+            attr = attributes[i];
+            if (!attr.Font) //WTF: This whole method may not be valid in our case
+                return false;
+        }
+        return true;
+    }
+    function layoutWordWrap(word: ILayoutWord, text: string, maxWidth: number) {
+        word.Length = 0;
+        word.Advance = 0.0;
+        var measuredIndex = 0;
+        var measuredText = "";
+        if (text.indexOf(" ", measuredIndex) === -1) {
+            var advance = Surface.MeasureWidth(text, word.Font);
+            if (isFinite(maxWidth) && (word.LineAdvance + advance) > maxWidth) {
+                return true;
+            }
+            word.Advance = advance;
+            word.LineAdvance = advance;
+            word.Length = text.length;
+            return false;
+        }
+        var tempText = text;
+        while (true) {
+            var index = tempText.indexOf(" ", measuredIndex);
+            if (index === -1)
+                break;
+            index += 1; //include " "
+            tempText = tempText.slice(measuredIndex, index);
+            var advance = Surface.MeasureWidth(tempText, word.Font);
+            if (isFinite(maxWidth) && (word.LineAdvance + advance) > maxWidth) {
+                return true;
+            }
+            measuredIndex = index;
+            measuredText = tempText;
+            word.Advance += advance;
+            word.LineAdvance += advance;
+            word.Length += measuredText.length;
+        }
+        return false;
+    }
+    function layoutWordNoWrap(word: ILayoutWord, text: string, maxWidth: number): bool {
+        var advance = Surface.MeasureWidth(text, word.Font);
+        word.Advance = advance;
+        word.LineAdvance += advance;
+        word.Length = text.length;
+        return false;
     }
     export class TextLayout {
         private _Attrs: ITextAttributes[];
+        private _SelectionStart: number = 0;
+        private _SelectionLength: number = 0;
+        private _Text: string = null;
         AvailableWidth: number = Number.POSITIVE_INFINITY;
+        private _Strategy: LineStackingStrategy = LineStackingStrategy.MaxHeight;
+        private _Alignment: TextAlignment = TextAlignment.Left;
+        private _Trimming: Controls.TextTrimming = Controls.TextTrimming.None;
+        private _Wrapping: Controls.TextWrapping = Controls.TextWrapping.NoWrap;
+        private _MaxHeight: number = Number.POSITIVE_INFINITY;
+        private _MaxWidth: number = Number.POSITIVE_INFINITY;
+        private _BaseDescent: number = 0.0;
+        private _BaseHeight: number = 0.0;
+        private _ActualHeight: number = NaN;
+        private _ActualWidth: number = NaN;
+        private _LineHeight: number = NaN;
+        private _Lines: TextLayoutLine[] = [];
+        private _IsWrapped: bool = true;
+        private _Length: number = 0;
+        get SelectionStart(): number { return this._SelectionStart; }
+        get SelectionLength(): number { return this._SelectionLength; }
         get ActualExtents(): size {
-            return new size();
+            return size.fromRaw(this._ActualWidth, this._ActualHeight);
         }
         set MaxWidth(maxWidth: number) {
+            if (maxWidth === 0.0)
+                maxWidth = Number.POSITIVE_INFINITY;
+            if (this._MaxWidth === maxWidth)
+                return false;
+            if (!this._IsWrapped && (!isFinite(maxWidth) || maxWidth > this._ActualWidth)) {
+                this._MaxWidth = maxWidth;
+                return false;
+            }
+            this._MaxWidth = maxWidth;
+            this.ResetState();
+            return true;
         }
-        set TextAlignment(align) {
+        set TextAlignment(align: TextAlignment) {
+            if (this._Alignment === align)
+                return;
+            this._Alignment = align;
+            this.ResetState();
         }
-        SetTextAlignment(align): bool {
-            return undefined;
+        SetTextAlignment(align: TextAlignment): bool {
+            if (this._Alignment === align)
+                return false;
+            this._Alignment = align;
+            this.ResetState();
+            return true;
         }
-        set TextWrapping(wrapping) {
+        set TextWrapping(wrapping: Controls.TextWrapping) {
+            this.SetTextWrapping(wrapping);
         }
-        SetTextWrapping(wrapping): bool {
-            return undefined;
+        SetTextWrapping(wrapping: Controls.TextWrapping): bool {
+            switch (wrapping) {
+                case Fayde.Controls.TextWrapping.NoWrap:
+                case Fayde.Controls.TextWrapping.Wrap:
+                    break;
+                default:
+                    wrapping = Fayde.Controls.TextWrapping.Wrap;
+                    break;
+            }
+            if (this._Wrapping === wrapping)
+                return false;
+            this._Wrapping = wrapping;
+            this.ResetState();
+            return true;
         }
         get TextAttributes(): ITextAttributes[] { return this._Attrs; }
-        set TextAttributes(attrs) {
+        set TextAttributes(attrs: ITextAttributes[]) {
+            this._Attrs = attrs;
+            this.ResetState();
+            return true;
         }
+        get Text(): string { return this._Text; }
         set Text(text: string) {
             var len = -1;
             if (text) len = text.length;
+            if (text != null) {
+                this._Text = text;
+                this._Length = length == -1 ? text.length : length;
+            } else {
+                this._Text = null;
+                this._Length = 0;
+            }
+            this.ResetState();
+            return true;
         }
         GetSelectionCursor(offset: Point, pos: number): rect {
-            return undefined;
+            var ox: number = 0;
+            var oy: number = 0;
+            if (offset) {
+                ox = offset.X;
+                oy = offset.Y;
+            }
+            var x0 = ox;
+            var y0 = oy;
+            var height = 0.0;
+            var y1 = 0.0;
+            var cursor = 0;
+            var end: number = 0;
+            var line: TextLayoutLine;
+            var lines = this._Lines;
+            for (var i = 0; i < lines.length; i++) {
+                line = lines[i];
+                x0 = ox + this._HorizontalAlignment(line._Advance);
+                y1 = y0 + line._Height + line._Descend;
+                height = line._Height;
+                if (pos >= cursor + line._Length) {
+                    if ((i + 1) === this._Lines.length) {
+                        if (isLineBreak(this._Text.substr(line._Start + line._Length - 1, 2))) {
+                            x0 = ox + this._HorizontalAlignment(0.0);
+                            y0 += line._Height;
+                        } else {
+                            x0 += line._Advance;
+                        }
+                        break;
+                    }
+                    cursor += line._Length;
+                    y0 += line._Height;
+                    continue;
+                }
+                var runs = line._Runs;
+                var run: TextLayoutRun = null;
+                for (var j = 0; j < runs.length; j++) {
+                    run = runs[j];
+                    end = run._Start + run._Length;
+                    if (pos >= cursor + run._Length) {
+                        cursor += run._Length;
+                        x0 += run._Advance;
+                        continue;
+                    }
+                    if (run._Start === pos)
+                        break;
+                    var font = run._Attrs.Font;
+                    x0 += Surface.MeasureWidth(this._Text.slice(run._Start, pos), font);
+                    break;
+                }
+                break;
+            }
+            var r = new rect();
+            rect.set(r, x0, y0, 1.0, height);
+            return r;
         }
-        GetBaselineOffset():number {
-            return undefined;
+        GetBaselineOffset(): number {
+            var lines = this._Lines;
+            if (lines.length === 0)
+                return 0;
+            var line = lines[0];
+            return line._Height + line._Descend;
         }
-        GetLineFromY(p: Point, y: number): TextLayoutLine {
-            return undefined;
+        GetLineFromY(offset: Point, y: number): TextLayoutLine {
+            var line: TextLayoutLine = null;
+            var y0 = (offset) ? offset.Y : 0.0;
+            var y1: number;
+            var lines = this._Lines;
+            for (var i = 0; i < lines.length; i++) {
+                line = lines[i];
+                y1 = y0 + line._Height; //set y1 to top of next line
+                if (y < y1) {
+                    return line;
+                }
+                y0 = y1;
+            }
         }
         GetLineFromIndex(index: number): TextLayoutLine {
-            return undefined;
+            var lines = this._Lines;
+            if (index >= lines.length || index < 0)
+                return null;
+            return lines[index];
         }
-        GetCursorFromXY(p: Point, x: number, y: number): number {
-            return undefined;
+        GetCursorFromXY(offset: Point, x: number, y: number): number {
+            var oy: number = 0;
+            if (offset) oy = offset.Y;
+            var lines = this._Lines;
+            var line: TextLayoutLine;
+            if (y < oy) {
+                line = lines[0];
+            } else if (!(line = this.GetLineFromY(offset, y))) {
+                line = lines[lines.length - 1];
+            }
+            return line.GetCursorFromX(offset, x);
         }
         Select(start: number, length: number) {
+            if (!this._Text) {
+                this._SelectionLength = 0;
+                this._SelectionStart = 0;
+                return;
+            }
+            var newSelectionStart: number = 0;
+            var newSelectionLength: number = 0;
+            var index: number = 0;
+            var end: number = 0;
+            if (!false) {
+                newSelectionStart = index = start;
+                end = index + length;
+                newSelectionLength = length;
+            } else {
+                newSelectionLength = length;
+                newSelectionStart = start;
+            }
+            if (this._SelectionStart === newSelectionStart && this._SelectionLength === newSelectionLength)
+                return;
+            if (this._SelectionLength > 0 || newSelectionLength > 0)
+                this._ClearCache();
+            this._SelectionLength = newSelectionLength;
+            this._SelectionStart = newSelectionStart;
         }
         Layout() {
+            if (!isNaN(this._ActualWidth))
+                return;
+            this._ActualHeight = 0.0;
+            this._ActualWidth = 0.0;
+            this._IsWrapped = false;
+            this._ClearLines();
+            if (this._Text == null || !validateAttributes(this._Attrs))
+                return;
+            var word: ILayoutWord = {
+                Advance: 0.0,
+                LineAdvance: 0.0,
+                Length: 0.0,
+                BreakOps: null,
+                Font: new Font()
+            };
+            if (this._Wrapping === Controls.TextWrapping.Wrap)
+                word.BreakOps = [];
+            else
+                word.BreakOps = null;
+            var layoutWordFunc: (word: ILayoutWord, text: string, maxWidth: number) => bool;
+            layoutWordFunc = this._Wrapping === Controls.TextWrapping.NoWrap ? layoutWordNoWrap : layoutWordWrap;
+            var line = new TextLayoutLine(this, 0, 0);
+            if (this._OverrideLineHeight()) {
+                line._Descend = this._GetDescendOverride();
+                line._Height = this._GetLineHeightOverride();
+            }
+            this._Lines.push(line);
+            var index = 0;
+            var end: number;
+            var run: TextLayoutRun;
+            var font: Font;
+            var attrindex = 0;
+            var attrs = this._Attrs;
+            var attr: ITextAttributes = attrs[0];
+            var nattr: ITextAttributes = attrs[1];
+            do {
+                end = nattr ? nattr.Start : this._Length;
+                run = new TextLayoutRun(line, attr, index);
+                line._Runs.push(run);
+                word.Font = font = attr.Font;
+                if (end - index <= 0) {
+                    if (!this._OverrideLineHeight()) {
+                        line._Descend = Math.min(line._Descend, font._Descender());
+                        line._Height = Math.max(line._Height, font.GetActualHeight());
+                    }
+                    this._ActualHeight += line._Height;
+                    break;
+                }
+                while (index < end) {
+                    var linebreak = false;
+                    var wrapped = false;
+                    while (index < end) {
+                        var lineBreakLength = isLineBreak(this._Text.slice(index, end));
+                        if (lineBreakLength > 0) {
+                            if (line._Length == 0 && !this._OverrideLineHeight()) {
+                                line._Descend = font._Descender();
+                                line._Height = font.GetActualHeight();
+                            }
+                            line._Length += lineBreakLength;
+                            run._Length += lineBreakLength;
+                            index += lineBreakLength;
+                            linebreak = true;
+                            break;
+                        }
+                        word.LineAdvance = line._Advance;
+                        if (layoutWordFunc(word, this._Text.slice(index, end), this._MaxWidth)) {
+                            this._IsWrapped = true;
+                            wrapped = true;
+                        }
+                        if (word.Length > 0) {
+                            if (!this._OverrideLineHeight()) {
+                                line._Descend = Math.min(line._Descend, font._Descender());
+                                line._Height = Math.max(line._Height, font.GetActualHeight());
+                            }
+                            line._Advance += word.Advance;
+                            run._Advance += word.Advance;
+                            line._Width = line._Advance;
+                            line._Length += word.Length;
+                            run._Length += word.Length;
+                            index += word.Length;
+                        }
+                        if (wrapped)
+                            break;
+                        word.LineAdvance = line._Advance;
+                        layoutLwsp(word, this._Text.slice(index, end), font);
+                        if (word.Length > 0) {
+                            if (!this._OverrideLineHeight()) {
+                                line._Descend = Math.min(line._Descend, font._Descender());
+                                line._Height = Math.max(line._Height, font.GetActualHeight());
+                            }
+                            line._Advance += word.Advance;
+                            run._Advance += word.Advance;
+                            line._Width = line._Advance;
+                            line._Length += word.Length;
+                            run._Length += word.Length;
+                            index += word.Length;
+                        }
+                    }
+                    var atend = index >= end;
+                    if (linebreak || wrapped || atend) {
+                        this._ActualWidth = Math.max(this._ActualWidth, atend ? line._Advance : line._Width);
+                        this._ActualHeight += line._Height;
+                        if (linebreak || wrapped) {
+                            line = new TextLayoutLine(this, index, index);
+                            if (!this._OverrideLineHeight()) {
+                                if (end - index < 1) {
+                                    line._Descend = font._Descender();
+                                    line._Height = font.GetActualHeight();
+                                }
+                            } else {
+                                line._Descend = this._GetDescendOverride();
+                                line._Height = this._GetLineHeightOverride();
+                            }
+                            if (linebreak && (end - index < 1))
+                                this._ActualHeight += line._Height;
+                            this._Lines.push(line);
+                        }
+                        if (index < end) {
+                            run = new TextLayoutRun(line, attr, index);
+                            line._Runs.push(run);
+                        }
+                    }
+                }
+                attrindex++;
+                attr = nattr;
+                nattr = attrs[attrindex + 1];
+            } while (end - index > 0);
+        }
+        _HorizontalAlignment(lineWidth: number): number {
+            var deltax = 0.0;
+            var width: number;
+            switch (this._Alignment) {
+                case Fayde.TextAlignment.Center:
+                    width = getWidthConstraint(this.AvailableWidth, this._MaxWidth, this._ActualWidth);
+                    if (lineWidth < width)
+                        deltax = (width - lineWidth) / 2.0;
+                    break;
+                case Fayde.TextAlignment.Right:
+                    width = getWidthConstraint(this.AvailableWidth, this._MaxWidth, this._ActualWidth);
+                    if (lineWidth < width)
+                        deltax = width - lineWidth;
+                    break;
+            }
+            return deltax;
         }
         Render(ctx: RenderContext, origin?: Point, offset?: Point) {
+            var line: TextLayoutLine;
+            var x: number;
+            var y = offset.Y;
+            this.Layout();
+            for (var i = 0; i < this._Lines.length; i++) {
+                line = this._Lines[i];
+                x = offset.X + this._HorizontalAlignment(line._Advance);
+                line._Render(ctx, origin, x, y);
+                y += line._Height;
+            }
+        }
+        __Debug(): string {
+            var allText = this.Text;
+            var t = "";
+            t += "Lines: " + this._Lines.length.toString() + "\n";
+            for (var i = 0; i < this._Lines.length; i++) {
+                t += "\tLine " + i.toString() + ":\n";
+                t += this._Lines[i].__Debug(allText);
+            }
+            return t;
         }
         ResetState() {
+            this._ActualHeight = NaN;
+            this._ActualWidth = NaN;
+        }
+        private _ClearCache() {
+            var line: TextLayoutLine = null;
+            var lines = this._Lines;
+            var len = lines.length;
+            var runs: TextLayoutRun[];
+            var runlen: number = 0;
+            for (var i = 0; i < len; i++) {
+                line = lines[i];
+                runs = line._Runs;
+                runlen = runs.length;
+                for (var j = 0; j < runlen; j++) {
+                    runs[i]._ClearCache();
+                }
+            }
+        }
+        private _ClearLines() {
+            this._Lines = [];
+        }
+        private _OverrideLineHeight(): bool {
+            return this._Strategy === LineStackingStrategy.BlockLineHeight && this._LineHeight !== 0;
+        }
+        private _GetLineHeightOverride(): number {
+            if (isNaN(this._LineHeight))
+                return this._BaseHeight;
+            return this._LineHeight;
+        }
+        private _GetDescendOverride() {
+            if (isNaN(this._LineHeight))
+                return this._BaseDescent;
+            if (this._BaseHeight == 0.0)
+                return 0.0;
+            return this._LineHeight * (this._BaseDescent / this._BaseHeight);
         }
     }
 }
@@ -6016,6 +6694,11 @@ class Surface {
     private static IsRightButton(button: number): bool {
         return button === 2;
     }
+    static MeasureWidth(text: string, font: Font): number {
+        var ctx = Surface.TestCanvas.getContext("2d");
+        ctx.font = font.ToHtml5Object();
+        return ctx.measureText(text).width;
+    }
 }
 Nullstone.RegisterType(Surface, "Surface");
 
@@ -6960,8 +7643,8 @@ class Font {
     }
     get IsChanged() { return this._CachedTranslation == null; }
     GetActualHeight() { return Font._MeasureHeight(this); }
-    private _Descender() { return 0.0; } //most likely removable
-    private _Ascender() { return 0.0; } //most likely removable
+    _Descender() { return 0.0; } //most likely removable
+    _Ascender() { return 0.0; } //most likely removable
     private _PurgeCache() {
         this._CachedHeight = undefined;
         this._CachedTranslation = undefined;
@@ -14544,7 +15227,7 @@ module Fayde.Controls.Internal {
             var current = this._Cursor;
             if (invalidate && this._CursorVisible)
                 this._InvalidateCursor();
-            this._Cursor = this._Layout.GetSelectionCursor(new Point(), cur);
+            this._Cursor = this._Layout.GetSelectionCursor(null, cur);
             if (!rect.isEqual(this._Cursor, current))
                 this._TextBox._EmitCursorPositionChanged(this._Cursor.Height, this._Cursor.X, this._Cursor.Y);
             if (invalidate && this._CursorVisible)
@@ -14582,9 +15265,9 @@ module Fayde.Controls.Internal {
         GetBaselineOffset(): number {
             return this._Layout.GetBaselineOffset();
         }
-        GetLineFromY(y: number): Text.TextLayoutLine { return this._Layout.GetLineFromY(new Point(), y); }
+        GetLineFromY(y: number): Text.TextLayoutLine { return this._Layout.GetLineFromY(null, y); }
         GetLineFromIndex(index: number): Text.TextLayoutLine { return this._Layout.GetLineFromIndex(index); }
-        GetCursorFromXY(x: number, y: number): number { return this._Layout.GetCursorFromXY(new Point(), x, y); }
+        GetCursorFromXY(x: number, y: number): number { return this._Layout.GetCursorFromXY(null, x, y); }
         Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
             var renderSize = lu.RenderSize;
             this._UpdateCursor(false);

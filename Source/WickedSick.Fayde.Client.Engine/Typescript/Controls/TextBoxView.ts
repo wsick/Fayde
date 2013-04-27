@@ -156,7 +156,7 @@ module Fayde.Controls.Internal {
             if (invalidate && this._CursorVisible)
                 this._InvalidateCursor();
 
-            this._Cursor = this._Layout.GetSelectionCursor(new Point(), cur);
+            this._Cursor = this._Layout.GetSelectionCursor(null, cur);
             //TODO: ...
             // var irect = rect.clone(this._Cursor);
             // rect.transform(irect, this._Xformer.AbsoluteXform);
@@ -204,9 +204,9 @@ module Fayde.Controls.Internal {
             //TODO: GetTransformToUIElementWithError
             return this._Layout.GetBaselineOffset();
         }
-        GetLineFromY(y: number): Text.TextLayoutLine { return this._Layout.GetLineFromY(new Point(), y); }
+        GetLineFromY(y: number): Text.TextLayoutLine { return this._Layout.GetLineFromY(null, y); }
         GetLineFromIndex(index: number): Text.TextLayoutLine { return this._Layout.GetLineFromIndex(index); }
-        GetCursorFromXY(x: number, y: number): number { return this._Layout.GetCursorFromXY(new Point(), x, y); }
+        GetCursorFromXY(x: number, y: number): number { return this._Layout.GetCursorFromXY(null, x, y); }
 
         Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
             var renderSize = lu.RenderSize;

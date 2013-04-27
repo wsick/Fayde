@@ -73,5 +73,11 @@ var Fayde;
         TextDecorations.Underline = 1;
     })(Fayde.TextDecorations || (Fayde.TextDecorations = {}));
     var TextDecorations = Fayde.TextDecorations;
+    (function (LineStackingStrategy) {
+        LineStackingStrategy._map = [];
+        LineStackingStrategy.MaxHeight = 0;
+        LineStackingStrategy.BlockLineHeight = 1;
+    })(Fayde.LineStackingStrategy || (Fayde.LineStackingStrategy = {}));
+    var LineStackingStrategy = Fayde.LineStackingStrategy;
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=Enums.js.map

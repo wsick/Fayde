@@ -89,8 +89,8 @@ class Font {
 
     GetActualHeight() { return Font._MeasureHeight(this); }
 
-    private _Descender() { return 0.0; } //most likely removable
-    private _Ascender() { return 0.0; } //most likely removable
+    _Descender() { return 0.0; } //most likely removable
+    _Ascender() { return 0.0; } //most likely removable
     private _PurgeCache() {
         this._CachedHeight = undefined;
         this._CachedTranslation = undefined;

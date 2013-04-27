@@ -790,6 +790,11 @@ var Surface = (function () {
     Surface.IsRightButton = function IsRightButton(button) {
         return button === 2;
     };
+    Surface.MeasureWidth = function MeasureWidth(text, font) {
+        var ctx = Surface.TestCanvas.getContext("2d");
+        ctx.font = font.ToHtml5Object();
+        return ctx.measureText(text).width;
+    };
     return Surface;
 })();
 Nullstone.RegisterType(Surface, "Surface");

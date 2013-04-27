@@ -16,6 +16,11 @@ var Fayde;
             ScrollBarVisibility.Visible = 3;
         })(Controls.ScrollBarVisibility || (Controls.ScrollBarVisibility = {}));
         var ScrollBarVisibility = Controls.ScrollBarVisibility;
+        (function (TextTrimming) {
+            TextTrimming._map = [];
+            TextTrimming.None = 0;
+        })(Controls.TextTrimming || (Controls.TextTrimming = {}));
+        var TextTrimming = Controls.TextTrimming;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
