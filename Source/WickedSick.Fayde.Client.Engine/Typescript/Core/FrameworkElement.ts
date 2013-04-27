@@ -68,10 +68,11 @@ module Fayde {
             if (newIsLoaded) {
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
                 //Raise loaded event
-                xobj.InvokeLoaded();
+                this.InvokeLoaded();
                 store.EmitDataContextChanged();
             }
         }
+        InvokeLoaded() { }
 
         AttachVisualChild(uie: UIElement) {
             super.AttachVisualChild(uie);
@@ -248,9 +249,6 @@ module Fayde {
         SizeChanged: RoutedEvent = new RoutedEvent();
         Loaded: RoutedEvent = new RoutedEvent();
         Unloaded: RoutedEvent = new RoutedEvent();
-
-        InvokeLoaded() {
-        }
 
         OnApplyTemplate() { }
         FindName(name: string): any {

@@ -787,6 +787,10 @@
       <DependentUpon>MouseEventArgs.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Markup\JsonParser.ts" />
+    <TypeScriptCompile Include="Typescript\Markup\BindingMarkup.ts" />
+    <Content Include="Typescript\Markup\BindingMarkup.js">
+      <DependentUpon>BindingMarkup.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Markup\JsonParser.js">
       <DependentUpon>JsonParser.ts</DependentUpon>
     </Content>

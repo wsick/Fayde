@@ -168,7 +168,8 @@ module Fayde.Controls {
 
         private _MeasureOverride(availableSize: size, error: BError): size {
             var scrollOwner = this.ScrollOwner;
-            if (!scrollOwner || !this._ContentRoot)
+            var cr = this.XamlNode._ContentRoot;
+            if (!scrollOwner || !cr)
                 return (<IMeasurableHidden>super)._MeasureOverride(availableSize, error);
 
             var ideal = size.createInfinite();
@@ -177,8 +178,8 @@ module Fayde.Controls {
             if (!this.CanVerticallyScroll)
                 ideal.Height = availableSize.Height;
 
-            this._ContentRoot.Measure(ideal);
-            var crds = this._ContentRoot.DesiredSize;
+            cr.Measure(ideal);
+            var crds = cr.DesiredSize;
             this._UpdateExtents(availableSize, crds.Width, crds.Height);
 
             var desired = size.clone(availableSize);
@@ -189,13 +190,14 @@ module Fayde.Controls {
         }
         private _ArrangeOverride(finalSize: size, error: BError): size {
             var scrollOwner = this.ScrollOwner;
-            if (!scrollOwner || !this._ContentRoot)
+            var cr = this.XamlNode._ContentRoot;
+            if (!scrollOwner || !cr)
                 return (<IArrangeableHidden>super)._ArrangeOverride(finalSize, error);
 
             if (this._ClampOffsets())
                 scrollOwner.InvalidateScrollInfo();
 
-            var desired = this._ContentRoot.DesiredSize;
+            var desired = cr.DesiredSize;
             var start = new Point(-this.HorizontalOffset, -this.VerticalOffset);
 
             var offerSize = size.clone(desired);
@@ -203,7 +205,7 @@ module Fayde.Controls {
             var childRect = rect.fromSize(offerSize);
             childRect.X = start.X;
             childRect.Y = start.Y;
-            this._ContentRoot.Arrange(childRect);
+            cr.Arrange(childRect);
             this._UpdateClip(finalSize);
             var sd = this._ScrollData;
             this._UpdateExtents(finalSize, sd.ExtentWidth, sd.ExtentHeight);

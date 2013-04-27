@@ -11,7 +11,7 @@ module Fayde {
         TargetProperty: DependencyProperty;
         TargetPropertyName: string;
         private _SetsParent: bool = false;
-        constructor(sourcePropd: DependencyProperty, targetPropd: DependencyProperty, targetPropName) {
+        constructor(sourcePropd: DependencyProperty, targetPropd: DependencyProperty, targetPropName: string) {
             super();
             this.SourceProperty = sourcePropd;
             this.TargetProperty = targetPropd;

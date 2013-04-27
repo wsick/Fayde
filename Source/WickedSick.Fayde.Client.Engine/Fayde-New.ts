@@ -3604,7 +3604,7 @@ module Fayde {
         TargetProperty: DependencyProperty;
         TargetPropertyName: string;
         private _SetsParent: bool = false;
-        constructor(sourcePropd: DependencyProperty, targetPropd: DependencyProperty, targetPropName) {
+        constructor(sourcePropd: DependencyProperty, targetPropd: DependencyProperty, targetPropName: string) {
             super();
             this.SourceProperty = sourcePropd;
             this.TargetProperty = targetPropd;
@@ -8283,7 +8283,7 @@ module Fayde.Data {
         private _Mode: BindingMode = BindingMode.OneWay;
         private _NotifyOnValidationError: bool = false;
         private _RelativeSource: RelativeSource;
-        private _Path: PropertyPath;
+        private _Path: Data.PropertyPath;
         private _Source: any;
         private _UpdateSourceTrigger: UpdateSourceTrigger = UpdateSourceTrigger.Default;
         private _ValidationsOnExceptions: bool = false;
@@ -8736,6 +8736,37 @@ module Fayde.Input {
         }
     }
     Nullstone.RegisterType(MouseWheelEventArgs, "MouseWheelEventArgs");
+}
+
+module Fayde {
+    export interface IBindingData {
+        Path: string;
+        FallbackValue: any;
+        Mode: Data.BindingMode;
+        StringFormat: string;
+    }
+    export class BindingMarkup extends Markup {
+        private _Data: IBindingData;
+        constructor(data: any) {
+            super();
+            if (!data) data = {};
+            this._Data = data;
+        }
+        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject) {
+            return new Data.BindingExpression(this._BuildBinding(), <DependencyObject>target, propd);
+        }
+        private _BuildBinding(): Data.Binding {
+            var b = new Fayde.Data.Binding(this._Data.Path);
+            if (this._Data.FallbackValue !== undefined)
+                b.FallbackValue = this._Data.FallbackValue;
+            if (this._Data.Mode !== undefined)
+                b.Mode = this._Data.Mode;
+            if (this._Data.StringFormat !== undefined)
+                b.StringFormat = this._Data.StringFormat;
+            return b;
+        }
+    }
+    Nullstone.RegisterType(BindingMarkup, "BindingMarkup");
 }
 
 module Fayde.Media {
@@ -10380,7 +10411,7 @@ module Fayde.Controls {
         private _TempJson: any;
         private _ResChain: ResourceDictionary[];
         TargetType: Function;
-        constructor(targetType: Function, json: any, resChain: ResourceDictionary[]) {
+        constructor(targetType: Function, json: any, resChain?: ResourceDictionary[]) {
             super();
             Object.defineProperty(this, "TargetType", {
                 value: targetType,
@@ -12031,10 +12062,11 @@ module Fayde {
                 (<UINode>enumerator.Current).SetIsLoaded(newIsLoaded);
             }
             if (newIsLoaded) {
-                xobj.InvokeLoaded();
+                this.InvokeLoaded();
                 store.EmitDataContextChanged();
             }
         }
+        InvokeLoaded() { }
         AttachVisualChild(uie: UIElement) {
             super.AttachVisualChild(uie);
             this.SetSubtreeNode(uie.XamlNode);
@@ -12190,8 +12222,6 @@ module Fayde {
         SizeChanged: RoutedEvent = new RoutedEvent();
         Loaded: RoutedEvent = new RoutedEvent();
         Unloaded: RoutedEvent = new RoutedEvent();
-        InvokeLoaded() {
-        }
         OnApplyTemplate() { }
         FindName(name: string): any {
             var n = this.XamlNode.FindName(name);
@@ -12901,10 +12931,103 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
-    export class ContentPresenter extends FrameworkElement {
+    export class ContentPresenterNode extends FENode {
         _ContentRoot: UIElement;
+        XObject: ContentPresenter;
+        constructor(xobj:ContentPresenter) {
+            super(xobj);
+        }
+        _ClearRoot() {
+            if (this._ContentRoot)
+                this.DetachVisualChild(this._ContentRoot);
+            this._ContentRoot = null;
+        }
+        private _FallbackRoot: UIElement;
+        private _FallbackTemplate: ControlTemplate;
+        get FallbackRoot(): UIElement {
+            var fr = this._FallbackRoot;
+            if (!fr) {
+                var ft = this._FallbackTemplate;
+                if (!ft)
+                    ft = this._CreateFallbackTemplate();
+                fr = this._FallbackRoot = <UIElement>ft.GetVisualTree(this.XObject);
+            }
+            return fr;
+        }
+        private _CreateFallbackTemplate(): ControlTemplate {
+            return new ControlTemplate(ContentPresenter, {
+                Type: Grid,
+                Children: [
+                    {
+                        Type: TextBlock,
+                        Props: {
+                            Text: new BindingMarkup({})
+                        }
+                    }
+                ]
+            });
+        }
+        InvokeLoaded() {
+            var xobj = this.XObject;
+            if (xobj.Content instanceof UIElement)
+                xobj.ClearValue(FrameworkElement.DataContextProperty);
+            else
+                xobj.SetValue(FrameworkElement.DataContextProperty, xobj.Content);
+        }
+        _GetDefaultTemplate(): UIElement {
+            var xobj = this.XObject;
+            if (xobj.TemplateOwner instanceof ContentControl) {
+                if (xobj.ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
+                    xobj.SetValue(ContentPresenter.ContentProperty,
+                        new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty, "Content"));
+                }
+                if (xobj.ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
+                    xobj.SetValue(ContentPresenter.ContentTemplateProperty,
+                        new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty, "ContentTemplate"));
+                }
+            }
+            if (xobj.ContentTemplate instanceof ControlTemplate) {
+                var vt = (<ControlTemplate>xobj.ContentTemplate).GetVisualTree(this.XObject);
+                if (vt instanceof UIElement)
+                    this._ContentRoot = <UIElement>vt;
+            } else {
+                var content = xobj.Content;
+                if (content instanceof UIElement)
+                    this._ContentRoot = content;
+                if (!this._ContentRoot && content)
+                    this._ContentRoot = this.FallbackRoot;
+            }
+            return this._ContentRoot;
+        }
+    }
+    Nullstone.RegisterType(ContentPresenterNode, "ContentPresenterNode");
+    export class ContentPresenter extends FrameworkElement {
+        XamlNode: ContentPresenterNode;
+        CreateNode(): ContentPresenterNode { return new ContentPresenterNode(this); }
+        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d)._ContentChanged(args));
+        static ContentTemplateProperty: DependencyProperty=DependencyProperty.Register("ContentTemplate", () => ControlTemplate, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d)._ContentTemplateChanged(args));
         Content: any;
         ContentTemplate: ControlTemplate;
+        static Annotations = { ContentProperty: ContentPresenter.ContentProperty }
+        _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
+            var node = this.XamlNode;
+            var newContent = args.NewValue;
+            var newUie: UIElement;
+            if (newContent instanceof UIElement)
+                newUie = newContent;
+            if (newUie || args.OldValue instanceof UIElement)
+                node._ClearRoot();
+            if (newContent && !newUie)
+                this._Store.SetValue(FrameworkElement.DataContextProperty, newContent);
+            else
+                this._Store.ClearValue(FrameworkElement.DataContextProperty);
+            node.LayoutUpdater.InvalidateMeasure();
+        }
+        _ContentTemplateChanged(args: IDependencyPropertyChangedEventArgs) {
+            var node = this.XamlNode;
+            node._ClearRoot();
+            node.LayoutUpdater.InvalidateMeasure();
+        }
     }
     Nullstone.RegisterType(ContentPresenter, "ContentPresenter");
 }
@@ -13778,15 +13901,16 @@ module Fayde.Controls {
         }
         private _MeasureOverride(availableSize: size, error: BError): size {
             var scrollOwner = this.ScrollOwner;
-            if (!scrollOwner || !this._ContentRoot)
+            var cr = this.XamlNode._ContentRoot;
+            if (!scrollOwner || !cr)
                 return (<IMeasurableHidden>super)._MeasureOverride(availableSize, error);
             var ideal = size.createInfinite();
             if (!this.CanHorizontallyScroll)
                 ideal.Width = availableSize.Width;
             if (!this.CanVerticallyScroll)
                 ideal.Height = availableSize.Height;
-            this._ContentRoot.Measure(ideal);
-            var crds = this._ContentRoot.DesiredSize;
+            cr.Measure(ideal);
+            var crds = cr.DesiredSize;
             this._UpdateExtents(availableSize, crds.Width, crds.Height);
             var desired = size.clone(availableSize);
             var sd = this._ScrollData;
@@ -13796,18 +13920,19 @@ module Fayde.Controls {
         }
         private _ArrangeOverride(finalSize: size, error: BError): size {
             var scrollOwner = this.ScrollOwner;
-            if (!scrollOwner || !this._ContentRoot)
+            var cr = this.XamlNode._ContentRoot;
+            if (!scrollOwner || !cr)
                 return (<IArrangeableHidden>super)._ArrangeOverride(finalSize, error);
             if (this._ClampOffsets())
                 scrollOwner.InvalidateScrollInfo();
-            var desired = this._ContentRoot.DesiredSize;
+            var desired = cr.DesiredSize;
             var start = new Point(-this.HorizontalOffset, -this.VerticalOffset);
             var offerSize = size.clone(desired);
             size.max(offerSize, finalSize);
             var childRect = rect.fromSize(offerSize);
             childRect.X = start.X;
             childRect.Y = start.Y;
-            this._ContentRoot.Arrange(childRect);
+            cr.Arrange(childRect);
             this._UpdateClip(finalSize);
             var sd = this._ScrollData;
             this._UpdateExtents(finalSize, sd.ExtentWidth, sd.ExtentHeight);

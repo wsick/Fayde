@@ -95,6 +95,7 @@ Typescript\Documents\TextElement.ts
 Typescript\Input\KeyEventArgs.ts
 Typescript\Input\KeyInterop.ts
 Typescript\Input\MouseEventArgs.ts
+Typescript\Markup\BindingMarkup.ts
 Typescript\Media\GeneralTransform.ts
 Typescript\Media\Geometry.ts
 Typescript\Media\GeometryGroup.ts

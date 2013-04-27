@@ -95,6 +95,7 @@ Documents/TextElement.js
 Input/KeyEventArgs.js
 Input/KeyInterop.js
 Input/MouseEventArgs.js
+Markup/BindingMarkup.js
 Media/GeneralTransform.js
 Media/Geometry.js
 Media/GeometryGroup.js

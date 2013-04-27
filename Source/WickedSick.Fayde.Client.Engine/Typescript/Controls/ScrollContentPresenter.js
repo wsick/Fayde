@@ -260,7 +260,8 @@ var Fayde;
             };
             ScrollContentPresenter.prototype._MeasureOverride = function (availableSize, error) {
                 var scrollOwner = this.ScrollOwner;
-                if(!scrollOwner || !this._ContentRoot) {
+                var cr = this.XamlNode._ContentRoot;
+                if(!scrollOwner || !cr) {
                     return (_super.prototype)._MeasureOverride(availableSize, error);
                 }
                 var ideal = size.createInfinite();
@@ -270,8 +271,8 @@ var Fayde;
                 if(!this.CanVerticallyScroll) {
                     ideal.Height = availableSize.Height;
                 }
-                this._ContentRoot.Measure(ideal);
-                var crds = this._ContentRoot.DesiredSize;
+                cr.Measure(ideal);
+                var crds = cr.DesiredSize;
                 this._UpdateExtents(availableSize, crds.Width, crds.Height);
                 var desired = size.clone(availableSize);
                 var sd = this._ScrollData;
@@ -281,20 +282,21 @@ var Fayde;
             };
             ScrollContentPresenter.prototype._ArrangeOverride = function (finalSize, error) {
                 var scrollOwner = this.ScrollOwner;
-                if(!scrollOwner || !this._ContentRoot) {
+                var cr = this.XamlNode._ContentRoot;
+                if(!scrollOwner || !cr) {
                     return (_super.prototype)._ArrangeOverride(finalSize, error);
                 }
                 if(this._ClampOffsets()) {
                     scrollOwner.InvalidateScrollInfo();
                 }
-                var desired = this._ContentRoot.DesiredSize;
+                var desired = cr.DesiredSize;
                 var start = new Point(-this.HorizontalOffset, -this.VerticalOffset);
                 var offerSize = size.clone(desired);
                 size.max(offerSize, finalSize);
                 var childRect = rect.fromSize(offerSize);
                 childRect.X = start.X;
                 childRect.Y = start.Y;
-                this._ContentRoot.Arrange(childRect);
+                cr.Arrange(childRect);
                 this._UpdateClip(finalSize);
                 var sd = this._ScrollData;
                 this._UpdateExtents(finalSize, sd.ExtentWidth, sd.ExtentHeight);

@@ -6,7 +6,7 @@ module Fayde.Controls {
         private _TempJson: any;
         private _ResChain: ResourceDictionary[];
         TargetType: Function;
-        constructor(targetType: Function, json: any, resChain: ResourceDictionary[]) {
+        constructor(targetType: Function, json: any, resChain?: ResourceDictionary[]) {
             super();
             Object.defineProperty(this, "TargetType", {
                 value: targetType,

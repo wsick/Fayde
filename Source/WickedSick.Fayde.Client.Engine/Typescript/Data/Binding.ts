@@ -15,7 +15,7 @@ module Fayde.Data {
         private _Mode: BindingMode = BindingMode.OneWay;
         private _NotifyOnValidationError: bool = false;
         private _RelativeSource: RelativeSource;
-        private _Path: PropertyPath;
+        private _Path: Data.PropertyPath;
         private _Source: any;
         private _UpdateSourceTrigger: UpdateSourceTrigger = UpdateSourceTrigger.Default;
         private _ValidationsOnExceptions: bool = false;

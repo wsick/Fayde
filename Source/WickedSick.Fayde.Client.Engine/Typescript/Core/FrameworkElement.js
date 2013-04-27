@@ -72,9 +72,11 @@ var Fayde;
             if(newIsLoaded) {
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
                 //Raise loaded event
-                xobj.InvokeLoaded();
+                this.InvokeLoaded();
                 store.EmitDataContextChanged();
             }
+        };
+        FENode.prototype.InvokeLoaded = function () {
         };
         FENode.prototype.AttachVisualChild = function (uie) {
             _super.prototype.AttachVisualChild.call(this, uie);
@@ -293,8 +295,6 @@ var Fayde;
         }, FrameworkElement, NaN, function (d, args) {
             return (d)._WidthChanged(args);
         });
-        FrameworkElement.prototype.InvokeLoaded = function () {
-        };
         FrameworkElement.prototype.OnApplyTemplate = function () {
         };
         FrameworkElement.prototype.FindName = function (name) {
