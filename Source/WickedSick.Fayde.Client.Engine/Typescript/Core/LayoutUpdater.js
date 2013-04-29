@@ -686,7 +686,7 @@ var Fayde;
                 s = this._ComputeActualSize();
             }
             this.ActualWidth = s.Width;
-            this.ActualHeight;
+            this.ActualHeight = s.Height;
             if(last && size.isEqual(last, s)) {
                 return;
             }
