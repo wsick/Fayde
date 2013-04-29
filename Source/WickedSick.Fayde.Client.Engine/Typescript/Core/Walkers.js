@@ -89,13 +89,12 @@ var Fayde;
                         insertIndex++;
                     }
                 }
-                var next = walkList[0];
+                var next = walkList.shift();
                 if(!next) {
                     last = undefined;
                     return;
                 }
-                var curNode;
-                return curNode;
+                return (last = next);
             },
             SkipBranch: function () {
                 last = undefined;

@@ -99,14 +99,12 @@ module Fayde {
                     }
                 }
 
-                var next = walkList[0];
+                var next = walkList.shift();
                 if (!next) {
                     last = undefined;
                     return;
                 }
-
-                var curNode: UINode;
-                return curNode;
+                return (last = next);
             },
             SkipBranch: function () {
                 last = undefined;
