@@ -938,13 +938,12 @@ module Fayde {
                         insertIndex++;
                     }
                 }
-                var next = walkList[0];
+                var next = walkList.shift();
                 if (!next) {
                     last = undefined;
                     return;
                 }
-                var curNode: UINode;
-                return curNode;
+                return (last = next);
             },
             SkipBranch: function () {
                 last = undefined;
@@ -3328,9 +3327,22 @@ class DependencyProperty {
                 i[inheritable] = [];
             i[inheritable].push(propd);
         }
+        if (!ownerType || typeof ownerType !== "function")
+            throw new InvalidOperationException("DependencyProperty does not have a valid OwnerType.");
+        propd.CreateAutoProperty();
         registeredDPs[name] = propd;
         _IDs[propd._ID] = propd;
         return propd;
+    }
+    CreateAutoProperty() {
+        var propd = this;
+        var getter = function () { return (<Fayde.DependencyObject>this).GetValue(propd); };
+        var setter = function (value) { (<Fayde.DependencyObject>this).SetValue(propd, value); };
+        Object.defineProperty(this.OwnerType.prototype, this.Name, {
+            get: getter,
+            set: setter,
+            configurable: true
+        });
     }
     ValidateSetValue(dobj: Fayde.DependencyObject, value: any, isValidOut: IOutIsValid) {
         isValidOut.IsValid = false;
@@ -13855,29 +13867,47 @@ module Fayde.Controls {
         Padding: Thickness;
         static Annotations = { ContentProperty: Border.ChildProperty }
         private _MeasureOverride(availableSize: size, error: BError): size {
-            var border = this.Padding.Plus(this.BorderThickness);
+            var padding = this.Padding;
+            var borderThickness = this.BorderThickness;
+            var border: Thickness = null;
+            if (padding && borderThickness) {
+                border = padding.Plus(borderThickness);
+            } else if (padding) {
+                border = padding;
+            } else if (borderThickness) {
+                border = borderThickness;
+            }
             var desired = new size();
-            availableSize = size.shrinkByThickness(size.clone(availableSize), border);
+            if (border) availableSize = size.shrinkByThickness(size.clone(availableSize), border);
             var child = this.Child;
             if (child) {
                 var lu = child.XamlNode.LayoutUpdater;
                 lu._Measure(availableSize, error);
                 desired = size.clone(lu.DesiredSize);
             }
-            size.growByThickness(desired, border);
+            if (border) size.growByThickness(desired, border);
             size.min(desired, availableSize);
             return desired;
         }
         private _ArrangeOverride(finalSize: size, error: BError): size {
             var child = this.Child;
             if (child) {
-                var border = this.Padding.Plus(this.BorderThickness);
+                var padding = this.Padding;
+                var borderThickness = this.BorderThickness;
+                var border: Thickness = null;
+                if (padding && borderThickness) {
+                    border = padding.Plus(borderThickness);
+                } else if (padding) {
+                    border = padding;
+                } else if (borderThickness) {
+                    border = borderThickness;
+                }
                 var childRect = rect.fromSize(finalSize);
-                rect.shrinkByThickness(childRect, border);
+                if (border) rect.shrinkByThickness(childRect, border);
                 child.XamlNode.LayoutUpdater._Arrange(childRect, error);
                 /*
                 arranged = size.fromRect(childRect);
-                size.growByThickness(arranged, border);
+                if (border) size.growByThickness(arranged, border);
                 size.max(arranged, finalSize);
                 */
             }
@@ -16670,10 +16700,18 @@ module Fayde.Shapes {
             var enumerator = points.GetEnumerator();
             enumerator.MoveNext();
             var p = <Point>enumerator.Current;
-            path.Move(p.X, p.Y);
-            while (enumerator.MoveNext()) {
-                p = enumerator.Current;
-                path.Line(p.X, p.Y);
+            if (count === 2) {
+                enumerator.MoveNext();
+                var p2 = enumerator.Current;
+                extendLine(p, p2, this.StrokeThickness);
+                path.Move(p.X, p.Y);
+                path.Line(p2.X, p2.Y);
+            } else {
+                path.Move(p.X, p.Y);
+                while (enumerator.MoveNext()) {
+                    p = enumerator.Current;
+                    path.Line(p.X, p.Y);
+                }
             }
             path.Close();
             this._Path = path;
@@ -17401,7 +17439,7 @@ module Fayde.Controls {
                     cell.DesiredSize = Math.max(cell.DesiredSize, node.Size);
                     this._AllocateDesiredSize(rowCount, colCount);
                 }
-                separatorIndex = sizes.push(separator);
+                separatorIndex = sizes.push(separator) - 1;
             }
             this._SaveMeasureResults();
             var gridSize = new size();

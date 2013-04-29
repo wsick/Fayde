@@ -416,7 +416,7 @@ module Fayde.Controls {
                     cell.DesiredSize = Math.max(cell.DesiredSize, node.Size);
                     this._AllocateDesiredSize(rowCount, colCount);
                 }
-                separatorIndex = sizes.push(separator);
+                separatorIndex = sizes.push(separator) - 1;
             }
             this._SaveMeasureResults();
             //sizes.Remove(separator);
