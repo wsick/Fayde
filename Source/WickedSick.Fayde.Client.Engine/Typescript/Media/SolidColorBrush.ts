@@ -21,7 +21,7 @@ module Fayde.Media {
 
         private CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any {
             var color = this.Color;
-            if (color)
+            if (!color)
                 return "#000000";
             return color.toString();
         }

@@ -361,6 +361,7 @@ var Surface = (function () {
         if(!r) {
             return;
         }
+        this._InvalidatedRect = null;
         if(!(r.Width > 0 && r.Height > 0)) {
             return;
         }

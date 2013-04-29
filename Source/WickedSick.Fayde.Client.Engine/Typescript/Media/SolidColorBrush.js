@@ -29,7 +29,7 @@ var Fayde;
             };
             SolidColorBrush.prototype.CreateBrush = function (ctx, bounds) {
                 var color = this.Color;
-                if(color) {
+                if(!color) {
                     return "#000000";
                 }
                 return color.toString();

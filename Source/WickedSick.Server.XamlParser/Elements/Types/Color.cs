@@ -39,7 +39,7 @@ namespace WickedSick.Server.XamlParser.Elements.Types
                 color.Key = Key;
                 return color.ToJson(tabIndents, outputMods);
             }
-            return base.ToJson(tabIndents, outputMods);
+            return string.Format("{0}.FromHex(\"{1}\")", GetTypeName(outputMods), HexString);
         }
     }
 }

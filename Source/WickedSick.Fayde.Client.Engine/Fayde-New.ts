@@ -6971,6 +6971,7 @@ class Surface {
         var r = this._InvalidatedRect;
         if (!r)
             return;
+        this._InvalidatedRect = null;
         if (!(r.Width > 0 && r.Height > 0))
             return;
         if (!this._RenderContext)
@@ -12701,7 +12702,7 @@ module Fayde.Media {
         }
         private CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any {
             var color = this.Color;
-            if (color)
+            if (!color)
                 return "#000000";
             return color.toString();
         }

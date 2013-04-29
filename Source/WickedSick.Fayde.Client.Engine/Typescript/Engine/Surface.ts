@@ -372,6 +372,7 @@ class Surface {
         var r = this._InvalidatedRect;
         if (!r)
             return;
+        this._InvalidatedRect = null;
         if (!(r.Width > 0 && r.Height > 0))
             return;
         if (!this._RenderContext)
