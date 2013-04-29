@@ -1,11 +1,7 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="size.ts" />
-
-declare var vec2;
-declare var vec4;
-declare var mat3;
-declare var mat4;
+/// <reference path="RawMatrix.ts" />
 
 var RectOverlap = {
     Out: 0,

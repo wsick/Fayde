@@ -1,6 +1,7 @@
 /// <reference path="../Engine/Dirty.ts" />
 /// CODE
 /// <reference path="UIElement.ts" />
+/// <reference path="../Primitives/RawMatrix.ts" />
 /// <reference path="../Media/Geometry.ts" />
 /// <reference path="../Primitives/rect.ts" />
 /// <reference path="../Primitives/size.ts" />
@@ -47,7 +48,13 @@ var Fayde;
             this.VisualOffset = new Point();
             this.ActualHeight = NaN;
             this.ActualWidth = NaN;
-            //= mat4.identity();
+            this.AbsoluteXform = mat3.identity();
+            this.LayoutXform = mat3.identity();
+            this.LocalXform = mat3.identity();
+            this.RenderXform = mat3.identity();
+            this.LocalProjection = mat4.identity();
+            this.AbsoluteProjection = mat4.identity();
+            this.RenderProjection = mat4.identity();
             this.TotalOpacity = 1.0;
             this.TotalIsRenderVisible = true;
             this.TotalIsHitTestVisible = true;

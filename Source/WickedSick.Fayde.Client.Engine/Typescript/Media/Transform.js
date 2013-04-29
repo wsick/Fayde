@@ -7,6 +7,7 @@ var Fayde;
 (function (Fayde) {
     /// <reference path="GeneralTransform.ts" />
     /// CODE
+    /// <reference path="../Primitives/RawMatrix.ts" />
     /// <reference path="Matrix.ts" />
     (function (Media) {
         var Transform = (function (_super) {
@@ -43,11 +44,12 @@ var Fayde;
                 configurable: true
             });
             Transform.prototype.Transform = function (p) {
-                var v = this.Value;
-                if(!v || !v._Raw) {
+                var val = this.Value;
+                var v;
+                if(!val || !(v = val._Raw)) {
                     return new Point(p.X, p.Y);
                 }
-                var v = mat3.transformVec2(v._Raw, vec2.createFrom(p.X, p.Y));
+                v = mat3.transformVec2(v, vec2.createFrom(p.X, p.Y));
                 return new Point(v[0], v[1]);
             };
             Transform.prototype.TransformBounds = function (r) {

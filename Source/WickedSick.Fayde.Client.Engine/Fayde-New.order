@@ -18,6 +18,7 @@ Media/GradientMetrics.js
 Media/MediaParser.js
 Media/Animation/Curves.js
 Media/Animation/Enums.js
+Primitives/RawMatrix.js
 Runtime/Enumerable.js
 Runtime/Nullstone.js
 Shapes/Enums.js

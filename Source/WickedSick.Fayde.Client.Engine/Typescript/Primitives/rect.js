@@ -1,3 +1,7 @@
+/// <reference path="../Runtime/Nullstone.ts" />
+/// CODE
+/// <reference path="size.ts" />
+/// <reference path="RawMatrix.ts" />
 var RectOverlap = {
     Out: 0,
     In: 1,

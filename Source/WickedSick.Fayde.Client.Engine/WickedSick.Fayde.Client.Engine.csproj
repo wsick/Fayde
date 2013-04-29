@@ -1100,6 +1100,10 @@
       <DependentUpon>Point.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Primitives\rect.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\RawMatrix.ts" />
+    <Content Include="Typescript\Primitives\RawMatrix.js">
+      <DependentUpon>RawMatrix.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Primitives\rect.js">
       <DependentUpon>rect.ts</DependentUpon>
     </Content>

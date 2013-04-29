@@ -8,6 +8,7 @@ var Fayde;
     /// <reference path="GradientBrush.ts" />
     /// <reference path="../Primitives/Point.ts" />
     /// CODE
+    /// <reference path="../Primitives/RawMatrix.ts" />
     /// <reference path="../Primitives/rect.ts" />
     /// <reference path="GradientMetrics.ts" />
     (function (Media) {

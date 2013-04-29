@@ -1,5 +1,6 @@
 /// <reference path="GeneralTransform.ts" />
 /// CODE
+/// <reference path="../Primitives/RawMatrix.ts" />
 /// <reference path="Matrix.ts" />
 
 module Fayde.Media {
@@ -31,10 +32,11 @@ module Fayde.Media {
         }
         
         Transform(p: Point): Point {
-            var v = this.Value;
-            if (!v || !v._Raw)
+            var val = this.Value;
+            var v: number[];
+            if (!val || !(v = val._Raw))
                 return new Point(p.X, p.Y);
-            var v = mat3.transformVec2(v._Raw, vec2.createFrom(p.X, p.Y));
+            v = mat3.transformVec2(v, vec2.createFrom(p.X, p.Y));
             return new Point(v[0], v[1]);
         }
         TransformBounds(r: rect): rect {

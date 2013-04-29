@@ -18,6 +18,7 @@ Typescript\Media\GradientMetrics.ts
 Typescript\Media\MediaParser.ts
 Typescript\Media\Animation\Curves.ts
 Typescript\Media\Animation\Enums.ts
+Typescript\Primitives\RawMatrix.ts
 Typescript\Runtime\Enumerable.ts
 Typescript\Runtime\Nullstone.ts
 Typescript\Shapes\Enums.ts

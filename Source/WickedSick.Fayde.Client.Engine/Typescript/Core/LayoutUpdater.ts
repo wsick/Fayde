@@ -1,6 +1,7 @@
 /// <reference path="../Engine/Dirty.ts" />
 /// CODE
 /// <reference path="UIElement.ts" />
+/// <reference path="../Primitives/RawMatrix.ts" />
 /// <reference path="../Media/Geometry.ts" />
 /// <reference path="../Primitives/rect.ts" />
 /// <reference path="../Primitives/size.ts" />
@@ -84,13 +85,13 @@ module Fayde {
         ActualHeight: number = NaN;
         ActualWidth: number = NaN;
 
-        AbsoluteXform: number[]         ;//= mat3.identity();
-        LayoutXform: number[]           ;//= mat3.identity();
-        LocalXform: number[]            ;//= mat3.identity();
-        RenderXform: number[]           ;//= mat3.identity();
-        LocalProjection: number[]       ;//= mat4.identity();
-        AbsoluteProjection: number[]    ;//= mat4.identity();
-        RenderProjection: number[]      ;//= mat4.identity();
+        AbsoluteXform: number[] = mat3.identity();
+        LayoutXform: number[] = mat3.identity();
+        LocalXform: number[] = mat3.identity();
+        RenderXform: number[] = mat3.identity();
+        LocalProjection: number[] = mat4.identity();
+        AbsoluteProjection: number[] = mat4.identity();
+        RenderProjection: number[] = mat4.identity();
 
         TotalOpacity: number = 1.0;
         TotalIsRenderVisible: bool = true;
