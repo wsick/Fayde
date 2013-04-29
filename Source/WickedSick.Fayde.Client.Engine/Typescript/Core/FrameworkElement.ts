@@ -181,7 +181,7 @@ module Fayde {
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
             if (this.SubtreeNode)
                 return ArrayEx.GetEnumerator([this.SubtreeNode]);
-            return ArrayEx.EmptyEnumerator();
+            return ArrayEx.EmptyEnumerator;
         }
     }
     Nullstone.RegisterType(FENode, "FENode");

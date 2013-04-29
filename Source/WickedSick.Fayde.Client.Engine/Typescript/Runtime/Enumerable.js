@@ -2,6 +2,12 @@ var Fayde;
 (function (Fayde) {
     var ArrayEx = (function () {
         function ArrayEx() { }
+        ArrayEx.EmptyEnumerator = {
+            MoveNext: function () {
+                return false;
+            },
+            Current: undefined
+        };
         ArrayEx.GetEnumerator = function GetEnumerator(arr, isReverse) {
             var len = arr.length;
             var e = {
@@ -33,14 +39,6 @@ var Fayde;
                 };
             }
             return e;
-        };
-        ArrayEx.EmptyEnumerator = function EmptyEnumerator() {
-            return {
-                MoveNext: function () {
-                    return false;
-                },
-                Current: undefined
-            };
         };
         return ArrayEx;
     })();

@@ -195,7 +195,7 @@ var Fayde;
                     this.SubtreeNode
                 ]);
             }
-            return Fayde.ArrayEx.EmptyEnumerator();
+            return Fayde.ArrayEx.EmptyEnumerator;
         };
         return FENode;
     })(Fayde.UINode);

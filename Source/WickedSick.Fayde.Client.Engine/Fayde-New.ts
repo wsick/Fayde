@@ -2276,7 +2276,11 @@ module Fayde {
         MoveNext(): bool;
     }
     export class ArrayEx {
-        static GetEnumerator(arr: any[], isReverse?: bool) {
+        static EmptyEnumerator = {
+            MoveNext: function () { return false; },
+            Current: undefined
+        };
+        static GetEnumerator(arr: any[], isReverse?: bool): IEnumerator {
             var len = arr.length;
             var e = { MoveNext: undefined, Current: undefined };
             var index;
@@ -2304,12 +2308,6 @@ module Fayde {
                 };
             }
             return e;
-        }
-        static EmptyEnumerator() {
-            return {
-                MoveNext: function () { return false; },
-                Current: undefined
-            };
         }
     }
 }
@@ -13707,7 +13705,7 @@ module Fayde {
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
             if (this.SubtreeNode)
                 return ArrayEx.GetEnumerator([this.SubtreeNode]);
-            return ArrayEx.EmptyEnumerator();
+            return ArrayEx.EmptyEnumerator;
         }
     }
     Nullstone.RegisterType(FENode, "FENode");
