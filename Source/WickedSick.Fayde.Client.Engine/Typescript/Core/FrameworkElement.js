@@ -43,10 +43,10 @@ var Fayde;
             }
         };
         FENode.prototype.OnIsAttachedChanged = function (newIsAttached) {
+            _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
             if(this.SubtreeNode) {
                 this.SubtreeNode.SetIsAttached(newIsAttached);
             }
-            _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
         };
         FENode.prototype.SetIsLoaded = function (value) {
             if(this.IsLoaded === value) {

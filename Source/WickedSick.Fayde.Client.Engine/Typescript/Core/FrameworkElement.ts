@@ -39,9 +39,9 @@ module Fayde {
                 store.EmitDataContextChanged();
         }
         OnIsAttachedChanged(newIsAttached: bool) {
+            super.OnIsAttachedChanged(newIsAttached);
             if (this.SubtreeNode)
                 this.SubtreeNode.SetIsAttached(newIsAttached);
-            super.OnIsAttachedChanged(newIsAttached);
         }
 
         SetIsLoaded(value: bool) {

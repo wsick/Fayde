@@ -40,6 +40,12 @@ var Fayde;
                     nodes.splice(index, 1);
                 }
             };
+            PanelChildrenNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
+                var nodes = this._Nodes;
+                for(var i = 0; i < nodes.length; i++) {
+                    nodes[i].SetIsAttached(newIsAttached);
+                }
+            };
             PanelChildrenNode.prototype.ResortByZIndex = function () {
                 var zs = this._Nodes.slice(0);
                 this._ZSorted = zs;
@@ -126,6 +132,9 @@ var Fayde;
             };
             PanelNode.prototype._ResortChildrenByZIndex = function () {
                 (this.XObject.Children).XamlNode.ResortByZIndex();
+            };
+            PanelNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
+                this.XObject.Children.XamlNode.SetIsAttached(newIsAttached);
             };
             PanelNode.prototype._CanFindElement = function () {
                 return this.XObject.Background != null;

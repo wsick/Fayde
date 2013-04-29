@@ -27,6 +27,13 @@ module Fayde.Controls {
             if (index > -1)
                 nodes.splice(index, 1);
         }
+        
+        OnIsAttachedChanged(newIsAttached: bool) {
+            var nodes = this._Nodes;
+            for (var i = 0; i < nodes.length; i++) {
+                nodes[i].SetIsAttached(newIsAttached);
+            }
+        }
 
         ResortByZIndex() {
             var zs = this._Nodes.slice(0);
@@ -108,6 +115,10 @@ module Fayde.Controls {
         }
         _ResortChildrenByZIndex() {
             (<PanelChildrenCollection>this.XObject.Children).XamlNode.ResortByZIndex();
+        }
+
+        OnIsAttachedChanged(newIsAttached: bool) {
+            this.XObject.Children.XamlNode.SetIsAttached(newIsAttached);
         }
 
         _CanFindElement(): bool { return this.XObject.Background != null; }
