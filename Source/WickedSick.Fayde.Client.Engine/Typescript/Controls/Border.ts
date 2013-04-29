@@ -36,29 +36,50 @@ module Fayde.Controls {
         static Annotations = { ContentProperty: Border.ChildProperty }
         
         private _MeasureOverride(availableSize: size, error: BError): size {
-            var border = this.Padding.Plus(this.BorderThickness);
+            var padding = this.Padding;
+            var borderThickness = this.BorderThickness;
+            var border: Thickness = null;
+            if (padding && borderThickness) {
+                border = padding.Plus(borderThickness);
+            } else if (padding) {
+                border = padding;
+            } else if (borderThickness) {
+                border = borderThickness;
+            }
+
             var desired = new size();
-            availableSize = size.shrinkByThickness(size.clone(availableSize), border);
+            if (border) availableSize = size.shrinkByThickness(size.clone(availableSize), border);
+
             var child = this.Child;
             if (child) {
                 var lu = child.XamlNode.LayoutUpdater;
                 lu._Measure(availableSize, error);
                 desired = size.clone(lu.DesiredSize);
             }
-            size.growByThickness(desired, border);
+            if (border) size.growByThickness(desired, border);
             size.min(desired, availableSize);
             return desired;
         }
         private _ArrangeOverride(finalSize: size, error: BError): size {
             var child = this.Child;
             if (child) {
-                var border = this.Padding.Plus(this.BorderThickness);
+                var padding = this.Padding;
+                var borderThickness = this.BorderThickness;
+                var border: Thickness = null;
+                if (padding && borderThickness) {
+                    border = padding.Plus(borderThickness);
+                } else if (padding) {
+                    border = padding;
+                } else if (borderThickness) {
+                    border = borderThickness;
+                }
+
                 var childRect = rect.fromSize(finalSize);
-                rect.shrinkByThickness(childRect, border);
+                if (border) rect.shrinkByThickness(childRect, border);
                 child.XamlNode.LayoutUpdater._Arrange(childRect, error);
                 /*
                 arranged = size.fromRect(childRect);
-                size.growByThickness(arranged, border);
+                if (border) size.growByThickness(arranged, border);
                 size.max(arranged, finalSize);
                 */
             }
