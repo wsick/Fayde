@@ -6,6 +6,12 @@ class Exception {
     constructor(message: string) {
         this.Message = message;
     }
+    toString(): string {
+        var typeName = (<any>this).constructor._TypeName;
+        if (typeName)
+            return typeName + ": " + this.Message;
+        return this.Message;
+    }
 }
 Nullstone.RegisterType(Exception, "Exception");
 
@@ -39,7 +45,16 @@ Nullstone.RegisterType(NotSupportedException, "NotSupportedException");
 
 class IndexOutOfRangeException extends Exception {
     constructor(index: number) {
-        super("Index is out of range: " + index.toString());
+        super(index.toString());
     }
 }
 Nullstone.RegisterType(IndexOutOfRangeException, "IndexOutOfRangeException");
+
+class AttachException extends Exception {
+    Data: any;
+    constructor(message: string, data: any) {
+        super(message);
+        this.Data = data;
+    }
+}
+Nullstone.RegisterType(AttachException, "AttachException");

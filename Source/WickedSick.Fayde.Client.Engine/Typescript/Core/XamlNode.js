@@ -67,9 +67,16 @@ var Fayde;
         };
         XamlNode.prototype.AttachTo = function (parentNode, error) {
             var curNode = parentNode;
+            var data = {
+                ParentNode: parentNode,
+                ChildNode: this,
+                Name: ""
+            };
             while(curNode) {
                 if(curNode === this) {
-                    error.Message = "AddParentNode - Cycle found.";
+                    error.Message = "Cycle found.";
+                    error.Data = data;
+                    error.Number = BError.Attach;
                     return false;
                 }
                 curNode = curNode.ParentNode;
@@ -79,7 +86,8 @@ var Fayde;
                     return true;
                 }
                 error.Message = "Element is already a child of another element.";
-                error.Number = BError.InvalidOperation;
+                error.Data = data;
+                error.Number = BError.Attach;
                 return false;
             }
             var parentScope = parentNode.FindNameScope();
@@ -96,7 +104,9 @@ var Fayde;
                     var existing = parentScope.FindName(name);
                     if(existing && existing !== this) {
                         error.Message = "Name is already registered in parent namescope.";
-                        error.Number = BError.Argument;
+                        data.Name = name;
+                        error.Data = data;
+                        error.Number = BError.Attach;
                         return false;
                     }
                     parentScope.RegisterName(name, this);

@@ -9,6 +9,13 @@ var Exception = (function () {
     function Exception(message) {
         this.Message = message;
     }
+    Exception.prototype.toString = function () {
+        var typeName = (this).constructor._TypeName;
+        if(typeName) {
+            return typeName + ": " + this.Message;
+        }
+        return this.Message;
+    };
     return Exception;
 })();
 Nullstone.RegisterType(Exception, "Exception");
@@ -47,9 +54,18 @@ Nullstone.RegisterType(NotSupportedException, "NotSupportedException");
 var IndexOutOfRangeException = (function (_super) {
     __extends(IndexOutOfRangeException, _super);
     function IndexOutOfRangeException(index) {
-        _super.call(this, "Index is out of range: " + index.toString());
+        _super.call(this, index.toString());
     }
     return IndexOutOfRangeException;
 })(Exception);
 Nullstone.RegisterType(IndexOutOfRangeException, "IndexOutOfRangeException");
+var AttachException = (function (_super) {
+    __extends(AttachException, _super);
+    function AttachException(message, data) {
+        _super.call(this, message);
+        this.Data = data;
+    }
+    return AttachException;
+})(Exception);
+Nullstone.RegisterType(AttachException, "AttachException");
 //@ sourceMappingURL=Exceptions.js.map
