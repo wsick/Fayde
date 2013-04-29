@@ -733,6 +733,10 @@
     <Content Include="Typescript\Core\TypeConverter.js">
       <DependentUpon>TypeConverter.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Core\VisualTreeHelper.ts" />
+    <Content Include="Typescript\Core\VisualTreeHelper.js">
+      <DependentUpon>VisualTreeHelper.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\Walkers.js">
       <DependentUpon>Walkers.ts</DependentUpon>
     </Content>
