@@ -85,12 +85,17 @@ module Fayde {
         }
         SetObject(json: any, xobj: XamlObject, namescope: NameScope, ignoreResolve?: bool): any {
             //Sets object properties; will return Children/Content object if exists
-            if (xobj && namescope)
-                xobj.XamlNode.NameScope = namescope;
+            var xnode: XamlNode;
+            if (xobj)
+                xnode = xobj.XamlNode;
 
-            var name = json.Name;
-            if (name)
-                xobj.XamlNode.SetName(name);
+            if (xnode) {
+                if (namescope)
+                    xnode.NameScope = namescope;
+                var name = json.Name;
+                if (name)
+                    xnode.SetName(name);
+            }
 
             xobj.TemplateOwner = this._TemplateBindingSource;
 

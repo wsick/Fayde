@@ -15,7 +15,7 @@ namespace WickedSick.Server.XamlParser.Elements.Core
         {
             var sb = new StringBuilder();
             sb.AppendLine("{");
-            sb.AppendLine("Type: Boolean,");
+            sb.AppendLine("ParseType: Boolean,");
             if (!string.IsNullOrWhiteSpace(Key))
             {
                 sb.Append("Key: \"");

@@ -75,6 +75,9 @@ var Fayde;
                 curNode = curNode.ParentNode;
             }
             if(this.ParentNode) {
+                if(this.ParentNode === parentNode) {
+                    return true;
+                }
                 error.Message = "Element is already a child of another element.";
                 error.Number = BError.InvalidOperation;
                 return false;

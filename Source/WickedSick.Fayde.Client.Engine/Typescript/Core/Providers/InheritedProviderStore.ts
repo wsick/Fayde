@@ -3,9 +3,9 @@
 
 module Fayde.Providers {
     export interface IInheritedProvider extends IPropertyProvider {
-        PropagateInheritedProperty(store: IProviderStore, propd: DependencyProperty, source: DependencyObject, subtree: DependencyObject);
-        PropagateInheritedPropertiesOnAddingToTree(store: IProviderStore, subtree: DependencyObject);
-        ClearInheritedPropertiesOnRemovingFromTree(store: IProviderStore, subtree: DependencyObject);
+        PropagateInheritedProperty(store: IProviderStore, propd: DependencyProperty, source: DependencyObject);
+        PropagateInheritedPropertiesOnAddingToTree(store: IProviderStore, subtreeNode: XamlNode);
+        ClearInheritedPropertiesOnRemovingFromTree(store: IProviderStore, subtreeNode: XamlNode);
     }
 
     export class InheritedProviderStore extends BasicProviderStore {
@@ -35,15 +35,15 @@ module Fayde.Providers {
                 var inheritedProvider = this._InheritedProvider;
                 // GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited
                 if (inheritedProvider && ((this._ProviderBitmasks[propd._ID] & ((1 << _PropertyPrecedence.Inherited) - 1)) !== 0))
-                    inheritedProvider.PropagateInheritedProperty(this, propd, this._Object, this._Object);
+                    inheritedProvider.PropagateInheritedProperty(this, propd, this._Object);
             }
         }
 
-        PropagateInheritedOnAdd(subtree: DependencyObject) {
-            this._InheritedProvider.PropagateInheritedPropertiesOnAddingToTree(this, subtree);
+        PropagateInheritedOnAdd(subtreeNode: XamlNode) {
+            this._InheritedProvider.PropagateInheritedPropertiesOnAddingToTree(this, subtreeNode);
         }
-        ClearInheritedOnRemove(subtree: DependencyObject) {
-            this._InheritedProvider.ClearInheritedPropertiesOnRemovingFromTree(this, subtree);
+        ClearInheritedOnRemove(subtreeNode: XamlNode) {
+            this._InheritedProvider.ClearInheritedPropertiesOnRemovingFromTree(this, subtreeNode);
         }
     }
     Nullstone.RegisterType(InheritedProviderStore, "InheritedProviderStore");

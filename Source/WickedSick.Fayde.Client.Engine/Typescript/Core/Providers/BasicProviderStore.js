@@ -156,7 +156,7 @@ var Fayde;
                 }
                 var currentValue;
                 var equal = false;
-                if((currentValue = this.ReadLocalValue(propd)) === undefined) {
+                if((currentValue = this._LocalValueProvider.GetPropertyValue(this, propd)) === undefined) {
                     if(propd._IsAutoCreated) {
                         currentValue = this._AutoCreateProvider.ReadLocalValue(propd);
                     }
@@ -191,7 +191,7 @@ var Fayde;
                     return;
                 }
                 var oldLocalValue;
-                if((oldLocalValue = this.ReadLocalValue(propd)) === undefined) {
+                if((oldLocalValue = this._LocalValueProvider.GetPropertyValue(this, propd)) === undefined) {
                     if(propd._IsAutoCreated) {
                         oldLocalValue = this._AutoCreateProvider.ReadLocalValue(propd);
                     }

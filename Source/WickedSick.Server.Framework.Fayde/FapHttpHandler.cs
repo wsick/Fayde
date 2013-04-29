@@ -39,7 +39,10 @@ namespace WickedSick.Server.Framework.Fayde
             var includes = new List<string>();
 #if DEBUG
             if (fap.Debug)
-                includes = CollectIncludes(FindOrderFile(context.Request, fap)).ToList();
+                if (fap.UseNew)
+                    includes = CollectNewIncludes(FindOrderFile(context.Request, fap)).ToList();
+                else
+                    includes = CollectIncludes(FindOrderFile(context.Request, fap)).ToList();
 #endif
             WriteFapFull(context, fap, includes);
             WriteDependencyHeader(context.Response, result);
@@ -121,7 +124,8 @@ namespace WickedSick.Server.Framework.Fayde
         private string FindOrderFile(HttpRequest request, FaydeApplication fap)
         {
             var localRes = request.MapPath(fap.ScriptResolution);
-            var orderFile = new FileInfo(Path.Combine(localRes, "Fayde.order"));
+            var path = fap.UseNew ? Path.Combine(localRes, "Fayde.tsinclude") : Path.Combine(localRes, "Fayde.order");
+            var orderFile = new FileInfo(path);
             return orderFile.FullName;
         }
         private IEnumerable<string> CollectIncludes(string orderFilepath)
@@ -132,7 +136,23 @@ namespace WickedSick.Server.Framework.Fayde
                 {
                     var line = sr.ReadLine();
                     if (!string.IsNullOrWhiteSpace(line))
-                        yield return line;
+                        yield return string.Format("Javascript/{0}", line);
+                }
+            }
+        }
+        private IEnumerable<string> CollectNewIncludes(string orderFilepath)
+        {
+            using (var sr = new StreamReader(orderFilepath))
+            {
+                while (!sr.EndOfStream)
+                {
+                    var line = sr.ReadLine();
+                    if (string.IsNullOrWhiteSpace(line))
+                        continue;
+                    if (line.EndsWith(".ts"))
+                        line = line.Remove(line.Length - 2) + "js";
+                    line = line.Replace("\\", "/");
+                    yield return string.Format("{0}", line);
                 }
             }
         }

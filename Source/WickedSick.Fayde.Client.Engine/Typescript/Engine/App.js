@@ -7,6 +7,18 @@
 /// <reference path="ClockTimer.ts" />
 /// <reference path="../Markup/JsonParser.ts" />
 /// <reference path="../Navigation/NavService.ts" />
+var Fayde;
+(function (Fayde) {
+    function Run() {
+    }
+    Fayde.Run = Run;
+    function Start(appType, rjson, json, canvas) {
+        var instance = App.Instance = new (appType)();
+        instance.LoadResources(rjson);
+        instance.LoadInitial(canvas, json);
+    }
+    Fayde.Start = Start;
+})(Fayde || (Fayde = {}));
 var App = (function () {
     function App() {
         this.Loaded = new MulticastEvent();
@@ -46,13 +58,13 @@ var App = (function () {
             this.MainSurface.Attach(element);
         }
         //canProfile = profiles.initialUpdate;
-        this.Start();
+        this.StartEngine();
         this.EmitLoaded();
     };
     App.prototype.EmitLoaded = function () {
         this.Loaded.RaiseAsync(this, EventArgs.Empty);
     };
-    App.prototype.Start = function () {
+    App.prototype.StartEngine = function () {
         this._ClockTimer.RegisterTimer(this);
     };
     App.prototype.Tick = function (lastTime, nowTime) {
@@ -60,7 +72,7 @@ var App = (function () {
         this.Update();
         this.Render();
     };
-    App.prototype.Stop = function () {
+    App.prototype.StopEngine = function () {
         this._ClockTimer.UnregisterTimer(this);
     };
     App.prototype.ProcessStoryboards = function (lastTime, nowTime) {

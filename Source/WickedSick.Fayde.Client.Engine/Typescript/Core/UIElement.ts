@@ -65,7 +65,7 @@ module Fayde {
             var un = uie.XamlNode;
             un.VisualParentNode = this;
             un.VisualParentNode.SetSurface(this._Surface);
-            this.XObject._Store.PropagateInheritedOnAdd(uie);
+            this.XObject._Store.PropagateInheritedOnAdd(un);
             un.LayoutUpdater.OnAddedToTree();
         }
         DetachVisualChild(uie: UIElement) {
@@ -77,7 +77,7 @@ module Fayde {
             un.VisualParentNode.SetSurface(null);
             un.VisualParentNode = null;
             un.LayoutUpdater.OnRemovedFromTree();
-            this.XObject._Store.ClearInheritedOnRemove(uie);
+            this.XObject._Store.ClearInheritedOnRemove(un);
         }
 
         Focus(): bool { return false; }

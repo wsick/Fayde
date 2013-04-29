@@ -62,6 +62,13 @@ namespace WickedSick.Server.XamlParser.Elements
             set { SetValue("JsType", value); }
         }
 
+        public static readonly PropertyDescription UseNewProperty = PropertyDescription.Register("UseNew", typeof(bool), typeof(FaydeApplication));
+        public bool UseNew
+        {
+            get { return (bool?)GetValue("UseNew") == true; }
+            set { SetValue("UseNew", value); }
+        }
+
         public override string GetTypeName(IJsonOutputModifiers outputMods)
         {
             if (!string.IsNullOrWhiteSpace(JsType))

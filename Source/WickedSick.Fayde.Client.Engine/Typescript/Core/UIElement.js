@@ -60,7 +60,7 @@ var Fayde;
             var un = uie.XamlNode;
             un.VisualParentNode = this;
             un.VisualParentNode.SetSurface(this._Surface);
-            this.XObject._Store.PropagateInheritedOnAdd(uie);
+            this.XObject._Store.PropagateInheritedOnAdd(un);
             un.LayoutUpdater.OnAddedToTree();
         };
         UINode.prototype.DetachVisualChild = function (uie) {
@@ -71,7 +71,7 @@ var Fayde;
             un.VisualParentNode.SetSurface(null);
             un.VisualParentNode = null;
             un.LayoutUpdater.OnRemovedFromTree();
-            this.XObject._Store.ClearInheritedOnRemove(uie);
+            this.XObject._Store.ClearInheritedOnRemove(un);
         };
         UINode.prototype.Focus = function () {
             return false;

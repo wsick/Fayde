@@ -4521,6 +4521,8 @@ module Fayde {
                 curNode = curNode.ParentNode;
             }
             if (this.ParentNode) {
+                if (this.ParentNode === parentNode)
+                    return true;
                 error.Message = "Element is already a child of another element.";
                 error.Number = BError.InvalidOperation;
                 return false;
@@ -4573,9 +4575,12 @@ module Fayde {
 
 module Fayde {
     export class XamlObject {
+        private static _LastID: number = 0;
+        private _ID: number;
         XamlNode: Fayde.XamlNode;
         TemplateOwner: DependencyObject = null;
         constructor() {
+            this._ID = XamlObject._LastID++;
             this.XamlNode = this.CreateNode();
         }
         CreateNode(): XamlNode {
@@ -4808,7 +4813,7 @@ module Fayde.Providers {
                 return;
             var currentValue;
             var equal = false;
-            if ((currentValue = this.ReadLocalValue(propd)) === undefined)
+            if ((currentValue = this._LocalValueProvider.GetPropertyValue(this, propd)) === undefined)
                 if (propd._IsAutoCreated)
                     currentValue = this._AutoCreateProvider.ReadLocalValue(propd);
             if (currentValue !== undefined && value !== undefined)
@@ -4836,7 +4841,7 @@ module Fayde.Providers {
             if (this._GetAnimationStorageFor(propd))
                 return;
             var oldLocalValue;
-            if ((oldLocalValue = this.ReadLocalValue(propd)) === undefined) {
+            if ((oldLocalValue = this._LocalValueProvider.GetPropertyValue(this, propd)) === undefined) {
                 if (propd._IsAutoCreated)
                     oldLocalValue = this._AutoCreateProvider.ReadLocalValue(propd);
             }
@@ -5411,7 +5416,7 @@ module Fayde.Providers {
         if (provider)
             return provider._GetPropertySource(inheritable);
     }
-    export class InheritedProvider implements IPropertyProvider {
+    export class InheritedProvider implements IPropertyProvider, IInheritedProvider {
         private _ht: DependencyObject[] = [];
         GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
             var inheritable = getInheritable(store._Object, propd);
@@ -5425,17 +5430,18 @@ module Fayde.Providers {
                 return undefined;
             return ancestor.GetValue(ancestorPropd);
         }
-        WalkSubtree(rootParent: DependencyObject, element: DependencyObject, context: _InheritedContext, props, adding) {
-            var enumerator = element.XamlNode.GetInheritedEnumerator();
+        WalkSubtree(rootParent: DependencyObject, elNode: XamlNode, context: _InheritedContext, props, adding) {
+            var enumerator = elNode.GetInheritedEnumerator();
             if (!enumerator)
                 return;
             while (enumerator.MoveNext()) {
-                this.WalkTree(rootParent, enumerator.Current, context, props, adding);
+                this.WalkTree(rootParent, <XamlNode>enumerator.Current, context, props, adding);
             }
         }
-        WalkTree(rootParent: DependencyObject, element: DependencyObject, context: _InheritedContext, props: _Inheritable, adding: bool) {
+        WalkTree(rootParent: DependencyObject, elNode: XamlNode, context: _InheritedContext, props: _Inheritable, adding: bool) {
             if (props === _Inheritable.None)
                 return;
+            var element = <DependencyObject>elNode.XObject;
             if (adding) {
                 this.MaybePropagateInheritedValue(context.ForegroundSource, _Inheritable.Foreground, props, element);
                 this.MaybePropagateInheritedValue(context.FontFamilySource, _Inheritable.FontFamily, props, element);
@@ -5451,7 +5457,7 @@ module Fayde.Providers {
                 props = eleContext.Compare(context, props);
                 if (props === _Inheritable.None)
                     return;
-                this.WalkSubtree(rootParent, element, eleContext, props, adding);
+                this.WalkSubtree(rootParent, elNode, eleContext, props, adding);
             } else {
                 var eleContext2 = _InheritedContext.FromObject(element, context);
                 this.MaybeRemoveInheritedValue(context.ForegroundSource, _Inheritable.Foreground, props, element);
@@ -5467,7 +5473,7 @@ module Fayde.Providers {
                 props = eleContext2.Compare(context, props);
                 if (props === _Inheritable.None)
                     return;
-                this.WalkSubtree(rootParent, element, context, props, adding);
+                this.WalkSubtree(rootParent, elNode, context, props, adding);
             }
         }
         MaybePropagateInheritedValue(source: DependencyObject, prop, props, element: DependencyObject) {
@@ -5484,7 +5490,7 @@ module Fayde.Providers {
             if (source === getInheritedValueSource.call(element, prop))
                 propagateInheritedValue.call(element._Store, prop, undefined, undefined);
         }
-        PropagateInheritedPropertiesOnAddingToTree(store: IProviderStore, subtree: DependencyObject) {
+        PropagateInheritedPropertiesOnAddingToTree(store: IProviderStore, subtreeNode: XamlNode) {
             var inhEnum = _Inheritable;
             var baseContext = _InheritedContext.FromSources(
                     this._GetPropertySource(inhEnum.Foreground),
@@ -5498,16 +5504,16 @@ module Fayde.Providers {
                     this._GetPropertySource(inhEnum.UseLayoutRounding),
                     this._GetPropertySource(inhEnum.TextDecorations));
             var objContext = _InheritedContext.FromObject(store._Object, baseContext);
-            this.WalkTree(store._Object, subtree, objContext, inhEnum.All, true);
+            this.WalkTree(store._Object, subtreeNode, objContext, inhEnum.All, true);
         }
-        PropagateInheritedProperty(store: IProviderStore, propd: DependencyProperty, source: DependencyObject, subtree: DependencyObject) {
+        PropagateInheritedProperty(store: IProviderStore, propd: DependencyProperty, source: DependencyObject) {
             var inheritable = getInheritable(source, propd);
             if (inheritable === 0)
                 return;
             var objContext = _InheritedContext.FromObject(store._Object, null);
-            this.WalkSubtree(source, subtree, objContext, inheritable, true);
+            this.WalkSubtree(source, source.XamlNode, objContext, inheritable, true);
         }
-        ClearInheritedPropertiesOnRemovingFromTree(store: IProviderStore, subtree: DependencyObject) {
+        ClearInheritedPropertiesOnRemovingFromTree(store: IProviderStore, subtreeNode: XamlNode) {
             var baseContext = _InheritedContext.FromSources(
                     this._GetPropertySource(_Inheritable.Foreground),
                     this._GetPropertySource(_Inheritable.FontFamily),
@@ -5520,7 +5526,7 @@ module Fayde.Providers {
                     this._GetPropertySource(_Inheritable.UseLayoutRounding),
                     this._GetPropertySource(_Inheritable.TextDecorations));
             var objContext = _InheritedContext.FromObject(store._Object, baseContext);
-            this.WalkTree(store._Object, subtree, objContext, _Inheritable.All, false);
+            this.WalkTree(store._Object, subtreeNode, objContext, _Inheritable.All, false);
         }
         _GetPropertySource(inheritable: _Inheritable): DependencyObject {
             return this._ht[inheritable];
@@ -5537,9 +5543,9 @@ module Fayde.Providers {
 
 module Fayde.Providers {
     export interface IInheritedProvider extends IPropertyProvider {
-        PropagateInheritedProperty(store: IProviderStore, propd: DependencyProperty, source: DependencyObject, subtree: DependencyObject);
-        PropagateInheritedPropertiesOnAddingToTree(store: IProviderStore, subtree: DependencyObject);
-        ClearInheritedPropertiesOnRemovingFromTree(store: IProviderStore, subtree: DependencyObject);
+        PropagateInheritedProperty(store: IProviderStore, propd: DependencyProperty, source: DependencyObject);
+        PropagateInheritedPropertiesOnAddingToTree(store: IProviderStore, subtreeNode: XamlNode);
+        ClearInheritedPropertiesOnRemovingFromTree(store: IProviderStore, subtreeNode: XamlNode);
     }
     export class InheritedProviderStore extends BasicProviderStore {
         constructor(dobj: DependencyObject) {
@@ -5563,14 +5569,14 @@ module Fayde.Providers {
             if (propd._Inheritable > 0 && providerPrecedence !== _PropertyPrecedence.Inherited) {
                 var inheritedProvider = this._InheritedProvider;
                 if (inheritedProvider && ((this._ProviderBitmasks[propd._ID] & ((1 << _PropertyPrecedence.Inherited) - 1)) !== 0))
-                    inheritedProvider.PropagateInheritedProperty(this, propd, this._Object, this._Object);
+                    inheritedProvider.PropagateInheritedProperty(this, propd, this._Object);
             }
         }
-        PropagateInheritedOnAdd(subtree: DependencyObject) {
-            this._InheritedProvider.PropagateInheritedPropertiesOnAddingToTree(this, subtree);
+        PropagateInheritedOnAdd(subtreeNode: XamlNode) {
+            this._InheritedProvider.PropagateInheritedPropertiesOnAddingToTree(this, subtreeNode);
         }
-        ClearInheritedOnRemove(subtree: DependencyObject) {
-            this._InheritedProvider.ClearInheritedPropertiesOnRemovingFromTree(this, subtree);
+        ClearInheritedOnRemove(subtreeNode: XamlNode) {
+            this._InheritedProvider.ClearInheritedPropertiesOnRemovingFromTree(this, subtreeNode);
         }
     }
     Nullstone.RegisterType(InheritedProviderStore, "InheritedProviderStore");
@@ -5706,6 +5712,14 @@ module Fayde.Data {
     Nullstone.RegisterType(RelativeSource, "RelativeSource");
 }
 
+module Fayde {
+    export function Run() { }
+    export function Start(appType: Function, rjson: any, json: any, canvas: HTMLCanvasElement) {
+        var instance = App.Instance = <App>new (<any>appType)();
+        instance.LoadResources(rjson);
+        instance.LoadInitial(canvas, json);
+    }
+}
 class App {
     static Version: string = "0.9.4.0";
     static Instance: App;
@@ -5739,13 +5753,13 @@ class App {
         var element = Fayde.JsonParser.Parse(json);
         if (element instanceof Fayde.UIElement)
             this.MainSurface.Attach(<Fayde.UIElement>element);
-        this.Start();
+        this.StartEngine();
         this.EmitLoaded();
     }
     private EmitLoaded() {
         this.Loaded.RaiseAsync(this, EventArgs.Empty);
     }
-    private Start() {
+    private StartEngine() {
         this._ClockTimer.RegisterTimer(this);
     }
     private Tick(lastTime: number, nowTime: number) {
@@ -5753,7 +5767,7 @@ class App {
         this.Update();
         this.Render();
     }
-    private Stop() {
+    private StopEngine() {
         this._ClockTimer.UnregisterTimer(this);
     }
     private ProcessStoryboards(lastTime: number, nowTime: number) {
@@ -6809,11 +6823,16 @@ module Fayde {
             return xobj;
         }
         SetObject(json: any, xobj: XamlObject, namescope: NameScope, ignoreResolve?: bool): any {
-            if (xobj && namescope)
-                xobj.XamlNode.NameScope = namescope;
-            var name = json.Name;
-            if (name)
-                xobj.XamlNode.SetName(name);
+            var xnode: XamlNode;
+            if (xobj)
+                xnode = xobj.XamlNode;
+            if (xnode) {
+                if (namescope)
+                    xnode.NameScope = namescope;
+                var name = json.Name;
+                if (name)
+                    xnode.SetName(name);
+            }
             xobj.TemplateOwner = this._TemplateBindingSource;
             var dobj: DependencyObject;
             if (xobj instanceof DependencyObject)
@@ -11381,7 +11400,7 @@ module Fayde {
             var un = uie.XamlNode;
             un.VisualParentNode = this;
             un.VisualParentNode.SetSurface(this._Surface);
-            this.XObject._Store.PropagateInheritedOnAdd(uie);
+            this.XObject._Store.PropagateInheritedOnAdd(un);
             un.LayoutUpdater.OnAddedToTree();
         }
         DetachVisualChild(uie: UIElement) {
@@ -11392,7 +11411,7 @@ module Fayde {
             un.VisualParentNode.SetSurface(null);
             un.VisualParentNode = null;
             un.LayoutUpdater.OnRemovedFromTree();
-            this.XObject._Store.ClearInheritedOnRemove(uie);
+            this.XObject._Store.ClearInheritedOnRemove(un);
         }
         Focus(): bool { return false; }
         _EmitFocusChange(type: string) {
@@ -13839,10 +13858,10 @@ module Fayde.Controls {
         }
         private _CreateFallbackTemplate(): ControlTemplate {
             return new ControlTemplate(ContentPresenter, {
-                Type: Grid,
+                ParseType: Grid,
                 Children: [
                     {
-                        Type: TextBlock,
+                        ParseType: TextBlock,
                         Props: {
                             Text: new BindingMarkup({})
                         }
@@ -14384,13 +14403,13 @@ module Fayde.Controls {
         get StackPanelFallbackTemplate(): ItemsPanelTemplate {
             var spft = this._SPFT;
             if (!spft)
-                this._SPFT = spft = new ItemsPanelTemplate({ Type: StackPanel });
+                this._SPFT = spft = new ItemsPanelTemplate({ ParseType: StackPanel });
             return spft;
         }
         get VirtualizingStackPanelFallbackTemplate(): ItemsPanelTemplate {
             var vspft = this._VSPFT;
             if (!vspft)
-                this._VSPFT = vspft = new ItemsPanelTemplate({ Type: VirtualizingStackPanel });
+                this._VSPFT = vspft = new ItemsPanelTemplate({ ParseType: VirtualizingStackPanel });
             return vspft;
         }
         _GetDefaultTemplate(): UIElement {

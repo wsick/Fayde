@@ -7,8 +7,10 @@ var Fayde;
     var XamlObject = (function () {
         function XamlObject() {
             this.TemplateOwner = null;
+            this._ID = XamlObject._LastID++;
             this.XamlNode = this.CreateNode();
         }
+        XamlObject._LastID = 0;
         XamlObject.prototype.CreateNode = function () {
             return new Fayde.XamlNode(this);
         };

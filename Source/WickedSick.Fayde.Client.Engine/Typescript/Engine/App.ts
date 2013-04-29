@@ -8,6 +8,15 @@
 /// <reference path="../Markup/JsonParser.ts" />
 /// <reference path="../Navigation/NavService.ts" />
 
+module Fayde {
+    export function Run() { }
+    export function Start(appType: Function, rjson: any, json: any, canvas: HTMLCanvasElement) {
+        var instance = App.Instance = <App>new (<any>appType)();
+        instance.LoadResources(rjson);
+        instance.LoadInitial(canvas, json);
+    }
+}
+
 class App {
     static Version: string = "0.9.4.0";
     static Instance: App;
@@ -51,14 +60,14 @@ class App {
 
         //canProfile = profiles.initialUpdate;
 
-        this.Start();
+        this.StartEngine();
         this.EmitLoaded();
     }
     private EmitLoaded() {
         this.Loaded.RaiseAsync(this, EventArgs.Empty);
     }
 
-    private Start() {
+    private StartEngine() {
         this._ClockTimer.RegisterTimer(this);
     }
     private Tick(lastTime: number, nowTime: number) {
@@ -66,7 +75,7 @@ class App {
         this.Update();
         this.Render();
     }
-    private Stop() {
+    private StopEngine() {
         this._ClockTimer.UnregisterTimer(this);
     }
 

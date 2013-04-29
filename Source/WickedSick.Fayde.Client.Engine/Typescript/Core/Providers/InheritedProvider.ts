@@ -141,7 +141,7 @@ module Fayde.Providers {
         if (provider)
             return provider._GetPropertySource(inheritable);
     }
-    export class InheritedProvider implements IPropertyProvider {
+    export class InheritedProvider implements IPropertyProvider, IInheritedProvider {
         private _ht: DependencyObject[] = [];
         GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
             var inheritable = getInheritable(store._Object, propd);
@@ -157,18 +157,19 @@ module Fayde.Providers {
                 return undefined;
             return ancestor.GetValue(ancestorPropd);
         }
-        WalkSubtree(rootParent: DependencyObject, element: DependencyObject, context: _InheritedContext, props, adding) {
-            var enumerator = element.XamlNode.GetInheritedEnumerator();
+        WalkSubtree(rootParent: DependencyObject, elNode: XamlNode, context: _InheritedContext, props, adding) {
+            var enumerator = elNode.GetInheritedEnumerator();
             if (!enumerator)
                 return;
             while (enumerator.MoveNext()) {
-                this.WalkTree(rootParent, enumerator.Current, context, props, adding);
+                this.WalkTree(rootParent, <XamlNode>enumerator.Current, context, props, adding);
             }
         }
-        WalkTree(rootParent: DependencyObject, element: DependencyObject, context: _InheritedContext, props: _Inheritable, adding: bool) {
+        WalkTree(rootParent: DependencyObject, elNode: XamlNode, context: _InheritedContext, props: _Inheritable, adding: bool) {
             if (props === _Inheritable.None)
                 return;
 
+            var element = <DependencyObject>elNode.XObject;
             if (adding) {
                 this.MaybePropagateInheritedValue(context.ForegroundSource, _Inheritable.Foreground, props, element);
                 this.MaybePropagateInheritedValue(context.FontFamilySource, _Inheritable.FontFamily, props, element);
@@ -187,7 +188,7 @@ module Fayde.Providers {
                 if (props === _Inheritable.None)
                     return;
 
-                this.WalkSubtree(rootParent, element, eleContext, props, adding);
+                this.WalkSubtree(rootParent, elNode, eleContext, props, adding);
             } else {
                 var eleContext2 = _InheritedContext.FromObject(element, context);
 
@@ -206,7 +207,7 @@ module Fayde.Providers {
                 if (props === _Inheritable.None)
                     return;
 
-                this.WalkSubtree(rootParent, element, context, props, adding);
+                this.WalkSubtree(rootParent, elNode, context, props, adding);
             }
         }
         MaybePropagateInheritedValue(source: DependencyObject, prop, props, element: DependencyObject) {
@@ -225,7 +226,7 @@ module Fayde.Providers {
             if (source === getInheritedValueSource.call(element, prop))
                 propagateInheritedValue.call(element._Store, prop, undefined, undefined);
         }
-        PropagateInheritedPropertiesOnAddingToTree(store: IProviderStore, subtree: DependencyObject) {
+        PropagateInheritedPropertiesOnAddingToTree(store: IProviderStore, subtreeNode: XamlNode) {
             var inhEnum = _Inheritable;
             var baseContext = _InheritedContext.FromSources(
                     this._GetPropertySource(inhEnum.Foreground),
@@ -239,16 +240,16 @@ module Fayde.Providers {
                     this._GetPropertySource(inhEnum.UseLayoutRounding),
                     this._GetPropertySource(inhEnum.TextDecorations));
             var objContext = _InheritedContext.FromObject(store._Object, baseContext);
-            this.WalkTree(store._Object, subtree, objContext, inhEnum.All, true);
+            this.WalkTree(store._Object, subtreeNode, objContext, inhEnum.All, true);
         }
-        PropagateInheritedProperty(store: IProviderStore, propd: DependencyProperty, source: DependencyObject, subtree: DependencyObject) {
+        PropagateInheritedProperty(store: IProviderStore, propd: DependencyProperty, source: DependencyObject) {
             var inheritable = getInheritable(source, propd);
             if (inheritable === 0)
                 return;
             var objContext = _InheritedContext.FromObject(store._Object, null);
-            this.WalkSubtree(source, subtree, objContext, inheritable, true);
+            this.WalkSubtree(source, source.XamlNode, objContext, inheritable, true);
         }
-        ClearInheritedPropertiesOnRemovingFromTree(store: IProviderStore, subtree: DependencyObject) {
+        ClearInheritedPropertiesOnRemovingFromTree(store: IProviderStore, subtreeNode: XamlNode) {
             var baseContext = _InheritedContext.FromSources(
                     this._GetPropertySource(_Inheritable.Foreground),
                     this._GetPropertySource(_Inheritable.FontFamily),
@@ -261,7 +262,7 @@ module Fayde.Providers {
                     this._GetPropertySource(_Inheritable.UseLayoutRounding),
                     this._GetPropertySource(_Inheritable.TextDecorations));
             var objContext = _InheritedContext.FromObject(store._Object, baseContext);
-            this.WalkTree(store._Object, subtree, objContext, _Inheritable.All, false);
+            this.WalkTree(store._Object, subtreeNode, objContext, _Inheritable.All, false);
         }
         _GetPropertySource(inheritable: _Inheritable): DependencyObject {
             return this._ht[inheritable];

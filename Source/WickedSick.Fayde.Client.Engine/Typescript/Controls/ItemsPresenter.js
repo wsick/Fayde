@@ -37,7 +37,7 @@ var Fayde;
                     var spft = this._SPFT;
                     if(!spft) {
                         this._SPFT = spft = new Controls.ItemsPanelTemplate({
-                            Type: Controls.StackPanel
+                            ParseType: Controls.StackPanel
                         });
                     }
                     return spft;
@@ -50,7 +50,7 @@ var Fayde;
                     var vspft = this._VSPFT;
                     if(!vspft) {
                         this._VSPFT = vspft = new Controls.ItemsPanelTemplate({
-                            Type: Controls.VirtualizingStackPanel
+                            ParseType: Controls.VirtualizingStackPanel
                         });
                     }
                     return vspft;

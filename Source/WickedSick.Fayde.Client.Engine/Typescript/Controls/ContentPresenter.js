@@ -42,10 +42,10 @@ var Fayde;
             ContentPresenterNode.prototype._CreateFallbackTemplate = // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
             function () {
                 return new Controls.ControlTemplate(ContentPresenter, {
-                    Type: Controls.Grid,
+                    ParseType: Controls.Grid,
                     Children: [
                         {
-                            Type: Controls.TextBlock,
+                            ParseType: Controls.TextBlock,
                             Props: {
                                 Text: new Fayde.BindingMarkup({
                                 })

@@ -36,10 +36,10 @@ module Fayde.Controls {
         // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
         private _CreateFallbackTemplate(): ControlTemplate {
             return new ControlTemplate(ContentPresenter, {
-                Type: Grid,
+                ParseType: Grid,
                 Children: [
                     {
-                        Type: TextBlock,
+                        ParseType: TextBlock,
                         Props: {
                             Text: new BindingMarkup({})
                         }

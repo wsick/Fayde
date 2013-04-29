@@ -231,7 +231,7 @@ namespace WickedSick.Server.XamlParser.Elements
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("{");
-            sb.AppendFormat("Type:{0}", GetTypeName(outputMods));
+            sb.AppendFormat("ParseType:{0}", GetTypeName(outputMods));
 
             if (!string.IsNullOrWhiteSpace(Name))
             {

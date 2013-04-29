@@ -140,7 +140,7 @@ module Fayde.Providers {
             var currentValue;
             var equal = false;
 
-            if ((currentValue = this.ReadLocalValue(propd)) === undefined)
+            if ((currentValue = this._LocalValueProvider.GetPropertyValue(this, propd)) === undefined)
                 if (propd._IsAutoCreated)
                     currentValue = this._AutoCreateProvider.ReadLocalValue(propd);
 
@@ -175,7 +175,7 @@ module Fayde.Providers {
                 return;
 
             var oldLocalValue;
-            if ((oldLocalValue = this.ReadLocalValue(propd)) === undefined) {
+            if ((oldLocalValue = this._LocalValueProvider.GetPropertyValue(this, propd)) === undefined) {
                 if (propd._IsAutoCreated)
                     oldLocalValue = this._AutoCreateProvider.ReadLocalValue(propd);
             }

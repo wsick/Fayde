@@ -178,8 +178,8 @@ var Fayde;
                 }
                 return ancestor.GetValue(ancestorPropd);
             };
-            InheritedProvider.prototype.WalkSubtree = function (rootParent, element, context, props, adding) {
-                var enumerator = element.XamlNode.GetInheritedEnumerator();
+            InheritedProvider.prototype.WalkSubtree = function (rootParent, elNode, context, props, adding) {
+                var enumerator = elNode.GetInheritedEnumerator();
                 if(!enumerator) {
                     return;
                 }
@@ -187,10 +187,11 @@ var Fayde;
                     this.WalkTree(rootParent, enumerator.Current, context, props, adding);
                 }
             };
-            InheritedProvider.prototype.WalkTree = function (rootParent, element, context, props, adding) {
+            InheritedProvider.prototype.WalkTree = function (rootParent, elNode, context, props, adding) {
                 if(props === Providers._Inheritable.None) {
                     return;
                 }
+                var element = elNode.XObject;
                 if(adding) {
                     this.MaybePropagateInheritedValue(context.ForegroundSource, Providers._Inheritable.Foreground, props, element);
                     this.MaybePropagateInheritedValue(context.FontFamilySource, Providers._Inheritable.FontFamily, props, element);
@@ -207,7 +208,7 @@ var Fayde;
                     if(props === Providers._Inheritable.None) {
                         return;
                     }
-                    this.WalkSubtree(rootParent, element, eleContext, props, adding);
+                    this.WalkSubtree(rootParent, elNode, eleContext, props, adding);
                 } else {
                     var eleContext2 = _InheritedContext.FromObject(element, context);
                     this.MaybeRemoveInheritedValue(context.ForegroundSource, Providers._Inheritable.Foreground, props, element);
@@ -224,7 +225,7 @@ var Fayde;
                     if(props === Providers._Inheritable.None) {
                         return;
                     }
-                    this.WalkSubtree(rootParent, element, context, props, adding);
+                    this.WalkSubtree(rootParent, elNode, context, props, adding);
                 }
             };
             InheritedProvider.prototype.MaybePropagateInheritedValue = function (source, prop, props, element) {
@@ -251,24 +252,24 @@ var Fayde;
                     propagateInheritedValue.call(element._Store, prop, undefined, undefined);
                 }
             };
-            InheritedProvider.prototype.PropagateInheritedPropertiesOnAddingToTree = function (store, subtree) {
+            InheritedProvider.prototype.PropagateInheritedPropertiesOnAddingToTree = function (store, subtreeNode) {
                 var inhEnum = Providers._Inheritable;
                 var baseContext = _InheritedContext.FromSources(this._GetPropertySource(inhEnum.Foreground), this._GetPropertySource(inhEnum.FontFamily), this._GetPropertySource(inhEnum.FontStretch), this._GetPropertySource(inhEnum.FontStyle), this._GetPropertySource(inhEnum.FontWeight), this._GetPropertySource(inhEnum.FontSize), this._GetPropertySource(inhEnum.Language), this._GetPropertySource(inhEnum.FlowDirection), this._GetPropertySource(inhEnum.UseLayoutRounding), this._GetPropertySource(inhEnum.TextDecorations));
                 var objContext = _InheritedContext.FromObject(store._Object, baseContext);
-                this.WalkTree(store._Object, subtree, objContext, inhEnum.All, true);
+                this.WalkTree(store._Object, subtreeNode, objContext, inhEnum.All, true);
             };
-            InheritedProvider.prototype.PropagateInheritedProperty = function (store, propd, source, subtree) {
+            InheritedProvider.prototype.PropagateInheritedProperty = function (store, propd, source) {
                 var inheritable = getInheritable(source, propd);
                 if(inheritable === 0) {
                     return;
                 }
                 var objContext = _InheritedContext.FromObject(store._Object, null);
-                this.WalkSubtree(source, subtree, objContext, inheritable, true);
+                this.WalkSubtree(source, source.XamlNode, objContext, inheritable, true);
             };
-            InheritedProvider.prototype.ClearInheritedPropertiesOnRemovingFromTree = function (store, subtree) {
+            InheritedProvider.prototype.ClearInheritedPropertiesOnRemovingFromTree = function (store, subtreeNode) {
                 var baseContext = _InheritedContext.FromSources(this._GetPropertySource(Providers._Inheritable.Foreground), this._GetPropertySource(Providers._Inheritable.FontFamily), this._GetPropertySource(Providers._Inheritable.FontStretch), this._GetPropertySource(Providers._Inheritable.FontStyle), this._GetPropertySource(Providers._Inheritable.FontWeight), this._GetPropertySource(Providers._Inheritable.FontSize), this._GetPropertySource(Providers._Inheritable.Language), this._GetPropertySource(Providers._Inheritable.FlowDirection), this._GetPropertySource(Providers._Inheritable.UseLayoutRounding), this._GetPropertySource(Providers._Inheritable.TextDecorations));
                 var objContext = _InheritedContext.FromObject(store._Object, baseContext);
-                this.WalkTree(store._Object, subtree, objContext, Providers._Inheritable.All, false);
+                this.WalkTree(store._Object, subtreeNode, objContext, Providers._Inheritable.All, false);
             };
             InheritedProvider.prototype._GetPropertySource = function (inheritable) {
                 return this._ht[inheritable];

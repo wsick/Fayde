@@ -29,15 +29,15 @@ var Fayde;
                     var inheritedProvider = this._InheritedProvider;
                     // GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited
                     if(inheritedProvider && ((this._ProviderBitmasks[propd._ID] & ((1 << Providers._PropertyPrecedence.Inherited) - 1)) !== 0)) {
-                        inheritedProvider.PropagateInheritedProperty(this, propd, this._Object, this._Object);
+                        inheritedProvider.PropagateInheritedProperty(this, propd, this._Object);
                     }
                 }
             };
-            InheritedProviderStore.prototype.PropagateInheritedOnAdd = function (subtree) {
-                this._InheritedProvider.PropagateInheritedPropertiesOnAddingToTree(this, subtree);
+            InheritedProviderStore.prototype.PropagateInheritedOnAdd = function (subtreeNode) {
+                this._InheritedProvider.PropagateInheritedPropertiesOnAddingToTree(this, subtreeNode);
             };
-            InheritedProviderStore.prototype.ClearInheritedOnRemove = function (subtree) {
-                this._InheritedProvider.ClearInheritedPropertiesOnRemovingFromTree(this, subtree);
+            InheritedProviderStore.prototype.ClearInheritedOnRemove = function (subtreeNode) {
+                this._InheritedProvider.ClearInheritedPropertiesOnRemovingFromTree(this, subtreeNode);
             };
             return InheritedProviderStore;
         })(Providers.BasicProviderStore);
