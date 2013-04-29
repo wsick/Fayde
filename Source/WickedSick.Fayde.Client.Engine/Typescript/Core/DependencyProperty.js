@@ -22,25 +22,25 @@ var DependencyProperty = (function () {
     DependencyProperty._Inherited = [];
     DependencyProperty._LastID = 0;
     DependencyProperty.Register = function Register(name, getTargetType, ownerType, defaultValue, changedCallback) {
-        return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback);
-    };
-    DependencyProperty.RegisterReadOnly = function RegisterReadOnly(name, getTargetType, ownerType, defaultValue, changedCallback) {
-        return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, undefined, true);
-    };
-    DependencyProperty.RegisterAttached = function RegisterAttached(name, getTargetType, ownerType, defaultValue, changedCallback) {
-        return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, undefined, undefined, true);
-    };
-    DependencyProperty.RegisterCore = function RegisterCore(name, getTargetType, ownerType, defaultValue, changedCallback) {
         return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, true);
     };
-    DependencyProperty.RegisterReadOnlyCore = function RegisterReadOnlyCore(name, getTargetType, ownerType, defaultValue, changedCallback) {
+    DependencyProperty.RegisterReadOnly = function RegisterReadOnly(name, getTargetType, ownerType, defaultValue, changedCallback) {
         return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, true, true);
     };
-    DependencyProperty.RegisterAttachedCore = function RegisterAttachedCore(name, getTargetType, ownerType, defaultValue, changedCallback) {
+    DependencyProperty.RegisterAttached = function RegisterAttached(name, getTargetType, ownerType, defaultValue, changedCallback) {
         return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, true, undefined, true);
     };
+    DependencyProperty.RegisterCore = function RegisterCore(name, getTargetType, ownerType, defaultValue, changedCallback) {
+        return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false);
+    };
+    DependencyProperty.RegisterReadOnlyCore = function RegisterReadOnlyCore(name, getTargetType, ownerType, defaultValue, changedCallback) {
+        return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false, true);
+    };
+    DependencyProperty.RegisterAttachedCore = function RegisterAttachedCore(name, getTargetType, ownerType, defaultValue, changedCallback) {
+        return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false, undefined, true);
+    };
     DependencyProperty.RegisterInheritable = function RegisterInheritable(name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, inheritable) {
-        return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, undefined, undefined, undefined, undefined, undefined, undefined, inheritable);
+        return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, undefined, undefined, undefined, false, undefined, undefined, inheritable);
     };
     DependencyProperty.RegisterFull = function RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, coercer, alwaysChange, validator, isCustom, isReadOnly, isAttached, inheritable) {
         var registeredDPs = (ownerType)._RegisteredDPs;
@@ -62,7 +62,7 @@ var DependencyProperty = (function () {
         propd._Coercer = coercer;
         propd._AlwaysChange = alwaysChange;
         propd._Validator = validator;
-        propd.IsCustom = isCustom;
+        propd.IsCustom = isCustom !== false;
         propd.IsReadOnly = isReadOnly === true;
         propd._IsAttached = isAttached === true;
         propd._ID = DependencyProperty._LastID = DependencyProperty._LastID + 1;
