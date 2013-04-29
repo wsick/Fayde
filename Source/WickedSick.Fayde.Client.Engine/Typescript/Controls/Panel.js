@@ -7,7 +7,7 @@ var Fayde;
 (function (Fayde) {
     /// <reference path="../Core/FrameworkElement.ts" />
     /// CODE
-    /// <reference path="../Core/DependencyObjectCollection.ts" />
+    /// <reference path="../Core/XamlObjectCollection.ts" />
     (function (Controls) {
         function zIndexComparer(uin1, uin2) {
             var zi1 = Fayde.Controls.Panel.GetZIndex(uin1.XObject);
@@ -61,24 +61,24 @@ var Fayde;
         var PanelChildrenCollection = (function (_super) {
             __extends(PanelChildrenCollection, _super);
             function PanelChildrenCollection() {
-                        _super.call(this, false);
+                _super.apply(this, arguments);
+
             }
             PanelChildrenCollection.prototype.CreateNode = function () {
                 return new PanelChildrenNode(this);
             };
-            PanelChildrenCollection.prototype._RaiseItemAdded = function (value, index) {
+            PanelChildrenCollection.prototype.AddedToCollection = function (value, error) {
+                if(!_super.prototype.AddedToCollection.call(this, value, error)) {
+                    return false;
+                }
                 this.XamlNode.ParentNode.AttachVisualChild(value);
             };
-            PanelChildrenCollection.prototype._RaiseItemRemoved = function (value, index) {
+            PanelChildrenCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
+                _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);
                 this.XamlNode.ParentNode.DetachVisualChild(value);
             };
-            PanelChildrenCollection.prototype._RaiseItemReplaced = function (removed, added, index) {
-                var panelNode = this.XamlNode.ParentNode;
-                panelNode.DetachVisualChild(removed);
-                panelNode.AttachVisualChild(added);
-            };
             return PanelChildrenCollection;
-        })(Fayde.DependencyObjectCollection);        
+        })(Fayde.XamlObjectCollection);        
         Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");
         var PanelNode = (function (_super) {
             __extends(PanelNode, _super);

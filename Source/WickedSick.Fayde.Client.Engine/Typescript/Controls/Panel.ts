@@ -1,6 +1,6 @@
 /// <reference path="../Core/FrameworkElement.ts" />
 /// CODE
-/// <reference path="../Core/DependencyObjectCollection.ts" />
+/// <reference path="../Core/XamlObjectCollection.ts" />
 
 module Fayde.Controls {
     function zIndexComparer(uin1: UINode, uin2: UINode) {
@@ -44,24 +44,19 @@ module Fayde.Controls {
         }
     }
     Nullstone.RegisterType(PanelChildrenNode, "PanelChildrenNode");
-    class PanelChildrenCollection extends DependencyObjectCollection {
+    class PanelChildrenCollection extends XamlObjectCollection {
         XamlNode: PanelChildrenNode;
-        constructor() {
-            super(false);
-        }
         CreateNode(): XamlNode {
             return new PanelChildrenNode(this);
         }
-        _RaiseItemAdded(value: UIElement, index: number) {
+        AddedToCollection(value: UIElement, error: BError): bool {
+            if (!super.AddedToCollection(value, error))
+                return false;
             this.XamlNode.ParentNode.AttachVisualChild(value);
         }
-        _RaiseItemRemoved(value: UIElement, index: number) {
+        RemovedFromCollection(value: UIElement, isValueSafe: bool) {
+            super.RemovedFromCollection(value, isValueSafe);
             this.XamlNode.ParentNode.DetachVisualChild(value);
-        }
-        _RaiseItemReplaced(removed: UIElement, added: UIElement, index: number) {
-            var panelNode = this.XamlNode.ParentNode;
-            panelNode.DetachVisualChild(removed);
-            panelNode.AttachVisualChild(added);
         }
     }
     Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");
@@ -144,7 +139,7 @@ module Fayde.Controls {
 
         Background: Media.Brush;
         IsItemsHost: bool;
-        Children: DependencyObjectCollection;
+        Children: XamlObjectCollection;
 
         static Annotations = { ContentProperty: "Children" }
 
