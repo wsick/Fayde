@@ -277,8 +277,10 @@ var Fayde;
                 this._PostProviderValueChanged(providerPrecedence, propd, oldValue, newValue, notifyListeners, error);
             };
             BasicProviderStore.prototype._PostProviderValueChanged = function (providerPrecedence, propd, oldValue, newValue, notifyListeners, error) {
-                this._DetachValue(oldValue);
-                this._AttachValue(newValue, error);
+                if(!propd.IsCustom) {
+                    this._DetachValue(oldValue);
+                    this._AttachValue(newValue, error);
+                }
                 //Construct property changed event args and raise
                 if(notifyListeners) {
                     var args = {
@@ -380,15 +382,7 @@ var Fayde;
                 if(!value) {
                     return true;
                 }
-                if(value instanceof Fayde.DependencyObject) {
-                    return (value).XamlNode.AttachTo(this._Object.XamlNode, error);
-                    //TODO:
-                    //  AddPropertyChangedListener (SubPropertyChanged)
-                    //if (value instanceof XamlObjectCollection) {
-                    //(<XamlObjectCollection>value).ListenToChanged(this);
-                    //      Subscribe ItemChanged
-                    //}
-                                    } else if(value instanceof Fayde.XamlObject) {
+                if(value instanceof Fayde.XamlObject) {
                     return (value).XamlNode.AttachTo(this._Object.XamlNode, error);
                 }
             };
@@ -396,15 +390,7 @@ var Fayde;
                 if(!value) {
                     return;
                 }
-                if(value instanceof Fayde.DependencyObject) {
-                    (value).XamlNode.Detach();
-                    //TODO:
-                    //  RemovePropertyChangedListener (SubPropertyChanged)
-                    //if (value instanceof XamlObjectCollection) {
-                    //(<XamlObjectCollection>value).StopListenToChanged(this);
-                    //      Unsubscribe ItemChanged
-                    //}
-                                    } else if(value instanceof Fayde.XamlObject) {
+                if(value instanceof Fayde.XamlObject) {
                     (value).XamlNode.Detach();
                 }
             };

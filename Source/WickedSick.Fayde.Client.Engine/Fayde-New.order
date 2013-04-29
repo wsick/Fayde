@@ -6,6 +6,7 @@ Core/Clone.js
 Core/Enums.js
 Core/PropertyChangedListener.js
 Core/TypeConverter.js
+Core/VisualTreeHelper.js
 Core/Walkers.js
 Core/Providers/Enums.js
 Core/Providers/IProviderStore.js

@@ -262,8 +262,10 @@ module Fayde.Providers {
             this._PostProviderValueChanged(providerPrecedence, propd, oldValue, newValue, notifyListeners, error);
         }
         _PostProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldValue: any, newValue: any, notifyListeners: bool, error: BError) {
-            this._DetachValue(oldValue);
-            this._AttachValue(newValue, error);
+            if (!propd.IsCustom) {
+                this._DetachValue(oldValue);
+                this._AttachValue(newValue, error);
+            }
 
             //Construct property changed event args and raise
             if (notifyListeners) {
@@ -355,30 +357,14 @@ module Fayde.Providers {
         _AttachValue(value: any, error: BError): bool {
             if (!value)
                 return true;
-            if (value instanceof DependencyObject) {
-                return (<XamlObject>value).XamlNode.AttachTo(this._Object.XamlNode, error);
-                //TODO: 
-                //  AddPropertyChangedListener (SubPropertyChanged)
-                //if (value instanceof XamlObjectCollection) {
-                //(<XamlObjectCollection>value).ListenToChanged(this);
-                //      Subscribe ItemChanged
-                //}
-            } else if (value instanceof XamlObject) {
+            if (value instanceof XamlObject) {
                 return (<XamlObject>value).XamlNode.AttachTo(this._Object.XamlNode, error);
             }
         }
         _DetachValue(value: any) {
             if (!value)
                 return;
-            if (value instanceof DependencyObject) {
-                (<XamlObject>value).XamlNode.Detach();
-                //TODO: 
-                //  RemovePropertyChangedListener (SubPropertyChanged)
-                //if (value instanceof XamlObjectCollection) {
-                //(<XamlObjectCollection>value).StopListenToChanged(this);
-                //      Unsubscribe ItemChanged
-                //}
-            } else if (value instanceof XamlObject) {
+            if (value instanceof XamlObject) {
                 (<XamlObject>value).XamlNode.Detach();
             }
         }
