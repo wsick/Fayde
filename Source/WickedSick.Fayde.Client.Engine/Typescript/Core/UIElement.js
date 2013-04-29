@@ -52,7 +52,7 @@ var Fayde;
         };
         UINode.prototype.SetIsLoaded = function (value) {
         };
-        UINode.prototype.AttachVisualChild = function (uie) {
+        UINode.prototype.OnVisualChildAttached = function (uie) {
             var lu = this.LayoutUpdater;
             lu.UpdateBounds(true);
             lu.InvalidateMeasure();
@@ -63,7 +63,7 @@ var Fayde;
             this.XObject._Store.PropagateInheritedOnAdd(un);
             un.LayoutUpdater.OnAddedToTree();
         };
-        UINode.prototype.DetachVisualChild = function (uie) {
+        UINode.prototype.OnVisualChildDetached = function (uie) {
             var lu = this.LayoutUpdater;
             var un = uie.XamlNode;
             lu.Invalidate(un.LayoutUpdater.SubtreeBounds);

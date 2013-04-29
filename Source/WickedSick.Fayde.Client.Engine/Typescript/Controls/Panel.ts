@@ -20,6 +20,14 @@ module Fayde.Controls {
         private _Nodes: UINode[] = [];
         private _ZSorted: UINode[] = [];
 
+        AddNode(uin: UINode) { this._Nodes.push(uin); }
+        RemoveNode(uin: UINode) {
+            var nodes = this._Nodes;
+            var index = nodes.indexOf(uin);
+            if (index > -1)
+                nodes.splice(index, 1);
+        }
+
         ResortByZIndex() {
             var zs = this._Nodes.slice(0);
             this._ZSorted = zs;
@@ -28,6 +36,7 @@ module Fayde.Controls {
         }
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
             switch (direction) {
+                default:
                 case VisualTreeDirection.Logical:
                     return ArrayEx.GetEnumerator(this._Nodes);
                 case VisualTreeDirection.LogicalReverse:
@@ -44,6 +53,7 @@ module Fayde.Controls {
         }
     }
     Nullstone.RegisterType(PanelChildrenNode, "PanelChildrenNode");
+
     class PanelChildrenCollection extends XamlObjectCollection {
         XamlNode: PanelChildrenNode;
         CreateNode(): XamlNode {
@@ -52,11 +62,15 @@ module Fayde.Controls {
         AddedToCollection(value: UIElement, error: BError): bool {
             if (!super.AddedToCollection(value, error))
                 return false;
-            this.XamlNode.ParentNode.AttachVisualChild(value);
+            var node = this.XamlNode;
+            node.AddNode(value.XamlNode);
+            return node.ParentNode.AttachVisualChild(value, error);
         }
         RemovedFromCollection(value: UIElement, isValueSafe: bool) {
             super.RemovedFromCollection(value, isValueSafe);
-            this.XamlNode.ParentNode.DetachVisualChild(value);
+            var node = this.XamlNode;
+            node.ParentNode.DetachVisualChild(value, null);
+            node.RemoveNode(value.XamlNode);
         }
     }
     Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");
@@ -66,21 +80,26 @@ module Fayde.Controls {
         constructor(xobj: Panel) {
             super(xobj);
             this.LayoutUpdater.SetContainerMode(true, true);
-            
+
             var coll = new PanelChildrenCollection();
             Object.defineProperty(xobj, "Children", {
                 value: coll,
                 writable: false
             });
-            this.SetSubtreeNode(coll.XamlNode);
+            var error = new BError();
+            this.SetSubtreeNode(coll.XamlNode, error);
         }
-        AttachVisualChild(uie: UIElement) {
-            super.AttachVisualChild(uie);
+        AttachVisualChild(uie: UIElement, error: BError): bool {
+            this.OnVisualChildAttached(uie);
+            uie.XamlNode.SetIsLoaded(this.IsLoaded);
             this._InvalidateChildrenZIndices();
+            return true;
         }
-        DetachVisualChild(uie: UIElement) {
-            super.DetachVisualChild(uie);
+        DetachVisualChild(uie: UIElement, error: BError): bool {
+            this.OnVisualChildDetached(uie);
+            uie.XamlNode.SetIsLoaded(false);
             this._InvalidateChildrenZIndices();
+            return true;
         }
         _InvalidateChildrenZIndices() {
             if (this.IsAttached) {
@@ -95,7 +114,7 @@ module Fayde.Controls {
         _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
             return (this.XObject.Background != null) && super._InsideObject(ctx, lu, x, y);
         }
-        
+
         ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
             rect.clear(lu.Extents);
             rect.clear(lu.ExtentsWithChildren);
@@ -119,12 +138,16 @@ module Fayde.Controls {
             lu.ComputeGlobalBounds();
             lu.ComputeSurfaceBounds();
         }
+        
+        GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
+            return this.XObject.Children.XamlNode.GetVisualTreeEnumerator(direction);
+        }
     }
     Nullstone.RegisterType(PanelNode, "PanelNode");
+
     function zIndexPropertyChanged(dobj: DependencyObject, args) {
-        //if (dobj instanceof UIElement) {
-        //  (<UIElement>dobj)._Invalidate();
-        //}
+        if (dobj instanceof UIElement)
+          (<UIElement>dobj).XamlNode.LayoutUpdater.Invalidate();
         (<PanelNode>dobj.XamlNode.ParentNode)._InvalidateChildrenZIndices();
     }
     export class Panel extends FrameworkElement implements IMeasurableHidden {
@@ -145,7 +168,7 @@ module Fayde.Controls {
 
         static GetZIndex(uie: UIElement): number { return uie.GetValue(ZIndexProperty); }
         static SetZIndex(uie: UIElement, value: number) { uie.SetValue(ZIndexProperty, value); }
-        
+
         static GetZ(uie: UIElement): number { return uie.GetValue(ZProperty); }
         static SetZ(uie: UIElement, value: number) { uie.SetValue(ZProperty, value); }
 
@@ -162,7 +185,7 @@ module Fayde.Controls {
             lu.Invalidate();
         }
         private BrushChanged(newBrush: Media.Brush) { this.XamlNode.LayoutUpdater.Invalidate(); }
-        
+
         private _MeasureOverride(availableSize: size, error: BError): size {
             //Abstract Method
             return new size();
@@ -171,7 +194,7 @@ module Fayde.Controls {
             var background = this.Background;
             if (!background)
                 return;
-            
+
             var framework = lu.CoerceSize(size.fromRaw(this.ActualWidth, this.ActualHeight));
             if (framework.Width <= 0 || framework.Height <= 0)
                 return;

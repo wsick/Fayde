@@ -56,7 +56,7 @@ module Fayde {
         IsLoaded: bool = false;
         SetIsLoaded(value: bool) { }
 
-        AttachVisualChild(uie: UIElement) {
+        OnVisualChildAttached(uie: UIElement) {
             var lu = this.LayoutUpdater;
             lu.UpdateBounds(true);
             lu.InvalidateMeasure();
@@ -68,7 +68,7 @@ module Fayde {
             this.XObject._Store.PropagateInheritedOnAdd(un);
             un.LayoutUpdater.OnAddedToTree();
         }
-        DetachVisualChild(uie: UIElement) {
+        OnVisualChildDetached(uie: UIElement) {
             var lu = this.LayoutUpdater;
             var un = uie.XamlNode;
             lu.Invalidate(un.LayoutUpdater.SubtreeBounds);

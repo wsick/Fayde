@@ -95,11 +95,15 @@ var Fayde;
                 var olduie = args.OldValue;
                 var newuie = args.NewValue;
                 var node = this.XamlNode;
+                var error = new BError();
                 if(olduie instanceof Fayde.UIElement) {
-                    node.DetachVisualChild(olduie);
+                    node.DetachVisualChild(olduie, error);
                 }
                 if(newuie instanceof Fayde.UIElement) {
-                    node.AttachVisualChild(newuie);
+                    node.AttachVisualChild(newuie, error);
+                }
+                if(error.Message) {
+                    error.ThrowException();
                 }
                 var lu = node.LayoutUpdater;
                 lu.UpdateBounds();

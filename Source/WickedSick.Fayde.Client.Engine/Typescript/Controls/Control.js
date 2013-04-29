@@ -36,11 +36,17 @@ var Fayde;
                     return _super.prototype._DoApplyTemplateWithError.call(this, error);
                 }
                 if(this.TemplateRoot && this.TemplateRoot !== root) {
-                    this.DetachVisualChild(this.TemplateRoot);
+                    this.DetachVisualChild(this.TemplateRoot, error);
                     this.TemplateRoot = null;
                 }
+                if(error.Message) {
+                    return false;
+                }
                 this.TemplateRoot = root;
-                this.AttachVisualChild(this.TemplateRoot);
+                this.AttachVisualChild(this.TemplateRoot, error);
+                if(error.Message) {
+                    return false;
+                }
                 //TODO: Deployment Loaded Event (Async)
                 return true;
             };

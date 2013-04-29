@@ -319,8 +319,6 @@ module Fayde {
         }
         private _PropagateDirtyFlagToChildren(dirt: _Dirty) {
             var enumerator = this.Node.GetVisualTreeEnumerator();
-            if (!enumerator)
-                return;
             var s = this.Surface;
             while (enumerator.MoveNext()) {
                 s._AddDirtyElement((<UINode>enumerator.Current).LayoutUpdater, dirt);

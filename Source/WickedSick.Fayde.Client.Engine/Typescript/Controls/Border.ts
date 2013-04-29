@@ -69,10 +69,13 @@ module Fayde.Controls {
             var olduie = <UIElement>args.OldValue;
             var newuie = <UIElement>args.NewValue;
             var node = this.XamlNode;
+            var error = new BError();
             if (olduie instanceof UIElement)
-                node.DetachVisualChild(olduie);
+                node.DetachVisualChild(olduie, error);
             if (newuie instanceof UIElement)
-                node.AttachVisualChild(newuie);
+                node.AttachVisualChild(newuie, error);
+            if (error.Message)
+                error.ThrowException();
             var lu = node.LayoutUpdater;
             lu.UpdateBounds();
             lu.InvalidateMeasure();

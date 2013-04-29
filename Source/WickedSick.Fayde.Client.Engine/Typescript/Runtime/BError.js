@@ -11,7 +11,6 @@ var BError = (function () {
         switch(this.Number) {
             case BError.Attach:
                 ex = new AttachException(this.Message, this.Data);
-                Fayde.VisualTreeHelper.__Debug((ex).Data.ParentNode);
                 break;
             case BError.Argument:
                 ex = new ArgumentException(this.Message);

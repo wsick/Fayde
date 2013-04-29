@@ -124,13 +124,13 @@ module Fayde.Media.VSM {
                 return (<Controls.UserControl>control).XamlNode.TemplateRoot;
 
             var enumerator = control.XamlNode.GetVisualTreeEnumerator();
-            var fe: FrameworkElement = null;
+            var node: FENode = null;
             if (enumerator.MoveNext()) {
-                fe = enumerator.Current;
-                if (!(fe instanceof FrameworkElement))
-                    fe = null;
+                node = enumerator.Current;
+                if (!(node instanceof FENode))
+                    node = null;
             }
-            return fe;
+            return (node) ? node.XObject : null;
         }
         private static _TryGetState(groups: VisualStateGroupCollection, stateName: string, data: IStateData): bool {
             var enumerator = groups.GetEnumerator();

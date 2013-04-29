@@ -20,7 +20,7 @@ var Fayde;
             }
             ContentPresenterNode.prototype._ClearRoot = function () {
                 if(this._ContentRoot) {
-                    this.DetachVisualChild(this._ContentRoot);
+                    this.DetachVisualChild(this._ContentRoot, null);
                 }
                 this._ContentRoot = null;
             };

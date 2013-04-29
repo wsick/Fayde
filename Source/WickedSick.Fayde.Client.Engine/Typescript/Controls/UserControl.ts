@@ -36,14 +36,17 @@ module Fayde.Controls {
         }
 
         private _InvalidateContent(args: IDependencyPropertyChangedEventArgs) {
-            var n = this.XamlNode;
-            if (n._IsParsing)
+            var node = this.XamlNode;
+            if (node._IsParsing)
                 return;
+            var error = new BError();
             if (args.OldValue instanceof UIElement)
-                n.DetachVisualChild(<UIElement>args.OldValue);
+                node.DetachVisualChild(<UIElement>args.OldValue, error);
             if (args.NewValue instanceof UIElement)
-                n.AttachVisualChild(<UIElement>args.NewValue);
-            n.LayoutUpdater.UpdateBounds();
+                node.AttachVisualChild(<UIElement>args.NewValue, error);
+            if (error.Message)
+                error.ThrowException();
+            node.LayoutUpdater.UpdateBounds();
         }
 
         private _MeasureOverride(availableSize: size, error: BError): size {

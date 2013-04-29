@@ -255,9 +255,6 @@ var Fayde;
         };
         LayoutUpdater.prototype._PropagateDirtyFlagToChildren = function (dirt) {
             var enumerator = this.Node.GetVisualTreeEnumerator();
-            if(!enumerator) {
-                return;
-            }
             var s = this.Surface;
             while(enumerator.MoveNext()) {
                 s._AddDirtyElement((enumerator.Current).LayoutUpdater, dirt);

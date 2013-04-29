@@ -20,12 +20,13 @@ var Fayde;
         function FENode(xobj) {
                 _super.call(this, xobj);
         }
-        FENode.prototype.SetSubtreeNode = function (subtreeNode) {
+        FENode.prototype.SetSubtreeNode = function (subtreeNode, error) {
             var error = new BError();
             if(subtreeNode && !subtreeNode.AttachTo(this, error)) {
-                error.ThrowException();
+                return false;
             }
             this.SubtreeNode = subtreeNode;
+            return true;
         };
         FENode.prototype.OnParentChanged = function (oldParentNode, newParentNode) {
             var store = this.XObject._Store;
@@ -78,14 +79,18 @@ var Fayde;
         };
         FENode.prototype.InvokeLoaded = function () {
         };
-        FENode.prototype.AttachVisualChild = function (uie) {
-            _super.prototype.AttachVisualChild.call(this, uie);
-            this.SetSubtreeNode(uie.XamlNode);
+        FENode.prototype.AttachVisualChild = function (uie, error) {
+            this.OnVisualChildAttached(uie);
+            if(!this.SetSubtreeNode(uie.XamlNode, error)) {
+                return false;
+            }
             uie.XamlNode.SetIsLoaded(this.IsLoaded);
         };
-        FENode.prototype.DetachVisualChild = function (uie) {
-            this.SetSubtreeNode(null);
-            _super.prototype.DetachVisualChild.call(this, uie);
+        FENode.prototype.DetachVisualChild = function (uie, error) {
+            if(!this.SetSubtreeNode(null, error)) {
+                return false;
+            }
+            this.OnVisualChildDetached(uie);
             uie.XamlNode.SetIsLoaded(false);
         };
         FENode.prototype._ApplyTemplateWithError = function (error) {
@@ -104,9 +109,9 @@ var Fayde;
                 if(error.Message) {
                     return false;
                 }
-                this.AttachVisualChild(uie);
+                this.AttachVisualChild(uie, error);
             }
-            return uie != null;
+            return error.Message == null && uie != null;
         };
         FENode.prototype._GetDefaultTemplate = function () {
             return undefined;
@@ -186,14 +191,11 @@ var Fayde;
         };
         FENode.prototype.GetVisualTreeEnumerator = function (direction) {
             if(this.SubtreeNode) {
-                var xoc = this.SubtreeNode.XObject;
-                if(xoc instanceof Fayde.XamlObjectCollection) {
-                    return (xoc).GetEnumerator();
-                }
                 return Fayde.ArrayEx.GetEnumerator([
                     this.SubtreeNode
                 ]);
             }
+            return Fayde.ArrayEx.EmptyEnumerator();
         };
         return FENode;
     })(Fayde.UINode);

@@ -34,6 +34,14 @@ var Fayde;
             }
             return e;
         };
+        ArrayEx.EmptyEnumerator = function EmptyEnumerator() {
+            return {
+                MoveNext: function () {
+                    return false;
+                },
+                Current: undefined
+            };
+        };
         return ArrayEx;
     })();
     Fayde.ArrayEx = ArrayEx;    

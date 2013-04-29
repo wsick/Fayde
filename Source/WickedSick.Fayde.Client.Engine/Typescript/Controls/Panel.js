@@ -30,6 +30,16 @@ var Fayde;
                 this._Nodes = [];
                 this._ZSorted = [];
             }
+            PanelChildrenNode.prototype.AddNode = function (uin) {
+                this._Nodes.push(uin);
+            };
+            PanelChildrenNode.prototype.RemoveNode = function (uin) {
+                var nodes = this._Nodes;
+                var index = nodes.indexOf(uin);
+                if(index > -1) {
+                    nodes.splice(index, 1);
+                }
+            };
             PanelChildrenNode.prototype.ResortByZIndex = function () {
                 var zs = this._Nodes.slice(0);
                 this._ZSorted = zs;
@@ -39,6 +49,7 @@ var Fayde;
             };
             PanelChildrenNode.prototype.GetVisualTreeEnumerator = function (direction) {
                 switch(direction) {
+                    default:
                     case Fayde.VisualTreeDirection.Logical:
                         return Fayde.ArrayEx.GetEnumerator(this._Nodes);
                     case Fayde.VisualTreeDirection.LogicalReverse:
@@ -71,11 +82,15 @@ var Fayde;
                 if(!_super.prototype.AddedToCollection.call(this, value, error)) {
                     return false;
                 }
-                this.XamlNode.ParentNode.AttachVisualChild(value);
+                var node = this.XamlNode;
+                node.AddNode(value.XamlNode);
+                return node.ParentNode.AttachVisualChild(value, error);
             };
             PanelChildrenCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
                 _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);
-                this.XamlNode.ParentNode.DetachVisualChild(value);
+                var node = this.XamlNode;
+                node.ParentNode.DetachVisualChild(value, null);
+                node.RemoveNode(value.XamlNode);
             };
             return PanelChildrenCollection;
         })(Fayde.XamlObjectCollection);        
@@ -90,15 +105,20 @@ var Fayde;
                     value: coll,
                     writable: false
                 });
-                this.SetSubtreeNode(coll.XamlNode);
+                var error = new BError();
+                this.SetSubtreeNode(coll.XamlNode, error);
             }
-            PanelNode.prototype.AttachVisualChild = function (uie) {
-                _super.prototype.AttachVisualChild.call(this, uie);
+            PanelNode.prototype.AttachVisualChild = function (uie, error) {
+                this.OnVisualChildAttached(uie);
+                uie.XamlNode.SetIsLoaded(this.IsLoaded);
                 this._InvalidateChildrenZIndices();
+                return true;
             };
-            PanelNode.prototype.DetachVisualChild = function (uie) {
-                _super.prototype.DetachVisualChild.call(this, uie);
+            PanelNode.prototype.DetachVisualChild = function (uie, error) {
+                this.OnVisualChildDetached(uie);
+                uie.XamlNode.SetIsLoaded(false);
                 this._InvalidateChildrenZIndices();
+                return true;
             };
             PanelNode.prototype._InvalidateChildrenZIndices = function () {
                 if(this.IsAttached) {
@@ -133,14 +153,17 @@ var Fayde;
                 lu.ComputeGlobalBounds();
                 lu.ComputeSurfaceBounds();
             };
+            PanelNode.prototype.GetVisualTreeEnumerator = function (direction) {
+                return this.XObject.Children.XamlNode.GetVisualTreeEnumerator(direction);
+            };
             return PanelNode;
         })(Fayde.FENode);
         Controls.PanelNode = PanelNode;        
         Nullstone.RegisterType(PanelNode, "PanelNode");
         function zIndexPropertyChanged(dobj, args) {
-            //if (dobj instanceof UIElement) {
-            //  (<UIElement>dobj)._Invalidate();
-            //}
+            if(dobj instanceof Fayde.UIElement) {
+                (dobj).XamlNode.LayoutUpdater.Invalidate();
+            }
             (dobj.XamlNode.ParentNode)._InvalidateChildrenZIndices();
         }
         var Panel = (function (_super) {

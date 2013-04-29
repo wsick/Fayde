@@ -17,11 +17,12 @@ module Fayde {
             super(xobj);
         }
         SubtreeNode: XamlNode;
-        SetSubtreeNode(subtreeNode: XamlNode) {
+        SetSubtreeNode(subtreeNode: XamlNode, error: BError): bool {
             var error = new BError();
             if (subtreeNode && !subtreeNode.AttachTo(this, error))
-                error.ThrowException();
+                return false;
             this.SubtreeNode = subtreeNode;
+            return true;
         }
 
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
@@ -74,14 +75,16 @@ module Fayde {
         }
         InvokeLoaded() { }
 
-        AttachVisualChild(uie: UIElement) {
-            super.AttachVisualChild(uie);
-            this.SetSubtreeNode(uie.XamlNode);
+        AttachVisualChild(uie: UIElement, error: BError): bool {
+            this.OnVisualChildAttached(uie);
+            if (!this.SetSubtreeNode(uie.XamlNode, error))
+                return false;
             uie.XamlNode.SetIsLoaded(this.IsLoaded);
         }
-        DetachVisualChild(uie: UIElement) {
-            this.SetSubtreeNode(null);
-            super.DetachVisualChild(uie);
+        DetachVisualChild(uie: UIElement, error: BError) {
+            if (!this.SetSubtreeNode(null, error))
+                return false;
+            this.OnVisualChildDetached(uie);
             uie.XamlNode.SetIsLoaded(false);
         }
 
@@ -98,9 +101,9 @@ module Fayde {
             if (uie) {
                 if (error.Message)
                     return false;
-                this.AttachVisualChild(uie);
+                this.AttachVisualChild(uie, error);
             }
-            return uie != null;
+            return error.Message == null && uie != null;
         }
         _GetDefaultTemplate(): UIElement { return undefined; }
 
@@ -176,12 +179,9 @@ module Fayde {
         }
 
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
-            if (this.SubtreeNode) {
-                var xoc = this.SubtreeNode.XObject;
-                if (xoc instanceof XamlObjectCollection)
-                    return (<XamlObjectCollection>xoc).GetEnumerator();
+            if (this.SubtreeNode)
                 return ArrayEx.GetEnumerator([this.SubtreeNode]);
-            }
+            return ArrayEx.EmptyEnumerator();
         }
     }
     Nullstone.RegisterType(FENode, "FENode");

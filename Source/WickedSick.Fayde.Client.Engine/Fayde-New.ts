@@ -1853,6 +1853,12 @@ module Fayde {
             }
             return e;
         }
+        static EmptyEnumerator() {
+            return {
+                MoveNext: function () { return false; },
+                Current: undefined
+            };
+        }
     }
 }
 
@@ -3643,8 +3649,6 @@ module Fayde {
         }
         private _PropagateDirtyFlagToChildren(dirt: _Dirty) {
             var enumerator = this.Node.GetVisualTreeEnumerator();
-            if (!enumerator)
-                return;
             var s = this.Surface;
             while (enumerator.MoveNext()) {
                 s._AddDirtyElement((<UINode>enumerator.Current).LayoutUpdater, dirt);
@@ -8540,7 +8544,6 @@ class BError {
         switch (this.Number) {
             case BError.Attach:
                 ex = new AttachException(this.Message, this.Data);
-                Fayde.VisualTreeHelper.__Debug((<AttachException>ex).Data.ParentNode)
                 break;
             case BError.Argument:
                 ex = new ArgumentException(this.Message);
@@ -11291,13 +11294,13 @@ module Fayde.Media.VSM {
             if (control instanceof Controls.UserControl)
                 return (<Controls.UserControl>control).XamlNode.TemplateRoot;
             var enumerator = control.XamlNode.GetVisualTreeEnumerator();
-            var fe: FrameworkElement = null;
+            var node: FENode = null;
             if (enumerator.MoveNext()) {
-                fe = enumerator.Current;
-                if (!(fe instanceof FrameworkElement))
-                    fe = null;
+                node = enumerator.Current;
+                if (!(node instanceof FENode))
+                    node = null;
             }
-            return fe;
+            return (node) ? node.XObject : null;
         }
         private static _TryGetState(groups: VisualStateGroupCollection, stateName: string, data: IStateData): bool {
             var enumerator = groups.GetEnumerator();
@@ -11570,7 +11573,7 @@ module Fayde {
         }
         IsLoaded: bool = false;
         SetIsLoaded(value: bool) { }
-        AttachVisualChild(uie: UIElement) {
+        OnVisualChildAttached(uie: UIElement) {
             var lu = this.LayoutUpdater;
             lu.UpdateBounds(true);
             lu.InvalidateMeasure();
@@ -11581,7 +11584,7 @@ module Fayde {
             this.XObject._Store.PropagateInheritedOnAdd(un);
             un.LayoutUpdater.OnAddedToTree();
         }
-        DetachVisualChild(uie: UIElement) {
+        OnVisualChildDetached(uie: UIElement) {
             var lu = this.LayoutUpdater;
             var un = uie.XamlNode;
             lu.Invalidate(un.LayoutUpdater.SubtreeBounds);
@@ -13099,11 +13102,12 @@ module Fayde {
             super(xobj);
         }
         SubtreeNode: XamlNode;
-        SetSubtreeNode(subtreeNode: XamlNode) {
+        SetSubtreeNode(subtreeNode: XamlNode, error: BError): bool {
             var error = new BError();
             if (subtreeNode && !subtreeNode.AttachTo(this, error))
-                error.ThrowException();
+                return false;
             this.SubtreeNode = subtreeNode;
+            return true;
         }
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
             var store = this.XObject._Store;
@@ -13147,14 +13151,16 @@ module Fayde {
             }
         }
         InvokeLoaded() { }
-        AttachVisualChild(uie: UIElement) {
-            super.AttachVisualChild(uie);
-            this.SetSubtreeNode(uie.XamlNode);
+        AttachVisualChild(uie: UIElement, error: BError): bool {
+            this.OnVisualChildAttached(uie);
+            if (!this.SetSubtreeNode(uie.XamlNode, error))
+                return false;
             uie.XamlNode.SetIsLoaded(this.IsLoaded);
         }
-        DetachVisualChild(uie: UIElement) {
-            this.SetSubtreeNode(null);
-            super.DetachVisualChild(uie);
+        DetachVisualChild(uie: UIElement, error: BError) {
+            if (!this.SetSubtreeNode(null, error))
+                return false;
+            this.OnVisualChildDetached(uie);
             uie.XamlNode.SetIsLoaded(false);
         }
         _ApplyTemplateWithError(error: BError): bool {
@@ -13170,9 +13176,9 @@ module Fayde {
             if (uie) {
                 if (error.Message)
                     return false;
-                this.AttachVisualChild(uie);
+                this.AttachVisualChild(uie, error);
             }
-            return uie != null;
+            return error.Message == null && uie != null;
         }
         _GetDefaultTemplate(): UIElement { return undefined; }
         _HitTestPoint(ctx: RenderContext, p: Point, uielist: UINode[]) {
@@ -13235,12 +13241,9 @@ module Fayde {
             return false;
         }
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
-            if (this.SubtreeNode) {
-                var xoc = this.SubtreeNode.XObject;
-                if (xoc instanceof XamlObjectCollection)
-                    return (<XamlObjectCollection>xoc).GetEnumerator();
+            if (this.SubtreeNode)
                 return ArrayEx.GetEnumerator([this.SubtreeNode]);
-            }
+            return ArrayEx.EmptyEnumerator();
         }
     }
     Nullstone.RegisterType(FENode, "FENode");
@@ -13883,10 +13886,13 @@ module Fayde.Controls {
             var olduie = <UIElement>args.OldValue;
             var newuie = <UIElement>args.NewValue;
             var node = this.XamlNode;
+            var error = new BError();
             if (olduie instanceof UIElement)
-                node.DetachVisualChild(olduie);
+                node.DetachVisualChild(olduie, error);
             if (newuie instanceof UIElement)
-                node.AttachVisualChild(newuie);
+                node.AttachVisualChild(newuie, error);
+            if (error.Message)
+                error.ThrowException();
             var lu = node.LayoutUpdater;
             lu.UpdateBounds();
             lu.InvalidateMeasure();
@@ -14020,7 +14026,7 @@ module Fayde.Controls {
         }
         _ClearRoot() {
             if (this._ContentRoot)
-                this.DetachVisualChild(this._ContentRoot);
+                this.DetachVisualChild(this._ContentRoot, null);
             this._ContentRoot = null;
         }
         private _FallbackRoot: UIElement;
@@ -14140,11 +14146,15 @@ module Fayde.Controls {
             if (!root)
                 return super._DoApplyTemplateWithError(error);
             if (this.TemplateRoot && this.TemplateRoot !== root) {
-                this.DetachVisualChild(this.TemplateRoot);
+                this.DetachVisualChild(this.TemplateRoot, error)
                 this.TemplateRoot = null;
             }
+            if (error.Message)
+                return false;
             this.TemplateRoot = <FrameworkElement>root;
-            this.AttachVisualChild(this.TemplateRoot);
+            this.AttachVisualChild(this.TemplateRoot, error);
+            if (error.Message)
+                return false;
             return true;
         }
         OnIsAttachedChanged(newIsAttached: bool) {
@@ -14677,6 +14687,13 @@ module Fayde.Controls {
         ParentNode: PanelNode;
         private _Nodes: UINode[] = [];
         private _ZSorted: UINode[] = [];
+        AddNode(uin: UINode) { this._Nodes.push(uin); }
+        RemoveNode(uin: UINode) {
+            var nodes = this._Nodes;
+            var index = nodes.indexOf(uin);
+            if (index > -1)
+                nodes.splice(index, 1);
+        }
         ResortByZIndex() {
             var zs = this._Nodes.slice(0);
             this._ZSorted = zs;
@@ -14685,6 +14702,7 @@ module Fayde.Controls {
         }
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
             switch (direction) {
+                default:
                 case VisualTreeDirection.Logical:
                     return ArrayEx.GetEnumerator(this._Nodes);
                 case VisualTreeDirection.LogicalReverse:
@@ -14709,11 +14727,15 @@ module Fayde.Controls {
         AddedToCollection(value: UIElement, error: BError): bool {
             if (!super.AddedToCollection(value, error))
                 return false;
-            this.XamlNode.ParentNode.AttachVisualChild(value);
+            var node = this.XamlNode;
+            node.AddNode(value.XamlNode);
+            return node.ParentNode.AttachVisualChild(value, error);
         }
         RemovedFromCollection(value: UIElement, isValueSafe: bool) {
             super.RemovedFromCollection(value, isValueSafe);
-            this.XamlNode.ParentNode.DetachVisualChild(value);
+            var node = this.XamlNode;
+            node.ParentNode.DetachVisualChild(value, null);
+            node.RemoveNode(value.XamlNode);
         }
     }
     Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");
@@ -14727,15 +14749,20 @@ module Fayde.Controls {
                 value: coll,
                 writable: false
             });
-            this.SetSubtreeNode(coll.XamlNode);
+            var error = new BError();
+            this.SetSubtreeNode(coll.XamlNode, error);
         }
-        AttachVisualChild(uie: UIElement) {
-            super.AttachVisualChild(uie);
+        AttachVisualChild(uie: UIElement, error: BError): bool {
+            this.OnVisualChildAttached(uie);
+            uie.XamlNode.SetIsLoaded(this.IsLoaded);
             this._InvalidateChildrenZIndices();
+            return true;
         }
-        DetachVisualChild(uie: UIElement) {
-            super.DetachVisualChild(uie);
+        DetachVisualChild(uie: UIElement, error: BError): bool {
+            this.OnVisualChildDetached(uie);
+            uie.XamlNode.SetIsLoaded(false);
             this._InvalidateChildrenZIndices();
+            return true;
         }
         _InvalidateChildrenZIndices() {
             if (this.IsAttached) {
@@ -14767,9 +14794,14 @@ module Fayde.Controls {
             lu.ComputeGlobalBounds();
             lu.ComputeSurfaceBounds();
         }
+        GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
+            return this.XObject.Children.XamlNode.GetVisualTreeEnumerator(direction);
+        }
     }
     Nullstone.RegisterType(PanelNode, "PanelNode");
     function zIndexPropertyChanged(dobj: DependencyObject, args) {
+        if (dobj instanceof UIElement)
+          (<UIElement>dobj).XamlNode.LayoutUpdater.Invalidate();
         (<PanelNode>dobj.XamlNode.ParentNode)._InvalidateChildrenZIndices();
     }
     export class Panel extends FrameworkElement implements IMeasurableHidden {
@@ -15589,14 +15621,17 @@ module Fayde.Controls {
             this.ApplyTemplate();
         }
         private _InvalidateContent(args: IDependencyPropertyChangedEventArgs) {
-            var n = this.XamlNode;
-            if (n._IsParsing)
+            var node = this.XamlNode;
+            if (node._IsParsing)
                 return;
+            var error = new BError();
             if (args.OldValue instanceof UIElement)
-                n.DetachVisualChild(<UIElement>args.OldValue);
+                node.DetachVisualChild(<UIElement>args.OldValue, error);
             if (args.NewValue instanceof UIElement)
-                n.AttachVisualChild(<UIElement>args.NewValue);
-            n.LayoutUpdater.UpdateBounds();
+                node.AttachVisualChild(<UIElement>args.NewValue, error);
+            if (error.Message)
+                error.ThrowException();
+            node.LayoutUpdater.UpdateBounds();
         }
         private _MeasureOverride(availableSize: size, error: BError): size {
             var desired: size;
@@ -16866,12 +16901,14 @@ module Fayde.Controls {
             super(xobj);
             this.LayoutUpdater.BreaksLayoutClipRender = true;
         }
-        AttachVisualChild(uie: UIElement) {
-            super.AttachVisualChild(uie);
+        AttachVisualChild(uie: UIElement, error: BError): bool {
+            if (!super.AttachVisualChild(uie, error))
+                return false;
             this._UpdateIsLayoutContainerOnAdd(uie);
         }
-        DetachVisualChild(uie: UIElement) {
-            super.DetachVisualChild(uie);
+        DetachVisualChild(uie: UIElement, error: BError): bool {
+            if (!super.DetachVisualChild(uie, error))
+                return false;
             this._UpdateIsLayoutContainerOnRemove(uie);
         }
         private _UpdateIsLayoutContainerOnAdd(uie: UIElement) {

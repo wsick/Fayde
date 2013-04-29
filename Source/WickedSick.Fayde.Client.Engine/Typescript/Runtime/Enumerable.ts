@@ -36,5 +36,11 @@ module Fayde {
             }
             return e;
         }
+        static EmptyEnumerator() {
+            return {
+                MoveNext: function () { return false; },
+                Current: undefined
+            };
+        }
     }
 }

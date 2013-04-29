@@ -150,14 +150,14 @@ var Fayde;
                         return (control).XamlNode.TemplateRoot;
                     }
                     var enumerator = control.XamlNode.GetVisualTreeEnumerator();
-                    var fe = null;
+                    var node = null;
                     if(enumerator.MoveNext()) {
-                        fe = enumerator.Current;
-                        if(!(fe instanceof Fayde.FrameworkElement)) {
-                            fe = null;
+                        node = enumerator.Current;
+                        if(!(node instanceof Fayde.FENode)) {
+                            node = null;
                         }
                     }
-                    return fe;
+                    return (node) ? node.XObject : null;
                 };
                 VisualStateManager._TryGetState = function _TryGetState(groups, stateName, data) {
                     var enumerator = groups.GetEnumerator();

@@ -51,17 +51,21 @@ var Fayde;
                 this.ApplyTemplate();
             };
             UserControl.prototype._InvalidateContent = function (args) {
-                var n = this.XamlNode;
-                if(n._IsParsing) {
+                var node = this.XamlNode;
+                if(node._IsParsing) {
                     return;
                 }
+                var error = new BError();
                 if(args.OldValue instanceof Fayde.UIElement) {
-                    n.DetachVisualChild(args.OldValue);
+                    node.DetachVisualChild(args.OldValue, error);
                 }
                 if(args.NewValue instanceof Fayde.UIElement) {
-                    n.AttachVisualChild(args.NewValue);
+                    node.AttachVisualChild(args.NewValue, error);
                 }
-                n.LayoutUpdater.UpdateBounds();
+                if(error.Message) {
+                    error.ThrowException();
+                }
+                node.LayoutUpdater.UpdateBounds();
             };
             UserControl.prototype._MeasureOverride = function (availableSize, error) {
                 var desired;

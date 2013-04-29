@@ -17,7 +17,7 @@ module Fayde.Controls {
 
         _ClearRoot() {
             if (this._ContentRoot)
-                this.DetachVisualChild(this._ContentRoot);
+                this.DetachVisualChild(this._ContentRoot, null);
             this._ContentRoot = null;
         }
 
