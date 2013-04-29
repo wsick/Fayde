@@ -186,8 +186,9 @@ var Fayde;
         };
         FENode.prototype.GetVisualTreeEnumerator = function (direction) {
             if(this.SubtreeNode) {
-                if(this.SubtreeNode instanceof Fayde.XamlObjectCollection) {
-                    return this.SubtreeNode.GetVisualTreeEnumerator();
+                var xoc = this.SubtreeNode.XObject;
+                if(xoc instanceof Fayde.XamlObjectCollection) {
+                    return (xoc).GetEnumerator();
                 }
                 return Fayde.ArrayEx.GetEnumerator([
                     this.SubtreeNode

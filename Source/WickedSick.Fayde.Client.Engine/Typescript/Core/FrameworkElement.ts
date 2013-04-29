@@ -177,8 +177,9 @@ module Fayde {
 
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
             if (this.SubtreeNode) {
-                if (this.SubtreeNode instanceof XamlObjectCollection)
-                    return this.SubtreeNode.GetVisualTreeEnumerator();
+                var xoc = this.SubtreeNode.XObject;
+                if (xoc instanceof XamlObjectCollection)
+                    return (<XamlObjectCollection>xoc).GetEnumerator();
                 return ArrayEx.GetEnumerator([this.SubtreeNode]);
             }
         }
