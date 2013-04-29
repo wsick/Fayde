@@ -189,7 +189,7 @@ var Surface = (function () {
         }
         node.SetIsLoaded(false);
         node.SetIsAttached(false);
-        this._Invalidate(node.LayoutUpdater.SubtreeBounds);
+        this._Invalidate(node.LayoutUpdater.SurfaceBoundsWithChildren);
     };
     Surface.prototype.ProcessDirtyElements = // UPDATE
     function () {

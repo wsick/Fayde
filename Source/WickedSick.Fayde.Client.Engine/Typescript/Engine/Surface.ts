@@ -195,7 +195,7 @@ class Surface {
             this._Layers.splice(index, 1);
         node.SetIsLoaded(false);
         node.SetIsAttached(false);
-        this._Invalidate(node.LayoutUpdater.SubtreeBounds);
+        this._Invalidate(node.LayoutUpdater.SurfaceBoundsWithChildren);
     }
 
     // UPDATE

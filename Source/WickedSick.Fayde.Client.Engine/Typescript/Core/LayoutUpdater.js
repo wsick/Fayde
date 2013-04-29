@@ -69,7 +69,7 @@ var Fayde;
             this.DirtyFlags = 0;
             this.InUpDirty = false;
             this.InDownDirty = false;
-            this.DirtyRegion = null;
+            this.DirtyRegion = new rect();
             this._ForceInvalidateOfNewBounds = false;
         }
         LayoutUpdater.LayoutExceptionUpdater = undefined;
@@ -202,9 +202,9 @@ var Fayde;
             var invalidateSubtreePaint = false;
             if(f & dirtyEnum.Bounds) {
                 f &= ~dirtyEnum.Bounds;
-                var oextents = rect.clone(this.SubtreeExtents);
+                var oextents = rect.clone(this.ExtentsWithChildren);
                 var oglobalbounds = rect.clone(this.GlobalBounds);
-                var osubtreebounds = rect.clone(this.SubtreeBounds);
+                var osubtreebounds = rect.clone(this.SurfaceBoundsWithChildren);
                 if((thisNode).ComputeBounds) {
                     (thisNode).ComputeBounds(this.ComputeBounds, this);
                 } else {
@@ -214,22 +214,22 @@ var Fayde;
                     if(visualParentLu) {
                         visualParentLu.UpdateBounds();
                         visualParentLu.Invalidate(osubtreebounds);
-                        visualParentLu.Invalidate(this.SubtreeBounds);
+                        visualParentLu.Invalidate(this.SurfaceBoundsWithChildren);
                     }
                 }
-                invalidateSubtreePaint = !rect.isEqual(oextents, this.SubtreeExtents) || this._ForceInvalidateOfNewBounds;
+                invalidateSubtreePaint = !rect.isEqual(oextents, this.ExtentsWithChildren) || this._ForceInvalidateOfNewBounds;
                 this._ForceInvalidateOfNewBounds = false;
             }
             if(f & dirtyEnum.NewBounds) {
                 if(visualParentLu) {
-                    visualParentLu.Invalidate(this.SubtreeBounds);
+                    visualParentLu.Invalidate(this.SurfaceBoundsWithChildren);
                 } else if(thisNode.IsTopLevel) {
                     invalidateSubtreePaint = true;
                 }
                 f &= ~dirtyEnum.NewBounds;
             }
             if(invalidateSubtreePaint) {
-                this.Invalidate(this.SubtreeBounds);
+                this.Invalidate(this.SurfaceBoundsWithChildren);
             }
             if(f & dirtyEnum.Invalidate) {
                 f &= ~dirtyEnum.Invalidate;
@@ -280,7 +280,7 @@ var Fayde;
                 this.InvalidateBitmapCache();
                 if(false) {
                     //TODO: Render Intermediate not implemented
-                    rect.union(this.DirtyRegion, this.SubtreeBounds);
+                    rect.union(this.DirtyRegion, this.SurfaceBoundsWithChildren);
                 } else {
                     rect.union(this.DirtyRegion, r);
                 }
@@ -304,7 +304,7 @@ var Fayde;
             this._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
         };
         LayoutUpdater.prototype.InvalidateSubtreePaint = function () {
-            this.Invalidate(this.SubtreeBounds);
+            this.Invalidate(this.SurfaceBoundsWithChildren);
         };
         LayoutUpdater.prototype.UpdateTransform = function () {
             if(this.Node.IsAttached) {
@@ -376,7 +376,7 @@ var Fayde;
             }
             if(!mat4.equal(oldProjection, this.LocalProjection)) {
                 if(vplu) {
-                    vplu.Invalidate(this.SubtreeBounds);
+                    vplu.Invalidate(this.SurfaceBoundsWithChildren);
                 } else if(uin.IsTopLevel) {
                     this.InvalidateSubtreePaint();
                 }
@@ -1039,7 +1039,7 @@ var Fayde;
             var region = new rect();
             if(false) {
             } else {
-                rect.copyTo(this.SubtreeExtents, region);
+                rect.copyTo(this.ExtentsWithChildren, region);
                 rect.transform(region, this.RenderXform);
                 rect.transform(region, ctx.CurrentTransform);
                 rect.roundOut(region);

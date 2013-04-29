@@ -3483,8 +3483,6 @@ module Fayde {
         LayoutClipBounds: rect = new rect();
         EffectPadding: Thickness = new Thickness();
         ClipBounds: rect = new rect();
-        SubtreeExtents: rect;
-        SubtreeBounds: rect;
         IsContainer: bool = false;
         IsLayoutContainer: bool = false;
         BreaksLayoutClipRender: bool = false;
@@ -3492,7 +3490,7 @@ module Fayde {
         DirtyFlags: _Dirty = 0;
         InUpDirty: bool = false;
         InDownDirty: bool = false;
-        DirtyRegion: rect = null;
+        DirtyRegion: rect = new rect();
         private _ForceInvalidateOfNewBounds: bool = false;
         constructor(public Node: UINode) { }
         OnIsAttachedChanged(newIsAttached: bool, visualParentNode: UINode) {
@@ -3599,9 +3597,9 @@ module Fayde {
             var invalidateSubtreePaint = false;
             if (f & dirtyEnum.Bounds) {
                 f &= ~dirtyEnum.Bounds;
-                var oextents = rect.clone(this.SubtreeExtents);
+                var oextents = rect.clone(this.ExtentsWithChildren);
                 var oglobalbounds = rect.clone(this.GlobalBounds);
-                var osubtreebounds = rect.clone(this.SubtreeBounds);
+                var osubtreebounds = rect.clone(this.SurfaceBoundsWithChildren);
                 if ((<IBoundsComputable><any>thisNode).ComputeBounds)
                     (<IBoundsComputable><any>thisNode).ComputeBounds(this.ComputeBounds, this);
                 else
@@ -3610,21 +3608,21 @@ module Fayde {
                     if (visualParentLu) {
                         visualParentLu.UpdateBounds();
                         visualParentLu.Invalidate(osubtreebounds);
-                        visualParentLu.Invalidate(this.SubtreeBounds);
+                        visualParentLu.Invalidate(this.SurfaceBoundsWithChildren);
                     }
                 }
-                invalidateSubtreePaint = !rect.isEqual(oextents, this.SubtreeExtents) || this._ForceInvalidateOfNewBounds;
+                invalidateSubtreePaint = !rect.isEqual(oextents, this.ExtentsWithChildren) || this._ForceInvalidateOfNewBounds;
                 this._ForceInvalidateOfNewBounds = false;
             }
             if (f & dirtyEnum.NewBounds) {
                 if (visualParentLu)
-                    visualParentLu.Invalidate(this.SubtreeBounds);
+                    visualParentLu.Invalidate(this.SurfaceBoundsWithChildren);
                 else if (thisNode.IsTopLevel)
                     invalidateSubtreePaint = true;
                 f &= ~dirtyEnum.NewBounds;
             }
             if (invalidateSubtreePaint)
-                this.Invalidate(this.SubtreeBounds);
+                this.Invalidate(this.SurfaceBoundsWithChildren);
             if (f & dirtyEnum.Invalidate) {
                 f &= ~dirtyEnum.Invalidate;
                 var dirty = this.DirtyRegion;
@@ -3671,7 +3669,7 @@ module Fayde {
                 this.Surface._AddDirtyElement(this, _Dirty.Invalidate);
                 this.InvalidateBitmapCache();
                 if (false) {
-                    rect.union(this.DirtyRegion, this.SubtreeBounds);
+                    rect.union(this.DirtyRegion, this.SurfaceBoundsWithChildren);
                 } else {
                     rect.union(this.DirtyRegion, r);
                 }
@@ -3692,7 +3690,7 @@ module Fayde {
             this._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
         }
         InvalidateSubtreePaint() {
-            this.Invalidate(this.SubtreeBounds);
+            this.Invalidate(this.SurfaceBoundsWithChildren);
         }
         UpdateTransform() {
             if (this.Node.IsAttached)
@@ -3753,7 +3751,7 @@ module Fayde {
             }
             if (!mat4.equal(oldProjection, this.LocalProjection)) {
                 if (vplu)
-                    vplu.Invalidate(this.SubtreeBounds);
+                    vplu.Invalidate(this.SurfaceBoundsWithChildren);
                 else if (uin.IsTopLevel)
                     this.InvalidateSubtreePaint();
                 if (uin.IsAttached)
@@ -4342,7 +4340,7 @@ module Fayde {
             var region = new rect();
             if (false) {
             } else {
-                rect.copyTo(this.SubtreeExtents, region);
+                rect.copyTo(this.ExtentsWithChildren, region);
                 rect.transform(region, this.RenderXform);
                 rect.transform(region, ctx.CurrentTransform);
                 rect.roundOut(region);
@@ -6366,7 +6364,7 @@ class Surface {
             this._Layers.splice(index, 1);
         node.SetIsLoaded(false);
         node.SetIsAttached(false);
-        this._Invalidate(node.LayoutUpdater.SubtreeBounds);
+        this._Invalidate(node.LayoutUpdater.SurfaceBoundsWithChildren);
     }
     ProcessDirtyElements(): bool {
         var error = new BError();
@@ -11569,7 +11567,10 @@ module Fayde {
             return this.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
         }
         OnIsAttachedChanged(newIsAttached: bool) {
-            this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
+            var vpNode = this.VisualParentNode;
+            if (newIsAttached && vpNode)
+                this.SetSurface(vpNode._Surface);
+            this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, vpNode);
         }
         IsLoaded: bool = false;
         SetIsLoaded(value: bool) { }
@@ -11587,7 +11588,7 @@ module Fayde {
         OnVisualChildDetached(uie: UIElement) {
             var lu = this.LayoutUpdater;
             var un = uie.XamlNode;
-            lu.Invalidate(un.LayoutUpdater.SubtreeBounds);
+            lu.Invalidate(un.LayoutUpdater.SurfaceBoundsWithChildren);
             lu.InvalidateMeasure();
             un.VisualParentNode.SetSurface(null);
             un.VisualParentNode = null;
@@ -11714,14 +11715,14 @@ module Fayde {
                 rect.clear(lu.ClipBounds);
             else
                 rect.copyTo(newClip.GetBounds(), lu.ClipBounds);
-            this.InvalidateParent(lu.SubtreeBounds);
+            this.InvalidateParent(lu.SurfaceBoundsWithChildren);
             lu.UpdateBounds(true);
             lu.ComputeComposite();
         }
         InvalidateEffect(oldEffect: Media.Effects.Effect, newEffect: Media.Effects.Effect) {
             var lu = this.LayoutUpdater;
             var changed = (newEffect) ? newEffect.GetPadding(lu.EffectPadding) : false;
-            this.InvalidateParent(lu.SubtreeBounds);
+            this.InvalidateParent(lu.SurfaceBoundsWithChildren);
             if (changed)
                 lu.UpdateBounds();
             lu.ComputeComposite();
@@ -11731,7 +11732,7 @@ module Fayde {
         InvalidateOpacity() {
             var lu = this.LayoutUpdater;
             lu.UpdateTotalRenderVisibility();
-            this.InvalidateParent(lu.SubtreeBounds);
+            this.InvalidateParent(lu.SurfaceBoundsWithChildren);
         }
         InvalidateVisibility(newVisibility: Visibility) {
             var lu = this.LayoutUpdater;
@@ -11740,7 +11741,7 @@ module Fayde {
             else
                 lu.Flags &= ~UIElementFlags.RenderVisible;
             lu.UpdateTotalRenderVisibility();
-            this.InvalidateParent(lu.SubtreeBounds);
+            this.InvalidateParent(lu.SurfaceBoundsWithChildren);
             lu.InvalidateMeasure();
             var vpNode = this.VisualParentNode;
             if (vpNode)
@@ -13122,9 +13123,9 @@ module Fayde {
                 store.EmitDataContextChanged();
         }
         OnIsAttachedChanged(newIsAttached: bool) {
+            super.OnIsAttachedChanged(newIsAttached);
             if (this.SubtreeNode)
                 this.SubtreeNode.SetIsAttached(newIsAttached);
-            super.OnIsAttachedChanged(newIsAttached);
         }
         SetIsLoaded(value: bool) {
             if (this.IsLoaded === value)
@@ -14694,6 +14695,12 @@ module Fayde.Controls {
             if (index > -1)
                 nodes.splice(index, 1);
         }
+        OnIsAttachedChanged(newIsAttached: bool) {
+            var nodes = this._Nodes;
+            for (var i = 0; i < nodes.length; i++) {
+                nodes[i].SetIsAttached(newIsAttached);
+            }
+        }
         ResortByZIndex() {
             var zs = this._Nodes.slice(0);
             this._ZSorted = zs;
@@ -14770,6 +14777,9 @@ module Fayde.Controls {
         }
         _ResortChildrenByZIndex() {
             (<PanelChildrenCollection>this.XObject.Children).XamlNode.ResortByZIndex();
+        }
+        OnIsAttachedChanged(newIsAttached: bool) {
+            this.XObject.Children.XamlNode.SetIsAttached(newIsAttached);
         }
         _CanFindElement(): bool { return this.XObject.Background != null; }
         _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {

@@ -108,9 +108,6 @@ module Fayde {
         EffectPadding: Thickness = new Thickness();
         ClipBounds: rect = new rect();
 
-        SubtreeExtents: rect;
-        SubtreeBounds: rect;
-
         IsContainer: bool = false;
         IsLayoutContainer: bool = false;
         BreaksLayoutClipRender: bool = false;
@@ -120,7 +117,7 @@ module Fayde {
         DirtyFlags: _Dirty = 0;
         InUpDirty: bool = false;
         InDownDirty: bool = false;
-        DirtyRegion: rect = null;
+        DirtyRegion: rect = new rect();
         private _ForceInvalidateOfNewBounds: bool = false;
 
         constructor(public Node: UINode) { }
@@ -263,9 +260,9 @@ module Fayde {
             if (f & dirtyEnum.Bounds) {
                 f &= ~dirtyEnum.Bounds;
 
-                var oextents = rect.clone(this.SubtreeExtents);
+                var oextents = rect.clone(this.ExtentsWithChildren);
                 var oglobalbounds = rect.clone(this.GlobalBounds);
-                var osubtreebounds = rect.clone(this.SubtreeBounds);
+                var osubtreebounds = rect.clone(this.SurfaceBoundsWithChildren);
 
                 if ((<IBoundsComputable><any>thisNode).ComputeBounds)
                     (<IBoundsComputable><any>thisNode).ComputeBounds(this.ComputeBounds, this);
@@ -276,23 +273,23 @@ module Fayde {
                     if (visualParentLu) {
                         visualParentLu.UpdateBounds();
                         visualParentLu.Invalidate(osubtreebounds);
-                        visualParentLu.Invalidate(this.SubtreeBounds);
+                        visualParentLu.Invalidate(this.SurfaceBoundsWithChildren);
                     }
                 }
 
-                invalidateSubtreePaint = !rect.isEqual(oextents, this.SubtreeExtents) || this._ForceInvalidateOfNewBounds;
+                invalidateSubtreePaint = !rect.isEqual(oextents, this.ExtentsWithChildren) || this._ForceInvalidateOfNewBounds;
                 this._ForceInvalidateOfNewBounds = false;
             }
 
             if (f & dirtyEnum.NewBounds) {
                 if (visualParentLu)
-                    visualParentLu.Invalidate(this.SubtreeBounds);
+                    visualParentLu.Invalidate(this.SurfaceBoundsWithChildren);
                 else if (thisNode.IsTopLevel)
                     invalidateSubtreePaint = true;
                 f &= ~dirtyEnum.NewBounds;
             }
             if (invalidateSubtreePaint)
-                this.Invalidate(this.SubtreeBounds);
+                this.Invalidate(this.SurfaceBoundsWithChildren);
 
 
             if (f & dirtyEnum.Invalidate) {
@@ -344,7 +341,7 @@ module Fayde {
                 this.InvalidateBitmapCache();
                 if (false) {
                     //TODO: Render Intermediate not implemented
-                    rect.union(this.DirtyRegion, this.SubtreeBounds);
+                    rect.union(this.DirtyRegion, this.SurfaceBoundsWithChildren);
                 } else {
                     rect.union(this.DirtyRegion, r);
                 }
@@ -368,7 +365,7 @@ module Fayde {
             this._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
         }
         InvalidateSubtreePaint() {
-            this.Invalidate(this.SubtreeBounds);
+            this.Invalidate(this.SurfaceBoundsWithChildren);
         }
 
         UpdateTransform() {
@@ -441,7 +438,7 @@ module Fayde {
             }
             if (!mat4.equal(oldProjection, this.LocalProjection)) {
                 if (vplu)
-                    vplu.Invalidate(this.SubtreeBounds);
+                    vplu.Invalidate(this.SurfaceBoundsWithChildren);
                 else if (uin.IsTopLevel)
                     this.InvalidateSubtreePaint();
 
@@ -1142,7 +1139,7 @@ module Fayde {
             if (false) {
                 //TODO: Render to intermediate
             } else {
-                rect.copyTo(this.SubtreeExtents, region);
+                rect.copyTo(this.ExtentsWithChildren, region);
                 rect.transform(region, this.RenderXform);
                 rect.transform(region, ctx.CurrentTransform);
                 rect.roundOut(region);

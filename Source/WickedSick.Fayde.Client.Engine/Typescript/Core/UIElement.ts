@@ -50,7 +50,10 @@ module Fayde {
         }
 
         OnIsAttachedChanged(newIsAttached: bool) {
-            this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
+            var vpNode = this.VisualParentNode;
+            if (newIsAttached && vpNode)
+                this.SetSurface(vpNode._Surface);
+            this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, vpNode);
         }
 
         IsLoaded: bool = false;
@@ -71,7 +74,7 @@ module Fayde {
         OnVisualChildDetached(uie: UIElement) {
             var lu = this.LayoutUpdater;
             var un = uie.XamlNode;
-            lu.Invalidate(un.LayoutUpdater.SubtreeBounds);
+            lu.Invalidate(un.LayoutUpdater.SurfaceBoundsWithChildren);
             lu.InvalidateMeasure();
 
             un.VisualParentNode.SetSurface(null);
@@ -208,14 +211,14 @@ module Fayde {
                 rect.clear(lu.ClipBounds);
             else
                 rect.copyTo(newClip.GetBounds(), lu.ClipBounds);
-            this.InvalidateParent(lu.SubtreeBounds);
+            this.InvalidateParent(lu.SurfaceBoundsWithChildren);
             lu.UpdateBounds(true);
             lu.ComputeComposite();
         }
         InvalidateEffect(oldEffect: Media.Effects.Effect, newEffect: Media.Effects.Effect) {
             var lu = this.LayoutUpdater;
             var changed = (newEffect) ? newEffect.GetPadding(lu.EffectPadding) : false;
-            this.InvalidateParent(lu.SubtreeBounds);
+            this.InvalidateParent(lu.SurfaceBoundsWithChildren);
             if (changed)
                 lu.UpdateBounds();
             lu.ComputeComposite();
@@ -226,7 +229,7 @@ module Fayde {
         InvalidateOpacity() {
             var lu = this.LayoutUpdater;
             lu.UpdateTotalRenderVisibility();
-            this.InvalidateParent(lu.SubtreeBounds);
+            this.InvalidateParent(lu.SurfaceBoundsWithChildren);
         }
         InvalidateVisibility(newVisibility: Visibility) {
             var lu = this.LayoutUpdater;
@@ -237,7 +240,7 @@ module Fayde {
                 lu.Flags &= ~UIElementFlags.RenderVisible;
 
             lu.UpdateTotalRenderVisibility();
-            this.InvalidateParent(lu.SubtreeBounds);
+            this.InvalidateParent(lu.SurfaceBoundsWithChildren);
 
             lu.InvalidateMeasure();
             var vpNode = this.VisualParentNode;

@@ -70,6 +70,7 @@ namespace WickedSick.Server.Framework.Fayde
             }
             else
             {
+                //Not using Fayde-New on FaydeApplication.UseNew=true
                 Writer.WriteLine(string.Format("\t\t<script src=\"{0}Fayde.js\" type=\"text/javascript\"></script>", scriptResolution));
             }
             Writer.WriteLine(string.Format("\t\t<script src=\"{0}Fayde.Generic.js\" type=\"text/javascript\"></script>", scriptResolution));
