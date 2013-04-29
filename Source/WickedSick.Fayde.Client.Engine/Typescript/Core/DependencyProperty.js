@@ -75,9 +75,27 @@ var DependencyProperty = (function () {
             }
             i[inheritable].push(propd);
         }
+        if(!ownerType || typeof ownerType !== "function") {
+            throw new InvalidOperationException("DependencyProperty does not have a valid OwnerType.");
+        }
+        propd.CreateAutoProperty();
         registeredDPs[name] = propd;
         DependencyProperty._IDs[propd._ID] = propd;
         return propd;
+    };
+    DependencyProperty.prototype.CreateAutoProperty = function () {
+        var propd = this;
+        var getter = function () {
+            return (this).GetValue(propd);
+        };
+        var setter = function (value) {
+            (this).SetValue(propd, value);
+        };
+        Object.defineProperty(this.OwnerType.prototype, this.Name, {
+            get: getter,
+            set: setter,
+            configurable: true
+        });
     };
     DependencyProperty.prototype.ValidateSetValue = function (dobj, value, isValidOut) {
         isValidOut.IsValid = false;

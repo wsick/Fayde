@@ -107,11 +107,26 @@ class DependencyProperty {
             i[inheritable].push(propd);
         }
 
+        if (!ownerType || typeof ownerType !== "function")
+            throw new InvalidOperationException("DependencyProperty does not have a valid OwnerType.");
+
+        propd.CreateAutoProperty();
+
         registeredDPs[name] = propd;
         _IDs[propd._ID] = propd;
         return propd;
     }
 
+    CreateAutoProperty() {
+        var propd = this;
+        var getter = function () { return (<Fayde.DependencyObject>this).GetValue(propd); };
+        var setter = function (value) { (<Fayde.DependencyObject>this).SetValue(propd, value); };
+        Object.defineProperty(this.OwnerType.prototype, this.Name, {
+            get: getter,
+            set: setter,
+            configurable: true
+        });
+    }
     ValidateSetValue(dobj: Fayde.DependencyObject, value: any, isValidOut: IOutIsValid) {
         isValidOut.IsValid = false;
         var coerced = value;
