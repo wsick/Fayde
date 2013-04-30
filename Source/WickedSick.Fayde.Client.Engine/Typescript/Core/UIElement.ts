@@ -353,6 +353,8 @@ module Fayde {
         Visibility: Visibility;
         
         Focus(): bool { return this.XamlNode.Focus(); }
+        CaptureMouse():bool { return this.XamlNode.CaptureMouse(); }
+        ReleaseMouseCapture() { this.XamlNode.ReleaseMouseCapture(); }
 
         TranformToVisual(uie: UIElement): Media.GeneralTransform {
             var uin = (uie) ? uie.XamlNode : null;

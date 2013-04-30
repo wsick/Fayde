@@ -57,6 +57,14 @@ var Fayde;
                     Fayde.Media.VSM.VisualStateManager.DestroyStoryboards(this.XObject, this.TemplateRoot);
                 }
             };
+            ControlNode.prototype.OnIsEnabledChanged = function (newIsEnabled) {
+                var surface = this._Surface;
+                if(surface) {
+                    surface._RemoveFocusFrom(this.LayoutUpdater);
+                    Fayde.TabNavigationWalker.Focus(this, true);
+                }
+                this.ReleaseMouseCapture();
+            };
             ControlNode.prototype._HitTestPoint = function (ctx, p, uielist) {
                 if(this.XObject.IsEnabled) {
                     _super.prototype._HitTestPoint.call(this, ctx, p, uielist);
@@ -83,6 +91,7 @@ var Fayde;
             function Control() {
                 _super.apply(this, arguments);
 
+                this._IsMouseOver = false;
                 this.IsEnabledChanged = new MulticastEvent();
             }
             Control.prototype.CreateStore = function () {
@@ -91,6 +100,80 @@ var Fayde;
             Control.prototype.CreateNode = function () {
                 return new ControlNode(this);
             };
+            Control.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () {
+                return Fayde.Media.Brush;
+            }, Control);
+            Control.BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", function () {
+                return Fayde.Media.Brush;
+            }, Control);
+            Control.BorderThicknessProperty = DependencyProperty.RegisterCore("BorderThickness", function () {
+                return Thickness;
+            }, Control, undefined, function (d, args) {
+                return (d)._BorderThicknessChanged(args);
+            });
+            Control.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () {
+                return String;
+            }, Control, Font.DEFAULT_FAMILY, undefined, undefined, Fayde.Providers._Inheritable.FontFamily);
+            Control.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () {
+                return Number;
+            }, Control, Font.DEFAULT_SIZE, undefined, undefined, Fayde.Providers._Inheritable.FontSize);
+            Control.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () {
+                return String;
+            }, Control, Font.DEFAULT_STRETCH, undefined, undefined, Fayde.Providers._Inheritable.FontStretch);
+            Control.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () {
+                return String;
+            }, Control, Font.DEFAULT_STYLE, undefined, undefined, Fayde.Providers._Inheritable.FontStyle);
+            Control.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () {
+                return new Enum(Fayde.FontWeight);
+            }, Control, Font.DEFAULT_WEIGHT, undefined, undefined, Fayde.Providers._Inheritable.FontWeight);
+            Control.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () {
+                return Fayde.Media.Brush;
+            }, Control, undefined, undefined, undefined, Fayde.Providers._Inheritable.Foreground);
+            Control.HorizontalContentAlignmentProperty = DependencyProperty.RegisterCore("HorizontalContentAlignment", function () {
+                return new Enum(Fayde.HorizontalAlignment);
+            }, Control, Fayde.HorizontalAlignment.Center, function (d, args) {
+                return (d)._ContentAlignmentChanged(args);
+            });
+            Control.IsEnabledProperty = DependencyProperty.RegisterCore("IsEnabled", function () {
+                return Boolean;
+            }, Control, true, function (d, args) {
+                return (d)._IsEnabledChanged(args);
+            });
+            Control.IsTabStopProperty = DependencyProperty.Register("IsTabStop", function () {
+                return Boolean;
+            }, Control, true);
+            Control.PaddingProperty = DependencyProperty.RegisterCore("Padding", function () {
+                return Thickness;
+            }, Control, undefined, function (d, args) {
+                return (d)._BorderThicknessChanged(args);
+            });
+            Control.TabIndexProperty = DependencyProperty.Register("TabIndex", function () {
+                return Number;
+            }, Control);
+            Control.TabNavigationProperty = DependencyProperty.Register("TabNavigation", function () {
+                return new Enum(Fayde.Input.KeyboardNavigationMode);
+            }, Control, Fayde.Input.KeyboardNavigationMode.Local);
+            Control.TemplateProperty = DependencyProperty.RegisterCore("Template", function () {
+                return Controls.ControlTemplate;
+            }, Control, undefined, function (d, args) {
+                return (d)._TemplateChanged(args);
+            });
+            Control.VerticalContentAlignmentProperty = DependencyProperty.RegisterCore("VerticalContentAlignment", function () {
+                return new Enum(Fayde.VerticalAlignment);
+            }, Control, Fayde.VerticalAlignment.Center, function (d, args) {
+                return (d)._ContentAlignmentChanged(args);
+            });
+            Control.DefaultStyleKeyProperty = DependencyProperty.Register("DefaultStyleKey", function () {
+                return Function;
+            }, Control);
+            Object.defineProperty(Control.prototype, "IsFocused", {
+                get: //Defined in UIElement
+                function () {
+                    return this.XamlNode.IsFocused;
+                },
+                enumerable: true,
+                configurable: true
+            });
             Control.prototype.GetTemplateChild = function (childName) {
                 var root = this.XamlNode.TemplateRoot;
                 if(root) {
@@ -110,6 +193,16 @@ var Fayde;
             };
             Control.prototype.GetDefaultStyle = function () {
                 return undefined;
+            };
+            Control.prototype._IsEnabledChanged = function (args) {
+                if(!args.NewValue) {
+                    this._IsMouseOver = false;
+                    this.XamlNode.OnIsEnabledChanged(args.NewValue);
+                }
+                this.OnIsEnabledChanged(args);
+                this.IsEnabledChanged.RaiseAsync(this, EventArgs.Empty);
+            };
+            Control.prototype.OnIsEnabledChanged = function (e) {
             };
             Control.prototype.OnGotFocus = function (e) {
                 this.XamlNode.IsFocused = true;
@@ -138,6 +231,57 @@ var Fayde;
             Control.prototype.OnMouseRightButtonUp = function (e) {
             };
             Control.prototype.OnMouseWheel = function (e) {
+            };
+            Control.prototype.UpdateVisualState = function (useTransitions) {
+                useTransitions = useTransitions !== false;
+                var states = this.GetVisualStateNamesToActivate();
+                for(var i = 0; i < states.length; i++) {
+                    Fayde.Media.VSM.VisualStateManager.GoToState(this, states[i], useTransitions);
+                }
+            };
+            Control.prototype.GetVisualStateNamesToActivate = function () {
+                var commonState = this.GetVisualStateCommon();
+                var focusedState = this.GetVisualStateFocus();
+                return [
+                    commonState, 
+                    focusedState
+                ];
+            };
+            Control.prototype.GetVisualStateCommon = function () {
+                if(!this.IsEnabled) {
+                    return "Disabled";
+                } else if(this.IsMouseOver) {
+                    return "MouseOver";
+                } else {
+                    return "Normal";
+                }
+            };
+            Control.prototype.GetVisualStateFocus = function () {
+                if(this.IsFocused && this.IsEnabled) {
+                    return "Focused";
+                } else {
+                    return "Unfocused";
+                }
+            };
+            Control.prototype._TemplateChanged = function (args) {
+                var node = this.XamlNode;
+                var subtree = node.SubtreeNode;
+                if(subtree) {
+                    var error = new BError();
+                    if(!node.DetachVisualChild(subtree.XObject, error)) {
+                        error.ThrowException();
+                    }
+                }
+                node.LayoutUpdater.InvalidateMeasure();
+            };
+            Control.prototype._PaddingChanged = function (args) {
+                this.XamlNode.LayoutUpdater.InvalidateMeasure();
+            };
+            Control.prototype._BorderThicknessChanged = function (args) {
+                this.XamlNode.LayoutUpdater.InvalidateMeasure();
+            };
+            Control.prototype._ContentAlignmentChanged = function (args) {
+                this.XamlNode.LayoutUpdater.InvalidateArrange();
             };
             return Control;
         })(Fayde.FrameworkElement);

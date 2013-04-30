@@ -53,6 +53,7 @@ Typescript\Engine\ClockTimer.ts
 Typescript\Engine\Exceptions.ts
 Typescript\Engine\RenderContext.ts
 Typescript\Engine\Surface.ts
+Typescript\Input\ICommand.ts
 Typescript\Input\Keyboard.ts
 Typescript\Markup\JsonParser.ts
 Typescript\Markup\Markup.ts
@@ -197,3 +198,4 @@ Typescript\Controls\ContentControl.ts
 Typescript\Controls\Grid.ts
 Typescript\Controls\ScrollViewer.ts
 Typescript\Controls\TextBox.ts
+Typescript\Controls\Primitives\ButtonBase.ts

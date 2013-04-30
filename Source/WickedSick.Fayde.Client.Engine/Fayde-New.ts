@@ -81,6 +81,11 @@ module Fayde.Controls {
     export enum TextTrimming {
         None = 0,
     }
+    export enum ClickMode {
+        Release = 0,
+        Press = 1,
+        Hover = 2,
+    }
 }
 
 module Fayde.Controls {
@@ -7340,6 +7345,15 @@ class Surface {
 Nullstone.RegisterType(Surface, "Surface");
 
 module Fayde.Input {
+    export interface ICommand {
+        Execute(parameter: any);
+        CanExecute(parameter: any): bool;
+        CanExecuteChanged: MulticastEvent;
+    }
+    export var ICommand_ = Nullstone.RegisterInterface("ICommand");
+}
+
+module Fayde.Input {
     export enum KeyboardNavigationMode {
         Continue = 0,
         Once = 1,
@@ -12298,6 +12312,8 @@ module Fayde {
         UseLayoutRounding: bool;
         Visibility: Visibility;
         Focus(): bool { return this.XamlNode.Focus(); }
+        CaptureMouse():bool { return this.XamlNode.CaptureMouse(); }
+        ReleaseMouseCapture() { this.XamlNode.ReleaseMouseCapture(); }
         TranformToVisual(uie: UIElement): Media.GeneralTransform {
             var uin = (uie) ? uie.XamlNode : null;
             return this.XamlNode.TranformToVisual(uin);
@@ -14642,6 +14658,14 @@ module Fayde.Controls {
             if (!newIsAttached)
                 Media.VSM.VisualStateManager.DestroyStoryboards(this.XObject, this.TemplateRoot);
         }
+        OnIsEnabledChanged(newIsEnabled: bool) {
+            var surface = this._Surface;
+            if (surface) {
+                surface._RemoveFocusFrom(this.LayoutUpdater);
+                TabNavigationWalker.Focus(this, true);
+            }
+            this.ReleaseMouseCapture();
+        }
         _HitTestPoint(ctx: RenderContext, p: Point, uielist: UINode[]) {
             if (this.XObject.IsEnabled)
                 super._HitTestPoint(ctx, p, uielist);
@@ -14659,24 +14683,24 @@ module Fayde.Controls {
             return new Providers.ControlProviderStore(this);
         }
         CreateNode(): ControlNode { return new ControlNode(this); }
-        static BackgroundProperty: DependencyProperty;
-        static BorderBrushProperty: DependencyProperty;
-        static BorderThicknessProperty: DependencyProperty;
-        static FontFamilyProperty: DependencyProperty;
-        static FontSizeProperty: DependencyProperty;
-        static FontStretchProperty: DependencyProperty;
-        static FontStyleProperty: DependencyProperty;
-        static FontWeightProperty: DependencyProperty;
-        static ForegroundProperty: DependencyProperty;
-        static HorizontalContentAlignmentProperty: DependencyProperty;
-        static IsEnabledProperty: DependencyProperty;
-        static IsTabStopProperty: DependencyProperty;
-        static PaddingProperty: DependencyProperty;
-        static TabIndexProperty: DependencyProperty;
-        static TabNavigationProperty: DependencyProperty;
-        static TemplateProperty: DependencyProperty;
-        static VerticalContentAlignmentProperty: DependencyProperty;
-        static DefaultStyleKeyProperty: DependencyProperty;
+        static BackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Control);
+        static BorderBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderBrush", () => Media.Brush, Control);
+        static BorderThicknessProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderThickness", () => Thickness, Control, undefined, (d, args) => (<Control>d)._BorderThicknessChanged(args));
+        static FontFamilyProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontFamily", () => String, Control, Font.DEFAULT_FAMILY, undefined, undefined, Providers._Inheritable.FontFamily);
+        static FontSizeProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontSize", () => Number, Control, Font.DEFAULT_SIZE, undefined, undefined, Providers._Inheritable.FontSize);
+        static FontStretchProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStretch", () => String, Control, Font.DEFAULT_STRETCH, undefined, undefined, Providers._Inheritable.FontStretch);
+        static FontStyleProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStyle", () => String, Control, Font.DEFAULT_STYLE, undefined, undefined, Providers._Inheritable.FontStyle);
+        static FontWeightProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontWeight", () => new Enum(FontWeight), Control, Font.DEFAULT_WEIGHT, undefined, undefined, Providers._Inheritable.FontWeight);
+        static ForegroundProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Foreground", () => Media.Brush, Control, undefined, undefined, undefined, Providers._Inheritable.Foreground);
+        static HorizontalContentAlignmentProperty: DependencyProperty = DependencyProperty.RegisterCore("HorizontalContentAlignment", () => new Enum(HorizontalAlignment), Control, HorizontalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
+        static IsEnabledProperty: DependencyProperty = DependencyProperty.RegisterCore("IsEnabled", () => Boolean, Control, true, (d, args) => (<Control>d)._IsEnabledChanged(args));
+        static IsTabStopProperty: DependencyProperty = DependencyProperty.Register("IsTabStop", () => Boolean, Control, true);
+        static PaddingProperty: DependencyProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, Control, undefined, (d, args) => (<Control>d)._BorderThicknessChanged(args));
+        static TabIndexProperty: DependencyProperty = DependencyProperty.Register("TabIndex", () => Number, Control);
+        static TabNavigationProperty: DependencyProperty = DependencyProperty.Register("TabNavigation", () => new Enum(Input.KeyboardNavigationMode), Control, Input.KeyboardNavigationMode.Local);
+        static TemplateProperty: DependencyProperty = DependencyProperty.RegisterCore("Template", () => ControlTemplate, Control, undefined, (d, args) => (<Control>d)._TemplateChanged(args));
+        static VerticalContentAlignmentProperty: DependencyProperty = DependencyProperty.RegisterCore("VerticalContentAlignment", () => new Enum(VerticalAlignment), Control, VerticalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
+        static DefaultStyleKeyProperty: DependencyProperty = DependencyProperty.Register("DefaultStyleKey", () => Function, Control);
         Background: Media.Brush;
         BorderBrush: Media.Brush;
         BorderThickness: Thickness;
@@ -14695,6 +14719,8 @@ module Fayde.Controls {
         Template: ControlTemplate;
         VerticalContentAlignment: VerticalAlignment;
         DefaultStyleKey: Function;
+        private _IsMouseOver: bool = false; //Defined in UIElement
+        get IsFocused() { return this.XamlNode.IsFocused; }
         GetTemplateChild(childName: string): DependencyObject {
             var root = this.XamlNode.TemplateRoot;
             if (root) {
@@ -14713,6 +14739,15 @@ module Fayde.Controls {
             return undefined;
         }
         IsEnabledChanged: MulticastEvent = new MulticastEvent();
+        _IsEnabledChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (!args.NewValue) {
+                this._IsMouseOver = false;
+                this.XamlNode.OnIsEnabledChanged(args.NewValue);
+            }
+            this.OnIsEnabledChanged(args);
+            this.IsEnabledChanged.RaiseAsync(this, EventArgs.Empty);
+        }
+        OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs) { }
         OnGotFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = true; }
         OnLostFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = false; }
         OnLostMouseCapture(e: Input.MouseEventArgs) { }
@@ -14726,6 +14761,52 @@ module Fayde.Controls {
         OnMouseRightButtonDown(e: Input.MouseButtonEventArgs) { }
         OnMouseRightButtonUp(e: Input.MouseButtonEventArgs) { }
         OnMouseWheel(e: Input.MouseWheelEventArgs) { }
+        UpdateVisualState(useTransitions?: bool) {
+            useTransitions = useTransitions !== false;
+            var states = this.GetVisualStateNamesToActivate();
+            for (var i = 0; i < states.length; i++) {
+                Media.VSM.VisualStateManager.GoToState(this, states[i], useTransitions);
+            }
+        }
+        GetVisualStateNamesToActivate(): string[] {
+            var commonState = this.GetVisualStateCommon();
+            var focusedState = this.GetVisualStateFocus();
+            return [commonState, focusedState];
+        }
+        GetVisualStateCommon() {
+            if (!this.IsEnabled) {
+                return "Disabled";
+            } else if (this.IsMouseOver) {
+                return "MouseOver";
+            } else {
+                return "Normal";
+            }
+        }
+        GetVisualStateFocus() {
+            if (this.IsFocused && this.IsEnabled)
+                return "Focused";
+            else
+                return "Unfocused";
+        }
+        private _TemplateChanged(args: IDependencyPropertyChangedEventArgs) {
+            var node = this.XamlNode;
+            var subtree = node.SubtreeNode;
+            if (subtree) {
+                var error = new BError();
+                if (!node.DetachVisualChild(<UIElement>subtree.XObject, error))
+                    error.ThrowException();
+            }
+            node.LayoutUpdater.InvalidateMeasure();
+        }
+        private _PaddingChanged(args: IDependencyPropertyChangedEventArgs) {
+            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+        }
+        private _BorderThicknessChanged(args: IDependencyPropertyChangedEventArgs) {
+            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+        }
+        private _ContentAlignmentChanged(args: IDependencyPropertyChangedEventArgs) {
+            this.XamlNode.LayoutUpdater.InvalidateArrange();
+        }
     }
     Nullstone.RegisterType(Control, "Control");
 }
@@ -17515,14 +17596,65 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
+    export class ContentControlNode extends ControlNode {
+        XObject: ContentControl;
+        constructor(xobj: ContentControl) {
+            super(xobj);
+        }
+        _GetDefaultTemplate(): UIElement {
+            var xobj = this.XObject;
+            var content = xobj.Content;
+            if (content instanceof UIElement)
+                return <UIElement>content;
+            else if (content)
+                return this.FallbackRoot;
+        }
+        private _FallbackRoot: UIElement;
+        private _FallbackTemplate: ControlTemplate;
+        get FallbackRoot(): UIElement {
+            var fr = this._FallbackRoot;
+            if (!fr) {
+                var ft = this._FallbackTemplate;
+                if (!ft)
+                    ft = this._CreateFallbackTemplate();
+                fr = this._FallbackRoot = <UIElement>ft.GetVisualTree(this.XObject);
+            }
+            return fr;
+        }
+        private _CreateFallbackTemplate(): ControlTemplate {
+            return new ControlTemplate(ContentControl, {
+                ParseType: Grid,
+                Children: [
+                    {
+                        ParseType: TextBlock,
+                        Props: {
+                            Text: new BindingMarkup({})
+                        }
+                    }
+                ]
+            });
+        }
+    }
+    Nullstone.RegisterType(ContentControlNode, "ContentControlNode");
     export class ContentControl extends Control {
+        XamlNode: ContentControlNode;
+        CreateNode(): ContentControlNode { return new ContentControlNode(this); }
         _ContentSetsParent: bool = true;
-        static ContentProperty: DependencyProperty = DependencyProperty.RegisterCore("Content", function () { return Object; }, ContentControl, undefined, function (d, args) { (<ContentControl>d).OnContentChanged(args.OldValue, args.NewValue); });
-        static ContentTemplateProperty = DependencyProperty.RegisterCore("ContentTemplate", function () { return ControlTemplate; }, ContentControl, undefined, function (d, args) { (<ContentControl>d).OnContentTemplateChanged(args.OldValue, args.NewValue); });
+        static ContentProperty: DependencyProperty = DependencyProperty.RegisterCore("Content", () => Object, ContentControl, undefined, (d, args) => (<ContentControl>d)._ContentChanged(args));
+        static ContentTemplateProperty = DependencyProperty.RegisterCore("ContentTemplate", () => ControlTemplate, ContentControl, undefined, (d, args) => (<ContentControl>d)._ContentTemplateChanged(args));
         Content: any;
         ContentTemplate: ControlTemplate;
+        static Annotations = { ContentProperty: ContentControl.ContentProperty }
         OnContentChanged(oldContent: any, newContent: any) { }
         OnContentTemplateChanged(oldContentTemplate: ControlTemplate, newContentTemplate: ControlTemplate) { }
+        _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
+            this.OnContentChanged(args.OldValue, args.NewValue);
+            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+        }
+        _ContentTemplateChanged(args: IDependencyPropertyChangedEventArgs) {
+            this.OnContentTemplateChanged(args.OldValue, args.NewValue);
+            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+        }
     }
     Nullstone.RegisterType(ContentControl, "ContentControl");
 }
@@ -18170,5 +18302,195 @@ module Fayde.Controls {
         TextWrapping: TextWrapping;
     }
     Nullstone.RegisterType(TextBox, "TextBox");
+}
+
+module Fayde.Controls.Primitives {
+    export class ButtonBase extends ContentControl {
+        static ClickModeProperty: DependencyProperty = DependencyProperty.Register("ClickMode", () => new Enum(ClickMode), ButtonBase, ClickMode.Release);
+        static IsPressedProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("IsPressed", () => Boolean, ButtonBase, false, (d, args) => (<ButtonBase>d).OnIsPressedChanged(args));
+        static IsFocusedProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("IsFocused", () => Boolean, ButtonBase, false);
+        static CommandProperty: DependencyProperty = DependencyProperty.RegisterCore("Command", () => Input.ICommand_, ButtonBase, undefined, (d, args) => (<ButtonBase>d).OnCommandChanged(args));
+        static CommandParameterProperty: DependencyProperty = DependencyProperty.RegisterCore("CommandParameter", () => Object, ButtonBase, undefined, (d, args) => (<ButtonBase>d).OnCommandParameterChanged(args));
+        ClickMode: ClickMode;
+        IsPressed: bool;
+        IsFocused: bool;
+        Command: Input.ICommand;
+        CommandParameter: any;
+        Click: RoutedEvent = new RoutedEvent();
+        private _IsMouseCaptured: bool = false;
+        private _IsMouseLeftButtonDown: bool = false;
+        private _IsSpaceKeyDown: bool = false;
+        private _MousePosition: Point = new Point();
+        private _SuspendStateChanges: bool = false;
+        constructor() {
+            super();
+            this.IsTabStop = true;
+        }
+        OnIsPressedChanged(args: IDependencyPropertyChangedEventArgs) {
+            this.UpdateVisualState();
+        }
+        OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs) {
+            var isEnabled = e.NewValue;
+            this._SuspendStateChanges = true;
+            try {
+                if (!isEnabled) {
+                    this.SetValueInternal(ButtonBase.IsFocusedProperty, false);
+                    this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                    this._IsMouseCaptured = false;
+                    this._IsSpaceKeyDown = false;
+                    this._IsMouseLeftButtonDown = false;
+                }
+            } finally {
+                this._SuspendStateChanges = false;
+                this.UpdateVisualState();
+            }
+        }
+        OnMouseEnter(e: Input.MouseEventArgs) {
+            super.OnMouseEnter(e);
+            this._SuspendStateChanges = true;
+            try {
+                if (this.ClickMode === ClickMode.Hover && this.IsEnabled) {
+                    this.SetValueInternal(ButtonBase.IsPressedProperty, true);
+                    this.OnClick();
+                }
+            } finally {
+                this._SuspendStateChanges = false;
+                this.UpdateVisualState();
+            }
+        }
+        OnMouseLeave(e: Input.MouseEventArgs) {
+            super.OnMouseLeave(e);
+            this._SuspendStateChanges = true;
+            try {
+                if (this.ClickMode === ClickMode.Hover && this.IsEnabled)
+                    this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+            } finally {
+                this._SuspendStateChanges = false;
+                this.UpdateVisualState();
+            }
+        }
+        OnMouseMove(e: Input.MouseEventArgs) {
+            super.OnMouseMove(e);
+            this._MousePosition = e.GetPosition(this);
+            if (this._IsMouseLeftButtonDown && this.IsEnabled && this.ClickMode !== ClickMode.Hover && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
+                this.SetValueInternal(ButtonBase.IsPressedProperty, this._IsValidMousePosition());
+            }
+        }
+        OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
+            super.OnMouseLeftButtonDown(e);
+            this._IsMouseLeftButtonDown = true;
+            if (!this.IsEnabled)
+                return;
+            var clickMode = this.ClickMode;
+            if (clickMode === ClickMode.Hover)
+                return;
+            e.Handled = true;
+            this._SuspendStateChanges = true;
+            try {
+                this.Focus();
+                this._CaptureMouseInternal();
+                if (this._IsMouseCaptured)
+                    this.SetValueInternal(ButtonBase.IsPressedProperty, true);
+            } finally {
+                this._SuspendStateChanges = false;
+                this.UpdateVisualState();
+            }
+            if (clickMode === ClickMode.Press)
+                this.OnClick();
+        }
+        OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs) {
+            super.OnMouseLeftButtonDown(e);
+            this._IsMouseLeftButtonDown = false;
+            if (!this.IsEnabled)
+                return;
+            var clickMode = this.ClickMode;
+            if (clickMode === ClickMode.Hover)
+                return;
+            e.Handled = true;
+            if (!this._IsSpaceKeyDown && this.IsPressed && clickMode === ClickMode.Release)
+                this.OnClick();
+            if (!this._IsSpaceKeyDown) {
+                this._ReleaseMouseCaptureInternal();
+                this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+            }
+        }
+        OnGotFocus(e: RoutedEventArgs) {
+            super.OnGotFocus(e);
+            this.SetValueInternal(ButtonBase.IsFocusedProperty, true);
+            this.UpdateVisualState();
+        }
+        OnLostFocus(e: RoutedEventArgs) {
+            super.OnLostFocus(e);
+            this.SetValueInternal(ButtonBase.IsFocusedProperty, false);
+            this._SuspendStateChanges = true;
+            try {
+                if (this.ClickMode !== ClickMode.Hover) {
+                    this.SetValueInternal(ButtonBase.IsPressedProperty, false);
+                    this._ReleaseMouseCaptureInternal();
+                    this._IsSpaceKeyDown = false;
+                }
+            } finally {
+                this._SuspendStateChanges = false;
+                this.UpdateVisualState();
+            }
+        }
+        OnClick() {
+            var cmd = this.Command;
+            var par = this.CommandParameter;
+            if (cmd != null && cmd.CanExecute(par))
+                cmd.Execute(par);
+            this.Click.Raise(this, new RoutedEventArgs());
+        }
+        UpdateVisualState(useTransitions?: bool) {
+            if (this._SuspendStateChanges)
+                return;
+            super.UpdateVisualState(useTransitions);
+        }
+        GetVisualStateCommon(): string {
+            if (!this.IsEnabled) {
+                return "Disabled";
+            } else if (this.IsPressed) {
+                return "Pressed";
+            } else if (this.IsMouseOver) {
+                return "MouseOver";
+            } else {
+                return "Normal";
+            }
+        }
+        private _CaptureMouseInternal() {
+            if (!this._IsMouseCaptured)
+                this._IsMouseCaptured = this.CaptureMouse();
+        }
+        private _ReleaseMouseCaptureInternal() {
+            this.ReleaseMouseCapture();
+            this._IsMouseCaptured = false;
+        }
+        private _IsValidMousePosition(): bool {
+            var pos = this._MousePosition;
+            return pos.X >= 0.0 && pos.X <= this.ActualWidth
+                && pos.Y >= 0.0 && pos.Y <= this.ActualHeight;
+        }
+        private OnCommandChanged(args: IDependencyPropertyChangedEventArgs) {
+            var cmd: Input.ICommand;
+            if (Nullstone.ImplementsInterface(args.OldValue, Input.ICommand_)) {
+                cmd = args.OldValue;
+                cmd.CanExecuteChanged.Unsubscribe(this.OnCommandCanExecuteChanged, this);
+            }
+            if (Nullstone.ImplementsInterface(args.NewValue, Input.ICommand_)) {
+                cmd = args.NewValue;
+                cmd.CanExecuteChanged.Subscribe(this.OnCommandCanExecuteChanged, this);
+                this.IsEnabled = cmd.CanExecute(this.CommandParameter);
+            }
+        }
+        private OnCommandCanExecuteChanged(sender, e) {
+            this.IsEnabled = this.Command.CanExecute(this.CommandParameter);
+        }
+        private OnCommandParameterChanged(args: IDependencyPropertyChangedEventArgs) {
+            var cmd = this.Command;
+            if (cmd)
+                this.IsEnabled = cmd.CanExecute(args.NewValue);
+        }
+    }
+    Nullstone.RegisterType(ButtonBase, "ButtonBase");
 }
 

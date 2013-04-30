@@ -14,4 +14,9 @@ module Fayde.Controls {
     export enum TextTrimming {
         None = 0,
     }
+    export enum ClickMode {
+        Release = 0,
+        Press = 1,
+        Hover = 2,
+    }
 }

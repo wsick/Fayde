@@ -53,6 +53,7 @@ Engine/ClockTimer.js
 Engine/Exceptions.js
 Engine/RenderContext.js
 Engine/Surface.js
+Input/ICommand.js
 Input/Keyboard.js
 Markup/JsonParser.js
 Markup/Markup.js
@@ -197,3 +198,4 @@ Controls/ContentControl.js
 Controls/Grid.js
 Controls/ScrollViewer.js
 Controls/TextBox.js
+Controls/Primitives/ButtonBase.js

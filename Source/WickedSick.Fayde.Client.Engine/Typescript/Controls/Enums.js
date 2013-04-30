@@ -21,6 +21,13 @@ var Fayde;
             TextTrimming.None = 0;
         })(Controls.TextTrimming || (Controls.TextTrimming = {}));
         var TextTrimming = Controls.TextTrimming;
+        (function (ClickMode) {
+            ClickMode._map = [];
+            ClickMode.Release = 0;
+            ClickMode.Press = 1;
+            ClickMode.Hover = 2;
+        })(Controls.ClickMode || (Controls.ClickMode = {}));
+        var ClickMode = Controls.ClickMode;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

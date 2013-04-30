@@ -539,6 +539,10 @@
       <DependentUpon>Panel.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Controls\Primitives\IScrollInfo.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\ButtonBase.ts" />
+    <Content Include="Typescript\Controls\Primitives\ButtonBase.js">
+      <DependentUpon>ButtonBase.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Primitives\IScrollInfo.js">
       <DependentUpon>IScrollInfo.ts</DependentUpon>
     </Content>
@@ -1065,6 +1069,10 @@
     <Content Include="Typescript\Media\VSM\VisualTransition.js">
       <DependentUpon>VisualTransition.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Input\ICommand.ts" />
+    <Content Include="Typescript\Input\ICommand.js">
+      <DependentUpon>ICommand.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Navigation\NavService.js">
       <DependentUpon>NavService.ts</DependentUpon>
     </Content>
@@ -1294,6 +1302,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Docs\Rules\" />
+    <Folder Include="Typescript\MVVM\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
