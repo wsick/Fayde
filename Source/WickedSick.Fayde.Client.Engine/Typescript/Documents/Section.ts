@@ -4,10 +4,8 @@
 module Fayde.Documents {
     export class Section extends TextElement {
         static BlocksProperty;
-        CreateNode(): XamlNode {
-            var tenode = new TextElementNode(this);
-            tenode.InheritedWalkProperty = Section.BlocksProperty;
-            return tenode;
+        CreateNode(): TextElementNode {
+            return new TextElementNode(this, Section.BlocksProperty);
         }
     }
     Nullstone.RegisterType(Section, "Section");

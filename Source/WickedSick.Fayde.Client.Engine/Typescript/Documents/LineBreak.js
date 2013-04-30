@@ -8,20 +8,17 @@ var Fayde;
     /// <reference path="Inline.ts" />
     /// CODE
     (function (Documents) {
-        var Span = (function (_super) {
-            __extends(Span, _super);
-            function Span() {
+        var LineBreak = (function (_super) {
+            __extends(LineBreak, _super);
+            function LineBreak() {
                 _super.apply(this, arguments);
 
             }
-            Span.prototype.CreateNode = function () {
-                return new Documents.TextElementNode(this, Span.InlinesProperty);
-            };
-            return Span;
+            return LineBreak;
         })(Documents.Inline);
-        Documents.Span = Span;        
-        Nullstone.RegisterType(Span, "Span");
+        Documents.LineBreak = LineBreak;        
+        Nullstone.RegisterType(LineBreak, "LineBreak");
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));
-//@ sourceMappingURL=Span.js.map
+//@ sourceMappingURL=LineBreak.js.map

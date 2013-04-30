@@ -27,10 +27,11 @@ module Fayde.Controls {
             if (index > -1)
                 nodes.splice(index, 1);
         }
-        
+
         OnIsAttachedChanged(newIsAttached: bool) {
             var nodes = this._Nodes;
-            for (var i = 0; i < nodes.length; i++) {
+            var len = nodes.length;
+            for (var i = 0; i < len; i++) {
                 nodes[i].SetIsAttached(newIsAttached);
             }
         }
@@ -83,6 +84,7 @@ module Fayde.Controls {
     Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");
 
     export class PanelNode extends FENode implements IBoundsComputable {
+        private _Surface: Surface;
         XObject: Panel;
         constructor(xobj: Panel) {
             super(xobj);
@@ -118,6 +120,8 @@ module Fayde.Controls {
         }
 
         OnIsAttachedChanged(newIsAttached: bool) {
+            this.SetSurfaceFromVisualParent();
+            this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
             this.XObject.Children.XamlNode.SetIsAttached(newIsAttached);
         }
 

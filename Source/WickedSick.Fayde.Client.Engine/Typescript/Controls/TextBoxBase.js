@@ -85,6 +85,55 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(TextBoxBase.prototype, "SelectionBackground", {
+                get: function () {
+                    return undefined;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TextBoxBase.prototype, "Background", {
+                get: function () {
+                    return undefined;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TextBoxBase.prototype, "SelectionForeground", {
+                get: function () {
+                    return undefined;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TextBoxBase.prototype, "Foreground", {
+                get: function () {
+                    return undefined;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TextBoxBase.prototype, "Font", {
+                get: function () {
+                    return undefined;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TextBoxBase.prototype, "Direction", {
+                get: function () {
+                    return undefined;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TextBoxBase.prototype, "TextDecorations", {
+                get: function () {
+                    return undefined;
+                },
+                enumerable: true,
+                configurable: true
+            });
             TextBoxBase.prototype.Listen = function (listener) {
             };
             TextBoxBase.prototype.Unlisten = function (listener) {

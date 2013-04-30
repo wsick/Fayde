@@ -1,6 +1,7 @@
 /// <reference path="../Core/FrameworkElement.ts" />
 /// CODE
 /// <reference path="../Core/Providers/ControlProviderStore.ts" />
+/// <reference path="../Core/Providers/InheritedIsEnabledProvider.ts" />
 /// <reference path="../Media/VSM/VisualStateManager.ts" />
 
 module Fayde.Controls {
@@ -89,7 +90,19 @@ module Fayde.Controls {
         XamlNode: ControlNode;
         _Store: Providers.ControlProviderStore;
         CreateStore(): Providers.ControlProviderStore {
-            return new Providers.ControlProviderStore(this);
+            var s = new Providers.ControlProviderStore(this);
+            s.SetProviders([
+                new Providers.InheritedIsEnabledProvider(s),
+                new Providers.LocalValueProvider(),
+                new Providers.FrameworkElementDynamicProvider(),
+                new Providers.LocalStyleProvider(s),
+                new Providers.ImplicitStyleProvider(s),
+                new Providers.InheritedProvider(),
+                new Providers.InheritedDataContextProvider(s),
+                new Providers.DefaultValueProvider(),
+                new Providers.AutoCreateProvider()]
+            );
+            return s;
         }
         CreateNode(): ControlNode { return new ControlNode(this); }
 

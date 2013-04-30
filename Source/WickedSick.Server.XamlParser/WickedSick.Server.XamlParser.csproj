@@ -73,6 +73,7 @@
     <Compile Include="Elements\Controls\PasswordBox.cs" />
     <Compile Include="Elements\Controls\Primitives\Selector.cs" />
     <Compile Include="Elements\Controls\ProgressBar.cs" />
+    <Compile Include="Elements\Controls\RichTextBox.cs" />
     <Compile Include="Elements\Controls\Slider.cs" />
     <Compile Include="Elements\Core\Array.cs" />
     <Compile Include="Elements\Core\Boolean.cs" />

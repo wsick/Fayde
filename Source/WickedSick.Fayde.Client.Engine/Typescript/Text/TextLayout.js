@@ -37,13 +37,15 @@ var Fayde;
                     ctx.FillRect(brush, area)//selection background
                     ;
                 }
-                if(!(brush = attrs.GetForeground(this._Selected))) {
-                    return;
-                }
                 var canvasCtx = ctx.CanvasContext;
-                brush.SetupBrush(canvasCtx, area);
-                var brushHtml5 = brush.ToHtml5Object();
-                canvasCtx.fillStyle = brushHtml5;
+                brush = attrs.GetForeground(this._Selected);
+                if(brush) {
+                    brush.SetupBrush(canvasCtx, area);
+                    var brushHtml5 = brush.ToHtml5Object();
+                    canvasCtx.fillStyle = brushHtml5;
+                } else {
+                    canvasCtx.fillStyle = "#000000";
+                }
                 canvasCtx.font = font.ToHtml5Object();
                 canvasCtx.textAlign = "left";
                 canvasCtx.textBaseline = "top";
@@ -375,7 +377,20 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
+            Object.defineProperty(TextLayout.prototype, "RenderExtents", {
+                get: function () {
+                    this.Layout();
+                    var r = new rect();
+                    rect.set(r, this._HorizontalAlignment(this._ActualWidth), 0.0, this._ActualWidth, this._ActualHeight);
+                    return r;
+                },
+                enumerable: true,
+                configurable: true
+            });
             Object.defineProperty(TextLayout.prototype, "MaxWidth", {
+                get: function () {
+                    return this._MaxWidth;
+                },
                 set: function (maxWidth) {
                     if(maxWidth === 0.0) {
                         maxWidth = Number.POSITIVE_INFINITY;
@@ -395,6 +410,9 @@ var Fayde;
                 configurable: true
             });
             Object.defineProperty(TextLayout.prototype, "TextAlignment", {
+                get: function () {
+                    return this._Alignment;
+                },
                 set: function (align) {
                     if(this._Alignment === align) {
                         return;
@@ -413,7 +431,28 @@ var Fayde;
                 this.ResetState();
                 return true;
             };
+            Object.defineProperty(TextLayout.prototype, "TextTrimming", {
+                get: function () {
+                    return this._Trimming;
+                },
+                set: function (value) {
+                    this.SetTextTrimming(value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            TextLayout.prototype.SetTextTrimming = function (value) {
+                if(this._Trimming === value) {
+                    return false;
+                }
+                this._Trimming = value;
+                this.ResetState();
+                return true;
+            };
             Object.defineProperty(TextLayout.prototype, "TextWrapping", {
+                get: function () {
+                    return this._Wrapping;
+                },
                 set: function (wrapping) {
                     this.SetTextWrapping(wrapping);
                 },
@@ -436,6 +475,46 @@ var Fayde;
                 this.ResetState();
                 return true;
             };
+            Object.defineProperty(TextLayout.prototype, "LineStackingStrategy", {
+                get: function () {
+                    return this._Strategy;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(TextLayout.prototype, "LineStackingStategy", {
+                set: function (value) {
+                    this.SetLineStackingStategy(value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            TextLayout.prototype.SetLineStackingStategy = function (strategy) {
+                if(this._Strategy === strategy) {
+                    return false;
+                }
+                this._Strategy = strategy;
+                this.ResetState();
+                return true;
+            };
+            Object.defineProperty(TextLayout.prototype, "LineHeight", {
+                get: function () {
+                    return this._LineHeight;
+                },
+                set: function (value) {
+                    this.SetLineHeight(value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            TextLayout.prototype.SetLineHeight = function (value) {
+                if(this._LineHeight === value) {
+                    return false;
+                }
+                this._LineHeight = value;
+                this.ResetState();
+                return true;
+            };
             Object.defineProperty(TextLayout.prototype, "TextAttributes", {
                 get: function () {
                     return this._Attrs;
@@ -453,13 +532,9 @@ var Fayde;
                     return this._Text;
                 },
                 set: function (text) {
-                    var len = -1;
-                    if(text) {
-                        len = text.length;
-                    }
                     if(text != null) {
                         this._Text = text;
-                        this._Length = length == -1 ? text.length : length;
+                        this._Length = text.length;
                     } else {
                         this._Text = null;
                         this._Length = 0;
@@ -765,12 +840,13 @@ var Fayde;
                 //if origin is null -> {0,0}
                 //if offset is null -> {0,0}
                 var line;
-                var x;
-                var y = offset.Y;
+                var x = 0.0;
+                var ox = (offset) ? offset.X : 0.0;
+                var y = (offset) ? offset.Y : 0.0;
                 this.Layout();
                 for(var i = 0; i < this._Lines.length; i++) {
                     line = this._Lines[i];
-                    x = offset.X + this._HorizontalAlignment(line._Advance);
+                    x = ox + this._HorizontalAlignment(line._Advance);
                     line._Render(ctx, origin, x, y);
                     y += line._Height;
                 }

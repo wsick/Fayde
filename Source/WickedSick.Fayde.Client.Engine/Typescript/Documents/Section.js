@@ -15,9 +15,7 @@ var Fayde;
 
             }
             Section.prototype.CreateNode = function () {
-                var tenode = new Documents.TextElementNode(this);
-                tenode.InheritedWalkProperty = Section.BlocksProperty;
-                return tenode;
+                return new Documents.TextElementNode(this, Section.BlocksProperty);
             };
             return Section;
         })(Documents.TextElement);

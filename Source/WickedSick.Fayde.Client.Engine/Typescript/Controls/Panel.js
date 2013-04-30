@@ -42,7 +42,8 @@ var Fayde;
             };
             PanelChildrenNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
                 var nodes = this._Nodes;
-                for(var i = 0; i < nodes.length; i++) {
+                var len = nodes.length;
+                for(var i = 0; i < len; i++) {
                     nodes[i].SetIsAttached(newIsAttached);
                 }
             };
@@ -134,6 +135,8 @@ var Fayde;
                 (this.XObject.Children).XamlNode.ResortByZIndex();
             };
             PanelNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
+                this.SetSurfaceFromVisualParent();
+                this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
                 this.XObject.Children.XamlNode.SetIsAttached(newIsAttached);
             };
             PanelNode.prototype._CanFindElement = function () {

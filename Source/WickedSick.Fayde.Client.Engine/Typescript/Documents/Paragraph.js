@@ -15,9 +15,7 @@ var Fayde;
 
             }
             Paragraph.prototype.CreateNode = function () {
-                var tenode = new Documents.TextElementNode(this);
-                tenode.InheritedWalkProperty = Paragraph.InlinesProperty;
-                return tenode;
+                return new Documents.TextElementNode(this, Paragraph.InlinesProperty);
             };
             return Paragraph;
         })(Documents.Block);

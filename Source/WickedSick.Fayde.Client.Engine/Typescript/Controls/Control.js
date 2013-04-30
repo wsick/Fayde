@@ -8,6 +8,7 @@ var Fayde;
     /// <reference path="../Core/FrameworkElement.ts" />
     /// CODE
     /// <reference path="../Core/Providers/ControlProviderStore.ts" />
+    /// <reference path="../Core/Providers/InheritedIsEnabledProvider.ts" />
     /// <reference path="../Media/VSM/VisualStateManager.ts" />
     (function (Controls) {
         var ControlNode = (function (_super) {
@@ -100,7 +101,19 @@ var Fayde;
                 this.IsEnabledChanged = new MulticastEvent();
             }
             Control.prototype.CreateStore = function () {
-                return new Fayde.Providers.ControlProviderStore(this);
+                var s = new Fayde.Providers.ControlProviderStore(this);
+                s.SetProviders([
+                    new Fayde.Providers.InheritedIsEnabledProvider(s), 
+                    new Fayde.Providers.LocalValueProvider(), 
+                    new Fayde.Providers.FrameworkElementDynamicProvider(), 
+                    new Fayde.Providers.LocalStyleProvider(s), 
+                    new Fayde.Providers.ImplicitStyleProvider(s), 
+                    new Fayde.Providers.InheritedProvider(), 
+                    new Fayde.Providers.InheritedDataContextProvider(s), 
+                    new Fayde.Providers.DefaultValueProvider(), 
+                    new Fayde.Providers.AutoCreateProvider()
+                ]);
+                return s;
             };
             Control.prototype.CreateNode = function () {
                 return new ControlNode(this);

@@ -188,7 +188,8 @@ var Fayde;
                 }
                 if(!(propValue instanceof Fayde.Expression)) {
                     var targetType = propd.GetTargetType();
-                    if(!(propValue instanceof targetType)) {
+                    if(targetType instanceof Enum) {
+                    } else if(!(propValue instanceof targetType)) {
                         var propDesc = Nullstone.GetPropertyDescriptor(xobj, propName);
                         if(propDesc) {
                             var setFunc = propDesc.set;

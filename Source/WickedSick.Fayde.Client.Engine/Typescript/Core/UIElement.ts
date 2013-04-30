@@ -24,6 +24,14 @@ module Fayde {
         IsTopLevel: bool = false;
         private _Surface: Surface;
 
+        SetSurfaceFromVisualParent(): UINode {
+            if (this._Surface)
+                return;
+            var vpNode = this.VisualParentNode;
+            if (vpNode)
+                this.SetSurface(vpNode._Surface);
+            return vpNode;
+        }
         SetSurface(surface: Surface) {
             this._Surface = surface;
             this.LayoutUpdater.Surface = surface;
@@ -50,9 +58,9 @@ module Fayde {
         }
 
         OnIsAttachedChanged(newIsAttached: bool) {
-            var vpNode = this.VisualParentNode;
-            if (newIsAttached && vpNode)
-                this.SetSurface(vpNode._Surface);
+            var vpNode: UINode = null;
+            if (newIsAttached)
+                vpNode = this.SetSurfaceFromVisualParent();
             this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, vpNode);
         }
 

@@ -799,6 +799,14 @@
     <Content Include="Typescript\Data\RelativeSource.js">
       <DependentUpon>RelativeSource.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Documents\Run.ts" />
+    <TypeScriptCompile Include="Typescript\Documents\LineBreak.ts" />
+    <Content Include="Typescript\Documents\LineBreak.js">
+      <DependentUpon>LineBreak.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Documents\Run.js">
+      <DependentUpon>Run.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Engine\App.js">
       <DependentUpon>App.ts</DependentUpon>
     </Content>

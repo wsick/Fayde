@@ -24,14 +24,14 @@ var Fayde;
             };
             Object.defineProperty(TextLayoutAttributes.prototype, "Font", {
                 get: function () {
-                    return this._Source.GetFont();
+                    return this._Source.Font;
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(TextLayoutAttributes.prototype, "Direction", {
                 get: function () {
-                    return this._Source.GetDirection();
+                    return this._Source.Direction;
                 },
                 enumerable: true,
                 configurable: true

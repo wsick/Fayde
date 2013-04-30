@@ -12,11 +12,20 @@ module Fayde.Text {
         IsUnderlined: bool;
         Start: number;
     }
+    export interface ITextAttributesSource {
+        SelectionBackground: Media.Brush;
+        Background: Media.Brush;
+        SelectionForeground: Media.Brush;
+        Foreground: Media.Brush;
+        Font: Font;
+        Direction: FlowDirection;
+        TextDecorations: TextDecorations;
+    }
 
     export class TextLayoutAttributes implements ITextAttributes {
-        private _Source;
+        private _Source: ITextAttributesSource;
         Start: number;
-        constructor(source, start?: number) {
+        constructor(source: ITextAttributesSource, start?: number) {
             this._Source = source;
             this.Start = (start == null) ? 0 : start;
         }
@@ -30,8 +39,8 @@ module Fayde.Text {
                 return this._Source.SelectionForeground;
             return this._Source.Foreground;
         }
-        get Font(): Font { return this._Source.GetFont(); }
-        get Direction(): FlowDirection { return this._Source.GetDirection(); }
+        get Font(): Font { return this._Source.Font; }
+        get Direction(): FlowDirection { return this._Source.Direction; }
         get IsUnderlined(): bool { return (this._Source.TextDecorations & TextDecorations.Underline) === TextDecorations.Underline; }
     }
 }

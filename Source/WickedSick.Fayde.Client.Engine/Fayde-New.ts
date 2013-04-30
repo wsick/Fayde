@@ -3068,10 +3068,19 @@ module Fayde.Text {
         IsUnderlined: bool;
         Start: number;
     }
+    export interface ITextAttributesSource {
+        SelectionBackground: Media.Brush;
+        Background: Media.Brush;
+        SelectionForeground: Media.Brush;
+        Foreground: Media.Brush;
+        Font: Font;
+        Direction: FlowDirection;
+        TextDecorations: TextDecorations;
+    }
     export class TextLayoutAttributes implements ITextAttributes {
-        private _Source;
+        private _Source: ITextAttributesSource;
         Start: number;
-        constructor(source, start?: number) {
+        constructor(source: ITextAttributesSource, start?: number) {
             this._Source = source;
             this.Start = (start == null) ? 0 : start;
         }
@@ -3085,8 +3094,8 @@ module Fayde.Text {
                 return this._Source.SelectionForeground;
             return this._Source.Foreground;
         }
-        get Font(): Font { return this._Source.GetFont(); }
-        get Direction(): FlowDirection { return this._Source.GetDirection(); }
+        get Font(): Font { return this._Source.Font; }
+        get Direction(): FlowDirection { return this._Source.Direction; }
         get IsUnderlined(): bool { return (this._Source.TextDecorations & TextDecorations.Underline) === TextDecorations.Underline; }
     }
 }
@@ -3133,12 +3142,15 @@ module Fayde.Text {
             if (this._Selected && (brush = attrs.GetBackground(true))) {
                 ctx.FillRect(brush, area); //selection background
             }
-            if (!(brush = attrs.GetForeground(this._Selected)))
-                return;
             var canvasCtx = ctx.CanvasContext;
-            brush.SetupBrush(canvasCtx, area);
-            var brushHtml5 = brush.ToHtml5Object();
-            canvasCtx.fillStyle = brushHtml5;
+            brush = attrs.GetForeground(this._Selected);
+            if (brush) {
+                brush.SetupBrush(canvasCtx, area);
+                var brushHtml5 = brush.ToHtml5Object();
+                canvasCtx.fillStyle = brushHtml5;
+            } else {
+                canvasCtx.fillStyle = "#000000";
+            }
             canvasCtx.font = font.ToHtml5Object();
             canvasCtx.textAlign = "left";
             canvasCtx.textBaseline = "top";
@@ -3425,6 +3437,13 @@ module Fayde.Text {
         get ActualExtents(): size {
             return size.fromRaw(this._ActualWidth, this._ActualHeight);
         }
+        get RenderExtents(): rect {
+            this.Layout();
+            var r = new rect();
+            rect.set(r, this._HorizontalAlignment(this._ActualWidth), 0.0, this._ActualWidth, this._ActualHeight);
+            return r;
+        }
+        get MaxWidth(): number { return this._MaxWidth; }
         set MaxWidth(maxWidth: number) {
             if (maxWidth === 0.0)
                 maxWidth = Number.POSITIVE_INFINITY;
@@ -3438,6 +3457,7 @@ module Fayde.Text {
             this.ResetState();
             return true;
         }
+        get TextAlignment() { return this._Alignment; }
         set TextAlignment(align: TextAlignment) {
             if (this._Alignment === align)
                 return;
@@ -3451,6 +3471,16 @@ module Fayde.Text {
             this.ResetState();
             return true;
         }
+        get TextTrimming(): Controls.TextTrimming { return this._Trimming; }
+        set TextTrimming(value: Controls.TextTrimming) { this.SetTextTrimming(value); }
+        SetTextTrimming(value: Controls.TextTrimming): bool {
+            if (this._Trimming === value)
+                return false;
+            this._Trimming = value;
+            this.ResetState();
+            return true;
+        }
+        get TextWrapping(): Controls.TextWrapping { return this._Wrapping; }
         set TextWrapping(wrapping: Controls.TextWrapping) {
             this.SetTextWrapping(wrapping);
         }
@@ -3469,6 +3499,24 @@ module Fayde.Text {
             this.ResetState();
             return true;
         }
+        get LineStackingStrategy(): LineStackingStrategy { return this._Strategy; }
+        set LineStackingStategy(value) { this.SetLineStackingStategy(value); }
+        SetLineStackingStategy(strategy: LineStackingStrategy): bool {
+            if (this._Strategy === strategy)
+                return false;
+            this._Strategy = strategy;
+            this.ResetState();
+            return true;
+        }
+        get LineHeight(): number { return this._LineHeight; }
+        set LineHeight(value: number) { this.SetLineHeight(value); }
+        SetLineHeight(value: number): bool {
+            if (this._LineHeight === value)
+                return false;
+            this._LineHeight = value;
+            this.ResetState();
+            return true;
+        }
         get TextAttributes(): ITextAttributes[] { return this._Attrs; }
         set TextAttributes(attrs: ITextAttributes[]) {
             this._Attrs = attrs;
@@ -3477,11 +3525,9 @@ module Fayde.Text {
         }
         get Text(): string { return this._Text; }
         set Text(text: string) {
-            var len = -1;
-            if (text) len = text.length;
             if (text != null) {
                 this._Text = text;
-                this._Length = length == -1 ? text.length : length;
+                this._Length = text.length;
             } else {
                 this._Text = null;
                 this._Length = 0;
@@ -3757,12 +3803,13 @@ module Fayde.Text {
         }
         Render(ctx: RenderContext, origin?: Point, offset?: Point) {
             var line: TextLayoutLine;
-            var x: number;
-            var y = offset.Y;
+            var x: number = 0.0;
+            var ox: number = (offset) ? offset.X : 0.0;
+            var y = (offset) ? offset.Y : 0.0;
             this.Layout();
             for (var i = 0; i < this._Lines.length; i++) {
                 line = this._Lines[i];
-                x = offset.X + this._HorizontalAlignment(line._Advance);
+                x = ox + this._HorizontalAlignment(line._Advance);
                 line._Render(ctx, origin, x, y);
                 y += line._Height;
             }
@@ -4836,7 +4883,8 @@ module Fayde {
                     || !isFinite(finalRect.Width) || !isFinite(finalRect.Height)
                     || isNaN(finalRect.Width) || isNaN(finalRect.Height)) {
                 var desired = this.DesiredSize;
-                Warn("Invalid arguments to Arrange. Desired = " + desired.toString());
+                error.Number = BError.Argument;
+                error.Message = "Invalid arguments to Arrange. Desired = " + desired.toString();
                 return;
             }
             if (fe.Visibility !== Fayde.Visibility.Visible) {
@@ -6019,7 +6067,7 @@ module Fayde.Providers {
 }
 
 module Fayde.Providers {
-    export class InheritedIsEnabledProvider implements IPropertyProvider {
+    export class InheritedIsEnabledProvider implements IPropertyProvider, IInheritedIsEnabledProvider {
         private _Source: Fayde.Controls.Control;
         private _CurrentValue: bool = true;
         private _Store: IProviderStore;
@@ -7747,7 +7795,8 @@ module Fayde {
                     return;
                 if (!(propValue instanceof Fayde.Expression)) {
                     var targetType = propd.GetTargetType();
-                    if (!(propValue instanceof targetType)) {
+                    if (targetType instanceof Enum) {
+                    } else if (!(propValue instanceof targetType)) {
                         var propDesc = Nullstone.GetPropertyDescriptor(xobj, propName);
                         if (propDesc) {
                             var setFunc = propDesc.set;
@@ -10012,21 +10061,94 @@ module Fayde.Data {
 module Fayde.Documents {
     export class TextElementNode extends XamlNode {
         XObject: TextElement;
+        constructor(xobj: TextElement, inheritedWalkProperty: DependencyProperty) {
+            super(xobj);
+            this.InheritedWalkProperty = inheritedWalkProperty;
+        }
         InheritedWalkProperty: DependencyProperty;
         GetInheritedEnumerator(): IEnumerator {
+            if (!this.InheritedWalkProperty)
+                return ArrayEx.EmptyEnumerator;
             var coll = this.XObject.GetValue(this.InheritedWalkProperty);
             if (coll)
                 return (<XamlObjectCollection>coll).GetEnumerator();
         }
     }
     Nullstone.RegisterType(TextElementNode, "TextElementNode");
-    export class TextElement extends DependencyObject {
+    export class TextElement extends DependencyObject implements Text.ITextAttributesSource {
         _Store: Providers.InheritedProviderStore;
         CreateStore(): Providers.BasicProviderStore {
-            return new Providers.InheritedProviderStore(this);
+            var s = new Providers.InheritedProviderStore(this);
+            s.SetProviders([null,
+                new Providers.LocalValueProvider(),
+                null,
+                null,
+                null,
+                new Providers.InheritedProvider(),
+                null,
+                new Providers.DefaultValueProvider(),
+                new Providers.AutoCreateProvider()]
+            );
+            return s;
         }
-        CreateNode(): XamlNode {
-            return new TextElementNode(this);
+        XamlNode: TextElementNode;
+        CreateNode(): TextElementNode {
+            return new TextElementNode(this, null);
+        }
+        static ForegroundProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Foreground", () => Media.Brush, TextElement, undefined, (d, args) => (<TextElement>d)._UpdateFont(false), undefined, Providers._Inheritable.Foreground);
+        static FontFamilyProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontFamily", () => String, TextElement, Font.DEFAULT_FAMILY, (d, args) => (<TextElement>d)._UpdateFont(false), undefined, Providers._Inheritable.FontFamily);
+        static FontStretchProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStretch", () => String, TextElement, Font.DEFAULT_STRETCH, (d, args) => (<TextElement>d)._UpdateFont(false), undefined, Providers._Inheritable.FontStretch);
+        static FontStyleProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStyle", () => String, TextElement, Font.DEFAULT_STYLE, (d, args) => (<TextElement>d)._UpdateFont(false), undefined, Providers._Inheritable.FontStyle);
+        static FontWeightProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontWeight", () => new Enum(FontWeight), TextElement, Font.DEFAULT_WEIGHT, (d, args) => (<TextElement>d)._UpdateFont(false), undefined, Providers._Inheritable.FontWeight);
+        static FontSizeProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontSize", () => Number, TextElement, Font.DEFAULT_SIZE, (d, args) => (<TextElement>d)._UpdateFont(false), undefined, Providers._Inheritable.FontSize);
+        static LanguageProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Language", () => String, TextElement, undefined, (d, args) => (<TextElement>d)._UpdateFont(false), undefined, Providers._Inheritable.Language);
+        static TextDecorationsProperty: DependencyProperty = DependencyProperty.RegisterInheritable("TextDecorations", () => new Enum(TextDecorations), TextElement, TextDecorations.None, (d, args) => (<TextElement>d)._UpdateFont(false), undefined, Providers._Inheritable.TextDecorations);
+        Foreground: Media.Brush;
+        FontFamily: string;
+        FontStretch: string;
+        FontStyle: string;
+        FontWeight: FontWeight;
+        FontSize: number;
+        Language: string;
+        TextDecorations: TextDecorations;
+        private _Font: Font = new Font();
+        constructor() {
+            super();
+            this._UpdateFont(true);
+        }
+        _SerializeText(): string { return undefined; };
+        private _UpdateFont(force?: bool) {
+            var f = this._Font;
+            f.Family = this.FontFamily;
+            f.Stretch = this.FontStretch;
+            f.Style = this.FontStyle;
+            f.Weight = this.FontWeight;
+            f.Size = this.FontSize;
+            return f.IsChanged || force;
+        }
+        get Background(): Media.Brush { return null; }
+        get SelectionBackground(): Media.Brush { return null; }
+        get SelectionForeground(): Media.Brush { return this.Foreground; }
+        get Font(): Font { return this._Font; }
+        get Direction(): FlowDirection { return FlowDirection.LeftToRight; }
+        get IsUnderlined(): bool { return (this.TextDecorations & TextDecorations.Underline) > 0; }
+        Start: number;
+        Equals(te: TextElement): bool {
+            if (this.FontFamily !== te.FontFamily)
+                return false;
+            if (this.FontSize !== te.FontSize)
+                return false;
+            if (this.FontStyle !== te.FontStyle)
+                return false;
+            if (this.FontWeight !== te.FontWeight)
+                return false;
+            if (this.FontStretch !== te.FontStretch)
+                return false;
+            if (this.TextDecorations !== te.TextDecorations)
+                return false;
+            if (!Nullstone.Equals(this.Foreground, te.Foreground))
+                return false;
+            return true;
         }
     }
     Nullstone.RegisterType(TextElement, "TextElement");
@@ -12212,6 +12334,14 @@ module Fayde {
         LayoutUpdater: LayoutUpdater;
         IsTopLevel: bool = false;
         private _Surface: Surface;
+        SetSurfaceFromVisualParent(): UINode {
+            if (this._Surface)
+                return;
+            var vpNode = this.VisualParentNode;
+            if (vpNode)
+                this.SetSurface(vpNode._Surface);
+            return vpNode;
+        }
         SetSurface(surface: Surface) {
             this._Surface = surface;
             this.LayoutUpdater.Surface = surface;
@@ -12234,9 +12364,9 @@ module Fayde {
             return this.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
         }
         OnIsAttachedChanged(newIsAttached: bool) {
-            var vpNode = this.VisualParentNode;
-            if (newIsAttached && vpNode)
-                this.SetSurface(vpNode._Surface);
+            var vpNode: UINode = null;
+            if (newIsAttached)
+                vpNode = this.SetSurfaceFromVisualParent();
             this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, vpNode);
         }
         IsLoaded: bool = false;
@@ -12644,30 +12774,65 @@ module Fayde.Documents {
 }
 
 module Fayde.Documents {
+    export interface IInlinesChangedListener {
+        InlinesChanged(newInline: Inline, isAdd: bool);
+    }
     export class Inline extends TextElement {
+        Autogen: bool = false;
     }
     Nullstone.RegisterType(Inline, "Inline");
+    export class InlineCollection extends XamlObjectCollection {
+        private _Listener: IInlinesChangedListener;
+        Listen(listener: IInlinesChangedListener) { this._Listener = listener; }
+        Unlisten(listener: IInlinesChangedListener) { if (this._Listener === listener) this._Listener = null; }
+        AddedToCollection(value: Inline, error: BError): bool {
+            if (!super.AddedToCollection(value, error))
+                return false;
+            var listener = this._Listener;
+            if (listener) listener.InlinesChanged(value, true);
+            return true;
+        }
+        RemovedFromCollection(value: Inline, isValueSafe: bool) {
+            super.RemovedFromCollection(value, isValueSafe);
+            var listener = this._Listener;
+            if (listener) listener.InlinesChanged(value, false);
+        }
+    }
+    Nullstone.RegisterType(InlineCollection, "InlineCollection");
+}
+
+module Fayde.Documents {
+    export class LineBreak extends Inline {
+    }
+    Nullstone.RegisterType(LineBreak, "LineBreak");
 }
 
 module Fayde.Documents {
     export class Paragraph extends Block {
         static InlinesProperty;
-        CreateNode(): XamlNode {
-            var tenode = new TextElementNode(this)
-            tenode.InheritedWalkProperty = Paragraph.InlinesProperty;
-            return tenode;
+        CreateNode(): TextElementNode {
+            return new TextElementNode(this, Paragraph.InlinesProperty)
         }
     }
     Nullstone.RegisterType(Paragraph, "Paragraph");
 }
 
 module Fayde.Documents {
+    export class Run extends Inline {
+        static FlowDirectionProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FlowDirection", () => new Enum(FlowDirection), Run, FlowDirection.LeftToRight, undefined, undefined, Providers._Inheritable.FlowDirection);
+        static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, Run);
+        FlowDirection: FlowDirection;
+        Text: string;
+        _SerializeText(): string { return this.Text; }
+    }
+    Nullstone.RegisterType(Run, "Run");
+}
+
+module Fayde.Documents {
     export class Section extends TextElement {
         static BlocksProperty;
-        CreateNode(): XamlNode {
-            var tenode = new TextElementNode(this);
-            tenode.InheritedWalkProperty = Section.BlocksProperty;
-            return tenode;
+        CreateNode(): TextElementNode {
+            return new TextElementNode(this, Section.BlocksProperty);
         }
     }
     Nullstone.RegisterType(Section, "Section");
@@ -12676,10 +12841,9 @@ module Fayde.Documents {
 module Fayde.Documents {
     export class Span extends Inline {
         static InlinesProperty;
-        CreateNode(): XamlNode {
-            var tenode = new TextElementNode(this);
-            tenode.InheritedWalkProperty = Span.InlinesProperty;
-            return tenode;
+        Inlines: XamlObjectCollection;
+        CreateNode(): TextElementNode {
+            return new TextElementNode(this, Span.InlinesProperty);
         }
     }
     Nullstone.RegisterType(Span, "Span");
@@ -14906,7 +15070,19 @@ module Fayde.Controls {
         XamlNode: ControlNode;
         _Store: Providers.ControlProviderStore;
         CreateStore(): Providers.ControlProviderStore {
-            return new Providers.ControlProviderStore(this);
+            var s = new Providers.ControlProviderStore(this);
+            s.SetProviders([
+                new Providers.InheritedIsEnabledProvider(s),
+                new Providers.LocalValueProvider(),
+                new Providers.FrameworkElementDynamicProvider(),
+                new Providers.LocalStyleProvider(s),
+                new Providers.ImplicitStyleProvider(s),
+                new Providers.InheritedProvider(),
+                new Providers.InheritedDataContextProvider(s),
+                new Providers.DefaultValueProvider(),
+                new Providers.AutoCreateProvider()]
+            );
+            return s;
         }
         CreateNode(): ControlNode { return new ControlNode(this); }
         static BackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Control);
@@ -15483,7 +15659,8 @@ module Fayde.Controls {
         }
         OnIsAttachedChanged(newIsAttached: bool) {
             var nodes = this._Nodes;
-            for (var i = 0; i < nodes.length; i++) {
+            var len = nodes.length;
+            for (var i = 0; i < len; i++) {
                 nodes[i].SetIsAttached(newIsAttached);
             }
         }
@@ -15533,6 +15710,7 @@ module Fayde.Controls {
     }
     Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");
     export class PanelNode extends FENode implements IBoundsComputable {
+        private _Surface: Surface;
         XObject: Panel;
         constructor(xobj: Panel) {
             super(xobj);
@@ -15565,6 +15743,8 @@ module Fayde.Controls {
             (<PanelChildrenCollection>this.XObject.Children).XamlNode.ResortByZIndex();
         }
         OnIsAttachedChanged(newIsAttached: bool) {
+            this.SetSurfaceFromVisualParent();
+            this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
             this.XObject.Children.XamlNode.SetIsAttached(newIsAttached);
         }
         _CanFindElement(): bool { return this.XObject.Background != null; }
@@ -16014,31 +16194,38 @@ module Fayde.Controls {
 
 module Fayde.Controls {
     declare var NotImplemented;
-    export class TextBlockNode extends FENode implements IBoundsComputable {
+    export class TextBlockNode extends FENode implements IBoundsComputable, Documents.IInlinesChangedListener {
         XObject: TextBlock;
-        private _ActualWidth: number;
-        private _ActualHeight: number;
-        private _Layout: any;
+        private _ActualWidth: number = 0.0;
+        private _ActualHeight: number = 0.0;
+        _Layout: Text.TextLayout = new Text.TextLayout();
+        private _WasSet: bool = true;
+        private _Dirty: bool = true;
+        private _Font: Font = new Font();
+        private _SetsValue: bool = true;
         constructor(xobj: TextBlock) {
             super(xobj);
         }
         GetInheritedWalker(): IEnumerator {
-            var coll = (<DependencyObject>this.XObject).GetValue(TextBlock.InlinesProperty);
-            if (coll)
-                return (<XamlObjectCollection>coll).GetEnumerator();
+            var xobj = this.XObject;
+            var inlines = xobj.Inlines;
+            if (inlines)
+                return inlines.GetEnumerator();
         }
         ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
-            rect.copyTo(this._Layout.GetRenderExtents(), lu.Extents);
+            rect.copyTo(this._Layout.RenderExtents, lu.Extents);
             var padding = this.XObject.Padding;
-            lu.Extents.X += padding.Left;
-            lu.Extents.Y += padding.Top;
+            if (padding) {
+                lu.Extents.X += padding.Left;
+                lu.Extents.Y += padding.Top;
+            }
             rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
             lu.IntersectBoundsWithClipPath(lu.Bounds, lu.AbsoluteXform);
             rect.copyTo(lu.Bounds, lu.BoundsWithChildren);
             lu.ComputeGlobalBounds();
             lu.ComputeSurfaceBounds();
         }
-        Measure(constraint: size):size {
+        Measure(constraint: size): size {
             this.Layout(constraint);
             return size.fromRaw(this._ActualWidth, this._ActualHeight);
         }
@@ -16046,45 +16233,286 @@ module Fayde.Controls {
             this.Layout(constraint);
             var arranged = size.fromRaw(this._ActualWidth, this._ActualHeight);
             size.max(arranged, constraint);
-            this._Layout.SetAvailableWidth(constraint.Width);
-            size.growByThickness(arranged, padding);
+            this._Layout.AvailableWidth = constraint.Width;
+            if (padding) size.growByThickness(arranged, padding);
         }
         Layout(constraint: size) {
+            if (this._WasSet) {
+                if (false) {
+                    this._ActualHeight = this._Font.GetActualHeight();
+                    this._ActualWidth = 0.0;
+                } else {
+                    this._Layout.MaxWidth = constraint.Width;
+                    this._Layout.Layout();
+                    var actuals = this._Layout.ActualExtents;
+                    this._ActualWidth = actuals.Width;
+                    this._ActualHeight = actuals.Height;
+                }
+            } else {
+                this._ActualHeight = 0.0;
+                this._ActualWidth = 0.0;
+            }
+            this._Dirty = false;
+        }
+        ComputeActualSize(lu: LayoutUpdater, padding: Thickness): size {
+            var constraint = lu.CoerceSize(size.createInfinite());
+            if (lu.PreviousConstraint !== undefined || lu.LayoutSlot !== undefined) {
+                this._Layout.Layout();
+                var actuals = this._Layout.ActualExtents;
+                this._ActualWidth = actuals.Width;
+                this._ActualHeight = actuals.Height;
+            } else {
+                if (padding) size.shrinkByThickness(constraint, padding);
+                this.Layout(constraint);
+            }
+            var result = size.fromRaw(this._ActualWidth, this._ActualHeight);
+            if (padding) size.growByThickness(result, padding);
+            return result;
+        }
+        _CanFindElement(): bool { return true; }
+        _FontChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._UpdateFonts(false);
+            this._InvalidateDirty();
+        }
+        _TextChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (this._SetsValue) {
+                this._SetTextInternal(args.NewValue);
+                this._UpdateLayoutAttributes();
+                this._InvalidateDirty(true);
+            } else {
+                this._UpdateLayoutAttributes();
+            }
+        }
+        _LineStackingStrategyChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._Dirty = this._Layout.SetLineStackingStategy(args.NewValue);
+            this._InvalidateDirty();
+        }
+        _LineHeightChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._Dirty = this._Layout.SetLineHeight(args.NewValue);
+            this._InvalidateDirty();
+        }
+        _TextAlignmentChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._Dirty = this._Layout.SetTextAlignment(args.NewValue);
+            this._InvalidateDirty();
+        }
+        _TextTrimmingChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._Dirty = this._Layout.SetTextTrimming(args.NewValue);
+            this._InvalidateDirty();
+        }
+        _TextWrappingChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._Dirty = this._Layout.SetTextWrapping(args.NewValue);
+            this._InvalidateDirty();
+        }
+        _InvalidateDirty(setDirty?: bool) {
+            if (setDirty) this._Dirty = true;
+            var lu = this.LayoutUpdater;
+            if (this._Dirty) {
+                lu.InvalidateMeasure();
+                lu.InvalidateArrange();
+                lu.UpdateBounds(true);
+            }
+            lu.Invalidate();
+        }
+        private _UpdateFont(force?: bool) {
+            var f = this._Font;
+            var xobj = this.XObject;
+            f.Family = xobj.FontFamily;
+            f.Stretch = xobj.FontStretch;
+            f.Style = xobj.FontStyle;
+            f.Weight = xobj.FontWeight;
+            f.Size = xobj.FontSize;
+            return f.IsChanged || force;
+        }
+        private _UpdateFonts(force?: bool): bool {
+            if (!this._UpdateFont(force))
+                return false;
+            var lu = this.LayoutUpdater;
+            lu.InvalidateMeasure();
+            lu.InvalidateArrange();
+            lu.UpdateBounds(true);
+            this._Dirty = true;
+            return true;
+        }
+        private _UpdateLayoutAttributes() {
+            var xobj = this.XObject;
+            var inlines = xobj.Inlines;
+            var lu = this.LayoutUpdater;
+            lu.InvalidateMeasure();
+            lu.InvalidateArrange();
+            this._UpdateFont(false);
+            var length = 0;
+            var runs: Text.ITextAttributes[] = [];
+            var count = inlines.Count;
+            var enumerator = inlines.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                length = this._UpdateLayoutAttributesForInline(<Documents.Inline>enumerator.Current, length, runs);
+            }
+            if (count > 0)
+                this._WasSet = true;
+            this._Layout.Text = xobj.Text;
+            this._Layout.TextAttributes = runs;
+        }
+        private _UpdateLayoutAttributesForInline(item: Documents.Inline, length: number, runs: Text.ITextAttributes[]): number {
+            if (item instanceof Documents.Run) {
+                var text = (<Documents.Run>item).Text;
+                if (text && text.length) {
+                    runs.push(new Text.TextLayoutAttributes(item, length));
+                    length += text.length;
+                }
+            } else if (item instanceof Documents.LineBreak) {
+                runs.push(new Text.TextLayoutAttributes(item, length));
+                length += 1; //line break length
+            } else if (item instanceof Documents.Span) {
+                var inlines = (<Documents.Span>item).Inlines;
+                var enumerator = inlines.GetEnumerator();
+                while (enumerator.MoveNext()) {
+                    length = this._UpdateLayoutAttributesForInline(<Documents.Inline>enumerator.Current, length, runs);
+                }
+            }
+            return length;
+        }
+        private _GetTextInternal(inlines: XamlObjectCollection) {
+            if (!inlines)
+                return "";
+            var block = "";
+            var enumerator = inlines.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                block += (<Documents.Inline>enumerator.Current)._SerializeText();
+            }
+            return block;
+        }
+        private _SetTextInternal(text: string) {
+            this._SetsValue = false;
+            var value: Documents.Inline = null;
+            var xobj = this.XObject;
+            var inlines = xobj.Inlines;
+            if (text) {
+                var count = inlines.Count;
+                var run: Documents.Run = null;
+                if (count > 0 && (value = <Documents.Inline>inlines.GetValueAt(0)) && value instanceof Documents.Run) {
+                    run = <Documents.Run>value;
+                    if (run.Autogen) {
+                        while (count > 1) {
+                            inlines.RemoveAt(count - 1);
+                            count--;
+                        }
+                    } else {
+                        run = null;
+                    }
+                }
+                if (!run) {
+                    inlines.Clear();
+                    run = new Documents.Run();
+                    run.Autogen = true;
+                    inlines.Add(run);
+                }
+                run.Text = text;
+                xobj._Store.PropagateInheritedOnAdd(run.XamlNode);
+            } else {
+                inlines.Clear();
+                xobj.Text = "";
+            }
+            this._SetsValue = true;
+        }
+        private InlinesChanged(newInline: Documents.Inline, isAdd: bool) {
+            if (!this._SetsValue)
+                return;
+            var xobj = this.XObject;
+            if (isAdd)
+                xobj._Store.PropagateInheritedOnAdd(newInline.XamlNode);
+            var inlines = xobj.Inlines;
+            this._SetsValue = false;
+            xobj._Store.SetValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
+            this._SetsValue = true;
+            this._UpdateLayoutAttributes();
+            var lu = this.LayoutUpdater;
+            lu.InvalidateMeasure();
+            lu.InvalidateArrange();
+            lu.UpdateBounds(true);
+            lu.Invalidate();
         }
     }
     Nullstone.RegisterType(TextBlockNode, "TextBlockNode");
-    export class TextBlock extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable {
-        private _Layout: Text.TextLayout = new Text.TextLayout();
+    export class TextBlock extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable, Media.IBrushChangedListener {
         XamlNode: TextBlockNode;
         CreateNode(): TextBlockNode { return new TextBlockNode(this); }
-        static InlinesProperty: DependencyProperty;
-        static PaddingPropert: DependencyProperty;
+        static PaddingProperty: DependencyProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, TextBlock, undefined, (d, args) => (<TextBlock>d).XamlNode._InvalidateDirty(true));
+        static ForegroundProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Foreground", () => Media.Brush, TextBlock, undefined, undefined, undefined, Providers._Inheritable.Foreground);
+        static FontFamilyProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontFamily", () => String, TextBlock, Font.DEFAULT_FAMILY, (d, args) => (<TextBlock>d).XamlNode._FontChanged(args), undefined, Providers._Inheritable.FontFamily);
+        static FontStretchProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStretch", () => String, TextBlock, Font.DEFAULT_STRETCH, (d, args) => (<TextBlock>d).XamlNode._FontChanged(args), undefined, Providers._Inheritable.FontStretch);
+        static FontStyleProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStyle", () => String, TextBlock, Font.DEFAULT_STYLE, (d, args) => (<TextBlock>d).XamlNode._FontChanged(args), undefined, Providers._Inheritable.FontStyle);
+        static FontWeightProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontWeight", () => new Enum(FontWeight), TextBlock, Font.DEFAULT_WEIGHT, (d, args) => (<TextBlock>d).XamlNode._FontChanged(args), undefined, Providers._Inheritable.FontWeight);
+        static FontSizeProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontSize", () => Number, TextBlock, Font.DEFAULT_SIZE, (d, args) => (<TextBlock>d).XamlNode._FontChanged(args), undefined, Providers._Inheritable.FontSize);
+        static TextDecorationsProperty: DependencyProperty = DependencyProperty.RegisterInheritable("TextDecorations", () => new Enum(TextDecorations), TextBlock, TextDecorations.None, (d, args) => (<TextBlock>d).XamlNode._InvalidateDirty(true), undefined, Providers._Inheritable.TextDecorations);
+        static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, TextBlock, "", (d, args) => (<TextBlock>d).XamlNode._TextChanged(args));
+        static LineStackingStrategyProperty: DependencyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", () => new Enum(LineStackingStrategy), TextBlock, LineStackingStrategy.MaxHeight, (d, args) => (<TextBlock>d).XamlNode._LineStackingStrategyChanged(args));
+        static LineHeightProperty: DependencyProperty = DependencyProperty.RegisterCore("LineHeight", () => Number, TextBlock, NaN, (d, args) => (<TextBlock>d).XamlNode._LineHeightChanged(args));
+        static TextAlignmentProperty: DependencyProperty = DependencyProperty.RegisterCore("TextAlignment", () => new Enum(TextAlignment), TextBlock, TextAlignment.Left, (d, args) => (<TextBlock>d).XamlNode._TextAlignmentChanged(args));
+        static TextTrimmingProperty: DependencyProperty = DependencyProperty.RegisterCore("TextTrimming", () => new Enum(TextTrimming), TextBlock, TextTrimming.None, (d, args) => (<TextBlock>d).XamlNode._TextTrimmingChanged(args));
+        static TextWrappingProperty: DependencyProperty = DependencyProperty.RegisterCore("TextWrapping", () => new Enum(TextWrapping), TextBlock, TextWrapping.NoWrap, (d, args) => (<TextBlock>d).XamlNode._TextWrappingChanged(args));
         Padding: Thickness;
+        Foreground: Media.Brush;
+        FontFamily: string;
+        FontStretch: string;
+        FontStyle: string;
+        FontWeight: FontWeight;
+        FontSize: number;
+        TextDecorations: TextDecorations;
+        Text: string;
+        Inlines: Documents.InlineCollection;
+        LineStackingStrategy: LineStackingStrategy;
+        LineHeight: number;
+        TextAlignment: TextAlignment;
+        TextTrimming: TextTrimming;
+        TextWrapping: TextWrapping;
+        static Annotations = { ContentProperty: "Inlines" }
+        constructor() {
+            super();
+            var inlines = new Documents.InlineCollection();
+            Object.defineProperty(this, "Inlines", {
+                value: inlines,
+                writable: false
+            });
+            inlines.Listen(this.XamlNode);
+        }
         private _MeasureOverride(availableSize: size, error: BError): size {
-            var padding = this.Padding;
             var constraint = size.clone(availableSize);
-            size.shrinkByThickness(constraint, padding);
+            var padding = this.Padding;
+            if (padding) size.shrinkByThickness(constraint, padding);
             var desired = this.XamlNode.Measure(constraint);
-            size.growByThickness(desired, padding);
+            if (padding) size.growByThickness(desired, padding);
             return desired;
         }
         private _ArrangeOverride(finalSize: size, error: BError): size {
-            var padding = this.Padding;
             var constraint = size.clone(finalSize);
-            size.shrinkByThickness(constraint, padding);
+            var padding = this.Padding;
+            if (padding) size.shrinkByThickness(constraint, padding);
             this.XamlNode.Arrange(constraint, padding);
             return finalSize;
         }
-        Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
+        private Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
             ctx.Save();
             lu._RenderLayoutClip(ctx);
             var padding = this.Padding;
-            var offset = new Point(padding.Left, padding.Top);
+            var offset: Point = null;
+            if (padding) offset = new Point(padding.Left, padding.Top);
             if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
                 NotImplemented("TextBlock._Render: Right to left");
             }
-            this._Layout.Render(ctx, null, offset);
+            this.XamlNode._Layout.Render(ctx, null, offset);
             ctx.Restore();
+        }
+        private ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater): size {
+            return this.XamlNode.ComputeActualSize(lu, this.Padding);
+        }
+        private _ForegroundChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldBrush = <Media.Brush>args.OldValue;
+            var newBrush = <Media.Brush>args.NewValue;
+            if (oldBrush) oldBrush.Unlisten(this);
+            if (newBrush) newBrush.Listen(this);
+        }
+        private BrushChanged(newBrush: Media.Brush) {
+            this.XamlNode.LayoutUpdater.Invalidate();
         }
     }
     Nullstone.RegisterType(TextBlock, "TextBlock");
@@ -16107,7 +16535,7 @@ module Fayde.Controls {
     export interface ITextModelListener {
         OnTextModelChanged(args: ITextModelArgs);
     }
-    export class TextBoxBase extends Control {
+    export class TextBoxBase extends Control implements Text.ITextAttributesSource {
         private _SelectionCursor: number = 0;
         private _SelectionAnchor: number = 0;
         get SelectionCursor(): number { return this._SelectionCursor; }
@@ -16118,6 +16546,13 @@ module Fayde.Controls {
         get SelectionStart(): number { return undefined; }
         get SelectionLength(): number { return undefined; }
         get DisplayText(): string { return undefined; }
+        get SelectionBackground(): Media.Brush { return undefined; }
+        get Background(): Media.Brush { return undefined; }
+        get SelectionForeground(): Media.Brush { return undefined; }
+        get Foreground(): Media.Brush { return undefined; }
+        get Font(): Font { return undefined; }
+        get Direction(): FlowDirection { return undefined; }
+        get TextDecorations(): TextDecorations { return undefined; }
         Listen(listener: ITextModelListener) { }
         Unlisten(listener: ITextModelListener) { }
         _EmitCursorPositionChanged(height: number, x: number, y: number) {

@@ -139,7 +139,9 @@ Core/UIElement.js
 Core/Providers/ControlProviderStore.js
 Documents/Block.js
 Documents/Inline.js
+Documents/LineBreak.js
 Documents/Paragraph.js
+Documents/Run.js
 Documents/Section.js
 Documents/Span.js
 Media/Brush.js

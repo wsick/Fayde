@@ -953,7 +953,8 @@ module Fayde {
                     || !isFinite(finalRect.Width) || !isFinite(finalRect.Height)
                     || isNaN(finalRect.Width) || isNaN(finalRect.Height)) {
                 var desired = this.DesiredSize;
-                Warn("Invalid arguments to Arrange. Desired = " + desired.toString());
+                error.Number = BError.Argument;
+                error.Message = "Invalid arguments to Arrange. Desired = " + desired.toString();
                 return;
             }
 

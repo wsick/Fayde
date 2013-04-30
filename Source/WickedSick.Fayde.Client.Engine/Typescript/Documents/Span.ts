@@ -4,10 +4,9 @@
 module Fayde.Documents {
     export class Span extends Inline {
         static InlinesProperty;
-        CreateNode(): XamlNode {
-            var tenode = new TextElementNode(this);
-            tenode.InheritedWalkProperty = Span.InlinesProperty;
-            return tenode;
+        Inlines: XamlObjectCollection;
+        CreateNode(): TextElementNode {
+            return new TextElementNode(this, Span.InlinesProperty);
         }
     }
     Nullstone.RegisterType(Span, "Span");

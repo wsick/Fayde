@@ -4,7 +4,7 @@
 /// <reference path="../../Controls/Control.ts" />
 
 module Fayde.Providers {
-    export class InheritedIsEnabledProvider implements IPropertyProvider {
+    export class InheritedIsEnabledProvider implements IPropertyProvider, IInheritedIsEnabledProvider {
         private _Source: Fayde.Controls.Control;
         private _CurrentValue: bool = true;
         private _Store: IProviderStore;

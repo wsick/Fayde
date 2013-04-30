@@ -9,9 +9,9 @@ App.GetGenericResourceDictionaryImpl = function () {
     var GradientStop = Fayde.Media.GradientStop;
     var ControlTemplate = Fayde.Controls.ControlTemplate;
     var Grid = Fayde.Controls.Grid;
-    var VisualStateManager = Fayde.Media.VisualStateManager.VisualStateManager;
-    var VisualStateGroup = Fayde.Media.VisualStateManager.VisualStateGroup;
-    var VisualState = Fayde.Media.VisualStateManager.VisualState;
+    var VisualStateManager = Fayde.Media.VSM.VisualStateManager;
+    var VisualStateGroup = Fayde.Media.VSM.VisualStateGroup;
+    var VisualState = Fayde.Media.VSM.VisualState;
     var Storyboard = Fayde.Media.Animation.Storyboard;
     var DoubleAnimation = Fayde.Media.Animation.DoubleAnimation;
     var PropertyPath = Fayde.Data.PropertyPath;
@@ -64,6 +64,7 @@ App.GetGenericResourceDictionaryImpl = function () {
     var SkewTransform = Fayde.Media.SkewTransform;
     var TextBox = Fayde.Controls.TextBox;
     var PasswordBox = Fayde.Controls.PasswordBox;
+    var RichTextBox = Fayde.Controls.RichTextBox;
 
     var json = {
         ParseType: ResourceDictionary,

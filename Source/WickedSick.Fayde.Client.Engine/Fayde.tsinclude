@@ -139,7 +139,9 @@ Typescript\Core\UIElement.ts
 Typescript\Core\Providers\ControlProviderStore.ts
 Typescript\Documents\Block.ts
 Typescript\Documents\Inline.ts
+Typescript\Documents\LineBreak.ts
 Typescript\Documents\Paragraph.ts
+Typescript\Documents\Run.ts
 Typescript\Documents\Section.ts
 Typescript\Documents\Span.ts
 Typescript\Media\Brush.ts

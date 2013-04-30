@@ -32,6 +32,16 @@ var Fayde;
             this.LayoutUpdater = new Fayde.LayoutUpdater(this);
             this.LayoutUpdater.SetContainerMode(false);
         }
+        UINode.prototype.SetSurfaceFromVisualParent = function () {
+            if(this._Surface) {
+                return;
+            }
+            var vpNode = this.VisualParentNode;
+            if(vpNode) {
+                this.SetSurface(vpNode._Surface);
+            }
+            return vpNode;
+        };
         UINode.prototype.SetSurface = function (surface) {
             this._Surface = surface;
             this.LayoutUpdater.Surface = surface;
@@ -48,9 +58,9 @@ var Fayde;
             return this.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.Logical);
         };
         UINode.prototype.OnIsAttachedChanged = function (newIsAttached) {
-            var vpNode = this.VisualParentNode;
-            if(newIsAttached && vpNode) {
-                this.SetSurface(vpNode._Surface);
+            var vpNode = null;
+            if(newIsAttached) {
+                vpNode = this.SetSurfaceFromVisualParent();
             }
             this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, vpNode);
         };

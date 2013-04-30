@@ -23,7 +23,7 @@ module Fayde.Controls {
         OnTextModelChanged(args: ITextModelArgs);
     }
 
-    export class TextBoxBase extends Control {
+    export class TextBoxBase extends Control implements Text.ITextAttributesSource {
         private _SelectionCursor: number = 0;
         private _SelectionAnchor: number = 0;
 
@@ -35,6 +35,14 @@ module Fayde.Controls {
         get SelectionStart(): number { return undefined; }
         get SelectionLength(): number { return undefined; }
         get DisplayText(): string { return undefined; }
+
+        get SelectionBackground(): Media.Brush { return undefined; }
+        get Background(): Media.Brush { return undefined; }
+        get SelectionForeground(): Media.Brush { return undefined; }
+        get Foreground(): Media.Brush { return undefined; }
+        get Font(): Font { return undefined; }
+        get Direction(): FlowDirection { return undefined; }
+        get TextDecorations(): TextDecorations { return undefined; }
 
         Listen(listener: ITextModelListener) { }
         Unlisten(listener: ITextModelListener) { }

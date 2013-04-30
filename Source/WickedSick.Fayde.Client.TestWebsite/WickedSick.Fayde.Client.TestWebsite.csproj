@@ -109,6 +109,9 @@
     </Content>
     <Content Include="Tests\Shapes\map.fap" />
     <Content Include="Tests\Controls\hyperlinkbutton.fap" />
+    <Content Include="Tests\Controls\textblock.fap">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Tests\Shapes\rectangle-grid.fap">
       <SubType>Designer</SubType>
     </None>
