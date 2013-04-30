@@ -31,6 +31,7 @@ enum InputType {
 
 class Surface {
     static TestCanvas: HTMLCanvasElement = <HTMLCanvasElement>document.createElement("canvas");
+    TestRenderContext: Fayde.RenderContext = new Fayde.RenderContext(Surface.TestCanvas.getContext("2d"));
 
     private _App: App;
     _TopLevel: Fayde.UIElement;

@@ -470,6 +470,10 @@
     <Content Include="Typescript\Controls\Border.js">
       <DependentUpon>Border.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Button.ts" />
+    <Content Include="Typescript\Controls\Button.js">
+      <DependentUpon>Button.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Canvas.js">
       <DependentUpon>Canvas.ts</DependentUpon>
     </Content>
@@ -553,10 +557,18 @@
     <TypeScriptCompile Include="Typescript\Controls\ScrollViewer.ts" />
     <TypeScriptCompile Include="Typescript\Controls\ScrollContentPresenter.ts" />
     <TypeScriptCompile Include="Typescript\Controls\Primitives\ScrollData.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\RepeatButton.ts" />
+    <Content Include="Typescript\Controls\Primitives\RepeatButton.js">
+      <DependentUpon>RepeatButton.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Primitives\ScrollData.js">
       <DependentUpon>ScrollData.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Controls\RichTextBox.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\ToggleButton.ts" />
+    <Content Include="Typescript\Controls\Primitives\ToggleButton.js">
+      <DependentUpon>ToggleButton.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\RichTextBox.js">
       <DependentUpon>RichTextBox.ts</DependentUpon>
     </Content>

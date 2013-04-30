@@ -199,3 +199,6 @@ Typescript\Controls\Grid.ts
 Typescript\Controls\ScrollViewer.ts
 Typescript\Controls\TextBox.ts
 Typescript\Controls\Primitives\ButtonBase.ts
+Typescript\Controls\Primitives\RepeatButton.ts
+Typescript\Controls\Primitives\ToggleButton.ts
+Typescript\Controls\Button.ts

@@ -159,8 +159,16 @@ var Fayde;
             }
             return args.Handled;
         };
-        UINode.prototype._HitTestPoint = function (ctx, p, uielist) {
-            uielist.unshift(this);
+        UINode.prototype.FindElementsInHostCoordinates = function (intersectingPoint) {
+            var uinlist = [];
+            this._FindElementsInHostCoordinates(this._Surface.TestRenderContext, intersectingPoint, uinlist);
+            return uinlist;
+        };
+        UINode.prototype._FindElementsInHostCoordinates = function (ctx, p, uinlist) {
+            uinlist.unshift(this);
+        };
+        UINode.prototype._HitTestPoint = function (ctx, p, uinlist) {
+            uinlist.unshift(this);
         };
         UINode.prototype._InsideClip = function (ctx, lu, x, y) {
             var clip = this.XObject.Clip;

@@ -734,6 +734,14 @@ module Fayde {
             if (rootNode)
                 return rootNode.XObject;
         }
+        static FindElementsInHostCoordinates(intersectingPoint: Point, subtree: UIElement): UIElement[] {
+            var uies: UIElement[] = [];
+            var enumerator = ArrayEx.GetEnumerator(subtree.XamlNode.FindElementsInHostCoordinates(intersectingPoint));
+            while (enumerator.MoveNext()) {
+                uies.push((<UINode>enumerator.Current).XObject);
+            }
+            return uies;
+        }
         static __Debug(ui, func?: (uin: UINode, tabIndex: number) => string): string {
             var uin: UINode;
             if (ui instanceof UIElement) {
@@ -6688,6 +6696,7 @@ enum InputType {
 }
 class Surface {
     static TestCanvas: HTMLCanvasElement = <HTMLCanvasElement>document.createElement("canvas");
+    TestRenderContext: Fayde.RenderContext = new Fayde.RenderContext(Surface.TestCanvas.getContext("2d"));
     private _App: App;
     _TopLevel: Fayde.UIElement;
     private _Layers: Fayde.UINode[] = [];
@@ -12149,8 +12158,16 @@ module Fayde {
             }
             return args.Handled;
         }
-        _HitTestPoint(ctx: RenderContext, p: Point, uielist: UINode[]) {
-            uielist.unshift(this);
+        FindElementsInHostCoordinates(intersectingPoint: Point): Fayde.UINode[] {
+            var uinlist: UINode[] = [];
+            this._FindElementsInHostCoordinates(this._Surface.TestRenderContext, intersectingPoint, uinlist);
+            return uinlist;
+        }
+        _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
+            uinlist.unshift(this);
+        }
+        _HitTestPoint(ctx: RenderContext, p: Point, uinlist: UINode[]) {
+            uinlist.unshift(this);
         }
         _InsideClip(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
             var clip = this.XObject.Clip;
@@ -13659,7 +13676,29 @@ module Fayde {
             return error.Message == null && uie != null;
         }
         _GetDefaultTemplate(): UIElement { return undefined; }
-        _HitTestPoint(ctx: RenderContext, p: Point, uielist: UINode[]) {
+        _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
+            var lu = this.LayoutUpdater;
+            if (!lu.TotalIsRenderVisible)
+                return;
+            if (!lu.TotalIsHitTestVisible)
+                return;
+            if (lu.SurfaceBoundsWithChildren.Height <= 0)
+                return;
+            if (!this._InsideClip(ctx, lu, p.X, p.Y))
+                return;
+            ctx.Save();
+            uinlist.unshift(this);
+            var enumerator = this.GetVisualTreeEnumerator(VisualTreeDirection.ZFoward);
+            while (enumerator.MoveNext()) {
+                (<UINode>enumerator.Current)._FindElementsInHostCoordinates(ctx, p, uinlist);
+            }
+            if (this === uinlist[0]) {
+                if (!this._CanFindElement() || !this._InsideObject(ctx, lu, p.X, p.Y))
+                    uinlist.shift();
+            }
+            ctx.Restore();
+        }
+        _HitTestPoint(ctx: RenderContext, p: Point, uinlist: UINode[]) {
             var lu = this.LayoutUpdater;
             if (!lu.TotalIsRenderVisible)
                 return;
@@ -13667,19 +13706,19 @@ module Fayde {
                 return;
             if (!this._InsideClip(ctx, lu, p.X, p.Y))
                 return;
-            uielist.unshift(this);
+            uinlist.unshift(this);
             var hit = false;
             var enumerator = this.GetVisualTreeEnumerator(VisualTreeDirection.ZReverse);
             while (enumerator.MoveNext()) {
                 var childNode = (<FENode>enumerator.Current);
-                childNode._HitTestPoint(ctx, p, uielist);
-                if (this !== uielist[0]) {
+                childNode._HitTestPoint(ctx, p, uinlist);
+                if (this !== uinlist[0]) {
                     hit = true;
                     break;
                 }
             }
             if (!hit && !(this._CanFindElement() && this._InsideObject(ctx, lu, p.X, p.Y))) {
-                if (uielist.shift() !== this) {
+                if (uinlist.shift() !== this) {
                     throw new Exception("Look at my code! -> FENode._HitTestPoint");
                 }
             }
@@ -14666,9 +14705,13 @@ module Fayde.Controls {
             }
             this.ReleaseMouseCapture();
         }
-        _HitTestPoint(ctx: RenderContext, p: Point, uielist: UINode[]) {
+        _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
             if (this.XObject.IsEnabled)
-                super._HitTestPoint(ctx, p, uielist);
+                super._FindElementsInHostCoordinates(ctx, p, uinlist);
+        }
+        _HitTestPoint(ctx: RenderContext, p: Point, uinlist: UINode[]) {
+            if (this.XObject.IsEnabled)
+                super._HitTestPoint(ctx, p, uinlist);
         }
         _CanFindElement(): bool { return this.XObject.IsEnabled; }
         _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool { return false; }
@@ -18492,5 +18535,229 @@ module Fayde.Controls.Primitives {
         }
     }
     Nullstone.RegisterType(ButtonBase, "ButtonBase");
+}
+
+module Fayde.Controls.Primitives {
+    export class RepeatButton extends ButtonBase {
+        static DelayProperty: DependencyProperty = DependencyProperty.Register("Delay", () => Number, RepeatButton, 500, (d, args) => (<RepeatButton>d).OnDelayChanged(args));
+        static IntervalProperty: DependencyProperty = DependencyProperty.Register("Interval", () => Number, RepeatButton, 33, (d, args) => (<RepeatButton>d).OnIntervalChanged(args));
+        Delay: number;
+        Interval: number;
+        private _KeyboardCausingRepeat: bool = false;
+        private _MouseCausingRepeat: bool = false;
+        private _MousePosition: Point = null;
+        private _IntervalID: number = null;
+        private _NewInterval: number = null;
+        private _ElementRoot: FrameworkElement = null;
+        constructor() {
+            super();
+            this.ClickMode = ClickMode.Press;
+            this.DefaultStyleKey = (<any>this).constructor;
+        }
+        OnApplyTemplate() {
+            super.OnApplyTemplate();
+            var er = this.GetTemplateChild("Root");
+            if (er instanceof FrameworkElement)
+                this._ElementRoot = <FrameworkElement>er;
+            this.UpdateVisualState(false);
+        }
+        OnDelayChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (args.NewValue < 0)
+                throw new ArgumentException("Delay Property cannot be negative.");
+        }
+        OnIntervalChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (args.NewValue < 0)
+                throw new ArgumentException("Interval Property cannot be negative.");
+            this._NewInterval = args.NewValue;
+        }
+        OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs) {
+            super.OnIsEnabledChanged(e);
+            this._KeyboardCausingRepeat = false;
+            this._MouseCausingRepeat = false;
+            this._UpdateRepeatState();
+        }
+        OnKeyDown(e: Input.KeyEventArgs) {
+            if (e.Key === Input.Key.Space && this.ClickMode !== ClickMode.Hover) {
+                this._KeyboardCausingRepeat = true;
+                this._UpdateRepeatState();
+            }
+            super.OnKeyDown(e);
+        }
+        OnKeyUp(e: Input.KeyEventArgs) {
+            super.OnKeyUp(e);
+            if (e.Key === Input.Key.Space && this.ClickMode !== ClickMode.Hover) {
+                this._KeyboardCausingRepeat = false;
+                this._UpdateRepeatState();
+            }
+            this.UpdateVisualState();
+        }
+        OnLostFocus(e: RoutedEventArgs) {
+            super.OnLostFocus(e);
+            if (this.ClickMode !== ClickMode.Hover) {
+                this._KeyboardCausingRepeat = false;
+                this._MouseCausingRepeat = false;
+                this._UpdateRepeatState();
+            }
+        }
+        OnMouseEnter(e: Input.MouseEventArgs) {
+            super.OnMouseEnter(e);
+            if (this.ClickMode === ClickMode.Hover) {
+                this._MouseCausingRepeat = true;
+                this._UpdateRepeatState();
+            }
+            this.UpdateVisualState();
+            this._UpdateMousePosition(e);
+        }
+        OnMouseLeave(e: Input.MouseEventArgs) {
+            super.OnMouseLeave(e);
+            if (this.ClickMode === ClickMode.Hover) {
+                this._MouseCausingRepeat = false;
+                this._UpdateRepeatState();
+            }
+            this.UpdateVisualState();
+        }
+        OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
+            if (e.Handled)
+                return;
+            super.OnMouseLeftButtonDown(e);
+            if (this.ClickMode !== ClickMode.Hover) {
+                this._MouseCausingRepeat = true;
+                this._UpdateRepeatState();
+            }
+        }
+        OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs) {
+            if (e.Handled)
+                return;
+            super.OnMouseLeftButtonUp(e);
+            if (this.ClickMode !== ClickMode.Hover) {
+                this._MouseCausingRepeat = false;
+                this._UpdateRepeatState();
+            }
+            this.UpdateVisualState();
+        }
+        OnMouseMove(e: Input.MouseEventArgs) {
+            this._UpdateMousePosition(e);
+        }
+        private _UpdateMousePosition(e: Input.MouseEventArgs) {
+            var curNode: XamlNode = this.XamlNode;
+            var parentNode: FENode = <FENode>curNode;
+            while (curNode instanceof FENode) {
+                parentNode = <FENode>curNode;
+                curNode = curNode.ParentNode;
+            }
+            this._MousePosition = e.GetPosition(parentNode.XObject);
+        }
+        private _UpdateRepeatState() {
+            if (this._MouseCausingRepeat || this._KeyboardCausingRepeat) {
+                if (this._IntervalID == null)
+                    this._IntervalID = window.setInterval(() => this._OnTimeout(), this.Interval);
+            } else {
+                if (this._IntervalID != null)
+                    window.clearInterval(this._IntervalID);
+                this._IntervalID = null;
+            }
+        }
+        private _OnTimeout() {
+            if (this._NewInterval != null) {
+                window.clearInterval(this._IntervalID);
+                this._IntervalID = window.setInterval(() => this._OnTimeout(), this._NewInterval);
+                this._NewInterval = null;
+            }
+            if (!this.IsPressed)
+                return;
+            if (this._KeyboardCausingRepeat) {
+                this.OnClick();
+                return;
+            }
+            var er = this._ElementRoot;
+            var els = VisualTreeHelper.FindElementsInHostCoordinates(this._MousePosition, this);
+            for (var i = 0; i < els.length; i++) {
+                if (els[i] === er)
+                    this.OnClick();
+            }
+        }
+    }
+    Nullstone.RegisterType(RepeatButton, "RepeatButton");
+}
+
+module Fayde.Controls.Primitives {
+    export class ToggleButton extends ButtonBase {
+        Checked: RoutedEvent = new RoutedEvent();
+        Indeterminate: RoutedEvent = new RoutedEvent();
+        Unchecked: RoutedEvent = new RoutedEvent();
+        static IsCheckedProperty: DependencyProperty = DependencyProperty.RegisterCore("IsChecked", () => Boolean, ToggleButton, false, (d, args) => (<ToggleButton>d).OnIsCheckedChanged(args));
+        static IsThreeStateProperty: DependencyProperty = DependencyProperty.RegisterCore("IsThreeState", () => Boolean, ToggleButton, false);
+        IsChecked: bool;
+        IsThreeState: bool;
+        constructor() {
+            super();
+            this.DefaultStyleKey = (<any>this).constructor;
+        }
+        OnApplyTemplate() {
+            super.OnApplyTemplate();
+            this.UpdateVisualState(false);
+        }
+        OnContentChanged(oldContent: any, newContent: any) {
+            super.OnContentChanged(oldContent, newContent);
+            this.UpdateVisualState();
+        }
+        OnClick() {
+            this.OnToggle();
+            super.OnClick();
+        }
+        UpdateVisualState(useTransitions?: bool) {
+            useTransitions = useTransitions !== false;
+            super.UpdateVisualState(useTransitions);
+            var isChecked = this.IsChecked;
+            var vsm = Fayde.Media.VSM.VisualStateManager;
+            if (isChecked === true) {
+                vsm.GoToState(this, "Checked", useTransitions);
+            } else if (isChecked === false) {
+                vsm.GoToState(this, "Unchecked", useTransitions);
+            } else {
+                if (!vsm.GoToState(this, "Indeterminate", useTransitions)) {
+                    vsm.GoToState(this, "Unchecked", useTransitions)
+                }
+            }
+        }
+        OnIsCheckedChanged(args: IDependencyPropertyChangedEventArgs) {
+            var isChecked = args.NewValue;
+            this.UpdateVisualState();
+            if (isChecked === true) {
+                this.Checked.Raise(this, new RoutedEventArgs());
+            } else if (isChecked === false) {
+                this.Unchecked.Raise(this, new RoutedEventArgs());
+            } else {
+                this.Indeterminate.Raise(this, new RoutedEventArgs());
+            }
+        }
+        OnToggle() {
+            var isChecked = this.IsChecked;
+            if (isChecked === true) {
+                this.IsChecked = this.IsThreeState ? null : false;
+            } else {
+                this.IsChecked = isChecked != null;
+            }
+        }
+    }
+    Nullstone.RegisterType(ToggleButton, "ToggleButton");
+}
+
+module Fayde.Controls {
+    export class Button extends Primitives.ButtonBase {
+        constructor() {
+            super();
+            this.DefaultStyleKey = (<any>this).constructor;
+        }
+        OnApplyTemplate() {
+            super.OnApplyTemplate();
+            this.UpdateVisualState(false);
+        }
+        OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs) {
+            super.OnIsEnabledChanged(e);
+            this.IsTabStop = e.NewValue;
+        }
+    }
+    Nullstone.RegisterType(Button, "Button");
 }
 

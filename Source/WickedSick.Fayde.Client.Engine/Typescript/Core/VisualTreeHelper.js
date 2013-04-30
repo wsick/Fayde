@@ -23,6 +23,14 @@ var Fayde;
                 return rootNode.XObject;
             }
         };
+        VisualTreeHelper.FindElementsInHostCoordinates = function FindElementsInHostCoordinates(intersectingPoint, subtree) {
+            var uies = [];
+            var enumerator = Fayde.ArrayEx.GetEnumerator(subtree.XamlNode.FindElementsInHostCoordinates(intersectingPoint));
+            while(enumerator.MoveNext()) {
+                uies.push((enumerator.Current).XObject);
+            }
+            return uies;
+        };
         VisualTreeHelper.__Debug = function __Debug(ui, func) {
             var uin;
             if(ui instanceof Fayde.UIElement) {

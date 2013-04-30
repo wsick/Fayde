@@ -12,6 +12,7 @@ var InputType;
 })(InputType || (InputType = {}));
 var Surface = (function () {
     function Surface(app) {
+        this.TestRenderContext = new Fayde.RenderContext(Surface.TestCanvas.getContext("2d"));
         this._Layers = [];
         this._UpDirty = [];
         this._DownDirty = [];

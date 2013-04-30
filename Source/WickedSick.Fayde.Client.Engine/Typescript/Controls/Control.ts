@@ -67,10 +67,14 @@ module Fayde.Controls {
             }
             this.ReleaseMouseCapture();
         }
-
-        _HitTestPoint(ctx: RenderContext, p: Point, uielist: UINode[]) {
+        
+        _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
             if (this.XObject.IsEnabled)
-                super._HitTestPoint(ctx, p, uielist);
+                super._FindElementsInHostCoordinates(ctx, p, uinlist);
+        }
+        _HitTestPoint(ctx: RenderContext, p: Point, uinlist: UINode[]) {
+            if (this.XObject.IsEnabled)
+                super._HitTestPoint(ctx, p, uinlist);
         }
         _CanFindElement(): bool { return this.XObject.IsEnabled; }
         _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool { return false; }

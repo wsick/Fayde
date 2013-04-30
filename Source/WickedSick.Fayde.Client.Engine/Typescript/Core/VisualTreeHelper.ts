@@ -18,6 +18,14 @@ module Fayde {
             if (rootNode)
                 return rootNode.XObject;
         }
+        static FindElementsInHostCoordinates(intersectingPoint: Point, subtree: UIElement): UIElement[] {
+            var uies: UIElement[] = [];
+            var enumerator = ArrayEx.GetEnumerator(subtree.XamlNode.FindElementsInHostCoordinates(intersectingPoint));
+            while (enumerator.MoveNext()) {
+                uies.push((<UINode>enumerator.Current).XObject);
+            }
+            return uies;
+        }
 
         static __Debug(ui, func?: (uin: UINode, tabIndex: number) => string): string {
             var uin: UINode;

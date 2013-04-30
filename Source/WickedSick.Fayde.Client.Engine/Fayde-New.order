@@ -199,3 +199,6 @@ Controls/Grid.js
 Controls/ScrollViewer.js
 Controls/TextBox.js
 Controls/Primitives/ButtonBase.js
+Controls/Primitives/RepeatButton.js
+Controls/Primitives/ToggleButton.js
+Controls/Button.js

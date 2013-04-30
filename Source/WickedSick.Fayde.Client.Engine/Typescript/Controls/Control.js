@@ -65,9 +65,14 @@ var Fayde;
                 }
                 this.ReleaseMouseCapture();
             };
-            ControlNode.prototype._HitTestPoint = function (ctx, p, uielist) {
+            ControlNode.prototype._FindElementsInHostCoordinates = function (ctx, p, uinlist) {
                 if(this.XObject.IsEnabled) {
-                    _super.prototype._HitTestPoint.call(this, ctx, p, uielist);
+                    _super.prototype._FindElementsInHostCoordinates.call(this, ctx, p, uinlist);
+                }
+            };
+            ControlNode.prototype._HitTestPoint = function (ctx, p, uinlist) {
+                if(this.XObject.IsEnabled) {
+                    _super.prototype._HitTestPoint.call(this, ctx, p, uinlist);
                 }
             };
             ControlNode.prototype._CanFindElement = function () {

@@ -116,7 +116,34 @@ var Fayde;
         FENode.prototype._GetDefaultTemplate = function () {
             return undefined;
         };
-        FENode.prototype._HitTestPoint = function (ctx, p, uielist) {
+        FENode.prototype._FindElementsInHostCoordinates = function (ctx, p, uinlist) {
+            var lu = this.LayoutUpdater;
+            if(!lu.TotalIsRenderVisible) {
+                return;
+            }
+            if(!lu.TotalIsHitTestVisible) {
+                return;
+            }
+            if(lu.SurfaceBoundsWithChildren.Height <= 0) {
+                return;
+            }
+            if(!this._InsideClip(ctx, lu, p.X, p.Y)) {
+                return;
+            }
+            ctx.Save();
+            uinlist.unshift(this);
+            var enumerator = this.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.ZFoward);
+            while(enumerator.MoveNext()) {
+                (enumerator.Current)._FindElementsInHostCoordinates(ctx, p, uinlist);
+            }
+            if(this === uinlist[0]) {
+                if(!this._CanFindElement() || !this._InsideObject(ctx, lu, p.X, p.Y)) {
+                    uinlist.shift();
+                }
+            }
+            ctx.Restore();
+        };
+        FENode.prototype._HitTestPoint = function (ctx, p, uinlist) {
             var lu = this.LayoutUpdater;
             if(!lu.TotalIsRenderVisible) {
                 return;
@@ -127,20 +154,20 @@ var Fayde;
             if(!this._InsideClip(ctx, lu, p.X, p.Y)) {
                 return;
             }
-            uielist.unshift(this);
+            uinlist.unshift(this);
             var hit = false;
             var enumerator = this.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.ZReverse);
             while(enumerator.MoveNext()) {
                 var childNode = (enumerator.Current);
-                childNode._HitTestPoint(ctx, p, uielist);
-                if(this !== uielist[0]) {
+                childNode._HitTestPoint(ctx, p, uinlist);
+                if(this !== uinlist[0]) {
                     hit = true;
                     break;
                 }
             }
             if(!hit && !(this._CanFindElement() && this._InsideObject(ctx, lu, p.X, p.Y))) {
                 //We're really trying to remove "this", is there a chance "this" is not at the head?
-                if(uielist.shift() !== this) {
+                if(uinlist.shift() !== this) {
                     throw new Exception("Look at my code! -> FENode._HitTestPoint");
                 }
             }
