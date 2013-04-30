@@ -9,6 +9,7 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path="Providers/BasicProviderStore.ts" />
 /// <reference path="Expression.ts" />
 /// <reference path="../Data/BindingExpression.ts" />
+/// <reference path="FrameworkElement.ts" />
 var Fayde;
 (function (Fayde) {
     var UnsetValue = (function () {
@@ -22,8 +23,16 @@ var Fayde;
                 _super.call(this);
             this._Expressions = [];
             this._CachedValues = [];
+            this.MentorChanged = new MulticastEvent();
             this._Store = this.CreateStore();
         }
+        Object.defineProperty(DependencyObject.prototype, "Mentor", {
+            get: function () {
+                return undefined;
+            },
+            enumerable: true,
+            configurable: true
+        });
         DependencyObject.prototype.CreateStore = function () {
             var s = new Fayde.Providers.BasicProviderStore(this);
             s.SetProviders([

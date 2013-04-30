@@ -1,5 +1,9 @@
+/// <reference path="Nullstone.ts" />
+/// CODE
 var Fayde;
 (function (Fayde) {
+    Fayde.IEnumerable_ = Nullstone.RegisterInterface("IEnumerable");
+    Fayde.IEnumerator_ = Nullstone.RegisterInterface("IEnumerator");
     var ArrayEx = (function () {
         function ArrayEx() { }
         ArrayEx.EmptyEnumerator = {

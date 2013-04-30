@@ -60,7 +60,7 @@ module Fayde {
             this._DetachListener();
             this._Target = null;
         }
-        OnPropertyChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
+        OnSourcePropertyChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
             if (this.SourceProperty._ID !== args.Property._ID)
                 return;
             try {
@@ -86,15 +86,14 @@ module Fayde {
             var source = this._Target.TemplateOwner;
             if (!source)
                 return;
-            this._Listener = this;
-            source._Store._SubscribePropertyChanged(this);
+            this._Listener = Fayde.ListenToPropertyChanged(source, this.SourceProperty, (sender, args) => this.OnSourcePropertyChanged(sender, args), this);
         }
         private _DetachListener() {
             var listener = this._Listener;
-            if (!listener)
-                return;
-            this._Target.TemplateOwner._Store._UnsubscribePropertyChanged(listener);
-            this._Listener = listener = null;
+            if (listener) {
+                this._Listener.Detach();
+                this._Listener = null;
+            }
         }
     }
     Nullstone.RegisterType(TemplateBindingExpression, "TemplateBindingExpression");

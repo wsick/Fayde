@@ -467,6 +467,14 @@
     <TypeScriptCompile Include="Typescript\Controls\ContentControl.ts" />
     <TypeScriptCompile Include="Typescript\Controls\Canvas.ts" />
     <TypeScriptCompile Include="Typescript\Controls\Border.ts" />
+    <TypeScriptCompile Include="Typescript\Collections\INotifyCollectionChanged.ts" />
+    <Content Include="Typescript\Collections\INotifyCollectionChanged.js">
+      <DependentUpon>INotifyCollectionChanged.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\INotifyPropertyChanged.ts" />
+    <Content Include="Typescript\Core\INotifyPropertyChanged.js">
+      <DependentUpon>INotifyPropertyChanged.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Border.js">
       <DependentUpon>Border.ts</DependentUpon>
     </Content>
@@ -600,7 +608,6 @@
     <Content Include="Typescript\Controls\TextBlock.js">
       <DependentUpon>TextBlock.ts</DependentUpon>
     </Content>
-    <TypeScriptCompile Include="Typescript\Core\DependencyObjectCollection.ts" />
     <TypeScriptCompile Include="Typescript\Controls\UserControl.ts" />
     <TypeScriptCompile Include="Typescript\Controls\TextBox.ts" />
     <Content Include="Typescript\Controls\TextBox.js">
@@ -636,9 +643,6 @@
     <TypeScriptCompile Include="Typescript\Core\DeferredValueExpression.ts" />
     <Content Include="Typescript\Core\DeferredValueExpression.js">
       <DependentUpon>DeferredValueExpression.ts</DependentUpon>
-    </Content>
-    <Content Include="Typescript\Core\DependencyObjectCollection.js">
-      <DependentUpon>DependencyObjectCollection.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Core\DependencyObject.js">
       <DependentUpon>DependencyObject.ts</DependentUpon>
@@ -792,10 +796,26 @@
     <Content Include="Typescript\Data\BindingExpression.js">
       <DependentUpon>BindingExpression.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Data\ICollectionView.ts" />
+    <TypeScriptCompile Include="Typescript\Data\CollectionViewSource.ts" />
+    <Content Include="Typescript\Data\CollectionViewSource.js">
+      <DependentUpon>CollectionViewSource.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Data\ICollectionView.js">
+      <DependentUpon>ICollectionView.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Data\PropertyPath.js">
       <DependentUpon>PropertyPath.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Data\RelativeSource.ts" />
+    <TypeScriptCompile Include="Typescript\Data\PropertyPathWalker.ts" />
+    <TypeScriptCompile Include="Typescript\Data\PropertyPathParser.ts" />
+    <Content Include="Typescript\Data\PropertyPathParser.js">
+      <DependentUpon>PropertyPathParser.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Data\PropertyPathWalker.js">
+      <DependentUpon>PropertyPathWalker.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Data\RelativeSource.js">
       <DependentUpon>RelativeSource.ts</DependentUpon>
     </Content>
@@ -806,6 +826,10 @@
     </Content>
     <Content Include="Typescript\Documents\Run.js">
       <DependentUpon>Run.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Documents\Underline.ts" />
+    <Content Include="Typescript\Documents\Underline.js">
+      <DependentUpon>Underline.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Engine\App.js">
       <DependentUpon>App.ts</DependentUpon>
@@ -1250,6 +1274,14 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Shapes\PointCollection.ts" />
     <TypeScriptCompile Include="Typescript\Shapes\DoubleCollection.ts" />
+    <TypeScriptCompile Include="Typescript\Runtime\PropertyInfo.ts" />
+    <Content Include="Typescript\Runtime\PropertyInfo.js">
+      <DependentUpon>PropertyInfo.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Runtime\StringEx.ts" />
+    <Content Include="Typescript\Runtime\StringEx.js">
+      <DependentUpon>StringEx.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Shapes\DoubleCollection.js">
       <DependentUpon>DoubleCollection.ts</DependentUpon>
     </Content>

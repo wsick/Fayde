@@ -13,6 +13,23 @@ var Fayde;
             function BindingExpression(binding, target, propd) {
                         _super.call(this, binding, target, propd);
             }
+            Object.defineProperty(BindingExpression.prototype, "ParentBinding", {
+                get: function () {
+                    return this.Binding;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(BindingExpression.prototype, "DataItem", {
+                get: function () {
+                    return this.DataSource;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            BindingExpression.prototype.UpdateSource = function () {
+                return this._UpdateSourceObject(undefined, true);
+            };
             return BindingExpression;
         })(Data.BindingExpressionBase);
         Data.BindingExpression = BindingExpression;        

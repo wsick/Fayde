@@ -330,6 +330,8 @@ module Fayde {
             return s;
         }
         CreateNode(): UINode { return new UINode(this); }
+
+        VisualParentChanged: MulticastEvent = new MulticastEvent();
         
         static AllowDropProperty: DependencyProperty;
         static CacheModeProperty: DependencyProperty;

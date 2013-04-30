@@ -4,6 +4,7 @@
 /// <reference path="Providers/BasicProviderStore.ts" />
 /// <reference path="Expression.ts" />
 /// <reference path="../Data/BindingExpression.ts" />
+/// <reference path="FrameworkElement.ts" />
 
 module Fayde {
     export class UnsetValue { }
@@ -12,6 +13,11 @@ module Fayde {
         private _Expressions: Expression[] = [];
         _Store: Providers.BasicProviderStore;
         _CachedValues: any[] = [];
+
+        MentorChanged: MulticastEvent = new MulticastEvent();
+        get Mentor(): FrameworkElement {
+            return undefined;
+        }
 
         constructor() {
             super();

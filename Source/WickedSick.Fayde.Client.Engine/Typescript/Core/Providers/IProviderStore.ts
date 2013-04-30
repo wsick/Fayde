@@ -8,7 +8,9 @@ module Fayde.Providers {
         GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any;
     }
     export interface IPropertyChangedListener {
+        Property: DependencyProperty;
         OnPropertyChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs);
+        Detach();
     }
     export interface IProviderStore {
         GetValue(propd: DependencyProperty): any;

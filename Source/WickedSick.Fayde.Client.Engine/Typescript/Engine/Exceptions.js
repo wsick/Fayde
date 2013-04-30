@@ -78,4 +78,13 @@ var InvalidJsonException = (function (_super) {
     return InvalidJsonException;
 })(Exception);
 Nullstone.RegisterType(InvalidJsonException, "InvalidJsonException");
+var TargetInvocationException = (function (_super) {
+    __extends(TargetInvocationException, _super);
+    function TargetInvocationException(message, innerException) {
+        _super.call(this, message);
+        this.InnerException = innerException;
+    }
+    return TargetInvocationException;
+})(Exception);
+Nullstone.RegisterType(TargetInvocationException, "TargetInvocationException");
 //@ sourceMappingURL=Exceptions.js.map

@@ -9,7 +9,9 @@ module Fayde.Data {
     }
 
     export class Binding extends BindingBase {
+        private _BindsDirectlyToSource: bool = false;
         private _Converter: IValueConverter;
+        private _ConverterParameter: any;
         private _ConverterCulture: any;
         private _ElementName: string;
         private _Mode: BindingMode = BindingMode.OneWay;
@@ -18,7 +20,7 @@ module Fayde.Data {
         private _Path: Data.PropertyPath;
         private _Source: any;
         private _UpdateSourceTrigger: UpdateSourceTrigger = UpdateSourceTrigger.Default;
-        private _ValidationsOnExceptions: bool = false;
+        private _ValidatesOnExceptions: bool = false;
         private _ValidatesOnDataErrors: bool = false;
         private _ValidatesOnNotifyDataErrors: bool = true;
 
@@ -28,10 +30,22 @@ module Fayde.Data {
             this._Path = new PropertyPath(path);
         }
 
+        get BindsDirectlyToSource(): bool { return this._BindsDirectlyToSource; }
+        set BindsDirectlyToSource(value: bool) {
+            this.CheckSealed();
+            this._BindsDirectlyToSource = value;
+        }
+
         get Converter(): IValueConverter { return this._Converter; }
         set Converter(value: IValueConverter) {
             this.CheckSealed();
             this._Converter = value;
+        }
+
+        get ConverterParameter(): any { return this._ConverterParameter; }
+        set ConverterParameter(value: any) {
+            this.CheckSealed();
+            this._ConverterParameter = value;
         }
         
         get ConverterCulture(): any { return this._ConverterCulture; }
@@ -82,10 +96,10 @@ module Fayde.Data {
             this._UpdateSourceTrigger = value;
         }
         
-        get ValidationsOnExceptions(): bool { return this._ValidationsOnExceptions; }
-        set ValidationsOnExceptions(value: bool) {
+        get ValidatesOnExceptions(): bool { return this._ValidatesOnExceptions; }
+        set ValidatesOnExceptions(value: bool) {
             this.CheckSealed();
-            this._ValidationsOnExceptions = value;
+            this._ValidatesOnExceptions = value;
         }
         
         get ValidatesOnDataErrors(): bool { return this._ValidatesOnDataErrors; }

@@ -319,6 +319,7 @@ var Fayde;
 
             this._ClipListener = null;
             this._EffectListener = null;
+            this.VisualParentChanged = new MulticastEvent();
             this._IsMouseOver = false;
             this.LostFocus = new Fayde.RoutedEvent();
             this.GotFocus = new Fayde.RoutedEvent();

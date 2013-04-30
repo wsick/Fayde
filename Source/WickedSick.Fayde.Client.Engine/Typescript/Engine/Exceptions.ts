@@ -69,3 +69,12 @@ class InvalidJsonException extends Exception {
     }
 }
 Nullstone.RegisterType(InvalidJsonException, "InvalidJsonException");
+
+class TargetInvocationException extends Exception {
+    InnerException: Exception;
+    constructor(message: string, innerException: Exception) {
+        super(message);
+        this.InnerException = innerException;
+    }
+}
+Nullstone.RegisterType(TargetInvocationException, "TargetInvocationException");

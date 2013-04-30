@@ -8,7 +8,7 @@ module Fayde.Providers {
     export class InheritedDataContextProvider implements IPropertyProvider, IInheritedDataContextProvider {
         private _Source: FrameworkElement;
         private _Store: IProviderStore;
-        private _Listener = null;
+        private _Listener: Providers.IPropertyChangedListener = null;
         constructor(store: IProviderStore) {
             this._Store = store;
         }
@@ -40,26 +40,21 @@ module Fayde.Providers {
         private _AttachListener(source: FrameworkElement) {
             if (!source)
                 return;
-            var listener = Fayde.CreatePropertyChangedListener(this._SourceDataContextChanged, this);
-            this._Listener = listener;
-            source._Store._SubscribePropertyChanged(listener);
+            this._Listener = Fayde.ListenToPropertyChanged(source, FrameworkElement.DataContextProperty, this._SourceDataContextChanged, this);
             //TODO: Add Handler - Destroyed Event
         }
         private _DetachListener(source: FrameworkElement) {
             if (!source)
                 return;
             if (this._Listener) {
-                source._Store._UnsubscribePropertyChanged(this._Listener);
+                this._Listener.Detach();
                 this._Listener = null;
             }
             //TODO: Remove Handler - Destroyed Event
         }
-        private _SourceDataContextChanged(sender, args) {
-            var propd = args.Property;
-            if (propd !== FrameworkElement.DataContextProperty)
-                return;
+        private _SourceDataContextChanged(sender, args: IDependencyPropertyChangedEventArgs) {
             var error = new BError();
-            this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, propd, args.OldValue, args.NewValue, true, error);
+            this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, args.Property, args.OldValue, args.NewValue, true, error);
         }
         private EmitChanged() {
             if (this._Source) {

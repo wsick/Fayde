@@ -14,9 +14,6 @@ var Fayde;
             _super.apply(this, arguments);
 
         }
-        RoutedEvent.prototype.Raise = function (sender, args) {
-            //TODO: Implement
-                    };
         return RoutedEvent;
     })(MulticastEvent);
     Fayde.RoutedEvent = RoutedEvent;    

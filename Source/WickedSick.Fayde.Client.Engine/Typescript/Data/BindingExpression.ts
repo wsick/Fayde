@@ -7,7 +7,12 @@ module Fayde.Data {
             super(binding, target, propd);
         }
 
+        get ParentBinding(): Binding { return this.Binding; }
+        get DataItem(): any { return this.DataSource; }
 
+        UpdateSource() {
+            return this._UpdateSourceObject(undefined, true);
+        }
     }
     Nullstone.RegisterType(BindingExpression, "BindingExpression");
 }

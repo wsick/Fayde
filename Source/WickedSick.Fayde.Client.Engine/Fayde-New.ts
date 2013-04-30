@@ -614,10 +614,18 @@ module Fayde {
 }
 
 module Fayde {
-    export function CreatePropertyChangedListener(func: Function, closure: any) {
+    export function CreatePropertyChangedListener(property: DependencyProperty, func: (sender, args: IDependencyPropertyChangedEventArgs) => void , closure: any): Providers.IPropertyChangedListener {
         return {
+            Detach: function () { },
+            Property: property,
             OnPropertyChanged: function (sender: DependencyObject, args: IDependencyPropertyChangedEventArgs) { func.call(closure, sender, args); }
         };
+    }
+    export function ListenToPropertyChanged(target: DependencyObject, property: DependencyProperty, func: (sender, args: IDependencyPropertyChangedEventArgs) => void , closure: any): Providers.IPropertyChangedListener {
+        var listener = CreatePropertyChangedListener(property, func, closure);
+        listener.Detach = function () { target._Store._UnsubscribePropertyChanged(listener); };
+        target._Store._SubscribePropertyChanged(listener);
+        return listener;
     }
 }
 
@@ -1134,7 +1142,9 @@ module Fayde.Providers {
         GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any;
     }
     export interface IPropertyChangedListener {
+        Property: DependencyProperty;
         OnPropertyChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs);
+        Detach();
     }
     export interface IProviderStore {
         GetValue(propd: DependencyProperty): any;
@@ -1169,6 +1179,507 @@ module Fayde.Data {
         Property = 1,
         Indexed = 2,
         None = 3,
+    }
+}
+
+module Fayde.Data {
+    export interface IPropertyPathParserData {
+        typeName: string;
+        propertyName: string;
+        index: number;
+    }
+    export enum PropertyNodeType {
+        None = 0,
+        AttachedProperty = 1,
+        Indexed = 2,
+        Property = 3,
+    }
+    export class PropertyPathParser {
+        Path: string;
+        constructor(path: string) {
+            this.Path = path;
+        }
+        Step(data: IPropertyPathParserData): PropertyNodeType {
+            var type = PropertyNodeType.None;
+            var path = this.Path;
+            if (path.length === 0) {
+                data.typeName = null;
+                data.propertyName = null;
+                data.index = null;
+                return type;
+            }
+            var end: number = 0;
+            if (path.charAt(0) === '(') {
+                type = PropertyNodeType.AttachedProperty;
+                end = path.indexOf(')');
+                if (end === -1)
+                    throw new ArgumentException("Invalid property path. Attached property is missing the closing bracket");
+                var tickOpen = path.indexOf('\'');
+                var tickClose = 0;
+                var typeOpen: number;
+                var typeClose: number;
+                var propOpen: number;
+                var propClose: number;
+                typeOpen = path.indexOf('\'');
+                if (typeOpen > 0) {
+                    typeOpen++;
+                    typeClose = path.indexOf('\'', typeOpen + 1);
+                    if (typeClose < 0)
+                        throw new Exception("Invalid property path, Unclosed type name '" + path + "'.");
+                    propOpen = path.indexOf('.', typeClose);
+                    if (propOpen < 0)
+                        throw new Exception("Invalid properth path, No property indexer found '" + path + "'.");
+                    propOpen++;
+                } else {
+                    typeOpen = 1;
+                    typeClose = path.indexOf('.', typeOpen);
+                    if (typeClose < 0)
+                        throw new Exception("Invalid property path, No property indexer found on '" + path + "'.");
+                    propOpen = typeClose + 1;
+                }
+                propClose = end;
+                data.typeName = path.slice(typeOpen, typeClose);
+                data.propertyName = path.slice(propOpen, propClose);
+                data.index = null;
+                if (path.length > (end + 1) && path.charAt(end + 1) === '.')
+                    end++;
+                path = path.substr(end + 1);
+            } else if (path.charAt(0) === '[') {
+                type = PropertyNodeType.Indexed;
+                end = path.indexOf(']');
+                data.typeName = null;
+                data.propertyName = null;
+                data.index = parseInt(path.substr(1, end - 1));
+                path = path.substr(end + 1);
+                if (path.charAt(0) === '.')
+                    path = path.substr(1);
+            } else {
+                type = PropertyNodeType.Property;
+                end = indexOfAny(path, ['.', '[']);
+                if (end === -1) {
+                    data.propertyName = path;
+                    path = "";
+                } else {
+                    data.propertyName = path.substr(0, end);
+                    if (path.charAt(end) === '.')
+                        path = path.substr(end + 1);
+                    else
+                        path = path.substr(end);
+                }
+                data.typeName = null;
+                data.index = null;
+            }
+            this.Path = path;
+            return type;
+        }
+    }
+    function indexOfAny(str: string, carr: string[], start?: number): number {
+        if (!carr)
+            return -1;
+        if (!start) start = 0;
+        for (var cur = start; cur < str.length; cur++) {
+            var c = str.charAt(cur);
+            for (var i = 0; i < carr.length; i++) {
+                if (c === carr[i])
+                    return cur;
+            }
+        }
+        return -1;
+    }
+}
+
+module Fayde.Data {
+    declare var AbstractMethod;
+    export interface IPropertyPathWalkerListener {
+        IsBrokenChanged();
+        ValueChanged();
+    }
+    export interface IPropertyPathNode {
+        Next: IPropertyPathNode;
+        Value: any;
+        IsBroken: bool;
+        ValueType: Function;
+        SetSource(source: any);
+        SetValue(value: any);
+        Listen(listener: IPropertyPathNodeListener);
+        Unlisten(listener: IPropertyPathNodeListener);
+    }
+    export interface ICollectionViewNode extends IPropertyPathNode {
+        BindToView: bool;
+    }
+    export interface IPropertyPathNodeListener {
+        IsBrokenChanged(node: IPropertyPathNode);
+        ValueChanged(node: IPropertyPathNode);
+    }
+    export class PropertyPathWalker implements IPropertyPathNodeListener {
+        Path: string;
+        IsDataContextBound: bool;
+        Source: any;
+        ValueInternal: any;
+        Node: IPropertyPathNode;
+        FinalNode: IPropertyPathNode;
+        private _Listener: IPropertyPathWalkerListener;
+        private _Value: any;
+        get Value(): any { return this._Value; }
+        get IsPathBroken(): bool {
+            var path = this.Path;
+            if (this.IsDataContextBound && (!path || path.length < 1))
+                return false;
+            var node = this.Node;
+            while (node) {
+                if (node.IsBroken)
+                    return true;
+                node = node.Next;
+            }
+            return false;
+        }
+        constructor(path: string, bindDirectlyToSource?: bool, bindsToView?: bool, isDataContextBound?: bool) {
+            bindDirectlyToSource = bindDirectlyToSource !== false;
+            bindsToView = bindsToView === true;
+            this.IsDataContextBound = isDataContextBound === true;
+            this.Path = path;
+            this.IsDataContextBound = isDataContextBound;
+            var lastCVNode: ICollectionViewNode = null;
+            if (!path || path === ".") {
+                lastCVNode = createCollectionViewNode(bindDirectlyToSource, bindsToView);
+                this.Node = lastCVNode;
+                this.FinalNode = lastCVNode;
+            } else {
+                var data: IPropertyPathParserData = {
+                    typeName: undefined,
+                    propertyName: undefined,
+                    index: undefined
+                };
+                var type: PropertyNodeType;
+                var parser = new PropertyPathParser(path);
+                while ((type = parser.Step(data)) !== PropertyNodeType.None) {
+                    var isViewProperty = false;
+                    var node = createCollectionViewNode(bindDirectlyToSource, isViewProperty);
+                    lastCVNode = node;
+                    switch (type) {
+                        case PropertyNodeType.AttachedProperty:
+                        case PropertyNodeType.Property:
+                            node.Next = createStandardNode(data.typeName, data.propertyName);
+                            break;
+                        case PropertyNodeType.Indexed:
+                            node.Next = createIndexedNode(data.index);
+                            break
+                        default:
+                            break;
+                    }
+                    if (this.FinalNode)
+                        this.FinalNode.Next = node;
+                    else
+                        this.Node = node;
+                    this.FinalNode = node.Next;
+                }
+            }
+            lastCVNode.BindToView = lastCVNode.BindToView || bindsToView;
+            this.FinalNode.Listen(this);
+        }
+        GetValue(item: any) {
+            this.Update(item);
+            var o = this.FinalNode.Value;
+            this.Update(null);
+            return o;
+        }
+        Update(source: any) {
+            this.Source = source;
+            this.Node.SetSource(source);
+        }
+        Listen(listener: IPropertyPathWalkerListener) { this._Listener = listener; }
+        Unlisten(listener: IPropertyPathWalkerListener) { if (this._Listener === listener) this._Listener = null; }
+        IsBrokenChanged(node: IPropertyPathNode) {
+            this.ValueInternal = node.Value;
+            var listener = this._Listener;
+            if (listener) listener.IsBrokenChanged();
+        }
+        ValueChanged(node: IPropertyPathNode) {
+            this.ValueInternal = node.Value;
+            var listener = this._Listener;
+            if (listener) listener.ValueChanged();
+        }
+    }
+    class PropertyPathNode implements IPropertyPathNode {
+        Next: IPropertyPathNode;
+        private _IsBroken: bool;
+        private _Source: any;
+        private _Value: any;
+        DependencyProperty: DependencyProperty;
+        PropertyInfo: IPropertyInfo;
+        Listener: any;
+        private _NodeListener: IPropertyPathNodeListener;
+        ValueType: Function;
+        get IsBroken(): bool { return this._IsBroken; }
+        get Source(): any { return this._Source; }
+        get Value(): any { return this._Value; }
+        Listen(listener: IPropertyPathNodeListener) { this._NodeListener = listener; }
+        Unlisten(listener: IPropertyPathNodeListener) { if (this._NodeListener === listener) this._NodeListener = null; }
+        OnSourceChanged(oldSource, newSource) { }
+        OnSourcePropertyChanged(o, e) { }
+        UpdateValue() { AbstractMethod("PropertyPathNode.UpdateValue"); }
+        SetValue(value: any) { AbstractMethod("PropertyPathNode.SetValue"); }
+        SetSource(value: any) {
+            if (value == null || !Nullstone.Equals(value, this._Source)) {
+                var oldSource = this._Source;
+                if (oldSource)
+                    (<INotifyPropertyChanged>oldSource).PropertyChanged.Unsubscribe(this.OnSourcePropertyChanged, this);
+                this._Source = value;
+                if (this._Source && Nullstone.ImplementsInterface(this._Source, INotifyPropertyChanged_)) {
+                    (<INotifyPropertyChanged>this._Source).PropertyChanged.Subscribe(this.OnSourcePropertyChanged, this);
+                }
+                this.OnSourceChanged(oldSource, this._Source);
+                this.UpdateValue();
+                if (this.Next)
+                    this.Next.SetSource(this._Value);
+            }
+        }
+        UpdateValueAndIsBroken(newValue: any, isBroken: bool) {
+            var emitBrokenChanged = this._IsBroken !== isBroken;
+            var emitValueChanged = !Nullstone.Equals(this.Value, newValue);
+            this._IsBroken = isBroken;
+            this._Value = newValue;
+            if (emitValueChanged) {
+                var listener = this._NodeListener;
+                if (listener) listener.ValueChanged(this);
+            } else if (emitBrokenChanged) {
+                var listener = this._NodeListener;
+                if (listener) listener.IsBrokenChanged(this);
+            }
+        }
+        _CheckIsBroken(): bool {
+            return !this.Source || (!this.PropertyInfo && !this.DependencyProperty);
+        }
+    }
+    function createStandardNode(typeName: string, propertyName: string): IPropertyPathNode {
+        return new StandardPropertyPathNode(typeName, propertyName);
+    }
+    class StandardPropertyPathNode extends PropertyPathNode {
+        private _STypeName: string;
+        private _PropertyName: string;
+        PropertyInfo: PropertyInfo;
+        private _DPListener: Providers.IPropertyChangedListener;
+        constructor(typeName: string, propertyName: string) {
+            super();
+            this._STypeName = typeName;
+            this._PropertyName = propertyName;
+        }
+        SetValue(value: any) {
+            if (this.DependencyProperty)
+                this.Source.SetValue(this.DependencyProperty, value);
+            else if (this.PropertyInfo)
+                this.PropertyInfo.SetValue(this.Source, value);
+        }
+        UpdateValue() {
+            if (this.DependencyProperty) {
+                this.ValueType = this.DependencyProperty.GetTargetType();
+                this.UpdateValueAndIsBroken(this.Source.$GetValue(this.DependencyProperty), this._CheckIsBroken());
+            } else if (this.PropertyInfo) {
+                this.ValueType = null;
+                try {
+                    this.UpdateValueAndIsBroken(this.PropertyInfo.GetValue(this.Source), this._CheckIsBroken());
+                } catch (err) {
+                    this.UpdateValueAndIsBroken(null, this._CheckIsBroken());
+                }
+            } else {
+                this.ValueType = null;
+                this.UpdateValueAndIsBroken(null, this._CheckIsBroken());
+            }
+        }
+        OnSourceChanged(oldSource: any, newSource: any) {
+            super.OnSourceChanged(oldSource, newSource);
+            var oldDO: DependencyObject;
+            var newDO: DependencyObject;
+            if (oldSource instanceof DependencyObject) oldDO = <DependencyObject>oldSource;
+            if (newSource instanceof DependencyObject) newDO = <DependencyObject>newSource;
+            var listener = this._DPListener;
+            if (listener) {
+                listener.Detach();
+                this._DPListener = listener = null;
+            }
+            this.DependencyProperty = null;
+            this.PropertyInfo = null;
+            if (!this.Source)
+                return;
+            if (newDO) {
+                var propd = DependencyProperty.GetDependencyProperty(this.Source.constructor, this._PropertyName);
+                if (propd) {
+                    this.DependencyProperty = propd;
+                    this._DPListener = listener = Fayde.ListenToPropertyChanged(newDO, propd, this.OnPropertyChanged, this);
+                }
+            }
+            if (!this.DependencyProperty || !this.DependencyProperty._IsAttached) {
+                this.PropertyInfo = PropertyInfo.Find(this.Source, this._PropertyName);
+            }
+        }
+        OnPropertyChanged(sender, args: IDependencyPropertyChangedEventArgs) {
+            try {
+                this.UpdateValue();
+                if (this.Next)
+                    this.Next.SetSource(this.Value);
+            } catch (err) {
+            }
+        }
+        OnSourcePropertyChanged(sender, e) {
+            if (e.PropertyName === this._PropertyName && this.PropertyInfo) {
+                this.UpdateValue();
+                var next = this.Next;
+                if (next)
+                    next.SetSource(this.Value);
+            }
+        }
+    }
+    function createCollectionViewNode(bindsDirectlyToSource: bool, bindsToView: bool): ICollectionViewNode {
+        return new CollectionViewNode(bindsDirectlyToSource, bindsToView);
+    }
+    class CollectionViewNode extends PropertyPathNode implements ICollectionViewNode {
+        BindsDirectlyToSource: bool;
+        BindToView: bool;
+        private _ViewPropertyListener: Providers.IPropertyChangedListener;
+        private _View: ICollectionView;
+        constructor(bindsDirectlyToSource: bool, bindToView: bool) {
+            super();
+            this.BindsDirectlyToSource = bindsDirectlyToSource === true;
+            this.BindToView = bindToView === true;
+        }
+        OnSourceChanged(oldSource: any, newSource: any) {
+            super.OnSourceChanged(oldSource, newSource);
+            this.DisconnectViewHandlers();
+            this.ConnectViewHandlers(newSource, newSource);
+        }
+        ViewChanged(sender, e) {
+            this.DisconnectViewHandlers(true);
+            this.ConnectViewHandlers(null, e.NewValue);
+            this.ViewCurrentChanged(this, EventArgs.Empty);
+        }
+        ViewCurrentChanged(sender, e) {
+            this.UpdateValue();
+            if (this.Next)
+                this.Next.SetSource(this.Value);
+        }
+        SetValue() {
+            throw new NotSupportedException("SetValue");
+        }
+        UpdateValue() {
+            if (this.BindsDirectlyToSource) {
+                this.ValueType = this.Source == null ? null : this.Source.constructor;
+                this.UpdateValueAndIsBroken(this.Source, this._CheckIsBroken());
+            } else {
+                var usableSource = this.Source;
+                var view;
+                if (this.Source instanceof CollectionViewSource) {
+                    usableSource = null;
+                    view = this.Source.View;
+                } else if (Nullstone.ImplementsInterface(this.Source, ICollectionView_)) {
+                    view = this.Source;
+                }
+                if (!view) {
+                    this.ValueType = usableSource == null ? null : usableSource.constructor;
+                    this.UpdateValueAndIsBroken(usableSource, this._CheckIsBroken());
+                } else {
+                    if (this.BindToView) {
+                        this.ValueType = view.constructor;
+                        this.UpdateValueAndIsBroken(view, this._CheckIsBroken());
+                    } else {
+                        this.ValueType = view.GetCurrentItem() == null ? null : view.GetCurrentItem().constructor;
+                        this.UpdateValueAndIsBroken(view.GetCurrentItem(), this._CheckIsBroken());
+                    }
+                }
+            }
+        }
+        _CheckIsBroken(): bool { return this.Source == null; }
+        ConnectViewHandlers(source: CollectionViewSource, view: ICollectionView) {
+            if (source instanceof CollectionViewSource) {
+                this._ViewPropertyListener = Fayde.ListenToPropertyChanged(source, CollectionViewSource.ViewProperty, this.ViewChanged, this);
+                view = source.View;
+            }
+            if (Nullstone.ImplementsInterface(view, ICollectionView_)) {
+                this._View = view;
+                this._View.CurrentChanged.Subscribe(this.ViewCurrentChanged, this);
+            }
+        }
+        DisconnectViewHandlers(onlyView?: bool) {
+            if (!onlyView)
+                onlyView = false;
+            if (this._ViewPropertyListener && !onlyView) {
+                this._ViewPropertyListener.Detach();
+                this._ViewPropertyListener = null;
+            }
+            if (this._View) {
+                this._View.CurrentChanged.Unsubscribe(this.ViewCurrentChanged, this);
+            }
+        }
+    }
+    function createIndexedNode(index: number): IPropertyPathNode {
+        return new IndexedPropertyPathNode(index);
+    }
+    class IndexedPropertyPathNode extends PropertyPathNode {
+        private _Index: number;
+        private _Source: any; //Defind in PropertyPathNode
+        private _IsBroken: bool; //Defind in PropertyPathNode
+        PropertyInfo: IndexedPropertyInfo;
+        constructor(index: any) {
+            super();
+            this._IsBroken = false;
+            var val = parseInt(index, 10);
+            if (isNaN(val))
+                this._Index = index;
+            else
+                this._Index = val;
+        }
+        get Index(): number { return this._Index; }
+        UpdateValue() {
+            if (this.PropertyInfo == null) {
+                this._IsBroken = true;
+                this.ValueType = null;
+                this.UpdateValueAndIsBroken(null, this._IsBroken);
+                return;
+            }
+            try {
+                var newVal = this.PropertyInfo.GetValue(this.Source, this._Index);
+                this._IsBroken = false;
+                this.ValueType = this.PropertyInfo.PropertyType;
+                this.UpdateValueAndIsBroken(newVal, this._IsBroken);
+            } catch (err) {
+                this._IsBroken = true;
+                this.ValueType = null;
+                this.UpdateValueAndIsBroken(null, this._IsBroken);
+            }
+        }
+        SetValue(value: any) {
+            if (this.PropertyInfo != null)
+                this.PropertyInfo.SetValue(this.Source, this._Index, value);
+        }
+        _CheckIsBroken(): bool {
+            return this._IsBroken || super._CheckIsBroken();
+        }
+        OnSourcePropertyChanged(o, e) {
+            this.UpdateValue();
+            if (this.Next != null)
+                this.Next.SetSource(this.Value);
+        }
+        OnSourceChanged(oldSource: any, newSource: any) {
+            super.OnSourceChanged(oldSource, newSource);
+            if (this.Listener != null) {
+                this.Listener.Detach();
+                this.Listener = null;
+            }
+            if (Nullstone.ImplementsInterface(newSource, Collections.INotifyCollectionChanged_)) {
+                (<Collections.INotifyCollectionChanged>newSource).CollectionChanged.Subscribe(this.CollectionChanged, this);
+            }
+            this._GetIndexer();
+        }
+        private _GetIndexer() {
+            this.PropertyInfo = null;
+            if (this._Source != null) {
+                this.PropertyInfo = IndexedPropertyInfo.Find(this._Source);
+            }
+        }
+        CollectionChanged(o, e) {
+            this.UpdateValue();
+            if (this.Next != null)
+                this.Next.SetSource(this.Value);
+        }
     }
 }
 
@@ -2430,51 +2941,6 @@ module Fayde {
     }
 }
 
-module Fayde {
-    export interface IEnumerable {
-        GetEnumerator(reverse?: bool): IEnumerator;
-    }
-    export interface IEnumerator {
-        Current: any;
-        MoveNext(): bool;
-    }
-    export class ArrayEx {
-        static EmptyEnumerator = {
-            MoveNext: function () { return false; },
-            Current: undefined
-        };
-        static GetEnumerator(arr: any[], isReverse?: bool): IEnumerator {
-            var len = arr.length;
-            var e = { MoveNext: undefined, Current: undefined };
-            var index;
-            if (isReverse) {
-                index = len;
-                e.MoveNext = function () {
-                    index--;
-                    if (index < 0) {
-                        e.Current = undefined;
-                        return false;
-                    }
-                    e.Current = arr[index];
-                    return true;
-                };
-            } else {
-                index = -1;
-                e.MoveNext = function () {
-                    index++;
-                    if (index >= len) {
-                        e.Current = undefined;
-                        return false;
-                    }
-                    e.Current = arr[index];
-                    return true;
-                };
-            }
-            return e;
-        }
-    }
-}
-
 interface IOutValue {
     Value: any;
 }
@@ -2567,6 +3033,88 @@ class Nullstone {
         script.onload = function () { if (onComplete) onComplete(script); };
         var head = <HTMLHeadElement>document.getElementsByTagName("head")[0];
         head.appendChild(script);
+    }
+}
+
+interface IPropertyInfo {
+}
+class PropertyInfo implements IPropertyInfo {
+    GetFunc: () => any;
+    SetFunc: (value: any) => any;
+    GetValue(ro: any): any {
+        if (this.GetFunc)
+            return this.GetFunc.call(ro);
+    }
+    SetValue(ro: any, value: any) {
+        if (this.SetFunc)
+            this.SetFunc.call(ro, value);
+    }
+    static Find(typeOrObj, name: string): PropertyInfo {
+        var o = typeOrObj;
+        var isType = typeOrObj instanceof Function;
+        if (isType)
+            o = new typeOrObj();
+        var nameClosure = name;
+        var propDesc = Nullstone.GetPropertyDescriptor(o, name);
+        if (propDesc) {
+            var pi = new PropertyInfo();
+            pi.GetFunc = propDesc.get;
+            if (!pi.GetFunc)
+                pi.GetFunc = function () { return this[nameClosure]; }
+            pi.SetFunc = propDesc.set;
+            if (!pi.SetFunc && propDesc.writable)
+                pi.SetFunc = function (value) { this[nameClosure] = value; }
+            return pi;
+        }
+        var type = isType ? typeOrObj : typeOrObj.constructor;
+        var pi = new PropertyInfo();
+        pi.GetFunc = type.prototype["Get" + name];
+        pi.SetFunc = type.prototype["Set" + name];
+        return pi;
+    }
+}
+class IndexedPropertyInfo implements IPropertyInfo {
+    GetFunc: (index: number) => any;
+    SetFunc: (index: number, value: any) => any;
+    get PropertyType(): Function {
+        return undefined;
+    }
+    GetValue(ro: any, index: number): any {
+        if (this.GetFunc)
+            return this.GetFunc.call(ro, index);
+    }
+    SetValue(ro: any, index: number, value: any) {
+        if (this.SetFunc)
+            this.SetFunc.call(ro, index, value);
+    }
+    static Find(typeOrObj): IndexedPropertyInfo {
+        var o = typeOrObj;
+        var isType = typeOrObj instanceof Function;
+        if (isType)
+            o = new typeOrObj();
+        if (o instanceof Array) {
+            var pi = new IndexedPropertyInfo();
+            pi.GetFunc = function (index) { return this[index]; };
+            pi.SetFunc = function (index, value) { this[index] = value; };
+            return pi;
+        } else if (o instanceof Fayde.XamlObjectCollection) {
+            var pi = new IndexedPropertyInfo();
+            pi.GetFunc = function (index) { return this.GetValueAt(index); };
+            pi.SetFunc = function (index, value) { return this.SetValueAt(index, value); };
+            return pi;
+        }
+    }
+}
+
+class StringEx {
+    static Format(format: string, ...items: any[]): string {
+        var args = arguments;
+        return format.replace(/{(\d+)}/g, function (match: string, num: string) {
+            var i = parseInt(num);
+            return typeof items[i] != 'undefined'
+              ? items[i]
+              : match;
+        });
     }
 }
 
@@ -3864,6 +4412,13 @@ module Fayde.Text {
     }
 }
 
+module Fayde.Collections {
+    export interface INotifyCollectionChanged {
+        CollectionChanged: MulticastEvent;
+    }
+    export var INotifyCollectionChanged_ = Nullstone.RegisterInterface("INotifyCollectionChanged");
+}
+
 module Fayde.Controls {
     export enum GridUnitType {
         Auto = 0,
@@ -4069,6 +4624,13 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(Expression, "Expression");
+}
+
+module Fayde {
+    export interface INotifyPropertyChanged {
+        PropertyChanged: MulticastEvent;
+    }
+    export var INotifyPropertyChanged_ = Nullstone.RegisterInterface("INotifyPropertyChanged");
 }
 
 module Fayde {
@@ -5253,7 +5815,7 @@ module Fayde {
             this._DetachListener();
             this._Target = null;
         }
-        OnPropertyChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
+        OnSourcePropertyChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
             if (this.SourceProperty._ID !== args.Property._ID)
                 return;
             try {
@@ -5277,15 +5839,14 @@ module Fayde {
             var source = this._Target.TemplateOwner;
             if (!source)
                 return;
-            this._Listener = this;
-            source._Store._SubscribePropertyChanged(this);
+            this._Listener = Fayde.ListenToPropertyChanged(source, this.SourceProperty, (sender, args) => this.OnSourcePropertyChanged(sender, args), this);
         }
         private _DetachListener() {
             var listener = this._Listener;
-            if (!listener)
-                return;
-            this._Target.TemplateOwner._Store._UnsubscribePropertyChanged(listener);
-            this._Listener = listener = null;
+            if (listener) {
+                this._Listener.Detach();
+                this._Listener = null;
+            }
         }
     }
     Nullstone.RegisterType(TemplateBindingExpression, "TemplateBindingExpression");
@@ -5439,109 +6000,6 @@ module Fayde {
         CloneCore(source: XamlObject) { }
     }
     Nullstone.RegisterType(XamlObject, "XamlObject");
-}
-
-module Fayde {
-    export class XamlObjectCollection extends XamlObject implements IEnumerable {
-        private _ht: XamlObject[] = [];
-        get Count() { return this._ht.length; }
-        GetValueAt(index: number): XamlObject {
-            return this._ht[index];
-        }
-        SetValueAt(index: number, value: XamlObject): bool {
-            if (!this.CanAdd(value))
-                return false;
-            if (index < 0 || index >= this._ht.length)
-                return false;
-            var removed = this._ht[index];
-            var added = value;
-            var error = new BError();
-            if (this.AddedToCollection(added, error)) {
-                this._ht[index] = added;
-                this.RemovedFromCollection(removed, true);
-                this._RaiseItemReplaced(removed, added, index);
-                return true;
-            }
-            return false;
-        }
-        Add(value: XamlObject): number {
-            var rv = this.Insert(this._ht.length, value);
-            return rv ? this._ht.length - 1 : -1;
-        }
-        Insert(index: number, value: XamlObject): bool {
-            if (!this.CanAdd(value))
-                return false;
-            if (index < 0)
-                return false;
-            var count = this._ht.length;
-            if (index > count)
-                index = count;
-            var error = new BError();
-            if (this.AddedToCollection(value, error)) {
-                this._ht.splice(index, 0, value);
-                this._RaiseItemAdded(value, index);
-                return true;
-            }
-            if (error.Message)
-                throw new Exception(error.Message);
-            return false;
-        }
-        Remove(value: XamlObject): bool {
-            var index = this.IndexOf(value);
-            if (index === -1)
-                return false;
-            return this.RemoveAt(index);
-        }
-        RemoveAt(index: number): bool {
-            if (index < 0 || index >= this._ht.length)
-                return false;
-            var value = this._ht[index];
-            this._ht.splice(index, 1);
-            this.RemovedFromCollection(value, true);
-            this._RaiseItemRemoved(value, index);
-            return true;
-        }
-        Clear(): bool {
-            var old = this._ht;
-            this._ht = [];
-            var len = old.length;
-            for (var i = 0; i < len; i++) {
-                this.RemovedFromCollection(old[i], true);
-            }
-            this._RaiseCleared();
-            return true;
-        }
-        IndexOf(value: XamlObject): number {
-            var count = this._ht.length;
-            for (var i = 0; i < count; i++) {
-                if (Nullstone.Equals(value, this._ht[i]))
-                    return i;
-            }
-            return -1;
-        }
-        Contains(value: XamlObject): bool { return this.IndexOf(value) > -1; }
-        CanAdd (value: XamlObject): bool { return true; }
-        AddedToCollection(value: XamlObject, error: BError): bool {
-            return value.XamlNode.AttachTo(this.XamlNode, error);
-        }
-        RemovedFromCollection(value: XamlObject, isValueSafe: bool) {
-            value.XamlNode.Detach();
-        }
-        GetEnumerator(reverse?: bool): IEnumerator {
-            return ArrayEx.GetEnumerator(this._ht, reverse);
-        }
-        _RaiseItemAdded(value: XamlObject, index: number) { }
-        _RaiseItemRemoved(value: XamlObject, index: number) { }
-        _RaiseItemReplaced(removed: XamlObject, added: XamlObject, index: number) { }
-        _RaiseCleared() { }
-        CloneCore(source: XamlObjectCollection) {
-            var enumerator = ArrayEx.GetEnumerator(this._ht);
-            while (enumerator.MoveNext()) {
-                this.Add(Fayde.Clone(enumerator.Current));
-            }
-        }
-    }
-    Nullstone.RegisterType(XamlObjectCollection, "XamlObjectCollection");
 }
 
 module Fayde.Providers {
@@ -6008,7 +6466,7 @@ module Fayde.Providers {
     export class InheritedDataContextProvider implements IPropertyProvider, IInheritedDataContextProvider {
         private _Source: FrameworkElement;
         private _Store: IProviderStore;
-        private _Listener = null;
+        private _Listener: Providers.IPropertyChangedListener = null;
         constructor(store: IProviderStore) {
             this._Store = store;
         }
@@ -6037,24 +6495,19 @@ module Fayde.Providers {
         private _AttachListener(source: FrameworkElement) {
             if (!source)
                 return;
-            var listener = Fayde.CreatePropertyChangedListener(this._SourceDataContextChanged, this);
-            this._Listener = listener;
-            source._Store._SubscribePropertyChanged(listener);
+            this._Listener = Fayde.ListenToPropertyChanged(source, FrameworkElement.DataContextProperty, this._SourceDataContextChanged, this);
         }
         private _DetachListener(source: FrameworkElement) {
             if (!source)
                 return;
             if (this._Listener) {
-                source._Store._UnsubscribePropertyChanged(this._Listener);
+                this._Listener.Detach();
                 this._Listener = null;
             }
         }
-        private _SourceDataContextChanged(sender, args) {
-            var propd = args.Property;
-            if (propd !== FrameworkElement.DataContextProperty)
-                return;
+        private _SourceDataContextChanged(sender, args: IDependencyPropertyChangedEventArgs) {
             var error = new BError();
-            this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, propd, args.OldValue, args.NewValue, true, error);
+            this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, args.Property, args.OldValue, args.NewValue, true, error);
         }
         private EmitChanged() {
             if (this._Source) {
@@ -6527,21 +6980,389 @@ module Fayde.Data {
 }
 
 module Fayde.Data {
-    export class BindingExpressionBase extends Fayde.Expression {
+    declare var NotImplemented;
+    export class BindingExpressionBase extends Fayde.Expression implements IPropertyPathWalkerListener {
         private _Binding: Data.Binding;
         Target: DependencyObject;
+        TargetFE: FrameworkElement;
         Property: DependencyProperty;
+        private PropertyPathWalker: PropertyPathWalker;
+        private _DataContextSource: FrameworkElement;
+        private _PropertyListener: Providers.IPropertyChangedListener;
+        private _DataContextPropertyListener: Providers.IPropertyChangedListener;
         get Binding(): Data.Binding { return this._Binding; }
+        get DataSource(): any { return this.PropertyPathWalker.Source; }
+        get DataContextSource(): FrameworkElement { return this._DataContextSource; }
+        get IsBoundToAnyDataContext(): bool { return !this.Binding.ElementName && !this.Binding.Source; }
+        get IsSelfDataContextBound(): bool {
+            return this.IsBoundToAnyDataContext && this.TargetFE
+                && (this.Property._ID !== FrameworkElement.DataContextProperty._ID);
+        }
+        get IsParentDataContextBound(): bool {
+            return this.IsBoundToAnyDataContext && this.TargetFE
+                && (this.Property._ID === FrameworkElement.DataContextProperty._ID || this.Property._ID === Controls.ContentPresenter.ContentProperty._ID);
+        }
+        get IsMentorDataContextBound(): bool { return this.IsBoundToAnyDataContext && !this.TargetFE; }
+        get IsTwoWayTextBoxText(): bool { return this.Target instanceof Controls.TextBox; }
+        private _Cached: bool = false;
+        private _CachedValue: any = undefined;
         constructor(binding: Data.Binding, target: DependencyObject, propd: DependencyProperty) {
             super();
             this._Binding = binding;
             this.Target = target;
+            if (target instanceof FrameworkElement)
+                this.TargetFE = <FrameworkElement>target;
             this.Property = propd;
+            var bindsToView = propd._ID === FrameworkElement.DataContextProperty._ID || propd.GetTargetType() === <any>IEnumerable_ || propd.GetTargetType() === <any>Data.ICollectionView_;
+            var walker = this.PropertyPathWalker = new PropertyPathWalker(binding.Path.ParsePath, binding.BindsDirectlyToSource, bindsToView, this.IsBoundToAnyDataContext);
+            if (binding.Mode !== BindingMode.OneTime)
+                walker.Listen(this);
         }
-        _TryUpdateSourceObject(value) {
+        IsBrokenChanged() { this.Refresh(); }
+        ValueChanged() { this.Refresh(); }
+        GetValue(propd: DependencyProperty): any {
+            if (this._Cached)
+                return this._CachedValue;
+            this._Cached = true;
+            if (this.PropertyPathWalker.IsPathBroken) {
+                this._CachedValue = null;
+            } else {
+                this._CachedValue = this.PropertyPathWalker.ValueInternal;
+            }
+            try {
+                this._CachedValue = this._ConvertToType(propd, this._CachedValue);
+            } catch (err) {
+                this._CachedValue = propd.DefaultValue;
+            }
+            return this._CachedValue;
+        }
+        OnAttached(element:DependencyObject) {
+            if (this.IsAttached)
+                return;
+            super.OnAttached(element);
+            this._CalculateDataSource();
+            if (this.IsTwoWayTextBoxText)
+                this.TargetFE.LostFocus.Subscribe(this._TextBoxLostFocus, this);
+            if (this.Binding.Mode === BindingMode.TwoWay && this.Property.IsCustom) {
+                this._PropertyListener = Fayde.ListenToPropertyChanged(this.Target, this.Property, this._UpdateSourceCallback, this);
+            }
+        }
+        private _UpdateSourceCallback(sender, args: IDependencyPropertyChangedEventArgs) {
+            try {
+                if (!this.IsUpdating)
+                    this._TryUpdateSourceObject(this.Target.GetValue(this.Property));
+            } catch (err) {
+            }
+        }
+        OnDetached(element:DependencyObject) {
+            if (!this.IsAttached)
+                return;
+            super.OnDetached(element);
+            if (this.IsTwoWayTextBoxText)
+                this.TargetFE.LostFocus.Unsubscribe(this._TextBoxLostFocus, this);
+            var tfe = this.TargetFE;
+            if (this.IsMentorDataContextBound) {
+                tfe.MentorChanged.Unsubscribe(this._MentorChanged, this);
+                this.SetDataContextSource(null);
+            } else if (this.IsParentDataContextBound) {
+                tfe.VisualParentChanged.Subscribe(this._VisualParentChanged, this);
+                this.SetDataContextSource(null);
+            } else if (this.IsSelfDataContextBound) {
+                this.SetDataContextSource(null);
+            }
+            if (!tfe) tfe = this.Target.Mentor;
+            /*
+            if (tfe && this.CurrentError != null) {
+                this.CurrentError = null;
+            }
+            */
+            if (this._PropertyListener) {
+                this._PropertyListener.Detach();
+                this._PropertyListener = null;
+            }
+            this.PropertyPathWalker.Update(null);
+        }
+        private _TextBoxLostFocus() {
+            this._UpdateSourceObject();
+        }
+        _TryUpdateSourceObject(value: any) {
+            if (!this.IsUpdating && this.Binding.UpdateSourceTrigger === UpdateSourceTrigger.Default) {
+                this._UpdateSourceObject(value, false);
+            }
+        }
+        _UpdateSourceObject(value?: any, force?: bool) {
+            if (value === undefined)
+                value = this.Target.GetValue(this.Property);
+            force = force === true;
+            var binding = this.Binding;
+            if (binding.Mode !== BindingMode.TwoWay)
+                return;
+            var dataError;
+            var exception: Exception;
+            var oldUpdating = this.IsUpdating;
+            var node = this.PropertyPathWalker.FinalNode;
+            try {
+                if (!force && this.IsTwoWayTextBoxText && App.Instance.MainSurface.FocusedNode === this.Target.XamlNode)
+                    return;
+                if (this.PropertyPathWalker.IsPathBroken)
+                    return;
+                if (binding.TargetNullValue) {
+                    try {
+                        if (binding.TargetNullValue === value)
+                            value = null;
+                    } catch (err) {
+                    }
+                }
+                var converter = binding.Converter;
+                if (converter) {
+                    value = converter.ConvertBack(value, node.ValueType, binding.ConverterParameter, binding.ConverterCulture);
+                }
+                if (value instanceof String) {
+                }
+                try {
+                    if (value)
+                        value = this._ConvertFromTargetToSource(value);
+                } catch (err) {
+                    return;
+                }
+                if (!this._CachedValue && !value)
+                    return;
+                this.IsUpdating = true;
+                node.SetValue(value);
+                this._CachedValue = value;
+            } catch (err) {
+                if (binding.ValidatesOnExceptions) {
+                    if (err instanceof TargetInvocationException)
+                        exception = err.InnerException;
+                    exception = err;
+                }
+            } finally {
+                this.IsUpdating = oldUpdating;
+            }
+            this._MaybeEmitError(dataError, exception);
+        }
+        private _MaybeEmitError(message: string, exception: Exception) {
+            /*
+            var fe: FrameworkElement = this.TargetFE;
+            if (!fe && !(fe = this.Target.GetMentor()))
+                return;
+            if (message === "")
+                message = null;
+            var oldError = this.CurrentError;
+            if (message != null)
+                this.CurrentError = new ValidationError(message, null);
+            else if (exception)
+                this.CurrentError = new ValidationError(null, exception);
+            else
+                this.CurrentError = null;
+            if (oldError && this.CurrentError) {
+                Validation.AddError(fe, this.CurrentError);
+                Validation.RemoveError(fe, oldError);
+                if (this.Binding.NotifyOnValidationError) {
+                    fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Removed, oldError));
+                    fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Added, this.CurrentError));
+                }
+            } else if (oldError) {
+                Validation.RemoveError(fe, oldError);
+                if (this.Binding.NotifyOnValidationError)
+                    fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Removed, oldError));
+            } else if (this.CurrentError) {
+                Validation.AddError(fe, this.CurrentError);
+                if (this.Binding.NotifyOnValidationError)
+                    fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Added, this.CurrentError));
+            }
+            */
+        }
+        private _ConvertFromTargetToSource(value: any): any {
+            NotImplemented("BindingExpressionBase._ConvertFromTargetToSource");
+            return value;
+        }
+        private _ConvertFromSourceToTarget(value: any): any {
+            NotImplemented("BindingExpressionBase._ConvertFromSourceToTarget");
+            return value;
+        }
+        private _ConvertToType(propd: DependencyProperty, value: any): any {
+            try {
+                var binding = this.Binding;
+                if (!this.PropertyPathWalker.IsPathBroken && binding.Converter) {
+                    value = binding.Converter.Convert(value, this.Property.GetTargetType(), binding.ConverterParameter, binding.ConverterCulture);
+                }
+                if (value instanceof Fayde.UnsetValue || this.PropertyPathWalker.IsPathBroken) {
+                    value = binding.FallbackValue;
+                    if (value === undefined)
+                        value = propd.DefaultValue;
+                } else if (value == null) {
+                    value = binding.TargetNullValue;
+                    if (value == null && this.IsBoundToAnyDataContext && !binding.Path.Path)
+                        value = propd.DefaultValue;
+                } else {
+                    var format = binding.StringFormat;
+                    if (format) {
+                        if (format.indexOf("{0") < 0)
+                            format = "{0:" + format + "}";
+                        value = StringEx.Format(format, value);
+                    }
+                }
+            } catch (err) {
+                return TypeConverter.ConvertObject(propd, binding.FallbackValue, (<any>this.Target).constructor, true);
+            }
+            return value;
+        }
+        private _AttachToNotifyError(element) {
+            NotImplemented("BindingExpressionBase._AttachToNotifyError");
+        }
+        private _NotifyErrorsChanged(o, e) {
+            NotImplemented("BindingExpressionBase._NotifyErrorsChanged");
+        }
+        private _CalculateDataSource() {
+            var source;
+            if (this.Binding.Source) {
+                this.PropertyPathWalker.Update(this.Binding.Source);
+            } else if (this.Binding.ElementName != null) {
+                source = this._FindSourceByElementName();
+                var feTarget = this.TargetFE;
+                if (!feTarget && !(feTarget = this.Target.Mentor)) {
+                    this.Target.MentorChanged.Subscribe(this._InvalidateAfterMentorChanged, this);
+                } else {
+                    feTarget.Loaded.Subscribe(this._HandleFeTargetLoaded, this);
+                }
+                this.PropertyPathWalker.Update(source);
+            } else if (this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === RelativeSourceMode.Self) {
+                this.PropertyPathWalker.Update(this.Target);
+            } else {
+                var fe = this.TargetFE;
+                var propd = this.Property;
+                if (fe && (propd._ID === FrameworkElement.DataContextProperty._ID || propd._ID === Controls.ContentPresenter.ContentProperty._ID)) {
+                    fe.VisualParentChanged.Subscribe(this._VisualParentChanged, this);
+                    var vpNode = <FENode>fe.XamlNode.VisualParentNode;
+                    fe = (vpNode) ? vpNode.XObject : null;
+                    this.SetDataContextSource(fe);
+                } else {
+                    if (!fe) {
+                        this.Target.MentorChanged.Subscribe(this._MentorChanged, this);
+                        fe = this.Target.Mentor;
+                    }
+                    if (fe && this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === RelativeSourceMode.TemplatedParent) {
+                        this.PropertyPathWalker.Update(fe.TemplateOwner);
+                    } else {
+                        this.SetDataContextSource(fe);
+                    }
+                }
+            }
+        }
+        SetDataContextSource(value: FrameworkElement) {
+            if (this._DataContextSource && this._DataContextPropertyListener) {
+                this._DataContextPropertyListener.Detach();
+                this._DataContextPropertyListener = null;
+            }
+            this._DataContextSource = value;
+            if (this._DataContextSource)
+                this._DataContextPropertyListener = Fayde.ListenToPropertyChanged(this._DataContextSource, FrameworkElement.DataContextProperty, this._DataContextChanged, this);
+            if (this._DataContextSource || this.IsMentorDataContextBound)
+                this.PropertyPathWalker.Update(!this._DataContextSource ? null : this._DataContextSource.DataContext);
+        }
+        private _InvalidateAfterMentorChanged(sender, e: EventArgs) {
+            this.Target.MentorChanged.Unsubscribe(this._InvalidateAfterMentorChanged, this);
+            var source = this._FindSourceByElementName();
+            if (!source) {
+                this.Target.Mentor.Loaded.Subscribe(this._HandleFeTargetLoaded, this);
+            } else {
+                this.PropertyPathWalker.Update(source);
+            }
+            this._Invalidate();
+            this.Target.SetValue(this.Property, this);
+        }
+        private _HandleFeTargetLoaded(sender, e: EventArgs) {
+            var fe = sender;
+            fe.Loaded.Unsubscribe(this._HandleFeTargetLoaded, this);
+            var source = this._FindSourceByElementName();
+            if (source)
+                this.PropertyPathWalker.Update(source);
+            this._Invalidate();
+            this.Target.SetValue(this.Property, this);
+        }
+        private _FindSourceByElementName(): any {
+            var source;
+            var fe: FrameworkElement = this.TargetFE;
+            if (!fe && !(fe = this.Target.Mentor))
+            while (fe && !source) {
+                source = fe.FindName(this.Binding.ElementName);
+                if (!source && fe.TemplateOwner)
+                    fe = <FrameworkElement>fe.TemplateOwner;
+                else if (fe.Mentor && Controls.ItemsControl.GetItemsOwner(fe.Mentor))
+                    fe = fe.Mentor;
+                else
+                    fe = null;
+            }
+            return source;
+        }
+        private _Invalidate() {
+            this._Cached = false;
+            this._CachedValue = undefined;
+        }
+        private _MentorChanged(sender, e: EventArgs) {
+            try {
+                var mentor = this.Target.Mentor;
+                if (this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === RelativeSourceMode.TemplatedParent) {
+                    if (!mentor)
+                        this.PropertyPathWalker.Update(null);
+                    else
+                        this.PropertyPathWalker.Update(mentor.TemplateOwner);
+                    this.Refresh();
+                } else {
+                    this.SetDataContextSource(mentor);
+                }
+            } catch (err) {
+            }
+        }
+        private _VisualParentChanged(sender, e: EventArgs) {
+            try {
+                var vpNode = <FENode>this.TargetFE.XamlNode.VisualParentNode;
+                var vp = vpNode ? vpNode.XObject : null;
+                this.SetDataContextSource(vp);
+            } catch (err) {
+            }
+        }
+        private _DataContextChanged(sender, args: IDependencyPropertyChangedEventArgs) {
+            try {
+                var fe = sender;
+                this.PropertyPathWalker.Update(fe.DataContext);
+                if (this.Binding.Mode === BindingMode.OneTime)
+                    this.Refresh();
+            } catch (err) {
+                Warn(err.message);
+            }
+        }
+        Refresh() {
+            var dataError;
+            var exception: Exception;
+            if (!this.IsAttached)
+                return;
+            var oldUpdating = this.IsUpdating;
+            try {
+                this.IsUpdating = true;
+                this._Invalidate();
+                this.Target.SetValue(this.Property, this);
+            } catch (err) {
+                if (this.Binding.ValidatesOnExceptions) {
+                    exception = err;
+                    if (exception instanceof TargetInvocationException)
+                        exception = (<TargetInvocationException>exception).InnerException;
+                }
+            } finally {
+                this.IsUpdating = oldUpdating;
+            }
+            this._MaybeEmitError(dataError, exception);
         }
     }
     Nullstone.RegisterType(BindingExpressionBase, "BindingExpressionBase");
+}
+
+module Fayde.Data {
+    export interface ICollectionView {
+        CurrentChanged: MulticastEvent;
+    }
+    export var ICollectionView_ = Nullstone.RegisterInterface("ICollectionView");
 }
 
 module Fayde.Data {
@@ -6764,6 +7585,14 @@ class InvalidJsonException extends Exception {
     }
 }
 Nullstone.RegisterType(InvalidJsonException, "InvalidJsonException");
+class TargetInvocationException extends Exception {
+    InnerException: Exception;
+    constructor(message: string, innerException: Exception) {
+        super(message);
+        this.InnerException = innerException;
+    }
+}
+Nullstone.RegisterType(TargetInvocationException, "TargetInvocationException");
 
 module Fayde {
     export class RenderContext implements IRenderContext {
@@ -9282,102 +10111,94 @@ class Enum {
 }
 Nullstone.RegisterType(Enum, "Enum");
 
+module Fayde {
+    export interface IEnumerable {
+        GetEnumerator(reverse?: bool): IEnumerator;
+    }
+    export var IEnumerable_ = Nullstone.RegisterInterface("IEnumerable");
+    export interface IEnumerator {
+        Current: any;
+        MoveNext(): bool;
+    }
+    export var IEnumerator_ = Nullstone.RegisterInterface("IEnumerator");
+    export class ArrayEx {
+        static EmptyEnumerator = {
+            MoveNext: function () { return false; },
+            Current: undefined
+        };
+        static GetEnumerator(arr: any[], isReverse?: bool): IEnumerator {
+            var len = arr.length;
+            var e = { MoveNext: undefined, Current: undefined };
+            var index;
+            if (isReverse) {
+                index = len;
+                e.MoveNext = function () {
+                    index--;
+                    if (index < 0) {
+                        e.Current = undefined;
+                        return false;
+                    }
+                    e.Current = arr[index];
+                    return true;
+                };
+            } else {
+                index = -1;
+                e.MoveNext = function () {
+                    index++;
+                    if (index >= len) {
+                        e.Current = undefined;
+                        return false;
+                    }
+                    e.Current = arr[index];
+                    return true;
+                };
+            }
+            return e;
+        }
+    }
+}
+
 class EventArgs {
     static Empty: EventArgs = new EventArgs();
 }
 Nullstone.RegisterType(EventArgs, "EventArgs");
 
+interface IEventListener {
+    Closure: any;
+    Callback: (sender: any, e: EventArgs) => void;
+}
 class MulticastEvent {
+    private _Listeners: IEventListener[] = [];
     Subscribe(callback: (sender: any, e: EventArgs) => void , closure: any) {
+        this._Listeners.push({ Closure: closure, Callback: callback });
     }
     Unsubscribe(callback: (sender: any, e: EventArgs) => void , closure: any) {
+        var listeners = this._Listeners;
+        var len = listeners.length;
+        var listener: IEventListener = null;
+        var i = 0;
+        while (i < len) {
+            listener = listeners[i];
+            if (listener.Closure === closure && listener.Callback === callback)
+                listeners.splice(i, 1);
+            else
+                i++;
+        }
     }
     Raise(sender: any, args: EventArgs) {
+        var listeners = this._Listeners;
+        var len = listeners.length;
+        var listener: IEventListener = null;
+        for (var i = 0; i < len; i++) {
+            listener = listeners[i];
+            listener.Callback.call(listener.Closure, sender, args);
+        }
     }
     RaiseAsync(sender: any, args: EventArgs) {
+        window.setTimeout(() => this.Raise(sender, args), 1);
     }
 }
 Nullstone.RegisterType(MulticastEvent, "MulticastEvent");
-
-module Fayde.Shapes {
-    export class DoubleCollection extends XamlObjectCollection {
-    }
-    Nullstone.RegisterType(DoubleCollection, "DoubleCollection");
-}
-
-module Fayde.Shapes {
-    export class PointCollection implements IEnumerable {
-        private _ht: Point[] = [];
-        Owner: Shape;
-        get Count() { return this._ht.length; }
-        static FromData(data: string): PointCollection {
-            var pc = new PointCollection();
-            pc._ht.concat(Media.ParseShapePoints(data));
-            return pc;
-        }
-        GetValueAt(index: number): Point { return this._ht[index]; }
-        SetValueAt(index: number, value: Point): bool {
-            if (index < 0 || index >= this._ht.length)
-                return false;
-            var removed = this._ht[index];
-            var added = value;
-            this._ht[index] = added;
-            var owner = this.Owner;
-            if (owner) owner._InvalidateNaturalBounds();
-        }
-        Add(value: Point) {
-            this._ht.push(value);
-            var owner = this.Owner;
-            if (owner) owner._InvalidateNaturalBounds();
-        }
-        AddRange(points: Point[]) {
-            this._ht.concat(points);
-            var owner = this.Owner;
-            if (owner) owner._InvalidateNaturalBounds();
-        }
-        Insert(index: number, value: Point) {
-            if (index < 0)
-                return;
-            var len = this._ht.length;
-            if (index > len)
-                index = len;
-            this._ht.splice(index, 0, value);
-            var owner = this.Owner;
-            if (owner) owner._InvalidateNaturalBounds();
-        }
-        Remove(value: Point) {
-            var index = this.IndexOf(value);
-            if (index === -1)
-                return;
-            this.RemoveAt(index);
-            var owner = this.Owner;
-            if (owner) owner._InvalidateNaturalBounds();
-        }
-        RemoveAt(index: number) {
-            if (index < 0 || index >= this._ht.length)
-                return;
-            var value = this._ht.splice(index, 1)[0];
-            var owner = this.Owner;
-            if (owner) owner._InvalidateNaturalBounds();
-        }
-        Clear() {
-            this._ht = [];
-            var owner = this.Owner;
-            if (owner) owner._InvalidateNaturalBounds();
-        }
-        IndexOf(value: Point): number {
-            var count = this._ht.length;
-            for (var i = 0; i < count; i++) {
-                if (Nullstone.Equals(value, this._ht[i]))
-                    return i;
-            }
-            return -1;
-        }
-        Contains(value: Point): bool { return this.IndexOf(value) > -1; }
-        GetEnumerator(reverse?: bool): IEnumerator { return ArrayEx.GetEnumerator(this._ht, reverse); }
-    }
-    Nullstone.RegisterType(PointCollection, "PointCollection");
-}
 
 module Fayde {
     export class DeferredValueExpression extends Expression {
@@ -9394,6 +10215,10 @@ module Fayde {
         private _Expressions: Expression[] = [];
         _Store: Providers.BasicProviderStore;
         _CachedValues: any[] = [];
+        MentorChanged: MulticastEvent = new MulticastEvent();
+        get Mentor(): FrameworkElement {
+            return undefined;
+        }
         constructor() {
             super();
             this._Store = this.CreateStore();
@@ -9522,32 +10347,6 @@ module Fayde {
 }
 
 module Fayde {
-    export class DependencyObjectCollection extends XamlObjectCollection implements Providers.IPropertyChangedListener {
-        private _HandleItemChanged: bool;
-        constructor(handleItemChanged: bool) {
-            super();
-            this._HandleItemChanged = handleItemChanged;
-        }
-        AddedToCollection(value: DependencyObject, error: BError): bool {
-            super.AddedToCollection(value, error);
-            if (this._HandleItemChanged)
-                value._Store._SubscribePropertyChanged(this);
-            return true;
-        }
-        RemovedFromCollection(value: DependencyObject, isValueSafe: bool) {
-            super.RemovedFromCollection(value, isValueSafe);
-            if (this._HandleItemChanged)
-                value._Store._UnsubscribePropertyChanged(this);
-        }
-        OnPropertyChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
-            this._RaiseItemChanged(sender, args.Property, args.OldValue, args.NewValue);
-        }
-        _RaiseItemChanged(item, propd: DependencyProperty, oldValue: DependencyObject, newValue: DependencyObject) { }
-    }
-    Nullstone.RegisterType(DependencyObjectCollection, "DependencyObjectCollection");
-}
-
-module Fayde {
     export class FrameworkTemplate extends XamlObject {
         GetVisualTree(bindingSource: DependencyObject): XamlObject {
             var error = new BError();
@@ -9562,94 +10361,6 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(FrameworkTemplate, "FrameworkTemplate");
-}
-
-module Fayde {
-    export class ResourceDictionaryCollection extends XamlObjectCollection {
-        AddedToCollection(value: ResourceDictionary, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
-                return false;
-            return this._AssertNoCycles(value, value.XamlNode.ParentNode, error);
-        }
-        private _AssertNoCycles(subtreeRoot: ResourceDictionary, firstAncestorNode: XamlNode, error: BError) {
-            var curNode = firstAncestorNode;
-            while (curNode) {
-                var rd = <ResourceDictionary>curNode.XObject;
-                if (rd instanceof ResourceDictionary) {
-                    var cycleFound = false;
-                    if (rd === subtreeRoot)
-                        cycleFound = true;
-                    else if (rd.Source === subtreeRoot.Source)
-                        cycleFound = true;
-                    if (cycleFound) {
-                        error.Message = "Cycle found in resource dictionaries.";
-                        error.Number = BError.InvalidOperation;
-                        return false;
-                    }
-                }
-                curNode = curNode.ParentNode;
-            }
-            var enumerator = subtreeRoot.MergedDictionaries.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                if (!this._AssertNoCycles(enumerator.Current, firstAncestorNode, error))
-                    return false;
-            }
-            return true;
-        }
-    }
-    Nullstone.RegisterType(ResourceDictionaryCollection, "ResourceDictionaryCollection");
-    export class ResourceDictionary extends XamlObjectCollection {
-        private _KeyIndex: number[] = [];
-        MergedDictionaries: ResourceDictionaryCollection;
-        Source: string = "";
-        constructor() {
-            super();
-            Object.defineProperty(this, "MergedDictionaries", {
-                value: new ResourceDictionaryCollection(),
-                writable: false
-            });
-        }
-        ContainsKey(key: any): bool {
-            return this._KeyIndex[key] !== undefined;
-        }
-        Get(key: any): XamlObject {
-            var index = this._KeyIndex[key];
-            if (index !== undefined)
-                return this.GetValueAt(index);
-            return this._GetFromMerged(key);
-        }
-        Set(key: any, value: XamlObject) {
-            var oldValue;
-            if (this.ContainsKey(key)) {
-                oldValue = this.Get(key);
-                this.Remove(oldValue);
-            }
-            var index = super.Add(value);
-            this._KeyIndex[key] = index;
-            this._RaiseItemReplaced(oldValue, value, index);
-            return true;
-        }
-        Add(value: XamlObject): number {
-            throw new InvalidOperationException("Cannot add to ResourceDictionary. Use Set instead.");
-        }
-        Remove(value: XamlObject): bool {
-            throw new InvalidOperationException("Cannot remove from ResourceDictionary. Use Set instead.");
-        }
-        private _GetFromMerged(key: any): XamlObject {
-            var merged = this.MergedDictionaries;
-            if (!merged)
-                return undefined;
-            var enumerator = merged.GetEnumerator();
-            var cur;
-            while (enumerator.MoveNext()) {
-                cur = (<ResourceDictionary>enumerator.Current).Get(key);
-                if (cur !== undefined)
-                    return cur;
-            }
-            return undefined;
-        }
-    }
-    Nullstone.RegisterType(ResourceDictionary, "ResourceDictionary");
 }
 
 module Fayde {
@@ -9674,8 +10385,6 @@ module Fayde {
 
 module Fayde {
     export class RoutedEvent extends MulticastEvent {
-        Raise(sender: any, args: RoutedEventArgs) {
-        }
     }
     Nullstone.RegisterType(RoutedEvent, "RoutedEvent");
 }
@@ -9686,63 +10395,6 @@ module Fayde {
         Source: any = null;
     }
     Nullstone.RegisterType(RoutedEventArgs, "RoutedEventArgs");
-}
-
-module Fayde {
-    export class SetterCollection extends XamlObjectCollection {
-        private _IsSealed: bool = false;
-        _Seal(targetType: Function) {
-            if (this._IsSealed)
-                return;
-            var enumerator = this.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                (<Setter>enumerator.Current)._Seal(targetType);
-            }
-            this._IsSealed = true;
-        }
-        AddedToCollection(value: XamlObject, error: BError): bool {
-            if (!value || !this._ValidateSetter(<Setter>value, error))
-                return false;
-            return super.AddedToCollection(value, error);
-        }
-        private _ValidateSetter(setter: Setter, error: BError) {
-            if (setter.Property === undefined) {
-                error.Message = "Cannot have a null PropertyProperty value";
-                return false;
-            }
-            if (setter.Value === undefined) {
-                error.Message = "Cannot have a null ValueProperty value";
-                return false;
-            }
-            if (this._IsSealed) {
-                error.Message = "Cannot add a setter to a sealed style";
-                return false;
-            }
-            return true;
-        }
-    }
-    Nullstone.RegisterType(SetterCollection, "SetterCollection");
-    export class Setter extends XamlObject {
-        private _IsSealed: bool = false;
-        Property: DependencyProperty;
-        Value: any;
-        ConvertedValue: any;
-        _Seal(targetType: Function) {
-            var propd = this.Property;
-            var val = this.Value;
-            if (typeof propd.GetTargetType() === "string") {
-                if (typeof val !== "string")
-                    throw new XamlParseException("Setter value does not match property type.");
-            }
-            try {
-                this.ConvertedValue = Fayde.TypeConverter.ConvertObject(propd, val, targetType, true);
-            } catch (err) {
-                throw new XamlParseException(err.message);
-            }
-            this._IsSealed = true;
-        }
-    }
-    Nullstone.RegisterType(Setter, "Setter");
 }
 
 module Fayde {
@@ -9832,6 +10484,109 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(Style, "Style");
+}
+
+module Fayde {
+    export class XamlObjectCollection extends XamlObject implements IEnumerable {
+        private _ht: XamlObject[] = [];
+        get Count() { return this._ht.length; }
+        GetValueAt(index: number): XamlObject {
+            return this._ht[index];
+        }
+        SetValueAt(index: number, value: XamlObject): bool {
+            if (!this.CanAdd(value))
+                return false;
+            if (index < 0 || index >= this._ht.length)
+                return false;
+            var removed = this._ht[index];
+            var added = value;
+            var error = new BError();
+            if (this.AddedToCollection(added, error)) {
+                this._ht[index] = added;
+                this.RemovedFromCollection(removed, true);
+                this._RaiseItemReplaced(removed, added, index);
+                return true;
+            }
+            return false;
+        }
+        Add(value: XamlObject): number {
+            var rv = this.Insert(this._ht.length, value);
+            return rv ? this._ht.length - 1 : -1;
+        }
+        Insert(index: number, value: XamlObject): bool {
+            if (!this.CanAdd(value))
+                return false;
+            if (index < 0)
+                return false;
+            var count = this._ht.length;
+            if (index > count)
+                index = count;
+            var error = new BError();
+            if (this.AddedToCollection(value, error)) {
+                this._ht.splice(index, 0, value);
+                this._RaiseItemAdded(value, index);
+                return true;
+            }
+            if (error.Message)
+                throw new Exception(error.Message);
+            return false;
+        }
+        Remove(value: XamlObject): bool {
+            var index = this.IndexOf(value);
+            if (index === -1)
+                return false;
+            return this.RemoveAt(index);
+        }
+        RemoveAt(index: number): bool {
+            if (index < 0 || index >= this._ht.length)
+                return false;
+            var value = this._ht[index];
+            this._ht.splice(index, 1);
+            this.RemovedFromCollection(value, true);
+            this._RaiseItemRemoved(value, index);
+            return true;
+        }
+        Clear(): bool {
+            var old = this._ht;
+            this._ht = [];
+            var len = old.length;
+            for (var i = 0; i < len; i++) {
+                this.RemovedFromCollection(old[i], true);
+            }
+            this._RaiseCleared();
+            return true;
+        }
+        IndexOf(value: XamlObject): number {
+            var count = this._ht.length;
+            for (var i = 0; i < count; i++) {
+                if (Nullstone.Equals(value, this._ht[i]))
+                    return i;
+            }
+            return -1;
+        }
+        Contains(value: XamlObject): bool { return this.IndexOf(value) > -1; }
+        CanAdd (value: XamlObject): bool { return true; }
+        AddedToCollection(value: XamlObject, error: BError): bool {
+            return value.XamlNode.AttachTo(this.XamlNode, error);
+        }
+        RemovedFromCollection(value: XamlObject, isValueSafe: bool) {
+            value.XamlNode.Detach();
+        }
+        GetEnumerator(reverse?: bool): IEnumerator {
+            return ArrayEx.GetEnumerator(this._ht, reverse);
+        }
+        _RaiseItemAdded(value: XamlObject, index: number) { }
+        _RaiseItemRemoved(value: XamlObject, index: number) { }
+        _RaiseItemReplaced(removed: XamlObject, added: XamlObject, index: number) { }
+        _RaiseCleared() { }
+        CloneCore(source: XamlObjectCollection) {
+            var enumerator = ArrayEx.GetEnumerator(this._ht);
+            while (enumerator.MoveNext()) {
+                this.Add(Fayde.Clone(enumerator.Current));
+            }
+        }
+    }
+    Nullstone.RegisterType(XamlObjectCollection, "XamlObjectCollection");
 }
 
 module Fayde.Providers {
@@ -9968,7 +10723,9 @@ module Fayde.Data {
         ConvertBack(value: any, targetType: Function, parameter: any, culture: any): any;
     }
     export class Binding extends BindingBase {
+        private _BindsDirectlyToSource: bool = false;
         private _Converter: IValueConverter;
+        private _ConverterParameter: any;
         private _ConverterCulture: any;
         private _ElementName: string;
         private _Mode: BindingMode = BindingMode.OneWay;
@@ -9977,7 +10734,7 @@ module Fayde.Data {
         private _Path: Data.PropertyPath;
         private _Source: any;
         private _UpdateSourceTrigger: UpdateSourceTrigger = UpdateSourceTrigger.Default;
-        private _ValidationsOnExceptions: bool = false;
+        private _ValidatesOnExceptions: bool = false;
         private _ValidatesOnDataErrors: bool = false;
         private _ValidatesOnNotifyDataErrors: bool = true;
         constructor(path: string) {
@@ -9985,10 +10742,20 @@ module Fayde.Data {
             if (!path) path = "";
             this._Path = new PropertyPath(path);
         }
+        get BindsDirectlyToSource(): bool { return this._BindsDirectlyToSource; }
+        set BindsDirectlyToSource(value: bool) {
+            this.CheckSealed();
+            this._BindsDirectlyToSource = value;
+        }
         get Converter(): IValueConverter { return this._Converter; }
         set Converter(value: IValueConverter) {
             this.CheckSealed();
             this._Converter = value;
+        }
+        get ConverterParameter(): any { return this._ConverterParameter; }
+        set ConverterParameter(value: any) {
+            this.CheckSealed();
+            this._ConverterParameter = value;
         }
         get ConverterCulture(): any { return this._ConverterCulture; }
         set ConverterCulture(value: any) {
@@ -10030,10 +10797,10 @@ module Fayde.Data {
             this.CheckSealed();
             this._UpdateSourceTrigger = value;
         }
-        get ValidationsOnExceptions(): bool { return this._ValidationsOnExceptions; }
-        set ValidationsOnExceptions(value: bool) {
+        get ValidatesOnExceptions(): bool { return this._ValidatesOnExceptions; }
+        set ValidatesOnExceptions(value: bool) {
             this.CheckSealed();
-            this._ValidationsOnExceptions = value;
+            this._ValidatesOnExceptions = value;
         }
         get ValidatesOnDataErrors(): bool { return this._ValidatesOnDataErrors; }
         set ValidatesOnDataErrors(value: bool) {
@@ -10054,8 +10821,22 @@ module Fayde.Data {
         constructor(binding: Data.Binding, target: DependencyObject, propd: DependencyProperty) {
             super(binding, target, propd);
         }
+        get ParentBinding(): Binding { return this.Binding; }
+        get DataItem(): any { return this.DataSource; }
+        UpdateSource() {
+            return this._UpdateSourceObject(undefined, true);
+        }
     }
     Nullstone.RegisterType(BindingExpression, "BindingExpression");
+}
+
+module Fayde.Data {
+    export class CollectionViewSource extends DependencyObject {
+        static SourceProperty: DependencyProperty = DependencyProperty.Register("Source", () => Object, CollectionViewSource);
+        static ViewProperty: DependencyProperty = DependencyProperty.Register("View", () => ICollectionView_, CollectionViewSource);
+        Source: any;
+        View: ICollectionView;
+    }
 }
 
 module Fayde.Documents {
@@ -12171,6 +12952,86 @@ module Fayde.Media.VSM {
     }
 }
 
+module Fayde.Shapes {
+    export class DoubleCollection extends XamlObjectCollection {
+    }
+    Nullstone.RegisterType(DoubleCollection, "DoubleCollection");
+}
+
+module Fayde.Shapes {
+    export class PointCollection implements IEnumerable {
+        private _ht: Point[] = [];
+        Owner: Shape;
+        get Count() { return this._ht.length; }
+        static FromData(data: string): PointCollection {
+            var pc = new PointCollection();
+            pc._ht.concat(Media.ParseShapePoints(data));
+            return pc;
+        }
+        GetValueAt(index: number): Point { return this._ht[index]; }
+        SetValueAt(index: number, value: Point): bool {
+            if (index < 0 || index >= this._ht.length)
+                return false;
+            var removed = this._ht[index];
+            var added = value;
+            this._ht[index] = added;
+            var owner = this.Owner;
+            if (owner) owner._InvalidateNaturalBounds();
+        }
+        Add(value: Point) {
+            this._ht.push(value);
+            var owner = this.Owner;
+            if (owner) owner._InvalidateNaturalBounds();
+        }
+        AddRange(points: Point[]) {
+            this._ht.concat(points);
+            var owner = this.Owner;
+            if (owner) owner._InvalidateNaturalBounds();
+        }
+        Insert(index: number, value: Point) {
+            if (index < 0)
+                return;
+            var len = this._ht.length;
+            if (index > len)
+                index = len;
+            this._ht.splice(index, 0, value);
+            var owner = this.Owner;
+            if (owner) owner._InvalidateNaturalBounds();
+        }
+        Remove(value: Point) {
+            var index = this.IndexOf(value);
+            if (index === -1)
+                return;
+            this.RemoveAt(index);
+            var owner = this.Owner;
+            if (owner) owner._InvalidateNaturalBounds();
+        }
+        RemoveAt(index: number) {
+            if (index < 0 || index >= this._ht.length)
+                return;
+            var value = this._ht.splice(index, 1)[0];
+            var owner = this.Owner;
+            if (owner) owner._InvalidateNaturalBounds();
+        }
+        Clear() {
+            this._ht = [];
+            var owner = this.Owner;
+            if (owner) owner._InvalidateNaturalBounds();
+        }
+        IndexOf(value: Point): number {
+            var count = this._ht.length;
+            for (var i = 0; i < count; i++) {
+                if (Nullstone.Equals(value, this._ht[i]))
+                    return i;
+            }
+            return -1;
+        }
+        Contains(value: Point): bool { return this.IndexOf(value) > -1; }
+        GetEnumerator(reverse?: bool): IEnumerator { return ArrayEx.GetEnumerator(this._ht, reverse); }
+    }
+    Nullstone.RegisterType(PointCollection, "PointCollection");
+}
+
 module Fayde.Controls {
     export interface IColumnDefinitionListener {
         ColumnDefinitionChanged(colDefinition: ColumnDefinition);
@@ -12326,6 +13187,151 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(DataTemplate, "DataTemplate");
+}
+
+module Fayde {
+    export class ResourceDictionaryCollection extends XamlObjectCollection {
+        AddedToCollection(value: ResourceDictionary, error: BError): bool {
+            if (!super.AddedToCollection(value, error))
+                return false;
+            return this._AssertNoCycles(value, value.XamlNode.ParentNode, error);
+        }
+        private _AssertNoCycles(subtreeRoot: ResourceDictionary, firstAncestorNode: XamlNode, error: BError) {
+            var curNode = firstAncestorNode;
+            while (curNode) {
+                var rd = <ResourceDictionary>curNode.XObject;
+                if (rd instanceof ResourceDictionary) {
+                    var cycleFound = false;
+                    if (rd === subtreeRoot)
+                        cycleFound = true;
+                    else if (rd.Source === subtreeRoot.Source)
+                        cycleFound = true;
+                    if (cycleFound) {
+                        error.Message = "Cycle found in resource dictionaries.";
+                        error.Number = BError.InvalidOperation;
+                        return false;
+                    }
+                }
+                curNode = curNode.ParentNode;
+            }
+            var enumerator = subtreeRoot.MergedDictionaries.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                if (!this._AssertNoCycles(enumerator.Current, firstAncestorNode, error))
+                    return false;
+            }
+            return true;
+        }
+    }
+    Nullstone.RegisterType(ResourceDictionaryCollection, "ResourceDictionaryCollection");
+    export class ResourceDictionary extends XamlObjectCollection {
+        private _KeyIndex: number[] = [];
+        MergedDictionaries: ResourceDictionaryCollection;
+        Source: string = "";
+        constructor() {
+            super();
+            Object.defineProperty(this, "MergedDictionaries", {
+                value: new ResourceDictionaryCollection(),
+                writable: false
+            });
+        }
+        ContainsKey(key: any): bool {
+            return this._KeyIndex[key] !== undefined;
+        }
+        Get(key: any): XamlObject {
+            var index = this._KeyIndex[key];
+            if (index !== undefined)
+                return this.GetValueAt(index);
+            return this._GetFromMerged(key);
+        }
+        Set(key: any, value: XamlObject) {
+            var oldValue;
+            if (this.ContainsKey(key)) {
+                oldValue = this.Get(key);
+                this.Remove(oldValue);
+            }
+            var index = super.Add(value);
+            this._KeyIndex[key] = index;
+            this._RaiseItemReplaced(oldValue, value, index);
+            return true;
+        }
+        Add(value: XamlObject): number {
+            throw new InvalidOperationException("Cannot add to ResourceDictionary. Use Set instead.");
+        }
+        Remove(value: XamlObject): bool {
+            throw new InvalidOperationException("Cannot remove from ResourceDictionary. Use Set instead.");
+        }
+        private _GetFromMerged(key: any): XamlObject {
+            var merged = this.MergedDictionaries;
+            if (!merged)
+                return undefined;
+            var enumerator = merged.GetEnumerator();
+            var cur;
+            while (enumerator.MoveNext()) {
+                cur = (<ResourceDictionary>enumerator.Current).Get(key);
+                if (cur !== undefined)
+                    return cur;
+            }
+            return undefined;
+        }
+    }
+    Nullstone.RegisterType(ResourceDictionary, "ResourceDictionary");
+}
+
+module Fayde {
+    export class SetterCollection extends XamlObjectCollection {
+        private _IsSealed: bool = false;
+        _Seal(targetType: Function) {
+            if (this._IsSealed)
+                return;
+            var enumerator = this.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                (<Setter>enumerator.Current)._Seal(targetType);
+            }
+            this._IsSealed = true;
+        }
+        AddedToCollection(value: XamlObject, error: BError): bool {
+            if (!value || !this._ValidateSetter(<Setter>value, error))
+                return false;
+            return super.AddedToCollection(value, error);
+        }
+        private _ValidateSetter(setter: Setter, error: BError) {
+            if (setter.Property === undefined) {
+                error.Message = "Cannot have a null PropertyProperty value";
+                return false;
+            }
+            if (setter.Value === undefined) {
+                error.Message = "Cannot have a null ValueProperty value";
+                return false;
+            }
+            if (this._IsSealed) {
+                error.Message = "Cannot add a setter to a sealed style";
+                return false;
+            }
+            return true;
+        }
+    }
+    Nullstone.RegisterType(SetterCollection, "SetterCollection");
+    export class Setter extends XamlObject {
+        private _IsSealed: bool = false;
+        Property: DependencyProperty;
+        Value: any;
+        ConvertedValue: any;
+        _Seal(targetType: Function) {
+            var propd = this.Property;
+            var val = this.Value;
+            if (typeof propd.GetTargetType() === "string") {
+                if (typeof val !== "string")
+                    throw new XamlParseException("Setter value does not match property type.");
+            }
+            try {
+                this.ConvertedValue = Fayde.TypeConverter.ConvertObject(propd, val, targetType, true);
+            } catch (err) {
+                throw new XamlParseException(err.message);
+            }
+            this._IsSealed = true;
+        }
+    }
+    Nullstone.RegisterType(Setter, "Setter");
 }
 
 module Fayde {
@@ -12612,6 +13618,7 @@ module Fayde {
             return s;
         }
         CreateNode(): UINode { return new UINode(this); }
+        VisualParentChanged: MulticastEvent = new MulticastEvent();
         static AllowDropProperty: DependencyProperty;
         static CacheModeProperty: DependencyProperty;
         static ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Media.Geometry; }, UIElement, undefined, (d, args) => (<UIElement>d)._ClipChanged(args));
@@ -12847,6 +13854,12 @@ module Fayde.Documents {
         }
     }
     Nullstone.RegisterType(Span, "Span");
+}
+
+module Fayde.Documents {
+    export class Underline extends Span {
+    }
+    Nullstone.RegisterType(Underline, "Underline");
 }
 
 module Fayde.Media {

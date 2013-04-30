@@ -40,9 +40,7 @@ var Fayde;
                 if(!source) {
                     return;
                 }
-                var listener = Fayde.CreatePropertyChangedListener(this._SourceDataContextChanged, this);
-                this._Listener = listener;
-                source._Store._SubscribePropertyChanged(listener);
+                this._Listener = Fayde.ListenToPropertyChanged(source, Fayde.FrameworkElement.DataContextProperty, this._SourceDataContextChanged, this);
                 //TODO: Add Handler - Destroyed Event
                             };
             InheritedDataContextProvider.prototype._DetachListener = function (source) {
@@ -50,18 +48,14 @@ var Fayde;
                     return;
                 }
                 if(this._Listener) {
-                    source._Store._UnsubscribePropertyChanged(this._Listener);
+                    this._Listener.Detach();
                     this._Listener = null;
                 }
                 //TODO: Remove Handler - Destroyed Event
                             };
             InheritedDataContextProvider.prototype._SourceDataContextChanged = function (sender, args) {
-                var propd = args.Property;
-                if(propd !== Fayde.FrameworkElement.DataContextProperty) {
-                    return;
-                }
                 var error = new BError();
-                this._Store._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, propd, args.OldValue, args.NewValue, true, error);
+                this._Store._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, args.Property, args.OldValue, args.NewValue, true, error);
             };
             InheritedDataContextProvider.prototype.EmitChanged = function () {
                 if(this._Source) {

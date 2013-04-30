@@ -58,7 +58,7 @@ var Fayde;
             this._DetachListener();
             this._Target = null;
         };
-        TemplateBindingExpression.prototype.OnPropertyChanged = function (sender, args) {
+        TemplateBindingExpression.prototype.OnSourcePropertyChanged = function (sender, args) {
             if(this.SourceProperty._ID !== args.Property._ID) {
                 return;
             }
@@ -82,20 +82,21 @@ var Fayde;
             }
         };
         TemplateBindingExpression.prototype._AttachListener = function () {
+            var _this = this;
             var source = this._Target.TemplateOwner;
             if(!source) {
                 return;
             }
-            this._Listener = this;
-            source._Store._SubscribePropertyChanged(this);
+            this._Listener = Fayde.ListenToPropertyChanged(source, this.SourceProperty, function (sender, args) {
+                return _this.OnSourcePropertyChanged(sender, args);
+            }, this);
         };
         TemplateBindingExpression.prototype._DetachListener = function () {
             var listener = this._Listener;
-            if(!listener) {
-                return;
+            if(listener) {
+                this._Listener.Detach();
+                this._Listener = null;
             }
-            this._Target.TemplateOwner._Store._UnsubscribePropertyChanged(listener);
-            this._Listener = listener = null;
         };
         return TemplateBindingExpression;
     })(Fayde.Expression);

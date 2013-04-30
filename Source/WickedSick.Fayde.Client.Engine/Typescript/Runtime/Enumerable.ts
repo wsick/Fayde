@@ -1,11 +1,18 @@
+/// <reference path="Nullstone.ts" />
+/// CODE
+
 module Fayde {
     export interface IEnumerable {
         GetEnumerator(reverse?: bool): IEnumerator;
     }
+    export var IEnumerable_ = Nullstone.RegisterInterface("IEnumerable");
+
     export interface IEnumerator {
         Current: any;
         MoveNext(): bool;
     }
+    export var IEnumerator_ = Nullstone.RegisterInterface("IEnumerator");
+
     export class ArrayEx {
         static EmptyEnumerator = {
             MoveNext: function () { return false; },

@@ -13,10 +13,11 @@ var Fayde;
             __extends(Binding, _super);
             function Binding(path) {
                         _super.call(this);
+                this._BindsDirectlyToSource = false;
                 this._Mode = Data.BindingMode.OneWay;
                 this._NotifyOnValidationError = false;
                 this._UpdateSourceTrigger = Data.UpdateSourceTrigger.Default;
-                this._ValidationsOnExceptions = false;
+                this._ValidatesOnExceptions = false;
                 this._ValidatesOnDataErrors = false;
                 this._ValidatesOnNotifyDataErrors = true;
                 if(!path) {
@@ -24,6 +25,17 @@ var Fayde;
                 }
                 this._Path = new Data.PropertyPath(path);
             }
+            Object.defineProperty(Binding.prototype, "BindsDirectlyToSource", {
+                get: function () {
+                    return this._BindsDirectlyToSource;
+                },
+                set: function (value) {
+                    this.CheckSealed();
+                    this._BindsDirectlyToSource = value;
+                },
+                enumerable: true,
+                configurable: true
+            });
             Object.defineProperty(Binding.prototype, "Converter", {
                 get: function () {
                     return this._Converter;
@@ -31,6 +43,17 @@ var Fayde;
                 set: function (value) {
                     this.CheckSealed();
                     this._Converter = value;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(Binding.prototype, "ConverterParameter", {
+                get: function () {
+                    return this._ConverterParameter;
+                },
+                set: function (value) {
+                    this.CheckSealed();
+                    this._ConverterParameter = value;
                 },
                 enumerable: true,
                 configurable: true
@@ -123,13 +146,13 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(Binding.prototype, "ValidationsOnExceptions", {
+            Object.defineProperty(Binding.prototype, "ValidatesOnExceptions", {
                 get: function () {
-                    return this._ValidationsOnExceptions;
+                    return this._ValidatesOnExceptions;
                 },
                 set: function (value) {
                     this.CheckSealed();
-                    this._ValidationsOnExceptions = value;
+                    this._ValidatesOnExceptions = value;
                 },
                 enumerable: true,
                 configurable: true

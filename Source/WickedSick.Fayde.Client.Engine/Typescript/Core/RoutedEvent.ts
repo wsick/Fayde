@@ -4,9 +4,6 @@
 
 module Fayde {
     export class RoutedEvent extends MulticastEvent {
-        Raise(sender: any, args: RoutedEventArgs) {
-            //TODO: Implement
-        }
     }
     Nullstone.RegisterType(RoutedEvent, "RoutedEvent");
 }
