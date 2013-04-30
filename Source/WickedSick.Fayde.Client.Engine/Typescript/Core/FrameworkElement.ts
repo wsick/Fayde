@@ -276,7 +276,7 @@ module Fayde {
         Unloaded: RoutedEvent = new RoutedEvent();
 
         OnApplyTemplate() { }
-        FindName(name: string): any {
+        FindName(name: string): XamlObject {
             var n = this.XamlNode.FindName(name);
             if (n)
                 return n.XObject;

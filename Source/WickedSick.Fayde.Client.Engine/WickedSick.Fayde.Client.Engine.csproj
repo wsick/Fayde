@@ -505,11 +505,19 @@
     <Content Include="Typescript\Controls\Enums.js">
       <DependentUpon>Enums.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Frame.ts" />
+    <Content Include="Typescript\Controls\Frame.js">
+      <DependentUpon>Frame.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Grid.js">
       <DependentUpon>Grid.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Controls\GridLength.js">
       <DependentUpon>GridLength.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\HyperlinkButton.ts" />
+    <Content Include="Typescript\Controls\HyperlinkButton.js">
+      <DependentUpon>HyperlinkButton.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Controls\Image.js">
       <DependentUpon>Image.ts</DependentUpon>
@@ -539,6 +547,10 @@
       <DependentUpon>MediaElement.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Controls\Panel.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Page.ts" />
+    <Content Include="Typescript\Controls\Page.js">
+      <DependentUpon>Page.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Panel.js">
       <DependentUpon>Panel.ts</DependentUpon>
     </Content>
@@ -812,6 +824,10 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Input\KeyEventArgs.ts" />
     <TypeScriptCompile Include="Typescript\Input\Keyboard.ts" />
+    <TypeScriptCompile Include="Typescript\Engine\XamlResolver.ts" />
+    <Content Include="Typescript\Engine\XamlResolver.js">
+      <DependentUpon>XamlResolver.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Input\Keyboard.js">
       <DependentUpon>Keyboard.ts</DependentUpon>
     </Content>
@@ -1141,6 +1157,10 @@
     <TypeScriptCompile Include="Typescript\Primitives\Uri.ts" />
     <Content Include="Typescript\Primitives\Uri.js">
       <DependentUpon>Uri.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Runtime\AjaxJsonRequest.ts" />
+    <Content Include="Typescript\Runtime\AjaxJsonRequest.js">
+      <DependentUpon>AjaxJsonRequest.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Runtime\Enum.js">
       <DependentUpon>Enum.ts</DependentUpon>

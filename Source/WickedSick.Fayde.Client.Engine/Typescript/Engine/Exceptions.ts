@@ -58,3 +58,14 @@ class AttachException extends Exception {
     }
 }
 Nullstone.RegisterType(AttachException, "AttachException");
+
+class InvalidJsonException extends Exception {
+    JsonText: string;
+    InnerException: Error;
+    constructor(jsonText: string, innerException: Error) {
+        super("Invalid json.");
+        this.JsonText = jsonText;
+        this.InnerException = innerException;
+    }
+}
+Nullstone.RegisterType(InvalidJsonException, "InvalidJsonException");

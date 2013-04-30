@@ -1201,6 +1201,89 @@ module Fayde {
     }
 }
 
+module Fayde {
+    export class XamlResolver {
+        private _IsXamlLoaded: bool = false;
+        private _IsScriptLoaded: bool = false;
+        private _BaseHref: string = null;
+        private _ScriptResult: HTMLScriptElement = null;
+        private _XamlResult: AjaxJsonResult = null;
+        constructor(public OnSuccess: (xamlResult: AjaxJsonResult, scriptResult: HTMLScriptElement) => void , public OnSubSuccess, public OnError: (error: string) => void ) {
+        }
+        Load(href: string, hash: string) {
+            this._BaseHref = href;
+            var xamlRequest = new AjaxJsonRequest((result) => this._HandleXamlSuccess(result), (error) => this._HandleXamlFailed(error));
+            xamlRequest.Get(href, "p=" + hash);
+            Nullstone.ImportJsFile(href + "?js=true&p=" + hash, (script) => this._HandleScriptSuccess(script));
+        }
+        LoadGeneric(href: string, hash: string) {
+            this._BaseHref = href;
+            var xamlRequest = new AjaxJsonRequest((result) => this._HandleXamlSuccess(result), (error) => this._HandleXamlFailed(error));
+            xamlRequest.Get(href, hash);
+            Nullstone.ImportJsFile(href + "?js=true&" + hash, (script) => this._HandleScriptSuccess(script));
+        }
+        private _HandleScriptSuccess(script: HTMLScriptElement) {
+            this._IsScriptLoaded = true;
+            this._ScriptResult = script;
+            this._CheckIfLoaded();
+        }
+        private _HandleXamlSuccess(result: AjaxJsonResult) {
+            this._IsXamlLoaded = true;
+            this._XamlResult = result;
+            this._CheckIfLoaded();
+        }
+        private _HandleXamlFailed(error: string) {
+            this.OnError(error);
+        }
+        private _CheckIfLoaded() {
+            if (!this._IsXamlLoaded || !this._IsScriptLoaded)
+                return;
+            this.ResolveDependencies(
+                () => this.OnSuccess(this._XamlResult, this._ScriptResult),
+                (error) => this.OnError(error));
+        }
+        ResolveDependencies(onResolve: () => void , onFail: (error: string) => void ) {
+            var dependencies = this._XamlResult.GetHeader("Dependencies");
+            if (!dependencies) {
+                onResolve();
+                return;
+            }
+            var resolvers = dependencies.split("|");
+            var len = resolvers.length;
+            if (len < 1) {
+                onResolve();
+                return;
+            }
+            var completes = [];
+            for (var i = 0; i < len; i++) {
+                completes[i] = false;
+            }
+            function isFullyResolved(completedIndex) {
+                completes[completedIndex] = true;
+                for (var j = 0; j < len; j++) {
+                    if (!completes[j])
+                        return false;
+                }
+                return true;
+            }
+            for (var i = 0; i < len; i++) {
+                resolve(this._BaseHref, resolvers[i], i, isFullyResolved, onResolve, this.OnSubSuccess, onFail);
+            }
+        }
+    }
+    function resolve(href: string, hash: string, index: number, isFullyResolved: (index: number) => bool, onSuccess: () => void , onSubSuccess: (xamlResult: AjaxJsonResult, scriptResult: HTMLScriptElement) => void , onFail: (error: string) => void ) {
+        var os = (function () {
+            return function (xamlResult: AjaxJsonResult, scriptResult: HTMLScriptElement) {
+                if (onSubSuccess) onSubSuccess(xamlResult, scriptResult);
+                if (isFullyResolved(index))
+                    onSuccess();
+            };
+        })();
+        var resolver = new XamlResolver(os, onSubSuccess, onFail);
+        resolver.LoadGeneric(href, hash);
+    }
+}
+
 module Fayde.Media {
     export enum BrushMappingMode {
         Absolute = 0,
@@ -2277,6 +2360,73 @@ module mat4 {
         if (typeof Float32Array !== "undefined")
             return <number[]><any>new Float32Array(mat);
         return mat.slice(0);
+    }
+}
+
+module Fayde {
+    export class AjaxJsonResult {
+        private xmlhttp: XMLHttpRequest;
+        constructor(xmlhttp: XMLHttpRequest) {
+            this.xmlhttp = xmlhttp;
+        }
+        CreateJson(): any {
+            var data = this.xmlhttp.responseText;
+            if (!data)
+                return null;
+            if ((<any>window).JSON && JSON.parse) {
+                try {
+                    return JSON.parse(data);
+                } catch (err) {
+                }
+            }
+            try {
+                return new Function("return " + data)();
+            } catch (err) {
+                throw new InvalidJsonException(data, err);
+            }
+        }
+        GetHeader(name: string): string {
+            return this.xmlhttp.getResponseHeader(name);
+        }
+    }
+    export class AjaxJsonRequest {
+        private xmlhttp: XMLHttpRequest = null;
+        constructor(public OnSuccess: (result: AjaxJsonResult) => void, public OnError: (error: string) => void) { }
+        Get(url: string, query?: string) {
+            this._PrepareRequest();
+            var fullUrl = url;
+            if (query)
+                fullUrl += "?" + query;
+            this.xmlhttp.open("GET", fullUrl, true);
+            this.xmlhttp.send();
+        }
+        Post(url: string, query: string, data: any) {
+            this._PrepareRequest();
+            var fullUrl: string = url;
+            if (query)
+                fullUrl += "?" + query;
+            this.xmlhttp.open("POST", fullUrl, true);
+            this.xmlhttp.send(data);
+        }
+        Cancel() {
+            this.xmlhttp.abort();
+        }
+        private _PrepareRequest() {
+            var xmlhttp: XMLHttpRequest = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = () => this._HandleStateChange();
+            this.xmlhttp = xmlhttp;
+        }
+        private _HandleStateChange() {
+            if (this.xmlhttp.readyState === 4) {
+                var req = this.xmlhttp;
+                this.xmlhttp = undefined;
+                if (req.status === 200) {
+                    this.OnSuccess(new AjaxJsonResult(req));
+                } else {
+                    this.OnError("Unsuccessful request: " + req.status);
+                }
+            }
+        }
     }
 }
 
@@ -6533,6 +6683,16 @@ class AttachException extends Exception {
     }
 }
 Nullstone.RegisterType(AttachException, "AttachException");
+class InvalidJsonException extends Exception {
+    JsonText: string;
+    InnerException: Error;
+    constructor(jsonText: string, innerException: Error) {
+        super("Invalid json.");
+        this.JsonText = jsonText;
+        this.InnerException = innerException;
+    }
+}
+Nullstone.RegisterType(InvalidJsonException, "InvalidJsonException");
 
 module Fayde {
     export class RenderContext implements IRenderContext {
@@ -13824,7 +13984,7 @@ module Fayde {
         Loaded: RoutedEvent = new RoutedEvent();
         Unloaded: RoutedEvent = new RoutedEvent();
         OnApplyTemplate() { }
-        FindName(name: string): any {
+        FindName(name: string): XamlObject {
             var n = this.XamlNode.FindName(name);
             if (n)
                 return n.XObject;
@@ -17703,6 +17863,83 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
+    export class Frame extends ContentControl {
+        static IsDeepLinkedProperty: DependencyProperty = DependencyProperty.Register("IsDeepLinked", () => Boolean, Frame, true);
+        static CurrentSourceProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("CurrentSource", () => Uri, Frame);
+        static SourceProperty: DependencyProperty = DependencyProperty.Register("Source", () => Uri, Frame, undefined, (d, args) => (<Frame>d).SourcePropertyChanged(args));
+        IsDeepLinked: bool;
+        CurrentSource: Uri;
+        Source: Uri;
+        private _Request: AjaxJsonRequest;
+        private _Resolver: XamlResolver;
+        private _NavService: Navigation.NavService;
+        constructor() {
+            super();
+            this.Loaded.Subscribe(this._FrameLoaded, this);
+        }
+        Navigate(uri: Uri) {
+            this._Request = new AjaxJsonRequest(
+                (result) => this._HandleSuccessfulResponse(result),
+                (error) => this._HandleErrorResponse(error));
+            this._Request.Get(uri.toString());
+        }
+        GoForward() {
+        }
+        GoBackward() {
+        }
+        StopLoading() {
+            if (this._Request) {
+                this._Request.Cancel();
+                this._Request = null;
+            }
+        }
+        private _FrameLoaded(sender, e: RoutedEventArgs) {
+            this._NavService = App.Instance.NavService;
+            if (this.IsDeepLinked) {
+                this._NavService.LocationChanged.Subscribe(this._HandleDeepLink, this);
+                this._HandleDeepLink();
+            }
+        }
+        private _HandleDeepLink() {
+            var source = this._NavService.Href + "#" + this._NavService.Hash;
+            this.SetValueInternal(Frame.CurrentSourceProperty, source);
+            this._LoadContent(this._NavService.Href, this._NavService.Hash);
+        }
+        private _LoadContent(href: string, hash: string) {
+            this.StopLoading();
+            var that = this;
+            this._Resolver = new XamlResolver(
+                (xamlResult, scriptResult) => this._HandleSuccessfulResponse(xamlResult),
+                (xamlResult, scriptResult) => this._HandleSuccessfulSubResponse(xamlResult),
+                (error) => this._HandleErrorResponse(error));
+            this._Resolver.Load(href, hash);
+        }
+        private _HandleSuccessfulResponse(ajaxJsonResult: AjaxJsonResult) {
+            var response = JsonParser.Parse(ajaxJsonResult.CreateJson());
+            if (response instanceof Page) {
+                var page = <Page>response;
+                document.title = page.Title;
+                this.Content = page;
+            }
+            this._Request = null;
+        }
+        private _HandleSuccessfulSubResponse(ajaxJsonResult: AjaxJsonResult) {
+            var json = ajaxJsonResult.CreateJson();
+            var jsType = json.ParseType;
+            jsType.__TemplateJson = json;
+        }
+        private _HandleErrorResponse(error: string) {
+            this._Resolver = null;
+        }
+        private SourcePropertyChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (true)//if loaded and not updating source from nav service
+                this.Navigate(args.NewValue);
+        }
+    }
+    Nullstone.RegisterType(Frame, "Frame");
+}
+
+module Fayde.Controls {
     export class GridNode extends PanelNode {
         XObject: Grid;
         constructor(xobj: Grid) {
@@ -18321,6 +18558,14 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
+    export class Page extends UserControl {
+        static TitleProperty: DependencyProperty = DependencyProperty.Register("Title", () => String, Page);
+        Title: string;
+    }
+    Nullstone.RegisterType(Page, "Page");
+}
+
+module Fayde.Controls {
     export class ScrollViewer extends ContentControl {
         HorizontalScrollBarVisibility: ScrollBarVisibility;
         VerticalScrollBarVisibility: ScrollBarVisibility;
@@ -18759,5 +19004,53 @@ module Fayde.Controls {
         }
     }
     Nullstone.RegisterType(Button, "Button");
+}
+
+module Fayde.Controls {
+    export class HyperlinkButton extends Primitives.ButtonBase {
+        static NavigateUriProperty: DependencyProperty = DependencyProperty.Register("NavigateUri", () => Uri, HyperlinkButton);
+        static TargetNameProperty: DependencyProperty = DependencyProperty.Register("TargetName", () => String, HyperlinkButton);
+        NavigateUri: Uri;
+        TargetName: string;
+        constructor() {
+            super();
+            this.DefaultStyleKey = (<any>this).constructor;
+        }
+        OnApplyTemplate() {
+            super.OnApplyTemplate();
+            this.UpdateVisualState(false);
+        }
+        OnClick() {
+            super.OnClick();
+            if (this.NavigateUri != null)
+                this._Navigate();
+        }
+        /*
+        private _GetAbsoluteUri(): Uri {
+            var destination = this.NavigateUri;
+            if (!destination.IsAbsoluteUri) {
+                var original = destination.OriginalString;
+                if (original && original.charAt(0) !== '/')
+                    throw new NotSupportedException();
+                destination = new Uri(App.Instance.GetHost().GetSource(), destination);
+            }
+            return destination;
+        }
+        */
+        private _Navigate() {
+            var targetName = this.TargetName;
+            if (!targetName) {
+                window.location.href = this.NavigateUri.toString();
+                return;
+            }
+            var targetUie: XamlObject = this.FindName(targetName);
+            if (targetUie instanceof Frame) {
+                window.location.href = this.NavigateUri.toString();
+            } else {
+                window.open(this.NavigateUri.toString(), targetName);
+            }
+        }
+    }
+    Nullstone.RegisterType(HyperlinkButton, "HyperlinkButton");
 }
 
