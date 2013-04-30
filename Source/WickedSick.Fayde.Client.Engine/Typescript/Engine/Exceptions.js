@@ -68,4 +68,14 @@ var AttachException = (function (_super) {
     return AttachException;
 })(Exception);
 Nullstone.RegisterType(AttachException, "AttachException");
+var InvalidJsonException = (function (_super) {
+    __extends(InvalidJsonException, _super);
+    function InvalidJsonException(jsonText, innerException) {
+        _super.call(this, "Invalid json.");
+        this.JsonText = jsonText;
+        this.InnerException = innerException;
+    }
+    return InvalidJsonException;
+})(Exception);
+Nullstone.RegisterType(InvalidJsonException, "InvalidJsonException");
 //@ sourceMappingURL=Exceptions.js.map

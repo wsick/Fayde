@@ -69,4 +69,30 @@ class Nullstone {
         } while (curType = curType._BaseClass);
         return false;
     }
+
+    static ImportJsFile(url: string, onComplete: (script: HTMLScriptElement) => void ) {
+        var scripts = document.getElementsByTagName("script");
+        var script: HTMLScriptElement = null;
+        for (var i = 0; i < scripts.length; i++) {
+            script = <HTMLScriptElement>scripts[i];
+            if (script.src === url) {
+                if (onComplete) onComplete(script);
+                return;
+            }
+        }
+
+        var script = <HTMLScriptElement>document.createElement("script");
+        script.type = "text/javascript";
+        script.src = url;
+        script.onreadystatechange = function (e: Event) {
+            if (this.readyState === "completed") {
+                if (onComplete) onComplete(script);
+                return;
+            }
+        };
+        script.onload = function () { if (onComplete) onComplete(script); };
+
+        var head = <HTMLHeadElement>document.getElementsByTagName("head")[0];
+        head.appendChild(script);
+    }
 }

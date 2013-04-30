@@ -74,6 +74,37 @@ var Nullstone = (function () {
         }while(curType = curType._BaseClass);
         return false;
     };
+    Nullstone.ImportJsFile = function ImportJsFile(url, onComplete) {
+        var scripts = document.getElementsByTagName("script");
+        var script = null;
+        for(var i = 0; i < scripts.length; i++) {
+            script = scripts[i];
+            if(script.src === url) {
+                if(onComplete) {
+                    onComplete(script);
+                }
+                return;
+            }
+        }
+        var script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = url;
+        script.onreadystatechange = function (e) {
+            if(this.readyState === "completed") {
+                if(onComplete) {
+                    onComplete(script);
+                }
+                return;
+            }
+        };
+        script.onload = function () {
+            if(onComplete) {
+                onComplete(script);
+            }
+        };
+        var head = document.getElementsByTagName("head")[0];
+        head.appendChild(script);
+    };
     return Nullstone;
 })();
 //@ sourceMappingURL=Nullstone.js.map

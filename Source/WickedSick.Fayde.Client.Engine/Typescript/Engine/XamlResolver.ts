@@ -1,3 +1,6 @@
+/// CODE
+/// <reference path="../Runtime/Nullstone.ts" />
+
 module Fayde {
     export class XamlResolver {
         private _IsXamlLoaded: bool = false;

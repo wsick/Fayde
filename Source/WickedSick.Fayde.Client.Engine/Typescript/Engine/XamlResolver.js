@@ -1,3 +1,5 @@
+/// CODE
+/// <reference path="../Runtime/Nullstone.ts" />
 var Fayde;
 (function (Fayde) {
     var XamlResolver = (function () {
