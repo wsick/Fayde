@@ -10787,7 +10787,7 @@ module Fayde.Providers {
         EmitDataContextChanged() {
             this._InheritedDataContextProvider.EmitChanged();
         }
-        SetDataContextSource(source: FrameworkElement) {
+        SetDataContextSource(source?: FrameworkElement) {
             this._InheritedDataContextProvider.SetDataSource(source);
         }
     }
@@ -15061,7 +15061,7 @@ module Fayde {
             else if ((visualParentNode = <FENode>this.VisualParentNode) && visualParentNode instanceof FENode)
                 store.SetDataContextSource(visualParentNode.XObject);
             else
-                store.SetDataContextSource(null);
+                store.SetDataContextSource();
             if (this.IsLoaded)
                 store.EmitDataContextChanged();
         }
@@ -16076,7 +16076,7 @@ module Fayde.Controls {
         XamlNode: ContentPresenterNode;
         CreateNode(): ContentPresenterNode { return new ContentPresenterNode(this); }
         static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d)._ContentChanged(args));
-        static ContentTemplateProperty: DependencyProperty=DependencyProperty.Register("ContentTemplate", () => ControlTemplate, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d)._ContentTemplateChanged(args));
+        static ContentTemplateProperty: DependencyProperty = DependencyProperty.Register("ContentTemplate", () => ControlTemplate, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d)._ContentTemplateChanged(args));
         Content: any;
         ContentTemplate: ControlTemplate;
         static Annotations = { ContentProperty: ContentPresenter.ContentProperty }
@@ -19367,7 +19367,7 @@ module Fayde.Controls {
             var content = xobj.Content;
             if (content instanceof UIElement)
                 return <UIElement>content;
-            else if (content)
+            if (content)
                 return this.FallbackRoot;
         }
         private _FallbackRoot: UIElement;
@@ -19375,10 +19375,8 @@ module Fayde.Controls {
         get FallbackRoot(): UIElement {
             var fr = this._FallbackRoot;
             if (!fr) {
-                var ft = this._FallbackTemplate;
-                if (!ft)
-                    ft = this._CreateFallbackTemplate();
-                fr = this._FallbackRoot = <UIElement>ft.GetVisualTree(this.XObject);
+                fr = new ContentPresenter();
+                fr.TemplateOwner = this.XObject;
             }
             return fr;
         }
@@ -19409,6 +19407,8 @@ module Fayde.Controls {
         OnContentChanged(oldContent: any, newContent: any) { }
         OnContentTemplateChanged(oldContentTemplate: ControlTemplate, newContentTemplate: ControlTemplate) { }
         _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (args.OldValue instanceof UIElement)
+                this.XamlNode.DetachVisualChild(<UIElement>args.OldValue, null);
             this.OnContentChanged(args.OldValue, args.NewValue);
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
         }

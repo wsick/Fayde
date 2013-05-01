@@ -14,7 +14,7 @@ module Fayde.Controls {
             var content = xobj.Content;
             if (content instanceof UIElement)
                 return <UIElement>content;
-            else if (content)
+            if (content)
                 return this.FallbackRoot;
         }
         
@@ -23,10 +23,13 @@ module Fayde.Controls {
         get FallbackRoot(): UIElement {
             var fr = this._FallbackRoot;
             if (!fr) {
-                var ft = this._FallbackTemplate;
-                if (!ft)
-                    ft = this._CreateFallbackTemplate();
-                fr = this._FallbackRoot = <UIElement>ft.GetVisualTree(this.XObject);
+                fr = new ContentPresenter();
+                fr.TemplateOwner = this.XObject;
+
+                //var ft = this._FallbackTemplate;
+                //if (!ft)
+                    //ft = this._CreateFallbackTemplate();
+                //fr = this._FallbackRoot = <UIElement>ft.GetVisualTree(this.XObject);
             }
             return fr;
         }
@@ -64,6 +67,9 @@ module Fayde.Controls {
         OnContentTemplateChanged(oldContentTemplate: ControlTemplate, newContentTemplate: ControlTemplate) { }
 
         _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (args.OldValue instanceof UIElement)
+                this.XamlNode.DetachVisualChild(<UIElement>args.OldValue, null);
+
             this.OnContentChanged(args.OldValue, args.NewValue);
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
         }

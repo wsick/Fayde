@@ -33,7 +33,7 @@ module Fayde {
             else if ((visualParentNode = <FENode>this.VisualParentNode) && visualParentNode instanceof FENode)
                 store.SetDataContextSource(visualParentNode.XObject);
             else
-                store.SetDataContextSource(null);
+                store.SetDataContextSource();
 
             if (this.IsLoaded)
                 store.EmitDataContextChanged();

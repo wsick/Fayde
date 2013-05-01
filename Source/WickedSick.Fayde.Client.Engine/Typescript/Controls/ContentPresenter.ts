@@ -91,7 +91,7 @@ module Fayde.Controls {
         CreateNode(): ContentPresenterNode { return new ContentPresenterNode(this); }
 
         static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d)._ContentChanged(args));
-        static ContentTemplateProperty: DependencyProperty=DependencyProperty.Register("ContentTemplate", () => ControlTemplate, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d)._ContentTemplateChanged(args));
+        static ContentTemplateProperty: DependencyProperty = DependencyProperty.Register("ContentTemplate", () => ControlTemplate, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d)._ContentTemplateChanged(args));
         Content: any;
         ContentTemplate: ControlTemplate;
 

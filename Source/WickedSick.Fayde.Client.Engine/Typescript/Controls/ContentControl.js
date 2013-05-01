@@ -20,7 +20,8 @@ var Fayde;
                 var content = xobj.Content;
                 if(content instanceof Fayde.UIElement) {
                     return content;
-                } else if(content) {
+                }
+                if(content) {
                     return this.FallbackRoot;
                 }
             };
@@ -28,12 +29,13 @@ var Fayde;
                 get: function () {
                     var fr = this._FallbackRoot;
                     if(!fr) {
-                        var ft = this._FallbackTemplate;
-                        if(!ft) {
-                            ft = this._CreateFallbackTemplate();
-                        }
-                        fr = this._FallbackRoot = ft.GetVisualTree(this.XObject);
-                    }
+                        fr = new Controls.ContentPresenter();
+                        fr.TemplateOwner = this.XObject;
+                        //var ft = this._FallbackTemplate;
+                        //if (!ft)
+                        //ft = this._CreateFallbackTemplate();
+                        //fr = this._FallbackRoot = <UIElement>ft.GetVisualTree(this.XObject);
+                                            }
                     return fr;
                 },
                 enumerable: true,
@@ -87,6 +89,9 @@ var Fayde;
             ContentControl.prototype.OnContentTemplateChanged = function (oldContentTemplate, newContentTemplate) {
             };
             ContentControl.prototype._ContentChanged = function (args) {
+                if(args.OldValue instanceof Fayde.UIElement) {
+                    this.XamlNode.DetachVisualChild(args.OldValue, null);
+                }
                 this.OnContentChanged(args.OldValue, args.NewValue);
                 this.XamlNode.LayoutUpdater.InvalidateMeasure();
             };

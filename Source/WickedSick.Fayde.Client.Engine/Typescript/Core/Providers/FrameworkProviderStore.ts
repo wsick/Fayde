@@ -140,7 +140,7 @@ module Fayde.Providers {
         EmitDataContextChanged() {
             this._InheritedDataContextProvider.EmitChanged();
         }
-        SetDataContextSource(source: FrameworkElement) {
+        SetDataContextSource(source?: FrameworkElement) {
             this._InheritedDataContextProvider.SetDataSource(source);
         }
     }
