@@ -22,27 +22,33 @@ var Fayde;
                     return content;
                 }
                 if(content) {
-                    return this.FallbackRoot;
+                    var fr = this.FallbackRoot;
+                    fr.XamlNode.DataContext = content;
+                    return fr;
+                }
+            };
+            ContentControlNode.prototype.OnContentChanged = function (newContent) {
+                if(this._FallbackRoot) {
+                    this._FallbackRoot.XamlNode.DataContext = newContent;
                 }
             };
             Object.defineProperty(ContentControlNode.prototype, "FallbackRoot", {
                 get: function () {
                     var fr = this._FallbackRoot;
                     if(!fr) {
-                        fr = new Controls.ContentPresenter();
-                        fr.TemplateOwner = this.XObject;
-                        //var ft = this._FallbackTemplate;
-                        //if (!ft)
-                        //ft = this._CreateFallbackTemplate();
-                        //fr = this._FallbackRoot = <UIElement>ft.GetVisualTree(this.XObject);
-                                            }
+                        var ft = ContentControlNode._FallbackTemplate;
+                        if(!ft) {
+                            ft = ContentControlNode._CreateFallbackTemplate();
+                        }
+                        fr = this._FallbackRoot = ft.GetVisualTree(this.XObject);
+                    }
                     return fr;
                 },
                 enumerable: true,
                 configurable: true
             });
-            ContentControlNode.prototype._CreateFallbackTemplate = // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
-            function () {
+            ContentControlNode._CreateFallbackTemplate = // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
+            function _CreateFallbackTemplate() {
                 return new Controls.ControlTemplate(ContentControl, {
                     ParseType: Controls.Grid,
                     Children: [
@@ -92,6 +98,7 @@ var Fayde;
                 if(args.OldValue instanceof Fayde.UIElement) {
                     this.XamlNode.DetachVisualChild(args.OldValue, null);
                 }
+                this.XamlNode.OnContentChanged(args.NewValue);
                 this.OnContentChanged(args.OldValue, args.NewValue);
                 this.XamlNode.LayoutUpdater.InvalidateMeasure();
             };

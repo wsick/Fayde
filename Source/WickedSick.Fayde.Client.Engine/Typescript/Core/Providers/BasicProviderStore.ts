@@ -220,7 +220,8 @@ module Fayde.Providers {
             return val;
         }
 
-        _ProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldProviderValue: any, newProviderValue: any, notifyListeners: bool, error: BError) {
+        _ProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldProviderValue: any, newProviderValue: any, notifyListeners: bool, error: BError): bool {
+            /// Returns true if effective value was changed
             var bitmask = this._ProviderBitmasks[propd._ID] | 0;
             if (newProviderValue !== undefined)
                 bitmask |= 1 << providerPrecedence;
@@ -238,7 +239,7 @@ module Fayde.Providers {
                 if (!provider)
                     continue;
                 if (provider.GetPropertyValue(this, propd) !== undefined)
-                    return;
+                    return false;
             }
 
             var oldValue;
@@ -260,13 +261,14 @@ module Fayde.Providers {
 
             //INTENTIONAL: Below checks are different
             if (oldValue === null && newValue === null)
-                return;
+                return false;
             if (oldValue === undefined && newValue === undefined)
-                return;
+                return false;
             if (!propd._AlwaysChange && Nullstone.Equals(oldValue, newValue))
-                return;
+                return false;
 
             this._PostProviderValueChanged(providerPrecedence, propd, oldValue, newValue, notifyListeners, error);
+            return true;
         }
         _PostProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldValue: any, newValue: any, notifyListeners: bool, error: BError) {
             if (!propd.IsCustom) {
@@ -389,9 +391,9 @@ module Fayde.Providers {
         
         EmitDataContextChanged() { this._InheritedDataContextProvider.EmitChanged(); }
         SetDataContextSourceNode(sourceNode?: XamlNode) { this._InheritedDataContextProvider.SetDataSourceNode(sourceNode); }
-        OnDataContextSourceValueChanged(newDataContext: any) {
+        OnDataContextSourceValueChanged(oldDataContext: any, newDataContext: any): bool {
             var error = new BError();
-            this._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, DependencyObject.DataContextProperty, this._Object.DataContext, newDataContext, true, error);
+            return this._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, DependencyObject.DataContextProperty, oldDataContext, newDataContext, true, error);
         }
     }
     Nullstone.RegisterType(BasicProviderStore, "BasicProviderStore");

@@ -28,10 +28,14 @@ var Fayde;
         };
         Object.defineProperty(DONode.prototype, "DataContext", {
             get: function () {
-                return this.Store.GetValue(DependencyObject.DataContextProperty);
+                return this.XObject.DataContext;
             },
             set: function (value) {
-                this.Store.OnDataContextSourceValueChanged(value);
+                var old = this.XObject.DataContext;
+                if(!this.Store.OnDataContextSourceValueChanged(old, value)) {
+                    return;
+                }
+                this.OnDataContextChanged(old, value);
             },
             enumerable: true,
             configurable: true
@@ -49,7 +53,7 @@ var Fayde;
         }
         DependencyObject.DataContextProperty = DependencyProperty.RegisterCore("DataContext", function () {
             return Object;
-        }, DependencyObject);
+        }, DependencyObject, undefined);
         DependencyObject.prototype.CreateNode = function () {
             return new DONode(this);
         };

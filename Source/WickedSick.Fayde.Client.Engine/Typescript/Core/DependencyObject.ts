@@ -21,8 +21,13 @@ module Fayde {
             this.Store.SetDataContextSourceNode(newParentNode);
         }
 
-        get DataContext(): any { return this.Store.GetValue(DependencyObject.DataContextProperty); }
-        set DataContext(value: any) { this.Store.OnDataContextSourceValueChanged(value); }
+        get DataContext(): any { return this.XObject.DataContext; }
+        set DataContext(value: any) {
+            var old = this.XObject.DataContext;
+            if (!this.Store.OnDataContextSourceValueChanged(old, value))
+                return;
+            this.OnDataContextChanged(old, value);
+        }
     }
     Nullstone.RegisterType(DONode, "DONode");
 
@@ -30,7 +35,7 @@ module Fayde {
         private _Expressions: Expression[] = [];
         _Store: Providers.BasicProviderStore;
 
-        static DataContextProperty: DependencyProperty = DependencyProperty.RegisterCore("DataContext", () => Object, DependencyObject);
+        static DataContextProperty: DependencyProperty = DependencyProperty.RegisterCore("DataContext", () => Object, DependencyObject, undefined);
         DataContext: any;
 
         constructor() {

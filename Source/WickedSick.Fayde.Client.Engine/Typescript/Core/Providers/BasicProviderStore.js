@@ -228,6 +228,7 @@ var Fayde;
                 return val;
             };
             BasicProviderStore.prototype._ProviderValueChanged = function (providerPrecedence, propd, oldProviderValue, newProviderValue, notifyListeners, error) {
+                /// Returns true if effective value was changed
                 var bitmask = this._ProviderBitmasks[propd._ID] | 0;
                 if(newProviderValue !== undefined) {
                     bitmask |= 1 << providerPrecedence;
@@ -246,7 +247,7 @@ var Fayde;
                         continue;
                     }
                     if(provider.GetPropertyValue(this, propd) !== undefined) {
-                        return;
+                        return false;
                     }
                 }
                 var oldValue;
@@ -266,15 +267,16 @@ var Fayde;
                 }
                 //INTENTIONAL: Below checks are different
                 if(oldValue === null && newValue === null) {
-                    return;
+                    return false;
                 }
                 if(oldValue === undefined && newValue === undefined) {
-                    return;
+                    return false;
                 }
                 if(!propd._AlwaysChange && Nullstone.Equals(oldValue, newValue)) {
-                    return;
+                    return false;
                 }
                 this._PostProviderValueChanged(providerPrecedence, propd, oldValue, newValue, notifyListeners, error);
+                return true;
             };
             BasicProviderStore.prototype._PostProviderValueChanged = function (providerPrecedence, propd, oldValue, newValue, notifyListeners, error) {
                 if(!propd.IsCustom) {
@@ -408,9 +410,9 @@ var Fayde;
             BasicProviderStore.prototype.SetDataContextSourceNode = function (sourceNode) {
                 this._InheritedDataContextProvider.SetDataSourceNode(sourceNode);
             };
-            BasicProviderStore.prototype.OnDataContextSourceValueChanged = function (newDataContext) {
+            BasicProviderStore.prototype.OnDataContextSourceValueChanged = function (oldDataContext, newDataContext) {
                 var error = new BError();
-                this._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, Fayde.DependencyObject.DataContextProperty, this._Object.DataContext, newDataContext, true, error);
+                return this._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, Fayde.DependencyObject.DataContextProperty, oldDataContext, newDataContext, true, error);
             };
             return BasicProviderStore;
         })();

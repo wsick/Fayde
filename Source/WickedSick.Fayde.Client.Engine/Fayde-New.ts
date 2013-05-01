@@ -6260,7 +6260,7 @@ module Fayde.Providers {
                 return new UnsetValue();
             return val;
         }
-        _ProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldProviderValue: any, newProviderValue: any, notifyListeners: bool, error: BError) {
+        _ProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldProviderValue: any, newProviderValue: any, notifyListeners: bool, error: BError): bool {
             var bitmask = this._ProviderBitmasks[propd._ID] | 0;
             if (newProviderValue !== undefined)
                 bitmask |= 1 << providerPrecedence;
@@ -6276,7 +6276,7 @@ module Fayde.Providers {
                 if (!provider)
                     continue;
                 if (provider.GetPropertyValue(this, propd) !== undefined)
-                    return;
+                    return false;
             }
             var oldValue;
             var newValue;
@@ -6294,12 +6294,13 @@ module Fayde.Providers {
                 newValue = newProviderValue;
             }
             if (oldValue === null && newValue === null)
-                return;
+                return false;
             if (oldValue === undefined && newValue === undefined)
-                return;
+                return false;
             if (!propd._AlwaysChange && Nullstone.Equals(oldValue, newValue))
-                return;
+                return false;
             this._PostProviderValueChanged(providerPrecedence, propd, oldValue, newValue, notifyListeners, error);
+            return true;
         }
         _PostProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldValue: any, newValue: any, notifyListeners: bool, error: BError) {
             if (!propd.IsCustom) {
@@ -6411,9 +6412,9 @@ module Fayde.Providers {
         }
         EmitDataContextChanged() { this._InheritedDataContextProvider.EmitChanged(); }
         SetDataContextSourceNode(sourceNode?: XamlNode) { this._InheritedDataContextProvider.SetDataSourceNode(sourceNode); }
-        OnDataContextSourceValueChanged(newDataContext: any) {
+        OnDataContextSourceValueChanged(oldDataContext: any, newDataContext: any): bool {
             var error = new BError();
-            this._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, DependencyObject.DataContextProperty, this._Object.DataContext, newDataContext, true, error);
+            return this._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, DependencyObject.DataContextProperty, oldDataContext, newDataContext, true, error);
         }
     }
     Nullstone.RegisterType(BasicProviderStore, "BasicProviderStore");
@@ -10231,14 +10232,19 @@ module Fayde {
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
             this.Store.SetDataContextSourceNode(newParentNode);
         }
-        get DataContext(): any { return this.Store.GetValue(DependencyObject.DataContextProperty); }
-        set DataContext(value: any) { this.Store.OnDataContextSourceValueChanged(value); }
+        get DataContext(): any { return this.XObject.DataContext; }
+        set DataContext(value: any) {
+            var old = this.XObject.DataContext;
+            if (!this.Store.OnDataContextSourceValueChanged(old, value))
+                return;
+            this.OnDataContextChanged(old, value);
+        }
     }
     Nullstone.RegisterType(DONode, "DONode");
     export class DependencyObject extends XamlObject implements ICloneable {
         private _Expressions: Expression[] = [];
         _Store: Providers.BasicProviderStore;
-        static DataContextProperty: DependencyProperty = DependencyProperty.RegisterCore("DataContext", () => Object, DependencyObject);
+        static DataContextProperty: DependencyProperty = DependencyProperty.RegisterCore("DataContext", () => Object, DependencyObject, undefined);
         DataContext: any;
         constructor() {
             super();
@@ -16042,14 +16048,11 @@ module Fayde.Controls {
             }
             if (!root)
                 return super._DoApplyTemplateWithError(error);
-            if (this.TemplateRoot && this.TemplateRoot !== root) {
+            if (this.TemplateRoot && this.TemplateRoot !== root)
                 this.DetachVisualChild(this.TemplateRoot, error)
-                this.TemplateRoot = null;
-            }
-            if (error.Message)
-                return false;
             this.TemplateRoot = <FrameworkElement>root;
-            this.AttachVisualChild(this.TemplateRoot, error);
+            if (this.TemplateRoot)
+                this.AttachVisualChild(this.TemplateRoot, error);
             if (error.Message)
                 return false;
             return true;
@@ -19272,28 +19275,35 @@ module Fayde.Controls {
             var content = xobj.Content;
             if (content instanceof UIElement)
                 return <UIElement>content;
-            if (content)
-                return this.FallbackRoot;
+            if (content) {
+                var fr = this.FallbackRoot;
+                fr.XamlNode.DataContext = content;
+                return fr;
+            }
+        }
+        OnContentChanged(newContent: any) {
+            if (this._FallbackRoot)
+                this._FallbackRoot.XamlNode.DataContext = newContent;
         }
         private _FallbackRoot: UIElement;
-        private _FallbackTemplate: ControlTemplate;
         get FallbackRoot(): UIElement {
             var fr = this._FallbackRoot;
             if (!fr) {
-                fr = new ContentPresenter();
-                fr.TemplateOwner = this.XObject;
+                var ft = ContentControlNode._FallbackTemplate;
+                if (!ft)
+                    ft = ContentControlNode._CreateFallbackTemplate();
+                fr = this._FallbackRoot = <UIElement>ft.GetVisualTree(this.XObject);
             }
             return fr;
         }
-        private _CreateFallbackTemplate(): ControlTemplate {
+        private static _FallbackTemplate: ControlTemplate;
+        private static _CreateFallbackTemplate(): ControlTemplate {
             return new ControlTemplate(ContentControl, {
                 ParseType: Grid,
                 Children: [
                     {
                         ParseType: TextBlock,
-                        Props: {
-                            Text: new BindingMarkup({})
-                        }
+                        Props: { Text: new BindingMarkup({}) }
                     }
                 ]
             });
@@ -19314,6 +19324,7 @@ module Fayde.Controls {
         _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
             if (args.OldValue instanceof UIElement)
                 this.XamlNode.DetachVisualChild(<UIElement>args.OldValue, null);
+            this.XamlNode.OnContentChanged(args.NewValue);
             this.OnContentChanged(args.OldValue, args.NewValue);
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
         }

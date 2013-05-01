@@ -9,40 +9,44 @@ module Fayde.Controls {
         constructor(xobj: ContentControl) {
             super(xobj);
         }
+        
         _GetDefaultTemplate(): UIElement {
             var xobj = this.XObject;
             var content = xobj.Content;
             if (content instanceof UIElement)
                 return <UIElement>content;
-            if (content)
-                return this.FallbackRoot;
+            if (content) {
+                var fr = this.FallbackRoot;
+                fr.XamlNode.DataContext = content;
+                return fr;
+            }
+        }
+
+        OnContentChanged(newContent: any) {
+            if (this._FallbackRoot)
+                this._FallbackRoot.XamlNode.DataContext = newContent;
         }
         
         private _FallbackRoot: UIElement;
-        private _FallbackTemplate: ControlTemplate;
         get FallbackRoot(): UIElement {
             var fr = this._FallbackRoot;
             if (!fr) {
-                fr = new ContentPresenter();
-                fr.TemplateOwner = this.XObject;
-
-                //var ft = this._FallbackTemplate;
-                //if (!ft)
-                    //ft = this._CreateFallbackTemplate();
-                //fr = this._FallbackRoot = <UIElement>ft.GetVisualTree(this.XObject);
+                var ft = ContentControlNode._FallbackTemplate;
+                if (!ft)
+                    ft = ContentControlNode._CreateFallbackTemplate();
+                fr = this._FallbackRoot = <UIElement>ft.GetVisualTree(this.XObject);
             }
             return fr;
         }
+        private static _FallbackTemplate: ControlTemplate;
         // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
-        private _CreateFallbackTemplate(): ControlTemplate {
+        private static _CreateFallbackTemplate(): ControlTemplate {
             return new ControlTemplate(ContentControl, {
                 ParseType: Grid,
                 Children: [
                     {
                         ParseType: TextBlock,
-                        Props: {
-                            Text: new BindingMarkup({})
-                        }
+                        Props: { Text: new BindingMarkup({}) }
                     }
                 ]
             });
@@ -69,7 +73,7 @@ module Fayde.Controls {
         _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
             if (args.OldValue instanceof UIElement)
                 this.XamlNode.DetachVisualChild(<UIElement>args.OldValue, null);
-
+            this.XamlNode.OnContentChanged(args.NewValue);
             this.OnContentChanged(args.OldValue, args.NewValue);
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
         }

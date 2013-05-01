@@ -36,15 +36,11 @@ module Fayde.Controls {
             if (!root)
                 return super._DoApplyTemplateWithError(error);
 
-            if (this.TemplateRoot && this.TemplateRoot !== root) {
+            if (this.TemplateRoot && this.TemplateRoot !== root)
                 this.DetachVisualChild(this.TemplateRoot, error)
-                this.TemplateRoot = null;
-            }
-            if (error.Message)
-                return false;
-
             this.TemplateRoot = <FrameworkElement>root;
-            this.AttachVisualChild(this.TemplateRoot, error);
+            if (this.TemplateRoot)
+                this.AttachVisualChild(this.TemplateRoot, error);
             if (error.Message)
                 return false;
 
