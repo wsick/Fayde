@@ -26,7 +26,7 @@
     //#endregion
 
     namespace.VisualState = Nullstone.FinishCreate(VisualState);
-})(Nullstone.Namespace("Fayde.Media.VisualStateManager"));
+})(Nullstone.Namespace("Fayde.Media.VSM"));
 
 (function (namespace) {
     var VisualStateCollection = Nullstone.Create("VisualStateCollection", Fayde.DependencyObjectCollection);
@@ -36,4 +36,4 @@
     };
 
     namespace.VisualStateCollection = Nullstone.FinishCreate(VisualStateCollection);
-})(Nullstone.Namespace("Fayde.Media.VisualStateManager"));
+})(Nullstone.Namespace("Fayde.Media.VSM"));

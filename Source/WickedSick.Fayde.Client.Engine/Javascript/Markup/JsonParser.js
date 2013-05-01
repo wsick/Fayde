@@ -48,28 +48,29 @@
     };
 
     JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
-        if (json.Type == null) {
+        var type = json.ParseType;
+        if (type == null) {
             return json;
         }
 
-        if (json.Type === Number || json.Type === String || json.Type === Boolean) {
+        if (type === Number || type === String || type === Boolean) {
             return json.Value;
         }
 
-        if (json.Type === Fayde.Controls.ControlTemplate) {
+        if (type === Fayde.Controls.ControlTemplate) {
             var targetType = json.Props == null ? null : json.Props.TargetType;
-            var template = new json.Type(targetType, json.Content);
+            var template = new type(targetType, json.Content);
             template._ResChain = this._ResChain;
             return template;
         }
-        if (json.Type === Fayde.DataTemplate) {
+        if (type === Fayde.DataTemplate) {
             var template = new Fayde.DataTemplate(json.Content);
             template._ResChain = this._ResChain;
             return template;
         }
 
 
-        var dobj = new json.Type();
+        var dobj = new type();
         if (!this._RootXamlObject)
             this._RootXamlObject = dobj;
         this.SetObject(json, dobj, namescope, ignoreResolve);
@@ -80,6 +81,7 @@
         if (json.Name)
             dobj.SetNameOnScope(json.Name, namescope);
 
+        var type = json.ParseType;
         var propd;
         var propValue;
         if (json.Props) {
@@ -110,7 +112,7 @@
             for (var i in json.Events) {
                 var targetEvent = dobj[i];
                 if (!targetEvent || !(targetEvent instanceof MulticastEvent))
-                    throw new ArgumentException("Could not locate event '" + i + "' on object '" + json.Type._TypeName + "'.");
+                    throw new ArgumentException("Could not locate event '" + i + "' on object '" + type._TypeName + "'.");
                 var root = this._RootXamlObject;
                 var targetCallback = root[json.Events[i]];
                 if (!targetCallback || typeof targetCallback !== "function")
@@ -120,7 +122,7 @@
             }
         }
 
-        var contentPropd = this.GetAnnotationMember(json.Type, "ContentProperty");
+        var contentPropd = this.GetAnnotationMember(type, "ContentProperty");
         if (contentPropd instanceof DependencyProperty) {
             if (json.Children) {
                 this.TrySetCollectionProperty(json.Children, dobj, contentPropd, namescope);
@@ -152,13 +154,13 @@
         if (!ignoreResolve) {
             this.ResolveStaticResourceExpressions();
         }
-        if (json.Type === Fayde.ResourceDictionary) {
+        if (type === Fayde.ResourceDictionary) {
             delete this._ContextResourceDictionary;
         }
     };
     JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, namescope, isAttached, ownerType, propName) {
         //If the object is not a Nullstone, let's parse it
-        if (!propValue.constructor._IsNullstone && propValue.Type) {
+        if (!propValue.constructor._IsNullstone && propValue.ParseType) {
             propValue = this.CreateObject(propValue, namescope, true);
         }
 
@@ -254,7 +256,7 @@
             var key = cur.Key;
             var val = cur.Value;
 
-            if (val.Type !== Fayde.Style) {
+            if (val.ParseType !== Fayde.Style) {
                 fobj = new Fayde.ResourceTarget(val, namescope, this._TemplateBindingSource, this._ResChain);
             } else {
                 fobj = this.CreateObject(val, namescope, true);

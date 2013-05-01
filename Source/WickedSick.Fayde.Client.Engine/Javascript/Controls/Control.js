@@ -151,7 +151,7 @@
         this._OnIsAttachedChanged$FrameworkElement(value);
         this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
         if (!value)
-            Fayde.Media.VisualStateManager.VisualStateManager.DestroyStoryboards(this);
+            Fayde.Media.VSM.VisualStateManager.DestroyStoryboards(this);
     };
 
     Control.Instance._DoApplyTemplateWithError = function (error) {
@@ -249,7 +249,7 @@
         useTransitions = useTransitions !== false;
         var states = this.$GetVisualStateNamesToActivate();
         for (var i = 0; i < states.length; i++) {
-            Fayde.Media.VisualStateManager.VisualStateManager.GoToState(this, states[i], useTransitions);
+            Fayde.Media.VSM.VisualStateManager.GoToState(this, states[i], useTransitions);
         }
     };
     Control.Instance.$GetVisualStateNamesToActivate = function () {

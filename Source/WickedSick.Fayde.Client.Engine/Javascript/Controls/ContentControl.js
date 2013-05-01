@@ -30,10 +30,10 @@
     // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
     ContentControl.Instance._CreateFallbackTemplate = function () {
         return new namespace.ControlTemplate(ContentControl, {
-            Type: namespace.Grid,
+            ParseType: namespace.Grid,
             Children: [
                 {
-                    Type: namespace.TextBlock,
+                    ParseType: namespace.TextBlock,
                     Props: {
                         Text: new Fayde.BindingMarkup()
                     }

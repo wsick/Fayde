@@ -4,4 +4,4 @@
 (function (namespace) {
     var VisualStateChangedEventArgs = Nullstone.Create("VisualStateChangedEventArgs");
     namespace.VisualStateChangedEventArgs = Nullstone.FinishCreate(VisualStateChangedEventArgs);
-})(Nullstone.Namespace("Fayde.Media.VisualStateManager"));
+})(Nullstone.Namespace("Fayde.Media.VSM"));

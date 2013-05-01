@@ -65,7 +65,7 @@
         this.$UpdateVisualState$ButtonBase(useTransitions);
 
         var isChecked = this.IsChecked;
-        var vsm = Fayde.Media.VisualStateManager.VisualStateManager;
+        var vsm = Fayde.Media.VSM.VisualStateManager;
         if (isChecked === true) {
             vsm.GoToState(this, "Checked", useTransitions);
         } else if (isChecked === false) {

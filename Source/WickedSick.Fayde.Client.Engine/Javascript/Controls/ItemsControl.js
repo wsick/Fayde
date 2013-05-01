@@ -63,10 +63,10 @@
         get: function () {
             if (this._DisplayMemberTemplate == null) {
                 var json = {
-                    Type: namespace.Grid,
+                    ParseType: namespace.Grid,
                     Children: [
                         {
-                            Type: namespace.TextBlock,
+                            ParseType: namespace.TextBlock,
                             Props: {
                                 Text: new Fayde.BindingMarkup({ Path: this.DisplayMemberPath })
                             }
