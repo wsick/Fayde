@@ -5,19 +5,40 @@
 /// <reference path="Expression.ts" />
 /// <reference path="../Data/BindingExpression.ts" />
 /// <reference path="FrameworkElement.ts" />
+/// <reference path="Providers/InheritedDataContextProvider.ts" />
 
 module Fayde {
     export class UnsetValue { }
 
+    export class DONode extends XamlNode {
+        XObject: DependencyObject;
+        Store: Providers.BasicProviderStore;
+        constructor(xobj: DependencyObject) {
+            super(xobj);
+        }
+        
+        OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
+            this.Store.SetDataContextSourceNode(newParentNode);
+        }
+
+        get DataContext(): any { return this.Store.GetValue(DependencyObject.DataContextProperty); }
+        set DataContext(value: any) { this.Store.OnDataContextSourceValueChanged(value); }
+    }
+    Nullstone.RegisterType(DONode, "DONode");
+
     export class DependencyObject extends XamlObject implements ICloneable {
         private _Expressions: Expression[] = [];
         _Store: Providers.BasicProviderStore;
-        _CachedValues: any[] = [];
+
+        static DataContextProperty: DependencyProperty = DependencyProperty.RegisterCore("DataContext", () => Object, DependencyObject);
+        DataContext: any;
 
         constructor() {
             super();
-            this._Store = this.CreateStore();
+            this.XamlNode.Store = this._Store = this.CreateStore();
         }
+        XamlNode: DONode;
+        CreateNode(): DONode { return new DONode(this); }
         CreateStore(): Providers.BasicProviderStore {
             var s = new Providers.BasicProviderStore(this);
             s.SetProviders([null, 
@@ -26,7 +47,7 @@ module Fayde {
                 null,
                 null,
                 null,
-                null,
+                new Providers.InheritedDataContextProvider(s),
                 new Providers.DefaultValueProvider(),
                 new Providers.AutoCreateProvider()]
             );

@@ -52,9 +52,9 @@ module Fayde.Controls {
         InvokeLoaded() {
             var xobj = this.XObject;
             if (xobj.Content instanceof UIElement)
-                xobj.ClearValue(FrameworkElement.DataContextProperty);
+                xobj.ClearValue(DependencyObject.DataContextProperty);
             else
-                xobj.SetValue(FrameworkElement.DataContextProperty, xobj.Content);
+                xobj.SetValue(DependencyObject.DataContextProperty, xobj.Content);
         }
 
         _GetDefaultTemplate(): UIElement {
@@ -109,9 +109,9 @@ module Fayde.Controls {
                 node._ClearRoot();
 
             if (newContent && !newUie)
-                this._Store.SetValue(FrameworkElement.DataContextProperty, newContent);
+                this._Store.SetValue(DependencyObject.DataContextProperty, newContent);
             else
-                this._Store.ClearValue(FrameworkElement.DataContextProperty);
+                this._Store.ClearValue(DependencyObject.DataContextProperty);
             node.LayoutUpdater.InvalidateMeasure();
         }
         _ContentTemplateChanged(args: IDependencyPropertyChangedEventArgs) {

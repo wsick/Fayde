@@ -21,21 +21,19 @@ var Fayde;
             __extends(BindingExpressionBase, _super);
             function BindingExpressionBase(binding, target, propd) {
                         _super.call(this);
+                this._TwoWayTextBox = null;
+                //get DataContextSource(): FrameworkElement { return this._DataContextSource; }
                 this._Cached = false;
                 this._CachedValue = undefined;
                 this._Binding = binding;
                 this.Target = target;
-                if(target instanceof Fayde.FrameworkElement) {
-                    this.TargetFE = target;
-                }
                 this.Property = propd;
-                this._IsTwoWayTextBoxText = this.Target instanceof Fayde.Controls.TextBox && binding.Mode === Data.BindingMode.TwoWay;
+                if(this.Target instanceof Fayde.Controls.TextBox && binding.Mode === Data.BindingMode.TwoWay) {
+                    this._TwoWayTextBox = this.Target;
+                }
                 this._IsBoundToAnyDataContext = !this.Binding.ElementName && !this.Binding.Source;
-                var isDcProp = propd === Fayde.FrameworkElement.DataContextProperty;
+                var isDcProp = propd === Fayde.DependencyObject.DataContextProperty;
                 var isContentProp = propd === Fayde.Controls.ContentPresenter.ContentProperty;
-                this._IsSelfDataContextBound = this._IsBoundToAnyDataContext && this.TargetFE && !isDcProp;
-                this._IsParentDataContextBound = this._IsBoundToAnyDataContext && this.TargetFE && (isDcProp || isContentProp);
-                this._IsMentorDataContextBound = this._IsBoundToAnyDataContext && !this.TargetFE;
                 var bindsToView = isDcProp || propd.GetTargetType() === Fayde.IEnumerable_ || propd.GetTargetType() === Fayde.Data.ICollectionView_;
                 var walker = this.PropertyPathWalker = new Data.PropertyPathWalker(binding.Path.ParsePath, binding.BindsDirectlyToSource, bindsToView, this._IsBoundToAnyDataContext);
                 if(binding.Mode !== Data.BindingMode.OneTime) {
@@ -56,20 +54,6 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(BindingExpressionBase.prototype, "DataContextSource", {
-                get: function () {
-                    return this._DataContextSource;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            BindingExpressionBase.prototype.GetTargetMentor = function () {
-                var target = this.Target;
-                var mn = target.XamlNode.MentorNode;
-                if(mn) {
-                    return mn.XObject;
-                }
-            };
             BindingExpressionBase.prototype.IsBrokenChanged = function () {
                 this.Refresh();
             };
@@ -99,8 +83,8 @@ var Fayde;
                 }
                 _super.prototype.OnAttached.call(this, element);
                 this._CalculateDataSource();
-                if(this._IsTwoWayTextBoxText) {
-                    this.TargetFE.LostFocus.Subscribe(this._TextBoxLostFocus, this);
+                if(this._TwoWayTextBox) {
+                    this._TwoWayTextBox.LostFocus.Subscribe(this._TextBoxLostFocus, this);
                 }
                 if(this.Binding.Mode === Data.BindingMode.TwoWay && this.Property.IsCustom) {
                     this._PropertyListener = Fayde.ListenToPropertyChanged(this.Target, this.Property, this._UpdateSourceCallback, this);
@@ -119,22 +103,19 @@ var Fayde;
                     return;
                 }
                 _super.prototype.OnDetached.call(this, element);
-                if(this._IsTwoWayTextBoxText) {
-                    this.TargetFE.LostFocus.Unsubscribe(this._TextBoxLostFocus, this);
+                if(this._TwoWayTextBox) {
+                    this._TwoWayTextBox.LostFocus.Unsubscribe(this._TextBoxLostFocus, this);
                 }
-                if(this._IsMentorDataContextBound || this._IsParentDataContextBound) {
-                    this.TargetFE.XamlNode.UnmonitorAncestors(this);
+                if(this._IsBoundToAnyDataContext) {
+                    var listener = this._DataContextPropertyMonitor;
+                    if(listener) {
+                        listener.Detach();
+                    }
                     this.SetDataContextSource(null);
-                } else if(this._IsSelfDataContextBound) {
-                    this.SetDataContextSource(null);
-                }
-                var tfe = this.TargetFE;
-                if(!tfe) {
-                    tfe = this.GetTargetMentor();
                 }
                 /*
-                if (tfe && this.CurrentError != null) {
-                //TODO: Validation.RemoveError(tfe, this.CurrentError);
+                if (this.Target && this.CurrentError != null) {
+                //TODO: Validation.RemoveError(this.Target, this.CurrentError);
                 this.CurrentError = null;
                 }
                 */
@@ -168,7 +149,7 @@ var Fayde;
                 try  {
                     // If the user calls BindingExpresion.UpdateSource (), we must update regardless of focus state.
                     // Otherwise we only update if the textbox is unfocused.
-                    if(!force && this._IsTwoWayTextBoxText && App.Instance.MainSurface.FocusedNode === this.Target.XamlNode) {
+                    if(!force && this._TwoWayTextBox && App.Instance.MainSurface.FocusedNode === this.Target.XamlNode) {
                         return;
                     }
                     if(this.PropertyPathWalker.IsPathBroken) {
@@ -299,67 +280,28 @@ var Fayde;
                 NotImplemented("BindingExpressionBase._NotifyErrorsChanged");
             };
             BindingExpressionBase.prototype._CalculateDataSource = function () {
+                var _this = this;
                 var source;
-                var tfe;
                 if(this.Binding.Source) {
                     this.PropertyPathWalker.Update(this.Binding.Source);
                 } else if(this.Binding.ElementName != null) {
                     source = this._FindSourceByElementName();
-                    var feTarget = this.TargetFE || this.GetTargetMentor();
-                    if(!feTarget) {
-                        this.AttachTemporaryInvalidateMonitor();
-                    } else {
-                        feTarget.Loaded.Subscribe(this._HandleFeTargetLoaded, this);
-                    }
+                    this._SourceAvailableMonitor = this.Target.XamlNode.MonitorIsAttached(function (newIsAttached) {
+                        return _this._OnSourceAvailable();
+                    });
                     this.PropertyPathWalker.Update(source);
                 } else if(this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === Data.RelativeSourceMode.Self) {
                     this.PropertyPathWalker.Update(this.Target);
-                } else if(this._IsParentDataContextBound) {
-                    tfe = this.TargetFE;
-                    tfe.XamlNode.MonitorAncestors(this);
-                    var vpNode = tfe.XamlNode.VisualParentNode;
-                    tfe = (vpNode) ? vpNode.XObject : null;
-                    this.SetDataContextSource(tfe);
                 } else {
-                    tfe = this.TargetFE;
-                    if(!tfe) {
-                        this.Target.XamlNode.MonitorAncestors(this);
-                        tfe = this.GetTargetMentor();
-                    }
-                    if(tfe && this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === Data.RelativeSourceMode.TemplatedParent) {
-                        this.PropertyPathWalker.Update(tfe.TemplateOwner);
+                    if(this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === Data.RelativeSourceMode.TemplatedParent) {
+                        this.PropertyPathWalker.Update(this.Target.TemplateOwner);
                     } else {
-                        this.SetDataContextSource(tfe);
+                        this.SetDataContextSource(this.Target);
                     }
                 }
             };
-            BindingExpressionBase.prototype.SetDataContextSource = function (value) {
-                if(this._DataContextSource && this._DataContextPropertyListener) {
-                    this._DataContextPropertyListener.Detach();
-                    this._DataContextPropertyListener = null;
-                }
-                this._DataContextSource = value;
-                if(this._DataContextSource) {
-                    this._DataContextPropertyListener = Fayde.ListenToPropertyChanged(this._DataContextSource, Fayde.FrameworkElement.DataContextProperty, this._DataContextChanged, this);
-                }
-                if(this._DataContextSource || this._IsMentorDataContextBound) {
-                    this.PropertyPathWalker.Update(!this._DataContextSource ? null : this._DataContextSource.DataContext);
-                }
-            };
-            BindingExpressionBase.prototype._InvalidateAfterMentorChanged = function (node, mentorNode, listener) {
-                node.UnmonitorAncestors(listener);
-                var source = this._FindSourceByElementName();
-                if(!source) {
-                    this.GetTargetMentor().Loaded.Subscribe(this._HandleFeTargetLoaded, this);
-                } else {
-                    this.PropertyPathWalker.Update(source);
-                }
-                this._Invalidate();
-                this.Target.SetValue(this.Property, this);
-            };
-            BindingExpressionBase.prototype._HandleFeTargetLoaded = function (sender, e) {
-                var fe = sender;
-                fe.Loaded.Unsubscribe(this._HandleFeTargetLoaded, this);
+            BindingExpressionBase.prototype._OnSourceAvailable = function () {
+                this._SourceAvailableMonitor.Detach();
                 var source = this._FindSourceByElementName();
                 if(source) {
                     this.PropertyPathWalker.Update(source);
@@ -368,38 +310,52 @@ var Fayde;
                 this.Target.SetValue(this.Property, this);
             };
             BindingExpressionBase.prototype._FindSourceByElementName = function () {
-                var source;
-                var fe = this.TargetFE || this.GetTargetMentor();
-                var feMentorNode;
-                while(fe && !source) {
-                    source = fe.FindName(this.Binding.ElementName);
-                    if(!source && fe.TemplateOwner) {
-                        fe = fe.TemplateOwner;
-                        continue;
+                var xobj = this.Target;
+                var sourceNode;
+                var name = this.Binding.ElementName;
+                var xnode = (xobj) ? xobj.XamlNode : null;
+                var parentNode;
+                while(xnode) {
+                    sourceNode = xnode.FindName(name);
+                    if(sourceNode) {
+                        return sourceNode.XObject;
                     }
-                    feMentorNode = fe.XamlNode.MentorNode;
-                    if(feMentorNode && Fayde.Controls.ItemsControl.GetItemsOwner(feMentorNode.XObject)) {
-                        fe = feMentorNode.XObject;
-                        continue;
+                    if(xnode.XObject.TemplateOwner) {
+                        xobj = xnode.XObject.TemplateOwner;
+                    } else if((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItemsOwner(parentNode.XObject)) {
+                        xnode = parentNode;
                     }
-                    fe = null;
+                    break;
                 }
-                return source;
+                return undefined;
             };
-            BindingExpressionBase.prototype._Invalidate = function () {
-                this._Cached = false;
-                this._CachedValue = undefined;
+            BindingExpressionBase.prototype.SetDataContextSource = function (value) {
+                var _this = this;
+                if(this._DataContextPropertyMonitor) {
+                    this._DataContextPropertyMonitor.Detach();
+                    this._DataContextPropertyMonitor = null;
+                }
+                var dcs = this._DataContextSourceNode = value.XamlNode;
+                if(dcs) {
+                    this._DataContextPropertyMonitor = value.XamlNode.MonitorDataContext(function (newDataContext) {
+                        return _this._DataContextChanged(newDataContext);
+                    });
+                    this.PropertyPathWalker.Update(dcs ? dcs.DataContext : undefined);
+                }
             };
-            BindingExpressionBase.prototype._DataContextChanged = function (sender, args) {
+            BindingExpressionBase.prototype._DataContextChanged = function (newDataContext) {
                 try  {
-                    var fe = sender;
-                    this.PropertyPathWalker.Update(fe.DataContext);
+                    this.PropertyPathWalker.Update(newDataContext);
                     if(this.Binding.Mode === Data.BindingMode.OneTime) {
                         this.Refresh();
                     }
                 } catch (err) {
                     Warn(err.message);
                 }
+            };
+            BindingExpressionBase.prototype._Invalidate = function () {
+                this._Cached = false;
+                this._CachedValue = undefined;
             };
             BindingExpressionBase.prototype.Refresh = function () {
                 var dataError;
@@ -431,47 +387,6 @@ var Fayde;
                     this.IsUpdating = oldUpdating;
                 }
                 this._MaybeEmitError(dataError, exception);
-            };
-            BindingExpressionBase.prototype.AttachTemporaryInvalidateMonitor = function () {
-                var _this = this;
-                var tempListener = {
-                    MentorChanged: function (node, mentorNode) {
-                        return _this._InvalidateAfterMentorChanged(node, mentorNode, tempListener);
-                    },
-                    VisualParentChanged: function (node, vpNode) {
-                    }
-                };
-            };
-            BindingExpressionBase.prototype.DetachAncestorMonitor = function () {
-                if(this._IsMentorDataContextBound || this._IsParentDataContextBound) {
-                    this.Target.XamlNode.UnmonitorAncestors(this);
-                }
-            };
-            BindingExpressionBase.prototype.MentorChanged = function (node, mentorNode) {
-                if(this.TargetFE) {
-                    return;
-                }
-                try  {
-                    var mentor = (mentorNode) ? mentorNode.XObject : null;
-                    if(this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === Data.RelativeSourceMode.TemplatedParent) {
-                        if(!mentor) {
-                            this.PropertyPathWalker.Update(null);
-                        } else {
-                            this.PropertyPathWalker.Update(mentor.TemplateOwner);
-                        }
-                        this.Refresh();
-                    } else {
-                        this.SetDataContextSource(mentor);
-                    }
-                } catch (err) {
-                }
-            };
-            BindingExpressionBase.prototype.VisualParentChanged = function (uin, vpNode) {
-                try  {
-                    var vp = vpNode ? vpNode.XObject : null;
-                    this.SetDataContextSource(vp);
-                } catch (err) {
-                }
             };
             return BindingExpressionBase;
         })(Fayde.Expression);

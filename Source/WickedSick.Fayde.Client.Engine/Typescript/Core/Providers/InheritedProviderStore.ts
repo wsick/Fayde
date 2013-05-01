@@ -16,6 +16,7 @@ module Fayde.Providers {
         SetProviders(providerArr: Providers.IPropertyProvider[]) {
             this._LocalValueProvider = this._Providers[1] = <LocalValueProvider>providerArr[1];
             this._InheritedProvider = this._Providers[5] = <IInheritedProvider>providerArr[5];
+            this._InheritedDataContextProvider = this._Providers[6] = <IInheritedDataContextProvider>providerArr[6];
             this._DefaultValueProvider = this._Providers[7] = <DefaultValueProvider>providerArr[7];
             this._AutoCreateProvider = this._Providers[8] = <AutoCreateProvider>providerArr[8];
         }
@@ -23,6 +24,7 @@ module Fayde.Providers {
         private _Providers: IPropertyProvider[];
         private _LocalValueProvider: LocalValueProvider;
         private _InheritedProvider: IInheritedProvider;
+        private _InheritedDataContextProvider: IInheritedDataContextProvider;
         private _DefaultValueProvider: DefaultValueProvider;
         private _AutoCreateProvider: AutoCreateProvider;
 

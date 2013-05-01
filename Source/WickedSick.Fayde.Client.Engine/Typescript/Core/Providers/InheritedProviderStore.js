@@ -16,6 +16,7 @@ var Fayde;
             InheritedProviderStore.prototype.SetProviders = function (providerArr) {
                 this._LocalValueProvider = this._Providers[1] = providerArr[1];
                 this._InheritedProvider = this._Providers[5] = providerArr[5];
+                this._InheritedDataContextProvider = this._Providers[6] = providerArr[6];
                 this._DefaultValueProvider = this._Providers[7] = providerArr[7];
                 this._AutoCreateProvider = this._Providers[8] = providerArr[8];
             };

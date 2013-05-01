@@ -15,7 +15,7 @@ module Fayde.Controls {
         }
         return zi1 - zi2;
     }
-    class PanelChildrenNode extends XamlObjectCollectionNode {
+    class PanelChildrenNode extends XamlNode {
         ParentNode: PanelNode;
         private _Nodes: UINode[] = [];
         private _ZSorted: UINode[] = [];
@@ -26,14 +26,6 @@ module Fayde.Controls {
             var index = nodes.indexOf(uin);
             if (index > -1)
                 nodes.splice(index, 1);
-        }
-
-        OnIsAttachedChanged(newIsAttached: bool) {
-            var nodes = this._Nodes;
-            var len = nodes.length;
-            for (var i = 0; i < len; i++) {
-                nodes[i].SetIsAttached(newIsAttached);
-            }
         }
 
         ResortByZIndex() {
@@ -82,7 +74,6 @@ module Fayde.Controls {
     Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");
 
     export class PanelNode extends FENode implements IBoundsComputable {
-        private _Surface: Surface;
         XObject: Panel;
         constructor(xobj: Panel) {
             super(xobj);
@@ -120,7 +111,7 @@ module Fayde.Controls {
         OnIsAttachedChanged(newIsAttached: bool) {
             this.SetSurfaceFromVisualParent();
             this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
-            this.XObject.Children.XamlNode.SetIsAttached(newIsAttached);
+            super.OnIsAttachedChanged(newIsAttached);
         }
 
         _CanFindElement(): bool { return this.XObject.Background != null; }

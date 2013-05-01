@@ -18,7 +18,7 @@
 /// <reference path="../Media/GeneralTransform.ts"/>
 
 module Fayde {
-    export class UINode extends XamlNode {
+    export class UINode extends DONode {
         XObject: UIElement;
         LayoutUpdater: LayoutUpdater;
         IsTopLevel: bool = false;
@@ -62,6 +62,7 @@ module Fayde {
             if (newIsAttached)
                 vpNode = this.SetSurfaceFromVisualParent();
             this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, vpNode);
+            super.OnIsAttachedChanged(newIsAttached);
         }
 
         IsLoaded: bool = false;
@@ -97,11 +98,6 @@ module Fayde {
                 this.SetSurface(visualParentNode._Surface);
             } else {
                 this.SetSurface(null);
-            }
-            var ls = this._AncestorListeners;
-            var len = ls.length;
-            for (var i = 0; i < len; i++) {
-                ls[i].VisualParentChanged(this, visualParentNode);
             }
         }
 

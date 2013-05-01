@@ -8,60 +8,44 @@ var Fayde;
     (function (Providers) {
         var InheritedDataContextProvider = (function () {
             function InheritedDataContextProvider(store) {
-                this._Listener = null;
                 this._Store = store;
             }
             InheritedDataContextProvider.prototype.GetPropertyValue = function (store, propd) {
-                var source = this._Source;
-                if(!source) {
+                var sourceNode = this._SourceNode;
+                if(!sourceNode) {
                     return;
                 }
-                if(propd._ID !== Fayde.FrameworkElement.DataContextProperty._ID) {
+                if(propd !== Fayde.DependencyObject.DataContextProperty) {
                     return;
                 }
-                return source._Store.GetValue(Fayde.FrameworkElement.DataContextProperty);
+                return sourceNode.DataContext;
             };
-            InheritedDataContextProvider.prototype.SetDataSource = function (source) {
-                var oldSource = this._Source;
-                if(oldSource === source) {
+            InheritedDataContextProvider.prototype.SetDataSourceNode = function (sourceNode) {
+                var oldSourceNode = this._SourceNode;
+                if(oldSourceNode === sourceNode) {
                     return;
                 }
-                var oldValue = oldSource ? oldSource._Store.GetValue(Fayde.FrameworkElement.DataContextProperty) : undefined;
-                var newValue = source ? source._Store.GetValue(Fayde.FrameworkElement.DataContextProperty) : undefined;
-                this._DetachListener(oldSource);
-                this._Source = source;
-                this._AttachListener(source);
+                var oldValue = undefined;
+                var newValue = undefined;
+                if(oldSourceNode) {
+                    oldValue = oldSourceNode.DataContext;
+                }
+                this._SourceNode = sourceNode;
+                if(sourceNode) {
+                    newValue = sourceNode.DataContext;
+                }
                 if(!Nullstone.Equals(oldValue, newValue)) {
                     var error = new BError();
-                    this._Store._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, oldValue, newValue, false, error);
+                    this._Store._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, Fayde.DependencyObject.DataContextProperty, oldValue, newValue, false, error);
                 }
-            };
-            InheritedDataContextProvider.prototype._AttachListener = function (source) {
-                if(!source) {
-                    return;
-                }
-                this._Listener = Fayde.ListenToPropertyChanged(source, Fayde.FrameworkElement.DataContextProperty, this._SourceDataContextChanged, this);
-                //TODO: Add Handler - Destroyed Event
-                            };
-            InheritedDataContextProvider.prototype._DetachListener = function (source) {
-                if(!source) {
-                    return;
-                }
-                if(this._Listener) {
-                    this._Listener.Detach();
-                    this._Listener = null;
-                }
-                //TODO: Remove Handler - Destroyed Event
-                            };
-            InheritedDataContextProvider.prototype._SourceDataContextChanged = function (sender, args) {
-                var error = new BError();
-                this._Store._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, args.Property, args.OldValue, args.NewValue, true, error);
             };
             InheritedDataContextProvider.prototype.EmitChanged = function () {
-                if(this._Source) {
-                    var error = new BError();
-                    this._Store._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, Fayde.FrameworkElement.DataContextProperty, undefined, this._Source._Store.GetValue(Fayde.FrameworkElement.DataContextProperty), true, error);
+                var sourceNode = this._SourceNode;
+                if(!sourceNode) {
+                    return;
                 }
+                var error = new BError();
+                this._Store._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, Fayde.DependencyObject.DataContextProperty, undefined, sourceNode.DataContext, true, error);
             };
             return InheritedDataContextProvider;
         })();

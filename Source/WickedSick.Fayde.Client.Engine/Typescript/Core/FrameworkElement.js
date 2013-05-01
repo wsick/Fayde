@@ -28,26 +28,6 @@ var Fayde;
             this.SubtreeNode = subtreeNode;
             return true;
         };
-        FENode.prototype.OnParentChanged = function (oldParentNode, newParentNode) {
-            var store = this.XObject._Store;
-            var visualParentNode;
-            if(newParentNode && newParentNode instanceof FENode) {
-                store.SetDataContextSource(newParentNode.XObject);
-            } else if((visualParentNode = this.VisualParentNode) && visualParentNode instanceof FENode) {
-                store.SetDataContextSource(visualParentNode.XObject);
-            } else {
-                store.SetDataContextSource();
-            }
-            if(this.IsLoaded) {
-                store.EmitDataContextChanged();
-            }
-        };
-        FENode.prototype.OnIsAttachedChanged = function (newIsAttached) {
-            _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
-            if(this.SubtreeNode) {
-                this.SubtreeNode.SetIsAttached(newIsAttached);
-            }
-        };
         FENode.prototype.SetIsLoaded = function (value) {
             if(this.IsLoaded === value) {
                 return;
@@ -267,9 +247,6 @@ var Fayde;
         FrameworkElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () {
             return new Enum(Fayde.CursorType);
         }, FrameworkElement, Fayde.CursorType.Default);
-        FrameworkElement.DataContextProperty = DependencyProperty.RegisterCore("DataContext", function () {
-            return Object;
-        }, FrameworkElement);
         FrameworkElement.FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", function () {
             return new Enum(Fayde.FlowDirection);
         }, FrameworkElement, Fayde.FlowDirection.LeftToRight, function (d, args) {

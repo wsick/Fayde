@@ -13,9 +13,13 @@ module Fayde {
         ZReverse = 3,
     }
 
-    export interface IAncestorChangedListener {
-        MentorChanged(node: XamlNode, mentorNode: XamlNode);
-        VisualParentChanged(uin: UINode, vpNode: UINode);
+    export interface IDataContextMonitor {
+        Callback: (newDataContext: any) => void;
+        Detach();
+    }
+    export interface IIsAttachedMonitor {
+        Callback: (newIsAttached: bool) => void;
+        Detach();
     }
 
     export class XamlNode {
@@ -24,44 +28,53 @@ module Fayde {
         Name: string = "";
         NameScope: NameScope = null;
         private _OwnerNameScope: NameScope = null;
-        _AncestorListeners: IAncestorChangedListener[] = [];
-        private _MentorNode: FENode = null;
         private _LogicalChildren: XamlNode[] = [];
+
+        private _DCMonitors: IDataContextMonitor[] = null;
+        private _IAMonitors: IIsAttachedMonitor[] = null;
 
         constructor(xobj: XamlObject) {
             this.XObject = xobj;
         }
 
-        get MentorNode(): FENode { return this._MentorNode; }
-        SetMentorNode(mentorNode: FENode) {
-            if (this instanceof FENode)
+        private _DataContext: any = undefined;
+        get DataContext(): any { return this._DataContext; }
+        set DataContext(value: any) {
+            var old = this._DataContext;
+            if (old === value)
                 return;
-            if (this._MentorNode === mentorNode)
-                return;
-            var oldNode = mentorNode;
-            this._MentorNode = mentorNode;
-            this.OnMentorChanged(oldNode, mentorNode);
+            this._DataContext = value;
+            this.OnDataContextChanged(old, value);
         }
-        OnMentorChanged(oldMentorNode: FENode, newMentorNode: FENode) {
-            var ls = this._AncestorListeners;
-            var len = ls.length;
+        OnDataContextChanged(oldDataContext: any, newDataContext: any) {
+            var childNodes = this._LogicalChildren;
+            var len = childNodes.length;
+            var childNode: XamlNode = null;
             for (var i = 0; i < len; i++) {
-                ls[i].MentorChanged(oldMentorNode, newMentorNode);
+                childNode = childNodes[i];
+                childNode.DataContext = newDataContext;
             }
 
-            var children = this._LogicalChildren;
-            len = children.length;
+            var monitors = this._DCMonitors;
+            if (!monitors) return;
+            len = monitors.length;
             for (var i = 0; i < len; i++) {
-                children[i].SetMentorNode(newMentorNode);
+                monitors[i].Callback(newDataContext);
             }
         }
-        MonitorAncestors(listener: IAncestorChangedListener) {
-            this._AncestorListeners.push(listener);
-        }
-        UnmonitorAncestors(listener: IAncestorChangedListener) {
-            var index = this._AncestorListeners.indexOf(listener)
-            if (index > -1)
-                this._AncestorListeners.splice(index, 1);
+        MonitorDataContext(func: (newDataContext: any) => void): IDataContextMonitor {
+            var monitors = this._DCMonitors;
+            if (!monitors) this._DCMonitors = monitors = [];
+            var monitor: IDataContextMonitor = {
+                Callback: func,
+                Detach: null
+            };
+            monitor.Detach = function () {
+                var index = monitors.indexOf(monitor);
+                if (index > -1) monitors.splice(index, 1);
+            };
+            this._DCMonitors.push(monitor);
+            return monitor;
         }
 
         FindName(name: string): XamlNode {
@@ -102,7 +115,36 @@ module Fayde {
             this.IsAttached = value;
             this.OnIsAttachedChanged(value);
         }
-        OnIsAttachedChanged(newIsAttached: bool) { }
+        OnIsAttachedChanged(newIsAttached: bool) {
+            var childNodes = this._LogicalChildren;
+            var len = childNodes.length;
+            var childNode: XamlNode = null;
+            for (var i = 0; i < len; i++) {
+                childNode = childNodes[i];
+                childNode.SetIsAttached(newIsAttached);
+            }
+
+            var monitors = this._IAMonitors;
+            if (!monitors) return;
+            len = monitors.length;
+            for (var i = 0; i < len; i++) {
+                monitors[i].Callback(newIsAttached);
+            }
+        }
+        MonitorIsAttached(func: (newIsAttached: bool) => void ): IIsAttachedMonitor {
+            var monitors = this._IAMonitors;
+            if (!monitors) this._IAMonitors = monitors = [];
+            var monitor: IIsAttachedMonitor = {
+                Callback: func,
+                Detach: null
+            };
+            monitor.Detach = function () {
+                var index = monitors.indexOf(monitor);
+                if (index > -1) monitors.splice(index, 1);
+            };
+            this._IAMonitors.push(monitor);
+            return monitor;
+        }
 
         AttachTo(parentNode: XamlNode, error: BError): bool {
             var curNode = parentNode;
@@ -178,14 +220,7 @@ module Fayde {
             if (old != null)
                 this.OnParentChanged(old, null);
         }
-        OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
-            if (this instanceof FENode)
-                this.SetMentorNode(<FENode>this);
-            else if (newParentNode instanceof FENode)
-                this.SetMentorNode(<FENode>newParentNode);
-            else if (newParentNode._MentorNode)
-                this.SetMentorNode(newParentNode._MentorNode);
-        }
+        OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) { }
 
         GetInheritedEnumerator(): IEnumerator { return undefined; }
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator { return undefined; }

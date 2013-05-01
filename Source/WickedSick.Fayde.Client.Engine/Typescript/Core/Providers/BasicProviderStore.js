@@ -85,6 +85,7 @@ var Fayde;
             }
             BasicProviderStore.prototype.SetProviders = function (providerArr) {
                 this._LocalValueProvider = this._Providers[1] = providerArr[1];
+                this._InheritedDataContextProvider = this._Providers[6] = providerArr[6];
                 this._DefaultValueProvider = this._Providers[7] = providerArr[7];
                 this._AutoCreateProvider = this._Providers[8] = providerArr[8];
             };
@@ -227,7 +228,6 @@ var Fayde;
                 return val;
             };
             BasicProviderStore.prototype._ProviderValueChanged = function (providerPrecedence, propd, oldProviderValue, newProviderValue, notifyListeners, error) {
-                delete this._Object._CachedValues[propd._ID];
                 var bitmask = this._ProviderBitmasks[propd._ID] | 0;
                 if(newProviderValue !== undefined) {
                     bitmask |= 1 << providerPrecedence;
@@ -401,6 +401,16 @@ var Fayde;
                     this.SetValue(dpIds[id], localStorage[id]);
                 }
                 this._CloneAnimationStorage(sourceStore);
+            };
+            BasicProviderStore.prototype.EmitDataContextChanged = function () {
+                this._InheritedDataContextProvider.EmitChanged();
+            };
+            BasicProviderStore.prototype.SetDataContextSourceNode = function (sourceNode) {
+                this._InheritedDataContextProvider.SetDataSourceNode(sourceNode);
+            };
+            BasicProviderStore.prototype.OnDataContextSourceValueChanged = function (newDataContext) {
+                var error = new BError();
+                this._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, Fayde.DependencyObject.DataContextProperty, this._Object.DataContext, newDataContext, true, error);
             };
             return BasicProviderStore;
         })();

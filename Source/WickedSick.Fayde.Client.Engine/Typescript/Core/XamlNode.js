@@ -20,50 +20,62 @@ var Fayde;
             this.Name = "";
             this.NameScope = null;
             this._OwnerNameScope = null;
-            this._AncestorListeners = [];
-            this._MentorNode = null;
             this._LogicalChildren = [];
+            this._DCMonitors = null;
+            this._IAMonitors = null;
+            this._DataContext = undefined;
             this.IsAttached = false;
             this.XObject = xobj;
         }
-        Object.defineProperty(XamlNode.prototype, "MentorNode", {
+        Object.defineProperty(XamlNode.prototype, "DataContext", {
             get: function () {
-                return this._MentorNode;
+                return this._DataContext;
+            },
+            set: function (value) {
+                var old = this._DataContext;
+                if(old === value) {
+                    return;
+                }
+                this._DataContext = value;
+                this.OnDataContextChanged(old, value);
             },
             enumerable: true,
             configurable: true
         });
-        XamlNode.prototype.SetMentorNode = function (mentorNode) {
-            if(this instanceof Fayde.FENode) {
+        XamlNode.prototype.OnDataContextChanged = function (oldDataContext, newDataContext) {
+            var childNodes = this._LogicalChildren;
+            var len = childNodes.length;
+            var childNode = null;
+            for(var i = 0; i < len; i++) {
+                childNode = childNodes[i];
+                childNode.DataContext = newDataContext;
+            }
+            var monitors = this._DCMonitors;
+            if(!monitors) {
                 return;
             }
-            if(this._MentorNode === mentorNode) {
-                return;
-            }
-            var oldNode = mentorNode;
-            this._MentorNode = mentorNode;
-            this.OnMentorChanged(oldNode, mentorNode);
-        };
-        XamlNode.prototype.OnMentorChanged = function (oldMentorNode, newMentorNode) {
-            var ls = this._AncestorListeners;
-            var len = ls.length;
+            len = monitors.length;
             for(var i = 0; i < len; i++) {
-                ls[i].MentorChanged(oldMentorNode, newMentorNode);
-            }
-            var children = this._LogicalChildren;
-            len = children.length;
-            for(var i = 0; i < len; i++) {
-                children[i].SetMentorNode(newMentorNode);
+                monitors[i].Callback(newDataContext);
             }
         };
-        XamlNode.prototype.MonitorAncestors = function (listener) {
-            this._AncestorListeners.push(listener);
-        };
-        XamlNode.prototype.UnmonitorAncestors = function (listener) {
-            var index = this._AncestorListeners.indexOf(listener);
-            if(index > -1) {
-                this._AncestorListeners.splice(index, 1);
+        XamlNode.prototype.MonitorDataContext = function (func) {
+            var monitors = this._DCMonitors;
+            if(!monitors) {
+                this._DCMonitors = monitors = [];
             }
+            var monitor = {
+                Callback: func,
+                Detach: null
+            };
+            monitor.Detach = function () {
+                var index = monitors.indexOf(monitor);
+                if(index > -1) {
+                    monitors.splice(index, 1);
+                }
+            };
+            this._DCMonitors.push(monitor);
+            return monitor;
         };
         XamlNode.prototype.FindName = function (name) {
             var scope = this.FindNameScope();
@@ -106,6 +118,39 @@ var Fayde;
             this.OnIsAttachedChanged(value);
         };
         XamlNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
+            var childNodes = this._LogicalChildren;
+            var len = childNodes.length;
+            var childNode = null;
+            for(var i = 0; i < len; i++) {
+                childNode = childNodes[i];
+                childNode.SetIsAttached(newIsAttached);
+            }
+            var monitors = this._IAMonitors;
+            if(!monitors) {
+                return;
+            }
+            len = monitors.length;
+            for(var i = 0; i < len; i++) {
+                monitors[i].Callback(newIsAttached);
+            }
+        };
+        XamlNode.prototype.MonitorIsAttached = function (func) {
+            var monitors = this._IAMonitors;
+            if(!monitors) {
+                this._IAMonitors = monitors = [];
+            }
+            var monitor = {
+                Callback: func,
+                Detach: null
+            };
+            monitor.Detach = function () {
+                var index = monitors.indexOf(monitor);
+                if(index > -1) {
+                    monitors.splice(index, 1);
+                }
+            };
+            this._IAMonitors.push(monitor);
+            return monitor;
         };
         XamlNode.prototype.AttachTo = function (parentNode, error) {
             var curNode = parentNode;
@@ -183,13 +228,6 @@ var Fayde;
             }
         };
         XamlNode.prototype.OnParentChanged = function (oldParentNode, newParentNode) {
-            if(this instanceof Fayde.FENode) {
-                this.SetMentorNode(this);
-            } else if(newParentNode instanceof Fayde.FENode) {
-                this.SetMentorNode(newParentNode);
-            } else if(newParentNode._MentorNode) {
-                this.SetMentorNode(newParentNode._MentorNode);
-            }
         };
         XamlNode.prototype.GetInheritedEnumerator = function () {
             return undefined;

@@ -29,7 +29,7 @@ var Fayde;
                 }
             };
             return TextElementNode;
-        })(Fayde.XamlNode);
+        })(Fayde.DONode);
         Documents.TextElementNode = TextElementNode;        
         Nullstone.RegisterType(TextElementNode, "TextElementNode");
         var TextElement = (function (_super) {
@@ -48,7 +48,7 @@ var Fayde;
                     null, 
                     null, 
                     new Fayde.Providers.InheritedProvider(), 
-                    null, 
+                    new Fayde.Providers.InheritedDataContextProvider(s), 
                     new Fayde.Providers.DefaultValueProvider(), 
                     new Fayde.Providers.AutoCreateProvider()
                 ]);

@@ -119,12 +119,6 @@ var Fayde;
             FrameworkProviderStore.prototype.SetLocalStyle = function (style, error) {
                 this._LocalStyleProvider.UpdateStyle(style, error);
             };
-            FrameworkProviderStore.prototype.EmitDataContextChanged = function () {
-                this._InheritedDataContextProvider.EmitChanged();
-            };
-            FrameworkProviderStore.prototype.SetDataContextSource = function (source) {
-                this._InheritedDataContextProvider.SetDataSource(source);
-            };
             return FrameworkProviderStore;
         })(Providers.InheritedProviderStore);
         Providers.FrameworkProviderStore = FrameworkProviderStore;        

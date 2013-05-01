@@ -13,6 +13,7 @@ module Fayde.Providers {
         }
     }
     Nullstone.RegisterType(DefaultValueProvider, "DefaultValueProvider");
+
     export class AutoCreateProvider implements IPropertyProvider {
         private _ht: any[] = [];
         GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
@@ -40,6 +41,7 @@ module Fayde.Providers {
         }
     }
     Nullstone.RegisterType(AutoCreateProvider, "AutoCreateProvider");
+
     export class LocalValueProvider implements IPropertyProvider {
         private _ht: any[] = [];
         GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
@@ -53,6 +55,11 @@ module Fayde.Providers {
         }
     }
     Nullstone.RegisterType(LocalValueProvider, "LocalValueProvider");
+    
+    export interface IInheritedDataContextProvider extends IPropertyProvider {
+        EmitChanged();
+        SetDataSourceNode(sourceNode: XamlNode);
+    }
 
     export class BasicProviderStore {
         _Object: DependencyObject;
@@ -62,6 +69,7 @@ module Fayde.Providers {
         private _AnimStorage: Media.Animation.AnimationStorage[][] = [];
 
         private _LocalValueProvider: LocalValueProvider;
+        private _InheritedDataContextProvider: IInheritedDataContextProvider;
         private _DefaultValueProvider: DefaultValueProvider;
         private _AutoCreateProvider: AutoCreateProvider;
 
@@ -71,6 +79,7 @@ module Fayde.Providers {
 
         SetProviders(providerArr: Providers.IPropertyProvider[]) {
             this._LocalValueProvider = this._Providers[1] = <LocalValueProvider>providerArr[1];
+            this._InheritedDataContextProvider = this._Providers[6] = <IInheritedDataContextProvider>providerArr[6];
             this._DefaultValueProvider = this._Providers[7] = <DefaultValueProvider>providerArr[7];
             this._AutoCreateProvider = this._Providers[8] = <AutoCreateProvider>providerArr[8];
         }
@@ -212,8 +221,6 @@ module Fayde.Providers {
         }
 
         _ProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldProviderValue: any, newProviderValue: any, notifyListeners: bool, error: BError) {
-            delete this._Object._CachedValues[propd._ID];
-
             var bitmask = this._ProviderBitmasks[propd._ID] | 0;
             if (newProviderValue !== undefined)
                 bitmask |= 1 << providerPrecedence;
@@ -378,6 +385,13 @@ module Fayde.Providers {
             }
 
             this._CloneAnimationStorage(sourceStore);
+        }
+        
+        EmitDataContextChanged() { this._InheritedDataContextProvider.EmitChanged(); }
+        SetDataContextSourceNode(sourceNode?: XamlNode) { this._InheritedDataContextProvider.SetDataSourceNode(sourceNode); }
+        OnDataContextSourceValueChanged(newDataContext: any) {
+            var error = new BError();
+            this._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, DependencyObject.DataContextProperty, this._Object.DataContext, newDataContext, true, error);
         }
     }
     Nullstone.RegisterType(BasicProviderStore, "BasicProviderStore");

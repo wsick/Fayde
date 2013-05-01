@@ -40,13 +40,6 @@ var Fayde;
                     nodes.splice(index, 1);
                 }
             };
-            PanelChildrenNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
-                var nodes = this._Nodes;
-                var len = nodes.length;
-                for(var i = 0; i < len; i++) {
-                    nodes[i].SetIsAttached(newIsAttached);
-                }
-            };
             PanelChildrenNode.prototype.ResortByZIndex = function () {
                 var zs = this._Nodes.slice(0);
                 this._ZSorted = zs;
@@ -74,7 +67,7 @@ var Fayde;
                 }
             };
             return PanelChildrenNode;
-        })(Fayde.XamlObjectCollectionNode);        
+        })(Fayde.XamlNode);        
         Nullstone.RegisterType(PanelChildrenNode, "PanelChildrenNode");
         var PanelChildrenCollection = (function (_super) {
             __extends(PanelChildrenCollection, _super);
@@ -137,7 +130,7 @@ var Fayde;
             PanelNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
                 this.SetSurfaceFromVisualParent();
                 this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
-                this.XObject.Children.XamlNode.SetIsAttached(newIsAttached);
+                _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
             };
             PanelNode.prototype._CanFindElement = function () {
                 return this.XObject.Background != null;

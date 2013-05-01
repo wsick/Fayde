@@ -63,6 +63,7 @@ var Fayde;
                 vpNode = this.SetSurfaceFromVisualParent();
             }
             this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, vpNode);
+            _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
         };
         UINode.prototype.SetIsLoaded = function (value) {
         };
@@ -94,11 +95,6 @@ var Fayde;
                 this.SetSurface(visualParentNode._Surface);
             } else {
                 this.SetSurface(null);
-            }
-            var ls = this._AncestorListeners;
-            var len = ls.length;
-            for(var i = 0; i < len; i++) {
-                ls[i].VisualParentChanged(this, visualParentNode);
             }
         };
         UINode.prototype.Focus = function () {
@@ -323,7 +319,7 @@ var Fayde;
             return this.LayoutUpdater.TransformToVisual(uin);
         };
         return UINode;
-    })(Fayde.XamlNode);
+    })(Fayde.DONode);
     Fayde.UINode = UINode;    
     Nullstone.RegisterType(UINode, "UINode");
     var UIElement = (function (_super) {

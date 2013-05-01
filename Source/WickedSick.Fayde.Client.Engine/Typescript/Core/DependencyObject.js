@@ -10,6 +10,7 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path="Expression.ts" />
 /// <reference path="../Data/BindingExpression.ts" />
 /// <reference path="FrameworkElement.ts" />
+/// <reference path="Providers/InheritedDataContextProvider.ts" />
 var Fayde;
 (function (Fayde) {
     var UnsetValue = (function () {
@@ -17,14 +18,41 @@ var Fayde;
         return UnsetValue;
     })();
     Fayde.UnsetValue = UnsetValue;    
+    var DONode = (function (_super) {
+        __extends(DONode, _super);
+        function DONode(xobj) {
+                _super.call(this, xobj);
+        }
+        DONode.prototype.OnParentChanged = function (oldParentNode, newParentNode) {
+            this.Store.SetDataContextSourceNode(newParentNode);
+        };
+        Object.defineProperty(DONode.prototype, "DataContext", {
+            get: function () {
+                return this.Store.GetValue(DependencyObject.DataContextProperty);
+            },
+            set: function (value) {
+                this.Store.OnDataContextSourceValueChanged(value);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return DONode;
+    })(Fayde.XamlNode);
+    Fayde.DONode = DONode;    
+    Nullstone.RegisterType(DONode, "DONode");
     var DependencyObject = (function (_super) {
         __extends(DependencyObject, _super);
         function DependencyObject() {
                 _super.call(this);
             this._Expressions = [];
-            this._CachedValues = [];
-            this._Store = this.CreateStore();
+            this.XamlNode.Store = this._Store = this.CreateStore();
         }
+        DependencyObject.DataContextProperty = DependencyProperty.RegisterCore("DataContext", function () {
+            return Object;
+        }, DependencyObject);
+        DependencyObject.prototype.CreateNode = function () {
+            return new DONode(this);
+        };
         DependencyObject.prototype.CreateStore = function () {
             var s = new Fayde.Providers.BasicProviderStore(this);
             s.SetProviders([
@@ -34,7 +62,7 @@ var Fayde;
                 null, 
                 null, 
                 null, 
-                null, 
+                new Fayde.Providers.InheritedDataContextProvider(s), 
                 new Fayde.Providers.DefaultValueProvider(), 
                 new Fayde.Providers.AutoCreateProvider()
             ]);

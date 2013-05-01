@@ -7,7 +7,7 @@
 /// <reference path="../Runtime/Enum.ts"/>
 
 module Fayde.Documents {
-    export class TextElementNode extends XamlNode {
+    export class TextElementNode extends DONode {
         XObject: TextElement;
         constructor(xobj: TextElement, inheritedWalkProperty: DependencyProperty) {
             super(xobj);
@@ -34,7 +34,7 @@ module Fayde.Documents {
                 null,
                 null,
                 new Providers.InheritedProvider(),
-                null,
+                new Providers.InheritedDataContextProvider(s),
                 new Providers.DefaultValueProvider(),
                 new Providers.AutoCreateProvider()]
             );

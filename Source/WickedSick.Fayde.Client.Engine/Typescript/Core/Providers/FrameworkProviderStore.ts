@@ -11,10 +11,6 @@ module Fayde.Providers {
         SetStyles(styleMask: _StyleMask, styles: Style[], error: BError);
         ClearStyles(styleMask: _StyleMask, error: BError);
     }
-    export interface IInheritedDataContextProvider extends IPropertyProvider {
-        EmitChanged();
-        SetDataSource(source: FrameworkElement);
-    }
 
     export class FrameworkProviderStore extends InheritedProviderStore {
         constructor(dobj: DependencyObject) {
@@ -136,12 +132,6 @@ module Fayde.Providers {
         }
         SetLocalStyle(style: Style, error: BError) {
             this._LocalStyleProvider.UpdateStyle(style, error);
-        }
-        EmitDataContextChanged() {
-            this._InheritedDataContextProvider.EmitChanged();
-        }
-        SetDataContextSource(source?: FrameworkElement) {
-            this._InheritedDataContextProvider.SetDataSource(source);
         }
     }
     Nullstone.RegisterType(FrameworkProviderStore, "FrameworkProviderStore");

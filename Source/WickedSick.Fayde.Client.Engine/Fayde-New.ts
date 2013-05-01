@@ -5859,9 +5859,13 @@ module Fayde {
         ZFoward = 2,
         ZReverse = 3,
     }
-    export interface IAncestorChangedListener {
-        MentorChanged(node: XamlNode, mentorNode: XamlNode);
-        VisualParentChanged(uin: UINode, vpNode: UINode);
+    export interface IDataContextMonitor {
+        Callback: (newDataContext: any) => void;
+        Detach();
+    }
+    export interface IIsAttachedMonitor {
+        Callback: (newIsAttached: bool) => void;
+        Detach();
     }
     export class XamlNode {
         XObject: XamlObject;
@@ -5869,41 +5873,49 @@ module Fayde {
         Name: string = "";
         NameScope: NameScope = null;
         private _OwnerNameScope: NameScope = null;
-        _AncestorListeners: IAncestorChangedListener[] = [];
-        private _MentorNode: FENode = null;
         private _LogicalChildren: XamlNode[] = [];
+        private _DCMonitors: IDataContextMonitor[] = null;
+        private _IAMonitors: IIsAttachedMonitor[] = null;
         constructor(xobj: XamlObject) {
             this.XObject = xobj;
         }
-        get MentorNode(): FENode { return this._MentorNode; }
-        SetMentorNode(mentorNode: FENode) {
-            if (this instanceof FENode)
+        private _DataContext: any = undefined;
+        get DataContext(): any { return this._DataContext; }
+        set DataContext(value: any) {
+            var old = this._DataContext;
+            if (old === value)
                 return;
-            if (this._MentorNode === mentorNode)
-                return;
-            var oldNode = mentorNode;
-            this._MentorNode = mentorNode;
-            this.OnMentorChanged(oldNode, mentorNode);
+            this._DataContext = value;
+            this.OnDataContextChanged(old, value);
         }
-        OnMentorChanged(oldMentorNode: FENode, newMentorNode: FENode) {
-            var ls = this._AncestorListeners;
-            var len = ls.length;
+        OnDataContextChanged(oldDataContext: any, newDataContext: any) {
+            var childNodes = this._LogicalChildren;
+            var len = childNodes.length;
+            var childNode: XamlNode = null;
             for (var i = 0; i < len; i++) {
-                ls[i].MentorChanged(oldMentorNode, newMentorNode);
+                childNode = childNodes[i];
+                childNode.DataContext = newDataContext;
             }
-            var children = this._LogicalChildren;
-            len = children.length;
+            var monitors = this._DCMonitors;
+            if (!monitors) return;
+            len = monitors.length;
             for (var i = 0; i < len; i++) {
-                children[i].SetMentorNode(newMentorNode);
+                monitors[i].Callback(newDataContext);
             }
         }
-        MonitorAncestors(listener: IAncestorChangedListener) {
-            this._AncestorListeners.push(listener);
-        }
-        UnmonitorAncestors(listener: IAncestorChangedListener) {
-            var index = this._AncestorListeners.indexOf(listener)
-            if (index > -1)
-                this._AncestorListeners.splice(index, 1);
+        MonitorDataContext(func: (newDataContext: any) => void): IDataContextMonitor {
+            var monitors = this._DCMonitors;
+            if (!monitors) this._DCMonitors = monitors = [];
+            var monitor: IDataContextMonitor = {
+                Callback: func,
+                Detach: null
+            };
+            monitor.Detach = function () {
+                var index = monitors.indexOf(monitor);
+                if (index > -1) monitors.splice(index, 1);
+            };
+            this._DCMonitors.push(monitor);
+            return monitor;
         }
         FindName(name: string): XamlNode {
             var scope = this.FindNameScope();
@@ -5941,7 +5953,35 @@ module Fayde {
             this.IsAttached = value;
             this.OnIsAttachedChanged(value);
         }
-        OnIsAttachedChanged(newIsAttached: bool) { }
+        OnIsAttachedChanged(newIsAttached: bool) {
+            var childNodes = this._LogicalChildren;
+            var len = childNodes.length;
+            var childNode: XamlNode = null;
+            for (var i = 0; i < len; i++) {
+                childNode = childNodes[i];
+                childNode.SetIsAttached(newIsAttached);
+            }
+            var monitors = this._IAMonitors;
+            if (!monitors) return;
+            len = monitors.length;
+            for (var i = 0; i < len; i++) {
+                monitors[i].Callback(newIsAttached);
+            }
+        }
+        MonitorIsAttached(func: (newIsAttached: bool) => void ): IIsAttachedMonitor {
+            var monitors = this._IAMonitors;
+            if (!monitors) this._IAMonitors = monitors = [];
+            var monitor: IIsAttachedMonitor = {
+                Callback: func,
+                Detach: null
+            };
+            monitor.Detach = function () {
+                var index = monitors.indexOf(monitor);
+                if (index > -1) monitors.splice(index, 1);
+            };
+            this._IAMonitors.push(monitor);
+            return monitor;
+        }
         AttachTo(parentNode: XamlNode, error: BError): bool {
             var curNode = parentNode;
             var data = {
@@ -6011,14 +6051,7 @@ module Fayde {
             if (old != null)
                 this.OnParentChanged(old, null);
         }
-        OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
-            if (this instanceof FENode)
-                this.SetMentorNode(<FENode>this);
-            else if (newParentNode instanceof FENode)
-                this.SetMentorNode(<FENode>newParentNode);
-            else if (newParentNode._MentorNode)
-                this.SetMentorNode(newParentNode._MentorNode);
-        }
+        OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) { }
         GetInheritedEnumerator(): IEnumerator { return undefined; }
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator { return undefined; }
     }
@@ -6094,6 +6127,10 @@ module Fayde.Providers {
         }
     }
     Nullstone.RegisterType(LocalValueProvider, "LocalValueProvider");
+    export interface IInheritedDataContextProvider extends IPropertyProvider {
+        EmitChanged();
+        SetDataSourceNode(sourceNode: XamlNode);
+    }
     export class BasicProviderStore {
         _Object: DependencyObject;
         private _Providers: IPropertyProvider[] = [null, null, null, null, null, null, null, null, null];
@@ -6101,6 +6138,7 @@ module Fayde.Providers {
         _ProviderBitmasks: number[] = [];
         private _AnimStorage: Media.Animation.AnimationStorage[][] = [];
         private _LocalValueProvider: LocalValueProvider;
+        private _InheritedDataContextProvider: IInheritedDataContextProvider;
         private _DefaultValueProvider: DefaultValueProvider;
         private _AutoCreateProvider: AutoCreateProvider;
         constructor(dobj: DependencyObject) {
@@ -6108,6 +6146,7 @@ module Fayde.Providers {
         }
         SetProviders(providerArr: Providers.IPropertyProvider[]) {
             this._LocalValueProvider = this._Providers[1] = <LocalValueProvider>providerArr[1];
+            this._InheritedDataContextProvider = this._Providers[6] = <IInheritedDataContextProvider>providerArr[6];
             this._DefaultValueProvider = this._Providers[7] = <DefaultValueProvider>providerArr[7];
             this._AutoCreateProvider = this._Providers[8] = <AutoCreateProvider>providerArr[8];
         }
@@ -6222,7 +6261,6 @@ module Fayde.Providers {
             return val;
         }
         _ProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldProviderValue: any, newProviderValue: any, notifyListeners: bool, error: BError) {
-            delete this._Object._CachedValues[propd._ID];
             var bitmask = this._ProviderBitmasks[propd._ID] | 0;
             if (newProviderValue !== undefined)
                 bitmask |= 1 << providerPrecedence;
@@ -6371,6 +6409,12 @@ module Fayde.Providers {
             }
             this._CloneAnimationStorage(sourceStore);
         }
+        EmitDataContextChanged() { this._InheritedDataContextProvider.EmitChanged(); }
+        SetDataContextSourceNode(sourceNode?: XamlNode) { this._InheritedDataContextProvider.SetDataSourceNode(sourceNode); }
+        OnDataContextSourceValueChanged(newDataContext: any) {
+            var error = new BError();
+            this._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, DependencyObject.DataContextProperty, this._Object.DataContext, newDataContext, true, error);
+        }
     }
     Nullstone.RegisterType(BasicProviderStore, "BasicProviderStore");
 }
@@ -6511,56 +6555,39 @@ module Fayde.Providers {
 
 module Fayde.Providers {
     export class InheritedDataContextProvider implements IPropertyProvider, IInheritedDataContextProvider {
-        private _Source: FrameworkElement;
+        private _SourceNode: XamlNode;
         private _Store: IProviderStore;
-        private _Listener: Providers.IPropertyChangedListener = null;
         constructor(store: IProviderStore) {
             this._Store = store;
         }
         GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
-            var source = this._Source;
-            if (!source)
+            var sourceNode = this._SourceNode;
+            if (!sourceNode)
                 return;
-            if (propd._ID !== FrameworkElement.DataContextProperty._ID)
+            if (propd !== DependencyObject.DataContextProperty)
                 return;
-            return source._Store.GetValue(FrameworkElement.DataContextProperty);
+            return sourceNode.DataContext;
         }
-        SetDataSource(source: FrameworkElement) {
-            var oldSource = this._Source;
-            if (oldSource === source)
+        SetDataSourceNode(sourceNode: XamlNode) {
+            var oldSourceNode = this._SourceNode;
+            if (oldSourceNode === sourceNode)
                 return;
-            var oldValue = oldSource ? oldSource._Store.GetValue(FrameworkElement.DataContextProperty) : undefined;
-            var newValue = source ? source._Store.GetValue(FrameworkElement.DataContextProperty) : undefined;
-            this._DetachListener(oldSource);
-            this._Source = source;
-            this._AttachListener(source);
+            var oldValue: any = undefined;
+            var newValue: any = undefined;
+            if (oldSourceNode) oldValue = oldSourceNode.DataContext;
+            this._SourceNode = sourceNode;
+            if (sourceNode) newValue = sourceNode.DataContext;
             if (!Nullstone.Equals(oldValue, newValue)) {
                 var error = new BError();
-                this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, FrameworkElement.DataContextProperty, oldValue, newValue, false, error);
+                this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, DependencyObject.DataContextProperty, oldValue, newValue, false, error);
             }
-        }
-        private _AttachListener(source: FrameworkElement) {
-            if (!source)
-                return;
-            this._Listener = Fayde.ListenToPropertyChanged(source, FrameworkElement.DataContextProperty, this._SourceDataContextChanged, this);
-        }
-        private _DetachListener(source: FrameworkElement) {
-            if (!source)
-                return;
-            if (this._Listener) {
-                this._Listener.Detach();
-                this._Listener = null;
-            }
-        }
-        private _SourceDataContextChanged(sender, args: IDependencyPropertyChangedEventArgs) {
-            var error = new BError();
-            this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, args.Property, args.OldValue, args.NewValue, true, error);
         }
         private EmitChanged() {
-            if (this._Source) {
-                var error = new BError();
-                this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, FrameworkElement.DataContextProperty, undefined, this._Source._Store.GetValue(FrameworkElement.DataContextProperty), true, error);
-            }
+            var sourceNode = this._SourceNode;
+            if (!sourceNode)
+                return;
+            var error = new BError();
+            this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, DependencyObject.DataContextProperty, undefined, sourceNode.DataContext, true, error);
         }
     }
     Nullstone.RegisterType(InheritedDataContextProvider, "InheritedDataContextProvider");
@@ -6896,12 +6923,14 @@ module Fayde.Providers {
         SetProviders(providerArr: Providers.IPropertyProvider[]) {
             this._LocalValueProvider = this._Providers[1] = <LocalValueProvider>providerArr[1];
             this._InheritedProvider = this._Providers[5] = <IInheritedProvider>providerArr[5];
+            this._InheritedDataContextProvider = this._Providers[6] = <IInheritedDataContextProvider>providerArr[6];
             this._DefaultValueProvider = this._Providers[7] = <DefaultValueProvider>providerArr[7];
             this._AutoCreateProvider = this._Providers[8] = <AutoCreateProvider>providerArr[8];
         }
         private _Providers: IPropertyProvider[];
         private _LocalValueProvider: LocalValueProvider;
         private _InheritedProvider: IInheritedProvider;
+        private _InheritedDataContextProvider: IInheritedDataContextProvider;
         private _DefaultValueProvider: DefaultValueProvider;
         private _AutoCreateProvider: AutoCreateProvider;
         _PostProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldValue: any, newValue: any, notifyListeners: bool, error: BError) {
@@ -7028,45 +7057,31 @@ module Fayde.Data {
 
 module Fayde.Data {
     declare var NotImplemented;
-    export class BindingExpressionBase extends Fayde.Expression implements IPropertyPathWalkerListener, IAncestorChangedListener {
+    export class BindingExpressionBase extends Fayde.Expression implements IPropertyPathWalkerListener {
         private _Binding: Data.Binding;
         Target: DependencyObject;
-        TargetFE: FrameworkElement;
         Property: DependencyProperty;
         private PropertyPathWalker: PropertyPathWalker;
-        private _DataContextSource: FrameworkElement;
+        private _DataContextSourceNode: XamlNode;
         private _PropertyListener: Providers.IPropertyChangedListener;
-        private _DataContextPropertyListener: Providers.IPropertyChangedListener;
+        private _DataContextPropertyMonitor: IDataContextMonitor;
+        private _SourceAvailableMonitor: IIsAttachedMonitor;
         private _IsBoundToAnyDataContext: bool;
-        private _IsSelfDataContextBound: bool;
-        private _IsParentDataContextBound: bool;
-        private _IsMentorDataContextBound: bool;
-        private _IsTwoWayTextBoxText: bool;
+        private _TwoWayTextBox: Controls.TextBox = null;
         get Binding(): Data.Binding { return this._Binding; }
         get DataSource(): any { return this.PropertyPathWalker.Source; }
-        get DataContextSource(): FrameworkElement { return this._DataContextSource; }
-        GetTargetMentor(): FrameworkElement {
-            var target = this.Target;
-            var mn = target.XamlNode.MentorNode;
-            if (mn)
-                return mn.XObject;
-        }
         private _Cached: bool = false;
         private _CachedValue: any = undefined;
         constructor(binding: Data.Binding, target: DependencyObject, propd: DependencyProperty) {
             super();
             this._Binding = binding;
             this.Target = target;
-            if (target instanceof FrameworkElement)
-                this.TargetFE = <FrameworkElement>target;
             this.Property = propd;
-            this._IsTwoWayTextBoxText = this.Target instanceof Controls.TextBox && binding.Mode === BindingMode.TwoWay;
+            if (this.Target instanceof Controls.TextBox && binding.Mode === BindingMode.TwoWay)
+                this._TwoWayTextBox = <Controls.TextBox>this.Target;
             this._IsBoundToAnyDataContext = !this.Binding.ElementName && !this.Binding.Source;
-            var isDcProp = propd === FrameworkElement.DataContextProperty;
+            var isDcProp = propd === DependencyObject.DataContextProperty;
             var isContentProp = propd === Controls.ContentPresenter.ContentProperty;
-            this._IsSelfDataContextBound = this._IsBoundToAnyDataContext && this.TargetFE && !isDcProp;
-            this._IsParentDataContextBound = this._IsBoundToAnyDataContext && this.TargetFE && (isDcProp || isContentProp);
-            this._IsMentorDataContextBound = this._IsBoundToAnyDataContext && !this.TargetFE;
             var bindsToView = isDcProp || propd.GetTargetType() === <any>IEnumerable_ || propd.GetTargetType() === <any>Data.ICollectionView_;
             var walker = this.PropertyPathWalker = new PropertyPathWalker(binding.Path.ParsePath, binding.BindsDirectlyToSource, bindsToView, this._IsBoundToAnyDataContext);
             if (binding.Mode !== BindingMode.OneTime)
@@ -7095,8 +7110,8 @@ module Fayde.Data {
                 return;
             super.OnAttached(element);
             this._CalculateDataSource();
-            if (this._IsTwoWayTextBoxText)
-                this.TargetFE.LostFocus.Subscribe(this._TextBoxLostFocus, this);
+            if (this._TwoWayTextBox)
+                this._TwoWayTextBox.LostFocus.Subscribe(this._TextBoxLostFocus, this);
             if (this.Binding.Mode === BindingMode.TwoWay && this.Property.IsCustom) {
                 this._PropertyListener = Fayde.ListenToPropertyChanged(this.Target, this.Property, this._UpdateSourceCallback, this);
             }
@@ -7108,22 +7123,19 @@ module Fayde.Data {
             } catch (err) {
             }
         }
-        OnDetached(element:DependencyObject) {
+        OnDetached(element: DependencyObject) {
             if (!this.IsAttached)
                 return;
             super.OnDetached(element);
-            if (this._IsTwoWayTextBoxText)
-                this.TargetFE.LostFocus.Unsubscribe(this._TextBoxLostFocus, this);
-            if (this._IsMentorDataContextBound || this._IsParentDataContextBound) {
-                this.TargetFE.XamlNode.UnmonitorAncestors(this);
-                this.SetDataContextSource(null);
-            } else if (this._IsSelfDataContextBound) {
+            if (this._TwoWayTextBox)
+                this._TwoWayTextBox.LostFocus.Unsubscribe(this._TextBoxLostFocus, this);
+            if (this._IsBoundToAnyDataContext) {
+                var listener = this._DataContextPropertyMonitor;
+                if (listener) listener.Detach();
                 this.SetDataContextSource(null);
             }
-            var tfe = this.TargetFE;
-            if (!tfe) tfe = this.GetTargetMentor();
             /*
-            if (tfe && this.CurrentError != null) {
+            if (this.Target && this.CurrentError != null) {
                 this.CurrentError = null;
             }
             */
@@ -7153,7 +7165,7 @@ module Fayde.Data {
             var oldUpdating = this.IsUpdating;
             var node = this.PropertyPathWalker.FinalNode;
             try {
-                if (!force && this._IsTwoWayTextBoxText && App.Instance.MainSurface.FocusedNode === this.Target.XamlNode)
+                if (!force && this._TwoWayTextBox && App.Instance.MainSurface.FocusedNode === this.Target.XamlNode)
                     return;
                 if (this.PropertyPathWalker.IsPathBroken)
                     return;
@@ -7267,102 +7279,70 @@ module Fayde.Data {
         }
         private _CalculateDataSource() {
             var source: any;
-            var tfe: FrameworkElement;
             if (this.Binding.Source) {
                 this.PropertyPathWalker.Update(this.Binding.Source);
             } else if (this.Binding.ElementName != null) {
                 source = this._FindSourceByElementName();
-                var feTarget = this.TargetFE || this.GetTargetMentor();
-                if (!feTarget) {
-                    this.AttachTemporaryInvalidateMonitor();
-                } else {
-                    feTarget.Loaded.Subscribe(this._HandleFeTargetLoaded, this);
-                }
+                this._SourceAvailableMonitor = this.Target.XamlNode.MonitorIsAttached((newIsAttached) => this._OnSourceAvailable());
                 this.PropertyPathWalker.Update(source);
             } else if (this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === RelativeSourceMode.Self) {
                 this.PropertyPathWalker.Update(this.Target);
-            } else if (this._IsParentDataContextBound) {
-                tfe = this.TargetFE;
-                tfe.XamlNode.MonitorAncestors(this);
-                var vpNode = <FENode>tfe.XamlNode.VisualParentNode;
-                tfe = (vpNode) ? vpNode.XObject : null;
-                this.SetDataContextSource(tfe);
             } else {
-                tfe = this.TargetFE;
-                if (!tfe) {
-                    this.Target.XamlNode.MonitorAncestors(this);
-                    tfe = this.GetTargetMentor();
-                }
-                if (tfe && this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === RelativeSourceMode.TemplatedParent) {
-                    this.PropertyPathWalker.Update(tfe.TemplateOwner);
+                if (this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === RelativeSourceMode.TemplatedParent) {
+                    this.PropertyPathWalker.Update(this.Target.TemplateOwner);
                 } else {
-                    this.SetDataContextSource(tfe);
+                    this.SetDataContextSource(this.Target);
                 }
             }
         }
-        SetDataContextSource(value: FrameworkElement) {
-            if (this._DataContextSource && this._DataContextPropertyListener) {
-                this._DataContextPropertyListener.Detach();
-                this._DataContextPropertyListener = null;
-            }
-            this._DataContextSource = value;
-            if (this._DataContextSource)
-                this._DataContextPropertyListener = Fayde.ListenToPropertyChanged(this._DataContextSource, FrameworkElement.DataContextProperty, this._DataContextChanged, this);
-            if (this._DataContextSource || this._IsMentorDataContextBound)
-                this.PropertyPathWalker.Update(!this._DataContextSource ? null : this._DataContextSource.DataContext);
-        }
-        private _InvalidateAfterMentorChanged(node: XamlNode, mentorNode: XamlNode, listener: IAncestorChangedListener) {
-            node.UnmonitorAncestors(listener);
+        private _OnSourceAvailable() {
+            this._SourceAvailableMonitor.Detach();
             var source = this._FindSourceByElementName();
-            if (!source) {
-                this.GetTargetMentor().Loaded.Subscribe(this._HandleFeTargetLoaded, this);
-            } else {
-                this.PropertyPathWalker.Update(source);
-            }
+            if (source) this.PropertyPathWalker.Update(source);
             this._Invalidate();
             this.Target.SetValue(this.Property, this);
         }
-        private _HandleFeTargetLoaded(sender, e: EventArgs) {
-            var fe = sender;
-            fe.Loaded.Unsubscribe(this._HandleFeTargetLoaded, this);
-            var source = this._FindSourceByElementName();
-            if (source)
-                this.PropertyPathWalker.Update(source);
-            this._Invalidate();
-            this.Target.SetValue(this.Property, this);
-        }
-        private _FindSourceByElementName(): any {
-            var source;
-            var fe: FrameworkElement = this.TargetFE || this.GetTargetMentor();
-            var feMentorNode: FENode;
-            while (fe && !source) {
-                source = fe.FindName(this.Binding.ElementName);
-                if (!source && fe.TemplateOwner) {
-                    fe = <FrameworkElement>fe.TemplateOwner;
-                    continue;
-                }
-                feMentorNode = fe.XamlNode.MentorNode;
-                if (feMentorNode && Controls.ItemsControl.GetItemsOwner(feMentorNode.XObject)) {
-                    fe = feMentorNode.XObject;
-                    continue;
-                }
-                fe = null;
+        private _FindSourceByElementName(): XamlObject {
+            var xobj: XamlObject = this.Target;
+            var sourceNode: XamlNode;
+            var name = this.Binding.ElementName;
+            var xnode: XamlNode = (xobj) ? xobj.XamlNode : null;
+            var parentNode: XamlNode;
+            while (xnode) {
+                sourceNode = xnode.FindName(name);
+                if (sourceNode)
+                    return sourceNode.XObject;
+                if (xnode.XObject.TemplateOwner)
+                    xobj = xnode.XObject.TemplateOwner;
+                else if ((parentNode = xnode.ParentNode) && Controls.ItemsControl.GetItemsOwner(<UIElement>parentNode.XObject))
+                    xnode = parentNode;
+                break;
             }
-            return source;
+            return undefined;
         }
-        private _Invalidate() {
-            this._Cached = false;
-            this._CachedValue = undefined;
+        SetDataContextSource(value: XamlObject) {
+            if (this._DataContextPropertyMonitor) {
+                this._DataContextPropertyMonitor.Detach();
+                this._DataContextPropertyMonitor = null;
+            }
+            var dcs = this._DataContextSourceNode = value.XamlNode;
+            if (dcs) {
+                this._DataContextPropertyMonitor = value.XamlNode.MonitorDataContext((newDataContext) => this._DataContextChanged(newDataContext));
+                this.PropertyPathWalker.Update(dcs ? dcs.DataContext : undefined);
+            }
         }
-        private _DataContextChanged(sender, args: IDependencyPropertyChangedEventArgs) {
+        private _DataContextChanged(newDataContext: any) {
             try {
-                var fe = sender;
-                this.PropertyPathWalker.Update(fe.DataContext);
+                this.PropertyPathWalker.Update(newDataContext);
                 if (this.Binding.Mode === BindingMode.OneTime)
                     this.Refresh();
             } catch (err) {
                 Warn(err.message);
             }
+        }
+        private _Invalidate() {
+            this._Cached = false;
+            this._CachedValue = undefined;
         }
         Refresh() {
             var dataError;
@@ -7384,40 +7364,6 @@ module Fayde.Data {
                 this.IsUpdating = oldUpdating;
             }
             this._MaybeEmitError(dataError, exception);
-        }
-        private AttachTemporaryInvalidateMonitor() {
-            var tempListener: IAncestorChangedListener = {
-                MentorChanged: (node, mentorNode) => this._InvalidateAfterMentorChanged(node, mentorNode, tempListener),
-                VisualParentChanged: (node, vpNode) => { }
-            };
-        }
-        private DetachAncestorMonitor() {
-            if (this._IsMentorDataContextBound || this._IsParentDataContextBound)
-                this.Target.XamlNode.UnmonitorAncestors(this);
-        }
-        private MentorChanged(node: XamlNode, mentorNode: FENode) {
-            if (this.TargetFE)
-                return;
-            try {
-                var mentor = (mentorNode) ? mentorNode.XObject : null;
-                if (this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === RelativeSourceMode.TemplatedParent) {
-                    if (!mentor)
-                        this.PropertyPathWalker.Update(null);
-                    else
-                        this.PropertyPathWalker.Update(mentor.TemplateOwner);
-                    this.Refresh();
-                } else {
-                    this.SetDataContextSource(mentor);
-                }
-            } catch (err) {
-            }
-        }
-        private VisualParentChanged(uin: UINode, vpNode: UINode) {
-            try {
-                var vp = vpNode ? vpNode.XObject : null;
-                this.SetDataContextSource(<FrameworkElement>vp);
-            } catch (err) {
-            }
         }
     }
     Nullstone.RegisterType(BindingExpressionBase, "BindingExpressionBase");
@@ -10276,14 +10222,30 @@ module Fayde {
 
 module Fayde {
     export class UnsetValue { }
+    export class DONode extends XamlNode {
+        XObject: DependencyObject;
+        Store: Providers.BasicProviderStore;
+        constructor(xobj: DependencyObject) {
+            super(xobj);
+        }
+        OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
+            this.Store.SetDataContextSourceNode(newParentNode);
+        }
+        get DataContext(): any { return this.Store.GetValue(DependencyObject.DataContextProperty); }
+        set DataContext(value: any) { this.Store.OnDataContextSourceValueChanged(value); }
+    }
+    Nullstone.RegisterType(DONode, "DONode");
     export class DependencyObject extends XamlObject implements ICloneable {
         private _Expressions: Expression[] = [];
         _Store: Providers.BasicProviderStore;
-        _CachedValues: any[] = [];
+        static DataContextProperty: DependencyProperty = DependencyProperty.RegisterCore("DataContext", () => Object, DependencyObject);
+        DataContext: any;
         constructor() {
             super();
-            this._Store = this.CreateStore();
+            this.XamlNode.Store = this._Store = this.CreateStore();
         }
+        XamlNode: DONode;
+        CreateNode(): DONode { return new DONode(this); }
         CreateStore(): Providers.BasicProviderStore {
             var s = new Providers.BasicProviderStore(this);
             s.SetProviders([null, 
@@ -10292,7 +10254,7 @@ module Fayde {
                 null,
                 null,
                 null,
-                null,
+                new Providers.InheritedDataContextProvider(s),
                 new Providers.DefaultValueProvider(),
                 new Providers.AutoCreateProvider()]
             );
@@ -10548,25 +10510,9 @@ module Fayde {
 }
 
 module Fayde {
-    export class XamlObjectCollectionNode extends XamlNode {
-        XObject: XamlObjectCollection;
-        constructor(xobj: XamlObjectCollection) {
-            super(xobj);
-        }
-        OnMentorChanged(oldMentorNode: FENode, newMentorNode: FENode) {
-            super.OnMentorChanged(oldMentorNode, newMentorNode);
-            var enumerator = this.XObject.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                (<XamlObject>enumerator.Current).XamlNode.SetMentorNode(newMentorNode);
-            }
-        }
-    }
-    Nullstone.RegisterType(XamlObjectCollectionNode, "XamlObjectCollectionNode");
     export class XamlObjectCollection extends XamlObject implements IEnumerable {
         private _ht: XamlObject[] = [];
         get Count() { return this._ht.length; }
-        XamlNode: XamlObjectCollectionNode;
-        CreateNode(): XamlObjectCollectionNode { return new XamlObjectCollectionNode(this); }
         GetValueAt(index: number): XamlObject {
             return this._ht[index];
         }
@@ -10674,10 +10620,6 @@ module Fayde.Providers {
         SetStyles(styleMask: _StyleMask, styles: Style[], error: BError);
         ClearStyles(styleMask: _StyleMask, error: BError);
     }
-    export interface IInheritedDataContextProvider extends IPropertyProvider {
-        EmitChanged();
-        SetDataSource(source: FrameworkElement);
-    }
     export class FrameworkProviderStore extends InheritedProviderStore {
         constructor(dobj: DependencyObject) {
             super(dobj);
@@ -10783,12 +10725,6 @@ module Fayde.Providers {
         }
         SetLocalStyle(style: Style, error: BError) {
             this._LocalStyleProvider.UpdateStyle(style, error);
-        }
-        EmitDataContextChanged() {
-            this._InheritedDataContextProvider.EmitChanged();
-        }
-        SetDataContextSource(source?: FrameworkElement) {
-            this._InheritedDataContextProvider.SetDataSource(source);
         }
     }
     Nullstone.RegisterType(FrameworkProviderStore, "FrameworkProviderStore");
@@ -10917,7 +10853,7 @@ module Fayde.Data {
 }
 
 module Fayde.Documents {
-    export class TextElementNode extends XamlNode {
+    export class TextElementNode extends DONode {
         XObject: TextElement;
         constructor(xobj: TextElement, inheritedWalkProperty: DependencyProperty) {
             super(xobj);
@@ -10943,7 +10879,7 @@ module Fayde.Documents {
                 null,
                 null,
                 new Providers.InheritedProvider(),
-                null,
+                new Providers.InheritedDataContextProvider(s),
                 new Providers.DefaultValueProvider(),
                 new Providers.AutoCreateProvider()]
             );
@@ -13412,7 +13348,7 @@ module Fayde {
 }
 
 module Fayde {
-    export class UINode extends XamlNode {
+    export class UINode extends DONode {
         XObject: UIElement;
         LayoutUpdater: LayoutUpdater;
         IsTopLevel: bool = false;
@@ -13451,6 +13387,7 @@ module Fayde {
             if (newIsAttached)
                 vpNode = this.SetSurfaceFromVisualParent();
             this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, vpNode);
+            super.OnIsAttachedChanged(newIsAttached);
         }
         IsLoaded: bool = false;
         SetIsLoaded(value: bool) { }
@@ -13481,11 +13418,6 @@ module Fayde {
                 this.SetSurface(visualParentNode._Surface);
             } else {
                 this.SetSurface(null);
-            }
-            var ls = this._AncestorListeners;
-            var len = ls.length;
-            for (var i = 0; i < len; i++) {
-                ls[i].VisualParentChanged(this, visualParentNode);
             }
         }
         Focus(): bool { return false; }
@@ -15053,23 +14985,6 @@ module Fayde {
             this.SubtreeNode = subtreeNode;
             return true;
         }
-        OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
-            var store = this.XObject._Store;
-            var visualParentNode: FENode;
-            if (newParentNode && newParentNode instanceof FENode)
-                store.SetDataContextSource(<FrameworkElement>newParentNode.XObject);
-            else if ((visualParentNode = <FENode>this.VisualParentNode) && visualParentNode instanceof FENode)
-                store.SetDataContextSource(visualParentNode.XObject);
-            else
-                store.SetDataContextSource();
-            if (this.IsLoaded)
-                store.EmitDataContextChanged();
-        }
-        OnIsAttachedChanged(newIsAttached: bool) {
-            super.OnIsAttachedChanged(newIsAttached);
-            if (this.SubtreeNode)
-                this.SubtreeNode.SetIsAttached(newIsAttached);
-        }
         SetIsLoaded(value: bool) {
             if (this.IsLoaded === value)
                 return;
@@ -15243,7 +15158,6 @@ module Fayde {
         static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", () => Number, FrameworkElement);
         static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", () => Number, FrameworkElement);
         static CursorProperty: DependencyProperty = DependencyProperty.RegisterFull("Cursor", () => new Enum(CursorType), FrameworkElement, CursorType.Default);
-        static DataContextProperty: DependencyProperty = DependencyProperty.RegisterCore("DataContext", () => Object, FrameworkElement);
         static FlowDirectionProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FlowDirection", () => new Enum(FlowDirection), FrameworkElement, FlowDirection.LeftToRight, (d, args) => (<FrameworkElement>d)._SizeChanged(args), undefined, Providers._Inheritable.FlowDirection);
         static HeightProperty: DependencyProperty = DependencyProperty.RegisterCore("Height", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._HeightChanged(args));
         static HorizontalAlignmentProperty: DependencyProperty = DependencyProperty.RegisterCore("HorizontalAlignment", () => new Enum(HorizontalAlignment), FrameworkElement, HorizontalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
@@ -15257,7 +15171,6 @@ module Fayde {
         static WidthProperty: DependencyProperty = DependencyProperty.RegisterCore("Width", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._WidthChanged(args));
         ActualHeight: number;
         ActualWidth: number;
-        DataContext: any;
         FlowDirection: FlowDirection;
         Height: number;
         HorizontalAlignment: HorizontalAlignment;
@@ -16041,9 +15954,9 @@ module Fayde.Controls {
         InvokeLoaded() {
             var xobj = this.XObject;
             if (xobj.Content instanceof UIElement)
-                xobj.ClearValue(FrameworkElement.DataContextProperty);
+                xobj.ClearValue(DependencyObject.DataContextProperty);
             else
-                xobj.SetValue(FrameworkElement.DataContextProperty, xobj.Content);
+                xobj.SetValue(DependencyObject.DataContextProperty, xobj.Content);
         }
         _GetDefaultTemplate(): UIElement {
             var xobj = this.XObject;
@@ -16089,9 +16002,9 @@ module Fayde.Controls {
             if (newUie || args.OldValue instanceof UIElement)
                 node._ClearRoot();
             if (newContent && !newUie)
-                this._Store.SetValue(FrameworkElement.DataContextProperty, newContent);
+                this._Store.SetValue(DependencyObject.DataContextProperty, newContent);
             else
-                this._Store.ClearValue(FrameworkElement.DataContextProperty);
+                this._Store.ClearValue(DependencyObject.DataContextProperty);
             node.LayoutUpdater.InvalidateMeasure();
         }
         _ContentTemplateChanged(args: IDependencyPropertyChangedEventArgs) {
@@ -16748,7 +16661,7 @@ module Fayde.Controls {
         }
         return zi1 - zi2;
     }
-    class PanelChildrenNode extends XamlObjectCollectionNode {
+    class PanelChildrenNode extends XamlNode {
         ParentNode: PanelNode;
         private _Nodes: UINode[] = [];
         private _ZSorted: UINode[] = [];
@@ -16758,13 +16671,6 @@ module Fayde.Controls {
             var index = nodes.indexOf(uin);
             if (index > -1)
                 nodes.splice(index, 1);
-        }
-        OnIsAttachedChanged(newIsAttached: bool) {
-            var nodes = this._Nodes;
-            var len = nodes.length;
-            for (var i = 0; i < len; i++) {
-                nodes[i].SetIsAttached(newIsAttached);
-            }
         }
         ResortByZIndex() {
             var zs = this._Nodes.slice(0);
@@ -16810,7 +16716,6 @@ module Fayde.Controls {
     }
     Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");
     export class PanelNode extends FENode implements IBoundsComputable {
-        private _Surface: Surface;
         XObject: Panel;
         constructor(xobj: Panel) {
             super(xobj);
@@ -16845,7 +16750,7 @@ module Fayde.Controls {
         OnIsAttachedChanged(newIsAttached: bool) {
             this.SetSurfaceFromVisualParent();
             this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
-            this.XObject.Children.XamlNode.SetIsAttached(newIsAttached);
+            super.OnIsAttachedChanged(newIsAttached);
         }
         _CanFindElement(): bool { return this.XObject.Background != null; }
         _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {

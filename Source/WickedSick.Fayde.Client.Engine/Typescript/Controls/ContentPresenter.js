@@ -58,9 +58,9 @@ var Fayde;
             ContentPresenterNode.prototype.InvokeLoaded = function () {
                 var xobj = this.XObject;
                 if(xobj.Content instanceof Fayde.UIElement) {
-                    xobj.ClearValue(Fayde.FrameworkElement.DataContextProperty);
+                    xobj.ClearValue(Fayde.DependencyObject.DataContextProperty);
                 } else {
-                    xobj.SetValue(Fayde.FrameworkElement.DataContextProperty, xobj.Content);
+                    xobj.SetValue(Fayde.DependencyObject.DataContextProperty, xobj.Content);
                 }
             };
             ContentPresenterNode.prototype._GetDefaultTemplate = function () {
@@ -126,9 +126,9 @@ var Fayde;
                     node._ClearRoot();
                 }
                 if(newContent && !newUie) {
-                    this._Store.SetValue(Fayde.FrameworkElement.DataContextProperty, newContent);
+                    this._Store.SetValue(Fayde.DependencyObject.DataContextProperty, newContent);
                 } else {
-                    this._Store.ClearValue(Fayde.FrameworkElement.DataContextProperty);
+                    this._Store.ClearValue(Fayde.DependencyObject.DataContextProperty);
                 }
                 node.LayoutUpdater.InvalidateMeasure();
             };

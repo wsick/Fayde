@@ -25,25 +25,6 @@ module Fayde {
             return true;
         }
 
-        OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
-            var store = this.XObject._Store;
-            var visualParentNode: FENode;
-            if (newParentNode && newParentNode instanceof FENode)
-                store.SetDataContextSource(<FrameworkElement>newParentNode.XObject);
-            else if ((visualParentNode = <FENode>this.VisualParentNode) && visualParentNode instanceof FENode)
-                store.SetDataContextSource(visualParentNode.XObject);
-            else
-                store.SetDataContextSource();
-
-            if (this.IsLoaded)
-                store.EmitDataContextChanged();
-        }
-        OnIsAttachedChanged(newIsAttached: bool) {
-            super.OnIsAttachedChanged(newIsAttached);
-            if (this.SubtreeNode)
-                this.SubtreeNode.SetIsAttached(newIsAttached);
-        }
-
         SetIsLoaded(value: bool) {
             if (this.IsLoaded === value)
                 return;
@@ -241,7 +222,6 @@ module Fayde {
         static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", () => Number, FrameworkElement);
         static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", () => Number, FrameworkElement);
         static CursorProperty: DependencyProperty = DependencyProperty.RegisterFull("Cursor", () => new Enum(CursorType), FrameworkElement, CursorType.Default);
-        static DataContextProperty: DependencyProperty = DependencyProperty.RegisterCore("DataContext", () => Object, FrameworkElement);
         static FlowDirectionProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FlowDirection", () => new Enum(FlowDirection), FrameworkElement, FlowDirection.LeftToRight, (d, args) => (<FrameworkElement>d)._SizeChanged(args), undefined, Providers._Inheritable.FlowDirection);
         static HeightProperty: DependencyProperty = DependencyProperty.RegisterCore("Height", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._HeightChanged(args));
         static HorizontalAlignmentProperty: DependencyProperty = DependencyProperty.RegisterCore("HorizontalAlignment", () => new Enum(HorizontalAlignment), FrameworkElement, HorizontalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
@@ -257,7 +237,6 @@ module Fayde {
                 
         ActualHeight: number;
         ActualWidth: number;
-        DataContext: any;
         FlowDirection: FlowDirection;
         Height: number;
         HorizontalAlignment: HorizontalAlignment;
