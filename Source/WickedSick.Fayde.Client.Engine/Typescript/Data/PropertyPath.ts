@@ -32,6 +32,7 @@ module Fayde.Data {
         lookupNamespaces.push(Fayde.Controls);
         lookupNamespaces.push(Fayde.Media);
         lookupNamespaces.push(Fayde.Controls.Primitives);
+        lookupNamespaces.push(Fayde.Shapes);
         lookupNamespaces.push(window);
 
         var len = lookupNamespaces.length;
