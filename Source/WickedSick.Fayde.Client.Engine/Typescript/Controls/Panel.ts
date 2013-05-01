@@ -128,7 +128,7 @@ module Fayde.Controls {
                 var item = <UINode>enumerator.Current;
                 var itemlu = item.LayoutUpdater;
                 if (itemlu.TotalIsRenderVisible)
-                    rect.union(lu.ExtentsWithChildren, itemlu.GlobalBounds);
+                    rect.union(lu.ExtentsWithChildren, itemlu.GlobalBoundsWithChildren);
             }
 
             if (this.XObject.Background) {

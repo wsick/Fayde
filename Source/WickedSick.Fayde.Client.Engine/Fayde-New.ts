@@ -4876,13 +4876,13 @@ module Fayde {
             if (f & dirtyEnum.Bounds) {
                 f &= ~dirtyEnum.Bounds;
                 var oextents = rect.clone(this.ExtentsWithChildren);
-                var oglobalbounds = rect.clone(this.GlobalBounds);
+                var oglobalbounds = rect.clone(this.GlobalBoundsWithChildren);
                 var osubtreebounds = rect.clone(this.SurfaceBoundsWithChildren);
                 if ((<IBoundsComputable><any>thisNode).ComputeBounds)
                     (<IBoundsComputable><any>thisNode).ComputeBounds(this.ComputeBounds, this);
                 else
                     this.ComputeBounds();
-                if (!rect.isEqual(oglobalbounds, this.GlobalBounds)) {
+                if (!rect.isEqual(oglobalbounds, this.GlobalBoundsWithChildren)) {
                     if (visualParentLu) {
                         visualParentLu.UpdateBounds();
                         visualParentLu.Invalidate(osubtreebounds);
@@ -5168,7 +5168,7 @@ module Fayde {
                 var item = <UINode>enumerator.Current;
                 var itemlu = item.LayoutUpdater;
                 if (itemlu.TotalIsRenderVisible)
-                    rect.union(this.ExtentsWithChildren, itemlu.GlobalBounds);
+                    rect.union(this.ExtentsWithChildren, itemlu.GlobalBoundsWithChildren);
             }
             this.IntersectBoundsWithClipPath(this.Bounds, this.AbsoluteXform);
             rect.copyGrowTransform(this.BoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, this.AbsoluteXform);
@@ -16787,7 +16787,7 @@ module Fayde.Controls {
                 var item = <UINode>enumerator.Current;
                 var itemlu = item.LayoutUpdater;
                 if (itemlu.TotalIsRenderVisible)
-                    rect.union(lu.ExtentsWithChildren, itemlu.GlobalBounds);
+                    rect.union(lu.ExtentsWithChildren, itemlu.GlobalBoundsWithChildren);
             }
             if (this.XObject.Background) {
                 rect.set(lu.Extents, 0, 0, lu.ActualWidth, lu.ActualHeight);

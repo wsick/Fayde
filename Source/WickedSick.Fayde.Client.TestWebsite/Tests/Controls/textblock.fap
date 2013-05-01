@@ -4,7 +4,11 @@
     Debug="true"
     UseNew="true"
     ScriptResolution="/Fayde/">
-    <Grid>
-        <TextBlock Text="This is a test!" />
+    <FaydeApplication.UriMappings>
+    </FaydeApplication.UriMappings>
+    <Grid x:Name="LayoutRoot">
+        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Text="This is a test!" />
+        </Grid>
     </Grid>
 </FaydeApplication>
