@@ -74,8 +74,7 @@ module Fayde {
             lu.PreviousConstraint = undefined;
 
             var un = uie.XamlNode;
-            un.VisualParentNode = this;
-            un.VisualParentNode.SetSurface(this._Surface);
+            un.SetVisualParentNode(this);
             this.XObject._Store.PropagateInheritedOnAdd(un);
             un.LayoutUpdater.OnAddedToTree();
         }
@@ -85,10 +84,25 @@ module Fayde {
             lu.Invalidate(un.LayoutUpdater.SurfaceBoundsWithChildren);
             lu.InvalidateMeasure();
 
-            un.VisualParentNode.SetSurface(null);
-            un.VisualParentNode = null;
+            un.SetVisualParentNode(null);
             un.LayoutUpdater.OnRemovedFromTree();
             this.XObject._Store.ClearInheritedOnRemove(un);
+        }
+
+        private SetVisualParentNode(visualParentNode: UINode) {
+            if (this.VisualParentNode === visualParentNode)
+                return;
+            this.VisualParentNode = visualParentNode;
+            if (visualParentNode) {
+                this.SetSurface(visualParentNode._Surface);
+            } else {
+                this.SetSurface(null);
+            }
+            var ls = this._AncestorListeners;
+            var len = ls.length;
+            for (var i = 0; i < len; i++) {
+                ls[i].VisualParentChanged(this, visualParentNode);
+            }
         }
 
         Focus(): bool { return false; }
@@ -331,8 +345,6 @@ module Fayde {
         }
         CreateNode(): UINode { return new UINode(this); }
 
-        VisualParentChanged: MulticastEvent = new MulticastEvent();
-        
         static AllowDropProperty: DependencyProperty;
         static CacheModeProperty: DependencyProperty;
         static ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Media.Geometry; }, UIElement, undefined, (d, args) => (<UIElement>d)._ClipChanged(args));

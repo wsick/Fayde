@@ -19,7 +19,7 @@ module Fayde.Providers {
         }
         SetDataSource(source: DependencyObject) {
             if (source) {
-                var curNode = source.XamlNode;
+                var curNode = <XamlNode>source.XamlNode;
                 while (curNode) {
                     if (curNode.XObject instanceof Controls.Control)
                         break;

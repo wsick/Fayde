@@ -6,10 +6,29 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 
 module Fayde {
+    export class XamlObjectCollectionNode extends XamlNode {
+        XObject: XamlObjectCollection;
+        constructor(xobj: XamlObjectCollection) {
+            super(xobj);
+        }
+
+        OnMentorChanged(oldMentorNode: FENode, newMentorNode: FENode) {
+            super.OnMentorChanged(oldMentorNode, newMentorNode);
+            var enumerator = this.XObject.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                (<XamlObject>enumerator.Current).XamlNode.SetMentorNode(newMentorNode);
+            }
+        }
+    }
+    Nullstone.RegisterType(XamlObjectCollectionNode, "XamlObjectCollectionNode");
+
     export class XamlObjectCollection extends XamlObject implements IEnumerable {
         private _ht: XamlObject[] = [];
         
         get Count() { return this._ht.length; }
+
+        XamlNode: XamlObjectCollectionNode;
+        CreateNode(): XamlObjectCollectionNode { return new XamlObjectCollectionNode(this); }
 
         GetValueAt(index: number): XamlObject {
             return this._ht[index];

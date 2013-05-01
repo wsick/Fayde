@@ -72,8 +72,7 @@ var Fayde;
             lu.InvalidateMeasure();
             lu.PreviousConstraint = undefined;
             var un = uie.XamlNode;
-            un.VisualParentNode = this;
-            un.VisualParentNode.SetSurface(this._Surface);
+            un.SetVisualParentNode(this);
             this.XObject._Store.PropagateInheritedOnAdd(un);
             un.LayoutUpdater.OnAddedToTree();
         };
@@ -82,10 +81,25 @@ var Fayde;
             var un = uie.XamlNode;
             lu.Invalidate(un.LayoutUpdater.SurfaceBoundsWithChildren);
             lu.InvalidateMeasure();
-            un.VisualParentNode.SetSurface(null);
-            un.VisualParentNode = null;
+            un.SetVisualParentNode(null);
             un.LayoutUpdater.OnRemovedFromTree();
             this.XObject._Store.ClearInheritedOnRemove(un);
+        };
+        UINode.prototype.SetVisualParentNode = function (visualParentNode) {
+            if(this.VisualParentNode === visualParentNode) {
+                return;
+            }
+            this.VisualParentNode = visualParentNode;
+            if(visualParentNode) {
+                this.SetSurface(visualParentNode._Surface);
+            } else {
+                this.SetSurface(null);
+            }
+            var ls = this._AncestorListeners;
+            var len = ls.length;
+            for(var i = 0; i < len; i++) {
+                ls[i].VisualParentChanged(this, visualParentNode);
+            }
         };
         UINode.prototype.Focus = function () {
             return false;
@@ -319,7 +333,6 @@ var Fayde;
 
             this._ClipListener = null;
             this._EffectListener = null;
-            this.VisualParentChanged = new MulticastEvent();
             this._IsMouseOver = false;
             this.LostFocus = new Fayde.RoutedEvent();
             this.GotFocus = new Fayde.RoutedEvent();

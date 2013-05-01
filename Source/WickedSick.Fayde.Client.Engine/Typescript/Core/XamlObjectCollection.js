@@ -11,6 +11,22 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path="../Runtime/Nullstone.ts" />
 var Fayde;
 (function (Fayde) {
+    var XamlObjectCollectionNode = (function (_super) {
+        __extends(XamlObjectCollectionNode, _super);
+        function XamlObjectCollectionNode(xobj) {
+                _super.call(this, xobj);
+        }
+        XamlObjectCollectionNode.prototype.OnMentorChanged = function (oldMentorNode, newMentorNode) {
+            _super.prototype.OnMentorChanged.call(this, oldMentorNode, newMentorNode);
+            var enumerator = this.XObject.GetEnumerator();
+            while(enumerator.MoveNext()) {
+                (enumerator.Current).XamlNode.SetMentorNode(newMentorNode);
+            }
+        };
+        return XamlObjectCollectionNode;
+    })(Fayde.XamlNode);
+    Fayde.XamlObjectCollectionNode = XamlObjectCollectionNode;    
+    Nullstone.RegisterType(XamlObjectCollectionNode, "XamlObjectCollectionNode");
     var XamlObjectCollection = (function (_super) {
         __extends(XamlObjectCollection, _super);
         function XamlObjectCollection() {
@@ -25,6 +41,9 @@ var Fayde;
             enumerable: true,
             configurable: true
         });
+        XamlObjectCollection.prototype.CreateNode = function () {
+            return new XamlObjectCollectionNode(this);
+        };
         XamlObjectCollection.prototype.GetValueAt = function (index) {
             return this._ht[index];
         };

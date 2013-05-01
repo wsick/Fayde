@@ -6,13 +6,16 @@
 /// <reference path="../Runtime/Enumerable.ts" />
 
 module Fayde {
-    declare var Warn;
-
     export enum VisualTreeDirection {
         Logical = 0,
         LogicalReverse = 1,
         ZFoward = 2,
         ZReverse = 3,
+    }
+
+    export interface IAncestorChangedListener {
+        MentorChanged(node: XamlNode, mentorNode: XamlNode);
+        VisualParentChanged(uin: UINode, vpNode: UINode);
     }
 
     export class XamlNode {
@@ -21,9 +24,44 @@ module Fayde {
         Name: string = "";
         NameScope: NameScope = null;
         private _OwnerNameScope: NameScope = null;
+        _AncestorListeners: IAncestorChangedListener[] = [];
+        private _MentorNode: FENode = null;
+        private _LogicalChildren: XamlNode[] = [];
 
         constructor(xobj: XamlObject) {
             this.XObject = xobj;
+        }
+
+        get MentorNode(): FENode { return this._MentorNode; }
+        SetMentorNode(mentorNode: FENode) {
+            if (this instanceof FENode)
+                return;
+            if (this._MentorNode === mentorNode)
+                return;
+            var oldNode = mentorNode;
+            this._MentorNode = mentorNode;
+            this.OnMentorChanged(oldNode, mentorNode);
+        }
+        OnMentorChanged(oldMentorNode: FENode, newMentorNode: FENode) {
+            var ls = this._AncestorListeners;
+            var len = ls.length;
+            for (var i = 0; i < len; i++) {
+                ls[i].MentorChanged(oldMentorNode, newMentorNode);
+            }
+
+            var children = this._LogicalChildren;
+            len = children.length;
+            for (var i = 0; i < len; i++) {
+                children[i].SetMentorNode(newMentorNode);
+            }
+        }
+        MonitorAncestors(listener: IAncestorChangedListener) {
+            this._AncestorListeners.push(listener);
+        }
+        UnmonitorAncestors(listener: IAncestorChangedListener) {
+            var index = this._AncestorListeners.indexOf(listener)
+            if (index > -1)
+                this._AncestorListeners.splice(index, 1);
         }
 
         FindName(name: string): XamlNode {
@@ -120,6 +158,7 @@ module Fayde {
             this.ParentNode = parentNode;
             this.OnParentChanged(old, parentNode);
             
+            parentNode._LogicalChildren.push(this);
             this.SetIsAttached(parentNode.IsAttached);
 
             return true;
@@ -133,10 +172,20 @@ module Fayde {
             this.SetIsAttached(false);
             this._OwnerNameScope = null;
             var old = this.ParentNode;
+            var index = old._LogicalChildren.indexOf(this);
+            if (index > -1) old._LogicalChildren.splice(index, 1);
             this.ParentNode = null;
-            this.OnParentChanged(old, null);
+            if (old != null)
+                this.OnParentChanged(old, null);
         }
-        OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) { }
+        OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
+            if (this instanceof FENode)
+                this.SetMentorNode(<FENode>this);
+            else if (newParentNode instanceof FENode)
+                this.SetMentorNode(<FENode>newParentNode);
+            else if (newParentNode._MentorNode)
+                this.SetMentorNode(newParentNode._MentorNode);
+        }
 
         GetInheritedEnumerator(): IEnumerator { return undefined; }
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator { return undefined; }

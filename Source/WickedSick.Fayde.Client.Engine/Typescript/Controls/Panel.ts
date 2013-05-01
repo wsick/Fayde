@@ -15,7 +15,7 @@ module Fayde.Controls {
         }
         return zi1 - zi2;
     }
-    class PanelChildrenNode extends XamlNode {
+    class PanelChildrenNode extends XamlObjectCollectionNode {
         ParentNode: PanelNode;
         private _Nodes: UINode[] = [];
         private _ZSorted: UINode[] = [];
@@ -64,9 +64,7 @@ module Fayde.Controls {
 
     class PanelChildrenCollection extends XamlObjectCollection {
         XamlNode: PanelChildrenNode;
-        CreateNode(): XamlNode {
-            return new PanelChildrenNode(this);
-        }
+        CreateNode(): PanelChildrenNode { return new PanelChildrenNode(this); }
         AddedToCollection(value: UIElement, error: BError): bool {
             if (!super.AddedToCollection(value, error))
                 return false;

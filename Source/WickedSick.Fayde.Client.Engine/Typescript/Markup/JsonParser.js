@@ -12,12 +12,6 @@
 /// <reference path="../Core/DeferredValueExpression.ts" />
 var Fayde;
 (function (Fayde) {
-    function isArray(o) {
-        if(Array.isArray) {
-            return Array.isArray(o);
-        }
-        return o && o.constructor === Array;
-    }
     var JsonParser = (function () {
         function JsonParser() {
             this._ResChain = [];
@@ -319,5 +313,11 @@ var Fayde;
     })();
     Fayde.JsonParser = JsonParser;    
     Nullstone.RegisterType(JsonParser, "JsonParser");
+    function isArray(o) {
+        if(Array.isArray) {
+            return Array.isArray(o);
+        }
+        return o && o.constructor === Array;
+    }
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=JsonParser.js.map

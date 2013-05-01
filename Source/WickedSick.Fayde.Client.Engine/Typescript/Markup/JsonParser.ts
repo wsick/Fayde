@@ -18,11 +18,6 @@ module Fayde {
         Value: any;
     }
 
-    function isArray(o) {
-        if (Array.isArray)
-            return Array.isArray(o);
-        return o && o.constructor === Array;
-    }
     export class JsonParser {
         private _ResChain: Fayde.ResourceDictionary[] = [];
         private _RootXamlObject: XamlObject = null;
@@ -324,4 +319,10 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(JsonParser, "JsonParser");
+    
+    function isArray(o) {
+        if (Array.isArray)
+            return Array.isArray(o);
+        return o && o.constructor === Array;
+    }
 }

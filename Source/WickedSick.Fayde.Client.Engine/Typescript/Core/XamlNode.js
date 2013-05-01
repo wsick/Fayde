@@ -20,9 +20,51 @@ var Fayde;
             this.Name = "";
             this.NameScope = null;
             this._OwnerNameScope = null;
+            this._AncestorListeners = [];
+            this._MentorNode = null;
+            this._LogicalChildren = [];
             this.IsAttached = false;
             this.XObject = xobj;
         }
+        Object.defineProperty(XamlNode.prototype, "MentorNode", {
+            get: function () {
+                return this._MentorNode;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        XamlNode.prototype.SetMentorNode = function (mentorNode) {
+            if(this instanceof Fayde.FENode) {
+                return;
+            }
+            if(this._MentorNode === mentorNode) {
+                return;
+            }
+            var oldNode = mentorNode;
+            this._MentorNode = mentorNode;
+            this.OnMentorChanged(oldNode, mentorNode);
+        };
+        XamlNode.prototype.OnMentorChanged = function (oldMentorNode, newMentorNode) {
+            var ls = this._AncestorListeners;
+            var len = ls.length;
+            for(var i = 0; i < len; i++) {
+                ls[i].MentorChanged(oldMentorNode, newMentorNode);
+            }
+            var children = this._LogicalChildren;
+            len = children.length;
+            for(var i = 0; i < len; i++) {
+                children[i].SetMentorNode(newMentorNode);
+            }
+        };
+        XamlNode.prototype.MonitorAncestors = function (listener) {
+            this._AncestorListeners.push(listener);
+        };
+        XamlNode.prototype.UnmonitorAncestors = function (listener) {
+            var index = this._AncestorListeners.indexOf(listener);
+            if(index > -1) {
+                this._AncestorListeners.splice(index, 1);
+            }
+        };
         XamlNode.prototype.FindName = function (name) {
             var scope = this.FindNameScope();
             if(scope) {
@@ -116,6 +158,7 @@ var Fayde;
             var old = this.ParentNode;
             this.ParentNode = parentNode;
             this.OnParentChanged(old, parentNode);
+            parentNode._LogicalChildren.push(this);
             this.SetIsAttached(parentNode.IsAttached);
             return true;
         };
@@ -130,10 +173,23 @@ var Fayde;
             this.SetIsAttached(false);
             this._OwnerNameScope = null;
             var old = this.ParentNode;
+            var index = old._LogicalChildren.indexOf(this);
+            if(index > -1) {
+                old._LogicalChildren.splice(index, 1);
+            }
             this.ParentNode = null;
-            this.OnParentChanged(old, null);
+            if(old != null) {
+                this.OnParentChanged(old, null);
+            }
         };
         XamlNode.prototype.OnParentChanged = function (oldParentNode, newParentNode) {
+            if(this instanceof Fayde.FENode) {
+                this.SetMentorNode(this);
+            } else if(newParentNode instanceof Fayde.FENode) {
+                this.SetMentorNode(newParentNode);
+            } else if(newParentNode._MentorNode) {
+                this.SetMentorNode(newParentNode._MentorNode);
+            }
         };
         XamlNode.prototype.GetInheritedEnumerator = function () {
             return undefined;

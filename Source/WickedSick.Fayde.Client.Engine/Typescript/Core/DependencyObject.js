@@ -23,16 +23,8 @@ var Fayde;
                 _super.call(this);
             this._Expressions = [];
             this._CachedValues = [];
-            this.MentorChanged = new MulticastEvent();
             this._Store = this.CreateStore();
         }
-        Object.defineProperty(DependencyObject.prototype, "Mentor", {
-            get: function () {
-                return undefined;
-            },
-            enumerable: true,
-            configurable: true
-        });
         DependencyObject.prototype.CreateStore = function () {
             var s = new Fayde.Providers.BasicProviderStore(this);
             s.SetProviders([

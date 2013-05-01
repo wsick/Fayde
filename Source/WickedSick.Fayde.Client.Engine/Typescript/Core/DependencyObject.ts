@@ -14,11 +14,6 @@ module Fayde {
         _Store: Providers.BasicProviderStore;
         _CachedValues: any[] = [];
 
-        MentorChanged: MulticastEvent = new MulticastEvent();
-        get Mentor(): FrameworkElement {
-            return undefined;
-        }
-
         constructor() {
             super();
             this._Store = this.CreateStore();

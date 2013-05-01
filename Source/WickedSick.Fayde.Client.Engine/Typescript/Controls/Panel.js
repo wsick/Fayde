@@ -74,7 +74,7 @@ var Fayde;
                 }
             };
             return PanelChildrenNode;
-        })(Fayde.XamlNode);        
+        })(Fayde.XamlObjectCollectionNode);        
         Nullstone.RegisterType(PanelChildrenNode, "PanelChildrenNode");
         var PanelChildrenCollection = (function (_super) {
             __extends(PanelChildrenCollection, _super);
