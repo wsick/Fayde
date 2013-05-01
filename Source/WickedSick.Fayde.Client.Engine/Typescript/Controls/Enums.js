@@ -28,6 +28,34 @@ var Fayde;
             ClickMode.Hover = 2;
         })(Controls.ClickMode || (Controls.ClickMode = {}));
         var ClickMode = Controls.ClickMode;
+        (function (PlacementMode) {
+            PlacementMode._map = [];
+            PlacementMode.Bottom = 0;
+            PlacementMode.Right = 1;
+            PlacementMode.Mouse = 2;
+            PlacementMode.Left = 3;
+            PlacementMode.Top = 4;
+        })(Controls.PlacementMode || (Controls.PlacementMode = {}));
+        var PlacementMode = Controls.PlacementMode;
+        (function (SelectionMode) {
+            SelectionMode._map = [];
+            SelectionMode.Single = 0;
+            SelectionMode.Multiple = 1;
+            SelectionMode.Extended = 2;
+        })(Controls.SelectionMode || (Controls.SelectionMode = {}));
+        var SelectionMode = Controls.SelectionMode;
+        (function (MediaElementState) {
+            MediaElementState._map = [];
+            MediaElementState.Closed = 0;
+            MediaElementState.Opening = 1;
+            //Individualizing = 2,
+            //AcquiringLicense = 3,
+            MediaElementState.Buffering = 4;
+            MediaElementState.Playing = 5;
+            MediaElementState.Paused = 6;
+            MediaElementState.Stopped = 7;
+        })(Controls.MediaElementState || (Controls.MediaElementState = {}));
+        var MediaElementState = Controls.MediaElementState;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
