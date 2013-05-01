@@ -77,7 +77,7 @@ class rect implements ICloneable {
 
     static intersection(rect1: rect, rect2: rect) {
         var x = Math.max(rect1.X, rect2.X);
-        var y = Math.max(rect2.Y, rect2.Y);
+        var y = Math.max(rect1.Y, rect2.Y);
         rect1.Width = Math.max(0, Math.min(rect1.X + rect1.Width, rect2.X + rect2.Width) - x);
         rect1.Height = Math.max(0, Math.min(rect1.Y + rect1.Height, rect2.Y + rect2.Height) - y);
         rect1.X = x;
