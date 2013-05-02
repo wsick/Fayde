@@ -474,6 +474,10 @@
     <TypeScriptCompile Include="Typescript\Core\INotifyPropertyChanged.ts" />
     <TypeScriptCompile Include="Typescript\Controls\ToolTip.ts" />
     <TypeScriptCompile Include="Typescript\Controls\ComboBox.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\CheckBox.ts" />
+    <Content Include="Typescript\Controls\CheckBox.js">
+      <DependentUpon>CheckBox.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\ComboBox.js">
       <DependentUpon>ComboBox.ts</DependentUpon>
     </Content>
@@ -508,6 +512,10 @@
     <TypeScriptCompile Include="Typescript\Controls\Primitives\Thumb.ts" />
     <Content Include="Typescript\Controls\Primitives\Thumb.js">
       <DependentUpon>Thumb.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\RadioButton.ts" />
+    <Content Include="Typescript\Controls\RadioButton.js">
+      <DependentUpon>RadioButton.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Controls\ToolTip.js">
       <DependentUpon>ToolTip.ts</DependentUpon>

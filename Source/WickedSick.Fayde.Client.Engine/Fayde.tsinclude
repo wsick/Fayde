@@ -229,5 +229,7 @@ Typescript\Controls\Primitives\ButtonBase.ts
 Typescript\Controls\Primitives\RepeatButton.ts
 Typescript\Controls\Primitives\ToggleButton.ts
 Typescript\Controls\Button.ts
+Typescript\Controls\CheckBox.ts
 Typescript\Controls\ComboBoxItem.ts
 Typescript\Controls\HyperlinkButton.ts
+Typescript\Controls\RadioButton.ts
