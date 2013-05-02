@@ -514,8 +514,16 @@
       <DependentUpon>Thumb.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Controls\RadioButton.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ProgressBar.ts" />
+    <Content Include="Typescript\Controls\ProgressBar.js">
+      <DependentUpon>ProgressBar.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\RadioButton.js">
       <DependentUpon>RadioButton.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Slider.ts" />
+    <Content Include="Typescript\Controls\Slider.js">
+      <DependentUpon>Slider.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Controls\ToolTip.js">
       <DependentUpon>ToolTip.ts</DependentUpon>

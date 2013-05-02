@@ -18691,10 +18691,10 @@ module Fayde.Controls.Primitives {
         Orientation: Orientation;
         ViewportSize: number;
         get IsDragging(): bool {
-            if (this.$ElementHorizontalThumb)
-                return this.$ElementHorizontalThumb.IsDragging;
-            if (this.$ElementVerticalThumb)
-                return this.$ElementVerticalThumb.IsDragging;
+            if (this.$HorizontalThumb)
+                return this.$HorizontalThumb.IsDragging;
+            if (this.$VerticalThumb)
+                return this.$VerticalThumb.IsDragging;
             return false;
         }
         constructor() {
@@ -18702,18 +18702,18 @@ module Fayde.Controls.Primitives {
             this.DefaultStyleKey = (<any>this).constructor;
             this.SizeChanged.Subscribe(this._HandleSizeChanged, this);
         }
-        private $ElementHorizontalTemplate: FrameworkElement;
-        private $ElementHorizontalSmallIncrease: RepeatButton;
-        private $ElementHorizontalSmallDecrease: RepeatButton;
-        private $ElementHorizontalLargeIncrease: RepeatButton;
-        private $ElementHorizontalLargeDecrease: RepeatButton;
-        private $ElementHorizontalThumb: Thumb;
-        private $ElementVerticalTemplate: FrameworkElement;
-        private $ElementVerticalSmallIncrease: RepeatButton;
-        private $ElementVerticalSmallDecrease: RepeatButton;
-        private $ElementVerticalLargeIncrease: RepeatButton;
-        private $ElementVerticalLargeDecrease: RepeatButton;
-        private $ElementVerticalThumb: Thumb;
+        private $HorizontalTemplate: FrameworkElement;
+        private $HorizontalSmallIncrease: RepeatButton;
+        private $HorizontalSmallDecrease: RepeatButton;
+        private $HorizontalLargeIncrease: RepeatButton;
+        private $HorizontalLargeDecrease: RepeatButton;
+        private $HorizontalThumb: Thumb;
+        private $VerticalTemplate: FrameworkElement;
+        private $VerticalSmallIncrease: RepeatButton;
+        private $VerticalSmallDecrease: RepeatButton;
+        private $VerticalLargeIncrease: RepeatButton;
+        private $VerticalLargeDecrease: RepeatButton;
+        private $VerticalThumb: Thumb;
         private _GetChildOfType(name: string, type: Function): any {
             var temp = this.GetTemplateChild(name);
             if (temp instanceof type)
@@ -18721,51 +18721,51 @@ module Fayde.Controls.Primitives {
         }
         OnApplyTemplate() {
             super.OnApplyTemplate();
-            this.$ElementHorizontalTemplate = this._GetChildOfType("HorizontalRoot", FrameworkElement);
-            this.$ElementHorizontalLargeIncrease = this._GetChildOfType("HorizontalLargeIncrease", RepeatButton);
-            this.$ElementHorizontalLargeDecrease = this._GetChildOfType("HorizontalLargeDecrease", RepeatButton);
-            this.$ElementHorizontalSmallIncrease = this._GetChildOfType("HorizontalSmallIncrease", RepeatButton);
-            this.$ElementHorizontalSmallDecrease = this._GetChildOfType("HorizontalSmallDecrease", RepeatButton);
-            this.$ElementHorizontalThumb = this._GetChildOfType("HorizontalThumb", Thumb);
-            this.$ElementVerticalTemplate = this._GetChildOfType("VerticalRoot", Fayde.FrameworkElement);
-            this.$ElementVerticalLargeIncrease = this._GetChildOfType("VerticalLargeIncrease", RepeatButton);
-            this.$ElementVerticalLargeDecrease = this._GetChildOfType("VerticalLargeDecrease", RepeatButton);
-            this.$ElementVerticalSmallIncrease = this._GetChildOfType("VerticalSmallIncrease", RepeatButton);
-            this.$ElementVerticalSmallDecrease = this._GetChildOfType("VerticalSmallDecrease", RepeatButton);
-            this.$ElementVerticalThumb = this._GetChildOfType("VerticalThumb", Thumb);
-            if (this.$ElementHorizontalThumb) {
-                this.$ElementHorizontalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
-                this.$ElementHorizontalThumb.DragDelta.Subscribe(this._OnThumbDragDelta, this);
-                this.$ElementHorizontalThumb.DragCompleted.Subscribe(this._OnThumbDragCompleted, this);
+            this.$HorizontalTemplate = this._GetChildOfType("HorizontalRoot", FrameworkElement);
+            this.$HorizontalLargeIncrease = this._GetChildOfType("HorizontalLargeIncrease", RepeatButton);
+            this.$HorizontalLargeDecrease = this._GetChildOfType("HorizontalLargeDecrease", RepeatButton);
+            this.$HorizontalSmallIncrease = this._GetChildOfType("HorizontalSmallIncrease", RepeatButton);
+            this.$HorizontalSmallDecrease = this._GetChildOfType("HorizontalSmallDecrease", RepeatButton);
+            this.$HorizontalThumb = this._GetChildOfType("HorizontalThumb", Thumb);
+            this.$VerticalTemplate = this._GetChildOfType("VerticalRoot", Fayde.FrameworkElement);
+            this.$VerticalLargeIncrease = this._GetChildOfType("VerticalLargeIncrease", RepeatButton);
+            this.$VerticalLargeDecrease = this._GetChildOfType("VerticalLargeDecrease", RepeatButton);
+            this.$VerticalSmallIncrease = this._GetChildOfType("VerticalSmallIncrease", RepeatButton);
+            this.$VerticalSmallDecrease = this._GetChildOfType("VerticalSmallDecrease", RepeatButton);
+            this.$VerticalThumb = this._GetChildOfType("VerticalThumb", Thumb);
+            if (this.$HorizontalThumb) {
+                this.$HorizontalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
+                this.$HorizontalThumb.DragDelta.Subscribe(this._OnThumbDragDelta, this);
+                this.$HorizontalThumb.DragCompleted.Subscribe(this._OnThumbDragCompleted, this);
             }
-            if (this.$ElementHorizontalLargeIncrease) {
-                this.$ElementHorizontalLargeIncrease.Click.Subscribe(this._LargeIncrement, this);
+            if (this.$HorizontalLargeIncrease) {
+                this.$HorizontalLargeIncrease.Click.Subscribe(this._LargeIncrement, this);
             }
-            if (this.$ElementHorizontalLargeDecrease) {
-                this.$ElementHorizontalLargeDecrease.Click.Subscribe(this._LargeDecrement, this);
+            if (this.$HorizontalLargeDecrease) {
+                this.$HorizontalLargeDecrease.Click.Subscribe(this._LargeDecrement, this);
             }
-            if (this.$ElementHorizontalSmallIncrease) {
-                this.$ElementHorizontalSmallIncrease.Click.Subscribe(this._SmallIncrement, this);
+            if (this.$HorizontalSmallIncrease) {
+                this.$HorizontalSmallIncrease.Click.Subscribe(this._SmallIncrement, this);
             }
-            if (this.$ElementHorizontalSmallDecrease) {
-                this.$ElementHorizontalSmallDecrease.Click.Subscribe(this._SmallDecrement, this);
+            if (this.$HorizontalSmallDecrease) {
+                this.$HorizontalSmallDecrease.Click.Subscribe(this._SmallDecrement, this);
             }
-            if (this.$ElementVerticalThumb) {
-                this.$ElementVerticalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
-                this.$ElementVerticalThumb.DragDelta.Subscribe(this._OnThumbDragDelta, this);
-                this.$ElementVerticalThumb.DragCompleted.Subscribe(this._OnThumbDragCompleted, this);
+            if (this.$VerticalThumb) {
+                this.$VerticalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
+                this.$VerticalThumb.DragDelta.Subscribe(this._OnThumbDragDelta, this);
+                this.$VerticalThumb.DragCompleted.Subscribe(this._OnThumbDragCompleted, this);
             }
-            if (this.$ElementVerticalLargeIncrease) {
-                this.$ElementVerticalLargeIncrease.Click.Subscribe(this._LargeIncrement, this);
+            if (this.$VerticalLargeIncrease) {
+                this.$VerticalLargeIncrease.Click.Subscribe(this._LargeIncrement, this);
             }
-            if (this.$ElementVerticalLargeDecrease) {
-                this.$ElementVerticalLargeDecrease.Click.Subscribe(this._LargeDecrement, this);
+            if (this.$VerticalLargeDecrease) {
+                this.$VerticalLargeDecrease.Click.Subscribe(this._LargeDecrement, this);
             }
-            if (this.$ElementVerticalSmallIncrease) {
-                this.$ElementVerticalSmallIncrease.Click.Subscribe(this._SmallIncrement, this);
+            if (this.$VerticalSmallIncrease) {
+                this.$VerticalSmallIncrease.Click.Subscribe(this._SmallIncrement, this);
             }
-            if (this.$ElementVerticalSmallDecrease) {
-                this.$ElementVerticalSmallDecrease.Click.Subscribe(this._SmallDecrement, this);
+            if (this.$VerticalSmallDecrease) {
+                this.$VerticalSmallDecrease.Click.Subscribe(this._SmallDecrement, this);
             }
             this._OnOrientationChanged();
             this.UpdateVisualState(false);
@@ -18797,11 +18797,11 @@ module Fayde.Controls.Primitives {
             var diff = max - min;
             var trackLength = this._GetTrackLength();
             var isHorizontal = this.Orientation === Orientation.Horizontal;
-            if (this.$ElementVerticalThumb && !isHorizontal) {
-                change = num * e.VerticalChange / (trackLength - this.$ElementVerticalThumb.ActualHeight) * diff;
+            if (this.$VerticalThumb && !isHorizontal) {
+                change = num * e.VerticalChange / (trackLength - this.$VerticalThumb.ActualHeight) * diff;
             }
-            if (this.$ElementHorizontalThumb && isHorizontal) {
-                change = num * e.HorizontalChange / (trackLength - this.$ElementHorizontalThumb.ActualWidth) * diff;
+            if (this.$HorizontalThumb && isHorizontal) {
+                change = num * e.HorizontalChange / (trackLength - this.$HorizontalThumb.ActualWidth) * diff;
             }
             if (!isNaN(change) && isFinite(change)) {
                 this._DragValue += change;
@@ -18852,11 +18852,11 @@ module Fayde.Controls.Primitives {
         }
         private _OnOrientationChanged() {
             var isHorizontal = this.Orientation === Orientation.Horizontal;
-            if (this.$ElementHorizontalTemplate) {
-                this.$ElementHorizontalTemplate.Visibility = isHorizontal ? Visibility.Visible : Visibility.Collapsed;
+            if (this.$HorizontalTemplate) {
+                this.$HorizontalTemplate.Visibility = isHorizontal ? Visibility.Visible : Visibility.Collapsed;
             }
-            if (this.$ElementVerticalTemplate) {
-                this.$ElementVerticalTemplate.Visibility = isHorizontal ? Visibility.Collapsed : Visibility.Visible;
+            if (this.$VerticalTemplate) {
+                this.$VerticalTemplate.Visibility = isHorizontal ? Visibility.Collapsed : Visibility.Visible;
             }
             this._UpdateTrackLayout(this._GetTrackLength());
         }
@@ -18867,10 +18867,10 @@ module Fayde.Controls.Primitives {
             var multiplier = (val - min) / (max - min);
             var thumbSize = this._UpdateThumbSize(trackLength);
             var isHorizontal = this.Orientation === Orientation.Horizontal;
-            if (isHorizontal && this.$ElementHorizontalLargeDecrease && this.$ElementHorizontalThumb) {
-                this.$ElementHorizontalLargeDecrease.Width = Math.max(0, multiplier * (trackLength - thumbSize));
-            } else if (!isHorizontal && this.$ElementVerticalLargeDecrease && this.$ElementVerticalThumb) {
-                this.$ElementVerticalLargeDecrease.Height = Math.max(0, multiplier * (trackLength - thumbSize));
+            if (isHorizontal && this.$HorizontalLargeDecrease && this.$HorizontalThumb) {
+                this.$HorizontalLargeDecrease.Width = Math.max(0, multiplier * (trackLength - thumbSize));
+            } else if (!isHorizontal && this.$VerticalLargeDecrease && this.$VerticalThumb) {
+                this.$VerticalLargeDecrease.Height = Math.max(0, multiplier * (trackLength - thumbSize));
             }
         }
         private _UpdateThumbSize(trackLength: number): number {
@@ -18880,32 +18880,32 @@ module Fayde.Controls.Primitives {
                 var isHorizontal = this.Orientation === Orientation.Horizontal;
                 var max = this.Maximum;
                 var min = this.Minimum;
-                if (isHorizontal && this.$ElementHorizontalThumb) {
+                if (isHorizontal && this.$HorizontalThumb) {
                     if (max - min !== 0)
-                        result = Math.max(this.$ElementHorizontalThumb.MinWidth, this._ConvertViewportSizeToDisplayUnits(trackLength));
-                    if (max - min === 0 || result > this.ActualWidth || trackLength <= this.$ElementHorizontalThumb.MinWidth) {
+                        result = Math.max(this.$HorizontalThumb.MinWidth, this._ConvertViewportSizeToDisplayUnits(trackLength));
+                    if (max - min === 0 || result > this.ActualWidth || trackLength <= this.$HorizontalThumb.MinWidth) {
                         hideThumb = true;
                     } else {
-                        this.$ElementHorizontalThumb.Visibility = Visibility.Visible;
-                        this.$ElementHorizontalThumb.Width = result;
+                        this.$HorizontalThumb.Visibility = Visibility.Visible;
+                        this.$HorizontalThumb.Width = result;
                     }
-                } else if (!isHorizontal && this.$ElementVerticalThumb) {
+                } else if (!isHorizontal && this.$VerticalThumb) {
                     if (max - min !== 0)
-                        result = Math.max(this.$ElementVerticalThumb.MinHeight, this._ConvertViewportSizeToDisplayUnits(trackLength));
-                    if (max - min === 0 || result > this.ActualHeight || trackLength <= this.$ElementVerticalThumb.MinHeight) {
+                        result = Math.max(this.$VerticalThumb.MinHeight, this._ConvertViewportSizeToDisplayUnits(trackLength));
+                    if (max - min === 0 || result > this.ActualHeight || trackLength <= this.$VerticalThumb.MinHeight) {
                         hideThumb = true;
                     } else {
-                        this.$ElementVerticalThumb.Visibility = Visibility.Visible;
-                        this.$ElementVerticalThumb.Height = result;
+                        this.$VerticalThumb.Visibility = Visibility.Visible;
+                        this.$VerticalThumb.Height = result;
                     }
                 }
             }
             if (hideThumb) {
-                if (this.$ElementHorizontalThumb) {
-                    this.$ElementHorizontalThumb.Visibility = Visibility.Collapsed;
+                if (this.$HorizontalThumb) {
+                    this.$HorizontalThumb.Visibility = Visibility.Collapsed;
                 }
-                if (this.$ElementVerticalThumb) {
-                    this.$ElementVerticalThumb.Visibility = Visibility.Collapsed;
+                if (this.$VerticalThumb) {
+                    this.$VerticalThumb.Visibility = Visibility.Collapsed;
                 }
             }
             return result;
@@ -18914,23 +18914,23 @@ module Fayde.Controls.Primitives {
             var actual = NaN;
             if (this.Orientation === Orientation.Horizontal) {
                 actual = this.ActualWidth;
-                if (this.$ElementHorizontalSmallDecrease) {
-                    var thickness = this.$ElementHorizontalSmallDecrease.Margin;
-                    actual = actual - (this.$ElementHorizontalSmallDecrease.ActualWidth + thickness.Left + thickness.Right);
+                if (this.$HorizontalSmallDecrease) {
+                    var thickness = this.$HorizontalSmallDecrease.Margin;
+                    actual = actual - (this.$HorizontalSmallDecrease.ActualWidth + thickness.Left + thickness.Right);
                 }
-                if (this.$ElementHorizontalSmallIncrease) {
-                    var thickness = this.$ElementHorizontalSmallIncrease.Margin;
-                    actual = actual - (this.$ElementHorizontalSmallIncrease.ActualWidth + thickness.Left + thickness.Right);
+                if (this.$HorizontalSmallIncrease) {
+                    var thickness = this.$HorizontalSmallIncrease.Margin;
+                    actual = actual - (this.$HorizontalSmallIncrease.ActualWidth + thickness.Left + thickness.Right);
                 }
             } else {
                 actual = this.ActualHeight;
-                if (this.$ElementVerticalSmallDecrease) {
-                    var thickness = this.$ElementVerticalSmallDecrease.Margin;
-                    actual = actual - (this.$ElementVerticalSmallDecrease.ActualHeight + thickness.Top + thickness.Bottom);
+                if (this.$VerticalSmallDecrease) {
+                    var thickness = this.$VerticalSmallDecrease.Margin;
+                    actual = actual - (this.$VerticalSmallDecrease.ActualHeight + thickness.Top + thickness.Bottom);
                 }
-                if (this.$ElementVerticalSmallIncrease) {
-                    var thickness = this.$ElementVerticalSmallIncrease.Margin;
-                    actual = actual - (this.$ElementVerticalSmallIncrease.ActualHeight + thickness.Top + thickness.Bottom);
+                if (this.$VerticalSmallIncrease) {
+                    var thickness = this.$VerticalSmallIncrease.Margin;
+                    actual = actual - (this.$VerticalSmallIncrease.ActualHeight + thickness.Top + thickness.Bottom);
                 }
             }
             return actual;
@@ -20832,6 +20832,70 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
+    export class ProgressBar extends Primitives.RangeBase {
+        private _Track: FrameworkElement;
+        private _Indicator: FrameworkElement;
+        static IsIndeterminateProperty: DependencyProperty = DependencyProperty.Register("IsIndeterminate", () => Boolean, ProgressBar, false, (d, args) => (<ProgressBar>d)._IsIndeterminateChanged(args));
+        IsIndeterminate: bool;
+        constructor() {
+            super();
+            this.DefaultStyleKey = (<any>this).constructor;
+        }
+        OnApplyTemplate() {
+            super.OnApplyTemplate();
+            var track = this._Track;
+            if (track)
+                track.SizeChanged.Unsubscribe(this._OnTrackSizeChanged, this);
+            track = this._Track = <FrameworkElement>this.GetTemplateChild("ProgressBarTrack");
+            this._Indicator = <FrameworkElement>this.GetTemplateChild("ProgressBarIndicator");
+            if (track)
+                track.SizeChanged.Subscribe(this._OnTrackSizeChanged, this);
+            this.UpdateVisualState(false);
+        }
+        OnValueChanged(oldValue: number, newValue: number) {
+            super.OnValueChanged(oldValue, newValue);
+            this._UpdateIndicator();
+        }
+        private _OnTrackSizeChanged(sender, e) {
+            this._UpdateIndicator();
+        }
+        private _IsIndeterminateChanged(args: IDependencyPropertyChangedEventArgs) {
+            this.UpdateVisualState();
+            this._UpdateIndicator();
+        }
+        private _UpdateIndicator() {
+            var min = this.Minimum;
+            var max = this.Maximum;
+            var val = this.Value;
+            if (!this._Track)
+                return;
+            if (this._Indicator)
+                return;
+            var parent = VisualTreeHelper.GetParent(this);
+            if (!parent)
+                return;
+            var margin = this._Indicator.Margin.Left + this._Indicator.Margin.Right;
+            var padding: Thickness = null;
+            if (parent instanceof Border)
+                padding = (<Border>parent).Padding;
+            else if (parent instanceof Control)
+                padding = (<Control>parent).Padding;
+            if (padding) {
+                margin += padding.Left;
+                margin += padding.Right;
+            }
+            var progress = this.IsIndeterminate || (max === min ? 1.0 : (val - min) / (max - min));
+            var fullWidth = Math.max(0, (<FrameworkElement>parent).ActualWidth - margin);
+            this._Indicator.Width = fullWidth * progress;
+        }
+        GetVisualStateNamesToActivate(): string[] {
+            return this.IsIndeterminate ? ["Indeterminate"] : ["Determinate"];
+        }
+    }
+    Nullstone.RegisterType(ProgressBar, "ProgressBar");
+}
+
+module Fayde.Controls {
     export class ScrollViewer extends ContentControl {
         HorizontalScrollBarVisibility: ScrollBarVisibility;
         VerticalScrollBarVisibility: ScrollBarVisibility;
@@ -20848,6 +20912,220 @@ module Fayde.Controls {
         }
     }
     Nullstone.RegisterType(ScrollViewer, "ScrollViewer");
+}
+
+module Fayde.Controls {
+    export class Slider extends Primitives.RangeBase {
+        private _DragValue: number = 0;
+        static IsDirectionReversedProperty: DependencyProperty = DependencyProperty.RegisterCore("IsDirectionReversed", () => Boolean, Slider, false, (d, args) => (<Slider>d)._UpdateTrackLayout());
+        static IsFocusedProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("IsFocused", () => Boolean, Slider, false, (d, args) => (<Slider>d).UpdateVisualState());
+        static OrientationProperty: DependencyProperty = DependencyProperty.RegisterCore("Orientation", () => new Enum(Orientation), Slider, Orientation.Horizontal, (d, args) => (<Slider>d)._OnOrientationChanged());
+        IsDirectionReversed: bool;
+        IsFocused: bool;
+        Orientation: Orientation;
+        constructor() {
+            super();
+        }
+        private $HorizontalTemplate: FrameworkElement;
+        private $HorizontalLargeIncrease: Primitives.RepeatButton;
+        private $HorizontalLargeDecrease: Primitives.RepeatButton;
+        private $HorizontalThumb: Primitives.Thumb;
+        private $VerticalTemplate: FrameworkElement;
+        private $VerticalLargeIncrease: Primitives.RepeatButton;
+        private $VerticalLargeDecrease: Primitives.RepeatButton;
+        private $VerticalThumb: Primitives.Thumb;
+        private _GetChildOfType(name: string, type: Function): any {
+            var temp = this.GetTemplateChild(name);
+            if (temp instanceof type)
+                return temp;
+        }
+        OnApplyTemplate() {
+            super.OnApplyTemplate();
+            this.$HorizontalTemplate = this._GetChildOfType("HorizontalRoot", FrameworkElement);
+            this.$HorizontalLargeIncrease = this._GetChildOfType("HorizontalLargeIncrease", Primitives.RepeatButton);
+            this.$HorizontalLargeDecrease = this._GetChildOfType("HorizontalLargeDecrease", Primitives.RepeatButton);
+            this.$HorizontalThumb = this._GetChildOfType("HorizontalThumb", Primitives.Thumb);
+            this.$VerticalTemplate = this._GetChildOfType("VerticalRoot", Fayde.FrameworkElement);
+            this.$VerticalLargeIncrease = this._GetChildOfType("VerticalLargeIncrease", Primitives.RepeatButton);
+            this.$VerticalLargeDecrease = this._GetChildOfType("VerticalLargeDecrease", Primitives.RepeatButton);
+            this.$VerticalThumb = this._GetChildOfType("VerticalThumb", Primitives.Thumb);
+            if (this.$HorizontalThumb != null) {
+                this.$HorizontalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
+                this.$HorizontalThumb.DragDelta.Subscribe(this._OnThumbDragDelta, this);
+            }
+            if (this.$HorizontalLargeDecrease != null) {
+                this.$HorizontalLargeDecrease.Click.Subscribe(function (sender, e) { this.Focus(); this.Value -= this.LargeChange; }, this);
+            }
+            if (this.$HorizontalLargeIncrease != null) {
+                this.$HorizontalLargeIncrease.Click.Subscribe(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
+            }
+            if (this.$VerticalThumb != null) {
+                this.$VerticalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
+                this.$VerticalThumb.DragDelta.Subscribe(this._OnThumbDragDelta, this);
+            }
+            if (this.$VerticalLargeDecrease != null) {
+                this.$VerticalLargeDecrease.Click.Subscribe(function (sender, e) { this.Focus(); this.Value -= this.LargeChange; }, this);
+            }
+            if (this.$VerticalLargeIncrease != null) {
+                this.$VerticalLargeIncrease.Click.Subscribe(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
+            }
+            this._OnOrientationChanged();
+            this.UpdateVisualState(false);
+        }
+        OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs) {
+            super.OnIsEnabledChanged(e);
+            this.UpdateVisualState();
+        }
+        OnMinimumChanged(oldMin: number, newMin: number) {
+            super.OnMinimumChanged(oldMin, newMin);
+            this._UpdateTrackLayout();
+        }
+        OnMaximumChanged(oldMax: number, newMax: number) {
+            super.OnMaximumChanged(oldMax, newMax);
+            this._UpdateTrackLayout();
+        }
+        OnValueChanged(oldValue: number, newValue: number) {
+            super.OnValueChanged(oldValue, newValue);
+            this._UpdateTrackLayout();
+        }
+        private _OnOrientationChanged() {
+            var isHorizontal = this.Orientation === Orientation.Horizontal;
+            if (this.$HorizontalTemplate != null)
+                this.$HorizontalTemplate.Visibility = isHorizontal ? Visibility.Visible : Visibility.Collapsed;
+            if (this.$VerticalTemplate != null)
+                this.$VerticalTemplate.Visibility = !isHorizontal ? Visibility.Visible : Visibility.Collapsed;
+            this._UpdateTrackLayout();
+        }
+        private _UpdateTrackLayout() {
+            var max = this.Maximum;
+            var min = this.Minimum;
+            var val = this.Value;
+            var isHorizontal = this.Orientation === Orientation.Horizontal;
+            var temp = isHorizontal ? this.$HorizontalTemplate : this.$VerticalTemplate;
+            if (!(temp instanceof Grid))
+                return;
+            var templateGrid = <Grid>temp;
+            var isReversed = this.IsDirectionReversed;
+            var defs;
+            var largeDecrease;
+            var largeIncrease;
+            var thumb;
+            if (isHorizontal) {
+                defs = templateGrid.ColumnDefinitions;
+                largeDecrease = this.$HorizontalLargeDecrease;
+                largeIncrease = this.$HorizontalLargeIncrease;
+                thumb = this.$HorizontalThumb;
+            } else {
+                defs = templateGrid.RowDefinitions;
+                largeDecrease = this.$VerticalLargeDecrease;
+                largeIncrease = this.$VerticalLargeIncrease;
+                thumb = this.$VerticalThumb;
+            }
+            if (defs != null && defs.GetCount() === 3) {
+                if (isHorizontal) {
+                    defs.GetValueAt(0).Width = new GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
+                    defs.GetValueAt(2).Width = new GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
+                    if (largeDecrease != null)
+                        Grid.SetColumn(largeDecrease, isReversed ? 2 : 0);
+                    if (largeIncrease != null)
+                        Grid.SetColumn(largeIncrease, isReversed ? 0 : 2);
+                } else {
+                    defs.GetValueAt(0).Height = new GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
+                    defs.GetValueAt(2).Height = new GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
+                    if (largeDecrease != null)
+                        Grid.SetRow(largeDecrease, isReversed ? 0 : 2);
+                    if (largeIncrease != null)
+                        Grid.SetRow(largeIncrease, isReversed ? 2 : 0);
+                }
+            }
+            if (max === min)
+                return;
+            var percent = val / (max - min);
+            if (largeDecrease != null && thumb != null) {
+                if (isHorizontal)
+                    largeDecrease.Width = Math.max(0, percent * (this.ActualWidth - thumb.ActualWidth));
+                else
+                    largeDecrease.Height = Math.max(0, percent * (this.ActualHeight - thumb.ActualHeight));
+            }
+        }
+        private _OnThumbDragStarted(sender, e: Primitives.DragStartedEventArgs) {
+            this.Focus();
+            this._DragValue = this.Value;
+        }
+        private _OnThumbDragDelta(sender, e: Primitives.DragDeltaEventArgs) {
+            var offset = 0;
+            var isHorizontal = this.Orientation === Orientation.Horizontal;
+            if (isHorizontal && this.$HorizontalThumb != null) {
+                offset = e.HorizontalChange / (this.ActualWidth - this.$HorizontalThumb.ActualWidth) * (this.Maximum - this.Minimum);
+            } else if (!isHorizontal && this.$VerticalThumb != null) {
+                offset = -e.VerticalChange / (this.ActualHeight - this.$VerticalThumb.ActualHeight) * (this.Maximum - this.Minimum);
+            }
+            if (!isNaN(offset) && isFinite(offset)) {
+                this._DragValue += this.IsDirectionReversed ? -offset : offset;
+                var newValue = Math.min(this.Maximum, Math.max(this.Minimum, this._DragValue));
+                if (newValue != this.Value)
+                    this.Value = newValue;
+            }
+        }
+        OnMouseEnter(e: Input.MouseEventArgs) {
+            super.OnMouseEnter(e);
+            if ((this.Orientation === Fayde.Orientation.Horizontal && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) ||
+                (this.Orientation === Fayde.Orientation.Vertical && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
+                this.UpdateVisualState();
+            }
+        }
+        OnMouseLeave(e: Input.MouseEventArgs) {
+            super.OnMouseLeave(e);
+            if ((this.Orientation === Fayde.Orientation.Horizontal && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) ||
+                (this.Orientation === Fayde.Orientation.Vertical && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
+                this.UpdateVisualState();
+            }
+        }
+        OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
+            super.OnMouseLeftButtonDown(e);
+            if (e.Handled)
+                return;
+            e.Handled = true;
+            this.Focus();
+            this.CaptureMouse();
+        }
+        OnLostMouseCapture(e: Input.MouseEventArgs) {
+            super.OnLostMouseCapture(e);
+            this.UpdateVisualState();
+        }
+        OnKeyDown(e: Input.KeyEventArgs) {
+            super.OnKeyDown(e);
+            if (e.Handled)
+                return;
+            if (!this.IsEnabled)
+                return;
+            switch (e.Key) {
+                case Input.Key.Left:
+                case Input.Key.Down:
+                    this.Value += (this.IsDirectionReversed ? this.SmallChange : -this.SmallChange);
+                    break;
+                case Input.Key.Right:
+                case Input.Key.Up:
+                    this.Value += (this.IsDirectionReversed ? -this.SmallChange : this.SmallChange);
+                    break;
+                case Input.Key.Home:
+                    this.Value = this.Minimum;
+                    break;
+                case Input.Key.End:
+                    this.Value = this.Maximum;
+                    break;
+            }
+        }
+        OnGotFocus(e: RoutedEventArgs) {
+            super.OnGotFocus(e);
+            this.SetValueInternal(Slider.IsFocusedProperty, true);
+        }
+        OnLostFocus(e: RoutedEventArgs) {
+            super.OnLostFocus(e);
+            this.SetValueInternal(Slider.IsFocusedProperty, false);
+        }
+    }
+    Nullstone.RegisterType(Slider, "Slider");
 }
 
 module Fayde.Controls {

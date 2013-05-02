@@ -222,7 +222,9 @@ Typescript\Controls\Grid.ts
 Typescript\Controls\ListBox.ts
 Typescript\Controls\ListBoxItem.ts
 Typescript\Controls\Page.ts
+Typescript\Controls\ProgressBar.ts
 Typescript\Controls\ScrollViewer.ts
+Typescript\Controls\Slider.ts
 Typescript\Controls\TextBox.ts
 Typescript\Controls\ToolTip.ts
 Typescript\Controls\Primitives\ButtonBase.ts
