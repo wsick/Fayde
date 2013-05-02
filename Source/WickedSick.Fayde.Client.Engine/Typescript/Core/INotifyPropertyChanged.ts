@@ -1,7 +1,7 @@
 /// <reference path="../Runtime/Nullstone.ts" />
+/// <reference path="../Runtime/EventArgs.ts" />
 /// CODE
 /// <reference path="../Runtime/MulticastEvent.ts" />
-/// <reference path="../Runtime/EventArgs.ts" />
 
 module Fayde {
     export class PropertyChangedEventArgs extends EventArgs {

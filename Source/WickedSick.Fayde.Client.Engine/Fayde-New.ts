@@ -4941,22 +4941,6 @@ module Fayde {
 }
 
 module Fayde {
-    export class PropertyChangedEventArgs extends EventArgs {
-        private _PropertyName: string;
-        get PropertyName(): string { return this._PropertyName; }
-        constructor(propertyName: string) {
-            super();
-            this._PropertyName = propertyName;
-        }
-    }
-    Nullstone.RegisterType(PropertyChangedEventArgs, "PropertyChangedEventArgs");
-    export interface INotifyPropertyChanged {
-        PropertyChanged: MulticastEvent;
-    }
-    export var INotifyPropertyChanged_ = Nullstone.RegisterInterface("INotifyPropertyChanged");
-}
-
-module Fayde {
     export class LayoutInformation {
         static GetLayoutClip(uie: UIElement): Media.Geometry {
             return uie.XamlNode.LayoutUpdater.LayoutClip;
@@ -10916,6 +10900,22 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(FrameworkTemplate, "FrameworkTemplate");
+}
+
+module Fayde {
+    export class PropertyChangedEventArgs extends EventArgs {
+        private _PropertyName: string;
+        get PropertyName(): string { return this._PropertyName; }
+        constructor(propertyName: string) {
+            super();
+            this._PropertyName = propertyName;
+        }
+    }
+    Nullstone.RegisterType(PropertyChangedEventArgs, "PropertyChangedEventArgs");
+    export interface INotifyPropertyChanged {
+        PropertyChanged: MulticastEvent;
+    }
+    export var INotifyPropertyChanged_ = Nullstone.RegisterInterface("INotifyPropertyChanged");
 }
 
 module Fayde {

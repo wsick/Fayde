@@ -36,7 +36,6 @@ Typescript\Controls\Primitives\IScrollInfo.ts
 Typescript\Controls\Primitives\SelectorSelection.ts
 Typescript\Core\DependencyProperty.ts
 Typescript\Core\Expression.ts
-Typescript\Core\INotifyPropertyChanged.ts
 Typescript\Core\LayoutInformation.ts
 Typescript\Core\LayoutUpdater.ts
 Typescript\Core\NameScope.ts
@@ -96,6 +95,7 @@ Typescript\Controls\Primitives\SelectionChangedEventArgs.ts
 Typescript\Core\DeferredValueExpression.ts
 Typescript\Core\DependencyObject.ts
 Typescript\Core\FrameworkTemplate.ts
+Typescript\Core\INotifyPropertyChanged.ts
 Typescript\Core\ResourceTarget.ts
 Typescript\Core\RoutedEvent.ts
 Typescript\Core\RoutedEventArgs.ts

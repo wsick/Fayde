@@ -4,9 +4,9 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 /// <reference path="../Runtime/Nullstone.ts" />
+/// <reference path="../Runtime/EventArgs.ts" />
 /// CODE
 /// <reference path="../Runtime/MulticastEvent.ts" />
-/// <reference path="../Runtime/EventArgs.ts" />
 var Fayde;
 (function (Fayde) {
     var PropertyChangedEventArgs = (function (_super) {
