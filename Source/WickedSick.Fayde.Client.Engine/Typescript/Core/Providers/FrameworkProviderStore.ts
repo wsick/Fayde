@@ -61,7 +61,7 @@ module Fayde.Providers {
         private _GetImplicitStyles(styleMask: _StyleMask): Style[] {
             var fe = <FrameworkElement>this._Object;
             var feType = (<any>fe).constructor;
-            var feTypeName = (<any>fe)._TypeName;
+            var feTypeName = (<any>feType)._TypeName;
 
             var genericXamlStyle: Style = undefined;
             if ((styleMask & _StyleMask.GenericXaml) != 0) {

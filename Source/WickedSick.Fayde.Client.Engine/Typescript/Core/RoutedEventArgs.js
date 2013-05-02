@@ -14,6 +14,7 @@ var Fayde;
 
             this.Handled = false;
             this.Source = null;
+            this.OriginalSource = null;
         }
         return RoutedEventArgs;
     })(EventArgs);

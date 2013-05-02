@@ -76,7 +76,7 @@ module Fayde.Controls {
         _CanFindElement(): bool { return this.XObject.IsEnabled; }
         _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool { return false; }
 
-        Focus(): bool { return this._Surface.Focus(this); }
+        Focus(recurse?: bool): bool { return this._Surface.Focus(this, recurse); }
 
         CanCaptureMouse(): bool { return this.XObject.IsEnabled; }
     }

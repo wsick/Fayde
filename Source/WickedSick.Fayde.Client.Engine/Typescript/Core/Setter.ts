@@ -30,10 +30,10 @@ module Fayde {
                 return false;
             }
             if (setter.Value === undefined) {
-                //TODO: if (!setter._HasDeferredValueExpression(Fayde.Setter.ValueProperty)) {
-                error.Message = "Cannot have a null ValueProperty value";
-                return false;
-                //}
+                if (!setter._HasDeferredValueExpression(Setter.ValueProperty)) {
+                    error.Message = "Cannot have a null ValueProperty value";
+                    return false;
+                }
             }
             if (this._IsSealed) {
                 error.Message = "Cannot add a setter to a sealed style";
@@ -44,7 +44,7 @@ module Fayde {
     }
     Nullstone.RegisterType(SetterCollection, "SetterCollection");
 
-    export class Setter extends XamlObject {
+    export class Setter extends DependencyObject {
         private _IsSealed: bool = false;
         static PropertyProperty: DependencyProperty = DependencyProperty.RegisterCore("Property", () => DependencyProperty, Setter);
         static ValueProperty: DependencyProperty = DependencyProperty.RegisterCore("Value", () => Object, Setter);

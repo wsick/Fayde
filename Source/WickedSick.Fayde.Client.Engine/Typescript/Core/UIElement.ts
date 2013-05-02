@@ -101,7 +101,7 @@ module Fayde {
             }
         }
 
-        Focus(): bool { return false; }
+        Focus(recurse?: bool): bool { return false; }
 
         _EmitFocusChange(type: string) {
             if (type === "got")

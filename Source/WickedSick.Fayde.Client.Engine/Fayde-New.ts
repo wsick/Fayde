@@ -4619,7 +4619,7 @@ class DependencyProperty {
     }
     static GetDependencyProperty(ownerType: Function, name: string) {
         if (!ownerType)
-            return null;
+            return undefined;
         var reg: DependencyProperty[] = (<any>ownerType)._RegisteredDPs;
         var propd: DependencyProperty;
         if (reg)
@@ -7625,6 +7625,14 @@ class TargetInvocationException extends Exception {
     }
 }
 Nullstone.RegisterType(TargetInvocationException, "TargetInvocationException");
+class UnknownTypeException extends Exception {
+    FullTypeName: string;
+    constructor(fullTypeName: string) {
+        super(fullTypeName);
+        this.FullTypeName = fullTypeName;
+    }
+}
+Nullstone.RegisterType(UnknownTypeException, "UnknownTypeException");
 
 module Fayde {
     export class RenderContext implements IRenderContext {
@@ -10375,6 +10383,10 @@ module Fayde {
                 expr.OnDetached(this);
             }
         }
+        _HasDeferredValueExpression(propd: DependencyProperty) {
+            var expr = this._Expressions[propd._ID];
+            return expr instanceof DeferredValueExpression;
+        }
         GetBindingExpression(propd: DependencyProperty): Data.BindingExpressionBase {
             var expr = this._Expressions[propd._ID];
             if (expr instanceof Data.BindingExpressionBase)
@@ -10443,8 +10455,24 @@ module Fayde {
     export class RoutedEventArgs extends EventArgs {
         Handled: bool = false;
         Source: any = null;
+        OriginalSource: any = null;
     }
     Nullstone.RegisterType(RoutedEventArgs, "RoutedEventArgs");
+}
+
+module Fayde {
+    export class RoutedPropertyChangedEventArgs extends RoutedEventArgs {
+        private _OldValue: any;
+        get OldValue(): any { return this._OldValue; }
+        private _NewValue: any;
+        get NewValue(): any { return this._NewValue; }
+        constructor(oldValue: any, newValue: any) {
+            super();
+            this._OldValue = oldValue;
+            this._NewValue = newValue;
+        }
+    }
+    Nullstone.RegisterType(RoutedPropertyChangedEventArgs, "RoutedPropertyChangedEventArgs");
 }
 
 module Fayde {
@@ -10472,6 +10500,7 @@ module Fayde {
         Setters: SetterCollection;
         BasedOn: Style;
         TargetType: Function;
+        static Annotations = { ContentProperty: "Setters" }
         constructor() {
             super();
             var coll = new SetterCollection();
@@ -10696,7 +10725,7 @@ module Fayde.Providers {
         private _GetImplicitStyles(styleMask: _StyleMask): Style[] {
             var fe = <FrameworkElement>this._Object;
             var feType = (<any>fe).constructor;
-            var feTypeName = (<any>fe)._TypeName;
+            var feTypeName = (<any>feType)._TypeName;
             var genericXamlStyle: Style = undefined;
             if ((styleMask & _StyleMask.GenericXaml) != 0) {
                 if (fe instanceof Controls.Control) {
@@ -13216,6 +13245,82 @@ module Fayde.Controls {
     Nullstone.RegisterType(RowDefinitionCollection, "RowDefinitionCollection");
 }
 
+module Fayde.Controls {
+    export class ToolTipService {
+        static ToolTipProperty: DependencyProperty = DependencyProperty.RegisterAttached("ToolTip", () => DependencyObject, ToolTipService);
+        static PlacementTargetProperty: DependencyProperty = DependencyProperty.RegisterAttached("PlacementTarget", () => UIElement, ToolTipService);
+    }
+    Nullstone.RegisterType(ToolTipService, "ToolTipService");
+}
+
+module Fayde.Controls.Primitives {
+    export class DragCompletedEventArgs extends RoutedEventArgs {
+        private _HorizontalChange: number;
+        get HorizontalChange(): number { return this._HorizontalChange; }
+        private _VerticalChange: number;
+        get VerticalChange(): number { return this._VerticalChange; }
+        private _Canceled: bool;
+        get Canceled(): bool { return this._Canceled; }
+        constructor(horizontal: number, vertical: number, canceled: bool) {
+            super();
+            this._HorizontalChange = horizontal;
+            this._VerticalChange = vertical;
+            this._Canceled = canceled;
+        }
+    }
+    Nullstone.RegisterType(DragCompletedEventArgs, "DragCompletedEventArgs");
+    export class DragDeltaEventArgs extends RoutedEventArgs {
+        private _HorizontalChange: number;
+        get HorizontalChange(): number { return this._HorizontalChange; }
+        private _VerticalChange: number;
+        get VerticalChange(): number { return this._VerticalChange; }
+        constructor(horizontal: number, vertical: number) {
+            super();
+            this._HorizontalChange = horizontal;
+            this._VerticalChange = vertical;
+        }
+    }
+    Nullstone.RegisterType(DragDeltaEventArgs, "DragDeltaEventArgs");
+    export class DragStartedEventArgs extends RoutedEventArgs {
+        private _HorizontalOffset: number;
+        get HorizontalOffset(): number { return this._HorizontalOffset; }
+        private _VerticalOffset: number;
+        get VerticalOffset(): number { return this._VerticalOffset; }
+        constructor(horizontal: number, vertical: number) {
+            super();
+            this._HorizontalOffset = horizontal;
+            this._VerticalOffset = vertical;
+        }
+    }
+    Nullstone.RegisterType(DragStartedEventArgs, "DragStartedEventArgs");
+}
+
+module Fayde.Controls.Primitives {
+    export enum ScrollEventType {
+        SmallDecrement = 0,
+        SmallIncrement = 1,
+        LargeDecrement = 2,
+        LargeIncrement = 3,
+        ThumbPosition = 4,
+        ThumbTrack = 5,
+        First = 6,
+        Last = 7,
+        EndScroll = 8,
+    }
+    export class ScrollEventArgs extends RoutedEventArgs {
+        private _ScrollEventType: ScrollEventType;
+        get ScrollEventType(): ScrollEventType { return this._ScrollEventType; }
+        private _Value: number;
+        get Value(): number { return this._Value; }
+        constructor(scrollEventType: ScrollEventType, value: number) {
+            super();
+            this._ScrollEventType = scrollEventType;
+            this._Value = value;
+        }
+    }
+    Nullstone.RegisterType(ScrollEventArgs, "ScrollEventArgs");
+}
+
 module Fayde {
     export class DataTemplate extends FrameworkTemplate {
         private _TempJson: any;
@@ -13280,14 +13385,9 @@ module Fayde {
             });
         }
         ContainsKey(key: any): bool {
-            if (typeof key === "string")
-                return this._KeyIndex[key] !== undefined;
+            return this._KeyIndex[key] !== undefined;
         }
         Get(key: any): XamlObject {
-            var index: number;
-            if (typeof key === "string")
-                index = this._KeyIndex[key];
-            else
             var index = this._KeyIndex[key];
             if (index !== undefined)
                 return this.GetValueAt(index);
@@ -13350,8 +13450,10 @@ module Fayde {
                 return false;
             }
             if (setter.Value === undefined) {
-                error.Message = "Cannot have a null ValueProperty value";
-                return false;
+                if (!setter._HasDeferredValueExpression(Setter.ValueProperty)) {
+                    error.Message = "Cannot have a null ValueProperty value";
+                    return false;
+                }
             }
             if (this._IsSealed) {
                 error.Message = "Cannot add a setter to a sealed style";
@@ -13361,7 +13463,7 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(SetterCollection, "SetterCollection");
-    export class Setter extends XamlObject {
+    export class Setter extends DependencyObject {
         private _IsSealed: bool = false;
         static PropertyProperty: DependencyProperty = DependencyProperty.RegisterCore("Property", () => DependencyProperty, Setter);
         static ValueProperty: DependencyProperty = DependencyProperty.RegisterCore("Value", () => Object, Setter);
@@ -13384,6 +13486,28 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(Setter, "Setter");
+}
+
+module Fayde {
+    export class TriggerAction extends DependencyObject {
+        Fire() { }
+    }
+    Nullstone.RegisterType(TriggerAction, "TriggerAction");
+    export class TriggerActionCollection extends XamlObjectCollection {
+    }
+    Nullstone.RegisterType(TriggerActionCollection, "TriggerActionCollection");
+    export class TriggerBase extends DependencyObject {
+    }
+    Nullstone.RegisterType(TriggerBase, "TriggerBase");
+    export class TriggerCollection extends XamlObjectCollection {
+    }
+    Nullstone.RegisterType(TriggerCollection, "TriggerCollection");
+    export class EventTrigger extends TriggerBase {
+        static ActionsProperty: DependencyProperty = DependencyProperty.Register("Actions", () => TriggerActionCollection, EventTrigger);
+        static RoutedEventProperty: DependencyProperty = DependencyProperty.Register("RoutedEvent", () => MulticastEvent, EventTrigger);
+        static Annotations = { ContentProperty: EventTrigger.ActionsProperty }
+    }
+    Nullstone.RegisterType(EventTrigger, "EventTrigger");
 }
 
 module Fayde {
@@ -13459,7 +13583,7 @@ module Fayde {
                 this.SetSurface(null);
             }
         }
-        Focus(): bool { return false; }
+        Focus(recurse?: bool): bool { return false; }
         _EmitFocusChange(type: string) {
             if (type === "got")
                 this._EmitGotFocus();
@@ -14335,6 +14459,19 @@ module Fayde.Media.Animation {
         RemoveKeyFrame(kf: KeyFrame) { this.KeyFrames.Remove(kf); }
     }
     Nullstone.RegisterType(AnimationUsingKeyFrames, "AnimationUsingKeyFrames");
+}
+
+module Fayde.Media.Animation {
+    export class BeginStoryboard extends TriggerAction {
+        static StoryboardProperty: DependencyProperty = DependencyProperty.Register("Storyboard", () => Animation.Storyboard, BeginStoryboard);
+        Storyboard: Animation.Storyboard;
+        static Annotations = { ContentProperty: BeginStoryboard.StoryboardProperty }
+        Fire() {
+            var sb = this.Storyboard;
+            if (sb) sb.Begin();
+        }
+    }
+    Nullstone.RegisterType(BeginStoryboard, "BeginStoryboard");
 }
 
 module Fayde.Media.Animation {
@@ -16113,7 +16250,7 @@ module Fayde.Controls {
         }
         _CanFindElement(): bool { return this.XObject.IsEnabled; }
         _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool { return false; }
-        Focus(): bool { return this._Surface.Focus(this); }
+        Focus(recurse?: bool): bool { return this._Surface.Focus(this, recurse); }
         CanCaptureMouse(): bool { return this.XObject.IsEnabled; }
     }
     Nullstone.RegisterType(ControlNode, "ControlNode");
@@ -16652,12 +16789,6 @@ module Fayde.Controls {
         }
     }
     Nullstone.RegisterType(ItemsPresenter, "ItemsPresenter");
-}
-
-module Fayde.Controls {
-    export class ListBox extends ItemsControl {
-    }
-    Nullstone.RegisterType(ListBox, "ListBox");
 }
 
 module Fayde.Controls {
@@ -18407,6 +18538,539 @@ module Fayde.Controls.Primitives {
     Nullstone.RegisterType(Popup, "Popup");
 }
 
+module Fayde.Controls.Primitives {
+    export class RangeBase extends Controls.Control {
+        private _LevelsFromRootCall: number = 0;
+        private _InitialMax: number = 0;
+        private _InitialVal: number = 0;
+        private _RequestedMax: number = 0;
+        private _RequestedVal: number = 0;
+        static MinimumProperty: DependencyProperty = DependencyProperty.Register("Minimum", () => Number, RangeBase, 0, (d, args) => (<RangeBase>d)._OnMinimumChanged(args));
+        static MaximumProperty: DependencyProperty = DependencyProperty.Register("Maximum", () => Number, RangeBase, 1, (d, args) => (<RangeBase>d)._OnMaximumChanged(args));
+        static LargeChangeProperty: DependencyProperty = DependencyProperty.Register("LargeChange", () => Number, RangeBase, 1, (d, args) => (<RangeBase>d)._OnLargeChangeChanged(args));
+        static SmallChangeProperty: DependencyProperty = DependencyProperty.Register("SmallChange", () => Number, RangeBase, 0.1, (d, args) => (<RangeBase>d)._OnSmallChangeChanged(args));
+        static ValueProperty: DependencyProperty = DependencyProperty.Register("Value", () => Number, RangeBase, 0, (d, args) => (<RangeBase>d)._OnValueChanged(args));
+        Minimum: number;
+        Maximum: number;
+        SmallChange: number;
+        LargeChange: number;
+        Value: number;
+        ValueChanged: RoutedEvent = new RoutedEvent();
+        private _OnMinimumChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (!isValidDoubleValue(args.NewValue))
+                throw new ArgumentException("Invalid double value for Minimum property.");
+            if (this._LevelsFromRootCall === 0) {
+                this._InitialMax = this.Maximum;
+                this._InitialVal = this.Value;
+            }
+            this._LevelsFromRootCall++;
+            this._CoerceMaximum();
+            this._CoerceValue();
+            this._LevelsFromRootCall--;
+            if (this._LevelsFromRootCall === 0) {
+                this.OnMinimumChanged(args.OldValue, args.OldValue);
+                var max = this.Maximum;
+                if (!areNumbersClose(this._InitialMax, max)) {
+                    this.OnMaximumChanged(this._InitialMax, max);
+                }
+                var val = this.Value;
+                if (!areNumbersClose(this._InitialVal, val)) {
+                    this.RaiseValueChanged(this._InitialVal, val);
+                }
+            }
+        }
+        private _OnMaximumChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (!isValidDoubleValue(args.NewValue))
+                throw new ArgumentException("Invalid double value for Maximum property.");
+            if (this._LevelsFromRootCall === 0) {
+                this._RequestedMax = args.NewValue;
+                this._InitialMax = args.OldValue;
+                this._InitialVal = this.Value;
+            }
+            this._LevelsFromRootCall++;
+            this._CoerceMaximum();
+            this._CoerceValue();
+            this._LevelsFromRootCall--;
+            if (this._LevelsFromRootCall === 0) {
+                var max = this.Maximum;
+                if (!areNumbersClose(this._InitialMax, max)) {
+                    this.OnMaximumChanged(this._InitialMax, max);
+                }
+                var val = this.Value;
+                if (!areNumbersClose(this._InitialVal, val)) {
+                    this.RaiseValueChanged(this._InitialVal, val);
+                }
+            }
+        }
+        private _OnLargeChangeChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (!isValidChange(args.NewValue))
+                throw new ArgumentException("Invalid Large Change Value.");
+        }
+        private _OnSmallChangeChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (!isValidChange(args.NewValue))
+                throw new ArgumentException("Invalid Small Change Value.");
+        }
+        private _OnValueChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (!isValidDoubleValue(args.NewValue))
+                throw new ArgumentException("Invalid double value for Value property.");
+            if (this._LevelsFromRootCall === 0) {
+                this._RequestedVal = args.NewValue;
+                this._InitialVal = args.OldValue;
+            }
+            this._LevelsFromRootCall++;
+            this._CoerceValue();
+            this._LevelsFromRootCall--;
+            if (this._LevelsFromRootCall === 0) {
+                var val = this.Value;
+                if (!areNumbersClose(this._InitialVal, val)) {
+                    this.RaiseValueChanged(this._InitialVal, val);
+                }
+            }
+        }
+        private _CoerceMaximum() {
+            var min = this.Minimum;
+            var max = this.Maximum;
+            if (!areNumbersClose(this._RequestedMax, max) && this._RequestedMax >= min) {
+                this.Maximum = this._RequestedMax;
+                return;
+            }
+            if (max < min)
+                this.Maximum = min;
+        }
+        private _CoerceValue() {
+            var min = this.Minimum;
+            var max = this.Maximum;
+            var val = this.Value;
+            if (!areNumbersClose(this._RequestedVal, val) && this._RequestedVal >= min && this._RequestedVal <= max) {
+                this.Value = this._RequestedVal;
+                return;
+            }
+            if (val < min)
+                this.Value = min;
+            if (val > max)
+                this.Value = max;
+        }
+        OnMinimumChanged(oldMin: number, newMin: number) { }
+        OnMaximumChanged(oldMax: number, newMax: number) { }
+        private RaiseValueChanged(oldVal: number, newVal: number) {
+            this.ValueChanged.Raise(this, new RoutedPropertyChangedEventArgs(oldVal, newVal));
+            this.OnValueChanged(oldVal, newVal);
+        }
+        OnValueChanged(oldVal: number, newVal: number) { }
+    }
+    Nullstone.RegisterType(RangeBase, "RangeBase");
+    function areNumbersClose(val1: number, val2: number): bool {
+        if (val1 === val2)
+            return true;
+        var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516E-16;
+        var num2 = val1 - val2;
+        return -num1 < num2 && num1 > num2;
+    }
+    function isValidChange(value: number): bool {
+        if (!isValidDoubleValue(value))
+            return false;
+        return value >= 0;
+    }
+    function isValidDoubleValue(value: number): bool {
+        if (typeof value !== "number")
+            return false;
+        if (isNaN(value))
+            return false;
+        if (!isFinite(value))
+            return false;
+        return true;
+    }
+}
+
+module Fayde.Controls.Primitives {
+    export class ScrollBar extends RangeBase {
+        private _DragValue: number = 0;
+        Scroll: RoutedEvent = new RoutedEvent();
+        static OrientationProperty: DependencyProperty = DependencyProperty.Register("Orientation", () => new Enum(Orientation), ScrollBar, Orientation.Horizontal, (d, args) => (<ScrollBar>d)._OnOrientationChanged());
+        static ViewportSizeProperty: DependencyProperty = DependencyProperty.Register("ViewportSize", () => Number, ScrollBar, 0, (d, args) => (<ScrollBar>d)._UpdateTrackLayout((<ScrollBar>d)._GetTrackLength()));
+        Orientation: Orientation;
+        ViewportSize: number;
+        get IsDragging(): bool {
+            if (this.$ElementHorizontalThumb)
+                return this.$ElementHorizontalThumb.IsDragging;
+            if (this.$ElementVerticalThumb)
+                return this.$ElementVerticalThumb.IsDragging;
+            return false;
+        }
+        constructor() {
+            super();
+            this.DefaultStyleKey = (<any>this).constructor;
+            this.SizeChanged.Subscribe(this._HandleSizeChanged, this);
+        }
+        private $ElementHorizontalTemplate: FrameworkElement;
+        private $ElementHorizontalSmallIncrease: RepeatButton;
+        private $ElementHorizontalSmallDecrease: RepeatButton;
+        private $ElementHorizontalLargeIncrease: RepeatButton;
+        private $ElementHorizontalLargeDecrease: RepeatButton;
+        private $ElementHorizontalThumb: Thumb;
+        private $ElementVerticalTemplate: FrameworkElement;
+        private $ElementVerticalSmallIncrease: RepeatButton;
+        private $ElementVerticalSmallDecrease: RepeatButton;
+        private $ElementVerticalLargeIncrease: RepeatButton;
+        private $ElementVerticalLargeDecrease: RepeatButton;
+        private $ElementVerticalThumb: Thumb;
+        private _GetChildOfType(name: string, type: Function): any {
+            var temp = this.GetTemplateChild(name);
+            if (temp instanceof type)
+                return temp;
+        }
+        OnApplyTemplate() {
+            super.OnApplyTemplate();
+            this.$ElementHorizontalTemplate = this._GetChildOfType("HorizontalRoot", FrameworkElement);
+            this.$ElementHorizontalLargeIncrease = this._GetChildOfType("HorizontalLargeIncrease", RepeatButton);
+            this.$ElementHorizontalLargeDecrease = this._GetChildOfType("HorizontalLargeDecrease", RepeatButton);
+            this.$ElementHorizontalSmallIncrease = this._GetChildOfType("HorizontalSmallIncrease", RepeatButton);
+            this.$ElementHorizontalSmallDecrease = this._GetChildOfType("HorizontalSmallDecrease", RepeatButton);
+            this.$ElementHorizontalThumb = this._GetChildOfType("HorizontalThumb", Thumb);
+            this.$ElementVerticalTemplate = this._GetChildOfType("VerticalRoot", Fayde.FrameworkElement);
+            this.$ElementVerticalLargeIncrease = this._GetChildOfType("VerticalLargeIncrease", RepeatButton);
+            this.$ElementVerticalLargeDecrease = this._GetChildOfType("VerticalLargeDecrease", RepeatButton);
+            this.$ElementVerticalSmallIncrease = this._GetChildOfType("VerticalSmallIncrease", RepeatButton);
+            this.$ElementVerticalSmallDecrease = this._GetChildOfType("VerticalSmallDecrease", RepeatButton);
+            this.$ElementVerticalThumb = this._GetChildOfType("VerticalThumb", Thumb);
+            if (this.$ElementHorizontalThumb) {
+                this.$ElementHorizontalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
+                this.$ElementHorizontalThumb.DragDelta.Subscribe(this._OnThumbDragDelta, this);
+                this.$ElementHorizontalThumb.DragCompleted.Subscribe(this._OnThumbDragCompleted, this);
+            }
+            if (this.$ElementHorizontalLargeIncrease) {
+                this.$ElementHorizontalLargeIncrease.Click.Subscribe(this._LargeIncrement, this);
+            }
+            if (this.$ElementHorizontalLargeDecrease) {
+                this.$ElementHorizontalLargeDecrease.Click.Subscribe(this._LargeDecrement, this);
+            }
+            if (this.$ElementHorizontalSmallIncrease) {
+                this.$ElementHorizontalSmallIncrease.Click.Subscribe(this._SmallIncrement, this);
+            }
+            if (this.$ElementHorizontalSmallDecrease) {
+                this.$ElementHorizontalSmallDecrease.Click.Subscribe(this._SmallDecrement, this);
+            }
+            if (this.$ElementVerticalThumb) {
+                this.$ElementVerticalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
+                this.$ElementVerticalThumb.DragDelta.Subscribe(this._OnThumbDragDelta, this);
+                this.$ElementVerticalThumb.DragCompleted.Subscribe(this._OnThumbDragCompleted, this);
+            }
+            if (this.$ElementVerticalLargeIncrease) {
+                this.$ElementVerticalLargeIncrease.Click.Subscribe(this._LargeIncrement, this);
+            }
+            if (this.$ElementVerticalLargeDecrease) {
+                this.$ElementVerticalLargeDecrease.Click.Subscribe(this._LargeDecrement, this);
+            }
+            if (this.$ElementVerticalSmallIncrease) {
+                this.$ElementVerticalSmallIncrease.Click.Subscribe(this._SmallIncrement, this);
+            }
+            if (this.$ElementVerticalSmallDecrease) {
+                this.$ElementVerticalSmallDecrease.Click.Subscribe(this._SmallDecrement, this);
+            }
+            this._OnOrientationChanged();
+            this.UpdateVisualState(false);
+        }
+        OnMaximumChanged(oldMax: number, newMax: number) {
+            var trackLength = this._GetTrackLength();
+            super.OnMaximumChanged(oldMax, newMax);
+            this._UpdateTrackLayout(trackLength);
+        }
+        OnMinimumChanged(oldMin: number, newMin: number) {
+            var trackLength = this._GetTrackLength();
+            super.OnMinimumChanged(oldMin, newMin);
+            this._UpdateTrackLayout(trackLength);
+        }
+        OnValueChanged(oldValue: number, newValue: number) {
+            var trackLength = this._GetTrackLength();
+            super.OnValueChanged(oldValue, newValue);
+            this._UpdateTrackLayout(trackLength);
+        }
+        private _OnThumbDragStarted(sender, e: DragStartedEventArgs) {
+            this._DragValue = this.Value;
+        }
+        private _OnThumbDragDelta(sender, e: DragDeltaEventArgs) {
+            var change = 0;
+            var zoomFactor = 1; //TODO: FullScreen?
+            var num = zoomFactor;
+            var max = this.Maximum;
+            var min = this.Minimum;
+            var diff = max - min;
+            var trackLength = this._GetTrackLength();
+            var isHorizontal = this.Orientation === Orientation.Horizontal;
+            if (this.$ElementVerticalThumb && !isHorizontal) {
+                change = num * e.VerticalChange / (trackLength - this.$ElementVerticalThumb.ActualHeight) * diff;
+            }
+            if (this.$ElementHorizontalThumb && isHorizontal) {
+                change = num * e.HorizontalChange / (trackLength - this.$ElementHorizontalThumb.ActualWidth) * diff;
+            }
+            if (!isNaN(change) && isFinite(change)) {
+                this._DragValue += change;
+                var num1 = Math.min(max, Math.max(min, this._DragValue));
+                if (num1 !== this.Value) {
+                    this.Value = num1;
+                    this._RaiseScroll(ScrollEventType.ThumbTrack);
+                }
+            }
+        }
+        private _OnThumbDragCompleted(sender, e: DragCompletedEventArgs) {
+            this._RaiseScroll(ScrollEventType.EndScroll);
+        }
+        private _SmallDecrement(sender, e: RoutedEventArgs) {
+            var curValue = this.Value;
+            var num = Math.max(curValue - this.SmallChange, this.Minimum);
+            if (curValue !== num) {
+                this.Value = num;
+                this._RaiseScroll(ScrollEventType.SmallDecrement);
+            }
+        }
+        private _SmallIncrement(sender, e: RoutedEventArgs) {
+            var curValue = this.Value;
+            var num = Math.min(curValue + this.SmallChange, this.Maximum);
+            if (curValue !== num) {
+                this.Value = num;
+                this._RaiseScroll(ScrollEventType.SmallIncrement);
+            }
+        }
+        private _LargeDecrement(sender, e: RoutedEventArgs) {
+            var curValue = this.Value;
+            var num = Math.max(curValue - this.LargeChange, this.Minimum);
+            if (curValue !== num) {
+                this.Value = num;
+                this._RaiseScroll(ScrollEventType.LargeDecrement);
+            }
+        }
+        private _LargeIncrement(sender, e: RoutedEventArgs) {
+            var curValue = this.Value;
+            var num = Math.min(curValue + this.LargeChange, this.Maximum);
+            if (curValue !== num) {
+                this.Value = num;
+                this._RaiseScroll(ScrollEventType.LargeIncrement);
+            }
+        }
+        private _HandleSizeChanged(sender, e: EventArgs) {
+            this._UpdateTrackLayout(this._GetTrackLength());
+        }
+        private _OnOrientationChanged() {
+            var isHorizontal = this.Orientation === Orientation.Horizontal;
+            if (this.$ElementHorizontalTemplate) {
+                this.$ElementHorizontalTemplate.Visibility = isHorizontal ? Visibility.Visible : Visibility.Collapsed;
+            }
+            if (this.$ElementVerticalTemplate) {
+                this.$ElementVerticalTemplate.Visibility = isHorizontal ? Visibility.Collapsed : Visibility.Visible;
+            }
+            this._UpdateTrackLayout(this._GetTrackLength());
+        }
+        private _UpdateTrackLayout(trackLength: number) {
+            var max = this.Maximum;
+            var min = this.Minimum;
+            var val = this.Value;
+            var multiplier = (val - min) / (max - min);
+            var thumbSize = this._UpdateThumbSize(trackLength);
+            var isHorizontal = this.Orientation === Orientation.Horizontal;
+            if (isHorizontal && this.$ElementHorizontalLargeDecrease && this.$ElementHorizontalThumb) {
+                this.$ElementHorizontalLargeDecrease.Width = Math.max(0, multiplier * (trackLength - thumbSize));
+            } else if (!isHorizontal && this.$ElementVerticalLargeDecrease && this.$ElementVerticalThumb) {
+                this.$ElementVerticalLargeDecrease.Height = Math.max(0, multiplier * (trackLength - thumbSize));
+            }
+        }
+        private _UpdateThumbSize(trackLength: number): number {
+            var result = Number.NaN;
+            var hideThumb = trackLength <= 0;
+            if (trackLength > 0) {
+                var isHorizontal = this.Orientation === Orientation.Horizontal;
+                var max = this.Maximum;
+                var min = this.Minimum;
+                if (isHorizontal && this.$ElementHorizontalThumb) {
+                    if (max - min !== 0)
+                        result = Math.max(this.$ElementHorizontalThumb.MinWidth, this._ConvertViewportSizeToDisplayUnits(trackLength));
+                    if (max - min === 0 || result > this.ActualWidth || trackLength <= this.$ElementHorizontalThumb.MinWidth) {
+                        hideThumb = true;
+                    } else {
+                        this.$ElementHorizontalThumb.Visibility = Visibility.Visible;
+                        this.$ElementHorizontalThumb.Width = result;
+                    }
+                } else if (!isHorizontal && this.$ElementVerticalThumb) {
+                    if (max - min !== 0)
+                        result = Math.max(this.$ElementVerticalThumb.MinHeight, this._ConvertViewportSizeToDisplayUnits(trackLength));
+                    if (max - min === 0 || result > this.ActualHeight || trackLength <= this.$ElementVerticalThumb.MinHeight) {
+                        hideThumb = true;
+                    } else {
+                        this.$ElementVerticalThumb.Visibility = Visibility.Visible;
+                        this.$ElementVerticalThumb.Height = result;
+                    }
+                }
+            }
+            if (hideThumb) {
+                if (this.$ElementHorizontalThumb) {
+                    this.$ElementHorizontalThumb.Visibility = Visibility.Collapsed;
+                }
+                if (this.$ElementVerticalThumb) {
+                    this.$ElementVerticalThumb.Visibility = Visibility.Collapsed;
+                }
+            }
+            return result;
+        }
+        private _GetTrackLength(): number {
+            var actual = NaN;
+            if (this.Orientation === Orientation.Horizontal) {
+                actual = this.ActualWidth;
+                if (this.$ElementHorizontalSmallDecrease) {
+                    var thickness = this.$ElementHorizontalSmallDecrease.Margin;
+                    actual = actual - (this.$ElementHorizontalSmallDecrease.ActualWidth + thickness.Left + thickness.Right);
+                }
+                if (this.$ElementHorizontalSmallIncrease) {
+                    var thickness = this.$ElementHorizontalSmallIncrease.Margin;
+                    actual = actual - (this.$ElementHorizontalSmallIncrease.ActualWidth + thickness.Left + thickness.Right);
+                }
+            } else {
+                actual = this.ActualHeight;
+                if (this.$ElementVerticalSmallDecrease) {
+                    var thickness = this.$ElementVerticalSmallDecrease.Margin;
+                    actual = actual - (this.$ElementVerticalSmallDecrease.ActualHeight + thickness.Top + thickness.Bottom);
+                }
+                if (this.$ElementVerticalSmallIncrease) {
+                    var thickness = this.$ElementVerticalSmallIncrease.Margin;
+                    actual = actual - (this.$ElementVerticalSmallIncrease.ActualHeight + thickness.Top + thickness.Bottom);
+                }
+            }
+            return actual;
+        }
+        private _ConvertViewportSizeToDisplayUnits(trackLength: number): number {
+            var viewportSize = this.ViewportSize;
+            return trackLength * viewportSize / (viewportSize + this.Maximum - this.Minimum);
+        }
+        private _RaiseScroll(type: Primitives.ScrollEventType) {
+            var args = new ScrollEventArgs(type, this.Value);
+            args.OriginalSource = this;
+            this.Scroll.Raise(this, args);
+        }
+    }
+    Nullstone.RegisterType(ScrollBar, "ScrollBar");
+}
+
+module Fayde.Controls.Primitives {
+    export class Selector extends ItemsControl {
+        NotifyListItemClicked(lbi: ListBoxItem) {
+        }
+        NotifyListItemGotFocus (lbi: ListBoxItem) { }
+        NotifyListItemLostFocus (lbi: ListBoxItem) { }
+    }
+}
+
+module Fayde.Controls.Primitives {
+    export class Thumb extends Control {
+        private _PreviousPosition: Point = null;
+        private _Origin: Point = null;
+        DragCompleted: RoutedEvent = new RoutedEvent();
+        DragDelta: RoutedEvent = new RoutedEvent();
+        DragStarted: RoutedEvent = new RoutedEvent();
+        static IsDraggingProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("IsDragging", () => Boolean, Thumb, false, (d, args) => (<Thumb>d).OnDraggingChanged(args));
+        static IsFocusedProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("IsFocused", () => Boolean, Thumb);
+        IsDragging: bool;
+        IsFocused: bool;
+        constructor() {
+            super();
+            this.DefaultStyleKey = (<any>this).constructor;
+        }
+        OnApplyTemplate() {
+            super.OnApplyTemplate();
+            this.UpdateVisualState(false);
+        }
+        CancelDrag() {
+            if (this.IsDragging) {
+                this.SetValueInternal(Thumb.IsDraggingProperty, false);
+                this._RaiseDragCompleted(true);
+            }
+        }
+        private _FocusChanged(hasFocus: bool) {
+            this.SetValueInternal(Thumb.IsFocusedProperty, hasFocus);
+            this.UpdateVisualState();
+        }
+        private OnDraggingChanged(args: IDependencyPropertyChangedEventArgs) {
+            this.UpdateVisualState();
+        }
+        private OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs) {
+            super.OnIsEnabledChanged(e);
+            this.UpdateVisualState();
+        }
+        OnGotFocus(e: RoutedEventArgs) {
+            super.OnGotFocus(e);
+            this._FocusChanged(this.XamlNode._HasFocus());
+        }
+        OnLostFocus(e: RoutedEventArgs) {
+            super.OnLostFocus(e);
+            this._FocusChanged(this.XamlNode._HasFocus());
+        }
+        OnLostMouseCapture(e: Input.MouseEventArgs) {
+            super.OnLostMouseCapture(e);
+            this._RaiseDragCompleted(false);
+            this.SetValueInternal(Thumb.IsDraggingProperty, false);
+        }
+        OnMouseEnter(e: Input.MouseEventArgs) {
+            super.OnMouseEnter(e);
+            if (this.IsEnabled)
+                this.UpdateVisualState();
+        }
+        OnMouseLeave(e: Input.MouseEventArgs) {
+            super.OnMouseLeave(e);
+            if (this.IsEnabled)
+                this.UpdateVisualState();
+        }
+        OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
+            super.OnMouseLeftButtonDown(e);
+            if (e.Handled)
+                return;
+            if (!this.IsDragging && this.IsEnabled) {
+                e.Handled = true;
+                this.CaptureMouse();
+                this.SetValueInternal(Thumb.IsDraggingProperty, true);
+                var vpNode = this.XamlNode.VisualParentNode;
+                this._Origin = this._PreviousPosition = e.GetPosition((vpNode) ? vpNode.XObject : undefined);
+                var success = false;
+                try {
+                    this._RaiseDragStarted();
+                    success = true;
+                } finally {
+                    if (!success)
+                        this.CancelDrag();
+                }
+            }
+        }
+        OnMouseMove(e: Input.MouseEventArgs) {
+            super.OnMouseMove(e);
+            if (!this.IsDragging)
+                return;
+            var vpNode = this.XamlNode.VisualParentNode;
+            var p = e.GetPosition((vpNode) ? vpNode.XObject : undefined);
+            if (!Point.Equals(p, this._PreviousPosition)) {
+                this._RaiseDragDelta(p.X - this._PreviousPosition.X, p.Y - this._PreviousPosition.Y);
+                this._PreviousPosition = p;
+            }
+        }
+        private _RaiseDragStarted() {
+            this.DragStarted.Raise(this, new DragStartedEventArgs(this._Origin.X, this._Origin.Y));
+        }
+        private _RaiseDragDelta(x: number, y: number) {
+            this.DragDelta.Raise(this, new DragDeltaEventArgs(x, y));
+        }
+        private _RaiseDragCompleted(canceled: bool) {
+            this.DragCompleted.Raise(this, new DragCompletedEventArgs(this._PreviousPosition.X - this._Origin.X, this._PreviousPosition.Y - this._Origin.Y, canceled));
+        }
+        GetVisualStateCommon(): string {
+            if (!this.IsEnabled) {
+                return "Disabled";
+            } else if (this.IsDragging) {
+                return "Pressed";
+            } else if (this.IsMouseOver) {
+                return "MouseOver";
+            } else {
+                return "Normal";
+            }
+        }
+    }
+    Nullstone.RegisterType(Thumb, "Thumb");
+}
+
 module Fayde.Data {
     declare var Warn;
     interface IParseData {
@@ -19299,6 +19963,13 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
+    export class ComboBox extends Primitives.Selector {
+        IsDropDownOpen: bool;
+    }
+    Nullstone.RegisterType(ComboBox, "ComboBox");
+}
+
+module Fayde.Controls {
     export class ContentControlNode extends ControlNode {
         XObject: ContentControl;
         constructor(xobj: ContentControl) {
@@ -20066,6 +20737,93 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
+    export class ListBox extends Primitives.Selector {
+    }
+    Nullstone.RegisterType(ListBox, "ListBox");
+}
+
+module Fayde.Controls {
+    export class ListBoxItem extends ContentControl {
+        private _ParentSelector: Primitives.Selector;
+        get ParentSelector(): Primitives.Selector { return this._ParentSelector; }
+        set ParentSelector(value: Primitives.Selector) {
+            if (this._ParentSelector === value)
+                return;
+            this._ParentSelector = value;
+            this.ParentSelectorChanged.Raise(this, EventArgs.Empty);
+        }
+        ParentSelectorChanged: MulticastEvent = new MulticastEvent();
+        static IsSelectedProperty: DependencyProperty = DependencyProperty.RegisterCore("IsSelected", () => Boolean, ListBoxItem, null, (d, args) => (<ListBoxItem>d).OnIsSelectedChanged(args));
+        IsSelected: bool;
+        constructor() {
+            super();
+            this.DefaultStyleKey = (<any>this).constructor;
+        }
+        OnApplyTemplate() {
+            super.OnApplyTemplate();
+            this.UpdateVisualState(false);
+        }
+        OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
+            if (e.Handled)
+                return;
+            e.Handled = true;
+            if (!this.XamlNode.Focus(true))
+                return;
+            if (this._ParentSelector != null) {
+                this._ParentSelector.NotifyListItemClicked(this);
+            }
+        }
+        OnMouseEnter(e: Input.MouseEventArgs) {
+            super.OnMouseEnter(e);
+            this.UpdateVisualState();
+        }
+        OnMouseLeave(e: Input.MouseEventArgs) {
+            super.OnMouseLeave(e);
+            this.UpdateVisualState();
+        }
+        OnGotFocus(e: RoutedEventArgs) {
+            super.OnGotFocus(e);
+            this.UpdateVisualState();
+            if (this._ParentSelector != null) {
+                this._ParentSelector.NotifyListItemGotFocus(this);
+            }
+        }
+        OnLostFocus(e: RoutedEventArgs) {
+            super.OnLostFocus(e);
+            this.UpdateVisualState();
+            if (this._ParentSelector != null) {
+                this._ParentSelector.NotifyListItemLostFocus(this);
+            }
+        }
+        GetVisualStateNamesToActivate(): string[] {
+            var arr = super.GetVisualStateNamesToActivate();
+            arr.push(this.GetVisualStateSelection());
+            return arr;
+        }
+        GetVisualStateCommon(): string {
+            if (!this.IsEnabled) {
+                return this.Content instanceof Control ? "Normal" : "Disabled";
+            } else if (this.IsMouseOver) {
+                return "MouseOver";
+            } else {
+                return "Normal";
+            }
+        }
+        GetVisualStateSelection(): string {
+            if (this.IsSelected) {
+                return this.IsFocused ? "Selected" : "SelectedUnfocused";
+            } else {
+                return "Unselected";
+            }
+        }
+        private OnIsSelectedChanged(args: IDependencyPropertyChangedEventArgs) {
+            this.UpdateVisualState();
+        }
+    }
+    Nullstone.RegisterType(ListBoxItem, "ListBoxItem");
+}
+
+module Fayde.Controls {
     export class Page extends UserControl {
         static TitleProperty: DependencyProperty = DependencyProperty.Register("Title", () => String, Page);
         Title: string;
@@ -20098,6 +20856,22 @@ module Fayde.Controls {
         TextWrapping: TextWrapping;
     }
     Nullstone.RegisterType(TextBox, "TextBox");
+}
+
+module Fayde.Controls {
+    export class ToolTip extends ContentControl {
+        static HorizontalOffsetProperty: DependencyProperty = DependencyProperty.Register("HorizontalOffset", () => Number, ToolTip);
+        static VerticalOffsetProperty: DependencyProperty = DependencyProperty.Register("VerticalOffset", () => Number, ToolTip);
+        static IsOpenProperty: DependencyProperty = DependencyProperty.Register("IsOpen", () => Boolean, ToolTip);
+        static PlacementProperty: DependencyProperty = DependencyProperty.Register("Placement", () => new Enum(PlacementMode), ToolTip);
+        static PlacementTargetProperty: DependencyProperty = DependencyProperty.Register("PlacementTarget", () => UIElement, ToolTip);
+        HorizontalOffset: Number;
+        VerticalOffset: Number;
+        IsOpen: bool;
+        Placement: PlacementMode;
+        PlacementTarget: UIElement;
+    }
+    Nullstone.RegisterType(ToolTip, "ToolTip");
 }
 
 module Fayde.Controls.Primitives {
@@ -20512,6 +21286,21 @@ module Fayde.Controls {
         }
     }
     Nullstone.RegisterType(Button, "Button");
+}
+
+module Fayde.Controls {
+    export class ComboBoxItem extends ListBoxItem {
+        constructor() {
+            super();
+            this.DefaultStyleKey = (<any>this).constructor;
+        }
+        OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs) {
+            super.OnMouseLeftButtonUp(e);
+            if (this.ParentSelector instanceof ComboBox)
+                (<ComboBox>this.ParentSelector).IsDropDownOpen = false;
+        }
+    }
+    Nullstone.RegisterType(ComboBoxItem, "ComboBoxItem");
 }
 
 module Fayde.Controls {

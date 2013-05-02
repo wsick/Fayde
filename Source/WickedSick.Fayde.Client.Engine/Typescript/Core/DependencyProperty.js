@@ -115,7 +115,7 @@ var DependencyProperty = (function () {
     };
     DependencyProperty.GetDependencyProperty = function GetDependencyProperty(ownerType, name) {
         if(!ownerType) {
-            return null;
+            return undefined;
         }
         var reg = (ownerType)._RegisteredDPs;
         var propd;

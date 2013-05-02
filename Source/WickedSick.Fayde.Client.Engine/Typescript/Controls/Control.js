@@ -80,8 +80,8 @@ var Fayde;
             ControlNode.prototype._InsideObject = function (ctx, lu, x, y) {
                 return false;
             };
-            ControlNode.prototype.Focus = function () {
-                return this._Surface.Focus(this);
+            ControlNode.prototype.Focus = function (recurse) {
+                return this._Surface.Focus(this, recurse);
             };
             ControlNode.prototype.CanCaptureMouse = function () {
                 return this.XObject.IsEnabled;

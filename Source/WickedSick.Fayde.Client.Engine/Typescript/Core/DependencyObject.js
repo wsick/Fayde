@@ -4,8 +4,8 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 /// <reference path="XamlObject.ts" />
-/// CODE
 /// <reference path="DependencyProperty.ts" />
+/// CODE
 /// <reference path="Providers/BasicProviderStore.ts" />
 /// <reference path="Expression.ts" />
 /// <reference path="../Data/BindingExpression.ts" />
@@ -174,6 +174,10 @@ var Fayde;
                 this._Expressions[propd._ID] = undefined;
                 expr.OnDetached(this);
             }
+        };
+        DependencyObject.prototype._HasDeferredValueExpression = function (propd) {
+            var expr = this._Expressions[propd._ID];
+            return expr instanceof Fayde.DeferredValueExpression;
         };
         DependencyObject.prototype.GetBindingExpression = function (propd) {
             var expr = this._Expressions[propd._ID];

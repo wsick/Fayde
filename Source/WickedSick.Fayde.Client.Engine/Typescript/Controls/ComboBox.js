@@ -8,17 +8,17 @@ var Fayde;
     /// <reference path="Primitives/Selector.ts" />
     /// CODE
     (function (Controls) {
-        var ListBox = (function (_super) {
-            __extends(ListBox, _super);
-            function ListBox() {
+        var ComboBox = (function (_super) {
+            __extends(ComboBox, _super);
+            function ComboBox() {
                 _super.apply(this, arguments);
 
             }
-            return ListBox;
+            return ComboBox;
         })(Controls.Primitives.Selector);
-        Controls.ListBox = ListBox;        
-        Nullstone.RegisterType(ListBox, "ListBox");
+        Controls.ComboBox = ComboBox;        
+        Nullstone.RegisterType(ComboBox, "ComboBox");
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
-//@ sourceMappingURL=ListBox.js.map
+//@ sourceMappingURL=ComboBox.js.map

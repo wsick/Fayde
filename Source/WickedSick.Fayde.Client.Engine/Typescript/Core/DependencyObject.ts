@@ -1,6 +1,6 @@
 /// <reference path="XamlObject.ts" />
-/// CODE
 /// <reference path="DependencyProperty.ts" />
+/// CODE
 /// <reference path="Providers/BasicProviderStore.ts" />
 /// <reference path="Expression.ts" />
 /// <reference path="../Data/BindingExpression.ts" />
@@ -152,6 +152,10 @@ module Fayde {
                 this._Expressions[propd._ID] = undefined;
                 expr.OnDetached(this);
             }
+        }
+        _HasDeferredValueExpression(propd: DependencyProperty) {
+            var expr = this._Expressions[propd._ID];
+            return expr instanceof DeferredValueExpression;
         }
         GetBindingExpression(propd: DependencyProperty): Data.BindingExpressionBase {
             var expr = this._Expressions[propd._ID];

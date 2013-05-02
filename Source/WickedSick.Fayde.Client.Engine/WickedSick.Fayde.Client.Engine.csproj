@@ -472,6 +472,50 @@
       <DependentUpon>INotifyCollectionChanged.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Core\INotifyPropertyChanged.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ToolTip.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ComboBox.ts" />
+    <Content Include="Typescript\Controls\ComboBox.js">
+      <DependentUpon>ComboBox.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ListBoxItem.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ComboBoxItem.ts" />
+    <Content Include="Typescript\Controls\ComboBoxItem.js">
+      <DependentUpon>ComboBoxItem.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\ListBoxItem.js">
+      <DependentUpon>ListBoxItem.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\Selector.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\RangeBase.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\DragEventArgs.ts" />
+    <Content Include="Typescript\Controls\Primitives\DragEventArgs.js">
+      <DependentUpon>DragEventArgs.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\Primitives\RangeBase.js">
+      <DependentUpon>RangeBase.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\ScrollBar.ts" />
+    <Content Include="Typescript\Controls\Primitives\ScrollBar.js">
+      <DependentUpon>ScrollBar.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\ScrollEventArgs.ts" />
+    <Content Include="Typescript\Controls\Primitives\ScrollEventArgs.js">
+      <DependentUpon>ScrollEventArgs.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\Primitives\Selector.js">
+      <DependentUpon>Selector.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\Thumb.ts" />
+    <Content Include="Typescript\Controls\Primitives\Thumb.js">
+      <DependentUpon>Thumb.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\ToolTip.js">
+      <DependentUpon>ToolTip.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ToolTipService.ts" />
+    <Content Include="Typescript\Controls\ToolTipService.js">
+      <DependentUpon>ToolTipService.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\INotifyPropertyChanged.js">
       <DependentUpon>INotifyPropertyChanged.ts</DependentUpon>
     </Content>
@@ -742,6 +786,10 @@
     <Content Include="Typescript\Core\RoutedEventArgs.js">
       <DependentUpon>RoutedEventArgs.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Core\RoutedPropertyChangedEventArgs.ts" />
+    <Content Include="Typescript\Core\RoutedPropertyChangedEventArgs.js">
+      <DependentUpon>RoutedPropertyChangedEventArgs.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\Setter.js">
       <DependentUpon>Setter.ts</DependentUpon>
     </Content>
@@ -761,6 +809,10 @@
     <TypeScriptCompile Include="Typescript\Core\TemplateBindingExpression.ts" />
     <Content Include="Typescript\Core\TemplateBindingExpression.js">
       <DependentUpon>TemplateBindingExpression.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\Triggers.ts" />
+    <Content Include="Typescript\Core\Triggers.js">
+      <DependentUpon>Triggers.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Core\TypeConverter.js">
       <DependentUpon>TypeConverter.ts</DependentUpon>
@@ -906,6 +958,10 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Media\Animation\ColorKeyFrame.ts" />
     <TypeScriptCompile Include="Typescript\Media\Animation\ColorAnimation.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\BeginStoryboard.ts" />
+    <Content Include="Typescript\Media\Animation\BeginStoryboard.js">
+      <DependentUpon>BeginStoryboard.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\Animation\ColorAnimation.js">
       <DependentUpon>ColorAnimation.ts</DependentUpon>
     </Content>

@@ -26,6 +26,9 @@ var Fayde;
         Style.TargetTypeProperty = DependencyProperty.Register("TargetType", function () {
             return Function;
         }, Style);
+        Style.Annotations = {
+            ContentProperty: "Setters"
+        };
         Style.prototype.Seal = function () {
             if(this._IsSealed) {
                 return;

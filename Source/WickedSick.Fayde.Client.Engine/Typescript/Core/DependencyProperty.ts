@@ -144,7 +144,7 @@ class DependencyProperty {
 
     static GetDependencyProperty(ownerType: Function, name: string) {
         if (!ownerType)
-            return null;
+            return undefined;
         var reg: DependencyProperty[] = (<any>ownerType)._RegisteredDPs;
         var propd: DependencyProperty;
         if (reg)

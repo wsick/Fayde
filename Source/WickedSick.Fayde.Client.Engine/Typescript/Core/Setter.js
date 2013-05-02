@@ -38,11 +38,11 @@ var Fayde;
                 return false;
             }
             if(setter.Value === undefined) {
-                //TODO: if (!setter._HasDeferredValueExpression(Fayde.Setter.ValueProperty)) {
-                error.Message = "Cannot have a null ValueProperty value";
-                return false;
-                //}
-                            }
+                if(!setter._HasDeferredValueExpression(Setter.ValueProperty)) {
+                    error.Message = "Cannot have a null ValueProperty value";
+                    return false;
+                }
+            }
             if(this._IsSealed) {
                 error.Message = "Cannot add a setter to a sealed style";
                 return false;
@@ -84,7 +84,7 @@ var Fayde;
             this._IsSealed = true;
         };
         return Setter;
-    })(Fayde.XamlObject);
+    })(Fayde.DependencyObject);
     Fayde.Setter = Setter;    
     Nullstone.RegisterType(Setter, "Setter");
 })(Fayde || (Fayde = {}));

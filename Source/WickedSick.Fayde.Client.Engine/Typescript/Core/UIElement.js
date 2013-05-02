@@ -97,7 +97,7 @@ var Fayde;
                 this.SetSurface(null);
             }
         };
-        UINode.prototype.Focus = function () {
+        UINode.prototype.Focus = function (recurse) {
             return false;
         };
         UINode.prototype._EmitFocusChange = function (type) {

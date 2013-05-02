@@ -49,7 +49,7 @@ var Fayde;
             FrameworkProviderStore.prototype._GetImplicitStyles = function (styleMask) {
                 var fe = this._Object;
                 var feType = (fe).constructor;
-                var feTypeName = (fe)._TypeName;
+                var feTypeName = (feType)._TypeName;
                 var genericXamlStyle = undefined;
                 if((styleMask & Providers._StyleMask.GenericXaml) != 0) {
                     if(fe instanceof Fayde.Controls.Control) {

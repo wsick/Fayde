@@ -9,9 +9,10 @@ module Fayde {
         static BasedOnProperty: DependencyProperty = DependencyProperty.Register("BasedOn", () => Function, Style);
         static TargetTypeProperty: DependencyProperty = DependencyProperty.Register("TargetType", () => Function, Style);
         Setters: SetterCollection;
-        
         BasedOn: Style;
         TargetType: Function;
+
+        static Annotations = { ContentProperty: "Setters" }
 
         constructor() {
             super();

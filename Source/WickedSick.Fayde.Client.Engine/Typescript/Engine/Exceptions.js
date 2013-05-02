@@ -87,4 +87,13 @@ var TargetInvocationException = (function (_super) {
     return TargetInvocationException;
 })(Exception);
 Nullstone.RegisterType(TargetInvocationException, "TargetInvocationException");
+var UnknownTypeException = (function (_super) {
+    __extends(UnknownTypeException, _super);
+    function UnknownTypeException(fullTypeName) {
+        _super.call(this, fullTypeName);
+        this.FullTypeName = fullTypeName;
+    }
+    return UnknownTypeException;
+})(Exception);
+Nullstone.RegisterType(UnknownTypeException, "UnknownTypeException");
 //@ sourceMappingURL=Exceptions.js.map

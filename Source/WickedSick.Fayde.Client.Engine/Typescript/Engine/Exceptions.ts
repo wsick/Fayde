@@ -78,3 +78,12 @@ class TargetInvocationException extends Exception {
     }
 }
 Nullstone.RegisterType(TargetInvocationException, "TargetInvocationException");
+
+class UnknownTypeException extends Exception {
+    FullTypeName: string;
+    constructor(fullTypeName: string) {
+        super(fullTypeName);
+        this.FullTypeName = fullTypeName;
+    }
+}
+Nullstone.RegisterType(UnknownTypeException, "UnknownTypeException");
