@@ -492,6 +492,10 @@
     <TypeScriptCompile Include="Typescript\Controls\Primitives\Selector.ts" />
     <TypeScriptCompile Include="Typescript\Controls\Primitives\RangeBase.ts" />
     <TypeScriptCompile Include="Typescript\Controls\Primitives\DragEventArgs.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\PasswordBox.ts" />
+    <Content Include="Typescript\Controls\PasswordBox.js">
+      <DependentUpon>PasswordBox.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Primitives\DragEventArgs.js">
       <DependentUpon>DragEventArgs.ts</DependentUpon>
     </Content>

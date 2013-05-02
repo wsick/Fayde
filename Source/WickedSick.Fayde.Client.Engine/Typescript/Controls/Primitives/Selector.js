@@ -26,6 +26,7 @@ var Fayde;
                 return Selector;
             })(Controls.ItemsControl);
             Primitives.Selector = Selector;            
+            Nullstone.RegisterType(Selector, "Selector");
         })(Controls.Primitives || (Controls.Primitives = {}));
         var Primitives = Controls.Primitives;
     })(Fayde.Controls || (Fayde.Controls = {}));

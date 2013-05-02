@@ -222,6 +222,7 @@ Typescript\Controls\Grid.ts
 Typescript\Controls\ListBox.ts
 Typescript\Controls\ListBoxItem.ts
 Typescript\Controls\Page.ts
+Typescript\Controls\PasswordBox.ts
 Typescript\Controls\ProgressBar.ts
 Typescript\Controls\ScrollViewer.ts
 Typescript\Controls\Slider.ts

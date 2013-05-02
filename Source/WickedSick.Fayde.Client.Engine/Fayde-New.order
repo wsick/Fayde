@@ -222,6 +222,7 @@ Controls/Grid.js
 Controls/ListBox.js
 Controls/ListBoxItem.js
 Controls/Page.js
+Controls/PasswordBox.js
 Controls/ProgressBar.js
 Controls/ScrollViewer.js
 Controls/Slider.js

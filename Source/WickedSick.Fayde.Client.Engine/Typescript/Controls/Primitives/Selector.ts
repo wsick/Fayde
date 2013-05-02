@@ -10,4 +10,5 @@ module Fayde.Controls.Primitives {
         NotifyListItemGotFocus (lbi: ListBoxItem) { }
         NotifyListItemLostFocus (lbi: ListBoxItem) { }
     }
+    Nullstone.RegisterType(Selector, "Selector");
 }

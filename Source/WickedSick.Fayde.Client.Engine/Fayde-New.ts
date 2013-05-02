@@ -4617,7 +4617,7 @@ class DependencyProperty {
         isValidOut.IsValid = true;
         return coerced;
     }
-    static GetDependencyProperty(ownerType: Function, name: string) {
+    static GetDependencyProperty(ownerType: Function, name: string, isRecursive?: bool) {
         if (!ownerType)
             return undefined;
         var reg: DependencyProperty[] = (<any>ownerType)._RegisteredDPs;
@@ -4625,7 +4625,9 @@ class DependencyProperty {
         if (reg)
             propd = reg[name];
         if (!propd)
-            propd = DependencyProperty.GetDependencyProperty((<any>ownerType)._BaseClass, name);
+            propd = DependencyProperty.GetDependencyProperty((<any>ownerType)._BaseClass, name, true);
+        if (!propd && !isRecursive)
+            throw new Exception("Cannot locate dependency property [" + (<any>ownerType)._TypeName + "].[" + name + "]");
         return propd;
     }
 }
@@ -18955,6 +18957,7 @@ module Fayde.Controls.Primitives {
         NotifyListItemGotFocus (lbi: ListBoxItem) { }
         NotifyListItemLostFocus (lbi: ListBoxItem) { }
     }
+    Nullstone.RegisterType(Selector, "Selector");
 }
 
 module Fayde.Controls.Primitives {
@@ -20832,6 +20835,12 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
+    export class PasswordBox extends TextBoxBase {
+    }
+    Nullstone.RegisterType(PasswordBox, "PasswordBox");
+}
+
+module Fayde.Controls {
     export class ProgressBar extends Primitives.RangeBase {
         private _Track: FrameworkElement;
         private _Indicator: FrameworkElement;
@@ -20897,8 +20906,52 @@ module Fayde.Controls {
 
 module Fayde.Controls {
     export class ScrollViewer extends ContentControl {
+        private static _ScrollBarVisibilityChanged(d: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
+            if (!d) return;
+            if (d instanceof ScrollViewer) {
+                var sv = <ScrollViewer>d;
+                sv.XamlNode.LayoutUpdater.InvalidateMeasure();
+                var scrollInfo = sv.ScrollInfo;
+                if (scrollInfo) {
+                    scrollInfo.CanHorizontallyScroll = sv.HorizontalScrollBarVisibility !== ScrollBarVisibility.Disabled;
+                    scrollInfo.CanVerticallyScroll = sv.VerticalScrollBarVisibility !== ScrollBarVisibility.Disabled;
+                }
+                sv._UpdateScrollBarVisibility();
+                return;
+            }
+            if (d instanceof ListBox) {
+                var listbox = <ListBox>d;
+                return;
+            }
+        }
+        static HorizontalScrollBarVisibilityProperty: DependencyProperty = DependencyProperty.RegisterAttachedCore("HorizontalScrollBarVisibility", () => new Enum(ScrollBarVisibility), ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer._ScrollBarVisibilityChanged);
+        static VerticalScrollBarVisibilityProperty: DependencyProperty = DependencyProperty.RegisterAttachedCore("VerticalScrollBarVisibility", () => new Enum(ScrollBarVisibility), ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer._ScrollBarVisibilityChanged);
+        static ComputedHorizontalScrollBarVisibilityProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ComputedHorizontalScrollBarVisibility", () => new Enum(Visibility), ScrollViewer);
+        static ComputedVerticalScrollBarVisibilityProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ComputedVerticalScrollBarVisibility", () => new Enum(Visibility), ScrollViewer);
+        static HorizontalOffsetProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("HorizontalOffset", () => Number, ScrollViewer);
+        static VerticalOffsetProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("VerticalOffset", () => Number, ScrollViewer);
+        static ScrollableWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ScrollableWidth", () => Number, ScrollViewer);
+        static ScrollableHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ScrollableHeight", () => Number, ScrollViewer);
+        static ViewportWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ViewportWidth", () => Number, ScrollViewer);
+        static ViewportHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ViewportHeight", () => Number, ScrollViewer);
+        static ExtentWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ExtentWidth", () => Number, ScrollViewer);
+        static ExtentHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ExtentHeight", () => Number, ScrollViewer);
         HorizontalScrollBarVisibility: ScrollBarVisibility;
         VerticalScrollBarVisibility: ScrollBarVisibility;
+        ComputedHorizontalScrollBarVisibility: ScrollBarVisibility;
+        ComputedVerticalScrollBarVisibility: ScrollBarVisibility;
+        HorizontalOffset: number;
+        VerticalOffset: number;
+        ScrollableWidth: number;
+        ScrollableHeight: number;
+        ViewportWidth: number;
+        ViewportHeight: number;
+        ExtentWidth: number;
+        ExtentHeight: number;
+        constructor() {
+            super();
+            this.DefaultStyleKey = (<any>this).constructor;
+        }
         private _ScrollInfo: Primitives.IScrollInfo;
         get ScrollInfo(): Primitives.IScrollInfo { return this._ScrollInfo; }
         set ScrollInfo(value: Primitives.IScrollInfo) {
@@ -20909,6 +20962,8 @@ module Fayde.Controls {
             }
         }
         InvalidateScrollInfo() {
+        }
+        private _UpdateScrollBarVisibility() {
         }
     }
     Nullstone.RegisterType(ScrollViewer, "ScrollViewer");
