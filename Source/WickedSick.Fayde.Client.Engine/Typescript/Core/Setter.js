@@ -60,6 +60,12 @@ var Fayde;
 
             this._IsSealed = false;
         }
+        Setter.PropertyProperty = DependencyProperty.RegisterCore("Property", function () {
+            return DependencyProperty;
+        }, Setter);
+        Setter.ValueProperty = DependencyProperty.RegisterCore("Value", function () {
+            return Object;
+        }, Setter);
         Setter.prototype._Seal = function (targetType) {
             var propd = this.Property;
             var val = this.Value;

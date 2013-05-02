@@ -8515,7 +8515,7 @@ module Fayde {
         private _ResChain: Fayde.ResourceDictionary[] = [];
         private _RootXamlObject: XamlObject = null;
         private _TemplateBindingSource: DependencyObject = null;
-        private _SRExpressions: any[] = [];
+        private _SRExpressions: StaticResourceExpression[] = [];
         static Parse(json: any, templateBindingSource?: DependencyObject, namescope?: NameScope, resChain?: Fayde.ResourceDictionary[], rootXamlObject?: XamlObject): XamlObject {
             var parser = new JsonParser();
             if (resChain)
@@ -8535,6 +8535,7 @@ module Fayde {
         static ParseResourceDictionary(rd: Fayde.ResourceDictionary, json: any) {
             var parser = new JsonParser();
             parser._RootXamlObject = rd;
+            parser._ResChain.push(rd);
             parser.SetObject(json, rd, rd.XamlNode.NameScope);
         }
         CreateObject(json: any, namescope: NameScope, ignoreResolve?: bool): XamlObject {
@@ -8735,9 +8736,9 @@ module Fayde {
             var srs = this._SRExpressions;
             if (!srs || srs.length === 0)
                 return;
-            var cur: any;
+            var cur: StaticResourceExpression;
             while (cur = srs.shift()) {
-                cur.Resolve(this);
+                cur.Resolve(this, this._ResChain);
             }
         }
         SetValue(xobj:XamlObject, propd: DependencyProperty, propName: string, value: any) {
@@ -10464,8 +10465,10 @@ module Fayde {
 }
 
 module Fayde {
-    export class Style extends XamlObject {
+    export class Style extends DependencyObject {
         private _IsSealed: bool = false;
+        static BasedOnProperty: DependencyProperty = DependencyProperty.Register("BasedOn", () => Function, Style);
+        static TargetTypeProperty: DependencyProperty = DependencyProperty.Register("TargetType", () => Function, Style);
         Setters: SetterCollection;
         BasedOn: Style;
         TargetType: Function;
@@ -10473,7 +10476,10 @@ module Fayde {
             super();
             var coll = new SetterCollection();
             coll.XamlNode.AttachTo(this.XamlNode, undefined);
-            this.Setters = coll;
+            Object.defineProperty(this, "Setters", {
+                value: coll,
+                writable: false
+            });
         }
         Seal() {
             if (this._IsSealed)
@@ -10497,12 +10503,12 @@ module Fayde {
             var cycles = [];
             var root = this;
             while (root) {
-                if (cycles[(<any>root)._ID]) {
+                if (cycles.indexOf(root) > -1) {
                     error.Number = BError.InvalidOperation;
                     error.Message = "Circular reference in Style.BasedOn";
                     return false;
                 }
-                cycles[(<any>root)._ID] = true;
+                cycles.push(root);
                 root = root.BasedOn;
             }
             cycles = null;
@@ -13274,9 +13280,14 @@ module Fayde {
             });
         }
         ContainsKey(key: any): bool {
-            return this._KeyIndex[key] !== undefined;
+            if (typeof key === "string")
+                return this._KeyIndex[key] !== undefined;
         }
         Get(key: any): XamlObject {
+            var index: number;
+            if (typeof key === "string")
+                index = this._KeyIndex[key];
+            else
             var index = this._KeyIndex[key];
             if (index !== undefined)
                 return this.GetValueAt(index);
@@ -13352,6 +13363,8 @@ module Fayde {
     Nullstone.RegisterType(SetterCollection, "SetterCollection");
     export class Setter extends XamlObject {
         private _IsSealed: bool = false;
+        static PropertyProperty: DependencyProperty = DependencyProperty.RegisterCore("Property", () => DependencyProperty, Setter);
+        static ValueProperty: DependencyProperty = DependencyProperty.RegisterCore("Value", () => Object, Setter);
         Property: DependencyProperty;
         Value: any;
         ConvertedValue: any;

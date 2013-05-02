@@ -62,10 +62,17 @@ var Fayde;
             });
         }
         ResourceDictionary.prototype.ContainsKey = function (key) {
-            return this._KeyIndex[key] !== undefined;
+            if(typeof key === "string") {
+                return this._KeyIndex[key] !== undefined;
+            }
         };
         ResourceDictionary.prototype.Get = function (key) {
-            var index = this._KeyIndex[key];
+            var index;
+            if(typeof key === "string") {
+                index = this._KeyIndex[key];
+            } else {
+                var index = this._KeyIndex[key];
+            }
             if(index !== undefined) {
                 return this.GetValueAt(index);
             }

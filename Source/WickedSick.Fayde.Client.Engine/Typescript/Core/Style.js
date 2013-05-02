@@ -15,8 +15,17 @@ var Fayde;
             this._IsSealed = false;
             var coll = new Fayde.SetterCollection();
             coll.XamlNode.AttachTo(this.XamlNode, undefined);
-            this.Setters = coll;
+            Object.defineProperty(this, "Setters", {
+                value: coll,
+                writable: false
+            });
         }
+        Style.BasedOnProperty = DependencyProperty.Register("BasedOn", function () {
+            return Function;
+        }, Style);
+        Style.TargetTypeProperty = DependencyProperty.Register("TargetType", function () {
+            return Function;
+        }, Style);
         Style.prototype.Seal = function () {
             if(this._IsSealed) {
                 return;
@@ -43,12 +52,12 @@ var Fayde;
             var cycles = [];
             var root = this;
             while(root) {
-                if(cycles[(root)._ID]) {
+                if(cycles.indexOf(root) > -1) {
                     error.Number = BError.InvalidOperation;
                     error.Message = "Circular reference in Style.BasedOn";
                     return false;
                 }
-                cycles[(root)._ID] = true;
+                cycles.push(root);
                 root = root.BasedOn;
             }
             cycles = null;
@@ -81,7 +90,7 @@ var Fayde;
             return true;
         };
         return Style;
-    })(Fayde.XamlObject);
+    })(Fayde.DependencyObject);
     Fayde.Style = Style;    
     Nullstone.RegisterType(Style, "Style");
 })(Fayde || (Fayde = {}));

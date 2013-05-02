@@ -22,7 +22,7 @@ module Fayde {
         private _ResChain: Fayde.ResourceDictionary[] = [];
         private _RootXamlObject: XamlObject = null;
         private _TemplateBindingSource: DependencyObject = null;
-        private _SRExpressions: any[] = [];
+        private _SRExpressions: StaticResourceExpression[] = [];
 
         static Parse(json: any, templateBindingSource?: DependencyObject, namescope?: NameScope, resChain?: Fayde.ResourceDictionary[], rootXamlObject?: XamlObject): XamlObject {
             var parser = new JsonParser();
@@ -54,6 +54,7 @@ module Fayde {
         static ParseResourceDictionary(rd: Fayde.ResourceDictionary, json: any) {
             var parser = new JsonParser();
             parser._RootXamlObject = rd;
+            parser._ResChain.push(rd);
             parser.SetObject(json, rd, rd.XamlNode.NameScope);
         }
 
@@ -286,9 +287,9 @@ module Fayde {
             var srs = this._SRExpressions;
             if (!srs || srs.length === 0)
                 return;
-            var cur: any;
+            var cur: StaticResourceExpression;
             while (cur = srs.shift()) {
-                cur.Resolve(this);
+                cur.Resolve(this, this._ResChain);
             }
         }
         SetValue(xobj:XamlObject, propd: DependencyProperty, propName: string, value: any) {

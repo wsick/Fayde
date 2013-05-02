@@ -54,9 +54,15 @@ module Fayde {
         }
 
         ContainsKey(key: any): bool {
-            return this._KeyIndex[key] !== undefined;
+            if (typeof key === "string")
+                return this._KeyIndex[key] !== undefined;
+
         }
         Get(key: any): XamlObject {
+            var index: number;
+            if (typeof key === "string")
+                index = this._KeyIndex[key];
+            else
             var index = this._KeyIndex[key];
             if (index !== undefined)
                 return this.GetValueAt(index);

@@ -3,10 +3,13 @@
 /// <reference path="Setter.ts" />
 
 module Fayde {
-    export class Style extends XamlObject {
+    export class Style extends DependencyObject {
         private _IsSealed: bool = false;
 
+        static BasedOnProperty: DependencyProperty = DependencyProperty.Register("BasedOn", () => Function, Style);
+        static TargetTypeProperty: DependencyProperty = DependencyProperty.Register("TargetType", () => Function, Style);
         Setters: SetterCollection;
+        
         BasedOn: Style;
         TargetType: Function;
 
@@ -14,7 +17,10 @@ module Fayde {
             super();
             var coll = new SetterCollection();
             coll.XamlNode.AttachTo(this.XamlNode, undefined);
-            this.Setters = coll;
+            Object.defineProperty(this, "Setters", {
+                value: coll,
+                writable: false
+            });
         }
 
         Seal() {
@@ -45,12 +51,12 @@ module Fayde {
             var cycles = [];
             var root = this;
             while (root) {
-                if (cycles[(<any>root)._ID]) {
+                if (cycles.indexOf(root) > -1) {
                     error.Number = BError.InvalidOperation;
                     error.Message = "Circular reference in Style.BasedOn";
                     return false;
                 }
-                cycles[(<any>root)._ID] = true;
+                cycles.push(root);
                 root = root.BasedOn;
             }
             cycles = null;

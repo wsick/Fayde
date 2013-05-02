@@ -46,6 +46,8 @@ module Fayde {
 
     export class Setter extends XamlObject {
         private _IsSealed: bool = false;
+        static PropertyProperty: DependencyProperty = DependencyProperty.RegisterCore("Property", () => DependencyProperty, Setter);
+        static ValueProperty: DependencyProperty = DependencyProperty.RegisterCore("Value", () => Object, Setter);
         Property: DependencyProperty;
         Value: any;
         ConvertedValue: any;

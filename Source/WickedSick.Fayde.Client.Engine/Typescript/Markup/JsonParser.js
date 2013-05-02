@@ -47,6 +47,7 @@ var Fayde;
         JsonParser.ParseResourceDictionary = function ParseResourceDictionary(rd, json) {
             var parser = new JsonParser();
             parser._RootXamlObject = rd;
+            parser._ResChain.push(rd);
             parser.SetObject(json, rd, rd.XamlNode.NameScope);
         };
         JsonParser.prototype.CreateObject = function (json, namescope, ignoreResolve) {
@@ -278,7 +279,7 @@ var Fayde;
             }
             var cur;
             while(cur = srs.shift()) {
-                cur.Resolve(this);
+                cur.Resolve(this, this._ResChain);
             }
         };
         JsonParser.prototype.SetValue = function (xobj, propd, propName, value) {

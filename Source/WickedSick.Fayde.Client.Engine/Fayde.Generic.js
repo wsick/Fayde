@@ -11640,5 +11640,6 @@ App.GetGenericResourceDictionaryImpl = function () {
             }
         }]
     };
-    return Fayde.JsonParser.Parse(json);
+    var rd = new Fayde.ResourceDictionary();
+    return Fayde.JsonParser.ParseResourceDictionary(rd, json);
 };
