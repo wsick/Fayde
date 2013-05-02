@@ -13467,8 +13467,8 @@ module Fayde {
     Nullstone.RegisterType(SetterCollection, "SetterCollection");
     export class Setter extends DependencyObject {
         private _IsSealed: bool = false;
-        static PropertyProperty: DependencyProperty = DependencyProperty.RegisterCore("Property", () => DependencyProperty, Setter);
-        static ValueProperty: DependencyProperty = DependencyProperty.RegisterCore("Value", () => Object, Setter);
+        static PropertyProperty: DependencyProperty = DependencyProperty.Register("Property", () => DependencyProperty, Setter);
+        static ValueProperty: DependencyProperty = DependencyProperty.Register("Value", () => Object, Setter);
         Property: DependencyProperty;
         Value: any;
         ConvertedValue: any;

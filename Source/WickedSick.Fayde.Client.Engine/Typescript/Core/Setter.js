@@ -60,10 +60,10 @@ var Fayde;
 
             this._IsSealed = false;
         }
-        Setter.PropertyProperty = DependencyProperty.RegisterCore("Property", function () {
+        Setter.PropertyProperty = DependencyProperty.Register("Property", function () {
             return DependencyProperty;
         }, Setter);
-        Setter.ValueProperty = DependencyProperty.RegisterCore("Value", function () {
+        Setter.ValueProperty = DependencyProperty.Register("Value", function () {
             return Object;
         }, Setter);
         Setter.prototype._Seal = function (targetType) {
