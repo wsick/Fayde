@@ -27,6 +27,13 @@ class rect implements ICloneable {
         return r;
     }
 
+    static getRight(r:rect):number {
+        return r.X + r.Width;
+    }
+    static getBottom(r:rect):number {
+        return r.Y + r.Height;
+    }
+
     static fromSize(size: size): rect {
         var r = new rect();
         r.Width = size.Width;

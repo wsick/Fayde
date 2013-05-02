@@ -11,6 +11,10 @@ module Fayde {
         
         get Count() { return this._ht.length; }
 
+        GetRange(startIndex: number, endIndex: number): XamlObject[] {
+            return this._ht.slice(startIndex, endIndex);
+        }
+
         GetValueAt(index: number): XamlObject {
             return this._ht[index];
         }
@@ -108,7 +112,7 @@ module Fayde {
         _RaiseItemReplaced(removed: XamlObject, added: XamlObject, index: number) { }
         //_RaiseClearing(arr: XamlObject[]) { }
         _RaiseCleared() { }
-        
+
         CloneCore(source: XamlObjectCollection) {
             var enumerator = ArrayEx.GetEnumerator(this._ht);
             while (enumerator.MoveNext()) {

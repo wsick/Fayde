@@ -33,6 +33,7 @@ Typescript\Text\TextLayout.ts
 Typescript\Collections\INotifyCollectionChanged.ts
 Typescript\Controls\GridLength.ts
 Typescript\Controls\Primitives\IScrollInfo.ts
+Typescript\Controls\Primitives\SelectorSelection.ts
 Typescript\Core\DependencyProperty.ts
 Typescript\Core\Expression.ts
 Typescript\Core\INotifyPropertyChanged.ts
@@ -88,6 +89,10 @@ Typescript\Runtime\Enum.ts
 Typescript\Runtime\Enumerable.ts
 Typescript\Runtime\EventArgs.ts
 Typescript\Runtime\MulticastEvent.ts
+Typescript\Collections\NotifyCollectionChangedEventArgs.ts
+Typescript\Collections\ObservableCollection.ts
+Typescript\Controls\Primitives\ItemsChangedEventArgs.ts
+Typescript\Controls\Primitives\SelectionChangedEventArgs.ts
 Typescript\Core\DeferredValueExpression.ts
 Typescript\Core\DependencyObject.ts
 Typescript\Core\FrameworkTemplate.ts
@@ -103,6 +108,7 @@ Typescript\Data\Binding.ts
 Typescript\Data\BindingExpression.ts
 Typescript\Data\CollectionViewSource.ts
 Typescript\Documents\TextElement.ts
+Typescript\Input\KeyboardNavigation.ts
 Typescript\Input\KeyEventArgs.ts
 Typescript\Input\KeyInterop.ts
 Typescript\Input\MouseEventArgs.ts
@@ -138,6 +144,7 @@ Typescript\Shapes\DoubleCollection.ts
 Typescript\Shapes\PointCollection.ts
 Typescript\Controls\ColumnDefinition.ts
 Typescript\Controls\ControlTemplate.ts
+Typescript\Controls\ItemCollection.ts
 Typescript\Controls\ItemsPanelTemplate.ts
 Typescript\Controls\RowDefinition.ts
 Typescript\Controls\ToolTipService.ts

@@ -44,6 +44,25 @@ var Fayde;
             }
             return e;
         };
+        ArrayEx.RemoveIfContains = function RemoveIfContains(arr, item) {
+            var index = arr.indexOf(item);
+            if(index < 0) {
+                return false;
+            }
+            arr.splice(index, 1);
+            return true;
+        };
+        ArrayEx.Except = function Except(arr1, arr2) {
+            var cur;
+            var rarr = [];
+            for(var i = 0; i < arr1.length; i++) {
+                cur = arr1[i];
+                if(arr2.indexOf(cur) < 0) {
+                    rarr.push(cur);
+                }
+            }
+            return rarr;
+        };
         return ArrayEx;
     })();
     Fayde.ArrayEx = ArrayEx;    

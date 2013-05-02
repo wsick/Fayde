@@ -2,6 +2,8 @@
 /// <reference path="../Core/UIElement.ts" />
 /// <reference path="ItemsControl.ts" />
 /// <reference path="ContainerMap.ts" />
+/// <reference path="Primitives/ItemsChangedEventArgs.ts" />
+/// <reference path="../Collections/NotifyCollectionChangedEventArgs.ts" />
 
 module Fayde.Controls {
     export interface IGeneratorPosition {
@@ -13,16 +15,6 @@ module Fayde.Controls {
         PositionIndex: number;
         PositionOffset: number;
         Step: number;
-    }
-    export interface IItemsChangedListener {
-        OnItemsChanged(action: ItemsChangedAction, itemCount: number, itemUICount: number, oldPosition: IGeneratorPosition, position: IGeneratorPosition);
-    }
-
-    export enum ItemsChangedAction {
-        Add = 1,
-        Remove = 2,
-        Replace = 3,
-        Reset = 4,
     }
 
     export interface IRange {
@@ -199,16 +191,14 @@ module Fayde.Controls {
 
         private ContainerMap: ContainerMap;
 
-        private _Listener: IItemsChangedListener;
-        Listen(listener: IItemsChangedListener) { this._Listener = listener; }
-        Unlisten(listener: IItemsChangedListener) { if (this._Listener === listener) this._Listener = null; }
+        ItemsChanged: MulticastEvent = new MulticastEvent();
 
         get Panel(): Panel { return this.Owner.Panel; }
 
         constructor(public Owner: ItemsControl) {
             this.ContainerMap = new ContainerMap(this);
         }
-        
+
         GetItemContainerGeneratorForPanel(panel) {
             if (this.Panel === panel)
                 return this;
@@ -248,7 +238,7 @@ module Fayde.Controls {
                     break;
                 index = i;
             }
-            if (index === -1) 
+            if (index === -1)
                 return { index: index, offset: index + 1 };
             return { index: index, offset: index - realized.GetValueAt(index) };
         }
@@ -267,7 +257,7 @@ module Fayde.Controls {
                 return realized.GetValueAt(index) + offset;
             return index + offset;
         }
-        
+
         IndexFromContainer(container: DependencyObject): number { return this.ContainerMap.IndexFromContainer(container); }
         ContainerFromIndex(index: number): DependencyObject { return this.ContainerMap.ContainerFromIndex(index); }
         ItemFromContainer(container: DependencyObject): any { return this.ContainerMap.ItemFromContainer(container); }
@@ -367,7 +357,7 @@ module Fayde.Controls {
             var list = this.RealizedElements.ToExpandedArray();
             if (offset > 0)
                 list = list.reverse();
-                
+
             var newRanges = new RangeCollection();
             var map = this.ContainerMap;
             for (var i = 0; i < list.length; i++) {
@@ -413,14 +403,14 @@ module Fayde.Controls {
             this.RealizedElements.Clear();
         }
 
-        OnOwnerItemsItemsChanged(e) {
+        OnOwnerItemsItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
             var itemCount: number;
             var itemUICount: number;
             var oldPosition: IGeneratorPosition = { index: -1, offset: 0 };
             var position: IGeneratorPosition;
 
             switch (e.Action) {
-                case ItemsChangedAction.Add:
+                case Collections.NotifyCollectionChangedAction.Add:
                     if ((e.NewStartingIndex + 1) !== this.Owner.Items.Count)
                         this.MoveExistingItems(e.NewStartingIndex, 1);
                     itemCount = 1;
@@ -428,7 +418,7 @@ module Fayde.Controls {
                     position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
                     position.offset = 1;
                     break;
-                case ItemsChangedAction.Remove:
+                case Collections.NotifyCollectionChangedAction.Remove:
                     itemCount = 1;
                     if (this.RealizedElements.Contains(e.OldStartingIndex))
                         itemUICount = 1;
@@ -439,7 +429,7 @@ module Fayde.Controls {
                         this.Remove(position, 1);
                     this.MoveExistingItems(e.OldStartingIndex, -1);
                     break;
-                case ItemsChangedAction.Replace:
+                case Collections.NotifyCollectionChangedAction.Replace:
                     if (!this.RealizedElements.Contains(e.NewStartingIndex))
                         return;
                     itemCount = 1;
@@ -451,12 +441,12 @@ module Fayde.Controls {
                     this.StartAt(newPos, 0, true);
                     this.PrepareItemContainer(this.GenerateNext({ Value: null }));
                     break;
-                case ItemsChangedAction.Reset:
+                case Collections.NotifyCollectionChangedAction.Reset:
                     var itemCount;
                     if (!e.OldItems)
                         itemCount = 0;
                     else
-                        itemCount = e.OldItems.Count;
+                        itemCount = e.OldItems.length;
                     itemUICount = this.RealizedElements.Count;
                     position = { index: -1, offset: 0 };
                     this.RemoveAll();
@@ -466,8 +456,7 @@ module Fayde.Controls {
                     break;
             }
 
-            var listener = this._Listener;
-            if (listener) listener.OnItemsChanged(e.Action, itemCount, itemUICount, oldPosition, position);
+            this.ItemsChanged.Raise(this, new Primitives.ItemsChangedEventArgs(e.Action, itemCount, itemUICount, oldPosition, position));
         }
     }
 }

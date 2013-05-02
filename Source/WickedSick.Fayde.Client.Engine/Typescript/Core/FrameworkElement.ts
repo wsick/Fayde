@@ -182,6 +182,32 @@ module Fayde {
             }
             return false;
         }
+        GetFocusedElement(): UIElement {
+            var node = this._Surface.FocusedNode;
+            if (node)
+                return node.XObject;
+        }
+
+        UpdateLayout() {
+            var lu = this.LayoutUpdater;
+            var error = new BError();
+            if (this.IsAttached) {
+                this._Surface._UpdateLayout(error);
+            } else {
+                var pass = {
+                    MeasureList: [],
+                    ArrangeList: [],
+                    SizeList: [],
+                    Count: 0,
+                    Updated: true
+                };
+                lu.UpdateLayer(pass, error);
+                if (pass.Updated)
+                    this.XObject.LayoutUpdated.Raise(this, EventArgs.Empty);
+            }
+            if (error.Message)
+                error.ThrowException();
+        }
 
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
             if (this.SubtreeNode)
@@ -253,6 +279,7 @@ module Fayde {
         SizeChanged: RoutedEvent = new RoutedEvent();
         Loaded: RoutedEvent = new RoutedEvent();
         Unloaded: RoutedEvent = new RoutedEvent();
+        LayoutUpdated: MulticastEvent = new MulticastEvent();
 
         OnApplyTemplate() { }
         FindName(name: string): XamlObject {
@@ -260,6 +287,8 @@ module Fayde {
             if (n)
                 return n.XObject;
         }
+
+        UpdateLayout() { this.XamlNode.UpdateLayout(); }
 
         private _MeasureOverride(availableSize: size, error: BError): size {
             var desired = new size();

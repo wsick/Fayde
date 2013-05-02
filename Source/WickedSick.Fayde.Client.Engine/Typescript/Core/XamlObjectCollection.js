@@ -25,6 +25,9 @@ var Fayde;
             enumerable: true,
             configurable: true
         });
+        XamlObjectCollection.prototype.GetRange = function (startIndex, endIndex) {
+            return this._ht.slice(startIndex, endIndex);
+        };
         XamlObjectCollection.prototype.GetValueAt = function (index) {
             return this._ht[index];
         };

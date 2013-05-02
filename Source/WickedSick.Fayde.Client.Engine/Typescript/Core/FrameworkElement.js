@@ -196,6 +196,34 @@ var Fayde;
             }
             return false;
         };
+        FENode.prototype.GetFocusedElement = function () {
+            var node = this._Surface.FocusedNode;
+            if(node) {
+                return node.XObject;
+            }
+        };
+        FENode.prototype.UpdateLayout = function () {
+            var lu = this.LayoutUpdater;
+            var error = new BError();
+            if(this.IsAttached) {
+                this._Surface._UpdateLayout(error);
+            } else {
+                var pass = {
+                    MeasureList: [],
+                    ArrangeList: [],
+                    SizeList: [],
+                    Count: 0,
+                    Updated: true
+                };
+                lu.UpdateLayer(pass, error);
+                if(pass.Updated) {
+                    this.XObject.LayoutUpdated.Raise(this, EventArgs.Empty);
+                }
+            }
+            if(error.Message) {
+                error.ThrowException();
+            }
+        };
         FENode.prototype.GetVisualTreeEnumerator = function (direction) {
             if(this.SubtreeNode) {
                 return Fayde.ArrayEx.GetEnumerator([
@@ -215,6 +243,7 @@ var Fayde;
             this.SizeChanged = new Fayde.RoutedEvent();
             this.Loaded = new Fayde.RoutedEvent();
             this.Unloaded = new Fayde.RoutedEvent();
+            this.LayoutUpdated = new MulticastEvent();
             Object.defineProperty(this, "Resources", {
                 value: new Fayde.ResourceDictionary(),
                 writable: false
@@ -309,6 +338,9 @@ var Fayde;
             if(n) {
                 return n.XObject;
             }
+        };
+        FrameworkElement.prototype.UpdateLayout = function () {
+            this.XamlNode.UpdateLayout();
         };
         FrameworkElement.prototype._MeasureOverride = function (availableSize, error) {
             var desired = new size();

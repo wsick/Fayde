@@ -4,15 +4,9 @@ var Fayde;
     /// <reference path="../Core/UIElement.ts" />
     /// <reference path="ItemsControl.ts" />
     /// <reference path="ContainerMap.ts" />
+    /// <reference path="Primitives/ItemsChangedEventArgs.ts" />
+    /// <reference path="../Collections/NotifyCollectionChangedEventArgs.ts" />
     (function (Controls) {
-        (function (ItemsChangedAction) {
-            ItemsChangedAction._map = [];
-            ItemsChangedAction.Add = 1;
-            ItemsChangedAction.Remove = 2;
-            ItemsChangedAction.Replace = 3;
-            ItemsChangedAction.Reset = 4;
-        })(Controls.ItemsChangedAction || (Controls.ItemsChangedAction = {}));
-        var ItemsChangedAction = Controls.ItemsChangedAction;
         function range_count(r) {
             return r.End - r.Start + 1;
         }
@@ -194,16 +188,9 @@ var Fayde;
                 this.Owner = Owner;
                 this.RealizedElements = new RangeCollection();
                 this.Cache = [];
+                this.ItemsChanged = new MulticastEvent();
                 this.ContainerMap = new Controls.ContainerMap(this);
             }
-            ItemContainerGenerator.prototype.Listen = function (listener) {
-                this._Listener = listener;
-            };
-            ItemContainerGenerator.prototype.Unlisten = function (listener) {
-                if(this._Listener === listener) {
-                    this._Listener = null;
-                }
-            };
             Object.defineProperty(ItemContainerGenerator.prototype, "Panel", {
                 get: function () {
                     return this.Owner.Panel;
@@ -441,7 +428,7 @@ var Fayde;
                 };
                 var position;
                 switch(e.Action) {
-                    case ItemsChangedAction.Add:
+                    case Fayde.Collections.NotifyCollectionChangedAction.Add:
                         if((e.NewStartingIndex + 1) !== this.Owner.Items.Count) {
                             this.MoveExistingItems(e.NewStartingIndex, 1);
                         }
@@ -450,7 +437,7 @@ var Fayde;
                         position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
                         position.offset = 1;
                         break;
-                    case ItemsChangedAction.Remove:
+                    case Fayde.Collections.NotifyCollectionChangedAction.Remove:
                         itemCount = 1;
                         if(this.RealizedElements.Contains(e.OldStartingIndex)) {
                             itemUICount = 1;
@@ -463,7 +450,7 @@ var Fayde;
                         }
                         this.MoveExistingItems(e.OldStartingIndex, -1);
                         break;
-                    case ItemsChangedAction.Replace:
+                    case Fayde.Collections.NotifyCollectionChangedAction.Replace:
                         if(!this.RealizedElements.Contains(e.NewStartingIndex)) {
                             return;
                         }
@@ -477,12 +464,12 @@ var Fayde;
                             Value: null
                         }));
                         break;
-                    case ItemsChangedAction.Reset:
+                    case Fayde.Collections.NotifyCollectionChangedAction.Reset:
                         var itemCount;
                         if(!e.OldItems) {
                             itemCount = 0;
                         } else {
-                            itemCount = e.OldItems.Count;
+                            itemCount = e.OldItems.length;
                         }
                         itemUICount = this.RealizedElements.Count;
                         position = {
@@ -495,10 +482,7 @@ var Fayde;
                         //Console.WriteLine("*** Critical error in ItemContainerGenerator.OnOwnerItemsItemsChanged. NotifyCollectionChangedAction.{0} is not supported", e.Action);
                         break;
                 }
-                var listener = this._Listener;
-                if(listener) {
-                    listener.OnItemsChanged(e.Action, itemCount, itemUICount, oldPosition, position);
-                }
+                this.ItemsChanged.Raise(this, new Controls.Primitives.ItemsChangedEventArgs(e.Action, itemCount, itemUICount, oldPosition, position));
             };
             return ItemContainerGenerator;
         })();

@@ -107,7 +107,7 @@ var Fayde;
                 configurable: true
             });
             ItemsPresenter.prototype.OnApplyTemplate = function () {
-                this.TemplateOwner._SetItemsPresenter(this);
+                this.TemplateOwner.XamlNode._SetItemsPresenter(this);
                 _super.prototype.OnApplyTemplate.call(this);
             };
             return ItemsPresenter;

@@ -283,7 +283,7 @@ var Fayde;
             }
             return vpNode === this;
         };
-        UINode.prototype.TranformToVisual = function (uin) {
+        UINode.prototype.TransformToVisual = function (uin) {
             if(uin && !uin.IsAttached) {
                 throw new ArgumentException("UIElement not attached.");
             }
@@ -443,9 +443,15 @@ var Fayde;
         UIElement.prototype.ReleaseMouseCapture = function () {
             this.XamlNode.ReleaseMouseCapture();
         };
-        UIElement.prototype.TranformToVisual = function (uie) {
+        UIElement.prototype.IsAncestorOf = function (uie) {
+            if(!uie) {
+                return false;
+            }
+            return this.XamlNode.IsAncestorOf(uie.XamlNode);
+        };
+        UIElement.prototype.TransformToVisual = function (uie) {
             var uin = (uie) ? uie.XamlNode : null;
-            return this.XamlNode.TranformToVisual(uin);
+            return this.XamlNode.TransformToVisual(uin);
         };
         UIElement.prototype.Measure = function (availableSize) {
         };

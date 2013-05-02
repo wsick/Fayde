@@ -473,17 +473,17 @@ var Fayde;
                     scrollOwner.InvalidateScrollInfo();
                 }
             };
-            VirtualizingStackPanel.prototype.OnItemsChanged = function (action, itemCount, itemUICount, oldPosition, position) {
-                _super.prototype.OnItemsChanged.call(this, action, itemCount, itemUICount, oldPosition, position);
+            VirtualizingStackPanel.prototype.OnItemContainerGeneratorChanged = function (sender, e) {
+                _super.prototype.OnItemContainerGeneratorChanged.call(this, sender, e);
                 var generator = this.ItemContainerGenerator;
                 var owner = Controls.ItemsControl.GetItemsOwner(this);
                 var orientation = this.Orientation;
                 var index;
                 var offset;
                 var viewable;
-                switch(action) {
-                    case Controls.ItemsChangedAction.Add:
-                        var index = generator.IndexFromGeneratorPosition(position);
+                switch(e.Action) {
+                    case Fayde.Collections.NotifyCollectionChangedAction.Add:
+                        var index = generator.IndexFromGeneratorPosition(e.Position);
                         if(orientation === Fayde.Orientation.Horizontal) {
                             offset = this.HorizontalOffset;
                         } else {
@@ -491,7 +491,7 @@ var Fayde;
                         }
                         if(index <= offset) {
                             // items have been added earlier in the list than what is viewable
-                            offset += itemCount;
+                            offset += e.ItemCount;
                         }
                         if(orientation === Fayde.Orientation.Horizontal) {
                             this.SetHorizontalOffset(offset);
@@ -499,8 +499,8 @@ var Fayde;
                             this.SetVerticalOffset(offset);
                         }
                         break;
-                    case Controls.ItemsChangedAction.Remove:
-                        index = generator.IndexFromGeneratorPosition(position);
+                    case Fayde.Collections.NotifyCollectionChangedAction.Remove:
+                        index = generator.IndexFromGeneratorPosition(e.Position);
                         if(orientation === Fayde.Orientation.Horizontal) {
                             offset = this.HorizontalOffset;
                             viewable = this.ViewportWidth;
@@ -510,7 +510,7 @@ var Fayde;
                         }
                         if(index < offset) {
                             // items earlier in the list than what is viewable have been removed
-                            offset = Math.max(offset - itemCount, 0);
+                            offset = Math.max(offset - e.ItemCount, 0);
                         }
                         // adjust for items removed in the current view and/or beyond the current view
                         offset = Math.min(offset, owner.Items.Count - viewable);
@@ -520,12 +520,12 @@ var Fayde;
                         } else {
                             this.SetVerticalOffset(offset);
                         }
-                        this.RemoveInternalChildRange(position.index, itemUICount);
+                        this.RemoveInternalChildRange(e.Position.index, e.ItemUICount);
                         break;
-                    case Controls.ItemsChangedAction.Replace:
-                        this.RemoveInternalChildRange(position.index, itemUICount);
+                    case Fayde.Collections.NotifyCollectionChangedAction.Replace:
+                        this.RemoveInternalChildRange(e.Position.index, e.ItemUICount);
                         break;
-                    case Controls.ItemsChangedAction.Reset:
+                    case Fayde.Collections.NotifyCollectionChangedAction.Reset:
                         break;
                 }
                 this.XamlNode.LayoutUpdater.InvalidateMeasure();

@@ -73,8 +73,8 @@ var Fayde;
                         xobj.SetValue(ContentPresenter.ContentTemplateProperty, new Fayde.TemplateBindingExpression(Controls.ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty, "ContentTemplate"));
                     }
                 }
-                if(xobj.ContentTemplate instanceof Controls.ControlTemplate) {
-                    var vt = (xobj.ContentTemplate).GetVisualTree(this.XObject);
+                if(xobj.ContentTemplate) {
+                    var vt = xobj.ContentTemplate.GetVisualTree(this.XObject);
                     if(vt instanceof Fayde.UIElement) {
                         this._ContentRoot = vt;
                     }
@@ -108,7 +108,7 @@ var Fayde;
                 return (d)._ContentChanged(args);
             });
             ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () {
-                return Controls.ControlTemplate;
+                return Fayde.DataTemplate;
             }, ContentPresenter, undefined, function (d, args) {
                 return (d)._ContentTemplateChanged(args);
             });

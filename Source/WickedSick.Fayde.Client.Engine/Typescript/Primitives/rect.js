@@ -25,6 +25,12 @@ var rect = (function () {
         r.Height = this.Height;
         return r;
     };
+    rect.getRight = function getRight(r) {
+        return r.X + r.Width;
+    };
+    rect.getBottom = function getBottom(r) {
+        return r.Y + r.Height;
+    };
     rect.fromSize = function fromSize(size) {
         var r = new rect();
         r.Width = size.Width;

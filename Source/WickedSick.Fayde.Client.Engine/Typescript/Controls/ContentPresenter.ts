@@ -70,8 +70,8 @@ module Fayde.Controls {
                 }
             }
             
-            if (xobj.ContentTemplate instanceof ControlTemplate) {
-                var vt = (<ControlTemplate>xobj.ContentTemplate).GetVisualTree(this.XObject);
+            if (xobj.ContentTemplate) {
+                var vt = xobj.ContentTemplate.GetVisualTree(this.XObject);
                 if (vt instanceof UIElement)
                     this._ContentRoot = <UIElement>vt;
             } else {
@@ -91,9 +91,9 @@ module Fayde.Controls {
         CreateNode(): ContentPresenterNode { return new ContentPresenterNode(this); }
 
         static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d)._ContentChanged(args));
-        static ContentTemplateProperty: DependencyProperty = DependencyProperty.Register("ContentTemplate", () => ControlTemplate, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d)._ContentTemplateChanged(args));
+        static ContentTemplateProperty: DependencyProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d)._ContentTemplateChanged(args));
         Content: any;
-        ContentTemplate: ControlTemplate;
+        ContentTemplate: DataTemplate;
 
         static Annotations = { ContentProperty: ContentPresenter.ContentProperty }
         

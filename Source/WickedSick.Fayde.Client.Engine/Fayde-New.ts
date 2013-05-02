@@ -119,15 +119,6 @@ module Fayde.Controls {
         PositionOffset: number;
         Step: number;
     }
-    export interface IItemsChangedListener {
-        OnItemsChanged(action: ItemsChangedAction, itemCount: number, itemUICount: number, oldPosition: IGeneratorPosition, position: IGeneratorPosition);
-    }
-    export enum ItemsChangedAction {
-        Add = 1,
-        Remove = 2,
-        Replace = 3,
-        Reset = 4,
-    }
     export interface IRange {
         Start: number;
         End: number;
@@ -286,9 +277,7 @@ module Fayde.Controls {
         private RealizedElements: RangeCollection = new RangeCollection();
         private Cache: DependencyObject[] = [];
         private ContainerMap: ContainerMap;
-        private _Listener: IItemsChangedListener;
-        Listen(listener: IItemsChangedListener) { this._Listener = listener; }
-        Unlisten(listener: IItemsChangedListener) { if (this._Listener === listener) this._Listener = null; }
+        ItemsChanged: MulticastEvent = new MulticastEvent();
         get Panel(): Panel { return this.Owner.Panel; }
         constructor(public Owner: ItemsControl) {
             this.ContainerMap = new ContainerMap(this);
@@ -327,7 +316,7 @@ module Fayde.Controls {
                     break;
                 index = i;
             }
-            if (index === -1) 
+            if (index === -1)
                 return { index: index, offset: index + 1 };
             return { index: index, offset: index - realized.GetValueAt(index) };
         }
@@ -471,13 +460,13 @@ module Fayde.Controls {
             this.ContainerMap.Clear();
             this.RealizedElements.Clear();
         }
-        OnOwnerItemsItemsChanged(e) {
+        OnOwnerItemsItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
             var itemCount: number;
             var itemUICount: number;
             var oldPosition: IGeneratorPosition = { index: -1, offset: 0 };
             var position: IGeneratorPosition;
             switch (e.Action) {
-                case ItemsChangedAction.Add:
+                case Collections.NotifyCollectionChangedAction.Add:
                     if ((e.NewStartingIndex + 1) !== this.Owner.Items.Count)
                         this.MoveExistingItems(e.NewStartingIndex, 1);
                     itemCount = 1;
@@ -485,7 +474,7 @@ module Fayde.Controls {
                     position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
                     position.offset = 1;
                     break;
-                case ItemsChangedAction.Remove:
+                case Collections.NotifyCollectionChangedAction.Remove:
                     itemCount = 1;
                     if (this.RealizedElements.Contains(e.OldStartingIndex))
                         itemUICount = 1;
@@ -496,7 +485,7 @@ module Fayde.Controls {
                         this.Remove(position, 1);
                     this.MoveExistingItems(e.OldStartingIndex, -1);
                     break;
-                case ItemsChangedAction.Replace:
+                case Collections.NotifyCollectionChangedAction.Replace:
                     if (!this.RealizedElements.Contains(e.NewStartingIndex))
                         return;
                     itemCount = 1;
@@ -507,12 +496,12 @@ module Fayde.Controls {
                     this.StartAt(newPos, 0, true);
                     this.PrepareItemContainer(this.GenerateNext({ Value: null }));
                     break;
-                case ItemsChangedAction.Reset:
+                case Collections.NotifyCollectionChangedAction.Reset:
                     var itemCount;
                     if (!e.OldItems)
                         itemCount = 0;
                     else
-                        itemCount = e.OldItems.Count;
+                        itemCount = e.OldItems.length;
                     itemUICount = this.RealizedElements.Count;
                     position = { index: -1, offset: 0 };
                     this.RemoveAll();
@@ -520,8 +509,7 @@ module Fayde.Controls {
                 default:
                     break;
             }
-            var listener = this._Listener;
-            if (listener) listener.OnItemsChanged(e.Action, itemCount, itemUICount, oldPosition, position);
+            this.ItemsChanged.Raise(this, new Primitives.ItemsChangedEventArgs(e.Action, itemCount, itemUICount, oldPosition, position));
         }
     }
 }
@@ -761,6 +749,30 @@ module Fayde {
             var rootNode = (<UIElement>d).XamlNode.GetVisualRoot();
             if (rootNode)
                 return rootNode.XObject;
+        }
+        static GetChild(d: DependencyObject, childIndex: number): DependencyObject {
+            if (!(d instanceof FrameworkElement))
+                throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
+            var feNode = <FENode>d.XamlNode;
+            var subtreeNode = feNode.SubtreeNode;
+            var subtree = subtreeNode.XObject;
+            if (subtree instanceof XamlObjectCollection)
+                return <DependencyObject>(<XamlObjectCollection>subtree).GetValueAt(childIndex);
+            if ((subtree instanceof UIElement) && childIndex === 0)
+                return <UIElement>subtree;
+            throw new IndexOutOfRangeException(childIndex);
+        }
+        static GetChildrenCount(d: DependencyObject): number {
+            if (!(d instanceof FrameworkElement))
+                throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
+            var feNode = <FENode>d.XamlNode;
+            var subtreeNode = feNode.SubtreeNode;
+            var subtree = subtreeNode.XObject;
+            if (subtreeNode.XObject instanceof XamlObjectCollection)
+                return (<XamlObjectCollection>subtree).Count;
+            if (subtree instanceof UIElement)
+                return 1;
+            return 0;
         }
         static FindElementsInHostCoordinates(intersectingPoint: Point, subtree: UIElement): UIElement[] {
             var uies: UIElement[] = [];
@@ -4492,6 +4504,286 @@ module Fayde.Controls.Primitives {
     export var IScrollInfo_ = Nullstone.RegisterInterface("IScrollInfo");
 }
 
+module Fayde.Controls.Primitives {
+    export class SelectorSelection {
+        private _Owner: Selector;
+        private _SelectedItems: any[] = [];
+        private _SelectedItem: any = null;
+        private _IsUpdating: bool = false;
+        Mode: SelectionMode = SelectionMode.Single;
+        get IsUpdating(): bool { return this._IsUpdating; }
+        constructor(owner: Selector) {
+            this._Owner = owner;
+            this._Owner.SelectedItems.CollectionChanged.Subscribe(this._HandleOwnerSelectionChanged, this);
+        }
+        private _HandleOwnerSelectionChanged(sender, e: Collections.NotifyCollectionChangedEventArgs) {
+            if (this._IsUpdating)
+                return;
+            if (this.Mode === SelectionMode.Single)
+                throw new InvalidOperationException("SelectedItems cannot be modified directly when in Single select mode");
+            try {
+                var items = this._SelectedItems;
+                this._IsUpdating = true;
+                switch (e.Action) {
+                    case Collections.NotifyCollectionChangedAction.Add:
+                        if (items.indexOf(e.NewItems[0]) < 0)
+                            this.AddToSelected(e.NewItems[0]);
+                        break;
+                    case Collections.NotifyCollectionChangedAction.Remove:
+                        if (items.indexOf(e.OldItems[0]) > -1)
+                            this.RemoveFromSelected(e.OldItems[0]);
+                        break;
+                    case Collections.NotifyCollectionChangedAction.Replace:
+                        if (items.indexOf(e.OldItems[0]) > -1)
+                            this.RemoveFromSelected(e.OldItems[0]);
+                        if (items.indexOf(e.NewItems[0]) < 0)
+                            this.AddToSelected(e.NewItems[0]);
+                        break;
+                    case Collections.NotifyCollectionChangedAction.Reset:
+                        var ownerItems = this._Owner.SelectedItems;
+                        var item: any;
+                        var enumerator = ownerItems.GetEnumerator();
+                        while (enumerator.MoveNext()) {
+                            item = enumerator.Current;
+                            if (ownerItems.Contains(item))
+                                continue;
+                            if (items.indexOf(item) > -1)
+                                this.RemoveFromSelected(item);
+                        }
+                        enumerator = ownerItems.GetEnumerator();
+                        while (enumerator.MoveNext()) {
+                            item = enumerator.Current;
+                            if (items.indexOf(item) < 0)
+                                this.AddToSelected(item);
+                        }
+                        break;
+                }
+                this._Owner._SelectedItemsIsInvalid = true;
+            } finally {
+                this._IsUpdating = false;
+            }
+        }
+        RepopulateSelectedItems() {
+            if (!this._IsUpdating) {
+                try {
+                    this._IsUpdating = true;
+                    var si: Collections.ObservableCollection = this._Owner.SelectedItems;
+                    si.Clear();
+                    si.AddRange(this._SelectedItems);
+                } finally {
+                    this._IsUpdating = false;
+                }
+            }
+        }
+        ClearSelection(ignoreSelectedValue?: bool) {
+            if (ignoreSelectedValue === undefined) ignoreSelectedValue = false;
+            if (this._SelectedItems.length === 0) {
+                this.UpdateSelectorProperties(null, -1, ignoreSelectedValue ? this._Owner.SelectedValue : null);
+                return;
+            }
+            try {
+                this._IsUpdating = true
+                var oldSelection = this._SelectedItems.slice(0);
+                this._SelectedItems = [];
+                this._SelectedItem = null;
+                this.UpdateSelectorProperties(null, -1, ignoreSelectedValue ? this._Owner.SelectedValue : null);
+                this._Owner._SelectedItemsIsInvalid = true;
+                this._Owner._RaiseSelectionChanged(oldSelection, []);
+            } finally {
+                this._IsUpdating = false;
+            }
+        }
+        Select(item:any, ignoreSelectedValue?:bool) {
+            if (ignoreSelectedValue === undefined) ignoreSelectedValue = false;
+            var ownerItems = this._Owner.Items;
+            if (!ownerItems.Contains(item))
+                return;
+            var ownerSelectedValue = this._Owner.SelectedValue;
+            var selectedItems = this._SelectedItems;
+            var selected = selectedItems.indexOf(item) > -1;
+            try {
+                this._IsUpdating = true;
+                switch (this.Mode) {
+                    case SelectionMode.Single:
+                        if (selected) {
+                            if (Fayde.Input.Keyboard.HasControl())
+                                this.ClearSelection(ignoreSelectedValue);
+                            else
+                                this.UpdateSelectorProperties(this._SelectedItem, ownerItems.IndexOf(this._SelectedItem), ownerSelectedValue);
+                        } else {
+                            this.ReplaceSelection(item);
+                        }
+                        break;
+                    case SelectionMode.Extended:
+                        if (Fayde.Input.Keyboard.HasShift()) {
+                            var sIndex = ownerItems.IndexOf(this._SelectedItem);
+                            if (selectedItems.length === 0)
+                                this.SelectRange(0, ownerItems.IndexOf(item));
+                            else
+                                this.SelectRange(sIndex, ownerItems.IndexOf(item));
+                        } else if (Fayde.Input.Keyboard.HasControl()) {
+                            if (!selected)
+                                this.AddToSelected(item);
+                        } else {
+                            if (selected)
+                                this.RemoveFromSelected(item);
+                            else
+                                this.AddToSelected(item);
+                        }
+                        break;
+                    case SelectionMode.Multiple:
+                        if (selectedItems.indexOf(item) > -1)
+                            this.UpdateSelectorProperties(this._SelectedItem, ownerItems.IndexOf(this._SelectedItem), ownerSelectedValue);
+                        else
+                            this.AddToSelected(item);
+                        break;
+                    default:
+                        throw new NotSupportedException("SelectionMode " + this.Mode + " is not support");
+                }
+            } finally {
+                this._IsUpdating = false;
+            }
+        }
+        SelectRange(startIndex: number, endIndex: number) {
+            var ownerItems = this._Owner.Items;
+            var selectedItems = this._SelectedItems;
+            var newlySelected = ownerItems.GetRange(startIndex, endIndex);
+            var newlyUnselected = [];
+            var enumerator = ArrayEx.GetEnumerator(selectedItems);
+            var item: any;
+            while (enumerator.MoveNext()) {
+                item = enumerator.Current;
+                var index = newlySelected.indexOf(item);
+                if (index > -1)
+                    newlySelected.splice(index, 1);
+                else
+                    newlyUnselected.push(item);
+            }
+            selectedItems = selectedItems.filter((v) => newlyUnselected.indexOf(v) < 0);
+            selectedItems.push(newlySelected);
+            if (selectedItems.indexOf(this._SelectedItem) < 0) {
+                this._SelectedItem = selectedItems[0];
+                this.UpdateSelectorProperties(this._SelectedItem, this._SelectedItem == null ? -1 : ownerItems.IndexOf(this._SelectedItem), this._Owner._GetValueFromItem(this._SelectedItem));
+            }
+            this._Owner._SelectedItemsIsInvalid = true;
+            this._Owner._RaiseSelectionChanged(newlyUnselected, newlySelected.slice(0));
+        }
+        SelectAll(items: any[]) {
+            try {
+                this._IsUpdating = true;
+                if (this.Mode === SelectionMode.Single)
+                    throw new NotSupportedException("Cannot call SelectAll when in Single select mode");
+                var selectedItems = this._SelectedItems;
+                var select = ArrayEx.Except(items, selectedItems);
+                if (select.length === 0)
+                    return;
+                var owner = this._Owner;
+                selectedItems.push(select);
+                if (this._SelectedItem == null) {
+                    this._SelectedItem = select[0];
+                    this.UpdateSelectorProperties(this._SelectedItem, owner.Items.IndexOf(this._SelectedItem), owner._GetValueFromItem(this._SelectedItem));
+                }
+                owner._SelectedItemsIsInvalid = true;
+                owner._RaiseSelectionChanged([], select);
+            } finally {
+                this._IsUpdating = false;
+            }
+        }
+        SelectOnly(item: any) {
+            if (this._SelectedItem === item && this._SelectedItems.length === 1)
+                return;
+            try {
+                this._IsUpdating = true;
+                this.ReplaceSelection(item);
+            } finally {
+                this._IsUpdating = false;
+            }
+        }
+        Unselect(item: any) {
+            if (this._SelectedItems.indexOf(item) < 0)
+                return;
+            try {
+                this._IsUpdating = true;
+                this.RemoveFromSelected(item);
+            } finally {
+                this._IsUpdating = false;
+            }
+        }
+        AddToSelected(item: any) {
+            this._SelectedItems.push(item);
+            var owner = this._Owner;
+            if (this._SelectedItems.length === 1) {
+                this._SelectedItem = item;
+                this.UpdateSelectorProperties(item, owner.Items.IndexOf(item), owner._GetValueFromItem(item));
+            }
+            owner._SelectedItemsIsInvalid = true;
+            owner._RaiseSelectionChanged([], [item]);
+        }
+        RemoveFromSelected(item: any) {
+            var selectedItems = this._SelectedItems;
+            var index = selectedItems.indexOf(item);
+            if (index > -1) selectedItems.splice(index, 1);
+            var owner = this._Owner;
+            if (this._SelectedItem === item) {
+                var newItem = selectedItems[0];
+                this._SelectedItem = newItem;
+                this.UpdateSelectorProperties(newItem, newItem == null ? -1 : owner.Items.IndexOf(newItem), owner._GetValueFromItem(item));
+            }
+            owner._SelectedItemsIsInvalid = true;
+            owner._RaiseSelectionChanged([item], []);
+        }
+        ReplaceSelection(item: any) {
+            var owner = this._Owner;
+            if (!this.UpdateCollectionView(item)) {
+                this.UpdateSelectorProperties(this._SelectedItem, owner.Items.IndexOf(this._SelectedItem), owner._GetValueFromItem(this._SelectedItem));
+                return;
+            }
+            var added = [];
+            var oldItems = [];
+            var selectedItems = this._SelectedItems;
+            var count = selectedItems.length
+            var cur: any;
+            for (var i = 0; i < count; i++) {
+                cur = selectedItems[i];
+                if (cur !== item)
+                    oldItems.push(cur);
+            }
+            selectedItems = ArrayEx.Except(selectedItems, oldItems);
+            if (selectedItems.length === 0) {
+                added = [item];
+                selectedItems.push(item);
+            }
+            this._SelectedItem = item;
+            this.UpdateSelectorProperties(item, owner.Items.IndexOf(item), owner._GetValueFromItem(item));
+            if (added.length !== 0 || oldItems.length !== 0) {
+                owner._SelectedItemsIsInvalid = true;
+                owner._RaiseSelectionChanged(oldItems, added);
+            }
+        }
+        UpdateSelectorProperties(item: any, index: number, value: any) {
+            var owner = this._Owner;
+            if (owner.SelectedItem !== item)
+                owner.SelectedItem = item;
+            if (owner.SelectedIndex !== index)
+                owner.SelectedIndex = index;
+            if (owner.SelectedValue !== value)
+                owner.SelectedValue = value;
+            this.UpdateCollectionView(item);
+        }
+        UpdateCollectionView(item: any) {
+            var icv: Data.ICollectionView;
+            var is = this._Owner.ItemsSource;
+            if (Nullstone.ImplementsInterface(is, Data.ICollectionView_)) icv = <Data.ICollectionView>is;
+            if (icv) {
+                icv.MoveCurrentTo(item);
+                return item === icv.CurrentItem;
+            }
+            return true;
+        }
+    }
+    Nullstone.RegisterType(SelectorSelection, "SelectorSelection");
+}
+
 interface IAutoCreator {
     GetValue(propd: DependencyProperty, dobj: Fayde.DependencyObject): any;
 }
@@ -4649,6 +4941,15 @@ module Fayde {
 }
 
 module Fayde {
+    export class PropertyChangedEventArgs extends EventArgs {
+        private _PropertyName: string;
+        get PropertyName(): string { return this._PropertyName; }
+        constructor(propertyName: string) {
+            super();
+            this._PropertyName = propertyName;
+        }
+    }
+    Nullstone.RegisterType(PropertyChangedEventArgs, "PropertyChangedEventArgs");
     export interface INotifyPropertyChanged {
         PropertyChanged: MulticastEvent;
     }
@@ -7393,8 +7694,10 @@ module Fayde.Data {
 }
 
 module Fayde.Data {
-    export interface ICollectionView {
+    export interface ICollectionView extends IEnumerable {
         CurrentChanged: MulticastEvent;
+        CurrentItem: any;
+        MoveCurrentTo(item: any): bool;
     }
     export var ICollectionView_ = Nullstone.RegisterInterface("ICollectionView");
 }
@@ -7896,7 +8199,7 @@ class Surface {
     }
     Attach(uie: Fayde.UIElement) {
         if (this._TopLevel)
-            this._DetachLayer(this._TopLevel);
+            this.DetachLayer(this._TopLevel);
         if (!uie) {
             this._Invalidate();
             return;
@@ -7909,9 +8212,9 @@ class Surface {
         else if (!un.NameScope.IsRoot)
             un.NameScope.IsRoot = true;
         this._TopLevel = uie;
-        this._AttachLayer(uie);
+        this.AttachLayer(uie);
     }
-    private _AttachLayer(layer: Fayde.UIElement) {
+    AttachLayer(layer: Fayde.UIElement) {
         var node = layer.XamlNode;
         this._Layers.unshift(node);
         node.IsTopLevel = true;
@@ -7922,7 +8225,7 @@ class Surface {
         node.SetIsAttached(true);
         node.SetIsLoaded(true);
     }
-    private _DetachLayer(layer: Fayde.UIElement) {
+    DetachLayer(layer: Fayde.UIElement) {
         var node = layer.XamlNode;
         node.IsTopLevel = false;
         var il = this._InputList;
@@ -7954,7 +8257,7 @@ class Surface {
             return false;
         return true;
     }
-    private _UpdateLayout(error: BError): bool {
+    _UpdateLayout(error: BError): bool {
         var maxPassCount = 250;
         var layers = this._Layers;
         if (!layers)
@@ -9549,6 +9852,12 @@ class rect implements ICloneable {
         r.Height = this.Height;
         return r;
     }
+    static getRight(r:rect):number {
+        return r.X + r.Width;
+    }
+    static getBottom(r:rect):number {
+        return r.Y + r.Height;
+    }
     static fromSize(size: size): rect {
         var r = new rect();
         r.Width = size.Width;
@@ -10198,6 +10507,23 @@ module Fayde {
             }
             return e;
         }
+        static RemoveIfContains(arr: any[], item: any): bool {
+            var index = arr.indexOf(item);
+            if (index < 0)
+                return false;
+            arr.splice(index, 1);
+            return true;
+        }
+        static Except(arr1: any[], arr2: any[]): any[] {
+            var cur: any;
+            var rarr: any[] = [];
+            for (var i = 0; i < arr1.length; i++) {
+                cur = arr1[i];
+                if (arr2.indexOf(cur) < 0)
+                    rarr.push(cur);
+            }
+            return rarr;
+        }
     }
 }
 
@@ -10242,6 +10568,171 @@ class MulticastEvent {
     }
 }
 Nullstone.RegisterType(MulticastEvent, "MulticastEvent");
+
+module Fayde.Collections {
+    export enum NotifyCollectionChangedAction {
+        Add = 1,
+        Remove = 2,
+        Replace = 3,
+        Reset = 4,
+    }
+    export class NotifyCollectionChangedEventArgs extends EventArgs {
+        private _Action: NotifyCollectionChangedAction;
+        private _OldStartingIndex: number = -1;
+        private _NewStartingIndex: number = -1;
+        private _OldItems: any[] = null;
+        private _NewItems: any[] = null;
+        get Action(): NotifyCollectionChangedAction { return this._Action; }
+        get OldStartingIndex() { return this._OldStartingIndex; }
+        get NewStartingIndex() { return this._NewStartingIndex; }
+        get OldItems(): any[] { return this._OldItems; }
+        get NewItems(): any[] { return this._NewItems; }
+        static Reset(): NotifyCollectionChangedEventArgs {
+            var args = new NotifyCollectionChangedEventArgs();
+            args._Action = NotifyCollectionChangedAction.Reset;
+            return args;
+        }
+        static Replace(newValue: any, oldValue: any, index: number): NotifyCollectionChangedEventArgs {
+            var args = new NotifyCollectionChangedEventArgs();
+            args._Action = NotifyCollectionChangedAction.Replace;
+            args._NewItems = [newValue];
+            args._OldItems = [oldValue];
+            args._NewStartingIndex = index;
+            return args;
+        }
+        static Add(newValue: any, index: number): NotifyCollectionChangedEventArgs {
+            var args = new NotifyCollectionChangedEventArgs();
+            args._Action = NotifyCollectionChangedAction.Add;
+            args._NewItems = [newValue];
+            args._NewStartingIndex = index;
+            return args;
+        }
+        static AddRange(newValues: any[], index: number): NotifyCollectionChangedEventArgs {
+            var args = new NotifyCollectionChangedEventArgs();
+            args._Action = NotifyCollectionChangedAction.Add;
+            args._NewItems = newValues;
+            args._NewStartingIndex = index;
+            return args;
+        }
+        static Remove(oldValue: any, index: number): NotifyCollectionChangedEventArgs {
+            var args = new NotifyCollectionChangedEventArgs();
+            args._Action = NotifyCollectionChangedAction.Remove;
+            args._OldItems = [oldValue];
+            args._OldStartingIndex = index;
+            return args;
+        }
+    }
+}
+
+module Fayde.Collections {
+    export class ObservableCollection implements IEnumerable, INotifyCollectionChanged, INotifyPropertyChanged {
+        private _ht: any[] = [];
+        GetEnumerator(): IEnumerator {
+            return ArrayEx.GetEnumerator(this._ht);
+        }
+        CollectionChanged: MulticastEvent = new MulticastEvent();
+        PropertyChanged: MulticastEvent = new MulticastEvent();
+        get Count(): number { return this._ht.length; }
+        GetValueAt(index: number): any {
+            var ht = this._ht;
+            if (index < 0 || index >= ht.length)
+                throw new IndexOutOfRangeException(index);
+            return ht[index];
+        }
+        SetValueAt(index: number, value: any) {
+            var ht = this._ht;
+            if (index < 0 || index >= ht.length)
+                throw new IndexOutOfRangeException(index);
+            var oldValue = ht[index];
+            ht[index] = value;
+            this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Replace(value, oldValue, index));
+        }
+        Add(value: any) {
+            var index = this._ht.push(value) - 1;
+            this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Add(value, index));
+            this._RaisePropertyChanged("Count");
+        }
+        AddRange(values: any[]) {
+            var index = this._ht.push(values) - 1;
+            this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.AddRange(values, index));
+            this._RaisePropertyChanged("Count");
+        }
+        Insert(value: any, index: number) {
+            var ht = this._ht;
+            if (index < 0 || index > ht.length)
+                throw new IndexOutOfRangeException(index);
+            if (index >= ht.length)
+                ht.push(value);
+            else
+                ht.splice(index, 0, value);
+            this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Add(value, index));
+            this._RaisePropertyChanged("Count");
+        }
+        IndexOf(value: any): number {
+            return this._ht.indexOf(value);
+        }
+        Contains(value: any): bool {
+            return this._ht.indexOf(value) > 0;
+        }
+        Remove(value: any) {
+            var index = this._ht.indexOf(value);
+            if (index < 0)
+                return;
+            this._ht.splice(index, 1);
+            this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Remove(value, index));
+            this._RaisePropertyChanged("Count");
+        }
+        RemoveAt(index: number) {
+            if (index < 0 || index >= this._ht.length)
+                throw new IndexOutOfRangeException(index);
+            var item = this._ht.splice(index, 1)[0];
+            this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Remove(item, index));
+            this._RaisePropertyChanged("Count");
+        }
+        Clear() {
+            this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Reset());
+            this._RaisePropertyChanged("Count");
+        }
+        private _RaisePropertyChanged(propertyName: string) {
+            this.PropertyChanged.Raise(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+    Nullstone.RegisterType(ObservableCollection, "ObservableCollection", [IEnumerable_, INotifyCollectionChanged_, INotifyPropertyChanged_]);
+}
+
+module Fayde.Controls.Primitives {
+    export class ItemsChangedEventArgs extends EventArgs {
+        Action: Collections.NotifyCollectionChangedAction;
+        ItemCount: number;
+        ItemUICount: number;
+        OldPosition: IGeneratorPosition;
+        Position: IGeneratorPosition;
+        constructor(action: Collections.NotifyCollectionChangedAction, itemCount: number, itemUICount: number, oldPosition: IGeneratorPosition, position: IGeneratorPosition) {
+            super();
+            this.Action = action;
+            this.ItemCount = itemCount;
+            this.ItemUICount = itemUICount;
+            this.OldPosition = oldPosition;
+            this.Position = position;
+        }
+    }
+    Nullstone.RegisterType(ItemsChangedEventArgs, "ItemsChangedEventArgs");
+}
+
+module Fayde.Controls.Primitives {
+    export class SelectionChangedEventArgs extends EventArgs {
+        private _OldValues: any[];
+        get OldValues(): any[] { return this._OldValues; }
+        private _NewValues: any[];
+        get NewValues(): any[] { return this._NewValues; }
+        constructor(oldValues: any[], newValues: any[]) {
+            super();
+            this._OldValues = oldValues.slice(0);
+            this._NewValues = newValues.slice(0);
+        }
+    }
+    Nullstone.RegisterType(SelectionChangedEventArgs, "SelectionChangedEventArgs");
+}
 
 module Fayde {
     export class DeferredValueExpression extends Expression {
@@ -10576,6 +11067,9 @@ module Fayde {
     export class XamlObjectCollection extends XamlObject implements IEnumerable {
         private _ht: XamlObject[] = [];
         get Count() { return this._ht.length; }
+        GetRange(startIndex: number, endIndex: number): XamlObject[] {
+            return this._ht.slice(startIndex, endIndex);
+        }
         GetValueAt(index: number): XamlObject {
             return this._ht[index];
         }
@@ -11012,6 +11506,30 @@ module Fayde.Documents {
 }
 
 module Fayde.Input {
+    export class KeyboardNavigation {
+        static AcceptsReturnProperty: DependencyProperty = DependencyProperty.RegisterAttached("AcceptsReturn", () => Boolean, KeyboardNavigation);
+        static GetAcceptsReturn(d: DependencyObject): bool { return d.GetValue(AcceptsReturnProperty); }
+        static SetAcceptsReturn(d: DependencyObject, value: bool) { d.SetValue(AcceptsReturnProperty, value); }
+        static ControlTabNavigationProperty: DependencyProperty = DependencyProperty.RegisterAttached("ControlTabNavigation", () => new Enum(KeyboardNavigationMode), KeyboardNavigation);
+        static GetControlTabNavigation(d: DependencyObject): KeyboardNavigationMode { return d.GetValue(ControlTabNavigationProperty); }
+        static SetControlTabNavigation(d: DependencyObject, value: KeyboardNavigationMode) { d.SetValue(ControlTabNavigationProperty, value); }
+        static DirectionalNavigationProperty: DependencyProperty = DependencyProperty.RegisterAttached("DirectionalNavigation", () => new Enum(KeyboardNavigationMode), KeyboardNavigation);
+        static GetDirectionalNavigation(d: DependencyObject): KeyboardNavigationMode { return d.GetValue(DirectionalNavigationProperty); }
+        static SetDirectionalNavigation(d: DependencyObject, value: KeyboardNavigationMode) { d.SetValue(DirectionalNavigationProperty, value); }
+        static IsTabStopProperty: DependencyProperty = DependencyProperty.RegisterAttached("IsTabStop", () => Boolean, KeyboardNavigation);
+        static GetIsTabStop(d: DependencyObject): bool { return d.GetValue(IsTabStopProperty); }
+        static SetIsTabStop(d: DependencyObject, value: bool) { d.SetValue(IsTabStopProperty, value); }
+        static TabIndexProperty: DependencyProperty = DependencyProperty.RegisterAttached("TabIndex", () => Number, KeyboardNavigation);
+        static GetTabIndex(d: DependencyObject): number { return d.GetValue(TabIndexProperty); }
+        static SetTabIndex(d: DependencyObject, value: number) { d.SetValue(TabIndexProperty, value); }
+        static TabNavigationProperty: DependencyProperty = DependencyProperty.RegisterAttached("TabNavigation", () => new Enum(KeyboardNavigationMode), KeyboardNavigation);
+        static GetTabNavigation(d: DependencyObject): KeyboardNavigationMode { return d.GetValue(TabNavigationProperty); }
+        static SetTabNavigation(d: DependencyObject, value: KeyboardNavigationMode) { d.SetValue(TabNavigationProperty, value); }
+    }
+    Nullstone.RegisterType(KeyboardNavigation, "KeyboardNavigation");
+}
+
+module Fayde.Input {
     export enum Key {
         None = 0,
         Back = 1,
@@ -11428,6 +11946,10 @@ module Fayde.Media {
             if (r)
                 return rect.transform4(rect.clone(r), this._Raw);
             return undefined;
+        }
+        CreateMatrix3DProjection(): Matrix3DProjection {
+            var projection = new Matrix3DProjection();
+            return projection
         }
     }
     Nullstone.RegisterType(InternalTransform, "InternalTransform");
@@ -13182,6 +13704,142 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
+    export interface IItemCollection {
+        ItemsChanged: MulticastEvent;
+        ToArray(): any[];
+        GetValueAt(index: number): any;
+        GetRange(startIndex: number, endIndex: number): any[];
+        SetValueAt(index: number, value: any);
+        Contains(value: any): bool;
+        IndexOf(value: any): number;
+        Add(value: any);
+        AddRange(values: any[]);
+        Insert(index: number, value: any);
+        Remove(value: any);
+        RemoveAt(index: number);
+        Clear();
+    }
+    export interface IItemCollectionHidden extends IItemCollection {
+        IsReadOnly: bool;
+        SetValueAtImpl(index: number, value: any);
+        AddImpl(value: any);
+        AddRangeImpl(values: any[]);
+        InsertImpl(index: number, value: any);
+        RemoveImpl(value: any);
+        RemoveAtImpl(index: number);
+        ClearImpl();
+    }
+    export class ItemCollection extends DependencyObject implements IEnumerable, IItemCollection, IItemCollectionHidden {
+        private _ht: any[] = [];
+        GetEnumerator(): IEnumerator {
+            return ArrayEx.GetEnumerator(this._ht);
+        }
+        ItemsChanged: MulticastEvent = new MulticastEvent();
+        PropertyChanged: MulticastEvent = new MulticastEvent();
+        ToArray(): any[] { return this._ht.slice(0); }
+        get Count(): number { return this._ht.length; }
+        private IsReadOnly: bool = false;
+        GetValueAt(index: number): any {
+            var ht = this._ht;
+            if (index < 0 || index >= ht.length)
+                throw new IndexOutOfRangeException(index);
+            return ht[index];
+        }
+        GetRange(startIndex: number, endIndex: number): any[] { return this._ht.slice(startIndex, endIndex); }
+        SetValueAt(index: number, value: any) {
+            this._ValidateReadOnly();
+            this.SetValueAtImpl(index, value);
+        }
+        private SetValueAtImpl(index: number, value: any) {
+            var ht = this._ht;
+            if (index < 0 || index >= ht.length)
+                throw new IndexOutOfRangeException(index);
+            var oldValue = ht[index];
+            ht[index] = value;
+            this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Replace(value, oldValue, index));
+        }
+        Add(value: any) {
+            this._ValidateReadOnly();
+            if (value == null)
+                throw new ArgumentException("value");
+            this.AddImpl(value);
+        }
+        private AddImpl(value: any) {
+            var index = this._ht.push(value) - 1;
+            this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Add(value, index));
+        }
+        AddRange(values: any[]) {
+            this._ValidateReadOnly();
+            if (!values) return;
+            for (var i = 0 ; i < values.length; i++) {
+                if (values[i] == null) throw new ArgumentException("value");
+            }
+            this.AddRangeImpl(values);
+        }
+        private AddRangeImpl(values: any[]) {
+            var index = this._ht.push(values) - 1;
+            this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.AddRange(values, index));
+        }
+        Insert(value: any, index: number) {
+            this._ValidateReadOnly();
+            if (value == null)
+                throw new ArgumentException("value");
+            this.InsertImpl(value, index);
+        }
+        private InsertImpl(value: any, index: number) {
+            var ht = this._ht;
+            if (index < 0 || index > ht.length)
+                throw new IndexOutOfRangeException(index);
+            if (index >= ht.length)
+                ht.push(value);
+            else
+                ht.splice(index, 0, value);
+            this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Add(value, index));
+        }
+        IndexOf(value: any): number {
+            return this._ht.indexOf(value);
+        }
+        Contains(value: any): bool {
+            return this._ht.indexOf(value) > 0;
+        }
+        Remove(value: any) {
+            this._ValidateReadOnly();
+            this.RemoveImpl(value);
+        }
+        private RemoveImpl(value: any) {
+            var index = this._ht.indexOf(value);
+            if (index < 0)
+                return;
+            this._ht.splice(index, 1);
+            this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Remove(value, index));
+        }
+        RemoveAt(index: number) {
+            this._ValidateReadOnly();
+            if (index < 0 || index >= this._ht.length)
+                throw new IndexOutOfRangeException(index);
+            this.RemoveAtImpl(index);
+        }
+        private RemoveAtImpl(index: number) {
+            var item = this._ht.splice(index, 1)[0];
+            this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Remove(item, index));
+        }
+        Clear() {
+            this._ValidateReadOnly();
+            this.ClearImpl();
+        }
+        private ClearImpl() {
+            this._ht = [];
+            this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Reset());
+        }
+        private _ValidateReadOnly() {
+            if (this.IsReadOnly)
+                throw new InvalidOperationException("The collection is readonly.");
+        }
+    }
+    Nullstone.RegisterType(ItemCollection, "ItemCollection");
+}
+
+module Fayde.Controls {
     export class ItemsPanelTemplate extends FrameworkTemplate {
         private _TempJson: any;
         constructor(json: any) {
@@ -13327,7 +13985,7 @@ module Fayde {
     export class DataTemplate extends FrameworkTemplate {
         private _TempJson: any;
         private _ResChain: ResourceDictionary[];
-        constructor(json: any, resChain: ResourceDictionary[]) {
+        constructor(json: any, resChain?: ResourceDictionary[]) {
             super();
             this._TempJson = json;
             this._ResChain = resChain;
@@ -13753,7 +14411,7 @@ module Fayde {
                 vpNode = vpNode.VisualParentNode;
             return vpNode === this;
         }
-        TranformToVisual(uin: UINode): Media.GeneralTransform {
+        TransformToVisual(uin: UINode): Media.GeneralTransform {
             if (uin && !uin.IsAttached)
                 throw new ArgumentException("UIElement not attached.");
             var curNode = this;
@@ -13837,9 +14495,13 @@ module Fayde {
         Focus(): bool { return this.XamlNode.Focus(); }
         CaptureMouse():bool { return this.XamlNode.CaptureMouse(); }
         ReleaseMouseCapture() { this.XamlNode.ReleaseMouseCapture(); }
-        TranformToVisual(uie: UIElement): Media.GeneralTransform {
+        IsAncestorOf(uie: UIElement): bool {
+            if (!uie) return false;
+            return this.XamlNode.IsAncestorOf(uie.XamlNode);
+        }
+        TransformToVisual(uie: UIElement): Media.GeneralTransform {
             var uin = (uie) ? uie.XamlNode : null;
-            return this.XamlNode.TranformToVisual(uin);
+            return this.XamlNode.TransformToVisual(uin);
         }
         Measure(availableSize: size) {
         }
@@ -15299,6 +15961,31 @@ module Fayde {
             }
             return false;
         }
+        GetFocusedElement(): UIElement {
+            var node = this._Surface.FocusedNode;
+            if (node)
+                return node.XObject;
+        }
+        UpdateLayout() {
+            var lu = this.LayoutUpdater;
+            var error = new BError();
+            if (this.IsAttached) {
+                this._Surface._UpdateLayout(error);
+            } else {
+                var pass = {
+                    MeasureList: [],
+                    ArrangeList: [],
+                    SizeList: [],
+                    Count: 0,
+                    Updated: true
+                };
+                lu.UpdateLayer(pass, error);
+                if (pass.Updated)
+                    this.XObject.LayoutUpdated.Raise(this, EventArgs.Empty);
+            }
+            if (error.Message)
+                error.ThrowException();
+        }
         GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
             if (this.SubtreeNode)
                 return ArrayEx.GetEnumerator([this.SubtreeNode]);
@@ -15363,12 +16050,14 @@ module Fayde {
         SizeChanged: RoutedEvent = new RoutedEvent();
         Loaded: RoutedEvent = new RoutedEvent();
         Unloaded: RoutedEvent = new RoutedEvent();
+        LayoutUpdated: MulticastEvent = new MulticastEvent();
         OnApplyTemplate() { }
         FindName(name: string): XamlObject {
             var n = this.XamlNode.FindName(name);
             if (n)
                 return n.XObject;
         }
+        UpdateLayout() { this.XamlNode.UpdateLayout(); }
         private _MeasureOverride(availableSize: size, error: BError): size {
             var desired = new size();
             availableSize = size.clone(availableSize);
@@ -16148,8 +16837,8 @@ module Fayde.Controls {
                         new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty, "ContentTemplate"));
                 }
             }
-            if (xobj.ContentTemplate instanceof ControlTemplate) {
-                var vt = (<ControlTemplate>xobj.ContentTemplate).GetVisualTree(this.XObject);
+            if (xobj.ContentTemplate) {
+                var vt = xobj.ContentTemplate.GetVisualTree(this.XObject);
                 if (vt instanceof UIElement)
                     this._ContentRoot = <UIElement>vt;
             } else {
@@ -16167,9 +16856,9 @@ module Fayde.Controls {
         XamlNode: ContentPresenterNode;
         CreateNode(): ContentPresenterNode { return new ContentPresenterNode(this); }
         static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d)._ContentChanged(args));
-        static ContentTemplateProperty: DependencyProperty = DependencyProperty.Register("ContentTemplate", () => ControlTemplate, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d)._ContentTemplateChanged(args));
+        static ContentTemplateProperty: DependencyProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d)._ContentTemplateChanged(args));
         Content: any;
-        ContentTemplate: ControlTemplate;
+        ContentTemplate: DataTemplate;
         static Annotations = { ContentProperty: ContentPresenter.ContentProperty }
         _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
             var node = this.XamlNode;
@@ -16674,20 +17363,93 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
-    export class ItemsControl extends Control {
+    export class ItemsControlNode extends ControlNode {
         private _Presenter: ItemsPresenter;
+        private static _DefaultPosition: IGeneratorPosition = { index: -1, offset: 1 };
+        XObject: ItemsControl;
+        constructor(xobj: ItemsControl) {
+            super(xobj);
+        }
+        _GetDefaultTemplate(): UIElement {
+            var presenter = this._Presenter;
+            if (!presenter) {
+                presenter = new ItemsPresenter();
+                presenter.TemplateOwner = this.XObject;
+            }
+            return presenter;
+        }
+        get ItemsPresenterElementRoot(): Panel {
+            var p = this._Presenter;
+            if (p)
+                return p.ElementRoot;
+        }
+        _SetItemsPresenter(presenter: ItemsPresenter) {
+            if (this._Presenter)
+                this._Presenter.XamlNode.ElementRoot.Children.Clear();
+            this._Presenter = presenter;
+            var xobj = this.XObject;
+            xobj.AddItemsToPresenter(ItemsControlNode._DefaultPosition, xobj.Items.Count);
+        }
+    }
+    Nullstone.RegisterType(ItemsControlNode, "ItemsControlNode");
+    export class ItemsControl extends Control {
+        private _ItemsIsDataBound: bool = false;
+        private _Items: IItemCollectionHidden = null;
+        private _DisplayMemberTemplate:DataTemplate = null;
+        XamlNode: ItemsControlNode;
+        CreateNode(): ItemsControlNode { return new ItemsControlNode(this); }
+        static DisplayMemberPathProperty = DependencyProperty.RegisterCore("DisplayMemberPath", () => String, ItemsControl, null, (d, args) => (<ItemsControl>d).OnDisplayMemberPathChanged(args));
+        static ItemsPanelProperty = DependencyProperty.RegisterCore("ItemsPanel", () => ItemsPanelTemplate, ItemsControl);
+        static ItemsSourceProperty = DependencyProperty.RegisterCore("ItemsSource", () => IEnumerable_, ItemsControl, null, (d, args) => (<ItemsControl>d).OnItemsSourceChanged(args));
+        static ItemTemplateProperty = DependencyProperty.RegisterCore("ItemTemplate", () => DataTemplate, ItemsControl, undefined, (d, args) => (<ItemsControl>d).OnItemTemplateChanged(args));
+        DisplayMemberPath: string;
+        ItemsPanel: ItemsPanelTemplate;
+        ItemTemplate: DataTemplate;
+        get Items(): ItemCollection {
+            var items = <ItemCollection>this._Items;
+            if (!items) {
+                this._Items = items = new ItemCollection();
+                this._ItemsIsDataBound = true;
+                items.ItemsChanged.Subscribe(this.InvokeItemsChanged, this);
+            }
+            return items;
+        }
+        private get $Items(): IItemCollectionHidden { return this.Items; }
+        get ItemsSource(): IEnumerable { return this.GetValue(ItemsControl.ItemsSourceProperty); }
+        set ItemsSource(value: IEnumerable) {
+            if (!this._ItemsIsDataBound && this.Items.Count > 0)
+                throw new InvalidOperationException("Items collection must be empty before using ItemsSource");
+            this.SetValue(ItemsControl.ItemsSourceProperty, value);
+        }
+        get $DisplayMemberTemplate(): DataTemplate {
+            var dmt = this._DisplayMemberTemplate;
+            if (!dmt) {
+                var json = {
+                    ParseType: Grid,
+                    Children: [
+                        {
+                            ParseType: TextBlock,
+                            Props: { Text: new Fayde.BindingMarkup({ Path: this.DisplayMemberPath }) }
+                        }
+                    ]
+                };
+                dmt = this._DisplayMemberTemplate = new DataTemplate(json);
+            }
+            return dmt;
+        }
+        static Annotations = { ContentProperty: "Items" }
         ItemContainerGenerator: ItemContainerGenerator;
         constructor() {
             super();
+            this.DefaultStyleKey = (<any>this).constructor;
             var icg = new ItemContainerGenerator(this);
+            icg.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
             Object.defineProperty(this, "ItemContainerGenerator", {
                 value: icg,
                 writable: false
             });
         }
-        Items: XamlObjectCollection; //TODO: Implement
-        ItemsPanel: ItemsPanelTemplate; //TODO: Implement
-        get Panel(): Panel { return this._Presenter.ElementRoot; }
+        get Panel(): Panel { return this.XamlNode.ItemsPresenterElementRoot; }
         static GetItemsOwner(uie: UIElement): ItemsControl {
             if (!(uie instanceof Panel))
                 return null;
@@ -16702,24 +17464,226 @@ module Fayde.Controls {
                 return ic;
             return null;
         }
-        _SetItemsPresenter(presenter: ItemsPresenter) {
-            if (this._Presenter)
-                this._Presenter.ElementRoot.Children.Clear();
-            this._Presenter = presenter;
-            this.AddItemsToPresenter(-1, 1, this.Items.Count);
+        static ItemsControlFromItemContainer(container: DependencyObject) {
+            if (!(container instanceof FrameworkElement))
+                return null;
+            var fe = <FrameworkElement>container;
+            var parentNode = fe.XamlNode.ParentNode;
+            var parent = (parentNode) ? parentNode.XObject : null;
+            var itctl: ItemsControl;
+            if (parent instanceof ItemsControl)
+                itctl = <ItemsControl>parent;
+            if (itctl == null)
+                return ItemsControl.GetItemsOwner(<UIElement>parent);
+            if (itctl.IsItemItsOwnContainer(fe))
+                return itctl;
+            return null;
         }
-        AddItemsToPresenter(positionIndex: number, positionOffset: number, count: number) {
+        OnItemsSourceChanged(e: IDependencyPropertyChangedEventArgs) {
+            if (!e.OldValue && Nullstone.ImplementsInterface(e.OldValue, Collections.INotifyCollectionChanged_)) {
+                (<Collections.INotifyCollectionChanged>e.OldValue).CollectionChanged.Unsubscribe(this._CollectionChanged, this);
+            }
+            if (e.NewValue != null) {
+                var source = e.NewValue;
+                if (Nullstone.ImplementsInterface(source, Collections.INotifyCollectionChanged_)) {
+                    (<Collections.INotifyCollectionChanged>source).CollectionChanged.Subscribe(this._CollectionChanged, this);
+                }
+                this.$Items.IsReadOnly = true;
+                this._ItemsIsDataBound = true;
+                this.$Items.ClearImpl();
+                var arr: any[];
+                if (source instanceof Array) arr = source;
+                var coll: IEnumerable;
+                if (source instanceof XamlObjectCollection) coll = source;
+                if (arr) {
+                    var count = arr.length;
+                    for (var i = 0; i < count; i++) {
+                        this.$Items.AddImpl(arr[i]);
+                    }
+                } else if (coll) {
+                    var enumerator = coll.GetEnumerator();
+                    while (enumerator.MoveNext()) {
+                        this.$Items.AddImpl(enumerator.Current);
+                    }
+                }
+                this.OnItemsChanged(Collections.NotifyCollectionChangedEventArgs.Reset());
+            } else {
+                this._ItemsIsDataBound = false;
+                this.$Items.IsReadOnly = false;
+                this.$Items.ClearImpl();
+            }
+            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+        }
+        private _CollectionChanged(sender, e: Collections.NotifyCollectionChangedEventArgs) {
+            switch (e.Action) {
+                case Collections.NotifyCollectionChangedAction.Add:
+                    var enumerator = ArrayEx.GetEnumerator(e.NewItems);
+                    while (enumerator.MoveNext()) {
+                        this.$Items.InsertImpl(e.NewStartingIndex + 1, enumerator.Current);
+                    }
+                    break;
+                case Collections.NotifyCollectionChangedAction.Remove:
+                    var enumerator = ArrayEx.GetEnumerator(e.OldItems);
+                    while (enumerator.MoveNext()) {
+                        this.$Items.RemoveAtImpl(e.OldStartingIndex);
+                    }
+                    break;
+                case Collections.NotifyCollectionChangedAction.Replace:
+                    var enumerator = ArrayEx.GetEnumerator(e.NewItems);
+                    while (enumerator.MoveNext()) {
+                        this.$Items.SetValueAtImpl(e.NewStartingIndex + 1, enumerator.Current);
+                    }
+                    break;
+                case Collections.NotifyCollectionChangedAction.Reset:
+                    this.$Items.ClearImpl();
+                    var enumerator = this.ItemsSource.GetEnumerator();
+                    while (enumerator.MoveNext()) {
+                        this.$Items.AddImpl(enumerator.Current);
+                    }
+                    break;
+            }
+            this.OnItemsChanged(e);
+        }
+        OnDisplayMemberPathChanged(e: IDependencyPropertyChangedEventArgs) {
+            var icg = this.ItemContainerGenerator;
+            var i = 0;
+            var enumerator = this.Items.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                this.UpdateContentTemplateOnContainer(icg.ContainerFromIndex(i), enumerator.Current);
+                i++;
+            }
         }
         PrepareContainerForItem(container: DependencyObject, item: any) {
-            /*
             if (this.DisplayMemberPath != null && this.ItemTemplate != null)
                 throw new InvalidOperationException("Cannot set 'DisplayMemberPath' and 'ItemTemplate' simultaenously");
-            this.UpdateContentTemplateOnContainer(element, item);
-            */
+            this.UpdateContentTemplateOnContainer(container, item);
         }
         ClearContainerForItem(container: DependencyObject, item: any) { }
         GetContainerForItem(): DependencyObject { return new ContentPresenter(); }
         IsItemItsOwnContainer(item: any): bool { return item instanceof FrameworkElement; }
+        OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) { }
+        /*
+        OnItemsClearing(sender, e) {
+            this.SetLogicalParent(null, this.Items.ToArray());
+        }
+        */
+        InvokeItemsChanged(sender, e: Collections.NotifyCollectionChangedEventArgs) {
+            /*
+            switch (e.Action) {
+                case Collections.NotifyCollectionChangedAction.Add:
+                    this.SetLogicalParent(this, e.NewItems);
+                    break;
+                case Collections.NotifyCollectionChangedAction.Remove:
+                    this.SetLogicalParent(null, e.OldItems);
+                    break;
+                case Collections.NotifyCollectionChangedAction.Replace:
+                    this.SetLogicalParent(null, e.OldItems);
+                    this.SetLogicalParent(this, e.NewItems);
+                    break;
+            }
+            */
+            this.ItemContainerGenerator.OnOwnerItemsItemsChanged(e);
+            if (!this._ItemsIsDataBound)
+                this.OnItemsChanged(e);
+        }
+        OnItemContainerGeneratorChanged(sender, e:Primitives.ItemsChangedEventArgs) {
+            var panel = this.XamlNode.ItemsPresenterElementRoot;
+            if (panel instanceof VirtualizingPanel)
+                return;
+            switch (e.Action) {
+                case Collections.NotifyCollectionChangedAction.Reset:
+                    var count = panel.Children.Count;
+                    if (count > 0)
+                        this.RemoveItemsFromPresenter({ index: 0, offset: 0 }, count);
+                    break;
+                case Collections.NotifyCollectionChangedAction.Add:
+                    this.AddItemsToPresenter(e.Position, e.ItemCount);
+                    break;
+                case Collections.NotifyCollectionChangedAction.Remove:
+                    this.RemoveItemsFromPresenter(e.Position, e.ItemCount);
+                    break;
+                case Collections.NotifyCollectionChangedAction.Replace:
+                    this.RemoveItemsFromPresenter(e.Position, e.ItemCount);
+                    this.AddItemsToPresenter(e.Position, e.ItemCount);
+                    break;
+            }
+        }
+        OnItemTemplateChanged(e: IDependencyPropertyChangedEventArgs) {
+            var enumerator = this.Items.GetEnumerator();
+            var i = 0;
+            var icg = this.ItemContainerGenerator;
+            while (enumerator.MoveNext()) {
+                this.UpdateContentTemplateOnContainer(icg.ContainerFromIndex(i), enumerator.Current);
+                i++;
+            }
+        }
+        /*
+        SetLogicalParent(parent, items) {
+            if (this.ItemsSource != null)
+                return;
+            var error = new BError();
+            var count = items.length;
+            for (var i = 0; i < count; i++) {
+                var fe = Nullstone.As(items[i], FrameworkElement);
+                if (fe == null)
+                    continue;
+                this._SetLogicalParent(parent, error);
+                if (error.Message)
+                    throw new Exception(error.Message);
+            }
+        }
+        */
+        AddItemsToPresenter(position: IGeneratorPosition, count: number) {
+            var panel = this.XamlNode.ItemsPresenterElementRoot;
+            if (panel instanceof VirtualizingPanel)
+                return;
+            var icg = this.ItemContainerGenerator;
+            var newIndex = icg.IndexFromGeneratorPosition(position);
+            var items = this.Items;
+            var children = panel.Children;
+            var p = icg.StartAt(position, 0, true);
+            try {
+                for (var i = 0; i < count; i++) {
+                    var item = items.GetValueAt(newIndex + i);
+                    var container = icg.GenerateNext({ Value: null });
+                    if (container instanceof ContentControl)
+                        (<ContentControl>container)._ContentSetsParent = false;
+                    if (container instanceof FrameworkElement && !(item instanceof FrameworkElement))
+                        container.DataContext = item;
+                    children.Insert(newIndex + i, container);
+                    icg.PrepareItemContainer(container);
+                }
+            } finally {
+                icg.StopGeneration();
+            }
+        }
+        RemoveItemsFromPresenter(position: IGeneratorPosition, count: number) {
+            var panel = this.XamlNode.ItemsPresenterElementRoot;
+            if (panel instanceof VirtualizingPanel)
+                return;
+            while (count > 0) {
+                panel.Children.RemoveAt(position.index);
+                count--;
+            }
+        }
+        UpdateContentTemplateOnContainer(element: DependencyObject, item) {
+            if (element === item)
+                return;
+            var presenter: ContentPresenter;
+            if (element instanceof ContentPresenter) presenter = <ContentPresenter>element;
+            var control: ContentControl;
+            if (element instanceof ContentControl) control = <ContentControl>element;
+            var template: DataTemplate;
+            if (!(item instanceof UIElement))
+                template = this.ItemTemplate || this.$DisplayMemberTemplate;
+            if (presenter != null) {
+                presenter.ContentTemplate = template;
+                presenter.Content = item;
+            } else if (control != null) {
+                control.ContentTemplate = template;
+                control.Content = item;
+            }
+        }
     }
     Nullstone.RegisterType(ItemsControl, "ItemsControl");
 }
@@ -16786,7 +17750,7 @@ module Fayde.Controls {
         CreateNode(): ItemsPresenterNode { return new ItemsPresenterNode(this); }
         get ElementRoot(): Panel { return this.XamlNode.ElementRoot; }
         OnApplyTemplate() {
-            this.TemplateOwner._SetItemsPresenter(this);
+            this.TemplateOwner.XamlNode._SetItemsPresenter(this);
             super.OnApplyTemplate();
         }
     }
@@ -17089,7 +18053,7 @@ module Fayde.Controls {
         MakeVisible(uie: UIElement, rectangle: rect): rect {
             if (rect.isEmpty(rectangle) || !uie || uie === this || !this.XamlNode.IsAncestorOf(uie.XamlNode))
                 return new rect();
-            var generalTransform = uie.TranformToVisual(this);
+            var generalTransform = uie.TransformToVisual(this);
             var point = generalTransform.Transform(new Point(rectangle.X, rectangle.Y));
             rectangle = rect.clone(rectangle);
             rectangle.X = point.X;
@@ -18075,7 +19039,7 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
-    export class VirtualizingPanel extends Panel implements IItemsChangedListener {
+    export class VirtualizingPanel extends Panel {
         private _ICG: ItemContainerGenerator = null;
         get ItemContainerGenerator(): ItemContainerGenerator {
             if (!this._ICG) {
@@ -18083,7 +19047,7 @@ module Fayde.Controls {
                 if (!icOwner)
                     throw new InvalidOperationException("VirtualizingPanels must be in the Template of an ItemsControl in order to generate items");
                 var icg = this._ICG = icOwner.ItemContainerGenerator;
-                icg.Listen(this);
+                icg.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
             }
             return this._ICG;
         }
@@ -18101,9 +19065,9 @@ module Fayde.Controls {
         }
         BringIndexIntoView(index) { }
         OnClearChildren() { }
-        OnItemsChanged(action: ItemsChangedAction, itemCount: number, itemUICount: number, oldPosition: IGeneratorPosition, position: IGeneratorPosition) {
+        OnItemContainerGeneratorChanged(sender, e: Primitives.ItemsChangedEventArgs) {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
-            if (action === ItemsChangedAction.Reset) {
+            if (e.Action === Collections.NotifyCollectionChangedAction.Reset) {
                 this.Children.Clear();
                 this.ItemContainerGenerator.RemoveAll();
                 this.OnClearChildren();
@@ -18453,31 +19417,31 @@ module Fayde.Controls {
             var scrollOwner = this.ScrollOwner;
             if (scrollOwner) scrollOwner.InvalidateScrollInfo();
         }
-        OnItemsChanged(action: ItemsChangedAction, itemCount: number, itemUICount: number, oldPosition: IGeneratorPosition, position: IGeneratorPosition) {
-            super.OnItemsChanged(action, itemCount, itemUICount, oldPosition, position);
+        OnItemContainerGeneratorChanged(sender, e: Primitives.ItemsChangedEventArgs) {
+            super.OnItemContainerGeneratorChanged(sender, e);
             var generator = this.ItemContainerGenerator;
             var owner = ItemsControl.GetItemsOwner(this);
             var orientation = this.Orientation;
             var index;
             var offset;
             var viewable
-            switch (action) {
-                case ItemsChangedAction.Add:
-                    var index = generator.IndexFromGeneratorPosition(position);
+            switch (e.Action) {
+                case Collections.NotifyCollectionChangedAction.Add:
+                    var index = generator.IndexFromGeneratorPosition(e.Position);
                     if (orientation === Fayde.Orientation.Horizontal)
                         offset = this.HorizontalOffset;
                     else
                         offset = this.VerticalOffset;
                     if (index <= offset) {
-                        offset += itemCount;
+                        offset += e.ItemCount;
                     }
                     if (orientation === Fayde.Orientation.Horizontal)
                         this.SetHorizontalOffset(offset);
                     else
                         this.SetVerticalOffset(offset);
                     break;
-                case ItemsChangedAction.Remove:
-                    index = generator.IndexFromGeneratorPosition(position);
+                case Collections.NotifyCollectionChangedAction.Remove:
+                    index = generator.IndexFromGeneratorPosition(e.Position);
                     if (orientation === Fayde.Orientation.Horizontal) {
                         offset = this.HorizontalOffset;
                         viewable = this.ViewportWidth;
@@ -18486,7 +19450,7 @@ module Fayde.Controls {
                         viewable = this.ViewportHeight;
                     }
                     if (index < offset) {
-                        offset = Math.max(offset - itemCount, 0);
+                        offset = Math.max(offset - e.ItemCount, 0);
                     }
                     offset = Math.min(offset, owner.Items.Count - viewable);
                     offset = Math.max(offset, 0);
@@ -18494,12 +19458,12 @@ module Fayde.Controls {
                         this.SetHorizontalOffset(offset);
                     else
                         this.SetVerticalOffset(offset);
-                    this.RemoveInternalChildRange(position.index, itemUICount);
+                    this.RemoveInternalChildRange(e.Position.index, e.ItemUICount);
                     break;
-                case ItemsChangedAction.Replace:
-                    this.RemoveInternalChildRange(position.index, itemUICount);
+                case Collections.NotifyCollectionChangedAction.Replace:
+                    this.RemoveInternalChildRange(e.Position.index, e.ItemUICount);
                     break;
-                case ItemsChangedAction.Reset:
+                case Collections.NotifyCollectionChangedAction.Reset:
                     break;
             }
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
@@ -18527,15 +19491,133 @@ module Fayde.Controls.Primitives {
             };
         }
         ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) { }
+        OnIsAttachedChanged(newIsAttached: bool) {
+            super.OnIsAttachedChanged(newIsAttached);
+            if (!newIsAttached && this.XObject.IsOpen)
+                this.XObject.IsOpen = false;
+        }
+        _HitTestPoint(ctx: RenderContext, p: Point, uinlist: UINode[]) {
+            if (this.XObject.IsVisible)
+                super._HitTestPoint(ctx, p, uinlist);
+        }
     }
     Nullstone.RegisterType(PopupNode, "PopupNode");
     export class Popup extends FrameworkElement {
         CreateNode(): PopupNode {
             return new PopupNode(this);
         }
+        static ChildProperty = DependencyProperty.RegisterCore("Child", () => UIElement, Popup, undefined, (d, args) => (<Popup>d)._OnChildChanged(args));
+        static HorizontalOffsetProperty = DependencyProperty.RegisterCore("HorizontalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d)._OnOffsetChanged(args));
+        static VerticalOffsetProperty = DependencyProperty.RegisterCore("VerticalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d)._OnOffsetChanged(args));
+        static IsOpenProperty = DependencyProperty.RegisterCore("IsOpen", () => Boolean, Popup, false, (d, args) => (<Popup>d)._OnIsOpenChanged(args));
         Child: UIElement;
         HorizontalOffset: number;
         VerticalOffset: number;
+        IsOpen: bool;
+        static Annotations = { ContentProperty: Popup.ChildProperty }
+        private _ClickCatcher: Canvas = null;
+        private _IsVisible: bool = false;
+        get IsVisible(): bool { return this._IsVisible; }
+        Opened: MulticastEvent = new MulticastEvent();
+        Closed: MulticastEvent = new MulticastEvent();
+        ClickedOutside: MulticastEvent = new MulticastEvent();
+        constructor() {
+            super();
+        }
+        get RealChild(): FrameworkElement {
+            if (this._ClickCatcher)
+                return <FrameworkElement>(<Canvas>this.Child).Children.GetValueAt(1);
+            return <FrameworkElement>this.Child;
+        }
+        private _Hide(child: UIElement) {
+            if (!this._IsVisible || !child)
+                return;
+            this._IsVisible = false;
+            App.Instance.MainSurface.DetachLayer(child);
+        }
+        private _Show(child: UIElement) {
+            if (this._IsVisible || !child)
+                return;
+            this._IsVisible = true;
+            App.Instance.MainSurface.AttachLayer(child);
+        }
+        private _OnOpened() {
+            this._UpdateCatcher();
+            this.Opened.RaiseAsync(this, EventArgs.Empty);
+        }
+        private _OnClosed() {
+            this.Closed.RaiseAsync(this, EventArgs.Empty);
+        }
+        CatchClickedOutside() {
+            var child = this.Child;
+            if (!child)
+                return;
+            var root = new Canvas();
+            this._ClickCatcher = new Canvas();
+            this._ClickCatcher.Background = Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0));
+            this.Child = root;
+            root.Children.Add(this._ClickCatcher);
+            root.Children.Add(child);
+            this._ClickCatcher.LayoutUpdated.Subscribe(this._UpdateCatcher, this);
+            this._ClickCatcher.MouseLeftButtonDown.Subscribe(this._RaiseClickedOutside, this);
+        }
+        private _UpdateCatcher() {
+            if (!this._ClickCatcher)
+                return;
+            try {
+                var xform = this.Child.TransformToVisual(null);
+                if (xform instanceof Media.Transform) {
+                    this._ClickCatcher.Projection = null;
+                    this._ClickCatcher.RenderTransform = (<Media.Transform>xform).Inverse;
+                } else if (xform instanceof Media.InternalTransform) {
+                    var projection = (<Media.InternalTransform>xform).CreateMatrix3DProjection();
+                    this._ClickCatcher.RenderTransform = null;
+                    this._ClickCatcher.Projection = projection;
+                }
+            } catch (err) {
+                if (!(err instanceof ArgumentException))
+                    throw err;
+            }
+            var surfaceExtents = App.Instance.MainSurface.Extents;
+            this._ClickCatcher.Width = surfaceExtents.Width;
+            this._ClickCatcher.Height = surfaceExtents.Height;
+        }
+        private _RaiseClickedOutside(sender, e) {
+            this.ClickedOutside.Raise(this, EventArgs.Empty);
+        }
+        private _OnChildChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldFE: FrameworkElement;
+            if (args.OldValue instanceof FrameworkElement) oldFE = <FrameworkElement>args.OldValue;
+            var newFE: FrameworkElement;
+            if (args.NewValue instanceof FrameworkElement) newFE = <FrameworkElement>args.NewValue;
+            var error = new BError();
+            if (oldFE) {
+                if (this.IsOpen)
+                    this._Hide(oldFE);
+                this._Store.PropagateInheritedOnAdd(oldFE.XamlNode);
+            }
+            if (newFE) {
+                this._Store.ClearInheritedOnRemove(newFE.XamlNode);
+                if (this.IsOpen)
+                    this._Show(newFE);
+            }
+            if (error.Message)
+                error.ThrowException();
+        }
+        private _OnOffsetChanged(args: IDependencyPropertyChangedEventArgs) {
+            var child = this.Child;
+            if (child)
+                child.XamlNode.LayoutUpdater.InvalidateMeasure();
+        }
+        private _OnIsOpenChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (args.NewValue) {
+                this._Show(this.Child);
+                this._OnOpened();
+            } else {
+                this._Hide(this.Child);
+                this._OnClosed();
+            }
+        }
     }
     Nullstone.RegisterType(Popup, "Popup");
 }
@@ -18952,10 +20034,244 @@ module Fayde.Controls.Primitives {
 
 module Fayde.Controls.Primitives {
     export class Selector extends ItemsControl {
-        NotifyListItemClicked(lbi: ListBoxItem) {
+        static IsSynchronizedWithCurrentItemProperty = DependencyProperty.Register("IsSynchronizedWithCurrentItem", () => Boolean, Selector, null, (d, args) => (<Selector>d)._OnIsSynchronizedWithCurrentItemChanged(args));
+        static SelectedIndexProperty = DependencyProperty.Register("SelectedIndex", () => Number, Selector, -1, (d, args) => (<Selector>d)._OnSelectedIndexChanged(args));
+        static SelectedItemProperty = DependencyProperty.Register("SelectedItem", () => Object, Selector, undefined, (d, args) => (<Selector>d)._OnSelectedItemChanged(args));
+        static SelectedValueProperty = DependencyProperty.Register("SelectedValue", () => Object, Selector, undefined, (d, args) => (<Selector>d)._OnSelectedValueChanged(args));
+        static SelectedValuePathProperty = DependencyProperty.Register("SelectedValuePath", () => String, Selector, "", (d, args) => (<Selector>d)._OnSelectedValuePathChanged(args));
+        static IsSelectionActiveProperty = DependencyProperty.RegisterReadOnlyCore("IsSelectionActive", () => Boolean, Selector);
+        IsSynchronizedWithCurrentItem: bool;
+        SelectedIndex: number;
+        SelectedItem: any;
+        SelectedValue: any;
+        SelectedValuePath: string;
+        IsSelectionActive: bool;
+        SelectionChanged: MulticastEvent = new MulticastEvent();
+        _Selection: SelectorSelection;
+        private _SelectedItems: Collections.ObservableCollection = new Collections.ObservableCollection();
+        private _Initializing: bool = false;
+        _SelectedItemsIsInvalid: bool = false;
+        $TemplateScrollViewer: ScrollViewer = null;
+        private _SelectedValueWalker: Data.PropertyPathWalker = null;
+        private get SynchronizeWithCurrentItem(): bool {
+            if (!Nullstone.ImplementsInterface(this.ItemsSource, Data.ICollectionView_))
+                return false;
+            return this.IsSynchronizedWithCurrentItem !== false;
         }
-        NotifyListItemGotFocus (lbi: ListBoxItem) { }
-        NotifyListItemLostFocus (lbi: ListBoxItem) { }
+        constructor() {
+            super();
+            this.SelectionChanged = new MulticastEvent();
+            this._Selection = new SelectorSelection(this);
+        }
+        get SelectedItems(): Collections.ObservableCollection {
+            if (this._SelectedItemsIsInvalid)
+                this._Selection.RepopulateSelectedItems();
+            return this._SelectedItems;
+        }
+        private _OnIsSynchronizedWithCurrentItemChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (args.NewValue === true)
+                throw new ArgumentException("Setting IsSynchronizedWithCurrentItem to 'true' is not supported");
+            if (args.NewValue == null && Nullstone.ImplementsInterface(this.ItemsSource, Data.ICollectionView_))
+                this.SelectedItem = (<Data.ICollectionView>this.ItemsSource).CurrentItem;
+            else
+                this.SelectedItem = null;
+        }
+        private _OnSelectedIndexChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (this._Selection.IsUpdating || this._Initializing)
+                return;
+            var items = this.Items;
+            if (args.NewValue < 0 || args.NewValue >= items.Count)
+                this._Selection.ClearSelection();
+            else
+                this._Selection.Select(items.GetValueAt(args.NewValue));
+        }
+        private _OnSelectedItemChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (this._Selection.IsUpdating || this._Initializing)
+                return;
+            if (args.NewValue == null)
+                this._Selection.ClearSelection();
+            else if (this.Items.IndexOf(args.NewValue) != -1)
+                this._Selection.Select(args.NewValue);
+            else if (this.Items.IndexOf(args.OldValue) != -1)
+                this._Selection.Select(args.OldValue);
+            else
+                this._Selection.ClearSelection();
+        }
+        private _OnSelectedValueChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (this._Selection.IsUpdating || this._Initializing)
+                return;
+            this._SelectItemFromValue(args.NewValue, false);
+        }
+        private _OnSelectedValuePathChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._SelectedValueWalker = !args.NewValue ? null : new Data.PropertyPathWalker(args.NewValue);
+            if (this._Initializing)
+                return;
+            this._SelectItemFromValue(this.SelectedValue, true);
+        }
+        OnApplyTemplate() {
+            super.OnApplyTemplate();
+            var temp = this.GetTemplateChild("ScrollViewer");
+            var tsv: ScrollViewer = (temp instanceof ScrollViewer) ? <ScrollViewer>temp : null;
+            this.$TemplateScrollViewer = tsv;
+            if (tsv) {
+                tsv.$TemplatedParentHandlesScrolling = true;
+                tsv.HorizontalScrollBarVisibility = Controls.ScrollViewer.GetHorizontalScrollBarVisibility(this);
+                tsv.VerticalScrollBarVisibility = Controls.ScrollViewer.GetVerticalScrollBarVisibility(this);
+            }
+        }
+        OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
+            if (this._Initializing) {
+                super.OnItemsChanged(e);
+                return;
+            }
+            var item: any;
+            switch (e.Action) {
+                case Collections.NotifyCollectionChangedAction.Add:
+                    var lbi: ListBoxItem;
+                    if (e.NewItems[0] instanceof ListBoxItem) lbi = <ListBoxItem>e.NewItems[0];
+                    if (lbi != null && lbi.IsSelected && !this.SelectedItems.Contains(lbi)) {
+                        this._Selection.Select(lbi);
+                    } else if (this.SelectedItem != null) {
+                        this._Selection.Select(this.SelectedItem);
+                    }
+                    break;
+                case Collections.NotifyCollectionChangedAction.Reset:
+                    var o;
+                    var itemsSource = this.ItemsSource;
+                    if (Nullstone.ImplementsInterface(itemsSource, Data.ICollectionView_) && this.SynchronizeWithCurrentItem)
+                        o = (<Data.ICollectionView>itemsSource).CurrentItem;
+                    else
+                        o = this.SelectedItem;
+                    if (this.Items.Contains(o))
+                        this._Selection.Select(o);
+                    else
+                        this._Selection.ClearSelection();
+                    break;
+                case Collections.NotifyCollectionChangedAction.Remove:
+                    item = e.OldItems[0];
+                    if (this.SelectedItems.Contains(item))
+                        this._Selection.Unselect(item);
+                    else if (e.OldStartingIndex <= this.SelectedIndex)
+                        this._Selection.Select(this.SelectedItem);
+                    break;
+                case Collections.NotifyCollectionChangedAction.Replace:
+                    item = e.OldItems[0];
+                    this._Selection.Unselect(item);
+                    break;
+                default:
+                    throw new NotSupportedException("Collection changed action '" + e.Action + "' not supported");
+            }
+            super.OnItemsChanged(e);
+        }
+        OnItemsSourceChanged(args: IDependencyPropertyChangedEventArgs) {
+            super.OnItemsSourceChanged(args);
+            var view: Data.ICollectionView;
+            if (Nullstone.ImplementsInterface(args.OldValue, Data.ICollectionView_)) view = args.OldValue;
+            if (view)
+                view.CurrentChanged.Unsubscribe(this._OnCurrentItemChanged, this);
+            if (Nullstone.ImplementsInterface(args.NewValue, Data.ICollectionView_)) view = args.NewValue;
+            if (view) {
+                view.CurrentChanged.Subscribe(this._OnCurrentItemChanged, this);
+                if (this.SynchronizeWithCurrentItem)
+                    this._Selection.SelectOnly(view.CurrentItem);
+                else
+                    this._Selection.ClearSelection();
+            } else {
+                this._Selection.ClearSelection();
+            }
+        }
+        OnItemContainerStyleChanged(oldStyle, newStyle) { }
+        ClearContainerForItem(element: DependencyObject, item: any) {
+            super.ClearContainerForItem(element, item);
+            var lbi = <ListBoxItem>element;
+            lbi.ParentSelector = null;
+            if (lbi !== item)
+                lbi.Content = null;
+        }
+        PrepareContainerForItem(element: DependencyObject, item: any) {
+            super.PrepareContainerForItem(element, item);
+            var lbi = <ListBoxItem>element;
+            lbi.ParentSelector = this;
+            if (this.SelectedItems.Contains(item))
+                lbi.IsSelected = true;
+            if (lbi.IsSelected && !this.SelectedItems.Contains(item))
+                this._Selection.Select(item);
+        }
+        _GetValueFromItem(item: any) {
+            if (this._SelectedValueWalker == null)
+                return item;
+            if (item == null)
+                return item;
+            return this._SelectedValueWalker.GetValue(item);
+        }
+        private _SelectItemFromValue(selectedValue: any, ignoreSelectedValue?: bool) {
+            if (selectedValue == null) {
+                this._Selection.ClearSelection(ignoreSelectedValue);
+                return;
+            }
+            var items = this.Items;
+            var count = items.Count;
+            for (var i = 0; i < count; i++) {
+                var item = items.GetValueAt(i);
+                var val = this._GetValueFromItem(item);
+                if (Nullstone.Equals(selectedValue, val)) {
+                    if (!this.SelectedItems.Contains(item))
+                        this._Selection.Select(item, ignoreSelectedValue);
+                    return;
+                }
+            }
+            this._Selection.ClearSelection(ignoreSelectedValue);
+        }
+        private _OnCurrentItemChanged(sender, e: EventArgs) {
+            if (!this._Selection.IsUpdating && this.SynchronizeWithCurrentItem) {
+                var icv = <Data.ICollectionView>this.ItemsSource;
+                if (!Nullstone.Equals(icv.CurrentItem, this.SelectedItem))
+                    this._Selection.SelectOnly(icv.CurrentItem);
+            }
+        }
+        _RaiseSelectionChanged(oldVals: any[], newVals: any[]) {
+            if (!oldVals) oldVals = [];
+            if (!newVals) newVals = [];
+            var lbi: ListBoxItem;
+            var oldCount = oldVals.length;
+            var oldValue;
+            for (var i = 0; i < oldCount; i++) {
+                oldValue = oldVals[i];
+                if (oldValue == null)
+                    continue;
+                lbi = null;
+                if (oldValue instanceof ListBoxItem) lbi = <ListBoxItem>oldValue;
+                lbi = lbi || <ListBoxItem>this.ItemContainerGenerator.ContainerFromItem(oldValue);
+                if (lbi)
+                    lbi.IsSelected = false;
+            }
+            var newCount = newVals.length;
+            var newValue;
+            for (var i = 0; i < newCount; i++) {
+                newValue = newVals[i];
+                if (newValue == null)
+                    continue;
+                lbi = null;
+                if (newValue instanceof ListBoxItem) lbi = <ListBoxItem>newValue;
+                lbi = lbi || <ListBoxItem>this.ItemContainerGenerator.ContainerFromItem(newValue);
+                if (lbi) {
+                    lbi.IsSelected = true;
+                    lbi.Focus();
+                }
+            }
+            this.SelectionChanged.Raise(this, new SelectionChangedEventArgs(oldVals, newVals));
+        }
+        NotifyListItemClicked(lbi: ListBoxItem) {
+            this._Selection.Select(this.ItemContainerGenerator.ItemFromContainer(lbi));
+        }
+        NotifyListItemLoaded(lbi: ListBoxItem) {
+            if (this.ItemContainerGenerator.ItemFromContainer(lbi) === this.SelectedItem) {
+                lbi.IsSelected = true;
+                lbi.Focus();
+            }
+        }
+        NotifyListItemGotFocus(lbi: ListBoxItem) { }
+        NotifyListItemLostFocus(lbi: ListBoxItem) { }
     }
     Nullstone.RegisterType(Selector, "Selector");
 }
@@ -19967,7 +21283,318 @@ module Fayde.Controls {
 
 module Fayde.Controls {
     export class ComboBox extends Primitives.Selector {
+        DropDownOpened: MulticastEvent = new MulticastEvent();
+        DropDownClosed: MulticastEvent = new MulticastEvent();
+        static IsDropDownOpenProperty = DependencyProperty.Register("IsDropDownOpen", () => Boolean, ComboBox, false, (d, args) => (<ComboBox>d)._IsDropDownOpenChanged(args));
+        static ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", () => Style, ComboBox, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));
+        static MaxDropDownHeightProperty = DependencyProperty.Register("MaxDropDownHeight", () => Number, ComboBox, Number.POSITIVE_INFINITY, (d, args) => (<ComboBox>d)._MaxDropDownHeightChanged(args));
+        static IsSelectionActiveProperty = Primitives.Selector.IsSelectionActiveProperty;
         IsDropDownOpen: bool;
+        ItemContainerStyle: Style;
+        MaxDropDownHeight: number;
+        private $ContentPresenter: ContentPresenter;
+        private $Popup: Primitives.Popup;
+        private $DropDownToggle: Primitives.ToggleButton;
+        private $DisplayedItem: ComboBoxItem = null;
+        private $SelectionBoxItem: any = null;
+        private $SelectionBoxItemTemplate: DataTemplate = null;
+        private _NullSelFallback: any;
+        private _FocusedIndex: number = -1;
+        constructor() {
+            super();
+            this.DefaultStyleKey = (<any>this).constructor;
+            this.SelectionChanged.Subscribe(this._OnSelectionChanged, this);
+        }
+        private _IsDropDownOpenChanged(args: IDependencyPropertyChangedEventArgs) {
+            var open = args.NewValue;
+            if (this.$Popup != null)
+                this.$Popup.IsOpen = open;
+            if (this.$DropDownToggle != null)
+                this.$DropDownToggle.IsChecked = open;
+            if (open) {
+                this._FocusedIndex = this.Items.Count > 0 ? Math.max(this.SelectedIndex, 0) : -1;
+                if (this._FocusedIndex > -1) {
+                    var cbi = Nullstone.As(this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex), ComboBoxItem);
+                    if (cbi != null)
+                        cbi.Focus();
+                }
+                this.LayoutUpdated.Subscribe(this._UpdatePopupSizeAndPosition, this);
+                this.DropDownOpened.Raise(this, new EventArgs());
+            } else {
+                this.Focus();
+                this.LayoutUpdated.Unsubscribe(this._UpdatePopupSizeAndPosition, this);
+                this.DropDownClosed.Raise(this, new EventArgs());
+            }
+            var selectedItem = this.SelectedItem;
+            this._UpdateDisplayedItem(open && selectedItem instanceof Fayde.UIElement ? null : selectedItem);
+            this.UpdateVisualState(true);
+        }
+        private _MaxDropDownHeightChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._UpdatePopupMaxHeight(args.NewValue);
+        }
+        private _GetChildOfType(name: string, type: Function): any {
+            var temp = this.GetTemplateChild(name);
+            if (temp instanceof type)
+                return temp;
+        }
+        OnApplyTemplate() {
+            super.OnApplyTemplate();
+            this.UpdateVisualState(false);
+            this.$ContentPresenter = this._GetChildOfType("ContentPresenter", ContentPresenter);
+            this.$Popup = this._GetChildOfType("Popup", Primitives.Popup);
+            this.$DropDownToggle = this._GetChildOfType("DropDownToggle", Primitives.ToggleButton);
+            if (this.$ContentPresenter != null)
+                this._NullSelFallback = this.$ContentPresenter.Content;
+            if (this.$Popup != null) {
+                this._UpdatePopupMaxHeight(this.MaxDropDownHeight);
+                this.$Popup.CatchClickedOutside();
+                this.$Popup.ClickedOutside.Subscribe(this._PopupClickedOutside, this);
+                var child = this.$Popup.Child;
+                if (child != null) {
+                    child.KeyDown.Subscribe(this._OnChildKeyDown, this);
+                    this.$Popup.RealChild.SizeChanged.Subscribe(this._UpdatePopupSizeAndPosition, this);
+                }
+            }
+            if (this.$DropDownToggle != null) {
+                this.$DropDownToggle.Checked.Subscribe(this._OnToggleChecked, this);
+                this.$DropDownToggle.Unchecked.Subscribe(this._OnToggleUnchecked, this);
+            }
+            this.UpdateVisualState(false);
+            this._UpdateDisplayedItem(this.SelectedItem);
+        }
+        OnItemContainerStyleChanged(args: IDependencyPropertyChangedEventArgs) {
+            var newStyle = <Style>args.NewValue;
+            var items = this.Items;
+            var count = items.Count;
+            var icg = this.ItemContainerGenerator;
+            for (var i = 0; i < count; i++) {
+                var item = items.GetValueAt(i);
+                var container = <FrameworkElement>icg.ContainerFromIndex(i);
+                if (container && item !== container)
+                    container.Style = newStyle;
+            }
+        }
+        IsItemItsOwnContainer(item: any): bool {
+            return item instanceof ComboBoxItem;
+        }
+        GetContainerForItem(): DependencyObject {
+            return new ComboBoxItem();
+        }
+        PrepareContainerForItem(container: DependencyObject, item: any) {
+            super.PrepareContainerForItem(container, item);
+            var cbi = <ComboBoxItem>container;
+            if (cbi !== item) {
+                var ics = this.ItemContainerStyle;
+                if (!cbi.Style && ics)
+                    cbi.Style = ics;
+            }
+        }
+        GetVisualStateFocus(): string {
+            var isEnabled = this.IsEnabled;
+            if (this.IsDropDownOpen && isEnabled)
+                return "FocusedDropDown";
+            else if (this.IsFocused && isEnabled)
+                return "Focused";
+            else
+                return "Unfocused";
+        }
+        OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs) {
+            super.OnIsEnabledChanged(e);
+            if (!this.IsEnabled)
+                this.IsDropDownOpen = false;
+        }
+        OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
+            super.OnMouseLeftButtonDown(e);
+            if (!e.Handled) {
+                e.Handled = true;
+                this.SetValueInternal(ComboBox.IsSelectionActiveProperty, true);
+                this.IsDropDownOpen = !this.IsDropDownOpen;
+            }
+        }
+        OnMouseEnter(e: Input.MouseEventArgs) {
+            super.OnMouseEnter(e);
+            this.UpdateVisualState(true);
+        }
+        OnMouseLeave(e: Input.MouseEventArgs) {
+            super.OnMouseLeave(e);
+            this.UpdateVisualState(true);
+        }
+        OnKeyDown(e: Input.KeyEventArgs) {
+            super.OnKeyDown(e);
+            if (e.Handled)
+                return;
+            e.Handled = true;
+            var key = e.Key;
+            if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
+                if (key === Input.Key.Left)
+                    key = Input.Key.Right;
+                else if (key === Input.Key.Right)
+                    key = Input.Key.Left;
+            }
+            switch (key) {
+                case Input.Key.Escape:
+                    this.IsDropDownOpen = false;
+                    break;
+                case Input.Key.Enter:
+                case Input.Key.Space:
+                    if (this.IsDropDownOpen && this._FocusedIndex !== this.SelectedIndex) {
+                        this.SelectedIndex = this._FocusedIndex;
+                        this.IsDropDownOpen = false;
+                    } else {
+                        this.IsDropDownOpen = true;
+                    }
+                    break;
+                case Input.Key.Right:
+                case Input.Key.Down:
+                    if (this.IsDropDownOpen) {
+                        if (this._FocusedIndex < (this.Items.Count - 1)) {
+                            this._FocusedIndex++;
+                            (<UIElement>this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex)).Focus();
+                        }
+                    } else {
+                        this.SelectedIndex = Math.min(this.SelectedIndex + 1, this.Items.Count - 1);
+                    }
+                    break;
+                case Input.Key.Left:
+                case Input.Key.Up:
+                    if (this.IsDropDownOpen) {
+                        if (this._FocusedIndex > 0) {
+                            this._FocusedIndex--;
+                            (<UIElement>this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex)).Focus();
+                        }
+                    } else {
+                        this.SelectedIndex = Math.max(this.SelectedIndex - 1, 0);
+                    }
+                    break;
+                default:
+                    e.Handled = false;
+                    break;
+            }
+        }
+        OnGotFocus(e: RoutedEventArgs) {
+            super.OnGotFocus(e);
+            this.UpdateVisualState(true);
+        }
+        OnLostFocus(e: RoutedEventArgs) {
+            super.OnLostFocus(e);
+            this.SetValueInternal(ComboBox.IsSelectionActiveProperty, this.$Popup == null ? false : this.$Popup.IsOpen);
+            this.UpdateVisualState(true);
+        }
+        private _OnChildKeyDown(sender, e: Input.KeyEventArgs) {
+            this.OnKeyDown(e);
+        }
+        private _OnSelectionChanged(sender, e: Primitives.SelectionChangedEventArgs) {
+            if (!this.IsDropDownOpen)
+                this._UpdateDisplayedItem(this.SelectedItem);
+        }
+        private _OnToggleChecked(sender, e) { this.IsDropDownOpen = true; }
+        private _OnToggleUnchecked(sender, e) { this.IsDropDownOpen = false; }
+        private _PopupClickedOutside() {
+            this.IsDropDownOpen = false;
+        }
+        private _UpdateDisplayedItem(selectedItem: any) {
+            if (!this.$ContentPresenter)
+                return;
+            if (this.$DisplayedItem != null) {
+                this.$DisplayedItem.Content = this.$ContentPresenter.Content;
+                this.$DisplayedItem = null;
+            }
+            this.$ContentPresenter.Content = null;
+            if (selectedItem == null) {
+                this.$ContentPresenter.Content = this._NullSelFallback;
+                this.$ContentPresenter.ContentTemplate = null;
+                this.$SelectionBoxItem = null;
+                this.$SelectionBoxItemTemplate = null;
+                return;
+            }
+            var content = selectedItem;
+            if (content instanceof ComboBoxItem)
+                content = content.Content;
+            var icg = this.ItemContainerGenerator;
+            var selectedIndex = this.SelectedIndex;
+            var temp = icg.ContainerFromIndex(selectedIndex);
+            if (temp instanceof ComboBoxItem) this.$DisplayedItem = <ComboBoxItem>temp;
+            this.$SelectionBoxItem = content;
+            this.$SelectionBoxItemTemplate = this.ItemTemplate;
+            if (this.$DisplayedItem != null) {
+                this.$SelectionBoxItemTemplate = this.$DisplayedItem.ContentTemplate;
+                if (content instanceof Fayde.UIElement)
+                    this.$DisplayedItem.Content = null
+                else
+                    this.$DisplayedItem = null;
+            } else {
+                temp = icg.ContainerFromIndex(selectedIndex);
+                var container: ComboBoxItem;
+                if (temp instanceof ComboBoxItem) container = <ComboBoxItem>temp;
+                if (container == null) {
+                    var position = icg.GeneratorPositionFromIndex(selectedIndex);
+                    var state = icg.StartAt(position.index, position.offset, 0, true);
+                    try {
+                        temp = icg.GenerateNext({ Value: null });
+                        if (temp instanceof ComboBoxItem) container = <ComboBoxItem>temp;
+                    } finally {
+                        icg.StopGeneration();
+                    }
+                    icg.PrepareItemContainer(container);
+                }
+                this.$SelectionBoxItemTemplate = container.ContentTemplate;
+            }
+            this.$ContentPresenter.Content = this.$SelectionBoxItem;
+            this.$ContentPresenter.ContentTemplate = this.$SelectionBoxItemTemplate;
+        }
+        private _UpdatePopupSizeAndPosition(sender, e: EventArgs) {
+            if (!this.$Popup)
+                return;
+            var child = <FrameworkElement>this.$Popup.RealChild;
+            if (!(child instanceof FrameworkElement))
+                return;
+            child.MinWidth = this.ActualWidth;
+            var root = <FrameworkElement>VisualTreeHelper.GetRoot(this);
+            if (!root)
+                return;
+            try {
+                var xform = this.TransformToVisual(null);
+            } catch (err) {
+                return;
+            }
+            var offset = new Point(0, this.ActualHeight);
+            var bottomRight = new Point(offset.X + child.ActualWidth, offset.Y + child.ActualHeight);
+            var topLeft = xform.Transform(offset);
+            bottomRight = xform.Transform(bottomRight);
+            var isRightToLeft = (this.FlowDirection === FlowDirection.RightToLeft);
+            if (isRightToLeft) {
+                var left = bottomRight.X;
+                bottomRight.X = topLeft.X;
+                topLeft.X = left;
+            }
+            var finalOffset = new Point();
+            var raw = root.ActualWidth;
+            if (bottomRight.X > raw) {
+                finalOffset.X = raw - bottomRight.X;
+            } else if (topLeft.X < 0) {
+                finalOffset.X = offset.X - topLeft.X;
+            } else {
+                finalOffset.X = offset.X;
+            }
+            if (isRightToLeft)
+                finalOffset.X = -finalOffset.X;
+            var rah = root.ActualHeight;
+            if (bottomRight.Y > rah) {
+                finalOffset.Y = -child.ActualHeight;
+            } else {
+                finalOffset.Y = this.RenderSize.Height;
+            }
+            this.$Popup.HorizontalOffset = finalOffset.X;
+            this.$Popup.VerticalOffset = finalOffset.Y;
+            this._UpdatePopupMaxHeight(this.MaxDropDownHeight);
+        }
+        private _UpdatePopupMaxHeight(height) {
+            if (this.$Popup && this.$Popup.Child instanceof FrameworkElement) {
+                if (height === Number.POSITIVE_INFINITY)
+                    height = App.Instance.MainSurface.Extents.Height / 2.0;
+                this.$Popup.RealChild.MaxHeight = height;
+            }
+        }
     }
     Nullstone.RegisterType(ComboBox, "ComboBox");
 }
@@ -19990,8 +21617,6 @@ module Fayde.Controls {
             }
         }
         OnContentChanged(newContent: any) {
-            if (this._FallbackRoot)
-                this._FallbackRoot.XamlNode.DataContext = newContent;
         }
         private _FallbackRoot: UIElement;
         get FallbackRoot(): UIElement {
@@ -20004,9 +21629,9 @@ module Fayde.Controls {
             }
             return fr;
         }
-        private static _FallbackTemplate: ControlTemplate;
-        private static _CreateFallbackTemplate(): ControlTemplate {
-            return new ControlTemplate(ContentControl, {
+        private static _FallbackTemplate: DataTemplate;
+        private static _CreateFallbackTemplate(): DataTemplate {
+            return new DataTemplate({
                 ParseType: Grid,
                 Children: [
                     {
@@ -20023,12 +21648,12 @@ module Fayde.Controls {
         CreateNode(): ContentControlNode { return new ContentControlNode(this); }
         _ContentSetsParent: bool = true;
         static ContentProperty: DependencyProperty = DependencyProperty.RegisterCore("Content", () => Object, ContentControl, undefined, (d, args) => (<ContentControl>d)._ContentChanged(args));
-        static ContentTemplateProperty = DependencyProperty.RegisterCore("ContentTemplate", () => ControlTemplate, ContentControl, undefined, (d, args) => (<ContentControl>d)._ContentTemplateChanged(args));
+        static ContentTemplateProperty = DependencyProperty.RegisterCore("ContentTemplate", () => DataTemplate, ContentControl, undefined, (d, args) => (<ContentControl>d)._ContentTemplateChanged(args));
         Content: any;
-        ContentTemplate: ControlTemplate;
+        ContentTemplate: DataTemplate;
         static Annotations = { ContentProperty: ContentControl.ContentProperty }
         OnContentChanged(oldContent: any, newContent: any) { }
-        OnContentTemplateChanged(oldContentTemplate: ControlTemplate, newContentTemplate: ControlTemplate) { }
+        OnContentTemplateChanged(oldContentTemplate: DataTemplate, newContentTemplate: DataTemplate) { }
         _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
             if (args.OldValue instanceof UIElement)
                 this.XamlNode.DetachVisualChild(<UIElement>args.OldValue, null);
@@ -20741,6 +22366,285 @@ module Fayde.Controls {
 
 module Fayde.Controls {
     export class ListBox extends Primitives.Selector {
+        private _FocusedIndex: number = 0;
+        static ItemContainerStyleProperty: DependencyProperty = DependencyProperty.RegisterCore("ItemContainerStyle", () => Style, ListBox, undefined, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));
+        static SelectionModeProperty: DependencyProperty = DependencyProperty.RegisterCore("SelectionMode", () => new Enum(SelectionMode), ListBox, undefined, (d, args) => (<ListBox>d)._Selection.Mode = args.NewValue);
+        static IsSelectionActiveProperty: DependencyProperty = Primitives.Selector.IsSelectionActiveProperty;
+        ItemContainerStyle: Style;
+        SelectAll() {
+            this._Selection.SelectAll(this.Items.ToArray());
+        }
+        ScrollIntoView(item: any) {
+            var tsv = this.$TemplateScrollViewer;
+            if (!tsv)
+                return;
+            var items = this.Items;
+            if (!items.Contains(item))
+                return;
+            var ihro = { Value: null };
+            var lbiro = { Value: null };
+            var virtualizing = VirtualizingStackPanel.GetIsVirtualizing(this);
+            if (this._IsOnCurrentPage(item, ihro, lbiro))
+                return;
+            var ihr = ihro.Value;
+            var lbir = lbiro.Value;
+            if (this._GetIsVerticalOrientation()) {
+                if (virtualizing) {
+                    tsv.ScrollToVerticalOffset(this.SelectedIndex);
+                    return;
+                }
+                var verticalOffset = tsv.VerticalOffset;
+                var verticalDelta = 0;
+                if (ihr.GetBottom() < lbir.GetBottom()) {
+                    verticalDelta = lbir.GetBottom() - ihr.GetBottom();
+                    verticalOffset += verticalDelta;
+                }
+                if ((lbir.Y - verticalDelta) < ihr.Y) {
+                    verticalOffset -= ihr.Y - (lbir.Y - verticalDelta);
+                }
+                tsv.ScrollToVerticalOffset(verticalOffset);
+            } else {
+                if (virtualizing) {
+                    tsv.ScrollToHorizontalOffset(this.SelectedIndex);
+                    return;
+                }
+                var horizontalOffset = tsv.HorizontalOffset;
+                var horizontalDelta = 0;
+                if (ihr.GetRight() < lbir.GetRight()) {
+                    horizontalDelta = lbir.GetRight() - ihr.GetRight();
+                    horizontalOffset += horizontalDelta;
+                }
+                if ((ihr.X - horizontalDelta) < ihr.X) {
+                    horizontalOffset -= ihr.X - (lbir.X - horizontalDelta);
+                }
+                tsv.ScrollToHorizontalOffset(horizontalOffset);
+            }
+        }
+        private _NavigateByPage(forward: bool) {
+            var tsv = this.$TemplateScrollViewer;
+            var newFocusedIndex = -1;
+            var item = (this._FocusedIndex !== -1) ? this.Items.GetValueAt(this._FocusedIndex) : null;
+            if (item != null && !this._IsOnCurrentPage(item)) {
+                this.ScrollIntoView(item);
+                if (tsv != null)
+                    tsv.UpdateLayout();
+            }
+            if (item == null) {
+                newFocusedIndex = this._GetFirstItemOnCurrentPage(this._FocusedIndex, forward);
+            } else {
+                var firstItemOnCurrentPage = this._GetFirstItemOnCurrentPage(this._FocusedIndex, forward);
+                if (firstItemOnCurrentPage !== this._FocusedIndex) {
+                    newFocusedIndex = firstItemOnCurrentPage;
+                } else {
+                    if (tsv != null) {
+                        if (this._GetIsVerticalOrientation()) {
+                            tsv.ScrollToVerticalOffset(Math.max(0, Math.min(tsv.ScrollableHeight,
+                                tsv.VerticalOffset + (tsv.ViewportHeight * (forward ? 1 : -1)))));
+                        } else {
+                            tsv.ScrollToHorizontalOffset(Math.max(0, Math.min(tsv.ScrollableWidth,
+                                tsv.HorizontalOffset + (tsv.ViewportWidth * (forward ? 1 : -1)))));
+                        }
+                        tsv.UpdateLayout();
+                    }
+                    newFocusedIndex = this._GetFirstItemOnCurrentPage(this._FocusedIndex, forward);
+                }
+            }
+            return newFocusedIndex;
+        }
+        private _ScrollInDirection(key: Input.Key) {
+            if (this.$TemplateScrollViewer)
+                this.$TemplateScrollViewer.ScrollInDirection(key);
+        }
+        private _IsOnCurrentPage(item: any, itemsHostRectOut?: IOutValue, listBoxItemsRectOut?: IOutValue) {
+            if (!itemsHostRectOut) itemsHostRectOut = { Value: null };
+            if (!listBoxItemsRectOut) listBoxItemsRectOut = { Value: null };
+            var itemsHost: UIElement = <UIElement>VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(this, 0), 0);
+            var tsv = this.$TemplateScrollViewer;
+            if (tsv != null) {
+                itemsHost = tsv;
+                if (tsv.$ScrollContentPresenter != null)
+                    itemsHost = tsv.$ScrollContentPresenter;
+            }
+            if (!(itemsHost instanceof FrameworkElement))
+                itemsHost = null;
+            var ihro = itemsHostRectOut.Value = new rect();
+            var lbiro = listBoxItemsRectOut.Value = new rect();
+            if (!itemsHost)
+                return false;
+            ihro.Width = itemsHost.RenderSize.Width;
+            ihro.Height = itemsHost.RenderSize.Height;
+            var lbi = <ListBoxItem>this.ItemContainerGenerator.ContainerFromItem(item);
+            if (!lbi)
+                return false;
+            lbiro.Width = lbi.RenderSize.Width;
+            lbiro.Height = lbi.RenderSize.Height;
+            if (itemsHost instanceof Control) {
+                var padding = (<Control>itemsHost).Padding;
+                if (padding) {
+                    ihro.X = ihro.X + padding.Left;
+                    ihro.Y = ihro.Y + padding.Top;
+                    ihro.Width = ihro.Width - padding.Left - padding.Right;
+                    ihro.Height = ihro.Height - padding.Top - padding.Bottom;
+                }
+            }
+            var genXform = lbi.TransformToVisual(itemsHost);
+            if (genXform != null) {
+                var ptl = genXform.Transform(new Point());
+                var pbr = genXform.Transform(new Point(lbi.RenderSize.Width, lbi.RenderSize.Height));
+                lbiro.X = Math.min(ptl.X, pbr.X);
+                lbiro.Y = Math.min(ptl.Y, pbr.Y);
+                lbiro.Width = Math.abs(ptl.X - pbr.X);
+                lbiro.Height = Math.abs(ptl.Y - pbr.Y);
+            }
+            return this._GetIsVerticalOrientation()
+                ? ihro.X <= lbiro.Y && rect.getBottom(ihro) >= rect.getBottom(lbiro)
+                : ihro.X <= lbiro.X && rect.getRight(ihro) >= rect.getRight(lbiro);
+        }
+        private _GetFirstItemOnCurrentPage(startingIndex: number, forward: bool): number {
+            var delta = forward ? 1 : -1;
+            var fiocp = -1;
+            var probeIndex = startingIndex;
+            var items = this.Items;
+            var itemsCount = items.Count;
+            while (probeIndex >= 0 && probeIndex < itemsCount && !this._IsOnCurrentPage(items.GetValueAt(probeIndex))) {
+                fiocp = probeIndex;
+                probeIndex += delta;
+            }
+            while (probeIndex >= 0 && probeIndex < itemsCount && this._IsOnCurrentPage(items.GetValueAt(probeIndex))) {
+                fiocp = probeIndex;
+                probeIndex += delta;
+            }
+            return fiocp;
+        }
+        OnItemContainerStyleChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldStyle = <Style>args.OldValue;
+            var newStyle = <Style>args.NewValue;
+            var count = this.Items.Count;
+            for (var i = 0; i < count; i++) {
+                var lbi = <ListBoxItem>this.ItemContainerGenerator.ContainerFromIndex(i);
+                if (lbi != null && lbi.Style === oldStyle)
+                    lbi.Style = newStyle;
+            }
+        }
+        OnKeyDown(args: Input.KeyEventArgs) {
+            if (args.Handled)
+                return;
+            var handled = false;
+            var newFocusedIndex = -1;
+            switch (args.Key) {
+                case Input.Key.Space:
+                case Input.Key.Enter:
+                    if (Input.Key.Enter !== args.Key || Input.KeyboardNavigation.GetAcceptsReturn(this)) {
+                        if (!Input.Keyboard.HasAlt()) {
+                            var focusedEl = this.XamlNode.GetFocusedElement();
+                            var lbi: ListBoxItem;
+                            if (focusedEl instanceof ListBoxItem) lbi = <ListBoxItem>focusedEl;
+                            if (lbi) {
+                                if (Input.Keyboard.HasControl() && lbi.IsSelected) {
+                                    this.SelectedItem = null;
+                                } else {
+                                    this.SelectedItem = this.ItemContainerGenerator.ItemFromContainer(lbi);
+                                }
+                                handled = true;
+                            }
+                        }
+                    }
+                    break;
+                case Input.Key.Home:
+                    newFocusedIndex = 0;
+                    break;
+                case Input.Key.End:
+                    newFocusedIndex = this.Items.Count - 1;
+                    break;
+                case Input.Key.PageUp:
+                    newFocusedIndex = this._NavigateByPage(false);
+                    break;
+                case Input.Key.PageDown:
+                    newFocusedIndex = this._NavigateByPage(true);
+                    break;
+                case Input.Key.Left:
+                    if (this._GetIsVerticalOrientation()) {
+                        this._ScrollInDirection(Input.Key.Left);
+                    } else {
+                        newFocusedIndex = this._FocusedIndex - 1;
+                    }
+                    break;
+                case Input.Key.Up:
+                    if (this._GetIsVerticalOrientation()) {
+                        newFocusedIndex = this._FocusedIndex - 1;
+                    } else {
+                        this._ScrollInDirection(Input.Key.Up);
+                    }
+                    break;
+                case Input.Key.Right:
+                    if (this._GetIsVerticalOrientation()) {
+                        this._ScrollInDirection(Input.Key.Right);
+                    } else {
+                        newFocusedIndex = this._FocusedIndex + 1;
+                    }
+                    break;
+                case Input.Key.Down:
+                    if (this._GetIsVerticalOrientation()) {
+                        newFocusedIndex = this._FocusedIndex + 1;
+                    } else {
+                        this._ScrollInDirection(Input.Key.Down);
+                    }
+                    break;
+            }
+            if (newFocusedIndex !== -1 && this._FocusedIndex !== -1 && newFocusedIndex !== this._FocusedIndex && newFocusedIndex >= 0 && newFocusedIndex < this.Items.Count) {
+                var icg = this.ItemContainerGenerator;
+                var lbi = <ListBoxItem>icg.ContainerFromIndex(newFocusedIndex);
+                var item = icg.ItemFromContainer(lbi);
+                this.ScrollIntoView(item);
+                if (Fayde.Input.Keyboard.HasControl()) {
+                    lbi.Focus();
+                } else {
+                    this.SelectedItem = item;
+                }
+                handled = true;
+            }
+            if (handled)
+                args.Handled = true;
+        }
+        private _GetIsVerticalOrientation(): bool {
+            var p = this.Panel;
+            if (p instanceof StackPanel)
+                return (<StackPanel>p).Orientation === Orientation.Vertical;
+            if (p instanceof VirtualizingStackPanel)
+                return (<VirtualizingStackPanel>p).Orientation === Orientation.Vertical;
+            return true;
+        }
+        IsItemItsOwnContainer(item: any): bool {
+            return item instanceof ListBoxItem;
+        }
+        GetContainerForItem(): DependencyObject {
+            var item = new ListBoxItem();
+            var ics = this.ItemContainerStyle;
+            if (ics != null)
+                item.Style = ics;
+            return item;
+        }
+        PrepareContainerForItem(element: DependencyObject, item: any) {
+            super.PrepareContainerForItem(element, item);
+            var ics = this.ItemContainerStyle;
+            var lbi = <ListBoxItem>element;
+            if (!lbi.Style && ics)
+                lbi.Style = ics;
+        }
+        OnGotFocus(e: RoutedEventArgs) {
+            super.OnGotFocus(e);
+            this.SetValueInternal(ListBox.IsSelectionActiveProperty, true);
+        }
+        OnLostFocus(e: RoutedEventArgs) {
+            super.OnLostFocus(e);
+            this.SetValueInternal(ListBox.IsSelectionActiveProperty, false);
+        }
+        NotifyListItemGotFocus(lbi: ListBoxItem) {
+            this._FocusedIndex = this.ItemContainerGenerator.IndexFromContainer(lbi);
+        }
+        NotifyListItemLostFocus(lbi: ListBoxItem) {
+            this._FocusedIndex = -1;
+        }
     }
     Nullstone.RegisterType(ListBox, "ListBox");
 }
@@ -20925,7 +22829,15 @@ module Fayde.Controls {
             }
         }
         static HorizontalScrollBarVisibilityProperty: DependencyProperty = DependencyProperty.RegisterAttachedCore("HorizontalScrollBarVisibility", () => new Enum(ScrollBarVisibility), ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer._ScrollBarVisibilityChanged);
+        static GetHorizontalScrollBarVisibility(d: DependencyObject): ScrollBarVisibility { return d.GetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty); }
+        static SetHorizontalScrollBarVisibility(d: DependencyObject, value: ScrollBarVisibility) { d.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, value); }
+        get HorizontalScrollBarVisibility(): ScrollBarVisibility { return this.GetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty); }
+        set HorizontalScrollBarVisibility(value: ScrollBarVisibility) { this.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, value); }
         static VerticalScrollBarVisibilityProperty: DependencyProperty = DependencyProperty.RegisterAttachedCore("VerticalScrollBarVisibility", () => new Enum(ScrollBarVisibility), ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer._ScrollBarVisibilityChanged);
+        static GetVerticalScrollBarVisibility(d: DependencyObject): ScrollBarVisibility { return d.GetValue(ScrollViewer.VerticalScrollBarVisibilityProperty); }
+        static SetVerticalScrollBarVisibility(d: DependencyObject, value: ScrollBarVisibility) { d.SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, value); }
+        get VerticalScrollBarVisibility(): ScrollBarVisibility { return this.GetValue(ScrollViewer.VerticalScrollBarVisibilityProperty); }
+        set VerticalScrollBarVisibility(value: ScrollBarVisibility) { this.SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, value); }
         static ComputedHorizontalScrollBarVisibilityProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ComputedHorizontalScrollBarVisibility", () => new Enum(Visibility), ScrollViewer);
         static ComputedVerticalScrollBarVisibilityProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ComputedVerticalScrollBarVisibility", () => new Enum(Visibility), ScrollViewer);
         static HorizontalOffsetProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("HorizontalOffset", () => Number, ScrollViewer);
@@ -20936,10 +22848,8 @@ module Fayde.Controls {
         static ViewportHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ViewportHeight", () => Number, ScrollViewer);
         static ExtentWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ExtentWidth", () => Number, ScrollViewer);
         static ExtentHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ExtentHeight", () => Number, ScrollViewer);
-        HorizontalScrollBarVisibility: ScrollBarVisibility;
-        VerticalScrollBarVisibility: ScrollBarVisibility;
-        ComputedHorizontalScrollBarVisibility: ScrollBarVisibility;
-        ComputedVerticalScrollBarVisibility: ScrollBarVisibility;
+        ComputedHorizontalScrollBarVisibility: Visibility;
+        ComputedVerticalScrollBarVisibility: Visibility;
         HorizontalOffset: number;
         VerticalOffset: number;
         ScrollableWidth: number;
@@ -20948,6 +22858,10 @@ module Fayde.Controls {
         ViewportHeight: number;
         ExtentWidth: number;
         ExtentHeight: number;
+        $TemplatedParentHandlesScrolling: bool = false;
+        $ScrollContentPresenter: ScrollContentPresenter;
+        private $HorizontalScrollBar: Primitives.ScrollBar;
+        private $VerticalScrollBar: Primitives.ScrollBar;
         constructor() {
             super();
             this.DefaultStyleKey = (<any>this).constructor;
@@ -20962,11 +22876,294 @@ module Fayde.Controls {
             }
         }
         InvalidateScrollInfo() {
+            var scrollInfo = this.ScrollInfo;
+            if (scrollInfo) {
+                this.SetValueInternal(ScrollViewer.ExtentWidthProperty, scrollInfo.ExtentWidth);
+                this.SetValueInternal(ScrollViewer.ExtentHeightProperty, scrollInfo.ExtentHeight);
+                this.SetValueInternal(ScrollViewer.ViewportWidthProperty, scrollInfo.ViewportWidth);
+                this.SetValueInternal(ScrollViewer.ViewportHeightProperty, scrollInfo.ViewportHeight);
+                this._UpdateScrollBar(Orientation.Horizontal, scrollInfo.HorizontalOffset);
+                this._UpdateScrollBar(Orientation.Vertical, scrollInfo.VerticalOffset);
+                this._UpdateScrollBarVisibility();
+            }
+            var lu = this.XamlNode.LayoutUpdater;
+            var w = Math.max(0, this.ExtentWidth - this.ViewportWidth);
+            if (w !== this.ScrollableWidth) {
+                this.SetValueInternal(ScrollViewer.ScrollableWidthProperty, w);
+                lu.InvalidateMeasure();
+            }
+            var h = Math.max(0, this.ExtentHeight - this.ViewportHeight);
+            if (h !== this.ScrollableHeight) {
+                this.SetValueInternal(ScrollViewer.ScrollableHeightProperty, h);
+                lu.InvalidateMeasure();
+            }
         }
         private _UpdateScrollBarVisibility() {
+            var lu = this.XamlNode.LayoutUpdater;
+            var scrollInfo = this.ScrollInfo;
+            var horizontalVisibility = Visibility.Visible;
+            var hsbv = this.HorizontalScrollBarVisibility;
+            switch (hsbv) {
+                case ScrollBarVisibility.Visible:
+                    break;
+                case ScrollBarVisibility.Disabled:
+                case ScrollBarVisibility.Hidden:
+                    horizontalVisibility = Visibility.Collapsed;
+                    break;
+                case ScrollBarVisibility.Auto:
+                default:
+                    horizontalVisibility = (!scrollInfo || scrollInfo.ExtentWidth <= scrollInfo.ViewportWidth) ? Visibility.Collapsed : Visibility.Visible;
+                    break;
+            }
+            if (horizontalVisibility !== this.ComputedHorizontalScrollBarVisibility) {
+                this.SetValueInternal(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, horizontalVisibility);
+                lu.InvalidateMeasure();
+            }
+            var verticalVisibility = Fayde.Visibility.Visible;
+            var vsbv = this.VerticalScrollBarVisibility;
+            switch (vsbv) {
+                case ScrollBarVisibility.Visible:
+                    break;
+                case ScrollBarVisibility.Disabled:
+                case ScrollBarVisibility.Hidden:
+                    verticalVisibility = Fayde.Visibility.Collapsed;
+                    break;
+                case ScrollBarVisibility.Auto:
+                default:
+                    verticalVisibility = (!scrollInfo || scrollInfo.ExtentHeight <= scrollInfo.ViewportHeight) ? Fayde.Visibility.Collapsed : Fayde.Visibility.Visible;
+                    break;
+            }
+            if (verticalVisibility !== this.ComputedVerticalScrollBarVisibility) {
+                this.SetValueInternal(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty, verticalVisibility);
+                lu.InvalidateMeasure();
+            }
+        }
+        private _UpdateScrollBar(orientation: Orientation, value: number) {
+            try {
+                var scrollInfo = this.ScrollInfo;
+                if (orientation === Orientation.Horizontal) {
+                    this.SetValueInternal(ScrollViewer.HorizontalOffsetProperty, value);
+                    if (this.$HorizontalScrollBar) {
+                        this.$HorizontalScrollBar.Value = value;
+                    }
+                } else {
+                    this.SetValueInternal(ScrollViewer.VerticalOffsetProperty, value);
+                    if (this.$VerticalScrollBar) {
+                        this.$VerticalScrollBar.Value = value;
+                    }
+                }
+            } finally {
+            }
+        }
+        private _GetChildOfType(name: string, type: Function): any {
+            var temp = this.GetTemplateChild(name);
+            if (temp instanceof type)
+                return temp;
+        }
+        OnApplyTemplate() {
+            super.OnApplyTemplate();
+            this.$ScrollContentPresenter = this._GetChildOfType("ScrollContentPresenter", ScrollContentPresenter);
+            this.$HorizontalScrollBar = this._GetChildOfType("HorizontalScrollBar", Primitives.ScrollBar);
+            if (this.$HorizontalScrollBar) {
+                this.$HorizontalScrollBar.Scroll.Subscribe((sender, e: Primitives.ScrollEventArgs) => this._HandleScroll(Orientation.Horizontal, e), this);
+            }
+            this.$VerticalScrollBar = this._GetChildOfType("VerticalScrollBar", Primitives.ScrollBar);
+            if (this.$VerticalScrollBar) {
+                this.$VerticalScrollBar.Scroll.Subscribe((sender, e: Primitives.ScrollEventArgs) => this._HandleScroll(Orientation.Vertical, e), this);
+            }
+            this._UpdateScrollBarVisibility();
+        }
+        OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
+            if (!e.Handled && this.Focus())
+                e.Handled = true;
+            super.OnMouseLeftButtonDown(e);
+        }
+        OnMouseWheel(e: Input.MouseWheelEventArgs) {
+            super.OnMouseWheel(e);
+            if (e.Handled)
+                return;
+            var scrollInfo = this.ScrollInfo;
+            if (!scrollInfo)
+                return;
+            if ((e.Delta > 0 && scrollInfo.VerticalOffset !== 0) || (e.Delta < 0 && scrollInfo.VerticalOffset < this.ScrollableHeight)) {
+                if (e.Delta >= 0)
+                    scrollInfo.MouseWheelUp();
+                else
+                    scrollInfo.MouseWheelDown();
+                e.Handled = true;
+            }
+        }
+        OnKeyDown(e: Input.KeyEventArgs) {
+            super.OnKeyDown(e);
+            this._HandleKeyDown(e);
+        }
+        private _HandleKeyDown(e: Input.KeyEventArgs) {
+            if (e.Handled)
+                return;
+            if (!this.$TemplatedParentHandlesScrolling)
+                return;
+            var orientation = Orientation.Vertical;
+            var scrollEventType = Primitives.ScrollEventType.ThumbTrack;
+            switch (e.Key) {
+                case Input.Key.PageUp:
+                    scrollEventType = Primitives.ScrollEventType.LargeDecrement;
+                    break;
+                case Input.Key.PageDown:
+                    scrollEventType = Primitives.ScrollEventType.LargeIncrement;
+                    break;
+                case Input.Key.End:
+                    if (!e.Modifiers.Ctrl)
+                        orientation = Orientation.Horizontal;
+                    scrollEventType = Primitives.ScrollEventType.Last;
+                    break;
+                case Input.Key.Home:
+                    if (!e.Modifiers.Ctrl)
+                        orientation = Orientation.Horizontal;
+                    scrollEventType = Primitives.ScrollEventType.First;
+                    break;
+                case Input.Key.Left:
+                    orientation = Orientation.Horizontal;
+                    scrollEventType = Primitives.ScrollEventType.SmallDecrement;
+                case Input.Key.Up:
+                    scrollEventType = Primitives.ScrollEventType.SmallDecrement;
+                    break;
+                case Input.Key.Right:
+                    orientation = Orientation.Horizontal;
+                    scrollEventType = Primitives.ScrollEventType.SmallIncrement;
+                case Input.Key.Down:
+                    scrollEventType = Primitives.ScrollEventType.SmallIncrement;
+                    break;
+            }
+            if (scrollEventType !== Primitives.ScrollEventType.ThumbTrack) {
+                this._HandleScroll(orientation, new Primitives.ScrollEventArgs(scrollEventType, 0));
+                e.Handled = true;
+            }
+        }
+        ScrollInDirection(key: Input.Key) {
+            switch (key) {
+                case Input.Key.PageUp:
+                    this.PageUp();
+                    break;
+                case Input.Key.PageDown:
+                    this.PageDown();
+                    break;
+                case Input.Key.End:
+                    this.PageEnd();
+                    break;
+                case Input.Key.Home:
+                    this.PageHome();
+                    break;
+                case Input.Key.Left:
+                    this.LineLeft();
+                    break;
+                case Input.Key.Up:
+                    this.LineUp();
+                    break;
+                case Input.Key.Right:
+                    this.LineRight();
+                    break;
+                case Input.Key.Down:
+                    this.LineDown();
+                    break;
+            }
+        }
+        ScrollToHorizontalOffset(offset: number) { this._HandleHorizontalScroll(new Primitives.ScrollEventArgs(Primitives.ScrollEventType.ThumbPosition, offset)); }
+        ScrollToVerticalOffset(offset: number) { this._HandleVerticalScroll(new Primitives.ScrollEventArgs(Primitives.ScrollEventType.ThumbPosition, offset)); }
+        LineUp() { this._HandleVerticalScroll(new Primitives.ScrollEventArgs(Primitives.ScrollEventType.SmallDecrement, 0)); }
+        LineDown() { this._HandleVerticalScroll(new Primitives.ScrollEventArgs(Primitives.ScrollEventType.SmallIncrement, 0)); }
+        LineLeft() { this._HandleHorizontalScroll(new Primitives.ScrollEventArgs(Primitives.ScrollEventType.SmallDecrement, 0)); }
+        LineRight() { this._HandleHorizontalScroll(new Primitives.ScrollEventArgs(Primitives.ScrollEventType.SmallIncrement, 0)); }
+        PageHome() { this._HandleHorizontalScroll(new Primitives.ScrollEventArgs(Primitives.ScrollEventType.First, 0)); }
+        PageEnd() { this._HandleHorizontalScroll(new Primitives.ScrollEventArgs(Primitives.ScrollEventType.Last, 0)); }
+        PageUp() { this._HandleVerticalScroll(new Primitives.ScrollEventArgs(Primitives.ScrollEventType.LargeDecrement, 0)); }
+        PageDown() { this._HandleVerticalScroll(new Primitives.ScrollEventArgs(Primitives.ScrollEventType.LargeIncrement, 0)); }
+        PageLeft() { this._HandleHorizontalScroll(new Primitives.ScrollEventArgs(Primitives.ScrollEventType.LargeDecrement, 0)); }
+        PageRight() { this._HandleHorizontalScroll(new Primitives.ScrollEventArgs(Primitives.ScrollEventType.LargeIncrement, 0)); }
+        private _HandleScroll(orientation: Orientation, e: Primitives.ScrollEventArgs) {
+            if (orientation !== Orientation.Horizontal)
+                this._HandleVerticalScroll(e);
+            else
+                this._HandleHorizontalScroll(e);
+        }
+        private _HandleHorizontalScroll(e: Primitives.ScrollEventArgs) {
+            var scrollInfo = this.ScrollInfo;
+            if (!scrollInfo)
+                return;
+            var offset = scrollInfo.HorizontalOffset;
+            var newValue = offset;
+            switch (e.ScrollEventType) {
+                case Primitives.ScrollEventType.SmallDecrement:
+                    scrollInfo.LineLeft();
+                    break;
+                case Primitives.ScrollEventType.SmallIncrement:
+                    scrollInfo.LineRight();
+                    break;
+                case Primitives.ScrollEventType.LargeDecrement:
+                    scrollInfo.PageLeft();
+                    break;
+                case Primitives.ScrollEventType.LargeIncrement:
+                    scrollInfo.PageRight();
+                    break;
+                case Primitives.ScrollEventType.ThumbPosition:
+                case Primitives.ScrollEventType.ThumbTrack:
+                    newValue = e.Value;
+                    break;
+                case Primitives.ScrollEventType.First:
+                    newValue = -1.79769313486232E+308;
+                    break;
+                case Primitives.ScrollEventType.Last:
+                    newValue = 1.79769313486232E+308;
+                    break;
+            }
+            newValue = Math.max(newValue, 0);
+            newValue = Math.min(this.ScrollableWidth, newValue);
+            if (!areNumbersClose(offset, newValue))
+                scrollInfo.SetHorizontalOffset(newValue);
+        }
+        private _HandleVerticalScroll(e: Primitives.ScrollEventArgs) {
+            var scrollInfo = this.ScrollInfo;
+            if (!scrollInfo)
+                return;
+            var offset = scrollInfo.VerticalOffset;
+            var newValue = offset;
+            switch (e.ScrollEventType) {
+                case Primitives.ScrollEventType.SmallDecrement:
+                    scrollInfo.LineUp();
+                    break;
+                case Primitives.ScrollEventType.SmallIncrement:
+                    scrollInfo.LineDown();
+                    break;
+                case Primitives.ScrollEventType.LargeDecrement:
+                    scrollInfo.PageUp();
+                    break;
+                case Primitives.ScrollEventType.LargeIncrement:
+                    scrollInfo.PageDown();
+                    break;
+                case Primitives.ScrollEventType.ThumbPosition:
+                case Primitives.ScrollEventType.ThumbTrack:
+                    newValue = e.Value;
+                    break;
+                case Primitives.ScrollEventType.First:
+                    newValue = -1.79769313486232E+308;
+                    break;
+                case Primitives.ScrollEventType.Last:
+                    newValue = 1.79769313486232E+308;
+                    break;
+            }
+            newValue = Math.max(newValue, 0);
+            newValue = Math.min(this.ScrollableHeight, newValue);
+            if (!areNumbersClose(offset, newValue))
+                scrollInfo.SetVerticalOffset(newValue);
         }
     }
     Nullstone.RegisterType(ScrollViewer, "ScrollViewer");
+    function areNumbersClose(val1: number, val2: number): bool {
+        if (val1 === val2)
+            return true;
+        var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516E-16;
+        var num2 = val1 - val2;
+        return -num1 < num2 && num1 > num2;
+    }
 }
 
 module Fayde.Controls {

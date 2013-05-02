@@ -25,7 +25,7 @@ var Fayde;
                             throw new InvalidOperationException("VirtualizingPanels must be in the Template of an ItemsControl in order to generate items");
                         }
                         var icg = this._ICG = icOwner.ItemContainerGenerator;
-                        icg.Listen(this);
+                        icg.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
                     }
                     return this._ICG;
                 },
@@ -48,9 +48,9 @@ var Fayde;
             };
             VirtualizingPanel.prototype.OnClearChildren = function () {
             };
-            VirtualizingPanel.prototype.OnItemsChanged = function (action, itemCount, itemUICount, oldPosition, position) {
+            VirtualizingPanel.prototype.OnItemContainerGeneratorChanged = function (sender, e) {
                 this.XamlNode.LayoutUpdater.InvalidateMeasure();
-                if(action === Controls.ItemsChangedAction.Reset) {
+                if(e.Action === Fayde.Collections.NotifyCollectionChangedAction.Reset) {
                     this.Children.Clear();
                     this.ItemContainerGenerator.RemoveAll();
                     this.OnClearChildren();

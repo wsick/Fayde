@@ -4,6 +4,7 @@
 /// <reference path="Matrix.ts" />
 /// <reference path="../Primitives/Point.ts" />
 /// <reference path="../Primitives/rect.ts" />
+/// <reference path="Matrix3DProjection.ts" />
 
 module Fayde.Media {
     export class GeneralTransform extends DependencyObject {
@@ -46,6 +47,13 @@ module Fayde.Media {
             if (r)
                 return rect.transform4(rect.clone(r), this._Raw);
             return undefined;
+        }
+
+        CreateMatrix3DProjection(): Matrix3DProjection {
+            var projection = new Matrix3DProjection();
+            //projection.ProjectionMatrix = this.Inverse.Value;
+            //TODO: Implement ProjectionMatrix
+            return projection
         }
     }
     Nullstone.RegisterType(InternalTransform, "InternalTransform");

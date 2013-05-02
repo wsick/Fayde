@@ -18,6 +18,36 @@ module Fayde {
             if (rootNode)
                 return rootNode.XObject;
         }
+        static GetChild(d: DependencyObject, childIndex: number): DependencyObject {
+            if (!(d instanceof FrameworkElement))
+                throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
+            
+            var feNode = <FENode>d.XamlNode;
+            var subtreeNode = feNode.SubtreeNode;
+            var subtree = subtreeNode.XObject;
+            if (subtree instanceof XamlObjectCollection)
+                return <DependencyObject>(<XamlObjectCollection>subtree).GetValueAt(childIndex);
+
+            if ((subtree instanceof UIElement) && childIndex === 0)
+                return <UIElement>subtree;
+
+            throw new IndexOutOfRangeException(childIndex);
+        }
+        static GetChildrenCount(d: DependencyObject): number {
+            if (!(d instanceof FrameworkElement))
+                throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
+            
+            var feNode = <FENode>d.XamlNode;
+            var subtreeNode = feNode.SubtreeNode;
+            var subtree = subtreeNode.XObject;
+            if (subtreeNode.XObject instanceof XamlObjectCollection)
+                return (<XamlObjectCollection>subtree).Count;
+
+            if (subtree instanceof UIElement)
+                return 1;
+
+            return 0;
+        }
         static FindElementsInHostCoordinates(intersectingPoint: Point, subtree: UIElement): UIElement[] {
             var uies: UIElement[] = [];
             var enumerator = ArrayEx.GetEnumerator(subtree.XamlNode.FindElementsInHostCoordinates(intersectingPoint));

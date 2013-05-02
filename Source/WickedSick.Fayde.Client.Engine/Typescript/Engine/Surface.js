@@ -138,7 +138,7 @@ var Surface = (function () {
     };
     Surface.prototype.Attach = function (uie) {
         if(this._TopLevel) {
-            this._DetachLayer(this._TopLevel);
+            this.DetachLayer(this._TopLevel);
         }
         if(!uie) {
             this._Invalidate();
@@ -154,9 +154,9 @@ var Surface = (function () {
             un.NameScope.IsRoot = true;
         }
         this._TopLevel = uie;
-        this._AttachLayer(uie);
+        this.AttachLayer(uie);
     };
-    Surface.prototype._AttachLayer = function (layer) {
+    Surface.prototype.AttachLayer = function (layer) {
         var node = layer.XamlNode;
         this._Layers.unshift(node);
         node.IsTopLevel = true;
@@ -167,7 +167,7 @@ var Surface = (function () {
         node.SetIsAttached(true);
         node.SetIsLoaded(true);
     };
-    Surface.prototype._DetachLayer = function (layer) {
+    Surface.prototype.DetachLayer = function (layer) {
         var node = layer.XamlNode;
         node.IsTopLevel = false;
         var il = this._InputList;

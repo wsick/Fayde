@@ -283,7 +283,7 @@ module Fayde {
             return vpNode === this;
         }
 
-        TranformToVisual(uin: UINode): Media.GeneralTransform {
+        TransformToVisual(uin: UINode): Media.GeneralTransform {
             if (uin && !uin.IsAttached)
                 throw new ArgumentException("UIElement not attached.");
 
@@ -382,9 +382,13 @@ module Fayde {
         CaptureMouse():bool { return this.XamlNode.CaptureMouse(); }
         ReleaseMouseCapture() { this.XamlNode.ReleaseMouseCapture(); }
 
-        TranformToVisual(uie: UIElement): Media.GeneralTransform {
+        IsAncestorOf(uie: UIElement): bool {
+            if (!uie) return false;
+            return this.XamlNode.IsAncestorOf(uie.XamlNode);
+        }
+        TransformToVisual(uie: UIElement): Media.GeneralTransform {
             var uin = (uie) ? uie.XamlNode : null;
-            return this.XamlNode.TranformToVisual(uin);
+            return this.XamlNode.TransformToVisual(uin);
         }
 
         Measure(availableSize: size) {

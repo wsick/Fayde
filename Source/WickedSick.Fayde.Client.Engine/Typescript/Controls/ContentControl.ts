@@ -9,7 +9,7 @@ module Fayde.Controls {
         constructor(xobj: ContentControl) {
             super(xobj);
         }
-        
+
         _GetDefaultTemplate(): UIElement {
             var xobj = this.XObject;
             var content = xobj.Content;
@@ -23,10 +23,10 @@ module Fayde.Controls {
         }
 
         OnContentChanged(newContent: any) {
-            if (this._FallbackRoot)
-                this._FallbackRoot.XamlNode.DataContext = newContent;
+            //if (this._FallbackRoot)
+            //  this._FallbackRoot.XamlNode.DataContext = newContent;
         }
-        
+
         private _FallbackRoot: UIElement;
         get FallbackRoot(): UIElement {
             var fr = this._FallbackRoot;
@@ -38,10 +38,10 @@ module Fayde.Controls {
             }
             return fr;
         }
-        private static _FallbackTemplate: ControlTemplate;
-        // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
-        private static _CreateFallbackTemplate(): ControlTemplate {
-            return new ControlTemplate(ContentControl, {
+        private static _FallbackTemplate: DataTemplate;
+        // <DataTemplate><Grid><TextBlock Text="{Binding}" /></Grid></DataTemplate>
+        private static _CreateFallbackTemplate(): DataTemplate {
+            return new DataTemplate({
                 ParseType: Grid,
                 Children: [
                     {
@@ -50,7 +50,7 @@ module Fayde.Controls {
                     }
                 ]
             });
-            //TODO: ControlTemplate wants a res chain, do we need to pass it our res chain?
+            //TODO: DataTemplate wants a res chain, do we need to pass it our res chain?
         }
     }
     Nullstone.RegisterType(ContentControlNode, "ContentControlNode");
@@ -61,14 +61,14 @@ module Fayde.Controls {
 
         _ContentSetsParent: bool = true;
         static ContentProperty: DependencyProperty = DependencyProperty.RegisterCore("Content", () => Object, ContentControl, undefined, (d, args) => (<ContentControl>d)._ContentChanged(args));
-        static ContentTemplateProperty = DependencyProperty.RegisterCore("ContentTemplate", () => ControlTemplate, ContentControl, undefined, (d, args) => (<ContentControl>d)._ContentTemplateChanged(args));
+        static ContentTemplateProperty = DependencyProperty.RegisterCore("ContentTemplate", () => DataTemplate, ContentControl, undefined, (d, args) => (<ContentControl>d)._ContentTemplateChanged(args));
         Content: any;
-        ContentTemplate: ControlTemplate;
+        ContentTemplate: DataTemplate;
 
         static Annotations = { ContentProperty: ContentControl.ContentProperty }
 
         OnContentChanged(oldContent: any, newContent: any) { }
-        OnContentTemplateChanged(oldContentTemplate: ControlTemplate, newContentTemplate: ControlTemplate) { }
+        OnContentTemplateChanged(oldContentTemplate: DataTemplate, newContentTemplate: DataTemplate) { }
 
         _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
             if (args.OldValue instanceof UIElement)

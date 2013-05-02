@@ -33,6 +33,7 @@ Text/TextLayout.js
 Collections/INotifyCollectionChanged.js
 Controls/GridLength.js
 Controls/Primitives/IScrollInfo.js
+Controls/Primitives/SelectorSelection.js
 Core/DependencyProperty.js
 Core/Expression.js
 Core/INotifyPropertyChanged.js
@@ -88,6 +89,10 @@ Runtime/Enum.js
 Runtime/Enumerable.js
 Runtime/EventArgs.js
 Runtime/MulticastEvent.js
+Collections/NotifyCollectionChangedEventArgs.js
+Collections/ObservableCollection.js
+Controls/Primitives/ItemsChangedEventArgs.js
+Controls/Primitives/SelectionChangedEventArgs.js
 Core/DeferredValueExpression.js
 Core/DependencyObject.js
 Core/FrameworkTemplate.js
@@ -103,6 +108,7 @@ Data/Binding.js
 Data/BindingExpression.js
 Data/CollectionViewSource.js
 Documents/TextElement.js
+Input/KeyboardNavigation.js
 Input/KeyEventArgs.js
 Input/KeyInterop.js
 Input/MouseEventArgs.js
@@ -138,6 +144,7 @@ Shapes/DoubleCollection.js
 Shapes/PointCollection.js
 Controls/ColumnDefinition.js
 Controls/ControlTemplate.js
+Controls/ItemCollection.js
 Controls/ItemsPanelTemplate.js
 Controls/RowDefinition.js
 Controls/ToolTipService.js

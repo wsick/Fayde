@@ -89,7 +89,7 @@ module Fayde.Controls {
             if (rect.isEmpty(rectangle) || !uie || uie === this || !this.XamlNode.IsAncestorOf(uie.XamlNode))
                 return new rect();
             
-            var generalTransform = uie.TranformToVisual(this);
+            var generalTransform = uie.TransformToVisual(this);
             var point = generalTransform.Transform(new Point(rectangle.X, rectangle.Y));
             rectangle = rect.clone(rectangle);
             rectangle.X = point.X;

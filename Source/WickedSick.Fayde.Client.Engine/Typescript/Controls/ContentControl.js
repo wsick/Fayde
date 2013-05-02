@@ -28,10 +28,9 @@ var Fayde;
                 }
             };
             ContentControlNode.prototype.OnContentChanged = function (newContent) {
-                if(this._FallbackRoot) {
-                    this._FallbackRoot.XamlNode.DataContext = newContent;
-                }
-            };
+                //if (this._FallbackRoot)
+                //  this._FallbackRoot.XamlNode.DataContext = newContent;
+                            };
             Object.defineProperty(ContentControlNode.prototype, "FallbackRoot", {
                 get: function () {
                     var fr = this._FallbackRoot;
@@ -47,9 +46,9 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
-            ContentControlNode._CreateFallbackTemplate = // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
+            ContentControlNode._CreateFallbackTemplate = // <DataTemplate><Grid><TextBlock Text="{Binding}" /></Grid></DataTemplate>
             function _CreateFallbackTemplate() {
-                return new Controls.ControlTemplate(ContentControl, {
+                return new Fayde.DataTemplate({
                     ParseType: Controls.Grid,
                     Children: [
                         {
@@ -61,7 +60,7 @@ var Fayde;
                         }
                     ]
                 });
-                //TODO: ControlTemplate wants a res chain, do we need to pass it our res chain?
+                //TODO: DataTemplate wants a res chain, do we need to pass it our res chain?
                             };
             return ContentControlNode;
         })(Controls.ControlNode);
@@ -83,7 +82,7 @@ var Fayde;
                 return (d)._ContentChanged(args);
             });
             ContentControl.ContentTemplateProperty = DependencyProperty.RegisterCore("ContentTemplate", function () {
-                return Controls.ControlTemplate;
+                return Fayde.DataTemplate;
             }, ContentControl, undefined, function (d, args) {
                 return (d)._ContentTemplateChanged(args);
             });

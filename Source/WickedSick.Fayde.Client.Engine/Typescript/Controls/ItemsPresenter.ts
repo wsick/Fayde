@@ -78,7 +78,7 @@ module Fayde.Controls {
         get ElementRoot(): Panel { return this.XamlNode.ElementRoot; }
 
         OnApplyTemplate() {
-            this.TemplateOwner._SetItemsPresenter(this);
+            this.TemplateOwner.XamlNode._SetItemsPresenter(this);
             super.OnApplyTemplate();
         }
     }

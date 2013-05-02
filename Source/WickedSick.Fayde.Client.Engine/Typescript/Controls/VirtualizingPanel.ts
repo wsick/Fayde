@@ -4,7 +4,7 @@
 /// <reference path="ItemsControl.ts" />
 
 module Fayde.Controls {
-    export class VirtualizingPanel extends Panel implements IItemsChangedListener {
+    export class VirtualizingPanel extends Panel {
         private _ICG: ItemContainerGenerator = null;
         get ItemContainerGenerator(): ItemContainerGenerator {
             if (!this._ICG) {
@@ -12,7 +12,7 @@ module Fayde.Controls {
                 if (!icOwner)
                     throw new InvalidOperationException("VirtualizingPanels must be in the Template of an ItemsControl in order to generate items");
                 var icg = this._ICG = icOwner.ItemContainerGenerator;
-                icg.Listen(this);
+                icg.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
             }
             return this._ICG;
         }
@@ -31,9 +31,9 @@ module Fayde.Controls {
         }
         BringIndexIntoView(index) { }
         OnClearChildren() { }
-        OnItemsChanged(action: ItemsChangedAction, itemCount: number, itemUICount: number, oldPosition: IGeneratorPosition, position: IGeneratorPosition) {
+        OnItemContainerGeneratorChanged(sender, e: Primitives.ItemsChangedEventArgs) {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
-            if (action === ItemsChangedAction.Reset) {
+            if (e.Action === Collections.NotifyCollectionChangedAction.Reset) {
                 this.Children.Clear();
                 this.ItemContainerGenerator.RemoveAll();
                 this.OnClearChildren();

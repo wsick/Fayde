@@ -8,7 +8,7 @@ module Fayde {
     export class DataTemplate extends FrameworkTemplate {
         private _TempJson: any;
         private _ResChain: ResourceDictionary[];
-        constructor(json: any, resChain: ResourceDictionary[]) {
+        constructor(json: any, resChain?: ResourceDictionary[]) {
             super();
             this._TempJson = json;
             this._ResChain = resChain;

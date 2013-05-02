@@ -23,6 +23,36 @@ var Fayde;
                 return rootNode.XObject;
             }
         };
+        VisualTreeHelper.GetChild = function GetChild(d, childIndex) {
+            if(!(d instanceof Fayde.FrameworkElement)) {
+                throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
+            }
+            var feNode = d.XamlNode;
+            var subtreeNode = feNode.SubtreeNode;
+            var subtree = subtreeNode.XObject;
+            if(subtree instanceof Fayde.XamlObjectCollection) {
+                return (subtree).GetValueAt(childIndex);
+            }
+            if((subtree instanceof Fayde.UIElement) && childIndex === 0) {
+                return subtree;
+            }
+            throw new IndexOutOfRangeException(childIndex);
+        };
+        VisualTreeHelper.GetChildrenCount = function GetChildrenCount(d) {
+            if(!(d instanceof Fayde.FrameworkElement)) {
+                throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
+            }
+            var feNode = d.XamlNode;
+            var subtreeNode = feNode.SubtreeNode;
+            var subtree = subtreeNode.XObject;
+            if(subtreeNode.XObject instanceof Fayde.XamlObjectCollection) {
+                return (subtree).Count;
+            }
+            if(subtree instanceof Fayde.UIElement) {
+                return 1;
+            }
+            return 0;
+        };
         VisualTreeHelper.FindElementsInHostCoordinates = function FindElementsInHostCoordinates(intersectingPoint, subtree) {
             var uies = [];
             var enumerator = Fayde.ArrayEx.GetEnumerator(subtree.XamlNode.FindElementsInHostCoordinates(intersectingPoint));

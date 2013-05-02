@@ -3,8 +3,10 @@
 /// <reference path="../Runtime/MulticastEvent.ts" />
 
 module Fayde.Data {
-    export interface ICollectionView {
+    export interface ICollectionView extends IEnumerable {
         CurrentChanged: MulticastEvent;
+        CurrentItem: any;
+        MoveCurrentTo(item: any): bool;
     }
     export var ICollectionView_ = Nullstone.RegisterInterface("ICollectionView");
 }

@@ -142,7 +142,7 @@ class Surface {
     }
     Attach(uie: Fayde.UIElement) {
         if (this._TopLevel)
-            this._DetachLayer(this._TopLevel);
+            this.DetachLayer(this._TopLevel);
 
         if (!uie) {
             this._Invalidate();
@@ -159,9 +159,9 @@ class Surface {
             un.NameScope.IsRoot = true;
 
         this._TopLevel = uie;
-        this._AttachLayer(uie);
+        this.AttachLayer(uie);
     }
-    private _AttachLayer(layer: Fayde.UIElement) {
+    AttachLayer(layer: Fayde.UIElement) {
         var node = layer.XamlNode;
         this._Layers.unshift(node);
         node.IsTopLevel = true;
@@ -172,7 +172,7 @@ class Surface {
         node.SetIsAttached(true);
         node.SetIsLoaded(true);
     }
-    private _DetachLayer(layer: Fayde.UIElement) {
+    DetachLayer(layer: Fayde.UIElement) {
         var node = layer.XamlNode;
         node.IsTopLevel = false;
 
@@ -210,7 +210,7 @@ class Surface {
         //this.LayoutUpdated.Raise(this, new EventArgs());
         return true;
     }
-    private _UpdateLayout(error: BError): bool {
+    _UpdateLayout(error: BError): bool {
         //var startTime;
         var maxPassCount = 250;
         var layers = this._Layers;

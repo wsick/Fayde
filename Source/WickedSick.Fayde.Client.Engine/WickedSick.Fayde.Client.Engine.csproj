@@ -475,6 +475,14 @@
     <TypeScriptCompile Include="Typescript\Controls\ToolTip.ts" />
     <TypeScriptCompile Include="Typescript\Controls\ComboBox.ts" />
     <TypeScriptCompile Include="Typescript\Controls\CheckBox.ts" />
+    <TypeScriptCompile Include="Typescript\Collections\NotifyCollectionChangedEventArgs.ts" />
+    <Content Include="Typescript\Collections\NotifyCollectionChangedEventArgs.js">
+      <DependentUpon>NotifyCollectionChangedEventArgs.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Collections\ObservableCollection.ts" />
+    <Content Include="Typescript\Collections\ObservableCollection.js">
+      <DependentUpon>ObservableCollection.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\CheckBox.js">
       <DependentUpon>CheckBox.ts</DependentUpon>
     </Content>
@@ -485,6 +493,10 @@
     <TypeScriptCompile Include="Typescript\Controls\ComboBoxItem.ts" />
     <Content Include="Typescript\Controls\ComboBoxItem.js">
       <DependentUpon>ComboBoxItem.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ItemCollection.ts" />
+    <Content Include="Typescript\Controls\ItemCollection.js">
+      <DependentUpon>ItemCollection.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Controls\ListBoxItem.js">
       <DependentUpon>ListBoxItem.ts</DependentUpon>
@@ -499,6 +511,10 @@
     <Content Include="Typescript\Controls\Primitives\DragEventArgs.js">
       <DependentUpon>DragEventArgs.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\ItemsChangedEventArgs.ts" />
+    <Content Include="Typescript\Controls\Primitives\ItemsChangedEventArgs.js">
+      <DependentUpon>ItemsChangedEventArgs.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Primitives\RangeBase.js">
       <DependentUpon>RangeBase.ts</DependentUpon>
     </Content>
@@ -510,10 +526,18 @@
     <Content Include="Typescript\Controls\Primitives\ScrollEventArgs.js">
       <DependentUpon>ScrollEventArgs.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\SelectionChangedEventArgs.ts" />
+    <Content Include="Typescript\Controls\Primitives\SelectionChangedEventArgs.js">
+      <DependentUpon>SelectionChangedEventArgs.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Primitives\Selector.js">
       <DependentUpon>Selector.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Controls\Primitives\Thumb.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\SelectorSelection.ts" />
+    <Content Include="Typescript\Controls\Primitives\SelectorSelection.js">
+      <DependentUpon>SelectorSelection.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Controls\Primitives\Thumb.js">
       <DependentUpon>Thumb.ts</DependentUpon>
     </Content>
@@ -934,6 +958,10 @@
     </Content>
     <Content Include="Typescript\Input\Keyboard.js">
       <DependentUpon>Keyboard.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Input\KeyboardNavigation.ts" />
+    <Content Include="Typescript\Input\KeyboardNavigation.js">
+      <DependentUpon>KeyboardNavigation.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Input\KeyEventArgs.js">
       <DependentUpon>KeyEventArgs.ts</DependentUpon>

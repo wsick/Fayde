@@ -387,8 +387,8 @@ module Fayde.Controls {
             var scrollOwner = this.ScrollOwner;
             if (scrollOwner) scrollOwner.InvalidateScrollInfo();
         }
-        OnItemsChanged(action: ItemsChangedAction, itemCount: number, itemUICount: number, oldPosition: IGeneratorPosition, position: IGeneratorPosition) {
-            super.OnItemsChanged(action, itemCount, itemUICount, oldPosition, position);
+        OnItemContainerGeneratorChanged(sender, e: Primitives.ItemsChangedEventArgs) {
+            super.OnItemContainerGeneratorChanged(sender, e);
 
             var generator = this.ItemContainerGenerator;
             var owner = ItemsControl.GetItemsOwner(this);
@@ -398,9 +398,9 @@ module Fayde.Controls {
             var offset;
             var viewable
 
-            switch (action) {
-                case ItemsChangedAction.Add:
-                    var index = generator.IndexFromGeneratorPosition(position);
+            switch (e.Action) {
+                case Collections.NotifyCollectionChangedAction.Add:
+                    var index = generator.IndexFromGeneratorPosition(e.Position);
                     if (orientation === Fayde.Orientation.Horizontal)
                         offset = this.HorizontalOffset;
                     else
@@ -408,7 +408,7 @@ module Fayde.Controls {
 
                     if (index <= offset) {
                         // items have been added earlier in the list than what is viewable
-                        offset += itemCount;
+                        offset += e.ItemCount;
                     }
 
                     if (orientation === Fayde.Orientation.Horizontal)
@@ -416,8 +416,8 @@ module Fayde.Controls {
                     else
                         this.SetVerticalOffset(offset);
                     break;
-                case ItemsChangedAction.Remove:
-                    index = generator.IndexFromGeneratorPosition(position);
+                case Collections.NotifyCollectionChangedAction.Remove:
+                    index = generator.IndexFromGeneratorPosition(e.Position);
                     if (orientation === Fayde.Orientation.Horizontal) {
                         offset = this.HorizontalOffset;
                         viewable = this.ViewportWidth;
@@ -428,7 +428,7 @@ module Fayde.Controls {
 
                     if (index < offset) {
                         // items earlier in the list than what is viewable have been removed
-                        offset = Math.max(offset - itemCount, 0);
+                        offset = Math.max(offset - e.ItemCount, 0);
                     }
 
                     // adjust for items removed in the current view and/or beyond the current view
@@ -440,12 +440,12 @@ module Fayde.Controls {
                     else
                         this.SetVerticalOffset(offset);
 
-                    this.RemoveInternalChildRange(position.index, itemUICount);
+                    this.RemoveInternalChildRange(e.Position.index, e.ItemUICount);
                     break;
-                case ItemsChangedAction.Replace:
-                    this.RemoveInternalChildRange(position.index, itemUICount);
+                case Collections.NotifyCollectionChangedAction.Replace:
+                    this.RemoveInternalChildRange(e.Position.index, e.ItemUICount);
                     break;
-                case ItemsChangedAction.Reset:
+                case Collections.NotifyCollectionChangedAction.Reset:
                     break;
             }
 

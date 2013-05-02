@@ -47,5 +47,23 @@ module Fayde {
             }
             return e;
         }
+        static RemoveIfContains(arr: any[], item: any): bool {
+            var index = arr.indexOf(item);
+            if (index < 0)
+                return false;
+            arr.splice(index, 1);
+            return true;
+        }
+
+        static Except(arr1: any[], arr2: any[]): any[] {
+            var cur: any;
+            var rarr: any[] = [];
+            for (var i = 0; i < arr1.length; i++) {
+                cur = arr1[i];
+                if (arr2.indexOf(cur) < 0)
+                    rarr.push(cur);
+            }
+            return rarr;
+        }
     }
 }

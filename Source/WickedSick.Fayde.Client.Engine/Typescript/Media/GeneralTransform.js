@@ -11,6 +11,7 @@ var Fayde;
     /// <reference path="Matrix.ts" />
     /// <reference path="../Primitives/Point.ts" />
     /// <reference path="../Primitives/rect.ts" />
+    /// <reference path="Matrix3DProjection.ts" />
     (function (Media) {
         var GeneralTransform = (function (_super) {
             __extends(GeneralTransform, _super);
@@ -70,6 +71,12 @@ var Fayde;
                     return rect.transform4(rect.clone(r), this._Raw);
                 }
                 return undefined;
+            };
+            InternalTransform.prototype.CreateMatrix3DProjection = function () {
+                var projection = new Media.Matrix3DProjection();
+                //projection.ProjectionMatrix = this.Inverse.Value;
+                //TODO: Implement ProjectionMatrix
+                return projection;
             };
             return InternalTransform;
         })(GeneralTransform);
