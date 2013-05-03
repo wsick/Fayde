@@ -40,6 +40,9 @@ var Fayde;
             enumerable: true,
             configurable: true
         });
+        DONode.prototype._DataContextPropertyChanged = function (args) {
+            this.OnDataContextChanged(args.OldValue, args.NewValue);
+        };
         return DONode;
     })(Fayde.XamlNode);
     Fayde.DONode = DONode;    
@@ -53,7 +56,9 @@ var Fayde;
         }
         DependencyObject.DataContextProperty = DependencyProperty.RegisterCore("DataContext", function () {
             return Object;
-        }, DependencyObject, undefined);
+        }, DependencyObject, undefined, function (d, args) {
+            return (d).XamlNode._DataContextPropertyChanged(args);
+        });
         DependencyObject.prototype.CreateNode = function () {
             return new DONode(this);
         };

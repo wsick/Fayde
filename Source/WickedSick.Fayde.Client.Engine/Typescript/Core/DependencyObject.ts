@@ -28,6 +28,10 @@ module Fayde {
                 return;
             this.OnDataContextChanged(old, value);
         }
+        
+        _DataContextPropertyChanged(args: IDependencyPropertyChangedEventArgs) {
+            this.OnDataContextChanged(args.OldValue, args.NewValue);
+        }
     }
     Nullstone.RegisterType(DONode, "DONode");
 
@@ -35,7 +39,7 @@ module Fayde {
         private _Expressions: Expression[] = [];
         _Store: Providers.BasicProviderStore;
 
-        static DataContextProperty: DependencyProperty = DependencyProperty.RegisterCore("DataContext", () => Object, DependencyObject, undefined);
+        static DataContextProperty: DependencyProperty = DependencyProperty.RegisterCore("DataContext", () => Object, DependencyObject, undefined, (d, args) => (<DependencyObject>d).XamlNode._DataContextPropertyChanged(args));
         DataContext: any;
 
         constructor() {
