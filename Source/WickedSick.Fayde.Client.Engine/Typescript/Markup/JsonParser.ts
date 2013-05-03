@@ -32,7 +32,7 @@ module Fayde {
             parser._RootXamlObject = rootXamlObject;
 
             if (!namescope)
-                namescope = new Fayde.NameScope();
+                namescope = new NameScope();
 
             //var app = App.Instance;
             //var perfTimer = new Fayde.PerfTimer();
@@ -55,7 +55,10 @@ module Fayde {
             var parser = new JsonParser();
             parser._RootXamlObject = rd;
             parser._ResChain.push(rd);
-            parser.SetObject(json, rd, rd.XamlNode.NameScope);
+            var ns = rd.XamlNode.NameScope;
+            if (!ns) ns = new NameScope();
+                
+            parser.SetObject(json, rd, ns);
         }
 
         CreateObject(json: any, namescope: NameScope, ignoreResolve?: bool): XamlObject {
@@ -233,7 +236,7 @@ module Fayde {
                 if (propd._IsAutoCreated) {
                     coll = (<DependencyObject>xobj).GetValue(propd);
                 } else {
-                    coll = <XamlObjectCollection>(new <any>targetType());
+                    coll = <XamlObjectCollection>new (<any>targetType)();
                     (<DependencyObject>xobj).SetValue(propd, coll);
                 }
             } else if (typeof propertyName === "string") {
@@ -244,6 +247,8 @@ module Fayde {
 
             if (!(coll instanceof XamlObjectCollection))
                 return false;
+
+            coll.XamlNode.NameScope = namescope;
 
             if (coll instanceof ResourceDictionary) {
                 this.SetResourceDictionary(<ResourceDictionary>coll, subJson, namescope);

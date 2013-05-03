@@ -8820,7 +8820,7 @@ module Fayde {
             parser._TemplateBindingSource = templateBindingSource;
             parser._RootXamlObject = rootXamlObject;
             if (!namescope)
-                namescope = new Fayde.NameScope();
+                namescope = new NameScope();
             var xobj = parser.CreateObject(json, namescope);
             return xobj;
         }
@@ -8833,7 +8833,9 @@ module Fayde {
             var parser = new JsonParser();
             parser._RootXamlObject = rd;
             parser._ResChain.push(rd);
-            parser.SetObject(json, rd, rd.XamlNode.NameScope);
+            var ns = rd.XamlNode.NameScope;
+            if (!ns) ns = new NameScope();
+            parser.SetObject(json, rd, ns);
         }
         CreateObject(json: any, namescope: NameScope, ignoreResolve?: bool): XamlObject {
             var type = json.ParseType;
@@ -8986,7 +8988,7 @@ module Fayde {
                 if (propd._IsAutoCreated) {
                     coll = (<DependencyObject>xobj).GetValue(propd);
                 } else {
-                    coll = <XamlObjectCollection>(new <any>targetType());
+                    coll = <XamlObjectCollection>new (<any>targetType)();
                     (<DependencyObject>xobj).SetValue(propd, coll);
                 }
             } else if (typeof propertyName === "string") {
@@ -8996,6 +8998,7 @@ module Fayde {
             }
             if (!(coll instanceof XamlObjectCollection))
                 return false;
+            coll.XamlNode.NameScope = namescope;
             if (coll instanceof ResourceDictionary) {
                 this.SetResourceDictionary(<ResourceDictionary>coll, subJson, namescope);
             } else {
@@ -16355,7 +16358,7 @@ module Fayde.Shapes {
         _BuildPath() { }
         _DrawPath(ctx: RenderContext) { this._Path.DrawRenderCtx(ctx); }
         private ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater) {
-            var desired = baseComputer.call(this);
+            var desired = baseComputer.call(lu);
             var node = this.XamlNode;
             var lu = node.LayoutUpdater;
             var shapeBounds = this._GetNaturalBounds();

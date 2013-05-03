@@ -246,7 +246,7 @@ module Fayde.Shapes {
         _DrawPath(ctx: RenderContext) { this._Path.DrawRenderCtx(ctx); }
         
         private ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater) {
-            var desired = baseComputer.call(this);
+            var desired = baseComputer.call(lu);
 
             var node = this.XamlNode;
             var lu = node.LayoutUpdater;

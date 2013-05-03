@@ -48,7 +48,11 @@ var Fayde;
             var parser = new JsonParser();
             parser._RootXamlObject = rd;
             parser._ResChain.push(rd);
-            parser.SetObject(json, rd, rd.XamlNode.NameScope);
+            var ns = rd.XamlNode.NameScope;
+            if(!ns) {
+                ns = new Fayde.NameScope();
+            }
+            parser.SetObject(json, rd, ns);
         };
         JsonParser.prototype.CreateObject = function (json, namescope, ignoreResolve) {
             var type = json.ParseType;
@@ -226,7 +230,7 @@ var Fayde;
                 if(propd._IsAutoCreated) {
                     coll = (xobj).GetValue(propd);
                 } else {
-                    coll = (new targetType()());
+                    coll = new (targetType)();
                     (xobj).SetValue(propd, coll);
                 }
             } else if(typeof propertyName === "string") {
@@ -237,6 +241,7 @@ var Fayde;
             if(!(coll instanceof Fayde.XamlObjectCollection)) {
                 return false;
             }
+            coll.XamlNode.NameScope = namescope;
             if(coll instanceof Fayde.ResourceDictionary) {
                 this.SetResourceDictionary(coll, subJson, namescope);
             } else {

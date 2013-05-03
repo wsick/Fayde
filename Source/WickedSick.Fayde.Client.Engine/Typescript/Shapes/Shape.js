@@ -293,7 +293,7 @@ var Fayde;
                 this._Path.DrawRenderCtx(ctx);
             };
             Shape.prototype.ComputeActualSize = function (baseComputer, lu) {
-                var desired = baseComputer.call(this);
+                var desired = baseComputer.call(lu);
                 var node = this.XamlNode;
                 var lu = node.LayoutUpdater;
                 var shapeBounds = this._GetNaturalBounds();
