@@ -817,6 +817,8 @@ module Fayde {
             }
             var cur = curNode.XObject;
             str += (<any>cur).constructor._TypeName;
+            var id = (<any>cur)._ID;
+            if (id) str += "[" + id + "]";
             var name = curNode.Name;
             if (name)
                 str += " [" + name + "]";
@@ -4941,6 +4943,13 @@ module Fayde {
 }
 
 module Fayde {
+    export class FrameworkTemplate {
+        ResChain: ResourceDictionary[] = null;
+    }
+    Nullstone.RegisterType(FrameworkTemplate, "FrameworkTemplate");
+}
+
+module Fayde {
     export class LayoutInformation {
         static GetLayoutClip(uie: UIElement): Media.Geometry {
             return uie.XamlNode.LayoutUpdater.LayoutClip;
@@ -5668,7 +5677,7 @@ module Fayde {
                 size.clear(this.DesiredSize);
                 return;
             }
-            node._ApplyTemplateWithError(error);
+            node.ApplyTemplateWithError(error);
             if (!shouldMeasure)
                 return;
             this.PreviousConstraint = availableSize;
@@ -8813,7 +8822,7 @@ module Fayde {
         private _RootXamlObject: XamlObject = null;
         private _TemplateBindingSource: DependencyObject = null;
         private _SRExpressions: StaticResourceExpression[] = [];
-        static Parse(json: any, templateBindingSource?: DependencyObject, namescope?: NameScope, resChain?: Fayde.ResourceDictionary[], rootXamlObject?: XamlObject): XamlObject {
+        static Parse(json: any, templateBindingSource?: DependencyObject, namescope?: NameScope, resChain?: Fayde.ResourceDictionary[], rootXamlObject?: XamlObject): any {
             var parser = new JsonParser();
             if (resChain)
                 parser._ResChain = resChain;
@@ -8837,18 +8846,15 @@ module Fayde {
             if (!ns) ns = new NameScope();
             parser.SetObject(json, rd, ns);
         }
-        CreateObject(json: any, namescope: NameScope, ignoreResolve?: bool): XamlObject {
+        CreateObject(json: any, namescope: NameScope, ignoreResolve?: bool): any {
             var type = json.ParseType;
-            if (!type)
+            if (!type) {
+                if (json instanceof FrameworkTemplate)
+                    (<FrameworkTemplate>json).ResChain = this._ResChain;
                 return json;
+            }
             if (type === Number || type === String || type === Boolean)
                 return json.Value;
-            if (type === Controls.ControlTemplate) {
-                var targetType = json.Props == null ? null : json.Props.TargetType;
-                return new Controls.ControlTemplate(targetType, json.Content, this._ResChain);
-            }
-            if (type === DataTemplate)
-                return new DataTemplate(json.Content, this._ResChain);
             var xobj = new type();
             if (!this._RootXamlObject)
                 this._RootXamlObject = xobj;
@@ -8939,6 +8945,8 @@ module Fayde {
         TrySetPropertyValue(xobj: XamlObject, propd: DependencyProperty, propValue: any, namescope: NameScope, isAttached: bool, ownerType: Function, propName: string) {
             if (propValue.ParseType) {
                 propValue = this.CreateObject(propValue, namescope, true);
+            } else if (propValue instanceof FrameworkTemplate) {
+                (<FrameworkTemplate>propValue).ResChain = this._ResChain;
             }
             if (propValue instanceof Markup)
                 propValue = propValue.Transmute(xobj, propd, propName, this._TemplateBindingSource);
@@ -10687,6 +10695,53 @@ module Fayde.Collections {
     Nullstone.RegisterType(ObservableCollection, "ObservableCollection", [IEnumerable_, INotifyCollectionChanged_, INotifyPropertyChanged_]);
 }
 
+module Fayde.Controls {
+    export class ControlTemplate extends FrameworkTemplate {
+        private _TempJson: any;
+        TargetType: Function;
+        constructor(targetType: Function, json: any) {
+            super();
+            if (!targetType)
+                throw new XamlParseException("ControlTemplate must have a TargetType.");
+            Object.defineProperty(this, "TargetType", {
+                value: targetType,
+                writable: false
+            });
+            this._TempJson = json;
+        }
+        GetVisualTree(templateBindingSource: DependencyObject): UIElement {
+            var json = this._TempJson;
+            if (!json)
+                throw new XamlParseException("ControlTemplate has no definition.");
+            var uie = <UIElement>JsonParser.Parse(json, templateBindingSource, new NameScope(true), this.ResChain);
+            if (!(uie instanceof UIElement))
+                throw new XamlParseException("ControlTemplate root visual is not a UIElement.");
+            return uie;
+        }
+    }
+    Nullstone.RegisterType(ControlTemplate, "ControlTemplate");
+}
+
+module Fayde.Controls {
+    export class ItemsPanelTemplate extends FrameworkTemplate {
+        private _TempJson: any;
+        constructor(json: any) {
+            super();
+            this._TempJson = json;
+        }
+        GetVisualTree(templateBindingSource: DependencyObject): Panel {
+            var json = this._TempJson;
+            if (!json)
+                throw new XamlParseException("ItemsPanelTemplate has no definition.");
+            var panel = <Panel>JsonParser.Parse(json, templateBindingSource, new NameScope(true), this.ResChain);
+            if (!(panel instanceof Panel))
+                throw new XamlParseException("The root element of an ItemsPanelTemplate must be a Panel subclass.");
+            return panel;
+        }
+    }
+    Nullstone.RegisterType(ItemsPanelTemplate, "ItemsPanelTemplate");
+}
+
 module Fayde.Controls.Primitives {
     export class ItemsChangedEventArgs extends EventArgs {
         Action: Collections.NotifyCollectionChangedAction;
@@ -10719,6 +10774,26 @@ module Fayde.Controls.Primitives {
         }
     }
     Nullstone.RegisterType(SelectionChangedEventArgs, "SelectionChangedEventArgs");
+}
+
+module Fayde {
+    export class DataTemplate extends FrameworkTemplate {
+        private _TempJson: any;
+        constructor(json: any) {
+            super();
+            this._TempJson = json;
+        }
+        GetVisualTree(templateBindingSource?: DependencyObject): UIElement {
+            var json = this._TempJson;
+            if (!json)
+                throw new XamlParseException("DataTemplate has no definition.");
+            var uie = <UIElement>JsonParser.Parse(json, templateBindingSource, new NameScope(true), this.ResChain);
+            if (!(uie instanceof UIElement))
+                throw new XamlParseException("DataTemplate root visual is not a UIElement.");
+            return uie;
+        }
+    }
+    Nullstone.RegisterType(DataTemplate, "DataTemplate");
 }
 
 module Fayde {
@@ -10886,23 +10961,6 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(DependencyObject, "DependencyObject");
-}
-
-module Fayde {
-    export class FrameworkTemplate extends XamlObject {
-        GetVisualTree(bindingSource: DependencyObject): XamlObject {
-            var error = new BError();
-            var vt = this._GetVisualTreeWithError(bindingSource, error);
-            if (error.Message)
-                error.ThrowException();
-            return vt;
-        }
-        _GetVisualTreeWithError(templateBindingSource: DependencyObject, error: BError): XamlObject {
-            error.Message = "Abstract Method";
-            return undefined;
-        }
-    }
-    Nullstone.RegisterType(FrameworkTemplate, "FrameworkTemplate");
 }
 
 module Fayde {
@@ -13684,29 +13742,6 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
-    export class ControlTemplate extends FrameworkTemplate {
-        private _TempJson: any;
-        private _ResChain: ResourceDictionary[];
-        TargetType: Function;
-        constructor(targetType: Function, json: any, resChain?: ResourceDictionary[]) {
-            super();
-            Object.defineProperty(this, "TargetType", {
-                value: targetType,
-                writable: false
-            });
-            this._TempJson = json;
-            this._ResChain = resChain;
-        }
-        _GetVisualTreeWithError(templateBindingSource: FrameworkElement, error: BError): XamlObject {
-            if (this._TempJson)
-                return Fayde.JsonParser.Parse(this._TempJson, templateBindingSource, new Fayde.NameScope(), this._ResChain);
-            return super._GetVisualTreeWithError(templateBindingSource, error);
-        }
-    }
-    Nullstone.RegisterType(ControlTemplate, "ControlTemplate");
-}
-
-module Fayde.Controls {
     export interface IItemCollection {
         ItemsChanged: MulticastEvent;
         ToArray(): any[];
@@ -13843,22 +13878,6 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
-    export class ItemsPanelTemplate extends FrameworkTemplate {
-        private _TempJson: any;
-        constructor(json: any) {
-            super();
-            this._TempJson = json;
-        }
-        private _GetVisualTreeWithError(templateBindingSource: DependencyObject, error: BError): XamlObject {
-            if (this._TempJson)
-                return JsonParser.Parse(this._TempJson, templateBindingSource, new NameScope());
-            return super._GetVisualTreeWithError(templateBindingSource, error);
-        }
-    }
-    Nullstone.RegisterType(ItemsPanelTemplate, "ItemsPanelTemplate");
-}
-
-module Fayde.Controls {
     export interface IRowDefinitionListener {
         RowDefinitionChanged(rowDefinition: RowDefinition);
     }
@@ -13982,24 +14001,6 @@ module Fayde.Controls.Primitives {
         }
     }
     Nullstone.RegisterType(ScrollEventArgs, "ScrollEventArgs");
-}
-
-module Fayde {
-    export class DataTemplate extends FrameworkTemplate {
-        private _TempJson: any;
-        private _ResChain: ResourceDictionary[];
-        constructor(json: any, resChain?: ResourceDictionary[]) {
-            super();
-            this._TempJson = json;
-            this._ResChain = resChain;
-        }
-        _GetVisualTreeWithError(templateBindingSource: FrameworkElement, error: BError): XamlObject {
-            if (this._TempJson)
-                return JsonParser.Parse(this._TempJson, templateBindingSource);
-            return super._GetVisualTreeWithError(templateBindingSource, error);
-        }
-    }
-    Nullstone.RegisterType(DataTemplate, "DataTemplate");
 }
 
 module Fayde {
@@ -15866,24 +15867,21 @@ module Fayde {
             this.OnVisualChildDetached(uie);
             uie.XamlNode.SetIsLoaded(false);
         }
-        _ApplyTemplateWithError(error: BError): bool {
+        ApplyTemplateWithError(error: BError): bool {
             if (this.SubtreeNode)
                 return false;
-            var result = this._DoApplyTemplateWithError(error);
+            var result = this.DoApplyTemplateWithError(error);
             if (result)
                 this.XObject.OnApplyTemplate();
             return result;
         }
-        _DoApplyTemplateWithError(error: BError): bool {
-            var uie = <UIElement>this._GetDefaultTemplate();
-            if (uie) {
-                if (error.Message)
-                    return false;
-                this.AttachVisualChild(uie, error);
-            }
-            return error.Message == null && uie != null;
+        DoApplyTemplateWithError(error: BError): bool { return false; }
+        FinishApplyTemplateWithError(uie: UIElement, error: BError): bool {
+            if (!uie || error.Message)
+                return false;
+            this.AttachVisualChild(uie, error);
+            return error.Message == null;
         }
-        _GetDefaultTemplate(): UIElement { return undefined; }
         _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
             var lu = this.LayoutUpdater;
             if (!lu.TotalIsRenderVisible)
@@ -16787,49 +16785,15 @@ module Fayde.Controls {
 
 module Fayde.Controls {
     export class ContentPresenterNode extends FENode {
-        _ContentRoot: UIElement;
+        private _ContentRoot: UIElement;
+        get ContentRoot(): UIElement { return this._ContentRoot; }
         XObject: ContentPresenter;
         constructor(xobj:ContentPresenter) {
             super(xobj);
         }
-        _ClearRoot() {
+        DoApplyTemplateWithError(error: BError): bool {
             if (this._ContentRoot)
-                this.DetachVisualChild(this._ContentRoot, null);
-            this._ContentRoot = null;
-        }
-        private _FallbackRoot: UIElement;
-        private _FallbackTemplate: ControlTemplate;
-        get FallbackRoot(): UIElement {
-            var fr = this._FallbackRoot;
-            if (!fr) {
-                var ft = this._FallbackTemplate;
-                if (!ft)
-                    ft = this._CreateFallbackTemplate();
-                fr = this._FallbackRoot = <UIElement>ft.GetVisualTree(this.XObject);
-            }
-            return fr;
-        }
-        private _CreateFallbackTemplate(): ControlTemplate {
-            return new ControlTemplate(ContentPresenter, {
-                ParseType: Grid,
-                Children: [
-                    {
-                        ParseType: TextBlock,
-                        Props: {
-                            Text: new BindingMarkup({})
-                        }
-                    }
-                ]
-            });
-        }
-        InvokeLoaded() {
-            var xobj = this.XObject;
-            if (xobj.Content instanceof UIElement)
-                xobj.ClearValue(DependencyObject.DataContextProperty);
-            else
-                xobj.SetValue(DependencyObject.DataContextProperty, xobj.Content);
-        }
-        _GetDefaultTemplate(): UIElement {
+                return false;
             var xobj = this.XObject;
             if (xobj.TemplateOwner instanceof ContentControl) {
                 if (xobj.ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
@@ -16841,18 +16805,32 @@ module Fayde.Controls {
                         new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty, "ContentTemplate"));
                 }
             }
-            if (xobj.ContentTemplate) {
-                var vt = xobj.ContentTemplate.GetVisualTree(this.XObject);
-                if (vt instanceof UIElement)
-                    this._ContentRoot = <UIElement>vt;
-            } else {
-                var content = xobj.Content;
-                if (content instanceof UIElement)
-                    this._ContentRoot = content;
-                if (!this._ContentRoot && content)
-                    this._ContentRoot = this.FallbackRoot;
-            }
-            return this._ContentRoot;
+            var content = xobj.Content;
+            if (!content)
+                return false;
+            if (content instanceof UIElement)
+                this._ContentRoot = content;
+            else
+                this._ContentRoot = (xobj.ContentTemplate || this.FallbackTemplate).GetVisualTree(xobj);
+            if (!this._ContentRoot)
+                return false;
+            return this.AttachVisualChild(this._ContentRoot, error);
+        }
+        ClearRoot() {
+            if (this._ContentRoot)
+                this.DetachVisualChild(this._ContentRoot, null);
+            this._ContentRoot = null;
+        }
+        get FallbackTemplate(): DataTemplate {
+            return new DataTemplate({
+                ParseType: Grid,
+                Children: [
+                    {
+                        ParseType: TextBlock,
+                        Props: { Text: new BindingMarkup({}) }
+                    }
+                ]
+            });
         }
     }
     Nullstone.RegisterType(ContentPresenterNode, "ContentPresenterNode");
@@ -16870,17 +16848,15 @@ module Fayde.Controls {
             var newUie: UIElement;
             if (newContent instanceof UIElement)
                 newUie = newContent;
-            if (newUie || args.OldValue instanceof UIElement)
-                node._ClearRoot();
-            if (newContent && !newUie)
-                this._Store.SetValue(DependencyObject.DataContextProperty, newContent);
             else
-                this._Store.ClearValue(DependencyObject.DataContextProperty);
+                this.DataContext = newContent;
+            if (newUie || args.OldValue instanceof UIElement)
+                node.ClearRoot();
             node.LayoutUpdater.InvalidateMeasure();
         }
         _ContentTemplateChanged(args: IDependencyPropertyChangedEventArgs) {
             var node = this.XamlNode;
-            node._ClearRoot();
+            node.ClearRoot();
             node.LayoutUpdater.InvalidateMeasure();
         }
     }
@@ -16901,18 +16877,13 @@ module Fayde.Controls {
             var xobj = this.XObject;
             return xobj.IsEnabled && xobj.IsTabStop && this.Focus();
         }
-        _DoApplyTemplateWithError(error: BError): bool {
+        DoApplyTemplateWithError(error: BError): bool {
             var xobj = this.XObject;
             var t = xobj.Template;
-            if (!t)
-                return super._DoApplyTemplateWithError(error);
-            var root = <UIElement>t._GetVisualTreeWithError(xobj, error);
-            if (root && !(root instanceof UIElement)) {
-                Warn("Root element in template was not a UIElement.");
-                root = null;
-            }
-            if (!root)
-                return super._DoApplyTemplateWithError(error);
+            var root: UIElement;
+            if (t) root = t.GetVisualTree(xobj);
+            if (!root && !(root = this.GetDefaultVisualTree()))
+                return false;
             if (this.TemplateRoot && this.TemplateRoot !== root)
                 this.DetachVisualChild(this.TemplateRoot, error)
             this.TemplateRoot = <FrameworkElement>root;
@@ -16922,6 +16893,7 @@ module Fayde.Controls {
                 return false;
             return true;
         }
+        GetDefaultVisualTree(): UIElement { return undefined; }
         OnIsAttachedChanged(newIsAttached: bool) {
             super.OnIsAttachedChanged(newIsAttached);
             if (!newIsAttached)
@@ -17015,7 +16987,7 @@ module Fayde.Controls {
         }
         ApplyTemplate(): bool {
             var error = new BError();
-            var result = this.XamlNode._ApplyTemplateWithError(error);
+            var result = this.XamlNode.ApplyTemplateWithError(error);
             if (error.Message)
                 error.ThrowException();
             return result;
@@ -17374,7 +17346,7 @@ module Fayde.Controls {
         constructor(xobj: ItemsControl) {
             super(xobj);
         }
-        _GetDefaultTemplate(): UIElement {
+        GetDefaultVisualTree(): UIElement {
             var presenter = this._Presenter;
             if (!presenter) {
                 presenter = new ItemsPresenter();
@@ -17704,7 +17676,7 @@ module Fayde.Controls {
         get ElementRoot(): Panel {
             if (!this._ElementRoot) {
                 var error = new BError();
-                this._DoApplyTemplateWithError(error);
+                this.DoApplyTemplateWithError(error);
                 if (error.Message)
                     error.ThrowException();
             }
@@ -17722,29 +17694,25 @@ module Fayde.Controls {
                 this._VSPFT = vspft = new ItemsPanelTemplate({ ParseType: VirtualizingStackPanel });
             return vspft;
         }
-        _GetDefaultTemplate(): UIElement {
-            var xobj = this.XObject;
-            var c = xobj.TemplateOwner;
-            if (!(c instanceof ItemsControl))
-                return null;
+        DoApplyTemplateWithError(error: BError): bool {
             if (this._ElementRoot)
-                return this._ElementRoot;
-            if (c.ItemsPanel) {
-                var root = c.ItemsPanel.GetVisualTree(xobj);
-                if (!(root instanceof Panel))
-                    throw new InvalidOperationException("The root element of an ItemsPanelTemplate must be a Panel subclass");
-                this._ElementRoot = <Panel>root;
-            }
+                return false;
+            var xobj = this.XObject;
+            var ic = xobj.TemplateOwner;
+            if (!(ic instanceof ItemsControl))
+                return false;
+            if (ic.ItemsPanel)
+                this._ElementRoot = ic.ItemsPanel.GetVisualTree(xobj);
             if (!this._ElementRoot) {
                 var template: ItemsPanelTemplate;
-                if (c instanceof ListBox)
+                if (ic instanceof ListBox)
                     template = this.VirtualizingStackPanelFallbackTemplate;
                 else
                     template = this.StackPanelFallbackTemplate;
                 this._ElementRoot = <Panel>template.GetVisualTree(xobj);
             }
             this._ElementRoot.IsItemsHost = true;
-            return this._ElementRoot;
+            return this.FinishApplyTemplateWithError(this._ElementRoot, error);
         }
     }
     Nullstone.RegisterType(ItemsPresenterNode, "ItemsPresenterNode");
@@ -18127,7 +18095,7 @@ module Fayde.Controls {
         }
         private _MeasureOverride(availableSize: size, error: BError): size {
             var scrollOwner = this.ScrollOwner;
-            var cr = this.XamlNode._ContentRoot;
+            var cr = this.XamlNode.ContentRoot;
             if (!scrollOwner || !cr)
                 return (<IMeasurableHidden>super)._MeasureOverride(availableSize, error);
             var ideal = size.createInfinite();
@@ -18146,7 +18114,7 @@ module Fayde.Controls {
         }
         private _ArrangeOverride(finalSize: size, error: BError): size {
             var scrollOwner = this.ScrollOwner;
-            var cr = this.XamlNode._ContentRoot;
+            var cr = this.XamlNode.ContentRoot;
             if (!scrollOwner || !cr)
                 return (<IArrangeableHidden>super)._ArrangeOverride(finalSize, error);
             if (this._ClampOffsets())
@@ -18972,7 +18940,7 @@ module Fayde.Controls {
             this.LayoutUpdater.BreaksLayoutClipRender = true;
             this.LayoutUpdater.SetContainerMode(true);
         }
-        _GetDefaultTemplate(): UIElement {
+        GetDefaultTemplate(): UIElement {
             var xobj = this.XObject;
             var type = (<any>xobj).constructor;
             var json = type.__TemplateJson;
@@ -21609,41 +21577,18 @@ module Fayde.Controls {
         constructor(xobj: ContentControl) {
             super(xobj);
         }
-        _GetDefaultTemplate(): UIElement {
+        GetDefaultVisualTree(): UIElement {
             var xobj = this.XObject;
             var content = xobj.Content;
             if (content instanceof UIElement)
                 return <UIElement>content;
-            if (content) {
-                var fr = this.FallbackRoot;
-                fr.XamlNode.DataContext = content;
-                return fr;
-            }
-        }
-        OnContentChanged(newContent: any) {
-        }
-        private _FallbackRoot: UIElement;
-        get FallbackRoot(): UIElement {
-            var fr = this._FallbackRoot;
-            if (!fr) {
-                var ft = ContentControlNode._FallbackTemplate;
-                if (!ft)
-                    ft = ContentControlNode._CreateFallbackTemplate();
-                fr = this._FallbackRoot = <UIElement>ft.GetVisualTree(this.XObject);
-            }
-            return fr;
-        }
-        private static _FallbackTemplate: DataTemplate;
-        private static _CreateFallbackTemplate(): DataTemplate {
-            return new DataTemplate({
-                ParseType: Grid,
-                Children: [
-                    {
-                        ParseType: TextBlock,
-                        Props: { Text: new BindingMarkup({}) }
-                    }
-                ]
-            });
+            var presenter = new ContentPresenter();
+            presenter.TemplateOwner = this.XObject;
+            presenter.SetValue(ContentPresenter.ContentProperty,
+                new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty, "Content"));
+            presenter.SetValue(ContentPresenter.ContentTemplateProperty,
+                new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty, "ContentTemplate"));
+            return presenter;
         }
     }
     Nullstone.RegisterType(ContentControlNode, "ContentControlNode");
@@ -21661,7 +21606,6 @@ module Fayde.Controls {
         _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
             if (args.OldValue instanceof UIElement)
                 this.XamlNode.DetachVisualChild(<UIElement>args.OldValue, null);
-            this.XamlNode.OnContentChanged(args.NewValue);
             this.OnContentChanged(args.OldValue, args.NewValue);
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
         }

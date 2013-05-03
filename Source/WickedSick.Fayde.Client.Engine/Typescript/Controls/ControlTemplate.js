@@ -7,23 +7,32 @@ var Fayde;
 (function (Fayde) {
     /// <reference path="../Core/FrameworkTemplate.ts" />
     /// CODE
+    /// <reference path="../Markup/JsonParser.ts" />
+    /// <reference path="../Core/UIElement.ts" />
     (function (Controls) {
         var ControlTemplate = (function (_super) {
             __extends(ControlTemplate, _super);
-            function ControlTemplate(targetType, json, resChain) {
+            function ControlTemplate(targetType, json) {
                         _super.call(this);
+                if(!targetType) {
+                    throw new XamlParseException("ControlTemplate must have a TargetType.");
+                }
                 Object.defineProperty(this, "TargetType", {
                     value: targetType,
                     writable: false
                 });
                 this._TempJson = json;
-                this._ResChain = resChain;
             }
-            ControlTemplate.prototype._GetVisualTreeWithError = function (templateBindingSource, error) {
-                if(this._TempJson) {
-                    return Fayde.JsonParser.Parse(this._TempJson, templateBindingSource, new Fayde.NameScope(), this._ResChain);
+            ControlTemplate.prototype.GetVisualTree = function (templateBindingSource) {
+                var json = this._TempJson;
+                if(!json) {
+                    throw new XamlParseException("ControlTemplate has no definition.");
                 }
-                return _super.prototype._GetVisualTreeWithError.call(this, templateBindingSource, error);
+                var uie = Fayde.JsonParser.Parse(json, templateBindingSource, new Fayde.NameScope(true), this.ResChain);
+                if(!(uie instanceof Fayde.UIElement)) {
+                    throw new XamlParseException("ControlTemplate root visual is not a UIElement.");
+                }
+                return uie;
             };
             return ControlTemplate;
         })(Fayde.FrameworkTemplate);

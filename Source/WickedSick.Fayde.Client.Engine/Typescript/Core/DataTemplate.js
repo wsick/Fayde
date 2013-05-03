@@ -3,25 +3,29 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+/// <reference path="XamlNode.ts" />
 /// <reference path="FrameworkTemplate.ts" />
 /// CODE
-/// <reference path="ResourceDictionary.ts" />
-/// <reference path="FrameworkElement.ts" />
+/// <reference path="DependencyObject.ts" />
 /// <reference path="../Markup/JsonParser.ts" />
 var Fayde;
 (function (Fayde) {
     var DataTemplate = (function (_super) {
         __extends(DataTemplate, _super);
-        function DataTemplate(json, resChain) {
+        function DataTemplate(json) {
                 _super.call(this);
             this._TempJson = json;
-            this._ResChain = resChain;
         }
-        DataTemplate.prototype._GetVisualTreeWithError = function (templateBindingSource, error) {
-            if(this._TempJson) {
-                return Fayde.JsonParser.Parse(this._TempJson, templateBindingSource);
+        DataTemplate.prototype.GetVisualTree = function (templateBindingSource) {
+            var json = this._TempJson;
+            if(!json) {
+                throw new XamlParseException("DataTemplate has no definition.");
             }
-            return _super.prototype._GetVisualTreeWithError.call(this, templateBindingSource, error);
+            var uie = Fayde.JsonParser.Parse(json, templateBindingSource, new Fayde.NameScope(true), this.ResChain);
+            if(!(uie instanceof Fayde.UIElement)) {
+                throw new XamlParseException("DataTemplate root visual is not a UIElement.");
+            }
+            return uie;
         };
         return DataTemplate;
     })(Fayde.FrameworkTemplate);

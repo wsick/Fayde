@@ -57,17 +57,13 @@ var Fayde;
         JsonParser.prototype.CreateObject = function (json, namescope, ignoreResolve) {
             var type = json.ParseType;
             if(!type) {
+                if(json instanceof Fayde.FrameworkTemplate) {
+                    (json).ResChain = this._ResChain;
+                }
                 return json;
             }
             if(type === Number || type === String || type === Boolean) {
                 return json.Value;
-            }
-            if(type === Fayde.Controls.ControlTemplate) {
-                var targetType = json.Props == null ? null : json.Props.TargetType;
-                return new Fayde.Controls.ControlTemplate(targetType, json.Content, this._ResChain);
-            }
-            if(type === Fayde.DataTemplate) {
-                return new Fayde.DataTemplate(json.Content, this._ResChain);
             }
             var xobj = new type();
             if(!this._RootXamlObject) {
@@ -172,6 +168,8 @@ var Fayde;
         JsonParser.prototype.TrySetPropertyValue = function (xobj, propd, propValue, namescope, isAttached, ownerType, propName) {
             if(propValue.ParseType) {
                 propValue = this.CreateObject(propValue, namescope, true);
+            } else if(propValue instanceof Fayde.FrameworkTemplate) {
+                (propValue).ResChain = this._ResChain;
             }
             if(propValue instanceof Fayde.Markup) {
                 propValue = propValue.Transmute(xobj, propd, propName, this._TemplateBindingSource);

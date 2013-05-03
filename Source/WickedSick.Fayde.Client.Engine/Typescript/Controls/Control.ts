@@ -21,20 +21,13 @@ module Fayde.Controls {
             return xobj.IsEnabled && xobj.IsTabStop && this.Focus();
         }
 
-        _DoApplyTemplateWithError(error: BError): bool {
+        DoApplyTemplateWithError(error: BError): bool {
             var xobj = this.XObject;
             var t = xobj.Template;
-            if (!t)
-                return super._DoApplyTemplateWithError(error);
-
-            var root = <UIElement>t._GetVisualTreeWithError(xobj, error);
-            if (root && !(root instanceof UIElement)) {
-                Warn("Root element in template was not a UIElement.");
-                root = null;
-            }
-
-            if (!root)
-                return super._DoApplyTemplateWithError(error);
+            var root: UIElement;
+            if (t) root = t.GetVisualTree(xobj);
+            if (!root && !(root = this.GetDefaultVisualTree()))
+                return false;
 
             if (this.TemplateRoot && this.TemplateRoot !== root)
                 this.DetachVisualChild(this.TemplateRoot, error)
@@ -43,11 +36,12 @@ module Fayde.Controls {
                 this.AttachVisualChild(this.TemplateRoot, error);
             if (error.Message)
                 return false;
-
+                
             //TODO: Deployment Loaded Event (Async)
 
             return true;
         }
+        GetDefaultVisualTree(): UIElement { return undefined; }
 
         OnIsAttachedChanged(newIsAttached: bool) {
             super.OnIsAttachedChanged(newIsAttached);
@@ -153,7 +147,7 @@ module Fayde.Controls {
 
         ApplyTemplate(): bool {
             var error = new BError();
-            var result = this.XamlNode._ApplyTemplateWithError(error);
+            var result = this.XamlNode.ApplyTemplateWithError(error);
             if (error.Message)
                 error.ThrowException();
             return result;

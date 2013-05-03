@@ -1,23 +1,25 @@
+/// <reference path="XamlNode.ts" />
 /// <reference path="FrameworkTemplate.ts" />
 /// CODE
-/// <reference path="ResourceDictionary.ts" />
-/// <reference path="FrameworkElement.ts" />
+/// <reference path="DependencyObject.ts" />
 /// <reference path="../Markup/JsonParser.ts" />
 
 module Fayde {
     export class DataTemplate extends FrameworkTemplate {
         private _TempJson: any;
-        private _ResChain: ResourceDictionary[];
-        constructor(json: any, resChain?: ResourceDictionary[]) {
+        constructor(json: any) {
             super();
             this._TempJson = json;
-            this._ResChain = resChain;
         }
 
-        _GetVisualTreeWithError(templateBindingSource: FrameworkElement, error: BError): XamlObject {
-            if (this._TempJson)
-                return JsonParser.Parse(this._TempJson, templateBindingSource);
-            return super._GetVisualTreeWithError(templateBindingSource, error);
+        GetVisualTree(templateBindingSource?: DependencyObject): UIElement {
+            var json = this._TempJson;
+            if (!json)
+                throw new XamlParseException("DataTemplate has no definition.");
+            var uie = <UIElement>JsonParser.Parse(json, templateBindingSource, new NameScope(true), this.ResChain);
+            if (!(uie instanceof UIElement))
+                throw new XamlParseException("DataTemplate root visual is not a UIElement.");
+            return uie;
         }
     }
     Nullstone.RegisterType(DataTemplate, "DataTemplate");

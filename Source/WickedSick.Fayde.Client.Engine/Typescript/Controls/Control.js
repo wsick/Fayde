@@ -22,19 +22,15 @@ var Fayde;
                 var xobj = this.XObject;
                 return xobj.IsEnabled && xobj.IsTabStop && this.Focus();
             };
-            ControlNode.prototype._DoApplyTemplateWithError = function (error) {
+            ControlNode.prototype.DoApplyTemplateWithError = function (error) {
                 var xobj = this.XObject;
                 var t = xobj.Template;
-                if(!t) {
-                    return _super.prototype._DoApplyTemplateWithError.call(this, error);
+                var root;
+                if(t) {
+                    root = t.GetVisualTree(xobj);
                 }
-                var root = t._GetVisualTreeWithError(xobj, error);
-                if(root && !(root instanceof Fayde.UIElement)) {
-                    Warn("Root element in template was not a UIElement.");
-                    root = null;
-                }
-                if(!root) {
-                    return _super.prototype._DoApplyTemplateWithError.call(this, error);
+                if(!root && !(root = this.GetDefaultVisualTree())) {
+                    return false;
                 }
                 if(this.TemplateRoot && this.TemplateRoot !== root) {
                     this.DetachVisualChild(this.TemplateRoot, error);
@@ -48,6 +44,9 @@ var Fayde;
                 }
                 //TODO: Deployment Loaded Event (Async)
                 return true;
+            };
+            ControlNode.prototype.GetDefaultVisualTree = function () {
+                return undefined;
             };
             ControlNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
                 _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
@@ -201,7 +200,7 @@ var Fayde;
             };
             Control.prototype.ApplyTemplate = function () {
                 var error = new BError();
-                var result = this.XamlNode._ApplyTemplateWithError(error);
+                var result = this.XamlNode.ApplyTemplateWithError(error);
                 if(error.Message) {
                     error.ThrowException();
                 }

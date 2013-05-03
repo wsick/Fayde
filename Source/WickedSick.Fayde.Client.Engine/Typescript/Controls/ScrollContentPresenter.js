@@ -261,7 +261,7 @@ var Fayde;
             };
             ScrollContentPresenter.prototype._MeasureOverride = function (availableSize, error) {
                 var scrollOwner = this.ScrollOwner;
-                var cr = this.XamlNode._ContentRoot;
+                var cr = this.XamlNode.ContentRoot;
                 if(!scrollOwner || !cr) {
                     return (_super.prototype)._MeasureOverride(availableSize, error);
                 }
@@ -283,7 +283,7 @@ var Fayde;
             };
             ScrollContentPresenter.prototype._ArrangeOverride = function (finalSize, error) {
                 var scrollOwner = this.ScrollOwner;
-                var cr = this.XamlNode._ContentRoot;
+                var cr = this.XamlNode.ContentRoot;
                 if(!scrollOwner || !cr) {
                     return (_super.prototype)._ArrangeOverride(finalSize, error);
                 }

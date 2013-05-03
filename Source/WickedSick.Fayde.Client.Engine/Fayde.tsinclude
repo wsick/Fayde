@@ -36,6 +36,7 @@ Typescript\Controls\Primitives\IScrollInfo.ts
 Typescript\Controls\Primitives\SelectorSelection.ts
 Typescript\Core\DependencyProperty.ts
 Typescript\Core\Expression.ts
+Typescript\Core\FrameworkTemplate.ts
 Typescript\Core\LayoutInformation.ts
 Typescript\Core\LayoutUpdater.ts
 Typescript\Core\NameScope.ts
@@ -90,11 +91,13 @@ Typescript\Runtime\EventArgs.ts
 Typescript\Runtime\MulticastEvent.ts
 Typescript\Collections\NotifyCollectionChangedEventArgs.ts
 Typescript\Collections\ObservableCollection.ts
+Typescript\Controls\ControlTemplate.ts
+Typescript\Controls\ItemsPanelTemplate.ts
 Typescript\Controls\Primitives\ItemsChangedEventArgs.ts
 Typescript\Controls\Primitives\SelectionChangedEventArgs.ts
+Typescript\Core\DataTemplate.ts
 Typescript\Core\DeferredValueExpression.ts
 Typescript\Core\DependencyObject.ts
-Typescript\Core\FrameworkTemplate.ts
 Typescript\Core\INotifyPropertyChanged.ts
 Typescript\Core\ResourceTarget.ts
 Typescript\Core\RoutedEvent.ts
@@ -143,14 +146,11 @@ Typescript\Media\VSM\VisualTransition.ts
 Typescript\Shapes\DoubleCollection.ts
 Typescript\Shapes\PointCollection.ts
 Typescript\Controls\ColumnDefinition.ts
-Typescript\Controls\ControlTemplate.ts
 Typescript\Controls\ItemCollection.ts
-Typescript\Controls\ItemsPanelTemplate.ts
 Typescript\Controls\RowDefinition.ts
 Typescript\Controls\ToolTipService.ts
 Typescript\Controls\Primitives\DragEventArgs.ts
 Typescript\Controls\Primitives\ScrollEventArgs.ts
-Typescript\Core\DataTemplate.ts
 Typescript\Core\ResourceDictionary.ts
 Typescript\Core\Setter.ts
 Typescript\Core\Triggers.ts

@@ -99,6 +99,10 @@ var Fayde;
             }
             var cur = curNode.XObject;
             str += (cur).constructor._TypeName;
+            var id = (cur)._ID;
+            if(id) {
+                str += "[" + id + "]";
+            }
             var name = curNode.Name;
             if(name) {
                 str += " [" + name + "]";

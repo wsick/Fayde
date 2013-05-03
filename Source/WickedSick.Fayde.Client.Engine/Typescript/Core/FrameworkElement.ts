@@ -70,24 +70,21 @@ module Fayde {
             uie.XamlNode.SetIsLoaded(false);
         }
 
-        _ApplyTemplateWithError(error: BError): bool {
+        ApplyTemplateWithError(error: BError): bool {
             if (this.SubtreeNode)
                 return false;
-            var result = this._DoApplyTemplateWithError(error);
+            var result = this.DoApplyTemplateWithError(error);
             if (result)
                 this.XObject.OnApplyTemplate();
             return result;
         }
-        _DoApplyTemplateWithError(error: BError): bool {
-            var uie = <UIElement>this._GetDefaultTemplate();
-            if (uie) {
-                if (error.Message)
-                    return false;
-                this.AttachVisualChild(uie, error);
-            }
-            return error.Message == null && uie != null;
+        DoApplyTemplateWithError(error: BError): bool { return false; }
+        FinishApplyTemplateWithError(uie: UIElement, error: BError): bool {
+            if (!uie || error.Message)
+                return false;
+            this.AttachVisualChild(uie, error);
+            return error.Message == null;
         }
-        _GetDefaultTemplate(): UIElement { return undefined; }
         
         _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
             var lu = this.LayoutUpdater;

@@ -74,28 +74,25 @@ var Fayde;
             this.OnVisualChildDetached(uie);
             uie.XamlNode.SetIsLoaded(false);
         };
-        FENode.prototype._ApplyTemplateWithError = function (error) {
+        FENode.prototype.ApplyTemplateWithError = function (error) {
             if(this.SubtreeNode) {
                 return false;
             }
-            var result = this._DoApplyTemplateWithError(error);
+            var result = this.DoApplyTemplateWithError(error);
             if(result) {
                 this.XObject.OnApplyTemplate();
             }
             return result;
         };
-        FENode.prototype._DoApplyTemplateWithError = function (error) {
-            var uie = this._GetDefaultTemplate();
-            if(uie) {
-                if(error.Message) {
-                    return false;
-                }
-                this.AttachVisualChild(uie, error);
-            }
-            return error.Message == null && uie != null;
+        FENode.prototype.DoApplyTemplateWithError = function (error) {
+            return false;
         };
-        FENode.prototype._GetDefaultTemplate = function () {
-            return undefined;
+        FENode.prototype.FinishApplyTemplateWithError = function (uie, error) {
+            if(!uie || error.Message) {
+                return false;
+            }
+            this.AttachVisualChild(uie, error);
+            return error.Message == null;
         };
         FENode.prototype._FindElementsInHostCoordinates = function (ctx, p, uinlist) {
             var lu = this.LayoutUpdater;

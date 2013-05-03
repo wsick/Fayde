@@ -36,6 +36,7 @@ Controls/Primitives/IScrollInfo.js
 Controls/Primitives/SelectorSelection.js
 Core/DependencyProperty.js
 Core/Expression.js
+Core/FrameworkTemplate.js
 Core/LayoutInformation.js
 Core/LayoutUpdater.js
 Core/NameScope.js
@@ -90,11 +91,13 @@ Runtime/EventArgs.js
 Runtime/MulticastEvent.js
 Collections/NotifyCollectionChangedEventArgs.js
 Collections/ObservableCollection.js
+Controls/ControlTemplate.js
+Controls/ItemsPanelTemplate.js
 Controls/Primitives/ItemsChangedEventArgs.js
 Controls/Primitives/SelectionChangedEventArgs.js
+Core/DataTemplate.js
 Core/DeferredValueExpression.js
 Core/DependencyObject.js
-Core/FrameworkTemplate.js
 Core/INotifyPropertyChanged.js
 Core/ResourceTarget.js
 Core/RoutedEvent.js
@@ -143,14 +146,11 @@ Media/VSM/VisualTransition.js
 Shapes/DoubleCollection.js
 Shapes/PointCollection.js
 Controls/ColumnDefinition.js
-Controls/ControlTemplate.js
 Controls/ItemCollection.js
-Controls/ItemsPanelTemplate.js
 Controls/RowDefinition.js
 Controls/ToolTipService.js
 Controls/Primitives/DragEventArgs.js
 Controls/Primitives/ScrollEventArgs.js
-Core/DataTemplate.js
 Core/ResourceDictionary.js
 Core/Setter.js
 Core/Triggers.js

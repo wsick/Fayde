@@ -22,7 +22,7 @@ var Fayde;
                 get: function () {
                     if(!this._ElementRoot) {
                         var error = new BError();
-                        this._DoApplyTemplateWithError(error);
+                        this.DoApplyTemplateWithError(error);
                         if(error.Message) {
                             error.ThrowException();
                         }
@@ -58,25 +58,21 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
-            ItemsPresenterNode.prototype._GetDefaultTemplate = function () {
-                var xobj = this.XObject;
-                var c = xobj.TemplateOwner;
-                if(!(c instanceof Controls.ItemsControl)) {
-                    return null;
-                }
+            ItemsPresenterNode.prototype.DoApplyTemplateWithError = function (error) {
                 if(this._ElementRoot) {
-                    return this._ElementRoot;
+                    return false;
                 }
-                if(c.ItemsPanel) {
-                    var root = c.ItemsPanel.GetVisualTree(xobj);
-                    if(!(root instanceof Controls.Panel)) {
-                        throw new InvalidOperationException("The root element of an ItemsPanelTemplate must be a Panel subclass");
-                    }
-                    this._ElementRoot = root;
+                var xobj = this.XObject;
+                var ic = xobj.TemplateOwner;
+                if(!(ic instanceof Controls.ItemsControl)) {
+                    return false;
+                }
+                if(ic.ItemsPanel) {
+                    this._ElementRoot = ic.ItemsPanel.GetVisualTree(xobj);
                 }
                 if(!this._ElementRoot) {
                     var template;
-                    if(c instanceof Controls.ListBox) {
+                    if(ic instanceof Controls.ListBox) {
                         template = this.VirtualizingStackPanelFallbackTemplate;
                     } else {
                         template = this.StackPanelFallbackTemplate;
@@ -84,7 +80,7 @@ var Fayde;
                     this._ElementRoot = template.GetVisualTree(xobj);
                 }
                 this._ElementRoot.IsItemsHost = true;
-                return this._ElementRoot;
+                return this.FinishApplyTemplateWithError(this._ElementRoot, error);
             };
             return ItemsPresenterNode;
         })(Fayde.FENode);

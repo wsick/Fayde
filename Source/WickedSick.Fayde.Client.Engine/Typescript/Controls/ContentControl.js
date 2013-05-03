@@ -15,53 +15,18 @@ var Fayde;
             function ContentControlNode(xobj) {
                         _super.call(this, xobj);
             }
-            ContentControlNode.prototype._GetDefaultTemplate = function () {
+            ContentControlNode.prototype.GetDefaultVisualTree = function () {
                 var xobj = this.XObject;
                 var content = xobj.Content;
                 if(content instanceof Fayde.UIElement) {
                     return content;
                 }
-                if(content) {
-                    var fr = this.FallbackRoot;
-                    fr.XamlNode.DataContext = content;
-                    return fr;
-                }
+                var presenter = new Controls.ContentPresenter();
+                presenter.TemplateOwner = this.XObject;
+                presenter.SetValue(Controls.ContentPresenter.ContentProperty, new Fayde.TemplateBindingExpression(ContentControl.ContentProperty, Controls.ContentPresenter.ContentProperty, "Content"));
+                presenter.SetValue(Controls.ContentPresenter.ContentTemplateProperty, new Fayde.TemplateBindingExpression(ContentControl.ContentTemplateProperty, Controls.ContentPresenter.ContentTemplateProperty, "ContentTemplate"));
+                return presenter;
             };
-            ContentControlNode.prototype.OnContentChanged = function (newContent) {
-                //if (this._FallbackRoot)
-                //  this._FallbackRoot.XamlNode.DataContext = newContent;
-                            };
-            Object.defineProperty(ContentControlNode.prototype, "FallbackRoot", {
-                get: function () {
-                    var fr = this._FallbackRoot;
-                    if(!fr) {
-                        var ft = ContentControlNode._FallbackTemplate;
-                        if(!ft) {
-                            ft = ContentControlNode._CreateFallbackTemplate();
-                        }
-                        fr = this._FallbackRoot = ft.GetVisualTree(this.XObject);
-                    }
-                    return fr;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            ContentControlNode._CreateFallbackTemplate = // <DataTemplate><Grid><TextBlock Text="{Binding}" /></Grid></DataTemplate>
-            function _CreateFallbackTemplate() {
-                return new Fayde.DataTemplate({
-                    ParseType: Controls.Grid,
-                    Children: [
-                        {
-                            ParseType: Controls.TextBlock,
-                            Props: {
-                                Text: new Fayde.BindingMarkup({
-                                })
-                            }
-                        }
-                    ]
-                });
-                //TODO: DataTemplate wants a res chain, do we need to pass it our res chain?
-                            };
             return ContentControlNode;
         })(Controls.ControlNode);
         Controls.ContentControlNode = ContentControlNode;        
@@ -97,7 +62,6 @@ var Fayde;
                 if(args.OldValue instanceof Fayde.UIElement) {
                     this.XamlNode.DetachVisualChild(args.OldValue, null);
                 }
-                this.XamlNode.OnContentChanged(args.NewValue);
                 this.OnContentChanged(args.OldValue, args.NewValue);
                 this.XamlNode.LayoutUpdater.InvalidateMeasure();
             };

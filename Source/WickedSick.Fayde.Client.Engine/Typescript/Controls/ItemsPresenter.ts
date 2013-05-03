@@ -19,7 +19,7 @@ module Fayde.Controls {
         get ElementRoot(): Panel {
             if (!this._ElementRoot) {
                 var error = new BError();
-                this._DoApplyTemplateWithError(error);
+                this.DoApplyTemplateWithError(error);
                 if (error.Message)
                     error.ThrowException();
             }
@@ -39,25 +39,21 @@ module Fayde.Controls {
             return vspft;
         }
 
-        _GetDefaultTemplate(): UIElement {
-            var xobj = this.XObject;
-            var c = xobj.TemplateOwner;
-            if (!(c instanceof ItemsControl))
-                return null;
-
+        DoApplyTemplateWithError(error: BError): bool {
             if (this._ElementRoot)
-                return this._ElementRoot;
+                return false;
 
-            if (c.ItemsPanel) {
-                var root = c.ItemsPanel.GetVisualTree(xobj);
-                if (!(root instanceof Panel))
-                    throw new InvalidOperationException("The root element of an ItemsPanelTemplate must be a Panel subclass");
-                this._ElementRoot = <Panel>root;
-            }
+            var xobj = this.XObject;
+            var ic = xobj.TemplateOwner;
+            if (!(ic instanceof ItemsControl))
+                return false;
+
+            if (ic.ItemsPanel)
+                this._ElementRoot = ic.ItemsPanel.GetVisualTree(xobj);
 
             if (!this._ElementRoot) {
                 var template: ItemsPanelTemplate;
-                if (c instanceof ListBox)
+                if (ic instanceof ListBox)
                     template = this.VirtualizingStackPanelFallbackTemplate;
                 else
                     template = this.StackPanelFallbackTemplate;
@@ -65,7 +61,7 @@ module Fayde.Controls {
             }
 
             this._ElementRoot.IsItemsHost = true;
-            return this._ElementRoot;
+            return this.FinishApplyTemplateWithError(this._ElementRoot, error);
         }
     }
     Nullstone.RegisterType(ItemsPresenterNode, "ItemsPresenterNode");

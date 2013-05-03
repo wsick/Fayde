@@ -10,7 +10,7 @@ module Fayde.Controls {
             this.LayoutUpdater.BreaksLayoutClipRender = true;
             this.LayoutUpdater.SetContainerMode(true);
         }
-        _GetDefaultTemplate(): UIElement {
+        GetDefaultTemplate(): UIElement {
             var xobj = this.XObject;
             var type = (<any>xobj).constructor;
             var json = type.__TemplateJson;

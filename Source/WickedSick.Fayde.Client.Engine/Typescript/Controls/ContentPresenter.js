@@ -9,61 +9,26 @@ var Fayde;
     /// CODE
     /// <reference path="../Core/TemplateBindingExpression.ts" />
     /// <reference path="ContentControl.ts" />
-    /// <reference path="ControlTemplate.ts" />
     /// <reference path="Grid.ts" />
     /// <reference path="../Markup/BindingMarkup.ts" />
+    /// <reference path="../Core/DataTemplate.ts" />
     (function (Controls) {
         var ContentPresenterNode = (function (_super) {
             __extends(ContentPresenterNode, _super);
             function ContentPresenterNode(xobj) {
                         _super.call(this, xobj);
             }
-            ContentPresenterNode.prototype._ClearRoot = function () {
-                if(this._ContentRoot) {
-                    this.DetachVisualChild(this._ContentRoot, null);
-                }
-                this._ContentRoot = null;
-            };
-            Object.defineProperty(ContentPresenterNode.prototype, "FallbackRoot", {
+            Object.defineProperty(ContentPresenterNode.prototype, "ContentRoot", {
                 get: function () {
-                    var fr = this._FallbackRoot;
-                    if(!fr) {
-                        var ft = this._FallbackTemplate;
-                        if(!ft) {
-                            ft = this._CreateFallbackTemplate();
-                        }
-                        fr = this._FallbackRoot = ft.GetVisualTree(this.XObject);
-                    }
-                    return fr;
+                    return this._ContentRoot;
                 },
                 enumerable: true,
                 configurable: true
             });
-            ContentPresenterNode.prototype._CreateFallbackTemplate = // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
-            function () {
-                return new Controls.ControlTemplate(ContentPresenter, {
-                    ParseType: Controls.Grid,
-                    Children: [
-                        {
-                            ParseType: Controls.TextBlock,
-                            Props: {
-                                Text: new Fayde.BindingMarkup({
-                                })
-                            }
-                        }
-                    ]
-                });
-                //TODO: ControlTemplate wants a res chain, do we need to pass it our res chain?
-                            };
-            ContentPresenterNode.prototype.InvokeLoaded = function () {
-                var xobj = this.XObject;
-                if(xobj.Content instanceof Fayde.UIElement) {
-                    xobj.ClearValue(Fayde.DependencyObject.DataContextProperty);
-                } else {
-                    xobj.SetValue(Fayde.DependencyObject.DataContextProperty, xobj.Content);
+            ContentPresenterNode.prototype.DoApplyTemplateWithError = function (error) {
+                if(this._ContentRoot) {
+                    return false;
                 }
-            };
-            ContentPresenterNode.prototype._GetDefaultTemplate = function () {
                 var xobj = this.XObject;
                 if(xobj.TemplateOwner instanceof Controls.ContentControl) {
                     if(xobj.ReadLocalValue(ContentPresenter.ContentProperty) instanceof Fayde.UnsetValue) {
@@ -73,22 +38,45 @@ var Fayde;
                         xobj.SetValue(ContentPresenter.ContentTemplateProperty, new Fayde.TemplateBindingExpression(Controls.ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty, "ContentTemplate"));
                     }
                 }
-                if(xobj.ContentTemplate) {
-                    var vt = xobj.ContentTemplate.GetVisualTree(this.XObject);
-                    if(vt instanceof Fayde.UIElement) {
-                        this._ContentRoot = vt;
-                    }
-                } else {
-                    var content = xobj.Content;
-                    if(content instanceof Fayde.UIElement) {
-                        this._ContentRoot = content;
-                    }
-                    if(!this._ContentRoot && content) {
-                        this._ContentRoot = this.FallbackRoot;
-                    }
+                var content = xobj.Content;
+                if(!content) {
+                    return false;
                 }
-                return this._ContentRoot;
+                if(content instanceof Fayde.UIElement) {
+                    this._ContentRoot = content;
+                } else {
+                    this._ContentRoot = (xobj.ContentTemplate || this.FallbackTemplate).GetVisualTree(xobj);
+                }
+                if(!this._ContentRoot) {
+                    return false;
+                }
+                return this.AttachVisualChild(this._ContentRoot, error);
             };
+            ContentPresenterNode.prototype.ClearRoot = function () {
+                if(this._ContentRoot) {
+                    this.DetachVisualChild(this._ContentRoot, null);
+                }
+                this._ContentRoot = null;
+            };
+            Object.defineProperty(ContentPresenterNode.prototype, "FallbackTemplate", {
+                get: // <DataTemplate><Grid><TextBlock Text="{Binding}" /></Grid></DataTemplate>
+                function () {
+                    return new Fayde.DataTemplate({
+                        ParseType: Controls.Grid,
+                        Children: [
+                            {
+                                ParseType: Controls.TextBlock,
+                                Props: {
+                                    Text: new Fayde.BindingMarkup({
+                                    })
+                                }
+                            }
+                        ]
+                    });
+                },
+                enumerable: true,
+                configurable: true
+            });
             return ContentPresenterNode;
         })(Fayde.FENode);
         Controls.ContentPresenterNode = ContentPresenterNode;        
@@ -121,20 +109,17 @@ var Fayde;
                 var newUie;
                 if(newContent instanceof Fayde.UIElement) {
                     newUie = newContent;
+                } else {
+                    this.DataContext = newContent;
                 }
                 if(newUie || args.OldValue instanceof Fayde.UIElement) {
-                    node._ClearRoot();
-                }
-                if(newContent && !newUie) {
-                    this._Store.SetValue(Fayde.DependencyObject.DataContextProperty, newContent);
-                } else {
-                    this._Store.ClearValue(Fayde.DependencyObject.DataContextProperty);
+                    node.ClearRoot();
                 }
                 node.LayoutUpdater.InvalidateMeasure();
             };
             ContentPresenter.prototype._ContentTemplateChanged = function (args) {
                 var node = this.XamlNode;
-                node._ClearRoot();
+                node.ClearRoot();
                 node.LayoutUpdater.InvalidateMeasure();
             };
             return ContentPresenter;

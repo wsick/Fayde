@@ -83,6 +83,9 @@
     <Compile Include="Tests\BrushTest.xaml.cs">
       <DependentUpon>BrushTest.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tests\ContentPresenterTest.xaml.cs">
+      <DependentUpon>ContentPresenterTest.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tests\ImageBrushTest.xaml.cs">
       <DependentUpon>ImageBrushTest.xaml</DependentUpon>
     </Compile>
@@ -99,6 +102,9 @@
     </Compile>
     <Compile Include="Tests\Layout.xaml.cs">
       <DependentUpon>Layout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Tests\MapTest.xaml.cs">
+      <DependentUpon>MapTest.xaml</DependentUpon>
     </Compile>
     <Compile Include="Tests\RectangleTest.xaml.cs">
       <DependentUpon>RectangleTest.xaml</DependentUpon>
@@ -123,6 +129,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Tests\ContentPresenterTest.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Tests\ImageBrushTest.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -140,6 +150,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Tests\Layout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Tests\MapTest.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

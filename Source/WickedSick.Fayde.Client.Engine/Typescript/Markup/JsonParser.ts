@@ -24,7 +24,7 @@ module Fayde {
         private _TemplateBindingSource: DependencyObject = null;
         private _SRExpressions: StaticResourceExpression[] = [];
 
-        static Parse(json: any, templateBindingSource?: DependencyObject, namescope?: NameScope, resChain?: Fayde.ResourceDictionary[], rootXamlObject?: XamlObject): XamlObject {
+        static Parse(json: any, templateBindingSource?: DependencyObject, namescope?: NameScope, resChain?: Fayde.ResourceDictionary[], rootXamlObject?: XamlObject): any {
             var parser = new JsonParser();
             if (resChain)
                 parser._ResChain = resChain;
@@ -61,20 +61,16 @@ module Fayde {
             parser.SetObject(json, rd, ns);
         }
 
-        CreateObject(json: any, namescope: NameScope, ignoreResolve?: bool): XamlObject {
+        CreateObject(json: any, namescope: NameScope, ignoreResolve?: bool): any {
             var type = json.ParseType;
-            if (!type)
+            if (!type) {
+                if (json instanceof FrameworkTemplate)
+                    (<FrameworkTemplate>json).ResChain = this._ResChain;
                 return json;
+            }
 
             if (type === Number || type === String || type === Boolean)
                 return json.Value;
-
-            if (type === Controls.ControlTemplate) {
-                var targetType = json.Props == null ? null : json.Props.TargetType;
-                return new Controls.ControlTemplate(targetType, json.Content, this._ResChain);
-            }
-            if (type === DataTemplate)
-                return new DataTemplate(json.Content, this._ResChain);
 
             var xobj = new type();
             if (!this._RootXamlObject)
@@ -179,6 +175,8 @@ module Fayde {
         TrySetPropertyValue(xobj: XamlObject, propd: DependencyProperty, propValue: any, namescope: NameScope, isAttached: bool, ownerType: Function, propName: string) {
             if (propValue.ParseType) {
                 propValue = this.CreateObject(propValue, namescope, true);
+            } else if (propValue instanceof FrameworkTemplate) {
+                (<FrameworkTemplate>propValue).ResChain = this._ResChain;
             }
 
             if (propValue instanceof Markup)

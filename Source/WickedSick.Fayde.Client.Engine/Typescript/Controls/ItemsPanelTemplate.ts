@@ -1,6 +1,7 @@
 /// <reference path="../Core/FrameworkTemplate.ts" />
 /// CODE
 /// <reference path="../Markup/JsonParser.ts" />
+/// <reference path="Panel.ts" />
 
 module Fayde.Controls {
     export class ItemsPanelTemplate extends FrameworkTemplate {
@@ -9,10 +10,15 @@ module Fayde.Controls {
             super();
             this._TempJson = json;
         }
-        private _GetVisualTreeWithError(templateBindingSource: DependencyObject, error: BError): XamlObject {
-            if (this._TempJson)
-                return JsonParser.Parse(this._TempJson, templateBindingSource, new NameScope());
-            return super._GetVisualTreeWithError(templateBindingSource, error);
+
+        GetVisualTree(templateBindingSource: DependencyObject): Panel {
+            var json = this._TempJson;
+            if (!json)
+                throw new XamlParseException("ItemsPanelTemplate has no definition.");
+            var panel = <Panel>JsonParser.Parse(json, templateBindingSource, new NameScope(true), this.ResChain);
+            if (!(panel instanceof Panel))
+                throw new XamlParseException("The root element of an ItemsPanelTemplate must be a Panel subclass.");
+            return panel;
         }
     }
     Nullstone.RegisterType(ItemsPanelTemplate, "ItemsPanelTemplate");

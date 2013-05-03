@@ -96,6 +96,8 @@ module Fayde {
 
             var cur = curNode.XObject;
             str += (<any>cur).constructor._TypeName;
+            var id = (<any>cur)._ID;
+            if (id) str += "[" + id + "]";
             var name = curNode.Name;
             if (name)
                 str += " [" + name + "]";

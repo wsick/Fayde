@@ -364,7 +364,7 @@
     </Style>
 
     <!--ValidationToolTipTemplate Style-->
-    <ControlTemplate x:Key="ValidationToolTipTemplate">
+    <ControlTemplate x:Key="ValidationToolTipTemplate" TargetType="ToolTip">
         <Grid x:Name="Root" Margin="5,0" Opacity="0" RenderTransformOrigin="0,0">
             <Grid.RenderTransform>
                 <TranslateTransform x:Name="xform" X="-25"/>
@@ -2169,7 +2169,7 @@
         </Setter>
     </Style>
     <!--RepeatButtonTemplate-->
-    <ControlTemplate x:Key="RepeatButtonTemplate">
+    <ControlTemplate x:Key="RepeatButtonTemplate" TargetType="RepeatButton">
         <Grid x:Name="Root" Opacity="0"/>
     </ControlTemplate>
     <!--HorizontalTrackLargeDecrease-->
@@ -2214,7 +2214,7 @@
                 <ControlTemplate TargetType="Slider">
                     <Grid x:Name="Root">
                         <Grid.Resources>
-                            <ControlTemplate x:Key="RepeatButtonTemplate">
+                            <ControlTemplate x:Key="RepeatButtonTemplate" TargetType="RepeatButton">
                                 <Grid x:Name="Root" Opacity="0" Background="Transparent" />
                             </ControlTemplate>
                         </Grid.Resources>

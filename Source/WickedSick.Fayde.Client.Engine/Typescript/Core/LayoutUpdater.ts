@@ -852,7 +852,7 @@ module Fayde {
                 return;
             }
 
-            node._ApplyTemplateWithError(error);
+            node.ApplyTemplateWithError(error);
 
             if (!shouldMeasure)
                 return;

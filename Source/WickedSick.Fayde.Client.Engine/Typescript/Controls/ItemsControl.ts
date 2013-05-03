@@ -17,9 +17,10 @@ module Fayde.Controls {
             super(xobj);
         }
 
-        _GetDefaultTemplate(): UIElement {
+        GetDefaultVisualTree(): UIElement {
             var presenter = this._Presenter;
             if (!presenter) {
+                //TODO: How can we get the res chain in here?
                 presenter = new ItemsPresenter();
                 presenter.TemplateOwner = this.XObject;
             }

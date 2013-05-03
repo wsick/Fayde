@@ -794,7 +794,7 @@ var Fayde;
                 size.clear(this.DesiredSize);
                 return;
             }
-            node._ApplyTemplateWithError(error);
+            node.ApplyTemplateWithError(error);
             if(!shouldMeasure) {
                 return;
             }

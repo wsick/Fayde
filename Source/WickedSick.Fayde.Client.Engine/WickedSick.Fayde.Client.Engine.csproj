@@ -560,6 +560,10 @@
     <Content Include="Typescript\Controls\ToolTipService.js">
       <DependentUpon>ToolTipService.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Core\FrameworkTemplate.ts" />
+    <Content Include="Typescript\Core\FrameworkTemplate.js">
+      <DependentUpon>FrameworkTemplate.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\INotifyPropertyChanged.js">
       <DependentUpon>INotifyPropertyChanged.ts</DependentUpon>
     </Content>
@@ -760,10 +764,6 @@
     <TypeScriptCompile Include="Typescript\Core\Providers\ControlProviderStore.ts" />
     <TypeScriptCompile Include="Typescript\Core\PropertyChangedListener.ts" />
     <TypeScriptCompile Include="Typescript\Core\LayoutInformation.ts" />
-    <TypeScriptCompile Include="Typescript\Core\FrameworkTemplate.ts" />
-    <Content Include="Typescript\Core\FrameworkTemplate.js">
-      <DependentUpon>FrameworkTemplate.ts</DependentUpon>
-    </Content>
     <Content Include="Typescript\Core\LayoutInformation.js">
       <DependentUpon>LayoutInformation.ts</DependentUpon>
     </Content>

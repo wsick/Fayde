@@ -23,9 +23,10 @@ var Fayde;
                 index: -1,
                 offset: 1
             };
-            ItemsControlNode.prototype._GetDefaultTemplate = function () {
+            ItemsControlNode.prototype.GetDefaultVisualTree = function () {
                 var presenter = this._Presenter;
                 if(!presenter) {
+                    //TODO: How can we get the res chain in here?
                     presenter = new Controls.ItemsPresenter();
                     presenter.TemplateOwner = this.XObject;
                 }

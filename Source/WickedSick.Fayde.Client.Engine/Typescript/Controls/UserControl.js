@@ -16,7 +16,7 @@ var Fayde;
                 this.LayoutUpdater.BreaksLayoutClipRender = true;
                 this.LayoutUpdater.SetContainerMode(true);
             }
-            UCNode.prototype._GetDefaultTemplate = function () {
+            UCNode.prototype.GetDefaultTemplate = function () {
                 var xobj = this.XObject;
                 var type = (xobj).constructor;
                 var json = type.__TemplateJson;

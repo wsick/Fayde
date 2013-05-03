@@ -8,6 +8,7 @@ var Fayde;
     /// <reference path="../Core/FrameworkTemplate.ts" />
     /// CODE
     /// <reference path="../Markup/JsonParser.ts" />
+    /// <reference path="Panel.ts" />
     (function (Controls) {
         var ItemsPanelTemplate = (function (_super) {
             __extends(ItemsPanelTemplate, _super);
@@ -15,11 +16,16 @@ var Fayde;
                         _super.call(this);
                 this._TempJson = json;
             }
-            ItemsPanelTemplate.prototype._GetVisualTreeWithError = function (templateBindingSource, error) {
-                if(this._TempJson) {
-                    return Fayde.JsonParser.Parse(this._TempJson, templateBindingSource, new Fayde.NameScope());
+            ItemsPanelTemplate.prototype.GetVisualTree = function (templateBindingSource) {
+                var json = this._TempJson;
+                if(!json) {
+                    throw new XamlParseException("ItemsPanelTemplate has no definition.");
                 }
-                return _super.prototype._GetVisualTreeWithError.call(this, templateBindingSource, error);
+                var panel = Fayde.JsonParser.Parse(json, templateBindingSource, new Fayde.NameScope(true), this.ResChain);
+                if(!(panel instanceof Controls.Panel)) {
+                    throw new XamlParseException("The root element of an ItemsPanelTemplate must be a Panel subclass.");
+                }
+                return panel;
             };
             return ItemsPanelTemplate;
         })(Fayde.FrameworkTemplate);
