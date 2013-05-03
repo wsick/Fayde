@@ -61,6 +61,7 @@ module Fayde {
             if (!this.SetSubtreeNode(uie.XamlNode, error))
                 return false;
             uie.XamlNode.SetIsLoaded(this.IsLoaded);
+            return true;
         }
         DetachVisualChild(uie: UIElement, error: BError) {
             if (!this.SetSubtreeNode(null, error))

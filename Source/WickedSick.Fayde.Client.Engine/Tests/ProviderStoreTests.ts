@@ -48,17 +48,12 @@ test("ProviderStoreTests.InheritedProviderStore", () => {
 
     rootStore.SetValue(Fayde.UIElement.UseLayoutRoundingProperty, false);
 
-    var val;
-    val = childStore.GetValue(Fayde.UIElement.UseLayoutRoundingProperty);
+    var val = childStore.GetValue(Fayde.UIElement.UseLayoutRoundingProperty);
     strictEqual(val, true, "Inherited property that hasn't been propagated should default to true.");
 
-    try {
-        root.XamlNode.AttachVisualChild(child);
-        ok(true, "Attaching child to root should not fail.");
-    } catch (err) {
-        ok(false, "Attaching child to root should not fail.");
-        return;
-    }
+    var error = new BError();
+    ok(root.XamlNode.AttachVisualChild(child, error), "Attaching child to root should not fail: " + error.Message);
+
     val = childStore.GetValue(Fayde.UIElement.UseLayoutRoundingProperty);
     strictEqual(val, false, "Inherited property should be propagated from root to false.");
 
@@ -77,24 +72,19 @@ test("ProviderStoreTests.FrameworkProviderStore", () => {
     //Test inherited DataContext
     var effectiveDataContext = { };
 
-    rootStore.SetValue(Fayde.FrameworkElement.DataContextProperty, effectiveDataContext);
+    rootStore.SetValue(Fayde.DependencyObject.DataContextProperty, effectiveDataContext);
 
-    var val;
-    val = childStore.GetValue(Fayde.FrameworkElement.DataContextProperty);
+    var val = childStore.GetValue(Fayde.DependencyObject.DataContextProperty);
     strictEqual(val, undefined, "Child DataContext should be undefined before attaching to tree.");
     
-    try {
-        root.XamlNode.AttachVisualChild(child);
-        ok(true, "Attaching child to root should not fail.");
-    } catch (err) {
-        ok(false, "Attaching child to root should not fail.");
-        return;
-    }
-    val = childStore.GetValue(Fayde.FrameworkElement.DataContextProperty);
+    var error = new BError();
+    ok(root.XamlNode.AttachVisualChild(child, error), "Attaching child to root should not fail: " + error.Message);
+
+    val = childStore.GetValue(Fayde.DependencyObject.DataContextProperty);
     strictEqual(val, effectiveDataContext, "Child DataContext should inherit DataContext from root after attaching to tree.");
 
-    rootStore.ClearValue(Fayde.FrameworkElement.DataContextProperty, true);
-    val = childStore.GetValue(Fayde.FrameworkElement.DataContextProperty);
+    rootStore.ClearValue(Fayde.DependencyObject.DataContextProperty, true);
+    val = childStore.GetValue(Fayde.DependencyObject.DataContextProperty);
     strictEqual(val, undefined, "Child DataContext should be undefined after clearing root DataContext value.");
 
 

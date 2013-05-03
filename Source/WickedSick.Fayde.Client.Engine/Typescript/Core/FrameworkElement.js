@@ -65,6 +65,7 @@ var Fayde;
                 return false;
             }
             uie.XamlNode.SetIsLoaded(this.IsLoaded);
+            return true;
         };
         FENode.prototype.DetachVisualChild = function (uie, error) {
             if(!this.SetSubtreeNode(null, error)) {
