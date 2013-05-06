@@ -46,10 +46,20 @@
         Fayde.NameScope.SetNameScope(dobj, namescope);
         parser.SetObject(json, dobj, namescope);
     };
+    JsonParser.ParseResourceDictionary = function (rd, json) {
+        var parser = new JsonParser();
+        parser._RootXamlObject = rd;
+        parser._ResChain.push(rd);
+        var namescope = new Fayde.NameScope();
+        Fayde.NameScope.SetNameScope(rd, namescope);
+        parser.SetObject(json, rd, namescope);
+    };
 
     JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
         var type = json.ParseType;
         if (type == null) {
+            if (json instanceof Fayde.FrameworkTemplate)
+                json._ResChain = this._ResChain;
             return json;
         }
 
@@ -162,6 +172,8 @@
         //If the object is not a Nullstone, let's parse it
         if (!propValue.constructor._IsNullstone && propValue.ParseType) {
             propValue = this.CreateObject(propValue, namescope, true);
+        } else if (propValue instanceof Fayde.FrameworkTemplate) {
+            propValue._ResChain = this._ResChain;
         }
 
         if (propValue instanceof Fayde.Markup)
