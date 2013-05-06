@@ -83,6 +83,7 @@ var Fayde;
                 if(listener) {
                     listener.RowDefinitionsChanged(this);
                 }
+                return true;
             };
             RowDefinitionCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
                 _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);

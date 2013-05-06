@@ -49,6 +49,7 @@ module Fayde.Controls {
             value.Listen(this);
             var listener = this._Listener;
             if (listener) listener.ColumnDefinitionsChanged(this);
+            return true;
         }
         RemovedFromCollection(value: ColumnDefinition, isValueSafe: bool) {
             super.RemovedFromCollection(value, isValueSafe);
