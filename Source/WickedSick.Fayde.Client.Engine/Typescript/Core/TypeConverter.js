@@ -68,6 +68,9 @@ var Fayde;
             }
             return Color.FromHex(str);
         };
+        TypeConverters.GeometryConverter = function GeometryConverter(str) {
+            return Fayde.Media.ParseGeometry(str);
+        };
         return TypeConverters;
     })();    
     var TypeConverter = (function () {
@@ -124,9 +127,6 @@ var Fayde;
             //tc = new TypeConverter();
             //return tc.ConvertFrom(val);
                     };
-        TypeConverter.GeometryFromString = function GeometryFromString(val) {
-            return Fayde.Media.ParseGeometry(val);
-        };
         return TypeConverter;
     })();
     Fayde.TypeConverter = TypeConverter;    
@@ -134,5 +134,6 @@ var Fayde;
     TypeConverter.Register(CornerRadius, TypeConverters.CornerRadiusConverter);
     TypeConverter.Register(Fayde.Media.Brush, TypeConverters.BrushConverter);
     TypeConverter.Register(Color, TypeConverters.ColorConverter);
+    TypeConverter.Register(Fayde.Media.Geometry, TypeConverters.GeometryConverter);
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=TypeConverter.js.map

@@ -7,6 +7,7 @@ var Fayde;
 (function (Fayde) {
     /// <reference path="Shape.ts" />
     /// CODE
+    /// <reference path="../Media/MediaParser.ts" />
     (function (Shapes) {
         var Path = (function (_super) {
             __extends(Path, _super);
@@ -14,11 +15,18 @@ var Fayde;
                 _super.apply(this, arguments);
 
             }
-            Path.DataProperty = DependencyProperty.RegisterCore("Data", function () {
+            Path._DataCoercer = //defined in Shape
+            function _DataCoercer(d, propd, value) {
+                if(typeof value === "string") {
+                    return Fayde.Media.ParseGeometry(value);
+                }
+                return value;
+            };
+            Path.DataProperty = DependencyProperty.RegisterFull("Data", function () {
                 return Fayde.Media.Geometry;
             }, Path, undefined, function (d, args) {
                 return (d)._InvalidateNaturalBounds();
-            });
+            }, undefined, Path._DataCoercer);
             Path.prototype._GetFillRule = function () {
                 var geom = this.Data;
                 if(!geom) {

@@ -63,6 +63,9 @@ module Fayde {
             }
             return Color.FromHex(str);
         }
+        static GeometryConverter(str: string): Media.Geometry {
+            return Media.ParseGeometry(str);
+        }
     }
 
     export class TypeConverter {
@@ -117,13 +120,11 @@ module Fayde {
             //tc = new TypeConverter();
             //return tc.ConvertFrom(val);
         }
-        static GeometryFromString(val: string): Media.Geometry {
-            return Media.ParseGeometry(val);
-        }
     }
 
     TypeConverter.Register(Thickness, TypeConverters.ThicknessConverter);
     TypeConverter.Register(CornerRadius, TypeConverters.CornerRadiusConverter);
     TypeConverter.Register(Media.Brush, TypeConverters.BrushConverter);
     TypeConverter.Register(Color, TypeConverters.ColorConverter);
+    TypeConverter.Register(Media.Geometry, TypeConverters.GeometryConverter);
 }
