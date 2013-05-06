@@ -46,8 +46,13 @@ var Fayde;
                     childAvailable.Height = Math.max(childAvailable.Height, this.MinHeight);
                 }
                 var enumerator = this.Children.GetEnumerator();
+                var child;
+                var childNode;
+                var childLu;
                 while(enumerator.MoveNext()) {
-                    var childLu = (enumerator.Current).LayoutUpdater;
+                    child = enumerator.Current;
+                    childNode = child.XamlNode;
+                    var childLu = childNode.LayoutUpdater;
                     childLu._Measure(childAvailable, error);
                     var s = childLu.DesiredSize;
                     if(isVertical) {
@@ -69,8 +74,13 @@ var Fayde;
                     arranged.Width = 0;
                 }
                 var enumerator = this.Children.GetEnumerator();
+                var child;
+                var childNode;
+                var childLu;
                 while(enumerator.MoveNext()) {
-                    var childLu = (enumerator.Current).LayoutUpdater;
+                    child = enumerator.Current;
+                    childNode = child.XamlNode;
+                    var childLu = childNode.LayoutUpdater;
                     var s = size.clone(childLu.DesiredSize);
                     if(isVertical) {
                         s.Width = finalSize.Width;

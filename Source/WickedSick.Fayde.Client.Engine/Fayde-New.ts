@@ -18291,8 +18291,13 @@ module Fayde.Controls {
                 childAvailable.Height = Math.max(childAvailable.Height, this.MinHeight);
             }
             var enumerator = this.Children.GetEnumerator();
+            var child: UIElement;
+            var childNode: UINode;
+            var childLu: LayoutUpdater;
             while (enumerator.MoveNext()) {
-                var childLu = (<UINode>enumerator.Current).LayoutUpdater;
+                child = enumerator.Current;
+                childNode = child.XamlNode;
+                var childLu = childNode.LayoutUpdater;
                 childLu._Measure(childAvailable, error);
                 var s = childLu.DesiredSize;
                 if (isVertical) {
@@ -18313,8 +18318,13 @@ module Fayde.Controls {
             else
                 arranged.Width = 0;
             var enumerator = this.Children.GetEnumerator();
+            var child: UIElement;
+            var childNode: UINode;
+            var childLu: LayoutUpdater;
             while (enumerator.MoveNext()) {
-                var childLu = (<UINode>enumerator.Current).LayoutUpdater;
+                child = enumerator.Current;
+                childNode = child.XamlNode;
+                var childLu = childNode.LayoutUpdater;
                 var s = size.clone(childLu.DesiredSize);
                 if (isVertical) {
                     s.Width = finalSize.Width;

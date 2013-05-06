@@ -33,8 +33,14 @@ module Fayde.Controls {
             }
 
             var enumerator = this.Children.GetEnumerator();
+            var child: UIElement;
+            var childNode: UINode;
+            var childLu: LayoutUpdater;
             while (enumerator.MoveNext()) {
-                var childLu = (<UINode>enumerator.Current).LayoutUpdater;
+                child = enumerator.Current;
+                childNode = child.XamlNode;
+                var childLu = childNode.LayoutUpdater;
+
                 childLu._Measure(childAvailable, error);
                 var s = childLu.DesiredSize;
 
@@ -58,8 +64,13 @@ module Fayde.Controls {
                 arranged.Width = 0;
             
             var enumerator = this.Children.GetEnumerator();
+            var child: UIElement;
+            var childNode: UINode;
+            var childLu: LayoutUpdater;
             while (enumerator.MoveNext()) {
-                var childLu = (<UINode>enumerator.Current).LayoutUpdater;
+                child = enumerator.Current;
+                childNode = child.XamlNode;
+                var childLu = childNode.LayoutUpdater;
 
                 var s = size.clone(childLu.DesiredSize);
                 if (isVertical) {
