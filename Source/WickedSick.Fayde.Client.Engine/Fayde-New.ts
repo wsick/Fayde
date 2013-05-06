@@ -6270,11 +6270,12 @@ module Fayde {
             this.SetIsAttached(false);
             this._OwnerNameScope = null;
             var old = this.ParentNode;
-            var index = old._LogicalChildren.indexOf(this);
-            if (index > -1) old._LogicalChildren.splice(index, 1);
             this.ParentNode = null;
-            if (old != null)
+            if (old) {
+                var index = old._LogicalChildren.indexOf(this);
+                if (index > -1) old._LogicalChildren.splice(index, 1);
                 this.OnParentChanged(old, null);
+            }
         }
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) { }
         GetInheritedEnumerator(): IEnumerator { return undefined; }
@@ -21800,8 +21801,8 @@ module Fayde.Controls {
                     return this.Max;
                 return value;
             },
-            SetOfferedToDesired: function (): number { return this._OfferedSize = this._DesiredSize; },
-            SetDesiredToOffered: function (): number { return this._DesiredSize = this._OfferedSize; }
+            SetOfferedToDesired: function (): number { return this.OfferedSize = this.DesiredSize; },
+            SetDesiredToOffered: function (): number { return this.DesiredSize = this.OfferedSize; }
         };
     }
     interface IGridStates {

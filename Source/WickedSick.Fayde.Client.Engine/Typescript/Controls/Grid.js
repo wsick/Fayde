@@ -66,10 +66,10 @@ var Fayde;
                     return value;
                 },
                 SetOfferedToDesired: function () {
-                    return this._OfferedSize = this._DesiredSize;
+                    return this.OfferedSize = this.DesiredSize;
                 },
                 SetDesiredToOffered: function () {
-                    return this._DesiredSize = this._OfferedSize;
+                    return this.DesiredSize = this.OfferedSize;
                 }
             };
         }

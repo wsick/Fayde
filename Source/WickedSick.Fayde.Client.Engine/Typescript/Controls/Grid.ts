@@ -62,8 +62,8 @@ module Fayde.Controls {
                     return this.Max;
                 return value;
             },
-            SetOfferedToDesired: function (): number { return this._OfferedSize = this._DesiredSize; },
-            SetDesiredToOffered: function (): number { return this._DesiredSize = this._OfferedSize; }
+            SetOfferedToDesired: function (): number { return this.OfferedSize = this.DesiredSize; },
+            SetDesiredToOffered: function (): number { return this.DesiredSize = this.OfferedSize; }
         };
     }
 
