@@ -4971,10 +4971,10 @@ module Fayde {
         private _ForceInvalidateOfNewBounds: bool = false;
         constructor(public Node: UINode) { }
         OnIsAttachedChanged(newIsAttached: bool, visualParentNode: UINode) {
-            this.UpdateTotalRenderVisibility();
+            var surface = this.Surface;
+            if (surface) this.UpdateTotalRenderVisibility();
             if (!newIsAttached) {
                 this._CacheInvalidateHint();
-                var surface = this.Surface;
                 if (surface) surface.OnNodeDetached(this);
             }
         }
@@ -8795,7 +8795,7 @@ module Fayde {
                         continue;
                     var ctor = (<any>xobj).constructor;
                     if (dobj)
-                        propd = DependencyProperty.GetDependencyProperty(ctor, propName);
+                        propd = DependencyProperty.GetDependencyProperty(ctor, propName, true);
                     this.TrySetPropertyValue(xobj, propd, propValue, namescope, false, ctor, propName);
                 }
             }
@@ -8881,8 +8881,15 @@ module Fayde {
                 }
                 this.SetValue(xobj, propd, propName, propValue);
             } else if (!isAttached) {
-                if (Nullstone.HasProperty(xobj, propName)) {
-                    xobj[propName] = propValue;
+                var descriptor = Nullstone.GetPropertyDescriptor(xobj, propName);
+                if (descriptor) {
+                    if (descriptor.writable || descriptor.set ) {
+                        xobj[propName] = propValue;
+                    } else {
+                        var existingobj = xobj[propName];
+                        if (existingobj instanceof XamlObjectCollection)
+                            this.TrySetCollectionProperty(propValue, xobj, null, propName, namescope);
+                    }
                 } else {
                     var func = xobj["Set" + propName];
                     if (func && func instanceof Function)
@@ -13645,6 +13652,7 @@ module Fayde.Controls {
             value.Listen(this);
             var listener = this._Listener;
             if (listener) listener.ColumnDefinitionsChanged(this);
+            return true;
         }
         RemovedFromCollection(value: ColumnDefinition, isValueSafe: bool) {
             super.RemovedFromCollection(value, isValueSafe);
@@ -13831,6 +13839,7 @@ module Fayde.Controls {
             value.Listen(this);
             var listener = this._Listener;
             if (listener) listener.RowDefinitionsChanged(this);
+            return true;
         }
         RemovedFromCollection(value: RowDefinition, isValueSafe: bool) {
             super.RemovedFromCollection(value, isValueSafe);
@@ -16097,6 +16106,9 @@ module Fayde {
             }
             return Color.FromHex(str);
         }
+        static GeometryConverter(str: string): Media.Geometry {
+            return Media.ParseGeometry(str);
+        }
     }
     export class TypeConverter {
         private static _Converters: Function[] = [];
@@ -16139,14 +16151,12 @@ module Fayde {
             }
             return val;
         }
-        static GeometryFromString(val: string): Media.Geometry {
-            return Media.ParseGeometry(val);
-        }
     }
     TypeConverter.Register(Thickness, TypeConverters.ThicknessConverter);
     TypeConverter.Register(CornerRadius, TypeConverters.CornerRadiusConverter);
     TypeConverter.Register(Media.Brush, TypeConverters.BrushConverter);
     TypeConverter.Register(Color, TypeConverters.ColorConverter);
+    TypeConverter.Register(Media.Geometry, TypeConverters.GeometryConverter);
 }
 
 module Fayde.Media.Imaging {
@@ -20818,7 +20828,12 @@ module Fayde.Shapes {
     export class Path extends Shape {
         private _ShapeFlags: ShapeFlags; //defined in Shape
         private _Stroke: Media.Brush; //defined in Shape
-        static DataProperty: DependencyProperty = DependencyProperty.RegisterCore("Data", () => Media.Geometry, Path, undefined, (d, args) => (<Shape>d)._InvalidateNaturalBounds());
+        private static _DataCoercer(d: DependencyObject, propd: DependencyProperty, value: any): any {
+            if (typeof value === "string")
+                return Media.ParseGeometry(value);
+            return value;
+        }
+        static DataProperty: DependencyProperty = DependencyProperty.RegisterFull("Data", () => Media.Geometry, Path, undefined, (d, args) => (<Shape>d)._InvalidateNaturalBounds(), undefined, Path._DataCoercer);
         Data: Media.Geometry;
         private _GetFillRule(): FillRule {
             var geom = this.Data;
@@ -21859,7 +21874,8 @@ module Fayde.Controls {
         private static _AttachedPropChanged(d: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
             var dNode = <UINode>d.XamlNode;
             var gridNode = dNode.VisualParentNode;
-            gridNode.LayoutUpdater.InvalidateMeasure();
+            if (gridNode)
+                gridNode.LayoutUpdater.InvalidateMeasure();
             dNode.LayoutUpdater.InvalidateMeasure();
         }
         static ColumnProperty: DependencyProperty = DependencyProperty.RegisterAttached("Column", () => Number, Grid, 0, Grid._AttachedPropChanged);
@@ -22129,7 +22145,7 @@ module Fayde.Controls {
                 i++;
             }
             i = 0;
-            enumerator = cols.GetEnumerator();
+            enumerator = rows.GetEnumerator();
             while (enumerator.MoveNext()) {
                 (<RowDefinition>enumerator.Current).SetValueInternal(RowDefinition.ActualHeightProperty, rm[i][i].OfferedSize);
                 i++;

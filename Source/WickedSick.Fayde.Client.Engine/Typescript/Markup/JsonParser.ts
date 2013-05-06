@@ -110,7 +110,7 @@ module Fayde {
 
                     var ctor = (<any>xobj).constructor;
                     if (dobj)
-                        propd = DependencyProperty.GetDependencyProperty(ctor, propName);
+                        propd = DependencyProperty.GetDependencyProperty(ctor, propName, true);
                     this.TrySetPropertyValue(xobj, propd, propValue, namescope, false, ctor, propName);
                 }
             }
@@ -208,8 +208,15 @@ module Fayde {
                 }
                 this.SetValue(xobj, propd, propName, propValue);
             } else if (!isAttached) {
-                if (Nullstone.HasProperty(xobj, propName)) {
-                    xobj[propName] = propValue;
+                var descriptor = Nullstone.GetPropertyDescriptor(xobj, propName);
+                if (descriptor) {
+                    if (descriptor.writable || descriptor.set ) {
+                        xobj[propName] = propValue;
+                    } else {
+                        var existingobj = xobj[propName];
+                        if (existingobj instanceof XamlObjectCollection)
+                            this.TrySetCollectionProperty(propValue, xobj, null, propName, namescope);
+                    }
                 } else {
                     var func = xobj["Set" + propName];
                     if (func && func instanceof Function)
