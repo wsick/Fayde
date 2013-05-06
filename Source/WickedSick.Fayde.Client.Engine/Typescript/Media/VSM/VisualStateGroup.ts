@@ -54,18 +54,19 @@ module Fayde.Media.VSM {
             //AnimationDebug(function () { return "StartNewThenStopOld (" + element.__DebugToString() + " - " + that.Name + ")"; });
             var i;
             var storyboard;
+            var res = element.Resources;
             for (i = 0; i < newStoryboards.length; i++) {
                 storyboard = newStoryboards[i];
                 if (storyboard == null)
                     continue;
-                element.Resources.Set(storyboard._ID, storyboard);
+                res.Set(storyboard._ID, storyboard);
                 try {
                     storyboard.Begin();
                 } catch (err) {
                 //clear storyboards on error
                     for (var j = 0; j <= i; j++) {
                         if (newStoryboards[j] != null)
-                            element.Resources.Remove((<any>newStoryboards[j])._ID);
+                            res.Set((<any>newStoryboards[j])._ID, undefined);
                     }
                     throw err;
                 }
@@ -88,7 +89,7 @@ module Fayde.Media.VSM {
                 storyboard = enumerator.Current;
                 if (!storyboard)
                     continue;
-                element.Resources.Remove((<any>storyboard)._ID);
+                element.Resources.Set((<any>storyboard)._ID, undefined);
                 storyboard.Stop();
             }
             this._CurrentStoryboards = [];

@@ -383,7 +383,7 @@ module Fayde.Providers {
 
             var localStorage = (<any>this._LocalValueProvider)._ht;
             for (var id in localStorage) {
-                this.SetValue(dpIds[id], localStorage[id]);
+                this.SetValue(dpIds[id], Fayde.Clone(localStorage[id]));
             }
 
             this._CloneAnimationStorage(sourceStore);

@@ -104,13 +104,7 @@ var Fayde;
             return true;
         };
         XamlObjectCollection.prototype.IndexOf = function (value) {
-            var count = this._ht.length;
-            for(var i = 0; i < count; i++) {
-                if(Nullstone.Equals(value, this._ht[i])) {
-                    return i;
-                }
-            }
-            return -1;
+            return this._ht.indexOf(value);
         };
         XamlObjectCollection.prototype.Contains = function (value) {
             return this.IndexOf(value) > -1;
@@ -119,10 +113,14 @@ var Fayde;
             return true;
         };
         XamlObjectCollection.prototype.AddedToCollection = function (value, error) {
-            return value.XamlNode.AttachTo(this.XamlNode, error);
+            if(value instanceof Fayde.XamlObject) {
+                return value.XamlNode.AttachTo(this.XamlNode, error);
+            }
         };
         XamlObjectCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
-            value.XamlNode.Detach();
+            if(value instanceof Fayde.XamlObject) {
+                value.XamlNode.Detach();
+            }
         };
         XamlObjectCollection.prototype.GetEnumerator = function (reverse) {
             return Fayde.ArrayEx.GetEnumerator(this._ht, reverse);

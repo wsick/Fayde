@@ -14,11 +14,11 @@ var Fayde;
         var Brush = (function (_super) {
             __extends(Brush, _super);
             function Brush() {
-                _super.apply(this, arguments);
-
+                        _super.call(this);
                 this._CachedBounds = null;
                 this._CachedBrush = null;
                 this._Listener = null;
+                (this.XamlNode).IsShareable = true;
             }
             Brush.TransformProperty = DependencyProperty.RegisterCore("Transform", function () {
                 return Fayde.Media.Transform;

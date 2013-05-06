@@ -5,6 +5,7 @@ var __extends = this.__extends || function (d, b) {
 };
 /// <reference path="XamlObjectCollection.ts" />
 /// CODE
+// http://msdn.microsoft.com/en-us/library/cc903952(v=vs.95).aspx
 var Fayde;
 (function (Fayde) {
     var ResourceDictionaryCollection = (function (_super) {
@@ -54,6 +55,8 @@ var Fayde;
         __extends(ResourceDictionary, _super);
         function ResourceDictionary() {
                 _super.call(this);
+            this._ht = [];
+            //Defined in XamlObjectCollection
             this._KeyIndex = [];
             this.Source = "";
             Object.defineProperty(this, "MergedDictionaries", {
@@ -66,19 +69,27 @@ var Fayde;
         };
         ResourceDictionary.prototype.Get = function (key) {
             var index = this._KeyIndex[key];
-            if(index !== undefined) {
-                return this.GetValueAt(index);
+            if(index > -1) {
+                return this._ht[index];
             }
             return this._GetFromMerged(key);
         };
         ResourceDictionary.prototype.Set = function (key, value) {
-            var oldValue;
-            if(this.ContainsKey(key)) {
-                oldValue = this.Get(key);
-                this.Remove(oldValue);
+            var index = this._KeyIndex[key];
+            if(index === undefined && value === undefined) {
+                return false;
             }
-            var index = _super.prototype.Add.call(this, value);
-            this._KeyIndex[key] = index;
+            if(value === undefined) {
+                this._KeyIndex[key] = undefined;
+                return this.RemoveAt(index);
+            }
+            if(index === undefined) {
+                index = this._ht.length;
+                this._KeyIndex[key] = index;
+                return this.Insert(index, value);
+            }
+            var oldValue = this.GetValueAt[index];
+            this._ht[index] = value;
             this._RaiseItemReplaced(oldValue, value, index);
             return true;
         };

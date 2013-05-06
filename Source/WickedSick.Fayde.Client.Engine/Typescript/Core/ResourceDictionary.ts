@@ -1,6 +1,7 @@
 /// <reference path="XamlObjectCollection.ts" />
 /// CODE
 
+// http://msdn.microsoft.com/en-us/library/cc903952(v=vs.95).aspx
 module Fayde {
     export class ResourceDictionaryCollection extends XamlObjectCollection {
         AddedToCollection(value: ResourceDictionary, error: BError): bool {
@@ -40,6 +41,7 @@ module Fayde {
     Nullstone.RegisterType(ResourceDictionaryCollection, "ResourceDictionaryCollection");
 
     export class ResourceDictionary extends XamlObjectCollection {
+        private _ht: any[] = []; //Defined in XamlObjectCollection
         private _KeyIndex: number[] = [];
 
         MergedDictionaries: ResourceDictionaryCollection;
@@ -58,18 +60,28 @@ module Fayde {
         }
         Get(key: any): XamlObject {
             var index = this._KeyIndex[key];
-            if (index !== undefined)
-                return this.GetValueAt(index);
+            if (index > -1)
+                return this._ht[index];
             return this._GetFromMerged(key);
         }
-        Set(key: any, value: XamlObject) {
-            var oldValue;
-            if (this.ContainsKey(key)) {
-                oldValue = this.Get(key);
-                this.Remove(oldValue);
+        Set(key: any, value: XamlObject): bool {
+            var index = this._KeyIndex[key];
+            if (index === undefined && value === undefined)
+                return false;
+
+            if (value === undefined) {
+                this._KeyIndex[key] = undefined;
+                return this.RemoveAt(index);
             }
-            var index = super.Add(value);
-            this._KeyIndex[key] = index;
+
+            if (index === undefined) {
+                index = this._ht.length;
+                this._KeyIndex[key] = index;
+                return this.Insert(index, value);
+            }
+
+            var oldValue = this.GetValueAt[index];
+            this._ht[index] = value;
             this._RaiseItemReplaced(oldValue, value, index);
             return true;
         }

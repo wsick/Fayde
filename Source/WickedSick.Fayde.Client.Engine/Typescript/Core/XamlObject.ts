@@ -9,6 +9,7 @@ module Fayde {
         private _ID: number;
         XamlNode: Fayde.XamlNode;
         TemplateOwner: DependencyObject = null;
+
         constructor() {
             this._ID = XamlObject._LastID++;
             this.XamlNode = this.CreateNode();

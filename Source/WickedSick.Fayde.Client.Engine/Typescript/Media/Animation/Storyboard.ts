@@ -89,12 +89,9 @@ module Fayde.Media.Animation {
             if (localTargetPropertyPath != null)
                 targetPropertyPath = localTargetPropertyPath;
 
-            var refobj = {
-                Value: targetObject
-            };
-            targetPropertyPath.TryResolveDependencyProperty(targetObject);
-            var targetProperty = Data.PropertyPath.ResolvePropertyPath(refobj, targetPropertyPath, promotedValues);
-            if (targetProperty == null) {
+            var refobj = { Value: targetObject };
+            var targetProperty = targetPropertyPath.TryResolveDependencyProperty(refobj, promotedValues);
+            if (!targetProperty) {
                 error.Number = BError.XamlParse;
                 error.Message = "Could not resolve property for storyboard. [" + localTargetPropertyPath.Path.toString() + "]";
                 return false;
@@ -128,7 +125,7 @@ module Fayde.Media.Animation {
                     return Duration.CreateForever();
                 //duration must have a timespan if we got here
                 var spanTicks = dur.TimeSpan.Ticks;
-                var repeat = timeline.RepeatBehavior;
+                var repeat = timeline.RepeatBehavior || Timeline.DEFAULT_REPEAT_BEHAVIOR;
                 if (repeat.IsForever)
                     return Duration.CreateForever();
                 if (repeat.HasCount)
@@ -139,7 +136,8 @@ module Fayde.Media.Animation {
                     spanTicks = repeat.Duration.TimeSpan.Ticks;
                 if (spanTicks !== 0)
                     spanTicks = spanTicks / timeline.SpeedRatio;
-                spanTicks += timeline.BeginTime.Ticks;
+                var bt = timeline.BeginTime;
+                if (bt) spanTicks += bt.Ticks;
                 if (fullTicks === 0 || fullTicks <= spanTicks)
                     fullTicks = spanTicks;
             }

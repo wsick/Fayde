@@ -60,7 +60,7 @@ var Fayde;
             }
             var value = this._GetValue(resChain);
             if(value instanceof Fayde.ResourceTarget) {
-                value = value.CreateResource();
+                value = (value).CreateResource();
             }
             if(!value) {
                 throw new XamlParseException("Could not resolve StaticResource: '" + this.Key.toString() + "'.");

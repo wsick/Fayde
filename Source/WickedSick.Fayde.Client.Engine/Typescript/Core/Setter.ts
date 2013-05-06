@@ -64,7 +64,7 @@ module Fayde {
             }
 
             try {
-                this.ConvertedValue = Fayde.TypeConverter.ConvertObject(propd, val, targetType, true);
+                this.ConvertedValue = TypeConverter.ConvertObject(propd, val, targetType, true);
             } catch (err) {
                 throw new XamlParseException(err.message);
             }

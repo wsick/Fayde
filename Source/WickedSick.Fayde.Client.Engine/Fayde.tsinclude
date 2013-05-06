@@ -5,7 +5,6 @@ Typescript\Controls\Primitives\ScrollData.ts
 Typescript\Core\Clone.ts
 Typescript\Core\Enums.ts
 Typescript\Core\PropertyChangedListener.ts
-Typescript\Core\TypeConverter.ts
 Typescript\Core\VisualTreeHelper.ts
 Typescript\Core\Walkers.ts
 Typescript\Core\Providers\Enums.ts
@@ -190,6 +189,7 @@ Typescript\Media\Effects\DropShadowEffect.ts
 Typescript\Media\Imaging\BitmapSource.ts
 Typescript\Media\Imaging\ImageBrush.ts
 Typescript\Core\FrameworkElement.ts
+Typescript\Core\TypeConverter.ts
 Typescript\Media\Imaging\BitmapImage.ts
 Typescript\Shapes\Shape.ts
 Typescript\Controls\Border.ts

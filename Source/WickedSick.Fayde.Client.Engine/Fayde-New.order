@@ -5,7 +5,6 @@ Controls/Primitives/ScrollData.js
 Core/Clone.js
 Core/Enums.js
 Core/PropertyChangedListener.js
-Core/TypeConverter.js
 Core/VisualTreeHelper.js
 Core/Walkers.js
 Core/Providers/Enums.js
@@ -190,6 +189,7 @@ Media/Effects/DropShadowEffect.js
 Media/Imaging/BitmapSource.js
 Media/Imaging/ImageBrush.js
 Core/FrameworkElement.js
+Core/TypeConverter.js
 Media/Imaging/BitmapImage.js
 Shapes/Shape.js
 Controls/Border.js

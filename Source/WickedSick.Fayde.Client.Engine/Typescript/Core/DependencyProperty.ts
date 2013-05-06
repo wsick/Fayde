@@ -142,7 +142,7 @@ class DependencyProperty {
         return coerced;
     }
 
-    static GetDependencyProperty(ownerType: Function, name: string, isRecursive?: bool) {
+    static GetDependencyProperty(ownerType: Function, name: string, noError?: bool) {
         if (!ownerType)
             return undefined;
         var reg: DependencyProperty[] = (<any>ownerType)._RegisteredDPs;
@@ -151,7 +151,7 @@ class DependencyProperty {
             propd = reg[name];
         if (!propd)
             propd = DependencyProperty.GetDependencyProperty((<any>ownerType)._BaseClass, name, true);
-        if (!propd && !isRecursive)
+        if (!propd && !noError)
             throw new Exception("Cannot locate dependency property [" + (<any>ownerType)._TypeName + "].[" + name + "]");
         return propd;
     }

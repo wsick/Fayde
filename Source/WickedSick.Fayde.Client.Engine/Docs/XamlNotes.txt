@@ -41,6 +41,7 @@ XamlObject
 			Metrics			->		Metrics (Merge)
 			Xformer			->		Xformer
 			(Nothing)		->		Invalidator?
+		If node is shareable and has parent, AttachTo is ignored
 DependencyObject
 	ProviderStore
 	Expressions

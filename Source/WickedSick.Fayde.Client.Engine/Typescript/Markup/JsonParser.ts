@@ -192,7 +192,7 @@ module Fayde {
                 if (this.TrySetCollectionProperty(propValue, xobj, propd, undefined, namescope))
                     return;
 
-                if (!(propValue instanceof Fayde.Expression)) {
+                if (!(propValue instanceof Expression)) {
                     var targetType = propd.GetTargetType();
                     if (targetType instanceof Enum) {
                         //Do nothing?

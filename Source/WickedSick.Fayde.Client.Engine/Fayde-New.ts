@@ -638,103 +638,6 @@ module Fayde {
 }
 
 module Fayde {
-    class TypeConverters {
-        static ThicknessConverter(str: string): Thickness {
-            if (!str)
-                return new Thickness();
-            var tokens = str.split(",");
-            var left, top, right, bottom;
-            if (tokens.length === 1) {
-                left = top = right = bottom = parseFloat(tokens[0]);
-            } else if (tokens.length === 2) {
-                left = right = parseFloat(tokens[0]);
-                top = bottom = parseFloat(tokens[1]);
-            } else if (tokens.length === 4) {
-                left = parseFloat(tokens[0]);
-                top = parseFloat(tokens[1]);
-                right = parseFloat(tokens[2]);
-                bottom = parseFloat(tokens[3]);
-            } else {
-                throw new XamlParseException("Cannot parse Thickness value '" + str + "'");
-            }
-            return new Thickness(left, top, right, bottom);
-        }
-        static CornerRadiusConverter(str: string): CornerRadius {
-            if (!str)
-                return new CornerRadius();
-            var tokens = str.split(",");
-            var topLeft, topRight, bottomRight, bottomLeft;
-            if (tokens.length === 1) {
-                topLeft = topRight = bottomRight = bottomLeft = parseFloat(tokens[0]);
-            } else if (tokens.length === 4) {
-                topLeft = parseFloat(tokens[0]);
-                topRight = parseFloat(tokens[1]);
-                bottomLeft = parseFloat(tokens[2]);
-                bottomRight = parseFloat(tokens[3]);
-            } else {
-                throw new XamlParseException("Cannot parse CornerRadius value '" + str + "'");
-            }
-            return new CornerRadius(topLeft, topRight, bottomRight, bottomLeft);
-        }
-        static BrushConverter(str: string): Media.Brush {
-            var scb = new Media.SolidColorBrush();
-            scb.Color = ColorConverter(str);
-            return scb;
-        }
-        static ColorConverter(str: string): Color {
-            if (!str)
-                return new Color();
-            if (str.substr(0, 1) !== "#") {
-                var color = Color.KnownColors[str];
-                if (!color)
-                    throw new NotSupportedException("Unknown Color: " + str);
-                return color;
-            }
-            return Color.FromHex(str);
-        }
-    }
-    export class TypeConverter {
-        static ConvertObject(propd: DependencyProperty, val: any, objectType: Function, doStringConversion: bool) {
-            if (val == null)
-                return val;
-            var targetType = propd.GetTargetType();
-            if (typeof targetType === "function" && (<any>targetType)._IsNullstone) {
-                if (val instanceof targetType)
-                    return val;
-                var converter = TypeConverters[(<any>targetType)._TypeName + "Converter"];
-                if (converter)
-                    return converter(val);
-            } else if (targetType instanceof Enum) {
-                if (typeof val === "string") {
-                    var ret = (<Enum><any>targetType).Object[val];
-                    if (ret !== undefined)
-                        return ret;
-                    return val;
-                }
-            } else if (typeof targetType === "number" || targetType === Number) {
-                if (typeof val === "number")
-                    return val;
-                if (!val)
-                    return 0;
-                if (val instanceof Thickness)
-                    return val.Left;
-                return parseFloat(val.toString());
-            }
-            if (typeof targetType === "string" || targetType === String)
-                return doStringConversion ? val.toString() : "";
-            var tc;
-            if (propd._IsAttached) {
-            } else {
-            }
-            return val;
-        }
-        static GeometryFromString(val: string): Media.Geometry {
-            return Media.ParseGeometry(val);
-        }
-    }
-}
-
-module Fayde {
     export class VisualTreeHelper {
         static GetParent(d: DependencyObject): DependencyObject {
             if (!(d instanceof FrameworkElement))
@@ -4911,7 +4814,7 @@ class DependencyProperty {
         isValidOut.IsValid = true;
         return coerced;
     }
-    static GetDependencyProperty(ownerType: Function, name: string, isRecursive?: bool) {
+    static GetDependencyProperty(ownerType: Function, name: string, noError?: bool) {
         if (!ownerType)
             return undefined;
         var reg: DependencyProperty[] = (<any>ownerType)._RegisteredDPs;
@@ -4920,7 +4823,7 @@ class DependencyProperty {
             propd = reg[name];
         if (!propd)
             propd = DependencyProperty.GetDependencyProperty((<any>ownerType)._BaseClass, name, true);
-        if (!propd && !isRecursive)
+        if (!propd && !noError)
             throw new Exception("Cannot locate dependency property [" + (<any>ownerType)._TypeName + "].[" + name + "]");
         return propd;
     }
@@ -6073,7 +5976,7 @@ module Fayde {
             }
             var value = this._GetValue(resChain);
             if (value instanceof ResourceTarget)
-                value = value.CreateResource();
+                value = (<ResourceTarget>value).CreateResource();
             if (!value)
                 throw new XamlParseException("Could not resolve StaticResource: '" + this.Key.toString() + "'.");
             parser.TrySetPropertyValue(this.Target, propd, value, null, isAttached, ownerType, this.PropertyName);
@@ -6183,11 +6086,15 @@ module Fayde {
         Callback: (newIsAttached: bool) => void;
         Detach();
     }
-    export class XamlNode {
+    export interface IShareableHidden {
+        IsShareable: bool;
+    }
+    export class XamlNode implements IShareableHidden {
         XObject: XamlObject;
         ParentNode: XamlNode = null;
         Name: string = "";
         NameScope: NameScope = null;
+        private IsShareable: bool = false;
         private _OwnerNameScope: NameScope = null;
         private _LogicalChildren: XamlNode[] = [];
         private _DCMonitors: IDataContextMonitor[] = null;
@@ -6299,12 +6206,14 @@ module Fayde {
             return monitor;
         }
         AttachTo(parentNode: XamlNode, error: BError): bool {
-            var curNode = parentNode;
+            if (this.ParentNode && this.IsShareable)
+                return true;
             var data = {
                 ParentNode: parentNode,
                 ChildNode: this,
                 Name: ""
             };
+            var curNode = parentNode;
             while (curNode) {
                 if (curNode === this) {
                     error.Message = "Cycle found.";
@@ -6722,7 +6631,7 @@ module Fayde.Providers {
             var dpIds = DependencyProperty._IDs;
             var localStorage = (<any>this._LocalValueProvider)._ht;
             for (var id in localStorage) {
-                this.SetValue(dpIds[id], localStorage[id]);
+                this.SetValue(dpIds[id], Fayde.Clone(localStorage[id]));
             }
             this._CloneAnimationStorage(sourceStore);
         }
@@ -8957,7 +8866,7 @@ module Fayde {
             if (propd) {
                 if (this.TrySetCollectionProperty(propValue, xobj, propd, undefined, namescope))
                     return;
-                if (!(propValue instanceof Fayde.Expression)) {
+                if (!(propValue instanceof Expression)) {
                     var targetType = propd.GetTargetType();
                     if (targetType instanceof Enum) {
                     } else if (!(propValue instanceof targetType)) {
@@ -11201,20 +11110,17 @@ module Fayde {
             return true;
         }
         IndexOf(value: XamlObject): number {
-            var count = this._ht.length;
-            for (var i = 0; i < count; i++) {
-                if (Nullstone.Equals(value, this._ht[i]))
-                    return i;
-            }
-            return -1;
+            return this._ht.indexOf(value);
         }
         Contains(value: XamlObject): bool { return this.IndexOf(value) > -1; }
         CanAdd (value: XamlObject): bool { return true; }
         AddedToCollection(value: XamlObject, error: BError): bool {
-            return value.XamlNode.AttachTo(this.XamlNode, error);
+            if (value instanceof XamlObject)
+                return value.XamlNode.AttachTo(this.XamlNode, error);
         }
         RemovedFromCollection(value: XamlObject, isValueSafe: bool) {
-            value.XamlNode.Detach();
+            if (value instanceof XamlObject)
+                value.XamlNode.Detach();
         }
         GetEnumerator(reverse?: bool): IEnumerator {
             return ArrayEx.GetEnumerator(this._ht, reverse);
@@ -12506,6 +12412,10 @@ module Fayde.Media {
     export class Transform extends GeneralTransform {
         private _Value: Matrix;
         _Listener: ITransformChangedListener = null;
+        constructor() {
+            super();
+            (<IShareableHidden>this.XamlNode).IsShareable = true;
+        }
         get Value(): Matrix {
             var val = this._Value;
             if (!val) {
@@ -13140,6 +13050,7 @@ module Fayde.Media.Animation {
         Completed: bool;
     }
     export class Timeline extends DependencyObject {
+        static DEFAULT_REPEAT_BEHAVIOR: RepeatBehavior = RepeatBehavior.FromIterationCount(1);
         static AutoReverseProperty: DependencyProperty = DependencyProperty.Register("AutoReverse", () => Boolean, Timeline, false);
         static BeginTimeProperty: DependencyProperty = DependencyProperty.Register("BeginTime", () => TimeSpan, Timeline);
         static DurationProperty: DependencyProperty = DependencyProperty.Register("Duration", () => Duration, Timeline);
@@ -13239,7 +13150,7 @@ module Fayde.Media.Animation {
                 } else {
                     progress = (elapsedTicks / d) - Math.floor(elapsedTicks / d);
                 }
-                var repeat = this.RepeatBehavior;
+                var repeat = this.RepeatBehavior || Timeline.DEFAULT_REPEAT_BEHAVIOR;
                 if (repeat.IsForever) {
                 } else if (repeat.HasCount) {
                     if ((d === 0) || (Math.floor(elapsedTicks / d) >= repeat.Count)) {
@@ -13275,7 +13186,7 @@ module Fayde.Media.Animation {
         }
         GetNaturalDuration(): Duration {
             var d = this.Duration;
-            if (d.IsAutomatic)
+            if (!d || d.IsAutomatic)
                 return this.GetNaturalDurationCore();
             return d;
         }
@@ -13374,17 +13285,18 @@ module Fayde.Media.VSM {
         StartNewThenStopOld(element: FrameworkElement, newStoryboards: Animation.Storyboard[]) {
             var i;
             var storyboard;
+            var res = element.Resources;
             for (i = 0; i < newStoryboards.length; i++) {
                 storyboard = newStoryboards[i];
                 if (storyboard == null)
                     continue;
-                element.Resources.Set(storyboard._ID, storyboard);
+                res.Set(storyboard._ID, storyboard);
                 try {
                     storyboard.Begin();
                 } catch (err) {
                     for (var j = 0; j <= i; j++) {
                         if (newStoryboards[j] != null)
-                            element.Resources.Remove((<any>newStoryboards[j])._ID);
+                            res.Set((<any>newStoryboards[j])._ID, undefined);
                     }
                     throw err;
                 }
@@ -13405,7 +13317,7 @@ module Fayde.Media.VSM {
                 storyboard = enumerator.Current;
                 if (!storyboard)
                     continue;
-                element.Resources.Remove((<any>storyboard)._ID);
+                element.Resources.Set((<any>storyboard)._ID, undefined);
                 storyboard.Stop();
             }
             this._CurrentStoryboards = [];
@@ -14041,6 +13953,7 @@ module Fayde {
     }
     Nullstone.RegisterType(ResourceDictionaryCollection, "ResourceDictionaryCollection");
     export class ResourceDictionary extends XamlObjectCollection {
+        private _ht: any[] = []; //Defined in XamlObjectCollection
         private _KeyIndex: number[] = [];
         MergedDictionaries: ResourceDictionaryCollection;
         Source: string = "";
@@ -14056,18 +13969,25 @@ module Fayde {
         }
         Get(key: any): XamlObject {
             var index = this._KeyIndex[key];
-            if (index !== undefined)
-                return this.GetValueAt(index);
+            if (index > -1)
+                return this._ht[index];
             return this._GetFromMerged(key);
         }
-        Set(key: any, value: XamlObject) {
-            var oldValue;
-            if (this.ContainsKey(key)) {
-                oldValue = this.Get(key);
-                this.Remove(oldValue);
+        Set(key: any, value: XamlObject): bool {
+            var index = this._KeyIndex[key];
+            if (index === undefined && value === undefined)
+                return false;
+            if (value === undefined) {
+                this._KeyIndex[key] = undefined;
+                return this.RemoveAt(index);
             }
-            var index = super.Add(value);
-            this._KeyIndex[key] = index;
+            if (index === undefined) {
+                index = this._ht.length;
+                this._KeyIndex[key] = index;
+                return this.Insert(index, value);
+            }
+            var oldValue = this.GetValueAt[index];
+            this._ht[index] = value;
             this._RaiseItemReplaced(oldValue, value, index);
             return true;
         }
@@ -14145,7 +14065,7 @@ module Fayde {
                     throw new XamlParseException("Setter value does not match property type.");
             }
             try {
-                this.ConvertedValue = Fayde.TypeConverter.ConvertObject(propd, val, targetType, true);
+                this.ConvertedValue = TypeConverter.ConvertObject(propd, val, targetType, true);
             } catch (err) {
                 throw new XamlParseException(err.message);
             }
@@ -14727,6 +14647,10 @@ module Fayde.Media {
         private _CachedBounds: rect = null;
         private _CachedBrush: any = null;
         private _Listener: IBrushChangedListener = null;
+        constructor() {
+            super();
+            (<IShareableHidden>this.XamlNode).IsShareable = true;
+        }
         SetupBrush(ctx: CanvasRenderingContext2D, bounds: rect) {
             if (this._CachedBrush && this._CachedBounds && rect.isEqual(this._CachedBounds, bounds))
                 return;
@@ -15576,12 +15500,9 @@ module Fayde.Media.Animation {
                 targetObject = localTargetObject;
             if (localTargetPropertyPath != null)
                 targetPropertyPath = localTargetPropertyPath;
-            var refobj = {
-                Value: targetObject
-            };
-            targetPropertyPath.TryResolveDependencyProperty(targetObject);
-            var targetProperty = Data.PropertyPath.ResolvePropertyPath(refobj, targetPropertyPath, promotedValues);
-            if (targetProperty == null) {
+            var refobj = { Value: targetObject };
+            var targetProperty = targetPropertyPath.TryResolveDependencyProperty(refobj, promotedValues);
+            if (!targetProperty) {
                 error.Number = BError.XamlParse;
                 error.Message = "Could not resolve property for storyboard. [" + localTargetPropertyPath.Path.toString() + "]";
                 return false;
@@ -15611,7 +15532,7 @@ module Fayde.Media.Animation {
                 if (dur.IsForever)
                     return Duration.CreateForever();
                 var spanTicks = dur.TimeSpan.Ticks;
-                var repeat = timeline.RepeatBehavior;
+                var repeat = timeline.RepeatBehavior || Timeline.DEFAULT_REPEAT_BEHAVIOR;
                 if (repeat.IsForever)
                     return Duration.CreateForever();
                 if (repeat.HasCount)
@@ -15622,7 +15543,8 @@ module Fayde.Media.Animation {
                     spanTicks = repeat.Duration.TimeSpan.Ticks;
                 if (spanTicks !== 0)
                     spanTicks = spanTicks / timeline.SpeedRatio;
-                spanTicks += timeline.BeginTime.Ticks;
+                var bt = timeline.BeginTime;
+                if (bt) spanTicks += bt.Ticks;
                 if (fullTicks === 0 || fullTicks <= spanTicks)
                     fullTicks = spanTicks;
             }
@@ -16120,6 +16042,113 @@ module Fayde {
     Nullstone.RegisterType(FrameworkElement, "FrameworkElement");
 }
 
+module Fayde {
+    class TypeConverters {
+        static ThicknessConverter(str: string): Thickness {
+            if (!str)
+                return new Thickness();
+            var tokens = str.split(",");
+            var left, top, right, bottom;
+            if (tokens.length === 1) {
+                left = top = right = bottom = parseFloat(tokens[0]);
+            } else if (tokens.length === 2) {
+                left = right = parseFloat(tokens[0]);
+                top = bottom = parseFloat(tokens[1]);
+            } else if (tokens.length === 4) {
+                left = parseFloat(tokens[0]);
+                top = parseFloat(tokens[1]);
+                right = parseFloat(tokens[2]);
+                bottom = parseFloat(tokens[3]);
+            } else {
+                throw new XamlParseException("Cannot parse Thickness value '" + str + "'");
+            }
+            return new Thickness(left, top, right, bottom);
+        }
+        static CornerRadiusConverter(str: string): CornerRadius {
+            if (!str)
+                return new CornerRadius();
+            var tokens = str.split(",");
+            var topLeft, topRight, bottomRight, bottomLeft;
+            if (tokens.length === 1) {
+                topLeft = topRight = bottomRight = bottomLeft = parseFloat(tokens[0]);
+            } else if (tokens.length === 4) {
+                topLeft = parseFloat(tokens[0]);
+                topRight = parseFloat(tokens[1]);
+                bottomLeft = parseFloat(tokens[2]);
+                bottomRight = parseFloat(tokens[3]);
+            } else {
+                throw new XamlParseException("Cannot parse CornerRadius value '" + str + "'");
+            }
+            return new CornerRadius(topLeft, topRight, bottomRight, bottomLeft);
+        }
+        static BrushConverter(str: string): Media.Brush {
+            var scb = new Media.SolidColorBrush();
+            scb.Color = ColorConverter(str);
+            return scb;
+        }
+        static ColorConverter(str: string): Color {
+            if (!str)
+                return new Color();
+            if (str.substr(0, 1) !== "#") {
+                var color = Color.KnownColors[str];
+                if (!color)
+                    throw new NotSupportedException("Unknown Color: " + str);
+                return color;
+            }
+            return Color.FromHex(str);
+        }
+    }
+    export class TypeConverter {
+        private static _Converters: Function[] = [];
+        static Register(type: any, converter: (str: string) => any) {
+            TypeConverter._Converters[type] = converter;
+        }
+        static ConvertObject(propd: DependencyProperty, val: any, objectType: Function, doStringConversion: bool) {
+            if (val == null)
+                return val;
+            var targetType = propd.GetTargetType();
+            if (typeof targetType === "string" || targetType === String) {
+                return doStringConversion ? val.toString() : "";
+            } else if (typeof targetType === "number" || targetType === Number) {
+                if (typeof val === "number")
+                    return val;
+                if (!val)
+                    return 0;
+                if (val instanceof Thickness)
+                    return val.Left;
+                return parseFloat(val.toString());
+            } else if (typeof targetType === "function") {
+                if (val instanceof targetType)
+                    return val;
+                var converter = TypeConverter._Converters[<any>targetType];
+                if (converter)
+                    return converter(val);
+            } else if (targetType instanceof Enum) {
+                if (typeof val === "string") {
+                    var ret = (<Enum><any>targetType).Object[val];
+                    if (ret !== undefined)
+                        return ret;
+                    return val;
+                }
+            }
+            if (typeof targetType === "string" || targetType === String)
+                return doStringConversion ? val.toString() : "";
+            var tc;
+            if (propd._IsAttached) {
+            } else {
+            }
+            return val;
+        }
+        static GeometryFromString(val: string): Media.Geometry {
+            return Media.ParseGeometry(val);
+        }
+    }
+    TypeConverter.Register(Thickness, TypeConverters.ThicknessConverter);
+    TypeConverter.Register(CornerRadius, TypeConverters.CornerRadiusConverter);
+    TypeConverter.Register(Media.Brush, TypeConverters.BrushConverter);
+    TypeConverter.Register(Color, TypeConverters.ColorConverter);
+}
+
 module Fayde.Media.Imaging {
     export class BitmapImage extends BitmapSource {
         static UriSourceProperty: DependencyProperty = DependencyProperty.RegisterFull("UriSource", () => Uri, BitmapImage, undefined, (d, args) => (<BitmapImage>d)._UriSourceChanged(args), undefined, undefined, true);
@@ -16254,7 +16283,8 @@ module Fayde.Shapes {
                     ret = true;
             }
             if (!ret && this._Stroke != null) {
-                NotImplemented("Shape._InsideShape-Stroke");
+                if (window.console && console.warn)
+                    console.warn("Shape._InsideShape-Stroke");
             }
             ctx.Restore();
             return ret;
@@ -20384,14 +20414,17 @@ module Fayde.Data {
         explicitType: bool;
         type: Function;
     }
-    var lookupNamespaces;
+    var lookupNamespaces: any[];
     function lookupType(name: string) {
-        lookupNamespaces.push(Fayde);
-        lookupNamespaces.push(Fayde.Controls);
-        lookupNamespaces.push(Fayde.Media);
-        lookupNamespaces.push(Fayde.Controls.Primitives);
-        lookupNamespaces.push(Fayde.Shapes);
-        lookupNamespaces.push(window);
+        if (!lookupNamespaces) {
+            lookupNamespaces = [
+                Fayde,
+                Fayde.Controls,
+                Fayde.Media,
+                Fayde.Controls.Primitives, 
+                Fayde.Shapes, 
+                window];
+        }
         var len = lookupNamespaces.length;
         for (var i = 0; i < len; i++) {
             var potentialType = lookupNamespaces[i][name];
@@ -20553,11 +20586,10 @@ module Fayde.Data {
                 p._Path = parameter;
             return p;
         }
-        TryResolveDependencyProperty(dobj: DependencyObject) {
-            if (this.HasDependencyProperty)
-                return;
-            if (dobj)
-                this._Propd = DependencyProperty.GetDependencyProperty((<any>dobj).constructor, this.Path);
+        TryResolveDependencyProperty(refobj: IOutValue, promotedValues: any[]): DependencyProperty {
+            if (!this._Propd)
+                this._Propd = PropertyPath.ResolvePropertyPath(refobj, this, promotedValues);
+            return this._Propd;
         }
         get Path(): string { return !this._Propd ? this._Path : "(0)"; }
         get ExpandedPath(): string { return !this._Propd ? this._ExpandedPath : "(0)"; }
@@ -20571,11 +20603,12 @@ module Fayde.Data {
         get HasDependencyProperty() { return this._Propd != null; }
         get DependencyProperty() { return this._Propd; }
         static ResolvePropertyPath(refobj: IOutValue, propertyPath: PropertyPath, promotedValues: any[]): DependencyProperty {
-            if (propertyPath.HasDependencyProperty)
-                return propertyPath.DependencyProperty;
+            if (propertyPath._Propd)
+                return propertyPath._Propd;
             var path = propertyPath.Path;
-            if (propertyPath.ExpandedPath != null)
-                path = propertyPath.ExpandedPath;
+            var expanded = propertyPath.ExpandedPath;
+            if (expanded != null)
+                path = expanded;
             var data: IParseData = {
                 index: 0,
                 i: 0,

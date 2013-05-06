@@ -17,6 +17,7 @@ module Fayde.Media.Animation {
     }
 
     export class Timeline extends DependencyObject {
+        static DEFAULT_REPEAT_BEHAVIOR: RepeatBehavior = RepeatBehavior.FromIterationCount(1);
         static AutoReverseProperty: DependencyProperty = DependencyProperty.Register("AutoReverse", () => Boolean, Timeline, false);
         static BeginTimeProperty: DependencyProperty = DependencyProperty.Register("BeginTime", () => TimeSpan, Timeline);
         static DurationProperty: DependencyProperty = DependencyProperty.Register("Duration", () => Duration, Timeline);
@@ -130,7 +131,7 @@ module Fayde.Media.Animation {
                     progress = (elapsedTicks / d) - Math.floor(elapsedTicks / d);
                 }
 
-                var repeat = this.RepeatBehavior;
+                var repeat = this.RepeatBehavior || Timeline.DEFAULT_REPEAT_BEHAVIOR;
                 if (repeat.IsForever) {
                 } else if (repeat.HasCount) {
                     if ((d === 0) || (Math.floor(elapsedTicks / d) >= repeat.Count)) {
@@ -169,7 +170,7 @@ module Fayde.Media.Animation {
         }
         GetNaturalDuration(): Duration {
             var d = this.Duration;
-            if (d.IsAutomatic)
+            if (!d || d.IsAutomatic)
                 return this.GetNaturalDurationCore();
             return d;
         }

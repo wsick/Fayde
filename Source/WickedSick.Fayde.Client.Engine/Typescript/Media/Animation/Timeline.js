@@ -32,6 +32,7 @@ var Fayde;
                     this._InitialStep = undefined;
                     this._ManualTarget = undefined;
                 }
+                Timeline.DEFAULT_REPEAT_BEHAVIOR = Animation.RepeatBehavior.FromIterationCount(1);
                 Timeline.AutoReverseProperty = DependencyProperty.Register("AutoReverse", function () {
                     return Boolean;
                 }, Timeline, false);
@@ -150,7 +151,7 @@ var Fayde;
                             // Progress - Graph that repeats 3 times has shape: //////
                             progress = (elapsedTicks / d) - Math.floor(elapsedTicks / d);
                         }
-                        var repeat = this.RepeatBehavior;
+                        var repeat = this.RepeatBehavior || Timeline.DEFAULT_REPEAT_BEHAVIOR;
                         if(repeat.IsForever) {
                         } else if(repeat.HasCount) {
                             if((d === 0) || (Math.floor(elapsedTicks / d) >= repeat.Count)) {
@@ -192,7 +193,7 @@ var Fayde;
                 };
                 Timeline.prototype.GetNaturalDuration = function () {
                     var d = this.Duration;
-                    if(d.IsAutomatic) {
+                    if(!d || d.IsAutomatic) {
                         return this.GetNaturalDurationCore();
                     }
                     return d;

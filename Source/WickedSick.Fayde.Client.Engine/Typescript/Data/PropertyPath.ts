@@ -26,14 +26,17 @@ module Fayde.Data {
         type: Function;
     }
 
-    var lookupNamespaces;
+    var lookupNamespaces: any[];
     function lookupType(name: string) {
-        lookupNamespaces.push(Fayde);
-        lookupNamespaces.push(Fayde.Controls);
-        lookupNamespaces.push(Fayde.Media);
-        lookupNamespaces.push(Fayde.Controls.Primitives);
-        lookupNamespaces.push(Fayde.Shapes);
-        lookupNamespaces.push(window);
+        if (!lookupNamespaces) {
+            lookupNamespaces = [
+                Fayde,
+                Fayde.Controls,
+                Fayde.Media,
+                Fayde.Controls.Primitives, 
+                Fayde.Shapes, 
+                window];
+        }
 
         var len = lookupNamespaces.length;
         for (var i = 0; i < len; i++) {
@@ -220,11 +223,10 @@ module Fayde.Data {
             return p;
         }
 
-        TryResolveDependencyProperty(dobj: DependencyObject) {
-            if (this.HasDependencyProperty)
-                return;
-            if (dobj)
-                this._Propd = DependencyProperty.GetDependencyProperty((<any>dobj).constructor, this.Path);
+        TryResolveDependencyProperty(refobj: IOutValue, promotedValues: any[]): DependencyProperty {
+            if (!this._Propd)
+                this._Propd = PropertyPath.ResolvePropertyPath(refobj, this, promotedValues);
+            return this._Propd;
         }
 
         get Path(): string { return !this._Propd ? this._Path : "(0)"; }
@@ -240,12 +242,13 @@ module Fayde.Data {
         get DependencyProperty() { return this._Propd; }
 
         static ResolvePropertyPath(refobj: IOutValue, propertyPath: PropertyPath, promotedValues: any[]): DependencyProperty {
-            if (propertyPath.HasDependencyProperty)
-                return propertyPath.DependencyProperty;
+            if (propertyPath._Propd)
+                return propertyPath._Propd;
 
             var path = propertyPath.Path;
-            if (propertyPath.ExpandedPath != null)
-                path = propertyPath.ExpandedPath;
+            var expanded = propertyPath.ExpandedPath;
+            if (expanded != null)
+                path = expanded;
 
             var data: IParseData = {
                 index: 0,

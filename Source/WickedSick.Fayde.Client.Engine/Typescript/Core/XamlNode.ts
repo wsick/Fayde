@@ -21,12 +21,16 @@ module Fayde {
         Callback: (newIsAttached: bool) => void;
         Detach();
     }
+    export interface IShareableHidden {
+        IsShareable: bool;
+    }
 
-    export class XamlNode {
+    export class XamlNode implements IShareableHidden {
         XObject: XamlObject;
         ParentNode: XamlNode = null;
         Name: string = "";
         NameScope: NameScope = null;
+        private IsShareable: bool = false;
         private _OwnerNameScope: NameScope = null;
         private _LogicalChildren: XamlNode[] = [];
 
@@ -147,12 +151,14 @@ module Fayde {
         }
 
         AttachTo(parentNode: XamlNode, error: BError): bool {
-            var curNode = parentNode;
+            if (this.ParentNode && this.IsShareable)
+                return true;
             var data = {
                 ParentNode: parentNode,
                 ChildNode: this,
                 Name: ""
             };
+            var curNode = parentNode;
             while (curNode) {
                 if (curNode === this) {
                     error.Message = "Cycle found.";

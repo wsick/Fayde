@@ -87,20 +87,17 @@ module Fayde {
             return true;
         }
         IndexOf(value: XamlObject): number {
-            var count = this._ht.length;
-            for (var i = 0; i < count; i++) {
-                if (Nullstone.Equals(value, this._ht[i]))
-                    return i;
-            }
-            return -1;
+            return this._ht.indexOf(value);
         }
         Contains(value: XamlObject): bool { return this.IndexOf(value) > -1; }
         CanAdd (value: XamlObject): bool { return true; }
         AddedToCollection(value: XamlObject, error: BError): bool {
-            return value.XamlNode.AttachTo(this.XamlNode, error);
+            if (value instanceof XamlObject)
+                return value.XamlNode.AttachTo(this.XamlNode, error);
         }
         RemovedFromCollection(value: XamlObject, isValueSafe: bool) {
-            value.XamlNode.Detach();
+            if (value instanceof XamlObject)
+                value.XamlNode.Detach();
         }
 
         GetEnumerator(reverse?: bool): IEnumerator {

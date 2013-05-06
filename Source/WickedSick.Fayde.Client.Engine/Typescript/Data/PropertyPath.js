@@ -9,12 +9,16 @@ var Fayde;
     (function (Data) {
         var lookupNamespaces;
         function lookupType(name) {
-            lookupNamespaces.push(Fayde);
-            lookupNamespaces.push(Fayde.Controls);
-            lookupNamespaces.push(Fayde.Media);
-            lookupNamespaces.push(Fayde.Controls.Primitives);
-            lookupNamespaces.push(Fayde.Shapes);
-            lookupNamespaces.push(window);
+            if(!lookupNamespaces) {
+                lookupNamespaces = [
+                    Fayde, 
+                    Fayde.Controls, 
+                    Fayde.Media, 
+                    Fayde.Controls.Primitives, 
+                    Fayde.Shapes, 
+                    window
+                ];
+            }
             var len = lookupNamespaces.length;
             for(var i = 0; i < len; i++) {
                 var potentialType = lookupNamespaces[i][name];
@@ -201,13 +205,11 @@ var Fayde;
                 }
                 return p;
             };
-            PropertyPath.prototype.TryResolveDependencyProperty = function (dobj) {
-                if(this.HasDependencyProperty) {
-                    return;
+            PropertyPath.prototype.TryResolveDependencyProperty = function (refobj, promotedValues) {
+                if(!this._Propd) {
+                    this._Propd = PropertyPath.ResolvePropertyPath(refobj, this, promotedValues);
                 }
-                if(dobj) {
-                    this._Propd = DependencyProperty.GetDependencyProperty((dobj).constructor, this.Path);
-                }
+                return this._Propd;
             };
             Object.defineProperty(PropertyPath.prototype, "Path", {
                 get: function () {
@@ -251,12 +253,13 @@ var Fayde;
                 configurable: true
             });
             PropertyPath.ResolvePropertyPath = function ResolvePropertyPath(refobj, propertyPath, promotedValues) {
-                if(propertyPath.HasDependencyProperty) {
-                    return propertyPath.DependencyProperty;
+                if(propertyPath._Propd) {
+                    return propertyPath._Propd;
                 }
                 var path = propertyPath.Path;
-                if(propertyPath.ExpandedPath != null) {
-                    path = propertyPath.ExpandedPath;
+                var expanded = propertyPath.ExpandedPath;
+                if(expanded != null) {
+                    path = expanded;
                 }
                 var data = {
                     index: 0,

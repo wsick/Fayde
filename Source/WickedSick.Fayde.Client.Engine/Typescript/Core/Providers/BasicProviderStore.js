@@ -400,7 +400,7 @@ var Fayde;
                 var dpIds = DependencyProperty._IDs;
                 var localStorage = (this._LocalValueProvider)._ht;
                 for(var id in localStorage) {
-                    this.SetValue(dpIds[id], localStorage[id]);
+                    this.SetValue(dpIds[id], Fayde.Clone(localStorage[id]));
                 }
                 this._CloneAnimationStorage(sourceStore);
             };

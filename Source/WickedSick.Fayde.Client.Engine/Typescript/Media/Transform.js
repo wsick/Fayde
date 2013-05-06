@@ -13,9 +13,9 @@ var Fayde;
         var Transform = (function (_super) {
             __extends(Transform, _super);
             function Transform() {
-                _super.apply(this, arguments);
-
+                        _super.call(this);
                 this._Listener = null;
+                (this.XamlNode).IsShareable = true;
             }
             Object.defineProperty(Transform.prototype, "Value", {
                 get: function () {

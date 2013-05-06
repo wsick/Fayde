@@ -17,6 +17,11 @@ module Fayde.Media {
         private _CachedBrush: any = null;
         private _Listener: IBrushChangedListener = null;
 
+        constructor() {
+            super();
+            (<IShareableHidden>this.XamlNode).IsShareable = true;
+        }
+
         SetupBrush(ctx: CanvasRenderingContext2D, bounds: rect) {
             if (this._CachedBrush && this._CachedBounds && rect.isEqual(this._CachedBounds, bounds))
                 return;

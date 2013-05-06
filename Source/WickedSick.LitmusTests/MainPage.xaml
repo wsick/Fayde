@@ -12,5 +12,6 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <tests:MapTest />
+    <!--<tests:MapTest />-->
+    <tests:ResourceTest />
 </UserControl>

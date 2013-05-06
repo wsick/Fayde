@@ -113,7 +113,7 @@ var DependencyProperty = (function () {
         isValidOut.IsValid = true;
         return coerced;
     };
-    DependencyProperty.GetDependencyProperty = function GetDependencyProperty(ownerType, name, isRecursive) {
+    DependencyProperty.GetDependencyProperty = function GetDependencyProperty(ownerType, name, noError) {
         if(!ownerType) {
             return undefined;
         }
@@ -125,7 +125,7 @@ var DependencyProperty = (function () {
         if(!propd) {
             propd = DependencyProperty.GetDependencyProperty((ownerType)._BaseClass, name, true);
         }
-        if(!propd && !isRecursive) {
+        if(!propd && !noError) {
             throw new Exception("Cannot locate dependency property [" + (ownerType)._TypeName + "].[" + name + "]");
         }
         return propd;

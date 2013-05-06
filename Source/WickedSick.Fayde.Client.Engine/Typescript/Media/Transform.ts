@@ -12,6 +12,11 @@ module Fayde.Media {
         private _Value: Matrix;
         _Listener: ITransformChangedListener = null;
 
+        constructor() {
+            super();
+            (<IShareableHidden>this.XamlNode).IsShareable = true;
+        }
+
         get Value(): Matrix {
             var val = this._Value;
             if (!val) {

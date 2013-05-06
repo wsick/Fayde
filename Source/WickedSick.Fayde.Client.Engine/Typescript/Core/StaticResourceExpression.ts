@@ -62,7 +62,7 @@ module Fayde {
 
             var value = this._GetValue(resChain);
             if (value instanceof ResourceTarget)
-                value = value.CreateResource();
+                value = (<ResourceTarget>value).CreateResource();
             if (!value)
                 throw new XamlParseException("Could not resolve StaticResource: '" + this.Key.toString() + "'.");
             parser.TrySetPropertyValue(this.Target, propd, value, null, isAttached, ownerType, this.PropertyName);

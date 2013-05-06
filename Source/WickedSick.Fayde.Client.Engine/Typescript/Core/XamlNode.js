@@ -19,6 +19,7 @@ var Fayde;
             this.ParentNode = null;
             this.Name = "";
             this.NameScope = null;
+            this.IsShareable = false;
             this._OwnerNameScope = null;
             this._LogicalChildren = [];
             this._DCMonitors = null;
@@ -153,12 +154,15 @@ var Fayde;
             return monitor;
         };
         XamlNode.prototype.AttachTo = function (parentNode, error) {
-            var curNode = parentNode;
+            if(this.ParentNode && this.IsShareable) {
+                return true;
+            }
             var data = {
                 ParentNode: parentNode,
                 ChildNode: this,
                 Name: ""
             };
+            var curNode = parentNode;
             while(curNode) {
                 if(curNode === this) {
                     error.Message = "Cycle found.";

@@ -1,9 +1,10 @@
-/// CODE
-/// <reference path="DependencyProperty.ts" />
-/// <reference path="../Runtime/Enum.ts" />
 /// <reference path="../Primitives/CornerRadius.ts" />
 /// <reference path="../Primitives/Color.ts" />
 /// <reference path="../Primitives/Thickness.ts" />
+/// <reference path="../Media/Brush.ts" />
+/// CODE
+/// <reference path="DependencyProperty.ts" />
+/// <reference path="../Runtime/Enum.ts" />
 /// <reference path="../Media/MediaParser.ts" />
 /// <reference path="../Media/SolidColorBrush.ts" />
 var Fayde;
@@ -71,27 +72,17 @@ var Fayde;
     })();    
     var TypeConverter = (function () {
         function TypeConverter() { }
+        TypeConverter._Converters = [];
+        TypeConverter.Register = function Register(type, converter) {
+            TypeConverter._Converters[type] = converter;
+        };
         TypeConverter.ConvertObject = function ConvertObject(propd, val, objectType, doStringConversion) {
             if(val == null) {
                 return val;
             }
             var targetType = propd.GetTargetType();
-            if(typeof targetType === "function" && (targetType)._IsNullstone) {
-                if(val instanceof targetType) {
-                    return val;
-                }
-                var converter = TypeConverters[(targetType)._TypeName + "Converter"];
-                if(converter) {
-                    return converter(val);
-                }
-            } else if(targetType instanceof Enum) {
-                if(typeof val === "string") {
-                    var ret = (targetType).Object[val];
-                    if(ret !== undefined) {
-                        return ret;
-                    }
-                    return val;
-                }
+            if(typeof targetType === "string" || targetType === String) {
+                return doStringConversion ? val.toString() : "";
             } else if(typeof targetType === "number" || targetType === Number) {
                 if(typeof val === "number") {
                     return val;
@@ -103,6 +94,22 @@ var Fayde;
                     return val.Left;
                 }
                 return parseFloat(val.toString());
+            } else if(typeof targetType === "function") {
+                if(val instanceof targetType) {
+                    return val;
+                }
+                var converter = TypeConverter._Converters[targetType];
+                if(converter) {
+                    return converter(val);
+                }
+            } else if(targetType instanceof Enum) {
+                if(typeof val === "string") {
+                    var ret = (targetType).Object[val];
+                    if(ret !== undefined) {
+                        return ret;
+                    }
+                    return val;
+                }
             }
             if(typeof targetType === "string" || targetType === String) {
                 return doStringConversion ? val.toString() : "";
@@ -123,5 +130,9 @@ var Fayde;
         return TypeConverter;
     })();
     Fayde.TypeConverter = TypeConverter;    
+    TypeConverter.Register(Thickness, TypeConverters.ThicknessConverter);
+    TypeConverter.Register(CornerRadius, TypeConverters.CornerRadiusConverter);
+    TypeConverter.Register(Fayde.Media.Brush, TypeConverters.BrushConverter);
+    TypeConverter.Register(Color, TypeConverters.ColorConverter);
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=TypeConverter.js.map

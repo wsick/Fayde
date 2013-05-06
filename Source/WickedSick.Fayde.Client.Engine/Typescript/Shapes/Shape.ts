@@ -125,7 +125,8 @@ module Fayde.Shapes {
                     ret = true;
             }
             if (!ret && this._Stroke != null) {
-                NotImplemented("Shape._InsideShape-Stroke");
+                if (window.console && console.warn)
+                    console.warn("Shape._InsideShape-Stroke");
             }
             ctx.Restore();
             return ret;
