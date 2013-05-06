@@ -124,10 +124,10 @@ module Fayde {
         constructor(public Node: UINode) { }
 
         OnIsAttachedChanged(newIsAttached: bool, visualParentNode: UINode) {
-            this.UpdateTotalRenderVisibility();
+            var surface = this.Surface;
+            if (surface) this.UpdateTotalRenderVisibility();
             if (!newIsAttached) {
                 this._CacheInvalidateHint();
-                var surface = this.Surface;
                 if (surface) surface.OnNodeDetached(this);
             }
         }
