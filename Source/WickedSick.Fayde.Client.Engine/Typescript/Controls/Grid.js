@@ -150,7 +150,9 @@ var Fayde;
             Grid._AttachedPropChanged = function _AttachedPropChanged(d, args) {
                 var dNode = d.XamlNode;
                 var gridNode = dNode.VisualParentNode;
-                gridNode.LayoutUpdater.InvalidateMeasure();
+                if(gridNode) {
+                    gridNode.LayoutUpdater.InvalidateMeasure();
+                }
                 dNode.LayoutUpdater.InvalidateMeasure();
             };
             Grid.ColumnProperty = DependencyProperty.RegisterAttached("Column", function () {
@@ -452,7 +454,7 @@ var Fayde;
                     i++;
                 }
                 i = 0;
-                enumerator = cols.GetEnumerator();
+                enumerator = rows.GetEnumerator();
                 while(enumerator.MoveNext()) {
                     (enumerator.Current).SetValueInternal(Controls.RowDefinition.ActualHeightProperty, rm[i][i].OfferedSize);
                     i++;

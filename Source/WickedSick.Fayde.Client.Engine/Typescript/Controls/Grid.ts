@@ -150,7 +150,8 @@ module Fayde.Controls {
         private static _AttachedPropChanged(d: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
             var dNode = <UINode>d.XamlNode;
             var gridNode = dNode.VisualParentNode;
-            gridNode.LayoutUpdater.InvalidateMeasure();
+            if (gridNode)
+                gridNode.LayoutUpdater.InvalidateMeasure();
             dNode.LayoutUpdater.InvalidateMeasure();
         }
 
@@ -463,7 +464,7 @@ module Fayde.Controls {
             }
 
             i = 0;
-            enumerator = cols.GetEnumerator();
+            enumerator = rows.GetEnumerator();
             while (enumerator.MoveNext()) {
                 (<RowDefinition>enumerator.Current).SetValueInternal(RowDefinition.ActualHeightProperty, rm[i][i].OfferedSize);
                 i++;

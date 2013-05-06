@@ -121,7 +121,6 @@ module Fayde {
                     (<Data.BindingExpressionBase>existing)._TryUpdateSourceObject(value);
             } catch (err) {
                 if (!addingExpression)
-                    
                     throw err;
                 this._Store.SetValue(propd, propd.DefaultValue);
                 if (updateTwoWay)
