@@ -308,7 +308,8 @@ module Fayde.Controls {
 
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.MoveNext()) {
-                var childNode = <UINode>enumerator.Current;
+                var child = <UIElement>enumerator.Current;
+                var childNode = child.XamlNode;
                 var childLu = childNode.LayoutUpdater;
                 var s = childLu.DesiredSize;
                 if (!isHorizontal) {

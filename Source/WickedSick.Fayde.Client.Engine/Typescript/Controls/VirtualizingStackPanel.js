@@ -394,7 +394,8 @@ var Fayde;
                 }
                 var enumerator = this.Children.GetEnumerator();
                 while(enumerator.MoveNext()) {
-                    var childNode = enumerator.Current;
+                    var child = enumerator.Current;
+                    var childNode = child.XamlNode;
                     var childLu = childNode.LayoutUpdater;
                     var s = childLu.DesiredSize;
                     if(!isHorizontal) {

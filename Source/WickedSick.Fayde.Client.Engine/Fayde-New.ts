@@ -367,7 +367,7 @@ module Fayde.Controls {
                 else
                     index = startOffset - 1;
             } else if (startAt >= 0 && startAt < realized.Count) {
-                index = realized.GetValueAt[startAt] + startOffset;
+                index = realized.GetValueAt(startAt) + startOffset;
             } else {
                 index = -1;
             }
@@ -6674,7 +6674,7 @@ module Fayde.Providers {
             var thisRepo = this._AnimStorage;
             var list;
             for (var key in srcRepo) {
-                thisRepo[key] = srcRepo[0].slice(0);
+                thisRepo[key] = srcRepo[key].slice(0);
             }
         }
         _AttachAnimationStorage(propd: DependencyProperty, storage): Media.Animation.AnimationStorage {
@@ -19588,7 +19588,8 @@ module Fayde.Controls {
                 arranged.Width = 0;
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.MoveNext()) {
-                var childNode = <UINode>enumerator.Current;
+                var child = <UIElement>enumerator.Current;
+                var childNode = child.XamlNode;
                 var childLu = childNode.LayoutUpdater;
                 var s = childLu.DesiredSize;
                 if (!isHorizontal) {
@@ -20651,6 +20652,7 @@ module Fayde.Data {
         promotedValues: any[];
         explicitType: bool;
         type: Function;
+        objRes: any[];
     }
     var lookupNamespaces: any[];
     function lookupType(name: string) {
@@ -20690,6 +20692,7 @@ module Fayde.Data {
                     data.promotedValues[clonedValue._ID] = clonedValue;
                 }
             }
+            data.objRes.push(data.res);
             data.lu = newLu;
         }
         data.expressionFound = false;
@@ -20730,6 +20733,8 @@ module Fayde.Data {
             return false;
         if (value instanceof DependencyObject) {
             data.lu = <DependencyObject>value;
+            data.objRes.push(data.res);
+            data.objRes.push(data.i);
         } else {
             data.lu = null;
             return false;
@@ -20811,6 +20816,7 @@ module Fayde.Data {
         private _Path: string;
         private _ExpandedPath: string;
         private _Propd: DependencyProperty = null;
+        private _ObjRes: any[] = null;
         constructor(path?: string, expandedPath?: string) {
             this._Path = path;
             this._ExpandedPath = expandedPath;
@@ -20825,8 +20831,20 @@ module Fayde.Data {
             return p;
         }
         TryResolveDependencyProperty(refobj: IOutValue, promotedValues: any[]): DependencyProperty {
-            if (!this._Propd)
-                this._Propd = PropertyPath.ResolvePropertyPath(refobj, this, promotedValues);
+            var or = this._ObjRes;
+            if (!or)
+                return this._Propd = PropertyPath.ResolvePropertyPath(refobj, this, promotedValues);
+            var val = refobj.Value;
+            var len = or.length;
+            var key: any;
+            for (var i = 0; i < len; i++) {
+                key = or[i];
+                if (typeof key === "number")
+                    val = val[key];
+                else
+                    val = val.GetValue(key);
+            }
+            refobj.Value = val;
             return this._Propd;
         }
         get Path(): string { return !this._Propd ? this._Path : "(0)"; }
@@ -20841,8 +20859,6 @@ module Fayde.Data {
         get HasDependencyProperty() { return this._Propd != null; }
         get DependencyProperty() { return this._Propd; }
         static ResolvePropertyPath(refobj: IOutValue, propertyPath: PropertyPath, promotedValues: any[]): DependencyProperty {
-            if (propertyPath._Propd)
-                return propertyPath._Propd;
             var path = propertyPath.Path;
             var expanded = propertyPath.ExpandedPath;
             if (expanded != null)
@@ -20862,7 +20878,8 @@ module Fayde.Data {
                 collection: null,
                 promotedValues: promotedValues,
                 explicitType: false,
-                type: null
+                type: null,
+                objRes: []
             };
             var success;
             while (data.index < data.end) {
@@ -20891,6 +20908,7 @@ module Fayde.Data {
                 }
             }
             refobj.Value = data.lu;
+            propertyPath._ObjRes = data.objRes;
             return data.res;
         }
         Clone(): PropertyPath {
