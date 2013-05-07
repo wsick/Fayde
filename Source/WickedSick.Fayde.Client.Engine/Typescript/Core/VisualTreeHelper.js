@@ -174,10 +174,12 @@ var Fayde;
                 str += "  Rows (" + rcount + "):\n";
                 enumerator = rds.GetEnumerator();
                 var rowdef;
+                var i = 0;
                 while(enumerator.MoveNext()) {
                     rowdef = enumerator.Current;
                     str += tabs;
                     str += "\t[" + i + "] -> " + rowdef.ActualHeight + "\n";
+                    i++;
                 }
             }
             if(ccount > 0) {
@@ -185,10 +187,12 @@ var Fayde;
                 str += "  Columns (" + ccount + "):\n";
                 enumerator = cds.GetEnumerator();
                 var coldef;
+                var i = 0;
                 while(enumerator.MoveNext()) {
                     coldef = enumerator.Current;
                     str += tabs;
                     str += "\t[" + i + "] -> " + coldef.ActualWidth + "\n";
+                    i++;
                 }
             }
             return str;

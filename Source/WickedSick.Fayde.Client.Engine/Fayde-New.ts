@@ -784,10 +784,12 @@ module Fayde {
                 str += "  Rows (" + rcount + "):\n";
                 enumerator = rds.GetEnumerator();
                 var rowdef: Controls.RowDefinition;
+                var i = 0;
                 while (enumerator.MoveNext()) {
                     rowdef = enumerator.Current;
                     str += tabs;
                     str += "\t[" + i + "] -> " + rowdef.ActualHeight + "\n";
+                    i++;
                 }
             }
             if (ccount > 0) {
@@ -795,10 +797,12 @@ module Fayde {
                 str += "  Columns (" + ccount + "):\n";
                 enumerator = cds.GetEnumerator();
                 var coldef: Controls.ColumnDefinition;
+                var i = 0;
                 while (enumerator.MoveNext()) {
                     coldef = enumerator.Current;
                     str += tabs;
                     str += "\t[" + i + "] -> " + coldef.ActualWidth + "\n";
+                    i++;
                 }
             }
             return str;
