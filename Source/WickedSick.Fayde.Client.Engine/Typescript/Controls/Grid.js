@@ -486,6 +486,58 @@ var Fayde;
                 }
                 return finalSize;
             };
+            Grid.prototype.Render = function (ctx, lu, region) {
+                var background = this.Background;
+                var showGridLines = this.ShowGridLines;
+                if(!background && !showGridLines) {
+                    return;
+                }
+                var framework = lu.CoerceSize(size.fromRaw(lu.ActualWidth, lu.ActualHeight));
+                if(framework.Width <= 0 || framework.Height <= 0) {
+                    return;
+                }
+                var area = rect.fromSize(framework);
+                ctx.Save();
+                lu._RenderLayoutClip(ctx);
+                if(background) {
+                    ctx.FillRect(background, area);
+                }
+                if(showGridLines) {
+                    var cctx = ctx.CanvasContext;
+                    var enumerator;
+                    var cuml = -1;
+                    var cols = this.ColumnDefinitions;
+                    if(cols) {
+                        enumerator = cols.GetEnumerator();
+                        while(enumerator.MoveNext()) {
+                            cuml += (enumerator.Current).ActualWidth;
+                            cctx.beginPath();
+                            ctx.SetLineDash([
+                                5
+                            ]);
+                            cctx.moveTo(cuml, 0);
+                            cctx.lineTo(cuml, framework.Height);
+                            cctx.stroke();
+                        }
+                    }
+                    var rows = this.RowDefinitions;
+                    if(rows) {
+                        cuml = -1;
+                        enumerator = rows.GetEnumerator();
+                        while(enumerator.MoveNext()) {
+                            cuml += (enumerator.Current).ActualHeight;
+                            cctx.beginPath();
+                            ctx.SetLineDash([
+                                5
+                            ]);
+                            cctx.moveTo(0, cuml);
+                            cctx.lineTo(framework.Width, cuml);
+                            cctx.stroke();
+                        }
+                    }
+                }
+                ctx.Restore();
+            };
             Grid.prototype._ExpandStarRows = function (availableSize) {
                 availableSize = size.clone(availableSize);
                 var rows = this.RowDefinitions;

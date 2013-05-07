@@ -170,15 +170,14 @@ module Fayde {
             var visualParentLu: Fayde.LayoutUpdater;
             if (visualParentNode)
                 visualParentLu = visualParentNode.LayoutUpdater;
-            var f = this.DirtyFlags;
             //i++;
             //DirtyDebug("Down Dirty Loop #" + i.toString() + " --> " + surface._DownDirty.__DebugToString());
             /*
             DirtyDebug.Level++;
             DirtyDebug("[" + uie.__DebugToString() + "]" + uie.__DebugDownDirtyFlags());
             */
-            if (f & rvFlag) {
-                f &= ~rvFlag;
+            if (this.DirtyFlags & rvFlag) {
+                this.DirtyFlags &= ~rvFlag;
 
                 var ovisible = this.TotalIsRenderVisible;
 
@@ -200,17 +199,17 @@ module Fayde {
                 this._PropagateDirtyFlagToChildren(rvFlag);
             }
 
-            if (f & htvFlag) {
-                f &= ~htvFlag;
+            if (this.DirtyFlags & htvFlag) {
+                this.DirtyFlags &= ~htvFlag;
                 //uie._ComputeTotalHitTestVisibility();
                 this.UpdateHitTestVisibility(visualParentLu);
                 this._PropagateDirtyFlagToChildren(htvFlag);
             }
 
-            var isLT = f & localTransformFlag;
-            var isLP = f & localProjectionFlag;
-            var isT = isLT || isLP || f & transformFlag;
-            f &= ~(localTransformFlag | localProjectionFlag | transformFlag);
+            var isLT = this.DirtyFlags & localTransformFlag;
+            var isLP = this.DirtyFlags & localProjectionFlag;
+            var isT = isLT || isLP || this.DirtyFlags & transformFlag;
+            this.DirtyFlags &= ~(localTransformFlag | localProjectionFlag | transformFlag);
 
             if (isLT) {
                 //DirtyDebug("ComputeLocalTransform: [" + uie.__DebugToString() + "]");
@@ -230,22 +229,21 @@ module Fayde {
                 this._PropagateDirtyFlagToChildren(dirtyEnum.Transform);
             }
 
-            var isLocalClip = f & localClipFlag;
-            var isClip = isLocalClip || f & clipFlag;
-            f &= ~(localClipFlag | clipFlag);
+            var isLocalClip = this.DirtyFlags & localClipFlag;
+            var isClip = isLocalClip || this.DirtyFlags & clipFlag;
+            this.DirtyFlags &= ~(localClipFlag | clipFlag);
 
             if (isClip)
                 this._PropagateDirtyFlagToChildren(dirtyEnum.Clip);
 
-            if (f & dirtyEnum.ChildrenZIndices) {
-                f &= ~dirtyEnum.ChildrenZIndices;
+            if (this.DirtyFlags & dirtyEnum.ChildrenZIndices) {
+                this.DirtyFlags &= ~dirtyEnum.ChildrenZIndices;
                 thisNode._ResortChildrenByZIndex();
             }
 
             //DirtyDebug.Level--;
-            this.DirtyFlags = f;
 
-            return !(f & downDirtyFlag);
+            return !(this.DirtyFlags & downDirtyFlag);
         }
         ProcessUp(): bool {
             var thisNode = this.Node;
@@ -254,12 +252,11 @@ module Fayde {
             if (visualParentNode)
                 visualParentLu = visualParentNode.LayoutUpdater;
 
-            var f = this.DirtyFlags;
             //i++;
             //DirtyDebug("Up Dirty Loop #" + i.toString() + " --> " + surface._UpDirty.__DebugToString());
             var invalidateSubtreePaint = false;
-            if (f & dirtyEnum.Bounds) {
-                f &= ~dirtyEnum.Bounds;
+            if (this.DirtyFlags & dirtyEnum.Bounds) {
+                this.DirtyFlags &= ~dirtyEnum.Bounds;
 
                 var oextents = rect.clone(this.ExtentsWithChildren);
                 var oglobalbounds = rect.clone(this.GlobalBoundsWithChildren);
@@ -282,19 +279,19 @@ module Fayde {
                 this._ForceInvalidateOfNewBounds = false;
             }
 
-            if (f & dirtyEnum.NewBounds) {
+            if (this.DirtyFlags & dirtyEnum.NewBounds) {
                 if (visualParentLu)
                     visualParentLu.Invalidate(this.SurfaceBoundsWithChildren);
                 else if (thisNode.IsTopLevel)
                     invalidateSubtreePaint = true;
-                f &= ~dirtyEnum.NewBounds;
+                this.DirtyFlags &= ~dirtyEnum.NewBounds;
             }
             if (invalidateSubtreePaint)
                 this.Invalidate(this.SurfaceBoundsWithChildren);
 
 
-            if (f & dirtyEnum.Invalidate) {
-                f &= ~dirtyEnum.Invalidate;
+            if (this.DirtyFlags & dirtyEnum.Invalidate) {
+                this.DirtyFlags &= ~dirtyEnum.Invalidate;
                 var dirty = this.DirtyRegion;
                 if (visualParentLu) {
                     visualParentLu.Invalidate(dirty);
@@ -312,8 +309,7 @@ module Fayde {
                 }
                 rect.clear(dirty);
             }
-            this.DirtyFlags = f;
-            return !(f & upDirtyFlag);
+            return !(this.DirtyFlags & upDirtyFlag);
         }
         private _PropagateDirtyFlagToChildren(dirt: _Dirty) {
             var enumerator = this.Node.GetVisualTreeEnumerator();

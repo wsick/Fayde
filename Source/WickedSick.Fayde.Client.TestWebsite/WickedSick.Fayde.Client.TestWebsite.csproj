@@ -112,6 +112,12 @@
     <Content Include="Tests\Controls\textblock.fap">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Tests\Controls\stackpanel.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Tests\Controls\grid.fap">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Tests\Shapes\rectangle-grid.fap">
       <SubType>Designer</SubType>
     </None>

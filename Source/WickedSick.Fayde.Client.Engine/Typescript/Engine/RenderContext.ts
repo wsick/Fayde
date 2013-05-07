@@ -125,6 +125,12 @@ module Fayde {
             //DrawDebug("Clear: " + r.toString());
         }
 
+        SetLineDash(offsets: number[]) {
+            var ctx = this.CanvasContext;
+            if ((<any>ctx).setLineDash)
+                (<any>ctx).setLineDash(offsets);
+        }
+
         PreTransformMatrix(mat: number[]) {
             var ct = this.CurrentTransform;
             mat3.multiply(mat, ct, ct); //ct = ct * matrix

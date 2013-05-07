@@ -502,6 +502,55 @@ module Fayde.Controls {
             return finalSize;
         }
 
+        private Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
+            var background = this.Background;
+            var showGridLines = this.ShowGridLines;
+            if (!background && !showGridLines)
+                return;
+
+            var framework = lu.CoerceSize(size.fromRaw(lu.ActualWidth, lu.ActualHeight));
+            if (framework.Width <= 0 || framework.Height <= 0)
+                return;
+
+            var area = rect.fromSize(framework);
+            ctx.Save();
+            lu._RenderLayoutClip(ctx);
+            if (background)
+                ctx.FillRect(background, area);
+            if (showGridLines) {
+                var cctx = ctx.CanvasContext;
+                var enumerator: IEnumerator;
+
+                var cuml = -1;
+                var cols = this.ColumnDefinitions;
+                if (cols) {
+                    enumerator = cols.GetEnumerator();
+                    while (enumerator.MoveNext()) {
+                        cuml += (<ColumnDefinition>enumerator.Current).ActualWidth;
+                        cctx.beginPath();
+                        ctx.SetLineDash([5]);
+                        cctx.moveTo(cuml, 0);
+                        cctx.lineTo(cuml, framework.Height);
+                        cctx.stroke();
+                    }
+                }
+                var rows = this.RowDefinitions;
+                if (rows) {
+                    cuml = -1;
+                    enumerator = rows.GetEnumerator();
+                    while (enumerator.MoveNext()) {
+                        cuml += (<RowDefinition>enumerator.Current).ActualHeight;
+                        cctx.beginPath();
+                        ctx.SetLineDash([5]);
+                        cctx.moveTo(0, cuml);
+                        cctx.lineTo(framework.Width, cuml);
+                        cctx.stroke();
+                    }
+                }
+            }
+            ctx.Restore();
+        }
+
 
         private _ExpandStarRows(availableSize: size) {
             availableSize = size.clone(availableSize);

@@ -121,6 +121,12 @@ var Fayde;
             this.CanvasContext.clearRect(r.X, r.Y, r.Width, r.Height);
             //DrawDebug("Clear: " + r.toString());
                     };
+        RenderContext.prototype.SetLineDash = function (offsets) {
+            var ctx = this.CanvasContext;
+            if((ctx).setLineDash) {
+                (ctx).setLineDash(offsets);
+            }
+        };
         RenderContext.prototype.PreTransformMatrix = function (mat) {
             var ct = this.CurrentTransform;
             mat3.multiply(mat, ct, ct)//ct = ct * matrix

@@ -5130,13 +5130,12 @@ module Fayde {
             var visualParentLu: Fayde.LayoutUpdater;
             if (visualParentNode)
                 visualParentLu = visualParentNode.LayoutUpdater;
-            var f = this.DirtyFlags;
             /*
             DirtyDebug.Level++;
             DirtyDebug("[" + uie.__DebugToString() + "]" + uie.__DebugDownDirtyFlags());
             */
-            if (f & rvFlag) {
-                f &= ~rvFlag;
+            if (this.DirtyFlags & rvFlag) {
+                this.DirtyFlags &= ~rvFlag;
                 var ovisible = this.TotalIsRenderVisible;
                 this.UpdateBounds();
                 if (visualParentLu)
@@ -5148,15 +5147,15 @@ module Fayde {
                     this.Surface._AddDirtyElement(this, dirtyEnum.NewBounds);
                 this._PropagateDirtyFlagToChildren(rvFlag);
             }
-            if (f & htvFlag) {
-                f &= ~htvFlag;
+            if (this.DirtyFlags & htvFlag) {
+                this.DirtyFlags &= ~htvFlag;
                 this.UpdateHitTestVisibility(visualParentLu);
                 this._PropagateDirtyFlagToChildren(htvFlag);
             }
-            var isLT = f & localTransformFlag;
-            var isLP = f & localProjectionFlag;
-            var isT = isLT || isLP || f & transformFlag;
-            f &= ~(localTransformFlag | localProjectionFlag | transformFlag);
+            var isLT = this.DirtyFlags & localTransformFlag;
+            var isLP = this.DirtyFlags & localProjectionFlag;
+            var isT = isLT || isLP || this.DirtyFlags & transformFlag;
+            this.DirtyFlags &= ~(localTransformFlag | localProjectionFlag | transformFlag);
             if (isLT) {
                 this.ComputeLocalTransform(thisUie);
             }
@@ -5169,17 +5168,16 @@ module Fayde {
                     visualParentLu.UpdateBounds();
                 this._PropagateDirtyFlagToChildren(dirtyEnum.Transform);
             }
-            var isLocalClip = f & localClipFlag;
-            var isClip = isLocalClip || f & clipFlag;
-            f &= ~(localClipFlag | clipFlag);
+            var isLocalClip = this.DirtyFlags & localClipFlag;
+            var isClip = isLocalClip || this.DirtyFlags & clipFlag;
+            this.DirtyFlags &= ~(localClipFlag | clipFlag);
             if (isClip)
                 this._PropagateDirtyFlagToChildren(dirtyEnum.Clip);
-            if (f & dirtyEnum.ChildrenZIndices) {
-                f &= ~dirtyEnum.ChildrenZIndices;
+            if (this.DirtyFlags & dirtyEnum.ChildrenZIndices) {
+                this.DirtyFlags &= ~dirtyEnum.ChildrenZIndices;
                 thisNode._ResortChildrenByZIndex();
             }
-            this.DirtyFlags = f;
-            return !(f & downDirtyFlag);
+            return !(this.DirtyFlags & downDirtyFlag);
         }
         ProcessUp(): bool {
             var thisNode = this.Node;
@@ -5187,10 +5185,9 @@ module Fayde {
             var visualParentLu: Fayde.LayoutUpdater;
             if (visualParentNode)
                 visualParentLu = visualParentNode.LayoutUpdater;
-            var f = this.DirtyFlags;
             var invalidateSubtreePaint = false;
-            if (f & dirtyEnum.Bounds) {
-                f &= ~dirtyEnum.Bounds;
+            if (this.DirtyFlags & dirtyEnum.Bounds) {
+                this.DirtyFlags &= ~dirtyEnum.Bounds;
                 var oextents = rect.clone(this.ExtentsWithChildren);
                 var oglobalbounds = rect.clone(this.GlobalBoundsWithChildren);
                 var osubtreebounds = rect.clone(this.SurfaceBoundsWithChildren);
@@ -5208,17 +5205,17 @@ module Fayde {
                 invalidateSubtreePaint = !rect.isEqual(oextents, this.ExtentsWithChildren) || this._ForceInvalidateOfNewBounds;
                 this._ForceInvalidateOfNewBounds = false;
             }
-            if (f & dirtyEnum.NewBounds) {
+            if (this.DirtyFlags & dirtyEnum.NewBounds) {
                 if (visualParentLu)
                     visualParentLu.Invalidate(this.SurfaceBoundsWithChildren);
                 else if (thisNode.IsTopLevel)
                     invalidateSubtreePaint = true;
-                f &= ~dirtyEnum.NewBounds;
+                this.DirtyFlags &= ~dirtyEnum.NewBounds;
             }
             if (invalidateSubtreePaint)
                 this.Invalidate(this.SurfaceBoundsWithChildren);
-            if (f & dirtyEnum.Invalidate) {
-                f &= ~dirtyEnum.Invalidate;
+            if (this.DirtyFlags & dirtyEnum.Invalidate) {
+                this.DirtyFlags &= ~dirtyEnum.Invalidate;
                 var dirty = this.DirtyRegion;
                 if (visualParentLu) {
                     visualParentLu.Invalidate(dirty);
@@ -5236,8 +5233,7 @@ module Fayde {
                 }
                 rect.clear(dirty);
             }
-            this.DirtyFlags = f;
-            return !(f & upDirtyFlag);
+            return !(this.DirtyFlags & upDirtyFlag);
         }
         private _PropagateDirtyFlagToChildren(dirt: _Dirty) {
             var enumerator = this.Node.GetVisualTreeEnumerator();
@@ -8060,6 +8056,11 @@ module Fayde {
         }
         Clear(r: rect) {
             this.CanvasContext.clearRect(r.X, r.Y, r.Width, r.Height);
+        }
+        SetLineDash(offsets: number[]) {
+            var ctx = this.CanvasContext;
+            if ((<any>ctx).setLineDash)
+                (<any>ctx).setLineDash(offsets);
         }
         PreTransformMatrix(mat: number[]) {
             var ct = this.CurrentTransform;
@@ -22422,6 +22423,51 @@ module Fayde.Controls {
                 childNode.LayoutUpdater._Arrange(childFinal, error);
             }
             return finalSize;
+        }
+        private Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
+            var background = this.Background;
+            var showGridLines = this.ShowGridLines;
+            if (!background && !showGridLines)
+                return;
+            var framework = lu.CoerceSize(size.fromRaw(lu.ActualWidth, lu.ActualHeight));
+            if (framework.Width <= 0 || framework.Height <= 0)
+                return;
+            var area = rect.fromSize(framework);
+            ctx.Save();
+            lu._RenderLayoutClip(ctx);
+            if (background)
+                ctx.FillRect(background, area);
+            if (showGridLines) {
+                var cctx = ctx.CanvasContext;
+                var enumerator: IEnumerator;
+                var cuml = -1;
+                var cols = this.ColumnDefinitions;
+                if (cols) {
+                    enumerator = cols.GetEnumerator();
+                    while (enumerator.MoveNext()) {
+                        cuml += (<ColumnDefinition>enumerator.Current).ActualWidth;
+                        cctx.beginPath();
+                        ctx.SetLineDash([5]);
+                        cctx.moveTo(cuml, 0);
+                        cctx.lineTo(cuml, framework.Height);
+                        cctx.stroke();
+                    }
+                }
+                var rows = this.RowDefinitions;
+                if (rows) {
+                    cuml = -1;
+                    enumerator = rows.GetEnumerator();
+                    while (enumerator.MoveNext()) {
+                        cuml += (<RowDefinition>enumerator.Current).ActualHeight;
+                        cctx.beginPath();
+                        ctx.SetLineDash([5]);
+                        cctx.moveTo(0, cuml);
+                        cctx.lineTo(framework.Width, cuml);
+                        cctx.stroke();
+                    }
+                }
+            }
+            ctx.Restore();
         }
         private _ExpandStarRows(availableSize: size) {
             availableSize = size.clone(availableSize);
