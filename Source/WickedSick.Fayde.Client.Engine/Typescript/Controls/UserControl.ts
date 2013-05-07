@@ -52,8 +52,18 @@ module Fayde.Controls {
         private _MeasureOverride(availableSize: size, error: BError): size {
             var desired: size;
             availableSize = size.clone(availableSize);
-            var border = this.Padding.Plus(this.BorderThickness);
-            size.shrinkByThickness(availableSize, border);
+
+            var padding = this.Padding;
+            var borderThickness = this.BorderThickness;
+            var border: Thickness = null;
+            if (!padding)
+                border = borderThickness;
+            else if (!borderThickness)
+                border = padding;
+            else
+                border = padding.Plus(borderThickness);
+            
+            if (border) size.shrinkByThickness(availableSize, border);
 
             var enumerator = this.XamlNode.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {
@@ -61,27 +71,35 @@ module Fayde.Controls {
                 childLu._Measure(availableSize, error);
                 desired = size.clone(childLu.DesiredSize);
             }
-            if (!desired)
-                desired = new size();
-            size.growByThickness(desired, border);
+            if (!desired) desired = new size();
+            if (border) size.growByThickness(desired, border);
             return desired;
         }
         private _ArrangeOverride(finalSize: size, error: BError): size {
-            var border = this.Padding.Plus(this.BorderThickness);
-            var arranged;
-            
+            var padding = this.Padding;
+            var borderThickness = this.BorderThickness;
+            var border: Thickness = null;
+            if (!padding)
+                border = borderThickness;
+            else if (!borderThickness)
+                border = padding;
+            else
+                border = padding.Plus(borderThickness);
+
+            var arranged: size = null;
+
             var enumerator = this.XamlNode.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {
                 var childLu = (<UINode>enumerator.Current).LayoutUpdater;
                 var childRect = rect.fromSize(finalSize);
-                rect.shrinkByThickness(childRect, border);
+                if (border) rect.shrinkByThickness(childRect, border);
                 childLu._Arrange(childRect, error);
                 arranged = size.fromRect(childRect);
-                size.growByThickness(arranged, border);
+                if (border) size.growByThickness(arranged, border);
             }
-            if (!arranged)
-                return finalSize;
-            return arranged;
+            if (arranged)
+                return arranged;
+            return finalSize;
         }
     }
     Nullstone.RegisterType(UserControl, "UserControl");

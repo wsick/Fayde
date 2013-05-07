@@ -70,8 +70,19 @@ var Fayde;
             UserControl.prototype._MeasureOverride = function (availableSize, error) {
                 var desired;
                 availableSize = size.clone(availableSize);
-                var border = this.Padding.Plus(this.BorderThickness);
-                size.shrinkByThickness(availableSize, border);
+                var padding = this.Padding;
+                var borderThickness = this.BorderThickness;
+                var border = null;
+                if(!padding) {
+                    border = borderThickness;
+                } else if(!borderThickness) {
+                    border = padding;
+                } else {
+                    border = padding.Plus(borderThickness);
+                }
+                if(border) {
+                    size.shrinkByThickness(availableSize, border);
+                }
                 var enumerator = this.XamlNode.GetVisualTreeEnumerator();
                 while(enumerator.MoveNext()) {
                     var childLu = (enumerator.Current).LayoutUpdater;
@@ -81,25 +92,40 @@ var Fayde;
                 if(!desired) {
                     desired = new size();
                 }
-                size.growByThickness(desired, border);
+                if(border) {
+                    size.growByThickness(desired, border);
+                }
                 return desired;
             };
             UserControl.prototype._ArrangeOverride = function (finalSize, error) {
-                var border = this.Padding.Plus(this.BorderThickness);
-                var arranged;
+                var padding = this.Padding;
+                var borderThickness = this.BorderThickness;
+                var border = null;
+                if(!padding) {
+                    border = borderThickness;
+                } else if(!borderThickness) {
+                    border = padding;
+                } else {
+                    border = padding.Plus(borderThickness);
+                }
+                var arranged = null;
                 var enumerator = this.XamlNode.GetVisualTreeEnumerator();
                 while(enumerator.MoveNext()) {
                     var childLu = (enumerator.Current).LayoutUpdater;
                     var childRect = rect.fromSize(finalSize);
-                    rect.shrinkByThickness(childRect, border);
+                    if(border) {
+                        rect.shrinkByThickness(childRect, border);
+                    }
                     childLu._Arrange(childRect, error);
                     arranged = size.fromRect(childRect);
-                    size.growByThickness(arranged, border);
+                    if(border) {
+                        size.growByThickness(arranged, border);
+                    }
                 }
-                if(!arranged) {
-                    return finalSize;
+                if(arranged) {
+                    return arranged;
                 }
-                return arranged;
+                return finalSize;
             };
             return UserControl;
         })(Controls.Control);
