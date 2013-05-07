@@ -342,7 +342,7 @@ var Fayde;
                 }
                 var i;
                 var cur;
-                for(i = len - 1; i >= 0; i++) {
+                for(i = len - 1; i >= 0; i--) {
                     cur = list[i];
                     if(cur === storage) {
                         break;
