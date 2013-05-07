@@ -12909,12 +12909,11 @@ module Fayde.Media.Animation {
             var ts2 = kf2._ResolvedKeyTime;
             return ts1.CompareTo(ts2);
         }
-        static ResolveKeyFrames(animation: AnimationBase): KeyFrame[] {
+        static ResolveKeyFrames(animation: AnimationBase, arr:KeyFrame[]): KeyFrame[] {
             var totalInterpolationTime: TimeSpan;
             var hasTimeSpanKeyFrame = false;
             var highestKeyTimeTimeSpan = new TimeSpan();
             var keyFrame: KeyFrame;
-            var arr: KeyFrame[] = (this)._ht;
             var len = arr.length;
             var i: number;
             for (i = 0; i < len; i++) {
@@ -12980,6 +12979,7 @@ module Fayde.Media.Animation {
     Nullstone.RegisterType(KeyFrame, "KeyFrame");
     export class KeyFrameCollection extends XamlObjectCollection {
         private _Resolved: bool = false;
+        private _ht: KeyFrame[];//Defined in XamlObjectCollection
         private _SortedList: KeyFrame[] = [];
         GetKeyFrameForTime(t: TimeSpan, prevFrameRef: IOutValue): KeyFrame {
             var currentKeyFrame: KeyFrame = null;
@@ -13038,8 +13038,8 @@ module Fayde.Media.Animation {
         }
         static ResolveKeyFrames(animation: AnimationBase, coll: KeyFrameCollection): KeyFrame[] {
             if (coll._Resolved)
-                return;
-            coll._SortedList = KeyFrame.ResolveKeyFrames(animation).slice(0);
+                return coll._SortedList;
+            coll._SortedList = KeyFrame.ResolveKeyFrames(animation, coll._ht).slice(0);
             coll._SortedList.sort(KeyFrame.Comparer);
             coll._Resolved = true;
             return coll._SortedList;
@@ -13735,7 +13735,7 @@ module Fayde.Controls {
         static WidthProperty: DependencyProperty = DependencyProperty.RegisterCore("Width", () => GridLength, ColumnDefinition, undefined, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
         static MaxWidthProperty: DependencyProperty = DependencyProperty.RegisterCore("MaxWidth", () => Number, ColumnDefinition, Number.POSITIVE_INFINITY, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
         static MinWidthProperty: DependencyProperty = DependencyProperty.RegisterCore("MinWidth", () => Number, ColumnDefinition, 0.0, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
-        static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", () => Number, ColumnDefinition, 0.0, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
+        static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", () => Number, ColumnDefinition, 0.0);
         Width: GridLength;
         MaxWidth: number;
         MinWidth: number;
@@ -13922,7 +13922,7 @@ module Fayde.Controls {
         static HeightProperty: DependencyProperty = DependencyProperty.RegisterCore("Height", () => GridLength, RowDefinition, undefined, (d, args) => (<RowDefinition>d)._HeightsChanged(args));
         static MaxHeightProperty: DependencyProperty = DependencyProperty.RegisterCore("MaxHeight", () => Number, RowDefinition, Number.POSITIVE_INFINITY, (d, args) => (<RowDefinition>d)._HeightsChanged(args));
         static MinHeightProperty: DependencyProperty = DependencyProperty.RegisterCore("MinHeight", () => Number, RowDefinition, 0.0, (d, args) => (<RowDefinition>d)._HeightsChanged(args));
-        static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", () => Number, RowDefinition, 0.0, (d, args) => (<RowDefinition>d)._HeightsChanged(args));
+        static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", () => Number, RowDefinition, 0.0);
         Height: GridLength;
         MaxHeight: number;
         MinHeight: number;
@@ -16854,14 +16854,14 @@ module Fayde.Controls {
             if (rect.isEmpty(extents))
                 return;
             var thickness = this.BorderThickness;
-            var fillOnly = !borderBrush || thickness.IsEmpty();
+            var fillOnly = !borderBrush || !thickness || thickness.IsEmpty();
             if (fillOnly && !backgroundBrush)
                 return;
             ctx.Save();
             lu._RenderLayoutClip(ctx);
             if (fillOnly)
                 this._RenderFillOnly(ctx, extents, backgroundBrush, thickness, this.CornerRadius);
-            else if (thickness.IsBalanced())
+            else if (thickness && thickness.IsBalanced())
                 this._RenderBalanced(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
             else
                 this._RenderUnbalanced(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
@@ -16869,9 +16869,8 @@ module Fayde.Controls {
         }
         private _RenderFillOnly(ctx: RenderContext, extents: rect, backgroundBrush: Media.Brush, thickness: Thickness, cornerRadius: CornerRadius) {
             var fillExtents = rect.clone(extents);
-            if (!thickness.IsEmpty())
-                rect.shrinkByThickness(fillExtents, thickness);
-            if (cornerRadius.IsZero()) {
+            if (thickness) rect.shrinkByThickness(fillExtents, thickness);
+            if (!cornerRadius || cornerRadius.IsZero()) {
                 ctx.FillRect(backgroundBrush, fillExtents);
                 return;
             }
@@ -16888,7 +16887,7 @@ module Fayde.Controls {
             rect.shrinkBy(strokeExtents, half, half, half, half);
             var fillExtents = rect.clone(extents);
             rect.shrinkBy(fillExtents, full, full, full, full);
-            if (cornerRadius.IsZero()) {
+            if (!cornerRadius || cornerRadius.IsZero()) {
                 if (backgroundBrush) {
                     ctx.StrokeAndFillRect(borderBrush, thickness.Left, strokeExtents, backgroundBrush, fillExtents);
                 } else {
@@ -16906,9 +16905,9 @@ module Fayde.Controls {
             }
         }
         private _RenderUnbalanced(ctx: RenderContext, extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cornerRadius: CornerRadius) {
-            var hasCornerRadius = !cornerRadius.IsZero();
+            var hasCornerRadius = cornerRadius && !cornerRadius.IsZero();
             var innerExtents = rect.clone(extents);
-            rect.shrinkByThickness(innerExtents, thickness);
+            if (thickness) rect.shrinkByThickness(innerExtents, thickness);
             var innerPath = new Fayde.Shapes.RawPath();
             var outerPath = new Fayde.Shapes.RawPath();
             if (hasCornerRadius) {
