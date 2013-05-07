@@ -12,6 +12,7 @@
 /// <reference path="../Core/DeferredValueExpression.ts" />
 var Fayde;
 (function (Fayde) {
+    var WARN_ON_SET_READ_ONLY = false;
     var JsonParser = (function () {
         function JsonParser() {
             this._ResChain = [];
@@ -166,58 +167,38 @@ var Fayde;
             return content;
         };
         JsonParser.prototype.TrySetPropertyValue = function (xobj, propd, propValue, namescope, isAttached, ownerType, propName) {
-            if(propValue.ParseType) {
-                propValue = this.CreateObject(propValue, namescope, true);
-            } else if(propValue instanceof Fayde.FrameworkTemplate) {
-                (propValue).ResChain = this._ResChain;
-            }
             if(propValue instanceof Fayde.Markup) {
                 propValue = propValue.Transmute(xobj, propd, propName, this._TemplateBindingSource);
             }
-            if(propValue instanceof Fayde.StaticResourceExpression) {
+            if(propValue instanceof Fayde.FrameworkTemplate) {
+                (propValue).ResChain = this._ResChain;
                 this.SetValue(xobj, propd, propName, propValue);
                 return;
-            }
-            //Set property value
-            if(propd) {
-                if(this.TrySetCollectionProperty(propValue, xobj, propd, undefined, namescope)) {
-                    return;
-                }
-                if(!(propValue instanceof Fayde.Expression)) {
-                    var targetType = propd.GetTargetType();
-                    if(targetType instanceof Enum) {
-                    } else if(!(propValue instanceof targetType)) {
-                        var propDesc = Nullstone.GetPropertyDescriptor(xobj, propName);
-                        if(propDesc) {
-                            var setFunc = propDesc.set;
-                            var converter;
-                            if(setFunc && (converter = (setFunc).Converter) && converter instanceof Function) {
-                                propValue = converter(propValue);
-                            }
-                        }
-                    }
-                }
+            } else if(propValue instanceof Fayde.StaticResourceExpression) {
                 this.SetValue(xobj, propd, propName, propValue);
-            } else if(!isAttached) {
-                var descriptor = Nullstone.GetPropertyDescriptor(xobj, propName);
-                if(descriptor) {
-                    if(descriptor.writable || descriptor.set) {
-                        xobj[propName] = propValue;
-                    } else {
-                        var existingobj = xobj[propName];
-                        if(existingobj instanceof Fayde.XamlObjectCollection) {
-                            this.TrySetCollectionProperty(propValue, xobj, null, propName, namescope);
-                        }
-                    }
-                } else {
-                    var func = xobj["Set" + propName];
-                    if(func && func instanceof Function) {
-                        func.call(xobj, propValue);
-                    }
+                return;
+            } else if(propValue.ParseType === Fayde.ResourceDictionary) {
+                this.SetResourceDictionary(xobj[propName], propValue.Children, namescope);
+                return;
+            }
+            if(propValue.ParseType) {
+                propValue = this.CreateObject(propValue, namescope, true);
+            }
+            if(propd) {
+                if(!this.TrySetCollectionProperty(propValue, xobj, propd, undefined, namescope)) {
+                    this.SetValue(xobj, propd, propName, propValue);
                 }
-            } else {
+            } else if(isAttached) {
                 //There is no fallback if we can't find attached property
                 Warn("Could not find attached property: " + (ownerType)._TypeName + "." + propName);
+            } else {
+                if(WARN_ON_SET_READ_ONLY) {
+                    var descriptor = Nullstone.GetPropertyDescriptor(xobj, propName);
+                    if(!descriptor.writable && !descriptor.set) {
+                        Warn("Parser is trying to set a read-only property.");
+                    }
+                }
+                xobj[propName] = propValue;
             }
         };
         JsonParser.prototype.TrySetCollectionProperty = function (subJson, xobj, propd, propertyName, namescope) {
