@@ -41,7 +41,7 @@ var Fayde;
             var store = xobj._Store;
             if(!newIsLoaded) {
                 store.ClearImplicitStyles(Fayde.Providers._StyleMask.VisualTree);
-                //Raise unloaded event
+                xobj.Unloaded.Raise(xobj, EventArgs.Empty);
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
                             } else {
                 store.SetImplicitStyles(Fayde.Providers._StyleMask.All);
@@ -52,7 +52,7 @@ var Fayde;
             }
             if(newIsLoaded) {
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
-                //Raise loaded event
+                xobj.Loaded.Raise(xobj, EventArgs.Empty);
                 this.InvokeLoaded();
                 store.EmitDataContextChanged();
             }
