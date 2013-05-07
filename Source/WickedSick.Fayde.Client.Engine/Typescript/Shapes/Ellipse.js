@@ -15,12 +15,6 @@ var Fayde;
                         _super.call(this);
                 this.Stretch = Fayde.Media.Stretch.Fill;
             }
-            Ellipse.prototype._DrawPath = function (ctx) {
-                if(!this._Path) {
-                    this._BuildPath();
-                }
-                _super.prototype._DrawPath.call(this, ctx);
-            };
             Ellipse.prototype._BuildPath = function () {
                 var stretch = this.Stretch;
                 var t = this._Stroke != null ? this.StrokeThickness : 0.0;
@@ -51,7 +45,7 @@ var Fayde;
                 rect.growBy(irect, ht, ht, ht, ht);
                 var path = new Fayde.Shapes.RawPath();
                 path.Ellipse(irect.X, irect.Y, irect.Width, irect.Height);
-                this._Path = path;
+                return path;
             };
             Ellipse.prototype._ComputeStretchBounds = function () {
                 return this._ComputeShapeBounds(false);

@@ -97,6 +97,10 @@ class Nullstone {
     }
 }
 
+function NotImplemented(str: string) {
+    if (window.console && console.warn)
+        console.warn("NotImplemented: " + str);
+}
 function Warn(str: string) {
     if (window.console && console.warn)
         console.warn(str);

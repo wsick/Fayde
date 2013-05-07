@@ -12,7 +12,12 @@ module Fayde.Shapes {
 
         static FromData(data: string): PointCollection {
             var pc = new PointCollection();
-            pc._ht.concat(Media.ParseShapePoints(data));
+            pc._ht = pc._ht.concat(Media.ParseShapePoints(data));
+            return pc;
+        }
+        static FromArray(data: Point[]): PointCollection {
+            var pc = new PointCollection();
+            pc._ht = pc._ht.concat(data);
             return pc;
         }
 

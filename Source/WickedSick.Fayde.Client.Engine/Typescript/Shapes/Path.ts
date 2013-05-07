@@ -30,7 +30,7 @@ module Fayde.Shapes {
         }
         private _ComputeShapeBoundsImpl(logical: bool, matrix: number[]): rect {
             var geom = this.Data;
-            if (geom == null) {
+            if (!geom) {
                 this._ShapeFlags = ShapeFlags.Empty;
                 return new rect();
             }

@@ -43,7 +43,7 @@ var Fayde;
             };
             Path.prototype._ComputeShapeBoundsImpl = function (logical, matrix) {
                 var geom = this.Data;
-                if(geom == null) {
+                if(!geom) {
                     this._ShapeFlags = Shapes.ShapeFlags.Empty;
                     return new rect();
                 }

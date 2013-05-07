@@ -290,8 +290,10 @@ var Fayde;
                 return Shapes.FillRule.NonZero;
             };
             Shape.prototype._BuildPath = function () {
+                return undefined;
             };
             Shape.prototype._DrawPath = function (ctx) {
+                this._Path = this._Path || this._BuildPath();
                 this._Path.DrawRenderCtx(ctx);
             };
             Shape.prototype.ComputeActualSize = function (baseComputer, lu) {
@@ -435,9 +437,6 @@ var Fayde;
                 return shapeBounds;
             };
             Shape.prototype._GetNaturalBounds = function () {
-                if(!this._NaturalBounds) {
-                    return;
-                }
                 if(rect.isEmpty(this._NaturalBounds)) {
                     this._NaturalBounds = this._ComputeShapeBoundsImpl(false);
                 }
@@ -448,14 +447,14 @@ var Fayde;
             };
             Shape.prototype._ComputeShapeBoundsImpl = function (logical, matrix) {
                 var thickness = (logical || !this._Stroke) ? 0.0 : this.StrokeThickness;
-                if(!this._Path) {
-                    this._BuildPath();
-                }
-                if(this._ShapeFlags & Shapes.ShapeFlags.Empty) {
+                this._Path = this._Path || this._BuildPath();
+                if(!this._Path || (this._ShapeFlags & Shapes.ShapeFlags.Empty)) {
                     return new rect();
                 }
                 if(logical) {
+                    return this._Path.CalculateBounds(0);
                 } else if(thickness > 0) {
+                    return this._Path.CalculateBounds(thickness);
                 } else {
                 }
                 NotImplemented("Shape._ComputeShapeBoundsImpl");

@@ -17,7 +17,12 @@ var Fayde;
             });
             PointCollection.FromData = function FromData(data) {
                 var pc = new PointCollection();
-                pc._ht.concat(Fayde.Media.ParseShapePoints(data));
+                pc._ht = pc._ht.concat(Fayde.Media.ParseShapePoints(data));
+                return pc;
+            };
+            PointCollection.FromArray = function FromArray(data) {
+                var pc = new PointCollection();
+                pc._ht = pc._ht.concat(data);
                 return pc;
             };
             PointCollection.prototype.GetValueAt = function (index) {

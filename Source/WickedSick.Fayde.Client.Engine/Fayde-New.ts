@@ -3085,6 +3085,10 @@ class Nullstone {
         head.appendChild(script);
     }
 }
+function NotImplemented(str: string) {
+    if (window.console && console.warn)
+        console.warn("NotImplemented: " + str);
+}
 function Warn(str: string) {
     if (window.console && console.warn)
         console.warn(str);
@@ -8160,6 +8164,7 @@ class Surface {
     Register(canvas: HTMLCanvasElement, width?: number, widthType?: string, height?: number, heightType?: string) {
         this._Canvas = canvas;
         this._Ctx = this._Canvas.getContext("2d");
+        this._RenderContext = new Fayde.RenderContext(this._Ctx);
         if (!width) {
             width = 100;
             widthType = "Percentage";
@@ -8411,8 +8416,6 @@ class Surface {
         this._InvalidatedRect = null;
         if (!(r.Width > 0 && r.Height > 0))
             return;
-        if (!this._RenderContext)
-            this._RenderContext = new Fayde.RenderContext(this._Ctx);
         this._RenderContext.DoRender(this._Layers, r);
     }
     private _HandleResize(evt) {
@@ -13656,7 +13659,12 @@ module Fayde.Shapes {
         get Count() { return this._ht.length; }
         static FromData(data: string): PointCollection {
             var pc = new PointCollection();
-            pc._ht.concat(Media.ParseShapePoints(data));
+            pc._ht = pc._ht.concat(Media.ParseShapePoints(data));
+            return pc;
+        }
+        static FromArray(data: Point[]): PointCollection {
+            var pc = new PointCollection();
+            pc._ht = pc._ht.concat(data);
             return pc;
         }
         GetValueAt(index: number): Point { return this._ht[index]; }
@@ -16601,8 +16609,11 @@ module Fayde.Shapes {
             ctx.Restore();
         }
         _GetFillRule(): FillRule { return FillRule.NonZero; }
-        _BuildPath() { }
-        _DrawPath(ctx: RenderContext) { this._Path.DrawRenderCtx(ctx); }
+        _BuildPath(): Shapes.RawPath { return undefined; }
+        _DrawPath(ctx: RenderContext) {
+            this._Path = this._Path || this._BuildPath();
+            this._Path.DrawRenderCtx(ctx);
+        }
         private ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater) {
             var desired = baseComputer.call(lu);
             var node = this.XamlNode;
@@ -16742,8 +16753,6 @@ module Fayde.Shapes {
             return shapeBounds;
         }
         private _GetNaturalBounds(): rect {
-            if (!this._NaturalBounds)
-                return;
             if (rect.isEmpty(this._NaturalBounds))
                 this._NaturalBounds = this._ComputeShapeBoundsImpl(false);
             return this._NaturalBounds;
@@ -16753,12 +16762,13 @@ module Fayde.Shapes {
         }
         _ComputeShapeBoundsImpl(logical: bool, matrix?): rect {
             var thickness = (logical || !this._Stroke) ? 0.0 : this.StrokeThickness;
-            if (!this._Path)
-                this._BuildPath();
-            if (this._ShapeFlags & ShapeFlags.Empty)
+            this._Path = this._Path || this._BuildPath();
+            if (!this._Path || (this._ShapeFlags & ShapeFlags.Empty))
                 return new rect();
             if (logical) {
+                return this._Path.CalculateBounds(0);
             } else if (thickness > 0) {
+                return this._Path.CalculateBounds(thickness);
             } else {
             }
             NotImplemented("Shape._ComputeShapeBoundsImpl");
@@ -20928,12 +20938,7 @@ module Fayde.Shapes {
             super();
             this.Stretch = Media.Stretch.Fill;
         }
-        private _DrawPath(ctx: RenderContext) {
-            if (!this._Path)
-                this._BuildPath();
-            super._DrawPath(ctx);
-        }
-        private _BuildPath() {
+        private _BuildPath(): Shapes.RawPath {
             var stretch = this.Stretch;
             var t = this._Stroke != null ? this.StrokeThickness : 0.0;
             var irect = new rect();
@@ -20963,7 +20968,7 @@ module Fayde.Shapes {
             rect.growBy(irect, ht, ht, ht, ht);
             var path = new Fayde.Shapes.RawPath();
             path.Ellipse(irect.X, irect.Y, irect.Width, irect.Height);
-            this._Path = path;
+            return path;
         }
         private _ComputeStretchBounds(): rect { return this._ComputeShapeBounds(false); }
         private _ComputeShapeBounds(logical: bool): rect {
@@ -21032,21 +21037,16 @@ module Fayde.Shapes {
         Y1: number;
         X2: number;
         Y2: number;
-        private _DrawPath(ctx: RenderContext) {
-            if (!this._Path)
-                this._BuildPath();
-            super._DrawPath(ctx);
-        }
-        private _BuildPath() {
+        private _BuildPath(): Shapes.RawPath {
             this._ShapeFlags = ShapeFlags.Normal;
-            var path = new RawPath();
-            this._Path = path;
             var x1 = this.X1;
             var y1 = this.Y1;
             var x2 = this.X2;
             var y2 = this.Y2;
+            var path = new RawPath();
             path.Move(x1, y1);
             path.Line(x2, y2);
+            return path;
         }
         private _ComputeShapeBounds(logical: bool): rect {
             var shapeBounds = new rect();
@@ -21096,7 +21096,7 @@ module Fayde.Shapes {
         }
         private _ComputeShapeBoundsImpl(logical: bool, matrix: number[]): rect {
             var geom = this.Data;
-            if (geom == null) {
+            if (!geom) {
                 this._ShapeFlags = ShapeFlags.Empty;
                 return new rect();
             }
@@ -21110,61 +21110,20 @@ module Fayde.Shapes {
 }
 
 module Fayde.Shapes {
-    function extendLine(p1: Point, p2: Point, thickness: number) {
-        var t5 = thickness * 5.0;
-        var dx = p1.X - p2.X;
-        var dy = p1.Y - p2.Y;
-        if (dy === 0.0) {
-            t5 -= thickness / 2.0;
-            if (dx > 0.0) {
-                p1.X += t5;
-                p2.X -= t5;
-            } else {
-                p1.X -= t5;
-                p2.X += t5;
-            }
-        } else if (dx === 0.0) {
-            t5 -= thickness / 2.0;
-            if (dy > 0.0) {
-                p1.Y += t5;
-                p2.Y -= t5;
-            } else {
-                p1.Y -= t5;
-                p2.Y += t5;
-            }
-        } else {
-            var angle = Math.atan2(dy, dx);
-            var ax = Math.abs(Math.sin(angle) * t5);
-            if (dx > 0.0) {
-                p1.X += ax;
-                p2.X -= ax;
-            } else {
-                p1.X -= ax;
-                p2.X += ax;
-            }
-            var ay = Math.abs(Math.sin(Math.PI / 2 - angle)) * t5;
-            if (dy > 0.0) {
-                p1.Y += ay;
-                p2.Y -= ay;
-            } else {
-                p1.Y -= ay;
-                p2.Y += ay;
-            }
-        }
-    }
     export class Polygon extends Shape {
-        private _Path: RawPath; //defined in Shape
         private _ShapeFlags: ShapeFlags; //defined in Shape
         private _Stroke: Media.Brush; //defined in Shape
-        static FillRuleProperty: DependencyProperty = DependencyProperty.RegisterCore("FillRule", () => new Enum(FillRule), Polygon, FillRule.EvenOdd, (d, args) => (<Polygon>d)._FillRuleChanged(args));
-        static PointsProperty: DependencyProperty = DependencyProperty.RegisterFull("Points", () => PointCollection, Polygon, undefined, (d, args) => (<Polygon>d)._PointsChanged(args));
-        FillRule: FillRule;
-        get Points(): PointCollection { return this.GetValue(Polygon.PointsProperty); }
-        set Points(value) {
+        private static _PointsCoercer(d: DependencyObject, propd: DependencyProperty, value: any): any {
             if (typeof value === "string")
                 value = PointCollection.FromData(<string>value);
-            this.SetValue(Polygon.PointsProperty, value);
+            if (value instanceof Array)
+                value = PointCollection.FromArray(<Point[]>value);
+            return value;
         }
+        static FillRuleProperty: DependencyProperty = DependencyProperty.RegisterCore("FillRule", () => new Enum(FillRule), Polygon, FillRule.EvenOdd, (d, args) => (<Polygon>d)._FillRuleChanged(args));
+        static PointsProperty: DependencyProperty = DependencyProperty.RegisterFull("Points", () => PointCollection, Polygon, undefined, (d, args) => (<Polygon>d)._PointsChanged(args), undefined, Polygon._PointsCoercer);
+        FillRule: FillRule;
+        Points: PointCollection;
         private _PointsChanged(args: IDependencyPropertyChangedEventArgs) {
             var oldColl = args.OldValue;
             var newColl = args.NewValue;
@@ -21174,7 +21133,7 @@ module Fayde.Shapes {
                 (<PointCollection>newColl).Owner = this;
             this._InvalidateNaturalBounds();
         }
-        private _BuildPath() {
+        private _BuildPath(): Shapes.RawPath {
             var points = this.Points;
             var count;
             if (!points || (count = points.Count) < 2) {
@@ -21200,16 +21159,13 @@ module Fayde.Shapes {
                 }
             }
             path.Close();
-            this._Path = path;
+            return path;
         }
         private _FillRuleChanged(args: IDependencyPropertyChangedEventArgs) {
             this.XamlNode.LayoutUpdater.Invalidate();
         }
     }
     Nullstone.RegisterType(Polygon, "Polygon");
-}
-
-module Fayde.Shapes {
     function extendLine(p1: Point, p2: Point, thickness: number) {
         var t5 = thickness * 5.0;
         var dx = p1.X - p2.X;
@@ -21252,19 +21208,24 @@ module Fayde.Shapes {
             }
         }
     }
+}
+
+module Fayde.Shapes {
     export class Polyline extends Shape {
         private _Path: RawPath; //defined in Shape
         private _ShapeFlags: ShapeFlags; //defined in Shape
         private _Stroke: Media.Brush; //defined in Shape
-        static FillRuleProperty: DependencyProperty = DependencyProperty.RegisterCore("FillRule", () => new Enum(FillRule), Polyline, FillRule.EvenOdd, (d, args) => (<Polyline>d)._FillRuleChanged(args));
-        static PointsProperty: DependencyProperty = DependencyProperty.RegisterFull("Points", () => PointCollection, Polyline, undefined, (d, args) => (<Polyline>d)._PointsChanged(args));
-        FillRule: FillRule;
-        get Points(): PointCollection { return this.GetValue(Polyline.PointsProperty); }
-        set Points(value) {
+        private static _PointsCoercer(d: DependencyObject, propd: DependencyProperty, value: any): any {
             if (typeof value === "string")
                 value = PointCollection.FromData(<string>value);
-            this.SetValue(Polyline.PointsProperty, value);
+            if (value instanceof Array)
+                value = PointCollection.FromArray(<Point[]>value);
+            return value;
         }
+        static FillRuleProperty: DependencyProperty = DependencyProperty.RegisterCore("FillRule", () => new Enum(FillRule), Polyline, FillRule.EvenOdd, (d, args) => (<Polyline>d)._FillRuleChanged(args));
+        static PointsProperty: DependencyProperty = DependencyProperty.RegisterFull("Points", () => PointCollection, Polyline, undefined, (d, args) => (<Polyline>d)._PointsChanged(args), undefined, Polyline._PointsCoercer);
+        FillRule: FillRule;
+        Points: PointCollection;
         private _PointsChanged(args: IDependencyPropertyChangedEventArgs) {
             var oldColl = args.OldValue;
             var newColl = args.NewValue;
@@ -21274,7 +21235,7 @@ module Fayde.Shapes {
                 (<PointCollection>newColl).Owner = this;
             this._InvalidateNaturalBounds();
         }
-        private _BuildPath() {
+        private _BuildPath(): Shapes.RawPath {
             var points = this.Points;
             var count;
             if (!points || (count = points.Count) < 2) {
@@ -21292,13 +21253,55 @@ module Fayde.Shapes {
                 path.Line(p.X, p.Y);
             }
             path.Close();
-            this._Path = path;
+            return path;
         }
         private _FillRuleChanged(args: IDependencyPropertyChangedEventArgs) {
             this.XamlNode.LayoutUpdater.Invalidate();
         }
     }
     Nullstone.RegisterType(Polyline, "Polyline");
+    function extendLine(p1: Point, p2: Point, thickness: number) {
+        var t5 = thickness * 5.0;
+        var dx = p1.X - p2.X;
+        var dy = p1.Y - p2.Y;
+        if (dy === 0.0) {
+            t5 -= thickness / 2.0;
+            if (dx > 0.0) {
+                p1.X += t5;
+                p2.X -= t5;
+            } else {
+                p1.X -= t5;
+                p2.X += t5;
+            }
+        } else if (dx === 0.0) {
+            t5 -= thickness / 2.0;
+            if (dy > 0.0) {
+                p1.Y += t5;
+                p2.Y -= t5;
+            } else {
+                p1.Y -= t5;
+                p2.Y += t5;
+            }
+        } else {
+            var angle = Math.atan2(dy, dx);
+            var ax = Math.abs(Math.sin(angle) * t5);
+            if (dx > 0.0) {
+                p1.X += ax;
+                p2.X -= ax;
+            } else {
+                p1.X -= ax;
+                p2.X += ax;
+            }
+            var ay = Math.abs(Math.sin(Math.PI / 2 - angle)) * t5;
+            if (dy > 0.0) {
+                p1.Y += ay;
+                p2.Y -= ay;
+            } else {
+                p1.Y -= ay;
+                p2.Y += ay;
+            }
+        }
+    }
 }
 
 module Fayde.Shapes {
@@ -21315,12 +21318,7 @@ module Fayde.Shapes {
             super();
             this.Stretch = Media.Stretch.Fill;
         }
-        private _DrawPath(ctx: RenderContext) {
-            if (!this._Path)
-                this._BuildPath();
-            super._DrawPath(ctx);
-        }
-        private _BuildPath() {
+        private _BuildPath(): Shapes.RawPath {
             var stretch = this.Stretch;
             var t = this._Stroke != null ? this.StrokeThickness : 0.0;
             var irect = new rect();
@@ -21360,7 +21358,7 @@ module Fayde.Shapes {
                 path.RoundedRect(irect.X, irect.Y, irect.Width, irect.Height, radiusX, radiusY);
             else
                 NotImplemented("Rectangle._BuildPath with RadiusX !== RadiusY");
-            this._Path = path;
+            return path;
         }
         private _ComputeShapeBounds(logical: bool): rect {
             var irect = new rect();

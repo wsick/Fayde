@@ -243,8 +243,11 @@ module Fayde.Shapes {
         }
 
         _GetFillRule(): FillRule { return FillRule.NonZero; }
-        _BuildPath() { }
-        _DrawPath(ctx: RenderContext) { this._Path.DrawRenderCtx(ctx); }
+        _BuildPath(): Shapes.RawPath { return undefined; }
+        _DrawPath(ctx: RenderContext) {
+            this._Path = this._Path || this._BuildPath();
+            this._Path.DrawRenderCtx(ctx);
+        }
         
         private ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater) {
             var desired = baseComputer.call(lu);
@@ -409,8 +412,6 @@ module Fayde.Shapes {
             return shapeBounds;
         }
         private _GetNaturalBounds(): rect {
-            if (!this._NaturalBounds)
-                return;
             if (rect.isEmpty(this._NaturalBounds))
                 this._NaturalBounds = this._ComputeShapeBoundsImpl(false);
             return this._NaturalBounds;
@@ -420,17 +421,16 @@ module Fayde.Shapes {
         }
         _ComputeShapeBoundsImpl(logical: bool, matrix?): rect {
             var thickness = (logical || !this._Stroke) ? 0.0 : this.StrokeThickness;
+            
+            this._Path = this._Path || this._BuildPath();
 
-            if (!this._Path)
-                this._BuildPath();
-
-            if (this._ShapeFlags & ShapeFlags.Empty)
+            if (!this._Path || (this._ShapeFlags & ShapeFlags.Empty))
                 return new rect();
 
             if (logical) {
-                //TODO: measure path extents
+                return this._Path.CalculateBounds(0);
             } else if (thickness > 0) {
-                //TODO: measure stroke extents
+                return this._Path.CalculateBounds(thickness);
             } else {
                 //TODO: measure fill extents
             }

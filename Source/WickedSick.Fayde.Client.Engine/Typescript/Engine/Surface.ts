@@ -72,6 +72,7 @@ class Surface {
     Register(canvas: HTMLCanvasElement, width?: number, widthType?: string, height?: number, heightType?: string) {
         this._Canvas = canvas;
         this._Ctx = this._Canvas.getContext("2d");
+        this._RenderContext = new Fayde.RenderContext(this._Ctx);
 
         if (!width) {
             width = 100;
@@ -374,8 +375,6 @@ class Surface {
         this._InvalidatedRect = null;
         if (!(r.Width > 0 && r.Height > 0))
             return;
-        if (!this._RenderContext)
-            this._RenderContext = new Fayde.RenderContext(this._Ctx);
 
         //var startRenderTime;
         //var isRenderPassTimed;

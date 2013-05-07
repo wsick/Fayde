@@ -34,22 +34,16 @@ var Fayde;
             }, Line, 0.0, function (d, args) {
                 return (d)._InvalidateNaturalBounds();
             });
-            Line.prototype._DrawPath = function (ctx) {
-                if(!this._Path) {
-                    this._BuildPath();
-                }
-                _super.prototype._DrawPath.call(this, ctx);
-            };
             Line.prototype._BuildPath = function () {
                 this._ShapeFlags = Shapes.ShapeFlags.Normal;
-                var path = new Shapes.RawPath();
-                this._Path = path;
                 var x1 = this.X1;
                 var y1 = this.Y1;
                 var x2 = this.X2;
                 var y2 = this.Y2;
+                var path = new Shapes.RawPath();
                 path.Move(x1, y1);
                 path.Line(x2, y2);
+                return path;
             };
             Line.prototype._ComputeShapeBounds = function (logical) {
                 var shapeBounds = new rect();

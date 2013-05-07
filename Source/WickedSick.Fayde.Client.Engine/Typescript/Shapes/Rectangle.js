@@ -24,12 +24,6 @@ var Fayde;
             }, Rectangle, 0.0, function (d, args) {
                 return (d)._RadiusChanged(args);
             });
-            Rectangle.prototype._DrawPath = function (ctx) {
-                if(!this._Path) {
-                    this._BuildPath();
-                }
-                _super.prototype._DrawPath.call(this, ctx);
-            };
             Rectangle.prototype._BuildPath = function () {
                 var stretch = this.Stretch;
                 var t = this._Stroke != null ? this.StrokeThickness : 0.0;
@@ -73,7 +67,7 @@ var Fayde;
                 } else {
                     NotImplemented("Rectangle._BuildPath with RadiusX !== RadiusY");
                 }
-                this._Path = path;
+                return path;
             };
             Rectangle.prototype._ComputeShapeBounds = function (logical) {
                 var irect = new rect();

@@ -107,6 +107,11 @@ var Nullstone = (function () {
     };
     return Nullstone;
 })();
+function NotImplemented(str) {
+    if(window.console && console.warn) {
+        console.warn("NotImplemented: " + str);
+    }
+}
 function Warn(str) {
     if(window.console && console.warn) {
         console.warn(str);

@@ -19,12 +19,7 @@ module Fayde.Shapes {
             this.Stretch = Media.Stretch.Fill;
         }
 
-        private _DrawPath(ctx: RenderContext) {
-            if (!this._Path)
-                this._BuildPath();
-            super._DrawPath(ctx);
-        }
-        private _BuildPath() {
+        private _BuildPath(): Shapes.RawPath {
             var stretch = this.Stretch;
             var t = this._Stroke != null ? this.StrokeThickness : 0.0;
             var irect = new rect();
@@ -68,7 +63,7 @@ module Fayde.Shapes {
                 path.RoundedRect(irect.X, irect.Y, irect.Width, irect.Height, radiusX, radiusY);
             else
                 NotImplemented("Rectangle._BuildPath with RadiusX !== RadiusY");
-            this._Path = path;
+            return path;
         }
 
         private _ComputeShapeBounds(logical: bool): rect {

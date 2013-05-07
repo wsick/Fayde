@@ -15,24 +15,18 @@ module Fayde.Shapes {
         X2: number;
         Y2: number;
 
-        private _DrawPath(ctx: RenderContext) {
-            if (!this._Path)
-                this._BuildPath();
-            super._DrawPath(ctx);
-        }
-        private _BuildPath() {
+        private _BuildPath(): Shapes.RawPath {
             this._ShapeFlags = ShapeFlags.Normal;
-
-            var path = new RawPath();
-            this._Path = path;
 
             var x1 = this.X1;
             var y1 = this.Y1;
             var x2 = this.X2;
             var y2 = this.Y2;
-
+            
+            var path = new RawPath();
             path.Move(x1, y1);
             path.Line(x2, y2);
+            return path;
         }
 
         private _ComputeShapeBounds(logical: bool): rect {
