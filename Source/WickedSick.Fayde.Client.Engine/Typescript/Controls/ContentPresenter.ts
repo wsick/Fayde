@@ -12,7 +12,7 @@ module Fayde.Controls {
         get ContentRoot(): UIElement { return this._ContentRoot; }
 
         XObject: ContentPresenter;
-        constructor(xobj:ContentPresenter) {
+        constructor(xobj: ContentPresenter) {
             super(xobj);
         }
 

@@ -15,44 +15,6 @@ var Fayde;
     /// <reference path="TextBoxView.ts" />
     /// <reference path="RichTextBox.ts" />
     (function (Controls) {
-        function validateInputOffset(offset) {
-            if(!isNaN(offset)) {
-                return Math.max(0, offset);
-            }
-            throw new ArgumentException("Offset is not a number.");
-        }
-        function areNumbersClose(val1, val2) {
-            if(val1 === val2) {
-                return true;
-            }
-            var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516e-16;
-            var num2 = val1 - val2;
-            return -num1 < num2 && num1 > num2;
-        }
-        function isNumberLessThan(val1, val2) {
-            if(val1 >= val2) {
-                return false;
-            }
-            return !areNumbersClose(val1, val2);
-        }
-        function isNumberGreaterThan(val1, val2) {
-            if(val1 <= val2) {
-                return false;
-            }
-            return !areNumbersClose(val1, val2);
-        }
-        function computeScrollOffsetWithMinimalScroll(topView, bottomView, topChild, bottomChild) {
-            var flag = isNumberLessThan(topChild, topView) && isNumberLessThan(bottomChild, bottomView);
-            var flag1 = isNumberGreaterThan(topChild, topView) && isNumberGreaterThan(bottomChild, bottomView);
-            var flag4 = (bottomChild - topChild) > (bottomView - topView);
-            if((!flag || flag4) && (!flag1 || !flag4)) {
-                if(flag || flag1) {
-                    return bottomChild - bottomView - topView;
-                }
-                return topView;
-            }
-            return topChild;
-        }
         var ScrollContentPresenter = (function (_super) {
             __extends(ScrollContentPresenter, _super);
             function ScrollContentPresenter() {
@@ -263,7 +225,7 @@ var Fayde;
                 var scrollOwner = this.ScrollOwner;
                 var cr = this.XamlNode.ContentRoot;
                 if(!scrollOwner || !cr) {
-                    return (_super.prototype)._MeasureOverride(availableSize, error);
+                    return (_super.prototype)._MeasureOverride.call(this, availableSize, error);
                 }
                 var ideal = size.createInfinite();
                 if(!this.CanHorizontallyScroll) {
@@ -395,6 +357,44 @@ var Fayde;
         Nullstone.RegisterType(ScrollContentPresenter, "ScrollContentPresenter", [
             Controls.Primitives.IScrollInfo_
         ]);
+        function validateInputOffset(offset) {
+            if(!isNaN(offset)) {
+                return Math.max(0, offset);
+            }
+            throw new ArgumentException("Offset is not a number.");
+        }
+        function areNumbersClose(val1, val2) {
+            if(val1 === val2) {
+                return true;
+            }
+            var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516e-16;
+            var num2 = val1 - val2;
+            return -num1 < num2 && num1 > num2;
+        }
+        function isNumberLessThan(val1, val2) {
+            if(val1 >= val2) {
+                return false;
+            }
+            return !areNumbersClose(val1, val2);
+        }
+        function isNumberGreaterThan(val1, val2) {
+            if(val1 <= val2) {
+                return false;
+            }
+            return !areNumbersClose(val1, val2);
+        }
+        function computeScrollOffsetWithMinimalScroll(topView, bottomView, topChild, bottomChild) {
+            var flag = isNumberLessThan(topChild, topView) && isNumberLessThan(bottomChild, bottomView);
+            var flag1 = isNumberGreaterThan(topChild, topView) && isNumberGreaterThan(bottomChild, bottomView);
+            var flag4 = (bottomChild - topChild) > (bottomView - topView);
+            if((!flag || flag4) && (!flag1 || !flag4)) {
+                if(flag || flag1) {
+                    return bottomChild - bottomView - topView;
+                }
+                return topView;
+            }
+            return topChild;
+        }
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

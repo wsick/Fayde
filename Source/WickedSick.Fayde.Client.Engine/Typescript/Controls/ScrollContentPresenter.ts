@@ -9,41 +9,6 @@
 /// <reference path="RichTextBox.ts" />
 
 module Fayde.Controls {
-    function validateInputOffset(offset: number) {
-        if (!isNaN(offset))
-            return Math.max(0, offset);
-        throw new ArgumentException("Offset is not a number.");
-    }
-    function areNumbersClose(val1: number, val2: number): bool {
-        if (val1 === val2)
-            return true;
-        var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516E-16;
-        var num2 = val1 - val2;
-        return -num1 < num2 && num1 > num2;
-    }
-    function isNumberLessThan(val1: number, val2: number): bool {
-        if (val1 >= val2)
-            return false;
-        return !areNumbersClose(val1, val2);
-    }
-    function isNumberGreaterThan(val1: number, val2: number): bool {
-        if (val1 <= val2)
-            return false;
-        return !areNumbersClose(val1, val2);
-    }
-    function computeScrollOffsetWithMinimalScroll(topView, bottomView, topChild, bottomChild) {
-        var flag = isNumberLessThan(topChild, topView) && isNumberLessThan(bottomChild, bottomView);
-        var flag1 = isNumberGreaterThan(topChild, topView) && isNumberGreaterThan(bottomChild, bottomView);
-
-        var flag4 = (bottomChild - topChild) > (bottomView - topView);
-        if ((!flag || flag4) && (!flag1 || !flag4)) {
-            if (flag || flag1)
-                return bottomChild - bottomView - topView;
-            return topView;
-        }
-        return topChild;
-    }
-
     export class ScrollContentPresenter extends ContentPresenter implements Primitives.IScrollInfo, IMeasurableHidden, IArrangeableHidden {
         private _ScrollData: Primitives.ScrollData = new Primitives.ScrollData();
         private _IsClipPropertySet: bool = false;
@@ -171,7 +136,7 @@ module Fayde.Controls {
             var scrollOwner = this.ScrollOwner;
             var cr = this.XamlNode.ContentRoot;
             if (!scrollOwner || !cr)
-                return (<IMeasurableHidden>super)._MeasureOverride(availableSize, error);
+                return (<IMeasurableHidden>super)._MeasureOverride.call(this, availableSize, error);
 
             var ideal = size.createInfinite();
             if (!this.CanHorizontallyScroll)
@@ -303,4 +268,39 @@ module Fayde.Controls {
         }
     }
     Nullstone.RegisterType(ScrollContentPresenter, "ScrollContentPresenter", [Primitives.IScrollInfo_]);
+    
+    function validateInputOffset(offset: number) {
+        if (!isNaN(offset))
+            return Math.max(0, offset);
+        throw new ArgumentException("Offset is not a number.");
+    }
+    function areNumbersClose(val1: number, val2: number): bool {
+        if (val1 === val2)
+            return true;
+        var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516E-16;
+        var num2 = val1 - val2;
+        return -num1 < num2 && num1 > num2;
+    }
+    function isNumberLessThan(val1: number, val2: number): bool {
+        if (val1 >= val2)
+            return false;
+        return !areNumbersClose(val1, val2);
+    }
+    function isNumberGreaterThan(val1: number, val2: number): bool {
+        if (val1 <= val2)
+            return false;
+        return !areNumbersClose(val1, val2);
+    }
+    function computeScrollOffsetWithMinimalScroll(topView, bottomView, topChild, bottomChild) {
+        var flag = isNumberLessThan(topChild, topView) && isNumberLessThan(bottomChild, bottomView);
+        var flag1 = isNumberGreaterThan(topChild, topView) && isNumberGreaterThan(bottomChild, bottomView);
+
+        var flag4 = (bottomChild - topChild) > (bottomView - topView);
+        if ((!flag || flag4) && (!flag1 || !flag4)) {
+            if (flag || flag1)
+                return bottomChild - bottomView - topView;
+            return topView;
+        }
+        return topChild;
+    }
 }
