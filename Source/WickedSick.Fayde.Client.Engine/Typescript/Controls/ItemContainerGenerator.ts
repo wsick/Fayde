@@ -294,7 +294,7 @@ module Fayde.Controls {
                 else
                     index = startOffset - 1;
             } else if (startAt >= 0 && startAt < realized.Count) {
-                index = realized.GetValueAt[startAt] + startOffset;
+                index = realized.GetValueAt(startAt) + startOffset;
             } else {
                 index = -1;
             }
