@@ -67,6 +67,8 @@ var Fayde;
                 uin = (ui).XamlNode;
             } else if(ui instanceof Fayde.UINode) {
                 uin = ui;
+            } else if(ui instanceof Fayde.LayoutUpdater) {
+                uin = (ui).Node;
             } else if(ui) {
                 return "[Object is not a UIElement.]";
             }
@@ -196,6 +198,117 @@ var Fayde;
                 }
             }
             return str;
+        };
+        VisualTreeHelper.__DebugUIElementLayout = function __DebugUIElementLayout(uin, tabIndex) {
+            if(!uin) {
+                return "";
+            }
+            var lu = uin.LayoutUpdater;
+            var str = VisualTreeHelper._SerializeDirt(lu.DirtyFlags);
+            str += VisualTreeHelper._SerializeFlags(lu.Flags);
+            return str;
+        };
+        VisualTreeHelper.__DebugLayout = function __DebugLayout(ui) {
+            return VisualTreeHelper.__Debug(ui, VisualTreeHelper.__DebugUIElementLayout);
+        };
+        VisualTreeHelper._SerializeDirt = function _SerializeDirt(dirt) {
+            var curdirt = dirt;
+            var down = "";
+            if(curdirt & _Dirty.ChildrenZIndices) {
+                curdirt &= ~_Dirty.ChildrenZIndices;
+                down += "ZI+";
+            }
+            if(curdirt & _Dirty.Arrange) {
+                curdirt &= ~_Dirty.Arrange;
+                down += "A+";
+            }
+            if(curdirt & _Dirty.Measure) {
+                curdirt &= ~_Dirty.Measure;
+                down += "M+";
+            }
+            if(curdirt & _Dirty.HitTestVisibility) {
+                curdirt &= ~_Dirty.HitTestVisibility;
+                down += "HTV+";
+            }
+            if(curdirt & _Dirty.RenderVisibility) {
+                curdirt &= ~_Dirty.RenderVisibility;
+                down += "RV+";
+            }
+            if(curdirt & _Dirty.LocalClip) {
+                curdirt &= ~_Dirty.LocalClip;
+                down += "LC+";
+            }
+            if(curdirt & _Dirty.Clip) {
+                curdirt &= ~_Dirty.Clip;
+                down += "C+";
+            }
+            if(curdirt & _Dirty.LocalProjection) {
+                curdirt &= ~_Dirty.LocalProjection;
+                down += "LP+";
+            }
+            if(curdirt & _Dirty.LocalTransform) {
+                curdirt &= ~_Dirty.LocalTransform;
+                down += "LT+";
+            }
+            if(curdirt & _Dirty.Transform) {
+                curdirt &= ~_Dirty.Transform;
+                down += "T+";
+            }
+            if(down) {
+                down = down.substr(0, down.length - 1);
+            }
+            var up = "";
+            if(curdirt & _Dirty.Invalidate) {
+                curdirt &= ~_Dirty.Invalidate;
+                up += "I+";
+            }
+            if(curdirt & _Dirty.Bounds) {
+                curdirt &= ~_Dirty.Bounds;
+                up += "B+";
+            }
+            if(up) {
+                up = up.substr(0, up.length - 1);
+            }
+            return "[" + down + ":" + up + "]";
+        };
+        VisualTreeHelper._SerializeFlags = function _SerializeFlags(flags) {
+            var str = "";
+            if(flags & Fayde.UIElementFlags.RenderProjection) {
+                flags &= ~Fayde.UIElementFlags.RenderProjection;
+                str += "RP+";
+            }
+            if(flags & Fayde.UIElementFlags.DirtySizeHint) {
+                flags &= ~Fayde.UIElementFlags.DirtySizeHint;
+                str += "S+";
+            }
+            if(flags & Fayde.UIElementFlags.DirtyMeasureHint) {
+                flags &= ~Fayde.UIElementFlags.DirtyMeasureHint;
+                str += "M+";
+            }
+            if(flags & Fayde.UIElementFlags.DirtyArrangeHint) {
+                flags &= ~Fayde.UIElementFlags.DirtyArrangeHint;
+                str += "A+";
+            }
+            if(flags & Fayde.UIElementFlags.TotalHitTestVisible) {
+                flags &= ~Fayde.UIElementFlags.TotalHitTestVisible;
+                str += "THT+";
+            }
+            if(flags & Fayde.UIElementFlags.TotalRenderVisible) {
+                flags &= ~Fayde.UIElementFlags.TotalRenderVisible;
+                str += "TRV+";
+            }
+            if(flags & Fayde.UIElementFlags.HitTestVisible) {
+                flags &= ~Fayde.UIElementFlags.HitTestVisible;
+                str += "HT+";
+            }
+            if(flags & Fayde.UIElementFlags.RenderVisible) {
+                flags &= ~Fayde.UIElementFlags.RenderVisible;
+                str += "RV+";
+            }
+            if(str) {
+                str = str.substring(0, str.length - 1);
+            }
+            return "[" + str + "]";
         };
         return VisualTreeHelper;
     })();
