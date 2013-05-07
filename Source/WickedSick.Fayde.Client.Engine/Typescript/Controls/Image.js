@@ -150,11 +150,20 @@ var Fayde;
             Image.prototype.CreateNode = function () {
                 return new ImageNode(this);
             };
+            Image._SourceCoercer = function _SourceCoercer(d, propd, value) {
+                if(typeof value === "string") {
+                    return new Fayde.Media.Imaging.BitmapImage(new Uri(value));
+                }
+                if(value instanceof Uri) {
+                    return new Fayde.Media.Imaging.BitmapImage(value);
+                }
+                return value;
+            };
             Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () {
                 return Fayde.Media.Imaging.ImageSource;
             }, Image, undefined, function (d, args) {
                 return (d)._SourceChanged(args);
-            });
+            }, undefined, Image._SourceCoercer);
             Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () {
                 return new Enum(Fayde.Media.Stretch);
             }, Image, Fayde.Media.Stretch.Uniform);

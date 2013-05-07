@@ -54,6 +54,9 @@ var Fayde;
                     }
                 };
                 BitmapSource.prototype.UriSourceChanged = function (oldValue, newValue) {
+                    if(!this._Image) {
+                        this.ResetImage();
+                    }
                     this._Image.src = newValue.toString();
                     var listener = this._Listener;
                     if(listener) {

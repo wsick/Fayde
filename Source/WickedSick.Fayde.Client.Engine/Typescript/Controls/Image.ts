@@ -150,8 +150,14 @@ module Fayde.Controls {
         XamlNode: ImageNode;
         CreateNode(): ImageNode { return new ImageNode(this); }
 
-        static SourceProperty: DependencyProperty = DependencyProperty.RegisterFull("Source", () => Media.Imaging.ImageSource, Image, undefined, (d, args) => (<Image>d)._SourceChanged(args));
-        //TODO: Add Converter
+        private static _SourceCoercer(d: DependencyObject, propd: DependencyProperty, value: any): any {
+            if (typeof value === "string")
+                return new Media.Imaging.BitmapImage(new Uri(value));
+            if (value instanceof Uri)
+                return new Media.Imaging.BitmapImage(value);
+            return value;
+        }
+        static SourceProperty: DependencyProperty = DependencyProperty.RegisterFull("Source", () => Media.Imaging.ImageSource, Image, undefined, (d, args) => (<Image>d)._SourceChanged(args), undefined, Image._SourceCoercer);
         // http: //msdn.microsoft.com/en-us/library/system.windows.media.stretch(v=vs.95).aspx
         static StretchProperty: DependencyProperty = DependencyProperty.RegisterCore("Stretch", () => new Enum(Media.Stretch), Image, Media.Stretch.Uniform);
         Source: Media.Imaging.ImageSource;

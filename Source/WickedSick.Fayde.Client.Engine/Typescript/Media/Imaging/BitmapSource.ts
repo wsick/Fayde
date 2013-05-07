@@ -37,6 +37,8 @@ module Fayde.Media.Imaging {
             if (listener) listener.ImageChanged(this);
         }
         UriSourceChanged(oldValue: Uri, newValue: Uri) {
+            if (!this._Image)
+                this.ResetImage();
             this._Image.src = newValue.toString();
             var listener = this._Listener;
             if (listener) listener.ImageChanged(this);

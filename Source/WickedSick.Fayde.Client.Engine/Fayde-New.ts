@@ -15790,6 +15790,8 @@ module Fayde.Media.Imaging {
             if (listener) listener.ImageChanged(this);
         }
         UriSourceChanged(oldValue: Uri, newValue: Uri) {
+            if (!this._Image)
+                this.ResetImage();
             this._Image.src = newValue.toString();
             var listener = this._Listener;
             if (listener) listener.ImageChanged(this);
@@ -17346,7 +17348,14 @@ module Fayde.Controls {
     export class Image extends FrameworkElement implements IActualSizeComputable, IMeasurableHidden, IArrangeableHidden, IRenderable, Media.Imaging.IImageChangedListener {
         XamlNode: ImageNode;
         CreateNode(): ImageNode { return new ImageNode(this); }
-        static SourceProperty: DependencyProperty = DependencyProperty.RegisterFull("Source", () => Media.Imaging.ImageSource, Image, undefined, (d, args) => (<Image>d)._SourceChanged(args));
+        private static _SourceCoercer(d: DependencyObject, propd: DependencyProperty, value: any): any {
+            if (typeof value === "string")
+                return new Media.Imaging.BitmapImage(new Uri(value));
+            if (value instanceof Uri)
+                return new Media.Imaging.BitmapImage(value);
+            return value;
+        }
+        static SourceProperty: DependencyProperty = DependencyProperty.RegisterFull("Source", () => Media.Imaging.ImageSource, Image, undefined, (d, args) => (<Image>d)._SourceChanged(args), undefined, Image._SourceCoercer);
         static StretchProperty: DependencyProperty = DependencyProperty.RegisterCore("Stretch", () => new Enum(Media.Stretch), Image, Media.Stretch.Uniform);
         Source: Media.Imaging.ImageSource;
         Stretch: Media.Stretch;
