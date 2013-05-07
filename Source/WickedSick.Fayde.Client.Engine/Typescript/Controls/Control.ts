@@ -140,7 +140,7 @@ module Fayde.Controls {
         GetTemplateChild(childName: string): DependencyObject {
             var root = this.XamlNode.TemplateRoot;
             if (root) {
-                var n = root.XamlNode.FindName(name);
+                var n = root.XamlNode.FindName(childName);
                 if (n) return <DependencyObject>n.XObject;
             }
         }

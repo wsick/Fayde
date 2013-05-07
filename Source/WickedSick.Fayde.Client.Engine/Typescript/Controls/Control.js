@@ -192,7 +192,7 @@ var Fayde;
             Control.prototype.GetTemplateChild = function (childName) {
                 var root = this.XamlNode.TemplateRoot;
                 if(root) {
-                    var n = root.XamlNode.FindName(name);
+                    var n = root.XamlNode.FindName(childName);
                     if(n) {
                         return n.XObject;
                     }
