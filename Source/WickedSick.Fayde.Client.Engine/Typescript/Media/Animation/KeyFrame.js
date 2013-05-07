@@ -89,9 +89,9 @@ var Fayde;
                         }
                     }
                     // calculate total animation interpolation time
-                    var d = animation._Store.GetValue(Animation.Timeline.DurationProperty);
-                    if(d.HasTimeSpan) {
-                        totalInterpolationTime = d.TimeSpan;
+                    var dur = animation.Duration;
+                    if(dur && dur.HasTimeSpan) {
+                        totalInterpolationTime = dur.TimeSpan;
                     } else if(hasTimeSpanKeyFrame) {
                         totalInterpolationTime = highestKeyTimeTimeSpan;
                     } else {

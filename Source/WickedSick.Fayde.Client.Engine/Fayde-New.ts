@@ -8840,6 +8840,7 @@ module Fayde {
         Prop: string;
         Value: any;
     }
+    var WARN_ON_SET_READ_ONLY: bool = false;
     export class JsonParser {
         private _ResChain: Fayde.ResourceDictionary[] = [];
         private _RootXamlObject: XamlObject = null;
@@ -8966,51 +8967,33 @@ module Fayde {
             return content;
         }
         TrySetPropertyValue(xobj: XamlObject, propd: DependencyProperty, propValue: any, namescope: NameScope, isAttached: bool, ownerType: Function, propName: string) {
-            if (propValue.ParseType) {
-                propValue = this.CreateObject(propValue, namescope, true);
-            } else if (propValue instanceof FrameworkTemplate) {
-                (<FrameworkTemplate>propValue).ResChain = this._ResChain;
-            }
             if (propValue instanceof Markup)
                 propValue = propValue.Transmute(xobj, propd, propName, this._TemplateBindingSource);
-            if (propValue instanceof StaticResourceExpression) {
+            if (propValue instanceof FrameworkTemplate) {
+                (<FrameworkTemplate>propValue).ResChain = this._ResChain;
                 this.SetValue(xobj, propd, propName, propValue);
                 return;
-            }
-            if (propd) {
-                if (this.TrySetCollectionProperty(propValue, xobj, propd, undefined, namescope))
-                    return;
-                if (!(propValue instanceof Expression)) {
-                    var targetType = propd.GetTargetType();
-                    if (targetType instanceof Enum) {
-                    } else if (!(propValue instanceof targetType)) {
-                        var propDesc = Nullstone.GetPropertyDescriptor(xobj, propName);
-                        if (propDesc) {
-                            var setFunc = propDesc.set;
-                            var converter: (val: any) => any;
-                            if (setFunc && (converter = (<any>setFunc).Converter) && converter instanceof Function)
-                                propValue = converter(propValue);
-                        }
-                    }
-                }
+            } else if (propValue instanceof StaticResourceExpression) {
                 this.SetValue(xobj, propd, propName, propValue);
-            } else if (!isAttached) {
-                var descriptor = Nullstone.GetPropertyDescriptor(xobj, propName);
-                if (descriptor) {
-                    if (descriptor.writable || descriptor.set ) {
-                        xobj[propName] = propValue;
-                    } else {
-                        var existingobj = xobj[propName];
-                        if (existingobj instanceof XamlObjectCollection)
-                            this.TrySetCollectionProperty(propValue, xobj, null, propName, namescope);
-                    }
-                } else {
-                    var func = xobj["Set" + propName];
-                    if (func && func instanceof Function)
-                        func.call(xobj, propValue);
-                }
-            } else {
+                return;
+            } else if (propValue.ParseType === ResourceDictionary) {
+                this.SetResourceDictionary(xobj[propName], propValue.Children, namescope);
+                return;
+            }
+            if (propValue.ParseType) 
+                propValue = this.CreateObject(propValue, namescope, true);
+            if (propd) {
+                if (!this.TrySetCollectionProperty(propValue, xobj, propd, undefined, namescope))
+                    this.SetValue(xobj, propd, propName, propValue);
+            } else if (isAttached) {
                 Warn("Could not find attached property: " + (<any>ownerType)._TypeName + "." + propName);
+            } else {
+                if (WARN_ON_SET_READ_ONLY) {
+                    var descriptor = Nullstone.GetPropertyDescriptor(xobj, propName);
+                    if (!descriptor.writable && !descriptor.set)
+                        Warn("Parser is trying to set a read-only property.");
+                }
+                xobj[propName] = propValue;
             }
         }
         TrySetCollectionProperty(subJson: any[], xobj: XamlObject, propd: DependencyProperty, propertyName: string, namescope: NameScope) {
@@ -12921,7 +12904,7 @@ module Fayde.Media.Animation {
                 keyFrame._ResolvedKeyTime = new TimeSpan();
                 keyFrame._Resolved = false;
             }
-            var keyTime;
+            var keyTime: KeyTime;
             for (i = 0; i < len; i++) {
                 keyFrame = arr[i];
                 keyTime = keyFrame.KeyTime;
@@ -12934,9 +12917,9 @@ module Fayde.Media.Animation {
                     keyFrame._Resolved = true;
                 }
             }
-            var d = animation._Store.GetValue(Timeline.DurationProperty);
-            if (d.HasTimeSpan) {
-                totalInterpolationTime = d.TimeSpan;
+            var dur = animation.Duration;
+            if (dur && dur.HasTimeSpan) {
+                totalInterpolationTime = dur.TimeSpan;
             } else if (hasTimeSpanKeyFrame) {
                 totalInterpolationTime = highestKeyTimeTimeSpan;
             } else {
@@ -13180,8 +13163,8 @@ module Fayde.Media.Animation {
         static FillBehaviorProperty: DependencyProperty = DependencyProperty.Register("FillBehavior", () => new Enum(FillBehavior), Timeline, FillBehavior.HoldEnd);
         AutoReverse: bool;
         BeginTime: TimeSpan;
-        Duration: Duration;
-        RepeatBehavior: RepeatBehavior;
+        Duration: Duration; //Treat undefined as Automatic
+        RepeatBehavior: RepeatBehavior; //Treat undefined as IterationCount -> 1
         SpeedRatio: number;
         FillBehavior: FillBehavior;
         Completed: MulticastEvent = new MulticastEvent();
@@ -17137,7 +17120,7 @@ module Fayde.Controls {
         GetTemplateChild(childName: string): DependencyObject {
             var root = this.XamlNode.TemplateRoot;
             if (root) {
-                var n = root.XamlNode.FindName(name);
+                var n = root.XamlNode.FindName(childName);
                 if (n) return <DependencyObject>n.XObject;
             }
         }

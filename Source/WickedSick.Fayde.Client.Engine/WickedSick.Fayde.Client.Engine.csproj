@@ -422,7 +422,9 @@
     <Content Include="Styles\AllControls.xml" />
     <Content Include="Styles\CheckBox.xml" />
     <Content Include="Styles\ContentPresenter.xml" />
-    <Content Include="Styles\Cosmopolitan.CoreStyles.xml" />
+    <Content Include="Styles\Cosmopolitan.CoreStyles.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Styles\HyperlinkButton.xml" />
     <Content Include="Styles\RadioButton.xml" />
     <Content Include="Styles\RepeatButton.xml" />

@@ -72,7 +72,7 @@ module Fayde.Media.Animation {
                 keyFrame._Resolved = false;
             }
 
-            var keyTime;
+            var keyTime: KeyTime;
             // resolve TimeSpan keyframes
             for (i = 0; i < len; i++) {
                 keyFrame = arr[i];
@@ -88,9 +88,9 @@ module Fayde.Media.Animation {
             }
 
             // calculate total animation interpolation time
-            var d = animation._Store.GetValue(Timeline.DurationProperty);
-            if (d.HasTimeSpan) {
-                totalInterpolationTime = d.TimeSpan;
+            var dur = animation.Duration;
+            if (dur && dur.HasTimeSpan) {
+                totalInterpolationTime = dur.TimeSpan;
             } else if (hasTimeSpanKeyFrame) {
                 totalInterpolationTime = highestKeyTimeTimeSpan;
             } else {

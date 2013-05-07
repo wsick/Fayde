@@ -26,8 +26,8 @@ module Fayde.Media.Animation {
         static FillBehaviorProperty: DependencyProperty = DependencyProperty.Register("FillBehavior", () => new Enum(FillBehavior), Timeline, FillBehavior.HoldEnd);
         AutoReverse: bool;
         BeginTime: TimeSpan;
-        Duration: Duration;
-        RepeatBehavior: RepeatBehavior;
+        Duration: Duration; //Treat undefined as Automatic
+        RepeatBehavior: RepeatBehavior; //Treat undefined as IterationCount -> 1
         SpeedRatio: number;
         FillBehavior: FillBehavior;
 
