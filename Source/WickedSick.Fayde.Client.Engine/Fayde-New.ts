@@ -2250,7 +2250,7 @@ module Fayde.Media {
                 }
             }
             var pg = new PathGeometry();
-            pg.SetPath(path);
+            pg.OverridePath(path);
             pg.FillRule = fillRule;
             return pg;
         }
@@ -12327,6 +12327,7 @@ module Fayde.Media {
 
 module Fayde.Media {
     export class PathGeometry extends Geometry implements IPathFigureListener {
+        private _OverridePath: Shapes.RawPath = null;
         static Annotations = { ContentProperty: "Figures" }
         static FillRuleProperty: DependencyProperty = DependencyProperty.Register("FillRule", () => new Enum(Shapes.FillRule), PathGeometry, Shapes.FillRule.EvenOdd, (d, args) => (<Geometry>d)._InvalidateGeometry());
         FillRule: Shapes.FillRule;
@@ -12340,10 +12341,12 @@ module Fayde.Media {
                 writable: false
             });
         }
-        SetPath(path: Shapes.RawPath) {
-            (<any>this)._Path = path;
+        OverridePath(path: Shapes.RawPath) {
+            this._OverridePath = path;
         }
         private _Build(): Shapes.RawPath {
+            if (this._OverridePath)
+                return this._OverridePath;
             var p = new Shapes.RawPath();
             var figures = this.Figures;
             if (!figures)
@@ -12355,6 +12358,7 @@ module Fayde.Media {
             return p;
         }
         private PathFigureChanged(newPathFigure: PathFigure) {
+            this._OverridePath = null; //Any change in PathFigures invalidates a path override
             this._InvalidateGeometry();
         }
     }

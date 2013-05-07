@@ -15,6 +15,7 @@ var Fayde;
             __extends(PathGeometry, _super);
             function PathGeometry() {
                         _super.call(this);
+                this._OverridePath = null;
                 var coll = new Media.PathFigureCollection();
                 coll.Listen(this);
                 Object.defineProperty(this, "Figures", {
@@ -30,10 +31,13 @@ var Fayde;
             }, PathGeometry, Fayde.Shapes.FillRule.EvenOdd, function (d, args) {
                 return (d)._InvalidateGeometry();
             });
-            PathGeometry.prototype.SetPath = function (path) {
-                (this)._Path = path;
+            PathGeometry.prototype.OverridePath = function (path) {
+                this._OverridePath = path;
             };
             PathGeometry.prototype._Build = function () {
+                if(this._OverridePath) {
+                    return this._OverridePath;
+                }
                 var p = new Fayde.Shapes.RawPath();
                 var figures = this.Figures;
                 if(!figures) {
@@ -46,6 +50,8 @@ var Fayde;
                 return p;
             };
             PathGeometry.prototype.PathFigureChanged = function (newPathFigure) {
+                this._OverridePath = null//Any change in PathFigures invalidates a path override
+                ;
                 this._InvalidateGeometry();
             };
             return PathGeometry;

@@ -332,7 +332,7 @@ var Fayde;
                     }
                 }
                 var pg = new Media.PathGeometry();
-                pg.SetPath(path);
+                pg.OverridePath(path);
                 pg.FillRule = fillRule;
                 return pg;
             };

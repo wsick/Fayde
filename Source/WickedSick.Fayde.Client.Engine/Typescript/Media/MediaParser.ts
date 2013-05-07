@@ -344,7 +344,7 @@ module Fayde.Media {
                 }
             }
             var pg = new PathGeometry();
-            pg.SetPath(path);
+            pg.OverridePath(path);
             pg.FillRule = fillRule;
             return pg;
         }
