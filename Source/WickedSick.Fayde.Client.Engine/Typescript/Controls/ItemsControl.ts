@@ -21,7 +21,7 @@ module Fayde.Controls {
             var presenter = this._Presenter;
             if (!presenter) {
                 //TODO: How can we get the res chain in here?
-                presenter = new ItemsPresenter();
+                this._Presenter = presenter = new ItemsPresenter();
                 presenter.TemplateOwner = this.XObject;
             }
             return presenter;

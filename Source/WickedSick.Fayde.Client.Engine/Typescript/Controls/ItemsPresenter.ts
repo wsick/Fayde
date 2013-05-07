@@ -19,7 +19,7 @@ module Fayde.Controls {
         get ElementRoot(): Panel {
             if (!this._ElementRoot) {
                 var error = new BError();
-                this.DoApplyTemplateWithError(error);
+                this.ApplyTemplateWithError(error);
                 if (error.Message)
                     error.ThrowException();
             }
@@ -61,7 +61,10 @@ module Fayde.Controls {
             }
 
             this._ElementRoot.IsItemsHost = true;
-            return this.FinishApplyTemplateWithError(this._ElementRoot, error);
+            if (!this.FinishApplyTemplateWithError(this._ElementRoot, error))
+                return false;
+            ic.XamlNode._SetItemsPresenter(xobj);
+            return true;
         }
     }
     Nullstone.RegisterType(ItemsPresenterNode, "ItemsPresenterNode");
@@ -72,11 +75,6 @@ module Fayde.Controls {
         CreateNode(): ItemsPresenterNode { return new ItemsPresenterNode(this); }
 
         get ElementRoot(): Panel { return this.XamlNode.ElementRoot; }
-
-        OnApplyTemplate() {
-            this.TemplateOwner.XamlNode._SetItemsPresenter(this);
-            super.OnApplyTemplate();
-        }
     }
     Nullstone.RegisterType(ItemsPresenter, "ItemsPresenter");
 }

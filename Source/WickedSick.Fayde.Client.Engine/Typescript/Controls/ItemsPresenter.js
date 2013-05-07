@@ -22,7 +22,7 @@ var Fayde;
                 get: function () {
                     if(!this._ElementRoot) {
                         var error = new BError();
-                        this.DoApplyTemplateWithError(error);
+                        this.ApplyTemplateWithError(error);
                         if(error.Message) {
                             error.ThrowException();
                         }
@@ -80,7 +80,11 @@ var Fayde;
                     this._ElementRoot = template.GetVisualTree(xobj);
                 }
                 this._ElementRoot.IsItemsHost = true;
-                return this.FinishApplyTemplateWithError(this._ElementRoot, error);
+                if(!this.FinishApplyTemplateWithError(this._ElementRoot, error)) {
+                    return false;
+                }
+                ic.XamlNode._SetItemsPresenter(xobj);
+                return true;
             };
             return ItemsPresenterNode;
         })(Fayde.FENode);
@@ -102,10 +106,6 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
-            ItemsPresenter.prototype.OnApplyTemplate = function () {
-                this.TemplateOwner.XamlNode._SetItemsPresenter(this);
-                _super.prototype.OnApplyTemplate.call(this);
-            };
             return ItemsPresenter;
         })(Fayde.FrameworkElement);
         Controls.ItemsPresenter = ItemsPresenter;        

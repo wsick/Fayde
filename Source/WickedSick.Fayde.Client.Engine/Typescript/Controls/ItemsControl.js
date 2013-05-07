@@ -27,7 +27,7 @@ var Fayde;
                 var presenter = this._Presenter;
                 if(!presenter) {
                     //TODO: How can we get the res chain in here?
-                    presenter = new Controls.ItemsPresenter();
+                    this._Presenter = presenter = new Controls.ItemsPresenter();
                     presenter.TemplateOwner = this.XObject;
                 }
                 return presenter;
