@@ -33,9 +33,7 @@ var Fayde;
             });
             ColumnDefinition.ActualWidthProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", function () {
                 return Number;
-            }, ColumnDefinition, 0.0, function (d, args) {
-                return (d)._WidthsChanged(args);
-            });
+            }, ColumnDefinition, 0.0);
             ColumnDefinition.prototype.Listen = function (listener) {
                 this._Listener = listener;
             };

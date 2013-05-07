@@ -33,9 +33,7 @@ var Fayde;
             });
             RowDefinition.ActualHeightProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", function () {
                 return Number;
-            }, RowDefinition, 0.0, function (d, args) {
-                return (d)._HeightsChanged(args);
-            });
+            }, RowDefinition, 0.0);
             RowDefinition.prototype.Listen = function (listener) {
                 this._Listener = listener;
             };

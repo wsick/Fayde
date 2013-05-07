@@ -13,7 +13,7 @@ module Fayde.Controls {
         static WidthProperty: DependencyProperty = DependencyProperty.RegisterCore("Width", () => GridLength, ColumnDefinition, undefined, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
         static MaxWidthProperty: DependencyProperty = DependencyProperty.RegisterCore("MaxWidth", () => Number, ColumnDefinition, Number.POSITIVE_INFINITY, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
         static MinWidthProperty: DependencyProperty = DependencyProperty.RegisterCore("MinWidth", () => Number, ColumnDefinition, 0.0, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
-        static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", () => Number, ColumnDefinition, 0.0, (d, args) => (<ColumnDefinition>d)._WidthsChanged(args));
+        static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", () => Number, ColumnDefinition, 0.0);
         Width: GridLength;
         MaxWidth: number;
         MinWidth: number;

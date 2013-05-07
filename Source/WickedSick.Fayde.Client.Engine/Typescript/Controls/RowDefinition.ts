@@ -13,7 +13,7 @@ module Fayde.Controls {
         static HeightProperty: DependencyProperty = DependencyProperty.RegisterCore("Height", () => GridLength, RowDefinition, undefined, (d, args) => (<RowDefinition>d)._HeightsChanged(args));
         static MaxHeightProperty: DependencyProperty = DependencyProperty.RegisterCore("MaxHeight", () => Number, RowDefinition, Number.POSITIVE_INFINITY, (d, args) => (<RowDefinition>d)._HeightsChanged(args));
         static MinHeightProperty: DependencyProperty = DependencyProperty.RegisterCore("MinHeight", () => Number, RowDefinition, 0.0, (d, args) => (<RowDefinition>d)._HeightsChanged(args));
-        static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", () => Number, RowDefinition, 0.0, (d, args) => (<RowDefinition>d)._HeightsChanged(args));
+        static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", () => Number, RowDefinition, 0.0);
         Height: GridLength;
         MaxHeight: number;
         MinHeight: number;
