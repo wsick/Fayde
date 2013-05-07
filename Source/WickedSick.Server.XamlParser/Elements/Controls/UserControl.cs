@@ -8,7 +8,7 @@ namespace WickedSick.Server.XamlParser.Elements.Controls
     {
         public static readonly PropertyDescription ContentProperty = PropertyDescription.Register("Content", typeof(UIElement), typeof(UserControl), true);
 
-        public static readonly PropertyDescription JsTypeProperty = PropertyDescription.Register("JsType", typeof(string), typeof(UserControl));
+        public static readonly PropertyDescription JsTypeProperty = PropertyDescription.Register("JsType", typeof(string), typeof(UserControl), false, true);
         public string JsType
         {
             get { return GetValue("JsType") as string; }

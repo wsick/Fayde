@@ -205,10 +205,10 @@ namespace WickedSick.Server.XamlParser.Elements
             IDictionary<PropertyDescription, object> properties = new Dictionary<PropertyDescription, object>();
             foreach (PropertyDescription pd in _dependencyValues.Keys)
             {
+                if (pd.IsNotSerialized)
+                    continue;
                 if (!pd.IsContent || _dependencyValues[pd] is string)
-                {
                     properties.Add(pd, _dependencyValues[pd]);
-                }
             }
             return properties;
         }
