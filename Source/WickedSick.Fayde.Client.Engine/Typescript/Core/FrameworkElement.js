@@ -279,12 +279,12 @@ var Fayde;
         }, FrameworkElement, Fayde.FlowDirection.LeftToRight, function (d, args) {
             return (d)._SizeChanged(args);
         }, undefined, Fayde.Providers._Inheritable.FlowDirection);
-        FrameworkElement.HeightProperty = DependencyProperty.RegisterCore("Height", function () {
+        FrameworkElement.HeightProperty = DependencyProperty.Register("Height", function () {
             return Number;
         }, FrameworkElement, NaN, function (d, args) {
             return (d)._HeightChanged(args);
         });
-        FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.RegisterCore("HorizontalAlignment", function () {
+        FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", function () {
             return new Enum(Fayde.HorizontalAlignment);
         }, FrameworkElement, Fayde.HorizontalAlignment.Stretch, function (d, args) {
             return (d)._AlignmentChanged(args);
@@ -294,37 +294,37 @@ var Fayde;
         }, FrameworkElement, undefined, function (d, args) {
             return (d)._SizeChanged(args);
         });
-        FrameworkElement.MaxHeightProperty = DependencyProperty.RegisterCore("MaxHeight", function () {
+        FrameworkElement.MaxHeightProperty = DependencyProperty.Register("MaxHeight", function () {
             return Number;
         }, FrameworkElement, Number.POSITIVE_INFINITY, function (d, args) {
             return (d)._SizeChanged(args);
         });
-        FrameworkElement.MaxWidthProperty = DependencyProperty.RegisterCore("MaxWidth", function () {
+        FrameworkElement.MaxWidthProperty = DependencyProperty.Register("MaxWidth", function () {
             return Number;
         }, FrameworkElement, Number.POSITIVE_INFINITY, function (d, args) {
             return (d)._SizeChanged(args);
         });
-        FrameworkElement.MinHeightProperty = DependencyProperty.RegisterCore("MinHeight", function () {
+        FrameworkElement.MinHeightProperty = DependencyProperty.Register("MinHeight", function () {
             return Number;
         }, FrameworkElement, 0.0, function (d, args) {
             return (d)._SizeChanged(args);
         });
-        FrameworkElement.MinWidthProperty = DependencyProperty.RegisterCore("MinWidth", function () {
+        FrameworkElement.MinWidthProperty = DependencyProperty.Register("MinWidth", function () {
             return Number;
         }, FrameworkElement, 0.0, function (d, args) {
             return (d)._SizeChanged(args);
         });
-        FrameworkElement.StyleProperty = DependencyProperty.RegisterCore("Style", function () {
+        FrameworkElement.StyleProperty = DependencyProperty.Register("Style", function () {
             return Fayde.Style;
         }, FrameworkElement, undefined, function (d, args) {
             return (d)._StyleChanged(args);
         });
-        FrameworkElement.VerticalAlignmentProperty = DependencyProperty.RegisterCore("VerticalAlignment", function () {
+        FrameworkElement.VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", function () {
             return new Enum(Fayde.VerticalAlignment);
         }, FrameworkElement, Fayde.VerticalAlignment.Stretch, function (d, args) {
             return (d)._AlignmentChanged(args);
         });
-        FrameworkElement.WidthProperty = DependencyProperty.RegisterCore("Width", function () {
+        FrameworkElement.WidthProperty = DependencyProperty.Register("Width", function () {
             return Number;
         }, FrameworkElement, NaN, function (d, args) {
             return (d)._WidthChanged(args);

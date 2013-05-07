@@ -16,7 +16,6 @@ module Fayde {
 
         constructor() {
             super();
-            (<IShareableHidden>this.XamlNode).IsShareable = true;
             var coll = new SetterCollection();
             coll.XamlNode.AttachTo(this.XamlNode, undefined);
             Object.defineProperty(this, "Setters", {

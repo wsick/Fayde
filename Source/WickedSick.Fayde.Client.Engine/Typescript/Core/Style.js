@@ -13,7 +13,6 @@ var Fayde;
         function Style() {
                 _super.call(this);
             this._IsSealed = false;
-            (this.XamlNode).IsShareable = true;
             var coll = new Fayde.SetterCollection();
             coll.XamlNode.AttachTo(this.XamlNode, undefined);
             Object.defineProperty(this, "Setters", {
