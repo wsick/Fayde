@@ -140,14 +140,14 @@ module Fayde.Controls {
 
             var thickness = this.BorderThickness;
 
-            var fillOnly = !borderBrush || thickness.IsEmpty();
+            var fillOnly = !borderBrush || !thickness || thickness.IsEmpty();
             if (fillOnly && !backgroundBrush)
                 return;
             ctx.Save();
             lu._RenderLayoutClip(ctx);
             if (fillOnly)
                 this._RenderFillOnly(ctx, extents, backgroundBrush, thickness, this.CornerRadius);
-            else if (thickness.IsBalanced())
+            else if (thickness && thickness.IsBalanced())
                 this._RenderBalanced(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
             else
                 this._RenderUnbalanced(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
@@ -155,10 +155,9 @@ module Fayde.Controls {
         }
         private _RenderFillOnly(ctx: RenderContext, extents: rect, backgroundBrush: Media.Brush, thickness: Thickness, cornerRadius: CornerRadius) {
             var fillExtents = rect.clone(extents);
-            if (!thickness.IsEmpty())
-                rect.shrinkByThickness(fillExtents, thickness);
+            if (thickness) rect.shrinkByThickness(fillExtents, thickness);
 
-            if (cornerRadius.IsZero()) {
+            if (!cornerRadius || cornerRadius.IsZero()) {
                 ctx.FillRect(backgroundBrush, fillExtents);
                 return;
             }
@@ -178,7 +177,7 @@ module Fayde.Controls {
             var fillExtents = rect.clone(extents);
             rect.shrinkBy(fillExtents, full, full, full, full);
 
-            if (cornerRadius.IsZero()) {
+            if (!cornerRadius || cornerRadius.IsZero()) {
                 //Technically this fills outside it's fill extents, we may need to do something different for a transparent border brush
                 if (backgroundBrush) {
                     ctx.StrokeAndFillRect(borderBrush, thickness.Left, strokeExtents, backgroundBrush, fillExtents);
@@ -197,9 +196,9 @@ module Fayde.Controls {
             }
         }
         private _RenderUnbalanced(ctx: RenderContext, extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cornerRadius: CornerRadius) {
-            var hasCornerRadius = !cornerRadius.IsZero();
+            var hasCornerRadius = cornerRadius && !cornerRadius.IsZero();
             var innerExtents = rect.clone(extents);
-            rect.shrinkByThickness(innerExtents, thickness);
+            if (thickness) rect.shrinkByThickness(innerExtents, thickness);
 
             var innerPath = new Fayde.Shapes.RawPath();
             var outerPath = new Fayde.Shapes.RawPath();

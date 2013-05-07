@@ -175,7 +175,7 @@ var Fayde;
                     return;
                 }
                 var thickness = this.BorderThickness;
-                var fillOnly = !borderBrush || thickness.IsEmpty();
+                var fillOnly = !borderBrush || !thickness || thickness.IsEmpty();
                 if(fillOnly && !backgroundBrush) {
                     return;
                 }
@@ -183,7 +183,7 @@ var Fayde;
                 lu._RenderLayoutClip(ctx);
                 if(fillOnly) {
                     this._RenderFillOnly(ctx, extents, backgroundBrush, thickness, this.CornerRadius);
-                } else if(thickness.IsBalanced()) {
+                } else if(thickness && thickness.IsBalanced()) {
                     this._RenderBalanced(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
                 } else {
                     this._RenderUnbalanced(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
@@ -192,10 +192,10 @@ var Fayde;
             };
             Border.prototype._RenderFillOnly = function (ctx, extents, backgroundBrush, thickness, cornerRadius) {
                 var fillExtents = rect.clone(extents);
-                if(!thickness.IsEmpty()) {
+                if(thickness) {
                     rect.shrinkByThickness(fillExtents, thickness);
                 }
-                if(cornerRadius.IsZero()) {
+                if(!cornerRadius || cornerRadius.IsZero()) {
                     ctx.FillRect(backgroundBrush, fillExtents);
                     return;
                 }
@@ -212,7 +212,7 @@ var Fayde;
                 rect.shrinkBy(strokeExtents, half, half, half, half);
                 var fillExtents = rect.clone(extents);
                 rect.shrinkBy(fillExtents, full, full, full, full);
-                if(cornerRadius.IsZero()) {
+                if(!cornerRadius || cornerRadius.IsZero()) {
                     //Technically this fills outside it's fill extents, we may need to do something different for a transparent border brush
                     if(backgroundBrush) {
                         ctx.StrokeAndFillRect(borderBrush, thickness.Left, strokeExtents, backgroundBrush, fillExtents);
@@ -231,9 +231,11 @@ var Fayde;
                 }
             };
             Border.prototype._RenderUnbalanced = function (ctx, extents, backgroundBrush, borderBrush, thickness, cornerRadius) {
-                var hasCornerRadius = !cornerRadius.IsZero();
+                var hasCornerRadius = cornerRadius && !cornerRadius.IsZero();
                 var innerExtents = rect.clone(extents);
-                rect.shrinkByThickness(innerExtents, thickness);
+                if(thickness) {
+                    rect.shrinkByThickness(innerExtents, thickness);
+                }
                 var innerPath = new Fayde.Shapes.RawPath();
                 var outerPath = new Fayde.Shapes.RawPath();
                 if(hasCornerRadius) {
