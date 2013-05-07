@@ -302,7 +302,7 @@ module Fayde.Providers {
             var thisRepo = this._AnimStorage;
             var list;
             for (var key in srcRepo) {
-                thisRepo[key] = srcRepo[0].slice(0);
+                thisRepo[key] = srcRepo[key].slice(0);
             }
         }
         _AttachAnimationStorage(propd: DependencyProperty, storage): Media.Animation.AnimationStorage {

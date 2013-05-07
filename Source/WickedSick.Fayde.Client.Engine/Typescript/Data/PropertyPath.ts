@@ -24,6 +24,7 @@ module Fayde.Data {
         promotedValues: any[];
         explicitType: bool;
         type: Function;
+        objRes: any[];
     }
 
     var lookupNamespaces: any[];
@@ -68,6 +69,7 @@ module Fayde.Data {
                 }
             }
 
+            data.objRes.push(data.res);
             data.lu = newLu;
         }
         data.expressionFound = false;
@@ -115,6 +117,8 @@ module Fayde.Data {
 
         if (value instanceof DependencyObject) {
             data.lu = <DependencyObject>value;
+            data.objRes.push(data.res);
+            data.objRes.push(data.i);
         } else {
             data.lu = null;
             return false;
@@ -208,6 +212,7 @@ module Fayde.Data {
         private _Path: string;
         private _ExpandedPath: string;
         private _Propd: DependencyProperty = null;
+        private _ObjRes: any[] = null;
         constructor(path?: string, expandedPath?: string) {
             this._Path = path;
             this._ExpandedPath = expandedPath;
@@ -224,8 +229,21 @@ module Fayde.Data {
         }
 
         TryResolveDependencyProperty(refobj: IOutValue, promotedValues: any[]): DependencyProperty {
-            if (!this._Propd)
-                this._Propd = PropertyPath.ResolvePropertyPath(refobj, this, promotedValues);
+            var or = this._ObjRes;
+            if (!or)
+                return this._Propd = PropertyPath.ResolvePropertyPath(refobj, this, promotedValues);
+
+            var val = refobj.Value;
+            var len = or.length;
+            var key: any;
+            for (var i = 0; i < len; i++) {
+                key = or[i];
+                if (typeof key === "number")
+                    val = val[key];
+                else
+                    val = val.GetValue(key);
+            }
+            refobj.Value = val;
             return this._Propd;
         }
 
@@ -242,9 +260,6 @@ module Fayde.Data {
         get DependencyProperty() { return this._Propd; }
 
         static ResolvePropertyPath(refobj: IOutValue, propertyPath: PropertyPath, promotedValues: any[]): DependencyProperty {
-            if (propertyPath._Propd)
-                return propertyPath._Propd;
-
             var path = propertyPath.Path;
             var expanded = propertyPath.ExpandedPath;
             if (expanded != null)
@@ -265,7 +280,8 @@ module Fayde.Data {
                 collection: null,
                 promotedValues: promotedValues,
                 explicitType: false,
-                type: null
+                type: null,
+                objRes: []
             };
 
             var success;
@@ -295,6 +311,7 @@ module Fayde.Data {
                 }
             }
             refobj.Value = data.lu;
+            propertyPath._ObjRes = data.objRes;
             return data.res;
         }
 

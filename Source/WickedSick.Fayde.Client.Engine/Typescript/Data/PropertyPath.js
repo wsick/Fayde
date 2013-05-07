@@ -50,6 +50,7 @@ var Fayde;
                         data.promotedValues[clonedValue._ID] = clonedValue;
                     }
                 }
+                data.objRes.push(data.res);
                 data.lu = newLu;
             }
             data.expressionFound = false;
@@ -96,6 +97,8 @@ var Fayde;
             }
             if(value instanceof Fayde.DependencyObject) {
                 data.lu = value;
+                data.objRes.push(data.res);
+                data.objRes.push(data.i);
             } else {
                 data.lu = null;
                 return false;
@@ -191,6 +194,7 @@ var Fayde;
         var PropertyPath = (function () {
             function PropertyPath(path, expandedPath) {
                 this._Propd = null;
+                this._ObjRes = null;
                 this._Path = path;
                 this._ExpandedPath = expandedPath;
             }
@@ -206,9 +210,22 @@ var Fayde;
                 return p;
             };
             PropertyPath.prototype.TryResolveDependencyProperty = function (refobj, promotedValues) {
-                if(!this._Propd) {
-                    this._Propd = PropertyPath.ResolvePropertyPath(refobj, this, promotedValues);
+                var or = this._ObjRes;
+                if(!or) {
+                    return this._Propd = PropertyPath.ResolvePropertyPath(refobj, this, promotedValues);
                 }
+                var val = refobj.Value;
+                var len = or.length;
+                var key;
+                for(var i = 0; i < len; i++) {
+                    key = or[i];
+                    if(typeof key === "number") {
+                        val = val[key];
+                    } else {
+                        val = val.GetValue(key);
+                    }
+                }
+                refobj.Value = val;
                 return this._Propd;
             };
             Object.defineProperty(PropertyPath.prototype, "Path", {
@@ -253,9 +270,6 @@ var Fayde;
                 configurable: true
             });
             PropertyPath.ResolvePropertyPath = function ResolvePropertyPath(refobj, propertyPath, promotedValues) {
-                if(propertyPath._Propd) {
-                    return propertyPath._Propd;
-                }
                 var path = propertyPath.Path;
                 var expanded = propertyPath.ExpandedPath;
                 if(expanded != null) {
@@ -276,7 +290,8 @@ var Fayde;
                     collection: null,
                     promotedValues: promotedValues,
                     explicitType: false,
-                    type: null
+                    type: null,
+                    objRes: []
                 };
                 var success;
                 while(data.index < data.end) {
@@ -307,6 +322,7 @@ var Fayde;
                     }
                 }
                 refobj.Value = data.lu;
+                propertyPath._ObjRes = data.objRes;
                 return data.res;
             };
             PropertyPath.prototype.Clone = function () {
