@@ -7,7 +7,14 @@
 
 module Fayde.Media.Imaging {
     export class ImageBrush extends TileBrush implements IImageChangedListener {
-        static ImageSourceProperty: DependencyProperty = DependencyProperty.RegisterFull("ImageSource", () => ImageSource, ImageBrush, undefined, (d, args) => (<ImageBrush>d)._ImageSourceChanged(args)/*, ... */);
+        private static _SourceCoercer(d: DependencyObject, propd: DependencyProperty, value: any): any {
+            if (typeof value === "string")
+                return new Media.Imaging.BitmapImage(new Uri(value));
+            if (value instanceof Uri)
+                return new Media.Imaging.BitmapImage(value);
+            return value;
+        }
+        static ImageSourceProperty: DependencyProperty = DependencyProperty.RegisterFull("ImageSource", () => ImageSource, ImageBrush, undefined, (d, args) => (<ImageBrush>d)._ImageSourceChanged(args), undefined, ImageBrush._SourceCoercer);
         ImageSource: ImageSource;
         ImageFailed: MulticastEvent = new MulticastEvent();
         ImageOpened: MulticastEvent = new MulticastEvent();

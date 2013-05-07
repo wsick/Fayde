@@ -21,11 +21,20 @@ var Fayde;
                     this.ImageFailed = new MulticastEvent();
                     this.ImageOpened = new MulticastEvent();
                 }
+                ImageBrush._SourceCoercer = function _SourceCoercer(d, propd, value) {
+                    if(typeof value === "string") {
+                        return new Fayde.Media.Imaging.BitmapImage(new Uri(value));
+                    }
+                    if(value instanceof Uri) {
+                        return new Fayde.Media.Imaging.BitmapImage(value);
+                    }
+                    return value;
+                };
                 ImageBrush.ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", function () {
                     return Imaging.ImageSource;
                 }, ImageBrush, undefined, function (d, args) {
-                    return (d)._ImageSourceChanged(args)/*, ... */ ;
-                });
+                    return (d)._ImageSourceChanged(args);
+                }, undefined, ImageBrush._SourceCoercer);
                 ImageBrush.prototype.SetupBrush = function (ctx, bounds) {
                     var source = this.ImageSource;
                     if(source && source.Image) {
