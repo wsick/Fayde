@@ -79,18 +79,18 @@ var Fayde;
                 return new PanelChildrenNode(this);
             };
             PanelChildrenCollection.prototype.AddedToCollection = function (value, error) {
-                if(!_super.prototype.AddedToCollection.call(this, value, error)) {
+                var node = this.XamlNode;
+                if(!node.ParentNode.AttachVisualChild(value, error)) {
                     return false;
                 }
-                var node = this.XamlNode;
                 node.AddNode(value.XamlNode);
-                return node.ParentNode.AttachVisualChild(value, error);
+                return _super.prototype.AddedToCollection.call(this, value, error);
             };
             PanelChildrenCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
-                _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);
                 var node = this.XamlNode;
                 node.ParentNode.DetachVisualChild(value, null);
                 node.RemoveNode(value.XamlNode);
+                _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);
             };
             return PanelChildrenCollection;
         })(Fayde.XamlObjectCollection);        

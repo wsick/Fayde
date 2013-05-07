@@ -209,23 +209,16 @@ var Fayde;
                     this.$Items.IsReadOnly = true;
                     this._ItemsIsDataBound = true;
                     this.$Items.ClearImpl();
-                    var arr;
+                    var enumerator;
                     if(source instanceof Array) {
-                        arr = source;
+                        enumerator = Fayde.ArrayEx.GetEnumerator(source);
+                    } else if(source instanceof Fayde.XamlObjectCollection) {
+                        enumerator = (source).GetEnumerator();
                     }
-                    var coll;
-                    if(source instanceof Fayde.XamlObjectCollection) {
-                        coll = source;
-                    }
-                    if(arr) {
-                        var count = arr.length;
-                        for(var i = 0; i < count; i++) {
-                            this.$Items.AddImpl(arr[i]);
-                        }
-                    } else if(coll) {
-                        var enumerator = coll.GetEnumerator();
+                    if(enumerator) {
+                        var items = this.$Items;
                         while(enumerator.MoveNext()) {
-                            this.$Items.AddImpl(enumerator.Current);
+                            items.AddImpl(enumerator.Current);
                         }
                     }
                     this.OnItemsChanged(Fayde.Collections.NotifyCollectionChangedEventArgs.Reset());

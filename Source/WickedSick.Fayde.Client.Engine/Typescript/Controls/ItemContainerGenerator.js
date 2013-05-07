@@ -325,7 +325,7 @@ var Fayde;
                     index = -1;
                 }
                 var alreadyRealized = realized.Contains(index);
-                if(!state.AllowStartAtRealizedItem && alreadyRealized && startOffset == 0) {
+                if(!state.AllowStartAtRealizedItem && alreadyRealized && startOffset === 0) {
                     index = index + state.Step;
                     alreadyRealized = realized.Contains(index);
                 }

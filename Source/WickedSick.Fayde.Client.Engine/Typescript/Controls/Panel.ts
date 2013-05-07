@@ -58,17 +58,17 @@ module Fayde.Controls {
         XamlNode: PanelChildrenNode;
         CreateNode(): PanelChildrenNode { return new PanelChildrenNode(this); }
         AddedToCollection(value: UIElement, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
-                return false;
             var node = this.XamlNode;
+            if (!node.ParentNode.AttachVisualChild(value, error))
+                return false;
             node.AddNode(value.XamlNode);
-            return node.ParentNode.AttachVisualChild(value, error);
+            return super.AddedToCollection(value, error);
         }
         RemovedFromCollection(value: UIElement, isValueSafe: bool) {
-            super.RemovedFromCollection(value, isValueSafe);
             var node = this.XamlNode;
             node.ParentNode.DetachVisualChild(value, null);
             node.RemoveNode(value.XamlNode);
+            super.RemovedFromCollection(value, isValueSafe);
         }
     }
     Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");

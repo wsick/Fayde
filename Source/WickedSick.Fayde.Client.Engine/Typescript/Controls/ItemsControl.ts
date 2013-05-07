@@ -160,23 +160,16 @@ module Fayde.Controls {
                 this._ItemsIsDataBound = true;
                 this.$Items.ClearImpl();
 
-                var arr: any[];
-                if (source instanceof Array) arr = source;
-                var coll: IEnumerable;
-                if (source instanceof XamlObjectCollection) coll = source;
-
-                if (arr) {
-                    var count = arr.length;
-                    for (var i = 0; i < count; i++) {
-                        this.$Items.AddImpl(arr[i]);
-                    }
-                } else if (coll) {
-                    var enumerator = coll.GetEnumerator();
+                var enumerator: IEnumerator;
+                if (source instanceof Array) enumerator = ArrayEx.GetEnumerator(<any[]>source);
+                else if (source instanceof XamlObjectCollection) enumerator = (<XamlObjectCollection>source).GetEnumerator();
+                
+                if (enumerator) {
+                    var items = this.$Items;
                     while (enumerator.MoveNext()) {
-                        this.$Items.AddImpl(enumerator.Current);
+                        items.AddImpl(enumerator.Current);
                     }
                 }
-
                 this.OnItemsChanged(Collections.NotifyCollectionChangedEventArgs.Reset());
             } else {
                 this._ItemsIsDataBound = false;

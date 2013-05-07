@@ -372,7 +372,7 @@ module Fayde.Controls {
                 index = -1;
             }
             var alreadyRealized = realized.Contains(index);
-            if (!state.AllowStartAtRealizedItem && alreadyRealized && startOffset == 0) {
+            if (!state.AllowStartAtRealizedItem && alreadyRealized && startOffset === 0) {
                 index = index + state.Step;
                 alreadyRealized = realized.Contains(index);
             }
@@ -17720,19 +17720,13 @@ module Fayde.Controls {
                 this.$Items.IsReadOnly = true;
                 this._ItemsIsDataBound = true;
                 this.$Items.ClearImpl();
-                var arr: any[];
-                if (source instanceof Array) arr = source;
-                var coll: IEnumerable;
-                if (source instanceof XamlObjectCollection) coll = source;
-                if (arr) {
-                    var count = arr.length;
-                    for (var i = 0; i < count; i++) {
-                        this.$Items.AddImpl(arr[i]);
-                    }
-                } else if (coll) {
-                    var enumerator = coll.GetEnumerator();
+                var enumerator: IEnumerator;
+                if (source instanceof Array) enumerator = ArrayEx.GetEnumerator(<any[]>source);
+                else if (source instanceof XamlObjectCollection) enumerator = (<XamlObjectCollection>source).GetEnumerator();
+                if (enumerator) {
+                    var items = this.$Items;
                     while (enumerator.MoveNext()) {
-                        this.$Items.AddImpl(enumerator.Current);
+                        items.AddImpl(enumerator.Current);
                     }
                 }
                 this.OnItemsChanged(Collections.NotifyCollectionChangedEventArgs.Reset());
@@ -18058,17 +18052,17 @@ module Fayde.Controls {
         XamlNode: PanelChildrenNode;
         CreateNode(): PanelChildrenNode { return new PanelChildrenNode(this); }
         AddedToCollection(value: UIElement, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
-                return false;
             var node = this.XamlNode;
+            if (!node.ParentNode.AttachVisualChild(value, error))
+                return false;
             node.AddNode(value.XamlNode);
-            return node.ParentNode.AttachVisualChild(value, error);
+            return super.AddedToCollection(value, error);
         }
         RemovedFromCollection(value: UIElement, isValueSafe: bool) {
-            super.RemovedFromCollection(value, isValueSafe);
             var node = this.XamlNode;
             node.ParentNode.DetachVisualChild(value, null);
             node.RemoveNode(value.XamlNode);
+            super.RemovedFromCollection(value, isValueSafe);
         }
     }
     Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");
