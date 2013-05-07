@@ -10977,6 +10977,7 @@ module Fayde {
         static Annotations = { ContentProperty: "Setters" }
         constructor() {
             super();
+            (<IShareableHidden>this.XamlNode).IsShareable = true;
             var coll = new SetterCollection();
             coll.XamlNode.AttachTo(this.XamlNode, undefined);
             Object.defineProperty(this, "Setters", {
@@ -18264,7 +18265,7 @@ module Fayde.Controls {
 
 module Fayde.Controls {
     export class StackPanel extends Panel implements IMeasurableHidden, IArrangeableHidden {
-        static OrientationProperty: DependencyProperty = DependencyProperty.Register("Orientation", () => Orientation, StackPanel, Orientation.Vertical, (d, args) => (<StackPanel>d)._OrientationChanged(args));
+        static OrientationProperty: DependencyProperty = DependencyProperty.Register("Orientation", () => new Enum(Orientation), StackPanel, Orientation.Vertical, (d, args) => (<StackPanel>d)._OrientationChanged(args));
         Orientation: Orientation;
         private _OrientationChanged(args: IDependencyPropertyChangedEventArgs) {
             var lu = this.XamlNode.LayoutUpdater;
