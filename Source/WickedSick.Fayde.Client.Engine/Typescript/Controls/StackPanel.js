@@ -15,7 +15,7 @@ var Fayde;
 
             }
             StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () {
-                return Fayde.Orientation;
+                return new Enum(Fayde.Orientation);
             }, StackPanel, Fayde.Orientation.Vertical, function (d, args) {
                 return (d)._OrientationChanged(args);
             });

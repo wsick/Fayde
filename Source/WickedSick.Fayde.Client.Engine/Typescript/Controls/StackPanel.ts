@@ -3,7 +3,7 @@
 
 module Fayde.Controls {
     export class StackPanel extends Panel implements IMeasurableHidden, IArrangeableHidden {
-        static OrientationProperty: DependencyProperty = DependencyProperty.Register("Orientation", () => Orientation, StackPanel, Orientation.Vertical, (d, args) => (<StackPanel>d)._OrientationChanged(args));
+        static OrientationProperty: DependencyProperty = DependencyProperty.Register("Orientation", () => new Enum(Orientation), StackPanel, Orientation.Vertical, (d, args) => (<StackPanel>d)._OrientationChanged(args));
         Orientation: Orientation;
 
         private _OrientationChanged(args: IDependencyPropertyChangedEventArgs) {
