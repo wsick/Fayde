@@ -16,6 +16,7 @@
 /// <reference path="RoutedEvent.ts"/>
 /// <reference path="../Engine/Interfaces.ts"/>
 /// <reference path="../Media/GeneralTransform.ts"/>
+/// <reference path="Triggers.ts"/>
 
 module Fayde {
     export class UINode extends DONode {
@@ -343,18 +344,18 @@ module Fayde {
 
         static AllowDropProperty: DependencyProperty;
         static CacheModeProperty: DependencyProperty;
-        static ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Media.Geometry; }, UIElement, undefined, (d, args) => (<UIElement>d)._ClipChanged(args));
-        static EffectProperty = DependencyProperty.Register("Effect", function () { return Media.Effects.Effect; }, UIElement, undefined, (d, args) => (<UIElement>d)._EffectChanged(args));
-        static IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true, (d, args) => (<UIElement>d)._IsHitTestVisibleChanged(args));
-        static OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Media.Brush; }, UIElement);
-        static OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0, (d, args) => (<UIElement>d).XamlNode.InvalidateOpacity());
-        static ProjectionProperty = DependencyProperty.Register("Projection", function () { return Media.Projection; }, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateProjection());
-        static RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () { return Media.Transform; }, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
-        static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () { return Point; }, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
-        static TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
-        //static TriggersProperty: DependencyProperty;
-        static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, UIElement, true, (d, args) => (<UIElement>d)._UseLayoutRoundingChanged(args), undefined, Providers._Inheritable.UseLayoutRounding);
-        static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible, (d, args) => (<UIElement>d).XamlNode.InvalidateVisibility(args.NewValue));
+        static ClipProperty = DependencyProperty.RegisterCore("Clip", () => Media.Geometry, UIElement, undefined, (d, args) => (<UIElement>d)._ClipChanged(args));
+        static EffectProperty = DependencyProperty.Register("Effect", () => Media.Effects.Effect, UIElement, undefined, (d, args) => (<UIElement>d)._EffectChanged(args));
+        static IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", () => Boolean, UIElement, true, (d, args) => (<UIElement>d)._IsHitTestVisibleChanged(args));
+        static OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", () => Media.Brush, UIElement);
+        static OpacityProperty = DependencyProperty.RegisterCore("Opacity", () => Number, UIElement, 1.0, (d, args) => (<UIElement>d).XamlNode.InvalidateOpacity());
+        static ProjectionProperty = DependencyProperty.Register("Projection", () => Media.Projection, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateProjection());
+        static RenderTransformProperty = DependencyProperty.Register("RenderTransform", () => Media.Transform, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
+        static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", () => Point, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
+        static TagProperty = DependencyProperty.Register("Tag", () => Object, UIElement);
+        static TriggersProperty: DependencyProperty = DependencyProperty.RegisterCore("Triggers", () => TriggerCollection, UIElement, undefined, (d, args) => (<UIElement>d)._TriggersChanged(args));
+        static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", () => Boolean, UIElement, true, (d, args) => (<UIElement>d)._UseLayoutRoundingChanged(args), undefined, Providers._Inheritable.UseLayoutRounding);
+        static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", () => new Enum(Visibility), UIElement, Visibility.Visible, (d, args) => (<UIElement>d).XamlNode.InvalidateVisibility(args.NewValue));
 
         private _IsMouseOver: bool = false;
         get IsMouseOver() { return this._IsMouseOver; }
@@ -374,7 +375,7 @@ module Fayde {
         RenderTransform: Media.Transform;
         RenderTransformOrigin: Point;
         Tag: any;
-        //Triggers;
+        Triggers: TriggerCollection;
         UseLayoutRounding: bool;
         Visibility: Visibility;
         
@@ -465,6 +466,14 @@ module Fayde {
                 lu.Flags &= ~UIElementFlags.HitTestVisible;
             }
             lu.UpdateTotalHitTestVisibility();
+        }
+        private _TriggersChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldTriggers = <TriggerCollection>args.OldValue;
+            var newTriggers = <TriggerCollection>args.NewValue;
+            if (oldTriggers instanceof TriggerCollection)
+                oldTriggers.DetachTarget(this);
+            if (newTriggers instanceof TriggerCollection)
+                newTriggers.AttachTarget(this);
         }
     }
     Nullstone.RegisterType(UIElement, "UIElement");

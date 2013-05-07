@@ -21,6 +21,7 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path="RoutedEvent.ts"/>
 /// <reference path="../Engine/Interfaces.ts"/>
 /// <reference path="../Media/GeneralTransform.ts"/>
+/// <reference path="Triggers.ts"/>
 var Fayde;
 (function (Fayde) {
     var UINode = (function (_super) {
@@ -403,6 +404,11 @@ var Fayde;
         UIElement.TagProperty = DependencyProperty.Register("Tag", function () {
             return Object;
         }, UIElement);
+        UIElement.TriggersProperty = DependencyProperty.RegisterCore("Triggers", function () {
+            return Fayde.TriggerCollection;
+        }, UIElement, undefined, function (d, args) {
+            return (d)._TriggersChanged(args);
+        });
         UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () {
             return Boolean;
         }, UIElement, true, function (d, args) {
@@ -540,6 +546,16 @@ var Fayde;
                 lu.Flags &= ~Fayde.UIElementFlags.HitTestVisible;
             }
             lu.UpdateTotalHitTestVisibility();
+        };
+        UIElement.prototype._TriggersChanged = function (args) {
+            var oldTriggers = args.OldValue;
+            var newTriggers = args.NewValue;
+            if(oldTriggers instanceof Fayde.TriggerCollection) {
+                oldTriggers.DetachTarget(this);
+            }
+            if(newTriggers instanceof Fayde.TriggerCollection) {
+                newTriggers.AttachTarget(this);
+            }
         };
         return UIElement;
     })(Fayde.DependencyObject);

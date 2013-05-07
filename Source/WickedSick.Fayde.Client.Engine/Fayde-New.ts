@@ -6698,7 +6698,7 @@ module Fayde.Providers {
                 return;
             var i;
             var cur: Media.Animation.AnimationStorage;
-            for (i = len - 1; i >= 0; i++) {
+            for (i = len - 1; i >= 0; i--) {
                 cur = list[i];
                 if (cur === storage)
                     break;
@@ -8997,7 +8997,9 @@ module Fayde {
             }
             if (WARN_ON_SET_READ_ONLY) {
                 var descriptor = Nullstone.GetPropertyDescriptor(xobj, propName);
-                if (!descriptor.writable && !descriptor.set )
+                if (!descriptor)
+                    Warn("Parser is setting a property that has not been defined yet: " + propName);
+                else if (!descriptor.writable && !descriptor.set )
                     Warn("Parser is trying to set a read-only property: " + propName);
             }
             xobj[propName] = propValue;
@@ -11246,7 +11248,7 @@ module Fayde {
             }
         }
     }
-    Nullstone.RegisterType(XamlObjectCollection, "XamlObjectCollection");
+    Nullstone.RegisterType(XamlObjectCollection, "XamlObjectCollection", [IEnumerable_]);
 }
 
 module Fayde.Providers {
@@ -14200,17 +14202,91 @@ module Fayde {
     }
     Nullstone.RegisterType(TriggerActionCollection, "TriggerActionCollection");
     export class TriggerBase extends DependencyObject {
+        Attach(target: XamlObject) { }
+        Detach(target: XamlObject) { }
     }
     Nullstone.RegisterType(TriggerBase, "TriggerBase");
-    export class TriggerCollection extends XamlObjectCollection {
-    }
-    Nullstone.RegisterType(TriggerCollection, "TriggerCollection");
     export class EventTrigger extends TriggerBase {
         static ActionsProperty: DependencyProperty = DependencyProperty.Register("Actions", () => TriggerActionCollection, EventTrigger);
-        static RoutedEventProperty: DependencyProperty = DependencyProperty.Register("RoutedEvent", () => MulticastEvent, EventTrigger);
+        static RoutedEventProperty: DependencyProperty = DependencyProperty.Register("RoutedEvent", () => String, EventTrigger);
+        Actions: TriggerActionCollection;
+        RoutedEvent: string;
+        private _IsAttached: bool = false;
         static Annotations = { ContentProperty: EventTrigger.ActionsProperty }
+        Attach(target: XamlObject) {
+            if (this._IsAttached)
+                return;
+            var evt = this._ParseEventName(target);
+            if (evt) {
+                this._IsAttached = true;
+                evt.Subscribe(this._FireActions, this);
+                return;
+            }
+            Warn("Could not attach to RoutedEvent: " + this.RoutedEvent);
+        }
+        Detach(target: XamlObject) {
+            var evt = this._ParseEventName(target);
+            if (evt) evt.Unsubscribe(this._FireActions, this);
+            this._IsAttached = false;
+        }
+        private _FireActions(sender, e: RoutedEventArgs) {
+            var actions = this.Actions;
+            if (!actions)
+                return;
+            var enumerator = actions.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                (<TriggerAction>enumerator.Current)
+            }
+        }
+        private _ParseEventName(target: XamlObject): RoutedEvent {
+            var routedEventName = this.RoutedEvent;
+            var tokens = routedEventName.split(".");
+            if (tokens.length === 1)
+                routedEventName = tokens[0];
+            else if (tokens.length === 2)
+                routedEventName = tokens[1];
+            else
+                return undefined;
+            var evt: RoutedEvent = target[routedEventName];
+            if (evt instanceof RoutedEvent)
+                return evt;
+            return undefined;
+        }
     }
     Nullstone.RegisterType(EventTrigger, "EventTrigger");
+    export class TriggerCollection extends XamlObjectCollection {
+        private get ParentXamlObject():XamlObject {
+            var parentNode = this.XamlNode.ParentNode;
+            if (!parentNode)
+                return undefined;
+            return parentNode.XObject;
+        }
+        AddedToCollection(value: TriggerBase, error: BError): bool {
+            if (!super.AddedToCollection(value, error))
+                return false;
+            var parent = this.ParentXamlObject;
+            if (parent) value.Attach(parent);
+            return true;
+        }
+        RemovedFromCollection(value: TriggerBase, isValueSafe: bool) {
+            super.RemovedFromCollection(value, isValueSafe);
+            var parent = this.ParentXamlObject;
+            if (parent) value.Detach(parent);
+        }
+        AttachTarget(target: XamlObject) {
+            var enumerator = this.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                (<TriggerBase>enumerator.Current).Attach(target);
+            }
+        }
+        DetachTarget(target: XamlObject) {
+            var enumerator = this.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                (<TriggerBase>enumerator.Current).Detach(target);
+            }
+        }
+    }
+    Nullstone.RegisterType(TriggerCollection, "TriggerCollection");
 }
 
 module Fayde {
@@ -14508,17 +14584,18 @@ module Fayde {
         CreateNode(): UINode { return new UINode(this); }
         static AllowDropProperty: DependencyProperty;
         static CacheModeProperty: DependencyProperty;
-        static ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Media.Geometry; }, UIElement, undefined, (d, args) => (<UIElement>d)._ClipChanged(args));
-        static EffectProperty = DependencyProperty.Register("Effect", function () { return Media.Effects.Effect; }, UIElement, undefined, (d, args) => (<UIElement>d)._EffectChanged(args));
-        static IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true, (d, args) => (<UIElement>d)._IsHitTestVisibleChanged(args));
-        static OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Media.Brush; }, UIElement);
-        static OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0, (d, args) => (<UIElement>d).XamlNode.InvalidateOpacity());
-        static ProjectionProperty = DependencyProperty.Register("Projection", function () { return Media.Projection; }, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateProjection());
-        static RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () { return Media.Transform; }, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
-        static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () { return Point; }, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
-        static TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
-        static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, UIElement, true, (d, args) => (<UIElement>d)._UseLayoutRoundingChanged(args), undefined, Providers._Inheritable.UseLayoutRounding);
-        static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible, (d, args) => (<UIElement>d).XamlNode.InvalidateVisibility(args.NewValue));
+        static ClipProperty = DependencyProperty.RegisterCore("Clip", () => Media.Geometry, UIElement, undefined, (d, args) => (<UIElement>d)._ClipChanged(args));
+        static EffectProperty = DependencyProperty.Register("Effect", () => Media.Effects.Effect, UIElement, undefined, (d, args) => (<UIElement>d)._EffectChanged(args));
+        static IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", () => Boolean, UIElement, true, (d, args) => (<UIElement>d)._IsHitTestVisibleChanged(args));
+        static OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", () => Media.Brush, UIElement);
+        static OpacityProperty = DependencyProperty.RegisterCore("Opacity", () => Number, UIElement, 1.0, (d, args) => (<UIElement>d).XamlNode.InvalidateOpacity());
+        static ProjectionProperty = DependencyProperty.Register("Projection", () => Media.Projection, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateProjection());
+        static RenderTransformProperty = DependencyProperty.Register("RenderTransform", () => Media.Transform, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
+        static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", () => Point, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
+        static TagProperty = DependencyProperty.Register("Tag", () => Object, UIElement);
+        static TriggersProperty: DependencyProperty = DependencyProperty.RegisterCore("Triggers", () => TriggerCollection, UIElement, undefined, (d, args) => (<UIElement>d)._TriggersChanged(args));
+        static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", () => Boolean, UIElement, true, (d, args) => (<UIElement>d)._UseLayoutRoundingChanged(args), undefined, Providers._Inheritable.UseLayoutRounding);
+        static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", () => new Enum(Visibility), UIElement, Visibility.Visible, (d, args) => (<UIElement>d).XamlNode.InvalidateVisibility(args.NewValue));
         private _IsMouseOver: bool = false;
         get IsMouseOver() { return this._IsMouseOver; }
         get DesiredSize(): size { return this.XamlNode.LayoutUpdater.DesiredSize; }
@@ -14533,6 +14610,7 @@ module Fayde {
         RenderTransform: Media.Transform;
         RenderTransformOrigin: Point;
         Tag: any;
+        Triggers: TriggerCollection;
         UseLayoutRounding: bool;
         Visibility: Visibility;
         Focus(): bool { return this.XamlNode.Focus(); }
@@ -14617,6 +14695,14 @@ module Fayde {
                 lu.Flags &= ~UIElementFlags.HitTestVisible;
             }
             lu.UpdateTotalHitTestVisibility();
+        }
+        private _TriggersChanged(args: IDependencyPropertyChangedEventArgs) {
+            var oldTriggers = <TriggerCollection>args.OldValue;
+            var newTriggers = <TriggerCollection>args.NewValue;
+            if (oldTriggers instanceof TriggerCollection)
+                oldTriggers.DetachTarget(this);
+            if (newTriggers instanceof TriggerCollection)
+                newTriggers.AttachTarget(this);
         }
     }
     Nullstone.RegisterType(UIElement, "UIElement");
@@ -15891,6 +15977,7 @@ module Fayde {
             var store = xobj._Store;
             if (!newIsLoaded) {
                 store.ClearImplicitStyles(Providers._StyleMask.VisualTree);
+                xobj.Unloaded.Raise(xobj, EventArgs.Empty);
             } else {
                 store.SetImplicitStyles(Providers._StyleMask.All);
             }
@@ -15899,6 +15986,7 @@ module Fayde {
                 (<UINode>enumerator.Current).SetIsLoaded(newIsLoaded);
             }
             if (newIsLoaded) {
+                xobj.Loaded.Raise(xobj, EventArgs.Empty);
                 this.InvokeLoaded();
                 store.EmitDataContextChanged();
             }
@@ -16946,7 +17034,7 @@ module Fayde.Controls {
         private _ContentRoot: UIElement;
         get ContentRoot(): UIElement { return this._ContentRoot; }
         XObject: ContentPresenter;
-        constructor(xobj:ContentPresenter) {
+        constructor(xobj: ContentPresenter) {
             super(xobj);
         }
         DoApplyTemplateWithError(error: BError): bool {
@@ -18114,39 +18202,6 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
-    function validateInputOffset(offset: number) {
-        if (!isNaN(offset))
-            return Math.max(0, offset);
-        throw new ArgumentException("Offset is not a number.");
-    }
-    function areNumbersClose(val1: number, val2: number): bool {
-        if (val1 === val2)
-            return true;
-        var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516E-16;
-        var num2 = val1 - val2;
-        return -num1 < num2 && num1 > num2;
-    }
-    function isNumberLessThan(val1: number, val2: number): bool {
-        if (val1 >= val2)
-            return false;
-        return !areNumbersClose(val1, val2);
-    }
-    function isNumberGreaterThan(val1: number, val2: number): bool {
-        if (val1 <= val2)
-            return false;
-        return !areNumbersClose(val1, val2);
-    }
-    function computeScrollOffsetWithMinimalScroll(topView, bottomView, topChild, bottomChild) {
-        var flag = isNumberLessThan(topChild, topView) && isNumberLessThan(bottomChild, bottomView);
-        var flag1 = isNumberGreaterThan(topChild, topView) && isNumberGreaterThan(bottomChild, bottomView);
-        var flag4 = (bottomChild - topChild) > (bottomView - topView);
-        if ((!flag || flag4) && (!flag1 || !flag4)) {
-            if (flag || flag1)
-                return bottomChild - bottomView - topView;
-            return topView;
-        }
-        return topChild;
-    }
     export class ScrollContentPresenter extends ContentPresenter implements Primitives.IScrollInfo, IMeasurableHidden, IArrangeableHidden {
         private _ScrollData: Primitives.ScrollData = new Primitives.ScrollData();
         private _IsClipPropertySet: bool = false;
@@ -18262,7 +18317,7 @@ module Fayde.Controls {
             var scrollOwner = this.ScrollOwner;
             var cr = this.XamlNode.ContentRoot;
             if (!scrollOwner || !cr)
-                return (<IMeasurableHidden>super)._MeasureOverride(availableSize, error);
+                return (<IMeasurableHidden>super)._MeasureOverride.call(this, availableSize, error);
             var ideal = size.createInfinite();
             if (!this.CanHorizontallyScroll)
                 ideal.Width = availableSize.Width;
@@ -18381,6 +18436,39 @@ module Fayde.Controls {
         }
     }
     Nullstone.RegisterType(ScrollContentPresenter, "ScrollContentPresenter", [Primitives.IScrollInfo_]);
+    function validateInputOffset(offset: number) {
+        if (!isNaN(offset))
+            return Math.max(0, offset);
+        throw new ArgumentException("Offset is not a number.");
+    }
+    function areNumbersClose(val1: number, val2: number): bool {
+        if (val1 === val2)
+            return true;
+        var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516E-16;
+        var num2 = val1 - val2;
+        return -num1 < num2 && num1 > num2;
+    }
+    function isNumberLessThan(val1: number, val2: number): bool {
+        if (val1 >= val2)
+            return false;
+        return !areNumbersClose(val1, val2);
+    }
+    function isNumberGreaterThan(val1: number, val2: number): bool {
+        if (val1 <= val2)
+            return false;
+        return !areNumbersClose(val1, val2);
+    }
+    function computeScrollOffsetWithMinimalScroll(topView, bottomView, topChild, bottomChild) {
+        var flag = isNumberLessThan(topChild, topView) && isNumberLessThan(bottomChild, bottomView);
+        var flag1 = isNumberGreaterThan(topChild, topView) && isNumberGreaterThan(bottomChild, bottomView);
+        var flag4 = (bottomChild - topChild) > (bottomView - topView);
+        if ((!flag || flag4) && (!flag1 || !flag4)) {
+            if (flag || flag1)
+                return bottomChild - bottomView - topView;
+            return topView;
+        }
+        return topChild;
+    }
 }
 
 module Fayde.Controls {
@@ -19152,34 +19240,49 @@ module Fayde.Controls {
         private _MeasureOverride(availableSize: size, error: BError): size {
             var desired: size;
             availableSize = size.clone(availableSize);
-            var border = this.Padding.Plus(this.BorderThickness);
-            size.shrinkByThickness(availableSize, border);
+            var padding = this.Padding;
+            var borderThickness = this.BorderThickness;
+            var border: Thickness = null;
+            if (!padding)
+                border = borderThickness;
+            else if (!borderThickness)
+                border = padding;
+            else
+                border = padding.Plus(borderThickness);
+            if (border) size.shrinkByThickness(availableSize, border);
             var enumerator = this.XamlNode.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {
                 var childLu = (<UINode>enumerator.Current).LayoutUpdater;
                 childLu._Measure(availableSize, error);
                 desired = size.clone(childLu.DesiredSize);
             }
-            if (!desired)
-                desired = new size();
-            size.growByThickness(desired, border);
+            if (!desired) desired = new size();
+            if (border) size.growByThickness(desired, border);
             return desired;
         }
         private _ArrangeOverride(finalSize: size, error: BError): size {
-            var border = this.Padding.Plus(this.BorderThickness);
-            var arranged;
+            var padding = this.Padding;
+            var borderThickness = this.BorderThickness;
+            var border: Thickness = null;
+            if (!padding)
+                border = borderThickness;
+            else if (!borderThickness)
+                border = padding;
+            else
+                border = padding.Plus(borderThickness);
+            var arranged: size = null;
             var enumerator = this.XamlNode.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {
                 var childLu = (<UINode>enumerator.Current).LayoutUpdater;
                 var childRect = rect.fromSize(finalSize);
-                rect.shrinkByThickness(childRect, border);
+                if (border) rect.shrinkByThickness(childRect, border);
                 childLu._Arrange(childRect, error);
                 arranged = size.fromRect(childRect);
-                size.growByThickness(arranged, border);
+                if (border) size.growByThickness(arranged, border);
             }
-            if (!arranged)
-                return finalSize;
-            return arranged;
+            if (arranged)
+                return arranged;
+            return finalSize;
         }
     }
     Nullstone.RegisterType(UserControl, "UserControl");

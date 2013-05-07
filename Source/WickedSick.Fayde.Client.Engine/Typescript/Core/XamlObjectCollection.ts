@@ -117,5 +117,5 @@ module Fayde {
             }
         }
     }
-    Nullstone.RegisterType(XamlObjectCollection, "XamlObjectCollection");
+    Nullstone.RegisterType(XamlObjectCollection, "XamlObjectCollection", [IEnumerable_]);
 }

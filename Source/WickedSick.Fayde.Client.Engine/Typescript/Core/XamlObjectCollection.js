@@ -143,6 +143,8 @@ var Fayde;
         return XamlObjectCollection;
     })(Fayde.XamlObject);
     Fayde.XamlObjectCollection = XamlObjectCollection;    
-    Nullstone.RegisterType(XamlObjectCollection, "XamlObjectCollection");
+    Nullstone.RegisterType(XamlObjectCollection, "XamlObjectCollection", [
+        Fayde.IEnumerable_
+    ]);
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=XamlObjectCollection.js.map
