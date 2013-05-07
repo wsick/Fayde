@@ -107,4 +107,9 @@ var Nullstone = (function () {
     };
     return Nullstone;
 })();
+function Warn(str) {
+    if(window.console && console.warn) {
+        console.warn(str);
+    }
+}
 //@ sourceMappingURL=Nullstone.js.map

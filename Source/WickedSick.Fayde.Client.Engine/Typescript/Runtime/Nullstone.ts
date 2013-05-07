@@ -96,3 +96,8 @@ class Nullstone {
         head.appendChild(script);
     }
 }
+
+function Warn(str: string) {
+    if (window.console && console.warn)
+        console.warn(str);
+}

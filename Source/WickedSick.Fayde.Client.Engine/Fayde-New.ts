@@ -3085,6 +3085,10 @@ class Nullstone {
         head.appendChild(script);
     }
 }
+function Warn(str: string) {
+    if (window.console && console.warn)
+        console.warn(str);
+}
 
 interface IPropertyInfo {
 }
@@ -8100,7 +8104,6 @@ module Fayde {
     Nullstone.RegisterType(RenderContext, "RenderContext");
 }
 
-declare var Warn;
 var resizeTimeout: number;
 interface IFocusChangedEvents {
     GotFocus: Fayde.UINode[];
@@ -8840,7 +8843,7 @@ module Fayde {
         Prop: string;
         Value: any;
     }
-    var WARN_ON_SET_READ_ONLY: bool = false;
+    var WARN_ON_SET_READ_ONLY: bool = true;
     export class JsonParser {
         private _ResChain: Fayde.ResourceDictionary[] = [];
         private _RootXamlObject: XamlObject = null;
@@ -8980,21 +8983,24 @@ module Fayde {
                 this.SetResourceDictionary(xobj[propName], propValue.Children, namescope);
                 return;
             }
-            if (propValue.ParseType) 
+            if (propValue.ParseType)
                 propValue = this.CreateObject(propValue, namescope, true);
-            if (propd) {
-                if (!this.TrySetCollectionProperty(propValue, xobj, propd, undefined, namescope))
-                    this.SetValue(xobj, propd, propName, propValue);
-            } else if (isAttached) {
+            if (!propd && isAttached) {
                 Warn("Could not find attached property: " + (<any>ownerType)._TypeName + "." + propName);
-            } else {
-                if (WARN_ON_SET_READ_ONLY) {
-                    var descriptor = Nullstone.GetPropertyDescriptor(xobj, propName);
-                    if (!descriptor.writable && !descriptor.set)
-                        Warn("Parser is trying to set a read-only property.");
-                }
-                xobj[propName] = propValue;
+                return;
             }
+            if (this.TrySetCollectionProperty(propValue, xobj, propd, propName, namescope))
+                return;
+            if (propd) {
+                this.SetValue(xobj, propd, propName, propValue);
+                return;
+            }
+            if (WARN_ON_SET_READ_ONLY) {
+                var descriptor = Nullstone.GetPropertyDescriptor(xobj, propName);
+                if (!descriptor.writable && !descriptor.set )
+                    Warn("Parser is trying to set a read-only property: " + propName);
+            }
+            xobj[propName] = propValue;
         }
         TrySetCollectionProperty(subJson: any[], xobj: XamlObject, propd: DependencyProperty, propertyName: string, namescope: NameScope) {
             if (!subJson)

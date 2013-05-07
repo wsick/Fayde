@@ -10,8 +10,6 @@
 /// <reference path="../Input/MouseEventArgs.ts" />
 /// <reference path="../Primitives/Font.ts" />
 
-declare var Warn;
-
 var resizeTimeout: number;
 
 interface IFocusChangedEvents {
