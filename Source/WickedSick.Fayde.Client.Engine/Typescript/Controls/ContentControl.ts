@@ -32,8 +32,8 @@ module Fayde.Controls {
         CreateNode(): ContentControlNode { return new ContentControlNode(this); }
 
         _ContentSetsParent: bool = true;
-        static ContentProperty: DependencyProperty = DependencyProperty.RegisterCore("Content", () => Object, ContentControl, undefined, (d, args) => (<ContentControl>d)._ContentChanged(args));
-        static ContentTemplateProperty = DependencyProperty.RegisterCore("ContentTemplate", () => DataTemplate, ContentControl, undefined, (d, args) => (<ContentControl>d)._ContentTemplateChanged(args));
+        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentControl, undefined, (d, args) => (<ContentControl>d)._ContentChanged(args));
+        static ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentControl, undefined, (d, args) => (<ContentControl>d)._ContentTemplateChanged(args));
         Content: any;
         ContentTemplate: DataTemplate;
 

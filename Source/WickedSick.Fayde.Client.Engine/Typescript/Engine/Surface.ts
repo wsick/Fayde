@@ -337,7 +337,7 @@ class Surface {
     }
 
     // DIRTY
-    _AddDirtyElement(lu: Fayde.LayoutUpdater, dirt) {
+    _AddDirtyElement(lu: Fayde.LayoutUpdater, dirt: _Dirty) {
         if (lu.Node.VisualParentNode == null && !lu.Node.IsTopLevel)
             return;
 

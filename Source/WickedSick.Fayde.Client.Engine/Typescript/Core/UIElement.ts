@@ -26,7 +26,7 @@ module Fayde {
 
         SetSurfaceFromVisualParent(): UINode {
             if (this._Surface)
-                return;
+                return this.VisualParentNode;
             var vpNode = this.VisualParentNode;
             if (vpNode)
                 this.SetSurface(vpNode._Surface);

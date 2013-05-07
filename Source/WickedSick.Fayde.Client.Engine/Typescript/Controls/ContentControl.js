@@ -41,12 +41,12 @@ var Fayde;
             ContentControl.prototype.CreateNode = function () {
                 return new ContentControlNode(this);
             };
-            ContentControl.ContentProperty = DependencyProperty.RegisterCore("Content", function () {
+            ContentControl.ContentProperty = DependencyProperty.Register("Content", function () {
                 return Object;
             }, ContentControl, undefined, function (d, args) {
                 return (d)._ContentChanged(args);
             });
-            ContentControl.ContentTemplateProperty = DependencyProperty.RegisterCore("ContentTemplate", function () {
+            ContentControl.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () {
                 return Fayde.DataTemplate;
             }, ContentControl, undefined, function (d, args) {
                 return (d)._ContentTemplateChanged(args);

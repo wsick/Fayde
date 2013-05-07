@@ -34,7 +34,7 @@ var Fayde;
         }
         UINode.prototype.SetSurfaceFromVisualParent = function () {
             if(this._Surface) {
-                return;
+                return this.VisualParentNode;
             }
             var vpNode = this.VisualParentNode;
             if(vpNode) {
