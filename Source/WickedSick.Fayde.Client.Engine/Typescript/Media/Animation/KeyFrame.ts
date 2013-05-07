@@ -57,13 +57,12 @@ module Fayde.Media.Animation {
         }
 
         /// http://msdn2.microsoft.com/en-us/library/ms742524.aspx (Bottom of page)
-        static ResolveKeyFrames(animation: AnimationBase): KeyFrame[] {
+        static ResolveKeyFrames(animation: AnimationBase, arr:KeyFrame[]): KeyFrame[] {
             var totalInterpolationTime: TimeSpan;
             var hasTimeSpanKeyFrame = false;
             var highestKeyTimeTimeSpan = new TimeSpan();
             var keyFrame: KeyFrame;
 
-            var arr: KeyFrame[] = (this)._ht;
             var len = arr.length;
 
             var i: number;
@@ -148,6 +147,7 @@ module Fayde.Media.Animation {
 
     export class KeyFrameCollection extends XamlObjectCollection {
         private _Resolved: bool = false;
+        private _ht: KeyFrame[];//Defined in XamlObjectCollection
         private _SortedList: KeyFrame[] = [];
 
         GetKeyFrameForTime(t: TimeSpan, prevFrameRef: IOutValue): KeyFrame {
@@ -218,8 +218,8 @@ module Fayde.Media.Animation {
 
         static ResolveKeyFrames(animation: AnimationBase, coll: KeyFrameCollection): KeyFrame[] {
             if (coll._Resolved)
-                return;
-            coll._SortedList = KeyFrame.ResolveKeyFrames(animation).slice(0);
+                return coll._SortedList;
+            coll._SortedList = KeyFrame.ResolveKeyFrames(animation, coll._ht).slice(0);
             coll._SortedList.sort(KeyFrame.Comparer);
             coll._Resolved = true;
             return coll._SortedList;

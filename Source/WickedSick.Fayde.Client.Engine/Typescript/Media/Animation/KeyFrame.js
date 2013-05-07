@@ -61,12 +61,11 @@ var Fayde;
                     return ts1.CompareTo(ts2);
                 };
                 KeyFrame.ResolveKeyFrames = /// http://msdn2.microsoft.com/en-us/library/ms742524.aspx (Bottom of page)
-                function ResolveKeyFrames(animation) {
+                function ResolveKeyFrames(animation, arr) {
                     var totalInterpolationTime;
                     var hasTimeSpanKeyFrame = false;
                     var highestKeyTimeTimeSpan = new TimeSpan();
                     var keyFrame;
-                    var arr = (this)._ht;
                     var len = arr.length;
                     var i;
                     for(i = 0; i < len; i++) {
@@ -147,6 +146,7 @@ var Fayde;
                     _super.apply(this, arguments);
 
                     this._Resolved = false;
+                    //Defined in XamlObjectCollection
                     this._SortedList = [];
                 }
                 KeyFrameCollection.prototype.GetKeyFrameForTime = function (t, prevFrameRef) {
@@ -211,9 +211,9 @@ var Fayde;
                 };
                 KeyFrameCollection.ResolveKeyFrames = function ResolveKeyFrames(animation, coll) {
                     if(coll._Resolved) {
-                        return;
+                        return coll._SortedList;
                     }
-                    coll._SortedList = KeyFrame.ResolveKeyFrames(animation).slice(0);
+                    coll._SortedList = KeyFrame.ResolveKeyFrames(animation, coll._ht).slice(0);
                     coll._SortedList.sort(KeyFrame.Comparer);
                     coll._Resolved = true;
                     return coll._SortedList;
