@@ -247,7 +247,7 @@ var Fayde;
                 var scrollOwner = this.ScrollOwner;
                 var cr = this.XamlNode.ContentRoot;
                 if(!scrollOwner || !cr) {
-                    return (_super.prototype)._ArrangeOverride(finalSize, error);
+                    return (_super.prototype)._ArrangeOverride.call(this, finalSize, error);
                 }
                 if(this._ClampOffsets()) {
                     scrollOwner.InvalidateScrollInfo();

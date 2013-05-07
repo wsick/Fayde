@@ -18336,7 +18336,7 @@ module Fayde.Controls {
             var scrollOwner = this.ScrollOwner;
             var cr = this.XamlNode.ContentRoot;
             if (!scrollOwner || !cr)
-                return (<IArrangeableHidden>super)._ArrangeOverride(finalSize, error);
+                return (<IArrangeableHidden>super)._ArrangeOverride.call(this, finalSize, error);
             if (this._ClampOffsets())
                 scrollOwner.InvalidateScrollInfo();
             var desired = cr.DesiredSize;
