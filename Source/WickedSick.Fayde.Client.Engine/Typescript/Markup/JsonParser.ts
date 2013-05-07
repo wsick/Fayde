@@ -209,7 +209,9 @@ module Fayde {
 
             if (WARN_ON_SET_READ_ONLY) {
                 var descriptor = Nullstone.GetPropertyDescriptor(xobj, propName);
-                if (!descriptor.writable && !descriptor.set )
+                if (!descriptor)
+                    Warn("Parser is setting a property that has not been defined yet: " + propName);
+                else if (!descriptor.writable && !descriptor.set )
                     Warn("Parser is trying to set a read-only property: " + propName);
             }
             xobj[propName] = propValue;
