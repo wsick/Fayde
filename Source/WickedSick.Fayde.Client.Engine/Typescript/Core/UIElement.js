@@ -460,8 +460,18 @@ var Fayde;
             return this.XamlNode.TransformToVisual(uin);
         };
         UIElement.prototype.Measure = function (availableSize) {
+            var error = new BError();
+            this.XamlNode.LayoutUpdater._Measure(availableSize, error);
+            if(error.Message) {
+                error.ThrowException();
+            }
         };
         UIElement.prototype.Arrange = function (finalRect) {
+            var error = new BError();
+            this.XamlNode.LayoutUpdater._Arrange(finalRect, error);
+            if(error.Message) {
+                error.ThrowException();
+            }
         };
         UIElement.prototype.OnGotFocus = function (e) {
         };

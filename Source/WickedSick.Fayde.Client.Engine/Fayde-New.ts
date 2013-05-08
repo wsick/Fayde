@@ -14734,8 +14734,16 @@ module Fayde {
             return this.XamlNode.TransformToVisual(uin);
         }
         Measure(availableSize: size) {
+            var error = new BError();
+            this.XamlNode.LayoutUpdater._Measure(availableSize, error);
+            if (error.Message)
+                error.ThrowException();
         }
         Arrange(finalRect: rect) {
+            var error = new BError();
+            this.XamlNode.LayoutUpdater._Arrange(finalRect, error);
+            if (error.Message)
+                error.ThrowException();
         }
         LostFocus: RoutedEvent = new RoutedEvent();
         GotFocus: RoutedEvent = new RoutedEvent();
