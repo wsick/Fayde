@@ -3950,7 +3950,7 @@ module Fayde.Text {
             this._Offset = offset;
         }
         GetCursorFromX(offset: Point, x: number): number {
-            var run = null;
+            var run: TextLayoutRun = null;
             var layout = this._Layout;
             var ox: number = 0;
             if (offset) ox = offset.X;
@@ -3973,7 +3973,7 @@ module Fayde.Text {
             if (run != null) {
                 index = run._Start;
                 end = run._Start + run._Length;
-                var font = run._Attrs.GetFont();
+                var font = run._Attrs.Font;
                 var m: number = 0;
                 var ch: number = 0;
                 while (index < end) {
@@ -19937,7 +19937,7 @@ module Fayde.Controls.Internal {
         }
         _GetCursorBlinkTimeout() { return CURSOR_BLINK_TIMEOUT_DEFAULT; }
         _ResetCursorBlink(delay: bool) {
-            if (this._TextBox.XamlNode.IsFocused && !this._TextBox.HasSelectedText) {
+            if (this._TextBox.$IsFocused && !this._TextBox.HasSelectedText) {
                 if (this._EnableCursor) {
                     if (delay)
                         this._DelayCursorBlink();
@@ -20045,13 +20045,13 @@ module Fayde.Controls.Internal {
             }
             this._Layout.Render(ctx);
             if (this._CursorVisible) {
-                var caretBrush = this._TextBox.CaretBrush;
                 var canvasCtx = ctx.CanvasContext;
                 var rect = this._Cursor;
                 canvasCtx.beginPath();
                 canvasCtx.moveTo(rect.X + 0.5, rect.Y);
                 canvasCtx.lineTo(rect.X + 0.5, rect.Y + rect.Height);
                 canvasCtx.lineWidth = 1.0;
+                var caretBrush = this._TextBox.CaretBrush;
                 if (caretBrush) {
                     caretBrush.SetupBrush(canvasCtx, rect);
                     canvasCtx.strokeStyle = caretBrush.ToHtml5Object();
@@ -24635,9 +24635,7 @@ module Fayde.Controls {
                 ce.SetValueInternal(propd, vis);
             }
         }
-        GetDisplayText(): string {
-            return this.Text;
-        }
+        get DisplayText(): string { return this.Text; }
         private _EmitTextChanged() {
             this.TextChanged.RaiseAsync(this, EventArgs.Empty);
         }

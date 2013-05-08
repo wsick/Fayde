@@ -62,9 +62,7 @@ module Fayde.Controls {
             }
         }
 
-        GetDisplayText(): string {
-            return this.Text;
-        }
+        get DisplayText(): string { return this.Text; }
 
         private _EmitTextChanged() {
             this.TextChanged.RaiseAsync(this, EventArgs.Empty);

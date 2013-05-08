@@ -13,5 +13,6 @@
     </UserControl.Resources>
     <!--<tests:MapTest />-->
     <!--<tests:ResourceTest />-->
-    <tests:ImageTest />
+    <!--<tests:ImageTest />-->
+    <TextBox />
 </UserControl>

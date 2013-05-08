@@ -106,7 +106,7 @@ module Fayde.Controls.Internal {
         }
         _GetCursorBlinkTimeout() { return CURSOR_BLINK_TIMEOUT_DEFAULT; }
         _ResetCursorBlink(delay: bool) {
-            if (this._TextBox.XamlNode.IsFocused && !this._TextBox.HasSelectedText) {
+            if (this._TextBox.$IsFocused && !this._TextBox.HasSelectedText) {
                 if (this._EnableCursor) {
                     if (delay)
                         this._DelayCursorBlink();
@@ -232,13 +232,13 @@ module Fayde.Controls.Internal {
             }
             this._Layout.Render(ctx);
             if (this._CursorVisible) {
-                var caretBrush = this._TextBox.CaretBrush;
                 var canvasCtx = ctx.CanvasContext;
                 var rect = this._Cursor;
                 canvasCtx.beginPath();
                 canvasCtx.moveTo(rect.X + 0.5, rect.Y);
                 canvasCtx.lineTo(rect.X + 0.5, rect.Y + rect.Height);
                 canvasCtx.lineWidth = 1.0;
+                var caretBrush = this._TextBox.CaretBrush;
                 if (caretBrush) {
                     caretBrush.SetupBrush(canvasCtx, rect);
                     canvasCtx.strokeStyle = caretBrush.ToHtml5Object();

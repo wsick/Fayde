@@ -164,7 +164,7 @@ module Fayde.Text {
             this._Offset = offset;
         }
         GetCursorFromX(offset: Point, x: number): number {
-            var run = null;
+            var run: TextLayoutRun = null;
             var layout = this._Layout;
             var ox: number = 0;
             if (offset) ox = offset.X;
@@ -190,7 +190,7 @@ module Fayde.Text {
             if (run != null) {
                 index = run._Start;
                 end = run._Start + run._Length;
-                var font = run._Attrs.GetFont();
+                var font = run._Attrs.Font;
                 var m: number = 0;
                 var ch: number = 0;
                 while (index < end) {

@@ -177,7 +177,7 @@ var Fayde;
                 if(run != null) {
                     index = run._Start;
                     end = run._Start + run._Length;
-                    var font = run._Attrs.GetFont();
+                    var font = run._Attrs.Font;
                     var m = 0;
                     var ch = 0;
                     while(index < end) {

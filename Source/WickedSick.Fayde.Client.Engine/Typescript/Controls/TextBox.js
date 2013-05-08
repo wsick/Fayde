@@ -105,9 +105,13 @@ var Fayde;
                     ce.SetValueInternal(propd, vis);
                 }
             };
-            TextBox.prototype.GetDisplayText = function () {
-                return this.Text;
-            };
+            Object.defineProperty(TextBox.prototype, "DisplayText", {
+                get: function () {
+                    return this.Text;
+                },
+                enumerable: true,
+                configurable: true
+            });
             TextBox.prototype._EmitTextChanged = function () {
                 this.TextChanged.RaiseAsync(this, EventArgs.Empty);
             };

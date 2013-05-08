@@ -7,8 +7,6 @@
     <FaydeApplication.UriMappings>
     </FaydeApplication.UriMappings>
     <Grid x:Name="LayoutRoot">
-        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBox Text="Enter Text here!" />
-        </Grid>
+        <TextBox Margin="5" Text="Enter Text here!" />
     </Grid>
 </FaydeApplication>
