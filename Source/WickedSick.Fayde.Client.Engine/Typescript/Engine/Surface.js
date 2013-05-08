@@ -441,21 +441,19 @@ var Surface = (function () {
     Surface.prototype._HandleKeyDown = // INPUT
     function (args) {
         this._SetUserInitiatedEvent(true);
-        Fayde.Input.Keyboard.RefreshModifiers(args);
-        var handled = false;
+        Fayde.Input.Keyboard.RefreshModifiers(args.Modifiers);
         if(this._FocusedNode) {
             var focusToRoot = Surface._ElementPathToRoot(this._FocusedNode);
-            handled = this._EmitKeyDown(focusToRoot, args);
+            this._EmitKeyDown(focusToRoot, args);
         }
-        if(!handled && args.Key === Fayde.Input.Key.Tab) {
+        if(!args.Handled && args.Key === Fayde.Input.Key.Tab) {
             if(this._FocusedNode) {
-                Fayde.TabNavigationWalker.Focus(this._FocusedNode, args.Shift);
+                Fayde.TabNavigationWalker.Focus(this._FocusedNode, args.Modifiers.Shift);
             } else {
                 this._EnsureElementFocused();
             }
         }
         this._SetUserInitiatedEvent(false);
-        return handled;
     };
     Surface.prototype._EmitKeyDown = function (list, args, endIndex) {
         if(endIndex === 0) {
@@ -471,7 +469,6 @@ var Surface = (function () {
             cur = list.shift();
             i++;
         }
-        return args.Handled;
     };
     Surface.prototype._HandleButtonPress = function (evt) {
         Fayde.Input.Keyboard.RefreshModifiers(evt);

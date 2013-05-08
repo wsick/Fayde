@@ -107,18 +107,18 @@ var Fayde;
                     var args = _this.CreateArgsPress(e);
                     if(args) {
                         //KeyboardDebug("[Press] - " + e.keyCode + " - " + e.char);
-                        if(_this.Surface._HandleKeyDown(args)) {
-                            return false;
-                        }
+                        _this.Surface._HandleKeyDown(args);
+                        e.preventDefault();
+                        return false;
                     }
                 };
                 document.onkeydown = function (e) {
                     var args = _this.CreateArgsDown(e);
                     if(args) {
                         //KeyboardDebug("[Down] - " + e.keyCode + " - " + e.char);
-                        if(_this.Surface._HandleKeyDown(args)) {
-                            return false;
-                        }
+                        _this.Surface._HandleKeyDown(args);
+                        e.preventDefault();
+                        return false;
                     }
                 };
             };

@@ -436,25 +436,23 @@ class Surface {
     }
 
     // INPUT
-    _HandleKeyDown(args): bool {
+    _HandleKeyDown(args: Fayde.Input.KeyEventArgs) {
         this._SetUserInitiatedEvent(true);
-        Fayde.Input.Keyboard.RefreshModifiers(args);
-        var handled = false;
+        Fayde.Input.Keyboard.RefreshModifiers(args.Modifiers);
         if (this._FocusedNode) {
             var focusToRoot = Surface._ElementPathToRoot(this._FocusedNode);
-            handled = this._EmitKeyDown(focusToRoot, args);
+            this._EmitKeyDown(focusToRoot, args);
         }
 
-        if (!handled && args.Key === Fayde.Input.Key.Tab) {
+        if (!args.Handled && args.Key === Fayde.Input.Key.Tab) {
             if (this._FocusedNode)
-                Fayde.TabNavigationWalker.Focus(this._FocusedNode, args.Shift);
+                Fayde.TabNavigationWalker.Focus(this._FocusedNode, args.Modifiers.Shift);
             else
                 this._EnsureElementFocused();
         }
         this._SetUserInitiatedEvent(false);
-        return handled;
     }
-    private _EmitKeyDown(list: Fayde.UINode[], args, endIndex?: number) {
+    private _EmitKeyDown(list: Fayde.UINode[], args: Fayde.Input.KeyEventArgs, endIndex?: number) {
         if (endIndex === 0)
             return;
         if (!endIndex || endIndex === -1)
@@ -467,7 +465,6 @@ class Surface {
             cur = list.shift();
             i++;
         }
-        return args.Handled;
     }
 
     private _HandleButtonPress(evt) {

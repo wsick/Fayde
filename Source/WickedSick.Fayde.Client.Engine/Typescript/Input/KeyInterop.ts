@@ -101,18 +101,18 @@ module Fayde.Input {
                 var args = this.CreateArgsPress(e);
                 if (args) {
                     //KeyboardDebug("[Press] - " + e.keyCode + " - " + e.char);
-                    if (this.Surface._HandleKeyDown(args)) {
-                        return false;
-                    }
+                    this.Surface._HandleKeyDown(args);
+                    e.preventDefault();
+                    return false;
                 }
             };
             document.onkeydown = (e) => {
                 var args = this.CreateArgsDown(e);
                 if (args) {
                     //KeyboardDebug("[Down] - " + e.keyCode + " - " + e.char);
-                    if (this.Surface._HandleKeyDown(args)) {
-                        return false;
-                    }
+                    this.Surface._HandleKeyDown(args);
+                    e.preventDefault();
+                    return false;
                 }
             };
         }
