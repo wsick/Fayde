@@ -158,7 +158,7 @@ var Fayde;
                         _super.call(this, surface);
             }
             IEKeyInterop.prototype.CreateArgsPress = function (e) {
-                if(e.char == null) {
+                if(!e.char) {
                     return;
                 }
                 var modifiers = {
@@ -174,7 +174,7 @@ var Fayde;
                 return new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], e.char);
             };
             IEKeyInterop.prototype.CreateArgsDown = function (e) {
-                if(e.char != null && e.keyCode !== 8) {
+                if(e.char && e.keyCode !== 8) {
                     return;
                 }
                 var modifiers = {

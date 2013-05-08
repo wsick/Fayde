@@ -145,7 +145,7 @@ module Fayde.Input {
             super(surface);
         }
         CreateArgsPress(e): Fayde.Input.KeyEventArgs {
-            if (e.char == null)
+            if (!e.char)
                 return;
 
             var modifiers = {
@@ -162,7 +162,7 @@ module Fayde.Input {
             return new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], e.char);
         }
         CreateArgsDown(e): Fayde.Input.KeyEventArgs {
-            if (e.char != null && e.keyCode !== 8)
+            if (e.char && e.keyCode !== 8)
                 return;
             var modifiers = {
                 Shift: e.shiftKey,

@@ -527,10 +527,24 @@ var Fayde;
                 return cursor;
             };
             TextBoxBase.prototype.CursorLineBegin = function (cursor) {
-                return cursor;
+                var buffer = this._Buffer;
+                var len = buffer.length;
+                var r = buffer.lastIndexOf("\r", cursor);
+                var n = buffer.lastIndexOf("\n", cursor);
+                return Math.max(r, n, 0);
             };
             TextBoxBase.prototype.CursorLineEnd = function (cursor) {
-                return cursor;
+                var buffer = this._Buffer;
+                var len = buffer.length;
+                var r = buffer.indexOf("\r", cursor);
+                if(r < 0) {
+                    r = len;
+                }
+                var n = buffer.indexOf("\n", cursor);
+                if(n < 0) {
+                    n = len;
+                }
+                return Math.min(r, n);
             };
             TextBoxBase.prototype._EmitCursorPositionChanged = function (height, x, y) {
                 //LOOKS USELESS

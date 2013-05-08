@@ -11954,7 +11954,7 @@ module Fayde.Input {
             super(surface);
         }
         CreateArgsPress(e): Fayde.Input.KeyEventArgs {
-            if (e.char == null)
+            if (!e.char)
                 return;
             var modifiers = {
                 Shift: e.shiftKey,
@@ -11968,7 +11968,7 @@ module Fayde.Input {
             return new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], e.char);
         }
         CreateArgsDown(e): Fayde.Input.KeyEventArgs {
-            if (e.char != null && e.keyCode !== 8)
+            if (e.char && e.keyCode !== 8)
                 return;
             var modifiers = {
                 Shift: e.shiftKey,
@@ -19413,10 +19413,20 @@ module Fayde.Controls {
             return cursor;
         }
         CursorLineBegin(cursor: number): number {
-            return cursor;
+            var buffer = this._Buffer;
+            var len = buffer.length;
+            var r = buffer.lastIndexOf("\r", cursor);
+            var n = buffer.lastIndexOf("\n", cursor);
+            return Math.max(r, n, 0);
         }
         CursorLineEnd(cursor: number): number {
-            return cursor;
+            var buffer = this._Buffer;
+            var len = buffer.length;
+            var r = buffer.indexOf("\r", cursor);
+            if (r < 0) r = len;
+            var n = buffer.indexOf("\n", cursor);
+            if (n < 0) n = len;
+            return Math.min(r, n);
         }
         _EmitCursorPositionChanged(height: number, x: number, y: number) {
         }
