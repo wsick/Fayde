@@ -33,6 +33,9 @@ module Fayde.Controls {
         CornerRadius: CornerRadius;
         Padding: Thickness;
 
+        private _BackgroundListener: Media.IBrushChangedListener;
+        private _BorderBrushListener: Media.IBrushChangedListener;
+
         static Annotations = { ContentProperty: Border.ChildProperty }
         
         private _MeasureOverride(availableSize: size, error: BError): size {
@@ -102,21 +105,21 @@ module Fayde.Controls {
             lu.InvalidateMeasure();
         }
         private _BackgroundChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldBrush = <Media.Brush>args.OldValue;
             var newBrush = <Media.Brush>args.NewValue;
-            if (oldBrush)
-                oldBrush.Unlisten(this);
+            if (this._BackgroundListener)
+                this._BackgroundListener.Detach();
+                this._BackgroundListener = null;
             if (newBrush)
-                newBrush.Listen(this);
+                this._BackgroundListener = newBrush.Listen((brush) => this.BrushChanged(brush));
             this.BrushChanged(newBrush);
         }
         private _BorderBrushChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldBrush = <Media.Brush>args.OldValue;
             var newBrush = <Media.Brush>args.NewValue;
-            if (oldBrush)
-                oldBrush.Unlisten(this);
+            if (this._BorderBrushListener)
+                this._BorderBrushListener.Detach();
+                this._BorderBrushListener = null;
             if (newBrush)
-                newBrush.Listen(this);
+                this._BorderBrushListener = newBrush.Listen((brush) => this.BrushChanged(brush));
             this.BrushChanged(newBrush);
         }
         private _BorderThicknessChanged(args: IDependencyPropertyChangedEventArgs) {

@@ -158,15 +158,16 @@ module Fayde.Controls {
         XamlNode: PanelNode;
         CreateNode(): PanelNode { return new PanelNode(this); }
 
-        static BackgroundProperty: DependencyProperty = DependencyProperty.Register("Background", () => { return Media.Brush; }, Panel, undefined, (d, args) => (<Panel>d)._BackgroundChanged(args));
-        static IsItemsHostProperty: DependencyProperty = DependencyProperty.Register("IsItemHost", () => { return Boolean; }, Panel, false);
-
         static ZIndexProperty: DependencyProperty = DependencyProperty.RegisterAttached("ZIndex", () => { return Number; }, Panel, 0, zIndexPropertyChanged);
         static ZProperty: DependencyProperty = DependencyProperty.RegisterAttached("Z", () => { return Number; }, Panel, NaN);
-
+        
+        static BackgroundProperty: DependencyProperty = DependencyProperty.Register("Background", () => { return Media.Brush; }, Panel, undefined, (d, args) => (<Panel>d)._BackgroundChanged(args));
+        static IsItemsHostProperty: DependencyProperty = DependencyProperty.Register("IsItemHost", () => { return Boolean; }, Panel, false);
         Background: Media.Brush;
         IsItemsHost: bool;
         Children: XamlObjectCollection;
+
+        private _BackgroundListener: Media.IBrushChangedListener;
 
         static Annotations = { ContentProperty: "Children" }
 
@@ -177,12 +178,13 @@ module Fayde.Controls {
         static SetZ(uie: UIElement, value: number) { uie.SetValue(ZProperty, value); }
 
         private _BackgroundChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldBrush = <Media.Brush>args.OldValue;
             var newBrush = <Media.Brush>args.NewValue;
-            if (oldBrush)
-                oldBrush.Unlisten(this);
+            if (this._BackgroundListener)
+                this._BackgroundListener.Detach();
+                this._BackgroundListener = null;
             if (newBrush)
-                newBrush.Listen(this);
+                this._BackgroundListener = newBrush.Listen((brush) => this.BrushChanged(brush));
+            this.BrushChanged(newBrush);
 
             var lu = this.XamlNode.LayoutUpdater;
             lu.UpdateBounds();

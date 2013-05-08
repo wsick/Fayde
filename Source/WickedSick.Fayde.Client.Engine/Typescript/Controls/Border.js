@@ -134,24 +134,30 @@ var Fayde;
                 lu.InvalidateMeasure();
             };
             Border.prototype._BackgroundChanged = function (args) {
-                var oldBrush = args.OldValue;
+                var _this = this;
                 var newBrush = args.NewValue;
-                if(oldBrush) {
-                    oldBrush.Unlisten(this);
+                if(this._BackgroundListener) {
+                    this._BackgroundListener.Detach();
                 }
+                this._BackgroundListener = null;
                 if(newBrush) {
-                    newBrush.Listen(this);
+                    this._BackgroundListener = newBrush.Listen(function (brush) {
+                        return _this.BrushChanged(brush);
+                    });
                 }
                 this.BrushChanged(newBrush);
             };
             Border.prototype._BorderBrushChanged = function (args) {
-                var oldBrush = args.OldValue;
+                var _this = this;
                 var newBrush = args.NewValue;
-                if(oldBrush) {
-                    oldBrush.Unlisten(this);
+                if(this._BorderBrushListener) {
+                    this._BorderBrushListener.Detach();
                 }
+                this._BorderBrushListener = null;
                 if(newBrush) {
-                    newBrush.Listen(this);
+                    this._BorderBrushListener = newBrush.Listen(function (brush) {
+                        return _this.BrushChanged(brush);
+                    });
                 }
                 this.BrushChanged(newBrush);
             };

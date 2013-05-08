@@ -269,7 +269,7 @@ module Fayde.Controls {
     }
     Nullstone.RegisterType(TextBlockNode, "TextBlockNode");
 
-    export class TextBlock extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable, Media.IBrushChangedListener {
+    export class TextBlock extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable {
         XamlNode: TextBlockNode;
         CreateNode(): TextBlockNode { return new TextBlockNode(this); }
 
@@ -350,11 +350,14 @@ module Fayde.Controls {
             return this.XamlNode.ComputeActualSize(lu, this.Padding);
         }
 
+        private _ForegroundListener: Media.IBrushChangedListener;
         private _ForegroundChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldBrush = <Media.Brush>args.OldValue;
             var newBrush = <Media.Brush>args.NewValue;
-            if (oldBrush) oldBrush.Unlisten(this);
-            if (newBrush) newBrush.Listen(this);
+            if (this._ForegroundListener)
+                this._ForegroundListener.Detach();
+                this._ForegroundListener = null;
+            if (newBrush)
+                this._ForegroundListener = newBrush.Listen((brush) => this.BrushChanged(brush));
         }
         private BrushChanged(newBrush: Media.Brush) {
             this.XamlNode.LayoutUpdater.Invalidate();

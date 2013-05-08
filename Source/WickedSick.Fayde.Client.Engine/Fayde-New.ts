@@ -3666,6 +3666,106 @@ module Fayde.Shapes {
 }
 
 module Fayde.Text {
+    export interface ITextBoxUndoAction {
+        SelectionAnchor: number;
+        SelectionCursor: number;
+        Undo(bufferholder: IBufferOwner);
+        Redo(bufferholder: IBufferOwner): number;
+    }
+    export interface IBufferOwner {
+        _Buffer: string;
+    }
+    export class TextBoxUndoActionDelete implements ITextBoxUndoAction {
+        SelectionAnchor: number;
+        SelectionCursor: number;
+        Start: number;
+        Text: string;
+        constructor(selectionAnchor: number, selectionCursor: number, buffer: string, start: number, length: number) {
+            this.SelectionAnchor = selectionAnchor;
+            this.SelectionCursor = selectionCursor;
+            this.Start = start;
+            this.Text = buffer.substr(start, length);
+        }
+        Undo(bo: IBufferOwner) {
+            bo._Buffer = TextBuffer.Insert(bo._Buffer, this.Start, this.Text);
+        }
+        Redo(bo: IBufferOwner): number {
+            bo._Buffer = TextBuffer.Cut(bo._Buffer, this.Start, this.Text.length);
+            return this.Start;
+        }
+    }
+    export class TextBoxUndoActionInsert implements ITextBoxUndoAction {
+        SelectionAnchor: number;
+        SelectionCursor: number;
+        Start: number;
+        Text: string;
+        IsGrowable: bool;
+        constructor(selectionAnchor: number, selectionCursor: number, start: number, inserted: string, isAtomic?: bool) {
+            this.SelectionAnchor = selectionAnchor;
+            this.SelectionCursor = selectionCursor;
+            this.Start = start;
+            this.Text = inserted;
+            this.IsGrowable = isAtomic !== true;
+        }
+        Undo(bo: IBufferOwner) {
+            bo._Buffer = TextBuffer.Cut(bo._Buffer, this.Start, this.Text.length);
+        }
+        Redo(bo: IBufferOwner): number {
+            bo._Buffer = TextBuffer.Insert(bo._Buffer, this.Start, this.Text);
+            return this.Start + this.Text.length;
+        }
+        Insert(start: number, text: string) {
+            if (!this.IsGrowable || start !== (this.Start + this.Text.length))
+                return false;
+            this.Text += text;
+            return true;
+        }
+    }
+    export class TextBoxUndoActionReplace implements ITextBoxUndoAction {
+        SelectionAnchor: number;
+        SelectionCursor: number;
+        Start: number;
+        Length: number;
+        Deleted: string;
+        Inserted: string;
+        constructor(selectionAnchor: number, selectionCursor: number, buffer: string, start: number, length: number, inserted: string) {
+            this.SelectionAnchor = selectionAnchor;
+            this.SelectionCursor = selectionCursor;
+            this.Start = start;
+            this.Length = length;
+            this.Deleted = buffer.substr(start, length);
+            this.Inserted = inserted;
+        }
+        Undo(bo: IBufferOwner) {
+            bo._Buffer = TextBuffer.Cut(bo._Buffer, this.Start, this.Inserted.length);
+            bo._Buffer = Text.TextBuffer.Insert(bo._Buffer, this.Start, this.Deleted);
+        }
+        Redo(bo: IBufferOwner): number {
+            bo._Buffer = TextBuffer.Cut(bo._Buffer, this.Start, this.Length);
+            bo._Buffer = TextBuffer.Insert(bo._Buffer, this.Start, this.Inserted);
+            return this.Start + this.Inserted.length;
+        }
+    }
+    export class TextBuffer {
+        static Cut(text: string, start: number, len: number): string {
+            if (!text)
+                return "";
+            return text.slice(0, start) + text.slice(start + len);
+        }
+        static Insert(text: string, index: number, str: string): string {
+            if (!text)
+                return str;
+            return [text.slice(0, index), str, text.slice(index)].join('');
+        }
+        static Replace(text: string, start: number, len: number, str: string): string {
+            if (!text)
+                return str;
+            return [text.slice(0, start), str, text.slice(start + len)].join('');
+        }
+    }
+}
+
+module Fayde.Text {
     export interface ITextAttributes {
         GetBackground(selected: bool): Media.Brush;
         GetForeground(selected: bool): Media.Brush;
@@ -11706,11 +11806,11 @@ module Fayde.Input {
     }
     Nullstone.RegisterType(KeyboardEventArgs, "KeyboardEventArgs");
     export class KeyEventArgs extends KeyboardEventArgs {
-        Modifiers: any;
+        Modifiers: IModifiersOn;
         PlatformKeyCode: number;
         Key: Key;
         Char: string;
-        constructor(modifiers: any, keyCode: number, key: Key, char?: string) {
+        constructor(modifiers: IModifiersOn, keyCode: number, key: Key, char?: string) {
             super();
             this.Modifiers = modifiers;
             this.PlatformKeyCode = keyCode;
@@ -14850,14 +14950,15 @@ module Fayde.Documents {
 
 module Fayde.Media {
     export interface IBrushChangedListener {
-        BrushChanged(newBrush: Brush);
+        Callback: (newBrush: Media.Brush) => void;
+        Detach();
     }
     export class Brush extends DependencyObject implements ITransformChangedListener {
         static TransformProperty: DependencyProperty = DependencyProperty.RegisterCore("Transform", () => Fayde.Media.Transform, Brush, undefined, (d, args) => (<Brush>d)._TransformChanged(args));
         Transform: Fayde.Media.Transform;
         private _CachedBounds: rect = null;
         private _CachedBrush: any = null;
-        private _Listener: IBrushChangedListener = null;
+        private _Listeners: IBrushChangedListener[] = [];
         constructor() {
             super();
             (<IShareableHidden>this.XamlNode).IsShareable = true;
@@ -14887,13 +14988,27 @@ module Fayde.Media {
         }
         CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any { return undefined; }
         ToHtml5Object(): any { return this._CachedBrush; }
-        Listen(listener: IBrushChangedListener) { this._Listener = listener; }
-        Unlisten(listener: IBrushChangedListener) { if (this._Listener === listener) this._Listener = null; }
+        Listen(func: (newBrush: Media.Brush) => void ): IBrushChangedListener {
+            var listener = {
+                Callback: func,
+                Detach: () => {
+                    var listeners = this._Listeners;
+                    var index = listeners.indexOf(listener);
+                    if (index > -1)
+                        listeners.splice(index, 1);
+                }
+            };
+            this._Listeners.push(listener);
+            return listener;
+        }
         InvalidateBrush() {
             this._CachedBrush = null;
             this._CachedBounds = null;
-            var listener = this._Listener;
-            if (listener) listener.BrushChanged(this);
+            var listeners = this._Listeners;
+            var len = listeners.length;
+            for (var i = 0; i < len; i++) {
+                listeners[i].Callback(this);
+            }
         }
         private TransformChanged(source: Transform) {
             this.InvalidateBrush();
@@ -16462,7 +16577,7 @@ module Fayde.Shapes {
     function isSignificant(dx: number, x: number): bool {
         return Math.abs(x) < 0.000019 && (Math.abs(dx) * x - x) > 1.0;
     }
-    export class Shape extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable, Media.IBrushChangedListener {
+    export class Shape extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable {
         XamlNode: ShapeNode;
         CreateNode(): ShapeNode { return new ShapeNode(this); }
         private _ShapeFlags: ShapeFlags = ShapeFlags.None;
@@ -16789,27 +16904,29 @@ module Fayde.Shapes {
             this._InvalidateStretch();
             this.XamlNode.LayoutUpdater.Invalidate();
         }
+        private _FillListener: Media.IBrushChangedListener;
         private _FillChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldFill = <Media.Brush>args.OldValue;
-            var newFill = <Media.Brush>args.NewValue;
-            if (oldFill)
-                oldFill.Unlisten(this);
-            if (newFill)
-                newFill.Listen(this);
-            if (this._Fill || newFill)
+            var newBrush = <Media.Brush>args.NewValue;
+            if (this._FillListener)
+                this._FillListener.Detach();
+                this._FillListener = null;
+            if (newBrush)
+                this._FillListener = newBrush.Listen((brush) => this.BrushChanged(brush));
+            if (this._Fill || newBrush)
                 this._InvalidateNaturalBounds();
-            this._Fill = newFill;
+            this._Fill = newBrush;
         }
+        private _StrokeListener: Media.IBrushChangedListener;
         private _StrokeChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldStroke = <Media.Brush>args.OldValue;
-            var newStroke = <Media.Brush>args.NewValue;
-            if (oldStroke)
-                oldStroke.Unlisten(this);
-            if (newStroke)
-                newStroke.Listen(this);
-            if (this._Stroke || newStroke)
+            var newBrush = <Media.Brush>args.NewValue;
+            if (this._StrokeListener)
+                this._StrokeListener.Detach();
+                this._StrokeListener = null;
+            if (newBrush)
+                this._StrokeListener = newBrush.Listen((brush) => this.BrushChanged(brush));
+            if (this._Stroke || newBrush)
                 this._InvalidateNaturalBounds();
-            this._Stroke = newStroke;
+            this._Stroke = newBrush;
         }
         private BrushChanged(newBrush: Media.Brush) {
             this.XamlNode.LayoutUpdater.Invalidate();
@@ -16858,6 +16975,8 @@ module Fayde.Controls {
         Child: UIElement;
         CornerRadius: CornerRadius;
         Padding: Thickness;
+        private _BackgroundListener: Media.IBrushChangedListener;
+        private _BorderBrushListener: Media.IBrushChangedListener;
         static Annotations = { ContentProperty: Border.ChildProperty }
         private _MeasureOverride(availableSize: size, error: BError): size {
             var padding = this.Padding;
@@ -16922,21 +17041,21 @@ module Fayde.Controls {
             lu.InvalidateMeasure();
         }
         private _BackgroundChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldBrush = <Media.Brush>args.OldValue;
             var newBrush = <Media.Brush>args.NewValue;
-            if (oldBrush)
-                oldBrush.Unlisten(this);
+            if (this._BackgroundListener)
+                this._BackgroundListener.Detach();
+                this._BackgroundListener = null;
             if (newBrush)
-                newBrush.Listen(this);
+                this._BackgroundListener = newBrush.Listen((brush) => this.BrushChanged(brush));
             this.BrushChanged(newBrush);
         }
         private _BorderBrushChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldBrush = <Media.Brush>args.OldValue;
             var newBrush = <Media.Brush>args.NewValue;
-            if (oldBrush)
-                oldBrush.Unlisten(this);
+            if (this._BorderBrushListener)
+                this._BorderBrushListener.Detach();
+                this._BorderBrushListener = null;
             if (newBrush)
-                newBrush.Listen(this);
+                this._BorderBrushListener = newBrush.Listen((brush) => this.BrushChanged(brush));
             this.BrushChanged(newBrush);
         }
         private _BorderThicknessChanged(args: IDependencyPropertyChangedEventArgs) {
@@ -18150,25 +18269,27 @@ module Fayde.Controls {
     export class Panel extends FrameworkElement implements IMeasurableHidden {
         XamlNode: PanelNode;
         CreateNode(): PanelNode { return new PanelNode(this); }
-        static BackgroundProperty: DependencyProperty = DependencyProperty.Register("Background", () => { return Media.Brush; }, Panel, undefined, (d, args) => (<Panel>d)._BackgroundChanged(args));
-        static IsItemsHostProperty: DependencyProperty = DependencyProperty.Register("IsItemHost", () => { return Boolean; }, Panel, false);
         static ZIndexProperty: DependencyProperty = DependencyProperty.RegisterAttached("ZIndex", () => { return Number; }, Panel, 0, zIndexPropertyChanged);
         static ZProperty: DependencyProperty = DependencyProperty.RegisterAttached("Z", () => { return Number; }, Panel, NaN);
+        static BackgroundProperty: DependencyProperty = DependencyProperty.Register("Background", () => { return Media.Brush; }, Panel, undefined, (d, args) => (<Panel>d)._BackgroundChanged(args));
+        static IsItemsHostProperty: DependencyProperty = DependencyProperty.Register("IsItemHost", () => { return Boolean; }, Panel, false);
         Background: Media.Brush;
         IsItemsHost: bool;
         Children: XamlObjectCollection;
+        private _BackgroundListener: Media.IBrushChangedListener;
         static Annotations = { ContentProperty: "Children" }
         static GetZIndex(uie: UIElement): number { return uie.GetValue(ZIndexProperty); }
         static SetZIndex(uie: UIElement, value: number) { uie.SetValue(ZIndexProperty, value); }
         static GetZ(uie: UIElement): number { return uie.GetValue(ZProperty); }
         static SetZ(uie: UIElement, value: number) { uie.SetValue(ZProperty, value); }
         private _BackgroundChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldBrush = <Media.Brush>args.OldValue;
             var newBrush = <Media.Brush>args.NewValue;
-            if (oldBrush)
-                oldBrush.Unlisten(this);
+            if (this._BackgroundListener)
+                this._BackgroundListener.Detach();
+                this._BackgroundListener = null;
             if (newBrush)
-                newBrush.Listen(this);
+                this._BackgroundListener = newBrush.Listen((brush) => this.BrushChanged(brush));
+            this.BrushChanged(newBrush);
             var lu = this.XamlNode.LayoutUpdater;
             lu.UpdateBounds();
             lu.Invalidate();
@@ -18810,7 +18931,7 @@ module Fayde.Controls {
         }
     }
     Nullstone.RegisterType(TextBlockNode, "TextBlockNode");
-    export class TextBlock extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable, Media.IBrushChangedListener {
+    export class TextBlock extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable {
         XamlNode: TextBlockNode;
         CreateNode(): TextBlockNode { return new TextBlockNode(this); }
         static PaddingProperty: DependencyProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, TextBlock, undefined, (d, args) => (<TextBlock>d).XamlNode._InvalidateDirty(true));
@@ -18882,11 +19003,14 @@ module Fayde.Controls {
         private ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater): size {
             return this.XamlNode.ComputeActualSize(lu, this.Padding);
         }
+        private _ForegroundListener: Media.IBrushChangedListener;
         private _ForegroundChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldBrush = <Media.Brush>args.OldValue;
             var newBrush = <Media.Brush>args.NewValue;
-            if (oldBrush) oldBrush.Unlisten(this);
-            if (newBrush) newBrush.Listen(this);
+            if (this._ForegroundListener)
+                this._ForegroundListener.Detach();
+                this._ForegroundListener = null;
+            if (newBrush)
+                this._ForegroundListener = newBrush.Listen((brush) => this.BrushChanged(brush));
         }
         private BrushChanged(newBrush: Media.Brush) {
             this.XamlNode.LayoutUpdater.Invalidate();
@@ -18905,16 +19029,51 @@ module Fayde.Controls {
         Font = 5,
         Text = 6,
     }
+    export enum TextBoxEmitChangedType {
+        NOTHING = 0,
+        SELECTION = 1 << 0,
+        TEXT = 1 << 1,
+    }
     export interface ITextModelArgs {
         Changed: TextBoxModelChangedType;
-        PropArgs: IDependencyPropertyChangedEventArgs;
+        NewValue: any;
     }
     export interface ITextModelListener {
         OnTextModelChanged(args: ITextModelArgs);
     }
-    export class TextBoxBase extends Control implements Text.ITextAttributesSource {
+    var Key = Input.Key;
+    var MAX_UNDO_COUNT = 10;
+    export class TextBoxBase extends Control implements Text.ITextAttributesSource, Text.IBufferOwner {
+        private _Undo: Text.ITextBoxUndoAction[] = [];
+        private _Redo: Text.ITextBoxUndoAction[] = [];
+        private _Buffer: string = "";
+        private _Emit: TextBoxEmitChangedType = TextBoxEmitChangedType.NOTHING;
+        private _NeedIMReset: bool = false;
+        private _Selecting: bool = false;
+        private _Captured: bool = false;
+        private _SettingValue: bool = true;
         private _SelectionCursor: number = 0;
         private _SelectionAnchor: number = 0;
+        private _EventsMask: TextBoxEmitChangedType;
+        private _TextProperty: DependencyProperty;
+        private _SelectedTextProperty: DependencyProperty;
+        private _Font: Font = new Font();
+        private _CursorOffset: number = 0;
+        private _Batch: number = 0;
+        $View: Internal.TextBoxView;
+        $ContentElement: FrameworkElement;
+        $IsReadOnly: bool = false;
+        $IsFocused: bool = false;
+        $AcceptsReturn: bool = false;
+        $MaxLength: number = 0;
+        $HasOffset: bool = false;
+        SelectedText: string; //Will be overriden
+        constructor(eventsMask: TextBoxEmitChangedType, textPropd: DependencyProperty, selTextPropd: DependencyProperty) {
+            super();
+            this._EventsMask = eventsMask;
+            this._TextProperty = textPropd;
+            this._SelectedTextProperty = selTextPropd;
+        }
         get SelectionCursor(): number { return this._SelectionCursor; }
         get HasSelectedText(): bool { return this._SelectionCursor !== this._SelectionAnchor; }
         get CaretBrush(): Media.Brush { return undefined; }
@@ -18927,12 +19086,757 @@ module Fayde.Controls {
         get Background(): Media.Brush { return undefined; }
         get SelectionForeground(): Media.Brush { return undefined; }
         get Foreground(): Media.Brush { return undefined; }
-        get Font(): Font { return undefined; }
+        get Font(): Font { return this._Font; }
         get Direction(): FlowDirection { return undefined; }
-        get TextDecorations(): TextDecorations { return undefined; }
-        Listen(listener: ITextModelListener) { }
-        Unlisten(listener: ITextModelListener) { }
+        get TextDecorations(): TextDecorations { return Fayde.TextDecorations.None; }
+        OnApplyTemplate() {
+            super.OnApplyTemplate();
+            var ce = this.$ContentElement = <FrameworkElement>this.GetTemplateChild("ContentElement");
+            if (!ce)
+                return;
+            var view = this.$View;
+            if (view)
+                view.SetTextBox(null);
+            view = this.$View = new Internal.TextBoxView();
+            view.SetEnableCursor(!this.$IsReadOnly);
+            view.SetTextBox(this);
+            if (ce instanceof ContentPresenter) {
+                (<ContentPresenter>ce).SetValue(ContentPresenter.ContentProperty, view);
+            } else if (ce instanceof ContentControl) {
+                (<ContentControl>ce).SetValue(ContentControl.ContentProperty, view);
+            } else if (ce instanceof Border) {
+                (<Border>ce).SetValue(Border.ChildProperty, view);
+            } else if (ce instanceof Panel) {
+                (<Panel>ce).Children.Add(view);
+            } else {
+                Warn("TextBox does not have a valid content element.");
+                view.SetTextBox(null);
+                this.$View = view = null;
+            }
+        }
+        private _ModelListener: ITextModelListener = null;
+        Listen(listener: ITextModelListener) { this._ModelListener = listener; }
+        Unlisten(listener: ITextModelListener) { if (this._ModelListener === listener) this._ModelListener = null; }
+        _ModelChanged(type: TextBoxModelChangedType, newValue: any) {
+            var listener = this._ModelListener;
+            if (!listener) return;
+            listener.OnTextModelChanged({
+                Changed: type,
+                NewValue: newValue
+            });
+        }
+        _SelectedTextChanged(newValue: string) {
+            if (!this._SettingValue)
+                return;
+            var text = newValue || "";
+            if (!text)
+                return;
+            var length = Math.abs(this._SelectionCursor - this._SelectionAnchor);
+            var start = Math.min(this._SelectionAnchor, this._SelectionCursor);
+            var action: Text.ITextBoxUndoAction;
+            if (length > 0) {
+                action = new Text.TextBoxUndoActionReplace(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length, text);
+                this._Buffer = Text.TextBuffer.Replace(this._Buffer, start, length, text);
+            } else if (text.length > 0) {
+                action = new Text.TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, start, text);
+                this._Buffer = Text.TextBuffer.Insert(this._Buffer, start, text);
+            }
+            if (action) {
+                this._Emit |= TextBoxEmitChangedType.TEXT;
+                this._Undo.push(action);
+                this._Redo = [];
+                this.ClearSelection(start + text.length);
+                this._ResetIMContext();
+                this._SyncAndEmit();
+            }
+        }
+        _SelectionStartChanged(newValue: number) {
+            var changed = TextBoxModelChangedType.Nothing;
+            var length = Math.abs(this._SelectionCursor - this._SelectionAnchor);
+            var start = newValue;
+            if (start > this._Buffer.length) {
+                this.SelectionStart = this._Buffer.length;
+                return;
+            }
+            if (start + length > this._Buffer.length) {
+                this._BatchPush();
+                length = this._Buffer.length - start;
+                this.SelectionLength = length;
+                this._BatchPop();
+            }
+            if (this._SelectionAnchor != start) {
+                changed = TextBoxModelChangedType.Selection;
+                this.$HasOffset = false;
+            }
+            this._SelectionCursor = start + length;
+            this._SelectionAnchor = start;
+            this._Emit |= TextBoxEmitChangedType.SELECTION;
+            this._SyncAndEmit();
+            if (changed !== TextBoxModelChangedType.Nothing)
+                this._ModelChanged(changed, newValue);
+        }
+        _SelectionLengthChanged(newValue: number) {
+            var changed = TextBoxModelChangedType.Nothing;
+            var start = Math.min(this._SelectionAnchor, this._SelectionCursor);
+            var length = newValue;
+            if (start + length > this._Buffer.length) {
+                length = this._Buffer.length - start;
+                this.SelectionLength = length;
+                return;
+            }
+            if (this._SelectionCursor != (start + length)) {
+                changed = TextBoxModelChangedType.Selection;
+                this.$HasOffset = false;
+            }
+            this._SelectionCursor = start + length;
+            this._SelectionAnchor = start;
+            this._Emit |= TextBoxEmitChangedType.SELECTION;
+            this._SyncAndEmit();
+            if (changed !== TextBoxModelChangedType.Nothing)
+                this._ModelChanged(changed, newValue);
+        }
+        _TextChanged(newValue: string) {
+            var text = newValue || "";
+            if (this._SettingValue) {
+                if (text) {
+                    var action: Text.ITextBoxUndoAction;
+                    if (this._Buffer.length > 0) {
+                        action = new Text.TextBoxUndoActionReplace(this._SelectionAnchor, this._SelectionCursor, this._Buffer, 0, this._Buffer.length, text);
+                        this._Buffer = Text.TextBuffer.Replace(this._Buffer, 0, this._Buffer.length, text);
+                    } else {
+                        action = new Text.TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, 0, text);
+                        this._Buffer = text + this._Buffer;
+                    }
+                    this._Undo.push(action);
+                    this._Redo = [];
+                    this._Emit |= TextBoxEmitChangedType.TEXT;
+                    this.ClearSelection(0);
+                    this._ResetIMContext();
+                    this._SyncAndEmit(false);
+                }
+            }
+            this._ModelChanged(TextBoxModelChangedType.Text, newValue);
+        }
+        private _BatchPush() {
+            this._Batch++;
+        }
+        private _BatchPop() {
+            if (this._Batch < 1) {
+                Warn("TextBoxBase._Batch underflow");
+                return;
+            }
+            this._Batch--;
+        }
+        private _SyncAndEmit(syncText?: bool) {
+            if (syncText === undefined)
+                syncText = true;
+            if (this._Batch != 0 || this._Emit === TextBoxEmitChangedType.NOTHING)
+                return;
+            if (syncText && (this._Emit & TextBoxEmitChangedType.TEXT))
+                this._SyncText();
+            if (this._Emit & TextBoxEmitChangedType.SELECTION)
+                this._SyncSelectedText();
+            if (this.XamlNode.IsLoaded) {
+                this._Emit &= this._EventsMask;
+                if (this._Emit & TextBoxEmitChangedType.TEXT)
+                    this._EmitTextChanged();
+                if (this._Emit & TextBoxEmitChangedType.SELECTION)
+                    this._EmitSelectionChanged();
+            }
+            this._Emit = TextBoxEmitChangedType.NOTHING;
+        }
+        private _SyncText() {
+            this._SettingValue = false;
+            this._Store.SetValue(this._TextProperty, this._Buffer);
+            this._SettingValue = true;
+        }
+        _EmitTextChanged() { }
+        SelectAll() {
+            this.Select(0, this._Buffer.length);
+        }
+        ClearSelection(start: number) {
+            this._BatchPush();
+            this.SelectionStart = start;
+            this.SelectionLength = 0;
+            this._BatchPop();
+        }
+        Select(start: number, length: number): bool {
+            if (start < 0)
+                throw new ArgumentException("start < 0");
+            if (length < 0)
+                throw new ArgumentException("length < 0");
+            if (start > this._Buffer.length)
+                start = this._Buffer.length;
+            if (length > (this._Buffer.length - start))
+                length = this._Buffer.length - start;
+            this._BatchPush();
+            this.SelectionStart = start;
+            this.SelectionLength = length;
+            this._BatchPop();
+            this._ResetIMContext();
+            this._SyncAndEmit();
+            return true;
+        }
+        private _SyncSelectedText() {
+            if (this._SelectionCursor !== this._SelectionAnchor) {
+                var start = Math.min(this._SelectionAnchor, this._SelectionCursor);
+                var len = Math.abs(this._SelectionCursor - this._SelectionAnchor);
+                var text = !this._Buffer ? '' : this._Buffer.substr(start, len);
+                this._SettingValue = false;
+                this._Store.SetValue(this._SelectedTextProperty, text);
+                this._SettingValue = true;
+            } else {
+                this._SettingValue = false;
+                this._Store.SetValue(this._SelectedTextProperty, "");
+                this._SettingValue = true;
+            }
+        }
+        private _EmitSelectionChanged() { }
+        _ResetIMContext() {
+            if (this._NeedIMReset) {
+                this._NeedIMReset = false;
+            }
+        }
+        CanUndo() { return this._Undo.length > 0; }
+        Undo() {
+            if (this._Undo.length < 1)
+                return;
+            var action = this._Undo.pop();
+            if (this._Redo.push(action) > MAX_UNDO_COUNT)
+                this._Redo.shift();
+            action.Undo(this);
+            var anchor = action.SelectionAnchor;
+            var cursor = action.SelectionCursor;
+            this._BatchPush();
+            this.SelectionStart = Math.min(anchor, cursor);
+            this.SelectionLength = Math.abs(cursor - anchor);
+            this._Emit = TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION;
+            this._SelectionAnchor = anchor;
+            this._SelectionCursor = cursor;
+            this._BatchPop();
+            this._SyncAndEmit();
+        }
+        CanRedo() { return this._Redo.length > 0; }
+        Redo() {
+            if (this._Redo.length < 1)
+                return;
+            var action = this._Redo.pop();
+            if (this._Undo.push(action) > MAX_UNDO_COUNT)
+                this._Undo.shift();
+            var anchor = action.Redo(this);
+            var cursor = anchor;
+            this._BatchPush();
+            this.SelectionStart = Math.min(anchor, cursor);
+            this.SelectionLength = Math.abs(cursor - anchor);
+            this._Emit = TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION;
+            this._SelectionAnchor = anchor;
+            this._SelectionCursor = cursor;
+            this._BatchPop();
+            this._SyncAndEmit();
+        }
+        OnLostFocus(e: RoutedEventArgs) {
+            this.$IsFocused = false;
+            if (this.$View)
+                this.$View.OnLostFocus(e);
+            if (!this.$IsReadOnly) {
+                this._NeedIMReset = true;
+            }
+        }
+        OnGotFocus(e: RoutedEventArgs) {
+            this.$IsFocused = true;
+            if (this.$View)
+                this.$View.OnGotFocus(e);
+            if (!this.$IsReadOnly) {
+                this._NeedIMReset = true;
+            }
+        }
+        OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
+            e.Handled = true;
+            this.Focus();
+            if (this.$View) {
+                var p = e.GetPosition(this.$View);
+                var cursor = this.$View.GetCursorFromXY(p.X, p.Y);
+                this._ResetIMContext();
+                this._Captured = this.CaptureMouse();
+                this._Selecting = true;
+                this._BatchPush();
+                this._Emit = TextBoxEmitChangedType.NOTHING;
+                this.SelectionStart = cursor;
+                this.SelectionLength = 0;
+                this._BatchPop();
+                this._SyncAndEmit();
+            }
+        }
+        OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs) {
+            if (this._Captured) {
+                this.ReleaseMouseCapture();
+            }
+            e.Handled = true;
+            this._Selecting = false;
+            this._Captured = false;
+        }
+        OnMouseMove(e: Input.MouseEventArgs) {
+            var anchor = this._SelectionAnchor;
+            var cursor = this._SelectionCursor;
+            if (this._Selecting) {
+                var p = e.GetPosition(this.$View);
+                e.Handled = true;
+                cursor = this.$View.GetCursorFromXY(p.X, p.Y);
+                this._BatchPush();
+                this._Emit = TextBoxEmitChangedType.NOTHING;
+                this.SelectionStart = Math.min(anchor, cursor);
+                this.SelectionLength = Math.abs(cursor - anchor);
+                this._SelectionAnchor = anchor;
+                this._SelectionCursor = cursor;
+                this._BatchPop();
+                this._SyncAndEmit();
+            }
+        }
+        CursorDown(cursor: number, isPage: bool): number {
+            return cursor;
+        }
+        CursorUp(cursor: number, isPage: bool): number {
+            return cursor;
+        }
+        CursorNextWord(cursor: number): number {
+            return cursor;
+        }
+        CursorPrevWord(cursor: number): number {
+            return cursor;
+        }
+        CursorLineBegin(cursor: number): number {
+            return cursor;
+        }
+        CursorLineEnd(cursor: number): number {
+            return cursor;
+        }
         _EmitCursorPositionChanged(height: number, x: number, y: number) {
+        }
+        OnKeyDown(args: Input.KeyEventArgs) {
+            switch (args.Key) {
+                case Key.Shift: //shift
+                case Key.Ctrl: //ctrl
+                case Key.Alt: //alt
+                    return;
+            }
+            var handled = false;
+            this._Emit = TextBoxEmitChangedType.NOTHING;
+            this._BatchPush();
+            switch (args.Key) {
+                case Key.Back:
+                    if (this.$IsReadOnly)
+                        break;
+                    handled = this._KeyDownBackSpace(args.Modifiers);
+                    break;
+                case Key.Delete:
+                    if (this.$IsReadOnly)
+                        break;
+                    if (args.Modifiers.Shift) {
+                        handled = true;
+                    } else {
+                        handled = this._KeyDownDelete(args.Modifiers);
+                    }
+                    break;
+                case Key.Insert:
+                    if (args.Modifiers.Shift) {
+                        handled = true;
+                    } else if (args.Modifiers.Ctrl) {
+                        handled = true;
+                    }
+                    break;
+                case Key.PageDown:
+                    handled = this._KeyDownPageDown(args.Modifiers);
+                    break;
+                case Key.PageUp:
+                    handled = this._KeyDownPageUp(args.Modifiers);
+                    break;
+                case Key.Home:
+                    handled = this._KeyDownHome(args.Modifiers);
+                    break;
+                case Key.End:
+                    handled = this._KeyDownEnd(args.Modifiers);
+                    break;
+                case Key.Left:
+                    handled = this._KeyDownLeft(args.Modifiers);
+                    break;
+                case Key.Right:
+                    handled = this._KeyDownRight(args.Modifiers);
+                    break;
+                case Key.Down:
+                    handled = this._KeyDownDown(args.Modifiers);
+                    break;
+                case Key.Up:
+                    handled = this._KeyDownUp(args.Modifiers);
+                    break;
+                default:
+                    if (args.Modifiers.Ctrl) {
+                        switch (args.Key) {
+                            case Key.A:
+                                handled = true;
+                                this.SelectAll();
+                                break;
+                            case Key.C:
+                                handled = true;
+                                break;
+                            case Key.X:
+                                if (this.$IsReadOnly)
+                                    break;
+                                this.SelectedText = "";
+                                handled = true;
+                                break;
+                            case Key.Y:
+                                if (!this.$IsReadOnly) {
+                                    handled = true;
+                                    this.Redo();
+                                }
+                                break;
+                            case Key.Z:
+                                if (!this.$IsReadOnly) {
+                                    handled = true;
+                                    this.Undo();
+                                }
+                                break;
+                        }
+                    }
+                    break;
+            }
+            if (handled) {
+                args.Handled = handled;
+                this._ResetIMContext();
+            }
+            this._BatchPop();
+            this._SyncAndEmit();
+            if (!args.Handled)
+                this.PostOnKeyDown(args);
+        }
+        PostOnKeyDown(args: Input.KeyEventArgs) {
+            if (args.Handled)
+                return;
+            /*
+            if (!this._IsReadOnly && this._IMCtx.FilterKeyPress()) {
+            this._NeedIMReset = true;
+            return;
+            }
+            */
+            if (this.$IsReadOnly || args.Modifiers.Alt || args.Modifiers.Ctrl)
+                return;
+            this._Emit = TextBoxEmitChangedType.NOTHING;
+            this._BatchPush();
+            if (args.Key === Key.Enter) {
+                this._KeyDownChar('\r');
+            } else if (args.Char != null && !args.Modifiers.Ctrl && !args.Modifiers.Alt) {
+                this._KeyDownChar(args.Char);
+            }
+            this._BatchPop();
+            this._SyncAndEmit();
+        }
+        private _KeyDownBackSpace(modifiers: Input.IModifiersOn): bool {
+            if (modifiers.Shift || modifiers.Alt)
+                return false;
+            var anchor = this._SelectionAnchor;
+            var cursor = this._SelectionCursor;
+            var start = 0;
+            var length = 0;
+            var handled = false;
+            if (cursor !== anchor) {
+                length = Math.abs(cursor - anchor);
+                start = Math.min(anchor, cursor);
+            } else if (modifiers.Ctrl) {
+                start = this.CursorPrevWord(cursor);
+                length = cursor - start;
+            } else if (cursor > 0) {
+                if (cursor >= 2 && this._Buffer && this._Buffer.charAt(cursor - 2) === '\r' && this._Buffer.charAt(cursor - 1) === '\n') {
+                    start = cursor - 2;
+                    length = 2;
+                } else {
+                    start = cursor - 1;
+                    length = 1;
+                }
+            }
+            if (length > 0) {
+                this._Undo.push(new Text.TextBoxUndoActionDelete(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length));
+                this._Redo = [];
+                this._Buffer = Text.TextBuffer.Cut(this._Buffer, start, length);
+                this._Emit |= TextBoxEmitChangedType.TEXT;
+                anchor = start;
+                cursor = start;
+                handled = true;
+            }
+            if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+                this.SelectionStart = Math.min(anchor, cursor);
+                this.SelectionLength = Math.abs(cursor - anchor);
+                this._SelectionAnchor = anchor;
+                this._SelectionCursor = cursor;
+                this._Emit |= TextBoxEmitChangedType.SELECTION;
+                handled = true;
+            }
+            return handled;
+        }
+        private _KeyDownDelete(modifiers: Input.IModifiersOn): bool {
+            if (modifiers.Shift || modifiers.Alt)
+                return false;
+            var anchor = this._SelectionAnchor;
+            var cursor = this._SelectionCursor;
+            var start = 0;
+            var length = 0;
+            var handled = false;
+            if (cursor !== anchor) {
+                length = Math.abs(cursor - anchor);
+                start = Math.min(anchor, cursor);
+            } else if (modifiers.Ctrl) {
+                length = this.CursorNextWord(cursor) - cursor;
+                start = cursor;
+            } else if (this._Buffer && cursor < this._Buffer.length) {
+                if (this._Buffer.charAt(cursor) === '\r' && this._Buffer.charAt(cursor + 1) === '\n')
+                    length = 2;
+                else
+                    length = 1;
+                start = cursor;
+            }
+            if (length > 0) {
+                this._Undo.push(new Text.TextBoxUndoActionDelete(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length));
+                this._Redo = [];
+                this._Buffer = Text.TextBuffer.Cut(this._Buffer, start, length);
+                this._Emit |= TextBoxEmitChangedType.TEXT;
+                handled = true;
+            }
+            if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+                this.SelectionStart = Math.min(anchor, cursor);
+                this.SelectionLength = Math.abs(cursor - anchor);
+                this._SelectionAnchor = anchor;
+                this._SelectionCursor = cursor;
+                this._Emit |= TextBoxEmitChangedType.SELECTION;
+                handled = true;
+            }
+            return handled;
+        }
+        private _KeyDownPageDown(modifiers: Input.IModifiersOn): bool {
+            if (modifiers.Alt)
+                return false;
+            var anchor = this._SelectionAnchor;
+            var cursor = this._SelectionCursor;
+            cursor = this.CursorDown(cursor, true);
+            var have = this.$HasOffset;
+            if (!modifiers.Shift) {
+                anchor = cursor;
+            }
+            if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+                this.SelectionStart = Math.min(anchor, cursor);
+                this.SelectionLength = Math.abs(cursor - anchor);
+                this._SelectionAnchor = anchor;
+                this._SelectionCursor = cursor;
+                this._Emit |= TextBoxEmitChangedType.SELECTION;
+                this.$HasOffset = have;
+            }
+            return true;
+        }
+        private _KeyDownPageUp(modifiers: Input.IModifiersOn): bool {
+            if (modifiers.Alt)
+                return false;
+            var anchor = this._SelectionAnchor;
+            var cursor = this._SelectionCursor;
+            cursor = this.CursorUp(cursor, true);
+            var have = this.$HasOffset;
+            if (!modifiers.Shift) {
+                anchor = cursor;
+            }
+            if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+                this.SelectionStart = Math.min(anchor, cursor);
+                this.SelectionLength = Math.abs(cursor - anchor);
+                this._SelectionAnchor = anchor;
+                this._SelectionCursor = cursor;
+                this._Emit |= TextBoxEmitChangedType.SELECTION;
+                this.$HasOffset = have;
+            }
+            return true;
+        }
+        private _KeyDownHome(modifiers: Input.IModifiersOn): bool {
+            if (modifiers.Alt)
+                return false;
+            var anchor = this._SelectionAnchor;
+            var cursor = this._SelectionCursor;
+            var handled = false;
+            if (modifiers.Ctrl) {
+                cursor = 0;
+            } else {
+                cursor = this.CursorLineBegin(cursor);
+            }
+            if (!modifiers.Shift) {
+                anchor = cursor;
+            }
+            if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+                this.SelectionStart = Math.min(anchor, cursor);
+                this.SelectionLength = Math.abs(cursor - anchor);
+                this._SelectionAnchor = anchor;
+                this._SelectionCursor = cursor;
+                this._Emit |= TextBoxEmitChangedType.SELECTION;
+                this.$HasOffset = false;
+                handled = true;
+            }
+            return handled;
+        }
+        private _KeyDownEnd(modifiers: Input.IModifiersOn): bool {
+            if (modifiers.Alt)
+                return false;
+            var anchor = this._SelectionAnchor;
+            var cursor = this._SelectionCursor;
+            var handled = false;
+            if (modifiers.Ctrl) {
+                cursor = this._Buffer.length;
+            } else {
+                cursor = this.CursorLineEnd(cursor);
+            }
+            if (!modifiers.Shift) {
+                anchor = cursor;
+            }
+            if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+                this.SelectionStart = Math.min(anchor, cursor);
+                this.SelectionLength = Math.abs(cursor - anchor);
+                this._SelectionAnchor = anchor;
+                this._SelectionCursor = cursor;
+                this._Emit |= TextBoxEmitChangedType.SELECTION;
+                this.$HasOffset = false;
+                handled = true;
+            }
+            return handled;
+        }
+        private _KeyDownLeft(modifiers: Input.IModifiersOn): bool {
+            if (modifiers.Alt)
+                return false;
+            var anchor = this._SelectionAnchor;
+            var cursor = this._SelectionCursor;
+            var handled = false;
+            if (modifiers.Ctrl) {
+                cursor = this.CursorPrevWord(cursor);
+            } else if (!modifiers.Shift && anchor !== cursor) {
+                cursor = Math.min(anchor, cursor);
+            } else {
+                if (cursor >= 2 && this._Buffer && this._Buffer.charAt(cursor - 2) === '\r' && this._Buffer.charAt(cursor - 1) === '\n')
+                    cursor -= 2;
+                else if (cursor > 0)
+                    cursor--;
+            }
+            if (!modifiers.Shift)
+                anchor = cursor;
+            if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+                this.SelectionStart = Math.min(anchor, cursor);
+                this.SelectionLength = Math.abs(cursor - anchor);
+                this._SelectionAnchor = anchor;
+                this._SelectionCursor = cursor;
+                this._Emit |= TextBoxEmitChangedType.SELECTION;
+                handled = true;
+            }
+            return handled;
+        }
+        private _KeyDownRight(modifiers: Input.IModifiersOn): bool {
+            if (modifiers.Alt)
+                return false;
+            var anchor = this._SelectionAnchor;
+            var cursor = this._SelectionCursor;
+            var handled = false;
+            if (modifiers.Ctrl) {
+                cursor = this.CursorNextWord(cursor);
+            } else if (!modifiers.Shift && anchor !== cursor) {
+                cursor = Math.max(anchor, cursor);
+            } else {
+                if (this._Buffer && this._Buffer.charAt(cursor) === '\r' && this._Buffer.charAt(cursor + 1) === '\n')
+                    cursor += 2;
+                else if (cursor < this._Buffer.length)
+                    cursor++;
+            }
+            if (!modifiers.Shift)
+                anchor = cursor;
+            if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+                this.SelectionStart = Math.min(anchor, cursor);
+                this.SelectionLength = Math.abs(cursor - anchor);
+                this._SelectionAnchor = anchor;
+                this._SelectionCursor = cursor;
+                this._Emit |= TextBoxEmitChangedType.SELECTION;
+                handled = true;
+            }
+            return handled;
+        }
+        private _KeyDownDown(modifiers: Input.IModifiersOn): bool {
+            if (modifiers.Alt)
+                return false;
+            var anchor = this._SelectionAnchor;
+            var cursor = this._SelectionCursor;
+            var handled = false;
+            cursor = this.CursorDown(cursor, false);
+            var have = this.$HasOffset;
+            if (!modifiers.Shift) {
+                anchor = cursor;
+            }
+            if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+                this.SelectionStart = Math.min(anchor, cursor);
+                this.SelectionLength = Math.abs(cursor - anchor);
+                this._SelectionAnchor = anchor;
+                this._SelectionCursor = cursor;
+                this._Emit |= TextBoxEmitChangedType.SELECTION;
+                this.$HasOffset = have;
+                handled = true;
+            }
+            return handled;
+        }
+        private _KeyDownUp(modifiers: Input.IModifiersOn): bool {
+            if (modifiers.Alt)
+                return false;
+            var anchor = this._SelectionAnchor;
+            var cursor = this._SelectionCursor;
+            var handled = false;
+            cursor = this.CursorUp(cursor, false);
+            var have = this.$HasOffset;
+            if (!modifiers.Shift) {
+                anchor = cursor;
+            }
+            if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+                this.SelectionStart = Math.min(anchor, cursor);
+                this.SelectionLength = Math.abs(cursor - anchor);
+                this._SelectionAnchor = anchor;
+                this._SelectionCursor = cursor;
+                this._Emit |= TextBoxEmitChangedType.SELECTION;
+                this.$HasOffset = have;
+                handled = true;
+            }
+            return handled;
+        }
+        private _KeyDownChar(c: string): bool {
+            var anchor = this._SelectionAnchor;
+            var cursor = this._SelectionCursor;
+            var length = Math.abs(cursor - anchor);
+            var start = Math.min(anchor, cursor);
+            if ((this.$MaxLength > 0 && this._Buffer.length >= this.$MaxLength) || (c === '\r') && !this.$AcceptsReturn)
+                return false;
+            if (length > 0) {
+                this._Undo.push(new Text.TextBoxUndoActionReplace(anchor, cursor, this._Buffer, start, length, c));
+                this._Redo = [];
+                this._Buffer = Text.TextBuffer.Replace(this._Buffer, start, length, c);
+            } else {
+                var ins: Text.TextBoxUndoActionInsert = null;
+                var action = this._Undo[this._Undo.length - 1];
+                if (action instanceof Text.TextBoxUndoActionInsert) {
+                    ins = <Text.TextBoxUndoActionInsert>action;
+                    if (!ins.Insert(start, c))
+                        ins = null;
+                }
+                if (!ins) {
+                    ins = new Text.TextBoxUndoActionInsert(anchor, cursor, start, c);
+                    this._Undo.push(ins);
+                }
+                this._Redo = [];
+                this._Buffer = Text.TextBuffer.Insert(this._Buffer, start, c);
+            }
+            this._Emit |= TextBoxEmitChangedType.TEXT;
+            cursor = start + 1;
+            anchor = cursor;
+            if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+                this.SelectionStart = Math.min(anchor, cursor);
+                this.SelectionLength = Math.abs(cursor - anchor);
+                this._SelectionAnchor = anchor;
+                this._SelectionCursor = cursor;
+                this._Emit |= TextBoxEmitChangedType.SELECTION;
+            }
+            return true;
         }
     }
     Nullstone.RegisterType(TextBoxBase, "TextBoxBase");
@@ -19158,11 +20062,11 @@ module Fayde.Controls.Internal {
             var lu = this.XamlNode.LayoutUpdater;
             switch (args.Changed) {
                 case TextBoxModelChangedType.TextAlignment:
-                    if (this._Layout.SetTextAlignment(args.PropArgs.NewValue))
+                    if (this._Layout.SetTextAlignment(args.NewValue))
                         this._Dirty = true;
                     break;
                 case TextBoxModelChangedType.TextWrapping:
-                    if (this._Layout.SetTextWrapping(args.PropArgs.NewValue))
+                    if (this._Layout.SetTextWrapping(args.NewValue))
                         this._Dirty = true;
                     break;
                 case TextBoxModelChangedType.Selection:
@@ -23672,10 +24576,178 @@ module Fayde.Controls {
 
 module Fayde.Controls {
     export class TextBox extends TextBoxBase {
-        HorizontalScrollBarVisibility: ScrollBarVisibility;
+        static AcceptsReturnProperty: DependencyProperty = DependencyProperty.Register("AcceptsReturn", () => Boolean, TextBox, false, (d, args) => (<TextBox>d).$AcceptsReturn = (args.NewValue === true));
+        static CaretBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, TextBox);
+        static MaxLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d).$MaxLength = args.NewValue, undefined, undefined, undefined, positiveIntValidator);
+        static IsReadOnlyProperty: DependencyProperty = DependencyProperty.Register("IsReadOnly", () => Boolean, TextBox, undefined, (d, args) => (<TextBox>d)._IsReadOnlyChanged(args));
+        static SelectionForegroundProperty: DependencyProperty = DependencyProperty.RegisterCore("SelectionForeground", () => Media.Brush, TextBox, undefined, (d, args) => (<TextBox>d)._SelectionForegroundChanged(args));
+        static SelectionBackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("SelectionBackground", () => Media.Brush, TextBox, undefined, (d, args) => (<TextBox>d)._SelectionBackgroundChanged(args));
+        static BaselineOffsetProperty: DependencyProperty = DependencyProperty.Register("BaselineOffset", () => Number, TextBox);
+        static SelectedTextProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectedText", () => String, TextBox, "", (d, args) => (<TextBox>d)._SelectedTextChanged(args.NewValue), undefined, undefined, true);
+        static SelectionLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectionLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d)._SelectionLengthChanged(args.NewValue), undefined, undefined, true, positiveIntValidator);
+        static SelectionStartProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectionStart", () => Number, TextBox, 0, (d, args) => (<TextBox>d)._SelectionStartChanged(args.NewValue), undefined, undefined, true, positiveIntValidator);
+        static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, TextBox, undefined, (d, args) => (<TextBox>d)._TextChanged(args.NewValue));
+        static TextAlignmentProperty: DependencyProperty = DependencyProperty.Register("TextAlignment", () => new Enum(TextAlignment), TextBox, TextAlignment.Left, (d, args) => (<TextBox>d)._TextAlignmentChanged(args));
+        static TextWrappingProperty: DependencyProperty = DependencyProperty.Register("TextWrapping", () => new Enum(TextWrapping), TextBox, TextWrapping.NoWrap, (d, args) => (<TextBox>d)._TextWrappingChanged(args));
+        static HorizontalScrollBarVisibilityProperty: DependencyProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", () => new Enum(ScrollBarVisibility), TextBox, ScrollBarVisibility.Hidden, (d, args) => (<TextBox>d)._HorizontalScrollBarVisibilityChanged(args));
+        static VerticalScrollBarVisibilityProperty: DependencyProperty = DependencyProperty.Register("VerticalScrollBarVisibility", () => new Enum(ScrollBarVisibility), TextBox, ScrollBarVisibility.Hidden, (d, args) => (<TextBox>d)._VerticalScrollBarVisibilityChanged(args));
+        AcceptsReturn: bool;
+        CaretBrush: Media.Brush;
+        MaxLength: number;
+        IsReadOnly: bool;
+        SelectionForeground: Media.Brush;
+        SelectionBackground: Media.Brush;
+        BaselineOffset: number;
+        SelectedText: string;
+        SelectionLength: number;
+        SelectionStart: number;
+        Text: string;
+        TextAlignment: TextAlignment;
         TextWrapping: TextWrapping;
+        HorizontalScrollBarVisibility: ScrollBarVisibility;
+        VerticalScrollBarVisibility: ScrollBarVisibility;
+        SelectionChanged: MulticastEvent = new MulticastEvent();
+        TextChanged: MulticastEvent = new MulticastEvent();
+        constructor() {
+            super(TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION, TextBox.TextProperty, TextBox.SelectedTextProperty);
+            this.DefaultStyleKey = (<any>this).constructor;
+        }
+        OnApplyTemplate() {
+            super.OnApplyTemplate();
+            var ce = this.$ContentElement;
+            if (!ce)
+                return;
+            var ceType = (<any>ce).constructor;
+            var propd = DependencyProperty.GetDependencyProperty(ceType, "VerticalScrollBarVisibility", true);
+            if (propd)
+                ce.SetValueInternal(propd, this.VerticalScrollBarVisibility);
+            propd = DependencyProperty.GetDependencyProperty(ceType, "HorizontalScrollBarVisibility", true);
+            if (propd) {
+                var vis = (this.TextWrapping === TextWrapping.Wrap) ? ScrollBarVisibility.Disabled : this.HorizontalScrollBarVisibility;
+                ce.SetValueInternal(propd, vis);
+            }
+        }
+        GetDisplayText(): string {
+            return this.Text;
+        }
+        private _EmitTextChanged() {
+            this.TextChanged.RaiseAsync(this, EventArgs.Empty);
+        }
+        private _EmitSelectionChanged() {
+            this.SelectionChanged.RaiseAsync(this, new EventArgs());
+        }
+        private _IsReadOnlyChanged(args: IDependencyPropertyChangedEventArgs) {
+            this.$IsReadOnly = args.NewValue === true;
+            if (this.$IsFocused) {
+                if (this.$IsReadOnly) {
+                    this._ResetIMContext();
+                } else {
+                }
+            }
+            if (this.$View)
+                this.$View.SetEnableCursor(!this.$IsReadOnly);
+        }
+        private _FontChanged(args: IDependencyPropertyChangedEventArgs) { this._ModelChanged(TextBoxModelChangedType.Font, args.NewValue); }
+        private _SelectionBackgroundListener: Media.IBrushChangedListener;
+        private _SelectionBackgroundChanged(args: IDependencyPropertyChangedEventArgs) {
+            var newBrush = <Media.Brush>args.NewValue;
+            if (this._SelectionBackgroundListener)
+                this._SelectionBackgroundListener.Detach();
+            this._SelectionBackgroundListener = null;
+            if (newBrush) {
+                this._SelectionBackgroundListener = newBrush.Listen((brush) => {
+                    this._ModelChanged(TextBoxModelChangedType.Brush, newBrush);
+                    this.XamlNode.LayoutUpdater.Invalidate();
+                });
+            }
+            this._ModelChanged(TextBoxModelChangedType.Brush, newBrush);
+            this.XamlNode.LayoutUpdater.Invalidate();
+        }
+        private _SelectionForegroundListener: Media.IBrushChangedListener;
+        private _SelectionForegroundChanged(args: IDependencyPropertyChangedEventArgs) {
+            var newBrush = <Media.Brush>args.NewValue;
+            if (this._SelectionForegroundListener)
+                this._SelectionForegroundListener.Detach();
+            this._SelectionForegroundListener = null;
+            if (newBrush) {
+                this._SelectionForegroundListener = newBrush.Listen((brush) => {
+                    this._ModelChanged(TextBoxModelChangedType.Brush, newBrush);
+                    this.XamlNode.LayoutUpdater.Invalidate();
+                });
+            }
+            this._ModelChanged(TextBoxModelChangedType.Brush, newBrush);
+            this.XamlNode.LayoutUpdater.Invalidate();
+        }
+        private _TextAlignmentChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._ModelChanged(TextBoxModelChangedType.TextAlignment, args.NewValue);
+        }
+        private _TextWrappingChanged(args: IDependencyPropertyChangedEventArgs) {
+            var ce = this.$ContentElement;
+            if (ce) {
+                var ceType = (<any>ce).constructor;
+                var propd = DependencyProperty.GetDependencyProperty(ceType, "HorizontalScrollBarVisibility", true);
+                if (propd) {
+                    var vis = (args.NewValue === TextWrapping.Wrap) ? ScrollBarVisibility.Disabled : this.HorizontalScrollBarVisibility;
+                    ce.SetValueInternal(propd, vis);
+                }
+            }
+            this._ModelChanged(TextBoxModelChangedType.TextWrapping, args.NewValue);
+        }
+        private _HorizontalScrollBarVisibilityChanged(args: IDependencyPropertyChangedEventArgs) {
+            var ce = this.$ContentElement;
+            if (!ce)
+                return;
+            var ceType = (<any>ce).constructor;
+            var propd = DependencyProperty.GetDependencyProperty(ceType, "HorizontalScrollBarVisibility");
+            if (!propd)
+                return;
+            var vis = (this.TextWrapping === TextWrapping.Wrap) ? ScrollBarVisibility.Disabled : args.NewValue;
+            ce.SetValueInternal(propd, vis);
+        }
+        private _VerticalScrollBarVisibilityChanged(args: IDependencyPropertyChangedEventArgs) {
+            var ce = this.$ContentElement;
+            if (!ce)
+                return;
+            var ceType = (<any>ce).constructor;
+            var propd = DependencyProperty.GetDependencyProperty(ceType, "VerticalScrollBarVisibility");
+            if (!propd)
+                return;
+            ce.SetValueInternal(propd, args.NewValue);
+        }
+        OnMouseEnter(e: Input.MouseEventArgs) {
+            super.OnMouseEnter(e);
+            this.UpdateVisualState();
+        }
+        OnMouseLeave(e: Input.MouseEventArgs) {
+            super.OnMouseLeave(e);
+            this.UpdateVisualState();
+        }
+        OnGotFocus(e: RoutedEventArgs) {
+            super.OnGotFocus(e);
+            this.UpdateVisualState();
+        }
+        OnLostFocus(e: RoutedEventArgs) {
+            super.OnLostFocus(e);
+            this.UpdateVisualState();
+        }
+        GetVisualStateCommon(): string {
+            if (!this.IsEnabled) {
+                return "Disabled";
+            } else if (this.IsReadOnly) {
+                return "ReadOnly";
+            } else if (this.IsMouseOver) {
+                return "MouseOver";
+            } else {
+                return "Normal";
+            }
+        }
     }
     Nullstone.RegisterType(TextBox, "TextBox");
+    function positiveIntValidator(dobj: DependencyObject, propd: DependencyProperty, value: any): bool {
+        if (typeof value !== 'number')
+            return false;
+        return value >= 0;
+    }
 }
 
 module Fayde.Controls {

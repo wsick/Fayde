@@ -1432,6 +1432,10 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Text\TextLayout.ts" />
     <TypeScriptCompile Include="Typescript\Text\TextAttributes.ts" />
+    <TypeScriptCompile Include="Typescript\Text\History.ts" />
+    <Content Include="Typescript\Text\History.js">
+      <DependentUpon>History.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Text\TextAttributes.js">
       <DependentUpon>TextAttributes.ts</DependentUpon>
     </Content>

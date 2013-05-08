@@ -395,13 +395,16 @@ var Fayde;
                 return this.XamlNode.ComputeActualSize(lu, this.Padding);
             };
             TextBlock.prototype._ForegroundChanged = function (args) {
-                var oldBrush = args.OldValue;
+                var _this = this;
                 var newBrush = args.NewValue;
-                if(oldBrush) {
-                    oldBrush.Unlisten(this);
+                if(this._ForegroundListener) {
+                    this._ForegroundListener.Detach();
                 }
+                this._ForegroundListener = null;
                 if(newBrush) {
-                    newBrush.Listen(this);
+                    this._ForegroundListener = newBrush.Listen(function (brush) {
+                        return _this.BrushChanged(brush);
+                    });
                 }
             };
             TextBlock.prototype.BrushChanged = function (newBrush) {

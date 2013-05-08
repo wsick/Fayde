@@ -77,7 +77,7 @@ module Fayde.Shapes {
         return Math.abs(x) < 0.000019 && (Math.abs(dx) * x - x) > 1.0;
     }
 
-    export class Shape extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable, Media.IBrushChangedListener {
+    export class Shape extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable {
         XamlNode: ShapeNode;
         CreateNode(): ShapeNode { return new ShapeNode(this); }
 
@@ -454,27 +454,31 @@ module Fayde.Shapes {
             this.XamlNode.LayoutUpdater.Invalidate();
         }
         
+        private _FillListener: Media.IBrushChangedListener;
         private _FillChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldFill = <Media.Brush>args.OldValue;
-            var newFill = <Media.Brush>args.NewValue;
-            if (oldFill)
-                oldFill.Unlisten(this);
-            if (newFill)
-                newFill.Listen(this);
-            if (this._Fill || newFill)
+            var newBrush = <Media.Brush>args.NewValue;
+            if (this._FillListener)
+                this._FillListener.Detach();
+                this._FillListener = null;
+            if (newBrush)
+                this._FillListener = newBrush.Listen((brush) => this.BrushChanged(brush));
+
+            if (this._Fill || newBrush)
                 this._InvalidateNaturalBounds();
-            this._Fill = newFill;
+            this._Fill = newBrush;
         }
+        private _StrokeListener: Media.IBrushChangedListener;
         private _StrokeChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldStroke = <Media.Brush>args.OldValue;
-            var newStroke = <Media.Brush>args.NewValue;
-            if (oldStroke)
-                oldStroke.Unlisten(this);
-            if (newStroke)
-                newStroke.Listen(this);
-            if (this._Stroke || newStroke)
+            var newBrush = <Media.Brush>args.NewValue;
+            if (this._StrokeListener)
+                this._StrokeListener.Detach();
+                this._StrokeListener = null;
+            if (newBrush)
+                this._StrokeListener = newBrush.Listen((brush) => this.BrushChanged(brush));
+
+            if (this._Stroke || newBrush)
                 this._InvalidateNaturalBounds();
-            this._Stroke = newStroke;
+            this._Stroke = newBrush;
         }
         private BrushChanged(newBrush: Media.Brush) {
             this.XamlNode.LayoutUpdater.Invalidate();

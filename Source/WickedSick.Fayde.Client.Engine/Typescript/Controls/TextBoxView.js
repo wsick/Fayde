@@ -283,12 +283,12 @@ var Fayde;
                     var lu = this.XamlNode.LayoutUpdater;
                     switch(args.Changed) {
                         case Controls.TextBoxModelChangedType.TextAlignment:
-                            if(this._Layout.SetTextAlignment(args.PropArgs.NewValue)) {
+                            if(this._Layout.SetTextAlignment(args.NewValue)) {
                                 this._Dirty = true;
                             }
                             break;
                         case Controls.TextBoxModelChangedType.TextWrapping:
-                            if(this._Layout.SetTextWrapping(args.PropArgs.NewValue)) {
+                            if(this._Layout.SetTextWrapping(args.NewValue)) {
                                 this._Dirty = true;
                             }
                             break;

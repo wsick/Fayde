@@ -180,6 +180,12 @@ var Fayde;
             Panel.prototype.CreateNode = function () {
                 return new PanelNode(this);
             };
+            Panel.ZIndexProperty = DependencyProperty.RegisterAttached("ZIndex", function () {
+                return Number;
+            }, Panel, 0, zIndexPropertyChanged);
+            Panel.ZProperty = DependencyProperty.RegisterAttached("Z", function () {
+                return Number;
+            }, Panel, NaN);
             Panel.BackgroundProperty = DependencyProperty.Register("Background", function () {
                 return Fayde.Media.Brush;
             }, Panel, undefined, function (d, args) {
@@ -188,12 +194,6 @@ var Fayde;
             Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemHost", function () {
                 return Boolean;
             }, Panel, false);
-            Panel.ZIndexProperty = DependencyProperty.RegisterAttached("ZIndex", function () {
-                return Number;
-            }, Panel, 0, zIndexPropertyChanged);
-            Panel.ZProperty = DependencyProperty.RegisterAttached("Z", function () {
-                return Number;
-            }, Panel, NaN);
             Panel.Annotations = {
                 ContentProperty: "Children"
             };
@@ -210,14 +210,18 @@ var Fayde;
                 uie.SetValue(Panel.ZProperty, value);
             };
             Panel.prototype._BackgroundChanged = function (args) {
-                var oldBrush = args.OldValue;
+                var _this = this;
                 var newBrush = args.NewValue;
-                if(oldBrush) {
-                    oldBrush.Unlisten(this);
+                if(this._BackgroundListener) {
+                    this._BackgroundListener.Detach();
                 }
+                this._BackgroundListener = null;
                 if(newBrush) {
-                    newBrush.Listen(this);
+                    this._BackgroundListener = newBrush.Listen(function (brush) {
+                        return _this.BrushChanged(brush);
+                    });
                 }
+                this.BrushChanged(newBrush);
                 var lu = this.XamlNode.LayoutUpdater;
                 lu.UpdateBounds();
                 lu.Invalidate();

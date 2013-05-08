@@ -17,7 +17,7 @@ var Fayde;
                         _super.call(this);
                 this._CachedBounds = null;
                 this._CachedBrush = null;
-                this._Listener = null;
+                this._Listeners = [];
                 (this.XamlNode).IsShareable = true;
             }
             Brush.TransformProperty = DependencyProperty.RegisterCore("Transform", function () {
@@ -55,20 +55,28 @@ var Fayde;
             Brush.prototype.ToHtml5Object = function () {
                 return this._CachedBrush;
             };
-            Brush.prototype.Listen = function (listener) {
-                this._Listener = listener;
-            };
-            Brush.prototype.Unlisten = function (listener) {
-                if(this._Listener === listener) {
-                    this._Listener = null;
-                }
+            Brush.prototype.Listen = function (func) {
+                var _this = this;
+                var listener = {
+                    Callback: func,
+                    Detach: function () {
+                        var listeners = _this._Listeners;
+                        var index = listeners.indexOf(listener);
+                        if(index > -1) {
+                            listeners.splice(index, 1);
+                        }
+                    }
+                };
+                this._Listeners.push(listener);
+                return listener;
             };
             Brush.prototype.InvalidateBrush = function () {
                 this._CachedBrush = null;
                 this._CachedBounds = null;
-                var listener = this._Listener;
-                if(listener) {
-                    listener.BrushChanged(this);
+                var listeners = this._Listeners;
+                var len = listeners.length;
+                for(var i = 0; i < len; i++) {
+                    listeners[i].Callback(this);
                 }
             };
             Brush.prototype.TransformChanged = function (source) {

@@ -6,7 +6,8 @@
 
 module Fayde.Media {
     export interface IBrushChangedListener {
-        BrushChanged(newBrush: Brush);
+        Callback: (newBrush: Media.Brush) => void;
+        Detach();
     }
 
     export class Brush extends DependencyObject implements ITransformChangedListener {
@@ -15,7 +16,7 @@ module Fayde.Media {
 
         private _CachedBounds: rect = null;
         private _CachedBrush: any = null;
-        private _Listener: IBrushChangedListener = null;
+        private _Listeners: IBrushChangedListener[] = [];
 
         constructor() {
             super();
@@ -52,14 +53,28 @@ module Fayde.Media {
         CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any { return undefined; }
         ToHtml5Object(): any { return this._CachedBrush; }
 
-        Listen(listener: IBrushChangedListener) { this._Listener = listener; }
-        Unlisten(listener: IBrushChangedListener) { if (this._Listener === listener) this._Listener = null; }
+        Listen(func: (newBrush: Media.Brush) => void ): IBrushChangedListener {
+            var listener = {
+                Callback: func,
+                Detach: () => {
+                    var listeners = this._Listeners;
+                    var index = listeners.indexOf(listener);
+                    if (index > -1)
+                        listeners.splice(index, 1);
+                }
+            };
+            this._Listeners.push(listener);
+            return listener;
+        }
 
         InvalidateBrush() {
             this._CachedBrush = null;
             this._CachedBounds = null;
-            var listener = this._Listener;
-            if (listener) listener.BrushChanged(this);
+            var listeners = this._Listeners;
+            var len = listeners.length;
+            for (var i = 0; i < len; i++) {
+                listeners[i].Callback(this);
+            }
         }
         private TransformChanged(source: Transform) {
             this.InvalidateBrush();

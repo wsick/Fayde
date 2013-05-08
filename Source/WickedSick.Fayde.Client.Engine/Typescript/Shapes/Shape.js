@@ -477,32 +477,38 @@ var Fayde;
                 this.XamlNode.LayoutUpdater.Invalidate();
             };
             Shape.prototype._FillChanged = function (args) {
-                var oldFill = args.OldValue;
-                var newFill = args.NewValue;
-                if(oldFill) {
-                    oldFill.Unlisten(this);
+                var _this = this;
+                var newBrush = args.NewValue;
+                if(this._FillListener) {
+                    this._FillListener.Detach();
                 }
-                if(newFill) {
-                    newFill.Listen(this);
+                this._FillListener = null;
+                if(newBrush) {
+                    this._FillListener = newBrush.Listen(function (brush) {
+                        return _this.BrushChanged(brush);
+                    });
                 }
-                if(this._Fill || newFill) {
+                if(this._Fill || newBrush) {
                     this._InvalidateNaturalBounds();
                 }
-                this._Fill = newFill;
+                this._Fill = newBrush;
             };
             Shape.prototype._StrokeChanged = function (args) {
-                var oldStroke = args.OldValue;
-                var newStroke = args.NewValue;
-                if(oldStroke) {
-                    oldStroke.Unlisten(this);
+                var _this = this;
+                var newBrush = args.NewValue;
+                if(this._StrokeListener) {
+                    this._StrokeListener.Detach();
                 }
-                if(newStroke) {
-                    newStroke.Listen(this);
+                this._StrokeListener = null;
+                if(newBrush) {
+                    this._StrokeListener = newBrush.Listen(function (brush) {
+                        return _this.BrushChanged(brush);
+                    });
                 }
-                if(this._Stroke || newStroke) {
+                if(this._Stroke || newBrush) {
                     this._InvalidateNaturalBounds();
                 }
-                this._Stroke = newStroke;
+                this._Stroke = newBrush;
             };
             Shape.prototype.BrushChanged = function (newBrush) {
                 this.XamlNode.LayoutUpdater.Invalidate();

@@ -179,11 +179,11 @@ module Fayde.Input {
 
     ///Modifers = { Shift: <bool>, Ctrl: <bool>, Alt: <bool> }
     export class KeyEventArgs extends KeyboardEventArgs {
-        Modifiers: any;
+        Modifiers: IModifiersOn;
         PlatformKeyCode: number;
         Key: Key;
         Char: string;
-        constructor(modifiers: any, keyCode: number, key: Key, char?: string) {
+        constructor(modifiers: IModifiersOn, keyCode: number, key: Key, char?: string) {
             super();
             this.Modifiers = modifiers;
             this.PlatformKeyCode = keyCode;

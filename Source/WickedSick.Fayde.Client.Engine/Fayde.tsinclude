@@ -27,6 +27,7 @@ Typescript\Runtime\PropertyInfo.ts
 Typescript\Runtime\StringEx.ts
 Typescript\Shapes\Enums.ts
 Typescript\Shapes\RawPath.ts
+Typescript\Text\History.ts
 Typescript\Text\TextAttributes.ts
 Typescript\Text\TextLayout.ts
 Typescript\Collections\INotifyCollectionChanged.ts

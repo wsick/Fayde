@@ -27,6 +27,7 @@ Runtime/PropertyInfo.js
 Runtime/StringEx.js
 Shapes/Enums.js
 Shapes/RawPath.js
+Text/History.js
 Text/TextAttributes.js
 Text/TextLayout.js
 Collections/INotifyCollectionChanged.js
