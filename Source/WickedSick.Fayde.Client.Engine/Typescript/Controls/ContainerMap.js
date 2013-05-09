@@ -34,7 +34,7 @@ var Fayde;
             };
             ContainerMap.prototype.ItemFromContainer = function (container) {
                 var index = this.IndexFromContainer(container);
-                if(index > 0) {
+                if(index > -1) {
                     return this._Items[index];
                 }
                 return new Fayde.UnsetValue();
@@ -44,7 +44,7 @@ var Fayde;
                     return null;
                 }
                 var index = this.IndexFromItem(item);
-                if(index > 0) {
+                if(index > -1) {
                     return this._Containers[index];
                 }
             };

@@ -692,7 +692,6 @@ var Fayde;
                 var cursor = this._SelectionCursor;
                 var start = 0;
                 var length = 0;
-                var handled = false;
                 if(cursor !== anchor) {
                     length = Math.abs(cursor - anchor);
                     start = Math.min(anchor, cursor);
@@ -715,7 +714,6 @@ var Fayde;
                     this._Emit |= TextBoxEmitChangedType.TEXT;
                     anchor = start;
                     cursor = start;
-                    handled = true;
                 }
                 if(this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
                     this.SelectionStart = Math.min(anchor, cursor);
@@ -723,9 +721,8 @@ var Fayde;
                     this._SelectionAnchor = anchor;
                     this._SelectionCursor = cursor;
                     this._Emit |= TextBoxEmitChangedType.SELECTION;
-                    handled = true;
                 }
-                return handled;
+                return true;
             };
             TextBoxBase.prototype._KeyDownDelete = function (modifiers) {
                 if(modifiers.Shift || modifiers.Alt) {

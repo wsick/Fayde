@@ -29,7 +29,7 @@ module Fayde.Controls {
         ContainerFromIndex(index: number): DependencyObject { return this._Containers[index]; }
         ItemFromContainer(container: DependencyObject): any {
             var index = this.IndexFromContainer(container);
-            if (index > 0)
+            if (index > -1)
                 return this._Items[index];
             return new UnsetValue();
         }
@@ -37,7 +37,7 @@ module Fayde.Controls {
             if (item == null)
                 return null;
             var index = this.IndexFromItem(item);
-            if (index > 0)
+            if (index > -1)
                 return this._Containers[index];
         }
 

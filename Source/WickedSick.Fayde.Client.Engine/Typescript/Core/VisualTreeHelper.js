@@ -69,8 +69,6 @@ var Fayde;
                 uin = ui;
             } else if(ui instanceof Fayde.LayoutUpdater) {
                 uin = (ui).Node;
-            } else if(ui) {
-                return "[Object is not a UIElement.]";
             }
             //Find top level
             var topNode;
@@ -309,6 +307,21 @@ var Fayde;
                 str = str.substring(0, str.length - 1);
             }
             return "[" + str + "]";
+        };
+        VisualTreeHelper.__GetById = function __GetById(id) {
+            //Find top level
+            var rv = App.Instance.RootVisual;
+            var topNode = (rv) ? rv.XamlNode : null;
+            if(!topNode) {
+                return;
+            }
+            var walker = Fayde.DeepTreeWalker(topNode);
+            var curNode;
+            while(curNode = walker.Step()) {
+                if((curNode.XObject)._ID === id) {
+                    return curNode.XObject;
+                }
+            }
         };
         return VisualTreeHelper;
     })();

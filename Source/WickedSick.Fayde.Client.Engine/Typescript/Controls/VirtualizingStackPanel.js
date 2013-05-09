@@ -236,7 +236,7 @@ var Fayde;
                 } else if((offset + this._ViewportHeight) >= this._ExtentHeight) {
                     offset = this._ExtentHeight - this._ViewportHeight;
                 }
-                if(this._VerticalOffset == offset) {
+                if(this._VerticalOffset === offset) {
                     return;
                 }
                 this._VerticalOffset = offset;

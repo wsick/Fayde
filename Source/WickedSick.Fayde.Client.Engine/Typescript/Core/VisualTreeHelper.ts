@@ -65,8 +65,6 @@ module Fayde {
                 uin = <UINode>ui;
             } else if (ui instanceof LayoutUpdater) {
                 uin = (<LayoutUpdater>ui).Node;
-            } else if (ui) {
-                return "[Object is not a UIElement.]";
             }
             
             //Find top level
@@ -305,6 +303,21 @@ module Fayde {
                 str = str.substring(0, str.length - 1);
 
             return "[" + str + "]";
+        }
+
+        private static __GetById(id: number): UIElement {
+            //Find top level
+            var rv = App.Instance.RootVisual;
+            var topNode = (rv) ? rv.XamlNode : null;
+            if (!topNode)
+                return;
+
+            var walker = DeepTreeWalker(topNode);
+            var curNode: UINode;
+            while (curNode = walker.Step()) {
+                if ((<any>curNode.XObject)._ID === id)
+                    return curNode.XObject;
+            }
         }
     }
 }

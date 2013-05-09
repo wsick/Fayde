@@ -24,7 +24,7 @@ module Fayde.Controls {
         ContainerFromIndex(index: number): DependencyObject { return this._Containers[index]; }
         ItemFromContainer(container: DependencyObject): any {
             var index = this.IndexFromContainer(container);
-            if (index > 0)
+            if (index > -1)
                 return this._Items[index];
             return new UnsetValue();
         }
@@ -32,7 +32,7 @@ module Fayde.Controls {
             if (item == null)
                 return null;
             var index = this.IndexFromItem(item);
-            if (index > 0)
+            if (index > -1)
                 return this._Containers[index];
         }
         Add(container: DependencyObject, item: any, index: number) {
@@ -693,8 +693,6 @@ module Fayde {
                 uin = <UINode>ui;
             } else if (ui instanceof LayoutUpdater) {
                 uin = (<LayoutUpdater>ui).Node;
-            } else if (ui) {
-                return "[Object is not a UIElement.]";
             }
             var topNode: UINode;
             if (!uin) {
@@ -915,6 +913,18 @@ module Fayde {
             if (str)
                 str = str.substring(0, str.length - 1);
             return "[" + str + "]";
+        }
+        private static __GetById(id: number): UIElement {
+            var rv = App.Instance.RootVisual;
+            var topNode = (rv) ? rv.XamlNode : null;
+            if (!topNode)
+                return;
+            var walker = DeepTreeWalker(topNode);
+            var curNode: UINode;
+            while (curNode = walker.Step()) {
+                if ((<any>curNode.XObject)._ID === id)
+                    return curNode.XObject;
+            }
         }
     }
 }
@@ -20397,7 +20407,7 @@ module Fayde.Controls {
                 offset = 0;
             else if ((offset + this._ViewportHeight) >= this._ExtentHeight)
                 offset = this._ExtentHeight - this._ViewportHeight;
-            if (this._VerticalOffset == offset)
+            if (this._VerticalOffset === offset)
                 return;
             this._VerticalOffset = offset;
             if (this.Orientation === Fayde.Orientation.Vertical)
