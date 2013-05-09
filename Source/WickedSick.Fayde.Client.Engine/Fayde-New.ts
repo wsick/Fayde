@@ -11911,16 +11911,20 @@ module Fayde.Input {
                 var args = this.CreateArgsPress(e);
                 if (args) {
                     this.Surface._HandleKeyDown(args);
-                    e.preventDefault();
-                    return false;
+                    if (args.Handled) {
+                        e.preventDefault();
+                        return false;
+                    }
                 }
             };
             document.onkeydown = (e) => {
                 var args = this.CreateArgsDown(e);
                 if (args) {
                     this.Surface._HandleKeyDown(args);
-                    e.preventDefault();
-                    return false;
+                    if (args.Handled) {
+                        e.preventDefault();
+                        return false;
+                    }
                 }
             };
         }
@@ -11962,7 +11966,14 @@ module Fayde.Input {
             var unshifted = udkie[keyCode];
             if (unshifted)
                 keyCode = unshifted;
-            return new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], e.char);
+            var args = new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], e.char);
+            if (args.Key === Key.Unknown && e.key) {
+                args.Char = e.key;
+                var code = args.Char.toUpperCase().charCodeAt(0);
+                args.Key = keyFromKeyCode[code];
+                if (args.Key == null) args.Key = Key.Unknown;
+            }
+            return args;
         }
         CreateArgsDown(e): Fayde.Input.KeyEventArgs {
             if (e.char && e.keyCode !== 8)
@@ -19552,7 +19563,6 @@ module Fayde.Controls {
             var cursor = this._SelectionCursor;
             var start = 0;
             var length = 0;
-            var handled = false;
             if (cursor !== anchor) {
                 length = Math.abs(cursor - anchor);
                 start = Math.min(anchor, cursor);
@@ -19575,7 +19585,6 @@ module Fayde.Controls {
                 this._Emit |= TextBoxEmitChangedType.TEXT;
                 anchor = start;
                 cursor = start;
-                handled = true;
             }
             if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
                 this.SelectionStart = Math.min(anchor, cursor);
@@ -19583,9 +19592,8 @@ module Fayde.Controls {
                 this._SelectionAnchor = anchor;
                 this._SelectionCursor = cursor;
                 this._Emit |= TextBoxEmitChangedType.SELECTION;
-                handled = true;
             }
-            return handled;
+            return true;
         }
         private _KeyDownDelete(modifiers: Input.IModifiersOn): bool {
             if (modifiers.Shift || modifiers.Alt)

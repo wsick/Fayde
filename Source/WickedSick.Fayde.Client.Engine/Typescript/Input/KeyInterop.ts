@@ -102,8 +102,10 @@ module Fayde.Input {
                 if (args) {
                     //KeyboardDebug("[Press] - " + e.keyCode + " - " + e.char);
                     this.Surface._HandleKeyDown(args);
-                    e.preventDefault();
-                    return false;
+                    if (args.Handled) {
+                        e.preventDefault();
+                        return false;
+                    }
                 }
             };
             document.onkeydown = (e) => {
@@ -111,8 +113,10 @@ module Fayde.Input {
                 if (args) {
                     //KeyboardDebug("[Down] - " + e.keyCode + " - " + e.char);
                     this.Surface._HandleKeyDown(args);
-                    e.preventDefault();
-                    return false;
+                    if (args.Handled) {
+                        e.preventDefault();
+                        return false;
+                    }
                 }
             };
         }
@@ -159,7 +163,14 @@ module Fayde.Input {
             if (unshifted)
                 keyCode = unshifted;
 
-            return new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], e.char);
+            var args = new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], e.char);
+            if (args.Key === Key.Unknown && e.key) {
+                args.Char = e.key;
+                var code = args.Char.toUpperCase().charCodeAt(0);
+                args.Key = keyFromKeyCode[code];
+                if (args.Key == null) args.Key = Key.Unknown;
+            }
+            return args;
         }
         CreateArgsDown(e): Fayde.Input.KeyEventArgs {
             if (e.char && e.keyCode !== 8)

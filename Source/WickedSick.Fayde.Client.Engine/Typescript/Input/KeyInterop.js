@@ -108,8 +108,10 @@ var Fayde;
                     if(args) {
                         //KeyboardDebug("[Press] - " + e.keyCode + " - " + e.char);
                         _this.Surface._HandleKeyDown(args);
-                        e.preventDefault();
-                        return false;
+                        if(args.Handled) {
+                            e.preventDefault();
+                            return false;
+                        }
                     }
                 };
                 document.onkeydown = function (e) {
@@ -117,8 +119,10 @@ var Fayde;
                     if(args) {
                         //KeyboardDebug("[Down] - " + e.keyCode + " - " + e.char);
                         _this.Surface._HandleKeyDown(args);
-                        e.preventDefault();
-                        return false;
+                        if(args.Handled) {
+                            e.preventDefault();
+                            return false;
+                        }
                     }
                 };
             };
@@ -171,7 +175,16 @@ var Fayde;
                 if(unshifted) {
                     keyCode = unshifted;
                 }
-                return new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], e.char);
+                var args = new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], e.char);
+                if(args.Key === Input.Key.Unknown && e.key) {
+                    args.Char = e.key;
+                    var code = args.Char.toUpperCase().charCodeAt(0);
+                    args.Key = keyFromKeyCode[code];
+                    if(args.Key == null) {
+                        args.Key = Input.Key.Unknown;
+                    }
+                }
+                return args;
             };
             IEKeyInterop.prototype.CreateArgsDown = function (e) {
                 if(e.char && e.keyCode !== 8) {

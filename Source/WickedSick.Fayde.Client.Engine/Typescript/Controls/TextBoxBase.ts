@@ -643,7 +643,6 @@ module Fayde.Controls {
             var cursor = this._SelectionCursor;
             var start = 0;
             var length = 0;
-            var handled = false;
 
             if (cursor !== anchor) {
                 length = Math.abs(cursor - anchor);
@@ -669,7 +668,6 @@ module Fayde.Controls {
                 this._Emit |= TextBoxEmitChangedType.TEXT;
                 anchor = start;
                 cursor = start;
-                handled = true;
             }
 
             if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
@@ -678,10 +676,9 @@ module Fayde.Controls {
                 this._SelectionAnchor = anchor;
                 this._SelectionCursor = cursor;
                 this._Emit |= TextBoxEmitChangedType.SELECTION;
-                handled = true;
             }
 
-            return handled;
+            return true;
         }
         private _KeyDownDelete(modifiers: Input.IModifiersOn): bool {
             if (modifiers.Shift || modifiers.Alt)
