@@ -204,20 +204,20 @@ var Fayde;
                 }
                 return null;
             };
-            ItemContainerGenerator.prototype.GeneratorPositionFromIndex = function (index) {
+            ItemContainerGenerator.prototype.GeneratorPositionFromIndex = function (itemIndex) {
                 var realized = this.RealizedElements;
                 var realizedCount = realized.Count;
-                if(index < 0) {
+                if(itemIndex < 0) {
                     return {
                         index: -1,
                         offset: 0
                     };
-                } else if(realized.Contains(index)) {
+                } else if(realized.Contains(itemIndex)) {
                     return {
-                        index: realized.IndexOf(index),
+                        index: realized.IndexOf(itemIndex),
                         offset: 0
                     };
-                } else if(index > this.Owner.Items.Count) {
+                } else if(itemIndex > this.Owner.Items.Count) {
                     return {
                         index: -1,
                         offset: 0
@@ -226,12 +226,12 @@ var Fayde;
                 if(realizedCount === 0) {
                     return {
                         index: -1,
-                        offset: index + 1
+                        offset: itemIndex + 1
                     };
                 }
                 var index = -1;
                 for(var i = 0; i < realizedCount; i++) {
-                    if(realized.GetValueAt(i) > index) {
+                    if(realized.GetValueAt(i) > itemIndex) {
                         break;
                     }
                     index = i;
@@ -239,12 +239,12 @@ var Fayde;
                 if(index === -1) {
                     return {
                         index: index,
-                        offset: index + 1
+                        offset: itemIndex + 1
                     };
                 }
                 return {
                     index: index,
-                    offset: index - realized.GetValueAt(index)
+                    offset: itemIndex - realized.GetValueAt(index)
                 };
             };
             ItemContainerGenerator.prototype.IndexFromGeneratorPosition = function (position) {
@@ -297,7 +297,6 @@ var Fayde;
                 var state = this._GenerationState;
                 var index;
                 var startAt = state.PositionIndex;
-                ;
                 var startOffset = state.PositionOffset;
                 if(startAt === -1) {
                     if(startOffset < 0) {

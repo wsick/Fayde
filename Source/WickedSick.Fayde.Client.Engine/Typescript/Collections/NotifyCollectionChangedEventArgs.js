@@ -21,86 +21,133 @@ var Fayde;
             function NotifyCollectionChangedEventArgs() {
                 _super.apply(this, arguments);
 
-                this._OldStartingIndex = -1;
-                this._NewStartingIndex = -1;
-                this._OldItems = null;
-                this._NewItems = null;
             }
-            Object.defineProperty(NotifyCollectionChangedEventArgs.prototype, "Action", {
-                get: function () {
-                    return this._Action;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(NotifyCollectionChangedEventArgs.prototype, "OldStartingIndex", {
-                get: function () {
-                    return this._OldStartingIndex;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(NotifyCollectionChangedEventArgs.prototype, "NewStartingIndex", {
-                get: function () {
-                    return this._NewStartingIndex;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(NotifyCollectionChangedEventArgs.prototype, "OldItems", {
-                get: function () {
-                    return this._OldItems;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(NotifyCollectionChangedEventArgs.prototype, "NewItems", {
-                get: function () {
-                    return this._NewItems;
-                },
-                enumerable: true,
-                configurable: true
-            });
             NotifyCollectionChangedEventArgs.Reset = function Reset() {
                 var args = new NotifyCollectionChangedEventArgs();
-                args._Action = NotifyCollectionChangedAction.Reset;
+                Object.defineProperty(args, "Action", {
+                    value: NotifyCollectionChangedAction.Reset,
+                    writable: false
+                });
+                Object.defineProperty(args, "OldStartingIndex", {
+                    value: -1,
+                    writable: false
+                });
+                Object.defineProperty(args, "NewStartingIndex", {
+                    value: -1,
+                    writable: false
+                });
+                Object.defineProperty(args, "OldItems", {
+                    value: null,
+                    writable: false
+                });
+                Object.defineProperty(args, "NewItems", {
+                    value: null,
+                    writable: false
+                });
                 return args;
             };
             NotifyCollectionChangedEventArgs.Replace = function Replace(newValue, oldValue, index) {
                 var args = new NotifyCollectionChangedEventArgs();
-                args._Action = NotifyCollectionChangedAction.Replace;
-                args._NewItems = [
-                    newValue
-                ];
-                args._OldItems = [
-                    oldValue
-                ];
-                args._NewStartingIndex = index;
+                Object.defineProperty(args, "Action", {
+                    value: NotifyCollectionChangedAction.Replace,
+                    writable: false
+                });
+                Object.defineProperty(args, "OldStartingIndex", {
+                    value: -1,
+                    writable: false
+                });
+                Object.defineProperty(args, "NewStartingIndex", {
+                    value: index,
+                    writable: false
+                });
+                Object.defineProperty(args, "OldItems", {
+                    value: [
+                        oldValue
+                    ],
+                    writable: false
+                });
+                Object.defineProperty(args, "NewItems", {
+                    value: [
+                        newValue
+                    ],
+                    writable: false
+                });
                 return args;
             };
             NotifyCollectionChangedEventArgs.Add = function Add(newValue, index) {
                 var args = new NotifyCollectionChangedEventArgs();
-                args._Action = NotifyCollectionChangedAction.Add;
-                args._NewItems = [
-                    newValue
-                ];
-                args._NewStartingIndex = index;
+                Object.defineProperty(args, "Action", {
+                    value: NotifyCollectionChangedAction.Add,
+                    writable: false
+                });
+                Object.defineProperty(args, "OldStartingIndex", {
+                    value: -1,
+                    writable: false
+                });
+                Object.defineProperty(args, "NewStartingIndex", {
+                    value: index,
+                    writable: false
+                });
+                Object.defineProperty(args, "OldItems", {
+                    value: null,
+                    writable: false
+                });
+                Object.defineProperty(args, "NewItems", {
+                    value: [
+                        newValue
+                    ],
+                    writable: false
+                });
                 return args;
             };
             NotifyCollectionChangedEventArgs.AddRange = function AddRange(newValues, index) {
                 var args = new NotifyCollectionChangedEventArgs();
-                args._Action = NotifyCollectionChangedAction.Add;
-                args._NewItems = newValues;
-                args._NewStartingIndex = index;
+                Object.defineProperty(args, "Action", {
+                    value: NotifyCollectionChangedAction.Add,
+                    writable: false
+                });
+                Object.defineProperty(args, "OldStartingIndex", {
+                    value: -1,
+                    writable: false
+                });
+                Object.defineProperty(args, "NewStartingIndex", {
+                    value: index,
+                    writable: false
+                });
+                Object.defineProperty(args, "OldItems", {
+                    value: null,
+                    writable: false
+                });
+                Object.defineProperty(args, "NewItems", {
+                    value: newValues,
+                    writable: false
+                });
                 return args;
             };
             NotifyCollectionChangedEventArgs.Remove = function Remove(oldValue, index) {
                 var args = new NotifyCollectionChangedEventArgs();
-                args._Action = NotifyCollectionChangedAction.Remove;
-                args._OldItems = [
-                    oldValue
-                ];
-                args._OldStartingIndex = index;
+                Object.defineProperty(args, "Action", {
+                    value: NotifyCollectionChangedAction.Remove,
+                    writable: false
+                });
+                Object.defineProperty(args, "OldStartingIndex", {
+                    value: index,
+                    writable: false
+                });
+                Object.defineProperty(args, "NewStartingIndex", {
+                    value: -1,
+                    writable: false
+                });
+                Object.defineProperty(args, "OldItems", {
+                    value: [
+                        oldValue
+                    ],
+                    writable: false
+                });
+                Object.defineProperty(args, "NewItems", {
+                    value: null,
+                    writable: false
+                });
                 return args;
             };
             return NotifyCollectionChangedEventArgs;

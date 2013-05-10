@@ -31,7 +31,7 @@ test("ItemContainerGenerator.Initialization", () => {
 
 test("ItemsControl.AddRemoveClear", () => {
     var ic = new Fayde.Controls.ItemsControl();
-    
+    ic.Measure(size.createInfinite());
     var icg = ic.ItemContainerGenerator;
     ic.ApplyTemplate();
     var o1 = { id: 1 };

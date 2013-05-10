@@ -205,29 +205,29 @@ module Fayde.Controls {
             return null;
         }
 
-        GeneratorPositionFromIndex(index: number): IGeneratorPosition {
+        GeneratorPositionFromIndex(itemIndex: number): IGeneratorPosition {
             var realized = this.RealizedElements;
             var realizedCount = realized.Count;
 
-            if (index < 0)
+            if (itemIndex < 0)
                 return { index: -1, offset: 0 };
-            else if (realized.Contains(index))
-                return { index: realized.IndexOf(index), offset: 0 };
-            else if (index > this.Owner.Items.Count)
+            else if (realized.Contains(itemIndex))
+                return { index: realized.IndexOf(itemIndex), offset: 0 };
+            else if (itemIndex > this.Owner.Items.Count)
                 return { index: -1, offset: 0 };
 
             if (realizedCount === 0)
-                return { index: -1, offset: index + 1 };
+                return { index: -1, offset: itemIndex + 1 };
 
             var index = -1;
             for (var i = 0; i < realizedCount; i++) {
-                if (realized.GetValueAt(i) > index)
+                if (realized.GetValueAt(i) > itemIndex)
                     break;
                 index = i;
             }
             if (index === -1)
-                return { index: index, offset: index + 1 };
-            return { index: index, offset: index - realized.GetValueAt(index) };
+                return { index: index, offset: itemIndex + 1 };
+            return { index: index, offset: itemIndex - realized.GetValueAt(index) };
         }
         IndexFromGeneratorPosition(position: IGeneratorPosition): number {
             var index = position.index;
@@ -271,7 +271,7 @@ module Fayde.Controls {
 
             var state = this._GenerationState;
             var index: number;
-            var startAt = state.PositionIndex;;
+            var startAt = state.PositionIndex;
             var startOffset = state.PositionOffset;
             if (startAt === -1) {
                 if (startOffset < 0)

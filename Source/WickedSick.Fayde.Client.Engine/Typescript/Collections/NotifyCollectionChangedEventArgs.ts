@@ -10,50 +10,55 @@ module Fayde.Collections {
     }
 
     export class NotifyCollectionChangedEventArgs extends EventArgs {
-        private _Action: NotifyCollectionChangedAction;
-        private _OldStartingIndex: number = -1;
-        private _NewStartingIndex: number = -1;
-        private _OldItems: any[] = null;
-        private _NewItems: any[] = null;
-
-        get Action(): NotifyCollectionChangedAction { return this._Action; }
-        get OldStartingIndex() { return this._OldStartingIndex; }
-        get NewStartingIndex() { return this._NewStartingIndex; }
-        get OldItems(): any[] { return this._OldItems; }
-        get NewItems(): any[] { return this._NewItems; }
+        Action: NotifyCollectionChangedAction;
+        OldStartingIndex: number;
+        NewStartingIndex: number;
+        OldItems: any[];
+        NewItems: any[];
 
         static Reset(): NotifyCollectionChangedEventArgs {
             var args = new NotifyCollectionChangedEventArgs();
-            args._Action = NotifyCollectionChangedAction.Reset;
+            Object.defineProperty(args, "Action", { value: NotifyCollectionChangedAction.Reset, writable: false });
+            Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
+            Object.defineProperty(args, "NewStartingIndex", { value: -1, writable: false });
+            Object.defineProperty(args, "OldItems", { value: null, writable: false });
+            Object.defineProperty(args, "NewItems", { value: null, writable: false });
             return args;
         }
         static Replace(newValue: any, oldValue: any, index: number): NotifyCollectionChangedEventArgs {
             var args = new NotifyCollectionChangedEventArgs();
-            args._Action = NotifyCollectionChangedAction.Replace;
-            args._NewItems = [newValue];
-            args._OldItems = [oldValue];
-            args._NewStartingIndex = index;
+            Object.defineProperty(args, "Action", { value: NotifyCollectionChangedAction.Replace, writable: false });
+            Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
+            Object.defineProperty(args, "NewStartingIndex", { value: index, writable: false });
+            Object.defineProperty(args, "OldItems", { value: [oldValue], writable: false });
+            Object.defineProperty(args, "NewItems", { value: [newValue], writable: false });
             return args;
         }
         static Add(newValue: any, index: number): NotifyCollectionChangedEventArgs {
             var args = new NotifyCollectionChangedEventArgs();
-            args._Action = NotifyCollectionChangedAction.Add;
-            args._NewItems = [newValue];
-            args._NewStartingIndex = index;
+            Object.defineProperty(args, "Action", { value: NotifyCollectionChangedAction.Add, writable: false });
+            Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
+            Object.defineProperty(args, "NewStartingIndex", { value: index, writable: false });
+            Object.defineProperty(args, "OldItems", { value: null, writable: false });
+            Object.defineProperty(args, "NewItems", { value: [newValue], writable: false });
             return args;
         }
         static AddRange(newValues: any[], index: number): NotifyCollectionChangedEventArgs {
             var args = new NotifyCollectionChangedEventArgs();
-            args._Action = NotifyCollectionChangedAction.Add;
-            args._NewItems = newValues;
-            args._NewStartingIndex = index;
+            Object.defineProperty(args, "Action", { value: NotifyCollectionChangedAction.Add, writable: false });
+            Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
+            Object.defineProperty(args, "NewStartingIndex", { value: index, writable: false });
+            Object.defineProperty(args, "OldItems", { value: null, writable: false });
+            Object.defineProperty(args, "NewItems", { value: newValues, writable: false });
             return args;
         }
         static Remove(oldValue: any, index: number): NotifyCollectionChangedEventArgs {
             var args = new NotifyCollectionChangedEventArgs();
-            args._Action = NotifyCollectionChangedAction.Remove;
-            args._OldItems = [oldValue];
-            args._OldStartingIndex = index;
+            Object.defineProperty(args, "Action", { value: NotifyCollectionChangedAction.Remove, writable: false });
+            Object.defineProperty(args, "OldStartingIndex", { value: index, writable: false });
+            Object.defineProperty(args, "NewStartingIndex", { value: -1, writable: false });
+            Object.defineProperty(args, "OldItems", { value: [oldValue], writable: false });
+            Object.defineProperty(args, "NewItems", { value: null, writable: false });
             return args;
         }
     }

@@ -287,26 +287,26 @@ module Fayde.Controls {
                 return this;
             return null;
         }
-        GeneratorPositionFromIndex(index: number): IGeneratorPosition {
+        GeneratorPositionFromIndex(itemIndex: number): IGeneratorPosition {
             var realized = this.RealizedElements;
             var realizedCount = realized.Count;
-            if (index < 0)
+            if (itemIndex < 0)
                 return { index: -1, offset: 0 };
-            else if (realized.Contains(index))
-                return { index: realized.IndexOf(index), offset: 0 };
-            else if (index > this.Owner.Items.Count)
+            else if (realized.Contains(itemIndex))
+                return { index: realized.IndexOf(itemIndex), offset: 0 };
+            else if (itemIndex > this.Owner.Items.Count)
                 return { index: -1, offset: 0 };
             if (realizedCount === 0)
-                return { index: -1, offset: index + 1 };
+                return { index: -1, offset: itemIndex + 1 };
             var index = -1;
             for (var i = 0; i < realizedCount; i++) {
-                if (realized.GetValueAt(i) > index)
+                if (realized.GetValueAt(i) > itemIndex)
                     break;
                 index = i;
             }
             if (index === -1)
-                return { index: index, offset: index + 1 };
-            return { index: index, offset: index - realized.GetValueAt(index) };
+                return { index: index, offset: itemIndex + 1 };
+            return { index: index, offset: itemIndex - realized.GetValueAt(index) };
         }
         IndexFromGeneratorPosition(position: IGeneratorPosition): number {
             var index = position.index;
@@ -345,7 +345,7 @@ module Fayde.Controls {
             var realized = this.RealizedElements;
             var state = this._GenerationState;
             var index: number;
-            var startAt = state.PositionIndex;;
+            var startAt = state.PositionIndex;
             var startOffset = state.PositionOffset;
             if (startAt === -1) {
                 if (startOffset < 0)
@@ -10693,48 +10693,54 @@ module Fayde.Collections {
         Reset = 4,
     }
     export class NotifyCollectionChangedEventArgs extends EventArgs {
-        private _Action: NotifyCollectionChangedAction;
-        private _OldStartingIndex: number = -1;
-        private _NewStartingIndex: number = -1;
-        private _OldItems: any[] = null;
-        private _NewItems: any[] = null;
-        get Action(): NotifyCollectionChangedAction { return this._Action; }
-        get OldStartingIndex() { return this._OldStartingIndex; }
-        get NewStartingIndex() { return this._NewStartingIndex; }
-        get OldItems(): any[] { return this._OldItems; }
-        get NewItems(): any[] { return this._NewItems; }
+        Action: NotifyCollectionChangedAction;
+        OldStartingIndex: number;
+        NewStartingIndex: number;
+        OldItems: any[];
+        NewItems: any[];
         static Reset(): NotifyCollectionChangedEventArgs {
             var args = new NotifyCollectionChangedEventArgs();
-            args._Action = NotifyCollectionChangedAction.Reset;
+            Object.defineProperty(args, "Action", { value: NotifyCollectionChangedAction.Reset, writable: false });
+            Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
+            Object.defineProperty(args, "NewStartingIndex", { value: -1, writable: false });
+            Object.defineProperty(args, "OldItems", { value: null, writable: false });
+            Object.defineProperty(args, "NewItems", { value: null, writable: false });
             return args;
         }
         static Replace(newValue: any, oldValue: any, index: number): NotifyCollectionChangedEventArgs {
             var args = new NotifyCollectionChangedEventArgs();
-            args._Action = NotifyCollectionChangedAction.Replace;
-            args._NewItems = [newValue];
-            args._OldItems = [oldValue];
-            args._NewStartingIndex = index;
+            Object.defineProperty(args, "Action", { value: NotifyCollectionChangedAction.Replace, writable: false });
+            Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
+            Object.defineProperty(args, "NewStartingIndex", { value: index, writable: false });
+            Object.defineProperty(args, "OldItems", { value: [oldValue], writable: false });
+            Object.defineProperty(args, "NewItems", { value: [newValue], writable: false });
             return args;
         }
         static Add(newValue: any, index: number): NotifyCollectionChangedEventArgs {
             var args = new NotifyCollectionChangedEventArgs();
-            args._Action = NotifyCollectionChangedAction.Add;
-            args._NewItems = [newValue];
-            args._NewStartingIndex = index;
+            Object.defineProperty(args, "Action", { value: NotifyCollectionChangedAction.Add, writable: false });
+            Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
+            Object.defineProperty(args, "NewStartingIndex", { value: index, writable: false });
+            Object.defineProperty(args, "OldItems", { value: null, writable: false });
+            Object.defineProperty(args, "NewItems", { value: [newValue], writable: false });
             return args;
         }
         static AddRange(newValues: any[], index: number): NotifyCollectionChangedEventArgs {
             var args = new NotifyCollectionChangedEventArgs();
-            args._Action = NotifyCollectionChangedAction.Add;
-            args._NewItems = newValues;
-            args._NewStartingIndex = index;
+            Object.defineProperty(args, "Action", { value: NotifyCollectionChangedAction.Add, writable: false });
+            Object.defineProperty(args, "OldStartingIndex", { value: -1, writable: false });
+            Object.defineProperty(args, "NewStartingIndex", { value: index, writable: false });
+            Object.defineProperty(args, "OldItems", { value: null, writable: false });
+            Object.defineProperty(args, "NewItems", { value: newValues, writable: false });
             return args;
         }
         static Remove(oldValue: any, index: number): NotifyCollectionChangedEventArgs {
             var args = new NotifyCollectionChangedEventArgs();
-            args._Action = NotifyCollectionChangedAction.Remove;
-            args._OldItems = [oldValue];
-            args._OldStartingIndex = index;
+            Object.defineProperty(args, "Action", { value: NotifyCollectionChangedAction.Remove, writable: false });
+            Object.defineProperty(args, "OldStartingIndex", { value: index, writable: false });
+            Object.defineProperty(args, "NewStartingIndex", { value: -1, writable: false });
+            Object.defineProperty(args, "OldItems", { value: [oldValue], writable: false });
+            Object.defineProperty(args, "NewItems", { value: null, writable: false });
             return args;
         }
     }
