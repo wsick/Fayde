@@ -57,9 +57,14 @@ test("ItemsControl.NonUIItems", () => {
     ok(icg.ContainerFromIndex(1) === icg.ContainerFromItem(o4), "Items.Insert: Container @ 1 should now match container for o4.");
     ok(icg.ContainerFromIndex(2) === icg.ContainerFromItem(o2), "Items.Insert: Container @ 2 should now match container for o2.");
     ok(icg.ContainerFromIndex(3) === icg.ContainerFromItem(o3), "Items.Insert: Container @ 3 should now match container for o3.");
+    
+    ic.Items.Remove(o4);
+    ok(icg.ContainerFromItem(o4) === undefined, "Items.Clear: Container from o4 should no longer exist.");
+    ok(icg.ContainerFromIndex(1) === icg.ContainerFromItem(o2), "Items.Remove: Container @ 1 should now match container for o2.");
+    ok(icg.ContainerFromIndex(2) === icg.ContainerFromItem(o3), "Items.Remove: Container @ 2 should now match container for o3.");
 
     ic.Items.Clear();
-    ok(icg.ContainerFromIndex(1) === undefined, "Items.Clear: Container @ 2 should no longer exist.");
+    ok(icg.ContainerFromIndex(2) === undefined, "Items.Clear: Container @ 2 should no longer exist.");
     ok(icg.ContainerFromIndex(1) === undefined, "Items.Clear: Container @ 1 should no longer exist.");
     ok(icg.ContainerFromIndex(0) === undefined, "Items.Clear: Container @ 0 should no longer exist.");
 
@@ -73,11 +78,23 @@ test("ItemsControl.NonUIItems", () => {
     ic.ItemsSource = collection;
     collection.Add(o1);
     collection.Add(o2);
+    ok(icg.ContainerFromIndex(0) === icg.ContainerFromItem(o1), "ItemsSource=ObservableCollection.Add: Container @ 0 should now match container for o1.");
+    ok(icg.ContainerFromIndex(1) === icg.ContainerFromItem(o2), "ItemsSource=ObservableCollection.Add: Container @ 1 should now match container for o2.");
+
     collection.AddRange([o3, o4]);
-    ok(icg.ContainerFromIndex(0) === icg.ContainerFromItem(o1), "ItemsSource=ObservableCollection: Container @ 0 should now match container for o1.");
-    ok(icg.ContainerFromIndex(1) === icg.ContainerFromItem(o2), "ItemsSource=ObservableCollection: Container @ 1 should now match container for o2.");
-    ok(icg.ContainerFromIndex(2) === icg.ContainerFromItem(o3), "ItemsSource=ObservableCollection: Container @ 2 should now match container for o3.");
-    ok(icg.ContainerFromIndex(3) === icg.ContainerFromItem(o4), "ItemsSource=ObservableCollection: Container @ 3 should now match container for o4.");
+    ok(icg.ContainerFromIndex(2) === icg.ContainerFromItem(o3), "ItemsSource=ObservableCollection.AddRange: Container @ 2 should now match container for o3.");
+    ok(icg.ContainerFromIndex(3) === icg.ContainerFromItem(o4), "ItemsSource=ObservableCollection.AddRange: Container @ 3 should now match container for o4.");
+
+    collection.Remove(o2);
+    ok(icg.ContainerFromItem(o2) === undefined, "Items.Clear: Container from o2 should no longer exist.");
+    ok(icg.ContainerFromIndex(0) === icg.ContainerFromItem(o1), "ItemsSource=ObservableCollection.Remove: Container @ 0 should now match container for o1.");
+    ok(icg.ContainerFromIndex(1) === icg.ContainerFromItem(o3), "ItemsSource=ObservableCollection.Remove: Container @ 1 should now match container for o3.");
+    ok(icg.ContainerFromIndex(2) === icg.ContainerFromItem(o4), "ItemsSource=ObservableCollection.Remove: Container @ 2 should now match container for o4.");
+
+    collection.Clear();
+    ok(icg.ContainerFromIndex(2) === undefined, "Items.Clear: Container @ 2 should no longer exist.");
+    ok(icg.ContainerFromIndex(1) === undefined, "Items.Clear: Container @ 1 should no longer exist.");
+    ok(icg.ContainerFromIndex(0) === undefined, "Items.Clear: Container @ 0 should no longer exist.");
 });
 
 test("ItemsControl.UIItems", () => {
