@@ -5,14 +5,20 @@
 
 module Fayde.Input {
     export class MouseEventArgs extends RoutedEventArgs {
-        private _AbsolutePos: Point;
+        AbsolutePos: Point;
         constructor(absolutePos: Point) {
             super();
-            this._AbsolutePos = absolutePos;
+            Object.defineProperty(this, "AbsolutePos", { value: absolutePos, writable: false });
         }
         GetPosition(relativeTo: UIElement): Point {
-            //TODO: Implement
-            return new Point();
+            var p = this.AbsolutePos.Clone();
+            if (!relativeTo)
+                return p;
+            if (!(relativeTo instanceof UIElement))
+                throw new ArgumentException("Specified relative object must be a UIElement.");
+            //TODO: If attached, should we run ProcessDirtyElements
+            relativeTo.XamlNode.LayoutUpdater.TransformPoint(p);
+            return p;
         }
     }
     Nullstone.RegisterType(MouseEventArgs, "MouseEventArgs");
@@ -28,7 +34,7 @@ module Fayde.Input {
         Delta: number;
         constructor(absolutePos: Point, delta: number) {
             super(absolutePos);
-            this.Delta = delta;
+            Object.defineProperty(this, "Delta", { value: delta, writable: false });
         }
     }
     Nullstone.RegisterType(MouseWheelEventArgs, "MouseWheelEventArgs");

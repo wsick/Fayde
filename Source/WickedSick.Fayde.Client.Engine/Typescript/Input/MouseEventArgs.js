@@ -14,11 +14,22 @@ var Fayde;
             __extends(MouseEventArgs, _super);
             function MouseEventArgs(absolutePos) {
                         _super.call(this);
-                this._AbsolutePos = absolutePos;
+                Object.defineProperty(this, "AbsolutePos", {
+                    value: absolutePos,
+                    writable: false
+                });
             }
             MouseEventArgs.prototype.GetPosition = function (relativeTo) {
-                //TODO: Implement
-                return new Point();
+                var p = this.AbsolutePos.Clone();
+                if(!relativeTo) {
+                    return p;
+                }
+                if(!(relativeTo instanceof Fayde.UIElement)) {
+                    throw new ArgumentException("Specified relative object must be a UIElement.");
+                }
+                //TODO: If attached, should we run ProcessDirtyElements
+                relativeTo.XamlNode.LayoutUpdater.TransformPoint(p);
+                return p;
             };
             return MouseEventArgs;
         })(Fayde.RoutedEventArgs);
@@ -37,7 +48,10 @@ var Fayde;
             __extends(MouseWheelEventArgs, _super);
             function MouseWheelEventArgs(absolutePos, delta) {
                         _super.call(this, absolutePos);
-                this.Delta = delta;
+                Object.defineProperty(this, "Delta", {
+                    value: delta,
+                    writable: false
+                });
             }
             return MouseWheelEventArgs;
         })(MouseEventArgs);

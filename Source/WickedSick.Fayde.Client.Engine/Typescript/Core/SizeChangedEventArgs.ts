@@ -8,12 +8,8 @@ module Fayde {
         NewSize: size;
         constructor(previousSize: size, newSize: size) {
             super();
-            Object.defineProperty(this, "PreviousSize", {
-                get: function () { return size.clone(previousSize); }
-            });
-            Object.defineProperty(this, "NewSize", {
-                get: function () { return size.clone(newSize); }
-            });
+            Object.defineProperty(this, "PreviousSize", { value: size.clone(previousSize), writable: false });
+            Object.defineProperty(this, "NewSize", { value: size.clone(newSize), writable: false });
         }
     }
     Nullstone.RegisterType(SizeChangedEventArgs, "SizeChangedEventArgs");

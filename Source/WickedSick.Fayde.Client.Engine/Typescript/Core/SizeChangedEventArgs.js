@@ -13,14 +13,12 @@ var Fayde;
         function SizeChangedEventArgs(previousSize, newSize) {
                 _super.call(this);
             Object.defineProperty(this, "PreviousSize", {
-                get: function () {
-                    return size.clone(previousSize);
-                }
+                value: size.clone(previousSize),
+                writable: false
             });
             Object.defineProperty(this, "NewSize", {
-                get: function () {
-                    return size.clone(newSize);
-                }
+                value: size.clone(newSize),
+                writable: false
             });
         }
         return SizeChangedEventArgs;

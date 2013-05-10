@@ -3,14 +3,12 @@
 
 module Fayde.Controls.Primitives {
     export class SelectionChangedEventArgs extends EventArgs {
-        private _OldValues: any[];
-        get OldValues(): any[] { return this._OldValues; }
-        private _NewValues: any[];
-        get NewValues(): any[] { return this._NewValues; }
+        OldValues: any[];
+        NewValues: any[];
         constructor(oldValues: any[], newValues: any[]) {
             super();
-            this._OldValues = oldValues.slice(0);
-            this._NewValues = newValues.slice(0);
+            Object.defineProperty(this, "OldValues", { value: oldValues.slice(0), writable: false });
+            Object.defineProperty(this, "NewValues", { value: newValues.slice(0), writable: false });
         }
     }
     Nullstone.RegisterType(SelectionChangedEventArgs, "SelectionChangedEventArgs");

@@ -13,31 +13,19 @@ var Fayde;
                 __extends(DragCompletedEventArgs, _super);
                 function DragCompletedEventArgs(horizontal, vertical, canceled) {
                                 _super.call(this);
-                    this._HorizontalChange = horizontal;
-                    this._VerticalChange = vertical;
-                    this._Canceled = canceled;
+                    Object.defineProperty(this, "HorizontalChange", {
+                        value: horizontal,
+                        writable: false
+                    });
+                    Object.defineProperty(this, "VerticalChange", {
+                        value: vertical,
+                        writable: false
+                    });
+                    Object.defineProperty(this, "Canceled", {
+                        value: canceled,
+                        writable: false
+                    });
                 }
-                Object.defineProperty(DragCompletedEventArgs.prototype, "HorizontalChange", {
-                    get: function () {
-                        return this._HorizontalChange;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                Object.defineProperty(DragCompletedEventArgs.prototype, "VerticalChange", {
-                    get: function () {
-                        return this._VerticalChange;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                Object.defineProperty(DragCompletedEventArgs.prototype, "Canceled", {
-                    get: function () {
-                        return this._Canceled;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
                 return DragCompletedEventArgs;
             })(Fayde.RoutedEventArgs);
             Primitives.DragCompletedEventArgs = DragCompletedEventArgs;            
@@ -46,23 +34,15 @@ var Fayde;
                 __extends(DragDeltaEventArgs, _super);
                 function DragDeltaEventArgs(horizontal, vertical) {
                                 _super.call(this);
-                    this._HorizontalChange = horizontal;
-                    this._VerticalChange = vertical;
+                    Object.defineProperty(this, "HorizontalChange", {
+                        value: horizontal,
+                        writable: false
+                    });
+                    Object.defineProperty(this, "VerticalChange", {
+                        value: vertical,
+                        writable: false
+                    });
                 }
-                Object.defineProperty(DragDeltaEventArgs.prototype, "HorizontalChange", {
-                    get: function () {
-                        return this._HorizontalChange;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                Object.defineProperty(DragDeltaEventArgs.prototype, "VerticalChange", {
-                    get: function () {
-                        return this._VerticalChange;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
                 return DragDeltaEventArgs;
             })(Fayde.RoutedEventArgs);
             Primitives.DragDeltaEventArgs = DragDeltaEventArgs;            
@@ -71,23 +51,15 @@ var Fayde;
                 __extends(DragStartedEventArgs, _super);
                 function DragStartedEventArgs(horizontal, vertical) {
                                 _super.call(this);
-                    this._HorizontalOffset = horizontal;
-                    this._VerticalOffset = vertical;
+                    Object.defineProperty(this, "HorizontalOffset", {
+                        value: horizontal,
+                        writable: false
+                    });
+                    Object.defineProperty(this, "VerticalOffset", {
+                        value: vertical,
+                        writable: false
+                    });
                 }
-                Object.defineProperty(DragStartedEventArgs.prototype, "HorizontalOffset", {
-                    get: function () {
-                        return this._HorizontalOffset;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                Object.defineProperty(DragStartedEventArgs.prototype, "VerticalOffset", {
-                    get: function () {
-                        return this._VerticalOffset;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
                 return DragStartedEventArgs;
             })(Fayde.RoutedEventArgs);
             Primitives.DragStartedEventArgs = DragStartedEventArgs;            

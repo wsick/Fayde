@@ -3,44 +3,36 @@
 
 module Fayde.Controls.Primitives {
     export class DragCompletedEventArgs extends RoutedEventArgs {
-        private _HorizontalChange: number;
-        get HorizontalChange(): number { return this._HorizontalChange; }
-        private _VerticalChange: number;
-        get VerticalChange(): number { return this._VerticalChange; }
-        private _Canceled: bool;
-        get Canceled(): bool { return this._Canceled; }
-
+        HorizontalChange: number;
+        VerticalChange: number;
+        Canceled: bool;
         constructor(horizontal: number, vertical: number, canceled: bool) {
             super();
-            this._HorizontalChange = horizontal;
-            this._VerticalChange = vertical;
-            this._Canceled = canceled;
+            Object.defineProperty(this, "HorizontalChange", { value: horizontal, writable: false });
+            Object.defineProperty(this, "VerticalChange", { value: vertical, writable: false });
+            Object.defineProperty(this, "Canceled", { value: canceled, writable: false });
         }
     }
     Nullstone.RegisterType(DragCompletedEventArgs, "DragCompletedEventArgs");
 
     export class DragDeltaEventArgs extends RoutedEventArgs {
-        private _HorizontalChange: number;
-        get HorizontalChange(): number { return this._HorizontalChange; }
-        private _VerticalChange: number;
-        get VerticalChange(): number { return this._VerticalChange; }
+        HorizontalChange: number;
+        VerticalChange: number;
         constructor(horizontal: number, vertical: number) {
             super();
-            this._HorizontalChange = horizontal;
-            this._VerticalChange = vertical;
+            Object.defineProperty(this, "HorizontalChange", { value: horizontal, writable: false });
+            Object.defineProperty(this, "VerticalChange", { value: vertical, writable: false });
         }
     }
     Nullstone.RegisterType(DragDeltaEventArgs, "DragDeltaEventArgs");
 
     export class DragStartedEventArgs extends RoutedEventArgs {
-        private _HorizontalOffset: number;
-        get HorizontalOffset(): number { return this._HorizontalOffset; }
-        private _VerticalOffset: number;
-        get VerticalOffset(): number { return this._VerticalOffset; }
+        HorizontalOffset: number;
+        VerticalOffset: number;
         constructor(horizontal: number, vertical: number) {
             super();
-            this._HorizontalOffset = horizontal;
-            this._VerticalOffset = vertical;
+            Object.defineProperty(this, "HorizontalOffset", { value: horizontal, writable: false });
+            Object.defineProperty(this, "VerticalOffset", { value: vertical, writable: false });
         }
     }
     Nullstone.RegisterType(DragStartedEventArgs, "DragStartedEventArgs");

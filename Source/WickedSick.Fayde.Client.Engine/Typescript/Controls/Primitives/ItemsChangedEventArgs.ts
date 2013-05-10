@@ -12,11 +12,11 @@ module Fayde.Controls.Primitives {
         Position: IGeneratorPosition;
         constructor(action: Collections.NotifyCollectionChangedAction, itemCount: number, itemUICount: number, oldPosition: IGeneratorPosition, position: IGeneratorPosition) {
             super();
-            this.Action = action;
-            this.ItemCount = itemCount;
-            this.ItemUICount = itemUICount;
-            this.OldPosition = oldPosition;
-            this.Position = position;
+            Object.defineProperty(this, "Action", { value: action, writable: false });
+            Object.defineProperty(this, "ItemCount", { value: itemCount, writable: false });
+            Object.defineProperty(this, "ItemUICount", { value: itemUICount, writable: false });
+            Object.defineProperty(this, "OldPosition", { value: oldPosition, writable: false });
+            Object.defineProperty(this, "Position", { value: position, writable: false });
         }
     }
     Nullstone.RegisterType(ItemsChangedEventArgs, "ItemsChangedEventArgs");

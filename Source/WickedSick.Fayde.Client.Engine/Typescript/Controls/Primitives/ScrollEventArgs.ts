@@ -15,14 +15,12 @@ module Fayde.Controls.Primitives {
     }
 
     export class ScrollEventArgs extends RoutedEventArgs {
-        private _ScrollEventType: ScrollEventType;
-        get ScrollEventType(): ScrollEventType { return this._ScrollEventType; }
-        private _Value: number;
-        get Value(): number { return this._Value; }
+        ScrollEventType: ScrollEventType;
+        Value: number;
         constructor(scrollEventType: ScrollEventType, value: number) {
             super();
-            this._ScrollEventType = scrollEventType;
-            this._Value = value;
+            Object.defineProperty(this, "ScrollEventType", { value: scrollEventType, writable: false });
+            Object.defineProperty(this, "Value", { value: value, writable: false });
         }
     }
     Nullstone.RegisterType(ScrollEventArgs, "ScrollEventArgs");

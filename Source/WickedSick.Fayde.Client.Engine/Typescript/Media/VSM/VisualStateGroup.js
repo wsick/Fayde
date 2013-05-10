@@ -16,11 +16,20 @@ var Fayde;
         (function (VSM) {
             var VisualStateChangedEventArgs = (function (_super) {
                 __extends(VisualStateChangedEventArgs, _super);
-                function VisualStateChangedEventArgs(OldState, NewState, Control) {
+                function VisualStateChangedEventArgs(oldState, newState, control) {
                                 _super.call(this);
-                    this.OldState = OldState;
-                    this.NewState = NewState;
-                    this.Control = Control;
+                    Object.defineProperty(this, "OldState", {
+                        value: oldState,
+                        writable: false
+                    });
+                    Object.defineProperty(this, "NewState", {
+                        value: newState,
+                        writable: false
+                    });
+                    Object.defineProperty(this, "Control", {
+                        value: control,
+                        writable: false
+                    });
                 }
                 return VisualStateChangedEventArgs;
             })(EventArgs);

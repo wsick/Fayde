@@ -8,8 +8,14 @@
 
 module Fayde.Media.VSM {
     export class VisualStateChangedEventArgs extends EventArgs {
-        constructor(public OldState: VisualState, public NewState: VisualState, public Control: Controls.Control) {
+        OldState: VisualState;
+        NewState: VisualState;
+        Control: Controls.Control;
+        constructor(oldState: VisualState, newState: VisualState, control: Controls.Control) {
             super();
+            Object.defineProperty(this, "OldState", { value: oldState, writable: false });
+            Object.defineProperty(this, "NewState", { value: newState, writable: false });
+            Object.defineProperty(this, "Control", { value: control, writable: false });
         }
     }
 

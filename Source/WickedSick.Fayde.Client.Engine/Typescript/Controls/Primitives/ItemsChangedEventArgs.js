@@ -15,11 +15,26 @@ var Fayde;
                 __extends(ItemsChangedEventArgs, _super);
                 function ItemsChangedEventArgs(action, itemCount, itemUICount, oldPosition, position) {
                                 _super.call(this);
-                    this.Action = action;
-                    this.ItemCount = itemCount;
-                    this.ItemUICount = itemUICount;
-                    this.OldPosition = oldPosition;
-                    this.Position = position;
+                    Object.defineProperty(this, "Action", {
+                        value: action,
+                        writable: false
+                    });
+                    Object.defineProperty(this, "ItemCount", {
+                        value: itemCount,
+                        writable: false
+                    });
+                    Object.defineProperty(this, "ItemUICount", {
+                        value: itemUICount,
+                        writable: false
+                    });
+                    Object.defineProperty(this, "OldPosition", {
+                        value: oldPosition,
+                        writable: false
+                    });
+                    Object.defineProperty(this, "Position", {
+                        value: position,
+                        writable: false
+                    });
                 }
                 return ItemsChangedEventArgs;
             })(EventArgs);
