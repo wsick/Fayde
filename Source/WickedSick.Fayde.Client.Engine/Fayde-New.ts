@@ -36,10 +36,13 @@ module Fayde.Controls {
                 return this._Containers[index];
         }
         Add(container: DependencyObject, item: any, index: number) {
-            if (index < this._Containers.length)
-                throw new InvalidOperationException("Cannot insert into ContainerMap - only append.");
-            this._Containers.push(container);
-            this._Items.push(item);
+            if (index >= this._Containers.length) {
+                this._Containers.push(container);
+                this._Items.push(item);
+            } else {
+                this._Containers.splice(index, 0, container);
+                this._Items.splice(index, 0, item);
+            }
         }
         RemoveIndex(index: number): DependencyObject {
             this._Items.splice(index, 1);
@@ -62,6 +65,8 @@ module Fayde.Controls {
             for (var i = 0; i < len; i++) {
                 ic.ClearContainerForItem(containers[i], items[i]);
             }
+            this._Containers = [];
+            this._Items = [];
         }
     }
 }
@@ -447,9 +452,9 @@ module Fayde.Controls {
             var position: IGeneratorPosition;
             switch (e.Action) {
                 case Collections.NotifyCollectionChangedAction.Add:
+                    itemCount = e.NewItems.length;
                     if ((e.NewStartingIndex + 1) !== this.Owner.Items.Count)
-                        this.MoveExistingItems(e.NewStartingIndex, 1);
-                    itemCount = 1;
+                        this.MoveExistingItems(e.NewStartingIndex, itemCount);
                     itemUICount = 0;
                     position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
                     position.offset = 1;
@@ -473,8 +478,12 @@ module Fayde.Controls {
                     position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
                     this.Remove(position, 1);
                     var newPos = this.GeneratorPositionFromIndex(e.NewStartingIndex);
-                    this.StartAt(newPos, true, true);
-                    this.PrepareItemContainer(this.GenerateNext({ Value: null }));
+                    var state = this.StartAt(newPos, true, true);
+                    try {
+                        this.PrepareItemContainer(this.GenerateNext({ Value: null }));
+                    } finally {
+                        state.Dispose();
+                    }
                     break;
                 case Collections.NotifyCollectionChangedAction.Reset:
                     var itemCount;

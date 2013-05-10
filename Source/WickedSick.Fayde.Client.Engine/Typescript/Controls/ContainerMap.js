@@ -49,11 +49,13 @@ var Fayde;
                 }
             };
             ContainerMap.prototype.Add = function (container, item, index) {
-                if(index < this._Containers.length) {
-                    throw new InvalidOperationException("Cannot insert into ContainerMap - only append.");
+                if(index >= this._Containers.length) {
+                    this._Containers.push(container);
+                    this._Items.push(item);
+                } else {
+                    this._Containers.splice(index, 0, container);
+                    this._Items.splice(index, 0, item);
                 }
-                this._Containers.push(container);
-                this._Items.push(item);
             };
             ContainerMap.prototype.RemoveIndex = function (index) {
                 this._Items.splice(index, 1);
@@ -77,6 +79,8 @@ var Fayde;
                 for(var i = 0; i < len; i++) {
                     ic.ClearContainerForItem(containers[i], items[i]);
                 }
+                this._Containers = [];
+                this._Items = [];
             };
             return ContainerMap;
         })();

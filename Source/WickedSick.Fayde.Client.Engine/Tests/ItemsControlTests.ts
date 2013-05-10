@@ -49,20 +49,20 @@ test("ItemsControl.NonUIItems", () => {
     strictEqual(icg.ItemFromContainer(icg.ContainerFromIndex(0)), o1, "ItemFromContainerFromIndex0 should be o1.");
     strictEqual(icg.ItemFromContainer(icg.ContainerFromIndex(1)), o2, "ItemFromContainerFromIndex1 should be o2.");
     strictEqual(icg.ItemFromContainer(icg.ContainerFromIndex(2)), o3, "ItemFromContainerFromIndex2 should be o3.");
-    
+
     strictEqual(icg.ContainerFromIndex(0), icg.ContainerFromItem(o1), "Container @ 0 should match container for o1.");
     strictEqual(icg.ContainerFromIndex(1), icg.ContainerFromItem(o2), "Container @ 1 should match container for o2.");
     strictEqual(icg.ContainerFromIndex(2), icg.ContainerFromItem(o3), "Container @ 2 should match container for o3.");
 
     var o4 = { id: 4 };
     ic.Items.Insert(o4, 1);
-    strictEqual(icg.ContainerFromIndex(1), icg.ContainerFromItem(o4), "Container @ 1 should now match container for o4.");
-    strictEqual(icg.ContainerFromIndex(2), icg.ContainerFromItem(o2), "Container @ 2 should now match container for o2.");
-    strictEqual(icg.ContainerFromIndex(3), icg.ContainerFromItem(o3), "Container @ 3 should now match container for o3.");
+    strictEqual(icg.ContainerFromIndex(1), icg.ContainerFromItem(o4), "Container @ 1 should now match container for o4 after inserting o4 @ 1.");
+    strictEqual(icg.ContainerFromIndex(2), icg.ContainerFromItem(o2), "Container @ 2 should now match container for o2 after inserting o4 @ 1.");
+    strictEqual(icg.ContainerFromIndex(3), icg.ContainerFromItem(o3), "Container @ 3 should now match container for o3 after inserting o4 @ 1.");
 
     ic.Items.Clear();
-
     strictEqual(icg.ContainerFromIndex(1), undefined, "Container @ 2 should no longer exist after clear.");
     strictEqual(icg.ContainerFromIndex(1), undefined, "Container @ 1 should no longer exist after clear.");
     strictEqual(icg.ContainerFromIndex(0), undefined, "Container @ 0 should no longer exist after clear.");
+
 });

@@ -398,10 +398,10 @@ var Fayde;
                 var position;
                 switch(e.Action) {
                     case Fayde.Collections.NotifyCollectionChangedAction.Add:
+                        itemCount = e.NewItems.length;
                         if((e.NewStartingIndex + 1) !== this.Owner.Items.Count) {
-                            this.MoveExistingItems(e.NewStartingIndex, 1);
+                            this.MoveExistingItems(e.NewStartingIndex, itemCount);
                         }
-                        itemCount = 1;
                         itemUICount = 0;
                         position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
                         position.offset = 1;
@@ -428,10 +428,14 @@ var Fayde;
                         position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
                         this.Remove(position, 1);
                         var newPos = this.GeneratorPositionFromIndex(e.NewStartingIndex);
-                        this.StartAt(newPos, true, true);
-                        this.PrepareItemContainer(this.GenerateNext({
-                            Value: null
-                        }));
+                        var state = this.StartAt(newPos, true, true);
+                        try  {
+                            this.PrepareItemContainer(this.GenerateNext({
+                                Value: null
+                            }));
+                        }finally {
+                            state.Dispose();
+                        }
                         break;
                     case Fayde.Collections.NotifyCollectionChangedAction.Reset:
                         var itemCount;

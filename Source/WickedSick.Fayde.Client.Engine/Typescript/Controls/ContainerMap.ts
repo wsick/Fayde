@@ -42,10 +42,13 @@ module Fayde.Controls {
         }
 
         Add(container: DependencyObject, item: any, index: number) {
-            if (index < this._Containers.length)
-                throw new InvalidOperationException("Cannot insert into ContainerMap - only append.");
-            this._Containers.push(container);
-            this._Items.push(item);
+            if (index >= this._Containers.length) {
+                this._Containers.push(container);
+                this._Items.push(item);
+            } else {
+                this._Containers.splice(index, 0, container);
+                this._Items.splice(index, 0, item);
+            }
         }
         RemoveIndex(index: number): DependencyObject {
             this._Items.splice(index, 1);
@@ -69,6 +72,8 @@ module Fayde.Controls {
             for (var i = 0; i < len; i++) {
                 ic.ClearContainerForItem(containers[i], items[i]);
             }
+            this._Containers = [];
+            this._Items = [];
         }
     }
 }
