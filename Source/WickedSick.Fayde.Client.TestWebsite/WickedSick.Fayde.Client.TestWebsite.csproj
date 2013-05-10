@@ -89,6 +89,7 @@
     <Content Include="default8.fap">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Tests\Controls\listbox.fap.js" />
     <Content Include="Tests\Media\image-stretch.fap">
       <SubType>Designer</SubType>
     </Content>
@@ -119,6 +120,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Tests\Controls\textbox.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Tests\Controls\listbox.fap">
       <SubType>Designer</SubType>
     </Content>
     <None Include="Tests\Shapes\rectangle-grid.fap">

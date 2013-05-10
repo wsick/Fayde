@@ -75,7 +75,10 @@ var Fayde;
     })();
     Fayde.ArrayEx = ArrayEx;    
 })(Fayde || (Fayde = {}));
-(Array.prototype).GetEnumerator = function (isReverse) {
-    return Fayde.ArrayEx.GetEnumerator(this, isReverse);
-};
+Object.defineProperty(Array.prototype, "GetEnumerator", {
+    value: function (isReverse) {
+        return Fayde.ArrayEx.GetEnumerator(this, isReverse);
+    },
+    enumerable: false
+});
 //@ sourceMappingURL=Enumerable.js.map

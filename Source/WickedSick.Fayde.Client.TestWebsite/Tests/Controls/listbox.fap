@@ -1,0 +1,12 @@
+﻿<FaydeApplication
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde"
+    Debug="true"
+    UseNew="true"
+    JsType="Tests.Controls.ListBox"
+    ScriptResolution="/Fayde/">
+    <Grid>
+        <ListBox x:Name="MyListBox">
+        </ListBox>
+    </Grid>
+</FaydeApplication>

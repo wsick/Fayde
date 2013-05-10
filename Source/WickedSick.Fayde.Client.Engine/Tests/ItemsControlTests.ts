@@ -59,7 +59,7 @@ test("ItemsControl.NonUIItems", () => {
     ok(icg.ContainerFromIndex(3) === icg.ContainerFromItem(o3), "Items.Insert: Container @ 3 should now match container for o3.");
     
     ic.Items.Remove(o4);
-    ok(icg.ContainerFromItem(o4) === undefined, "Items.Clear: Container from o4 should no longer exist.");
+    ok(icg.ContainerFromItem(o4) === undefined, "Items.Remove: Container from o4 should no longer exist.");
     ok(icg.ContainerFromIndex(1) === icg.ContainerFromItem(o2), "Items.Remove: Container @ 1 should now match container for o2.");
     ok(icg.ContainerFromIndex(2) === icg.ContainerFromItem(o3), "Items.Remove: Container @ 2 should now match container for o3.");
 
@@ -142,7 +142,7 @@ test("ItemsControl.VirtualizingNonUIItems", () => {
     
     ic.Items.Remove(o4);
     ic.Panel.Measure(size.createInfinite());
-    ok(icg.ContainerFromItem(o4) === undefined, "Items.Clear: Container from o4 should no longer exist.");
+    ok(icg.ContainerFromItem(o4) === undefined, "Items.Remove: Container from o4 should no longer exist.");
     ok(icg.ContainerFromIndex(1) === icg.ContainerFromItem(o2), "Items.Remove: Container @ 1 should now match container for o2.");
     ok(icg.ContainerFromIndex(2) === icg.ContainerFromItem(o3), "Items.Remove: Container @ 2 should now match container for o3.");
 

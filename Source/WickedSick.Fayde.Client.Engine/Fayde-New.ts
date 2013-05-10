@@ -10422,9 +10422,12 @@ module Fayde {
         }
     }
 }
-(<any>Array.prototype).GetEnumerator = function (isReverse?: bool): Fayde.IEnumerator {
-    return Fayde.ArrayEx.GetEnumerator(this, isReverse);
-};
+Object.defineProperty(Array.prototype, "GetEnumerator", {
+    value: function (isReverse?: bool): Fayde.IEnumerator {
+        return Fayde.ArrayEx.GetEnumerator(this, isReverse);
+    },
+    enumerable: false
+});
 
 class EventArgs {
     static Empty: EventArgs = new EventArgs();
