@@ -26,23 +26,15 @@ var Fayde;
                 __extends(ScrollEventArgs, _super);
                 function ScrollEventArgs(scrollEventType, value) {
                                 _super.call(this);
-                    this._ScrollEventType = scrollEventType;
-                    this._Value = value;
+                    Object.defineProperty(this, "ScrollEventType", {
+                        value: scrollEventType,
+                        writable: false
+                    });
+                    Object.defineProperty(this, "Value", {
+                        value: value,
+                        writable: false
+                    });
                 }
-                Object.defineProperty(ScrollEventArgs.prototype, "ScrollEventType", {
-                    get: function () {
-                        return this._ScrollEventType;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                Object.defineProperty(ScrollEventArgs.prototype, "Value", {
-                    get: function () {
-                        return this._Value;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
                 return ScrollEventArgs;
             })(Fayde.RoutedEventArgs);
             Primitives.ScrollEventArgs = ScrollEventArgs;            

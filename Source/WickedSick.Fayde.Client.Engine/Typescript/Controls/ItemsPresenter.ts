@@ -17,6 +17,7 @@ module Fayde.Controls {
         }
 
         get ElementRoot(): Panel {
+            return this._ElementRoot;
             if (!this._ElementRoot) {
                 var error = new BError();
                 this.ApplyTemplateWithError(error);

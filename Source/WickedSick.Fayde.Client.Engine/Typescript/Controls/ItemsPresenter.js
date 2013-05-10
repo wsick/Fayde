@@ -20,6 +20,7 @@ var Fayde;
             }
             Object.defineProperty(ItemsPresenterNode.prototype, "ElementRoot", {
                 get: function () {
+                    return this._ElementRoot;
                     if(!this._ElementRoot) {
                         var error = new BError();
                         this.ApplyTemplateWithError(error);

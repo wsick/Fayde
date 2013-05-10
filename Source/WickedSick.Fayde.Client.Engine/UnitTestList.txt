@@ -1,0 +1,3 @@
+﻿Tests\XamlNodeTests.ts
+Tests\ProviderStoreTests.ts
+Tests\ItemsControlTests.ts

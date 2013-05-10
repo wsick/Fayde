@@ -5,12 +5,10 @@
 
 module Fayde {
     export class PropertyChangedEventArgs extends EventArgs {
-        private _PropertyName: string;
-        get PropertyName(): string { return this._PropertyName; }
-
+        PropertyName: string;
         constructor(propertyName: string) {
             super();
-            this._PropertyName = propertyName;
+            Object.defineProperty(this, "PropertyName", { value: propertyName, writable: false });
         }
     }
     Nullstone.RegisterType(PropertyChangedEventArgs, "PropertyChangedEventArgs");

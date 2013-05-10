@@ -11,23 +11,15 @@ var Fayde;
         __extends(RoutedPropertyChangedEventArgs, _super);
         function RoutedPropertyChangedEventArgs(oldValue, newValue) {
                 _super.call(this);
-            this._OldValue = oldValue;
-            this._NewValue = newValue;
+            Object.defineProperty(this, "OldValue", {
+                value: oldValue,
+                writable: false
+            });
+            Object.defineProperty(this, "NewValue", {
+                value: newValue,
+                writable: false
+            });
         }
-        Object.defineProperty(RoutedPropertyChangedEventArgs.prototype, "OldValue", {
-            get: function () {
-                return this._OldValue;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(RoutedPropertyChangedEventArgs.prototype, "NewValue", {
-            get: function () {
-                return this._NewValue;
-            },
-            enumerable: true,
-            configurable: true
-        });
         return RoutedPropertyChangedEventArgs;
     })(Fayde.RoutedEventArgs);
     Fayde.RoutedPropertyChangedEventArgs = RoutedPropertyChangedEventArgs;    

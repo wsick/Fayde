@@ -32,12 +32,9 @@ var Fayde;
                 }
                 return presenter;
             };
-            Object.defineProperty(ItemsControlNode.prototype, "ItemsPresenterElementRoot", {
+            Object.defineProperty(ItemsControlNode.prototype, "ItemsPresenter", {
                 get: function () {
-                    var p = this._Presenter;
-                    if(p) {
-                        return p.ElementRoot;
-                    }
+                    return this._Presenter;
                 },
                 enumerable: true,
                 configurable: true
@@ -155,7 +152,12 @@ var Fayde;
             };
             Object.defineProperty(ItemsControl.prototype, "Panel", {
                 get: function () {
-                    return this.XamlNode.ItemsPresenterElementRoot;
+                    var p = this.XamlNode.ItemsPresenter;
+                    var presenter = this.XamlNode.ItemsPresenter;
+                    if(presenter) {
+                        return presenter.ElementRoot;
+                    }
+                    return undefined;
                 },
                 enumerable: true,
                 configurable: true
@@ -310,8 +312,8 @@ var Fayde;
                 }
             };
             ItemsControl.prototype.OnItemContainerGeneratorChanged = function (sender, e) {
-                var panel = this.XamlNode.ItemsPresenterElementRoot;
-                if(panel instanceof Controls.VirtualizingPanel) {
+                var panel = this.Panel;
+                if(!panel || panel instanceof Controls.VirtualizingPanel) {
                     return;
                 }
                 switch(e.Action) {
@@ -363,15 +365,15 @@ var Fayde;
             }
             */
             function (position, count) {
-                var panel = this.XamlNode.ItemsPresenterElementRoot;
-                if(panel instanceof Controls.VirtualizingPanel) {
+                var panel = this.Panel;
+                if(!panel || panel instanceof Controls.VirtualizingPanel) {
                     return;
                 }
                 var icg = this.ItemContainerGenerator;
                 var newIndex = icg.IndexFromGeneratorPosition(position);
                 var items = this.Items;
                 var children = panel.Children;
-                var p = icg.StartAt(position, 0, true);
+                var p = icg.StartAt(position, true, true);
                 try  {
                     for(var i = 0; i < count; i++) {
                         var item = items.GetValueAt(newIndex + i);
@@ -392,8 +394,8 @@ var Fayde;
                 }
             };
             ItemsControl.prototype.RemoveItemsFromPresenter = function (position, count) {
-                var panel = this.XamlNode.ItemsPresenterElementRoot;
-                if(panel instanceof Controls.VirtualizingPanel) {
+                var panel = this.Panel;
+                if(!panel || panel instanceof Controls.VirtualizingPanel) {
                     return;
                 }
                 while(count > 0) {

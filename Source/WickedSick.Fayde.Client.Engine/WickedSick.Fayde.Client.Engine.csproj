@@ -103,9 +103,6 @@
     <Content Include="Javascript\Primitives.js" />
     <Content Include="Javascript\Runtime\IEnumerable.js" />
     <Content Include="Javascript\Shapes\ShapeMetrics.js" />
-    <Content Include="Tests\DependencyObjectTests.js" />
-    <Content Include="Tests\FaydeAsserts.js" />
-    <Content Include="Tests\NullstoneTests.js" />
     <Content Include="Javascript\Collections\INotifyCollectionChanged.js" />
     <Content Include="Javascript\Collections\NotifyCollectionChangedEventArgs.js" />
     <Content Include="Javascript\Collections\ObservableCollection.js" />
@@ -447,6 +444,10 @@
     <Content Include="Silo\heightTest.htm" />
     <Content Include="Docs\Tips.txt" />
     <TypeScriptCompile Include="Tests\ProviderStoreTests.ts" />
+    <TypeScriptCompile Include="Tests\ItemsControlTests.ts" />
+    <Content Include="Tests\ItemsControlTests.js">
+      <DependentUpon>ItemsControlTests.ts</DependentUpon>
+    </Content>
     <Content Include="Tests\ProviderStoreTests.js">
       <DependentUpon>ProviderStoreTests.ts</DependentUpon>
     </Content>
@@ -463,6 +464,7 @@
     <TypeScriptCompile Include="Typescript\Controls\Image.ts" />
     <TypeScriptCompile Include="Typescript\Controls\Control.ts" />
     <TypeScriptCompile Include="Tests\XamlNodeTests.ts" />
+    <Content Include="UnitTestList.txt" />
     <Content Include="Tests\XamlNodeTests.js">
       <DependentUpon>XamlNodeTests.ts</DependentUpon>
     </Content>

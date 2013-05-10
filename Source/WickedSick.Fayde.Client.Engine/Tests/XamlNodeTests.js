@@ -1,3 +1,10 @@
+/// <reference path="qunit-1.10.0.d.ts" />
+/// <reference path="../Typescript/Core/XamlObject.ts" />
+//Test registering/unregistering names
+//Test find namescope
+//Test absorbing of namescopes
+//Test isattached modification
+//Test AttachTo/Detach
 test("XamlNodeTests.AttachTo_Detach", function () {
     var root = new Fayde.XamlObject();
     root.XamlNode.NameScope = new Fayde.NameScope(true);
@@ -60,3 +67,4 @@ test("XamlNodeTests.NameCollision", function () {
     ok(child1.XamlNode.AttachTo(root.XamlNode, error), "Attaching child node 1 twice should not error because attaching parent is same as current parent.");
     ok(!root.XamlNode.AttachTo(child1.XamlNode, error), "Attaching root to child node 1 should error because cycles are not allowed.");
 });
+//@ sourceMappingURL=XamlNodeTests.js.map

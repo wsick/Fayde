@@ -204,18 +204,6 @@ var Fayde;
                 }
                 return null;
             };
-            ItemContainerGenerator.prototype.CheckOffsetAndRealized = function (position, count) {
-                if(position.offset !== 0) {
-                    throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
-                }
-                var index = this.IndexFromGeneratorPosition(position);
-                var realized = this.RealizedElements;
-                var rangeIndex = realized.FindRangeIndexForValue(index);
-                var range = realized.Get(rangeIndex);
-                if(index < range.Start || (index + count) > range.Start + range_count(range)) {
-                    throw new InvalidOperationException("Only items which have been Realized can be removed");
-                }
-            };
             ItemContainerGenerator.prototype.GeneratorPositionFromIndex = function (index) {
                 var realized = this.RealizedElements;
                 var realizedCount = realized.Count;
@@ -289,7 +277,7 @@ var Fayde;
             ItemContainerGenerator.prototype.ContainerFromItem = function (item) {
                 return this.ContainerMap.ContainerFromItem(item);
             };
-            ItemContainerGenerator.prototype.StartAt = function (position, direction, allowStartAtRealizedItem) {
+            ItemContainerGenerator.prototype.StartAt = function (position, forward, allowStartAtRealizedItem) {
                 if(this._GenerationState) {
                     throw new InvalidOperationException("Cannot call StartAt while a generation operation is in progress");
                 }
@@ -297,7 +285,7 @@ var Fayde;
                     AllowStartAtRealizedItem: allowStartAtRealizedItem,
                     PositionIndex: position.index,
                     PositionOffset: position.offset,
-                    Step: direction
+                    Step: forward ? 1 : -1
                 };
                 return this._GenerationState;
             };
@@ -314,7 +302,7 @@ var Fayde;
                 if(startAt === -1) {
                     if(startOffset < 0) {
                         index = this.Owner.Items.Count + startOffset;
-                    } else if(startOffset == 0) {
+                    } else if(startOffset === 0) {
                         index = 0;
                     } else {
                         index = startOffset - 1;
@@ -376,13 +364,11 @@ var Fayde;
             };
             ItemContainerGenerator.prototype.MoveExistingItems = function (index, offset) {
                 var list = this.RealizedElements.ToExpandedArray();
-                if(offset > 0) {
-                    list = list.reverse();
-                }
                 var newRanges = new RangeCollection();
                 var map = this.ContainerMap;
-                for(var i = 0; i < list.length; i++) {
-                    var oldIndex = i;
+                var enumerator = Fayde.ArrayEx.GetEnumerator(list, offset > 0);
+                while(enumerator.MoveNext()) {
+                    var oldIndex = enumerator.Current;
                     if(oldIndex < index) {
                         newRanges.Add(oldIndex);
                     } else {
@@ -393,27 +379,10 @@ var Fayde;
                 this.RealizedElements = newRanges;
             };
             ItemContainerGenerator.prototype.Recycle = function (position, count) {
-                this.CheckOffsetAndRealized(position, count);
-                var index = this.IndexFromGeneratorPosition(position);
-                var realized = this.RealizedElements;
-                var cache = this.Cache;
-                var map = this.ContainerMap;
-                var end = index + count;
-                for(var i = index; i < end; i++) {
-                    realized.Remove(i);
-                    cache.push(map.RemoveIndex(i));
-                }
+                this._KillContainer(position, count, true);
             };
             ItemContainerGenerator.prototype.Remove = function (position, count) {
-                this.CheckOffsetAndRealized(position, count);
-                var index = this.IndexFromGeneratorPosition(position);
-                var realized = this.RealizedElements;
-                var map = this.ContainerMap;
-                var end = index + count;
-                for(var i = index; i < end; i++) {
-                    realized.Remove(i);
-                    map.RemoveIndex(i);
-                }
+                this._KillContainer(position, count, false);
             };
             ItemContainerGenerator.prototype.RemoveAll = function () {
                 this.ContainerMap.Clear();
@@ -459,7 +428,7 @@ var Fayde;
                         position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
                         this.Remove(position, 1);
                         var newPos = this.GeneratorPositionFromIndex(e.NewStartingIndex);
-                        this.StartAt(newPos, 0, true);
+                        this.StartAt(newPos, true, true);
                         this.PrepareItemContainer(this.GenerateNext({
                             Value: null
                         }));
@@ -483,6 +452,28 @@ var Fayde;
                         break;
                 }
                 this.ItemsChanged.Raise(this, new Controls.Primitives.ItemsChangedEventArgs(e.Action, itemCount, itemUICount, oldPosition, position));
+            };
+            ItemContainerGenerator.prototype._KillContainer = function (position, count, recycle) {
+                if(position.offset !== 0) {
+                    throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
+                }
+                var index = this.IndexFromGeneratorPosition(position);
+                var realized = this.RealizedElements;
+                var range = realized.Get(realized.FindRangeIndexForValue(index));
+                if(index < range.Start || (index + count) > range.Start + range_count(range)) {
+                    throw new InvalidOperationException("Only items which have been Realized can be removed");
+                }
+                var cache = this.Cache;
+                var map = this.ContainerMap;
+                var end = index + count;
+                for(var i = index; i < end; i++) {
+                    realized.Remove(i);
+                    if(recycle) {
+                        cache.push(map.RemoveIndex(i));
+                    } else {
+                        map.RemoveIndex(i);
+                    }
+                }
             };
             return ItemContainerGenerator;
         })();

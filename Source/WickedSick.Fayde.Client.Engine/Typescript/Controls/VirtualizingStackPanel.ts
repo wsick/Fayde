@@ -17,8 +17,12 @@ module Fayde.Controls {
 
     export class CleanUpVirtualizedItemEventArgs extends RoutedEventArgs implements ICancelable {
         Cancel: bool = false;
-        constructor(public UIElement: UIElement, public Value: any) {
+        UIElement: UIElement;
+        Value: any;
+        constructor(uiElement: UIElement, value: any) {
             super();
+            Object.defineProperty(this, "UIElement", { value: uiElement, writable: false });
+            Object.defineProperty(this, "Value", { value: value, writable: false });
         }
     }
 
@@ -207,7 +211,7 @@ module Fayde.Controls {
                 var start = generator.GeneratorPositionFromIndex(index);
                 var insertAt = (start.offset === 0) ? start.index : start.index + 1;
 
-                var state = generator.StartAt(start, 0, true);
+                var state = generator.StartAt(start, true, true);
                 try {
                     var isNewlyRealized = { Value: false };
 

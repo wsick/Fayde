@@ -199,25 +199,12 @@ module Fayde.Controls {
             this.ContainerMap = new ContainerMap(this);
         }
 
-        GetItemContainerGeneratorForPanel(panel) {
+        GetItemContainerGeneratorForPanel(panel: Panel) {
             if (this.Panel === panel)
                 return this;
             return null;
         }
 
-        CheckOffsetAndRealized(position: IGeneratorPosition, count: number) {
-            if (position.offset !== 0) {
-                throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
-            }
-
-            var index = this.IndexFromGeneratorPosition(position);
-            var realized = this.RealizedElements;
-            var rangeIndex = realized.FindRangeIndexForValue(index);
-            var range = realized.Get(rangeIndex);
-            if (index < range.Start || (index + count) > range.Start + range_count(range)) {
-                throw new InvalidOperationException("Only items which have been Realized can be removed");
-            }
-        }
         GeneratorPositionFromIndex(index: number): IGeneratorPosition {
             var realized = this.RealizedElements;
             var realizedCount = realized.Count;
@@ -263,7 +250,7 @@ module Fayde.Controls {
         ItemFromContainer(container: DependencyObject): any { return this.ContainerMap.ItemFromContainer(container); }
         ContainerFromItem(item: any): DependencyObject { return this.ContainerMap.ContainerFromItem(item); }
 
-        StartAt(position: IGeneratorPosition, direction: number, allowStartAtRealizedItem: bool): IGenerationState {
+        StartAt(position: IGeneratorPosition, forward: bool, allowStartAtRealizedItem: bool): IGenerationState {
             if (this._GenerationState)
                 throw new InvalidOperationException("Cannot call StartAt while a generation operation is in progress");
 
@@ -271,7 +258,7 @@ module Fayde.Controls {
                 AllowStartAtRealizedItem: allowStartAtRealizedItem,
                 PositionIndex: position.index,
                 PositionOffset: position.offset,
-                Step: direction
+                Step: forward ? 1 : -1,
             };
             return this._GenerationState;
         }
@@ -289,7 +276,7 @@ module Fayde.Controls {
             if (startAt === -1) {
                 if (startOffset < 0)
                     index = this.Owner.Items.Count + startOffset;
-                else if (startOffset == 0)
+                else if (startOffset === 0)
                     index = 0;
                 else
                     index = startOffset - 1;
@@ -355,13 +342,13 @@ module Fayde.Controls {
 
         MoveExistingItems(index: number, offset: number) {
             var list = this.RealizedElements.ToExpandedArray();
-            if (offset > 0)
-                list = list.reverse();
 
             var newRanges = new RangeCollection();
             var map = this.ContainerMap;
-            for (var i = 0; i < list.length; i++) {
-                var oldIndex = i;
+
+            var enumerator = ArrayEx.GetEnumerator(list, offset > 0);
+            while (enumerator.MoveNext()) {
+                var oldIndex: number = enumerator.Current;
                 if (oldIndex < index) {
                     newRanges.Add(oldIndex);
                 } else {
@@ -374,29 +361,10 @@ module Fayde.Controls {
         }
 
         Recycle(position: IGeneratorPosition, count: number) {
-            this.CheckOffsetAndRealized(position, count);
-
-            var index = this.IndexFromGeneratorPosition(position);
-            var realized = this.RealizedElements;
-            var cache = this.Cache;
-            var map = this.ContainerMap;
-            var end = index + count;
-            for (var i = index; i < end; i++) {
-                realized.Remove(i);
-                cache.push(map.RemoveIndex(i));
-            }
+            this._KillContainer(position, count, true);
         }
         Remove(position: IGeneratorPosition, count: number) {
-            this.CheckOffsetAndRealized(position, count);
-
-            var index = this.IndexFromGeneratorPosition(position);
-            var realized = this.RealizedElements;
-            var map = this.ContainerMap;
-            var end = index + count;
-            for (var i = index; i < end; i++) {
-                realized.Remove(i);
-                map.RemoveIndex(i);
-            }
+            this._KillContainer(position, count, false);
         }
         RemoveAll() {
             this.ContainerMap.Clear();
@@ -438,7 +406,7 @@ module Fayde.Controls {
                     this.Remove(position, 1);
 
                     var newPos = this.GeneratorPositionFromIndex(e.NewStartingIndex);
-                    this.StartAt(newPos, 0, true);
+                    this.StartAt(newPos, true, true);
                     this.PrepareItemContainer(this.GenerateNext({ Value: null }));
                     break;
                 case Collections.NotifyCollectionChangedAction.Reset:
@@ -457,6 +425,28 @@ module Fayde.Controls {
             }
 
             this.ItemsChanged.Raise(this, new Primitives.ItemsChangedEventArgs(e.Action, itemCount, itemUICount, oldPosition, position));
+        }
+        
+        private _KillContainer(position: IGeneratorPosition, count: number, recycle:bool) {
+            if (position.offset !== 0)
+                throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
+
+            var index = this.IndexFromGeneratorPosition(position);
+            var realized = this.RealizedElements;
+            var range = realized.Get(realized.FindRangeIndexForValue(index));
+            if (index < range.Start || (index + count) > range.Start + range_count(range))
+                throw new InvalidOperationException("Only items which have been Realized can be removed");
+
+            var cache = this.Cache;
+            var map = this.ContainerMap;
+            var end = index + count;
+            for (var i = index; i < end; i++) {
+                realized.Remove(i);
+                if (recycle)
+                    cache.push(map.RemoveIndex(i));
+                else
+                    map.RemoveIndex(i);
+            }
         }
     }
 }

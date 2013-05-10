@@ -15,8 +15,7 @@ var TestWebsite;
             Home.prototype.OnLoaded = function (sender, e) {
                 var HEYO = this.FindName("HEYO");
                 setTimeout(function () {
-                    HEYO.ItemsSource = [ { Text: "I" }, { Text: "Heart" }, { Text: "Newbs" }
-                    ];
+                    HEYO.ItemsSource = [ { Text: "I" }, { Text: "Heart" }, { Text: "Newbs" } ];
                 }, 4000);
             };
             return Home;

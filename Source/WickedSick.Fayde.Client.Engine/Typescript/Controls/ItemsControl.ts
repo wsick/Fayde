@@ -27,11 +27,7 @@ module Fayde.Controls {
             return presenter;
         }
 
-        get ItemsPresenterElementRoot(): Panel {
-            var p = this._Presenter;
-            if (p)
-                return p.ElementRoot;
-        }
+        get ItemsPresenter(): ItemsPresenter { return this._Presenter; }
         _SetItemsPresenter(presenter: ItemsPresenter) {
             if (this._Presenter)
                 this._Presenter.XamlNode.ElementRoot.Children.Clear();
@@ -111,7 +107,13 @@ module Fayde.Controls {
             });
         }
 
-        get Panel(): Panel { return this.XamlNode.ItemsPresenterElementRoot; }
+        get Panel(): Panel {
+            var p = this.XamlNode.ItemsPresenter;
+            var presenter = this.XamlNode.ItemsPresenter;
+            if (presenter)
+                return presenter.ElementRoot;
+            return undefined;
+        }
 
         static GetItemsOwner(uie: UIElement): ItemsControl {
             if (!(uie instanceof Panel))
@@ -253,8 +255,8 @@ module Fayde.Controls {
                 this.OnItemsChanged(e);
         }
         OnItemContainerGeneratorChanged(sender, e:Primitives.ItemsChangedEventArgs) {
-            var panel = this.XamlNode.ItemsPresenterElementRoot;
-            if (panel instanceof VirtualizingPanel)
+            var panel = this.Panel;
+            if (!panel || panel instanceof VirtualizingPanel)
                 return;
 
             switch (e.Action) {
@@ -302,8 +304,8 @@ module Fayde.Controls {
         }
         */
         AddItemsToPresenter(position: IGeneratorPosition, count: number) {
-            var panel = this.XamlNode.ItemsPresenterElementRoot;
-            if (panel instanceof VirtualizingPanel)
+            var panel = this.Panel;
+            if (!panel || panel instanceof VirtualizingPanel)
                 return;
 
             var icg = this.ItemContainerGenerator;
@@ -311,7 +313,7 @@ module Fayde.Controls {
             var items = this.Items;
             var children = panel.Children;
 
-            var p = icg.StartAt(position, 0, true);
+            var p = icg.StartAt(position, true, true);
             try {
                 for (var i = 0; i < count; i++) {
                     var item = items.GetValueAt(newIndex + i);
@@ -330,8 +332,8 @@ module Fayde.Controls {
             }
         }
         RemoveItemsFromPresenter(position: IGeneratorPosition, count: number) {
-            var panel = this.XamlNode.ItemsPresenterElementRoot;
-            if (panel instanceof VirtualizingPanel)
+            var panel = this.Panel;
+            if (!panel || panel instanceof VirtualizingPanel)
                 return;
 
             while (count > 0) {

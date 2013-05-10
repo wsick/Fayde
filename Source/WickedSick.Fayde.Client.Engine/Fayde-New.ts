@@ -282,22 +282,10 @@ module Fayde.Controls {
         constructor(public Owner: ItemsControl) {
             this.ContainerMap = new ContainerMap(this);
         }
-        GetItemContainerGeneratorForPanel(panel) {
+        GetItemContainerGeneratorForPanel(panel: Panel) {
             if (this.Panel === panel)
                 return this;
             return null;
-        }
-        CheckOffsetAndRealized(position: IGeneratorPosition, count: number) {
-            if (position.offset !== 0) {
-                throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
-            }
-            var index = this.IndexFromGeneratorPosition(position);
-            var realized = this.RealizedElements;
-            var rangeIndex = realized.FindRangeIndexForValue(index);
-            var range = realized.Get(rangeIndex);
-            if (index < range.Start || (index + count) > range.Start + range_count(range)) {
-                throw new InvalidOperationException("Only items which have been Realized can be removed");
-            }
         }
         GeneratorPositionFromIndex(index: number): IGeneratorPosition {
             var realized = this.RealizedElements;
@@ -339,14 +327,14 @@ module Fayde.Controls {
         ContainerFromIndex(index: number): DependencyObject { return this.ContainerMap.ContainerFromIndex(index); }
         ItemFromContainer(container: DependencyObject): any { return this.ContainerMap.ItemFromContainer(container); }
         ContainerFromItem(item: any): DependencyObject { return this.ContainerMap.ContainerFromItem(item); }
-        StartAt(position: IGeneratorPosition, direction: number, allowStartAtRealizedItem: bool): IGenerationState {
+        StartAt(position: IGeneratorPosition, forward: bool, allowStartAtRealizedItem: bool): IGenerationState {
             if (this._GenerationState)
                 throw new InvalidOperationException("Cannot call StartAt while a generation operation is in progress");
             this._GenerationState = {
                 AllowStartAtRealizedItem: allowStartAtRealizedItem,
                 PositionIndex: position.index,
                 PositionOffset: position.offset,
-                Step: direction
+                Step: forward ? 1 : -1,
             };
             return this._GenerationState;
         }
@@ -362,7 +350,7 @@ module Fayde.Controls {
             if (startAt === -1) {
                 if (startOffset < 0)
                     index = this.Owner.Items.Count + startOffset;
-                else if (startOffset == 0)
+                else if (startOffset === 0)
                     index = 0;
                 else
                     index = startOffset - 1;
@@ -418,12 +406,11 @@ module Fayde.Controls {
         }
         MoveExistingItems(index: number, offset: number) {
             var list = this.RealizedElements.ToExpandedArray();
-            if (offset > 0)
-                list = list.reverse();
             var newRanges = new RangeCollection();
             var map = this.ContainerMap;
-            for (var i = 0; i < list.length; i++) {
-                var oldIndex = i;
+            var enumerator = ArrayEx.GetEnumerator(list, offset > 0);
+            while (enumerator.MoveNext()) {
+                var oldIndex: number = enumerator.Current;
                 if (oldIndex < index) {
                     newRanges.Add(oldIndex);
                 } else {
@@ -434,27 +421,10 @@ module Fayde.Controls {
             this.RealizedElements = newRanges;
         }
         Recycle(position: IGeneratorPosition, count: number) {
-            this.CheckOffsetAndRealized(position, count);
-            var index = this.IndexFromGeneratorPosition(position);
-            var realized = this.RealizedElements;
-            var cache = this.Cache;
-            var map = this.ContainerMap;
-            var end = index + count;
-            for (var i = index; i < end; i++) {
-                realized.Remove(i);
-                cache.push(map.RemoveIndex(i));
-            }
+            this._KillContainer(position, count, true);
         }
         Remove(position: IGeneratorPosition, count: number) {
-            this.CheckOffsetAndRealized(position, count);
-            var index = this.IndexFromGeneratorPosition(position);
-            var realized = this.RealizedElements;
-            var map = this.ContainerMap;
-            var end = index + count;
-            for (var i = index; i < end; i++) {
-                realized.Remove(i);
-                map.RemoveIndex(i);
-            }
+            this._KillContainer(position, count, false);
         }
         RemoveAll() {
             this.ContainerMap.Clear();
@@ -493,7 +463,7 @@ module Fayde.Controls {
                     position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
                     this.Remove(position, 1);
                     var newPos = this.GeneratorPositionFromIndex(e.NewStartingIndex);
-                    this.StartAt(newPos, 0, true);
+                    this.StartAt(newPos, true, true);
                     this.PrepareItemContainer(this.GenerateNext({ Value: null }));
                     break;
                 case Collections.NotifyCollectionChangedAction.Reset:
@@ -510,6 +480,25 @@ module Fayde.Controls {
                     break;
             }
             this.ItemsChanged.Raise(this, new Primitives.ItemsChangedEventArgs(e.Action, itemCount, itemUICount, oldPosition, position));
+        }
+        private _KillContainer(position: IGeneratorPosition, count: number, recycle:bool) {
+            if (position.offset !== 0)
+                throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
+            var index = this.IndexFromGeneratorPosition(position);
+            var realized = this.RealizedElements;
+            var range = realized.Get(realized.FindRangeIndexForValue(index));
+            if (index < range.Start || (index + count) > range.Start + range_count(range))
+                throw new InvalidOperationException("Only items which have been Realized can be removed");
+            var cache = this.Cache;
+            var map = this.ContainerMap;
+            var end = index + count;
+            for (var i = index; i < end; i++) {
+                realized.Remove(i);
+                if (recycle)
+                    cache.push(map.RemoveIndex(i));
+                else
+                    map.RemoveIndex(i);
+            }
         }
     }
 }
@@ -10883,11 +10872,11 @@ module Fayde.Controls.Primitives {
         Position: IGeneratorPosition;
         constructor(action: Collections.NotifyCollectionChangedAction, itemCount: number, itemUICount: number, oldPosition: IGeneratorPosition, position: IGeneratorPosition) {
             super();
-            this.Action = action;
-            this.ItemCount = itemCount;
-            this.ItemUICount = itemUICount;
-            this.OldPosition = oldPosition;
-            this.Position = position;
+            Object.defineProperty(this, "Action", { value: action, writable: false });
+            Object.defineProperty(this, "ItemCount", { value: itemCount, writable: false });
+            Object.defineProperty(this, "ItemUICount", { value: itemUICount, writable: false });
+            Object.defineProperty(this, "OldPosition", { value: oldPosition, writable: false });
+            Object.defineProperty(this, "Position", { value: position, writable: false });
         }
     }
     Nullstone.RegisterType(ItemsChangedEventArgs, "ItemsChangedEventArgs");
@@ -10895,14 +10884,12 @@ module Fayde.Controls.Primitives {
 
 module Fayde.Controls.Primitives {
     export class SelectionChangedEventArgs extends EventArgs {
-        private _OldValues: any[];
-        get OldValues(): any[] { return this._OldValues; }
-        private _NewValues: any[];
-        get NewValues(): any[] { return this._NewValues; }
+        OldValues: any[];
+        NewValues: any[];
         constructor(oldValues: any[], newValues: any[]) {
             super();
-            this._OldValues = oldValues.slice(0);
-            this._NewValues = newValues.slice(0);
+            Object.defineProperty(this, "OldValues", { value: oldValues.slice(0), writable: false });
+            Object.defineProperty(this, "NewValues", { value: newValues.slice(0), writable: false });
         }
     }
     Nullstone.RegisterType(SelectionChangedEventArgs, "SelectionChangedEventArgs");
@@ -11100,11 +11087,10 @@ module Fayde {
 
 module Fayde {
     export class PropertyChangedEventArgs extends EventArgs {
-        private _PropertyName: string;
-        get PropertyName(): string { return this._PropertyName; }
+        PropertyName: string;
         constructor(propertyName: string) {
             super();
-            this._PropertyName = propertyName;
+            Object.defineProperty(this, "PropertyName", { value: propertyName, writable: false });
         }
     }
     Nullstone.RegisterType(PropertyChangedEventArgs, "PropertyChangedEventArgs");
@@ -11151,14 +11137,12 @@ module Fayde {
 
 module Fayde {
     export class RoutedPropertyChangedEventArgs extends RoutedEventArgs {
-        private _OldValue: any;
-        get OldValue(): any { return this._OldValue; }
-        private _NewValue: any;
-        get NewValue(): any { return this._NewValue; }
+        OldValue: any;
+        NewValue: any;
         constructor(oldValue: any, newValue: any) {
             super();
-            this._OldValue = oldValue;
-            this._NewValue = newValue;
+            Object.defineProperty(this, "OldValue", { value: oldValue, writable: false });
+            Object.defineProperty(this, "NewValue", { value: newValue, writable: false });
         }
     }
     Nullstone.RegisterType(RoutedPropertyChangedEventArgs, "RoutedPropertyChangedEventArgs");
@@ -11170,12 +11154,8 @@ module Fayde {
         NewSize: size;
         constructor(previousSize: size, newSize: size) {
             super();
-            Object.defineProperty(this, "PreviousSize", {
-                get: function () { return size.clone(previousSize); }
-            });
-            Object.defineProperty(this, "NewSize", {
-                get: function () { return size.clone(newSize); }
-            });
+            Object.defineProperty(this, "PreviousSize", { value: size.clone(previousSize), writable: false });
+            Object.defineProperty(this, "NewSize", { value: size.clone(newSize), writable: false });
         }
     }
     Nullstone.RegisterType(SizeChangedEventArgs, "SizeChangedEventArgs");
@@ -12055,13 +12035,19 @@ module Fayde.Input {
 
 module Fayde.Input {
     export class MouseEventArgs extends RoutedEventArgs {
-        private _AbsolutePos: Point;
+        AbsolutePos: Point;
         constructor(absolutePos: Point) {
             super();
-            this._AbsolutePos = absolutePos;
+            Object.defineProperty(this, "AbsolutePos", { value: absolutePos, writable: false });
         }
         GetPosition(relativeTo: UIElement): Point {
-            return new Point();
+            var p = this.AbsolutePos.Clone();
+            if (!relativeTo)
+                return p;
+            if (!(relativeTo instanceof UIElement))
+                throw new ArgumentException("Specified relative object must be a UIElement.");
+            relativeTo.XamlNode.LayoutUpdater.TransformPoint(p);
+            return p;
         }
     }
     Nullstone.RegisterType(MouseEventArgs, "MouseEventArgs");
@@ -12075,7 +12061,7 @@ module Fayde.Input {
         Delta: number;
         constructor(absolutePos: Point, delta: number) {
             super(absolutePos);
-            this.Delta = delta;
+            Object.defineProperty(this, "Delta", { value: delta, writable: false });
         }
     }
     Nullstone.RegisterType(MouseWheelEventArgs, "MouseWheelEventArgs");
@@ -13483,8 +13469,14 @@ module Fayde.Media.VSM {
 
 module Fayde.Media.VSM {
     export class VisualStateChangedEventArgs extends EventArgs {
-        constructor(public OldState: VisualState, public NewState: VisualState, public Control: Controls.Control) {
+        OldState: VisualState;
+        NewState: VisualState;
+        Control: Controls.Control;
+        constructor(oldState: VisualState, newState: VisualState, control: Controls.Control) {
             super();
+            Object.defineProperty(this, "OldState", { value: oldState, writable: false });
+            Object.defineProperty(this, "NewState", { value: newState, writable: false });
+            Object.defineProperty(this, "Control", { value: control, writable: false });
         }
     }
     export class VisualStateGroup extends DependencyObject {
@@ -14097,41 +14089,34 @@ module Fayde.Controls {
 
 module Fayde.Controls.Primitives {
     export class DragCompletedEventArgs extends RoutedEventArgs {
-        private _HorizontalChange: number;
-        get HorizontalChange(): number { return this._HorizontalChange; }
-        private _VerticalChange: number;
-        get VerticalChange(): number { return this._VerticalChange; }
-        private _Canceled: bool;
-        get Canceled(): bool { return this._Canceled; }
+        HorizontalChange: number;
+        VerticalChange: number;
+        Canceled: bool;
         constructor(horizontal: number, vertical: number, canceled: bool) {
             super();
-            this._HorizontalChange = horizontal;
-            this._VerticalChange = vertical;
-            this._Canceled = canceled;
+            Object.defineProperty(this, "HorizontalChange", { value: horizontal, writable: false });
+            Object.defineProperty(this, "VerticalChange", { value: vertical, writable: false });
+            Object.defineProperty(this, "Canceled", { value: canceled, writable: false });
         }
     }
     Nullstone.RegisterType(DragCompletedEventArgs, "DragCompletedEventArgs");
     export class DragDeltaEventArgs extends RoutedEventArgs {
-        private _HorizontalChange: number;
-        get HorizontalChange(): number { return this._HorizontalChange; }
-        private _VerticalChange: number;
-        get VerticalChange(): number { return this._VerticalChange; }
+        HorizontalChange: number;
+        VerticalChange: number;
         constructor(horizontal: number, vertical: number) {
             super();
-            this._HorizontalChange = horizontal;
-            this._VerticalChange = vertical;
+            Object.defineProperty(this, "HorizontalChange", { value: horizontal, writable: false });
+            Object.defineProperty(this, "VerticalChange", { value: vertical, writable: false });
         }
     }
     Nullstone.RegisterType(DragDeltaEventArgs, "DragDeltaEventArgs");
     export class DragStartedEventArgs extends RoutedEventArgs {
-        private _HorizontalOffset: number;
-        get HorizontalOffset(): number { return this._HorizontalOffset; }
-        private _VerticalOffset: number;
-        get VerticalOffset(): number { return this._VerticalOffset; }
+        HorizontalOffset: number;
+        VerticalOffset: number;
         constructor(horizontal: number, vertical: number) {
             super();
-            this._HorizontalOffset = horizontal;
-            this._VerticalOffset = vertical;
+            Object.defineProperty(this, "HorizontalOffset", { value: horizontal, writable: false });
+            Object.defineProperty(this, "VerticalOffset", { value: vertical, writable: false });
         }
     }
     Nullstone.RegisterType(DragStartedEventArgs, "DragStartedEventArgs");
@@ -14150,14 +14135,12 @@ module Fayde.Controls.Primitives {
         EndScroll = 8,
     }
     export class ScrollEventArgs extends RoutedEventArgs {
-        private _ScrollEventType: ScrollEventType;
-        get ScrollEventType(): ScrollEventType { return this._ScrollEventType; }
-        private _Value: number;
-        get Value(): number { return this._Value; }
+        ScrollEventType: ScrollEventType;
+        Value: number;
         constructor(scrollEventType: ScrollEventType, value: number) {
             super();
-            this._ScrollEventType = scrollEventType;
-            this._Value = value;
+            Object.defineProperty(this, "ScrollEventType", { value: scrollEventType, writable: false });
+            Object.defineProperty(this, "Value", { value: value, writable: false });
         }
     }
     Nullstone.RegisterType(ScrollEventArgs, "ScrollEventArgs");
@@ -17763,11 +17746,7 @@ module Fayde.Controls {
             }
             return presenter;
         }
-        get ItemsPresenterElementRoot(): Panel {
-            var p = this._Presenter;
-            if (p)
-                return p.ElementRoot;
-        }
+        get ItemsPresenter(): ItemsPresenter { return this._Presenter; }
         _SetItemsPresenter(presenter: ItemsPresenter) {
             if (this._Presenter)
                 this._Presenter.XamlNode.ElementRoot.Children.Clear();
@@ -17834,7 +17813,13 @@ module Fayde.Controls {
                 writable: false
             });
         }
-        get Panel(): Panel { return this.XamlNode.ItemsPresenterElementRoot; }
+        get Panel(): Panel {
+            var p = this.XamlNode.ItemsPresenter;
+            var presenter = this.XamlNode.ItemsPresenter;
+            if (presenter)
+                return presenter.ElementRoot;
+            return undefined;
+        }
         static GetItemsOwner(uie: UIElement): ItemsControl {
             if (!(uie instanceof Panel))
                 return null;
@@ -17966,8 +17951,8 @@ module Fayde.Controls {
                 this.OnItemsChanged(e);
         }
         OnItemContainerGeneratorChanged(sender, e:Primitives.ItemsChangedEventArgs) {
-            var panel = this.XamlNode.ItemsPresenterElementRoot;
-            if (panel instanceof VirtualizingPanel)
+            var panel = this.Panel;
+            if (!panel || panel instanceof VirtualizingPanel)
                 return;
             switch (e.Action) {
                 case Collections.NotifyCollectionChangedAction.Reset:
@@ -18013,14 +17998,14 @@ module Fayde.Controls {
         }
         */
         AddItemsToPresenter(position: IGeneratorPosition, count: number) {
-            var panel = this.XamlNode.ItemsPresenterElementRoot;
-            if (panel instanceof VirtualizingPanel)
+            var panel = this.Panel;
+            if (!panel || panel instanceof VirtualizingPanel)
                 return;
             var icg = this.ItemContainerGenerator;
             var newIndex = icg.IndexFromGeneratorPosition(position);
             var items = this.Items;
             var children = panel.Children;
-            var p = icg.StartAt(position, 0, true);
+            var p = icg.StartAt(position, true, true);
             try {
                 for (var i = 0; i < count; i++) {
                     var item = items.GetValueAt(newIndex + i);
@@ -18037,8 +18022,8 @@ module Fayde.Controls {
             }
         }
         RemoveItemsFromPresenter(position: IGeneratorPosition, count: number) {
-            var panel = this.XamlNode.ItemsPresenterElementRoot;
-            if (panel instanceof VirtualizingPanel)
+            var panel = this.Panel;
+            if (!panel || panel instanceof VirtualizingPanel)
                 return;
             while (count > 0) {
                 panel.Children.RemoveAt(position.index);
@@ -18077,6 +18062,7 @@ module Fayde.Controls {
             super(xobj);
         }
         get ElementRoot(): Panel {
+            return this._ElementRoot;
             if (!this._ElementRoot) {
                 var error = new BError();
                 this.ApplyTemplateWithError(error);
@@ -20280,8 +20266,12 @@ module Fayde.Controls {
     }
     export class CleanUpVirtualizedItemEventArgs extends RoutedEventArgs implements ICancelable {
         Cancel: bool = false;
-        constructor(public UIElement: UIElement, public Value: any) {
+        UIElement: UIElement;
+        Value: any;
+        constructor(uiElement: UIElement, value: any) {
             super();
+            Object.defineProperty(this, "UIElement", { value: uiElement, writable: false });
+            Object.defineProperty(this, "Value", { value: value, writable: false });
         }
     }
     export class VirtualizingStackPanel extends VirtualizingPanel implements Primitives.IScrollInfo, IMeasurableHidden, IArrangeableHidden {
@@ -20449,7 +20439,7 @@ module Fayde.Controls {
                     childAvailable.Height = Number.POSITIVE_INFINITY;
                 var start = generator.GeneratorPositionFromIndex(index);
                 var insertAt = (start.offset === 0) ? start.index : start.index + 1;
-                var state = generator.StartAt(start, 0, true);
+                var state = generator.StartAt(start, true, true);
                 try {
                     var isNewlyRealized = { Value: false };
                     var child: UIElement;

@@ -20,11 +20,17 @@ var Fayde;
         var VirtualizationMode = Controls.VirtualizationMode;
         var CleanUpVirtualizedItemEventArgs = (function (_super) {
             __extends(CleanUpVirtualizedItemEventArgs, _super);
-            function CleanUpVirtualizedItemEventArgs(UIElement, Value) {
+            function CleanUpVirtualizedItemEventArgs(uiElement, value) {
                         _super.call(this);
-                this.UIElement = UIElement;
-                this.Value = Value;
                 this.Cancel = false;
+                Object.defineProperty(this, "UIElement", {
+                    value: uiElement,
+                    writable: false
+                });
+                Object.defineProperty(this, "Value", {
+                    value: value,
+                    writable: false
+                });
             }
             return CleanUpVirtualizedItemEventArgs;
         })(Fayde.RoutedEventArgs);
@@ -299,7 +305,7 @@ var Fayde;
                     }
                     var start = generator.GeneratorPositionFromIndex(index);
                     var insertAt = (start.offset === 0) ? start.index : start.index + 1;
-                    var state = generator.StartAt(start, 0, true);
+                    var state = generator.StartAt(start, true, true);
                     try  {
                         var isNewlyRealized = {
                             Value: false

@@ -3,14 +3,12 @@
 
 module Fayde {
     export class RoutedPropertyChangedEventArgs extends RoutedEventArgs {
-        private _OldValue: any;
-        get OldValue(): any { return this._OldValue; }
-        private _NewValue: any;
-        get NewValue(): any { return this._NewValue; }
+        OldValue: any;
+        NewValue: any;
         constructor(oldValue: any, newValue: any) {
             super();
-            this._OldValue = oldValue;
-            this._NewValue = newValue;
+            Object.defineProperty(this, "OldValue", { value: oldValue, writable: false });
+            Object.defineProperty(this, "NewValue", { value: newValue, writable: false });
         }
     }
     Nullstone.RegisterType(RoutedPropertyChangedEventArgs, "RoutedPropertyChangedEventArgs");

@@ -13,23 +13,15 @@ var Fayde;
                 __extends(SelectionChangedEventArgs, _super);
                 function SelectionChangedEventArgs(oldValues, newValues) {
                                 _super.call(this);
-                    this._OldValues = oldValues.slice(0);
-                    this._NewValues = newValues.slice(0);
+                    Object.defineProperty(this, "OldValues", {
+                        value: oldValues.slice(0),
+                        writable: false
+                    });
+                    Object.defineProperty(this, "NewValues", {
+                        value: newValues.slice(0),
+                        writable: false
+                    });
                 }
-                Object.defineProperty(SelectionChangedEventArgs.prototype, "OldValues", {
-                    get: function () {
-                        return this._OldValues;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                Object.defineProperty(SelectionChangedEventArgs.prototype, "NewValues", {
-                    get: function () {
-                        return this._NewValues;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
                 return SelectionChangedEventArgs;
             })(EventArgs);
             Primitives.SelectionChangedEventArgs = SelectionChangedEventArgs;            

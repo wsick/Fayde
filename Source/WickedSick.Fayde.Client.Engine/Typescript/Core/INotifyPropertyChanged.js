@@ -13,15 +13,11 @@ var Fayde;
         __extends(PropertyChangedEventArgs, _super);
         function PropertyChangedEventArgs(propertyName) {
                 _super.call(this);
-            this._PropertyName = propertyName;
+            Object.defineProperty(this, "PropertyName", {
+                value: propertyName,
+                writable: false
+            });
         }
-        Object.defineProperty(PropertyChangedEventArgs.prototype, "PropertyName", {
-            get: function () {
-                return this._PropertyName;
-            },
-            enumerable: true,
-            configurable: true
-        });
         return PropertyChangedEventArgs;
     })(EventArgs);
     Fayde.PropertyChangedEventArgs = PropertyChangedEventArgs;    
