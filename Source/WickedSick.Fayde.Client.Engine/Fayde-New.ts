@@ -10800,7 +10800,11 @@ module Fayde.Collections {
             this._RaisePropertyChanged("Count");
         }
         AddRange(values: any[]) {
-            var index = this._ht.push(values) - 1;
+            var index = this._ht.length;
+            var len = values.length;
+            for (var i = 0; i < len; i++) {
+                this._ht.push(values[i]);
+            }
             this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.AddRange(values, index));
             this._RaisePropertyChanged("Count");
         }
@@ -14004,9 +14008,9 @@ module Fayde.Controls {
             this._ValidateReadOnly();
             if (value == null)
                 throw new ArgumentException("value");
-            this.InsertImpl(value, index);
+            this.InsertImpl(index, value);
         }
-        private InsertImpl(value: any, index: number) {
+        private InsertImpl(index: number, value: any) {
             var ht = this._ht;
             if (index < 0 || index > ht.length)
                 throw new IndexOutOfRangeException(index);
@@ -17910,11 +17914,14 @@ module Fayde.Controls {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
         }
         private _CollectionChanged(sender, e: Collections.NotifyCollectionChangedEventArgs) {
+            var index: number;
             switch (e.Action) {
                 case Collections.NotifyCollectionChangedAction.Add:
                     var enumerator = ArrayEx.GetEnumerator(e.NewItems);
+                    index = e.NewStartingIndex;
                     while (enumerator.MoveNext()) {
-                        this.$Items.InsertImpl(e.NewStartingIndex + 1, enumerator.Current);
+                        this.$Items.InsertImpl(index, enumerator.Current);
+                        index++;
                     }
                     break;
                 case Collections.NotifyCollectionChangedAction.Remove:
@@ -17925,8 +17932,10 @@ module Fayde.Controls {
                     break;
                 case Collections.NotifyCollectionChangedAction.Replace:
                     var enumerator = ArrayEx.GetEnumerator(e.NewItems);
+                    index = e.NewStartingIndex;
                     while (enumerator.MoveNext()) {
-                        this.$Items.SetValueAtImpl(e.NewStartingIndex + 1, enumerator.Current);
+                        this.$Items.SetValueAtImpl(index, enumerator.Current);
+                        index++;
                     }
                     break;
                 case Collections.NotifyCollectionChangedAction.Reset:

@@ -86,9 +86,9 @@ var Fayde;
                 if(value == null) {
                     throw new ArgumentException("value");
                 }
-                this.InsertImpl(value, index);
+                this.InsertImpl(index, value);
             };
-            ItemCollection.prototype.InsertImpl = function (value, index) {
+            ItemCollection.prototype.InsertImpl = function (index, value) {
                 var ht = this._ht;
                 if(index < 0 || index > ht.length) {
                     throw new IndexOutOfRangeException(index);

@@ -182,11 +182,14 @@ module Fayde.Controls {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
         }
         private _CollectionChanged(sender, e: Collections.NotifyCollectionChangedEventArgs) {
+            var index: number;
             switch (e.Action) {
                 case Collections.NotifyCollectionChangedAction.Add:
                     var enumerator = ArrayEx.GetEnumerator(e.NewItems);
+                    index = e.NewStartingIndex;
                     while (enumerator.MoveNext()) {
-                        this.$Items.InsertImpl(e.NewStartingIndex + 1, enumerator.Current);
+                        this.$Items.InsertImpl(index, enumerator.Current);
+                        index++;
                     }
                     break;
                 case Collections.NotifyCollectionChangedAction.Remove:
@@ -197,8 +200,10 @@ module Fayde.Controls {
                     break;
                 case Collections.NotifyCollectionChangedAction.Replace:
                     var enumerator = ArrayEx.GetEnumerator(e.NewItems);
+                    index = e.NewStartingIndex;
                     while (enumerator.MoveNext()) {
-                        this.$Items.SetValueAtImpl(e.NewStartingIndex + 1, enumerator.Current);
+                        this.$Items.SetValueAtImpl(index, enumerator.Current);
+                        index++;
                     }
                     break;
                 case Collections.NotifyCollectionChangedAction.Reset:

@@ -94,9 +94,9 @@ module Fayde.Controls {
             this._ValidateReadOnly();
             if (value == null)
                 throw new ArgumentException("value");
-            this.InsertImpl(value, index);
+            this.InsertImpl(index, value);
         }
-        private InsertImpl(value: any, index: number) {
+        private InsertImpl(index: number, value: any) {
             var ht = this._ht;
             if (index < 0 || index > ht.length)
                 throw new IndexOutOfRangeException(index);

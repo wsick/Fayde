@@ -43,7 +43,11 @@ var Fayde;
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype.AddRange = function (values) {
-                var index = this._ht.push(values) - 1;
+                var index = this._ht.length;
+                var len = values.length;
+                for(var i = 0; i < len; i++) {
+                    this._ht.push(values[i]);
+                }
                 this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.AddRange(values, index));
                 this._RaisePropertyChanged("Count");
             };

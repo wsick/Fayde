@@ -232,11 +232,14 @@ var Fayde;
                 this.XamlNode.LayoutUpdater.InvalidateMeasure();
             };
             ItemsControl.prototype._CollectionChanged = function (sender, e) {
+                var index;
                 switch(e.Action) {
                     case Fayde.Collections.NotifyCollectionChangedAction.Add:
                         var enumerator = Fayde.ArrayEx.GetEnumerator(e.NewItems);
+                        index = e.NewStartingIndex;
                         while(enumerator.MoveNext()) {
-                            this.$Items.InsertImpl(e.NewStartingIndex + 1, enumerator.Current);
+                            this.$Items.InsertImpl(index, enumerator.Current);
+                            index++;
                         }
                         break;
                     case Fayde.Collections.NotifyCollectionChangedAction.Remove:
@@ -247,8 +250,10 @@ var Fayde;
                         break;
                     case Fayde.Collections.NotifyCollectionChangedAction.Replace:
                         var enumerator = Fayde.ArrayEx.GetEnumerator(e.NewItems);
+                        index = e.NewStartingIndex;
                         while(enumerator.MoveNext()) {
-                            this.$Items.SetValueAtImpl(e.NewStartingIndex + 1, enumerator.Current);
+                            this.$Items.SetValueAtImpl(index, enumerator.Current);
+                            index++;
                         }
                         break;
                     case Fayde.Collections.NotifyCollectionChangedAction.Reset:

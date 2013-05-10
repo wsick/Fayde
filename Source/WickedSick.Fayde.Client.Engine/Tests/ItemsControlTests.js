@@ -42,7 +42,6 @@ test("ItemsControl.NonUIItems", function () {
     var ic = new Fayde.Controls.ItemsControl();
     ic.Measure(size.createInfinite());
     var icg = ic.ItemContainerGenerator;
-    ic.ApplyTemplate();
     var o1 = {
         id: 1
     };
@@ -55,32 +54,58 @@ test("ItemsControl.NonUIItems", function () {
         id: 3
     };
     ic.Items.Add(o3);
-    strictEqual(icg.ItemFromContainer(icg.ContainerFromIndex(0)), o1, "ItemFromContainerFromIndex0 should be o1.");
-    strictEqual(icg.ItemFromContainer(icg.ContainerFromIndex(1)), o2, "ItemFromContainerFromIndex1 should be o2.");
-    strictEqual(icg.ItemFromContainer(icg.ContainerFromIndex(2)), o3, "ItemFromContainerFromIndex2 should be o3.");
-    strictEqual(icg.ContainerFromIndex(0), icg.ContainerFromItem(o1), "Container @ 0 should match container for o1.");
-    strictEqual(icg.ContainerFromIndex(1), icg.ContainerFromItem(o2), "Container @ 1 should match container for o2.");
-    strictEqual(icg.ContainerFromIndex(2), icg.ContainerFromItem(o3), "Container @ 2 should match container for o3.");
+    ok(icg.ItemFromContainer(icg.ContainerFromIndex(0)) === o1, "Items.Add: ItemFromContainerFromIndex0 should be o1.");
+    ok(icg.ItemFromContainer(icg.ContainerFromIndex(1)) === o2, "Items.Add: ItemFromContainerFromIndex1 should be o2.");
+    ok(icg.ItemFromContainer(icg.ContainerFromIndex(2)) === o3, "Items.Add: ItemFromContainerFromIndex2 should be o3.");
+    ok(icg.ContainerFromIndex(0) === icg.ContainerFromItem(o1), "Items.Add: Container @ 0 should match container for o1.");
+    ok(icg.ContainerFromIndex(1) === icg.ContainerFromItem(o2), "Items.Add: Container @ 1 should match container for o2.");
+    ok(icg.ContainerFromIndex(2) === icg.ContainerFromItem(o3), "Items.Add: Container @ 2 should match container for o3.");
     var o4 = {
         id: 4
     };
     ic.Items.Insert(o4, 1);
-    strictEqual(icg.ContainerFromIndex(1), icg.ContainerFromItem(o4), "Container @ 1 should now match container for o4 after inserting o4 @ 1.");
-    strictEqual(icg.ContainerFromIndex(2), icg.ContainerFromItem(o2), "Container @ 2 should now match container for o2 after inserting o4 @ 1.");
-    strictEqual(icg.ContainerFromIndex(3), icg.ContainerFromItem(o3), "Container @ 3 should now match container for o3 after inserting o4 @ 1.");
+    ok(icg.ContainerFromIndex(1) === icg.ContainerFromItem(o4), "Items.Insert: Container @ 1 should now match container for o4.");
+    ok(icg.ContainerFromIndex(2) === icg.ContainerFromItem(o2), "Items.Insert: Container @ 2 should now match container for o2.");
+    ok(icg.ContainerFromIndex(3) === icg.ContainerFromItem(o3), "Items.Insert: Container @ 3 should now match container for o3.");
     ic.Items.Clear();
-    strictEqual(icg.ContainerFromIndex(1), undefined, "Container @ 2 should no longer exist after clear.");
-    strictEqual(icg.ContainerFromIndex(1), undefined, "Container @ 1 should no longer exist after clear.");
-    strictEqual(icg.ContainerFromIndex(0), undefined, "Container @ 0 should no longer exist after clear.");
+    ok(icg.ContainerFromIndex(1) === undefined, "Items.Clear: Container @ 2 should no longer exist.");
+    ok(icg.ContainerFromIndex(1) === undefined, "Items.Clear: Container @ 1 should no longer exist.");
+    ok(icg.ContainerFromIndex(0) === undefined, "Items.Clear: Container @ 0 should no longer exist.");
     ic.ItemsSource = Fayde.ArrayEx.AsEnumerable([
         o1, 
         o2, 
         o3, 
         o4
     ]);
-    strictEqual(icg.ContainerFromIndex(0), icg.ContainerFromItem(o1), "Container @ 0 should now match container for o1 after setting ItemsSource.");
-    strictEqual(icg.ContainerFromIndex(1), icg.ContainerFromItem(o2), "Container @ 1 should now match container for o2 after setting ItemsSource.");
-    strictEqual(icg.ContainerFromIndex(2), icg.ContainerFromItem(o3), "Container @ 2 should now match container for o3 after setting ItemsSource.");
-    strictEqual(icg.ContainerFromIndex(3), icg.ContainerFromItem(o4), "Container @ 3 should now match container for o4 after setting ItemsSource.");
+    ok(icg.ContainerFromIndex(0) === icg.ContainerFromItem(o1), "ItemsSource=Array: Container @ 0 should now match container for o1.");
+    ok(icg.ContainerFromIndex(1) === icg.ContainerFromItem(o2), "ItemsSource=Array: Container @ 1 should now match container for o2.");
+    ok(icg.ContainerFromIndex(2) === icg.ContainerFromItem(o3), "ItemsSource=Array: Container @ 2 should now match container for o3.");
+    ok(icg.ContainerFromIndex(3) === icg.ContainerFromItem(o4), "ItemsSource=Array: Container @ 3 should now match container for o4.");
+    var collection = new Fayde.Collections.ObservableCollection();
+    ic.ItemsSource = collection;
+    collection.Add(o1);
+    collection.Add(o2);
+    collection.AddRange([
+        o3, 
+        o4
+    ]);
+    ok(icg.ContainerFromIndex(0) === icg.ContainerFromItem(o1), "ItemsSource=ObservableCollection: Container @ 0 should now match container for o1.");
+    ok(icg.ContainerFromIndex(1) === icg.ContainerFromItem(o2), "ItemsSource=ObservableCollection: Container @ 1 should now match container for o2.");
+    ok(icg.ContainerFromIndex(2) === icg.ContainerFromItem(o3), "ItemsSource=ObservableCollection: Container @ 2 should now match container for o3.");
+    ok(icg.ContainerFromIndex(3) === icg.ContainerFromItem(o4), "ItemsSource=ObservableCollection: Container @ 3 should now match container for o4.");
+});
+test("ItemsControl.UIItems", function () {
+    var ic = new Fayde.Controls.ItemsControl();
+    ic.Measure(size.createInfinite());
+    var icg = ic.ItemContainerGenerator;
+    var lbi1 = new Fayde.Controls.ListBoxItem();
+    ic.Items.Add(lbi1);
+    var lbi2 = new Fayde.Controls.ListBoxItem();
+    ic.Items.Add(lbi2);
+    var lbi3 = new Fayde.Controls.ListBoxItem();
+    ic.Items.Add(lbi3);
+    ok(icg.ContainerFromIndex(0) === lbi1, "Items.Add: Container @ 0 should be lbi1.");
+    ok(icg.ContainerFromIndex(1) === lbi2, "Items.Add: Container @ 1 shoudl be lbi2.");
+    ok(icg.ContainerFromIndex(2) === lbi3, "Items.Add: Container @ 2 should be lbi3.");
 });
 //@ sourceMappingURL=ItemsControlTests.js.map
