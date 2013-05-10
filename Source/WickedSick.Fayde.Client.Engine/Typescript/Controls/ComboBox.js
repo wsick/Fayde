@@ -283,7 +283,7 @@ var Fayde;
                     if(temp instanceof Controls.ComboBoxItem) {
                         container = temp;
                     }
-                    if(container == null) {
+                    if(!container) {
                         var position = icg.GeneratorPositionFromIndex(selectedIndex);
                         var state = icg.StartAt(position.index, position.offset, 0, true);
                         try  {
@@ -294,7 +294,7 @@ var Fayde;
                                 container = temp;
                             }
                         }finally {
-                            icg.StopGeneration();
+                            state.Dispose();
                         }
                         icg.PrepareItemContainer(container);
                     }

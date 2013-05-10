@@ -277,14 +277,14 @@ module Fayde.Controls {
                 temp = icg.ContainerFromIndex(selectedIndex);
                 var container: ComboBoxItem;
                 if (temp instanceof ComboBoxItem) container = <ComboBoxItem>temp;
-                if (container == null) {
+                if (!container) {
                     var position = icg.GeneratorPositionFromIndex(selectedIndex);
                     var state = icg.StartAt(position.index, position.offset, 0, true);
                     try {
                         temp = icg.GenerateNext({ Value: null });
                         if (temp instanceof ComboBoxItem) container = <ComboBoxItem>temp;
                     } finally {
-                        icg.StopGeneration();
+                        state.Dispose();
                     }
                     icg.PrepareItemContainer(container);
                 }

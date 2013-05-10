@@ -247,7 +247,7 @@ module Fayde.Controls {
                         }
                     }
                 } finally {
-                    generator.StopGeneration();
+                    state.Dispose();
                 }
             }
 

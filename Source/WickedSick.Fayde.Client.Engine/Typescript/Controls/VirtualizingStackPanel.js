@@ -341,7 +341,7 @@ var Fayde;
                             }
                         }
                     }finally {
-                        generator.StopGeneration();
+                        state.Dispose();
                     }
                 }
                 VirtualizingStackPanel.SetIsVirtualizing(owner, true);

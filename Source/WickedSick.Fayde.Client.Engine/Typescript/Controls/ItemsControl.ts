@@ -313,7 +313,7 @@ module Fayde.Controls {
             var items = this.Items;
             var children = panel.Children;
 
-            var p = icg.StartAt(position, true, true);
+            var state = icg.StartAt(position, true, true);
             try {
                 for (var i = 0; i < count; i++) {
                     var item = items.GetValueAt(newIndex + i);
@@ -328,7 +328,7 @@ module Fayde.Controls {
                     icg.PrepareItemContainer(container);
                 }
             } finally {
-                icg.StopGeneration();
+                state.Dispose();
             }
         }
         RemoveItemsFromPresenter(position: IGeneratorPosition, count: number) {

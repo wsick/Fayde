@@ -118,6 +118,7 @@ module Fayde.Controls {
         PositionIndex: number;
         PositionOffset: number;
         Step: number;
+        Dispose: () => void;
     }
     export interface IRange {
         Start: number;
@@ -272,7 +273,16 @@ module Fayde.Controls {
             return false;
         }
     }
-    export class ItemContainerGenerator {
+    export interface IItemContainerGenerator {
+        GenerateNext(isNewlyRealized: IOutValue): DependencyObject;
+        GetItemContainerGeneratorForPanel(panel: Panel): IItemContainerGenerator;
+        PrepareItemContainer(container: DependencyObject);
+        Recycle(position: IGeneratorPosition, count: number);
+        Remove(position: IGeneratorPosition, count: number);
+        RemoveAll();
+        StartAt(position: IGeneratorPosition, forward: bool, allowStartAtRealizedItem: bool): IGenerationState;
+    }
+    export class ItemContainerGenerator implements IItemContainerGenerator {
         private _GenerationState: IGenerationState;
         private RealizedElements: RangeCollection = new RangeCollection();
         private Cache: DependencyObject[] = [];
@@ -282,7 +292,7 @@ module Fayde.Controls {
         constructor(public Owner: ItemsControl) {
             this.ContainerMap = new ContainerMap(this);
         }
-        GetItemContainerGeneratorForPanel(panel: Panel) {
+        GetItemContainerGeneratorForPanel(panel: Panel): IItemContainerGenerator {
             if (this.Panel === panel)
                 return this;
             return null;
@@ -335,6 +345,7 @@ module Fayde.Controls {
                 PositionIndex: position.index,
                 PositionOffset: position.offset,
                 Step: forward ? 1 : -1,
+                Dispose: () => this._GenerationState = null,
             };
             return this._GenerationState;
         }
@@ -399,7 +410,6 @@ module Fayde.Controls {
             state.PositionOffset = state.Step;
             return container;
         }
-        StopGeneration() { this._GenerationState = undefined; }
         PrepareItemContainer(container: DependencyObject) {
             var item = this.ContainerMap.ItemFromContainer(container);
             this.Owner.PrepareContainerForItem(container, item);
@@ -481,7 +491,7 @@ module Fayde.Controls {
             }
             this.ItemsChanged.Raise(this, new Primitives.ItemsChangedEventArgs(e.Action, itemCount, itemUICount, oldPosition, position));
         }
-        private _KillContainer(position: IGeneratorPosition, count: number, recycle:bool) {
+        private _KillContainer(position: IGeneratorPosition, count: number, recycle: bool) {
             if (position.offset !== 0)
                 throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
             var index = this.IndexFromGeneratorPosition(position);
@@ -18011,7 +18021,7 @@ module Fayde.Controls {
             var newIndex = icg.IndexFromGeneratorPosition(position);
             var items = this.Items;
             var children = panel.Children;
-            var p = icg.StartAt(position, true, true);
+            var state = icg.StartAt(position, true, true);
             try {
                 for (var i = 0; i < count; i++) {
                     var item = items.GetValueAt(newIndex + i);
@@ -18024,7 +18034,7 @@ module Fayde.Controls {
                     icg.PrepareItemContainer(container);
                 }
             } finally {
-                icg.StopGeneration();
+                state.Dispose();
             }
         }
         RemoveItemsFromPresenter(position: IGeneratorPosition, count: number) {
@@ -20476,7 +20486,7 @@ module Fayde.Controls {
                         }
                     }
                 } finally {
-                    generator.StopGeneration();
+                    state.Dispose();
                 }
             }
             VirtualizingStackPanel.SetIsVirtualizing(owner, true);
@@ -22727,14 +22737,14 @@ module Fayde.Controls {
                 temp = icg.ContainerFromIndex(selectedIndex);
                 var container: ComboBoxItem;
                 if (temp instanceof ComboBoxItem) container = <ComboBoxItem>temp;
-                if (container == null) {
+                if (!container) {
                     var position = icg.GeneratorPositionFromIndex(selectedIndex);
                     var state = icg.StartAt(position.index, position.offset, 0, true);
                     try {
                         temp = icg.GenerateNext({ Value: null });
                         if (temp instanceof ComboBoxItem) container = <ComboBoxItem>temp;
                     } finally {
-                        icg.StopGeneration();
+                        state.Dispose();
                     }
                     icg.PrepareItemContainer(container);
                 }

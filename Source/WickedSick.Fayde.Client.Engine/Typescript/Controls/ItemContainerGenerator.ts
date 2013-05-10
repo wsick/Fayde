@@ -15,6 +15,7 @@ module Fayde.Controls {
         PositionIndex: number;
         PositionOffset: number;
         Step: number;
+        Dispose: () => void;
     }
 
     export interface IRange {
@@ -184,9 +185,20 @@ module Fayde.Controls {
         }
     }
 
-    export class ItemContainerGenerator {
+    export interface IItemContainerGenerator {
+        GenerateNext(isNewlyRealized: IOutValue): DependencyObject;
+        GetItemContainerGeneratorForPanel(panel: Panel): IItemContainerGenerator;
+        PrepareItemContainer(container: DependencyObject);
+        Recycle(position: IGeneratorPosition, count: number);
+        Remove(position: IGeneratorPosition, count: number);
+        RemoveAll();
+        StartAt(position: IGeneratorPosition, forward: bool, allowStartAtRealizedItem: bool): IGenerationState;
+    }
+
+    export class ItemContainerGenerator implements IItemContainerGenerator {
         private _GenerationState: IGenerationState;
         private RealizedElements: RangeCollection = new RangeCollection();
+        
         private Cache: DependencyObject[] = [];
 
         private ContainerMap: ContainerMap;
@@ -199,7 +211,7 @@ module Fayde.Controls {
             this.ContainerMap = new ContainerMap(this);
         }
 
-        GetItemContainerGeneratorForPanel(panel: Panel) {
+        GetItemContainerGeneratorForPanel(panel: Panel): IItemContainerGenerator {
             if (this.Panel === panel)
                 return this;
             return null;
@@ -259,6 +271,7 @@ module Fayde.Controls {
                 PositionIndex: position.index,
                 PositionOffset: position.offset,
                 Step: forward ? 1 : -1,
+                Dispose: () => this._GenerationState = null,
             };
             return this._GenerationState;
         }
@@ -333,13 +346,11 @@ module Fayde.Controls {
             state.PositionOffset = state.Step;
             return container;
         }
-        StopGeneration() { this._GenerationState = undefined; }
 
         PrepareItemContainer(container: DependencyObject) {
             var item = this.ContainerMap.ItemFromContainer(container);
             this.Owner.PrepareContainerForItem(container, item);
         }
-
         MoveExistingItems(index: number, offset: number) {
             var list = this.RealizedElements.ToExpandedArray();
 
@@ -359,7 +370,6 @@ module Fayde.Controls {
 
             this.RealizedElements = newRanges;
         }
-
         Recycle(position: IGeneratorPosition, count: number) {
             this._KillContainer(position, count, true);
         }
@@ -426,8 +436,8 @@ module Fayde.Controls {
 
             this.ItemsChanged.Raise(this, new Primitives.ItemsChangedEventArgs(e.Action, itemCount, itemUICount, oldPosition, position));
         }
-        
-        private _KillContainer(position: IGeneratorPosition, count: number, recycle:bool) {
+
+        private _KillContainer(position: IGeneratorPosition, count: number, recycle: bool) {
             if (position.offset !== 0)
                 throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
 

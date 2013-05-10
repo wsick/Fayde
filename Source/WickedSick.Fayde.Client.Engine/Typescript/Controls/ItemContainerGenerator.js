@@ -278,6 +278,7 @@ var Fayde;
                 return this.ContainerMap.ContainerFromItem(item);
             };
             ItemContainerGenerator.prototype.StartAt = function (position, forward, allowStartAtRealizedItem) {
+                var _this = this;
                 if(this._GenerationState) {
                     throw new InvalidOperationException("Cannot call StartAt while a generation operation is in progress");
                 }
@@ -285,7 +286,10 @@ var Fayde;
                     AllowStartAtRealizedItem: allowStartAtRealizedItem,
                     PositionIndex: position.index,
                     PositionOffset: position.offset,
-                    Step: forward ? 1 : -1
+                    Step: forward ? 1 : -1,
+                    Dispose: function () {
+                        return _this._GenerationState = null;
+                    }
                 };
                 return this._GenerationState;
             };
@@ -353,9 +357,6 @@ var Fayde;
                 state.PositionIndex = realized.IndexOf(index);
                 state.PositionOffset = state.Step;
                 return container;
-            };
-            ItemContainerGenerator.prototype.StopGeneration = function () {
-                this._GenerationState = undefined;
             };
             ItemContainerGenerator.prototype.PrepareItemContainer = function (container) {
                 var item = this.ContainerMap.ItemFromContainer(container);

@@ -373,7 +373,7 @@ var Fayde;
                 var newIndex = icg.IndexFromGeneratorPosition(position);
                 var items = this.Items;
                 var children = panel.Children;
-                var p = icg.StartAt(position, true, true);
+                var state = icg.StartAt(position, true, true);
                 try  {
                     for(var i = 0; i < count; i++) {
                         var item = items.GetValueAt(newIndex + i);
@@ -390,7 +390,7 @@ var Fayde;
                         icg.PrepareItemContainer(container);
                     }
                 }finally {
-                    icg.StopGeneration();
+                    state.Dispose();
                 }
             };
             ItemsControl.prototype.RemoveItemsFromPresenter = function (position, count) {

@@ -5,24 +5,27 @@ test("ItemContainerGenerator.Initialization", function () {
     var generator = new Fayde.Controls.ItemContainerGenerator(ic);
     var state;
     try  {
-        state = generator.StartAt({
-            index: -1,
-            offset: 1
-        }, true, true);
-        ok(true, "First 'StartAt' call should create a valid generation state.");
-    } catch (err) {
-        ok(false, "First 'StartAt' call should create a valid generation state.");
+        try  {
+            state = generator.StartAt({
+                index: -1,
+                offset: 1
+            }, true, true);
+            ok(true, "First 'StartAt' call should create a valid generation state.");
+        } catch (err) {
+            ok(false, "First 'StartAt' call should create a valid generation state.");
+        }
+        try  {
+            state = generator.StartAt({
+                index: -1,
+                offset: 1
+            }, true, true);
+            ok(false, "Subsequent calls to 'StartAt' should error because only 1 generation state can happen per ItemContainerGenerator.");
+        } catch (err) {
+            ok(true, "Subsequent calls to 'StartAt' should error because only 1 generation state can happen per ItemContainerGenerator.");
+        }
+    }finally {
+        state.Dispose();
     }
-    try  {
-        state = generator.StartAt({
-            index: -1,
-            offset: 1
-        }, true, true);
-        ok(false, "Subsequent calls to 'StartAt' should error because only 1 generation state can happen per ItemContainerGenerator.");
-    } catch (err) {
-        ok(true, "Subsequent calls to 'StartAt' should error because only 1 generation state can happen per ItemContainerGenerator.");
-    }
-    generator.StopGeneration();
     try  {
         state = generator.StartAt({
             index: -1,
@@ -31,9 +34,11 @@ test("ItemContainerGenerator.Initialization", function () {
         ok(true, "StopGeneration should have cleared the current generation state.");
     } catch (err) {
         ok(false, "StopGeneration should have cleared the current generation state.");
+    }finally {
+        state.Dispose();
     }
 });
-test("ItemsControl.AddRemoveClear", function () {
+test("ItemsControl.NonUIItems", function () {
     var ic = new Fayde.Controls.ItemsControl();
     ic.Measure(size.createInfinite());
     var icg = ic.ItemContainerGenerator;
@@ -56,7 +61,16 @@ test("ItemsControl.AddRemoveClear", function () {
     strictEqual(icg.ContainerFromIndex(0), icg.ContainerFromItem(o1), "Container @ 0 should match container for o1.");
     strictEqual(icg.ContainerFromIndex(1), icg.ContainerFromItem(o2), "Container @ 1 should match container for o2.");
     strictEqual(icg.ContainerFromIndex(2), icg.ContainerFromItem(o3), "Container @ 2 should match container for o3.");
+    var o4 = {
+        id: 4
+    };
+    ic.Items.Insert(o4, 1);
+    strictEqual(icg.ContainerFromIndex(1), icg.ContainerFromItem(o4), "Container @ 1 should now match container for o4.");
+    strictEqual(icg.ContainerFromIndex(2), icg.ContainerFromItem(o2), "Container @ 2 should now match container for o2.");
+    strictEqual(icg.ContainerFromIndex(3), icg.ContainerFromItem(o3), "Container @ 3 should now match container for o3.");
     ic.Items.Clear();
-    ok(true, "Cleared items successfully.");
+    strictEqual(icg.ContainerFromIndex(1), undefined, "Container @ 2 should no longer exist after clear.");
+    strictEqual(icg.ContainerFromIndex(1), undefined, "Container @ 1 should no longer exist after clear.");
+    strictEqual(icg.ContainerFromIndex(0), undefined, "Container @ 0 should no longer exist after clear.");
 });
 //@ sourceMappingURL=ItemsControlTests.js.map
