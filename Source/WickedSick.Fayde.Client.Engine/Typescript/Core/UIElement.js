@@ -459,12 +459,18 @@ var Fayde;
             var uin = (uie) ? uie.XamlNode : null;
             return this.XamlNode.TransformToVisual(uin);
         };
+        UIElement.prototype.InvalidateMeasure = function () {
+            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+        };
         UIElement.prototype.Measure = function (availableSize) {
             var error = new BError();
             this.XamlNode.LayoutUpdater._Measure(availableSize, error);
             if(error.Message) {
                 error.ThrowException();
             }
+        };
+        UIElement.prototype.InvalidateArrange = function () {
+            this.XamlNode.LayoutUpdater.InvalidateArrange();
         };
         UIElement.prototype.Arrange = function (finalRect) {
             var error = new BError();

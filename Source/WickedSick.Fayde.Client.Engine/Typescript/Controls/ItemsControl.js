@@ -20,8 +20,8 @@ var Fayde;
                         _super.call(this, xobj);
             }
             ItemsControlNode._DefaultPosition = {
-                index: -1,
-                offset: 1
+                Index: -1,
+                Offset: 1
             };
             ItemsControlNode.prototype.GetDefaultVisualTree = function () {
                 var presenter = this._Presenter;
@@ -321,8 +321,8 @@ var Fayde;
                         var count = panel.Children.Count;
                         if(count > 0) {
                             this.RemoveItemsFromPresenter({
-                                index: 0,
-                                offset: 0
+                                Index: 0,
+                                Offset: 0
                             }, count);
                         }
                         break;
@@ -382,7 +382,7 @@ var Fayde;
                     return;
                 }
                 while(count > 0) {
-                    panel.Children.RemoveAt(position.index);
+                    panel.Children.RemoveAt(position.Index);
                     count--;
                 }
             };

@@ -25,7 +25,7 @@ var Fayde;
                 var pos = state.Position;
                 var index = this.IndexFromGeneratorPosition(pos);
                 isNewlyRealized.Value = this._Containers[index] == null;
-                if(!state.AllowStartAtRealizedItem && !isNewlyRealized.Value && pos.offset === 0) {
+                if(!state.AllowStartAtRealizedItem && !isNewlyRealized.Value && pos.Offset === 0) {
                     index += state.Step;
                     isNewlyRealized.Value = this._Containers[index] == null;
                 }
@@ -34,8 +34,8 @@ var Fayde;
                     return null;
                 }
                 if(!isNewlyRealized.Value) {
-                    pos.index = index;
-                    pos.offset = state.Step;
+                    pos.Index = index;
+                    pos.Offset = state.Step;
                     return this._Containers[index];
                 }
                 var container;
@@ -62,8 +62,8 @@ var Fayde;
                 if(isNewlyRealized.Value) {
                     this._RealizedCount++;
                 }
-                pos.index = index;
-                pos.offset = state.Step;
+                pos.Index = index;
+                pos.Offset = state.Step;
                 return container;
             };
             ItemContainerGenerator.prototype.GetItemContainerGeneratorForPanel = function (panel) {
@@ -101,8 +101,8 @@ var Fayde;
                 this._GenerationState = {
                     AllowStartAtRealizedItem: allowStartAtRealizedItem,
                     Position: {
-                        index: position.index,
-                        offset: position.offset
+                        Index: position.Index,
+                        Offset: position.Offset
                     },
                     Step: forward ? 1 : -1,
                     Dispose: function () {
@@ -137,20 +137,20 @@ var Fayde;
             ItemContainerGenerator.prototype.GeneratorPositionFromIndex = function (itemIndex) {
                 if(itemIndex < 0) {
                     return {
-                        index: -1,
-                        offset: 0
+                        Index: -1,
+                        Offset: 0
                     };
                 }
                 if(this._RealizedCount === 0) {
                     return {
-                        index: -1,
-                        offset: itemIndex + 1
+                        Index: -1,
+                        Offset: itemIndex + 1
                     };
                 }
                 if(itemIndex > this.Owner.Items.Count) {
                     return {
-                        index: -1,
-                        offset: 0
+                        Index: -1,
+                        Offset: 0
                     };
                 }
                 var realizedIndex = -1;
@@ -166,13 +166,13 @@ var Fayde;
                     }
                 }
                 return {
-                    index: realizedIndex,
-                    offset: runningOffset
+                    Index: realizedIndex,
+                    Offset: runningOffset
                 };
             };
             ItemContainerGenerator.prototype.IndexFromGeneratorPosition = function (position) {
-                var index = position.index;
-                var offset = position.offset;
+                var index = position.Index;
+                var offset = position.Offset;
                 if(index === -1) {
                     if(offset < 0) {
                         return this.Owner.Items.Count + offset;
@@ -197,8 +197,8 @@ var Fayde;
                 var itemCount;
                 var itemUICount;
                 var oldPosition = {
-                    index: -1,
-                    offset: 0
+                    Index: -1,
+                    Offset: 0
                 };
                 var position;
                 switch(e.Action) {
@@ -208,7 +208,7 @@ var Fayde;
                         Fayde.ArrayEx.Fill(this._Items, e.NewStartingIndex, itemCount, null);
                         itemUICount = 0;
                         position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
-                        position.offset = 1;
+                        position.Offset = 1;
                         break;
                     case Fayde.Collections.NotifyCollectionChangedAction.Remove:
                         itemCount = (e.OldItems) ? e.OldItems.length : 1;
@@ -235,8 +235,8 @@ var Fayde;
                         itemCount = (e.OldItems) ? e.OldItems.length : 0;
                         itemUICount = this._RealizedCount;
                         position = {
-                            index: -1,
-                            offset: 0
+                            Index: -1,
+                            Offset: 0
                         };
                         this.RemoveAll();
                         break;
@@ -258,7 +258,7 @@ var Fayde;
                 return count;
             };
             ItemContainerGenerator.prototype._KillContainers = function (position, count, recycle) {
-                if(position.offset !== 0) {
+                if(position.Offset !== 0) {
                     throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
                 }
                 var index = this.IndexFromGeneratorPosition(position);

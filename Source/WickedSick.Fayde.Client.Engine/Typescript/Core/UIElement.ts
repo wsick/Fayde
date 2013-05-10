@@ -392,12 +392,14 @@ module Fayde {
             return this.XamlNode.TransformToVisual(uin);
         }
 
+        InvalidateMeasure() { this.XamlNode.LayoutUpdater.InvalidateMeasure(); }
         Measure(availableSize: size) {
             var error = new BError();
             this.XamlNode.LayoutUpdater._Measure(availableSize, error);
             if (error.Message)
                 error.ThrowException();
         }
+        InvalidateArrange() { this.XamlNode.LayoutUpdater.InvalidateArrange(); }
         Arrange(finalRect: rect) {
             var error = new BError();
             this.XamlNode.LayoutUpdater._Arrange(finalRect, error);

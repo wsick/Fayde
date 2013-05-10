@@ -42,8 +42,8 @@ module Fayde.Controls {
 
 module Fayde.Controls {
     export interface IGeneratorPosition {
-        index: number;
-        offset: number;
+        Index: number;
+        Offset: number;
     }
     export interface IGenerationState {
         AllowStartAtRealizedItem: bool;
@@ -79,7 +79,7 @@ module Fayde.Controls {
             var pos = state.Position;
             var index = this.IndexFromGeneratorPosition(pos);
             isNewlyRealized.Value = this._Containers[index] == null;
-            if (!state.AllowStartAtRealizedItem && !isNewlyRealized.Value && pos.offset === 0) {
+            if (!state.AllowStartAtRealizedItem && !isNewlyRealized.Value && pos.Offset === 0) {
                 index += state.Step;
                 isNewlyRealized.Value = this._Containers[index] == null;
             }
@@ -88,8 +88,8 @@ module Fayde.Controls {
                 return null;
             }
             if (!isNewlyRealized.Value) {
-                pos.index = index;
-                pos.offset = state.Step;
+                pos.Index = index;
+                pos.Offset = state.Step;
                 return this._Containers[index];
             }
             var container: DependencyObject;
@@ -112,8 +112,8 @@ module Fayde.Controls {
             this._Items[index] = item;
             this._Containers[index] = container;
             if (isNewlyRealized.Value) this._RealizedCount++;
-            pos.index = index;
-            pos.offset = state.Step;
+            pos.Index = index;
+            pos.Offset = state.Step;
             return container;
         }
         GetItemContainerGeneratorForPanel(panel: Panel): IItemContainerGenerator {
@@ -143,7 +143,7 @@ module Fayde.Controls {
                 throw new InvalidOperationException("Cannot call StartAt while a generation operation is in progress");
             this._GenerationState = {
                 AllowStartAtRealizedItem: allowStartAtRealizedItem,
-                Position: { index: position.index, offset: position.offset },
+                Position: { Index: position.Index, Offset: position.Offset },
                 Step: forward ? 1 : -1,
                 Dispose: () => this._GenerationState = null,
             };
@@ -167,11 +167,11 @@ module Fayde.Controls {
         }
         GeneratorPositionFromIndex(itemIndex: number): IGeneratorPosition {
             if (itemIndex < 0)
-                return { index: -1, offset: 0 };
+                return { Index: -1, Offset: 0 };
             if (this._RealizedCount === 0)
-                return { index: -1, offset: itemIndex + 1 };
+                return { Index: -1, Offset: itemIndex + 1 };
             if (itemIndex > this.Owner.Items.Count)
-                return { index: -1, offset: 0 };
+                return { Index: -1, Offset: 0 };
             var realizedIndex: number = -1;
             var runningOffset: number = 0;
             var containers = this._Containers;
@@ -184,11 +184,11 @@ module Fayde.Controls {
                     runningOffset++;
                 }
             }
-            return { index: realizedIndex, offset: runningOffset };
+            return { Index: realizedIndex, Offset: runningOffset };
         }
         IndexFromGeneratorPosition(position: IGeneratorPosition): number {
-            var index = position.index;
-            var offset = position.offset;
+            var index = position.Index;
+            var offset = position.Offset;
             if (index === -1) {
                 if (offset < 0)
                     return this.Owner.Items.Count + offset;
@@ -209,7 +209,7 @@ module Fayde.Controls {
         OnOwnerItemsItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
             var itemCount: number;
             var itemUICount: number;
-            var oldPosition: IGeneratorPosition = { index: -1, offset: 0 };
+            var oldPosition: IGeneratorPosition = { Index: -1, Offset: 0 };
             var position: IGeneratorPosition;
             switch (e.Action) {
                 case Collections.NotifyCollectionChangedAction.Add:
@@ -218,7 +218,7 @@ module Fayde.Controls {
                     ArrayEx.Fill(this._Items, e.NewStartingIndex, itemCount, null);
                     itemUICount = 0;
                     position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
-                    position.offset = 1;
+                    position.Offset = 1;
                     break;
                 case Collections.NotifyCollectionChangedAction.Remove:
                     itemCount = (e.OldItems) ? e.OldItems.length : 1;
@@ -242,7 +242,7 @@ module Fayde.Controls {
                 case Collections.NotifyCollectionChangedAction.Reset:
                     itemCount = (e.OldItems) ? e.OldItems.length : 0;
                     itemUICount = this._RealizedCount;
-                    position = { index: -1, offset: 0 };
+                    position = { Index: -1, Offset: 0 };
                     this.RemoveAll();
                     break;
                 default:
@@ -262,7 +262,7 @@ module Fayde.Controls {
             return count;
         }
         private _KillContainers(position: IGeneratorPosition, count: number, recycle: bool) {
-            if (position.offset !== 0)
+            if (position.Offset !== 0)
                 throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
             var index = this.IndexFromGeneratorPosition(position);
             this._Items.splice(index, count);
@@ -14528,12 +14528,14 @@ module Fayde {
             var uin = (uie) ? uie.XamlNode : null;
             return this.XamlNode.TransformToVisual(uin);
         }
+        InvalidateMeasure() { this.XamlNode.LayoutUpdater.InvalidateMeasure(); }
         Measure(availableSize: size) {
             var error = new BError();
             this.XamlNode.LayoutUpdater._Measure(availableSize, error);
             if (error.Message)
                 error.ThrowException();
         }
+        InvalidateArrange() { this.XamlNode.LayoutUpdater.InvalidateArrange(); }
         Arrange(finalRect: rect) {
             var error = new BError();
             this.XamlNode.LayoutUpdater._Arrange(finalRect, error);
@@ -17527,7 +17529,7 @@ module Fayde.Controls {
 module Fayde.Controls {
     export class ItemsControlNode extends ControlNode {
         private _Presenter: ItemsPresenter;
-        private static _DefaultPosition: IGeneratorPosition = { index: -1, offset: 1 };
+        private static _DefaultPosition: IGeneratorPosition = { Index: -1, Offset: 1 };
         XObject: ItemsControl;
         constructor(xobj: ItemsControl) {
             super(xobj);
@@ -17752,7 +17754,7 @@ module Fayde.Controls {
                 case Collections.NotifyCollectionChangedAction.Reset:
                     var count = panel.Children.Count;
                     if (count > 0)
-                        this.RemoveItemsFromPresenter({ index: 0, offset: 0 }, count);
+                        this.RemoveItemsFromPresenter({ Index: 0, Offset: 0 }, count);
                     break;
                 case Collections.NotifyCollectionChangedAction.Add:
                     this.AddItemsToPresenter(e.Position, e.ItemCount);
@@ -17804,7 +17806,7 @@ module Fayde.Controls {
             if (!panel || panel instanceof VirtualizingPanel)
                 return;
             while (count > 0) {
-                panel.Children.RemoveAt(position.index);
+                panel.Children.RemoveAt(position.Index);
                 count--;
             }
         }
@@ -20216,7 +20218,7 @@ module Fayde.Controls {
                 if (this._CanVerticallyScroll || !isHorizontal)
                     childAvailable.Height = Number.POSITIVE_INFINITY;
                 var start = generator.GeneratorPositionFromIndex(index);
-                var insertAt = (start.offset === 0) ? start.index : start.index + 1;
+                var insertAt = (start.Offset === 0) ? start.Index : start.Index + 1;
                 var state = generator.StartAt(start, true, true);
                 try {
                     var isNewlyRealized = { Value: false };
@@ -20348,20 +20350,20 @@ module Fayde.Controls {
             var item: number;
             var args: ICancelable;
             var children = this.Children;
-            var pos = { index: children.Count - 1, offset: 0 };
-            while (pos.index >= 0) {
+            var pos = { Index: children.Count - 1, Offset: 0 };
+            while (pos.Index >= 0) {
                 item = generator.IndexFromGeneratorPosition(pos);
                 if (item < first || item > last) {
-                    var args = this.OnCleanUpVirtualizedItem(<UIElement>children.GetValueAt(pos.index), owner.Items.GetValueAt(item));
+                    var args = this.OnCleanUpVirtualizedItem(<UIElement>children.GetValueAt(pos.Index), owner.Items.GetValueAt(item));
                     if (!args.Cancel) {
-                        this.RemoveInternalChildRange(pos.index, 1);
+                        this.RemoveInternalChildRange(pos.Index, 1);
                         if (mode === VirtualizationMode.Recycling)
                             generator.Recycle(pos, 1);
                         else
                             generator.Remove(pos, 1);
                     }
                 }
-                pos.index--;
+                pos.Index--;
             }
         }
         OnCleanUpVirtualizedItem(uie: UIElement, value): ICancelable {
@@ -20418,10 +20420,10 @@ module Fayde.Controls {
                         this.SetHorizontalOffset(offset);
                     else
                         this.SetVerticalOffset(offset);
-                    this.RemoveInternalChildRange(e.Position.index, e.ItemUICount);
+                    this.RemoveInternalChildRange(e.Position.Index, e.ItemUICount);
                     break;
                 case Collections.NotifyCollectionChangedAction.Replace:
-                    this.RemoveInternalChildRange(e.Position.index, e.ItemUICount);
+                    this.RemoveInternalChildRange(e.Position.Index, e.ItemUICount);
                     break;
                 case Collections.NotifyCollectionChangedAction.Reset:
                     break;
@@ -23363,7 +23365,7 @@ module Fayde.Controls {
     export class ListBox extends Primitives.Selector {
         private _FocusedIndex: number = 0;
         static ItemContainerStyleProperty: DependencyProperty = DependencyProperty.RegisterCore("ItemContainerStyle", () => Style, ListBox, undefined, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));
-        static SelectionModeProperty: DependencyProperty = DependencyProperty.RegisterCore("SelectionMode", () => new Enum(SelectionMode), ListBox, undefined, (d, args) => (<ListBox>d)._Selection.Mode = args.NewValue);
+        static SelectionModeProperty: DependencyProperty = DependencyProperty.Register("SelectionMode", () => new Enum(SelectionMode), ListBox, undefined, (d, args) => (<ListBox>d)._Selection.Mode = args.NewValue);
         static IsSelectionActiveProperty: DependencyProperty = Primitives.Selector.IsSelectionActiveProperty;
         ItemContainerStyle: Style;
         SelectAll() {

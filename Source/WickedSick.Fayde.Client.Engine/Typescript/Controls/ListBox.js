@@ -22,7 +22,7 @@ var Fayde;
             }, ListBox, undefined, function (d, args) {
                 return (d).OnItemContainerStyleChanged(args);
             });
-            ListBox.SelectionModeProperty = DependencyProperty.RegisterCore("SelectionMode", function () {
+            ListBox.SelectionModeProperty = DependencyProperty.Register("SelectionMode", function () {
                 return new Enum(Controls.SelectionMode);
             }, ListBox, undefined, function (d, args) {
                 return (d)._Selection.Mode = args.NewValue;

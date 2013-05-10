@@ -304,7 +304,7 @@ var Fayde;
                         childAvailable.Height = Number.POSITIVE_INFINITY;
                     }
                     var start = generator.GeneratorPositionFromIndex(index);
-                    var insertAt = (start.offset === 0) ? start.index : start.index + 1;
+                    var insertAt = (start.Offset === 0) ? start.Index : start.Index + 1;
                     var state = generator.StartAt(start, true, true);
                     try  {
                         var isNewlyRealized = {
@@ -446,15 +446,15 @@ var Fayde;
                 var args;
                 var children = this.Children;
                 var pos = {
-                    index: children.Count - 1,
-                    offset: 0
+                    Index: children.Count - 1,
+                    Offset: 0
                 };
-                while(pos.index >= 0) {
+                while(pos.Index >= 0) {
                     item = generator.IndexFromGeneratorPosition(pos);
                     if(item < first || item > last) {
-                        var args = this.OnCleanUpVirtualizedItem(children.GetValueAt(pos.index), owner.Items.GetValueAt(item));
+                        var args = this.OnCleanUpVirtualizedItem(children.GetValueAt(pos.Index), owner.Items.GetValueAt(item));
                         if(!args.Cancel) {
-                            this.RemoveInternalChildRange(pos.index, 1);
+                            this.RemoveInternalChildRange(pos.Index, 1);
                             if(mode === VirtualizationMode.Recycling) {
                                 generator.Recycle(pos, 1);
                             } else {
@@ -462,7 +462,7 @@ var Fayde;
                             }
                         }
                     }
-                    pos.index--;
+                    pos.Index--;
                 }
             };
             VirtualizingStackPanel.prototype.OnCleanUpVirtualizedItem = function (uie, value) {
@@ -527,10 +527,10 @@ var Fayde;
                         } else {
                             this.SetVerticalOffset(offset);
                         }
-                        this.RemoveInternalChildRange(e.Position.index, e.ItemUICount);
+                        this.RemoveInternalChildRange(e.Position.Index, e.ItemUICount);
                         break;
                     case Fayde.Collections.NotifyCollectionChangedAction.Replace:
-                        this.RemoveInternalChildRange(e.Position.index, e.ItemUICount);
+                        this.RemoveInternalChildRange(e.Position.Index, e.ItemUICount);
                         break;
                     case Fayde.Collections.NotifyCollectionChangedAction.Reset:
                         break;

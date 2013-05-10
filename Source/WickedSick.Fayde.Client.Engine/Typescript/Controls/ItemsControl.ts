@@ -10,7 +10,7 @@
 module Fayde.Controls {
     export class ItemsControlNode extends ControlNode {
         private _Presenter: ItemsPresenter;
-        private static _DefaultPosition: IGeneratorPosition = { index: -1, offset: 1 };
+        private static _DefaultPosition: IGeneratorPosition = { Index: -1, Offset: 1 };
 
         XObject: ItemsControl;
         constructor(xobj: ItemsControl) {
@@ -263,7 +263,7 @@ module Fayde.Controls {
                 case Collections.NotifyCollectionChangedAction.Reset:
                     var count = panel.Children.Count;
                     if (count > 0)
-                        this.RemoveItemsFromPresenter({ index: 0, offset: 0 }, count);
+                        this.RemoveItemsFromPresenter({ Index: 0, Offset: 0 }, count);
                     break;
                 case Collections.NotifyCollectionChangedAction.Add:
                     this.AddItemsToPresenter(e.Position, e.ItemCount);
@@ -320,7 +320,7 @@ module Fayde.Controls {
                 return;
 
             while (count > 0) {
-                panel.Children.RemoveAt(position.index);
+                panel.Children.RemoveAt(position.Index);
                 count--;
             }
         }
