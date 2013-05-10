@@ -12,6 +12,9 @@ var Fayde;
             },
             Current: undefined
         };
+        ArrayEx.AsEnumerable = function AsEnumerable(arr) {
+            return arr;
+        };
         ArrayEx.GetEnumerator = function GetEnumerator(arr, isReverse) {
             var len = arr.length;
             var e = {
@@ -67,4 +70,7 @@ var Fayde;
     })();
     Fayde.ArrayEx = ArrayEx;    
 })(Fayde || (Fayde = {}));
+(Array.prototype).GetEnumerator = function (isReverse) {
+    return Fayde.ArrayEx.GetEnumerator(this, isReverse);
+};
 //@ sourceMappingURL=Enumerable.js.map

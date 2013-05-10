@@ -10613,6 +10613,9 @@ module Fayde {
             MoveNext: function () { return false; },
             Current: undefined
         };
+        static AsEnumerable(arr: any[]): IEnumerable {
+            return <IEnumerable><any>arr;
+        }
         static GetEnumerator(arr: any[], isReverse?: bool): IEnumerator {
             var len = arr.length;
             var e = { MoveNext: undefined, Current: undefined };
@@ -10661,6 +10664,9 @@ module Fayde {
         }
     }
 }
+(<any>Array.prototype).GetEnumerator = function (isReverse?: bool): Fayde.IEnumerator {
+    return Fayde.ArrayEx.GetEnumerator(this, isReverse);
+};
 
 class EventArgs {
     static Empty: EventArgs = new EventArgs();

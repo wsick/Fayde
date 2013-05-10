@@ -72,5 +72,15 @@ test("ItemsControl.NonUIItems", function () {
     strictEqual(icg.ContainerFromIndex(1), undefined, "Container @ 2 should no longer exist after clear.");
     strictEqual(icg.ContainerFromIndex(1), undefined, "Container @ 1 should no longer exist after clear.");
     strictEqual(icg.ContainerFromIndex(0), undefined, "Container @ 0 should no longer exist after clear.");
+    ic.ItemsSource = Fayde.ArrayEx.AsEnumerable([
+        o1, 
+        o2, 
+        o3, 
+        o4
+    ]);
+    strictEqual(icg.ContainerFromIndex(0), icg.ContainerFromItem(o1), "Container @ 0 should now match container for o1 after setting ItemsSource.");
+    strictEqual(icg.ContainerFromIndex(1), icg.ContainerFromItem(o2), "Container @ 1 should now match container for o2 after setting ItemsSource.");
+    strictEqual(icg.ContainerFromIndex(2), icg.ContainerFromItem(o3), "Container @ 2 should now match container for o3 after setting ItemsSource.");
+    strictEqual(icg.ContainerFromIndex(3), icg.ContainerFromItem(o4), "Container @ 3 should now match container for o4 after setting ItemsSource.");
 });
 //@ sourceMappingURL=ItemsControlTests.js.map
