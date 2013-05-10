@@ -1,77 +1,4 @@
 module Fayde.Controls {
-    export class ContainerMap {
-        private _Containers: DependencyObject[] = [];
-        private _Items: any[] = [];
-        constructor(public Owner: ItemContainerGenerator) { }
-        IndexFromItem(item: any) {
-            var items = this._Items;
-            var len = items.length;
-            for (var i = 0; i < len; i++) {
-                if (item === items[i])
-                    return i;
-            }
-            return -1;
-        }
-        IndexFromContainer(container: DependencyObject): number {
-            var containers = this._Containers;
-            var len = containers.length;
-            for (var i = 0; i < len; i++) {
-                if (container === containers[i])
-                    return i;
-            }
-            return -1;
-        }
-        ContainerFromIndex(index: number): DependencyObject { return this._Containers[index]; }
-        ItemFromContainer(container: DependencyObject): any {
-            var index = this.IndexFromContainer(container);
-            if (index > -1)
-                return this._Items[index];
-            return new UnsetValue();
-        }
-        ContainerFromItem(item: any): DependencyObject {
-            if (item == null)
-                return null;
-            var index = this.IndexFromItem(item);
-            if (index > -1)
-                return this._Containers[index];
-        }
-        Add(container: DependencyObject, item: any, index: number) {
-            if (index >= this._Containers.length) {
-                this._Containers.push(container);
-                this._Items.push(item);
-            } else {
-                this._Containers.splice(index, 0, container);
-                this._Items.splice(index, 0, item);
-            }
-        }
-        RemoveIndex(index: number): DependencyObject {
-            this._Items.splice(index, 1);
-            return this._Containers.splice(index, 1)[0];
-        }
-        Move(oldIndex: number, offset: number) {
-            var items = this._Items;
-            var containers = this._Containers;
-            var finalIndex = oldIndex + offset;
-            if (offset > 0)
-                finalIndex--;
-            items.splice(finalIndex, 0, items.splice(oldIndex, 1)[0]);
-            containers.splice(finalIndex, 0, containers.splice(oldIndex, 1)[0]);
-        }
-        Clear() {
-            var ic = this.Owner.Owner;
-            var containers = this._Containers;
-            var items = this._Items;
-            var len = containers.length;
-            for (var i = 0; i < len; i++) {
-                ic.ClearContainerForItem(containers[i], items[i]);
-            }
-            this._Containers = [];
-            this._Items = [];
-        }
-    }
-}
-
-module Fayde.Controls {
     export enum TextWrapping {
         NoWrap = 0,
         Wrap = 1,
@@ -120,208 +47,144 @@ module Fayde.Controls {
     }
     export interface IGenerationState {
         AllowStartAtRealizedItem: bool;
-        PositionIndex: number;
-        PositionOffset: number;
+        Position: IGeneratorPosition;
         Step: number;
         Dispose: () => void;
-    }
-    export interface IRange {
-        Start: number;
-        End: number;
-    }
-    function range_count(r: IRange) {
-        return r.End - r.Start + 1;
-    }
-    export class RangeCollection {
-        private _Ranges: IRange[] = [];
-        private _IndexCount: number = 0;
-        private _Gen: number = 0;
-        get Count(): number { return this._IndexCount; }
-        ToExpandedArray(): number[] {
-            var arr = [];
-            var count = this._IndexCount;
-            for (var i = 0; i < count; i++) {
-                arr.push(this.GetValueAt(i));
-            }
-            return arr;
-        }
-        FindRangeIndexForValue(value: number): number {
-            var min = 0;
-            var max = this._Ranges.length - 1;
-            while (min <= max) {
-                var mid = Math.floor(min + ((max - min) / 2));
-                var range = this._Ranges[mid];
-                if (value >= range.Start && value <= range.End)
-                    return mid;
-                if (value < range.Start)
-                    max = mid - 1;
-                else
-                    min = mid + 1;
-            }
-            return ~min;
-        }
-        FindInsertionPosition(range: IRange): number {
-            var min = 0;
-            var max = this._Ranges.length - 1;
-            while (min <= max) {
-                var mid = Math.floor(min + ((max - min) / 2));
-                var midRange = this._Ranges[mid];
-                if (midRange.End === range.End)
-                    return mid;
-                if (midRange.End > range.End) {
-                    if (mid > 0 && (this._Ranges[mid - 1].End < range.End))
-                        return mid;
-                    max = mid - 1;
-                } else {
-                    min = mid + 1;
-                }
-            }
-            return min;
-        }
-        IndexOf(value: number): number {
-            var offset = 0;
-            var rs = this._Ranges;
-            var len = rs.length;
-            for (var i = 0; i < len; i++) {
-                var range = rs[i];
-                if (value >= range.Start && value <= range.End)
-                    return offset + (value - range.Start);
-                offset = offset + (range.End - range.Start + 1);
-            }
-            return -1;
-        }
-        Contains(value: number) { return this.FindRangeIndexForValue(value) >= 0; }
-        Get(index: number): IRange { return this._Ranges[index]; }
-        GetValueAt(index: number): number {
-            var i;
-            var cuml_count;
-            var rs = this._Ranges;
-            var len = rs.length;
-            var r: IRange;
-            for (i = 0, cuml_count = 0; i < len && index >= 0; i++) {
-                r = rs[i];
-                cuml_count = cuml_count + range_count(r);
-                if (index < cuml_count)
-                    return r.End - (cuml_count - index) + 1;
-            }
-            throw new IndexOutOfRangeException(index);
-        }
-        Add(value: number): bool {
-            if (!this.Contains(value)) {
-                this._Gen++;
-                this.InsertRange({ Start: value, End: value });
-                this._IndexCount++;
-                return true;
-            }
-            return false;
-        }
-        Insert(position: number, range: IRange) {
-            this._Ranges.splice(position, 0, range);
-        }
-        InsertRange(range: IRange) {
-            var position = this.FindInsertionPosition(range);
-            var merged_left = this.MergeLeft(range, position);
-            var merged_right = this.MergeRight(range, position);
-            if (!merged_left && !merged_right) {
-                this.Insert(position, range);
-            } else if (merged_left && merged_right) {
-                this._Ranges[position - 1].End = this._Ranges[position].End;
-                this.RemoveAt(position);
-            }
-        }
-        Remove(value: number): bool {
-            this._Gen++;
-            return this.RemoveIndexFromRange(value);
-        }
-        RemoveAt(index: number) {
-            this._Ranges.splice(index, 1);
-        }
-        RemoveIndexFromRange(index: number): bool {
-            var rindex = this.FindRangeIndexForValue(index);
-            if (rindex < 0)
-                return false;
-            var range = this._Ranges[rindex];
-            if (range.Start === index && range.End === index) {
-                this.RemoveAt(rindex);
-            } else if (range.Start === index) {
-                range.Start++;
-            } else if (range.End === index) {
-                range.End--;
-            } else {
-                var split_range = { Start: index + 1, End: range.End };
-                range.End = index - 1;
-                this.Insert(rindex + 1, split_range);
-            }
-            this._IndexCount--;
-            return true;
-        }
-        Clear() {
-            this._Ranges = [];
-            this._Gen++;
-            this._IndexCount = 0;
-        }
-        MergeLeft(range: IRange, position: number): bool {
-            var left = position - 1;
-            var rs = this._Ranges;
-            if (left >= 0 && rs[left].End + 1 == range.Start) {
-                rs[left].End = range.Start;
-                return true;
-            }
-            return false;
-        }
-        MergeRight(range: IRange, position: number): bool {
-            var rs = this._Ranges;
-            if ((position < rs.length) && (rs[position].Start - 1 === range.End)) {
-                rs[position].Start = range.End;
-                return true;
-            }
-            return false;
-        }
     }
     export interface IItemContainerGenerator {
         GenerateNext(isNewlyRealized: IOutValue): DependencyObject;
         GetItemContainerGeneratorForPanel(panel: Panel): IItemContainerGenerator;
         PrepareItemContainer(container: DependencyObject);
-        Recycle(position: IGeneratorPosition, count: number);
         Remove(position: IGeneratorPosition, count: number);
         RemoveAll();
         StartAt(position: IGeneratorPosition, forward: bool, allowStartAtRealizedItem: bool): IGenerationState;
     }
-    export class ItemContainerGenerator implements IItemContainerGenerator {
+    export interface IRecyclingItemContainerGenerator {
+        Recycle(position: IGeneratorPosition, count: number);
+    }
+    export class ItemContainerGenerator implements IItemContainerGenerator, IRecyclingItemContainerGenerator {
         private _GenerationState: IGenerationState;
-        private RealizedElements: RangeCollection = new RangeCollection();
-        private Cache: DependencyObject[] = [];
-        private ContainerMap: ContainerMap;
+        private _Cache: DependencyObject[] = [];
+        private _Containers: DependencyObject[] = [];
+        private _RealizedCount: number = 0;
+        private _Items: any[] = [];
         ItemsChanged: MulticastEvent = new MulticastEvent();
-        get Panel(): Panel { return this.Owner.Panel; }
-        constructor(public Owner: ItemsControl) {
-            this.ContainerMap = new ContainerMap(this);
+        constructor(public Owner: ItemsControl) { }
+        GenerateNext(isNewlyRealized: IOutValue): DependencyObject {
+            if (!this._GenerationState)
+                throw new InvalidOperationException("Cannot call GenerateNext before calling StartAt");
+            var owner = this.Owner;
+            var ownerItems = owner.Items;
+            var state = this._GenerationState;
+            var pos = state.Position;
+            var index = this.IndexFromGeneratorPosition(pos);
+            isNewlyRealized.Value = this._Containers[index] == null;
+            if (!state.AllowStartAtRealizedItem && !isNewlyRealized.Value && pos.offset === 0) {
+                index += state.Step;
+                isNewlyRealized.Value = this._Containers[index] == null;
+            }
+            if (index < 0 || index >= ownerItems.Count) {
+                isNewlyRealized.Value = false;
+                return null;
+            }
+            if (!isNewlyRealized.Value) {
+                pos.index = index;
+                pos.offset = state.Step;
+                return this._Containers[index];
+            }
+            var container: DependencyObject;
+            var item = ownerItems.GetValueAt(index);
+            if (owner.IsItemItsOwnContainer(item)) {
+                if (item instanceof DependencyObject)
+                    container = <DependencyObject>item;
+                isNewlyRealized.Value = true;
+            } else {
+                if (this._Cache.length > 0) {
+                    container = this._Cache.pop();
+                    isNewlyRealized.Value = false;
+                } else {
+                    container = owner.GetContainerForItem();
+                    isNewlyRealized.Value = true;
+                }
+            }
+            if (container instanceof FrameworkElement && !(item instanceof UIElement))
+                (<FrameworkElement>container).DataContext = item;
+            this._Items[index] = item;
+            this._Containers[index] = container;
+            if (isNewlyRealized.Value) this._RealizedCount++;
+            pos.index = index;
+            pos.offset = state.Step;
+            return container;
         }
         GetItemContainerGeneratorForPanel(panel: Panel): IItemContainerGenerator {
-            if (this.Panel === panel)
+            if (this.Owner.Panel === panel)
                 return this;
             return null;
         }
+        PrepareItemContainer(container: DependencyObject) {
+            var item = this.ItemFromContainer(container);
+            this.Owner.PrepareContainerForItem(container, item);
+        }
+        Recycle(position: IGeneratorPosition, count: number) { this._KillContainers(position, count, false); }
+        Remove(position: IGeneratorPosition, count: number) { this._KillContainers(position, count, false); }
+        RemoveAll() {
+            var container: DependencyObject;
+            var item: any;
+            var containers = this._Containers;
+            var items = this._Items;
+            var ic = this.Owner;
+            while ((container = containers.shift()) !== undefined && (item = items.shift()) !== undefined) {
+                ic.ClearContainerForItem(container, item);
+            }
+            this._RealizedCount = 0;
+        }
+        StartAt(position: IGeneratorPosition, forward: bool, allowStartAtRealizedItem: bool): IGenerationState {
+            if (this._GenerationState)
+                throw new InvalidOperationException("Cannot call StartAt while a generation operation is in progress");
+            this._GenerationState = {
+                AllowStartAtRealizedItem: allowStartAtRealizedItem,
+                Position: { index: position.index, offset: position.offset },
+                Step: forward ? 1 : -1,
+                Dispose: () => this._GenerationState = null,
+            };
+            return this._GenerationState;
+        }
+        IndexFromContainer(container: DependencyObject): number { return this._Containers.indexOf(container); }
+        ContainerFromIndex(index: number): DependencyObject { return this._Containers[index]; }
+        ItemFromContainer(container: DependencyObject): any {
+            var index = this._Containers.indexOf(container);
+            if (index < 0)
+                return undefined;
+            return this._Items[index];
+        }
+        ContainerFromItem(item: any): DependencyObject {
+            if (item == null)
+                return undefined;
+            var index = this._Items.indexOf(item);
+            if (index < 0)
+                return undefined;
+            return this._Containers[index];
+        }
         GeneratorPositionFromIndex(itemIndex: number): IGeneratorPosition {
-            var realized = this.RealizedElements;
-            var realizedCount = realized.Count;
             if (itemIndex < 0)
                 return { index: -1, offset: 0 };
-            else if (realized.Contains(itemIndex))
-                return { index: realized.IndexOf(itemIndex), offset: 0 };
-            else if (itemIndex > this.Owner.Items.Count)
-                return { index: -1, offset: 0 };
-            if (realizedCount === 0)
+            if (this._RealizedCount === 0)
                 return { index: -1, offset: itemIndex + 1 };
-            var index = -1;
-            for (var i = 0; i < realizedCount; i++) {
-                if (realized.GetValueAt(i) > itemIndex)
-                    break;
-                index = i;
+            if (itemIndex > this.Owner.Items.Count)
+                return { index: -1, offset: 0 };
+            var realizedIndex: number = -1;
+            var runningOffset: number = 0;
+            var containers = this._Containers;
+            var len = containers.length;
+            for (var i = 0; i < len && (realizedIndex + runningOffset) < itemIndex; i++) {
+                if (containers[i] != null) {
+                    realizedIndex++;
+                    runningOffset = 0;
+                } else {
+                    runningOffset++;
+                }
             }
-            if (index === -1)
-                return { index: index, offset: itemIndex + 1 };
-            return { index: index, offset: itemIndex - realized.GetValueAt(index) };
+            return { index: realizedIndex, offset: runningOffset };
         }
         IndexFromGeneratorPosition(position: IGeneratorPosition): number {
             var index = position.index;
@@ -333,117 +196,15 @@ module Fayde.Controls {
             }
             if (index > this.Owner.Items.Count)
                 return -1;
-            var realized = this.RealizedElements;
-            if (index >= 0 && index < realized.Count)
-                return realized.GetValueAt(index) + offset;
-            return index + offset;
-        }
-        IndexFromContainer(container: DependencyObject): number { return this.ContainerMap.IndexFromContainer(container); }
-        ContainerFromIndex(index: number): DependencyObject { return this.ContainerMap.ContainerFromIndex(index); }
-        ItemFromContainer(container: DependencyObject): any { return this.ContainerMap.ItemFromContainer(container); }
-        ContainerFromItem(item: any): DependencyObject { return this.ContainerMap.ContainerFromItem(item); }
-        StartAt(position: IGeneratorPosition, forward: bool, allowStartAtRealizedItem: bool): IGenerationState {
-            if (this._GenerationState)
-                throw new InvalidOperationException("Cannot call StartAt while a generation operation is in progress");
-            this._GenerationState = {
-                AllowStartAtRealizedItem: allowStartAtRealizedItem,
-                PositionIndex: position.index,
-                PositionOffset: position.offset,
-                Step: forward ? 1 : -1,
-                Dispose: () => this._GenerationState = null,
-            };
-            return this._GenerationState;
-        }
-        GenerateNext(isNewlyRealized: IOutValue): DependencyObject {
-            if (!this._GenerationState) {
-                throw new InvalidOperationException("Cannot call GenerateNext before calling StartAt");
+            var realizedIndex = index;
+            var containers = this._Containers;
+            var len = containers.length;
+            var i: number = 0;
+            for (; i < len && realizedIndex >= 0; i++) {
+                if (containers[i] != null)
+                    realizedIndex--;
             }
-            var realized = this.RealizedElements;
-            var state = this._GenerationState;
-            var index: number;
-            var startAt = state.PositionIndex;
-            var startOffset = state.PositionOffset;
-            if (startAt === -1) {
-                if (startOffset < 0)
-                    index = this.Owner.Items.Count + startOffset;
-                else if (startOffset === 0)
-                    index = 0;
-                else
-                    index = startOffset - 1;
-            } else if (startAt >= 0 && startAt < realized.Count) {
-                index = realized.GetValueAt(startAt) + startOffset;
-            } else {
-                index = -1;
-            }
-            var alreadyRealized = realized.Contains(index);
-            if (!state.AllowStartAtRealizedItem && alreadyRealized && startOffset === 0) {
-                index = index + state.Step;
-                alreadyRealized = realized.Contains(index);
-            }
-            if (index < 0 || index >= this.Owner.Items.Count) {
-                isNewlyRealized.Value = false;
-                return null;
-            }
-            if (alreadyRealized) {
-                state.PositionIndex = realized.IndexOf(index);
-                state.PositionOffset = state.Step;
-                isNewlyRealized.Value = false;
-                return this.ContainerMap.ContainerFromIndex(index);
-            }
-            var container: DependencyObject;
-            var item = this.Owner.Items.GetValueAt(index);
-            if (this.Owner.IsItemItsOwnContainer(item)) {
-                if (item instanceof DependencyObject)
-                    container = <DependencyObject>item;
-                isNewlyRealized.Value = true;
-            } else {
-                if (this.Cache.length === 0) {
-                    container = this.Owner.GetContainerForItem();
-                    isNewlyRealized.Value = true;
-                } else {
-                    container = this.Cache.pop();
-                    isNewlyRealized.Value = false;
-                }
-                if (container instanceof ContentControl)
-                    (<ContentControl>container)._ContentSetsParent = false;
-            }
-            if (container instanceof FrameworkElement && !(item instanceof UIElement))
-                (<FrameworkElement>container).DataContext = item;
-            realized.Add(index);
-            this.ContainerMap.Add(container, item, index);
-            state.PositionIndex = realized.IndexOf(index);
-            state.PositionOffset = state.Step;
-            return container;
-        }
-        PrepareItemContainer(container: DependencyObject) {
-            var item = this.ContainerMap.ItemFromContainer(container);
-            this.Owner.PrepareContainerForItem(container, item);
-        }
-        MoveExistingItems(index: number, offset: number) {
-            var list = this.RealizedElements.ToExpandedArray();
-            var newRanges = new RangeCollection();
-            var map = this.ContainerMap;
-            var enumerator = ArrayEx.GetEnumerator(list, offset > 0);
-            while (enumerator.MoveNext()) {
-                var oldIndex: number = enumerator.Current;
-                if (oldIndex < index) {
-                    newRanges.Add(oldIndex);
-                } else {
-                    newRanges.Add(oldIndex + offset);
-                    map.Move(oldIndex, offset);
-                }
-            }
-            this.RealizedElements = newRanges;
-        }
-        Recycle(position: IGeneratorPosition, count: number) {
-            this._KillContainer(position, count, true);
-        }
-        Remove(position: IGeneratorPosition, count: number) {
-            this._KillContainer(position, count, false);
-        }
-        RemoveAll() {
-            this.ContainerMap.Clear();
-            this.RealizedElements.Clear();
+            return i + offset - 1;
         }
         OnOwnerItemsItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) {
             var itemCount: number;
@@ -453,26 +214,19 @@ module Fayde.Controls {
             switch (e.Action) {
                 case Collections.NotifyCollectionChangedAction.Add:
                     itemCount = e.NewItems.length;
-                    if ((e.NewStartingIndex + 1) !== this.Owner.Items.Count)
-                        this.MoveExistingItems(e.NewStartingIndex, itemCount);
+                    ArrayEx.Fill(this._Containers, e.NewStartingIndex, itemCount, null);
+                    ArrayEx.Fill(this._Items, e.NewStartingIndex, itemCount, null);
                     itemUICount = 0;
                     position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
                     position.offset = 1;
                     break;
                 case Collections.NotifyCollectionChangedAction.Remove:
-                    itemCount = 1;
-                    if (this.RealizedElements.Contains(e.OldStartingIndex))
-                        itemUICount = 1;
-                    else
-                        itemUICount = 0;
+                    itemCount = (e.OldItems) ? e.OldItems.length : 1;
+                    itemUICount = this._GetNumAlreadyRealizedItems(e.OldItems);
                     position = this.GeneratorPositionFromIndex(e.OldStartingIndex);
-                    if (itemUICount === 1)
-                        this.Remove(position, 1);
-                    this.MoveExistingItems(e.OldStartingIndex, -1);
+                    this.Remove(position, itemUICount);
                     break;
                 case Collections.NotifyCollectionChangedAction.Replace:
-                    if (!this.RealizedElements.Contains(e.NewStartingIndex))
-                        return;
                     itemCount = 1;
                     itemUICount = 1;
                     position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
@@ -486,38 +240,37 @@ module Fayde.Controls {
                     }
                     break;
                 case Collections.NotifyCollectionChangedAction.Reset:
-                    var itemCount;
-                    if (!e.OldItems)
-                        itemCount = 0;
-                    else
-                        itemCount = e.OldItems.length;
-                    itemUICount = this.RealizedElements.Count;
+                    itemCount = (e.OldItems) ? e.OldItems.length : 0;
+                    itemUICount = this._RealizedCount;
                     position = { index: -1, offset: 0 };
                     this.RemoveAll();
                     break;
                 default:
+                    Warn("*** Critical error in ItemContainerGenerator.OnOwnerItemsItemsChanged. NotifyCollectionChangedAction." + e.Action + " is not supported");
                     break;
             }
-            this.ItemsChanged.Raise(this, new Primitives.ItemsChangedEventArgs(e.Action, itemCount, itemUICount, oldPosition, position));
+            var args = new Primitives.ItemsChangedEventArgs(e.Action, itemCount, itemUICount, oldPosition, position);
+            this.ItemsChanged.Raise(this, args);
         }
-        private _KillContainer(position: IGeneratorPosition, count: number, recycle: bool) {
+        private _GetNumAlreadyRealizedItems(items: any[]): any {
+            var count = 0;
+            var len = items.length;
+            for (var i = 0; i < len; i++) {
+                if (this.ContainerFromItem(items[i]) != null)
+                    count++;
+            }
+            return count;
+        }
+        private _KillContainers(position: IGeneratorPosition, count: number, recycle: bool) {
             if (position.offset !== 0)
                 throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
             var index = this.IndexFromGeneratorPosition(position);
-            var realized = this.RealizedElements;
-            var range = realized.Get(realized.FindRangeIndexForValue(index));
-            if (index < range.Start || (index + count) > range.Start + range_count(range))
-                throw new InvalidOperationException("Only items which have been Realized can be removed");
-            var cache = this.Cache;
-            var map = this.ContainerMap;
-            var end = index + count;
-            for (var i = index; i < end; i++) {
-                realized.Remove(i);
-                if (recycle)
-                    cache.push(map.RemoveIndex(i));
-                else
-                    map.RemoveIndex(i);
-            }
+            this._Items.splice(index, count);
+            if (recycle)
+                this._Cache = this._Cache.concat(this._Containers.splice(index, count));
+            else
+                this._Containers.splice(index, count)
+            this._RealizedCount -= count;
         }
     }
 }
@@ -10662,6 +10415,11 @@ module Fayde {
             }
             return rarr;
         }
+        static Fill(arr: any[], index: number, count: number, fill: any) {
+            for (var i = index; i < index + count; i++) {
+                arr.splice(i, 0, fill);
+            }
+        }
     }
 }
 (<any>Array.prototype).GetEnumerator = function (isReverse?: bool): Fayde.IEnumerator {
@@ -10841,6 +10599,7 @@ module Fayde.Collections {
             this._RaisePropertyChanged("Count");
         }
         Clear() {
+            this._ht = [];
             this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Reset());
             this._RaisePropertyChanged("Count");
         }
@@ -17797,9 +17556,9 @@ module Fayde.Controls {
         private _DisplayMemberTemplate:DataTemplate = null;
         XamlNode: ItemsControlNode;
         CreateNode(): ItemsControlNode { return new ItemsControlNode(this); }
-        static DisplayMemberPathProperty = DependencyProperty.RegisterCore("DisplayMemberPath", () => String, ItemsControl, null, (d, args) => (<ItemsControl>d).OnDisplayMemberPathChanged(args));
+        static DisplayMemberPathProperty = DependencyProperty.Register("DisplayMemberPath", () => String, ItemsControl, null, (d, args) => (<ItemsControl>d).OnDisplayMemberPathChanged(args));
         static ItemsPanelProperty = DependencyProperty.RegisterCore("ItemsPanel", () => ItemsPanelTemplate, ItemsControl);
-        static ItemsSourceProperty = DependencyProperty.RegisterCore("ItemsSource", () => IEnumerable_, ItemsControl, null, (d, args) => (<ItemsControl>d).OnItemsSourceChanged(args));
+        static ItemsSourceProperty = DependencyProperty.Register("ItemsSource", () => IEnumerable_, ItemsControl, null, (d, args) => (<ItemsControl>d).OnItemsSourceChanged(args));
         static ItemTemplateProperty = DependencyProperty.RegisterCore("ItemTemplate", () => DataTemplate, ItemsControl, undefined, (d, args) => (<ItemsControl>d).OnItemTemplateChanged(args));
         DisplayMemberPath: string;
         ItemsPanel: ItemsPanelTemplate;

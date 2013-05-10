@@ -68,6 +68,12 @@ module Fayde {
             }
             return rarr;
         }
+
+        static Fill(arr: any[], index: number, count: number, fill: any) {
+            for (var i = index; i < index + count; i++) {
+                arr.splice(i, 0, fill);
+            }
+        }
     }
 }
 (<any>Array.prototype).GetEnumerator = function (isReverse?: bool): Fayde.IEnumerator {

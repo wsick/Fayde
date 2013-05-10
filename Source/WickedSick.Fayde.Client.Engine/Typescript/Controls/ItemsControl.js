@@ -69,7 +69,7 @@ var Fayde;
             ItemsControl.prototype.CreateNode = function () {
                 return new ItemsControlNode(this);
             };
-            ItemsControl.DisplayMemberPathProperty = DependencyProperty.RegisterCore("DisplayMemberPath", function () {
+            ItemsControl.DisplayMemberPathProperty = DependencyProperty.Register("DisplayMemberPath", function () {
                 return String;
             }, ItemsControl, null, function (d, args) {
                 return (d).OnDisplayMemberPathChanged(args);
@@ -77,7 +77,7 @@ var Fayde;
             ItemsControl.ItemsPanelProperty = DependencyProperty.RegisterCore("ItemsPanel", function () {
                 return Controls.ItemsPanelTemplate;
             }, ItemsControl);
-            ItemsControl.ItemsSourceProperty = DependencyProperty.RegisterCore("ItemsSource", function () {
+            ItemsControl.ItemsSourceProperty = DependencyProperty.Register("ItemsSource", function () {
                 return Fayde.IEnumerable_;
             }, ItemsControl, null, function (d, args) {
                 return (d).OnItemsSourceChanged(args);

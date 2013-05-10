@@ -66,6 +66,11 @@ var Fayde;
             }
             return rarr;
         };
+        ArrayEx.Fill = function Fill(arr, index, count, fill) {
+            for(var i = index; i < index + count; i++) {
+                arr.splice(i, 0, fill);
+            }
+        };
         return ArrayEx;
     })();
     Fayde.ArrayEx = ArrayEx;    

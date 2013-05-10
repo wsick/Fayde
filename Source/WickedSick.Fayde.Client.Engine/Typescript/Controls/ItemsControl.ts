@@ -47,10 +47,10 @@ module Fayde.Controls {
         XamlNode: ItemsControlNode;
         CreateNode(): ItemsControlNode { return new ItemsControlNode(this); }
 
-        static DisplayMemberPathProperty = DependencyProperty.RegisterCore("DisplayMemberPath", () => String, ItemsControl, null, (d, args) => (<ItemsControl>d).OnDisplayMemberPathChanged(args));
+        static DisplayMemberPathProperty = DependencyProperty.Register("DisplayMemberPath", () => String, ItemsControl, null, (d, args) => (<ItemsControl>d).OnDisplayMemberPathChanged(args));
         //static ItemsProperty = DependencyProperty.RegisterCore("Items", () => ItemCollection, ItemsControl);
         static ItemsPanelProperty = DependencyProperty.RegisterCore("ItemsPanel", () => ItemsPanelTemplate, ItemsControl);
-        static ItemsSourceProperty = DependencyProperty.RegisterCore("ItemsSource", () => IEnumerable_, ItemsControl, null, (d, args) => (<ItemsControl>d).OnItemsSourceChanged(args));
+        static ItemsSourceProperty = DependencyProperty.Register("ItemsSource", () => IEnumerable_, ItemsControl, null, (d, args) => (<ItemsControl>d).OnItemsSourceChanged(args));
         static ItemTemplateProperty = DependencyProperty.RegisterCore("ItemTemplate", () => DataTemplate, ItemsControl, undefined, (d, args) => (<ItemsControl>d).OnItemTemplateChanged(args));
         DisplayMemberPath: string;
         ItemsPanel: ItemsPanelTemplate;
