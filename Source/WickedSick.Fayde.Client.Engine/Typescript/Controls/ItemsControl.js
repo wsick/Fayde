@@ -291,12 +291,7 @@ var Fayde;
             };
             ItemsControl.prototype.OnItemsChanged = function (e) {
             };
-            ItemsControl.prototype.InvokeItemsChanged = /*
-            OnItemsClearing(sender, e) {
-            this.SetLogicalParent(null, this.Items.ToArray());
-            }
-            */
-            function (sender, e) {
+            ItemsControl.prototype.InvokeItemsChanged = function (sender, e) {
                 /*
                 switch (e.Action) {
                 case Collections.NotifyCollectionChangedAction.Add:
@@ -352,24 +347,7 @@ var Fayde;
                     i++;
                 }
             };
-            ItemsControl.prototype.AddItemsToPresenter = /*
-            SetLogicalParent(parent, items) {
-            if (this.ItemsSource != null)
-            return;
-            
-            var error = new BError();
-            var count = items.length;
-            for (var i = 0; i < count; i++) {
-            var fe = Nullstone.As(items[i], FrameworkElement);
-            if (fe == null)
-            continue;
-            this._SetLogicalParent(parent, error);
-            if (error.Message)
-            throw new Exception(error.Message);
-            }
-            }
-            */
-            function (position, count) {
+            ItemsControl.prototype.AddItemsToPresenter = function (position, count) {
                 var panel = this.Panel;
                 if(!panel || panel instanceof Controls.VirtualizingPanel) {
                     return;

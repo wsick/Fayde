@@ -235,11 +235,6 @@ module Fayde.Controls {
         GetContainerForItem(): DependencyObject { return new ContentPresenter(); }
         IsItemItsOwnContainer(item: any): bool { return item instanceof FrameworkElement; }
         OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) { }
-        /*
-        OnItemsClearing(sender, e) {
-            this.SetLogicalParent(null, this.Items.ToArray());
-        }
-        */
         InvokeItemsChanged(sender, e: Collections.NotifyCollectionChangedEventArgs) {
             /*
             switch (e.Action) {
@@ -291,23 +286,6 @@ module Fayde.Controls {
                 i++;
             }
         }
-        /*
-        SetLogicalParent(parent, items) {
-            if (this.ItemsSource != null)
-                return;
-
-            var error = new BError();
-            var count = items.length;
-            for (var i = 0; i < count; i++) {
-                var fe = Nullstone.As(items[i], FrameworkElement);
-                if (fe == null)
-                    continue;
-                this._SetLogicalParent(parent, error);
-                if (error.Message)
-                    throw new Exception(error.Message);
-            }
-        }
-        */
         AddItemsToPresenter(position: IGeneratorPosition, count: number) {
             var panel = this.Panel;
             if (!panel || panel instanceof VirtualizingPanel)
