@@ -88,6 +88,7 @@ var Fayde;
                 this._RaisePropertyChanged("Count");
             };
             ObservableCollection.prototype.Clear = function () {
+                this._ht = [];
                 this.CollectionChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Reset());
                 this._RaisePropertyChanged("Count");
             };

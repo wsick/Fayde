@@ -76,6 +76,7 @@ module Fayde.Collections {
             this._RaisePropertyChanged("Count");
         }
         Clear() {
+            this._ht = [];
             this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Reset());
             this._RaisePropertyChanged("Count");
         }
