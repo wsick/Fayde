@@ -88,6 +88,36 @@ var Fayde;
             }, TextBox, Controls.ScrollBarVisibility.Hidden, function (d, args) {
                 return (d)._VerticalScrollBarVisibilityChanged(args);
             });
+            TextBox.DEFAULT_SELECTION_FOREGROUND = Fayde.Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 1.0));
+            Object.defineProperty(TextBox.prototype, "SelectionForeground", {
+                get: function () {
+                    var b = this.GetValue(TextBox.SelectionForegroundProperty);
+                    if(b) {
+                        return b;
+                    }
+                    return TextBox.DEFAULT_SELECTION_FOREGROUND;
+                },
+                set: function (value) {
+                    this.SetValue(TextBox.SelectionForegroundProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            TextBox.DEFAULT_SELECTION_BACKGROUND = Fayde.Media.SolidColorBrush.FromColor(Color.FromRgba(68, 68, 68, 1.0));
+            Object.defineProperty(TextBox.prototype, "SelectionBackground", {
+                get: function () {
+                    var b = this.GetValue(TextBox.SelectionBackgroundProperty);
+                    if(b) {
+                        return b;
+                    }
+                    return TextBox.DEFAULT_SELECTION_BACKGROUND;
+                },
+                set: function (value) {
+                    this.SetValue(TextBox.SelectionBackgroundProperty, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
             TextBox.prototype.OnApplyTemplate = function () {
                 _super.prototype.OnApplyTemplate.call(this);
                 var ce = this.$ContentElement;
@@ -126,7 +156,8 @@ var Fayde;
                         this._ResetIMContext();
                         //TODO: this._IMCtx.FocusOut();
                                             } else {
-                    }
+                        //TODO: this._IMCtx.FocusIn();
+                                            }
                 }
                 if(this.$View) {
                     this.$View.SetEnableCursor(!this.$IsReadOnly);

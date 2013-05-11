@@ -338,10 +338,10 @@ module Fayde.Controls {
                     newValue = e.Value;
                     break;
                 case Primitives.ScrollEventType.First:
-                    newValue = -1.79769313486232E+308;
+                    newValue = Number.NEGATIVE_INFINITY;
                     break;
                 case Primitives.ScrollEventType.Last:
-                    newValue = 1.79769313486232E+308;
+                    newValue = Number.POSITIVE_INFINITY;
                     break;
             }
             newValue = Math.max(newValue, 0);
@@ -373,10 +373,10 @@ module Fayde.Controls {
                     newValue = e.Value;
                     break;
                 case Primitives.ScrollEventType.First:
-                    newValue = -1.79769313486232E+308;
+                    newValue = Number.NEGATIVE_INFINITY;
                     break;
                 case Primitives.ScrollEventType.Last:
-                    newValue = 1.79769313486232E+308;
+                    newValue = Number.POSITIVE_INFINITY;
                     break;
             }
             newValue = Math.max(newValue, 0);

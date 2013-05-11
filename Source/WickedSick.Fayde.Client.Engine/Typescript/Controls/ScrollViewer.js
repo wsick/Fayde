@@ -400,10 +400,10 @@ var Fayde;
                         newValue = e.Value;
                         break;
                     case Controls.Primitives.ScrollEventType.First:
-                        newValue = -Infinity;
+                        newValue = Number.NEGATIVE_INFINITY;
                         break;
                     case Controls.Primitives.ScrollEventType.Last:
-                        newValue = Infinity;
+                        newValue = Number.POSITIVE_INFINITY;
                         break;
                 }
                 newValue = Math.max(newValue, 0);
@@ -437,10 +437,10 @@ var Fayde;
                         newValue = e.Value;
                         break;
                     case Controls.Primitives.ScrollEventType.First:
-                        newValue = -Infinity;
+                        newValue = Number.NEGATIVE_INFINITY;
                         break;
                     case Controls.Primitives.ScrollEventType.Last:
-                        newValue = Infinity;
+                        newValue = Number.POSITIVE_INFINITY;
                         break;
                 }
                 newValue = Math.max(newValue, 0);
@@ -457,7 +457,7 @@ var Fayde;
             if(val1 === val2) {
                 return true;
             }
-            var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516e-16;
+            var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516E-16;
             var num2 = val1 - val2;
             return -num1 < num2 && num1 > num2;
         }
