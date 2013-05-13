@@ -18,7 +18,7 @@ var Fayde;
             this._Json = json;
             this._Namescope = namescope;
             this._TemplateBindingSource = templateBindingSource;
-            this._ResChain = resChain.slice(0);
+            this._ResChain = resChain;
         }
         ResourceTarget.prototype.CreateResource = function () {
             return Fayde.JsonParser.Parse(this._Json, this._TemplateBindingSource, this._Namescope, this._ResChain);

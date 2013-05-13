@@ -17,7 +17,7 @@ module Fayde {
     }
 }
 
-class App {
+class App implements Fayde.IResourcable {
     static Version: string = "0.9.4.0";
     static Instance: App;
     MainSurface: Surface;

@@ -18,7 +18,7 @@ var Fayde;
             }
             this._Data = data;
         }
-        BindingMarkup.prototype.Transmute = function (target, propd, propName, templateBindingSource) {
+        BindingMarkup.prototype.Transmute = function (target, propd, propName, templateBindingSource, resChain) {
             return new Fayde.Data.BindingExpression(this._BuildBinding(), target, propd);
         };
         BindingMarkup.prototype._BuildBinding = function () {

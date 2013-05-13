@@ -14,8 +14,8 @@ var Fayde;
                 _super.call(this);
             this.Key = key;
         }
-        StaticResourceMarkup.prototype.Transmute = function (target, propd, propName, templateBindingSource) {
-            return new Fayde.StaticResourceExpression(this.Key, target, propd, propName, templateBindingSource);
+        StaticResourceMarkup.prototype.Transmute = function (target, propd, propName, templateBindingSource, resChain) {
+            return new Fayde.StaticResourceExpression(this.Key, target, propd, propName, templateBindingSource, resChain);
         };
         return StaticResourceMarkup;
     })(Fayde.Markup);

@@ -5916,30 +5916,37 @@ module Fayde {
 
 module Fayde {
     export class StaticResourceExpression extends Expression {
-        Key: any;
-        Target: XamlObject;
-        Property: DependencyProperty;
-        PropertyName: string;
-        constructor(key, target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: XamlObject) {
+        private _Key: any;
+        private _Target: XamlObject;
+        private _Property: DependencyProperty;
+        private _PropertyName: string;
+        private _ResChain: ResourceDictionary[];
+        constructor(key, target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: XamlObject, resChain: ResourceDictionary[]) {
             super();
-            this.Key = key;
-            this.Target = target;
-            this.Property = propd;
-            this.PropertyName = propName;
+            this._Key = key;
+            this._Target = target;
+            this._Property = propd;
+            this._PropertyName = propName;
+            this._ResChain = resChain;
         }
         GetValue(propd: DependencyProperty): any {
-            return undefined;
+            var value = this._GetValue(this._ResChain);
+            if (value instanceof ResourceTarget)
+                value = (<ResourceTarget>value).CreateResource();
+            if (value === undefined)
+                throw new XamlParseException("Could not resolve StaticResource: '" + this._Key.toString() + "'.");
+            return value;
         }
         private _GetValue(resChain: ResourceDictionary[]): any {
             var o: XamlObject;
-            var key = this.Key;
+            var key = this._Key;
             var len = resChain.length;
             for (var i = len - 1; i >= 0; i--) {
                 o = resChain[i].Get(key);
                 if (o)
                     return o;
             }
-            var cur = this.Target;
+            var cur = this._Target;
             var rd: ResourceDictionary;
             var curNode = cur ? cur.XamlNode : null;
             while (curNode) {
@@ -5954,20 +5961,16 @@ module Fayde {
             }
             return App.Instance.Resources.Get(key);
         }
-        Resolve(parser: JsonParser, resChain: ResourceDictionary[]) {
+        Resolve(parser: JsonParser) {
             var isAttached = false;
-            var ownerType;
-            var propd = this.Property;
+            var ownerType: Function;
+            var propd = this._Property;
             if (propd) {
                 isAttached = propd._IsAttached;
                 ownerType = propd.OwnerType;
             }
-            var value = this._GetValue(resChain);
-            if (value instanceof ResourceTarget)
-                value = (<ResourceTarget>value).CreateResource();
-            if (!value)
-                throw new XamlParseException("Could not resolve StaticResource: '" + this.Key.toString() + "'.");
-            parser.TrySetPropertyValue(this.Target, propd, value, null, isAttached, ownerType, this.PropertyName);
+            var value = this.GetValue(propd);
+            parser.TrySetPropertyValue(this._Target, propd, value, null, isAttached, ownerType, this._PropertyName);
         }
     }
     Nullstone.RegisterType(StaticResourceExpression, "StaticResourceExpression");
@@ -7611,7 +7614,7 @@ module Fayde {
         instance.LoadInitial(canvas, json);
     }
 }
-class App {
+class App implements Fayde.IResourcable {
     static Version: string = "0.9.4.0";
     static Instance: App;
     MainSurface: Surface;
@@ -8724,7 +8727,7 @@ module Fayde {
         static Parse(json: any, templateBindingSource?: DependencyObject, namescope?: NameScope, resChain?: Fayde.ResourceDictionary[], rootXamlObject?: XamlObject): any {
             var parser = new JsonParser();
             if (resChain)
-                parser._ResChain = resChain;
+                parser._ResChain = resChain.slice(0);
             parser._TemplateBindingSource = templateBindingSource;
             parser._RootXamlObject = rootXamlObject;
             if (!namescope)
@@ -8743,13 +8746,27 @@ module Fayde {
             parser._ResChain.push(rd);
             var ns = rd.XamlNode.NameScope;
             if (!ns) ns = new NameScope();
-            parser.SetObject(json, rd, ns);
+            if (json.Children) {
+                parser.SetResourceDictionary(rd, json.Children, ns);
+                parser.ResolveStaticResourceExpressions();
+            }
+        }
+        static ParsePage(json: any): Controls.Page {
+            if (!json.ParseType)
+                return undefined;
+            var page = new json.ParseType();
+            if (!page || !(page instanceof Controls.Page))
+                return undefined;
+            var parser = new JsonParser();
+            parser._RootXamlObject = page;
+            parser.SetObject(json, page, new Fayde.NameScope(true));
+            return page;
         }
         CreateObject(json: any, namescope: NameScope, ignoreResolve?: bool): any {
             var type = json.ParseType;
             if (!type) {
                 if (json instanceof FrameworkTemplate)
-                    (<FrameworkTemplate>json).ResChain = this._ResChain;
+                    (<FrameworkTemplate>json).ResChain = this._ResChain.slice(0);
                 return json;
             }
             if (type === Number || type === String || type === Boolean)
@@ -8778,6 +8795,13 @@ module Fayde {
             var type = json.ParseType;
             var propd: DependencyProperty;
             var propValue;
+            var shouldPopResChain = false;
+            if (json.Resources) {
+                shouldPopResChain = true;
+                var rd = (<IResourcable><any>xobj).Resources;
+                this._ResChain.push(rd);
+                this.SetResourceDictionary(rd, json.Resources.Children, namescope);
+            }
             if (json.Props) {
                 for (var propName in json.Props) {
                     propValue = json.Props[propName];
@@ -8827,7 +8851,7 @@ module Fayde {
                 content = json.Content;
                 if (content) {
                     if (content instanceof Markup)
-                        content = content.Transmute(xobj, contentProp, "Content", this._TemplateBindingSource);
+                        content = (<Markup>content).Transmute(xobj, contentProp, "Content", this._TemplateBindingSource, this._ResChain.slice(0));
                     else
                         content = this.CreateObject(content, namescope, true);
                     this.SetValue(xobj, pd, pn, content);
@@ -8839,20 +8863,21 @@ module Fayde {
             if (!ignoreResolve) {
                 this.ResolveStaticResourceExpressions();
             }
+            if (shouldPopResChain)
+                this._ResChain.pop();
             return content;
         }
         TrySetPropertyValue(xobj: XamlObject, propd: DependencyProperty, propValue: any, namescope: NameScope, isAttached: bool, ownerType: Function, propName: string) {
             if (propValue instanceof Markup)
-                propValue = propValue.Transmute(xobj, propd, propName, this._TemplateBindingSource);
+                propValue = (<Markup>propValue).Transmute(xobj, propd, propName, this._TemplateBindingSource, this._ResChain.slice(0));
             if (propValue instanceof FrameworkTemplate) {
-                (<FrameworkTemplate>propValue).ResChain = this._ResChain;
+                (<FrameworkTemplate>propValue).ResChain = this._ResChain.slice(0);
                 this.SetValue(xobj, propd, propName, propValue);
                 return;
             } else if (propValue instanceof StaticResourceExpression) {
                 this.SetValue(xobj, propd, propName, propValue);
                 return;
             } else if (propValue.ParseType === ResourceDictionary) {
-                this.SetResourceDictionary(xobj[propName], propValue.Children, namescope);
                 return;
             }
             if (propValue.ParseType)
@@ -8910,9 +8935,7 @@ module Fayde {
             return true;
         }
         SetResourceDictionary(rd: ResourceDictionary, subJson: any[], namescope: NameScope) {
-            var oldChain = this._ResChain;
-            this._ResChain = this._ResChain.slice(0);
-            this._ResChain.push(rd);
+            rd.XamlNode.NameScope = namescope;
             var fobj: XamlObject;
             var cur: any;
             var key: any;
@@ -8926,12 +8949,11 @@ module Fayde {
                     if (!key)
                         key = (<Style>fobj).TargetType;
                 } else {
-                    fobj = new ResourceTarget(val, namescope, this._TemplateBindingSource, this._ResChain);
+                    fobj = new ResourceTarget(val, namescope, this._TemplateBindingSource, this._ResChain.slice(0));
                 }
                 if (key)
                     rd.Set(key, fobj);
             }
-            this._ResChain = oldChain;
         }
         ResolveStaticResourceExpressions() {
             var srs = this._SRExpressions;
@@ -8939,10 +8961,10 @@ module Fayde {
                 return;
             var cur: StaticResourceExpression;
             while (cur = srs.shift()) {
-                cur.Resolve(this, this._ResChain);
+                cur.Resolve(this);
             }
         }
-        SetValue(xobj:XamlObject, propd: DependencyProperty, propName: string, value: any) {
+        SetValue(xobj: XamlObject, propd: DependencyProperty, propName: string, value: any) {
             if (propd) {
                 if (value instanceof StaticResourceExpression) {
                     this._SRExpressions.push(value);
@@ -8977,7 +8999,7 @@ module Fayde {
 
 module Fayde {
     export class Markup {
-        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject) {
+        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject, resChain: ResourceDictionary[]) {
         }
     }
     Nullstone.RegisterType(Markup, "Markup");
@@ -8990,8 +9012,8 @@ module Fayde {
             super();
             this.Key = key;
         }
-        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject) {
-            return new StaticResourceExpression(this.Key, target, propd, propName, templateBindingSource);
+        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject, resChain: ResourceDictionary[]) {
+            return new StaticResourceExpression(this.Key, target, propd, propName, templateBindingSource, resChain);
         }
     }
     Nullstone.RegisterType(StaticResourceMarkup, "StaticResourceMarkup");
@@ -9004,7 +9026,7 @@ module Fayde {
             super();
             this.Path = path;
         }
-        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject) {
+        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject, resChain: ResourceDictionary[]) {
             var sourcePropd = DependencyProperty.GetDependencyProperty((<any>templateBindingSource).constructor, this.Path);
             return new TemplateBindingExpression(sourcePropd, propd, propName);
         }
@@ -10937,7 +10959,7 @@ module Fayde {
             this._Json = json;
             this._Namescope = namescope;
             this._TemplateBindingSource = templateBindingSource;
-            this._ResChain = resChain.slice(0);
+            this._ResChain = resChain;
         }
         CreateResource(): XamlObject {
             return JsonParser.Parse(this._Json, this._TemplateBindingSource, this._Namescope, this._ResChain);
@@ -11414,17 +11436,17 @@ module Fayde.Data {
 module Fayde.Documents {
     export class TextElementNode extends DONode {
         XObject: TextElement;
-        constructor(xobj: TextElement, inheritedWalkProperty: DependencyProperty) {
+        constructor(xobj: TextElement, inheritedWalkProperty: string) {
             super(xobj);
             this.InheritedWalkProperty = inheritedWalkProperty;
         }
-        InheritedWalkProperty: DependencyProperty;
+        InheritedWalkProperty: string;
         GetInheritedEnumerator(): IEnumerator {
             if (!this.InheritedWalkProperty)
                 return ArrayEx.EmptyEnumerator;
-            var coll = this.XObject.GetValue(this.InheritedWalkProperty);
+            var coll: XamlObjectCollection = this.XObject[this.InheritedWalkProperty];
             if (coll)
-                return (<XamlObjectCollection>coll).GetNodeEnumerator();
+                return coll.GetNodeEnumerator();
         }
     }
     Nullstone.RegisterType(TextElementNode, "TextElementNode");
@@ -11910,7 +11932,7 @@ module Fayde {
             if (!data) data = {};
             this._Data = data;
         }
-        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject) {
+        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject, resChain: ResourceDictionary[]) {
             return new Data.BindingExpression(this._BuildBinding(), <DependencyObject>target, propd);
         }
         private _BuildBinding(): Data.Binding {
@@ -13980,6 +14002,9 @@ module Fayde.Controls.Primitives {
 }
 
 module Fayde {
+    export interface IResourcable {
+        Resources: Fayde.ResourceDictionary;
+    }
     export class ResourceDictionaryCollection extends XamlObjectCollection {
         AddedToCollection(value: ResourceDictionary, error: BError): bool {
             if (!super.AddedToCollection(value, error))
@@ -14705,9 +14730,30 @@ module Fayde.Providers {
 }
 
 module Fayde.Documents {
+    export interface IBlocksChangedListener {
+        BlocksChanged(newBlock: Block, isAdd: bool);
+    }
     export class Block extends TextElement {
     }
     Nullstone.RegisterType(Block, "Block");
+    export class BlockCollection extends XamlObjectCollection {
+        private _Listener: IBlocksChangedListener;
+        Listen(listener: IBlocksChangedListener) { this._Listener = listener; }
+        Unlisten(listener: IBlocksChangedListener) { if (this._Listener === listener) this._Listener = null; }
+        AddedToCollection(value: Block, error: BError): bool {
+            if (!super.AddedToCollection(value, error))
+                return false;
+            var listener = this._Listener;
+            if (listener) listener.BlocksChanged(value, true);
+            return true;
+        }
+        RemovedFromCollection(value: Block, isValueSafe: bool) {
+            super.RemovedFromCollection(value, isValueSafe);
+            var listener = this._Listener;
+            if (listener) listener.BlocksChanged(value, false);
+        }
+    }
+    Nullstone.RegisterType(BlockCollection, "BlockCollection");
 }
 
 module Fayde.Documents {
@@ -14746,9 +14792,23 @@ module Fayde.Documents {
 
 module Fayde.Documents {
     export class Paragraph extends Block {
-        static InlinesProperty;
         CreateNode(): TextElementNode {
-            return new TextElementNode(this, Paragraph.InlinesProperty)
+            return new TextElementNode(this, "Inlines");
+        }
+        static Annotations = { ContentProperty: "Inlines" }
+        Inlines: InlineCollection;
+        constructor() {
+            super();
+            var coll = new InlineCollection();
+            coll.Listen(this);
+            Object.defineProperty(this, "Inlines", {
+                value: coll,
+                writable: false
+            });
+        }
+        private InlinesChanged(newInline: Inline, isAdd: bool) {
+            if (isAdd)
+                this._Store.PropagateInheritedOnAdd(newInline.XamlNode);
         }
     }
     Nullstone.RegisterType(Paragraph, "Paragraph");
@@ -14760,27 +14820,62 @@ module Fayde.Documents {
         static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, Run);
         FlowDirection: FlowDirection;
         Text: string;
-        _SerializeText(): string { return this.Text; }
+        private _SerializeText(): string { return this.Text; }
     }
     Nullstone.RegisterType(Run, "Run");
 }
 
 module Fayde.Documents {
-    export class Section extends TextElement {
-        static BlocksProperty;
+    export class Section extends TextElement implements IBlocksChangedListener {
         CreateNode(): TextElementNode {
-            return new TextElementNode(this, Section.BlocksProperty);
+            return new TextElementNode(this, "Blocks");
+        }
+        static Annotations = { ContentProperty: "Blocks" }
+        Blocks: BlockCollection;
+        constructor() {
+            super();
+            var coll = new BlockCollection();
+            coll.Listen(this);
+            Object.defineProperty(this, "Blocks", {
+                value: coll,
+                writable: false
+            });
+        }
+        private BlocksChanged(newBlock: Block, isAdd: bool) {
+            if (isAdd)
+                this._Store.PropagateInheritedOnAdd(newBlock.XamlNode);
         }
     }
     Nullstone.RegisterType(Section, "Section");
 }
 
 module Fayde.Documents {
-    export class Span extends Inline {
-        static InlinesProperty;
-        Inlines: XamlObjectCollection;
+    export class Span extends Inline implements IInlinesChangedListener {
         CreateNode(): TextElementNode {
-            return new TextElementNode(this, Span.InlinesProperty);
+            return new TextElementNode(this, "Inlines");
+        }
+        static Annotations = { ContentProperty: "Inlines" }
+        Inlines: InlineCollection;
+        constructor() {
+            super();
+            var coll = new InlineCollection();
+            coll.Listen(this);
+            Object.defineProperty(this, "Inlines", {
+                value: coll,
+                writable: false
+            });
+        }
+        private InlinesChanged(newInline: Inline, isAdd: bool) {
+            if (isAdd)
+                this._Store.PropagateInheritedOnAdd(newInline.XamlNode);
+        }
+        private _SerializeText(): string {
+            var str = "";
+            var enumerator = this.Inlines.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                str += (<TextElement>enumerator.Current)._SerializeText();
+            }
+            return str;
         }
     }
     Nullstone.RegisterType(Span, "Span");
@@ -16101,7 +16196,7 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(FENode, "FENode");
-    export class FrameworkElement extends UIElement implements IMeasurableHidden, IArrangeableHidden {
+    export class FrameworkElement extends UIElement implements IResourcable, IMeasurableHidden, IArrangeableHidden {
         DefaultStyleKey: any;
         XamlNode: FENode;
         Resources: ResourceDictionary;
@@ -18093,9 +18188,11 @@ module Fayde.Controls {
     }
     Nullstone.RegisterType(PanelNode, "PanelNode");
     function zIndexPropertyChanged(dobj: DependencyObject, args) {
-        if (dobj instanceof UIElement)
-          (<UIElement>dobj).XamlNode.LayoutUpdater.Invalidate();
-        (<PanelNode>dobj.XamlNode.ParentNode)._InvalidateChildrenZIndices();
+        var xn = dobj.XamlNode;
+        if (xn instanceof UINode)
+            (<UINode>xn).LayoutUpdater.Invalidate();
+        if (xn.IsAttached)
+            (<PanelNode>xn.ParentNode)._InvalidateChildrenZIndices();
     }
     export class Panel extends FrameworkElement implements IMeasurableHidden {
         XamlNode: PanelNode;
@@ -22712,9 +22809,8 @@ module Fayde.Controls {
             this._Resolver.Load(href, hash);
         }
         private _HandleSuccessfulResponse(ajaxJsonResult: AjaxJsonResult) {
-            var response = JsonParser.Parse(ajaxJsonResult.CreateJson());
-            if (response instanceof Page) {
-                var page = <Page>response;
+            var page = JsonParser.ParsePage(ajaxJsonResult.CreateJson());
+            if (page) {
                 document.title = page.Title;
                 this.Content = page;
             }

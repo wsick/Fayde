@@ -23,7 +23,7 @@ var Fayde;
         JsonParser.Parse = function Parse(json, templateBindingSource, namescope, resChain, rootXamlObject) {
             var parser = new JsonParser();
             if(resChain) {
-                parser._ResChain = resChain;
+                parser._ResChain = resChain.slice(0);
             }
             parser._TemplateBindingSource = templateBindingSource;
             parser._RootXamlObject = rootXamlObject;
@@ -53,13 +53,29 @@ var Fayde;
             if(!ns) {
                 ns = new Fayde.NameScope();
             }
-            parser.SetObject(json, rd, ns);
+            if(json.Children) {
+                parser.SetResourceDictionary(rd, json.Children, ns);
+                parser.ResolveStaticResourceExpressions();
+            }
+        };
+        JsonParser.ParsePage = function ParsePage(json) {
+            if(!json.ParseType) {
+                return undefined;
+            }
+            var page = new json.ParseType();
+            if(!page || !(page instanceof Fayde.Controls.Page)) {
+                return undefined;
+            }
+            var parser = new JsonParser();
+            parser._RootXamlObject = page;
+            parser.SetObject(json, page, new Fayde.NameScope(true));
+            return page;
         };
         JsonParser.prototype.CreateObject = function (json, namescope, ignoreResolve) {
             var type = json.ParseType;
             if(!type) {
                 if(json instanceof Fayde.FrameworkTemplate) {
-                    (json).ResChain = this._ResChain;
+                    (json).ResChain = this._ResChain.slice(0);
                 }
                 return json;
             }
@@ -96,6 +112,13 @@ var Fayde;
             var type = json.ParseType;
             var propd;
             var propValue;
+            var shouldPopResChain = false;
+            if(json.Resources) {
+                shouldPopResChain = true;
+                var rd = (xobj).Resources;
+                this._ResChain.push(rd);
+                this.SetResourceDictionary(rd, json.Resources.Children, namescope);
+            }
             if(json.Props) {
                 for(var propName in json.Props) {
                     propValue = json.Props[propName];
@@ -151,7 +174,7 @@ var Fayde;
                 content = json.Content;
                 if(content) {
                     if(content instanceof Fayde.Markup) {
-                        content = content.Transmute(xobj, contentProp, "Content", this._TemplateBindingSource);
+                        content = (content).Transmute(xobj, contentProp, "Content", this._TemplateBindingSource, this._ResChain.slice(0));
                     } else {
                         content = this.CreateObject(content, namescope, true);
                     }
@@ -164,21 +187,25 @@ var Fayde;
             if(!ignoreResolve) {
                 this.ResolveStaticResourceExpressions();
             }
+            if(shouldPopResChain) {
+                this._ResChain.pop();
+            }
             return content;
         };
         JsonParser.prototype.TrySetPropertyValue = function (xobj, propd, propValue, namescope, isAttached, ownerType, propName) {
             if(propValue instanceof Fayde.Markup) {
-                propValue = propValue.Transmute(xobj, propd, propName, this._TemplateBindingSource);
+                propValue = (propValue).Transmute(xobj, propd, propName, this._TemplateBindingSource, this._ResChain.slice(0));
             }
             if(propValue instanceof Fayde.FrameworkTemplate) {
-                (propValue).ResChain = this._ResChain;
+                (propValue).ResChain = this._ResChain.slice(0);
                 this.SetValue(xobj, propd, propName, propValue);
                 return;
             } else if(propValue instanceof Fayde.StaticResourceExpression) {
                 this.SetValue(xobj, propd, propName, propValue);
                 return;
             } else if(propValue.ParseType === Fayde.ResourceDictionary) {
-                this.SetResourceDictionary(xobj[propName], propValue.Children, namescope);
+                //TODO: Kill
+                //this.SetResourceDictionary(xobj[propName], propValue.Children, namescope);
                 return;
             }
             if(propValue.ParseType) {
@@ -244,9 +271,7 @@ var Fayde;
             return true;
         };
         JsonParser.prototype.SetResourceDictionary = function (rd, subJson, namescope) {
-            var oldChain = this._ResChain;
-            this._ResChain = this._ResChain.slice(0);
-            this._ResChain.push(rd);
+            rd.XamlNode.NameScope = namescope;
             var fobj;
             var cur;
             var key;
@@ -261,13 +286,12 @@ var Fayde;
                         key = (fobj).TargetType;
                     }
                 } else {
-                    fobj = new Fayde.ResourceTarget(val, namescope, this._TemplateBindingSource, this._ResChain);
+                    fobj = new Fayde.ResourceTarget(val, namescope, this._TemplateBindingSource, this._ResChain.slice(0));
                 }
                 if(key) {
                     rd.Set(key, fobj);
                 }
             }
-            this._ResChain = oldChain;
         };
         JsonParser.prototype.ResolveStaticResourceExpressions = function () {
             var srs = this._SRExpressions;
@@ -276,7 +300,7 @@ var Fayde;
             }
             var cur;
             while(cur = srs.shift()) {
-                cur.Resolve(this, this._ResChain);
+                cur.Resolve(this);
             }
         };
         JsonParser.prototype.SetValue = function (xobj, propd, propName, value) {

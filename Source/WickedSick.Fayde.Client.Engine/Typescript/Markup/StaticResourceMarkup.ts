@@ -10,8 +10,8 @@ module Fayde {
             this.Key = key;
         }
 
-        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject) {
-            return new StaticResourceExpression(this.Key, target, propd, propName, templateBindingSource);
+        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject, resChain: ResourceDictionary[]) {
+            return new StaticResourceExpression(this.Key, target, propd, propName, templateBindingSource, resChain);
         }
     }
     Nullstone.RegisterType(StaticResourceMarkup, "StaticResourceMarkup");

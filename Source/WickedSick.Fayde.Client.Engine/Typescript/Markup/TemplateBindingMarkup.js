@@ -14,7 +14,7 @@ var Fayde;
                 _super.call(this);
             this.Path = path;
         }
-        TemplateBindingMarkup.prototype.Transmute = function (target, propd, propName, templateBindingSource) {
+        TemplateBindingMarkup.prototype.Transmute = function (target, propd, propName, templateBindingSource, resChain) {
             var sourcePropd = DependencyProperty.GetDependencyProperty((templateBindingSource).constructor, this.Path);
             return new Fayde.TemplateBindingExpression(sourcePropd, propd, propName);
         };

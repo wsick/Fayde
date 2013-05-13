@@ -6,25 +6,31 @@
 
 module Fayde {
     export class StaticResourceExpression extends Expression {
-        Key: any;
-        Target: XamlObject;
-        Property: DependencyProperty;
-        PropertyName: string;
-        constructor(key, target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: XamlObject) {
+        private _Key: any;
+        private _Target: XamlObject;
+        private _Property: DependencyProperty;
+        private _PropertyName: string;
+        private _ResChain: ResourceDictionary[];
+        constructor(key, target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: XamlObject, resChain: ResourceDictionary[]) {
             super();
-            this.Key = key;
-            this.Target = target;
-            this.Property = propd;
-            this.PropertyName = propName;
+            this._Key = key;
+            this._Target = target;
+            this._Property = propd;
+            this._PropertyName = propName;
+            this._ResChain = resChain;
         }
 
         GetValue(propd: DependencyProperty): any {
-            //Does nothing
-            return undefined;
+            var value = this._GetValue(this._ResChain);
+            if (value instanceof ResourceTarget)
+                value = (<ResourceTarget>value).CreateResource();
+            if (value === undefined)
+                throw new XamlParseException("Could not resolve StaticResource: '" + this._Key.toString() + "'.");
+            return value;
         }
         private _GetValue(resChain: ResourceDictionary[]): any {
             var o: XamlObject;
-            var key = this.Key;
+            var key = this._Key;
 
             var len = resChain.length;
             for (var i = len - 1; i >= 0; i--) {
@@ -33,7 +39,7 @@ module Fayde {
                     return o;
             }
 
-            var cur = this.Target;
+            var cur = this._Target;
             var rd: ResourceDictionary;
             var curNode = cur ? cur.XamlNode : null;
             while (curNode) {
@@ -51,21 +57,16 @@ module Fayde {
 
             return App.Instance.Resources.Get(key);
         }
-        Resolve(parser: JsonParser, resChain: ResourceDictionary[]) {
+        Resolve(parser: JsonParser) {
             var isAttached = false;
-            var ownerType;
-            var propd = this.Property;
+            var ownerType: Function;
+            var propd = this._Property;
             if (propd) {
                 isAttached = propd._IsAttached;
                 ownerType = propd.OwnerType;
             }
-
-            var value = this._GetValue(resChain);
-            if (value instanceof ResourceTarget)
-                value = (<ResourceTarget>value).CreateResource();
-            if (!value)
-                throw new XamlParseException("Could not resolve StaticResource: '" + this.Key.toString() + "'.");
-            parser.TrySetPropertyValue(this.Target, propd, value, null, isAttached, ownerType, this.PropertyName);
+            var value = this.GetValue(propd);
+            parser.TrySetPropertyValue(this._Target, propd, value, null, isAttached, ownerType, this._PropertyName);
         }
     }
     Nullstone.RegisterType(StaticResourceExpression, "StaticResourceExpression");

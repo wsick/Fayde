@@ -214,7 +214,7 @@ module Fayde {
     }
     Nullstone.RegisterType(FENode, "FENode");
 
-    export class FrameworkElement extends UIElement implements IMeasurableHidden, IArrangeableHidden {
+    export class FrameworkElement extends UIElement implements IResourcable, IMeasurableHidden, IArrangeableHidden {
         DefaultStyleKey: any;
         XamlNode: FENode;
         Resources: ResourceDictionary;

@@ -10,7 +10,7 @@ module Fayde {
             this.Path = path;
         }
         
-        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject) {
+        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject, resChain: ResourceDictionary[]) {
             var sourcePropd = DependencyProperty.GetDependencyProperty((<any>templateBindingSource).constructor, this.Path);
             return new TemplateBindingExpression(sourcePropd, propd, propName);
         }

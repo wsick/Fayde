@@ -12,20 +12,27 @@ var Fayde;
 (function (Fayde) {
     var StaticResourceExpression = (function (_super) {
         __extends(StaticResourceExpression, _super);
-        function StaticResourceExpression(key, target, propd, propName, templateBindingSource) {
+        function StaticResourceExpression(key, target, propd, propName, templateBindingSource, resChain) {
                 _super.call(this);
-            this.Key = key;
-            this.Target = target;
-            this.Property = propd;
-            this.PropertyName = propName;
+            this._Key = key;
+            this._Target = target;
+            this._Property = propd;
+            this._PropertyName = propName;
+            this._ResChain = resChain;
         }
         StaticResourceExpression.prototype.GetValue = function (propd) {
-            //Does nothing
-            return undefined;
+            var value = this._GetValue(this._ResChain);
+            if(value instanceof Fayde.ResourceTarget) {
+                value = (value).CreateResource();
+            }
+            if(value === undefined) {
+                throw new XamlParseException("Could not resolve StaticResource: '" + this._Key.toString() + "'.");
+            }
+            return value;
         };
         StaticResourceExpression.prototype._GetValue = function (resChain) {
             var o;
-            var key = this.Key;
+            var key = this._Key;
             var len = resChain.length;
             for(var i = len - 1; i >= 0; i--) {
                 o = resChain[i].Get(key);
@@ -33,7 +40,7 @@ var Fayde;
                     return o;
                 }
             }
-            var cur = this.Target;
+            var cur = this._Target;
             var rd;
             var curNode = cur ? cur.XamlNode : null;
             while(curNode) {
@@ -50,22 +57,16 @@ var Fayde;
             }
             return App.Instance.Resources.Get(key);
         };
-        StaticResourceExpression.prototype.Resolve = function (parser, resChain) {
+        StaticResourceExpression.prototype.Resolve = function (parser) {
             var isAttached = false;
             var ownerType;
-            var propd = this.Property;
+            var propd = this._Property;
             if(propd) {
                 isAttached = propd._IsAttached;
                 ownerType = propd.OwnerType;
             }
-            var value = this._GetValue(resChain);
-            if(value instanceof Fayde.ResourceTarget) {
-                value = (value).CreateResource();
-            }
-            if(!value) {
-                throw new XamlParseException("Could not resolve StaticResource: '" + this.Key.toString() + "'.");
-            }
-            parser.TrySetPropertyValue(this.Target, propd, value, null, isAttached, ownerType, this.PropertyName);
+            var value = this.GetValue(propd);
+            parser.TrySetPropertyValue(this._Target, propd, value, null, isAttached, ownerType, this._PropertyName);
         };
         return StaticResourceExpression;
     })(Fayde.Expression);

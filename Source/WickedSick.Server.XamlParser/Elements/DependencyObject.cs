@@ -277,9 +277,15 @@ namespace WickedSick.Server.XamlParser.Elements
                     sb.Append("Content:");
                 sb.Append(content.ToJson(0, outputMods));
             }
+
+            OnToJsonEnd(sb, outputMods);
+
             sb.AppendLine();
             sb.Append("}");
             return sb.ToString();
+        }
+        protected virtual void OnToJsonEnd(StringBuilder sb, IJsonOutputModifiers outputMods)
+        {
         }
 
         public virtual string GetTypeName(IJsonOutputModifiers outputMods)

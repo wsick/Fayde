@@ -81,9 +81,8 @@ var Fayde;
                 this._Resolver.Load(href, hash);
             };
             Frame.prototype._HandleSuccessfulResponse = function (ajaxJsonResult) {
-                var response = Fayde.JsonParser.Parse(ajaxJsonResult.CreateJson());
-                if(response instanceof Controls.Page) {
-                    var page = response;
+                var page = Fayde.JsonParser.ParsePage(ajaxJsonResult.CreateJson());
+                if(page) {
                     document.title = page.Title;
                     //canProfile = profiles.frameUpdate;
                     this.Content = page;

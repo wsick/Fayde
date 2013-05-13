@@ -29,7 +29,7 @@ module Fayde {
         static Parse(json: any, templateBindingSource?: DependencyObject, namescope?: NameScope, resChain?: Fayde.ResourceDictionary[], rootXamlObject?: XamlObject): any {
             var parser = new JsonParser();
             if (resChain)
-                parser._ResChain = resChain;
+                parser._ResChain = resChain.slice(0);
             parser._TemplateBindingSource = templateBindingSource;
             parser._RootXamlObject = rootXamlObject;
 
@@ -59,15 +59,28 @@ module Fayde {
             parser._ResChain.push(rd);
             var ns = rd.XamlNode.NameScope;
             if (!ns) ns = new NameScope();
-                
-            parser.SetObject(json, rd, ns);
+            if (json.Children) {
+                parser.SetResourceDictionary(rd, json.Children, ns);
+                parser.ResolveStaticResourceExpressions();
+            }
+        }
+        static ParsePage(json: any): Controls.Page {
+            if (!json.ParseType)
+                return undefined;
+            var page = new json.ParseType();
+            if (!page || !(page instanceof Controls.Page))
+                return undefined;
+            var parser = new JsonParser();
+            parser._RootXamlObject = page;
+            parser.SetObject(json, page, new Fayde.NameScope(true));
+            return page;
         }
 
         CreateObject(json: any, namescope: NameScope, ignoreResolve?: bool): any {
             var type = json.ParseType;
             if (!type) {
                 if (json instanceof FrameworkTemplate)
-                    (<FrameworkTemplate>json).ResChain = this._ResChain;
+                    (<FrameworkTemplate>json).ResChain = this._ResChain.slice(0);
                 return json;
             }
 
@@ -104,6 +117,15 @@ module Fayde {
 
             var propd: DependencyProperty;
             var propValue;
+
+            var shouldPopResChain = false;
+            if (json.Resources) {
+                shouldPopResChain = true;
+                var rd = (<IResourcable><any>xobj).Resources;
+                this._ResChain.push(rd);
+                this.SetResourceDictionary(rd, json.Resources.Children, namescope);
+            }
+
             if (json.Props) {
                 for (var propName in json.Props) {
                     propValue = json.Props[propName];
@@ -158,7 +180,7 @@ module Fayde {
                 content = json.Content;
                 if (content) {
                     if (content instanceof Markup)
-                        content = content.Transmute(xobj, contentProp, "Content", this._TemplateBindingSource);
+                        content = (<Markup>content).Transmute(xobj, contentProp, "Content", this._TemplateBindingSource, this._ResChain.slice(0));
                     else
                         content = this.CreateObject(content, namescope, true);
                     this.SetValue(xobj, pd, pn, content);
@@ -171,22 +193,27 @@ module Fayde {
             if (!ignoreResolve) {
                 this.ResolveStaticResourceExpressions();
             }
+
+            if (shouldPopResChain)
+                this._ResChain.pop();
+
             return content;
         }
 
         TrySetPropertyValue(xobj: XamlObject, propd: DependencyProperty, propValue: any, namescope: NameScope, isAttached: bool, ownerType: Function, propName: string) {
             if (propValue instanceof Markup)
-                propValue = propValue.Transmute(xobj, propd, propName, this._TemplateBindingSource);
+                propValue = (<Markup>propValue).Transmute(xobj, propd, propName, this._TemplateBindingSource, this._ResChain.slice(0));
 
             if (propValue instanceof FrameworkTemplate) {
-                (<FrameworkTemplate>propValue).ResChain = this._ResChain;
+                (<FrameworkTemplate>propValue).ResChain = this._ResChain.slice(0);
                 this.SetValue(xobj, propd, propName, propValue);
                 return;
             } else if (propValue instanceof StaticResourceExpression) {
                 this.SetValue(xobj, propd, propName, propValue);
                 return;
             } else if (propValue.ParseType === ResourceDictionary) {
-                this.SetResourceDictionary(xobj[propName], propValue.Children, namescope);
+                //TODO: Kill
+                //this.SetResourceDictionary(xobj[propName], propValue.Children, namescope);
                 return;
             }
 
@@ -255,10 +282,7 @@ module Fayde {
             return true;
         }
         SetResourceDictionary(rd: ResourceDictionary, subJson: any[], namescope: NameScope) {
-            var oldChain = this._ResChain;
-
-            this._ResChain = this._ResChain.slice(0);
-            this._ResChain.push(rd);
+            rd.XamlNode.NameScope = namescope;
 
             var fobj: XamlObject;
             var cur: any;
@@ -274,13 +298,11 @@ module Fayde {
                     if (!key)
                         key = (<Style>fobj).TargetType;
                 } else {
-                    fobj = new ResourceTarget(val, namescope, this._TemplateBindingSource, this._ResChain);
+                    fobj = new ResourceTarget(val, namescope, this._TemplateBindingSource, this._ResChain.slice(0));
                 }
                 if (key)
                     rd.Set(key, fobj);
             }
-
-            this._ResChain = oldChain;
         }
         ResolveStaticResourceExpressions() {
             var srs = this._SRExpressions;
@@ -288,10 +310,10 @@ module Fayde {
                 return;
             var cur: StaticResourceExpression;
             while (cur = srs.shift()) {
-                cur.Resolve(this, this._ResChain);
+                cur.Resolve(this);
             }
         }
-        SetValue(xobj:XamlObject, propd: DependencyProperty, propName: string, value: any) {
+        SetValue(xobj: XamlObject, propd: DependencyProperty, propName: string, value: any) {
             if (propd) {
                 if (value instanceof StaticResourceExpression) {
                     this._SRExpressions.push(value);

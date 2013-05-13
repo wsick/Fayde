@@ -3,6 +3,10 @@
 
 // http://msdn.microsoft.com/en-us/library/cc903952(v=vs.95).aspx
 module Fayde {
+    export interface IResourcable {
+        Resources: Fayde.ResourceDictionary;
+    }
+
     export class ResourceDictionaryCollection extends XamlObjectCollection {
         AddedToCollection(value: ResourceDictionary, error: BError): bool {
             if (!super.AddedToCollection(value, error))

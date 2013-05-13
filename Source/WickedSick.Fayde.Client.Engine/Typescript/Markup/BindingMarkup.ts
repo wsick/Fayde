@@ -18,7 +18,7 @@ module Fayde {
             this._Data = data;
         }
 
-        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject) {
+        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject, resChain: ResourceDictionary[]) {
             return new Data.BindingExpression(this._BuildBinding(), <DependencyObject>target, propd);
         }
         private _BuildBinding(): Data.Binding {

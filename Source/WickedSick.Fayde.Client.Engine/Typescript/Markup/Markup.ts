@@ -5,7 +5,7 @@
 
 module Fayde {
     export class Markup {
-        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject) {
+        Transmute(target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: DependencyObject, resChain: ResourceDictionary[]) {
             //Abstract Method
         }
     }

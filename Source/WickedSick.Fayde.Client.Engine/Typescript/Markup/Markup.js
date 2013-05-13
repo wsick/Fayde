@@ -6,7 +6,7 @@ var Fayde;
 (function (Fayde) {
     var Markup = (function () {
         function Markup() { }
-        Markup.prototype.Transmute = function (target, propd, propName, templateBindingSource) {
+        Markup.prototype.Transmute = function (target, propd, propName, templateBindingSource, resChain) {
             //Abstract Method
                     };
         return Markup;

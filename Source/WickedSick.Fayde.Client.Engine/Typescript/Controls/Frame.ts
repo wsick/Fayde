@@ -70,9 +70,8 @@ module Fayde.Controls {
             this._Resolver.Load(href, hash);
         }
         private _HandleSuccessfulResponse(ajaxJsonResult: AjaxJsonResult) {
-            var response = JsonParser.Parse(ajaxJsonResult.CreateJson());
-            if (response instanceof Page) {
-                var page = <Page>response;
+            var page = JsonParser.ParsePage(ajaxJsonResult.CreateJson());
+            if (page) {
                 document.title = page.Title;
                 //canProfile = profiles.frameUpdate;
                 this.Content = page;
