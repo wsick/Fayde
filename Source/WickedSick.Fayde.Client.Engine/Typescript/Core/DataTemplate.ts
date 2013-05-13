@@ -16,9 +16,11 @@ module Fayde {
             var json = this._TempJson;
             if (!json)
                 throw new XamlParseException("DataTemplate has no definition.");
-            var uie = <UIElement>JsonParser.Parse(json, templateBindingSource, new NameScope(true), this.ResChain);
+            var ns = new NameScope(true);
+            var uie = <UIElement>JsonParser.Parse(json, templateBindingSource, ns, this.ResChain);
             if (!(uie instanceof UIElement))
                 throw new XamlParseException("DataTemplate root visual is not a UIElement.");
+            uie.XamlNode.NameScope = ns;
             return uie;
         }
     }

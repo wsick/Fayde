@@ -150,13 +150,6 @@ class Surface {
 
         if (!(uie instanceof Fayde.UIElement))
             throw new Exception("Unsupported top level element.");
-
-        var un = uie.XamlNode;
-        if (un.NameScope == null)
-            un.NameScope = new Fayde.NameScope(true);
-        else if (!un.NameScope.IsRoot)
-            un.NameScope.IsRoot = true;
-
         this._TopLevel = uie;
         this.AttachLayer(uie);
     }

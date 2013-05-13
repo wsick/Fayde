@@ -21,10 +21,12 @@ var Fayde;
             if(!json) {
                 throw new XamlParseException("DataTemplate has no definition.");
             }
-            var uie = Fayde.JsonParser.Parse(json, templateBindingSource, new Fayde.NameScope(true), this.ResChain);
+            var ns = new Fayde.NameScope(true);
+            var uie = Fayde.JsonParser.Parse(json, templateBindingSource, ns, this.ResChain);
             if(!(uie instanceof Fayde.UIElement)) {
                 throw new XamlParseException("DataTemplate root visual is not a UIElement.");
             }
+            uie.XamlNode.NameScope = ns;
             return uie;
         };
         return DataTemplate;

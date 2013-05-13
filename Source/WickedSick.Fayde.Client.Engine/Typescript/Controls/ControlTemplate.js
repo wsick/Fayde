@@ -24,14 +24,19 @@ var Fayde;
                 this._TempJson = json;
             }
             ControlTemplate.prototype.GetVisualTree = function (templateBindingSource) {
+                if(this.TargetType === Controls.Primitives.ScrollBar) {
+                    "".toString();
+                }
                 var json = this._TempJson;
                 if(!json) {
                     throw new XamlParseException("ControlTemplate has no definition.");
                 }
-                var uie = Fayde.JsonParser.Parse(json, templateBindingSource, new Fayde.NameScope(true), this.ResChain);
+                var ns = new Fayde.NameScope(true);
+                var uie = Fayde.JsonParser.Parse(json, templateBindingSource, ns, this.ResChain);
                 if(!(uie instanceof Fayde.UIElement)) {
                     throw new XamlParseException("ControlTemplate root visual is not a UIElement.");
                 }
+                uie.XamlNode.NameScope = ns;
                 return uie;
             };
             return ControlTemplate;

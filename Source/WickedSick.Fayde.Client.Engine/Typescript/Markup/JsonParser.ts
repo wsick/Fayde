@@ -3,6 +3,7 @@
 /// <reference path="../Core/NameScope.ts" />
 /// <reference path="../Core/ResourceDictionary.ts" />
 /// <reference path="../Controls/UserControl.ts" />
+/// <reference path="../Controls/Page.ts" />
 /// <reference path="../Controls/ControlTemplate.ts" />
 /// <reference path="../Core/DataTemplate.ts" />
 /// <reference path="../Core/ResourceTarget.ts" />
@@ -51,7 +52,10 @@ module Fayde {
             //Sets up UserControl, then returns root element
             var parser = new JsonParser();
             parser._RootXamlObject = uc;
-            return <UIElement>parser.SetObject(json, uc, new Fayde.NameScope(true));
+            var ns = new Fayde.NameScope(true);
+            var content = <UIElement>parser.SetObject(json, uc, ns);
+            content.XamlNode.NameScope = ns;
+            return content;
         }
         static ParseResourceDictionary(rd: Fayde.ResourceDictionary, json: any) {
             var parser = new JsonParser();
@@ -59,10 +63,8 @@ module Fayde {
             parser._ResChain.push(rd);
             var ns = rd.XamlNode.NameScope;
             if (!ns) ns = new NameScope();
-            if (json.Children) {
-                parser.SetResourceDictionary(rd, json.Children, ns);
-                parser.ResolveStaticResourceExpressions();
-            }
+            parser.SetResourceDictionary(rd, json, ns);
+            parser.ResolveStaticResourceExpressions();
         }
         static ParsePage(json: any): Controls.Page {
             if (!json.ParseType)
@@ -71,8 +73,9 @@ module Fayde {
             if (!page || !(page instanceof Controls.Page))
                 return undefined;
             var parser = new JsonParser();
+            var ns = page.XamlNode.NameScope = new Fayde.NameScope(true);
             parser._RootXamlObject = page;
-            parser.SetObject(json, page, new Fayde.NameScope(true));
+            parser.SetObject(json, page, ns);
             return page;
         }
 
@@ -100,11 +103,11 @@ module Fayde {
                 xnode = xobj.XamlNode;
 
             if (xnode) {
-                if (namescope)
-                    xnode.NameScope = namescope;
                 var name = json.Name;
-                if (name)
-                    xnode.SetName(name);
+                if (name) {
+                    xnode.Name = name;
+                    namescope.RegisterName(name, xnode);
+                }
             }
 
             xobj.TemplateOwner = this._TemplateBindingSource;
@@ -123,7 +126,7 @@ module Fayde {
                 shouldPopResChain = true;
                 var rd = (<IResourcable><any>xobj).Resources;
                 this._ResChain.push(rd);
-                this.SetResourceDictionary(rd, json.Resources.Children, namescope);
+                this.SetResourceDictionary(rd, json.Resources, namescope);
             }
 
             if (json.Props) {
@@ -211,10 +214,6 @@ module Fayde {
             } else if (propValue instanceof StaticResourceExpression) {
                 this.SetValue(xobj, propd, propName, propValue);
                 return;
-            } else if (propValue.ParseType === ResourceDictionary) {
-                //TODO: Kill
-                //this.SetResourceDictionary(xobj[propName], propValue.Children, namescope);
-                return;
             }
 
             if (propValue.ParseType)
@@ -269,21 +268,21 @@ module Fayde {
             if (!(coll instanceof XamlObjectCollection))
                 return false;
 
-            coll.XamlNode.NameScope = namescope;
-
-            if (coll instanceof ResourceDictionary) {
-                this.SetResourceDictionary(<ResourceDictionary>coll, subJson, namescope);
-            } else {
-                for (var i = 0; i < subJson.length; i++) {
-                    coll.Add(this.CreateObject(subJson[i], namescope, true));
-                }
+            for (var i = 0; i < subJson.length; i++) {
+                coll.Add(this.CreateObject(subJson[i], namescope, true));
             }
 
             return true;
         }
-        SetResourceDictionary(rd: ResourceDictionary, subJson: any[], namescope: NameScope) {
-            rd.XamlNode.NameScope = namescope;
+        SetResourceDictionary(rd: ResourceDictionary, json: any, namescope: NameScope) {
+            var props = json.Props;
+            if (props)
+                rd.Source = props.Source;
 
+            //TODO: Implement MergedDictionaries
+            var subJson = json.Children;
+            if (!subJson)
+                return;
             var fobj: XamlObject;
             var cur: any;
             var key: any;

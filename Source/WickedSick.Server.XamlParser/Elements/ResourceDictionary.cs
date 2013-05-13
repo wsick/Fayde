@@ -21,9 +21,15 @@ namespace WickedSick.Server.XamlParser.Elements
             var sb = new StringBuilder();
             sb.AppendLine("{");
             sb.AppendLine(string.Format("ParseType: {0}, ", GetTypeName(outputMods)));
+            if (Source != null)
+            {
+                sb.AppendFormat("Source: \"{0}\",", Source);
+                sb.AppendLine();
+            }
             sb.Append("Children: ");
             WriteChildren(sb, tabIndents + 1, outputMods);
             sb.Append("}");
+            //TODO: Implement MergedDictionaries
             return sb.ToString();
         }
 

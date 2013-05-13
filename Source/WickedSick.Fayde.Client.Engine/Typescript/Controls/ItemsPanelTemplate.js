@@ -21,10 +21,12 @@ var Fayde;
                 if(!json) {
                     throw new XamlParseException("ItemsPanelTemplate has no definition.");
                 }
+                var ns = new Fayde.NameScope(true);
                 var panel = Fayde.JsonParser.Parse(json, templateBindingSource, new Fayde.NameScope(true), this.ResChain);
                 if(!(panel instanceof Controls.Panel)) {
                     throw new XamlParseException("The root element of an ItemsPanelTemplate must be a Panel subclass.");
                 }
+                panel.XamlNode.NameScope = ns;
                 return panel;
             };
             return ItemsPanelTemplate;

@@ -51,11 +51,14 @@ var App = (function () {
         this.NavService = new Fayde.Navigation.NavService(this);
         //canProfile = profiles.initialParse;
         //profile("Initial Parse");
-        var element = Fayde.JsonParser.Parse(json);
+        var ns = new Fayde.NameScope(true);
+        var element = Fayde.JsonParser.Parse(json, undefined, ns);
         //profileEnd();
         //canProfile = false;
         if(element instanceof Fayde.UIElement) {
-            this.MainSurface.Attach(element);
+            var uie = element;
+            uie.XamlNode.NameScope = ns;
+            this.MainSurface.Attach(uie);
         }
         //canProfile = profiles.initialUpdate;
         this.StartEngine();

@@ -1,0 +1,12 @@
+﻿<FaydeApplication
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde"
+    Debug="true"
+    UseNew="true"
+    JsType="Tests.Controls.ComboBox"
+    ScriptResolution="/Fayde/">
+    <Grid>
+        <ComboBox x:Name="MyComboBox" HorizontalAlignment="Center" VerticalAlignment="Center">
+        </ComboBox>
+    </Grid>
+</FaydeApplication>

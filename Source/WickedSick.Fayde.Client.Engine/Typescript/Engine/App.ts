@@ -51,12 +51,16 @@ class App implements Fayde.IResourcable {
 
         //canProfile = profiles.initialParse;
         //profile("Initial Parse");
-        var element = Fayde.JsonParser.Parse(json);
+        var ns = new Fayde.NameScope(true);
+        var element = Fayde.JsonParser.Parse(json, undefined, ns);
         //profileEnd();
         //canProfile = false;
 
-        if (element instanceof Fayde.UIElement)
-            this.MainSurface.Attach(<Fayde.UIElement>element);
+        if (element instanceof Fayde.UIElement) {
+            var uie = <Fayde.UIElement>element;
+            uie.XamlNode.NameScope = ns;
+            this.MainSurface.Attach(uie);
+        }
 
         //canProfile = profiles.initialUpdate;
 

@@ -15,9 +15,11 @@ module Fayde.Controls {
             var json = this._TempJson;
             if (!json)
                 throw new XamlParseException("ItemsPanelTemplate has no definition.");
+            var ns = new NameScope(true);
             var panel = <Panel>JsonParser.Parse(json, templateBindingSource, new NameScope(true), this.ResChain);
             if (!(panel instanceof Panel))
                 throw new XamlParseException("The root element of an ItemsPanelTemplate must be a Panel subclass.");
+            panel.XamlNode.NameScope = ns;
             return panel;
         }
     }

@@ -3,6 +3,7 @@
 /// <reference path="../Core/NameScope.ts" />
 /// <reference path="../Core/ResourceDictionary.ts" />
 /// <reference path="../Controls/UserControl.ts" />
+/// <reference path="../Controls/Page.ts" />
 /// <reference path="../Controls/ControlTemplate.ts" />
 /// <reference path="../Core/DataTemplate.ts" />
 /// <reference path="../Core/ResourceTarget.ts" />
@@ -43,7 +44,10 @@ var Fayde;
             //Sets up UserControl, then returns root element
             var parser = new JsonParser();
             parser._RootXamlObject = uc;
-            return parser.SetObject(json, uc, new Fayde.NameScope(true));
+            var ns = new Fayde.NameScope(true);
+            var content = parser.SetObject(json, uc, ns);
+            content.XamlNode.NameScope = ns;
+            return content;
         };
         JsonParser.ParseResourceDictionary = function ParseResourceDictionary(rd, json) {
             var parser = new JsonParser();
@@ -53,10 +57,8 @@ var Fayde;
             if(!ns) {
                 ns = new Fayde.NameScope();
             }
-            if(json.Children) {
-                parser.SetResourceDictionary(rd, json.Children, ns);
-                parser.ResolveStaticResourceExpressions();
-            }
+            parser.SetResourceDictionary(rd, json, ns);
+            parser.ResolveStaticResourceExpressions();
         };
         JsonParser.ParsePage = function ParsePage(json) {
             if(!json.ParseType) {
@@ -67,8 +69,9 @@ var Fayde;
                 return undefined;
             }
             var parser = new JsonParser();
+            var ns = page.XamlNode.NameScope = new Fayde.NameScope(true);
             parser._RootXamlObject = page;
-            parser.SetObject(json, page, new Fayde.NameScope(true));
+            parser.SetObject(json, page, ns);
             return page;
         };
         JsonParser.prototype.CreateObject = function (json, namescope, ignoreResolve) {
@@ -96,12 +99,10 @@ var Fayde;
                 xnode = xobj.XamlNode;
             }
             if(xnode) {
-                if(namescope) {
-                    xnode.NameScope = namescope;
-                }
                 var name = json.Name;
                 if(name) {
-                    xnode.SetName(name);
+                    xnode.Name = name;
+                    namescope.RegisterName(name, xnode);
                 }
             }
             xobj.TemplateOwner = this._TemplateBindingSource;
@@ -117,7 +118,7 @@ var Fayde;
                 shouldPopResChain = true;
                 var rd = (xobj).Resources;
                 this._ResChain.push(rd);
-                this.SetResourceDictionary(rd, json.Resources.Children, namescope);
+                this.SetResourceDictionary(rd, json.Resources, namescope);
             }
             if(json.Props) {
                 for(var propName in json.Props) {
@@ -203,10 +204,6 @@ var Fayde;
             } else if(propValue instanceof Fayde.StaticResourceExpression) {
                 this.SetValue(xobj, propd, propName, propValue);
                 return;
-            } else if(propValue.ParseType === Fayde.ResourceDictionary) {
-                //TODO: Kill
-                //this.SetResourceDictionary(xobj[propName], propValue.Children, namescope);
-                return;
             }
             if(propValue.ParseType) {
                 propValue = this.CreateObject(propValue, namescope, true);
@@ -260,18 +257,21 @@ var Fayde;
             if(!(coll instanceof Fayde.XamlObjectCollection)) {
                 return false;
             }
-            coll.XamlNode.NameScope = namescope;
-            if(coll instanceof Fayde.ResourceDictionary) {
-                this.SetResourceDictionary(coll, subJson, namescope);
-            } else {
-                for(var i = 0; i < subJson.length; i++) {
-                    coll.Add(this.CreateObject(subJson[i], namescope, true));
-                }
+            for(var i = 0; i < subJson.length; i++) {
+                coll.Add(this.CreateObject(subJson[i], namescope, true));
             }
             return true;
         };
-        JsonParser.prototype.SetResourceDictionary = function (rd, subJson, namescope) {
-            rd.XamlNode.NameScope = namescope;
+        JsonParser.prototype.SetResourceDictionary = function (rd, json, namescope) {
+            var props = json.Props;
+            if(props) {
+                rd.Source = props.Source;
+            }
+            //TODO: Implement MergedDictionaries
+            var subJson = json.Children;
+            if(!subJson) {
+                return;
+            }
             var fobj;
             var cur;
             var key;
