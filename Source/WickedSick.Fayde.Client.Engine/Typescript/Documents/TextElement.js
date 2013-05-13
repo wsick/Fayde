@@ -25,7 +25,7 @@ var Fayde;
                 }
                 var coll = this.XObject.GetValue(this.InheritedWalkProperty);
                 if(coll) {
-                    return (coll).GetEnumerator();
+                    return (coll).GetNodeEnumerator();
                 }
             };
             return TextElementNode;

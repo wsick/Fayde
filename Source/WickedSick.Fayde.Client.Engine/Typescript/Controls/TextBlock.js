@@ -25,11 +25,11 @@ var Fayde;
                 this._Font = new Font();
                 this._SetsValue = true;
             }
-            TextBlockNode.prototype.GetInheritedWalker = function () {
+            TextBlockNode.prototype.GetInheritedEnumerator = function () {
                 var xobj = this.XObject;
                 var inlines = xobj.Inlines;
                 if(inlines) {
-                    return inlines.GetEnumerator();
+                    return inlines.GetNodeEnumerator();
                 }
             };
             TextBlockNode.prototype.ComputeBounds = function (baseComputer, lu) {

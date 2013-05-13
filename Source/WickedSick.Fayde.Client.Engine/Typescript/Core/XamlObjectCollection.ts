@@ -103,6 +103,9 @@ module Fayde {
         GetEnumerator(reverse?: bool): IEnumerator {
             return ArrayEx.GetEnumerator(this._ht, reverse);
         }
+        GetNodeEnumerator(reverse?: bool): IEnumerator {
+            return ArrayEx.GetNodeEnumerator(this._ht, reverse);
+        }
 
         _RaiseItemAdded(value: XamlObject, index: number) { }
         _RaiseItemRemoved(value: XamlObject, index: number) { }

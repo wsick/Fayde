@@ -6,7 +6,7 @@
 module Fayde.Controls.Primitives {
     export class PopupNode extends FENode implements IBoundsComputable {
         XObject: Popup;
-        GetInheritedWalker(): IEnumerator {
+        GetInheritedEnumerator(): IEnumerator {
             var popup = (<Popup>this.XObject);
             if (!popup)
                 return;

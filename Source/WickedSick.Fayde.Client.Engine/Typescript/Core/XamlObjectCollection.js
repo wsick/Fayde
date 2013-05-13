@@ -125,6 +125,9 @@ var Fayde;
         XamlObjectCollection.prototype.GetEnumerator = function (reverse) {
             return Fayde.ArrayEx.GetEnumerator(this._ht, reverse);
         };
+        XamlObjectCollection.prototype.GetNodeEnumerator = function (reverse) {
+            return Fayde.ArrayEx.GetNodeEnumerator(this._ht, reverse);
+        };
         XamlObjectCollection.prototype._RaiseItemAdded = function (value, index) {
         };
         XamlObjectCollection.prototype._RaiseItemRemoved = function (value, index) {

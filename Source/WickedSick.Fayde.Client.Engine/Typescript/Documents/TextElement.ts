@@ -19,7 +19,7 @@ module Fayde.Documents {
                 return ArrayEx.EmptyEnumerator;
             var coll = this.XObject.GetValue(this.InheritedWalkProperty);
             if (coll)
-                return (<XamlObjectCollection>coll).GetEnumerator();
+                return (<XamlObjectCollection>coll).GetNodeEnumerator();
         }
     }
     Nullstone.RegisterType(TextElementNode, "TextElementNode");

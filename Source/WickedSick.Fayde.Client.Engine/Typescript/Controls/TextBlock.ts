@@ -23,11 +23,11 @@ module Fayde.Controls {
             super(xobj);
         }
 
-        GetInheritedWalker(): IEnumerator {
+        GetInheritedEnumerator(): IEnumerator {
             var xobj = this.XObject;
             var inlines = xobj.Inlines;
             if (inlines)
-                return inlines.GetEnumerator();
+                return inlines.GetNodeEnumerator();
         }
 
         ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {

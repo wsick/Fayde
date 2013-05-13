@@ -10398,6 +10398,35 @@ module Fayde {
             }
             return e;
         }
+        static GetNodeEnumerator(arr: XamlObject[], isReverse?: bool): IEnumerator {
+            var len = arr.length;
+            var e = { MoveNext: undefined, Current: undefined };
+            var index;
+            if (isReverse) {
+                index = len;
+                e.MoveNext = function () {
+                    index--;
+                    if (index < 0) {
+                        e.Current = undefined;
+                        return false;
+                    }
+                    e.Current = arr[index].XamlNode;
+                    return true;
+                };
+            } else {
+                index = -1;
+                e.MoveNext = function () {
+                    index++;
+                    if (index >= len) {
+                        e.Current = undefined;
+                        return false;
+                    }
+                    e.Current = arr[index].XamlNode;
+                    return true;
+                };
+            }
+            return e;
+        }
         static RemoveIfContains(arr: any[], item: any): bool {
             var index = arr.indexOf(item);
             if (index < 0)
@@ -11125,6 +11154,9 @@ module Fayde {
         GetEnumerator(reverse?: bool): IEnumerator {
             return ArrayEx.GetEnumerator(this._ht, reverse);
         }
+        GetNodeEnumerator(reverse?: bool): IEnumerator {
+            return ArrayEx.GetNodeEnumerator(this._ht, reverse);
+        }
         _RaiseItemAdded(value: XamlObject, index: number) { }
         _RaiseItemRemoved(value: XamlObject, index: number) { }
         _RaiseItemReplaced(removed: XamlObject, added: XamlObject, index: number) { }
@@ -11392,7 +11424,7 @@ module Fayde.Documents {
                 return ArrayEx.EmptyEnumerator;
             var coll = this.XObject.GetValue(this.InheritedWalkProperty);
             if (coll)
-                return (<XamlObjectCollection>coll).GetEnumerator();
+                return (<XamlObjectCollection>coll).GetNodeEnumerator();
         }
     }
     Nullstone.RegisterType(TextElementNode, "TextElementNode");
@@ -18503,11 +18535,11 @@ module Fayde.Controls {
         constructor(xobj: TextBlock) {
             super(xobj);
         }
-        GetInheritedWalker(): IEnumerator {
+        GetInheritedEnumerator(): IEnumerator {
             var xobj = this.XObject;
             var inlines = xobj.Inlines;
             if (inlines)
-                return inlines.GetEnumerator();
+                return inlines.GetNodeEnumerator();
         }
         ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
             rect.copyTo(this._Layout.RenderExtents, lu.Extents);
@@ -20446,7 +20478,7 @@ module Fayde.Controls {
 module Fayde.Controls.Primitives {
     export class PopupNode extends FENode implements IBoundsComputable {
         XObject: Popup;
-        GetInheritedWalker(): IEnumerator {
+        GetInheritedEnumerator(): IEnumerator {
             var popup = (<Popup>this.XObject);
             if (!popup)
                 return;

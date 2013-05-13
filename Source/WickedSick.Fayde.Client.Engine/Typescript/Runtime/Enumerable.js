@@ -47,6 +47,38 @@ var Fayde;
             }
             return e;
         };
+        ArrayEx.GetNodeEnumerator = function GetNodeEnumerator(arr, isReverse) {
+            var len = arr.length;
+            var e = {
+                MoveNext: undefined,
+                Current: undefined
+            };
+            var index;
+            if(isReverse) {
+                index = len;
+                e.MoveNext = function () {
+                    index--;
+                    if(index < 0) {
+                        e.Current = undefined;
+                        return false;
+                    }
+                    e.Current = arr[index].XamlNode;
+                    return true;
+                };
+            } else {
+                index = -1;
+                e.MoveNext = function () {
+                    index++;
+                    if(index >= len) {
+                        e.Current = undefined;
+                        return false;
+                    }
+                    e.Current = arr[index].XamlNode;
+                    return true;
+                };
+            }
+            return e;
+        };
         ArrayEx.RemoveIfContains = function RemoveIfContains(arr, item) {
             var index = arr.indexOf(item);
             if(index < 0) {

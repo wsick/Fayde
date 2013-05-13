@@ -17,7 +17,7 @@ var Fayde;
                     _super.apply(this, arguments);
 
                 }
-                PopupNode.prototype.GetInheritedWalker = function () {
+                PopupNode.prototype.GetInheritedEnumerator = function () {
                     var popup = (this.XObject);
                     if(!popup) {
                         return;
