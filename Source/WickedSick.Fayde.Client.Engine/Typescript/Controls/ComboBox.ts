@@ -42,9 +42,9 @@ module Fayde.Controls {
             if (open) {
                 this._FocusedIndex = this.Items.Count > 0 ? Math.max(this.SelectedIndex, 0) : -1;
                 if (this._FocusedIndex > -1) {
-                    var cbi = Nullstone.As(this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex), ComboBoxItem);
-                    if (cbi != null)
-                        cbi.Focus();
+                    var focusedItem = this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex);
+                    if (focusedItem instanceof ComboBoxItem)
+                        (<ComboBoxItem>focusedItem).Focus();
                 }
 
                 this.LayoutUpdated.Subscribe(this._UpdatePopupSizeAndPosition, this);
