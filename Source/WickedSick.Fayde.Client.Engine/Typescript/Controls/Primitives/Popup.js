@@ -16,6 +16,8 @@ var Fayde;
                 function PopupNode() {
                     _super.apply(this, arguments);
 
+                    this._HorizontalOffset = 0;
+                    this._VerticalOffset = 0;
                     this._IsVisible = false;
                     this._IsCatchingClick = false;
                     this._Catcher = null;
@@ -145,6 +147,44 @@ var Fayde;
                         childLu.UpdateTransform();
                     }
                 };
+                PopupNode.prototype.OnHorizontalOffsetChanged = function (args) {
+                    var child = this.XObject.Child;
+                    if(!child) {
+                        return;
+                    }
+                    var childLu = child.XamlNode.LayoutUpdater;
+                    var tween = args.NewValue - this._HorizontalOffset;
+                    if(tween === 0) {
+                        return;
+                    }
+                    this._HorizontalOffset = args.NewValue;
+                    if(childLu.CarrierProjection) {
+                        var m = mat4.createTranslate(tween, 0.0, 0.0);
+                        mat4.multiply(m, childLu.CarrierProjection, childLu.CarrierProjection);
+                    } else if(childLu.CarrierXform) {
+                        mat3.translate(childLu.CarrierXform, tween, 0.0);
+                    }
+                    this._VisualChild.InvalidateMeasure();
+                };
+                PopupNode.prototype.OnVerticalOffsetChanged = function (args) {
+                    var child = this.XObject.Child;
+                    if(!child) {
+                        return;
+                    }
+                    var childLu = child.XamlNode.LayoutUpdater;
+                    var tween = args.NewValue - this._VerticalOffset;
+                    if(tween === 0) {
+                        return;
+                    }
+                    this._VerticalOffset = args.NewValue;
+                    if(childLu.CarrierProjection) {
+                        var m = mat4.createTranslate(0.0, tween, 0.0);
+                        mat4.multiply(m, childLu.CarrierProjection, childLu.CarrierProjection);
+                    } else if(childLu.CarrierXform) {
+                        mat3.translate(childLu.CarrierXform, 0.0, tween);
+                    }
+                    this._VisualChild.InvalidateMeasure();
+                };
                 PopupNode.prototype._Hide = function () {
                     var child = this._VisualChild;
                     if(!this._IsVisible || !child) {
@@ -186,12 +226,12 @@ var Fayde;
                 Popup.HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset", function () {
                     return Number;
                 }, Popup, 0.0, function (d, args) {
-                    return (d)._OnOffsetChanged(args);
+                    return (d).XamlNode.OnHorizontalOffsetChanged(args);
                 });
                 Popup.VerticalOffsetProperty = DependencyProperty.Register("VerticalOffset", function () {
                     return Number;
                 }, Popup, 0.0, function (d, args) {
-                    return (d)._OnOffsetChanged(args);
+                    return (d).XamlNode.OnVerticalOffsetChanged(args);
                 });
                 Popup.IsOpenProperty = DependencyProperty.Register("IsOpen", function () {
                     return Boolean;
@@ -211,12 +251,6 @@ var Fayde;
                         newFE = args.NewValue;
                     }
                     this.XamlNode._ChildChanged(oldFE, newFE);
-                };
-                Popup.prototype._OnOffsetChanged = function (args) {
-                    var child = this.XamlNode.VisualChild;
-                    if(child) {
-                        child.XamlNode.LayoutUpdater.InvalidateMeasure();
-                    }
                 };
                 Popup.prototype._OnIsOpenChanged = function (args) {
                     if(args.NewValue) {

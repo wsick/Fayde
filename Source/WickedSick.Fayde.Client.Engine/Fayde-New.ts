@@ -20617,6 +20617,8 @@ module Fayde.Controls.Primitives {
             if (this._IsVisible)
                 super._HitTestPoint(ctx, p, uinlist);
         }
+        private _HorizontalOffset: number = 0;
+        private _VerticalOffset: number = 0;
         private _IsVisible: bool = false;
         private _IsCatchingClick: bool = false;
         private _Catcher: Canvas = null;
@@ -20705,6 +20707,40 @@ module Fayde.Controls.Primitives {
                 childLu.UpdateTransform();
             }
         }
+        OnHorizontalOffsetChanged(args: IDependencyPropertyChangedEventArgs) {
+            var child = this.XObject.Child;
+            if (!child)
+                return;
+            var childLu = child.XamlNode.LayoutUpdater;
+            var tween = <number>args.NewValue - this._HorizontalOffset;
+            if (tween === 0)
+                return;
+            this._HorizontalOffset = args.NewValue;
+            if (childLu.CarrierProjection) {
+                var m = mat4.createTranslate(tween, 0.0, 0.0);
+                mat4.multiply(m, childLu.CarrierProjection, childLu.CarrierProjection);
+            } else if (childLu.CarrierXform) {
+                mat3.translate(childLu.CarrierXform, tween, 0.0);
+            }
+            this._VisualChild.InvalidateMeasure();
+        }
+        OnVerticalOffsetChanged(args: IDependencyPropertyChangedEventArgs) {
+            var child = this.XObject.Child;
+            if (!child)
+                return;
+            var childLu = child.XamlNode.LayoutUpdater;
+            var tween = <number>args.NewValue - this._VerticalOffset;
+            if (tween === 0)
+                return;
+            this._VerticalOffset = args.NewValue;
+            if (childLu.CarrierProjection) {
+                var m = mat4.createTranslate(0.0, tween, 0.0);
+                mat4.multiply(m, childLu.CarrierProjection, childLu.CarrierProjection);
+            } else if (childLu.CarrierXform) {
+                mat3.translate(childLu.CarrierXform, 0.0, tween);
+            }
+            this._VisualChild.InvalidateMeasure();
+        }
         _Hide() {
             var child = this._VisualChild;
             if (!this._IsVisible || !child)
@@ -20726,8 +20762,8 @@ module Fayde.Controls.Primitives {
         XamlNode: PopupNode;
         CreateNode(): PopupNode { return new PopupNode(this); }
         static ChildProperty = DependencyProperty.Register("Child", () => UIElement, Popup, undefined, (d, args) => (<Popup>d)._OnChildChanged(args));
-        static HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d)._OnOffsetChanged(args));
-        static VerticalOffsetProperty = DependencyProperty.Register("VerticalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d)._OnOffsetChanged(args));
+        static HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d).XamlNode.OnHorizontalOffsetChanged(args));
+        static VerticalOffsetProperty = DependencyProperty.Register("VerticalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d).XamlNode.OnVerticalOffsetChanged(args));
         static IsOpenProperty = DependencyProperty.Register("IsOpen", () => Boolean, Popup, false, (d, args) => (<Popup>d)._OnIsOpenChanged(args));
         Child: UIElement;
         HorizontalOffset: number;
@@ -20743,11 +20779,6 @@ module Fayde.Controls.Primitives {
             var newFE: FrameworkElement;
             if (args.NewValue instanceof FrameworkElement) newFE = <FrameworkElement>args.NewValue;
             this.XamlNode._ChildChanged(oldFE, newFE);
-        }
-        private _OnOffsetChanged(args: IDependencyPropertyChangedEventArgs) {
-            var child = this.XamlNode.VisualChild;
-            if (child)
-                child.XamlNode.LayoutUpdater.InvalidateMeasure();
         }
         private _OnIsOpenChanged(args: IDependencyPropertyChangedEventArgs) {
             if (args.NewValue) {
