@@ -53,8 +53,8 @@ App.GetGenericResourceDictionaryImpl = function () {
     var BeginStoryboard = Fayde.Media.Animation.BeginStoryboard; if (!BeginStoryboard) throw new UnknownTypeException("Fayde.Media.Animation.BeginStoryboard");
     var Path = Fayde.Shapes.Path; if (!Path) throw new UnknownTypeException("Fayde.Shapes.Path");
     var ComboBox = Fayde.Controls.ComboBox; if (!ComboBox) throw new UnknownTypeException("Fayde.Controls.ComboBox");
-    var ToggleButton = Fayde.Controls.Primitives.ToggleButton; if (!ToggleButton) throw new UnknownTypeException("Fayde.Controls.Primitives.ToggleButton");
     var EasingDoubleKeyFrame = Fayde.Media.Animation.EasingDoubleKeyFrame; if (!EasingDoubleKeyFrame) throw new UnknownTypeException("Fayde.Media.Animation.EasingDoubleKeyFrame");
+    var ToggleButton = Fayde.Controls.Primitives.ToggleButton; if (!ToggleButton) throw new UnknownTypeException("Fayde.Controls.Primitives.ToggleButton");
     var Stretch = Fayde.Media.Stretch; if (!Stretch) throw new UnknownTypeException("Fayde.Media.Stretch");
     var Popup = Fayde.Controls.Primitives.Popup; if (!Popup) throw new UnknownTypeException("Fayde.Controls.Primitives.Popup");
     var ItemsPresenter = Fayde.Controls.ItemsPresenter; if (!ItemsPresenter) throw new UnknownTypeException("Fayde.Controls.ItemsPresenter");
@@ -62,13 +62,13 @@ App.GetGenericResourceDictionaryImpl = function () {
     var ColorAnimationUsingKeyFrames = Fayde.Media.Animation.ColorAnimationUsingKeyFrames; if (!ColorAnimationUsingKeyFrames) throw new UnknownTypeException("Fayde.Media.Animation.ColorAnimationUsingKeyFrames");
     var EasingColorKeyFrame = Fayde.Media.Animation.EasingColorKeyFrame; if (!EasingColorKeyFrame) throw new UnknownTypeException("Fayde.Media.Animation.EasingColorKeyFrame");
     var ScrollBar = Fayde.Controls.Primitives.ScrollBar; if (!ScrollBar) throw new UnknownTypeException("Fayde.Controls.Primitives.ScrollBar");
-    var RepeatButton = Fayde.Controls.Primitives.RepeatButton; if (!RepeatButton) throw new UnknownTypeException("Fayde.Controls.Primitives.RepeatButton");
-    var BlurEffect = Fayde.Media.Effects.BlurEffect; if (!BlurEffect) throw new UnknownTypeException("Fayde.Media.Effects.BlurEffect");
-    var Thumb = Fayde.Controls.Primitives.Thumb; if (!Thumb) throw new UnknownTypeException("Fayde.Controls.Primitives.Thumb");
     var ColumnDefinition = Fayde.Controls.ColumnDefinition; if (!ColumnDefinition) throw new UnknownTypeException("Fayde.Controls.ColumnDefinition");
     var GridLength = Fayde.Controls.GridLength; if (!GridLength) throw new UnknownTypeException("Fayde.Controls.GridLength");
     var GridUnitType = Fayde.Controls.GridUnitType; if (!GridUnitType) throw new UnknownTypeException("Fayde.Controls.GridUnitType");
+    var RepeatButton = Fayde.Controls.Primitives.RepeatButton; if (!RepeatButton) throw new UnknownTypeException("Fayde.Controls.Primitives.RepeatButton");
+    var Thumb = Fayde.Controls.Primitives.Thumb; if (!Thumb) throw new UnknownTypeException("Fayde.Controls.Primitives.Thumb");
     var RowDefinition = Fayde.Controls.RowDefinition; if (!RowDefinition) throw new UnknownTypeException("Fayde.Controls.RowDefinition");
+    var BlurEffect = Fayde.Media.Effects.BlurEffect; if (!BlurEffect) throw new UnknownTypeException("Fayde.Media.Effects.BlurEffect");
     var ScrollContentPresenter = Fayde.Controls.ScrollContentPresenter; if (!ScrollContentPresenter) throw new UnknownTypeException("Fayde.Controls.ScrollContentPresenter");
     var Orientation = Fayde.Orientation; if (!Orientation) throw new UnknownTypeException("Fayde.Orientation");
     var ListBox = Fayde.Controls.ListBox; if (!ListBox) throw new UnknownTypeException("Fayde.Controls.ListBox");
@@ -3388,380 +3388,6 @@ App.GetGenericResourceDictionaryImpl = function () {
                         Property: DependencyProperty.GetDependencyProperty(ComboBox, "Template"),
                         Value: new ControlTemplate(ComboBox, {
                             ParseType: Grid,
-                            Props: {
-                                Resources: {
-                                    ParseType: ResourceDictionary,
-                                    Children: [
-                                    {
-                                        Key: "comboToggleStyle", Value: {
-                                            ParseType: Style,
-                                            Props: {
-                                                TargetType: ToggleButton
-                                            },
-                                            Children: [
-                                            {
-                                                ParseType: Setter,
-                                                Props: {
-                                                    Property: DependencyProperty.GetDependencyProperty(ToggleButton, "Foreground"),
-                                                    Value: new StaticResourceMarkup("TextBrush")
-                                                }
-                                            },
-                                            {
-                                                ParseType: Setter,
-                                                Props: {
-                                                    Property: DependencyProperty.GetDependencyProperty(ToggleButton, "Background"),
-                                                    Value: new StaticResourceMarkup("GrayBrush7")
-                                                }
-                                            },
-                                            {
-                                                ParseType: Setter,
-                                                Props: {
-                                                    Property: DependencyProperty.GetDependencyProperty(ToggleButton, "BorderBrush"),
-                                                    Value: new StaticResourceMarkup("TextBoxBorderBrush")
-                                                }
-                                            },
-                                            {
-                                                ParseType: Setter,
-                                                Props: {
-                                                    Property: DependencyProperty.GetDependencyProperty(ToggleButton, "BorderThickness"),
-                                                    Value: "1"
-                                                }
-                                            },
-                                            {
-                                                ParseType: Setter,
-                                                Props: {
-                                                    Property: DependencyProperty.GetDependencyProperty(ToggleButton, "Padding"),
-                                                    Value: "3"
-                                                }
-                                            },
-                                            {
-                                                ParseType: Setter,
-                                                Props: {
-                                                    Property: DependencyProperty.GetDependencyProperty(ToggleButton, "Template"),
-                                                    Value: new ControlTemplate(ToggleButton, {
-                                                        ParseType: Grid,
-                                                        AttachedProps: [{
-                                                            Owner: VisualStateManager,
-                                                            Prop: "VisualStateGroups",
-                                                            Value: [
-                                                            {
-                                                                ParseType: VisualStateGroup,
-                                                                Name: "CommonStates",
-                                                                Children: [
-                                                                {
-                                                                    ParseType: VisualState,
-                                                                    Name: "Normal"
-                                                                },
-                                                                {
-                                                                    ParseType: VisualState,
-                                                                    Name: "MouseOver",
-                                                                    Content: {
-                                                                        ParseType: Storyboard,
-                                                                        Children: [
-                                                                        {
-                                                                            ParseType: DoubleAnimation,
-                                                                            Props: {
-                                                                                To: 1,
-                                                                                Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
-                                                                            },
-                                                                            AttachedProps: [{
-                                                                                Owner: Storyboard,
-                                                                                Prop: "TargetProperty",
-                                                                                Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                            },
-                                                                            {
-                                                                                Owner: Storyboard,
-                                                                                Prop: "TargetName",
-                                                                                Value: "MouseOverBorder"
-                                                                            }
-                                                                            ]
-                                                                        }]
-
-                                                                    }
-                                                                },
-                                                                {
-                                                                    ParseType: VisualState,
-                                                                    Name: "Pressed",
-                                                                    Content: {
-                                                                        ParseType: Storyboard,
-                                                                        Children: [
-                                                                        {
-                                                                            ParseType: DoubleAnimation,
-                                                                            Props: {
-                                                                                To: 1,
-                                                                                Duration: Duration.CreateTimeSpan(TimeSpan.FromTicks(1))
-                                                                            },
-                                                                            AttachedProps: [{
-                                                                                Owner: Storyboard,
-                                                                                Prop: "TargetProperty",
-                                                                                Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                            },
-                                                                            {
-                                                                                Owner: Storyboard,
-                                                                                Prop: "TargetName",
-                                                                                Value: "PressedBorder"
-                                                                            }
-                                                                            ]
-                                                                        }]
-
-                                                                    }
-                                                                },
-                                                                {
-                                                                    ParseType: VisualState,
-                                                                    Name: "Disabled"
-                                                                }]
-
-                                                            },
-                                                            {
-                                                                ParseType: VisualStateGroup,
-                                                                Name: "CheckStates",
-                                                                Children: [
-                                                                {
-                                                                    ParseType: VisualState,
-                                                                    Name: "Checked",
-                                                                    Content: {
-                                                                        ParseType: Storyboard,
-                                                                        Children: [
-                                                                        {
-                                                                            ParseType: DoubleAnimationUsingKeyFrames,
-                                                                            AttachedProps: [{
-                                                                                Owner: Storyboard,
-                                                                                Prop: "TargetProperty",
-                                                                                Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                            },
-                                                                            {
-                                                                                Owner: Storyboard,
-                                                                                Prop: "TargetName",
-                                                                                Value: "CheckedRectangle"
-                                                                            }
-                                                                            ],
-                                                                            Children: [
-                                                                            {
-                                                                                ParseType: EasingDoubleKeyFrame,
-                                                                                Props: {
-                                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
-                                                                                    Value: 1
-                                                                                }
-                                                                            }]
-
-                                                                        },
-                                                                        {
-                                                                            ParseType: DoubleAnimationUsingKeyFrames,
-                                                                            AttachedProps: [{
-                                                                                Owner: Storyboard,
-                                                                                Prop: "TargetProperty",
-                                                                                Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                            },
-                                                                            {
-                                                                                Owner: Storyboard,
-                                                                                Prop: "TargetName",
-                                                                                Value: "CheckedInnerRectangle"
-                                                                            }
-                                                                            ],
-                                                                            Children: [
-                                                                            {
-                                                                                ParseType: EasingDoubleKeyFrame,
-                                                                                Props: {
-                                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
-                                                                                    Value: 1
-                                                                                }
-                                                                            }]
-
-                                                                        }]
-
-                                                                    }
-                                                                },
-                                                                {
-                                                                    ParseType: VisualState,
-                                                                    Name: "Unchecked"
-                                                                }]
-
-                                                            },
-                                                            {
-                                                                ParseType: VisualStateGroup,
-                                                                Name: "FocusStates",
-                                                                Children: [
-                                                                {
-                                                                    ParseType: VisualState,
-                                                                    Name: "Focused",
-                                                                    Content: {
-                                                                        ParseType: Storyboard,
-                                                                        Children: [
-                                                                        {
-                                                                            ParseType: DoubleAnimation,
-                                                                            Props: {
-                                                                                To: 1,
-                                                                                Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
-                                                                            },
-                                                                            AttachedProps: [{
-                                                                                Owner: Storyboard,
-                                                                                Prop: "TargetProperty",
-                                                                                Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                            },
-                                                                            {
-                                                                                Owner: Storyboard,
-                                                                                Prop: "TargetName",
-                                                                                Value: "FocusRectangle"
-                                                                            }
-                                                                            ]
-                                                                        },
-                                                                        {
-                                                                            ParseType: DoubleAnimation,
-                                                                            Props: {
-                                                                                To: 1,
-                                                                                Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
-                                                                            },
-                                                                            AttachedProps: [{
-                                                                                Owner: Storyboard,
-                                                                                Prop: "TargetProperty",
-                                                                                Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                            },
-                                                                            {
-                                                                                Owner: Storyboard,
-                                                                                Prop: "TargetName",
-                                                                                Value: "FocusInnerRectangle"
-                                                                            }
-                                                                            ]
-                                                                        }]
-
-                                                                    }
-                                                                },
-                                                                {
-                                                                    ParseType: VisualState,
-                                                                    Name: "Unfocused"
-                                                                }]
-
-                                                            }]
-
-
-                                                        }
-                                                        ],
-                                                        Children: [
-                                                        {
-                                                            ParseType: Border,
-                                                            Name: "Background",
-                                                            Props: {
-                                                                BorderBrush: new TemplateBindingMarkup("BorderBrush"),
-                                                                BorderThickness: new TemplateBindingMarkup("BorderThickness"),
-                                                                Background: new TemplateBindingMarkup("Background"),
-                                                                CornerRadius: new CornerRadius(3, 3, 3, 3)
-                                                            }
-                                                        },
-                                                        {
-                                                            ParseType: Rectangle,
-                                                            Name: "DisabledVisualElement",
-                                                            Props: {
-                                                                Fill: new StaticResourceMarkup("WhiteBrush"),
-                                                                IsHitTestVisible: false,
-                                                                Opacity: 0,
-                                                                RadiusY: 3,
-                                                                RadiusX: 3
-                                                            }
-                                                        },
-                                                        {
-                                                            ParseType: Border,
-                                                            Name: "MouseOverBorder",
-                                                            Props: {
-                                                                Background: new StaticResourceMarkup("GrayBrush8"),
-                                                                BorderThickness: new TemplateBindingMarkup("BorderThickness"),
-                                                                CornerRadius: new CornerRadius(3.5, 3.5, 3.5, 3.5),
-                                                                Opacity: 0
-                                                            }
-                                                        },
-                                                        {
-                                                            ParseType: Border,
-                                                            Name: "PressedBorder",
-                                                            Props: {
-                                                                Background: new StaticResourceMarkup("GrayBrush5"),
-                                                                BorderThickness: new TemplateBindingMarkup("BorderThickness"),
-                                                                CornerRadius: new CornerRadius(3.5, 3.5, 3.5, 3.5),
-                                                                Opacity: 0
-                                                            }
-                                                        },
-                                                        {
-                                                            ParseType: Rectangle,
-                                                            Name: "FocusRectangle",
-                                                            Props: {
-                                                                Stroke: new StaticResourceMarkup("TextBoxMouseOverInnerBorderBrush"),
-                                                                RadiusY: 4,
-                                                                RadiusX: 4,
-                                                                Margin: new Thickness(-1, -1, -1, -1),
-                                                                Opacity: 0
-                                                            }
-                                                        },
-                                                        {
-                                                            ParseType: Rectangle,
-                                                            Name: "FocusInnerRectangle",
-                                                            Props: {
-                                                                StrokeThickness: new TemplateBindingMarkup("BorderThickness"),
-                                                                Stroke: new StaticResourceMarkup("TextBoxMouseOverBorderBrush"),
-                                                                RadiusX: 3,
-                                                                RadiusY: 3,
-                                                                Opacity: 0
-                                                            }
-                                                        },
-                                                        {
-                                                            ParseType: Rectangle,
-                                                            Name: "CheckedRectangle",
-                                                            Props: {
-                                                                StrokeThickness: new TemplateBindingMarkup("BorderThickness"),
-                                                                RadiusY: 4,
-                                                                RadiusX: 4,
-                                                                Opacity: 0,
-                                                                Stroke: new StaticResourceMarkup("TextBoxMouseOverBorderBrush")
-                                                            }
-                                                        },
-                                                        {
-                                                            ParseType: Rectangle,
-                                                            Name: "CheckedInnerRectangle",
-                                                            Props: {
-                                                                StrokeThickness: new TemplateBindingMarkup("BorderThickness"),
-                                                                RadiusY: 4,
-                                                                RadiusX: 4,
-                                                                Opacity: 0,
-                                                                Margin: new Thickness(1, 1, 1, 1),
-                                                                Stroke: new StaticResourceMarkup("TextBoxMouseOverInnerBorderBrush")
-                                                            }
-                                                        },
-                                                        {
-                                                            ParseType: ContentPresenter,
-                                                            Name: "contentPresenter",
-                                                            Props: {
-                                                                ContentTemplate: new TemplateBindingMarkup("ContentTemplate"),
-                                                                HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
-                                                                Margin: new TemplateBindingMarkup("Padding"),
-                                                                VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment")
-                                                            },
-                                                            Content: new TemplateBindingMarkup("Content")
-                                                        },
-                                                        {
-                                                            ParseType: Rectangle,
-                                                            Name: "FocusVisualElement",
-                                                            Props: {
-                                                                IsHitTestVisible: false,
-                                                                Margin: new Thickness(1, 1, 1, 1),
-                                                                RadiusY: 3.5,
-                                                                RadiusX: 3.5,
-                                                                Stroke: new StaticResourceMarkup("HighlightBrush"),
-                                                                StrokeThickness: 1,
-                                                                Visibility: Visibility.Collapsed
-                                                            }
-                                                        }]
-
-                                                    })
-                                                }
-                                            }]
-
-                                        }
-                                    }]
-                                }
-                            },
                             AttachedProps: [{
                                 Owner: VisualStateManager,
                                 Prop: "VisualStateGroups",
@@ -4246,7 +3872,379 @@ App.GetGenericResourceDictionaryImpl = function () {
                                     }
                                 }
                             }]
+                        ,
+                            Resources: {
+                                ParseType: ResourceDictionary,
+                                Children: [
+                                {
+                                    Key: "comboToggleStyle", Value: {
+                                        ParseType: Style,
+                                        Props: {
+                                            TargetType: ToggleButton
+                                        },
+                                        Children: [
+                                        {
+                                            ParseType: Setter,
+                                            Props: {
+                                                Property: DependencyProperty.GetDependencyProperty(ToggleButton, "Foreground"),
+                                                Value: new StaticResourceMarkup("TextBrush")
+                                            }
+                                        },
+                                        {
+                                            ParseType: Setter,
+                                            Props: {
+                                                Property: DependencyProperty.GetDependencyProperty(ToggleButton, "Background"),
+                                                Value: new StaticResourceMarkup("GrayBrush7")
+                                            }
+                                        },
+                                        {
+                                            ParseType: Setter,
+                                            Props: {
+                                                Property: DependencyProperty.GetDependencyProperty(ToggleButton, "BorderBrush"),
+                                                Value: new StaticResourceMarkup("TextBoxBorderBrush")
+                                            }
+                                        },
+                                        {
+                                            ParseType: Setter,
+                                            Props: {
+                                                Property: DependencyProperty.GetDependencyProperty(ToggleButton, "BorderThickness"),
+                                                Value: "1"
+                                            }
+                                        },
+                                        {
+                                            ParseType: Setter,
+                                            Props: {
+                                                Property: DependencyProperty.GetDependencyProperty(ToggleButton, "Padding"),
+                                                Value: "3"
+                                            }
+                                        },
+                                        {
+                                            ParseType: Setter,
+                                            Props: {
+                                                Property: DependencyProperty.GetDependencyProperty(ToggleButton, "Template"),
+                                                Value: new ControlTemplate(ToggleButton, {
+                                                    ParseType: Grid,
+                                                    AttachedProps: [{
+                                                        Owner: VisualStateManager,
+                                                        Prop: "VisualStateGroups",
+                                                        Value: [
+                                                        {
+                                                            ParseType: VisualStateGroup,
+                                                            Name: "CommonStates",
+                                                            Children: [
+                                                            {
+                                                                ParseType: VisualState,
+                                                                Name: "Normal"
+                                                            },
+                                                            {
+                                                                ParseType: VisualState,
+                                                                Name: "MouseOver",
+                                                                Content: {
+                                                                    ParseType: Storyboard,
+                                                                    Children: [
+                                                                    {
+                                                                        ParseType: DoubleAnimation,
+                                                                        Props: {
+                                                                            To: 1,
+                                                                            Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                                        },
+                                                                        AttachedProps: [{
+                                                                            Owner: Storyboard,
+                                                                            Prop: "TargetProperty",
+                                                                            Value: new PropertyPath("(UIElement.Opacity)")
 
+                                                                        },
+                                                                        {
+                                                                            Owner: Storyboard,
+                                                                            Prop: "TargetName",
+                                                                            Value: "MouseOverBorder"
+                                                                        }
+                                                                        ]
+                                                                    }]
+
+                                                                }
+                                                            },
+                                                            {
+                                                                ParseType: VisualState,
+                                                                Name: "Pressed",
+                                                                Content: {
+                                                                    ParseType: Storyboard,
+                                                                    Children: [
+                                                                    {
+                                                                        ParseType: DoubleAnimation,
+                                                                        Props: {
+                                                                            To: 1,
+                                                                            Duration: Duration.CreateTimeSpan(TimeSpan.FromTicks(1))
+                                                                        },
+                                                                        AttachedProps: [{
+                                                                            Owner: Storyboard,
+                                                                            Prop: "TargetProperty",
+                                                                            Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                                        },
+                                                                        {
+                                                                            Owner: Storyboard,
+                                                                            Prop: "TargetName",
+                                                                            Value: "PressedBorder"
+                                                                        }
+                                                                        ]
+                                                                    }]
+
+                                                                }
+                                                            },
+                                                            {
+                                                                ParseType: VisualState,
+                                                                Name: "Disabled"
+                                                            }]
+
+                                                        },
+                                                        {
+                                                            ParseType: VisualStateGroup,
+                                                            Name: "CheckStates",
+                                                            Children: [
+                                                            {
+                                                                ParseType: VisualState,
+                                                                Name: "Checked",
+                                                                Content: {
+                                                                    ParseType: Storyboard,
+                                                                    Children: [
+                                                                    {
+                                                                        ParseType: DoubleAnimationUsingKeyFrames,
+                                                                        AttachedProps: [{
+                                                                            Owner: Storyboard,
+                                                                            Prop: "TargetProperty",
+                                                                            Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                                        },
+                                                                        {
+                                                                            Owner: Storyboard,
+                                                                            Prop: "TargetName",
+                                                                            Value: "CheckedRectangle"
+                                                                        }
+                                                                        ],
+                                                                        Children: [
+                                                                        {
+                                                                            ParseType: EasingDoubleKeyFrame,
+                                                                            Props: {
+                                                                                KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
+                                                                                Value: 1
+                                                                            }
+                                                                        }]
+
+                                                                    },
+                                                                    {
+                                                                        ParseType: DoubleAnimationUsingKeyFrames,
+                                                                        AttachedProps: [{
+                                                                            Owner: Storyboard,
+                                                                            Prop: "TargetProperty",
+                                                                            Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                                        },
+                                                                        {
+                                                                            Owner: Storyboard,
+                                                                            Prop: "TargetName",
+                                                                            Value: "CheckedInnerRectangle"
+                                                                        }
+                                                                        ],
+                                                                        Children: [
+                                                                        {
+                                                                            ParseType: EasingDoubleKeyFrame,
+                                                                            Props: {
+                                                                                KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
+                                                                                Value: 1
+                                                                            }
+                                                                        }]
+
+                                                                    }]
+
+                                                                }
+                                                            },
+                                                            {
+                                                                ParseType: VisualState,
+                                                                Name: "Unchecked"
+                                                            }]
+
+                                                        },
+                                                        {
+                                                            ParseType: VisualStateGroup,
+                                                            Name: "FocusStates",
+                                                            Children: [
+                                                            {
+                                                                ParseType: VisualState,
+                                                                Name: "Focused",
+                                                                Content: {
+                                                                    ParseType: Storyboard,
+                                                                    Children: [
+                                                                    {
+                                                                        ParseType: DoubleAnimation,
+                                                                        Props: {
+                                                                            To: 1,
+                                                                            Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                                        },
+                                                                        AttachedProps: [{
+                                                                            Owner: Storyboard,
+                                                                            Prop: "TargetProperty",
+                                                                            Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                                        },
+                                                                        {
+                                                                            Owner: Storyboard,
+                                                                            Prop: "TargetName",
+                                                                            Value: "FocusRectangle"
+                                                                        }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        ParseType: DoubleAnimation,
+                                                                        Props: {
+                                                                            To: 1,
+                                                                            Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                                        },
+                                                                        AttachedProps: [{
+                                                                            Owner: Storyboard,
+                                                                            Prop: "TargetProperty",
+                                                                            Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                                        },
+                                                                        {
+                                                                            Owner: Storyboard,
+                                                                            Prop: "TargetName",
+                                                                            Value: "FocusInnerRectangle"
+                                                                        }
+                                                                        ]
+                                                                    }]
+
+                                                                }
+                                                            },
+                                                            {
+                                                                ParseType: VisualState,
+                                                                Name: "Unfocused"
+                                                            }]
+
+                                                        }]
+
+
+                                                    }
+                                                    ],
+                                                    Children: [
+                                                    {
+                                                        ParseType: Border,
+                                                        Name: "Background",
+                                                        Props: {
+                                                            BorderBrush: new TemplateBindingMarkup("BorderBrush"),
+                                                            BorderThickness: new TemplateBindingMarkup("BorderThickness"),
+                                                            Background: new TemplateBindingMarkup("Background"),
+                                                            CornerRadius: new CornerRadius(3, 3, 3, 3)
+                                                        }
+                                                    },
+                                                    {
+                                                        ParseType: Rectangle,
+                                                        Name: "DisabledVisualElement",
+                                                        Props: {
+                                                            Fill: new StaticResourceMarkup("WhiteBrush"),
+                                                            IsHitTestVisible: false,
+                                                            Opacity: 0,
+                                                            RadiusY: 3,
+                                                            RadiusX: 3
+                                                        }
+                                                    },
+                                                    {
+                                                        ParseType: Border,
+                                                        Name: "MouseOverBorder",
+                                                        Props: {
+                                                            Background: new StaticResourceMarkup("GrayBrush8"),
+                                                            BorderThickness: new TemplateBindingMarkup("BorderThickness"),
+                                                            CornerRadius: new CornerRadius(3.5, 3.5, 3.5, 3.5),
+                                                            Opacity: 0
+                                                        }
+                                                    },
+                                                    {
+                                                        ParseType: Border,
+                                                        Name: "PressedBorder",
+                                                        Props: {
+                                                            Background: new StaticResourceMarkup("GrayBrush5"),
+                                                            BorderThickness: new TemplateBindingMarkup("BorderThickness"),
+                                                            CornerRadius: new CornerRadius(3.5, 3.5, 3.5, 3.5),
+                                                            Opacity: 0
+                                                        }
+                                                    },
+                                                    {
+                                                        ParseType: Rectangle,
+                                                        Name: "FocusRectangle",
+                                                        Props: {
+                                                            Stroke: new StaticResourceMarkup("TextBoxMouseOverInnerBorderBrush"),
+                                                            RadiusY: 4,
+                                                            RadiusX: 4,
+                                                            Margin: new Thickness(-1, -1, -1, -1),
+                                                            Opacity: 0
+                                                        }
+                                                    },
+                                                    {
+                                                        ParseType: Rectangle,
+                                                        Name: "FocusInnerRectangle",
+                                                        Props: {
+                                                            StrokeThickness: new TemplateBindingMarkup("BorderThickness"),
+                                                            Stroke: new StaticResourceMarkup("TextBoxMouseOverBorderBrush"),
+                                                            RadiusX: 3,
+                                                            RadiusY: 3,
+                                                            Opacity: 0
+                                                        }
+                                                    },
+                                                    {
+                                                        ParseType: Rectangle,
+                                                        Name: "CheckedRectangle",
+                                                        Props: {
+                                                            StrokeThickness: new TemplateBindingMarkup("BorderThickness"),
+                                                            RadiusY: 4,
+                                                            RadiusX: 4,
+                                                            Opacity: 0,
+                                                            Stroke: new StaticResourceMarkup("TextBoxMouseOverBorderBrush")
+                                                        }
+                                                    },
+                                                    {
+                                                        ParseType: Rectangle,
+                                                        Name: "CheckedInnerRectangle",
+                                                        Props: {
+                                                            StrokeThickness: new TemplateBindingMarkup("BorderThickness"),
+                                                            RadiusY: 4,
+                                                            RadiusX: 4,
+                                                            Opacity: 0,
+                                                            Margin: new Thickness(1, 1, 1, 1),
+                                                            Stroke: new StaticResourceMarkup("TextBoxMouseOverInnerBorderBrush")
+                                                        }
+                                                    },
+                                                    {
+                                                        ParseType: ContentPresenter,
+                                                        Name: "contentPresenter",
+                                                        Props: {
+                                                            ContentTemplate: new TemplateBindingMarkup("ContentTemplate"),
+                                                            HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
+                                                            Margin: new TemplateBindingMarkup("Padding"),
+                                                            VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment")
+                                                        },
+                                                        Content: new TemplateBindingMarkup("Content")
+                                                    },
+                                                    {
+                                                        ParseType: Rectangle,
+                                                        Name: "FocusVisualElement",
+                                                        Props: {
+                                                            IsHitTestVisible: false,
+                                                            Margin: new Thickness(1, 1, 1, 1),
+                                                            RadiusY: 3.5,
+                                                            RadiusX: 3.5,
+                                                            Stroke: new StaticResourceMarkup("HighlightBrush"),
+                                                            StrokeThickness: 1,
+                                                            Visibility: Visibility.Collapsed
+                                                        }
+                                                    }]
+
+                                                })
+                                            }
+                                        }]
+
+                                    }
+                                }]
+                            }
                         })
                     }
                 }]
@@ -4657,1156 +4655,6 @@ App.GetGenericResourceDictionaryImpl = function () {
                         Value: new ControlTemplate(ScrollBar, {
                             ParseType: Grid,
                             Name: "Root",
-                            Props: {
-                                Resources: {
-                                    ParseType: ResourceDictionary,
-                                    Children: [
-                                    {
-                                        Key: "RepeatButtonTemplate", Value: new ControlTemplate(RepeatButton, {
-                                            ParseType: Grid,
-                                            Name: "Root",
-                                            Props: {
-                                                Background: {
-                                                    ParseType: SolidColorBrush,
-                                                    Props: {
-                                                        Color: Color.FromHex("#00FFFFFF")
-                                                    }
-                                                }
-                                            },
-                                            AttachedProps: [{
-                                                Owner: VisualStateManager,
-                                                Prop: "VisualStateGroups",
-                                                Value: [
-                                                {
-                                                    ParseType: VisualStateGroup,
-                                                    Name: "CommonStates",
-                                                    Children: [
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Normal"
-                                                    }]
-
-                                                }]
-
-
-                                            }
-                                            ]
-                                        })
-                                    },
-                                    {
-                                        Key: "HorizontalIncrementTemplate", Value: new ControlTemplate(RepeatButton, {
-                                            ParseType: Grid,
-                                            Name: "Root",
-                                            AttachedProps: [{
-                                                Owner: VisualStateManager,
-                                                Prop: "VisualStateGroups",
-                                                Value: [
-                                                {
-                                                    ParseType: VisualStateGroup,
-                                                    Name: "CommonStates",
-                                                    Children: [
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Normal"
-                                                    },
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "MouseOver",
-                                                        Content: {
-                                                            ParseType: Storyboard,
-                                                            Children: [
-                                                            {
-                                                                ParseType: DoubleAnimationUsingKeyFrames,
-                                                                AttachedProps: [{
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetProperty",
-                                                                    Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                },
-                                                                {
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetName",
-                                                                    Value: "HoverPath"
-                                                                }
-                                                                ],
-                                                                Children: [
-                                                                {
-                                                                    ParseType: EasingDoubleKeyFrame,
-                                                                    Props: {
-                                                                        KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
-                                                                        Value: 1
-                                                                    }
-                                                                }]
-
-                                                            },
-                                                            {
-                                                                ParseType: DoubleAnimationUsingKeyFrames,
-                                                                AttachedProps: [{
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetProperty",
-                                                                    Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                },
-                                                                {
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetName",
-                                                                    Value: "Blur"
-                                                                }
-                                                                ],
-                                                                Children: [
-                                                                {
-                                                                    ParseType: EasingDoubleKeyFrame,
-                                                                    Props: {
-                                                                        KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
-                                                                        Value: 0.5
-                                                                    }
-                                                                }]
-
-                                                            }]
-
-                                                        }
-                                                    },
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Pressed",
-                                                        Content: {
-                                                            ParseType: Storyboard
-                                                        }
-                                                    },
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Disabled",
-                                                        Content: {
-                                                            ParseType: Storyboard,
-                                                            Children: [
-                                                            {
-                                                                ParseType: DoubleAnimationUsingKeyFrames,
-                                                                AttachedProps: [{
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetProperty",
-                                                                    Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                },
-                                                                {
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetName",
-                                                                    Value: "Root"
-                                                                }
-                                                                ],
-                                                                Children: [
-                                                                {
-                                                                    ParseType: EasingDoubleKeyFrame,
-                                                                    Props: {
-                                                                        KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
-                                                                        Value: 0.5
-                                                                    }
-                                                                }]
-
-                                                            }]
-
-                                                        }
-                                                    }]
-
-                                                }]
-
-
-                                            }
-                                            ],
-                                            Children: [
-                                            {
-                                                ParseType: Path,
-                                                Props: {
-                                                    Data: "F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z",
-                                                    Height: 6,
-                                                    Stretch: Stretch.Uniform,
-                                                    Width: 4,
-                                                    Fill: {
-                                                        ParseType: SolidColorBrush,
-                                                        Props: {
-                                                            Color: new StaticResourceMarkup("Gray2")
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                ParseType: Path,
-                                                Name: "HoverPath",
-                                                Props: {
-                                                    Data: "F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z",
-                                                    Height: 6,
-                                                    Stretch: Stretch.Uniform,
-                                                    Width: 4,
-                                                    UseLayoutRounding: false,
-                                                    Opacity: 0,
-                                                    Margin: new Thickness(1, 1, 0, 0),
-                                                    Fill: {
-                                                        ParseType: SolidColorBrush,
-                                                        Props: {
-                                                            Color: new StaticResourceMarkup("BlackColor")
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                ParseType: Path,
-                                                Name: "Blur",
-                                                Props: {
-                                                    Data: "F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z",
-                                                    Height: 6,
-                                                    Stretch: Stretch.Uniform,
-                                                    Width: 4,
-                                                    UseLayoutRounding: false,
-                                                    Opacity: 0,
-                                                    Margin: new Thickness(1, 1, 0, 0),
-                                                    Effect: {
-                                                        ParseType: BlurEffect
-                                                    },
-                                                    Fill: {
-                                                        ParseType: SolidColorBrush,
-                                                        Props: {
-                                                            Color: new StaticResourceMarkup("BlackColor")
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                ParseType: Rectangle,
-                                                Name: "DisabledElement",
-                                                Props: {
-                                                    Fill: new StaticResourceMarkup("WhiteColorBrush"),
-                                                    Opacity: 0,
-                                                    RadiusY: 2,
-                                                    RadiusX: 2
-                                                }
-                                            }]
-
-                                        })
-                                    },
-                                    {
-                                        Key: "HorizontalDecrementTemplate", Value: new ControlTemplate(RepeatButton, {
-                                            ParseType: Grid,
-                                            Name: "Root",
-                                            AttachedProps: [{
-                                                Owner: VisualStateManager,
-                                                Prop: "VisualStateGroups",
-                                                Value: [
-                                                {
-                                                    ParseType: VisualStateGroup,
-                                                    Name: "CommonStates",
-                                                    Children: [
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Normal"
-                                                    },
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "MouseOver",
-                                                        Content: {
-                                                            ParseType: Storyboard,
-                                                            Children: [
-                                                            {
-                                                                ParseType: DoubleAnimationUsingKeyFrames,
-                                                                AttachedProps: [{
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetProperty",
-                                                                    Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                },
-                                                                {
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetName",
-                                                                    Value: "HoverPath"
-                                                                }
-                                                                ],
-                                                                Children: [
-                                                                {
-                                                                    ParseType: EasingDoubleKeyFrame,
-                                                                    Props: {
-                                                                        KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
-                                                                        Value: 1
-                                                                    }
-                                                                }]
-
-                                                            },
-                                                            {
-                                                                ParseType: DoubleAnimationUsingKeyFrames,
-                                                                AttachedProps: [{
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetProperty",
-                                                                    Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                },
-                                                                {
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetName",
-                                                                    Value: "Blur"
-                                                                }
-                                                                ],
-                                                                Children: [
-                                                                {
-                                                                    ParseType: EasingDoubleKeyFrame,
-                                                                    Props: {
-                                                                        KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
-                                                                        Value: 0.5
-                                                                    }
-                                                                }]
-
-                                                            }]
-
-                                                        }
-                                                    },
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Pressed",
-                                                        Content: {
-                                                            ParseType: Storyboard
-                                                        }
-                                                    },
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Disabled",
-                                                        Content: {
-                                                            ParseType: Storyboard,
-                                                            Children: [
-                                                            {
-                                                                ParseType: DoubleAnimationUsingKeyFrames,
-                                                                AttachedProps: [{
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetProperty",
-                                                                    Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                },
-                                                                {
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetName",
-                                                                    Value: "Root"
-                                                                }
-                                                                ],
-                                                                Children: [
-                                                                {
-                                                                    ParseType: EasingDoubleKeyFrame,
-                                                                    Props: {
-                                                                        KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
-                                                                        Value: 0.5
-                                                                    }
-                                                                }]
-
-                                                            }]
-
-                                                        }
-                                                    }]
-
-                                                }]
-
-
-                                            }
-                                            ],
-                                            Children: [
-                                            {
-                                                ParseType: Path,
-                                                Props: {
-                                                    Data: "F1 M 110.692,342.252L 110.692,352.682L 104.594,347.467L 110.692,342.252 Z",
-                                                    Height: 6,
-                                                    Stretch: Stretch.Uniform,
-                                                    Width: 4,
-                                                    Fill: {
-                                                        ParseType: SolidColorBrush,
-                                                        Props: {
-                                                            Color: new StaticResourceMarkup("Gray2")
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                ParseType: Path,
-                                                Name: "HoverPath",
-                                                Props: {
-                                                    Data: "F1 M 110.692,342.252L 110.692,352.682L 104.594,347.467L 110.692,342.252 Z",
-                                                    Height: 6,
-                                                    Stretch: Stretch.Uniform,
-                                                    Width: 4,
-                                                    UseLayoutRounding: false,
-                                                    Opacity: 0,
-                                                    Margin: new Thickness(0, 1, 0, 0),
-                                                    Fill: {
-                                                        ParseType: SolidColorBrush,
-                                                        Props: {
-                                                            Color: new StaticResourceMarkup("BlackColor")
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                ParseType: Path,
-                                                Name: "Blur",
-                                                Props: {
-                                                    Data: "F1 M 110.692,342.252L 110.692,352.682L 104.594,347.467L 110.692,342.252 Z",
-                                                    Height: 6,
-                                                    Stretch: Stretch.Uniform,
-                                                    Width: 4,
-                                                    UseLayoutRounding: false,
-                                                    Opacity: 0,
-                                                    Margin: new Thickness(0, 1, 0, 0),
-                                                    Effect: {
-                                                        ParseType: BlurEffect
-                                                    },
-                                                    Fill: {
-                                                        ParseType: SolidColorBrush,
-                                                        Props: {
-                                                            Color: new StaticResourceMarkup("BlackColor")
-                                                        }
-                                                    }
-                                                }
-                                            }]
-
-                                        })
-                                    },
-                                    {
-                                        Key: "VerticalIncrementTemplate", Value: new ControlTemplate(RepeatButton, {
-                                            ParseType: Grid,
-                                            Name: "Root",
-                                            AttachedProps: [{
-                                                Owner: VisualStateManager,
-                                                Prop: "VisualStateGroups",
-                                                Value: [
-                                                {
-                                                    ParseType: VisualStateGroup,
-                                                    Name: "CommonStates",
-                                                    Children: [
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Normal"
-                                                    },
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "MouseOver",
-                                                        Content: {
-                                                            ParseType: Storyboard,
-                                                            Children: [
-                                                            {
-                                                                ParseType: DoubleAnimationUsingKeyFrames,
-                                                                AttachedProps: [{
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetProperty",
-                                                                    Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                },
-                                                                {
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetName",
-                                                                    Value: "HoverPath"
-                                                                }
-                                                                ],
-                                                                Children: [
-                                                                {
-                                                                    ParseType: EasingDoubleKeyFrame,
-                                                                    Props: {
-                                                                        KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
-                                                                        Value: 1
-                                                                    }
-                                                                }]
-
-                                                            },
-                                                            {
-                                                                ParseType: DoubleAnimationUsingKeyFrames,
-                                                                AttachedProps: [{
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetProperty",
-                                                                    Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                },
-                                                                {
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetName",
-                                                                    Value: "Blur"
-                                                                }
-                                                                ],
-                                                                Children: [
-                                                                {
-                                                                    ParseType: EasingDoubleKeyFrame,
-                                                                    Props: {
-                                                                        KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
-                                                                        Value: 0.5
-                                                                    }
-                                                                }]
-
-                                                            }]
-
-                                                        }
-                                                    },
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Pressed",
-                                                        Content: {
-                                                            ParseType: Storyboard
-                                                        }
-                                                    },
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Disabled",
-                                                        Content: {
-                                                            ParseType: Storyboard,
-                                                            Children: [
-                                                            {
-                                                                ParseType: DoubleAnimationUsingKeyFrames,
-                                                                AttachedProps: [{
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetProperty",
-                                                                    Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                },
-                                                                {
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetName",
-                                                                    Value: "Root"
-                                                                }
-                                                                ],
-                                                                Children: [
-                                                                {
-                                                                    ParseType: EasingDoubleKeyFrame,
-                                                                    Props: {
-                                                                        KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
-                                                                        Value: 0.5
-                                                                    }
-                                                                }]
-
-                                                            }]
-
-                                                        }
-                                                    }]
-
-                                                }]
-
-
-                                            }
-                                            ],
-                                            Children: [
-                                            {
-                                                ParseType: Path,
-                                                Props: {
-                                                    Data: "F1 M 531.107,321.943L 541.537,321.943L 536.322,328.042L 531.107,321.943 Z",
-                                                    Height: 4,
-                                                    Stretch: Stretch.Uniform,
-                                                    Width: 6,
-                                                    Fill: {
-                                                        ParseType: SolidColorBrush,
-                                                        Name: "ButtonColor",
-                                                        Props: {
-                                                            Color: new StaticResourceMarkup("Gray3")
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                ParseType: Path,
-                                                Name: "HoverPath",
-                                                Props: {
-                                                    Data: "F1 M 531.107,321.943L 541.537,321.943L 536.322,328.042L 531.107,321.943 Z",
-                                                    Height: 4,
-                                                    Stretch: Stretch.Uniform,
-                                                    Width: 6,
-                                                    UseLayoutRounding: false,
-                                                    Opacity: 0,
-                                                    Margin: new Thickness(1, 0, 0, 0),
-                                                    Fill: {
-                                                        ParseType: SolidColorBrush,
-                                                        Props: {
-                                                            Color: new StaticResourceMarkup("BlackColor")
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                ParseType: Path,
-                                                Name: "Blur",
-                                                Props: {
-                                                    Data: "F1 M 531.107,321.943L 541.537,321.943L 536.322,328.042L 531.107,321.943 Z",
-                                                    Height: 4,
-                                                    Stretch: Stretch.Uniform,
-                                                    Width: 6,
-                                                    UseLayoutRounding: false,
-                                                    Opacity: 0,
-                                                    Margin: new Thickness(1, 0, 0, 0),
-                                                    Effect: {
-                                                        ParseType: BlurEffect
-                                                    },
-                                                    Fill: {
-                                                        ParseType: SolidColorBrush,
-                                                        Props: {
-                                                            Color: new StaticResourceMarkup("BlackColor")
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                ParseType: Rectangle,
-                                                Name: "DisabledElement",
-                                                Props: {
-                                                    Fill: new StaticResourceMarkup("WhiteColorBrush"),
-                                                    Opacity: 0,
-                                                    RadiusY: 2,
-                                                    RadiusX: 2
-                                                }
-                                            }]
-
-                                        })
-                                    },
-                                    {
-                                        Key: "VerticalDecrementTemplate", Value: new ControlTemplate(RepeatButton, {
-                                            ParseType: Grid,
-                                            Name: "Root",
-                                            AttachedProps: [{
-                                                Owner: VisualStateManager,
-                                                Prop: "VisualStateGroups",
-                                                Value: [
-                                                {
-                                                    ParseType: VisualStateGroup,
-                                                    Name: "CommonStates",
-                                                    Children: [
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Normal"
-                                                    },
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "MouseOver",
-                                                        Content: {
-                                                            ParseType: Storyboard,
-                                                            Children: [
-                                                            {
-                                                                ParseType: DoubleAnimationUsingKeyFrames,
-                                                                AttachedProps: [{
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetProperty",
-                                                                    Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                },
-                                                                {
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetName",
-                                                                    Value: "HoverPath"
-                                                                }
-                                                                ],
-                                                                Children: [
-                                                                {
-                                                                    ParseType: EasingDoubleKeyFrame,
-                                                                    Props: {
-                                                                        KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
-                                                                        Value: 1
-                                                                    }
-                                                                }]
-
-                                                            },
-                                                            {
-                                                                ParseType: DoubleAnimationUsingKeyFrames,
-                                                                AttachedProps: [{
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetProperty",
-                                                                    Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                },
-                                                                {
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetName",
-                                                                    Value: "Blur"
-                                                                }
-                                                                ],
-                                                                Children: [
-                                                                {
-                                                                    ParseType: EasingDoubleKeyFrame,
-                                                                    Props: {
-                                                                        KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
-                                                                        Value: 0.5
-                                                                    }
-                                                                }]
-
-                                                            }]
-
-                                                        }
-                                                    },
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Pressed",
-                                                        Content: {
-                                                            ParseType: Storyboard
-                                                        }
-                                                    },
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Disabled",
-                                                        Content: {
-                                                            ParseType: Storyboard,
-                                                            Children: [
-                                                            {
-                                                                ParseType: DoubleAnimationUsingKeyFrames,
-                                                                AttachedProps: [{
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetProperty",
-                                                                    Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                },
-                                                                {
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetName",
-                                                                    Value: "Root"
-                                                                }
-                                                                ],
-                                                                Children: [
-                                                                {
-                                                                    ParseType: EasingDoubleKeyFrame,
-                                                                    Props: {
-                                                                        KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
-                                                                        Value: 0.5
-                                                                    }
-                                                                }]
-
-                                                            }]
-
-                                                        }
-                                                    }]
-
-                                                }]
-
-
-                                            }
-                                            ],
-                                            Children: [
-                                            {
-                                                ParseType: Rectangle,
-                                                Name: "Background",
-                                                Props: {
-                                                    Fill: new StaticResourceMarkup("ControlBackgroundBrush"),
-                                                    Opacity: 0,
-                                                    RadiusY: 2,
-                                                    RadiusX: 2,
-                                                    StrokeThickness: 1
-                                                }
-                                            },
-                                            {
-                                                ParseType: Rectangle,
-                                                Name: "BackgroundMouseOver",
-                                                Props: {
-                                                    Fill: new StaticResourceMarkup("HighlightBrush"),
-                                                    Opacity: 0,
-                                                    RadiusY: 2,
-                                                    RadiusX: 2
-                                                }
-                                            },
-                                            {
-                                                ParseType: Rectangle,
-                                                Name: "BackgroundPressed",
-                                                Props: {
-                                                    Fill: new StaticResourceMarkup("HighlightBrush"),
-                                                    Opacity: 0,
-                                                    RadiusY: 2,
-                                                    RadiusX: 2
-                                                }
-                                            },
-                                            {
-                                                ParseType: Rectangle,
-                                                Name: "BackgroundGradient",
-                                                Props: {
-                                                    Fill: new StaticResourceMarkup("TransparentWhiteBrush"),
-                                                    Margin: new Thickness(1, 1, 1, 1),
-                                                    Opacity: 0,
-                                                    RadiusY: 1,
-                                                    RadiusX: 1,
-                                                    Stroke: new StaticResourceMarkup("ControlBackgroundBrush"),
-                                                    StrokeThickness: 1
-                                                }
-                                            },
-                                            {
-                                                ParseType: Rectangle,
-                                                Name: "Highlight",
-                                                Props: {
-                                                    IsHitTestVisible: false,
-                                                    Margin: new Thickness(1, 1, 1, 1),
-                                                    Opacity: 0,
-                                                    RadiusY: 1,
-                                                    RadiusX: 1,
-                                                    Stroke: new StaticResourceMarkup("HighlightBrush"),
-                                                    StrokeThickness: 1
-                                                }
-                                            },
-                                            {
-                                                ParseType: Path,
-                                                Props: {
-                                                    Data: "F1 M 541.537,173.589L 531.107,173.589L 536.322,167.49L 541.537,173.589 Z",
-                                                    Height: 4,
-                                                    Stretch: Stretch.Uniform,
-                                                    Width: 6,
-                                                    Fill: {
-                                                        ParseType: SolidColorBrush,
-                                                        Props: {
-                                                            Color: new StaticResourceMarkup("Gray2")
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                ParseType: Path,
-                                                Name: "HoverPath",
-                                                Props: {
-                                                    Data: "F1 M 541.537,173.589L 531.107,173.589L 536.322,167.49L 541.537,173.589 Z",
-                                                    Height: 4,
-                                                    Stretch: Stretch.Uniform,
-                                                    Width: 6,
-                                                    UseLayoutRounding: false,
-                                                    Opacity: 0,
-                                                    Margin: new Thickness(1, 0, 0, 0),
-                                                    Fill: {
-                                                        ParseType: SolidColorBrush,
-                                                        Props: {
-                                                            Color: new StaticResourceMarkup("BlackColor")
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                ParseType: Path,
-                                                Name: "Blur",
-                                                Props: {
-                                                    Data: "F1 M 541.537,173.589L 531.107,173.589L 536.322,167.49L 541.537,173.589 Z",
-                                                    Height: 4,
-                                                    Stretch: Stretch.Uniform,
-                                                    Width: 6,
-                                                    UseLayoutRounding: false,
-                                                    Opacity: 0,
-                                                    Margin: new Thickness(1, 0, 0, 0),
-                                                    Effect: {
-                                                        ParseType: BlurEffect
-                                                    },
-                                                    Fill: {
-                                                        ParseType: SolidColorBrush,
-                                                        Props: {
-                                                            Color: new StaticResourceMarkup("BlackColor")
-                                                        }
-                                                    }
-                                                }
-                                            }]
-
-                                        })
-                                    },
-                                    {
-                                        Key: "VerticalThumbTemplate", Value: new ControlTemplate(Thumb, {
-                                            ParseType: Grid,
-                                            AttachedProps: [{
-                                                Owner: VisualStateManager,
-                                                Prop: "VisualStateGroups",
-                                                Value: [
-                                                {
-                                                    ParseType: VisualStateGroup,
-                                                    Name: "CommonStates",
-                                                    Children: [
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Normal"
-                                                    },
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "MouseOver",
-                                                        Content: {
-                                                            ParseType: Storyboard,
-                                                            Children: [
-                                                            {
-                                                                ParseType: DoubleAnimationUsingKeyFrames,
-                                                                AttachedProps: [{
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetProperty",
-                                                                    Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                },
-                                                                {
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetName",
-                                                                    Value: "MouseOverRectangle"
-                                                                }
-                                                                ],
-                                                                Children: [
-                                                                {
-                                                                    ParseType: EasingDoubleKeyFrame,
-                                                                    Props: {
-                                                                        KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
-                                                                        Value: 1
-                                                                    }
-                                                                }]
-
-                                                            }]
-
-                                                        }
-                                                    },
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Pressed",
-                                                        Content: {
-                                                            ParseType: Storyboard,
-                                                            Children: [
-                                                            {
-                                                                ParseType: DoubleAnimationUsingKeyFrames,
-                                                                AttachedProps: [{
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetProperty",
-                                                                    Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                },
-                                                                {
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetName",
-                                                                    Value: "PressedRectangle"
-                                                                }
-                                                                ],
-                                                                Children: [
-                                                                {
-                                                                    ParseType: EasingDoubleKeyFrame,
-                                                                    Props: {
-                                                                        KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
-                                                                        Value: 1
-                                                                    }
-                                                                }]
-
-                                                            }]
-
-                                                        }
-                                                    },
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Disabled",
-                                                        Content: {
-                                                            ParseType: Storyboard,
-                                                            Children: [
-                                                            {
-                                                                ParseType: DoubleAnimationUsingKeyFrames,
-                                                                AttachedProps: [{
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetProperty",
-                                                                    Value: new PropertyPath("Opacity")
-
-                                                                },
-                                                                {
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetName",
-                                                                    Value: "ThumbVisual"
-                                                                }
-                                                                ],
-                                                                Children: [
-                                                                {
-                                                                    ParseType: SplineDoubleKeyFrame,
-                                                                    Props: {
-                                                                        KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
-                                                                        Value: 0
-                                                                    }
-                                                                }]
-
-                                                            }]
-
-                                                        }
-                                                    }]
-
-                                                }]
-
-
-                                            }
-                                            ],
-                                            Children: [
-                                            {
-                                                ParseType: Grid,
-                                                Name: "ThumbVisual",
-                                                Props: {
-                                                    Margin: new Thickness(1, 0, 1, 0)
-                                                },
-                                                Children: [
-                                                {
-                                                    ParseType: Rectangle,
-                                                    Name: "Background",
-                                                    Props: {
-                                                        StrokeThickness: 1,
-                                                        Fill: new StaticResourceMarkup("ThumbBrush")
-                                                    }
-                                                },
-                                                {
-                                                    ParseType: Rectangle,
-                                                    Name: "MouseOverRectangle",
-                                                    Props: {
-                                                        StrokeThickness: 1,
-                                                        Opacity: 0,
-                                                        Fill: new StaticResourceMarkup("BlackBrush")
-                                                    }
-                                                },
-                                                {
-                                                    ParseType: Rectangle,
-                                                    Name: "PressedRectangle",
-                                                    Props: {
-                                                        StrokeThickness: 1,
-                                                        Opacity: 0,
-                                                        Fill: new StaticResourceMarkup("BlackBrush")
-                                                    }
-                                                }]
-
-                                            }]
-
-                                        })
-                                    },
-                                    {
-                                        Key: "HorizontalThumbTemplate", Value: new ControlTemplate(Thumb, {
-                                            ParseType: Grid,
-                                            AttachedProps: [{
-                                                Owner: VisualStateManager,
-                                                Prop: "VisualStateGroups",
-                                                Value: [
-                                                {
-                                                    ParseType: VisualStateGroup,
-                                                    Name: "CommonStates",
-                                                    Children: [
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Normal"
-                                                    },
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "MouseOver",
-                                                        Content: {
-                                                            ParseType: Storyboard,
-                                                            Children: [
-                                                            {
-                                                                ParseType: DoubleAnimationUsingKeyFrames,
-                                                                AttachedProps: [{
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetProperty",
-                                                                    Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                },
-                                                                {
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetName",
-                                                                    Value: "MouseOverRectangle"
-                                                                }
-                                                                ],
-                                                                Children: [
-                                                                {
-                                                                    ParseType: EasingDoubleKeyFrame,
-                                                                    Props: {
-                                                                        KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
-                                                                        Value: 1
-                                                                    }
-                                                                }]
-
-                                                            }]
-
-                                                        }
-                                                    },
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Pressed",
-                                                        Content: {
-                                                            ParseType: Storyboard,
-                                                            Children: [
-                                                            {
-                                                                ParseType: DoubleAnimationUsingKeyFrames,
-                                                                AttachedProps: [{
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetProperty",
-                                                                    Value: new PropertyPath("(UIElement.Opacity)")
-
-                                                                },
-                                                                {
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetName",
-                                                                    Value: "PressedRectangle"
-                                                                }
-                                                                ],
-                                                                Children: [
-                                                                {
-                                                                    ParseType: EasingDoubleKeyFrame,
-                                                                    Props: {
-                                                                        KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
-                                                                        Value: 1
-                                                                    }
-                                                                }]
-
-                                                            }]
-
-                                                        }
-                                                    },
-                                                    {
-                                                        ParseType: VisualState,
-                                                        Name: "Disabled",
-                                                        Content: {
-                                                            ParseType: Storyboard,
-                                                            Children: [
-                                                            {
-                                                                ParseType: DoubleAnimationUsingKeyFrames,
-                                                                AttachedProps: [{
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetProperty",
-                                                                    Value: new PropertyPath("Opacity")
-
-                                                                },
-                                                                {
-                                                                    Owner: Storyboard,
-                                                                    Prop: "TargetName",
-                                                                    Value: "ThumbVisual"
-                                                                }
-                                                                ],
-                                                                Children: [
-                                                                {
-                                                                    ParseType: SplineDoubleKeyFrame,
-                                                                    Props: {
-                                                                        KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
-                                                                        Value: 0
-                                                                    }
-                                                                }]
-
-                                                            }]
-
-                                                        }
-                                                    }]
-
-                                                }]
-
-
-                                            }
-                                            ],
-                                            Children: [
-                                            {
-                                                ParseType: Grid,
-                                                Name: "ThumbVisual",
-                                                Props: {
-                                                    Margin: new Thickness(0, 1, 0, 1)
-                                                },
-                                                Children: [
-                                                {
-                                                    ParseType: Rectangle,
-                                                    Name: "Background",
-                                                    Props: {
-                                                        StrokeThickness: 1,
-                                                        Fill: new StaticResourceMarkup("ThumbBrush")
-                                                    }
-                                                },
-                                                {
-                                                    ParseType: Rectangle,
-                                                    Name: "MouseOverRectangle",
-                                                    Props: {
-                                                        StrokeThickness: 1,
-                                                        Opacity: 0,
-                                                        Fill: new StaticResourceMarkup("BlackBrush")
-                                                    }
-                                                },
-                                                {
-                                                    ParseType: Rectangle,
-                                                    Name: "PressedRectangle",
-                                                    Props: {
-                                                        StrokeThickness: 1,
-                                                        Opacity: 0,
-                                                        Fill: new StaticResourceMarkup("BlackBrush")
-                                                    }
-                                                }]
-
-                                            }]
-
-                                        })
-                                    }]
-                                }
-                            },
                             AttachedProps: [{
                                 Owner: VisualStateManager,
                                 Prop: "VisualStateGroups",
@@ -6152,7 +5000,1155 @@ App.GetGenericResourceDictionaryImpl = function () {
                                 }]
 
                             }]
+                        ,
+                            Resources: {
+                                ParseType: ResourceDictionary,
+                                Children: [
+                                {
+                                    Key: "RepeatButtonTemplate", Value: new ControlTemplate(RepeatButton, {
+                                        ParseType: Grid,
+                                        Name: "Root",
+                                        Props: {
+                                            Background: {
+                                                ParseType: SolidColorBrush,
+                                                Props: {
+                                                    Color: Color.FromHex("#00FFFFFF")
+                                                }
+                                            }
+                                        },
+                                        AttachedProps: [{
+                                            Owner: VisualStateManager,
+                                            Prop: "VisualStateGroups",
+                                            Value: [
+                                            {
+                                                ParseType: VisualStateGroup,
+                                                Name: "CommonStates",
+                                                Children: [
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Normal"
+                                                }]
 
+                                            }]
+
+
+                                        }
+                                        ]
+                                    })
+                                },
+                                {
+                                    Key: "HorizontalIncrementTemplate", Value: new ControlTemplate(RepeatButton, {
+                                        ParseType: Grid,
+                                        Name: "Root",
+                                        AttachedProps: [{
+                                            Owner: VisualStateManager,
+                                            Prop: "VisualStateGroups",
+                                            Value: [
+                                            {
+                                                ParseType: VisualStateGroup,
+                                                Name: "CommonStates",
+                                                Children: [
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Normal"
+                                                },
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "MouseOver",
+                                                    Content: {
+                                                        ParseType: Storyboard,
+                                                        Children: [
+                                                        {
+                                                            ParseType: DoubleAnimationUsingKeyFrames,
+                                                            AttachedProps: [{
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetProperty",
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                            },
+                                                            {
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetName",
+                                                                Value: "HoverPath"
+                                                            }
+                                                            ],
+                                                            Children: [
+                                                            {
+                                                                ParseType: EasingDoubleKeyFrame,
+                                                                Props: {
+                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
+                                                                    Value: 1
+                                                                }
+                                                            }]
+
+                                                        },
+                                                        {
+                                                            ParseType: DoubleAnimationUsingKeyFrames,
+                                                            AttachedProps: [{
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetProperty",
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                            },
+                                                            {
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetName",
+                                                                Value: "Blur"
+                                                            }
+                                                            ],
+                                                            Children: [
+                                                            {
+                                                                ParseType: EasingDoubleKeyFrame,
+                                                                Props: {
+                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
+                                                                    Value: 0.5
+                                                                }
+                                                            }]
+
+                                                        }]
+
+                                                    }
+                                                },
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Pressed",
+                                                    Content: {
+                                                        ParseType: Storyboard
+                                                    }
+                                                },
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Disabled",
+                                                    Content: {
+                                                        ParseType: Storyboard,
+                                                        Children: [
+                                                        {
+                                                            ParseType: DoubleAnimationUsingKeyFrames,
+                                                            AttachedProps: [{
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetProperty",
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                            },
+                                                            {
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetName",
+                                                                Value: "Root"
+                                                            }
+                                                            ],
+                                                            Children: [
+                                                            {
+                                                                ParseType: EasingDoubleKeyFrame,
+                                                                Props: {
+                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
+                                                                    Value: 0.5
+                                                                }
+                                                            }]
+
+                                                        }]
+
+                                                    }
+                                                }]
+
+                                            }]
+
+
+                                        }
+                                        ],
+                                        Children: [
+                                        {
+                                            ParseType: Path,
+                                            Props: {
+                                                Data: "F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z",
+                                                Height: 6,
+                                                Stretch: Stretch.Uniform,
+                                                Width: 4,
+                                                Fill: {
+                                                    ParseType: SolidColorBrush,
+                                                    Props: {
+                                                        Color: new StaticResourceMarkup("Gray2")
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            ParseType: Path,
+                                            Name: "HoverPath",
+                                            Props: {
+                                                Data: "F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z",
+                                                Height: 6,
+                                                Stretch: Stretch.Uniform,
+                                                Width: 4,
+                                                UseLayoutRounding: false,
+                                                Opacity: 0,
+                                                Margin: new Thickness(1, 1, 0, 0),
+                                                Fill: {
+                                                    ParseType: SolidColorBrush,
+                                                    Props: {
+                                                        Color: new StaticResourceMarkup("BlackColor")
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            ParseType: Path,
+                                            Name: "Blur",
+                                            Props: {
+                                                Data: "F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z",
+                                                Height: 6,
+                                                Stretch: Stretch.Uniform,
+                                                Width: 4,
+                                                UseLayoutRounding: false,
+                                                Opacity: 0,
+                                                Margin: new Thickness(1, 1, 0, 0),
+                                                Effect: {
+                                                    ParseType: BlurEffect
+                                                },
+                                                Fill: {
+                                                    ParseType: SolidColorBrush,
+                                                    Props: {
+                                                        Color: new StaticResourceMarkup("BlackColor")
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            ParseType: Rectangle,
+                                            Name: "DisabledElement",
+                                            Props: {
+                                                Fill: new StaticResourceMarkup("WhiteColorBrush"),
+                                                Opacity: 0,
+                                                RadiusY: 2,
+                                                RadiusX: 2
+                                            }
+                                        }]
+
+                                    })
+                                },
+                                {
+                                    Key: "HorizontalDecrementTemplate", Value: new ControlTemplate(RepeatButton, {
+                                        ParseType: Grid,
+                                        Name: "Root",
+                                        AttachedProps: [{
+                                            Owner: VisualStateManager,
+                                            Prop: "VisualStateGroups",
+                                            Value: [
+                                            {
+                                                ParseType: VisualStateGroup,
+                                                Name: "CommonStates",
+                                                Children: [
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Normal"
+                                                },
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "MouseOver",
+                                                    Content: {
+                                                        ParseType: Storyboard,
+                                                        Children: [
+                                                        {
+                                                            ParseType: DoubleAnimationUsingKeyFrames,
+                                                            AttachedProps: [{
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetProperty",
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                            },
+                                                            {
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetName",
+                                                                Value: "HoverPath"
+                                                            }
+                                                            ],
+                                                            Children: [
+                                                            {
+                                                                ParseType: EasingDoubleKeyFrame,
+                                                                Props: {
+                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
+                                                                    Value: 1
+                                                                }
+                                                            }]
+
+                                                        },
+                                                        {
+                                                            ParseType: DoubleAnimationUsingKeyFrames,
+                                                            AttachedProps: [{
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetProperty",
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                            },
+                                                            {
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetName",
+                                                                Value: "Blur"
+                                                            }
+                                                            ],
+                                                            Children: [
+                                                            {
+                                                                ParseType: EasingDoubleKeyFrame,
+                                                                Props: {
+                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
+                                                                    Value: 0.5
+                                                                }
+                                                            }]
+
+                                                        }]
+
+                                                    }
+                                                },
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Pressed",
+                                                    Content: {
+                                                        ParseType: Storyboard
+                                                    }
+                                                },
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Disabled",
+                                                    Content: {
+                                                        ParseType: Storyboard,
+                                                        Children: [
+                                                        {
+                                                            ParseType: DoubleAnimationUsingKeyFrames,
+                                                            AttachedProps: [{
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetProperty",
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                            },
+                                                            {
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetName",
+                                                                Value: "Root"
+                                                            }
+                                                            ],
+                                                            Children: [
+                                                            {
+                                                                ParseType: EasingDoubleKeyFrame,
+                                                                Props: {
+                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
+                                                                    Value: 0.5
+                                                                }
+                                                            }]
+
+                                                        }]
+
+                                                    }
+                                                }]
+
+                                            }]
+
+
+                                        }
+                                        ],
+                                        Children: [
+                                        {
+                                            ParseType: Path,
+                                            Props: {
+                                                Data: "F1 M 110.692,342.252L 110.692,352.682L 104.594,347.467L 110.692,342.252 Z",
+                                                Height: 6,
+                                                Stretch: Stretch.Uniform,
+                                                Width: 4,
+                                                Fill: {
+                                                    ParseType: SolidColorBrush,
+                                                    Props: {
+                                                        Color: new StaticResourceMarkup("Gray2")
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            ParseType: Path,
+                                            Name: "HoverPath",
+                                            Props: {
+                                                Data: "F1 M 110.692,342.252L 110.692,352.682L 104.594,347.467L 110.692,342.252 Z",
+                                                Height: 6,
+                                                Stretch: Stretch.Uniform,
+                                                Width: 4,
+                                                UseLayoutRounding: false,
+                                                Opacity: 0,
+                                                Margin: new Thickness(0, 1, 0, 0),
+                                                Fill: {
+                                                    ParseType: SolidColorBrush,
+                                                    Props: {
+                                                        Color: new StaticResourceMarkup("BlackColor")
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            ParseType: Path,
+                                            Name: "Blur",
+                                            Props: {
+                                                Data: "F1 M 110.692,342.252L 110.692,352.682L 104.594,347.467L 110.692,342.252 Z",
+                                                Height: 6,
+                                                Stretch: Stretch.Uniform,
+                                                Width: 4,
+                                                UseLayoutRounding: false,
+                                                Opacity: 0,
+                                                Margin: new Thickness(0, 1, 0, 0),
+                                                Effect: {
+                                                    ParseType: BlurEffect
+                                                },
+                                                Fill: {
+                                                    ParseType: SolidColorBrush,
+                                                    Props: {
+                                                        Color: new StaticResourceMarkup("BlackColor")
+                                                    }
+                                                }
+                                            }
+                                        }]
+
+                                    })
+                                },
+                                {
+                                    Key: "VerticalIncrementTemplate", Value: new ControlTemplate(RepeatButton, {
+                                        ParseType: Grid,
+                                        Name: "Root",
+                                        AttachedProps: [{
+                                            Owner: VisualStateManager,
+                                            Prop: "VisualStateGroups",
+                                            Value: [
+                                            {
+                                                ParseType: VisualStateGroup,
+                                                Name: "CommonStates",
+                                                Children: [
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Normal"
+                                                },
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "MouseOver",
+                                                    Content: {
+                                                        ParseType: Storyboard,
+                                                        Children: [
+                                                        {
+                                                            ParseType: DoubleAnimationUsingKeyFrames,
+                                                            AttachedProps: [{
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetProperty",
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                            },
+                                                            {
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetName",
+                                                                Value: "HoverPath"
+                                                            }
+                                                            ],
+                                                            Children: [
+                                                            {
+                                                                ParseType: EasingDoubleKeyFrame,
+                                                                Props: {
+                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
+                                                                    Value: 1
+                                                                }
+                                                            }]
+
+                                                        },
+                                                        {
+                                                            ParseType: DoubleAnimationUsingKeyFrames,
+                                                            AttachedProps: [{
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetProperty",
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                            },
+                                                            {
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetName",
+                                                                Value: "Blur"
+                                                            }
+                                                            ],
+                                                            Children: [
+                                                            {
+                                                                ParseType: EasingDoubleKeyFrame,
+                                                                Props: {
+                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
+                                                                    Value: 0.5
+                                                                }
+                                                            }]
+
+                                                        }]
+
+                                                    }
+                                                },
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Pressed",
+                                                    Content: {
+                                                        ParseType: Storyboard
+                                                    }
+                                                },
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Disabled",
+                                                    Content: {
+                                                        ParseType: Storyboard,
+                                                        Children: [
+                                                        {
+                                                            ParseType: DoubleAnimationUsingKeyFrames,
+                                                            AttachedProps: [{
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetProperty",
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                            },
+                                                            {
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetName",
+                                                                Value: "Root"
+                                                            }
+                                                            ],
+                                                            Children: [
+                                                            {
+                                                                ParseType: EasingDoubleKeyFrame,
+                                                                Props: {
+                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
+                                                                    Value: 0.5
+                                                                }
+                                                            }]
+
+                                                        }]
+
+                                                    }
+                                                }]
+
+                                            }]
+
+
+                                        }
+                                        ],
+                                        Children: [
+                                        {
+                                            ParseType: Path,
+                                            Props: {
+                                                Data: "F1 M 531.107,321.943L 541.537,321.943L 536.322,328.042L 531.107,321.943 Z",
+                                                Height: 4,
+                                                Stretch: Stretch.Uniform,
+                                                Width: 6,
+                                                Fill: {
+                                                    ParseType: SolidColorBrush,
+                                                    Name: "ButtonColor",
+                                                    Props: {
+                                                        Color: new StaticResourceMarkup("Gray3")
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            ParseType: Path,
+                                            Name: "HoverPath",
+                                            Props: {
+                                                Data: "F1 M 531.107,321.943L 541.537,321.943L 536.322,328.042L 531.107,321.943 Z",
+                                                Height: 4,
+                                                Stretch: Stretch.Uniform,
+                                                Width: 6,
+                                                UseLayoutRounding: false,
+                                                Opacity: 0,
+                                                Margin: new Thickness(1, 0, 0, 0),
+                                                Fill: {
+                                                    ParseType: SolidColorBrush,
+                                                    Props: {
+                                                        Color: new StaticResourceMarkup("BlackColor")
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            ParseType: Path,
+                                            Name: "Blur",
+                                            Props: {
+                                                Data: "F1 M 531.107,321.943L 541.537,321.943L 536.322,328.042L 531.107,321.943 Z",
+                                                Height: 4,
+                                                Stretch: Stretch.Uniform,
+                                                Width: 6,
+                                                UseLayoutRounding: false,
+                                                Opacity: 0,
+                                                Margin: new Thickness(1, 0, 0, 0),
+                                                Effect: {
+                                                    ParseType: BlurEffect
+                                                },
+                                                Fill: {
+                                                    ParseType: SolidColorBrush,
+                                                    Props: {
+                                                        Color: new StaticResourceMarkup("BlackColor")
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            ParseType: Rectangle,
+                                            Name: "DisabledElement",
+                                            Props: {
+                                                Fill: new StaticResourceMarkup("WhiteColorBrush"),
+                                                Opacity: 0,
+                                                RadiusY: 2,
+                                                RadiusX: 2
+                                            }
+                                        }]
+
+                                    })
+                                },
+                                {
+                                    Key: "VerticalDecrementTemplate", Value: new ControlTemplate(RepeatButton, {
+                                        ParseType: Grid,
+                                        Name: "Root",
+                                        AttachedProps: [{
+                                            Owner: VisualStateManager,
+                                            Prop: "VisualStateGroups",
+                                            Value: [
+                                            {
+                                                ParseType: VisualStateGroup,
+                                                Name: "CommonStates",
+                                                Children: [
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Normal"
+                                                },
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "MouseOver",
+                                                    Content: {
+                                                        ParseType: Storyboard,
+                                                        Children: [
+                                                        {
+                                                            ParseType: DoubleAnimationUsingKeyFrames,
+                                                            AttachedProps: [{
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetProperty",
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                            },
+                                                            {
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetName",
+                                                                Value: "HoverPath"
+                                                            }
+                                                            ],
+                                                            Children: [
+                                                            {
+                                                                ParseType: EasingDoubleKeyFrame,
+                                                                Props: {
+                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
+                                                                    Value: 1
+                                                                }
+                                                            }]
+
+                                                        },
+                                                        {
+                                                            ParseType: DoubleAnimationUsingKeyFrames,
+                                                            AttachedProps: [{
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetProperty",
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                            },
+                                                            {
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetName",
+                                                                Value: "Blur"
+                                                            }
+                                                            ],
+                                                            Children: [
+                                                            {
+                                                                ParseType: EasingDoubleKeyFrame,
+                                                                Props: {
+                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
+                                                                    Value: 0.5
+                                                                }
+                                                            }]
+
+                                                        }]
+
+                                                    }
+                                                },
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Pressed",
+                                                    Content: {
+                                                        ParseType: Storyboard
+                                                    }
+                                                },
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Disabled",
+                                                    Content: {
+                                                        ParseType: Storyboard,
+                                                        Children: [
+                                                        {
+                                                            ParseType: DoubleAnimationUsingKeyFrames,
+                                                            AttachedProps: [{
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetProperty",
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                            },
+                                                            {
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetName",
+                                                                Value: "Root"
+                                                            }
+                                                            ],
+                                                            Children: [
+                                                            {
+                                                                ParseType: EasingDoubleKeyFrame,
+                                                                Props: {
+                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
+                                                                    Value: 0.5
+                                                                }
+                                                            }]
+
+                                                        }]
+
+                                                    }
+                                                }]
+
+                                            }]
+
+
+                                        }
+                                        ],
+                                        Children: [
+                                        {
+                                            ParseType: Rectangle,
+                                            Name: "Background",
+                                            Props: {
+                                                Fill: new StaticResourceMarkup("ControlBackgroundBrush"),
+                                                Opacity: 0,
+                                                RadiusY: 2,
+                                                RadiusX: 2,
+                                                StrokeThickness: 1
+                                            }
+                                        },
+                                        {
+                                            ParseType: Rectangle,
+                                            Name: "BackgroundMouseOver",
+                                            Props: {
+                                                Fill: new StaticResourceMarkup("HighlightBrush"),
+                                                Opacity: 0,
+                                                RadiusY: 2,
+                                                RadiusX: 2
+                                            }
+                                        },
+                                        {
+                                            ParseType: Rectangle,
+                                            Name: "BackgroundPressed",
+                                            Props: {
+                                                Fill: new StaticResourceMarkup("HighlightBrush"),
+                                                Opacity: 0,
+                                                RadiusY: 2,
+                                                RadiusX: 2
+                                            }
+                                        },
+                                        {
+                                            ParseType: Rectangle,
+                                            Name: "BackgroundGradient",
+                                            Props: {
+                                                Fill: new StaticResourceMarkup("TransparentWhiteBrush"),
+                                                Margin: new Thickness(1, 1, 1, 1),
+                                                Opacity: 0,
+                                                RadiusY: 1,
+                                                RadiusX: 1,
+                                                Stroke: new StaticResourceMarkup("ControlBackgroundBrush"),
+                                                StrokeThickness: 1
+                                            }
+                                        },
+                                        {
+                                            ParseType: Rectangle,
+                                            Name: "Highlight",
+                                            Props: {
+                                                IsHitTestVisible: false,
+                                                Margin: new Thickness(1, 1, 1, 1),
+                                                Opacity: 0,
+                                                RadiusY: 1,
+                                                RadiusX: 1,
+                                                Stroke: new StaticResourceMarkup("HighlightBrush"),
+                                                StrokeThickness: 1
+                                            }
+                                        },
+                                        {
+                                            ParseType: Path,
+                                            Props: {
+                                                Data: "F1 M 541.537,173.589L 531.107,173.589L 536.322,167.49L 541.537,173.589 Z",
+                                                Height: 4,
+                                                Stretch: Stretch.Uniform,
+                                                Width: 6,
+                                                Fill: {
+                                                    ParseType: SolidColorBrush,
+                                                    Props: {
+                                                        Color: new StaticResourceMarkup("Gray2")
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            ParseType: Path,
+                                            Name: "HoverPath",
+                                            Props: {
+                                                Data: "F1 M 541.537,173.589L 531.107,173.589L 536.322,167.49L 541.537,173.589 Z",
+                                                Height: 4,
+                                                Stretch: Stretch.Uniform,
+                                                Width: 6,
+                                                UseLayoutRounding: false,
+                                                Opacity: 0,
+                                                Margin: new Thickness(1, 0, 0, 0),
+                                                Fill: {
+                                                    ParseType: SolidColorBrush,
+                                                    Props: {
+                                                        Color: new StaticResourceMarkup("BlackColor")
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            ParseType: Path,
+                                            Name: "Blur",
+                                            Props: {
+                                                Data: "F1 M 541.537,173.589L 531.107,173.589L 536.322,167.49L 541.537,173.589 Z",
+                                                Height: 4,
+                                                Stretch: Stretch.Uniform,
+                                                Width: 6,
+                                                UseLayoutRounding: false,
+                                                Opacity: 0,
+                                                Margin: new Thickness(1, 0, 0, 0),
+                                                Effect: {
+                                                    ParseType: BlurEffect
+                                                },
+                                                Fill: {
+                                                    ParseType: SolidColorBrush,
+                                                    Props: {
+                                                        Color: new StaticResourceMarkup("BlackColor")
+                                                    }
+                                                }
+                                            }
+                                        }]
+
+                                    })
+                                },
+                                {
+                                    Key: "VerticalThumbTemplate", Value: new ControlTemplate(Thumb, {
+                                        ParseType: Grid,
+                                        AttachedProps: [{
+                                            Owner: VisualStateManager,
+                                            Prop: "VisualStateGroups",
+                                            Value: [
+                                            {
+                                                ParseType: VisualStateGroup,
+                                                Name: "CommonStates",
+                                                Children: [
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Normal"
+                                                },
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "MouseOver",
+                                                    Content: {
+                                                        ParseType: Storyboard,
+                                                        Children: [
+                                                        {
+                                                            ParseType: DoubleAnimationUsingKeyFrames,
+                                                            AttachedProps: [{
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetProperty",
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                            },
+                                                            {
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetName",
+                                                                Value: "MouseOverRectangle"
+                                                            }
+                                                            ],
+                                                            Children: [
+                                                            {
+                                                                ParseType: EasingDoubleKeyFrame,
+                                                                Props: {
+                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
+                                                                    Value: 1
+                                                                }
+                                                            }]
+
+                                                        }]
+
+                                                    }
+                                                },
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Pressed",
+                                                    Content: {
+                                                        ParseType: Storyboard,
+                                                        Children: [
+                                                        {
+                                                            ParseType: DoubleAnimationUsingKeyFrames,
+                                                            AttachedProps: [{
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetProperty",
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                            },
+                                                            {
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetName",
+                                                                Value: "PressedRectangle"
+                                                            }
+                                                            ],
+                                                            Children: [
+                                                            {
+                                                                ParseType: EasingDoubleKeyFrame,
+                                                                Props: {
+                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
+                                                                    Value: 1
+                                                                }
+                                                            }]
+
+                                                        }]
+
+                                                    }
+                                                },
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Disabled",
+                                                    Content: {
+                                                        ParseType: Storyboard,
+                                                        Children: [
+                                                        {
+                                                            ParseType: DoubleAnimationUsingKeyFrames,
+                                                            AttachedProps: [{
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetProperty",
+                                                                Value: new PropertyPath("Opacity")
+
+                                                            },
+                                                            {
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetName",
+                                                                Value: "ThumbVisual"
+                                                            }
+                                                            ],
+                                                            Children: [
+                                                            {
+                                                                ParseType: SplineDoubleKeyFrame,
+                                                                Props: {
+                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                                    Value: 0
+                                                                }
+                                                            }]
+
+                                                        }]
+
+                                                    }
+                                                }]
+
+                                            }]
+
+
+                                        }
+                                        ],
+                                        Children: [
+                                        {
+                                            ParseType: Grid,
+                                            Name: "ThumbVisual",
+                                            Props: {
+                                                Margin: new Thickness(1, 0, 1, 0)
+                                            },
+                                            Children: [
+                                            {
+                                                ParseType: Rectangle,
+                                                Name: "Background",
+                                                Props: {
+                                                    StrokeThickness: 1,
+                                                    Fill: new StaticResourceMarkup("ThumbBrush")
+                                                }
+                                            },
+                                            {
+                                                ParseType: Rectangle,
+                                                Name: "MouseOverRectangle",
+                                                Props: {
+                                                    StrokeThickness: 1,
+                                                    Opacity: 0,
+                                                    Fill: new StaticResourceMarkup("BlackBrush")
+                                                }
+                                            },
+                                            {
+                                                ParseType: Rectangle,
+                                                Name: "PressedRectangle",
+                                                Props: {
+                                                    StrokeThickness: 1,
+                                                    Opacity: 0,
+                                                    Fill: new StaticResourceMarkup("BlackBrush")
+                                                }
+                                            }]
+
+                                        }]
+
+                                    })
+                                },
+                                {
+                                    Key: "HorizontalThumbTemplate", Value: new ControlTemplate(Thumb, {
+                                        ParseType: Grid,
+                                        AttachedProps: [{
+                                            Owner: VisualStateManager,
+                                            Prop: "VisualStateGroups",
+                                            Value: [
+                                            {
+                                                ParseType: VisualStateGroup,
+                                                Name: "CommonStates",
+                                                Children: [
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Normal"
+                                                },
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "MouseOver",
+                                                    Content: {
+                                                        ParseType: Storyboard,
+                                                        Children: [
+                                                        {
+                                                            ParseType: DoubleAnimationUsingKeyFrames,
+                                                            AttachedProps: [{
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetProperty",
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                            },
+                                                            {
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetName",
+                                                                Value: "MouseOverRectangle"
+                                                            }
+                                                            ],
+                                                            Children: [
+                                                            {
+                                                                ParseType: EasingDoubleKeyFrame,
+                                                                Props: {
+                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
+                                                                    Value: 1
+                                                                }
+                                                            }]
+
+                                                        }]
+
+                                                    }
+                                                },
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Pressed",
+                                                    Content: {
+                                                        ParseType: Storyboard,
+                                                        Children: [
+                                                        {
+                                                            ParseType: DoubleAnimationUsingKeyFrames,
+                                                            AttachedProps: [{
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetProperty",
+                                                                Value: new PropertyPath("(UIElement.Opacity)")
+
+                                                            },
+                                                            {
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetName",
+                                                                Value: "PressedRectangle"
+                                                            }
+                                                            ],
+                                                            Children: [
+                                                            {
+                                                                ParseType: EasingDoubleKeyFrame,
+                                                                Props: {
+                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100)),
+                                                                    Value: 1
+                                                                }
+                                                            }]
+
+                                                        }]
+
+                                                    }
+                                                },
+                                                {
+                                                    ParseType: VisualState,
+                                                    Name: "Disabled",
+                                                    Content: {
+                                                        ParseType: Storyboard,
+                                                        Children: [
+                                                        {
+                                                            ParseType: DoubleAnimationUsingKeyFrames,
+                                                            AttachedProps: [{
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetProperty",
+                                                                Value: new PropertyPath("Opacity")
+
+                                                            },
+                                                            {
+                                                                Owner: Storyboard,
+                                                                Prop: "TargetName",
+                                                                Value: "ThumbVisual"
+                                                            }
+                                                            ],
+                                                            Children: [
+                                                            {
+                                                                ParseType: SplineDoubleKeyFrame,
+                                                                Props: {
+                                                                    KeyTime: KeyTime.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                                    Value: 0
+                                                                }
+                                                            }]
+
+                                                        }]
+
+                                                    }
+                                                }]
+
+                                            }]
+
+
+                                        }
+                                        ],
+                                        Children: [
+                                        {
+                                            ParseType: Grid,
+                                            Name: "ThumbVisual",
+                                            Props: {
+                                                Margin: new Thickness(0, 1, 0, 1)
+                                            },
+                                            Children: [
+                                            {
+                                                ParseType: Rectangle,
+                                                Name: "Background",
+                                                Props: {
+                                                    StrokeThickness: 1,
+                                                    Fill: new StaticResourceMarkup("ThumbBrush")
+                                                }
+                                            },
+                                            {
+                                                ParseType: Rectangle,
+                                                Name: "MouseOverRectangle",
+                                                Props: {
+                                                    StrokeThickness: 1,
+                                                    Opacity: 0,
+                                                    Fill: new StaticResourceMarkup("BlackBrush")
+                                                }
+                                            },
+                                            {
+                                                ParseType: Rectangle,
+                                                Name: "PressedRectangle",
+                                                Props: {
+                                                    StrokeThickness: 1,
+                                                    Opacity: 0,
+                                                    Fill: new StaticResourceMarkup("BlackBrush")
+                                                }
+                                            }]
+
+                                        }]
+
+                                    })
+                                }]
+                            }
                         })
                     }
                 }]
@@ -10022,27 +10018,6 @@ App.GetGenericResourceDictionaryImpl = function () {
                         Value: new ControlTemplate(Slider, {
                             ParseType: Grid,
                             Name: "Root",
-                            Props: {
-                                Resources: {
-                                    ParseType: ResourceDictionary,
-                                    Children: [
-                                    {
-                                        Key: "RepeatButtonTemplate", Value: new ControlTemplate(RepeatButton, {
-                                            ParseType: Grid,
-                                            Name: "Root",
-                                            Props: {
-                                                Opacity: 0,
-                                                Background: {
-                                                    ParseType: SolidColorBrush,
-                                                    Props: {
-                                                        Color: Color.FromHex("#00FFFFFF")
-                                                    }
-                                                }
-                                            }
-                                        })
-                                    }]
-                                }
-                            },
                             AttachedProps: [{
                                 Owner: VisualStateManager,
                                 Prop: "VisualStateGroups",
@@ -10554,7 +10529,26 @@ App.GetGenericResourceDictionaryImpl = function () {
                                 }]
 
                             }]
-
+                        ,
+                            Resources: {
+                                ParseType: ResourceDictionary,
+                                Children: [
+                                {
+                                    Key: "RepeatButtonTemplate", Value: new ControlTemplate(RepeatButton, {
+                                        ParseType: Grid,
+                                        Name: "Root",
+                                        Props: {
+                                            Opacity: 0,
+                                            Background: {
+                                                ParseType: SolidColorBrush,
+                                                Props: {
+                                                    Color: Color.FromHex("#00FFFFFF")
+                                                }
+                                            }
+                                        }
+                                    })
+                                }]
+                            }
                         })
                     }
                 },
@@ -11145,20 +11139,6 @@ App.GetGenericResourceDictionaryImpl = function () {
                                 ParseType: Border,
                                 Props: {
                                     Padding: new TemplateBindingMarkup("Padding"),
-                                    Resources: {
-                                        ParseType: ResourceDictionary,
-                                        Children: [
-                                        {
-                                            Key: "Visible State", Value: {
-                                                ParseType: Storyboard
-                                            }
-                                        },
-                                        {
-                                            Key: "Normal State", Value: {
-                                                ParseType: Storyboard
-                                            }
-                                        }]
-                                    },
                                     Background: new StaticResourceMarkup("BlackBrush")
                                 },
                                 Content: {
@@ -11169,6 +11149,20 @@ App.GetGenericResourceDictionaryImpl = function () {
                                         Margin: new TemplateBindingMarkup("Padding")
                                     },
                                     Content: new TemplateBindingMarkup("Content")
+                                },
+                                Resources: {
+                                    ParseType: ResourceDictionary,
+                                    Children: [
+                                    {
+                                        Key: "Visible State", Value: {
+                                            ParseType: Storyboard
+                                        }
+                                    },
+                                    {
+                                        Key: "Normal State", Value: {
+                                            ParseType: Storyboard
+                                        }
+                                    }]
                                 }
                             }
                         })
