@@ -484,8 +484,15 @@ module Fayde {
             var id = (<any>cur)._ID;
             if (id) str += "[" + id + "]";
             var name = curNode.Name;
-            if (name)
-                str += " [" + name + "]";
+            str += " [";
+            var ns = curNode.NameScope;
+            if (!ns)
+                str += "^";
+            else if (ns.IsRoot)
+                str += "+";
+            else
+                str += "-";
+            str += name + "]";;
             if (func)
                 str += func(curNode, tabIndex);
             str += "\n";
@@ -6135,8 +6142,6 @@ module Fayde {
             var scope = this.FindNameScope();
             if (scope)
                 return scope.FindName(name);
-            if (this.ParentNode)
-                this.ParentNode.FindName(name);
             return undefined;
         }
         SetName(name: string) {
@@ -7644,9 +7649,13 @@ class App implements Fayde.IResourcable {
         this.Address = new Uri(document.URL);
         this.MainSurface.Register(canvas);
         this.NavService = new Fayde.Navigation.NavService(this);
-        var element = Fayde.JsonParser.Parse(json);
-        if (element instanceof Fayde.UIElement)
-            this.MainSurface.Attach(<Fayde.UIElement>element);
+        var ns = new Fayde.NameScope(true);
+        var element = Fayde.JsonParser.Parse(json, undefined, ns);
+        if (element instanceof Fayde.UIElement) {
+            var uie = <Fayde.UIElement>element;
+            uie.XamlNode.NameScope = ns;
+            this.MainSurface.Attach(uie);
+        }
         this.StartEngine();
         this.EmitLoaded();
     }
@@ -8105,11 +8114,6 @@ class Surface {
         }
         if (!(uie instanceof Fayde.UIElement))
             throw new Exception("Unsupported top level element.");
-        var un = uie.XamlNode;
-        if (un.NameScope == null)
-            un.NameScope = new Fayde.NameScope(true);
-        else if (!un.NameScope.IsRoot)
-            un.NameScope.IsRoot = true;
         this._TopLevel = uie;
         this.AttachLayer(uie);
     }
@@ -8738,7 +8742,10 @@ module Fayde {
         static ParseUserControl(uc: Controls.UserControl, json: any): UIElement {
             var parser = new JsonParser();
             parser._RootXamlObject = uc;
-            return <UIElement>parser.SetObject(json, uc, new Fayde.NameScope(true));
+            var ns = new Fayde.NameScope(true);
+            var content = <UIElement>parser.SetObject(json, uc, ns);
+            content.XamlNode.NameScope = ns;
+            return content;
         }
         static ParseResourceDictionary(rd: Fayde.ResourceDictionary, json: any) {
             var parser = new JsonParser();
@@ -8746,10 +8753,8 @@ module Fayde {
             parser._ResChain.push(rd);
             var ns = rd.XamlNode.NameScope;
             if (!ns) ns = new NameScope();
-            if (json.Children) {
-                parser.SetResourceDictionary(rd, json.Children, ns);
-                parser.ResolveStaticResourceExpressions();
-            }
+            parser.SetResourceDictionary(rd, json, ns);
+            parser.ResolveStaticResourceExpressions();
         }
         static ParsePage(json: any): Controls.Page {
             if (!json.ParseType)
@@ -8758,8 +8763,9 @@ module Fayde {
             if (!page || !(page instanceof Controls.Page))
                 return undefined;
             var parser = new JsonParser();
+            var ns = page.XamlNode.NameScope = new Fayde.NameScope(true);
             parser._RootXamlObject = page;
-            parser.SetObject(json, page, new Fayde.NameScope(true));
+            parser.SetObject(json, page, ns);
             return page;
         }
         CreateObject(json: any, namescope: NameScope, ignoreResolve?: bool): any {
@@ -8782,11 +8788,11 @@ module Fayde {
             if (xobj)
                 xnode = xobj.XamlNode;
             if (xnode) {
-                if (namescope)
-                    xnode.NameScope = namescope;
                 var name = json.Name;
-                if (name)
-                    xnode.SetName(name);
+                if (name) {
+                    xnode.Name = name;
+                    namescope.RegisterName(name, xnode);
+                }
             }
             xobj.TemplateOwner = this._TemplateBindingSource;
             var dobj: DependencyObject;
@@ -8800,7 +8806,7 @@ module Fayde {
                 shouldPopResChain = true;
                 var rd = (<IResourcable><any>xobj).Resources;
                 this._ResChain.push(rd);
-                this.SetResourceDictionary(rd, json.Resources.Children, namescope);
+                this.SetResourceDictionary(rd, json.Resources, namescope);
             }
             if (json.Props) {
                 for (var propName in json.Props) {
@@ -8877,8 +8883,6 @@ module Fayde {
             } else if (propValue instanceof StaticResourceExpression) {
                 this.SetValue(xobj, propd, propName, propValue);
                 return;
-            } else if (propValue.ParseType === ResourceDictionary) {
-                return;
             }
             if (propValue.ParseType)
                 propValue = this.CreateObject(propValue, namescope, true);
@@ -8924,18 +8928,18 @@ module Fayde {
             }
             if (!(coll instanceof XamlObjectCollection))
                 return false;
-            coll.XamlNode.NameScope = namescope;
-            if (coll instanceof ResourceDictionary) {
-                this.SetResourceDictionary(<ResourceDictionary>coll, subJson, namescope);
-            } else {
-                for (var i = 0; i < subJson.length; i++) {
-                    coll.Add(this.CreateObject(subJson[i], namescope, true));
-                }
+            for (var i = 0; i < subJson.length; i++) {
+                coll.Add(this.CreateObject(subJson[i], namescope, true));
             }
             return true;
         }
-        SetResourceDictionary(rd: ResourceDictionary, subJson: any[], namescope: NameScope) {
-            rd.XamlNode.NameScope = namescope;
+        SetResourceDictionary(rd: ResourceDictionary, json: any, namescope: NameScope) {
+            var props = json.Props;
+            if (props)
+                rd.Source = props.Source;
+            var subJson = json.Children;
+            if (!subJson)
+                return;
             var fobj: XamlObject;
             var cur: any;
             var key: any;
@@ -10501,8 +10505,10 @@ class MulticastEvent {
         var i = 0;
         while (i < len) {
             listener = listeners[i];
-            if (listener.Closure === closure && listener.Callback === callback)
+            if (listener.Closure === closure && listener.Callback === callback) {
                 listeners.splice(i, 1);
+                len--;
+            }
             else
                 i++;
         }
@@ -10682,9 +10688,11 @@ module Fayde.Controls {
             var json = this._TempJson;
             if (!json)
                 throw new XamlParseException("ControlTemplate has no definition.");
-            var uie = <UIElement>JsonParser.Parse(json, templateBindingSource, new NameScope(true), this.ResChain);
+            var ns = new NameScope(true);
+            var uie = <UIElement>JsonParser.Parse(json, templateBindingSource, ns, this.ResChain);
             if (!(uie instanceof UIElement))
                 throw new XamlParseException("ControlTemplate root visual is not a UIElement.");
+            uie.XamlNode.NameScope = ns;
             return uie;
         }
     }
@@ -10702,9 +10710,11 @@ module Fayde.Controls {
             var json = this._TempJson;
             if (!json)
                 throw new XamlParseException("ItemsPanelTemplate has no definition.");
+            var ns = new NameScope(true);
             var panel = <Panel>JsonParser.Parse(json, templateBindingSource, new NameScope(true), this.ResChain);
             if (!(panel instanceof Panel))
                 throw new XamlParseException("The root element of an ItemsPanelTemplate must be a Panel subclass.");
+            panel.XamlNode.NameScope = ns;
             return panel;
         }
     }
@@ -10754,9 +10764,11 @@ module Fayde {
             var json = this._TempJson;
             if (!json)
                 throw new XamlParseException("DataTemplate has no definition.");
-            var uie = <UIElement>JsonParser.Parse(json, templateBindingSource, new NameScope(true), this.ResChain);
+            var ns = new NameScope(true);
+            var uie = <UIElement>JsonParser.Parse(json, templateBindingSource, ns, this.ResChain);
             if (!(uie instanceof UIElement))
                 throw new XamlParseException("DataTemplate root visual is not a UIElement.");
+            uie.XamlNode.NameScope = ns;
             return uie;
         }
     }
@@ -11012,7 +11024,7 @@ module Fayde {
 module Fayde {
     export class Style extends DependencyObject {
         private _IsSealed: bool = false;
-        static BasedOnProperty: DependencyProperty = DependencyProperty.Register("BasedOn", () => Function, Style);
+        static BasedOnProperty: DependencyProperty = DependencyProperty.Register("BasedOn", () => Style, Style);
         static TargetTypeProperty: DependencyProperty = DependencyProperty.Register("TargetType", () => Function, Style);
         Setters: SetterCollection;
         BasedOn: Style;
@@ -11021,7 +11033,7 @@ module Fayde {
         constructor() {
             super();
             var coll = new SetterCollection();
-            coll.XamlNode.AttachTo(this.XamlNode, undefined);
+            coll.AttachTo(this);
             Object.defineProperty(this, "Setters", {
                 value: coll,
                 writable: false
@@ -11090,6 +11102,11 @@ module Fayde {
 module Fayde {
     export class XamlObjectCollection extends XamlObject implements IEnumerable {
         private _ht: XamlObject[] = [];
+        AttachTo(xobj: XamlObject) {
+            var error = new BError();
+            if (!this.XamlNode.AttachTo(xobj.XamlNode, error))
+                error.ThrowException();
+        }
         get Count() { return this._ht.length; }
         GetRange(startIndex: number, endIndex: number): XamlObject[] {
             return this._ht.slice(startIndex, endIndex);
@@ -11105,7 +11122,7 @@ module Fayde {
             var removed = this._ht[index];
             var added = value;
             var error = new BError();
-            if (this.AddedToCollection(added, error)) {
+            if (this.AddingToCollection(added, error)) {
                 this._ht[index] = added;
                 this.RemovedFromCollection(removed, true);
                 this._RaiseItemReplaced(removed, added, index);
@@ -11126,7 +11143,7 @@ module Fayde {
             if (index > count)
                 index = count;
             var error = new BError();
-            if (this.AddedToCollection(value, error)) {
+            if (this.AddingToCollection(value, error)) {
                 this._ht.splice(index, 0, value);
                 this._RaiseItemAdded(value, index);
                 return true;
@@ -11165,7 +11182,7 @@ module Fayde {
         }
         Contains(value: XamlObject): bool { return this.IndexOf(value) > -1; }
         CanAdd (value: XamlObject): bool { return true; }
-        AddedToCollection(value: XamlObject, error: BError): bool {
+        AddingToCollection(value: XamlObject, error: BError): bool {
             if (value instanceof XamlObject)
                 return value.XamlNode.AttachTo(this.XamlNode, error);
         }
@@ -12079,8 +12096,8 @@ module Fayde.Media {
         private _Listener: IGeometryListener;
         Listen(listener: IGeometryListener) { this._Listener = listener; }
         Unlisten(listener: IGeometryListener) { if (this._Listener === listener) this._Listener = null; }
-        AddedToCollection(value: Geometry, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        AddingToCollection(value: Geometry, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             value.Listen(this);
             var listener = this._Listener;
@@ -12109,6 +12126,7 @@ module Fayde.Media {
         constructor() {
             super();
             var coll = new GeometryCollection();
+            coll.AttachTo(this);
             coll.Listen(this);
             Object.defineProperty(this, "Children", {
                 value: coll,
@@ -12167,8 +12185,8 @@ module Fayde.Media {
         private _Listener: IGradientStopsListener;
         Listen(listener: IGradientStopsListener) { this._Listener = listener; }
         Unlisten(listener: IGradientStopsListener) { if (this._Listener === listener) this._Listener = null; }
-        private AddedToCollection(value: GradientStop, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        private AddingToCollection(value: GradientStop, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             value.Listen(this);
             var listener = this._Listener;
@@ -12226,6 +12244,7 @@ module Fayde.Media {
         constructor() {
             super();
             var coll = new PathSegmentCollection();
+            coll.AttachTo(this);
             coll.Listen(this);
             Object.defineProperty(this, "Segments", {
                 value: coll,
@@ -12265,8 +12284,8 @@ module Fayde.Media {
     Nullstone.RegisterType(PathFigure, "PathFigure");
     export class PathFigureCollection extends XamlObjectCollection implements IPathFigureListener {
         private _Listener: IPathFigureListener;
-        AddedToCollection(value: PathFigure, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        AddingToCollection(value: PathFigure, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             value.Listen(this);
             var listener = this._Listener;
@@ -12299,6 +12318,7 @@ module Fayde.Media {
         constructor() {
             super();
             var coll = new PathFigureCollection();
+            coll.AttachTo(this);
             coll.Listen(this);
             Object.defineProperty(this, "Figures", {
                 value: coll,
@@ -12343,8 +12363,8 @@ module Fayde.Media {
     Nullstone.RegisterType(PathSegment, "PathSegment");
     export class PathSegmentCollection extends XamlObjectCollection implements IPathSegmentListener {
         private _Listener: IPathSegmentListener;
-        AddedToCollection(value: PathSegment, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        AddingToCollection(value: PathSegment, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             value.Listen(this);
             var listener = this._Listener;
@@ -12650,8 +12670,8 @@ module Fayde.Media {
         private _Listener: ITransformChangedListener;
         Listen(listener: ITransformChangedListener) { this._Listener = listener; }
         Unlisten(listener: ITransformChangedListener) { if (this._Listener === listener) this._Listener = null; }
-        AddedToCollection(value: Transform, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        AddingToCollection(value: Transform, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             value.Listen(this);
             this.TransformChanged();
@@ -12673,6 +12693,7 @@ module Fayde.Media {
         constructor() {
             super();
             var coll = new TransformCollection();
+            coll.AttachTo(this);
             coll.Listen(this);
             Object.defineProperty(this, "Children", {
                 value: coll,
@@ -12979,8 +13000,8 @@ module Fayde.Media.Animation {
             this._SortedList = [];
             return super.Clear();
         }
-        private AddedToCollection(value: KeyFrame, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        private AddingToCollection(value: KeyFrame, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             this._Resolved = false;
             value.Listen(this);
@@ -13729,8 +13750,8 @@ module Fayde.Controls {
             var listener = this._Listener;
             if (listener) listener.ColumnDefinitionsChanged(this);
         }
-        AddedToCollection(value: ColumnDefinition, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        AddingToCollection(value: ColumnDefinition, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             value.Listen(this);
             var listener = this._Listener;
@@ -13916,8 +13937,8 @@ module Fayde.Controls {
             var listener = this._Listener;
             if (listener) listener.RowDefinitionsChanged(this);
         }
-        AddedToCollection(value: RowDefinition, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        AddingToCollection(value: RowDefinition, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             value.Listen(this);
             var listener = this._Listener;
@@ -14006,8 +14027,8 @@ module Fayde {
         Resources: Fayde.ResourceDictionary;
     }
     export class ResourceDictionaryCollection extends XamlObjectCollection {
-        AddedToCollection(value: ResourceDictionary, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        AddingToCollection(value: ResourceDictionary, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             return this._AssertNoCycles(value, value.XamlNode.ParentNode, error);
         }
@@ -14045,8 +14066,10 @@ module Fayde {
         Source: string = "";
         constructor() {
             super();
+            var rdc = new ResourceDictionaryCollection();
+            rdc.AttachTo(this);
             Object.defineProperty(this, "MergedDictionaries", {
-                value: new ResourceDictionaryCollection(),
+                value: rdc,
                 writable: false
             });
         }
@@ -14112,10 +14135,10 @@ module Fayde {
             }
             this._IsSealed = true;
         }
-        AddedToCollection(value: XamlObject, error: BError): bool {
+        AddingToCollection(value: XamlObject, error: BError): bool {
             if (!value || !this._ValidateSetter(<Setter>value, error))
                 return false;
-            return super.AddedToCollection(value, error);
+            return super.AddingToCollection(value, error);
         }
         private _ValidateSetter(setter: Setter, error: BError) {
             if (setter.Property === undefined) {
@@ -14229,8 +14252,8 @@ module Fayde {
                 return undefined;
             return parentNode.XObject;
         }
-        AddedToCollection(value: TriggerBase, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        AddingToCollection(value: TriggerBase, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             var parent = this.ParentXamlObject;
             if (parent) value.Attach(parent);
@@ -14417,7 +14440,7 @@ module Fayde {
         _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
             uinlist.unshift(this);
         }
-        _HitTestPoint(ctx: RenderContext, p: Point, uinlist: UINode[]) {
+        _HitTestPoint(ctx: Fayde.RenderContext, p: Point, uinlist: Fayde.UINode[]) {
             uinlist.unshift(this);
         }
         _InsideClip(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
@@ -14740,8 +14763,8 @@ module Fayde.Documents {
         private _Listener: IBlocksChangedListener;
         Listen(listener: IBlocksChangedListener) { this._Listener = listener; }
         Unlisten(listener: IBlocksChangedListener) { if (this._Listener === listener) this._Listener = null; }
-        AddedToCollection(value: Block, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        AddingToCollection(value: Block, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             var listener = this._Listener;
             if (listener) listener.BlocksChanged(value, true);
@@ -14768,8 +14791,8 @@ module Fayde.Documents {
         private _Listener: IInlinesChangedListener;
         Listen(listener: IInlinesChangedListener) { this._Listener = listener; }
         Unlisten(listener: IInlinesChangedListener) { if (this._Listener === listener) this._Listener = null; }
-        AddedToCollection(value: Inline, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        AddingToCollection(value: Inline, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             var listener = this._Listener;
             if (listener) listener.InlinesChanged(value, true);
@@ -14800,6 +14823,7 @@ module Fayde.Documents {
         constructor() {
             super();
             var coll = new InlineCollection();
+            coll.AttachTo(this);
             coll.Listen(this);
             Object.defineProperty(this, "Inlines", {
                 value: coll,
@@ -14835,6 +14859,7 @@ module Fayde.Documents {
         constructor() {
             super();
             var coll = new BlockCollection();
+            coll.AttachTo(this);
             coll.Listen(this);
             Object.defineProperty(this, "Blocks", {
                 value: coll,
@@ -14859,6 +14884,7 @@ module Fayde.Documents {
         constructor() {
             super();
             var coll = new InlineCollection();
+            coll.AttachTo(this);
             coll.Listen(this);
             Object.defineProperty(this, "Inlines", {
                 value: coll,
@@ -14998,6 +15024,7 @@ module Fayde.Media {
         constructor() {
             super();
             var coll = new GradientStopCollection();
+            coll.AttachTo(this);
             coll.Listen(this);
             Object.defineProperty(this, "GradientStops", {
                 value: coll,
@@ -15256,8 +15283,10 @@ module Fayde.Media.Animation {
         KeyFrames: KeyFrameCollection;
         constructor() {
             super();
+            var coll = new KeyFrameCollection();
+            coll.AttachTo(this);
             Object.defineProperty(this, "KeyFrames", {
-                value: new KeyFrameCollection(),
+                value: coll,
                 writable: false
             });
         }
@@ -15702,8 +15731,10 @@ module Fayde.Media.Animation {
         static Annotations = { ContentProperty: "Children" }
         constructor() {
             super();
+            var coll = new TimelineCollection();
+            coll.AttachTo(this);
             Object.defineProperty(this, "Children", {
-                value: new TimelineCollection(),
+                value: coll,
                 writable: false
             });
         }
@@ -16202,8 +16233,10 @@ module Fayde {
         Resources: ResourceDictionary;
         constructor() {
             super();
+            var rd = new ResourceDictionary(); 
+            rd.AttachTo(this);
             Object.defineProperty(this, "Resources", {
-                value: new ResourceDictionary(),
+                value: rd,
                 writable: false
             });
         }
@@ -18107,12 +18140,12 @@ module Fayde.Controls {
     class PanelChildrenCollection extends XamlObjectCollection {
         XamlNode: PanelChildrenNode;
         CreateNode(): PanelChildrenNode { return new PanelChildrenNode(this); }
-        AddedToCollection(value: UIElement, error: BError): bool {
+        AddingToCollection(value: UIElement, error: BError): bool {
             var node = this.XamlNode;
             if (!node.ParentNode.AttachVisualChild(value, error))
                 return false;
             node.AddNode(value.XamlNode);
-            return super.AddedToCollection(value, error);
+            return super.AddingToCollection(value, error);
         }
         RemovedFromCollection(value: UIElement, isValueSafe: bool) {
             var node = this.XamlNode;
@@ -18895,6 +18928,7 @@ module Fayde.Controls {
         constructor() {
             super();
             var inlines = new Documents.InlineCollection();
+            inlines.AttachTo(this);
             Object.defineProperty(this, "Inlines", {
                 value: inlines,
                 writable: false
@@ -20578,15 +20612,11 @@ module Fayde.Controls.Primitives {
         GetInheritedEnumerator(): IEnumerator {
             var popup = (<Popup>this.XObject);
             if (!popup)
-                return;
-            var index = -1;
-            return {
-                MoveNext: function () {
-                    index++;
-                    return index === 0;
-                },
-                Current: popup.Child
-            };
+                return ArrayEx.EmptyEnumerator;
+            var child = popup.Child;
+            if (!child)
+                return ArrayEx.EmptyEnumerator;
+            return ArrayEx.GetEnumerator([popup.Child.XamlNode]);
         }
         ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) { }
         OnIsAttachedChanged(newIsAttached: bool) {
@@ -20604,10 +20634,10 @@ module Fayde.Controls.Primitives {
         CreateNode(): PopupNode {
             return new PopupNode(this);
         }
-        static ChildProperty = DependencyProperty.RegisterCore("Child", () => UIElement, Popup, undefined, (d, args) => (<Popup>d)._OnChildChanged(args));
-        static HorizontalOffsetProperty = DependencyProperty.RegisterCore("HorizontalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d)._OnOffsetChanged(args));
-        static VerticalOffsetProperty = DependencyProperty.RegisterCore("VerticalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d)._OnOffsetChanged(args));
-        static IsOpenProperty = DependencyProperty.RegisterCore("IsOpen", () => Boolean, Popup, false, (d, args) => (<Popup>d)._OnIsOpenChanged(args));
+        static ChildProperty = DependencyProperty.Register("Child", () => UIElement, Popup, undefined, (d, args) => (<Popup>d)._OnChildChanged(args));
+        static HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d)._OnOffsetChanged(args));
+        static VerticalOffsetProperty = DependencyProperty.Register("VerticalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d)._OnOffsetChanged(args));
+        static IsOpenProperty = DependencyProperty.Register("IsOpen", () => Boolean, Popup, false, (d, args) => (<Popup>d)._OnIsOpenChanged(args));
         Child: UIElement;
         HorizontalOffset: number;
         VerticalOffset: number;
@@ -20619,9 +20649,6 @@ module Fayde.Controls.Primitives {
         Opened: MulticastEvent = new MulticastEvent();
         Closed: MulticastEvent = new MulticastEvent();
         ClickedOutside: MulticastEvent = new MulticastEvent();
-        constructor() {
-            super();
-        }
         get RealChild(): FrameworkElement {
             if (this._ClickCatcher)
                 return <FrameworkElement>(<Canvas>this.Child).Children.GetValueAt(1);
@@ -20692,10 +20719,10 @@ module Fayde.Controls.Primitives {
             if (oldFE) {
                 if (this.IsOpen)
                     this._Hide(oldFE);
-                this._Store.PropagateInheritedOnAdd(oldFE.XamlNode);
+                this._Store.ClearInheritedOnRemove(oldFE.XamlNode);
             }
             if (newFE) {
-                this._Store.ClearInheritedOnRemove(newFE.XamlNode);
+                this._Store.PropagateInheritedOnAdd(newFE.XamlNode);
                 if (this.IsOpen)
                     this._Show(newFE);
             }
@@ -22397,7 +22424,7 @@ module Fayde.Controls {
         DropDownOpened: MulticastEvent = new MulticastEvent();
         DropDownClosed: MulticastEvent = new MulticastEvent();
         static IsDropDownOpenProperty = DependencyProperty.Register("IsDropDownOpen", () => Boolean, ComboBox, false, (d, args) => (<ComboBox>d)._IsDropDownOpenChanged(args));
-        static ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", () => Style, ComboBox, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));
+        static ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", () => Style, ComboBox, undefined, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));
         static MaxDropDownHeightProperty = DependencyProperty.Register("MaxDropDownHeight", () => Number, ComboBox, Number.POSITIVE_INFINITY, (d, args) => (<ComboBox>d)._MaxDropDownHeightChanged(args));
         static IsSelectionActiveProperty = Primitives.Selector.IsSelectionActiveProperty;
         IsDropDownOpen: bool;
@@ -22425,16 +22452,16 @@ module Fayde.Controls {
             if (open) {
                 this._FocusedIndex = this.Items.Count > 0 ? Math.max(this.SelectedIndex, 0) : -1;
                 if (this._FocusedIndex > -1) {
-                    var cbi = Nullstone.As(this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex), ComboBoxItem);
-                    if (cbi != null)
-                        cbi.Focus();
+                    var focusedItem = this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex);
+                    if (focusedItem instanceof ComboBoxItem)
+                        (<ComboBoxItem>focusedItem).Focus();
                 }
                 this.LayoutUpdated.Subscribe(this._UpdatePopupSizeAndPosition, this);
-                this.DropDownOpened.Raise(this, new EventArgs());
+                this.DropDownOpened.Raise(this, EventArgs.Empty);
             } else {
                 this.Focus();
                 this.LayoutUpdated.Unsubscribe(this._UpdatePopupSizeAndPosition, this);
-                this.DropDownClosed.Raise(this, new EventArgs());
+                this.DropDownClosed.Raise(this, EventArgs.Empty);
             }
             var selectedItem = this.SelectedItem;
             this._UpdateDisplayedItem(open && selectedItem instanceof Fayde.UIElement ? null : selectedItem);

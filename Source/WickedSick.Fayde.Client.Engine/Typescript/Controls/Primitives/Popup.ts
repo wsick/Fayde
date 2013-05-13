@@ -9,15 +9,11 @@ module Fayde.Controls.Primitives {
         GetInheritedEnumerator(): IEnumerator {
             var popup = (<Popup>this.XObject);
             if (!popup)
-                return;
-            var index = -1;
-            return {
-                MoveNext: function () {
-                    index++;
-                    return index === 0;
-                },
-                Current: popup.Child
-            };
+                return ArrayEx.EmptyEnumerator;
+            var child = popup.Child;
+            if (!child)
+                return ArrayEx.EmptyEnumerator;
+            return ArrayEx.GetEnumerator([popup.Child.XamlNode]);
         }
 
         ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) { }
@@ -40,10 +36,10 @@ module Fayde.Controls.Primitives {
             return new PopupNode(this);
         }
 
-        static ChildProperty = DependencyProperty.RegisterCore("Child", () => UIElement, Popup, undefined, (d, args) => (<Popup>d)._OnChildChanged(args));
-        static HorizontalOffsetProperty = DependencyProperty.RegisterCore("HorizontalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d)._OnOffsetChanged(args));
-        static VerticalOffsetProperty = DependencyProperty.RegisterCore("VerticalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d)._OnOffsetChanged(args));
-        static IsOpenProperty = DependencyProperty.RegisterCore("IsOpen", () => Boolean, Popup, false, (d, args) => (<Popup>d)._OnIsOpenChanged(args));
+        static ChildProperty = DependencyProperty.Register("Child", () => UIElement, Popup, undefined, (d, args) => (<Popup>d)._OnChildChanged(args));
+        static HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d)._OnOffsetChanged(args));
+        static VerticalOffsetProperty = DependencyProperty.Register("VerticalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d)._OnOffsetChanged(args));
+        static IsOpenProperty = DependencyProperty.Register("IsOpen", () => Boolean, Popup, false, (d, args) => (<Popup>d)._OnIsOpenChanged(args));
         Child: UIElement;
         HorizontalOffset: number;
         VerticalOffset: number;
@@ -57,10 +53,6 @@ module Fayde.Controls.Primitives {
         Opened: MulticastEvent = new MulticastEvent();
         Closed: MulticastEvent = new MulticastEvent();
         ClickedOutside: MulticastEvent = new MulticastEvent();
-
-        constructor() {
-            super();
-        }
 
         get RealChild(): FrameworkElement {
             if (this._ClickCatcher)
@@ -142,12 +134,12 @@ module Fayde.Controls.Primitives {
                     this._Hide(oldFE);
                 //TODO: Fix this
                 //this.XamlNode.DetachVisualChild(oldFE, error);
-                this._Store.PropagateInheritedOnAdd(oldFE.XamlNode);
+                this._Store.ClearInheritedOnRemove(oldFE.XamlNode);
             }
             if (newFE) {
                 //TODO: Fix this
                 //this.XamlNode.AttachVisualChild(newFE, error);
-                this._Store.ClearInheritedOnRemove(newFE.XamlNode);
+                this._Store.PropagateInheritedOnAdd(newFE.XamlNode);
                 if (this.IsOpen)
                     this._Show(newFE);
             }

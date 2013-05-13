@@ -24,9 +24,6 @@ var Fayde;
                 this._TempJson = json;
             }
             ControlTemplate.prototype.GetVisualTree = function (templateBindingSource) {
-                if(this.TargetType === Controls.Primitives.ScrollBar) {
-                    "".toString();
-                }
                 var json = this._TempJson;
                 if(!json) {
                     throw new XamlParseException("ControlTemplate has no definition.");

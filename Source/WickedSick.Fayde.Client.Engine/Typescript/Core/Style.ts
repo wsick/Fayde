@@ -6,7 +6,7 @@ module Fayde {
     export class Style extends DependencyObject {
         private _IsSealed: bool = false;
 
-        static BasedOnProperty: DependencyProperty = DependencyProperty.Register("BasedOn", () => Function, Style);
+        static BasedOnProperty: DependencyProperty = DependencyProperty.Register("BasedOn", () => Style, Style);
         static TargetTypeProperty: DependencyProperty = DependencyProperty.Register("TargetType", () => Function, Style);
         Setters: SetterCollection;
         BasedOn: Style;

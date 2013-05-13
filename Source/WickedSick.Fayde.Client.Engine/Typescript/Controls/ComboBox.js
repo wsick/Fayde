@@ -30,7 +30,7 @@ var Fayde;
             });
             ComboBox.ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", function () {
                 return Fayde.Style;
-            }, ComboBox, function (d, args) {
+            }, ComboBox, undefined, function (d, args) {
                 return (d).OnItemContainerStyleChanged(args);
             });
             ComboBox.MaxDropDownHeightProperty = DependencyProperty.Register("MaxDropDownHeight", function () {
@@ -56,11 +56,11 @@ var Fayde;
                         }
                     }
                     this.LayoutUpdated.Subscribe(this._UpdatePopupSizeAndPosition, this);
-                    this.DropDownOpened.Raise(this, new EventArgs());
+                    this.DropDownOpened.Raise(this, EventArgs.Empty);
                 } else {
                     this.Focus();
                     this.LayoutUpdated.Unsubscribe(this._UpdatePopupSizeAndPosition, this);
-                    this.DropDownClosed.Raise(this, new EventArgs());
+                    this.DropDownClosed.Raise(this, EventArgs.Empty);
                 }
                 var selectedItem = this.SelectedItem;
                 this._UpdateDisplayedItem(open && selectedItem instanceof Fayde.UIElement ? null : selectedItem);

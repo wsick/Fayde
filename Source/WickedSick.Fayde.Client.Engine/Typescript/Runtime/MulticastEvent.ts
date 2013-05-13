@@ -19,8 +19,10 @@ class MulticastEvent {
         var i = 0;
         while (i < len) {
             listener = listeners[i];
-            if (listener.Closure === closure && listener.Callback === callback)
+            if (listener.Closure === closure && listener.Callback === callback) {
                 listeners.splice(i, 1);
+                len--;
+            }
             else
                 i++;
         }

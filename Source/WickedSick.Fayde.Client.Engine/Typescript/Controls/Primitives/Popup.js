@@ -20,16 +20,15 @@ var Fayde;
                 PopupNode.prototype.GetInheritedEnumerator = function () {
                     var popup = (this.XObject);
                     if(!popup) {
-                        return;
+                        return Fayde.ArrayEx.EmptyEnumerator;
                     }
-                    var index = -1;
-                    return {
-                        MoveNext: function () {
-                            index++;
-                            return index === 0;
-                        },
-                        Current: popup.Child
-                    };
+                    var child = popup.Child;
+                    if(!child) {
+                        return Fayde.ArrayEx.EmptyEnumerator;
+                    }
+                    return Fayde.ArrayEx.GetEnumerator([
+                        popup.Child.XamlNode
+                    ]);
                 };
                 PopupNode.prototype.ComputeBounds = function (baseComputer, lu) {
                 };
@@ -51,7 +50,8 @@ var Fayde;
             var Popup = (function (_super) {
                 __extends(Popup, _super);
                 function Popup() {
-                                _super.call(this);
+                    _super.apply(this, arguments);
+
                     this._ClickCatcher = null;
                     this._IsVisible = false;
                     this.Opened = new MulticastEvent();
@@ -61,22 +61,22 @@ var Fayde;
                 Popup.prototype.CreateNode = function () {
                     return new PopupNode(this);
                 };
-                Popup.ChildProperty = DependencyProperty.RegisterCore("Child", function () {
+                Popup.ChildProperty = DependencyProperty.Register("Child", function () {
                     return Fayde.UIElement;
                 }, Popup, undefined, function (d, args) {
                     return (d)._OnChildChanged(args);
                 });
-                Popup.HorizontalOffsetProperty = DependencyProperty.RegisterCore("HorizontalOffset", function () {
+                Popup.HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset", function () {
                     return Number;
                 }, Popup, 0.0, function (d, args) {
                     return (d)._OnOffsetChanged(args);
                 });
-                Popup.VerticalOffsetProperty = DependencyProperty.RegisterCore("VerticalOffset", function () {
+                Popup.VerticalOffsetProperty = DependencyProperty.Register("VerticalOffset", function () {
                     return Number;
                 }, Popup, 0.0, function (d, args) {
                     return (d)._OnOffsetChanged(args);
                 });
-                Popup.IsOpenProperty = DependencyProperty.RegisterCore("IsOpen", function () {
+                Popup.IsOpenProperty = DependencyProperty.Register("IsOpen", function () {
                     return Boolean;
                 }, Popup, false, function (d, args) {
                     return (d)._OnIsOpenChanged(args);
@@ -178,12 +178,12 @@ var Fayde;
                         }
                         //TODO: Fix this
                         //this.XamlNode.DetachVisualChild(oldFE, error);
-                        this._Store.PropagateInheritedOnAdd(oldFE.XamlNode);
+                        this._Store.ClearInheritedOnRemove(oldFE.XamlNode);
                     }
                     if(newFE) {
                         //TODO: Fix this
                         //this.XamlNode.AttachVisualChild(newFE, error);
-                        this._Store.ClearInheritedOnRemove(newFE.XamlNode);
+                        this._Store.PropagateInheritedOnAdd(newFE.XamlNode);
                         if(this.IsOpen) {
                             this._Show(newFE);
                         }

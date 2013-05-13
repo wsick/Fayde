@@ -21,7 +21,7 @@ var Fayde;
             });
         }
         Style.BasedOnProperty = DependencyProperty.Register("BasedOn", function () {
-            return Function;
+            return Style;
         }, Style);
         Style.TargetTypeProperty = DependencyProperty.Register("TargetType", function () {
             return Function;

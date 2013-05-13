@@ -17,6 +17,7 @@ var MulticastEvent = (function () {
             listener = listeners[i];
             if(listener.Closure === closure && listener.Callback === callback) {
                 listeners.splice(i, 1);
+                len--;
             } else {
                 i++;
             }
