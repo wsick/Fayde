@@ -276,6 +276,7 @@ var Fayde;
             function TextBlock() {
                         _super.call(this);
                 var inlines = new Fayde.Documents.InlineCollection();
+                inlines.AttachTo(this);
                 Object.defineProperty(this, "Inlines", {
                     value: inlines,
                     writable: false

@@ -15,8 +15,10 @@ var Fayde;
                 __extends(AnimationUsingKeyFrames, _super);
                 function AnimationUsingKeyFrames() {
                                 _super.call(this);
+                    var coll = new Animation.KeyFrameCollection();
+                    coll.AttachTo(this);
                     Object.defineProperty(this, "KeyFrames", {
-                        value: new Animation.KeyFrameCollection(),
+                        value: coll,
                         writable: false
                     });
                 }

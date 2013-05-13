@@ -18,6 +18,12 @@ var Fayde;
 
             this._ht = [];
         }
+        XamlObjectCollection.prototype.AttachTo = function (xobj) {
+            var error = new BError();
+            if(!this.XamlNode.AttachTo(xobj.XamlNode, error)) {
+                error.ThrowException();
+            }
+        };
         Object.defineProperty(XamlObjectCollection.prototype, "Count", {
             get: function () {
                 return this._ht.length;
@@ -41,7 +47,7 @@ var Fayde;
             var removed = this._ht[index];
             var added = value;
             var error = new BError();
-            if(this.AddedToCollection(added, error)) {
+            if(this.AddingToCollection(added, error)) {
                 this._ht[index] = added;
                 this.RemovedFromCollection(removed, true);
                 this._RaiseItemReplaced(removed, added, index);
@@ -65,7 +71,7 @@ var Fayde;
                 index = count;
             }
             var error = new BError();
-            if(this.AddedToCollection(value, error)) {
+            if(this.AddingToCollection(value, error)) {
                 this._ht.splice(index, 0, value);
                 this._RaiseItemAdded(value, index);
                 return true;
@@ -112,7 +118,7 @@ var Fayde;
         XamlObjectCollection.prototype.CanAdd = function (value) {
             return true;
         };
-        XamlObjectCollection.prototype.AddedToCollection = function (value, error) {
+        XamlObjectCollection.prototype.AddingToCollection = function (value, error) {
             if(value instanceof Fayde.XamlObject) {
                 return value.XamlNode.AttachTo(this.XamlNode, error);
             }

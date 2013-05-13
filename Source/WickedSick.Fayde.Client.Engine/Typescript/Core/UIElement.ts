@@ -191,7 +191,7 @@ module Fayde {
         _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
             uinlist.unshift(this);
         }
-        _HitTestPoint(ctx: RenderContext, p: Point, uinlist: UINode[]) {
+        _HitTestPoint(ctx: Fayde.RenderContext, p: Point, uinlist: Fayde.UINode[]) {
             uinlist.unshift(this);
         }
         _InsideClip(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {

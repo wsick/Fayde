@@ -310,6 +310,7 @@ module Fayde.Controls {
             super();
 
             var inlines = new Documents.InlineCollection();
+            inlines.AttachTo(this);
             Object.defineProperty(this, "Inlines", {
                 value: inlines,
                 writable: false

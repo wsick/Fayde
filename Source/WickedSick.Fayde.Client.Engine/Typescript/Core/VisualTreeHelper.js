@@ -104,9 +104,17 @@ var Fayde;
                 str += "[" + id + "]";
             }
             var name = curNode.Name;
-            if(name) {
-                str += " [" + name + "]";
+            str += " [";
+            var ns = curNode.NameScope;
+            if(!ns) {
+                str += "^";
+            } else if(ns.IsRoot) {
+                str += "+";
+            } else {
+                str += "-";
             }
+            str += name + "]";
+            ;
             if(func) {
                 str += func(curNode, tabIndex);
             }

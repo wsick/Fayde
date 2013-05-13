@@ -200,8 +200,8 @@ module Fayde.Media.Animation {
             return super.Clear();
         }
 
-        private AddedToCollection(value: KeyFrame, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        private AddingToCollection(value: KeyFrame, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             this._Resolved = false;
             value.Listen(this);

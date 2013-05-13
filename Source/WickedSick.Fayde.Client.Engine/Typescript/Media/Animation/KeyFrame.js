@@ -193,8 +193,8 @@ var Fayde;
                     this._SortedList = [];
                     return _super.prototype.Clear.call(this);
                 };
-                KeyFrameCollection.prototype.AddedToCollection = function (value, error) {
-                    if(!_super.prototype.AddedToCollection.call(this, value, error)) {
+                KeyFrameCollection.prototype.AddingToCollection = function (value, error) {
+                    if(!_super.prototype.AddingToCollection.call(this, value, error)) {
                         return false;
                     }
                     this._Resolved = false;

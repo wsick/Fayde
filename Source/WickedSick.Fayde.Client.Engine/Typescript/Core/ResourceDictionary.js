@@ -14,8 +14,8 @@ var Fayde;
             _super.apply(this, arguments);
 
         }
-        ResourceDictionaryCollection.prototype.AddedToCollection = function (value, error) {
-            if(!_super.prototype.AddedToCollection.call(this, value, error)) {
+        ResourceDictionaryCollection.prototype.AddingToCollection = function (value, error) {
+            if(!_super.prototype.AddingToCollection.call(this, value, error)) {
                 return false;
             }
             return this._AssertNoCycles(value, value.XamlNode.ParentNode, error);
@@ -59,8 +59,10 @@ var Fayde;
             //Defined in XamlObjectCollection
             this._KeyIndex = [];
             this.Source = "";
+            var rdc = new ResourceDictionaryCollection();
+            rdc.AttachTo(this);
             Object.defineProperty(this, "MergedDictionaries", {
-                value: new ResourceDictionaryCollection(),
+                value: rdc,
                 writable: false
             });
         }

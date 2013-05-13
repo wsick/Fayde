@@ -9,6 +9,12 @@ module Fayde {
     export class XamlObjectCollection extends XamlObject implements IEnumerable {
         private _ht: XamlObject[] = [];
         
+        AttachTo(xobj: XamlObject) {
+            var error = new BError();
+            if (!this.XamlNode.AttachTo(xobj.XamlNode, error))
+                error.ThrowException();
+        }
+        
         get Count() { return this._ht.length; }
 
         GetRange(startIndex: number, endIndex: number): XamlObject[] {
@@ -29,7 +35,7 @@ module Fayde {
             var added = value;
 
             var error = new BError();
-            if (this.AddedToCollection(added, error)) {
+            if (this.AddingToCollection(added, error)) {
                 this._ht[index] = added;
                 this.RemovedFromCollection(removed, true);
                 this._RaiseItemReplaced(removed, added, index);
@@ -51,7 +57,7 @@ module Fayde {
                 index = count;
 
             var error = new BError();
-            if (this.AddedToCollection(value, error)) {
+            if (this.AddingToCollection(value, error)) {
                 this._ht.splice(index, 0, value);
                 this._RaiseItemAdded(value, index);
                 return true;
@@ -91,7 +97,7 @@ module Fayde {
         }
         Contains(value: XamlObject): bool { return this.IndexOf(value) > -1; }
         CanAdd (value: XamlObject): bool { return true; }
-        AddedToCollection(value: XamlObject, error: BError): bool {
+        AddingToCollection(value: XamlObject, error: BError): bool {
             if (value instanceof XamlObject)
                 return value.XamlNode.AttachTo(this.XamlNode, error);
         }

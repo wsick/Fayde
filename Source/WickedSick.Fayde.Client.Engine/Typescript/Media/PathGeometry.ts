@@ -15,6 +15,7 @@ module Fayde.Media {
         constructor() {
             super();
             var coll = new PathFigureCollection();
+            coll.AttachTo(this);
             coll.Listen(this);
             Object.defineProperty(this, "Figures", {
                 value: coll,

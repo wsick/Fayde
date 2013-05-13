@@ -13,6 +13,7 @@ module Fayde.Documents {
         constructor() {
             super();
             var coll = new InlineCollection();
+            coll.AttachTo(this);
             coll.Listen(this);
             Object.defineProperty(this, "Inlines", {
                 value: coll,

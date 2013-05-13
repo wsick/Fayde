@@ -220,8 +220,10 @@ module Fayde {
         Resources: ResourceDictionary;
         constructor() {
             super();
+            var rd = new ResourceDictionary(); 
+            rd.AttachTo(this);
             Object.defineProperty(this, "Resources", {
-                value: new ResourceDictionary(),
+                value: rd,
                 writable: false
             });
         }

@@ -17,8 +17,8 @@ module Fayde.Documents {
         Listen(listener: IInlinesChangedListener) { this._Listener = listener; }
         Unlisten(listener: IInlinesChangedListener) { if (this._Listener === listener) this._Listener = null; }
 
-        AddedToCollection(value: Inline, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        AddingToCollection(value: Inline, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             var listener = this._Listener;
             if (listener) listener.InlinesChanged(value, true);

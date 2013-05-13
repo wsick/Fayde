@@ -34,8 +34,8 @@ var Fayde;
                     this._Listener = null;
                 }
             };
-            InlineCollection.prototype.AddedToCollection = function (value, error) {
-                if(!_super.prototype.AddedToCollection.call(this, value, error)) {
+            InlineCollection.prototype.AddingToCollection = function (value, error) {
+                if(!_super.prototype.AddingToCollection.call(this, value, error)) {
                     return false;
                 }
                 var listener = this._Listener;

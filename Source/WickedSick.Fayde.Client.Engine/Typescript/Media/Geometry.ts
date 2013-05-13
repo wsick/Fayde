@@ -103,8 +103,8 @@ module Fayde.Media {
         Listen(listener: IGeometryListener) { this._Listener = listener; }
         Unlisten(listener: IGeometryListener) { if (this._Listener === listener) this._Listener = null; }
 
-        AddedToCollection(value: Geometry, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        AddingToCollection(value: Geometry, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             value.Listen(this);
             var listener = this._Listener;

@@ -14,7 +14,7 @@ var Fayde;
                 _super.call(this);
             this._IsSealed = false;
             var coll = new Fayde.SetterCollection();
-            coll.XamlNode.AttachTo(this.XamlNode, undefined);
+            coll.AttachTo(this);
             Object.defineProperty(this, "Setters", {
                 value: coll,
                 writable: false

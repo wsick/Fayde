@@ -37,8 +37,8 @@ var Fayde;
                 _super.apply(this, arguments);
 
             }
-            PathSegmentCollection.prototype.AddedToCollection = function (value, error) {
-                if(!_super.prototype.AddedToCollection.call(this, value, error)) {
+            PathSegmentCollection.prototype.AddingToCollection = function (value, error) {
+                if(!_super.prototype.AddingToCollection.call(this, value, error)) {
                     return false;
                 }
                 value.Listen(this);

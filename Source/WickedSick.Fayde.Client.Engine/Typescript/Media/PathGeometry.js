@@ -17,6 +17,7 @@ var Fayde;
                         _super.call(this);
                 this._OverridePath = null;
                 var coll = new Media.PathFigureCollection();
+                coll.AttachTo(this);
                 coll.Listen(this);
                 Object.defineProperty(this, "Figures", {
                     value: coll,

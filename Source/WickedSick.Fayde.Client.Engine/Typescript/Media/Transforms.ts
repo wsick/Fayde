@@ -97,8 +97,8 @@ module Fayde.Media {
         Listen(listener: ITransformChangedListener) { this._Listener = listener; }
         Unlisten(listener: ITransformChangedListener) { if (this._Listener === listener) this._Listener = null; }
 
-        AddedToCollection(value: Transform, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        AddingToCollection(value: Transform, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             value.Listen(this);
             this.TransformChanged();
@@ -122,6 +122,7 @@ module Fayde.Media {
         constructor() {
             super();
             var coll = new TransformCollection();
+            coll.AttachTo(this);
             coll.Listen(this);
             Object.defineProperty(this, "Children", {
                 value: coll,

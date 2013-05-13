@@ -26,11 +26,11 @@ var Fayde;
             }
             this._IsSealed = true;
         };
-        SetterCollection.prototype.AddedToCollection = function (value, error) {
+        SetterCollection.prototype.AddingToCollection = function (value, error) {
             if(!value || !this._ValidateSetter(value, error)) {
                 return false;
             }
-            return _super.prototype.AddedToCollection.call(this, value, error);
+            return _super.prototype.AddingToCollection.call(this, value, error);
         };
         SetterCollection.prototype._ValidateSetter = function (setter, error) {
             if(setter.Property === undefined) {

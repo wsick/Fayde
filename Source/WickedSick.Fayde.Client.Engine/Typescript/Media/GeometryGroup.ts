@@ -11,6 +11,7 @@ module Fayde.Media {
         constructor() {
             super();
             var coll = new GeometryCollection();
+            coll.AttachTo(this);
             coll.Listen(this);
             Object.defineProperty(this, "Children", {
                 value: coll,

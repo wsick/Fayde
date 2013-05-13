@@ -17,10 +17,10 @@ module Fayde {
             this._IsSealed = true;
         }
         
-        AddedToCollection(value: XamlObject, error: BError): bool {
+        AddingToCollection(value: XamlObject, error: BError): bool {
             if (!value || !this._ValidateSetter(<Setter>value, error))
                 return false;
-            return super.AddedToCollection(value, error);
+            return super.AddingToCollection(value, error);
         }
 
         private _ValidateSetter(setter: Setter, error: BError) {

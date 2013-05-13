@@ -23,8 +23,8 @@ module Fayde.Media {
     export class PathSegmentCollection extends XamlObjectCollection implements IPathSegmentListener {
         private _Listener: IPathSegmentListener;
 
-        AddedToCollection(value: PathSegment, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        AddingToCollection(value: PathSegment, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             value.Listen(this);
             var listener = this._Listener;

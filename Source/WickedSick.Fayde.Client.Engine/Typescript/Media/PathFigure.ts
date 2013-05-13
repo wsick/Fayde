@@ -26,6 +26,7 @@ module Fayde.Media {
         constructor() {
             super();
             var coll = new PathSegmentCollection();
+            coll.AttachTo(this);
             coll.Listen(this);
             Object.defineProperty(this, "Segments", {
                 value: coll,
@@ -74,8 +75,8 @@ module Fayde.Media {
     export class PathFigureCollection extends XamlObjectCollection implements IPathFigureListener {
         private _Listener: IPathFigureListener;
 
-        AddedToCollection(value: PathFigure, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        AddingToCollection(value: PathFigure, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             value.Listen(this);
             var listener = this._Listener;

@@ -17,7 +17,7 @@ module Fayde {
         constructor() {
             super();
             var coll = new SetterCollection();
-            coll.XamlNode.AttachTo(this.XamlNode, undefined);
+            coll.AttachTo(this);
             Object.defineProperty(this, "Setters", {
                 value: coll,
                 writable: false

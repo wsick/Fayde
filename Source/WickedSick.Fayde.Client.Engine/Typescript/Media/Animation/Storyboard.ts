@@ -22,8 +22,11 @@ module Fayde.Media.Animation {
 
         constructor() {
             super();
+            
+            var coll = new TimelineCollection();
+            coll.AttachTo(this);
             Object.defineProperty(this, "Children", {
-                value: new TimelineCollection(),
+                value: coll,
                 writable: false
             });
         }

@@ -15,8 +15,10 @@ var Fayde;
                 __extends(Storyboard, _super);
                 function Storyboard() {
                                 _super.call(this);
+                    var coll = new Animation.TimelineCollection();
+                    coll.AttachTo(this);
                     Object.defineProperty(this, "Children", {
-                        value: new Animation.TimelineCollection(),
+                        value: coll,
                         writable: false
                     });
                 }

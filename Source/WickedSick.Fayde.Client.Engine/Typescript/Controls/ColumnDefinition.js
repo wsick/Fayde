@@ -72,8 +72,8 @@ var Fayde;
                     listener.ColumnDefinitionsChanged(this);
                 }
             };
-            ColumnDefinitionCollection.prototype.AddedToCollection = function (value, error) {
-                if(!_super.prototype.AddedToCollection.call(this, value, error)) {
+            ColumnDefinitionCollection.prototype.AddingToCollection = function (value, error) {
+                if(!_super.prototype.AddingToCollection.call(this, value, error)) {
                     return false;
                 }
                 value.Listen(this);

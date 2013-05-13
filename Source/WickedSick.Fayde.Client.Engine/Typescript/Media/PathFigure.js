@@ -18,6 +18,7 @@ var Fayde;
                         _super.call(this);
                 this._Path = null;
                 var coll = new Media.PathSegmentCollection();
+                coll.AttachTo(this);
                 coll.Listen(this);
                 Object.defineProperty(this, "Segments", {
                     value: coll,
@@ -93,8 +94,8 @@ var Fayde;
                 _super.apply(this, arguments);
 
             }
-            PathFigureCollection.prototype.AddedToCollection = function (value, error) {
-                if(!_super.prototype.AddedToCollection.call(this, value, error)) {
+            PathFigureCollection.prototype.AddingToCollection = function (value, error) {
+                if(!_super.prototype.AddingToCollection.call(this, value, error)) {
                     return false;
                 }
                 value.Listen(this);

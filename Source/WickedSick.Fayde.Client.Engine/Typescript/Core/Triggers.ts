@@ -83,8 +83,8 @@ module Fayde {
             return parentNode.XObject;
         }
 
-        AddedToCollection(value: TriggerBase, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        AddingToCollection(value: TriggerBase, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             var parent = this.ParentXamlObject;
             if (parent) value.Attach(parent);

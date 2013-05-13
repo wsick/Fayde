@@ -85,8 +85,6 @@ module Fayde {
             var scope = this.FindNameScope();
             if (scope)
                 return scope.FindName(name);
-            if (this.ParentNode)
-                this.ParentNode.FindName(name);
             return undefined;
         }
         SetName(name: string) {

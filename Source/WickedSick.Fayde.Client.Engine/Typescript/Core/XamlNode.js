@@ -83,9 +83,6 @@ var Fayde;
             if(scope) {
                 return scope.FindName(name);
             }
-            if(this.ParentNode) {
-                this.ParentNode.FindName(name);
-            }
             return undefined;
         };
         XamlNode.prototype.SetName = function (name) {

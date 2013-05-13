@@ -8,8 +8,8 @@ module Fayde {
     }
 
     export class ResourceDictionaryCollection extends XamlObjectCollection {
-        AddedToCollection(value: ResourceDictionary, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        AddingToCollection(value: ResourceDictionary, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             return this._AssertNoCycles(value, value.XamlNode.ParentNode, error);
         }
@@ -53,8 +53,10 @@ module Fayde {
 
         constructor() {
             super();
+            var rdc = new ResourceDictionaryCollection();
+            rdc.AttachTo(this);
             Object.defineProperty(this, "MergedDictionaries", {
-                value: new ResourceDictionaryCollection(),
+                value: rdc,
                 writable: false
             });
         }

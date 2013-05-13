@@ -57,12 +57,12 @@ module Fayde.Controls {
     class PanelChildrenCollection extends XamlObjectCollection {
         XamlNode: PanelChildrenNode;
         CreateNode(): PanelChildrenNode { return new PanelChildrenNode(this); }
-        AddedToCollection(value: UIElement, error: BError): bool {
+        AddingToCollection(value: UIElement, error: BError): bool {
             var node = this.XamlNode;
             if (!node.ParentNode.AttachVisualChild(value, error))
                 return false;
             node.AddNode(value.XamlNode);
-            return super.AddedToCollection(value, error);
+            return super.AddingToCollection(value, error);
         }
         RemovedFromCollection(value: UIElement, isValueSafe: bool) {
             var node = this.XamlNode;

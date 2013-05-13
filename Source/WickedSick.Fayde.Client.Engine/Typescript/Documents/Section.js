@@ -14,6 +14,7 @@ var Fayde;
             function Section() {
                         _super.call(this);
                 var coll = new Documents.BlockCollection();
+                coll.AttachTo(this);
                 coll.Listen(this);
                 Object.defineProperty(this, "Blocks", {
                     value: coll,

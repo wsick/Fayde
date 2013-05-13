@@ -173,8 +173,8 @@ var Fayde;
                     this._Listener = null;
                 }
             };
-            TransformCollection.prototype.AddedToCollection = function (value, error) {
-                if(!_super.prototype.AddedToCollection.call(this, value, error)) {
+            TransformCollection.prototype.AddingToCollection = function (value, error) {
+                if(!_super.prototype.AddingToCollection.call(this, value, error)) {
                     return false;
                 }
                 value.Listen(this);
@@ -202,6 +202,7 @@ var Fayde;
             function TransformGroup() {
                         _super.call(this);
                 var coll = new TransformCollection();
+                coll.AttachTo(this);
                 coll.Listen(this);
                 Object.defineProperty(this, "Children", {
                     value: coll,

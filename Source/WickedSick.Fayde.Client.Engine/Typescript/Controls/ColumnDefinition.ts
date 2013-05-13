@@ -43,8 +43,8 @@ module Fayde.Controls {
             if (listener) listener.ColumnDefinitionsChanged(this);
         }
 
-        AddedToCollection(value: ColumnDefinition, error: BError): bool {
-            if (!super.AddedToCollection(value, error))
+        AddingToCollection(value: ColumnDefinition, error: BError): bool {
+            if (!super.AddingToCollection(value, error))
                 return false;
             value.Listen(this);
             var listener = this._Listener;

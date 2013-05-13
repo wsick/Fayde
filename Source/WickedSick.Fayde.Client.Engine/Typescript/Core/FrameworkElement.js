@@ -242,8 +242,10 @@ var Fayde;
             this.Loaded = new Fayde.RoutedEvent();
             this.Unloaded = new Fayde.RoutedEvent();
             this.LayoutUpdated = new MulticastEvent();
+            var rd = new Fayde.ResourceDictionary();
+            rd.AttachTo(this);
             Object.defineProperty(this, "Resources", {
-                value: new Fayde.ResourceDictionary(),
+                value: rd,
                 writable: false
             });
         }

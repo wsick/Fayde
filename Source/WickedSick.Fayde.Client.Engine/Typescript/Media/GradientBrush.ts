@@ -17,6 +17,7 @@ module Fayde.Media {
         constructor() {
             super();
             var coll = new GradientStopCollection();
+            coll.AttachTo(this);
             coll.Listen(this);
             Object.defineProperty(this, "GradientStops", {
                 value: coll,

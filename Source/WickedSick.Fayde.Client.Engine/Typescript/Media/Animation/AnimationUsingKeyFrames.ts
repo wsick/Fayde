@@ -8,8 +8,10 @@ module Fayde.Media.Animation {
         KeyFrames: KeyFrameCollection;
         constructor() {
             super();
+            var coll = new KeyFrameCollection();
+            coll.AttachTo(this);
             Object.defineProperty(this, "KeyFrames", {
-                value: new KeyFrameCollection(),
+                value: coll,
                 writable: false
             });
         }

@@ -78,13 +78,13 @@ var Fayde;
             PanelChildrenCollection.prototype.CreateNode = function () {
                 return new PanelChildrenNode(this);
             };
-            PanelChildrenCollection.prototype.AddedToCollection = function (value, error) {
+            PanelChildrenCollection.prototype.AddingToCollection = function (value, error) {
                 var node = this.XamlNode;
                 if(!node.ParentNode.AttachVisualChild(value, error)) {
                     return false;
                 }
                 node.AddNode(value.XamlNode);
-                return _super.prototype.AddedToCollection.call(this, value, error);
+                return _super.prototype.AddingToCollection.call(this, value, error);
             };
             PanelChildrenCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
                 var node = this.XamlNode;

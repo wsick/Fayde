@@ -14,6 +14,7 @@ module Fayde.Documents {
         constructor() {
             super();
             var coll = new BlockCollection();
+            coll.AttachTo(this);
             coll.Listen(this);
             Object.defineProperty(this, "Blocks", {
                 value: coll,

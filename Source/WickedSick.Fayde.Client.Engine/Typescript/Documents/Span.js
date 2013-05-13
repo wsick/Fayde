@@ -13,6 +13,7 @@ var Fayde;
             function Span() {
                         _super.call(this);
                 var coll = new Documents.InlineCollection();
+                coll.AttachTo(this);
                 coll.Listen(this);
                 Object.defineProperty(this, "Inlines", {
                     value: coll,

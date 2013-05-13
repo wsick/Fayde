@@ -15,6 +15,7 @@ var Fayde;
             function GeometryGroup() {
                         _super.call(this);
                 var coll = new Media.GeometryCollection();
+                coll.AttachTo(this);
                 coll.Listen(this);
                 Object.defineProperty(this, "Children", {
                     value: coll,

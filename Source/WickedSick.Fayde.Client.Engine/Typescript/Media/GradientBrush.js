@@ -16,6 +16,7 @@ var Fayde;
             function GradientBrush() {
                         _super.call(this);
                 var coll = new Media.GradientStopCollection();
+                coll.AttachTo(this);
                 coll.Listen(this);
                 Object.defineProperty(this, "GradientStops", {
                     value: coll,
