@@ -80,6 +80,7 @@ module Fayde.Media {
             value.Listen(this);
             var listener = this._Listener;
             if (listener) listener.PathFigureChanged(value);
+            return true;
         }
         RemovedFromCollection(value: PathFigure, isValueSafe: bool) {
             super.RemovedFromCollection(value, isValueSafe);

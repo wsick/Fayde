@@ -12031,6 +12031,7 @@ module Fayde.Media {
             value.Listen(this);
             var listener = this._Listener;
             if (listener) listener.GeometryChanged(value);
+            return true;
         }
         RemovedFromCollection(value: Geometry, isValueSafe: bool) {
             super.RemovedFromCollection(value, isValueSafe);
@@ -12118,6 +12119,7 @@ module Fayde.Media {
             value.Listen(this);
             var listener = this._Listener;
             if (listener) listener.GradientStopsChanged(this);
+            return true;
         }
         private RemovedFromCollection(value: GradientStop, isValueSafe: bool) {
             if (!super.RemovedFromCollection(value, isValueSafe))
@@ -12215,6 +12217,7 @@ module Fayde.Media {
             value.Listen(this);
             var listener = this._Listener;
             if (listener) listener.PathFigureChanged(value);
+            return true;
         }
         RemovedFromCollection(value: PathFigure, isValueSafe: bool) {
             super.RemovedFromCollection(value, isValueSafe);
@@ -12292,6 +12295,7 @@ module Fayde.Media {
             value.Listen(this);
             var listener = this._Listener;
             if (listener) listener.PathSegmentChanged(value);
+            return true;
         }
         RemovedFromCollection(value: PathSegment, isValueSafe: bool) {
             super.RemovedFromCollection(value, isValueSafe);
@@ -24109,10 +24113,10 @@ module Fayde.Controls {
                     newValue = e.Value;
                     break;
                 case Primitives.ScrollEventType.First:
-                    newValue = -1.79769313486232E+308;
+                    newValue = Number.NEGATIVE_INFINITY;
                     break;
                 case Primitives.ScrollEventType.Last:
-                    newValue = 1.79769313486232E+308;
+                    newValue = Number.POSITIVE_INFINITY;
                     break;
             }
             newValue = Math.max(newValue, 0);
@@ -24144,10 +24148,10 @@ module Fayde.Controls {
                     newValue = e.Value;
                     break;
                 case Primitives.ScrollEventType.First:
-                    newValue = -1.79769313486232E+308;
+                    newValue = Number.NEGATIVE_INFINITY;
                     break;
                 case Primitives.ScrollEventType.Last:
-                    newValue = 1.79769313486232E+308;
+                    newValue = Number.POSITIVE_INFINITY;
                     break;
             }
             newValue = Math.max(newValue, 0);
@@ -24401,8 +24405,6 @@ module Fayde.Controls {
         CaretBrush: Media.Brush;
         MaxLength: number;
         IsReadOnly: bool;
-        SelectionForeground: Media.Brush;
-        SelectionBackground: Media.Brush;
         BaselineOffset: number;
         SelectedText: string;
         SelectionLength: number;
@@ -24414,6 +24416,22 @@ module Fayde.Controls {
         VerticalScrollBarVisibility: ScrollBarVisibility;
         SelectionChanged: MulticastEvent = new MulticastEvent();
         TextChanged: MulticastEvent = new MulticastEvent();
+        private static DEFAULT_SELECTION_FOREGROUND = Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 1.0));
+        get SelectionForeground(): Media.Brush {
+            var b = this.GetValue(TextBox.SelectionForegroundProperty);
+            if (b)
+                return b;
+            return TextBox.DEFAULT_SELECTION_FOREGROUND;
+        }
+        set SelectionForeground(value: Media.Brush) { this.SetValue(TextBox.SelectionForegroundProperty, value); }
+        private static DEFAULT_SELECTION_BACKGROUND = Media.SolidColorBrush.FromColor(Color.FromRgba(68, 68, 68, 1.0));
+        get SelectionBackground(): Media.Brush {
+            var b = this.GetValue(TextBox.SelectionBackgroundProperty);
+            if (b)
+                return b;
+            return TextBox.DEFAULT_SELECTION_BACKGROUND;
+        }
+        set SelectionBackground(value: Media.Brush) { this.SetValue(TextBox.SelectionBackgroundProperty, value); }
         constructor() {
             super(TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION, TextBox.TextProperty, TextBox.SelectedTextProperty);
             this.DefaultStyleKey = (<any>this).constructor;

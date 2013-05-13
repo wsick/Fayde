@@ -138,6 +138,7 @@ var Fayde;
                 if(listener) {
                     listener.GeometryChanged(value);
                 }
+                return true;
             };
             GeometryCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
                 _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);

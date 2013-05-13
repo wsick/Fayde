@@ -46,6 +46,7 @@ var Fayde;
                 if(listener) {
                     listener.PathSegmentChanged(value);
                 }
+                return true;
             };
             PathSegmentCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
                 _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);

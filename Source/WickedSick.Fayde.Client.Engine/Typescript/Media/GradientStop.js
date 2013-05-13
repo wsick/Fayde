@@ -70,6 +70,7 @@ var Fayde;
                 if(listener) {
                     listener.GradientStopsChanged(this);
                 }
+                return true;
             };
             GradientStopCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
                 if(!_super.prototype.RemovedFromCollection.call(this, value, isValueSafe)) {

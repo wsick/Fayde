@@ -102,6 +102,7 @@ var Fayde;
                 if(listener) {
                     listener.PathFigureChanged(value);
                 }
+                return true;
             };
             PathFigureCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
                 _super.prototype.RemovedFromCollection.call(this, value, isValueSafe);

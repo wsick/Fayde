@@ -29,6 +29,7 @@ module Fayde.Media {
             value.Listen(this);
             var listener = this._Listener;
             if (listener) listener.PathSegmentChanged(value);
+            return true;
         }
         RemovedFromCollection(value: PathSegment, isValueSafe: bool) {
             super.RemovedFromCollection(value, isValueSafe);

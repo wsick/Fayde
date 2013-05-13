@@ -43,6 +43,7 @@ module Fayde.Media {
             value.Listen(this);
             var listener = this._Listener;
             if (listener) listener.GradientStopsChanged(this);
+            return true;
         }
         private RemovedFromCollection(value: GradientStop, isValueSafe: bool) {
             if (!super.RemovedFromCollection(value, isValueSafe))

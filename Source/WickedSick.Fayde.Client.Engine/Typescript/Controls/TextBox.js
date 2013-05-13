@@ -156,8 +156,7 @@ var Fayde;
                         this._ResetIMContext();
                         //TODO: this._IMCtx.FocusOut();
                                             } else {
-                        //TODO: this._IMCtx.FocusIn();
-                                            }
+                    }
                 }
                 if(this.$View) {
                     this.$View.SetEnableCursor(!this.$IsReadOnly);

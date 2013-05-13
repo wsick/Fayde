@@ -109,6 +109,7 @@ module Fayde.Media {
             value.Listen(this);
             var listener = this._Listener;
             if (listener) listener.GeometryChanged(value);
+            return true;
         }
         RemovedFromCollection(value: Geometry, isValueSafe: bool) {
             super.RemovedFromCollection(value, isValueSafe);
