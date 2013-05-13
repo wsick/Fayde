@@ -150,9 +150,11 @@ module Fayde.Controls {
     Nullstone.RegisterType(PanelNode, "PanelNode");
 
     function zIndexPropertyChanged(dobj: DependencyObject, args) {
-        if (dobj instanceof UIElement)
-          (<UIElement>dobj).XamlNode.LayoutUpdater.Invalidate();
-        (<PanelNode>dobj.XamlNode.ParentNode)._InvalidateChildrenZIndices();
+        var xn = dobj.XamlNode;
+        if (xn instanceof UINode)
+            (<UINode>xn).LayoutUpdater.Invalidate();
+        if (xn.IsAttached)
+            (<PanelNode>xn.ParentNode)._InvalidateChildrenZIndices();
     }
     export class Panel extends FrameworkElement implements IMeasurableHidden {
         XamlNode: PanelNode;

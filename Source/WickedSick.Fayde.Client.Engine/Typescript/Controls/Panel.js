@@ -166,10 +166,13 @@ var Fayde;
         Controls.PanelNode = PanelNode;        
         Nullstone.RegisterType(PanelNode, "PanelNode");
         function zIndexPropertyChanged(dobj, args) {
-            if(dobj instanceof Fayde.UIElement) {
-                (dobj).XamlNode.LayoutUpdater.Invalidate();
+            var xn = dobj.XamlNode;
+            if(xn instanceof Fayde.UINode) {
+                (xn).LayoutUpdater.Invalidate();
             }
-            (dobj.XamlNode.ParentNode)._InvalidateChildrenZIndices();
+            if(xn.IsAttached) {
+                (xn.ParentNode)._InvalidateChildrenZIndices();
+            }
         }
         var Panel = (function (_super) {
             __extends(Panel, _super);
