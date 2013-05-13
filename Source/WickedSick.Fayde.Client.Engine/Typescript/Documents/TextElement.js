@@ -23,9 +23,9 @@ var Fayde;
                 if(!this.InheritedWalkProperty) {
                     return Fayde.ArrayEx.EmptyEnumerator;
                 }
-                var coll = this.XObject.GetValue(this.InheritedWalkProperty);
+                var coll = this.XObject[this.InheritedWalkProperty];
                 if(coll) {
-                    return (coll).GetNodeEnumerator();
+                    return coll.GetNodeEnumerator();
                 }
             };
             return TextElementNode;

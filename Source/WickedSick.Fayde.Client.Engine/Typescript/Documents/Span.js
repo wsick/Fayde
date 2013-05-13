@@ -11,11 +11,32 @@ var Fayde;
         var Span = (function (_super) {
             __extends(Span, _super);
             function Span() {
-                _super.apply(this, arguments);
-
+                        _super.call(this);
+                var coll = new Documents.InlineCollection();
+                coll.Listen(this);
+                Object.defineProperty(this, "Inlines", {
+                    value: coll,
+                    writable: false
+                });
             }
             Span.prototype.CreateNode = function () {
-                return new Documents.TextElementNode(this, Span.InlinesProperty);
+                return new Documents.TextElementNode(this, "Inlines");
+            };
+            Span.Annotations = {
+                ContentProperty: "Inlines"
+            };
+            Span.prototype.InlinesChanged = function (newInline, isAdd) {
+                if(isAdd) {
+                    this._Store.PropagateInheritedOnAdd(newInline.XamlNode);
+                }
+            };
+            Span.prototype._SerializeText = function () {
+                var str = "";
+                var enumerator = this.Inlines.GetEnumerator();
+                while(enumerator.MoveNext()) {
+                    str += (enumerator.Current)._SerializeText();
+                }
+                return str;
             };
             return Span;
         })(Documents.Inline);

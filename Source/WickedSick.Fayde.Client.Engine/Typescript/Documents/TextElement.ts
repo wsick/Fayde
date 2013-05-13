@@ -9,17 +9,17 @@
 module Fayde.Documents {
     export class TextElementNode extends DONode {
         XObject: TextElement;
-        constructor(xobj: TextElement, inheritedWalkProperty: DependencyProperty) {
+        constructor(xobj: TextElement, inheritedWalkProperty: string) {
             super(xobj);
             this.InheritedWalkProperty = inheritedWalkProperty;
         }
-        InheritedWalkProperty: DependencyProperty;
+        InheritedWalkProperty: string;
         GetInheritedEnumerator(): IEnumerator {
             if (!this.InheritedWalkProperty)
                 return ArrayEx.EmptyEnumerator;
-            var coll = this.XObject.GetValue(this.InheritedWalkProperty);
+            var coll: XamlObjectCollection = this.XObject[this.InheritedWalkProperty];
             if (coll)
-                return (<XamlObjectCollection>coll).GetNodeEnumerator();
+                return coll.GetNodeEnumerator();
         }
     }
     Nullstone.RegisterType(TextElementNode, "TextElementNode");

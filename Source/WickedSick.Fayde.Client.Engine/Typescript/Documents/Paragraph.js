@@ -11,11 +11,24 @@ var Fayde;
         var Paragraph = (function (_super) {
             __extends(Paragraph, _super);
             function Paragraph() {
-                _super.apply(this, arguments);
-
+                        _super.call(this);
+                var coll = new Documents.InlineCollection();
+                coll.Listen(this);
+                Object.defineProperty(this, "Inlines", {
+                    value: coll,
+                    writable: false
+                });
             }
             Paragraph.prototype.CreateNode = function () {
-                return new Documents.TextElementNode(this, Paragraph.InlinesProperty);
+                return new Documents.TextElementNode(this, "Inlines");
+            };
+            Paragraph.Annotations = {
+                ContentProperty: "Inlines"
+            };
+            Paragraph.prototype.InlinesChanged = function (newInline, isAdd) {
+                if(isAdd) {
+                    this._Store.PropagateInheritedOnAdd(newInline.XamlNode);
+                }
             };
             return Paragraph;
         })(Documents.Block);

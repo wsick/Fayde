@@ -8,7 +8,7 @@ module Fayde.Documents {
         FlowDirection: FlowDirection;
         Text: string;
 
-        _SerializeText(): string { return this.Text; }
+        private _SerializeText(): string { return this.Text; }
     }
     Nullstone.RegisterType(Run, "Run");
 }
