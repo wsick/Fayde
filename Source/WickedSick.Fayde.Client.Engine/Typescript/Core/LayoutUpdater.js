@@ -52,9 +52,11 @@ var Fayde;
             this.LayoutXform = mat3.identity();
             this.LocalXform = mat3.identity();
             this.RenderXform = mat3.identity();
+            this.CarrierXform = null;
             this.LocalProjection = mat4.identity();
             this.AbsoluteProjection = mat4.identity();
             this.RenderProjection = mat4.identity();
+            this.CarrierProjection = null;
             this.TotalOpacity = 1.0;
             this.TotalIsRenderVisible = true;
             this.TotalIsHitTestVisible = true;
@@ -348,9 +350,25 @@ var Fayde;
             var projection = uie.Projection;
             var oldProjection = mat4.clone(this.LocalProjection);
             var old = mat3.clone(this.AbsoluteXform);
-            var renderXform = mat3.identity(this.RenderXform);
             mat4.identity(this.LocalProjection);
-            this._CarryParentTransform(vplu, uin.ParentNode);
+            if(vplu) {
+                mat3.set(vplu.AbsoluteXform, this.AbsoluteXform);
+                mat4.set(vplu.AbsoluteProjection, this.AbsoluteProjection);
+            } else {
+                mat3.identity(this.AbsoluteXform);
+                mat4.identity(this.AbsoluteProjection);
+            }
+            var carrierProjection = this.CarrierProjection;
+            var carrierXform = this.CarrierXform;
+            if(carrierProjection) {
+                mat4.set(carrierProjection, this.LocalProjection);
+            }
+            var renderXform = this.RenderXform;
+            if(carrierXform) {
+                mat3.set(carrierXform, renderXform);
+            } else {
+                mat3.identity(renderXform);
+            }
             mat3.multiply(renderXform, this.LayoutXform, renderXform)//render = layout * render
             ;
             mat3.multiply(renderXform, this.LocalXform, renderXform)//render = local * render
@@ -392,40 +410,9 @@ var Fayde;
             //TODO: We can optimize to shift bounds rather than going through an UpdateBounds invalidation
             this.UpdateBounds();
             this.ComputeComposite();
-        };
-        LayoutUpdater.prototype._CarryParentTransform = function (vpLu, parentNode) {
-            if(vpLu) {
-                mat3.set(vpLu.AbsoluteXform, this.AbsoluteXform);
-                mat4.set(vpLu.AbsoluteProjection, this.AbsoluteProjection);
-                return;
-            }
-            mat3.identity(this.AbsoluteXform);
-            mat4.identity(this.AbsoluteProjection);
-            if(parentNode instanceof Fayde.Controls.Primitives.PopupNode) {
-                var popupNode = parentNode;
-                var elNode = popupNode;
-                while(elNode) {
-                    this.Flags |= (elNode.LayoutUpdater.Flags & UIElementFlags.RenderProjection);
-                    elNode = elNode.VisualParentNode;
-                }
-                var popup = popupNode.XObject;
-                var popupLu = popupNode.LayoutUpdater;
-                if(this.Flags & UIElementFlags.RenderProjection) {
-                    mat4.set(popupLu.AbsoluteProjection, this.LocalProjection);
-                    var m = mat4.createTranslate(popup.HorizontalOffset, popup.VerticalOffset, 0.0);
-                    mat4.multiply(m, this.LocalProjection, this.LocalProjection)//local = local * m
-                    ;
-                } else {
-                    var pap = popupLu.AbsoluteProjection;
-                    var renderXform = this.RenderXform;
-                    renderXform[0] = pap[0];
-                    renderXform[1] = pap[1];
-                    renderXform[2] = pap[3];
-                    renderXform[3] = pap[4];
-                    renderXform[4] = pap[5];
-                    renderXform[5] = pap[7];
-                    mat3.translate(renderXform, popup.HorizontalOffset, popup.VerticalOffset);
-                }
+            var post = uin;
+            if(post.PostCompute) {
+                post.PostCompute(this, projection != null);
             }
         };
         LayoutUpdater.prototype.UpdateProjection = function () {

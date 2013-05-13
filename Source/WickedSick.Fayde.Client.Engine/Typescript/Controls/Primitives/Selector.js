@@ -303,7 +303,11 @@ var Fayde;
                             lbi.Focus();
                         }
                     }
-                    this.SelectionChanged.Raise(this, new Primitives.SelectionChangedEventArgs(oldVals, newVals));
+                    var args = new Primitives.SelectionChangedEventArgs(oldVals, newVals);
+                    this.OnSelectionChanged(args);
+                    this.SelectionChanged.Raise(this, args);
+                };
+                Selector.prototype.OnSelectionChanged = function (args) {
                 };
                 Selector.prototype.NotifyListItemClicked = function (lbi) {
                     this._Selection.Select(this.ItemContainerGenerator.ItemFromContainer(lbi));

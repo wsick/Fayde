@@ -66,6 +66,9 @@ module Fayde {
     export interface IBoundsComputable {
         ComputeBounds(baseComputer: () => void , lu: LayoutUpdater);
     }
+    export interface IPostComputeTransformable {
+        PostCompute(lu: LayoutUpdater, hasLocalProjection: bool);
+    }
 
     var maxPassCount = 250;
     export class LayoutUpdater {
@@ -89,9 +92,11 @@ module Fayde {
         LayoutXform: number[] = mat3.identity();
         LocalXform: number[] = mat3.identity();
         RenderXform: number[] = mat3.identity();
+        CarrierXform: number[] = null;
         LocalProjection: number[] = mat4.identity();
         AbsoluteProjection: number[] = mat4.identity();
         RenderProjection: number[] = mat4.identity();
+        CarrierProjection: number[] = null;
 
         TotalOpacity: number = 1.0;
         TotalIsRenderVisible: bool = true;
@@ -405,9 +410,25 @@ module Fayde {
             var oldProjection = mat4.clone(this.LocalProjection);
             var old = mat3.clone(this.AbsoluteXform);
 
-            var renderXform = mat3.identity(this.RenderXform);
             mat4.identity(this.LocalProjection);
-            this._CarryParentTransform(vplu, uin.ParentNode);
+            if (vplu) {
+                mat3.set(vplu.AbsoluteXform, this.AbsoluteXform);
+                mat4.set(vplu.AbsoluteProjection, this.AbsoluteProjection);
+            } else {
+                mat3.identity(this.AbsoluteXform);
+                mat4.identity(this.AbsoluteProjection);
+            }
+            var carrierProjection = this.CarrierProjection;
+            var carrierXform = this.CarrierXform;
+            if (carrierProjection)
+                mat4.set(carrierProjection, this.LocalProjection);
+                
+            var renderXform: number[] = this.RenderXform;
+            if (carrierXform)
+                mat3.set(carrierXform, renderXform);
+            else
+                mat3.identity(renderXform);
+
             mat3.multiply(renderXform, this.LayoutXform, renderXform); //render = layout * render
             mat3.multiply(renderXform, this.LocalXform, renderXform); //render = local * render
 
@@ -450,43 +471,10 @@ module Fayde {
             this.UpdateBounds();
             
             this.ComputeComposite();
-        }
-        private _CarryParentTransform(vpLu: LayoutUpdater, parentNode: XamlNode) {
-            if (vpLu) {
-                mat3.set(vpLu.AbsoluteXform, this.AbsoluteXform);
-                mat4.set(vpLu.AbsoluteProjection, this.AbsoluteProjection);
-                return;
-            }
-
-            mat3.identity(this.AbsoluteXform);
-            mat4.identity(this.AbsoluteProjection);
-
-            if (parentNode instanceof Controls.Primitives.PopupNode) {
-                var popupNode = <Controls.Primitives.PopupNode>parentNode;
-                var elNode: UINode = popupNode;
-                while (elNode) {
-                    this.Flags |= (elNode.LayoutUpdater.Flags & UIElementFlags.RenderProjection);
-                    elNode = elNode.VisualParentNode;
-                }
-                
-                var popup = popupNode.XObject;
-                var popupLu = popupNode.LayoutUpdater;
-                if (this.Flags & UIElementFlags.RenderProjection) {
-                    mat4.set(popupLu.AbsoluteProjection, this.LocalProjection);
-                    var m = mat4.createTranslate(popup.HorizontalOffset, popup.VerticalOffset, 0.0);
-                    mat4.multiply(m, this.LocalProjection, this.LocalProjection); //local = local * m
-                } else {
-                    var pap = popupLu.AbsoluteProjection;
-                    var renderXform = this.RenderXform;
-                    renderXform[0] = pap[0];
-                    renderXform[1] = pap[1];
-                    renderXform[2] = pap[3];
-                    renderXform[3] = pap[4];
-                    renderXform[4] = pap[5];
-                    renderXform[5] = pap[7];
-                    mat3.translate(renderXform, popup.HorizontalOffset, popup.VerticalOffset);
-                }
-            }
+            
+            var post = <IPostComputeTransformable><any>uin;
+            if (post.PostCompute)
+                post.PostCompute(this, projection != null);
         }
         UpdateProjection() {
             if (this.Node.IsAttached)

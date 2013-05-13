@@ -28,7 +28,6 @@ module Fayde.Controls {
         constructor() {
             super();
             this.DefaultStyleKey = (<any>this).constructor;
-            this.SelectionChanged.Subscribe(this._OnSelectionChanged, this);
         }
 
         private _IsDropDownOpenChanged(args: IDependencyPropertyChangedEventArgs) {
@@ -82,13 +81,13 @@ module Fayde.Controls {
 
             if (this.$Popup != null) {
                 this._UpdatePopupMaxHeight(this.MaxDropDownHeight);
-                this.$Popup.CatchClickedOutside();
+                this.$Popup.XamlNode.CatchClickedOutside();
                 this.$Popup.ClickedOutside.Subscribe(this._PopupClickedOutside, this);
 
                 var child = this.$Popup.Child;
                 if (child != null) {
                     child.KeyDown.Subscribe(this._OnChildKeyDown, this);
-                    this.$Popup.RealChild.SizeChanged.Subscribe(this._UpdatePopupSizeAndPosition, this);
+                    (<FrameworkElement>child).SizeChanged.Subscribe(this._UpdatePopupSizeAndPosition, this);
                 }
             }
 
@@ -227,7 +226,7 @@ module Fayde.Controls {
         private _OnChildKeyDown(sender, e: Input.KeyEventArgs) {
             this.OnKeyDown(e);
         }
-        private _OnSelectionChanged(sender, e: Primitives.SelectionChangedEventArgs) {
+        OnSelectionChanged(e: Primitives.SelectionChangedEventArgs) {
             if (!this.IsDropDownOpen)
                 this._UpdateDisplayedItem(this.SelectedItem);
         }
@@ -295,11 +294,13 @@ module Fayde.Controls {
             this.$ContentPresenter.ContentTemplate = this.$SelectionBoxItemTemplate;
         }
         private _UpdatePopupSizeAndPosition(sender, e: EventArgs) {
-            if (!this.$Popup)
+            var popup = this.$Popup;
+            if (!popup)
                 return;
-            var child = <FrameworkElement>this.$Popup.RealChild;
+            var child = <FrameworkElement>popup.Child;
             if (!(child instanceof FrameworkElement))
                 return;
+
             child.MinWidth = this.ActualWidth;
 
             var root = <FrameworkElement>VisualTreeHelper.GetRoot(this);
@@ -346,16 +347,17 @@ module Fayde.Controls {
                 finalOffset.Y = this.RenderSize.Height;
             }
 
-            this.$Popup.HorizontalOffset = finalOffset.X;
-            this.$Popup.VerticalOffset = finalOffset.Y;
+            popup.HorizontalOffset = finalOffset.X;
+            popup.VerticalOffset = finalOffset.Y;
 
             this._UpdatePopupMaxHeight(this.MaxDropDownHeight);
         }
-        private _UpdatePopupMaxHeight(height) {
-            if (this.$Popup && this.$Popup.Child instanceof FrameworkElement) {
+        private _UpdatePopupMaxHeight(height: number) {
+            var child: FrameworkElement;
+            if (this.$Popup && (child = <FrameworkElement>this.$Popup.Child) && child instanceof FrameworkElement) {
                 if (height === Number.POSITIVE_INFINITY)
                     height = App.Instance.MainSurface.Extents.Height / 2.0;
-                this.$Popup.RealChild.MaxHeight = height;
+                child.MaxHeight = height;
             }
         }
     }

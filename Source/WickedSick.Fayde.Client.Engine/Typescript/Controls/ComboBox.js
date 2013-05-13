@@ -21,7 +21,6 @@ var Fayde;
                 this.$SelectionBoxItemTemplate = null;
                 this._FocusedIndex = -1;
                 this.DefaultStyleKey = (this).constructor;
-                this.SelectionChanged.Subscribe(this._OnSelectionChanged, this);
             }
             ComboBox.IsDropDownOpenProperty = DependencyProperty.Register("IsDropDownOpen", function () {
                 return Boolean;
@@ -86,12 +85,12 @@ var Fayde;
                 }
                 if(this.$Popup != null) {
                     this._UpdatePopupMaxHeight(this.MaxDropDownHeight);
-                    this.$Popup.CatchClickedOutside();
+                    this.$Popup.XamlNode.CatchClickedOutside();
                     this.$Popup.ClickedOutside.Subscribe(this._PopupClickedOutside, this);
                     var child = this.$Popup.Child;
                     if(child != null) {
                         child.KeyDown.Subscribe(this._OnChildKeyDown, this);
-                        this.$Popup.RealChild.SizeChanged.Subscribe(this._UpdatePopupSizeAndPosition, this);
+                        (child).SizeChanged.Subscribe(this._UpdatePopupSizeAndPosition, this);
                     }
                 }
                 if(this.$DropDownToggle != null) {
@@ -228,7 +227,7 @@ var Fayde;
             ComboBox.prototype._OnChildKeyDown = function (sender, e) {
                 this.OnKeyDown(e);
             };
-            ComboBox.prototype._OnSelectionChanged = function (sender, e) {
+            ComboBox.prototype.OnSelectionChanged = function (e) {
                 if(!this.IsDropDownOpen) {
                     this._UpdateDisplayedItem(this.SelectedItem);
                 }
@@ -304,10 +303,11 @@ var Fayde;
                 this.$ContentPresenter.ContentTemplate = this.$SelectionBoxItemTemplate;
             };
             ComboBox.prototype._UpdatePopupSizeAndPosition = function (sender, e) {
-                if(!this.$Popup) {
+                var popup = this.$Popup;
+                if(!popup) {
                     return;
                 }
-                var child = this.$Popup.RealChild;
+                var child = popup.Child;
                 if(!(child instanceof Fayde.FrameworkElement)) {
                     return;
                 }
@@ -350,16 +350,17 @@ var Fayde;
                 } else {
                     finalOffset.Y = this.RenderSize.Height;
                 }
-                this.$Popup.HorizontalOffset = finalOffset.X;
-                this.$Popup.VerticalOffset = finalOffset.Y;
+                popup.HorizontalOffset = finalOffset.X;
+                popup.VerticalOffset = finalOffset.Y;
                 this._UpdatePopupMaxHeight(this.MaxDropDownHeight);
             };
             ComboBox.prototype._UpdatePopupMaxHeight = function (height) {
-                if(this.$Popup && this.$Popup.Child instanceof Fayde.FrameworkElement) {
+                var child;
+                if(this.$Popup && (child = this.$Popup.Child) && child instanceof Fayde.FrameworkElement) {
                     if(height === Number.POSITIVE_INFINITY) {
                         height = App.Instance.MainSurface.Extents.Height / 2.0;
                     }
-                    this.$Popup.RealChild.MaxHeight = height;
+                    child.MaxHeight = height;
                 }
             };
             return ComboBox;

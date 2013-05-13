@@ -16,6 +16,9 @@ var Fayde;
                 function PopupNode() {
                     _super.apply(this, arguments);
 
+                    this._IsVisible = false;
+                    this._IsCatchingClick = false;
+                    this._Catcher = null;
                 }
                 PopupNode.prototype.GetInheritedEnumerator = function () {
                     var popup = (this.XObject);
@@ -39,9 +42,125 @@ var Fayde;
                     }
                 };
                 PopupNode.prototype._HitTestPoint = function (ctx, p, uinlist) {
-                    if(this.XObject.IsVisible) {
+                    if(this._IsVisible) {
                         _super.prototype._HitTestPoint.call(this, ctx, p, uinlist);
                     }
+                };
+                Object.defineProperty(PopupNode.prototype, "VisualChild", {
+                    get: function () {
+                        return this._VisualChild;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                PopupNode.prototype._ChildChanged = function (oldChild, newChild) {
+                    var popup = this.XObject;
+                    this._Hide();
+                    if(oldChild) {
+                        popup._Store.ClearInheritedOnRemove(oldChild.XamlNode);
+                    }
+                    this._PrepareVisualChild(newChild);
+                    if(newChild) {
+                        popup._Store.PropagateInheritedOnAdd(newChild.XamlNode);
+                        if(popup.IsOpen) {
+                            this._Show();
+                        }
+                    }
+                };
+                PopupNode.prototype._PrepareVisualChild = function (newChild) {
+                    if(!newChild) {
+                        return;
+                    }
+                    if(this._IsCatchingClick) {
+                        var root = this._VisualChild;
+                        if(!root) {
+                            var root = new Controls.Canvas();
+                            var clickCatcher = new Controls.Canvas();
+                            clickCatcher.Background = Fayde.Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0));
+                            clickCatcher.LayoutUpdated.Subscribe(this._UpdateCatcher, this);
+                            clickCatcher.MouseLeftButtonDown.Subscribe(this._RaiseClickedOutside, this);
+                            root.Children.Add(clickCatcher);
+                            this._Catcher = clickCatcher;
+                            this._VisualChild = root;
+                        } else {
+                            root.Children.RemoveAt(1);
+                        }
+                        root.Children.Add(newChild);
+                    } else {
+                        this._VisualChild = newChild;
+                    }
+                };
+                PopupNode.prototype.CatchClickedOutside = function () {
+                    if(!this._IsCatchingClick) {
+                        this._VisualChild = null;
+                    }
+                    this._IsCatchingClick = true;
+                    this._PrepareVisualChild(this.XObject.Child);
+                };
+                PopupNode.prototype._UpdateCatcher = function () {
+                    var root = this._VisualChild;
+                    if(!root) {
+                        return;
+                    }
+                    var surfaceExtents = this._Surface.Extents;
+                    root.Width = surfaceExtents.Width;
+                    root.Height = surfaceExtents.Height;
+                    var catcher = this._Catcher;
+                    if(!catcher) {
+                        return;
+                    }
+                    catcher.Width = root.Width;
+                    catcher.Height = root.Height;
+                };
+                PopupNode.prototype._RaiseClickedOutside = function (sender, e) {
+                    this.XObject.ClickedOutside.Raise(this, EventArgs.Empty);
+                };
+                PopupNode.prototype.PostCompute = function (lu, hasLocalProjection) {
+                    var child = this.XObject.Child;
+                    if(!child) {
+                        return;
+                    }
+                    var childLu = child.XamlNode.LayoutUpdater;
+                    var hasProjection = hasLocalProjection;
+                    var curNode = this;
+                    while((curNode = curNode.VisualParentNode) && !hasProjection) {
+                        if(curNode.LayoutUpdater.Flags & Fayde.UIElementFlags.RenderProjection) {
+                            hasProjection = true;
+                        }
+                    }
+                    var popup = this.XObject;
+                    if(hasProjection) {
+                        var projection = mat4.clone(lu.AbsoluteProjection);
+                        var m = mat4.createTranslate(popup.HorizontalOffset, popup.VerticalOffset, 0.0);
+                        mat4.multiply(m, projection, projection)//projection = projection * m
+                        ;
+                        childLu.CarrierProjection = projection;
+                        childLu.CarrierXform = null;
+                        childLu.UpdateProjection();
+                    } else {
+                        var xform = mat3.clone(lu.AbsoluteXform);
+                        mat3.translate(xform, popup.HorizontalOffset, popup.VerticalOffset);
+                        childLu.CarrierProjection = null;
+                        childLu.CarrierXform = xform;
+                        childLu.UpdateTransform();
+                    }
+                };
+                PopupNode.prototype._Hide = function () {
+                    var child = this._VisualChild;
+                    if(!this._IsVisible || !child) {
+                        return;
+                    }
+                    this._IsVisible = false;
+                    this._Surface.DetachLayer(child);
+                };
+                PopupNode.prototype._Show = function () {
+                    this._UpdateCatcher();
+                    var child = this._VisualChild;
+                    if(this._IsVisible || !child) {
+                        return;
+                    }
+                    this._IsVisible = true;
+                    this._Surface.AttachLayer(child);
                 };
                 return PopupNode;
             })(Fayde.FENode);
@@ -52,8 +171,6 @@ var Fayde;
                 function Popup() {
                     _super.apply(this, arguments);
 
-                    this._ClickCatcher = null;
-                    this._IsVisible = false;
                     this.Opened = new MulticastEvent();
                     this.Closed = new MulticastEvent();
                     this.ClickedOutside = new MulticastEvent();
@@ -84,84 +201,6 @@ var Fayde;
                 Popup.Annotations = {
                     ContentProperty: Popup.ChildProperty
                 };
-                Object.defineProperty(Popup.prototype, "IsVisible", {
-                    get: function () {
-                        return this._IsVisible;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                Object.defineProperty(Popup.prototype, "RealChild", {
-                    get: function () {
-                        if(this._ClickCatcher) {
-                            return (this.Child).Children.GetValueAt(1);
-                        }
-                        return this.Child;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                Popup.prototype._Hide = function (child) {
-                    if(!this._IsVisible || !child) {
-                        return;
-                    }
-                    this._IsVisible = false;
-                    App.Instance.MainSurface.DetachLayer(child);
-                };
-                Popup.prototype._Show = function (child) {
-                    if(this._IsVisible || !child) {
-                        return;
-                    }
-                    this._IsVisible = true;
-                    App.Instance.MainSurface.AttachLayer(child);
-                };
-                Popup.prototype._OnOpened = function () {
-                    this._UpdateCatcher();
-                    this.Opened.RaiseAsync(this, EventArgs.Empty);
-                };
-                Popup.prototype._OnClosed = function () {
-                    this.Closed.RaiseAsync(this, EventArgs.Empty);
-                };
-                Popup.prototype.CatchClickedOutside = function () {
-                    var child = this.Child;
-                    if(!child) {
-                        return;
-                    }
-                    var root = new Controls.Canvas();
-                    this._ClickCatcher = new Controls.Canvas();
-                    this._ClickCatcher.Background = Fayde.Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0));
-                    this.Child = root;
-                    root.Children.Add(this._ClickCatcher);
-                    root.Children.Add(child);
-                    this._ClickCatcher.LayoutUpdated.Subscribe(this._UpdateCatcher, this);
-                    this._ClickCatcher.MouseLeftButtonDown.Subscribe(this._RaiseClickedOutside, this);
-                };
-                Popup.prototype._UpdateCatcher = function () {
-                    if(!this._ClickCatcher) {
-                        return;
-                    }
-                    try  {
-                        var xform = this.Child.TransformToVisual(null);
-                        if(xform instanceof Fayde.Media.Transform) {
-                            this._ClickCatcher.Projection = null;
-                            this._ClickCatcher.RenderTransform = (xform).Inverse;
-                        } else if(xform instanceof Fayde.Media.InternalTransform) {
-                            var projection = (xform).CreateMatrix3DProjection();
-                            this._ClickCatcher.RenderTransform = null;
-                            this._ClickCatcher.Projection = projection;
-                        }
-                    } catch (err) {
-                        if(!(err instanceof ArgumentException)) {
-                            throw err;
-                        }
-                    }
-                    var surfaceExtents = App.Instance.MainSurface.Extents;
-                    this._ClickCatcher.Width = surfaceExtents.Width;
-                    this._ClickCatcher.Height = surfaceExtents.Height;
-                };
-                Popup.prototype._RaiseClickedOutside = function (sender, e) {
-                    this.ClickedOutside.Raise(this, EventArgs.Empty);
-                };
                 Popup.prototype._OnChildChanged = function (args) {
                     var oldFE;
                     if(args.OldValue instanceof Fayde.FrameworkElement) {
@@ -171,40 +210,21 @@ var Fayde;
                     if(args.NewValue instanceof Fayde.FrameworkElement) {
                         newFE = args.NewValue;
                     }
-                    var error = new BError();
-                    if(oldFE) {
-                        if(this.IsOpen) {
-                            this._Hide(oldFE);
-                        }
-                        //TODO: Fix this
-                        //this.XamlNode.DetachVisualChild(oldFE, error);
-                        this._Store.ClearInheritedOnRemove(oldFE.XamlNode);
-                    }
-                    if(newFE) {
-                        //TODO: Fix this
-                        //this.XamlNode.AttachVisualChild(newFE, error);
-                        this._Store.PropagateInheritedOnAdd(newFE.XamlNode);
-                        if(this.IsOpen) {
-                            this._Show(newFE);
-                        }
-                    }
-                    if(error.Message) {
-                        error.ThrowException();
-                    }
+                    this.XamlNode._ChildChanged(oldFE, newFE);
                 };
                 Popup.prototype._OnOffsetChanged = function (args) {
-                    var child = this.Child;
+                    var child = this.XamlNode.VisualChild;
                     if(child) {
                         child.XamlNode.LayoutUpdater.InvalidateMeasure();
                     }
                 };
                 Popup.prototype._OnIsOpenChanged = function (args) {
                     if(args.NewValue) {
-                        this._Show(this.Child);
-                        this._OnOpened();
+                        this.XamlNode._Show();
+                        this.Opened.RaiseAsync(this, EventArgs.Empty);
                     } else {
-                        this._Hide(this.Child);
-                        this._OnClosed();
+                        this.XamlNode._Hide();
+                        this.Closed.RaiseAsync(this, EventArgs.Empty);
                     }
                 };
                 return Popup;

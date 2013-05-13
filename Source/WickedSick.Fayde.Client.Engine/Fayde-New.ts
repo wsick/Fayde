@@ -4924,6 +4924,9 @@ module Fayde {
     export interface IBoundsComputable {
         ComputeBounds(baseComputer: () => void , lu: LayoutUpdater);
     }
+    export interface IPostComputeTransformable {
+        PostCompute(lu: LayoutUpdater, hasLocalProjection: bool);
+    }
     var maxPassCount = 250;
     export class LayoutUpdater {
         static LayoutExceptionUpdater: LayoutUpdater = undefined;
@@ -4942,9 +4945,11 @@ module Fayde {
         LayoutXform: number[] = mat3.identity();
         LocalXform: number[] = mat3.identity();
         RenderXform: number[] = mat3.identity();
+        CarrierXform: number[] = null;
         LocalProjection: number[] = mat4.identity();
         AbsoluteProjection: number[] = mat4.identity();
         RenderProjection: number[] = mat4.identity();
+        CarrierProjection: number[] = null;
         TotalOpacity: number = 1.0;
         TotalIsRenderVisible: bool = true;
         TotalIsHitTestVisible: bool = true;
@@ -5199,9 +5204,23 @@ module Fayde {
             var projection = uie.Projection;
             var oldProjection = mat4.clone(this.LocalProjection);
             var old = mat3.clone(this.AbsoluteXform);
-            var renderXform = mat3.identity(this.RenderXform);
             mat4.identity(this.LocalProjection);
-            this._CarryParentTransform(vplu, uin.ParentNode);
+            if (vplu) {
+                mat3.set(vplu.AbsoluteXform, this.AbsoluteXform);
+                mat4.set(vplu.AbsoluteProjection, this.AbsoluteProjection);
+            } else {
+                mat3.identity(this.AbsoluteXform);
+                mat4.identity(this.AbsoluteProjection);
+            }
+            var carrierProjection = this.CarrierProjection;
+            var carrierXform = this.CarrierXform;
+            if (carrierProjection)
+                mat4.set(carrierProjection, this.LocalProjection);
+            var renderXform: number[] = this.RenderXform;
+            if (carrierXform)
+                mat3.set(carrierXform, renderXform);
+            else
+                mat3.identity(renderXform);
             mat3.multiply(renderXform, this.LayoutXform, renderXform); //render = layout * render
             mat3.multiply(renderXform, this.LocalXform, renderXform); //render = local * render
             var m = mat3.toAffineMat4(renderXform);
@@ -5232,40 +5251,9 @@ module Fayde {
             mat4.set(this.LocalProjection, this.RenderProjection);
             this.UpdateBounds();
             this.ComputeComposite();
-        }
-        private _CarryParentTransform(vpLu: LayoutUpdater, parentNode: XamlNode) {
-            if (vpLu) {
-                mat3.set(vpLu.AbsoluteXform, this.AbsoluteXform);
-                mat4.set(vpLu.AbsoluteProjection, this.AbsoluteProjection);
-                return;
-            }
-            mat3.identity(this.AbsoluteXform);
-            mat4.identity(this.AbsoluteProjection);
-            if (parentNode instanceof Controls.Primitives.PopupNode) {
-                var popupNode = <Controls.Primitives.PopupNode>parentNode;
-                var elNode: UINode = popupNode;
-                while (elNode) {
-                    this.Flags |= (elNode.LayoutUpdater.Flags & UIElementFlags.RenderProjection);
-                    elNode = elNode.VisualParentNode;
-                }
-                var popup = popupNode.XObject;
-                var popupLu = popupNode.LayoutUpdater;
-                if (this.Flags & UIElementFlags.RenderProjection) {
-                    mat4.set(popupLu.AbsoluteProjection, this.LocalProjection);
-                    var m = mat4.createTranslate(popup.HorizontalOffset, popup.VerticalOffset, 0.0);
-                    mat4.multiply(m, this.LocalProjection, this.LocalProjection); //local = local * m
-                } else {
-                    var pap = popupLu.AbsoluteProjection;
-                    var renderXform = this.RenderXform;
-                    renderXform[0] = pap[0];
-                    renderXform[1] = pap[1];
-                    renderXform[2] = pap[3];
-                    renderXform[3] = pap[4];
-                    renderXform[4] = pap[5];
-                    renderXform[5] = pap[7];
-                    mat3.translate(renderXform, popup.HorizontalOffset, popup.VerticalOffset);
-                }
-            }
+            var post = <IPostComputeTransformable><any>uin;
+            if (post.PostCompute)
+                post.PostCompute(this, projection != null);
         }
         UpdateProjection() {
             if (this.Node.IsAttached)
@@ -20607,7 +20595,8 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls.Primitives {
-    export class PopupNode extends FENode implements IBoundsComputable {
+    export class PopupNode extends FENode implements IBoundsComputable, IPostComputeTransformable {
+        private _Surface: Surface; //Defined in FENode
         XObject: Popup;
         GetInheritedEnumerator(): IEnumerator {
             var popup = (<Popup>this.XObject);
@@ -20625,15 +20614,117 @@ module Fayde.Controls.Primitives {
                 this.XObject.IsOpen = false;
         }
         _HitTestPoint(ctx: RenderContext, p: Point, uinlist: UINode[]) {
-            if (this.XObject.IsVisible)
+            if (this._IsVisible)
                 super._HitTestPoint(ctx, p, uinlist);
+        }
+        private _IsVisible: bool = false;
+        private _IsCatchingClick: bool = false;
+        private _Catcher: Canvas = null;
+        private _VisualChild: FrameworkElement;
+        get VisualChild(): FrameworkElement { return this._VisualChild; }
+        _ChildChanged(oldChild: FrameworkElement, newChild: FrameworkElement) {
+            var popup = this.XObject;
+            this._Hide();
+            if (oldChild)
+                popup._Store.ClearInheritedOnRemove(oldChild.XamlNode);
+            this._PrepareVisualChild(newChild);
+            if (newChild) {
+                popup._Store.PropagateInheritedOnAdd(newChild.XamlNode);
+                if (popup.IsOpen)
+                    this._Show();
+            }
+        }
+        private _PrepareVisualChild(newChild: UIElement) {
+            if (!newChild)
+                return;
+            if (this._IsCatchingClick) {
+                var root = <Canvas>this._VisualChild;
+                if (!root) {
+                    var root = new Canvas();
+                    var clickCatcher = new Canvas();
+                    clickCatcher.Background = Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0));
+                    clickCatcher.LayoutUpdated.Subscribe(this._UpdateCatcher, this);
+                    clickCatcher.MouseLeftButtonDown.Subscribe(this._RaiseClickedOutside, this);
+                    root.Children.Add(clickCatcher);
+                    this._Catcher = clickCatcher;
+                    this._VisualChild = root;
+                } else {
+                    root.Children.RemoveAt(1);
+                }
+                root.Children.Add(newChild);
+            } else {
+                this._VisualChild = <FrameworkElement>newChild;
+            }
+        }
+        CatchClickedOutside() {
+            if (!this._IsCatchingClick)
+                this._VisualChild = null;
+            this._IsCatchingClick = true;
+            this._PrepareVisualChild(this.XObject.Child);
+        }
+        private _UpdateCatcher() {
+            var root = this._VisualChild;
+            if (!root)
+                return;
+            var surfaceExtents = this._Surface.Extents;
+            root.Width = surfaceExtents.Width;
+            root.Height = surfaceExtents.Height;
+            var catcher = this._Catcher;
+            if (!catcher)
+                return;
+            catcher.Width = root.Width;
+            catcher.Height = root.Height;
+        }
+        private _RaiseClickedOutside(sender, e) {
+            this.XObject.ClickedOutside.Raise(this, EventArgs.Empty);
+        }
+        PostCompute(lu: LayoutUpdater, hasLocalProjection: bool) {
+            var child = this.XObject.Child;
+            if (!child)
+                return;
+            var childLu = child.XamlNode.LayoutUpdater;
+            var hasProjection: bool = hasLocalProjection;
+            var curNode: UINode = this;
+            while ((curNode = curNode.VisualParentNode) && !hasProjection) {
+                if (curNode.LayoutUpdater.Flags & UIElementFlags.RenderProjection)
+                    hasProjection = true;
+            }
+            var popup = this.XObject;
+            if (hasProjection) {
+                var projection = mat4.clone(lu.AbsoluteProjection);
+                var m = mat4.createTranslate(popup.HorizontalOffset, popup.VerticalOffset, 0.0);
+                mat4.multiply(m, projection, projection); //projection = projection * m
+                childLu.CarrierProjection = projection;
+                childLu.CarrierXform = null;
+                childLu.UpdateProjection();
+            } else {
+                var xform = mat3.clone(lu.AbsoluteXform);
+                mat3.translate(xform, popup.HorizontalOffset, popup.VerticalOffset);
+                childLu.CarrierProjection = null;
+                childLu.CarrierXform = xform;
+                childLu.UpdateTransform();
+            }
+        }
+        _Hide() {
+            var child = this._VisualChild;
+            if (!this._IsVisible || !child)
+                return;
+            this._IsVisible = false;
+            this._Surface.DetachLayer(child);
+        }
+        _Show() {
+            this._UpdateCatcher();
+            var child = this._VisualChild;
+            if (this._IsVisible || !child)
+                return;
+            this._IsVisible = true;
+            this._Surface.AttachLayer(child);
         }
     }
     Nullstone.RegisterType(PopupNode, "PopupNode");
     export class Popup extends FrameworkElement {
-        CreateNode(): PopupNode {
-            return new PopupNode(this);
-        }
+        XamlNode: PopupNode;
+        CreateNode(): PopupNode { return new PopupNode(this); }
         static ChildProperty = DependencyProperty.Register("Child", () => UIElement, Popup, undefined, (d, args) => (<Popup>d)._OnChildChanged(args));
         static HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d)._OnOffsetChanged(args));
         static VerticalOffsetProperty = DependencyProperty.Register("VerticalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d)._OnOffsetChanged(args));
@@ -20643,104 +20734,28 @@ module Fayde.Controls.Primitives {
         VerticalOffset: number;
         IsOpen: bool;
         static Annotations = { ContentProperty: Popup.ChildProperty }
-        private _ClickCatcher: Canvas = null;
-        private _IsVisible: bool = false;
-        get IsVisible(): bool { return this._IsVisible; }
         Opened: MulticastEvent = new MulticastEvent();
         Closed: MulticastEvent = new MulticastEvent();
         ClickedOutside: MulticastEvent = new MulticastEvent();
-        get RealChild(): FrameworkElement {
-            if (this._ClickCatcher)
-                return <FrameworkElement>(<Canvas>this.Child).Children.GetValueAt(1);
-            return <FrameworkElement>this.Child;
-        }
-        private _Hide(child: UIElement) {
-            if (!this._IsVisible || !child)
-                return;
-            this._IsVisible = false;
-            App.Instance.MainSurface.DetachLayer(child);
-        }
-        private _Show(child: UIElement) {
-            if (this._IsVisible || !child)
-                return;
-            this._IsVisible = true;
-            App.Instance.MainSurface.AttachLayer(child);
-        }
-        private _OnOpened() {
-            this._UpdateCatcher();
-            this.Opened.RaiseAsync(this, EventArgs.Empty);
-        }
-        private _OnClosed() {
-            this.Closed.RaiseAsync(this, EventArgs.Empty);
-        }
-        CatchClickedOutside() {
-            var child = this.Child;
-            if (!child)
-                return;
-            var root = new Canvas();
-            this._ClickCatcher = new Canvas();
-            this._ClickCatcher.Background = Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 0));
-            this.Child = root;
-            root.Children.Add(this._ClickCatcher);
-            root.Children.Add(child);
-            this._ClickCatcher.LayoutUpdated.Subscribe(this._UpdateCatcher, this);
-            this._ClickCatcher.MouseLeftButtonDown.Subscribe(this._RaiseClickedOutside, this);
-        }
-        private _UpdateCatcher() {
-            if (!this._ClickCatcher)
-                return;
-            try {
-                var xform = this.Child.TransformToVisual(null);
-                if (xform instanceof Media.Transform) {
-                    this._ClickCatcher.Projection = null;
-                    this._ClickCatcher.RenderTransform = (<Media.Transform>xform).Inverse;
-                } else if (xform instanceof Media.InternalTransform) {
-                    var projection = (<Media.InternalTransform>xform).CreateMatrix3DProjection();
-                    this._ClickCatcher.RenderTransform = null;
-                    this._ClickCatcher.Projection = projection;
-                }
-            } catch (err) {
-                if (!(err instanceof ArgumentException))
-                    throw err;
-            }
-            var surfaceExtents = App.Instance.MainSurface.Extents;
-            this._ClickCatcher.Width = surfaceExtents.Width;
-            this._ClickCatcher.Height = surfaceExtents.Height;
-        }
-        private _RaiseClickedOutside(sender, e) {
-            this.ClickedOutside.Raise(this, EventArgs.Empty);
-        }
         private _OnChildChanged(args: IDependencyPropertyChangedEventArgs) {
             var oldFE: FrameworkElement;
             if (args.OldValue instanceof FrameworkElement) oldFE = <FrameworkElement>args.OldValue;
             var newFE: FrameworkElement;
             if (args.NewValue instanceof FrameworkElement) newFE = <FrameworkElement>args.NewValue;
-            var error = new BError();
-            if (oldFE) {
-                if (this.IsOpen)
-                    this._Hide(oldFE);
-                this._Store.ClearInheritedOnRemove(oldFE.XamlNode);
-            }
-            if (newFE) {
-                this._Store.PropagateInheritedOnAdd(newFE.XamlNode);
-                if (this.IsOpen)
-                    this._Show(newFE);
-            }
-            if (error.Message)
-                error.ThrowException();
+            this.XamlNode._ChildChanged(oldFE, newFE);
         }
         private _OnOffsetChanged(args: IDependencyPropertyChangedEventArgs) {
-            var child = this.Child;
+            var child = this.XamlNode.VisualChild;
             if (child)
                 child.XamlNode.LayoutUpdater.InvalidateMeasure();
         }
         private _OnIsOpenChanged(args: IDependencyPropertyChangedEventArgs) {
             if (args.NewValue) {
-                this._Show(this.Child);
-                this._OnOpened();
+                this.XamlNode._Show();
+                this.Opened.RaiseAsync(this, EventArgs.Empty);
             } else {
-                this._Hide(this.Child);
-                this._OnClosed();
+                this.XamlNode._Hide();
+                this.Closed.RaiseAsync(this, EventArgs.Empty);
             }
         }
     }
@@ -21384,8 +21399,11 @@ module Fayde.Controls.Primitives {
                     lbi.Focus();
                 }
             }
-            this.SelectionChanged.Raise(this, new SelectionChangedEventArgs(oldVals, newVals));
+            var args = new SelectionChangedEventArgs(oldVals, newVals);
+            this.OnSelectionChanged(args);
+            this.SelectionChanged.Raise(this, args);
         }
+        OnSelectionChanged(args: SelectionChangedEventArgs) { }
         NotifyListItemClicked(lbi: ListBoxItem) {
             this._Selection.Select(this.ItemContainerGenerator.ItemFromContainer(lbi));
         }
@@ -22441,7 +22459,6 @@ module Fayde.Controls {
         constructor() {
             super();
             this.DefaultStyleKey = (<any>this).constructor;
-            this.SelectionChanged.Subscribe(this._OnSelectionChanged, this);
         }
         private _IsDropDownOpenChanged(args: IDependencyPropertyChangedEventArgs) {
             var open = args.NewValue;
@@ -22485,12 +22502,12 @@ module Fayde.Controls {
                 this._NullSelFallback = this.$ContentPresenter.Content;
             if (this.$Popup != null) {
                 this._UpdatePopupMaxHeight(this.MaxDropDownHeight);
-                this.$Popup.CatchClickedOutside();
+                this.$Popup.XamlNode.CatchClickedOutside();
                 this.$Popup.ClickedOutside.Subscribe(this._PopupClickedOutside, this);
                 var child = this.$Popup.Child;
                 if (child != null) {
                     child.KeyDown.Subscribe(this._OnChildKeyDown, this);
-                    this.$Popup.RealChild.SizeChanged.Subscribe(this._UpdatePopupSizeAndPosition, this);
+                    (<FrameworkElement>child).SizeChanged.Subscribe(this._UpdatePopupSizeAndPosition, this);
                 }
             }
             if (this.$DropDownToggle != null) {
@@ -22621,7 +22638,7 @@ module Fayde.Controls {
         private _OnChildKeyDown(sender, e: Input.KeyEventArgs) {
             this.OnKeyDown(e);
         }
-        private _OnSelectionChanged(sender, e: Primitives.SelectionChangedEventArgs) {
+        OnSelectionChanged(e: Primitives.SelectionChangedEventArgs) {
             if (!this.IsDropDownOpen)
                 this._UpdateDisplayedItem(this.SelectedItem);
         }
@@ -22681,9 +22698,10 @@ module Fayde.Controls {
             this.$ContentPresenter.ContentTemplate = this.$SelectionBoxItemTemplate;
         }
         private _UpdatePopupSizeAndPosition(sender, e: EventArgs) {
-            if (!this.$Popup)
+            var popup = this.$Popup;
+            if (!popup)
                 return;
-            var child = <FrameworkElement>this.$Popup.RealChild;
+            var child = <FrameworkElement>popup.Child;
             if (!(child instanceof FrameworkElement))
                 return;
             child.MinWidth = this.ActualWidth;
@@ -22722,15 +22740,16 @@ module Fayde.Controls {
             } else {
                 finalOffset.Y = this.RenderSize.Height;
             }
-            this.$Popup.HorizontalOffset = finalOffset.X;
-            this.$Popup.VerticalOffset = finalOffset.Y;
+            popup.HorizontalOffset = finalOffset.X;
+            popup.VerticalOffset = finalOffset.Y;
             this._UpdatePopupMaxHeight(this.MaxDropDownHeight);
         }
-        private _UpdatePopupMaxHeight(height) {
-            if (this.$Popup && this.$Popup.Child instanceof FrameworkElement) {
+        private _UpdatePopupMaxHeight(height: number) {
+            var child: FrameworkElement;
+            if (this.$Popup && (child = <FrameworkElement>this.$Popup.Child) && child instanceof FrameworkElement) {
                 if (height === Number.POSITIVE_INFINITY)
                     height = App.Instance.MainSurface.Extents.Height / 2.0;
-                this.$Popup.RealChild.MaxHeight = height;
+                child.MaxHeight = height;
             }
         }
     }

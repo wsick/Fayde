@@ -254,8 +254,11 @@ module Fayde.Controls.Primitives {
                 }
             }
 
-            this.SelectionChanged.Raise(this, new SelectionChangedEventArgs(oldVals, newVals));
+            var args = new SelectionChangedEventArgs(oldVals, newVals);
+            this.OnSelectionChanged(args);
+            this.SelectionChanged.Raise(this, args);
         }
+        OnSelectionChanged(args: SelectionChangedEventArgs) { }
 
         NotifyListItemClicked(lbi: ListBoxItem) {
             this._Selection.Select(this.ItemContainerGenerator.ItemFromContainer(lbi));
