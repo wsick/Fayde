@@ -89,12 +89,6 @@
     <Content Include="default8.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Tests\Controls\combobox.fap.js">
-      <DependentUpon>combobox.fap</DependentUpon>
-    </Content>
-    <Content Include="Tests\Controls\listbox.fap.js">
-      <DependentUpon>listbox.fap</DependentUpon>
-    </Content>
     <Content Include="Tests\Media\image-stretch.fap">
       <SubType>Designer</SubType>
     </Content>

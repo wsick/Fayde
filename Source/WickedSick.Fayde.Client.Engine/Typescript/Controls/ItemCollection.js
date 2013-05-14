@@ -44,6 +44,7 @@ var Fayde;
             ItemCollection.prototype.SetValueAt = function (index, value) {
                 this._ValidateReadOnly();
                 this.SetValueAtImpl(index, value);
+                return true;
             };
             ItemCollection.prototype.SetValueAtImpl = function (index, value) {
                 var ht = this._ht;
@@ -59,11 +60,12 @@ var Fayde;
                 if(value == null) {
                     throw new ArgumentException("value");
                 }
-                this.AddImpl(value);
+                return this.AddImpl(value);
             };
             ItemCollection.prototype.AddImpl = function (value) {
                 var index = this._ht.push(value) - 1;
                 this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.Add(value, index));
+                return index;
             };
             ItemCollection.prototype.AddRange = function (values) {
                 this._ValidateReadOnly();
@@ -81,12 +83,13 @@ var Fayde;
                 var index = this._ht.push(values) - 1;
                 this.ItemsChanged.Raise(this, Fayde.Collections.NotifyCollectionChangedEventArgs.AddRange(values, index));
             };
-            ItemCollection.prototype.Insert = function (value, index) {
+            ItemCollection.prototype.Insert = function (index, value) {
                 this._ValidateReadOnly();
                 if(value == null) {
                     throw new ArgumentException("value");
                 }
                 this.InsertImpl(index, value);
+                return true;
             };
             ItemCollection.prototype.InsertImpl = function (index, value) {
                 var ht = this._ht;
@@ -109,6 +112,7 @@ var Fayde;
             ItemCollection.prototype.Remove = function (value) {
                 this._ValidateReadOnly();
                 this.RemoveImpl(value);
+                return true;
             };
             ItemCollection.prototype.RemoveImpl = function (value) {
                 var index = this._ht.indexOf(value);
@@ -124,6 +128,7 @@ var Fayde;
                     throw new IndexOutOfRangeException(index);
                 }
                 this.RemoveAtImpl(index);
+                return true;
             };
             ItemCollection.prototype.RemoveAtImpl = function (index) {
                 var item = this._ht.splice(index, 1)[0];
@@ -132,6 +137,7 @@ var Fayde;
             ItemCollection.prototype.Clear = function () {
                 this._ValidateReadOnly();
                 this.ClearImpl();
+                return true;
             };
             ItemCollection.prototype.ClearImpl = function () {
                 this._ht = [];
@@ -143,7 +149,7 @@ var Fayde;
                 }
             };
             return ItemCollection;
-        })(Fayde.DependencyObject);
+        })(Fayde.XamlObjectCollection);
         Controls.ItemCollection = ItemCollection;        
         Nullstone.RegisterType(ItemCollection, "ItemCollection");
     })(Fayde.Controls || (Fayde.Controls = {}));

@@ -3,10 +3,19 @@
     xmlns:x="http://schemas.wsick.com/fayde"
     Debug="true"
     UseNew="true"
-    JsType="Tests.Controls.ComboBox"
     ScriptResolution="/Fayde/">
     <Grid>
-        <ComboBox x:Name="MyComboBox" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <ComboBox x:Name="MyComboBox" Width="200" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <ComboBoxItem Content="Text 1" />
+            <ComboBoxItem Content="Text 2" />
+            <ComboBoxItem Content="Text 3" />
+            <ComboBoxItem Content="Text 4" />
+            <ComboBoxItem Content="Text 5" />
+            <ComboBoxItem Content="Text 6" />
+            <ComboBoxItem Content="Text 7" />
+            <ComboBoxItem Content="Text 8" />
+            <ComboBoxItem Content="Text 9" />
+            <ComboBoxItem Content="Text 10" />
         </ComboBox>
     </Grid>
 </FaydeApplication>
