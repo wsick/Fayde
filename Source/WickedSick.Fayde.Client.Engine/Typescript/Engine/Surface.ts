@@ -325,7 +325,7 @@ class Surface {
         return -1;
     }
     private _PropagateDirtyFlagToChildren(element, dirt) {
-        
+
     }
 
     // DIRTY
@@ -372,14 +372,14 @@ class Surface {
         //var startRenderTime;
         //var isRenderPassTimed;
         //if (isRenderPassTimed = (this._App._DebugFunc[4] != null))
-            //startRenderTime = new Date().getTime();
+        //startRenderTime = new Date().getTime();
 
         //if (window.RenderDebug) RenderDebug.Count = 0;
         this._RenderContext.DoRender(this._Layers, r);
         //if (window.RenderDebug) RenderDebug("UIElement Count: " + RenderDebug.Count);
 
         //if (isRenderPassTimed)
-            //this._App._NotifyDebugRenderPass(new Date().getTime() - startRenderTime);
+        //this._App._NotifyDebugRenderPass(new Date().getTime() - startRenderTime);
     }
 
     // RESIZE
@@ -775,6 +775,30 @@ class Surface {
         var ctx = Surface.TestCanvas.getContext("2d");
         ctx.font = font.ToHtml5Object();
         return ctx.measureText(text).width;
+    }
+
+    __DebugLayers(): string {
+        var vth = Fayde.VisualTreeHelper;
+        var layers = this._Layers;
+        var len = layers.length;
+        var str = "";
+        for (var i = 0; i < len; i++) {
+            str += vth.__Debug(layers[i]);
+        }
+        return str;
+    }
+    __GetById(id: number): Fayde.UIElement {
+        //Find top level
+        var layers = this._Layers;
+        var len = layers.length;
+        for (var i = 0; i < len; i++) {
+            var walker = Fayde.DeepTreeWalker(layers[i]);
+            var curNode: Fayde.UINode;
+            while (curNode = walker.Step()) {
+                if ((<any>curNode.XObject)._ID === id)
+                    return curNode.XObject;
+            }
+        }
     }
 }
 Nullstone.RegisterType(Surface, "Surface");

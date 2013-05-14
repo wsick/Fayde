@@ -73,7 +73,7 @@ var Fayde;
             //Find top level
             var topNode;
             if(!uin) {
-                var rv = App.Instance.RootVisual;
+                var rv = App.Current.RootVisual;
                 topNode = (rv) ? rv.XamlNode : null;
             } else {
                 topNode = uin.GetVisualRoot();
@@ -318,7 +318,7 @@ var Fayde;
         };
         VisualTreeHelper.__GetById = function __GetById(id) {
             //Find top level
-            var rv = App.Instance.RootVisual;
+            var rv = App.Current.RootVisual;
             var topNode = (rv) ? rv.XamlNode : null;
             if(!topNode) {
                 return;

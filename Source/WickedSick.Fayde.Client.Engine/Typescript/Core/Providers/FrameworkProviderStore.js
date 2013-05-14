@@ -63,7 +63,7 @@ var Fayde;
                     }
                 }
                 var appResourcesStyle = undefined;
-                var rd = App.Instance.Resources;
+                var rd = App.Current.Resources;
                 if((styleMask & Providers._StyleMask.ApplicationResources) != 0) {
                     appResourcesStyle = rd.Get(feType);
                     if(!appResourcesStyle) {

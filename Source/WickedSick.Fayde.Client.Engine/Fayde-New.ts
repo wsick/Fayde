@@ -457,7 +457,7 @@ module Fayde {
             }
             var topNode: UINode;
             if (!uin) {
-                var rv = App.Instance.RootVisual;
+                var rv = App.Current.RootVisual;
                 topNode = (rv) ? rv.XamlNode : null;
             } else {
                 topNode = uin.GetVisualRoot();
@@ -683,7 +683,7 @@ module Fayde {
             return "[" + str + "]";
         }
         private static __GetById(id: number): UIElement {
-            var rv = App.Instance.RootVisual;
+            var rv = App.Current.RootVisual;
             var topNode = (rv) ? rv.XamlNode : null;
             if (!topNode)
                 return;
@@ -5954,7 +5954,7 @@ module Fayde {
                     return o;
                 curNode = curNode.ParentNode;
             }
-            return App.Instance.Resources.Get(key);
+            return App.Current.Resources.Get(key);
         }
         Resolve(parser: JsonParser) {
             var isAttached = false;
@@ -7376,7 +7376,7 @@ module Fayde.Data {
             var oldUpdating = this.IsUpdating;
             var node = this.PropertyPathWalker.FinalNode;
             try {
-                if (!force && this._TwoWayTextBox && App.Instance.MainSurface.FocusedNode === this.Target.XamlNode)
+                if (!force && this._TwoWayTextBox && App.Current.MainSurface.FocusedNode === this.Target.XamlNode)
                     return;
                 if (this.PropertyPathWalker.IsPathBroken)
                     return;
@@ -7602,14 +7602,14 @@ module Fayde.Data {
 module Fayde {
     export function Run() { }
     export function Start(appType: Function, rjson: any, json: any, canvas: HTMLCanvasElement) {
-        var instance = App.Instance = <App>new (<any>appType)();
-        instance.LoadResources(rjson);
-        instance.LoadInitial(canvas, json);
+        var cur = App.Current = <App>new (<any>appType)();
+        cur.LoadResources(rjson);
+        cur.LoadInitial(canvas, json);
     }
 }
 class App implements Fayde.IResourcable {
     static Version: string = "0.9.4.0";
-    static Instance: App;
+    static Current: App;
     MainSurface: Surface;
     Resources: Fayde.ResourceDictionary;
     Loaded: MulticastEvent = new MulticastEvent();
@@ -7697,6 +7697,12 @@ class App implements Fayde.IResourcable {
         return rd;
     }
     private static GetGenericResourceDictionaryImpl(): Fayde.ResourceDictionary { return undefined; }
+    private __DebugLayers(): string {
+        return this.MainSurface.__DebugLayers();
+    }
+    private __GetById(id: number): Fayde.UIElement {
+        return this.MainSurface.__GetById(id);
+    }
 }
 Nullstone.RegisterType(App, "App");
 
@@ -8640,6 +8646,28 @@ class Surface {
         var ctx = Surface.TestCanvas.getContext("2d");
         ctx.font = font.ToHtml5Object();
         return ctx.measureText(text).width;
+    }
+    __DebugLayers(): string {
+        var vth = Fayde.VisualTreeHelper;
+        var layers = this._Layers;
+        var len = layers.length;
+        var str = "";
+        for (var i = 0; i < len; i++) {
+            str += vth.__Debug(layers[i]);
+        }
+        return str;
+    }
+    __GetById(id: number): Fayde.UIElement {
+        var layers = this._Layers;
+        var len = layers.length;
+        for (var i = 0; i < len; i++) {
+            var walker = Fayde.DeepTreeWalker(layers[i]);
+            var curNode: Fayde.UINode;
+            while (curNode = walker.Step()) {
+                if ((<any>curNode.XObject)._ID === id)
+                    return curNode.XObject;
+            }
+        }
     }
 }
 Nullstone.RegisterType(Surface, "Surface");
@@ -11263,7 +11291,7 @@ module Fayde.Providers {
                 }
             }
             var appResourcesStyle: Style = undefined;
-            var rd = App.Instance.Resources;
+            var rd = App.Current.Resources;
             if ((styleMask & _StyleMask.ApplicationResources) != 0) {
                 appResourcesStyle = <Style>rd.Get(feType);
                 if (!appResourcesStyle)
@@ -13853,7 +13881,7 @@ module Fayde.Controls {
             return this._ht.indexOf(value);
         }
         Contains(value: any): bool {
-            return this._ht.indexOf(value) > 0;
+            return this._ht.indexOf(value) > -1;
         }
         Remove(value: any) {
             this._ValidateReadOnly();
@@ -15731,7 +15759,7 @@ module Fayde.Media.Animation {
             var error = new BError();
             var promotedValues: any[] = [];
             if (this._HookupAnimations(promotedValues, error)) {
-                App.Instance.RegisterStoryboard(this);
+                App.Current.RegisterStoryboard(this);
             } else {
                 error.ThrowException();
             }
@@ -15752,7 +15780,7 @@ module Fayde.Media.Animation {
         }
         Stop() {
             super.Stop();
-            App.Instance.UnregisterStoryboard(this);
+            App.Current.UnregisterStoryboard(this);
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.MoveNext()) {
                 (<Timeline>enumerator.Current).Stop();
@@ -20627,7 +20655,6 @@ module Fayde.Controls.Primitives {
         private _IsCatchingClick: bool = false;
         private _Catcher: Canvas = null;
         private _VisualChild: FrameworkElement;
-        get VisualChild(): FrameworkElement { return this._VisualChild; }
         _ChildChanged(oldChild: FrameworkElement, newChild: FrameworkElement) {
             var popup = this.XObject;
             this._Hide();
@@ -22783,7 +22810,7 @@ module Fayde.Controls {
             var child: FrameworkElement;
             if (this.$Popup && (child = <FrameworkElement>this.$Popup.Child) && child instanceof FrameworkElement) {
                 if (height === Number.POSITIVE_INFINITY)
-                    height = App.Instance.MainSurface.Extents.Height / 2.0;
+                    height = (<FrameworkElement>App.Current.RootVisual).ActualHeight / 2.0;
                 child.MaxHeight = height;
             }
         }
@@ -22797,7 +22824,6 @@ module Fayde.Controls {
         constructor(xobj: ContentControl) {
             super(xobj);
         }
-        private _Presenter: ContentPresenter = null;
         GetDefaultVisualTree(): UIElement {
             var xobj = this.XObject;
             var content = xobj.Content;
@@ -22809,17 +22835,7 @@ module Fayde.Controls {
                 new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty, "Content"));
             presenter.SetValue(ContentPresenter.ContentTemplateProperty,
                 new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty, "ContentTemplate"));
-            this._Presenter = presenter;
             return presenter;
-        }
-        ClearPresenter() {
-            var presenter = this._Presenter;
-            if (presenter) {
-                presenter.ClearValue(ContentPresenter.ContentProperty);
-                presenter.ClearValue(ContentPresenter.ContentTemplateProperty);
-                this.DetachVisualChild(presenter, null);
-            }
-            this._Presenter = null;
         }
     }
     Nullstone.RegisterType(ContentControlNode, "ContentControlNode");
@@ -22835,17 +22851,10 @@ module Fayde.Controls {
         OnContentChanged(oldContent: any, newContent: any) { }
         OnContentTemplateChanged(oldContentTemplate: DataTemplate, newContentTemplate: DataTemplate) { }
         _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
-            var node = this.XamlNode;
-            if (args.OldValue instanceof UIElement)
-                node.DetachVisualChild(<UIElement>args.OldValue, null);
-            if (args.NewValue instanceof UIElement)
-                node.ClearPresenter();
             this.OnContentChanged(args.OldValue, args.NewValue);
-            this.InvalidateMeasure();
         }
         _ContentTemplateChanged(args: IDependencyPropertyChangedEventArgs) {
             this.OnContentTemplateChanged(args.OldValue, args.NewValue);
-            this.InvalidateMeasure();
         }
     }
     Nullstone.RegisterType(ContentControl, "ContentControl");
@@ -22883,7 +22892,7 @@ module Fayde.Controls {
             }
         }
         private _FrameLoaded(sender, e: RoutedEventArgs) {
-            this._NavService = App.Instance.NavService;
+            this._NavService = App.Current.NavService;
             if (this.IsDeepLinked) {
                 this._NavService.LocationChanged.Subscribe(this._HandleDeepLink, this);
                 this._HandleDeepLink();
@@ -23903,9 +23912,8 @@ module Fayde.Controls {
             e.Handled = true;
             if (!this.XamlNode.Focus(true))
                 return;
-            if (this._ParentSelector != null) {
+            if (this._ParentSelector != null)
                 this._ParentSelector.NotifyListItemClicked(this);
-            }
         }
         OnMouseEnter(e: Input.MouseEventArgs) {
             super.OnMouseEnter(e);
@@ -25276,7 +25284,7 @@ module Fayde.Controls {
                 var original = destination.OriginalString;
                 if (original && original.charAt(0) !== '/')
                     throw new NotSupportedException();
-                destination = new Uri(App.Instance.GetHost().GetSource(), destination);
+                destination = new Uri(App.Current.GetHost().GetSource(), destination);
             }
             return destination;
         }

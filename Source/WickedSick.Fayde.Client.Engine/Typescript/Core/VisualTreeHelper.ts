@@ -70,7 +70,7 @@ module Fayde {
             //Find top level
             var topNode: UINode;
             if (!uin) {
-                var rv = App.Instance.RootVisual;
+                var rv = App.Current.RootVisual;
                 topNode = (rv) ? rv.XamlNode : null;
             } else {
                 topNode = uin.GetVisualRoot();
@@ -314,7 +314,7 @@ module Fayde {
 
         private static __GetById(id: number): UIElement {
             //Find top level
-            var rv = App.Instance.RootVisual;
+            var rv = App.Current.RootVisual;
             var topNode = (rv) ? rv.XamlNode : null;
             if (!topNode)
                 return;

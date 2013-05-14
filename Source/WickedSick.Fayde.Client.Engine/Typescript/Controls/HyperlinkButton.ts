@@ -33,7 +33,7 @@ module Fayde.Controls {
                 var original = destination.OriginalString;
                 if (original && original.charAt(0) !== '/')
                     throw new NotSupportedException();
-                destination = new Uri(App.Instance.GetHost().GetSource(), destination);
+                destination = new Uri(App.Current.GetHost().GetSource(), destination);
             }
             return destination;
         }

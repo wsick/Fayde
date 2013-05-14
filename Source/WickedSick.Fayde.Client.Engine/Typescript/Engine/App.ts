@@ -11,15 +11,15 @@
 module Fayde {
     export function Run() { }
     export function Start(appType: Function, rjson: any, json: any, canvas: HTMLCanvasElement) {
-        var instance = App.Instance = <App>new (<any>appType)();
-        instance.LoadResources(rjson);
-        instance.LoadInitial(canvas, json);
+        var cur = App.Current = <App>new (<any>appType)();
+        cur.LoadResources(rjson);
+        cur.LoadInitial(canvas, json);
     }
 }
 
 class App implements Fayde.IResourcable {
     static Version: string = "0.9.4.0";
-    static Instance: App;
+    static Current: App;
     MainSurface: Surface;
     Resources: Fayde.ResourceDictionary;
     Loaded: MulticastEvent = new MulticastEvent();
@@ -134,5 +134,12 @@ class App implements Fayde.IResourcable {
         return rd;
     }
     private static GetGenericResourceDictionaryImpl(): Fayde.ResourceDictionary { return undefined; }
+
+    private __DebugLayers(): string {
+        return this.MainSurface.__DebugLayers();
+    }
+    private __GetById(id: number): Fayde.UIElement {
+        return this.MainSurface.__GetById(id);
+    }
 }
 Nullstone.RegisterType(App, "App");

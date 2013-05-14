@@ -76,7 +76,7 @@ module Fayde.Providers {
             }
             
             var appResourcesStyle: Style = undefined;
-            var rd = App.Instance.Resources;
+            var rd = App.Current.Resources;
             if ((styleMask & _StyleMask.ApplicationResources) != 0) {
                 appResourcesStyle = <Style>rd.Get(feType);
                 if (!appResourcesStyle)

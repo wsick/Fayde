@@ -56,7 +56,7 @@ var Fayde;
                 }
             };
             Frame.prototype._FrameLoaded = function (sender, e) {
-                this._NavService = App.Instance.NavService;
+                this._NavService = App.Current.NavService;
                 if(this.IsDeepLinked) {
                     this._NavService.LocationChanged.Subscribe(this._HandleDeepLink, this);
                     this._HandleDeepLink();

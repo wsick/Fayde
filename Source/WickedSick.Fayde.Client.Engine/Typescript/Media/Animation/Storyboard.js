@@ -48,7 +48,7 @@ var Fayde;
                     var error = new BError();
                     var promotedValues = [];
                     if(this._HookupAnimations(promotedValues, error)) {
-                        App.Instance.RegisterStoryboard(this);
+                        App.Current.RegisterStoryboard(this);
                     } else {
                         error.ThrowException();
                     }
@@ -69,7 +69,7 @@ var Fayde;
                 };
                 Storyboard.prototype.Stop = function () {
                     _super.prototype.Stop.call(this);
-                    App.Instance.UnregisterStoryboard(this);
+                    App.Current.UnregisterStoryboard(this);
                     var enumerator = this.Children.GetEnumerator();
                     while(enumerator.MoveNext()) {
                         (enumerator.Current).Stop();

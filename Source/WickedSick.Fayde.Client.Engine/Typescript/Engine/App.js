@@ -13,9 +13,9 @@ var Fayde;
     }
     Fayde.Run = Run;
     function Start(appType, rjson, json, canvas) {
-        var instance = App.Instance = new (appType)();
-        instance.LoadResources(rjson);
-        instance.LoadInitial(canvas, json);
+        var cur = App.Current = new (appType)();
+        cur.LoadResources(rjson);
+        cur.LoadInitial(canvas, json);
     }
     Fayde.Start = Start;
 })(Fayde || (Fayde = {}));
@@ -129,6 +129,12 @@ var App = (function () {
     };
     App.GetGenericResourceDictionaryImpl = function GetGenericResourceDictionaryImpl() {
         return undefined;
+    };
+    App.prototype.__DebugLayers = function () {
+        return this.MainSurface.__DebugLayers();
+    };
+    App.prototype.__GetById = function (id) {
+        return this.MainSurface.__GetById(id);
     };
     return App;
 })();

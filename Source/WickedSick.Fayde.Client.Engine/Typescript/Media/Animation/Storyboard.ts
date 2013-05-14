@@ -36,7 +36,7 @@ module Fayde.Media.Animation {
             var error = new BError();
             var promotedValues: any[] = [];
             if (this._HookupAnimations(promotedValues, error)) {
-                App.Instance.RegisterStoryboard(this);
+                App.Current.RegisterStoryboard(this);
             } else {
                 error.ThrowException();
             }
@@ -57,7 +57,7 @@ module Fayde.Media.Animation {
         }
         Stop() {
             super.Stop();
-            App.Instance.UnregisterStoryboard(this);
+            App.Current.UnregisterStoryboard(this);
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.MoveNext()) {
                 (<Timeline>enumerator.Current).Stop();

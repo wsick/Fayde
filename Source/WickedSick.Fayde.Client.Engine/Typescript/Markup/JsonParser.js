@@ -31,7 +31,7 @@ var Fayde;
             if(!namescope) {
                 namescope = new Fayde.NameScope();
             }
-            //var app = App.Instance;
+            //var app = App.Current;
             //var perfTimer = new Fayde.PerfTimer();
             //perfTimer.ReportFunc = function (elapsed) { app._NotifyDebugParserPass(json.ParseType, elapsed); };
             //perfTimer.IsDisabled = app._DebugFunc[5] == null;

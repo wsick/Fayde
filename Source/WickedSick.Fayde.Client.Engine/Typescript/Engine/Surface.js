@@ -797,6 +797,30 @@ var Surface = (function () {
         ctx.font = font.ToHtml5Object();
         return ctx.measureText(text).width;
     };
+    Surface.prototype.__DebugLayers = function () {
+        var vth = Fayde.VisualTreeHelper;
+        var layers = this._Layers;
+        var len = layers.length;
+        var str = "";
+        for(var i = 0; i < len; i++) {
+            str += vth.__Debug(layers[i]);
+        }
+        return str;
+    };
+    Surface.prototype.__GetById = function (id) {
+        //Find top level
+        var layers = this._Layers;
+        var len = layers.length;
+        for(var i = 0; i < len; i++) {
+            var walker = Fayde.DeepTreeWalker(layers[i]);
+            var curNode;
+            while(curNode = walker.Step()) {
+                if((curNode.XObject)._ID === id) {
+                    return curNode.XObject;
+                }
+            }
+        }
+    };
     return Surface;
 })();
 Nullstone.RegisterType(Surface, "Surface");

@@ -55,7 +55,7 @@ var Fayde;
                 }
                 curNode = curNode.ParentNode;
             }
-            return App.Instance.Resources.Get(key);
+            return App.Current.Resources.Get(key);
         };
         StaticResourceExpression.prototype.Resolve = function (parser) {
             var isAttached = false;

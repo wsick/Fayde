@@ -55,7 +55,7 @@ module Fayde {
                 curNode = curNode.ParentNode;
             }
 
-            return App.Instance.Resources.Get(key);
+            return App.Current.Resources.Get(key);
         }
         Resolve(parser: JsonParser) {
             var isAttached = false;
