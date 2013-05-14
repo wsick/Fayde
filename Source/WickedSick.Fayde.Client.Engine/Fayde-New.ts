@@ -16966,9 +16966,9 @@ module Fayde.Controls {
             if (padding && borderThickness) {
                 border = padding.Plus(borderThickness);
             } else if (padding) {
-                border = padding;
+                border = padding.Clone();
             } else if (borderThickness) {
-                border = borderThickness;
+                border = borderThickness.Clone();
             }
             var desired = new size();
             if (border) availableSize = size.shrinkByThickness(size.copyTo(availableSize), border);
@@ -22798,7 +22798,7 @@ module Fayde.Controls {
             var child: FrameworkElement;
             if (this.$Popup && (child = <FrameworkElement>this.$Popup.Child) && child instanceof FrameworkElement) {
                 if (height === Number.POSITIVE_INFINITY)
-                    height = (<FrameworkElement>App.Current.RootVisual).ActualHeight / 2.0;
+                    height = App.Current.MainSurface.Extents.Height / 2.0;
                 child.MaxHeight = height;
             }
         }

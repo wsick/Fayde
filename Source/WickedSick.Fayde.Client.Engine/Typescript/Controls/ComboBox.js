@@ -358,7 +358,7 @@ var Fayde;
                 var child;
                 if(this.$Popup && (child = this.$Popup.Child) && child instanceof Fayde.FrameworkElement) {
                     if(height === Number.POSITIVE_INFINITY) {
-                        height = (App.Current.RootVisual).ActualHeight / 2.0;
+                        height = App.Current.MainSurface.Extents.Height / 2.0;
                     }
                     child.MaxHeight = height;
                 }

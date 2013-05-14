@@ -45,9 +45,9 @@ module Fayde.Controls {
             if (padding && borderThickness) {
                 border = padding.Plus(borderThickness);
             } else if (padding) {
-                border = padding;
+                border = padding.Clone();
             } else if (borderThickness) {
-                border = borderThickness;
+                border = borderThickness.Clone();
             }
 
             var desired = new size();
