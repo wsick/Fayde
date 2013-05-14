@@ -65,6 +65,26 @@ module Fayde.Controls {
                 ]
             });
         }
+
+        _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
+            var newContent = args.NewValue;
+            var newUie: UIElement;
+            if (newContent instanceof UIElement) newUie = newContent;
+            
+            if (newUie || args.OldValue instanceof UIElement)
+                this.ClearRoot();
+            
+            if (newContent && !newUie)
+                this.Store.SetValue(DependencyObject.DataContextProperty, newContent);
+            else
+                this.Store.ClearValue(DependencyObject.DataContextProperty);
+
+            this.LayoutUpdater.InvalidateMeasure();
+        }
+        _ContentTemplateChanged() {
+            this.ClearRoot();
+            this.LayoutUpdater.InvalidateMeasure();
+        }
     }
     Nullstone.RegisterType(ContentPresenterNode, "ContentPresenterNode");
 
@@ -72,33 +92,12 @@ module Fayde.Controls {
         XamlNode: ContentPresenterNode;
         CreateNode(): ContentPresenterNode { return new ContentPresenterNode(this); }
 
-        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d)._ContentChanged(args));
-        static ContentTemplateProperty: DependencyProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d)._ContentTemplateChanged(args));
+        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d).XamlNode._ContentChanged(args));
+        static ContentTemplateProperty: DependencyProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d).XamlNode._ContentTemplateChanged());
         Content: any;
         ContentTemplate: DataTemplate;
 
         static Annotations = { ContentProperty: ContentPresenter.ContentProperty }
-        
-        _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
-            var node = this.XamlNode;
-
-            var newContent = args.NewValue;
-            var newUie: UIElement;
-            if (newContent instanceof UIElement)
-                newUie = newContent;
-            else
-                this.DataContext = newContent;
-
-            if (newUie || args.OldValue instanceof UIElement)
-                node.ClearRoot();
-
-            node.LayoutUpdater.InvalidateMeasure();
-        }
-        _ContentTemplateChanged(args: IDependencyPropertyChangedEventArgs) {
-            var node = this.XamlNode;
-            node.ClearRoot();
-            node.LayoutUpdater.InvalidateMeasure();
-        }
     }
     Nullstone.RegisterType(ContentPresenter, "ContentPresenter");
 }

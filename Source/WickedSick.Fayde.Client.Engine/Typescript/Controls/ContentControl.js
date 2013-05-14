@@ -44,12 +44,12 @@ var Fayde;
             ContentControl.ContentProperty = DependencyProperty.Register("Content", function () {
                 return Object;
             }, ContentControl, undefined, function (d, args) {
-                return (d)._ContentChanged(args);
+                return (d).OnContentChanged(args.OldValue, args.NewValue);
             });
             ContentControl.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () {
                 return Fayde.DataTemplate;
             }, ContentControl, undefined, function (d, args) {
-                return (d)._ContentTemplateChanged(args);
+                return (d).OnContentTemplateChanged(args.OldValue, args.NewValue);
             });
             ContentControl.Annotations = {
                 ContentProperty: ContentControl.ContentProperty
@@ -58,17 +58,6 @@ var Fayde;
             };
             ContentControl.prototype.OnContentTemplateChanged = function (oldContentTemplate, newContentTemplate) {
             };
-            ContentControl.prototype._ContentChanged = function (args) {
-                //var node = this.XamlNode;
-                //if (args.OldValue instanceof UIElement)
-                //node.DetachVisualChild(<UIElement>args.OldValue, null);
-                this.OnContentChanged(args.OldValue, args.NewValue);
-                //this.InvalidateMeasure();
-                            };
-            ContentControl.prototype._ContentTemplateChanged = function (args) {
-                this.OnContentTemplateChanged(args.OldValue, args.NewValue);
-                //this.InvalidateMeasure();
-                            };
             return ContentControl;
         })(Controls.Control);
         Controls.ContentControl = ContentControl;        

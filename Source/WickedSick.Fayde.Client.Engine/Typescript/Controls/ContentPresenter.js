@@ -77,6 +77,26 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
+            ContentPresenterNode.prototype._ContentChanged = function (args) {
+                var newContent = args.NewValue;
+                var newUie;
+                if(newContent instanceof Fayde.UIElement) {
+                    newUie = newContent;
+                }
+                if(newUie || args.OldValue instanceof Fayde.UIElement) {
+                    this.ClearRoot();
+                }
+                if(newContent && !newUie) {
+                    this.Store.SetValue(Fayde.DependencyObject.DataContextProperty, newContent);
+                } else {
+                    this.Store.ClearValue(Fayde.DependencyObject.DataContextProperty);
+                }
+                this.LayoutUpdater.InvalidateMeasure();
+            };
+            ContentPresenterNode.prototype._ContentTemplateChanged = function () {
+                this.ClearRoot();
+                this.LayoutUpdater.InvalidateMeasure();
+            };
             return ContentPresenterNode;
         })(Fayde.FENode);
         Controls.ContentPresenterNode = ContentPresenterNode;        
@@ -93,34 +113,15 @@ var Fayde;
             ContentPresenter.ContentProperty = DependencyProperty.Register("Content", function () {
                 return Object;
             }, ContentPresenter, undefined, function (d, args) {
-                return (d)._ContentChanged(args);
+                return (d).XamlNode._ContentChanged(args);
             });
             ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () {
                 return Fayde.DataTemplate;
             }, ContentPresenter, undefined, function (d, args) {
-                return (d)._ContentTemplateChanged(args);
+                return (d).XamlNode._ContentTemplateChanged();
             });
             ContentPresenter.Annotations = {
                 ContentProperty: ContentPresenter.ContentProperty
-            };
-            ContentPresenter.prototype._ContentChanged = function (args) {
-                var node = this.XamlNode;
-                var newContent = args.NewValue;
-                var newUie;
-                if(newContent instanceof Fayde.UIElement) {
-                    newUie = newContent;
-                } else {
-                    this.DataContext = newContent;
-                }
-                if(newUie || args.OldValue instanceof Fayde.UIElement) {
-                    node.ClearRoot();
-                }
-                node.LayoutUpdater.InvalidateMeasure();
-            };
-            ContentPresenter.prototype._ContentTemplateChanged = function (args) {
-                var node = this.XamlNode;
-                node.ClearRoot();
-                node.LayoutUpdater.InvalidateMeasure();
             };
             return ContentPresenter;
         })(Fayde.FrameworkElement);

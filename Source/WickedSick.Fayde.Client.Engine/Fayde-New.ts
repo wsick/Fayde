@@ -1250,7 +1250,7 @@ module Fayde.Data {
         SetSource(value: any) {
             if (value == null || !Nullstone.Equals(value, this._Source)) {
                 var oldSource = this._Source;
-                if (oldSource)
+                if (oldSource && Nullstone.ImplementsInterface(oldSource, INotifyPropertyChanged_))
                     (<INotifyPropertyChanged>oldSource).PropertyChanged.Unsubscribe(this.OnSourcePropertyChanged, this);
                 this._Source = value;
                 if (this._Source && Nullstone.ImplementsInterface(this._Source, INotifyPropertyChanged_)) {
@@ -6622,10 +6622,6 @@ module Fayde.Providers {
         }
         EmitDataContextChanged() { this._InheritedDataContextProvider.EmitChanged(); }
         SetDataContextSourceNode(sourceNode?: XamlNode) { this._InheritedDataContextProvider.SetDataSourceNode(sourceNode); }
-        OnDataContextSourceValueChanged(oldDataContext: any, newDataContext: any): bool {
-            var error = new BError();
-            return this._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, DependencyObject.DataContextProperty, oldDataContext, newDataContext, true, error);
-        }
     }
     Nullstone.RegisterType(BasicProviderStore, "BasicProviderStore");
 }
@@ -10813,10 +10809,8 @@ module Fayde {
         }
         get DataContext(): any { return this.XObject.DataContext; }
         set DataContext(value: any) {
-            var old = this.XObject.DataContext;
-            if (!this.Store.OnDataContextSourceValueChanged(old, value))
-                return;
-            this.OnDataContextChanged(old, value);
+            this.Store.EmitDataContextChanged();
+            this.OnDataContextChanged(undefined, value);
         }
         _DataContextPropertyChanged(args: IDependencyPropertyChangedEventArgs) {
             this.OnDataContextChanged(args.OldValue, args.NewValue);
@@ -17200,33 +17194,32 @@ module Fayde.Controls {
                 ]
             });
         }
+        _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
+            var newContent = args.NewValue;
+            var newUie: UIElement;
+            if (newContent instanceof UIElement) newUie = newContent;
+            if (newUie || args.OldValue instanceof UIElement)
+                this.ClearRoot();
+            if (newContent && !newUie)
+                this.Store.SetValue(DependencyObject.DataContextProperty, newContent);
+            else
+                this.Store.ClearValue(DependencyObject.DataContextProperty);
+            this.LayoutUpdater.InvalidateMeasure();
+        }
+        _ContentTemplateChanged() {
+            this.ClearRoot();
+            this.LayoutUpdater.InvalidateMeasure();
+        }
     }
     Nullstone.RegisterType(ContentPresenterNode, "ContentPresenterNode");
     export class ContentPresenter extends FrameworkElement {
         XamlNode: ContentPresenterNode;
         CreateNode(): ContentPresenterNode { return new ContentPresenterNode(this); }
-        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d)._ContentChanged(args));
-        static ContentTemplateProperty: DependencyProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d)._ContentTemplateChanged(args));
+        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d).XamlNode._ContentChanged(args));
+        static ContentTemplateProperty: DependencyProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d).XamlNode._ContentTemplateChanged());
         Content: any;
         ContentTemplate: DataTemplate;
         static Annotations = { ContentProperty: ContentPresenter.ContentProperty }
-        _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
-            var node = this.XamlNode;
-            var newContent = args.NewValue;
-            var newUie: UIElement;
-            if (newContent instanceof UIElement)
-                newUie = newContent;
-            else
-                this.DataContext = newContent;
-            if (newUie || args.OldValue instanceof UIElement)
-                node.ClearRoot();
-            node.LayoutUpdater.InvalidateMeasure();
-        }
-        _ContentTemplateChanged(args: IDependencyPropertyChangedEventArgs) {
-            var node = this.XamlNode;
-            node.ClearRoot();
-            node.LayoutUpdater.InvalidateMeasure();
-        }
     }
     Nullstone.RegisterType(ContentPresenter, "ContentPresenter");
 }
@@ -22843,19 +22836,13 @@ module Fayde.Controls {
         XamlNode: ContentControlNode;
         CreateNode(): ContentControlNode { return new ContentControlNode(this); }
         _ContentSetsParent: bool = true;
-        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentControl, undefined, (d, args) => (<ContentControl>d)._ContentChanged(args));
-        static ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentControl, undefined, (d, args) => (<ContentControl>d)._ContentTemplateChanged(args));
+        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentControl, undefined, (d, args) => (<ContentControl>d).OnContentChanged(args.OldValue, args.NewValue));
+        static ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentControl, undefined, (d, args) => (<ContentControl>d).OnContentTemplateChanged(args.OldValue, args.NewValue));
         Content: any;
         ContentTemplate: DataTemplate;
         static Annotations = { ContentProperty: ContentControl.ContentProperty }
         OnContentChanged(oldContent: any, newContent: any) { }
         OnContentTemplateChanged(oldContentTemplate: DataTemplate, newContentTemplate: DataTemplate) { }
-        _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
-            this.OnContentChanged(args.OldValue, args.NewValue);
-        }
-        _ContentTemplateChanged(args: IDependencyPropertyChangedEventArgs) {
-            this.OnContentTemplateChanged(args.OldValue, args.NewValue);
-        }
     }
     Nullstone.RegisterType(ContentControl, "ContentControl");
 }

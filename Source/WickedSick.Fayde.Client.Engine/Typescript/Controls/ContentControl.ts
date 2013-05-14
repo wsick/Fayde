@@ -32,8 +32,8 @@ module Fayde.Controls {
         CreateNode(): ContentControlNode { return new ContentControlNode(this); }
 
         _ContentSetsParent: bool = true;
-        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentControl, undefined, (d, args) => (<ContentControl>d)._ContentChanged(args));
-        static ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentControl, undefined, (d, args) => (<ContentControl>d)._ContentTemplateChanged(args));
+        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentControl, undefined, (d, args) => (<ContentControl>d).OnContentChanged(args.OldValue, args.NewValue));
+        static ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentControl, undefined, (d, args) => (<ContentControl>d).OnContentTemplateChanged(args.OldValue, args.NewValue));
         Content: any;
         ContentTemplate: DataTemplate;
 
@@ -41,13 +41,6 @@ module Fayde.Controls {
 
         OnContentChanged(oldContent: any, newContent: any) { }
         OnContentTemplateChanged(oldContentTemplate: DataTemplate, newContentTemplate: DataTemplate) { }
-
-        _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
-            this.OnContentChanged(args.OldValue, args.NewValue);
-        }
-        _ContentTemplateChanged(args: IDependencyPropertyChangedEventArgs) {
-            this.OnContentTemplateChanged(args.OldValue, args.NewValue);
-        }
     }
     Nullstone.RegisterType(ContentControl, "ContentControl");
 }
