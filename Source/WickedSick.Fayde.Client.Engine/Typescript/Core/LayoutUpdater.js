@@ -571,6 +571,86 @@ var Fayde;
                 rect.copyTo(layoutClip.GetBounds(), this.LayoutClipBounds);
             }
         };
+        LayoutUpdater.prototype._UpdateActualSize = function () {
+            var last = this.LastRenderSize;
+            var fe = this.Node.XObject;
+            var s;
+            if((fe).ComputeActualSize) {
+                s = (fe).ComputeActualSize(this._ComputeActualSize, this);
+            } else {
+                s = this._ComputeActualSize();
+            }
+            this.ActualWidth = s.Width;
+            this.ActualHeight = s.Height;
+            if(last && size.isEqual(last, s)) {
+                return;
+            }
+            this.LastRenderSize = undefined;
+            fe.SizeChanged.Raise(fe, new Fayde.SizeChangedEventArgs(last, s));
+        };
+        LayoutUpdater.prototype._ComputeActualSize = function () {
+            var node = this.Node;
+            if(node.XObject.Visibility !== Fayde.Visibility.Visible) {
+                return new size();
+            }
+            var parentNode = node.VisualParentNode;
+            if((parentNode && !(parentNode.XObject instanceof Fayde.Controls.Canvas)) || this.IsLayoutContainer) {
+                return size.clone(this.RenderSize);
+            }
+            return this.CoerceSize(new size());
+        };
+        LayoutUpdater.prototype._GetBrushSize = function () {
+            return {
+                Width: this.ActualWidth,
+                Height: this.ActualHeight
+            };
+        };
+        LayoutUpdater.prototype._GetShapeBrushSize = function (shape) {
+            return size.fromRect(shape.XamlNode.GetStretchExtents(shape, this));
+        };
+        LayoutUpdater.prototype.CoerceSize = function (s) {
+            var fe = this.Node.XObject;
+            var spw = fe.Width;
+            var sph = fe.Height;
+            var minw = fe.MinWidth;
+            var minh = fe.MinHeight;
+            var cw = minw;
+            var ch = minh;
+            cw = Math.max(cw, s.Width);
+            ch = Math.max(ch, s.Height);
+            if(!isNaN(spw)) {
+                cw = spw;
+            }
+            if(!isNaN(sph)) {
+                ch = sph;
+            }
+            cw = Math.max(Math.min(cw, fe.MaxWidth), minw);
+            ch = Math.max(Math.min(ch, fe.MaxHeight), minh);
+            if(fe.UseLayoutRounding) {
+                cw = Math.round(cw);
+                ch = Math.round(ch);
+            }
+            s.Width = cw;
+            s.Height = ch;
+            return s;
+        };
+        LayoutUpdater.prototype._HasFlag = function (flag) {
+            return (this.Flags & flag) === flag;
+        };
+        LayoutUpdater.prototype._ClearFlag = function (flag) {
+            this.Flags &= ~flag;
+        };
+        LayoutUpdater.prototype._SetFlag = function (flag) {
+            this.Flags |= flag;
+        };
+        LayoutUpdater.prototype._PropagateFlagUp = function (flag) {
+            this.Flags |= flag;
+            var node = this.Node;
+            var lu;
+            while((node = node.VisualParentNode) && (lu = node.LayoutUpdater) && !lu._HasFlag(flag)) {
+                lu.Flags |= flag;
+            }
+        };
         LayoutUpdater.prototype.UpdateLayer = function (pass, error) {
             var elNode = this.Node;
             var parentNode;
@@ -657,86 +737,6 @@ var Fayde;
                                     } else {
                     break;
                 }
-            }
-        };
-        LayoutUpdater.prototype._UpdateActualSize = function () {
-            var last = this.LastRenderSize;
-            var fe = this.Node.XObject;
-            var s;
-            if((fe).ComputeActualSize) {
-                s = (fe).ComputeActualSize(this._ComputeActualSize, this);
-            } else {
-                s = this._ComputeActualSize();
-            }
-            this.ActualWidth = s.Width;
-            this.ActualHeight = s.Height;
-            if(last && size.isEqual(last, s)) {
-                return;
-            }
-            this.LastRenderSize = undefined;
-            fe.SizeChanged.Raise(fe, new Fayde.SizeChangedEventArgs(last, s));
-        };
-        LayoutUpdater.prototype._ComputeActualSize = function () {
-            var node = this.Node;
-            if(node.XObject.Visibility !== Fayde.Visibility.Visible) {
-                return new size();
-            }
-            var parentNode = node.VisualParentNode;
-            if((parentNode && !(parentNode.XObject instanceof Fayde.Controls.Canvas)) || this.IsLayoutContainer) {
-                return size.clone(this.RenderSize);
-            }
-            return this.CoerceSize(new size());
-        };
-        LayoutUpdater.prototype._GetBrushSize = function () {
-            return {
-                Width: this.ActualWidth,
-                Height: this.ActualHeight
-            };
-        };
-        LayoutUpdater.prototype._GetShapeBrushSize = function (shape) {
-            return size.fromRect(shape.XamlNode.GetStretchExtents(shape, this));
-        };
-        LayoutUpdater.prototype.CoerceSize = function (s) {
-            var fe = this.Node.XObject;
-            var spw = fe.Width;
-            var sph = fe.Height;
-            var minw = fe.MinWidth;
-            var minh = fe.MinHeight;
-            var cw = minw;
-            var ch = minh;
-            cw = Math.max(cw, s.Width);
-            ch = Math.max(ch, s.Height);
-            if(!isNaN(spw)) {
-                cw = spw;
-            }
-            if(!isNaN(sph)) {
-                ch = sph;
-            }
-            cw = Math.max(Math.min(cw, fe.MaxWidth), minw);
-            ch = Math.max(Math.min(ch, fe.MaxHeight), minh);
-            if(fe.UseLayoutRounding) {
-                cw = Math.round(cw);
-                ch = Math.round(ch);
-            }
-            s.Width = cw;
-            s.Height = ch;
-            return s;
-        };
-        LayoutUpdater.prototype._HasFlag = function (flag) {
-            return (this.Flags & flag) === flag;
-        };
-        LayoutUpdater.prototype._ClearFlag = function (flag) {
-            this.Flags &= ~flag;
-        };
-        LayoutUpdater.prototype._SetFlag = function (flag) {
-            this.Flags |= flag;
-        };
-        LayoutUpdater.prototype._PropagateFlagUp = function (flag) {
-            this.Flags |= flag;
-            var node = this.Node;
-            var lu;
-            while((node = node.VisualParentNode) && (lu = node.LayoutUpdater) && !lu._HasFlag(flag)) {
-                lu.Flags |= flag;
             }
         };
         LayoutUpdater.prototype._DoMeasureWithError = function (error) {

@@ -5390,6 +5390,74 @@ module Fayde {
             else
                 rect.copyTo(layoutClip.GetBounds(), this.LayoutClipBounds);
         }
+        private _UpdateActualSize() {
+            var last = this.LastRenderSize;
+            var fe = <FrameworkElement>this.Node.XObject;
+            var s: size;
+            if ((<IActualSizeComputable><any>fe).ComputeActualSize)
+                s = (<IActualSizeComputable><any>fe).ComputeActualSize(this._ComputeActualSize, this);
+            else
+                s = this._ComputeActualSize();
+            this.ActualWidth = s.Width;
+            this.ActualHeight = s.Height;
+            if (last && size.isEqual(last, s))
+                return;
+            this.LastRenderSize = undefined;
+            fe.SizeChanged.Raise(fe, new SizeChangedEventArgs(last, s));
+        }
+        private _ComputeActualSize(): size {
+            var node = this.Node;
+            if (node.XObject.Visibility !== Fayde.Visibility.Visible)
+                return new size();
+            var parentNode = node.VisualParentNode;
+            if ((parentNode && !(parentNode.XObject instanceof Controls.Canvas)) || this.IsLayoutContainer)
+                return size.clone(this.RenderSize);
+            return this.CoerceSize(new size());
+        }
+        private _GetBrushSize(): ISize {
+            return {
+                Width: this.ActualWidth,
+                Height: this.ActualHeight
+            };
+        }
+        private _GetShapeBrushSize(shape: Shapes.Shape): ISize {
+            return size.fromRect(shape.XamlNode.GetStretchExtents(shape, this));
+        }
+        CoerceSize(s: size): size {
+            var fe = <FrameworkElement>this.Node.XObject;
+            var spw = fe.Width;
+            var sph = fe.Height;
+            var minw = fe.MinWidth;
+            var minh = fe.MinHeight;
+            var cw = minw;
+            var ch = minh;
+            cw = Math.max(cw, s.Width);
+            ch = Math.max(ch, s.Height);
+            if (!isNaN(spw))
+                cw = spw;
+            if (!isNaN(sph))
+                ch = sph;
+            cw = Math.max(Math.min(cw, fe.MaxWidth), minw);
+            ch = Math.max(Math.min(ch, fe.MaxHeight), minh);
+            if (fe.UseLayoutRounding) {
+                cw = Math.round(cw);
+                ch = Math.round(ch);
+            }
+            s.Width = cw;
+            s.Height = ch;
+            return s;
+        }
+        private _HasFlag(flag: Fayde.UIElementFlags): bool { return (this.Flags & flag) === flag; }
+        private _ClearFlag(flag: Fayde.UIElementFlags) { this.Flags &= ~flag; }
+        private _SetFlag(flag: Fayde.UIElementFlags) { this.Flags |= flag; }
+        private _PropagateFlagUp(flag: Fayde.UIElementFlags) {
+            this.Flags |= flag;
+            var node = this.Node;
+            var lu: Fayde.LayoutUpdater;
+            while ((node = node.VisualParentNode) && (lu = node.LayoutUpdater) && !lu._HasFlag(flag)) {
+                lu.Flags |= flag;
+            }
+        }
         UpdateLayer(pass: Fayde.ILayoutPass, error: BError) {
             var elNode = this.Node;
             var parentNode: Fayde.UINode;
@@ -5463,74 +5531,6 @@ module Fayde {
                 } else {
                     break;
                 }
-            }
-        }
-        private _UpdateActualSize() {
-            var last = this.LastRenderSize;
-            var fe = <FrameworkElement>this.Node.XObject;
-            var s: size;
-            if ((<IActualSizeComputable><any>fe).ComputeActualSize)
-                s = (<IActualSizeComputable><any>fe).ComputeActualSize(this._ComputeActualSize, this);
-            else
-                s = this._ComputeActualSize();
-            this.ActualWidth = s.Width;
-            this.ActualHeight = s.Height;
-            if (last && size.isEqual(last, s))
-                return;
-            this.LastRenderSize = undefined;
-            fe.SizeChanged.Raise(fe, new SizeChangedEventArgs(last, s));
-        }
-        private _ComputeActualSize(): size {
-            var node = this.Node;
-            if (node.XObject.Visibility !== Fayde.Visibility.Visible)
-                return new size();
-            var parentNode = node.VisualParentNode;
-            if ((parentNode && !(parentNode.XObject instanceof Controls.Canvas)) || this.IsLayoutContainer)
-                return size.clone(this.RenderSize);
-            return this.CoerceSize(new size());
-        }
-        private _GetBrushSize(): ISize {
-            return {
-                Width: this.ActualWidth,
-                Height: this.ActualHeight
-            };
-        }
-        private _GetShapeBrushSize(shape: Shapes.Shape): ISize {
-            return size.fromRect(shape.XamlNode.GetStretchExtents(shape, this));
-        }
-        CoerceSize(s: size): size {
-            var fe = <FrameworkElement>this.Node.XObject;
-            var spw = fe.Width;
-            var sph = fe.Height;
-            var minw = fe.MinWidth;
-            var minh = fe.MinHeight;
-            var cw = minw;
-            var ch = minh;
-            cw = Math.max(cw, s.Width);
-            ch = Math.max(ch, s.Height);
-            if (!isNaN(spw))
-                cw = spw;
-            if (!isNaN(sph))
-                ch = sph;
-            cw = Math.max(Math.min(cw, fe.MaxWidth), minw);
-            ch = Math.max(Math.min(ch, fe.MaxHeight), minh);
-            if (fe.UseLayoutRounding) {
-                cw = Math.round(cw);
-                ch = Math.round(ch);
-            }
-            s.Width = cw;
-            s.Height = ch;
-            return s;
-        }
-        private _HasFlag(flag: Fayde.UIElementFlags): bool { return (this.Flags & flag) === flag; }
-        private _ClearFlag(flag: Fayde.UIElementFlags) { this.Flags &= ~flag; }
-        private _SetFlag(flag: Fayde.UIElementFlags) { this.Flags |= flag; }
-        private _PropagateFlagUp(flag: Fayde.UIElementFlags) {
-            this.Flags |= flag;
-            var node = this.Node;
-            var lu: Fayde.LayoutUpdater;
-            while ((node = node.VisualParentNode) && (lu = node.LayoutUpdater) && !lu._HasFlag(flag)) {
-                lu.Flags |= flag;
             }
         }
         private _DoMeasureWithError(error: BError) {
