@@ -781,7 +781,7 @@ module Fayde {
                             break;
                     }
                 } else if (flag === UIElementFlags.DirtySizeHint) {
-                    while (lu = pass.SizeList.shift()) {
+                    while (lu = pass.SizeList.pop()) {
                         pass.Updated = true;
                         lu._UpdateActualSize();
                     }
