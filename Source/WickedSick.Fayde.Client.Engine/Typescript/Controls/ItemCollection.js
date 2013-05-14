@@ -104,7 +104,7 @@ var Fayde;
                 return this._ht.indexOf(value);
             };
             ItemCollection.prototype.Contains = function (value) {
-                return this._ht.indexOf(value) > 0;
+                return this._ht.indexOf(value) > -1;
             };
             ItemCollection.prototype.Remove = function (value) {
                 this._ValidateReadOnly();

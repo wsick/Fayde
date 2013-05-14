@@ -111,7 +111,7 @@ module Fayde.Controls {
             return this._ht.indexOf(value);
         }
         Contains(value: any): bool {
-            return this._ht.indexOf(value) > 0;
+            return this._ht.indexOf(value) > -1;
         }
 
         Remove(value: any) {

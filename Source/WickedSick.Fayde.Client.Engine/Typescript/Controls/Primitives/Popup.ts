@@ -36,7 +36,6 @@ module Fayde.Controls.Primitives {
         private _IsCatchingClick: bool = false;
         private _Catcher: Canvas = null;
         private _VisualChild: FrameworkElement;
-        get VisualChild(): FrameworkElement { return this._VisualChild; }
         
         _ChildChanged(oldChild: FrameworkElement, newChild: FrameworkElement) {
             var popup = this.XObject;

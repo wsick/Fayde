@@ -33,9 +33,8 @@ module Fayde.Controls {
             e.Handled = true;
             if (!this.XamlNode.Focus(true))
                 return;
-            if (this._ParentSelector != null) {
+            if (this._ParentSelector != null)
                 this._ParentSelector.NotifyListItemClicked(this);
-            }
         }
         OnMouseEnter(e: Input.MouseEventArgs) {
             super.OnMouseEnter(e);

@@ -48,13 +48,6 @@ var Fayde;
                         _super.prototype._HitTestPoint.call(this, ctx, p, uinlist);
                     }
                 };
-                Object.defineProperty(PopupNode.prototype, "VisualChild", {
-                    get: function () {
-                        return this._VisualChild;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
                 PopupNode.prototype._ChildChanged = function (oldChild, newChild) {
                     var popup = this.XObject;
                     this._Hide();
