@@ -212,6 +212,11 @@ var Fayde;
             var lu = uin.LayoutUpdater;
             var str = VisualTreeHelper._SerializeDirt(lu.DirtyFlags);
             str += VisualTreeHelper._SerializeFlags(lu.Flags);
+            str += " (";
+            str += lu.HiddenDesire.toString();
+            str += " ";
+            str += lu.RenderSize.toString();
+            str += ")";
             return str;
         };
         VisualTreeHelper.__DebugLayout = function __DebugLayout(ui) {

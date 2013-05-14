@@ -725,7 +725,7 @@ module Fayde {
             this.ActualHeight = s.Height;
             if (last && size.isEqual(last, s))
                 return;
-            this.LastRenderSize = s;
+            this.LastRenderSize = undefined;
             fe.SizeChanged.Raise(fe, new SizeChangedEventArgs(last, s));
         }
         private _ComputeActualSize(): size {

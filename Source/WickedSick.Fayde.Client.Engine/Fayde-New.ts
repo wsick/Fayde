@@ -581,6 +581,11 @@ module Fayde {
             var lu = uin.LayoutUpdater;
             var str = _SerializeDirt(lu.DirtyFlags);
             str += _SerializeFlags(lu.Flags);
+            str += " (";
+            str += lu.HiddenDesire.toString();
+            str += " ";
+            str += lu.RenderSize.toString();
+            str += ")";
             return str;
         }
         static __DebugLayout(ui: any): string {
@@ -5472,7 +5477,7 @@ module Fayde {
             this.ActualHeight = s.Height;
             if (last && size.isEqual(last, s))
                 return;
-            this.LastRenderSize = s;
+            this.LastRenderSize = undefined;
             fe.SizeChanged.Raise(fe, new SizeChangedEventArgs(last, s));
         }
         private _ComputeActualSize(): size {

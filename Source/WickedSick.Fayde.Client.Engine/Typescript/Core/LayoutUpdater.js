@@ -673,7 +673,7 @@ var Fayde;
             if(last && size.isEqual(last, s)) {
                 return;
             }
-            this.LastRenderSize = s;
+            this.LastRenderSize = undefined;
             fe.SizeChanged.Raise(fe, new Fayde.SizeChangedEventArgs(last, s));
         };
         LayoutUpdater.prototype._ComputeActualSize = function () {
