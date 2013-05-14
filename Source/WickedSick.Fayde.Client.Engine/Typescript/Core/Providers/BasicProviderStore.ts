@@ -391,10 +391,6 @@ module Fayde.Providers {
         
         EmitDataContextChanged() { this._InheritedDataContextProvider.EmitChanged(); }
         SetDataContextSourceNode(sourceNode?: XamlNode) { this._InheritedDataContextProvider.SetDataSourceNode(sourceNode); }
-        OnDataContextSourceValueChanged(oldDataContext: any, newDataContext: any): bool {
-            var error = new BError();
-            return this._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, DependencyObject.DataContextProperty, oldDataContext, newDataContext, true, error);
-        }
     }
     Nullstone.RegisterType(BasicProviderStore, "BasicProviderStore");
 }

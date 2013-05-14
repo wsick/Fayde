@@ -165,7 +165,7 @@ module Fayde.Data {
         SetSource(value: any) {
             if (value == null || !Nullstone.Equals(value, this._Source)) {
                 var oldSource = this._Source;
-                if (oldSource)
+                if (oldSource && Nullstone.ImplementsInterface(oldSource, INotifyPropertyChanged_))
                     (<INotifyPropertyChanged>oldSource).PropertyChanged.Unsubscribe(this.OnSourcePropertyChanged, this);
 
                 this._Source = value;

@@ -23,10 +23,8 @@ module Fayde {
 
         get DataContext(): any { return this.XObject.DataContext; }
         set DataContext(value: any) {
-            var old = this.XObject.DataContext;
-            if (!this.Store.OnDataContextSourceValueChanged(old, value))
-                return;
-            this.OnDataContextChanged(old, value);
+            this.Store.EmitDataContextChanged();
+            this.OnDataContextChanged(undefined, value);
         }
         
         _DataContextPropertyChanged(args: IDependencyPropertyChangedEventArgs) {

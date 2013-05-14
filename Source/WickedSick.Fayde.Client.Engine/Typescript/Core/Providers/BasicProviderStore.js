@@ -410,10 +410,6 @@ var Fayde;
             BasicProviderStore.prototype.SetDataContextSourceNode = function (sourceNode) {
                 this._InheritedDataContextProvider.SetDataSourceNode(sourceNode);
             };
-            BasicProviderStore.prototype.OnDataContextSourceValueChanged = function (oldDataContext, newDataContext) {
-                var error = new BError();
-                return this._ProviderValueChanged(Providers._PropertyPrecedence.InheritedDataContext, Fayde.DependencyObject.DataContextProperty, oldDataContext, newDataContext, true, error);
-            };
             return BasicProviderStore;
         })();
         Providers.BasicProviderStore = BasicProviderStore;        

@@ -31,11 +31,8 @@ var Fayde;
                 return this.XObject.DataContext;
             },
             set: function (value) {
-                var old = this.XObject.DataContext;
-                if(!this.Store.OnDataContextSourceValueChanged(old, value)) {
-                    return;
-                }
-                this.OnDataContextChanged(old, value);
+                this.Store.EmitDataContextChanged();
+                this.OnDataContextChanged(undefined, value);
             },
             enumerable: true,
             configurable: true

@@ -165,7 +165,7 @@ var Fayde;
             PropertyPathNode.prototype.SetSource = function (value) {
                 if(value == null || !Nullstone.Equals(value, this._Source)) {
                     var oldSource = this._Source;
-                    if(oldSource) {
+                    if(oldSource && Nullstone.ImplementsInterface(oldSource, Fayde.INotifyPropertyChanged_)) {
                         (oldSource).PropertyChanged.Unsubscribe(this.OnSourcePropertyChanged, this);
                     }
                     this._Source = value;
