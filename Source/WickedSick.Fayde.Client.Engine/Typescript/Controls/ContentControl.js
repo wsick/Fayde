@@ -14,6 +14,7 @@ var Fayde;
             __extends(ContentControlNode, _super);
             function ContentControlNode(xobj) {
                         _super.call(this, xobj);
+                this._Presenter = null;
             }
             ContentControlNode.prototype.GetDefaultVisualTree = function () {
                 var xobj = this.XObject;
@@ -25,7 +26,17 @@ var Fayde;
                 presenter.TemplateOwner = this.XObject;
                 presenter.SetValue(Controls.ContentPresenter.ContentProperty, new Fayde.TemplateBindingExpression(ContentControl.ContentProperty, Controls.ContentPresenter.ContentProperty, "Content"));
                 presenter.SetValue(Controls.ContentPresenter.ContentTemplateProperty, new Fayde.TemplateBindingExpression(ContentControl.ContentTemplateProperty, Controls.ContentPresenter.ContentTemplateProperty, "ContentTemplate"));
+                this._Presenter = presenter;
                 return presenter;
+            };
+            ContentControlNode.prototype.ClearPresenter = function () {
+                var presenter = this._Presenter;
+                if(presenter) {
+                    presenter.ClearValue(Controls.ContentPresenter.ContentProperty);
+                    presenter.ClearValue(Controls.ContentPresenter.ContentTemplateProperty);
+                    this.DetachVisualChild(presenter, null);
+                }
+                this._Presenter = null;
             };
             return ContentControlNode;
         })(Controls.ControlNode);
@@ -59,6 +70,13 @@ var Fayde;
             ContentControl.prototype.OnContentTemplateChanged = function (oldContentTemplate, newContentTemplate) {
             };
             ContentControl.prototype._ContentChanged = function (args) {
+                var node = this.XamlNode;
+                if(args.OldValue instanceof Fayde.UIElement) {
+                    node.DetachVisualChild(args.OldValue, null);
+                }
+                if(args.NewValue instanceof Fayde.UIElement) {
+                    node.ClearPresenter();
+                }
                 this.OnContentChanged(args.OldValue, args.NewValue);
                 this.InvalidateMeasure();
             };

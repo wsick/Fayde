@@ -290,15 +290,15 @@ var Fayde;
                         OldValue: oldValue,
                         NewValue: newValue
                     };
+                    if(propd && propd._ChangedCallback) {
+                        propd._ChangedCallback(this._Object, args);
+                    }
                     try  {
                         this._Object._OnPropertyChanged(args);
                     } catch (err) {
                         error.Message = err.Message;
                     }
                     this._RaisePropertyChanged(args);
-                    if(propd && propd._ChangedCallback) {
-                        propd._ChangedCallback(this._Object, args);
-                    }
                 }
             };
             BasicProviderStore.prototype._GetAnimationStorageFor = function (propd) {

@@ -6523,11 +6523,11 @@ module Fayde.Providers {
                     OldValue: oldValue,
                     NewValue: newValue
                 };
+                if (propd && propd._ChangedCallback)
+                    propd._ChangedCallback(this._Object, args);
                 try { this._Object._OnPropertyChanged(args); }
                 catch (err) { error.Message = err.Message; }
                 this._RaisePropertyChanged(args);
-                if (propd && propd._ChangedCallback)
-                    propd._ChangedCallback(this._Object, args);
             }
         }
         private _GetAnimationStorageFor(propd: DependencyProperty): any {
@@ -22797,6 +22797,7 @@ module Fayde.Controls {
         constructor(xobj: ContentControl) {
             super(xobj);
         }
+        private _Presenter: ContentPresenter = null;
         GetDefaultVisualTree(): UIElement {
             var xobj = this.XObject;
             var content = xobj.Content;
@@ -22808,7 +22809,17 @@ module Fayde.Controls {
                 new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty, "Content"));
             presenter.SetValue(ContentPresenter.ContentTemplateProperty,
                 new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty, "ContentTemplate"));
+            this._Presenter = presenter;
             return presenter;
+        }
+        ClearPresenter() {
+            var presenter = this._Presenter;
+            if (presenter) {
+                presenter.ClearValue(ContentPresenter.ContentProperty);
+                presenter.ClearValue(ContentPresenter.ContentTemplateProperty);
+                this.DetachVisualChild(presenter, null);
+            }
+            this._Presenter = null;
         }
     }
     Nullstone.RegisterType(ContentControlNode, "ContentControlNode");
@@ -22824,6 +22835,11 @@ module Fayde.Controls {
         OnContentChanged(oldContent: any, newContent: any) { }
         OnContentTemplateChanged(oldContentTemplate: DataTemplate, newContentTemplate: DataTemplate) { }
         _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
+            var node = this.XamlNode;
+            if (args.OldValue instanceof UIElement)
+                node.DetachVisualChild(<UIElement>args.OldValue, null);
+            if (args.NewValue instanceof UIElement)
+                node.ClearPresenter();
             this.OnContentChanged(args.OldValue, args.NewValue);
             this.InvalidateMeasure();
         }
