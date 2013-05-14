@@ -208,9 +208,9 @@ var Fayde;
             var invalidateSubtreePaint = false;
             if(this.DirtyFlags & dirtyEnum.Bounds) {
                 this.DirtyFlags &= ~dirtyEnum.Bounds;
-                var oextents = rect.clone(this.ExtentsWithChildren);
-                var oglobalbounds = rect.clone(this.GlobalBoundsWithChildren);
-                var osubtreebounds = rect.clone(this.SurfaceBoundsWithChildren);
+                var oextents = rect.copyTo(this.ExtentsWithChildren);
+                var oglobalbounds = rect.copyTo(this.GlobalBoundsWithChildren);
+                var osubtreebounds = rect.copyTo(this.SurfaceBoundsWithChildren);
                 if((thisNode).ComputeBounds) {
                     (thisNode).ComputeBounds(this.ComputeBounds, this);
                 } else {
@@ -595,7 +595,7 @@ var Fayde;
             }
             var parentNode = node.VisualParentNode;
             if((parentNode && !(parentNode.XObject instanceof Fayde.Controls.Canvas)) || this.IsLayoutContainer) {
-                return size.clone(this.RenderSize);
+                return size.copyTo(this.RenderSize);
             }
             return this.CoerceSize(new size());
         };
@@ -747,7 +747,7 @@ var Fayde;
                 last = size.createInfinite();
             }
             if(last) {
-                var previousDesired = size.clone(this.DesiredSize);
+                var previousDesired = size.copyTo(this.DesiredSize);
                 this._Measure(last, error);
                 if(size.isEqual(previousDesired, this.DesiredSize)) {
                     return;
@@ -784,7 +784,7 @@ var Fayde;
             this.PreviousConstraint = availableSize;
             this.InvalidateArrange();
             this.UpdateBounds();
-            var s = size.clone(availableSize);
+            var s = size.copyTo(availableSize);
             var margin = fe.Margin;
             if(margin) {
                 size.shrinkByThickness(s, margin);
@@ -799,7 +799,7 @@ var Fayde;
                 return;
             }
             this.DirtyFlags &= ~_Dirty.Measure;
-            this.HiddenDesire = size.clone(s);
+            this.HiddenDesire = size.copyTo(s);
             var visualParentNode = node.VisualParentNode;
             if(!visualParentNode || visualParentNode instanceof Fayde.Controls.CanvasNode) {
                 if(node instanceof Fayde.Controls.CanvasNode || !this.IsLayoutContainer) {
@@ -830,13 +830,13 @@ var Fayde;
                 var surface = this.Surface;
                 var desired;
                 if(this.IsLayoutContainer) {
-                    desired = size.clone(this.DesiredSize);
+                    desired = size.copyTo(this.DesiredSize);
                     if(n.IsAttached && n.IsTopLevel && !n.ParentNode) {
                         var measure = this.PreviousConstraint;
                         if(measure) {
                             size.max(desired, measure);
                         } else {
-                            desired = size.clone(surface.Extents);
+                            desired = size.copyTo(surface.Extents);
                         }
                     }
                 } else {
@@ -886,7 +886,7 @@ var Fayde;
             }
             measure = this.PreviousConstraint;
             this.SetLayoutClip(undefined);
-            var childRect = rect.clone(finalRect);
+            var childRect = rect.copyTo(finalRect);
             var margin = fe.Margin;
             if(margin) {
                 rect.shrinkByThickness(childRect, margin);
@@ -894,7 +894,7 @@ var Fayde;
             this.UpdateTransform();
             this.UpdateProjection();
             this.UpdateBounds();
-            var offer = size.clone(this.HiddenDesire);
+            var offer = size.copyTo(this.HiddenDesire);
             var stretched = this.CoerceSize(size.fromRect(childRect));
             var framework = this.CoerceSize(new size());
             var horiz = fe.HorizontalAlignment;
@@ -942,13 +942,13 @@ var Fayde;
             var visualOffset = this.VisualOffset;
             visualOffset.X = childRect.X;
             visualOffset.Y = childRect.Y;
-            var oldSize = size.clone(this.RenderSize);
+            var oldSize = size.copyTo(this.RenderSize);
             if(fe.UseLayoutRounding) {
                 response.Width = Math.round(response.Width);
                 response.Height = Math.round(response.Height);
             }
             size.copyTo(response, this.RenderSize);
-            var constrainedResponse = this.CoerceSize(size.clone(response));
+            var constrainedResponse = this.CoerceSize(size.copyTo(response));
             size.min(constrainedResponse, response);
             if(!visualParentNode || visualParentNode instanceof Fayde.Controls.CanvasNode) {
                 if(!this.IsLayoutContainer) {
@@ -998,7 +998,7 @@ var Fayde;
             var element = new rect();
             element.Width = response.Width;
             element.Height = response.Height;
-            var layoutClip = rect.clone(childRect);
+            var layoutClip = rect.copyTo(childRect);
             layoutClip.X = Math.max(childRect.X - visualOffset.X, 0);
             layoutClip.Y = Math.max(childRect.Y - visualOffset.Y, 0);
             if(fe.UseLayoutRounding) {

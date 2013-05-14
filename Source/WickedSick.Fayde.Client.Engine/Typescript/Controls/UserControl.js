@@ -69,7 +69,7 @@ var Fayde;
             };
             UserControl.prototype._MeasureOverride = function (availableSize, error) {
                 var desired;
-                availableSize = size.clone(availableSize);
+                availableSize = size.copyTo(availableSize);
                 var padding = this.Padding;
                 var borderThickness = this.BorderThickness;
                 var border = null;
@@ -87,7 +87,7 @@ var Fayde;
                 while(enumerator.MoveNext()) {
                     var childLu = (enumerator.Current).LayoutUpdater;
                     childLu._Measure(availableSize, error);
-                    desired = size.clone(childLu.DesiredSize);
+                    desired = size.copyTo(childLu.DesiredSize);
                 }
                 if(!desired) {
                     desired = new size();

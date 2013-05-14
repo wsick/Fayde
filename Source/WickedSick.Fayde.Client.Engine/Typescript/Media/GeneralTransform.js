@@ -68,7 +68,7 @@ var Fayde;
             };
             InternalTransform.prototype.TransformBounds = function (r) {
                 if(r) {
-                    return rect.transform4(rect.clone(r), this._Raw);
+                    return rect.transform4(rect.copyTo(r), this._Raw);
                 }
                 return undefined;
             };

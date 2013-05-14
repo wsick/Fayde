@@ -56,18 +56,14 @@ var rect = (function () {
         return rect1.Width <= 0 && rect1.Height <= 0;
     };
     rect.copyTo = function copyTo(src, dest) {
+        if(!dest) {
+            dest = new rect();
+        }
         dest.X = src.X;
         dest.Y = src.Y;
         dest.Width = src.Width;
         dest.Height = src.Height;
-    };
-    rect.clone = function clone(src) {
-        var r = new rect();
-        r.X = src.X;
-        r.Y = src.Y;
-        r.Width = src.Width;
-        r.Height = src.Height;
-        return r;
+        return dest;
     };
     rect.isEqual = function isEqual(rect1, rect2) {
         return rect1.X === rect2.X && rect1.Y === rect2.Y && rect1.Width === rect2.Width && rect1.Height === rect2.Height;
@@ -326,7 +322,7 @@ var rect = (function () {
         return rect1.X <= x && rect1.Y <= y && (rect1.X + rect1.Width) >= x && (rect1.Y + rect1.Height) >= y;
     };
     rect.rectIn = function rectIn(rect1, rect2) {
-        var copy = rect.clone(rect1);
+        var copy = rect.copyTo(rect1);
         rect.intersection(copy, rect2);
         if(rect.isEmpty(copy)) {
             return RectOverlap.Out;
@@ -337,7 +333,7 @@ var rect = (function () {
         return RectOverlap.Part;
     };
     rect.isRectContainedIn = function isRectContainedIn(src, test) {
-        var copy = rect.clone(src);
+        var copy = rect.copyTo(src);
         rect.intersection(copy, test);
         return !rect.isEqual(src, copy);
     };

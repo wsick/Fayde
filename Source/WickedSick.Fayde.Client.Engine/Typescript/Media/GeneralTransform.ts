@@ -45,7 +45,7 @@ module Fayde.Media {
         }
         TransformBounds(r: rect): rect {
             if (r)
-                return rect.transform4(rect.clone(r), this._Raw);
+                return rect.transform4(rect.copyTo(r), this._Raw);
             return undefined;
         }
 

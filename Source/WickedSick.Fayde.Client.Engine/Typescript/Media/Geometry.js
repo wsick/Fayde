@@ -37,7 +37,7 @@ var Fayde;
                 if(compute) {
                     rect.copyTo(this.ComputePathBounds(thickness), this._LocalBounds);
                 }
-                var bounds = rect.clone(this._LocalBounds);
+                var bounds = rect.copyTo(this._LocalBounds);
                 var transform = this.Transform;
                 if(transform != null) {
                     bounds = transform.TransformBounds(bounds);

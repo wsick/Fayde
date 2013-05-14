@@ -58,9 +58,9 @@ var Fayde;
                 }
                 var v = this.Value;
                 if(!v || !v._Raw) {
-                    return rect.clone(r);
+                    return rect.copyTo(r);
                 }
-                return rect.transform(rect.clone(r), v._Raw);
+                return rect.transform(rect.copyTo(r), v._Raw);
             };
             Transform.prototype.TryTransform = function (inPoint, outPoint) {
                 return false;

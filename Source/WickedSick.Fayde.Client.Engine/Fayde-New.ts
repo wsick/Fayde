@@ -5080,9 +5080,9 @@ module Fayde {
             var invalidateSubtreePaint = false;
             if (this.DirtyFlags & dirtyEnum.Bounds) {
                 this.DirtyFlags &= ~dirtyEnum.Bounds;
-                var oextents = rect.clone(this.ExtentsWithChildren);
-                var oglobalbounds = rect.clone(this.GlobalBoundsWithChildren);
-                var osubtreebounds = rect.clone(this.SurfaceBoundsWithChildren);
+                var oextents = rect.copyTo(this.ExtentsWithChildren);
+                var oglobalbounds = rect.copyTo(this.GlobalBoundsWithChildren);
+                var osubtreebounds = rect.copyTo(this.SurfaceBoundsWithChildren);
                 if ((<IBoundsComputable><any>thisNode).ComputeBounds)
                     (<IBoundsComputable><any>thisNode).ComputeBounds(this.ComputeBounds, this);
                 else
@@ -5411,7 +5411,7 @@ module Fayde {
                 return new size();
             var parentNode = node.VisualParentNode;
             if ((parentNode && !(parentNode.XObject instanceof Controls.Canvas)) || this.IsLayoutContainer)
-                return size.clone(this.RenderSize);
+                return size.copyTo(this.RenderSize);
             return this.CoerceSize(new size());
         }
         private _GetBrushSize(): ISize {
@@ -5541,7 +5541,7 @@ module Fayde {
                 last = size.createInfinite();
             }
             if (last) {
-                var previousDesired = size.clone(this.DesiredSize);
+                var previousDesired = size.copyTo(this.DesiredSize);
                 this._Measure(last, error);
                 if (size.isEqual(previousDesired, this.DesiredSize))
                     return;
@@ -5574,7 +5574,7 @@ module Fayde {
             this.PreviousConstraint = availableSize;
             this.InvalidateArrange();
             this.UpdateBounds();
-            var s = size.clone(availableSize);
+            var s = size.copyTo(availableSize);
             var margin = fe.Margin;
             if (margin)
                 size.shrinkByThickness(s, margin);
@@ -5587,7 +5587,7 @@ module Fayde {
             if (error.Message)
                 return;
             this.DirtyFlags &= ~_Dirty.Measure;
-            this.HiddenDesire = size.clone(s);
+            this.HiddenDesire = size.copyTo(s);
             var visualParentNode = node.VisualParentNode;
             if (!visualParentNode || visualParentNode instanceof Controls.CanvasNode) {
                 if (node instanceof Controls.CanvasNode || !this.IsLayoutContainer) {
@@ -5616,13 +5616,13 @@ module Fayde {
                 var surface = this.Surface;
                 var desired: size;
                 if (this.IsLayoutContainer) {
-                    desired = size.clone(this.DesiredSize);
+                    desired = size.copyTo(this.DesiredSize);
                     if (n.IsAttached && n.IsTopLevel && !n.ParentNode) {
                         var measure = this.PreviousConstraint;
                         if (measure)
                             size.max(desired, measure);
                         else
-                            desired = size.clone(surface.Extents);
+                            desired = size.copyTo(surface.Extents);
                     }
                 } else {
                     desired.Width = fe.ActualWidth;
@@ -5670,14 +5670,14 @@ module Fayde {
             }
             measure = this.PreviousConstraint;
             this.SetLayoutClip(undefined);
-            var childRect = rect.clone(finalRect);
+            var childRect = rect.copyTo(finalRect);
             var margin = fe.Margin;
             if (margin)
                 rect.shrinkByThickness(childRect, margin);
             this.UpdateTransform();
             this.UpdateProjection();
             this.UpdateBounds();
-            var offer = size.clone(this.HiddenDesire);
+            var offer = size.copyTo(this.HiddenDesire);
             var stretched = this.CoerceSize(size.fromRect(childRect));
             var framework = this.CoerceSize(new size());
             var horiz = fe.HorizontalAlignment;
@@ -5719,13 +5719,13 @@ module Fayde {
             var visualOffset = this.VisualOffset;
             visualOffset.X = childRect.X;
             visualOffset.Y = childRect.Y;
-            var oldSize = size.clone(this.RenderSize);
+            var oldSize = size.copyTo(this.RenderSize);
             if (fe.UseLayoutRounding) {
                 response.Width = Math.round(response.Width);
                 response.Height = Math.round(response.Height);
             }
             size.copyTo(response, this.RenderSize);
-            var constrainedResponse = this.CoerceSize(size.clone(response));
+            var constrainedResponse = this.CoerceSize(size.copyTo(response));
             size.min(constrainedResponse, response);
             if (!visualParentNode || visualParentNode instanceof Controls.CanvasNode) {
                 if (!this.IsLayoutContainer) {
@@ -5775,7 +5775,7 @@ module Fayde {
             var element = new rect();
             element.Width = response.Width;
             element.Height = response.Height;
-            var layoutClip = rect.clone(childRect);
+            var layoutClip = rect.copyTo(childRect);
             layoutClip.X = Math.max(childRect.X - visualOffset.X, 0);
             layoutClip.Y = Math.max(childRect.Y - visualOffset.Y, 0);
             if (fe.UseLayoutRounding) {
@@ -8177,7 +8177,7 @@ class Surface {
                 if (!lu.HasMeasureArrangeHint())
                     continue;
                 var last = lu.PreviousConstraint;
-                var available = size.clone(this.Extents);
+                var available = size.copyTo(this.Extents);
                 if (lu.IsContainer && (!last || (!size.isEqual(last, available)))) {
                     lu.InvalidateMeasure();
                     lu.PreviousConstraint = available;
@@ -8278,7 +8278,7 @@ class Surface {
         if (!r)
             r = rect.fromSize(this.Extents);
         if (!this._InvalidatedRect)
-            this._InvalidatedRect = rect.clone(r);
+            this._InvalidatedRect = rect.copyTo(r);
         else
             rect.union(this._InvalidatedRect, r);
     }
@@ -9261,7 +9261,7 @@ class Clip {
     Width: number;
     Height: number;
     constructor(r: rect) {
-        var rounded = rect.roundOut(rect.clone(r));
+        var rounded = rect.roundOut(rect.copyTo(r));
         this.X = rounded.X;
         this.Y = rounded.Y;
         this.Width = rounded.Width;
@@ -9815,19 +9815,13 @@ class rect implements ICloneable {
         return rect1.Width <= 0
             && rect1.Height <= 0;
     }
-    static copyTo(src: rect, dest: rect) {
+    static copyTo(src: rect, dest?: rect) {
+        if (!dest) dest = new rect();
         dest.X = src.X;
         dest.Y = src.Y;
         dest.Width = src.Width;
         dest.Height = src.Height;
-    }
-    static clone(src: rect): rect {
-        var r = new rect();
-        r.X = src.X;
-        r.Y = src.Y;
-        r.Width = src.Width;
-        r.Height = src.Height;
-        return r;
+        return dest;
     }
     static isEqual(rect1: rect, rect2: rect): bool {
         return rect1.X === rect2.X
@@ -10064,7 +10058,7 @@ class rect implements ICloneable {
             && (rect1.Y + rect1.Height) >= y;
     }
     static rectIn(rect1: rect, rect2: rect) {
-        var copy = rect.clone(rect1);
+        var copy = rect.copyTo(rect1);
         rect.intersection(copy, rect2);
         if (rect.isEmpty(copy))
             return RectOverlap.Out;
@@ -10073,7 +10067,7 @@ class rect implements ICloneable {
         return RectOverlap.Part;
     }
     static isRectContainedIn(src: rect, test: rect) {
-        var copy = rect.clone(src);
+        var copy = rect.copyTo(src);
         rect.intersection(copy, test);
         return !rect.isEqual(src, copy);
     }
@@ -10120,15 +10114,11 @@ class size implements ICloneable, ISize {
         s.Height = Number.NEGATIVE_INFINITY;
         return s;
     }
-    static copyTo(src: size, dest: size) {
+    static copyTo(src: size, dest?: size): size {
+        if (!dest) dest = new size();
         dest.Width = src.Width;
         dest.Height = src.Height;
-    }
-    static clone(src: size): size {
-        var s = new size();
-        s.Width = src.Width;
-        s.Height = src.Height;
-        return s;
+        return dest;
     }
     static clear(dest: size) {
         dest.Width = 0;
@@ -10149,7 +10139,7 @@ class size implements ICloneable, ISize {
         dest.Height = h > 0 ? h : 0;
         return dest;
     }
-    static growByThickness(dest: size, thickness) {
+    static growByThickness(dest: size, thickness: Thickness) {
         var w = dest.Width;
         var h = dest.Height;
         if (w != Number.POSITIVE_INFINITY)
@@ -10171,7 +10161,7 @@ class size implements ICloneable, ISize {
         dest.Height = h > 0 ? h : 0;
         return dest;
     }
-    static shrinkByThickness(dest: size, thickness) {
+    static shrinkByThickness(dest: size, thickness: Thickness) {
         var w = dest.Width;
         var h = dest.Height;
         if (w != Number.POSITIVE_INFINITY)
@@ -11029,8 +11019,8 @@ module Fayde {
         NewSize: size;
         constructor(previousSize: size, newSize: size) {
             super();
-            Object.defineProperty(this, "PreviousSize", { value: size.clone(previousSize), writable: false });
-            Object.defineProperty(this, "NewSize", { value: size.clone(newSize), writable: false });
+            Object.defineProperty(this, "PreviousSize", { value: size.copyTo(previousSize), writable: false });
+            Object.defineProperty(this, "NewSize", { value: size.copyTo(newSize), writable: false });
         }
     }
     Nullstone.RegisterType(SizeChangedEventArgs, "SizeChangedEventArgs");
@@ -12017,7 +12007,7 @@ module Fayde.Media {
         }
         TransformBounds(r: rect): rect {
             if (r)
-                return rect.transform4(rect.clone(r), this._Raw);
+                return rect.transform4(rect.copyTo(r), this._Raw);
             return undefined;
         }
         CreateMatrix3DProjection(): Matrix3DProjection {
@@ -12051,7 +12041,7 @@ module Fayde.Media {
             }
             if (compute)
                 rect.copyTo(this.ComputePathBounds(thickness), this._LocalBounds);
-            var bounds = rect.clone(this._LocalBounds);
+            var bounds = rect.copyTo(this._LocalBounds);
             var transform = this.Transform
             if (transform != null)
                 bounds = transform.TransformBounds(bounds);
@@ -12560,8 +12550,8 @@ module Fayde.Media {
                 return undefined;
             var v = this.Value;
             if (!v || !v._Raw)
-                return rect.clone(r);
-            return rect.transform(rect.clone(r), v._Raw);
+                return rect.copyTo(r);
+            return rect.transform(rect.copyTo(r), v._Raw);
         }
         TryTransform(inPoint: Point, outPoint: Point): bool {
             return false;
@@ -14952,7 +14942,7 @@ module Fayde.Media {
                 var transformedBounds = transform.TransformBounds(bounds);
                 var raw = transform.Value._Raw;
                 var tmpBrush = this.CreateBrush(ctx, bounds);
-                var fillExtents = rect.clone(bounds);
+                var fillExtents = rect.copyTo(bounds);
                 rect.growBy(fillExtents, raw[2], raw[5], 0, 0);
                 var tmpCanvas = <HTMLCanvasElement>document.createElement("canvas");
                 tmpCanvas.width = Math.max(transformedBounds.Width, bounds.Width);
@@ -16315,20 +16305,20 @@ module Fayde {
         UpdateLayout() { this.XamlNode.UpdateLayout(); }
         private _MeasureOverride(availableSize: size, error: BError): size {
             var desired = new size();
-            availableSize = size.clone(availableSize);
+            availableSize = size.copyTo(availableSize);
             size.max(availableSize, desired);
             var enumerator = this.XamlNode.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {
                 var childNode = <FENode>enumerator.Current;
                 var childLu = childNode.LayoutUpdater;
                 childLu._Measure(availableSize, error);
-                desired = size.clone(childLu.DesiredSize);
+                desired = size.copyTo(childLu.DesiredSize);
             }
             size.min(desired, availableSize);
             return desired;
         }
         private _ArrangeOverride(finalSize: size, error: BError): size {
-            var arranged = size.clone(finalSize);
+            var arranged = size.copyTo(finalSize);
             var enumerator = this.XamlNode.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {
                 var childNode = <FENode>enumerator.Current;
@@ -16628,7 +16618,7 @@ module Fayde.Shapes {
             if (this instanceof Rectangle || this instanceof Ellipse)
                 desired = new size();
             else
-                desired = size.clone(availableSize);
+                desired = size.copyTo(availableSize);
             var stretch = this.Stretch;
             if (stretch === Media.Stretch.None) {
                 return size.fromRaw(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height);
@@ -16677,7 +16667,7 @@ module Fayde.Shapes {
             if (stretch === Fayde.Media.Stretch.None) {
                 arranged = size.fromRaw(Math.max(finalSize.Width, shapeBounds.X + shapeBounds.Width), Math.max(finalSize.Height, shapeBounds.Y + shapeBounds.Height));
             } else {
-                arranged = size.clone(finalSize);
+                arranged = size.copyTo(finalSize);
             }
             if (shapeBounds.Width === 0)
                 shapeBounds.Width = arranged.Width;
@@ -16981,12 +16971,12 @@ module Fayde.Controls {
                 border = borderThickness;
             }
             var desired = new size();
-            if (border) availableSize = size.shrinkByThickness(size.clone(availableSize), border);
+            if (border) availableSize = size.shrinkByThickness(size.copyTo(availableSize), border);
             var child = this.Child;
             if (child) {
                 var lu = child.XamlNode.LayoutUpdater;
                 lu._Measure(availableSize, error);
-                desired = size.clone(lu.DesiredSize);
+                desired = size.copyTo(lu.DesiredSize);
             }
             if (border) size.growByThickness(desired, border);
             size.min(desired, availableSize);
@@ -17079,7 +17069,7 @@ module Fayde.Controls {
             ctx.Restore();
         }
         private _RenderFillOnly(ctx: RenderContext, extents: rect, backgroundBrush: Media.Brush, thickness: Thickness, cornerRadius: CornerRadius) {
-            var fillExtents = rect.clone(extents);
+            var fillExtents = rect.copyTo(extents);
             if (thickness) rect.shrinkByThickness(fillExtents, thickness);
             if (!cornerRadius || cornerRadius.IsZero()) {
                 ctx.FillRect(backgroundBrush, fillExtents);
@@ -17094,9 +17084,9 @@ module Fayde.Controls {
         private _RenderBalanced(ctx: RenderContext, extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cornerRadius: CornerRadius) {
             var full = thickness.Left;
             var half = full * 0.5;
-            var strokeExtents = rect.clone(extents);
+            var strokeExtents = rect.copyTo(extents);
             rect.shrinkBy(strokeExtents, half, half, half, half);
-            var fillExtents = rect.clone(extents);
+            var fillExtents = rect.copyTo(extents);
             rect.shrinkBy(fillExtents, full, full, full, full);
             if (!cornerRadius || cornerRadius.IsZero()) {
                 if (backgroundBrush) {
@@ -17117,7 +17107,7 @@ module Fayde.Controls {
         }
         private _RenderUnbalanced(ctx: RenderContext, extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cornerRadius: CornerRadius) {
             var hasCornerRadius = cornerRadius && !cornerRadius.IsZero();
-            var innerExtents = rect.clone(extents);
+            var innerExtents = rect.copyTo(extents);
             if (thickness) rect.shrinkByThickness(innerExtents, thickness);
             var innerPath = new Fayde.Shapes.RawPath();
             var outerPath = new Fayde.Shapes.RawPath();
@@ -17489,7 +17479,7 @@ module Fayde.Controls {
     function calculateRenderMetrics(img: Image, source: Media.Imaging.ImageSource, lu: LayoutUpdater): IImageRenderMetrics {
         var stretch = img.Stretch;
         var specified = size.fromRaw(img.ActualWidth, img.ActualHeight);
-        var stretched = lu.CoerceSize(size.clone(specified));
+        var stretched = lu.CoerceSize(size.copyTo(specified));
         var adjust = !size.isEqual(specified, lu.RenderSize);
         var pixelWidth = source.PixelWidth;
         var pixelHeight = source.PixelHeight;
@@ -17515,9 +17505,9 @@ module Fayde.Controls {
         }
         var overlap = RectOverlap.In;
         if (stretch === Fayde.Media.Stretch.UniformToFill || adjust) {
-            var bounds = rect.clone(paint);
+            var bounds = rect.copyTo(paint);
             rect.roundOut(bounds);
-            var box = rect.clone(image);
+            var box = rect.copyTo(image);
             rect.transform(box, matrix);
             rect.roundIn(box);
             overlap = rect.rectIn(bounds, box);
@@ -17577,7 +17567,7 @@ module Fayde.Controls {
         ImageOpened: MulticastEvent = new MulticastEvent();
         ImageFailed: MulticastEvent = new MulticastEvent();
         private _MeasureOverride(availableSize: size, error: BError): size {
-            var desired = size.clone(availableSize);
+            var desired = size.copyTo(availableSize);
             var shapeBounds = new rect();
             var source = this.Source;
             var sx = 0.0; 
@@ -17620,7 +17610,7 @@ module Fayde.Controls {
             return desired;
         }
         private _ArrangeOverride(finalSize: size, error: BError): size {
-            var arranged = size.clone(finalSize);
+            var arranged = size.copyTo(finalSize);
             var shapeBounds = new rect();
             var source = this.Source;
             var sx = 1.0;
@@ -18351,7 +18341,7 @@ module Fayde.Controls {
                 return new rect();
             var generalTransform = uie.TransformToVisual(this);
             var point = generalTransform.Transform(new Point(rectangle.X, rectangle.Y));
-            rectangle = rect.clone(rectangle);
+            rectangle = rect.copyTo(rectangle);
             rectangle.X = point.X;
             rectangle.Y = point.Y;
             return rectangle;
@@ -18430,7 +18420,7 @@ module Fayde.Controls {
             cr.Measure(ideal);
             var crds = cr.DesiredSize;
             this._UpdateExtents(availableSize, crds.Width, crds.Height);
-            var desired = size.clone(availableSize);
+            var desired = size.copyTo(availableSize);
             var sd = this._ScrollData;
             desired.Width = Math.min(desired.Width, sd.ExtentWidth);
             desired.Height = Math.min(desired.Height, sd.ExtentHeight);
@@ -18445,7 +18435,7 @@ module Fayde.Controls {
                 scrollOwner.InvalidateScrollInfo();
             var desired = cr.DesiredSize;
             var start = new Point(-this.HorizontalOffset, -this.VerticalOffset);
-            var offerSize = size.clone(desired);
+            var offerSize = size.copyTo(desired);
             size.max(offerSize, finalSize);
             var childRect = rect.fromSize(offerSize);
             childRect.X = start.X;
@@ -18624,7 +18614,7 @@ module Fayde.Controls {
             return measured;
         }
         private _ArrangeOverride(finalSize: size, error: BError): size {
-            var arranged = size.clone(finalSize);
+            var arranged = size.copyTo(finalSize);
             var isVertical = this.Orientation === Orientation.Vertical;
             if (isVertical)
                 arranged.Height = 0;
@@ -18638,7 +18628,7 @@ module Fayde.Controls {
                 child = enumerator.Current;
                 childNode = child.XamlNode;
                 var childLu = childNode.LayoutUpdater;
-                var s = size.clone(childLu.DesiredSize);
+                var s = size.copyTo(childLu.DesiredSize);
                 if (isVertical) {
                     s.Width = finalSize.Width;
                     var childFinal = rect.fromSize(s);
@@ -18954,7 +18944,7 @@ module Fayde.Controls {
             inlines.Listen(this.XamlNode);
         }
         private _MeasureOverride(availableSize: size, error: BError): size {
-            var constraint = size.clone(availableSize);
+            var constraint = size.copyTo(availableSize);
             var padding = this.Padding;
             if (padding) size.shrinkByThickness(constraint, padding);
             var desired = this.XamlNode.Measure(constraint);
@@ -18962,7 +18952,7 @@ module Fayde.Controls {
             return desired;
         }
         private _ArrangeOverride(finalSize: size, error: BError): size {
-            var constraint = size.clone(finalSize);
+            var constraint = size.copyTo(finalSize);
             var padding = this.Padding;
             if (padding) size.shrinkByThickness(constraint, padding);
             this.XamlNode.Arrange(constraint, padding);
@@ -19982,7 +19972,7 @@ module Fayde.Controls.Internal {
         }
         private _MeasureOverride(availableSize: size, error: BError) {
             this.Layout(availableSize);
-            var desired = size.clone(this._Layout.ActualExtents);
+            var desired = size.copyTo(this._Layout.ActualExtents);
             if (!isFinite(availableSize.Width))
                 desired.Width = Math.max(desired.Width, 11);
             size.min(desired, availableSize);
@@ -19990,7 +19980,7 @@ module Fayde.Controls.Internal {
         }
         private _ArrangeOverride(finalSize: size, error: BError) {
             this.Layout(finalSize);
-            var arranged = size.clone(this._Layout.ActualExtents);
+            var arranged = size.copyTo(this._Layout.ActualExtents);
             size.max(arranged, finalSize);
             return arranged;
         }
@@ -20134,7 +20124,7 @@ module Fayde.Controls {
         }
         private _MeasureOverride(availableSize: size, error: BError): size {
             var desired: size;
-            availableSize = size.clone(availableSize);
+            availableSize = size.copyTo(availableSize);
             var padding = this.Padding;
             var borderThickness = this.BorderThickness;
             var border: Thickness = null;
@@ -20149,7 +20139,7 @@ module Fayde.Controls {
             while (enumerator.MoveNext()) {
                 var childLu = (<UINode>enumerator.Current).LayoutUpdater;
                 childLu._Measure(availableSize, error);
-                desired = size.clone(childLu.DesiredSize);
+                desired = size.copyTo(childLu.DesiredSize);
             }
             if (!desired) desired = new size();
             if (border) size.growByThickness(desired, border);
@@ -20400,7 +20390,7 @@ module Fayde.Controls {
             var generator = this.ItemContainerGenerator;
             if (itemCount > 0) {
                 var children = this.Children;
-                var childAvailable = size.clone(availableSize);
+                var childAvailable = size.copyTo(availableSize);
                 if (this._CanHorizontallyScroll || isHorizontal)
                     childAvailable.Width = Number.POSITIVE_INFINITY;
                 if (this._CanVerticallyScroll || !isHorizontal)
@@ -20486,7 +20476,7 @@ module Fayde.Controls {
             return measured;
         }
         private _ArrangeOverride(finalSize: size, error: BError): size {
-            var arranged = size.clone(finalSize);
+            var arranged = size.copyTo(finalSize);
             var isHorizontal = this.Orientation === Orientation.Horizontal;
             if (!isHorizontal)
                 arranged.Height = 0;
@@ -23093,7 +23083,7 @@ module Fayde.Controls {
             });
         }
         private _MeasureOverride(availableSize: size, error: BError): size {
-            var totalSize = size.clone(availableSize);
+            var totalSize = size.copyTo(availableSize);
             var cols = this.ColumnDefinitions;
             var rows = this.RowDefinitions;
             var colCount = cols ? cols.Count : 0;
@@ -23406,7 +23396,7 @@ module Fayde.Controls {
             ctx.Restore();
         }
         private _ExpandStarRows(availableSize: size) {
-            availableSize = size.clone(availableSize);
+            availableSize = size.copyTo(availableSize);
             var rows = this.RowDefinitions;
             var rowsCount = rows ? rows.Count : 0;
             var rm = this._RowMatrix;
@@ -23432,7 +23422,7 @@ module Fayde.Controls {
             }
         }
         private _ExpandStarCols(availableSize: size) {
-            availableSize = size.clone(availableSize);
+            availableSize = size.copyTo(availableSize);
             var cols = this.ColumnDefinitions;
             var columnsCount = cols ? cols.Count : 0;
             var i: number = 0;

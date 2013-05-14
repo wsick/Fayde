@@ -448,6 +448,10 @@
     <Content Include="Tests\ItemsControlTests.js">
       <DependentUpon>ItemsControlTests.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Tests\PrimitivesTests.ts" />
+    <Content Include="Tests\PrimitivesTests.js">
+      <DependentUpon>PrimitivesTests.ts</DependentUpon>
+    </Content>
     <Content Include="Tests\ProviderStoreTests.js">
       <DependentUpon>ProviderStoreTests.ts</DependentUpon>
     </Content>

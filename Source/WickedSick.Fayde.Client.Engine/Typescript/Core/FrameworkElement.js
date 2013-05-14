@@ -348,20 +348,20 @@ var Fayde;
         };
         FrameworkElement.prototype._MeasureOverride = function (availableSize, error) {
             var desired = new size();
-            availableSize = size.clone(availableSize);
+            availableSize = size.copyTo(availableSize);
             size.max(availableSize, desired);
             var enumerator = this.XamlNode.GetVisualTreeEnumerator();
             while(enumerator.MoveNext()) {
                 var childNode = enumerator.Current;
                 var childLu = childNode.LayoutUpdater;
                 childLu._Measure(availableSize, error);
-                desired = size.clone(childLu.DesiredSize);
+                desired = size.copyTo(childLu.DesiredSize);
             }
             size.min(desired, availableSize);
             return desired;
         };
         FrameworkElement.prototype._ArrangeOverride = function (finalSize, error) {
-            var arranged = size.clone(finalSize);
+            var arranged = size.copyTo(finalSize);
             var enumerator = this.XamlNode.GetVisualTreeEnumerator();
             while(enumerator.MoveNext()) {
                 var childNode = enumerator.Current;

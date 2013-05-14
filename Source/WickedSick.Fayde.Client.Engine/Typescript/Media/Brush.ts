@@ -34,7 +34,7 @@ module Fayde.Media {
                 var raw = transform.Value._Raw;
 
                 var tmpBrush = this.CreateBrush(ctx, bounds);
-                var fillExtents = rect.clone(bounds);
+                var fillExtents = rect.copyTo(bounds);
                 rect.growBy(fillExtents, raw[2], raw[5], 0, 0);
 
                 var tmpCanvas = <HTMLCanvasElement>document.createElement("canvas");

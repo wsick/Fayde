@@ -66,7 +66,7 @@ var Fayde;
         function calculateRenderMetrics(img, source, lu) {
             var stretch = img.Stretch;
             var specified = size.fromRaw(img.ActualWidth, img.ActualHeight);
-            var stretched = lu.CoerceSize(size.clone(specified));
+            var stretched = lu.CoerceSize(size.copyTo(specified));
             var adjust = !size.isEqual(specified, lu.RenderSize);
             var pixelWidth = source.PixelWidth;
             var pixelHeight = source.PixelHeight;
@@ -90,9 +90,9 @@ var Fayde;
             }
             var overlap = RectOverlap.In;
             if(stretch === Fayde.Media.Stretch.UniformToFill || adjust) {
-                var bounds = rect.clone(paint);
+                var bounds = rect.copyTo(paint);
                 rect.roundOut(bounds);
-                var box = rect.clone(image);
+                var box = rect.copyTo(image);
                 rect.transform(box, matrix);
                 rect.roundIn(box);
                 overlap = rect.rectIn(bounds, box);
@@ -168,7 +168,7 @@ var Fayde;
                 return new Enum(Fayde.Media.Stretch);
             }, Image, Fayde.Media.Stretch.Uniform);
             Image.prototype._MeasureOverride = function (availableSize, error) {
-                var desired = size.clone(availableSize);
+                var desired = size.copyTo(availableSize);
                 var shapeBounds = new rect();
                 var source = this.Source;
                 var sx = 0.0;
@@ -219,7 +219,7 @@ var Fayde;
                 return desired;
             };
             Image.prototype._ArrangeOverride = function (finalSize, error) {
-                var arranged = size.clone(finalSize);
+                var arranged = size.copyTo(finalSize);
                 var shapeBounds = new rect();
                 var source = this.Source;
                 var sx = 1.0;

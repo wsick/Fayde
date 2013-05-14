@@ -198,7 +198,7 @@ var Fayde;
             });
             Grid.prototype._MeasureOverride = function (availableSize, error) {
                 //LayoutDebug(function () { return "Grid Measure Pass: " + this.__DebugToString() + " [" + availableSize.toString() + "]"; });
-                var totalSize = size.clone(availableSize);
+                var totalSize = size.copyTo(availableSize);
                 var cols = this.ColumnDefinitions;
                 var rows = this.RowDefinitions;
                 var colCount = cols ? cols.Count : 0;
@@ -539,7 +539,7 @@ var Fayde;
                 ctx.Restore();
             };
             Grid.prototype._ExpandStarRows = function (availableSize) {
-                availableSize = size.clone(availableSize);
+                availableSize = size.copyTo(availableSize);
                 var rows = this.RowDefinitions;
                 var rowsCount = rows ? rows.Count : 0;
                 var rm = this._RowMatrix;
@@ -567,7 +567,7 @@ var Fayde;
                 }
             };
             Grid.prototype._ExpandStarCols = function (availableSize) {
-                availableSize = size.clone(availableSize);
+                availableSize = size.copyTo(availableSize);
                 var cols = this.ColumnDefinitions;
                 var columnsCount = cols ? cols.Count : 0;
                 var i = 0;

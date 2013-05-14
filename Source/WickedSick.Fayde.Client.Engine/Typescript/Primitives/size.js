@@ -37,14 +37,12 @@ var size = (function () {
         return s;
     };
     size.copyTo = function copyTo(src, dest) {
+        if(!dest) {
+            dest = new size();
+        }
         dest.Width = src.Width;
         dest.Height = src.Height;
-    };
-    size.clone = function clone(src) {
-        var s = new size();
-        s.Width = src.Width;
-        s.Height = src.Height;
-        return s;
+        return dest;
     };
     size.clear = function clear(dest) {
         dest.Width = 0;

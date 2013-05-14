@@ -1,6 +1,7 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="rect.ts" />
+/// <reference path="Thickness.ts" />
 
 interface ISize {
     Width: number;
@@ -45,15 +46,11 @@ class size implements ICloneable, ISize {
         s.Height = Number.NEGATIVE_INFINITY;
         return s;
     }
-    static copyTo(src: size, dest: size) {
+    static copyTo(src: size, dest?: size): size {
+        if (!dest) dest = new size();
         dest.Width = src.Width;
         dest.Height = src.Height;
-    }
-    static clone(src: size): size {
-        var s = new size();
-        s.Width = src.Width;
-        s.Height = src.Height;
-        return s;
+        return dest;
     }
     static clear(dest: size) {
         dest.Width = 0;
@@ -75,7 +72,7 @@ class size implements ICloneable, ISize {
         dest.Height = h > 0 ? h : 0;
         return dest;
     }
-    static growByThickness(dest: size, thickness) {
+    static growByThickness(dest: size, thickness: Thickness) {
         var w = dest.Width;
         var h = dest.Height;
         if (w != Number.POSITIVE_INFINITY)
@@ -97,7 +94,7 @@ class size implements ICloneable, ISize {
         dest.Height = h > 0 ? h : 0;
         return dest;
     }
-    static shrinkByThickness(dest: size, thickness) {
+    static shrinkByThickness(dest: size, thickness: Thickness) {
         var w = dest.Width;
         var h = dest.Height;
         if (w != Number.POSITIVE_INFINITY)

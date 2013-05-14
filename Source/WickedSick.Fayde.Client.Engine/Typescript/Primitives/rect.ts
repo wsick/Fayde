@@ -61,19 +61,13 @@ class rect implements ICloneable {
         return rect1.Width <= 0
             && rect1.Height <= 0;
     }
-    static copyTo(src: rect, dest: rect) {
+    static copyTo(src: rect, dest?: rect) {
+        if (!dest) dest = new rect();
         dest.X = src.X;
         dest.Y = src.Y;
         dest.Width = src.Width;
         dest.Height = src.Height;
-    }
-    static clone(src: rect): rect {
-        var r = new rect();
-        r.X = src.X;
-        r.Y = src.Y;
-        r.Width = src.Width;
-        r.Height = src.Height;
-        return r;
+        return dest;
     }
     static isEqual(rect1: rect, rect2: rect): bool {
         return rect1.X === rect2.X
@@ -338,7 +332,7 @@ class rect implements ICloneable {
             && (rect1.Y + rect1.Height) >= y;
     }
     static rectIn(rect1: rect, rect2: rect) {
-        var copy = rect.clone(rect1);
+        var copy = rect.copyTo(rect1);
         rect.intersection(copy, rect2);
         if (rect.isEmpty(copy))
             return RectOverlap.Out;
@@ -347,7 +341,7 @@ class rect implements ICloneable {
         return RectOverlap.Part;
     }
     static isRectContainedIn(src: rect, test: rect) {
-        var copy = rect.clone(src);
+        var copy = rect.copyTo(src);
         rect.intersection(copy, test);
         return !rect.isEqual(src, copy);
     }

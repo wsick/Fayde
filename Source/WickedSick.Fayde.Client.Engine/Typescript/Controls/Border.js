@@ -75,13 +75,13 @@ var Fayde;
                 }
                 var desired = new size();
                 if(border) {
-                    availableSize = size.shrinkByThickness(size.clone(availableSize), border);
+                    availableSize = size.shrinkByThickness(size.copyTo(availableSize), border);
                 }
                 var child = this.Child;
                 if(child) {
                     var lu = child.XamlNode.LayoutUpdater;
                     lu._Measure(availableSize, error);
-                    desired = size.clone(lu.DesiredSize);
+                    desired = size.copyTo(lu.DesiredSize);
                 }
                 if(border) {
                     size.growByThickness(desired, border);
@@ -197,7 +197,7 @@ var Fayde;
                 ctx.Restore();
             };
             Border.prototype._RenderFillOnly = function (ctx, extents, backgroundBrush, thickness, cornerRadius) {
-                var fillExtents = rect.clone(extents);
+                var fillExtents = rect.copyTo(extents);
                 if(thickness) {
                     rect.shrinkByThickness(fillExtents, thickness);
                 }
@@ -214,9 +214,9 @@ var Fayde;
                 //Stroke renders half-out/half-in the path, Border control needs to fit within the given extents so we need to shrink by half the border thickness
                 var full = thickness.Left;
                 var half = full * 0.5;
-                var strokeExtents = rect.clone(extents);
+                var strokeExtents = rect.copyTo(extents);
                 rect.shrinkBy(strokeExtents, half, half, half, half);
-                var fillExtents = rect.clone(extents);
+                var fillExtents = rect.copyTo(extents);
                 rect.shrinkBy(fillExtents, full, full, full, full);
                 if(!cornerRadius || cornerRadius.IsZero()) {
                     //Technically this fills outside it's fill extents, we may need to do something different for a transparent border brush
@@ -238,7 +238,7 @@ var Fayde;
             };
             Border.prototype._RenderUnbalanced = function (ctx, extents, backgroundBrush, borderBrush, thickness, cornerRadius) {
                 var hasCornerRadius = cornerRadius && !cornerRadius.IsZero();
-                var innerExtents = rect.clone(extents);
+                var innerExtents = rect.copyTo(extents);
                 if(thickness) {
                     rect.shrinkByThickness(innerExtents, thickness);
                 }

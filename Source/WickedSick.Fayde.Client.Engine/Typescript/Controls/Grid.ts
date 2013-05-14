@@ -194,7 +194,7 @@ module Fayde.Controls {
 
         private _MeasureOverride(availableSize: size, error: BError): size {
             //LayoutDebug(function () { return "Grid Measure Pass: " + this.__DebugToString() + " [" + availableSize.toString() + "]"; });
-            var totalSize = size.clone(availableSize);
+            var totalSize = size.copyTo(availableSize);
             var cols = this.ColumnDefinitions;
             var rows = this.RowDefinitions;
             var colCount = cols ? cols.Count : 0;
@@ -553,7 +553,7 @@ module Fayde.Controls {
 
 
         private _ExpandStarRows(availableSize: size) {
-            availableSize = size.clone(availableSize);
+            availableSize = size.copyTo(availableSize);
             var rows = this.RowDefinitions;
             var rowsCount = rows ? rows.Count : 0;
 
@@ -581,7 +581,7 @@ module Fayde.Controls {
             }
         }
         private _ExpandStarCols(availableSize: size) {
-            availableSize = size.clone(availableSize);
+            availableSize = size.copyTo(availableSize);
             var cols = this.ColumnDefinitions;
             var columnsCount = cols ? cols.Count : 0;
 

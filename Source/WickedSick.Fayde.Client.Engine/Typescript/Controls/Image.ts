@@ -62,7 +62,7 @@ module Fayde.Controls {
     function calculateRenderMetrics(img: Image, source: Media.Imaging.ImageSource, lu: LayoutUpdater): IImageRenderMetrics {
         var stretch = img.Stretch;
         var specified = size.fromRaw(img.ActualWidth, img.ActualHeight);
-        var stretched = lu.CoerceSize(size.clone(specified));
+        var stretched = lu.CoerceSize(size.copyTo(specified));
         var adjust = !size.isEqual(specified, lu.RenderSize);
 
         var pixelWidth = source.PixelWidth;
@@ -95,9 +95,9 @@ module Fayde.Controls {
 
         var overlap = RectOverlap.In;
         if (stretch === Fayde.Media.Stretch.UniformToFill || adjust) {
-            var bounds = rect.clone(paint);
+            var bounds = rect.copyTo(paint);
             rect.roundOut(bounds);
-            var box = rect.clone(image);
+            var box = rect.copyTo(image);
             rect.transform(box, matrix);
             rect.roundIn(box);
             overlap = rect.rectIn(bounds, box);
@@ -167,7 +167,7 @@ module Fayde.Controls {
         ImageFailed: MulticastEvent = new MulticastEvent();
 
         private _MeasureOverride(availableSize: size, error: BError): size {
-            var desired = size.clone(availableSize);
+            var desired = size.copyTo(availableSize);
             var shapeBounds = new rect();
             var source = this.Source;
             var sx = 0.0; 
@@ -216,7 +216,7 @@ module Fayde.Controls {
             return desired;
         }
         private _ArrangeOverride(finalSize: size, error: BError): size {
-            var arranged = size.clone(finalSize);
+            var arranged = size.copyTo(finalSize);
             var shapeBounds = new rect();
             var source = this.Source;
             var sx = 1.0;

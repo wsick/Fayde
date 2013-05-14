@@ -49,8 +49,8 @@ module Fayde.Media {
                 return undefined;
             var v = this.Value;
             if (!v || !v._Raw)
-                return rect.clone(r);
-            return rect.transform(rect.clone(r), v._Raw);
+                return rect.copyTo(r);
+            return rect.transform(rect.copyTo(r), v._Raw);
         }
         TryTransform(inPoint: Point, outPoint: Point): bool {
             return false;

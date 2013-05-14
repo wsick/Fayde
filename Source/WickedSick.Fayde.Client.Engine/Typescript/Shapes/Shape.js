@@ -183,7 +183,7 @@ var Fayde;
                 if(this instanceof Shapes.Rectangle || this instanceof Shapes.Ellipse) {
                     desired = new size();
                 } else {
-                    desired = size.clone(availableSize);
+                    desired = size.copyTo(availableSize);
                 }
                 var stretch = this.Stretch;
                 if(stretch === Fayde.Media.Stretch.None) {
@@ -242,7 +242,7 @@ var Fayde;
                 if(stretch === Fayde.Media.Stretch.None) {
                     arranged = size.fromRaw(Math.max(finalSize.Width, shapeBounds.X + shapeBounds.Width), Math.max(finalSize.Height, shapeBounds.Y + shapeBounds.Height));
                 } else {
-                    arranged = size.clone(finalSize);
+                    arranged = size.copyTo(finalSize);
                 }
                 if(shapeBounds.Width === 0) {
                     shapeBounds.Width = arranged.Width;

@@ -296,7 +296,7 @@ var Fayde;
                 var generator = this.ItemContainerGenerator;
                 if(itemCount > 0) {
                     var children = this.Children;
-                    var childAvailable = size.clone(availableSize);
+                    var childAvailable = size.copyTo(availableSize);
                     if(this._CanHorizontallyScroll || isHorizontal) {
                         childAvailable.Width = Number.POSITIVE_INFINITY;
                     }
@@ -391,7 +391,7 @@ var Fayde;
                 return measured;
             };
             VirtualizingStackPanel.prototype._ArrangeOverride = function (finalSize, error) {
-                var arranged = size.clone(finalSize);
+                var arranged = size.copyTo(finalSize);
                 var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
                 if(!isHorizontal) {
                     arranged.Height = 0;

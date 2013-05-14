@@ -319,7 +319,7 @@ module Fayde.Controls {
         }
 
         private _MeasureOverride(availableSize: size, error: BError): size {
-            var constraint = size.clone(availableSize);
+            var constraint = size.copyTo(availableSize);
             var padding = this.Padding;
             if (padding) size.shrinkByThickness(constraint, padding);
             var desired = this.XamlNode.Measure(constraint);
@@ -327,7 +327,7 @@ module Fayde.Controls {
             return desired;
         }
         private _ArrangeOverride(finalSize: size, error: BError): size {
-            var constraint = size.clone(finalSize);
+            var constraint = size.copyTo(finalSize);
             var padding = this.Padding;
             if (padding) size.shrinkByThickness(constraint, padding);
             this.XamlNode.Arrange(constraint, padding);

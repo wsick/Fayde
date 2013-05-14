@@ -158,7 +158,7 @@ module Fayde.Controls.Internal {
 
             this._Cursor = this._Layout.GetSelectionCursor(null, cur);
             //TODO: ...
-            // var irect = rect.clone(this._Cursor);
+            // var irect = rect.copyTo(this._Cursor);
             // rect.transform(irect, this._Xformer.AbsoluteXform);
             // this._TextBox._ImCtx.SetCursorLocation(irect);
 
@@ -182,7 +182,7 @@ module Fayde.Controls.Internal {
         }
         private _MeasureOverride(availableSize: size, error: BError) {
             this.Layout(availableSize);
-            var desired = size.clone(this._Layout.ActualExtents);
+            var desired = size.copyTo(this._Layout.ActualExtents);
             if (!isFinite(availableSize.Width))
                 desired.Width = Math.max(desired.Width, 11);
             size.min(desired, availableSize);
@@ -190,7 +190,7 @@ module Fayde.Controls.Internal {
         }
         private _ArrangeOverride(finalSize: size, error: BError) {
             this.Layout(finalSize);
-            var arranged = size.clone(this._Layout.ActualExtents);
+            var arranged = size.copyTo(this._Layout.ActualExtents);
             size.max(arranged, finalSize);
             return arranged;
         }

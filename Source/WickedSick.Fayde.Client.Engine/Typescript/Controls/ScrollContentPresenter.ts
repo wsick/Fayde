@@ -56,7 +56,7 @@ module Fayde.Controls {
             
             var generalTransform = uie.TransformToVisual(this);
             var point = generalTransform.Transform(new Point(rectangle.X, rectangle.Y));
-            rectangle = rect.clone(rectangle);
+            rectangle = rect.copyTo(rectangle);
             rectangle.X = point.X;
             rectangle.Y = point.Y;
             return rectangle;
@@ -148,7 +148,7 @@ module Fayde.Controls {
             var crds = cr.DesiredSize;
             this._UpdateExtents(availableSize, crds.Width, crds.Height);
 
-            var desired = size.clone(availableSize);
+            var desired = size.copyTo(availableSize);
             var sd = this._ScrollData;
             desired.Width = Math.min(desired.Width, sd.ExtentWidth);
             desired.Height = Math.min(desired.Height, sd.ExtentHeight);
@@ -166,7 +166,7 @@ module Fayde.Controls {
             var desired = cr.DesiredSize;
             var start = new Point(-this.HorizontalOffset, -this.VerticalOffset);
 
-            var offerSize = size.clone(desired);
+            var offerSize = size.copyTo(desired);
             size.max(offerSize, finalSize);
             var childRect = rect.fromSize(offerSize);
             childRect.X = start.X;

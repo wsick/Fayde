@@ -202,7 +202,7 @@ module Fayde.Controls {
             var generator = this.ItemContainerGenerator;
             if (itemCount > 0) {
                 var children = this.Children;
-                var childAvailable = size.clone(availableSize);
+                var childAvailable = size.copyTo(availableSize);
                 if (this._CanHorizontallyScroll || isHorizontal)
                     childAvailable.Width = Number.POSITIVE_INFINITY;
                 if (this._CanVerticallyScroll || !isHorizontal)
@@ -303,7 +303,7 @@ module Fayde.Controls {
             return measured;
         }
         private _ArrangeOverride(finalSize: size, error: BError): size {
-            var arranged = size.clone(finalSize);
+            var arranged = size.copyTo(finalSize);
             var isHorizontal = this.Orientation === Orientation.Horizontal;
             if (!isHorizontal)
                 arranged.Height = 0;

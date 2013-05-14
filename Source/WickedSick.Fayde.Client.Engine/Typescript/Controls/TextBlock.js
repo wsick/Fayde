@@ -358,7 +358,7 @@ var Fayde;
                 ContentProperty: "Inlines"
             };
             TextBlock.prototype._MeasureOverride = function (availableSize, error) {
-                var constraint = size.clone(availableSize);
+                var constraint = size.copyTo(availableSize);
                 var padding = this.Padding;
                 if(padding) {
                     size.shrinkByThickness(constraint, padding);
@@ -370,7 +370,7 @@ var Fayde;
                 return desired;
             };
             TextBlock.prototype._ArrangeOverride = function (finalSize, error) {
-                var constraint = size.clone(finalSize);
+                var constraint = size.copyTo(finalSize);
                 var padding = this.Padding;
                 if(padding) {
                     size.shrinkByThickness(constraint, padding);

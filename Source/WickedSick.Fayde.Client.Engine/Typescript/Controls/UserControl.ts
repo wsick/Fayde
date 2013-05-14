@@ -51,7 +51,7 @@ module Fayde.Controls {
 
         private _MeasureOverride(availableSize: size, error: BError): size {
             var desired: size;
-            availableSize = size.clone(availableSize);
+            availableSize = size.copyTo(availableSize);
 
             var padding = this.Padding;
             var borderThickness = this.BorderThickness;
@@ -69,7 +69,7 @@ module Fayde.Controls {
             while (enumerator.MoveNext()) {
                 var childLu = (<UINode>enumerator.Current).LayoutUpdater;
                 childLu._Measure(availableSize, error);
-                desired = size.clone(childLu.DesiredSize);
+                desired = size.copyTo(childLu.DesiredSize);
             }
             if (!desired) desired = new size();
             if (border) size.growByThickness(desired, border);

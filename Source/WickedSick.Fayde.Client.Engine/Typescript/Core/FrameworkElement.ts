@@ -296,7 +296,7 @@ module Fayde {
         private _MeasureOverride(availableSize: size, error: BError): size {
             var desired = new size();
 
-            availableSize = size.clone(availableSize);
+            availableSize = size.copyTo(availableSize);
             size.max(availableSize, desired);
 
             var enumerator = this.XamlNode.GetVisualTreeEnumerator();
@@ -304,14 +304,14 @@ module Fayde {
                 var childNode = <FENode>enumerator.Current;
                 var childLu = childNode.LayoutUpdater;
                 childLu._Measure(availableSize, error);
-                desired = size.clone(childLu.DesiredSize);
+                desired = size.copyTo(childLu.DesiredSize);
             }
 
             size.min(desired, availableSize);
             return desired;
         }
         private _ArrangeOverride(finalSize: size, error: BError): size {
-            var arranged = size.clone(finalSize);
+            var arranged = size.copyTo(finalSize);
 
             var enumerator = this.XamlNode.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {

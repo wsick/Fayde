@@ -142,7 +142,7 @@ module Fayde.Shapes {
             if (this instanceof Rectangle || this instanceof Ellipse)
                 desired = new size();
             else
-                desired = size.clone(availableSize);
+                desired = size.copyTo(availableSize);
 
             var stretch = this.Stretch;
             if (stretch === Media.Stretch.None) {
@@ -200,7 +200,7 @@ module Fayde.Shapes {
             if (stretch === Fayde.Media.Stretch.None) {
                 arranged = size.fromRaw(Math.max(finalSize.Width, shapeBounds.X + shapeBounds.Width), Math.max(finalSize.Height, shapeBounds.Y + shapeBounds.Height));
             } else {
-                arranged = size.clone(finalSize);
+                arranged = size.copyTo(finalSize);
             }
 
             if (shapeBounds.Width === 0)

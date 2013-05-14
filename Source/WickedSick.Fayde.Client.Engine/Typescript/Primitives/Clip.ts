@@ -8,7 +8,7 @@ class Clip {
     Width: number;
     Height: number;
     constructor(r: rect) {
-        var rounded = rect.roundOut(rect.clone(r));
+        var rounded = rect.roundOut(rect.copyTo(r));
         this.X = rounded.X;
         this.Y = rounded.Y;
         this.Width = rounded.Width;

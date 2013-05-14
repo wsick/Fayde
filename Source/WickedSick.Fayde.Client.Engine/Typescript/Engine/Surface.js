@@ -236,7 +236,7 @@ var Surface = (function () {
                     continue;
                 }
                 var last = lu.PreviousConstraint;
-                var available = size.clone(this.Extents);
+                var available = size.copyTo(this.Extents);
                 if(lu.IsContainer && (!last || (!size.isEqual(last, available)))) {
                     lu.InvalidateMeasure();
                     lu.PreviousConstraint = available;
@@ -358,7 +358,7 @@ var Surface = (function () {
             r = rect.fromSize(this.Extents);
         }
         if(!this._InvalidatedRect) {
-            this._InvalidatedRect = rect.clone(r);
+            this._InvalidatedRect = rect.copyTo(r);
         } else {
             rect.union(this._InvalidatedRect, r);
         }

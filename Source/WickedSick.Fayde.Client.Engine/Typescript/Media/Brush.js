@@ -35,7 +35,7 @@ var Fayde;
                     var transformedBounds = transform.TransformBounds(bounds);
                     var raw = transform.Value._Raw;
                     var tmpBrush = this.CreateBrush(ctx, bounds);
-                    var fillExtents = rect.clone(bounds);
+                    var fillExtents = rect.copyTo(bounds);
                     rect.growBy(fillExtents, raw[2], raw[5], 0, 0);
                     var tmpCanvas = document.createElement("canvas");
                     tmpCanvas.width = Math.max(transformedBounds.Width, bounds.Width);

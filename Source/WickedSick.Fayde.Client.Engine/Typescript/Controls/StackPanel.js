@@ -66,7 +66,7 @@ var Fayde;
                 return measured;
             };
             StackPanel.prototype._ArrangeOverride = function (finalSize, error) {
-                var arranged = size.clone(finalSize);
+                var arranged = size.copyTo(finalSize);
                 var isVertical = this.Orientation === Fayde.Orientation.Vertical;
                 if(isVertical) {
                     arranged.Height = 0;
@@ -81,7 +81,7 @@ var Fayde;
                     child = enumerator.Current;
                     childNode = child.XamlNode;
                     var childLu = childNode.LayoutUpdater;
-                    var s = size.clone(childLu.DesiredSize);
+                    var s = size.copyTo(childLu.DesiredSize);
                     if(isVertical) {
                         s.Width = finalSize.Width;
                         var childFinal = rect.fromSize(s);
