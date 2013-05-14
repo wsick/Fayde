@@ -43,14 +43,12 @@ module Fayde.Controls {
         OnContentTemplateChanged(oldContentTemplate: DataTemplate, newContentTemplate: DataTemplate) { }
 
         _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
-            if (args.OldValue instanceof UIElement)
-                this.XamlNode.DetachVisualChild(<UIElement>args.OldValue, null);
             this.OnContentChanged(args.OldValue, args.NewValue);
-            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+            this.InvalidateMeasure();
         }
         _ContentTemplateChanged(args: IDependencyPropertyChangedEventArgs) {
             this.OnContentTemplateChanged(args.OldValue, args.NewValue);
-            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+            this.InvalidateMeasure();
         }
     }
     Nullstone.RegisterType(ContentControl, "ContentControl");

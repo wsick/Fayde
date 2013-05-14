@@ -19,6 +19,10 @@ module Fayde {
         SubtreeNode: XamlNode;
         SetSubtreeNode(subtreeNode: XamlNode, error: BError): bool {
             var error = new BError();
+            if (this.SubtreeNode) {
+                this.SubtreeNode.Detach();
+                this.SubtreeNode = null;
+            }
             if (subtreeNode && !subtreeNode.AttachTo(this, error))
                 return false;
             this.SubtreeNode = subtreeNode;

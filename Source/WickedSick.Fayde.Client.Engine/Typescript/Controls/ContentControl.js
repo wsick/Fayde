@@ -59,15 +59,12 @@ var Fayde;
             ContentControl.prototype.OnContentTemplateChanged = function (oldContentTemplate, newContentTemplate) {
             };
             ContentControl.prototype._ContentChanged = function (args) {
-                if(args.OldValue instanceof Fayde.UIElement) {
-                    this.XamlNode.DetachVisualChild(args.OldValue, null);
-                }
                 this.OnContentChanged(args.OldValue, args.NewValue);
-                this.XamlNode.LayoutUpdater.InvalidateMeasure();
+                this.InvalidateMeasure();
             };
             ContentControl.prototype._ContentTemplateChanged = function (args) {
                 this.OnContentTemplateChanged(args.OldValue, args.NewValue);
-                this.XamlNode.LayoutUpdater.InvalidateMeasure();
+                this.InvalidateMeasure();
             };
             return ContentControl;
         })(Controls.Control);

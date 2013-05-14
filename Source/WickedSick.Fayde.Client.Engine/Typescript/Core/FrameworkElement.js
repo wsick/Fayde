@@ -22,6 +22,10 @@ var Fayde;
         }
         FENode.prototype.SetSubtreeNode = function (subtreeNode, error) {
             var error = new BError();
+            if(this.SubtreeNode) {
+                this.SubtreeNode.Detach();
+                this.SubtreeNode = null;
+            }
             if(subtreeNode && !subtreeNode.AttachTo(this, error)) {
                 return false;
             }

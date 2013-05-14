@@ -16042,6 +16042,10 @@ module Fayde {
         SubtreeNode: XamlNode;
         SetSubtreeNode(subtreeNode: XamlNode, error: BError): bool {
             var error = new BError();
+            if (this.SubtreeNode) {
+                this.SubtreeNode.Detach();
+                this.SubtreeNode = null;
+            }
             if (subtreeNode && !subtreeNode.AttachTo(this, error))
                 return false;
             this.SubtreeNode = subtreeNode;
@@ -22820,14 +22824,12 @@ module Fayde.Controls {
         OnContentChanged(oldContent: any, newContent: any) { }
         OnContentTemplateChanged(oldContentTemplate: DataTemplate, newContentTemplate: DataTemplate) { }
         _ContentChanged(args: IDependencyPropertyChangedEventArgs) {
-            if (args.OldValue instanceof UIElement)
-                this.XamlNode.DetachVisualChild(<UIElement>args.OldValue, null);
             this.OnContentChanged(args.OldValue, args.NewValue);
-            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+            this.InvalidateMeasure();
         }
         _ContentTemplateChanged(args: IDependencyPropertyChangedEventArgs) {
             this.OnContentTemplateChanged(args.OldValue, args.NewValue);
-            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+            this.InvalidateMeasure();
         }
     }
     Nullstone.RegisterType(ContentControl, "ContentControl");
