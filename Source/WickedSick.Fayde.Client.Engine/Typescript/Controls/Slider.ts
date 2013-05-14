@@ -17,6 +17,7 @@ module Fayde.Controls {
         constructor() {
             super();
             this.DefaultStyleKey = (<any>this).constructor;
+            this.SizeChanged.Subscribe(this._HandleSizeChanged, this);
         }
 
         private $HorizontalTemplate: FrameworkElement;
@@ -90,6 +91,9 @@ module Fayde.Controls {
             this._UpdateTrackLayout();
         }
 
+        private _HandleSizeChanged(sender, e: SizeChangedEventArgs) {
+            this._UpdateTrackLayout();
+        }
         private _OnOrientationChanged() {
             var isHorizontal = this.Orientation === Orientation.Horizontal;
             if (this.$HorizontalTemplate != null)

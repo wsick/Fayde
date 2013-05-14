@@ -24404,6 +24404,7 @@ module Fayde.Controls {
         constructor() {
             super();
             this.DefaultStyleKey = (<any>this).constructor;
+            this.SizeChanged.Subscribe(this._HandleSizeChanged, this);
         }
         private $HorizontalTemplate: FrameworkElement;
         private $HorizontalLargeIncrease: Primitives.RepeatButton;
@@ -24465,6 +24466,9 @@ module Fayde.Controls {
         }
         OnValueChanged(oldValue: number, newValue: number) {
             super.OnValueChanged(oldValue, newValue);
+            this._UpdateTrackLayout();
+        }
+        private _HandleSizeChanged(sender, e: SizeChangedEventArgs) {
             this._UpdateTrackLayout();
         }
         private _OnOrientationChanged() {

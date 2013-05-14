@@ -16,6 +16,7 @@ var Fayde;
                         _super.call(this);
                 this._DragValue = 0;
                 this.DefaultStyleKey = (this).constructor;
+                this.SizeChanged.Subscribe(this._HandleSizeChanged, this);
             }
             Slider.IsDirectionReversedProperty = DependencyProperty.RegisterCore("IsDirectionReversed", function () {
                 return Boolean;
@@ -97,6 +98,9 @@ var Fayde;
             };
             Slider.prototype.OnValueChanged = function (oldValue, newValue) {
                 _super.prototype.OnValueChanged.call(this, oldValue, newValue);
+                this._UpdateTrackLayout();
+            };
+            Slider.prototype._HandleSizeChanged = function (sender, e) {
                 this._UpdateTrackLayout();
             };
             Slider.prototype._OnOrientationChanged = function () {
