@@ -15,6 +15,7 @@ var Fayde;
             function Slider() {
                         _super.call(this);
                 this._DragValue = 0;
+                this.DefaultStyleKey = (this).constructor;
             }
             Slider.IsDirectionReversedProperty = DependencyProperty.RegisterCore("IsDirectionReversed", function () {
                 return Boolean;
@@ -39,13 +40,13 @@ var Fayde;
             };
             Slider.prototype.OnApplyTemplate = function () {
                 _super.prototype.OnApplyTemplate.call(this);
-                this.$HorizontalTemplate = this._GetChildOfType("HorizontalRoot", Fayde.FrameworkElement);
-                this.$HorizontalLargeIncrease = this._GetChildOfType("HorizontalLargeIncrease", Controls.Primitives.RepeatButton);
-                this.$HorizontalLargeDecrease = this._GetChildOfType("HorizontalLargeDecrease", Controls.Primitives.RepeatButton);
+                this.$HorizontalTemplate = this._GetChildOfType("HorizontalTemplate", Fayde.FrameworkElement);
+                this.$HorizontalLargeIncrease = this._GetChildOfType("HorizontalTrackLargeChangeIncreaseRepeatButton", Controls.Primitives.RepeatButton);
+                this.$HorizontalLargeDecrease = this._GetChildOfType("HorizontalTrackLargeChangeDecreaseRepeatButton", Controls.Primitives.RepeatButton);
                 this.$HorizontalThumb = this._GetChildOfType("HorizontalThumb", Controls.Primitives.Thumb);
-                this.$VerticalTemplate = this._GetChildOfType("VerticalRoot", Fayde.FrameworkElement);
-                this.$VerticalLargeIncrease = this._GetChildOfType("VerticalLargeIncrease", Controls.Primitives.RepeatButton);
-                this.$VerticalLargeDecrease = this._GetChildOfType("VerticalLargeDecrease", Controls.Primitives.RepeatButton);
+                this.$VerticalTemplate = this._GetChildOfType("VerticalTemplate", Fayde.FrameworkElement);
+                this.$VerticalLargeIncrease = this._GetChildOfType("VerticalTrackLargeChangeIncreaseRepeatButton", Controls.Primitives.RepeatButton);
+                this.$VerticalLargeDecrease = this._GetChildOfType("VerticalTrackLargeChangeDecreaseRepeatButton", Controls.Primitives.RepeatButton);
                 this.$VerticalThumb = this._GetChildOfType("VerticalThumb", Controls.Primitives.Thumb);
                 if(this.$HorizontalThumb != null) {
                     this.$HorizontalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
@@ -119,34 +120,32 @@ var Fayde;
                 }
                 var templateGrid = temp;
                 var isReversed = this.IsDirectionReversed;
-                var defs;
                 var largeDecrease;
                 var largeIncrease;
                 var thumb;
                 if(isHorizontal) {
-                    defs = templateGrid.ColumnDefinitions;
+                    var coldefs = templateGrid.ColumnDefinitions;
                     largeDecrease = this.$HorizontalLargeDecrease;
                     largeIncrease = this.$HorizontalLargeIncrease;
                     thumb = this.$HorizontalThumb;
-                } else {
-                    defs = templateGrid.RowDefinitions;
-                    largeDecrease = this.$VerticalLargeDecrease;
-                    largeIncrease = this.$VerticalLargeIncrease;
-                    thumb = this.$VerticalThumb;
-                }
-                if(defs != null && defs.GetCount() === 3) {
-                    if(isHorizontal) {
-                        defs.GetValueAt(0).Width = new Controls.GridLength(1, isReversed ? Controls.GridUnitType.Star : Controls.GridUnitType.Auto);
-                        defs.GetValueAt(2).Width = new Controls.GridLength(1, isReversed ? Controls.GridUnitType.Auto : Controls.GridUnitType.Star);
+                    if(coldefs && coldefs.Count === 3) {
+                        (coldefs.GetValueAt(0)).Width = new Controls.GridLength(1, isReversed ? Controls.GridUnitType.Star : Controls.GridUnitType.Auto);
+                        (coldefs.GetValueAt(2)).Width = new Controls.GridLength(1, isReversed ? Controls.GridUnitType.Auto : Controls.GridUnitType.Star);
                         if(largeDecrease != null) {
                             Controls.Grid.SetColumn(largeDecrease, isReversed ? 2 : 0);
                         }
                         if(largeIncrease != null) {
                             Controls.Grid.SetColumn(largeIncrease, isReversed ? 0 : 2);
                         }
-                    } else {
-                        defs.GetValueAt(0).Height = new Controls.GridLength(1, isReversed ? Controls.GridUnitType.Auto : Controls.GridUnitType.Star);
-                        defs.GetValueAt(2).Height = new Controls.GridLength(1, isReversed ? Controls.GridUnitType.Star : Controls.GridUnitType.Auto);
+                    }
+                } else {
+                    var rowdefs = templateGrid.RowDefinitions;
+                    largeDecrease = this.$VerticalLargeDecrease;
+                    largeIncrease = this.$VerticalLargeIncrease;
+                    thumb = this.$VerticalThumb;
+                    if(rowdefs && rowdefs.Count === 3) {
+                        (rowdefs.GetValueAt(0)).Height = new Controls.GridLength(1, isReversed ? Controls.GridUnitType.Auto : Controls.GridUnitType.Star);
+                        (rowdefs.GetValueAt(2)).Height = new Controls.GridLength(1, isReversed ? Controls.GridUnitType.Star : Controls.GridUnitType.Auto);
                         if(largeDecrease != null) {
                             Controls.Grid.SetRow(largeDecrease, isReversed ? 0 : 2);
                         }

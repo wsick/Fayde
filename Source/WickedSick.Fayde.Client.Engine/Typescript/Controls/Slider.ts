@@ -16,6 +16,7 @@ module Fayde.Controls {
 
         constructor() {
             super();
+            this.DefaultStyleKey = (<any>this).constructor;
         }
 
         private $HorizontalTemplate: FrameworkElement;
@@ -36,13 +37,13 @@ module Fayde.Controls {
 
         OnApplyTemplate() {
             super.OnApplyTemplate();
-            this.$HorizontalTemplate = this._GetChildOfType("HorizontalRoot", FrameworkElement);
-            this.$HorizontalLargeIncrease = this._GetChildOfType("HorizontalLargeIncrease", Primitives.RepeatButton);
-            this.$HorizontalLargeDecrease = this._GetChildOfType("HorizontalLargeDecrease", Primitives.RepeatButton);
+            this.$HorizontalTemplate = this._GetChildOfType("HorizontalTemplate", FrameworkElement);
+            this.$HorizontalLargeIncrease = this._GetChildOfType("HorizontalTrackLargeChangeIncreaseRepeatButton", Primitives.RepeatButton);
+            this.$HorizontalLargeDecrease = this._GetChildOfType("HorizontalTrackLargeChangeDecreaseRepeatButton", Primitives.RepeatButton);
             this.$HorizontalThumb = this._GetChildOfType("HorizontalThumb", Primitives.Thumb);
-            this.$VerticalTemplate = this._GetChildOfType("VerticalRoot", Fayde.FrameworkElement);
-            this.$VerticalLargeIncrease = this._GetChildOfType("VerticalLargeIncrease", Primitives.RepeatButton);
-            this.$VerticalLargeDecrease = this._GetChildOfType("VerticalLargeDecrease", Primitives.RepeatButton);
+            this.$VerticalTemplate = this._GetChildOfType("VerticalTemplate", Fayde.FrameworkElement);
+            this.$VerticalLargeIncrease = this._GetChildOfType("VerticalTrackLargeChangeIncreaseRepeatButton", Primitives.RepeatButton);
+            this.$VerticalLargeDecrease = this._GetChildOfType("VerticalTrackLargeChangeDecreaseRepeatButton", Primitives.RepeatButton);
             this.$VerticalThumb = this._GetChildOfType("VerticalThumb", Primitives.Thumb);
 
             if (this.$HorizontalThumb != null) {
@@ -109,34 +110,33 @@ module Fayde.Controls {
             var templateGrid = <Grid>temp;
             
             var isReversed = this.IsDirectionReversed;
-            var defs;
-            var largeDecrease;
-            var largeIncrease;
-            var thumb;
+            var largeDecrease: Primitives.RepeatButton;
+            var largeIncrease: Primitives.RepeatButton;
+            var thumb: Primitives.Thumb;
             if (isHorizontal) {
-                defs = templateGrid.ColumnDefinitions;
+                var coldefs = templateGrid.ColumnDefinitions;
                 largeDecrease = this.$HorizontalLargeDecrease;
                 largeIncrease = this.$HorizontalLargeIncrease;
                 thumb = this.$HorizontalThumb;
-            } else {
-                defs = templateGrid.RowDefinitions;
-                largeDecrease = this.$VerticalLargeDecrease;
-                largeIncrease = this.$VerticalLargeIncrease;
-                thumb = this.$VerticalThumb;
-            }
 
-            if (defs != null && defs.GetCount() === 3) {
-                if (isHorizontal) {
-                    defs.GetValueAt(0).Width = new GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
-                    defs.GetValueAt(2).Width = new GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
+                if (coldefs && coldefs.Count === 3) {
+                    (<ColumnDefinition>coldefs.GetValueAt(0)).Width = new GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
+                    (<ColumnDefinition>coldefs.GetValueAt(2)).Width = new GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
 
                     if (largeDecrease != null)
                         Grid.SetColumn(largeDecrease, isReversed ? 2 : 0);
                     if (largeIncrease != null)
                         Grid.SetColumn(largeIncrease, isReversed ? 0 : 2);
-                } else {
-                    defs.GetValueAt(0).Height = new GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
-                    defs.GetValueAt(2).Height = new GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
+                }
+            } else {
+                var rowdefs = templateGrid.RowDefinitions;
+                largeDecrease = this.$VerticalLargeDecrease;
+                largeIncrease = this.$VerticalLargeIncrease;
+                thumb = this.$VerticalThumb;
+
+                if (rowdefs && rowdefs.Count === 3) {
+                    (<RowDefinition>rowdefs.GetValueAt(0)).Height = new GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
+                    (<RowDefinition>rowdefs.GetValueAt(2)).Height = new GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
 
                     if (largeDecrease != null)
                         Grid.SetRow(largeDecrease, isReversed ? 0 : 2);
