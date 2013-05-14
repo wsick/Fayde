@@ -8,6 +8,7 @@ module Fayde {
         FallbackValue: any;
         Mode: Data.BindingMode;
         StringFormat: string;
+        ElementName: string;
     }
 
     export class BindingMarkup extends Markup {
@@ -29,6 +30,8 @@ module Fayde {
                 b.Mode = this._Data.Mode;
             if (this._Data.StringFormat !== undefined)
                 b.StringFormat = this._Data.StringFormat;
+            if (this._Data.ElementName !== undefined)
+                b.ElementName = this._Data.ElementName;
             //TODO: Finish
             return b;
         }

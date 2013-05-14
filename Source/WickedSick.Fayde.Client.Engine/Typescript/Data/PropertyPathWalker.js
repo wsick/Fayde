@@ -213,7 +213,7 @@ var Fayde;
             }
             StandardPropertyPathNode.prototype.SetValue = function (value) {
                 if(this.DependencyProperty) {
-                    this.Source.SetValue(this.DependencyProperty, value);
+                    (this.Source).SetValue(this.DependencyProperty, value);
                 } else if(this.PropertyInfo) {
                     this.PropertyInfo.SetValue(this.Source, value);
                 }
@@ -221,7 +221,7 @@ var Fayde;
             StandardPropertyPathNode.prototype.UpdateValue = function () {
                 if(this.DependencyProperty) {
                     this.ValueType = this.DependencyProperty.GetTargetType();
-                    this.UpdateValueAndIsBroken(this.Source.$GetValue(this.DependencyProperty), this._CheckIsBroken());
+                    this.UpdateValueAndIsBroken((this.Source).GetValue(this.DependencyProperty), this._CheckIsBroken());
                 } else if(this.PropertyInfo) {
                     //TODO: this.ValueType = PropertyInfo.PropertyType;
                     this.ValueType = null;

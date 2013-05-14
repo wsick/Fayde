@@ -32,6 +32,9 @@ var Fayde;
             if(this._Data.StringFormat !== undefined) {
                 b.StringFormat = this._Data.StringFormat;
             }
+            if(this._Data.ElementName !== undefined) {
+                b.ElementName = this._Data.ElementName;
+            }
             //TODO: Finish
             return b;
         };

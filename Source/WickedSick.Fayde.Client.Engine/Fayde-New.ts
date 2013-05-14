@@ -1299,14 +1299,14 @@ module Fayde.Data {
         }
         SetValue(value: any) {
             if (this.DependencyProperty)
-                this.Source.SetValue(this.DependencyProperty, value);
+                (<DependencyObject>this.Source).SetValue(this.DependencyProperty, value);
             else if (this.PropertyInfo)
                 this.PropertyInfo.SetValue(this.Source, value);
         }
         UpdateValue() {
             if (this.DependencyProperty) {
                 this.ValueType = this.DependencyProperty.GetTargetType();
-                this.UpdateValueAndIsBroken(this.Source.$GetValue(this.DependencyProperty), this._CheckIsBroken());
+                this.UpdateValueAndIsBroken((<DependencyObject>this.Source).GetValue(this.DependencyProperty), this._CheckIsBroken());
             } else if (this.PropertyInfo) {
                 this.ValueType = null;
                 try {
@@ -11946,6 +11946,7 @@ module Fayde {
         FallbackValue: any;
         Mode: Data.BindingMode;
         StringFormat: string;
+        ElementName: string;
     }
     export class BindingMarkup extends Markup {
         private _Data: IBindingData;
@@ -11965,6 +11966,8 @@ module Fayde {
                 b.Mode = this._Data.Mode;
             if (this._Data.StringFormat !== undefined)
                 b.StringFormat = this._Data.StringFormat;
+            if (this._Data.ElementName !== undefined)
+                b.ElementName = this._Data.ElementName;
             return b;
         }
     }
