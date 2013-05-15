@@ -1,8 +1,8 @@
 var Fayde;
 (function (Fayde) {
+    /// <reference path="../Runtime/Nullstone.ts" />
     /// CODE
     /// <reference path="../Primitives/RawMatrix.ts" />
-    /// <reference path="../Runtime/Nullstone.ts" />
     (function (Media) {
         var Matrix3D = (function () {
             function Matrix3D() {
