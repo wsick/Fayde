@@ -30,8 +30,6 @@ var Fayde;
                 var irect = new rect();
                 irect.Width = this.ActualWidth;
                 irect.Height = this.ActualHeight;
-                var radiusX = this.RadiusX;
-                var radiusY = this.RadiusY;
                 switch(stretch) {
                     case Fayde.Media.Stretch.None:
                         irect.Width = irect.Height = 0;
@@ -61,12 +59,16 @@ var Fayde;
                     rect.growBy(irect, ta, ta, ta, ta);
                     this._ShapeFlags = Shapes.ShapeFlags.Normal;
                 }
-                var path = new Shapes.RawPath();
-                if((radiusX === 0.0 && radiusY === 0.0) || (radiusX === radiusY)) {
-                    path.RoundedRect(irect.X, irect.Y, irect.Width, irect.Height, radiusX, radiusY);
-                } else {
-                    NotImplemented("Rectangle._BuildPath with RadiusX !== RadiusY");
+                var radiusX = Math.min(Math.abs(this.RadiusX), irect.Width / 2.0);
+                if(isNaN(radiusX)) {
+                    radiusX = 0;
                 }
+                var radiusY = Math.min(Math.abs(this.RadiusY), irect.Height / 2.0);
+                if(isNaN(radiusY)) {
+                    radiusX = 0;
+                }
+                var path = new Shapes.RawPath();
+                path.RoundedRect(irect.X, irect.Y, irect.Width, irect.Height, radiusX, radiusY);
                 return path;
             };
             Rectangle.prototype._ComputeShapeBounds = function (logical) {

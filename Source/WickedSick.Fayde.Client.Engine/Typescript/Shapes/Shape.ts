@@ -9,8 +9,6 @@
 /// <reference path="Line.ts" />
 
 module Fayde.Shapes {
-    declare var NotImplemented;
-
     export class ShapeNode extends FENode implements IBoundsComputable {
         XObject: Shape;
         constructor(xobj: Shape) {

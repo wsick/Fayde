@@ -9,6 +9,12 @@ module Fayde.Shapes {
         private _ShapeFlags: ShapeFlags; //defined in Shape
         private _Stroke: Media.Brush; //defined in Shape
 
+        /* RadiusX/RadiusY Notes
+        For the rectangle to have rounded corners, both the RadiusX and RadiusY properties must be nonzero.
+        A value greater than or equal to zero and less than or equal to half the rectangle's width that describes the x-radius of the ellipse is used to round the corners of the rectangle. 
+        Values greater than half the rectangle's width are treated as though equal to half the rectangle's width. Negative values are treated as positive values.
+        */
+
         static RadiusXProperty: DependencyProperty = DependencyProperty.Register("RadiusX", () => Number, Rectangle, 0.0, (d, args) => (<Rectangle>d)._RadiusChanged(args));
         static RadiusYProperty: DependencyProperty = DependencyProperty.Register("RadiusY", () => Number, Rectangle, 0.0, (d, args) => (<Rectangle>d)._RadiusChanged(args));
         RadiusX: number;
@@ -25,8 +31,6 @@ module Fayde.Shapes {
             var irect = new rect();
             irect.Width = this.ActualWidth;
             irect.Height = this.ActualHeight;
-            var radiusX = this.RadiusX;
-            var radiusY = this.RadiusY;
 
             switch (stretch) {
                 case Media.Stretch.None:
@@ -58,11 +62,13 @@ module Fayde.Shapes {
                 this._ShapeFlags = ShapeFlags.Normal;
             }
 
+            var radiusX = Math.min(Math.abs(this.RadiusX), irect.Width / 2.0);
+            if (isNaN(radiusX)) radiusX = 0;
+            var radiusY = Math.min(Math.abs(this.RadiusY), irect.Height / 2.0);
+            if (isNaN(radiusY)) radiusX = 0;
+
             var path = new RawPath();
-            if ((radiusX === 0.0 && radiusY === 0.0) || (radiusX === radiusY))
-                path.RoundedRect(irect.X, irect.Y, irect.Width, irect.Height, radiusX, radiusY);
-            else
-                NotImplemented("Rectangle._BuildPath with RadiusX !== RadiusY");
+            path.RoundedRect(irect.X, irect.Y, irect.Width, irect.Height, radiusX, radiusY);
             return path;
         }
 

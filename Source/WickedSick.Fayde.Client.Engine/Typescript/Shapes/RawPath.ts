@@ -4,8 +4,6 @@
 /// <reference path="../Engine/RenderContext.ts" />
 
 module Fayde.Shapes {
-    declare var NotImplemented;
-
     export interface IRange {
         min: number;
         max: number;
@@ -77,6 +75,7 @@ module Fayde.Shapes {
                 this.Rect(left, top, width, height);
                 return;
             }
+
             var right = left + width;
             var bottom = top + height;
             this.Move(left + radiusX, top);
