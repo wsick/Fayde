@@ -70,6 +70,10 @@ var Fayde;
             Geometry.prototype._InvalidateGeometry = function () {
                 this._Path = null;
                 rect.set(this._LocalBounds, 0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+                var listener = this._Listener;
+                if(listener) {
+                    listener.GeometryChanged(this);
+                }
             };
             Geometry.prototype._Build = function () {
                 return undefined;
@@ -82,27 +86,19 @@ var Fayde;
                     this._Listener = null;
                 }
             };
-            Geometry.prototype.TransformChanged = function (source) {
-                this._InvalidateGeometry();
-                var listener = this._Listener;
-                if(listener) {
-                    listener.GeometryChanged(this);
-                }
-            };
             Geometry.prototype._TransformChanged = function (args) {
-                var oldt = args.OldValue;
-                var newt = args.NewValue;
-                if(oldt) {
-                    oldt.Unlisten(this);
+                var _this = this;
+                if(this._TransformListener) {
+                    this._TransformListener.Detach();
+                    this._TransformListener = null;
                 }
+                var newt = args.NewValue;
                 if(newt) {
-                    newt.Listen(this);
+                    this._TransformListener = newt.Listen(function (source) {
+                        return _this._InvalidateGeometry();
+                    });
                 }
                 this._InvalidateGeometry();
-                var listener = this._Listener;
-                if(listener) {
-                    listener.GeometryChanged(this);
-                }
             };
             Geometry.prototype.Serialize = function () {
                 var path = this._Path;

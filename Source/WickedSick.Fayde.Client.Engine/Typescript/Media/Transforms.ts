@@ -80,8 +80,8 @@ module Fayde.Media {
     Nullstone.RegisterType(SkewTransform, "SkewTransform");
 
     export class TranslateTransform extends Transform {
-        static XProperty: DependencyProperty = DependencyProperty.Register("X", () => Number, SkewTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
-        static YProperty: DependencyProperty = DependencyProperty.Register("Y", () => Number, SkewTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        static XProperty: DependencyProperty = DependencyProperty.Register("X", () => Number, TranslateTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        static YProperty: DependencyProperty = DependencyProperty.Register("Y", () => Number, TranslateTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
         X: number;
         Y: number;
 
@@ -91,46 +91,58 @@ module Fayde.Media {
     }
     Nullstone.RegisterType(TranslateTransform, "TranslateTransform");
 
-    export class TransformCollection extends XamlObjectCollection implements ITransformChangedListener {
-        private _Listener: ITransformChangedListener;
+    export interface ITransformChangedChildListener extends ITransformChangedListener {
+        Child: Transform;
+    }
 
-        Listen(listener: ITransformChangedListener) { this._Listener = listener; }
-        Unlisten(listener: ITransformChangedListener) { if (this._Listener === listener) this._Listener = null; }
+    export class TransformCollection extends XamlObjectCollection {
+        private _Relayer: () => void = function () { };
+        private _ChildTransformListeners: ITransformChangedChildListener[] = [];
 
         AddingToCollection(value: Transform, error: BError): bool {
             if (!super.AddingToCollection(value, error))
                 return false;
-            value.Listen(this);
-            this.TransformChanged();
+            var listener = <ITransformChangedChildListener>value.Listen(() => this._Relayer());
+            listener.Child = value;
+            this._ChildTransformListeners.push(listener);
+            this._Relayer();
         }
         RemovedFromCollection(value: Transform, isValueSafe: bool) {
             if (!super.RemovedFromCollection(value, isValueSafe))
                 return false;
-            value.Unlisten(this);
-            this.TransformChanged();
+            var listeners = this._ChildTransformListeners;
+            var len = listeners.length;
+            for (var i = 0; i < len; i++) {
+                if (listeners[i].Child === value) {
+                    listeners.splice(i, 1)[0].Detach();
+                    break;
+                }
+            }
+            this._Relayer();
         }
-        private TransformChanged(transform?: Transform) {
-            var listener = this._Listener;
-            if (listener) listener.TransformChanged(transform);
+
+        RelayChanges(func: () => void ) {
+            this._Relayer = func;
         }
     }
     Nullstone.RegisterType(TransformCollection, "TransformCollection");
 
-    export class TransformGroup extends Transform implements ITransformChangedListener {
+    export class TransformGroup extends Transform {
         Children: TransformCollection;
+        
+        private _TransformListener: ITransformChangedListener;
 
         constructor() {
             super();
             var coll = new TransformCollection();
             coll.AttachTo(this);
-            coll.Listen(this);
+            coll.RelayChanges(() => this._InvalidateValue());
             Object.defineProperty(this, "Children", {
                 value: coll,
                 writable: false
             });
         }
 
-        private TransformChanged(source: Transform) { this._InvalidateValue(); }
         private _BuildValue(): number[] {
             var enumerator = this.Children.GetEnumerator(true);
             var cur = mat3.identity();

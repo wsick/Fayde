@@ -468,6 +468,10 @@
     <TypeScriptCompile Include="Typescript\Controls\Image.ts" />
     <TypeScriptCompile Include="Typescript\Controls\Control.ts" />
     <TypeScriptCompile Include="Tests\XamlNodeTests.ts" />
+    <TypeScriptCompile Include="Tests\TransformTests.ts" />
+    <Content Include="Tests\TransformTests.js">
+      <DependentUpon>TransformTests.ts</DependentUpon>
+    </Content>
     <Content Include="UnitTestList.txt" />
     <Content Include="Tests\XamlNodeTests.js">
       <DependentUpon>XamlNodeTests.ts</DependentUpon>

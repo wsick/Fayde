@@ -14,7 +14,7 @@ var Fayde;
             __extends(Transform, _super);
             function Transform() {
                         _super.call(this);
-                this._Listener = null;
+                this._Listeners = [];
                 (this.XamlNode).IsShareable = true;
             }
             Object.defineProperty(Transform.prototype, "Value", {
@@ -65,22 +65,28 @@ var Fayde;
             Transform.prototype.TryTransform = function (inPoint, outPoint) {
                 return false;
             };
-            Transform.prototype.Listen = function (listener) {
-                this._Listener = listener;
-            };
-            Transform.prototype.Unlisten = function (listener) {
-                if(this._Listener === listener) {
-                    this._Listener = null;
-                }
+            Transform.prototype.Listen = function (func) {
+                var listeners = this._Listeners;
+                var listener = {
+                    Callback: func,
+                    Detach: function () {
+                        var index = listeners.indexOf(listener);
+                        if(index > -1) {
+                            listeners.splice(index, 1);
+                        }
+                    }
+                };
+                listeners.push(listener);
+                return listener;
             };
             Transform.prototype._InvalidateValue = function () {
-                if(this._Value === undefined) {
-                    return;
+                if(this._Value !== undefined) {
+                    this._Value = undefined;
                 }
-                this._Value = undefined;
-                var listener = this._Listener;
-                if(listener) {
-                    listener.TransformChanged(this);
+                var listeners = this._Listeners;
+                var len = listeners.length;
+                for(var i = 0; i < len; i++) {
+                    listeners[i].Callback(this);
                 }
             };
             Transform.prototype._BuildValue = function () {
@@ -96,6 +102,7 @@ var Fayde;
             function MatrixTransform() {
                 _super.apply(this, arguments);
 
+                this._MatrixListener = null;
             }
             MatrixTransform.MatrixProperty = DependencyProperty.RegisterFull("Matrix", function () {
                 return Media.Matrix;
@@ -110,21 +117,18 @@ var Fayde;
                 return mat3.identity();
             };
             MatrixTransform.prototype._MatrixChanged = function (args) {
-                var oldv = args.OldValue;
+                var _this = this;
+                if(this._MatrixListener) {
+                    this._MatrixListener.Detach();
+                    this._MatrixListener = null;
+                }
                 var newv = args.NewValue;
-                if(oldv) {
-                    oldv.Unlisten(this);
-                }
                 if(newv) {
-                    newv.Listen(this);
+                    this._MatrixListener = newv.Listen(function (newMatrix) {
+                        return _this._InvalidateValue();
+                    });
                 }
-                this.MatrixChanged(newv);
-            };
-            MatrixTransform.prototype.MatrixChanged = function (newMatrix) {
-                var listener = this._Listener;
-                if(listener) {
-                    listener.TransformChanged(this);
-                }
+                this._InvalidateValue();
             };
             return MatrixTransform;
         })(Transform);

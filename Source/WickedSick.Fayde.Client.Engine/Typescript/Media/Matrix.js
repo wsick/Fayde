@@ -6,6 +6,7 @@ var Fayde;
         var Matrix = (function () {
             function Matrix(raw) {
                 this._Inverse = null;
+                this._Listeners = [];
                 this._Raw = raw;
             }
             Object.defineProperty(Matrix.prototype, "M11", {
@@ -92,17 +93,26 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
-            Matrix.prototype.Listen = function (listener) {
-                this._Listener = listener;
-            };
-            Matrix.prototype.Unlisten = function (listener) {
-                this._Listener = null;
+            Matrix.prototype.Listen = function (func) {
+                var listeners = this._Listeners;
+                var listener = {
+                    Callback: func,
+                    Detach: function () {
+                        var index = listeners.indexOf(listener);
+                        if(index > -1) {
+                            listeners.splice(index, 1);
+                        }
+                    }
+                };
+                listeners.push(listener);
+                return listener;
             };
             Matrix.prototype._OnChanged = function () {
                 this._Inverse = null;
-                var listener = this._Listener;
-                if(listener) {
-                    listener.MatrixChanged(this);
+                var listeners = this._Listeners;
+                var len = listeners.length;
+                for(var i = 0; i < len; i++) {
+                    listeners[i].Callback(this);
                 }
             };
             Matrix.prototype.toString = function () {

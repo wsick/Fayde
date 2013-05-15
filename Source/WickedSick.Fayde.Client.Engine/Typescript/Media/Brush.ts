@@ -10,7 +10,7 @@ module Fayde.Media {
         Detach();
     }
 
-    export class Brush extends DependencyObject implements ITransformChangedListener {
+    export class Brush extends DependencyObject {
         static TransformProperty: DependencyProperty = DependencyProperty.RegisterCore("Transform", () => Fayde.Media.Transform, Brush, undefined, (d, args) => (<Brush>d)._TransformChanged(args));
         Transform: Fayde.Media.Transform;
 
@@ -54,16 +54,16 @@ module Fayde.Media {
         ToHtml5Object(): any { return this._CachedBrush; }
 
         Listen(func: (newBrush: Media.Brush) => void ): IBrushChangedListener {
+            var listeners = this._Listeners;
             var listener = {
                 Callback: func,
                 Detach: () => {
-                    var listeners = this._Listeners;
                     var index = listeners.indexOf(listener);
                     if (index > -1)
                         listeners.splice(index, 1);
                 }
             };
-            this._Listeners.push(listener);
+            listeners.push(listener);
             return listener;
         }
 
@@ -76,16 +76,15 @@ module Fayde.Media {
                 listeners[i].Callback(this);
             }
         }
-        private TransformChanged(source: Transform) {
-            this.InvalidateBrush();
-        }
+        private _TransformListener: ITransformChangedListener;
         private _TransformChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldt = <Transform>args.OldValue;
+            if (this._TransformListener) {
+                this._TransformListener.Detach();
+                this._TransformListener = null;
+            }
             var newt = <Transform>args.NewValue;
-            if (oldt)
-                oldt.Unlisten(this);
             if (newt)
-                newt.Listen(this);
+                this._TransformListener = newt.Listen((source: Transform) => this.InvalidateBrush());
             this.InvalidateBrush();
         }
     }

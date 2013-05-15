@@ -5,12 +5,12 @@
 
 module Fayde.Media {
     export interface ITransformChangedListener {
-        TransformChanged(source: Transform);
+        Callback: (source: Transform) => void;
+        Detach();
     }
 
     export class Transform extends GeneralTransform {
         private _Value: Matrix;
-        _Listener: ITransformChangedListener = null;
 
         constructor() {
             super();
@@ -35,7 +35,7 @@ module Fayde.Media {
             mt.Matrix = inverse;
             return mt;
         }
-        
+
         Transform(p: Point): Point {
             var val = this.Value;
             var v: number[];
@@ -55,16 +55,30 @@ module Fayde.Media {
         TryTransform(inPoint: Point, outPoint: Point): bool {
             return false;
         }
-        
-        Listen(listener: ITransformChangedListener) { this._Listener = listener; }
-        Unlisten(listener: ITransformChangedListener) { if (this._Listener === listener) this._Listener = null; }
+
+        private _Listeners: ITransformChangedListener[] = [];
+        Listen(func: (source: Transform) => void ): ITransformChangedListener {
+            var listeners = this._Listeners;
+            var listener = {
+                Callback: func,
+                Detach: () => {
+                    var index = listeners.indexOf(listener);
+                    if (index > -1)
+                        listeners.splice(index, 1);
+                }
+            };
+            listeners.push(listener);
+            return listener;
+        }
 
         _InvalidateValue() {
-            if (this._Value === undefined)
-                return;
-            this._Value = undefined;
-            var listener = this._Listener;
-            if (listener) listener.TransformChanged(this);
+            if (this._Value !== undefined)
+                this._Value = undefined;
+            var listeners = this._Listeners;
+            var len = listeners.length;
+            for (var i = 0; i < len; i++) {
+                listeners[i].Callback(this);
+            }
         }
         _BuildValue(): number[] {
             //Abstract Method
@@ -73,7 +87,7 @@ module Fayde.Media {
     }
     Nullstone.RegisterType(Transform, "Transform");
 
-    export class MatrixTransform extends Transform implements IMatrixChangedListener {
+    export class MatrixTransform extends Transform {
         static MatrixProperty: DependencyProperty = DependencyProperty.RegisterFull("Matrix", () => Matrix, MatrixTransform, undefined, (d, args) => (<MatrixTransform>d)._MatrixChanged(args));
         Matrix: Matrix;
 
@@ -84,18 +98,16 @@ module Fayde.Media {
             return mat3.identity();
         }
 
+        private _MatrixListener: IMatrixChangedListener = null;
         _MatrixChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldv: Matrix = args.OldValue;
+            if (this._MatrixListener) {
+                this._MatrixListener.Detach();
+                this._MatrixListener = null;
+            }
             var newv: Matrix = args.NewValue;
-            if (oldv)
-                oldv.Unlisten(this);
             if (newv)
-                newv.Listen(this);
-            this.MatrixChanged(newv);
-        }
-        MatrixChanged(newMatrix: Matrix) {
-            var listener = this._Listener;
-            if (listener) listener.TransformChanged(this);
+                this._MatrixListener = newv.Listen((newMatrix) => this._InvalidateValue());
+            this._InvalidateValue();
         }
     }
     Nullstone.RegisterType(MatrixTransform, "MatrixTransform");

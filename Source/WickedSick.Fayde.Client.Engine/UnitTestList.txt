@@ -2,3 +2,4 @@
 Tests\XamlNodeTests.ts
 Tests\ProviderStoreTests.ts
 Tests\ItemsControlTests.ts
+Tests\TransformTests.ts

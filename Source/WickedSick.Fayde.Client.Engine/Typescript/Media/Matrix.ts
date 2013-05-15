@@ -3,13 +3,13 @@
 
 module Fayde.Media {
     export interface IMatrixChangedListener {
-        MatrixChanged(newMatrix: Matrix);
+        Callback: (newMatrix: Matrix) => void;
+        Detach();
     }
 
     export class Matrix {
         _Raw: number[];
         private _Inverse: Matrix = null;
-        private _Listener: IMatrixChangedListener;
 
         constructor(raw?: number[]) {
             this._Raw = raw;
@@ -47,18 +47,28 @@ module Fayde.Media {
             return inverse;
         }
 
-        Listen(listener: IMatrixChangedListener) {
-            this._Listener = listener;
-        }
-        Unlisten(listener: IMatrixChangedListener) {
-            this._Listener = null;
+        private _Listeners: IMatrixChangedListener[] = [];
+        Listen(func: (newMatrix: Matrix) => void ): IMatrixChangedListener {
+            var listeners = this._Listeners;
+            var listener = {
+                Callback: func,
+                Detach: () => {
+                    var index = listeners.indexOf(listener);
+                    if (index > -1)
+                        listeners.splice(index, 1);
+                }
+            };
+            listeners.push(listener);
+            return listener;
         }
 
         private _OnChanged() {
             this._Inverse = null;
-            var listener = this._Listener;
-            if (listener)
-                listener.MatrixChanged(this);
+            var listeners = this._Listeners;
+            var len = listeners.length;
+            for (var i = 0; i < len; i++) {
+                listeners[i].Callback(this);
+            }
         }
 
         toString(): string { return mat3.str(this._Raw); }

@@ -144,12 +144,12 @@ var Fayde;
             }
             TranslateTransform.XProperty = DependencyProperty.Register("X", function () {
                 return Number;
-            }, SkewTransform, 0, function (d, args) {
+            }, TranslateTransform, 0, function (d, args) {
                 return (d)._InvalidateValue();
             });
             TranslateTransform.YProperty = DependencyProperty.Register("Y", function () {
                 return Number;
-            }, SkewTransform, 0, function (d, args) {
+            }, TranslateTransform, 0, function (d, args) {
                 return (d)._InvalidateValue();
             });
             TranslateTransform.prototype._BuildValue = function () {
@@ -164,34 +164,38 @@ var Fayde;
             function TransformCollection() {
                 _super.apply(this, arguments);
 
+                this._Relayer = function () {
+                };
+                this._ChildTransformListeners = [];
             }
-            TransformCollection.prototype.Listen = function (listener) {
-                this._Listener = listener;
-            };
-            TransformCollection.prototype.Unlisten = function (listener) {
-                if(this._Listener === listener) {
-                    this._Listener = null;
-                }
-            };
             TransformCollection.prototype.AddingToCollection = function (value, error) {
+                var _this = this;
                 if(!_super.prototype.AddingToCollection.call(this, value, error)) {
                     return false;
                 }
-                value.Listen(this);
-                this.TransformChanged();
+                var listener = value.Listen(function () {
+                    return _this._Relayer();
+                });
+                listener.Child = value;
+                this._ChildTransformListeners.push(listener);
+                this._Relayer();
             };
             TransformCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
                 if(!_super.prototype.RemovedFromCollection.call(this, value, isValueSafe)) {
                     return false;
                 }
-                value.Unlisten(this);
-                this.TransformChanged();
-            };
-            TransformCollection.prototype.TransformChanged = function (transform) {
-                var listener = this._Listener;
-                if(listener) {
-                    listener.TransformChanged(transform);
+                var listeners = this._ChildTransformListeners;
+                var len = listeners.length;
+                for(var i = 0; i < len; i++) {
+                    if(listeners[i].Child === value) {
+                        listeners.splice(i, 1)[0].Detach();
+                        break;
+                    }
                 }
+                this._Relayer();
+            };
+            TransformCollection.prototype.RelayChanges = function (func) {
+                this._Relayer = func;
             };
             return TransformCollection;
         })(Fayde.XamlObjectCollection);
@@ -200,18 +204,18 @@ var Fayde;
         var TransformGroup = (function (_super) {
             __extends(TransformGroup, _super);
             function TransformGroup() {
+                var _this = this;
                         _super.call(this);
                 var coll = new TransformCollection();
                 coll.AttachTo(this);
-                coll.Listen(this);
+                coll.RelayChanges(function () {
+                    return _this._InvalidateValue();
+                });
                 Object.defineProperty(this, "Children", {
                     value: coll,
                     writable: false
                 });
             }
-            TransformGroup.prototype.TransformChanged = function (source) {
-                this._InvalidateValue();
-            };
             TransformGroup.prototype._BuildValue = function () {
                 var enumerator = this.Children.GetEnumerator(true);
                 var cur = mat3.identity();

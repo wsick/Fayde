@@ -66,27 +66,24 @@ module Fayde.Media {
         _InvalidateGeometry() {
             this._Path = null;
             rect.set(this._LocalBounds, 0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+            var listener = this._Listener;
+            if (listener) listener.GeometryChanged(this);
         }
         _Build(): Shapes.RawPath { return undefined; }
 
         Listen(listener: IGeometryListener) { this._Listener = listener; }
         Unlisten(listener: IGeometryListener) { if (this._Listener === listener) this._Listener = null; }
 
-        private TransformChanged(source: Transform) {
-            this._InvalidateGeometry();
-            var listener = this._Listener;
-            if (listener) listener.GeometryChanged(this);
-        }
+        private _TransformListener: ITransformChangedListener;
         private _TransformChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldt = <Transform>args.OldValue;
+            if (this._TransformListener) {
+                this._TransformListener.Detach();
+                this._TransformListener = null;
+            }
             var newt = <Transform>args.NewValue;
-            if (oldt)
-                oldt.Unlisten(this);
             if (newt)
-                newt.Listen(this);
+                this._TransformListener = newt.Listen((source: Transform) => this._InvalidateGeometry());
             this._InvalidateGeometry();
-            var listener = this._Listener;
-            if (listener) listener.GeometryChanged(this);
         }
         
         Serialize(): string {

@@ -9054,12 +9054,12 @@ module Fayde {
 
 module Fayde.Media {
     export interface IMatrixChangedListener {
-        MatrixChanged(newMatrix: Matrix);
+        Callback: (newMatrix: Matrix) => void;
+        Detach();
     }
     export class Matrix {
         _Raw: number[];
         private _Inverse: Matrix = null;
-        private _Listener: IMatrixChangedListener;
         constructor(raw?: number[]) {
             this._Raw = raw;
         }
@@ -9088,17 +9088,27 @@ module Fayde.Media {
             }
             return inverse;
         }
-        Listen(listener: IMatrixChangedListener) {
-            this._Listener = listener;
-        }
-        Unlisten(listener: IMatrixChangedListener) {
-            this._Listener = null;
+        private _Listeners: IMatrixChangedListener[] = [];
+        Listen(func: (newMatrix: Matrix) => void ): IMatrixChangedListener {
+            var listeners = this._Listeners;
+            var listener = {
+                Callback: func,
+                Detach: () => {
+                    var index = listeners.indexOf(listener);
+                    if (index > -1)
+                        listeners.splice(index, 1);
+                }
+            };
+            listeners.push(listener);
+            return listener;
         }
         private _OnChanged() {
             this._Inverse = null;
-            var listener = this._Listener;
-            if (listener)
-                listener.MatrixChanged(this);
+            var listeners = this._Listeners;
+            var len = listeners.length;
+            for (var i = 0; i < len; i++) {
+                listeners[i].Callback(this);
+            }
         }
         toString(): string { return mat3.str(this._Raw); }
     }
@@ -12069,25 +12079,22 @@ module Fayde.Media {
         _InvalidateGeometry() {
             this._Path = null;
             rect.set(this._LocalBounds, 0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+            var listener = this._Listener;
+            if (listener) listener.GeometryChanged(this);
         }
         _Build(): Shapes.RawPath { return undefined; }
         Listen(listener: IGeometryListener) { this._Listener = listener; }
         Unlisten(listener: IGeometryListener) { if (this._Listener === listener) this._Listener = null; }
-        private TransformChanged(source: Transform) {
-            this._InvalidateGeometry();
-            var listener = this._Listener;
-            if (listener) listener.GeometryChanged(this);
-        }
+        private _TransformListener: ITransformChangedListener;
         private _TransformChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldt = <Transform>args.OldValue;
+            if (this._TransformListener) {
+                this._TransformListener.Detach();
+                this._TransformListener = null;
+            }
             var newt = <Transform>args.NewValue;
-            if (oldt)
-                oldt.Unlisten(this);
             if (newt)
-                newt.Listen(this);
+                this._TransformListener = newt.Listen((source: Transform) => this._InvalidateGeometry());
             this._InvalidateGeometry();
-            var listener = this._Listener;
-            if (listener) listener.GeometryChanged(this);
         }
         Serialize(): string {
             var path = this._Path;
@@ -12511,11 +12518,11 @@ module Fayde.Media {
 
 module Fayde.Media {
     export interface ITransformChangedListener {
-        TransformChanged(source: Transform);
+        Callback: (source: Transform) => void;
+        Detach();
     }
     export class Transform extends GeneralTransform {
         private _Value: Matrix;
-        _Listener: ITransformChangedListener = null;
         constructor() {
             super();
             (<IShareableHidden>this.XamlNode).IsShareable = true;
@@ -12556,21 +12563,35 @@ module Fayde.Media {
         TryTransform(inPoint: Point, outPoint: Point): bool {
             return false;
         }
-        Listen(listener: ITransformChangedListener) { this._Listener = listener; }
-        Unlisten(listener: ITransformChangedListener) { if (this._Listener === listener) this._Listener = null; }
+        private _Listeners: ITransformChangedListener[] = [];
+        Listen(func: (source: Transform) => void ): ITransformChangedListener {
+            var listeners = this._Listeners;
+            var listener = {
+                Callback: func,
+                Detach: () => {
+                    var index = listeners.indexOf(listener);
+                    if (index > -1)
+                        listeners.splice(index, 1);
+                }
+            };
+            listeners.push(listener);
+            return listener;
+        }
         _InvalidateValue() {
-            if (this._Value === undefined)
-                return;
-            this._Value = undefined;
-            var listener = this._Listener;
-            if (listener) listener.TransformChanged(this);
+            if (this._Value !== undefined)
+                this._Value = undefined;
+            var listeners = this._Listeners;
+            var len = listeners.length;
+            for (var i = 0; i < len; i++) {
+                listeners[i].Callback(this);
+            }
         }
         _BuildValue(): number[] {
             return undefined;
         }
     }
     Nullstone.RegisterType(Transform, "Transform");
-    export class MatrixTransform extends Transform implements IMatrixChangedListener {
+    export class MatrixTransform extends Transform {
         static MatrixProperty: DependencyProperty = DependencyProperty.RegisterFull("Matrix", () => Matrix, MatrixTransform, undefined, (d, args) => (<MatrixTransform>d)._MatrixChanged(args));
         Matrix: Matrix;
         _BuildValue(): number[] {
@@ -12579,18 +12600,16 @@ module Fayde.Media {
                 return m._Raw;
             return mat3.identity();
         }
+        private _MatrixListener: IMatrixChangedListener = null;
         _MatrixChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldv: Matrix = args.OldValue;
+            if (this._MatrixListener) {
+                this._MatrixListener.Detach();
+                this._MatrixListener = null;
+            }
             var newv: Matrix = args.NewValue;
-            if (oldv)
-                oldv.Unlisten(this);
             if (newv)
-                newv.Listen(this);
-            this.MatrixChanged(newv);
-        }
-        MatrixChanged(newMatrix: Matrix) {
-            var listener = this._Listener;
-            if (listener) listener.TransformChanged(this);
+                this._MatrixListener = newv.Listen((newMatrix) => this._InvalidateValue());
+            this._InvalidateValue();
         }
     }
     Nullstone.RegisterType(MatrixTransform, "MatrixTransform");
@@ -12662,8 +12681,8 @@ module Fayde.Media {
     }
     Nullstone.RegisterType(SkewTransform, "SkewTransform");
     export class TranslateTransform extends Transform {
-        static XProperty: DependencyProperty = DependencyProperty.Register("X", () => Number, SkewTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
-        static YProperty: DependencyProperty = DependencyProperty.Register("Y", () => Number, SkewTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        static XProperty: DependencyProperty = DependencyProperty.Register("X", () => Number, TranslateTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
+        static YProperty: DependencyProperty = DependencyProperty.Register("Y", () => Number, TranslateTransform, 0, (d, args) => (<Transform>d)._InvalidateValue());
         X: number;
         Y: number;
         private _BuildValue(): number[] {
@@ -12671,41 +12690,51 @@ module Fayde.Media {
         }
     }
     Nullstone.RegisterType(TranslateTransform, "TranslateTransform");
-    export class TransformCollection extends XamlObjectCollection implements ITransformChangedListener {
-        private _Listener: ITransformChangedListener;
-        Listen(listener: ITransformChangedListener) { this._Listener = listener; }
-        Unlisten(listener: ITransformChangedListener) { if (this._Listener === listener) this._Listener = null; }
+    export interface ITransformChangedChildListener extends ITransformChangedListener {
+        Child: Transform;
+    }
+    export class TransformCollection extends XamlObjectCollection {
+        private _Relayer: () => void = function () { };
+        private _ChildTransformListeners: ITransformChangedChildListener[] = [];
         AddingToCollection(value: Transform, error: BError): bool {
             if (!super.AddingToCollection(value, error))
                 return false;
-            value.Listen(this);
-            this.TransformChanged();
+            var listener = <ITransformChangedChildListener>value.Listen(() => this._Relayer());
+            listener.Child = value;
+            this._ChildTransformListeners.push(listener);
+            this._Relayer();
         }
         RemovedFromCollection(value: Transform, isValueSafe: bool) {
             if (!super.RemovedFromCollection(value, isValueSafe))
                 return false;
-            value.Unlisten(this);
-            this.TransformChanged();
+            var listeners = this._ChildTransformListeners;
+            var len = listeners.length;
+            for (var i = 0; i < len; i++) {
+                if (listeners[i].Child === value) {
+                    listeners.splice(i, 1)[0].Detach();
+                    break;
+                }
+            }
+            this._Relayer();
         }
-        private TransformChanged(transform?: Transform) {
-            var listener = this._Listener;
-            if (listener) listener.TransformChanged(transform);
+        RelayChanges(func: () => void ) {
+            this._Relayer = func;
         }
     }
     Nullstone.RegisterType(TransformCollection, "TransformCollection");
-    export class TransformGroup extends Transform implements ITransformChangedListener {
+    export class TransformGroup extends Transform {
         Children: TransformCollection;
+        private _TransformListener: ITransformChangedListener;
         constructor() {
             super();
             var coll = new TransformCollection();
             coll.AttachTo(this);
-            coll.Listen(this);
+            coll.RelayChanges(() => this._InvalidateValue());
             Object.defineProperty(this, "Children", {
                 value: coll,
                 writable: false
             });
         }
-        private TransformChanged(source: Transform) { this._InvalidateValue(); }
         private _BuildValue(): number[] {
             var enumerator = this.Children.GetEnumerator(true);
             var cur = mat3.identity();
@@ -14929,7 +14958,7 @@ module Fayde.Media {
         Callback: (newBrush: Media.Brush) => void;
         Detach();
     }
-    export class Brush extends DependencyObject implements ITransformChangedListener {
+    export class Brush extends DependencyObject {
         static TransformProperty: DependencyProperty = DependencyProperty.RegisterCore("Transform", () => Fayde.Media.Transform, Brush, undefined, (d, args) => (<Brush>d)._TransformChanged(args));
         Transform: Fayde.Media.Transform;
         private _CachedBounds: rect = null;
@@ -14965,16 +14994,16 @@ module Fayde.Media {
         CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any { return undefined; }
         ToHtml5Object(): any { return this._CachedBrush; }
         Listen(func: (newBrush: Media.Brush) => void ): IBrushChangedListener {
+            var listeners = this._Listeners;
             var listener = {
                 Callback: func,
                 Detach: () => {
-                    var listeners = this._Listeners;
                     var index = listeners.indexOf(listener);
                     if (index > -1)
                         listeners.splice(index, 1);
                 }
             };
-            this._Listeners.push(listener);
+            listeners.push(listener);
             return listener;
         }
         InvalidateBrush() {
@@ -14986,16 +15015,15 @@ module Fayde.Media {
                 listeners[i].Callback(this);
             }
         }
-        private TransformChanged(source: Transform) {
-            this.InvalidateBrush();
-        }
+        private _TransformListener: ITransformChangedListener;
         private _TransformChanged(args: IDependencyPropertyChangedEventArgs) {
-            var oldt = <Transform>args.OldValue;
+            if (this._TransformListener) {
+                this._TransformListener.Detach();
+                this._TransformListener = null;
+            }
             var newt = <Transform>args.NewValue;
-            if (oldt)
-                oldt.Unlisten(this);
             if (newt)
-                newt.Listen(this);
+                this._TransformListener = newt.Listen((source: Transform) => this.InvalidateBrush());
             this.InvalidateBrush();
         }
     }

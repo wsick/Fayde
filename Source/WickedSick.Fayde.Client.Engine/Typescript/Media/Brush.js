@@ -56,18 +56,17 @@ var Fayde;
                 return this._CachedBrush;
             };
             Brush.prototype.Listen = function (func) {
-                var _this = this;
+                var listeners = this._Listeners;
                 var listener = {
                     Callback: func,
                     Detach: function () {
-                        var listeners = _this._Listeners;
                         var index = listeners.indexOf(listener);
                         if(index > -1) {
                             listeners.splice(index, 1);
                         }
                     }
                 };
-                this._Listeners.push(listener);
+                listeners.push(listener);
                 return listener;
             };
             Brush.prototype.InvalidateBrush = function () {
@@ -79,17 +78,17 @@ var Fayde;
                     listeners[i].Callback(this);
                 }
             };
-            Brush.prototype.TransformChanged = function (source) {
-                this.InvalidateBrush();
-            };
             Brush.prototype._TransformChanged = function (args) {
-                var oldt = args.OldValue;
-                var newt = args.NewValue;
-                if(oldt) {
-                    oldt.Unlisten(this);
+                var _this = this;
+                if(this._TransformListener) {
+                    this._TransformListener.Detach();
+                    this._TransformListener = null;
                 }
+                var newt = args.NewValue;
                 if(newt) {
-                    newt.Listen(this);
+                    this._TransformListener = newt.Listen(function (source) {
+                        return _this.InvalidateBrush();
+                    });
                 }
                 this.InvalidateBrush();
             };
