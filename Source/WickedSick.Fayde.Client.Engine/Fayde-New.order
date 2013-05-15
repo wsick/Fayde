@@ -16,6 +16,7 @@ Engine/Interfaces.js
 Engine/XamlResolver.js
 Media/Enums.js
 Media/GradientMetrics.js
+Media/Matrix3D.js
 Media/MediaParser.js
 Media/Animation/Curves.js
 Media/Animation/Enums.js
@@ -168,6 +169,7 @@ Media/EllipseGeometry.js
 Media/GradientBrush.js
 Media/LinearGradientBrush.js
 Media/Matrix3DProjection.js
+Media/PlaneProjection.js
 Media/RadialGradientBrush.js
 Media/SolidColorBrush.js
 Media/TileBrush.js

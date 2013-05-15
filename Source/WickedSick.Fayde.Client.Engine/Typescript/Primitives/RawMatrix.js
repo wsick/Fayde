@@ -412,29 +412,6 @@ var mat4;
         return dest;
     }
     mat4.transformVec4 = transformVec4;
-    function createTranslate(x, y, z, dest) {
-        if(!dest) {
-            dest = mat4.create();
-        }
-        dest[0] = 1;
-        dest[1] = 0;
-        dest[2] = 0;
-        dest[3] = 0;
-        dest[4] = 0;
-        dest[5] = 1;
-        dest[6] = 0;
-        dest[7] = 0;
-        dest[8] = 0;
-        dest[9] = 0;
-        dest[10] = 1;
-        dest[11] = 0;
-        dest[12] = x;
-        dest[13] = y;
-        dest[14] = z;
-        dest[15] = 1;
-        return dest;
-    }
-    mat4.createTranslate = createTranslate;
     function toAffineMat3(mat, dest) {
         if(!dest) {
             dest = mat3.create();
@@ -458,5 +435,202 @@ var mat4;
         return mat.slice(0);
     }
     mat4.clone = clone;
+    function str(mat) {
+        return "[" + mat[0] + ", " + mat[1] + ", " + mat[2] + ", " + mat[3] + ", " + mat[4] + ", " + mat[5] + ", " + mat[6] + ", " + mat[7] + ", " + mat[8] + ", " + mat[9] + ", " + mat[10] + ", " + mat[11] + ", " + mat[12] + ", " + mat[13] + ", " + mat[14] + ", " + mat[15] + "]";
+    }
+    mat4.str = str;
+    function createTranslate(x, y, z, dest) {
+        if(!dest) {
+            dest = mat4.create();
+        }
+        dest[0] = 1;
+        dest[1] = 0;
+        dest[2] = 0;
+        dest[3] = 0;
+        dest[4] = 0;
+        dest[5] = 1;
+        dest[6] = 0;
+        dest[7] = 0;
+        dest[8] = 0;
+        dest[9] = 0;
+        dest[10] = 1;
+        dest[11] = 0;
+        dest[12] = x;
+        dest[13] = y;
+        dest[14] = z;
+        dest[15] = 1;
+        return dest;
+    }
+    mat4.createTranslate = createTranslate;
+    function createScale(x, y, z, dest) {
+        if(!dest) {
+            dest = mat4.create();
+        }
+        dest[0] = x;
+        dest[1] = 0;
+        dest[2] = 0;
+        dest[3] = 0;
+        dest[4] = 0;
+        dest[5] = y;
+        dest[6] = 0;
+        dest[7] = 0;
+        dest[8] = 0;
+        dest[9] = 0;
+        dest[10] = z;
+        dest[11] = 0;
+        dest[12] = 0;
+        dest[13] = 0;
+        dest[14] = 0;
+        dest[15] = 1;
+        return dest;
+    }
+    mat4.createScale = createScale;
+    function createPerspective(fieldOfViewY, aspectRatio, zNearPlane, zFarPlane, dest) {
+        if(!dest) {
+            dest = mat4.create();
+        }
+        var height = 1.0 / Math.tan(fieldOfViewY / 2.0);
+        var width = height / aspectRatio;
+        var d = zNearPlane - zFarPlane;
+        dest[0] = width;
+        dest[1] = 0;
+        dest[2] = 0;
+        dest[3] = 0;
+        dest[4] = 0;
+        dest[5] = height;
+        dest[6] = 0;
+        dest[7] = 0;
+        dest[8] = 0;
+        dest[9] = 0;
+        dest[10] = zFarPlane / d;
+        dest[11] = -1.0;
+        dest[12] = 0;
+        dest[13] = 0;
+        dest[14] = zNearPlane * zFarPlane / d;
+        dest[15] = 0.0;
+        return dest;
+    }
+    mat4.createPerspective = createPerspective;
+    function createViewport(width, height, dest) {
+        if(!dest) {
+            dest = mat4.create();
+        }
+        dest[0] = width / 2.0;
+        dest[1] = 0;
+        dest[2] = 0;
+        dest[3] = 0;
+        dest[4] = 0;
+        dest[5] = -height / 2.0;
+        dest[6] = 0;
+        dest[7] = 0;
+        dest[8] = 0;
+        dest[9] = 0;
+        dest[10] = 1;
+        dest[11] = 0;
+        dest[12] = width / 2.0;
+        dest[13] = height / 2.0;
+        dest[14] = 0;
+        dest[15] = 1;
+        return dest;
+    }
+    mat4.createViewport = createViewport;
+    function createRotateX(theta, dest) {
+        if(!dest) {
+            dest = mat4.create();
+        }
+        var s = Math.sin(theta);
+        var c = Math.cos(theta);
+        dest[0] = 1;
+        dest[1] = 0;
+        dest[2] = 0;
+        dest[3] = 0;
+        dest[4] = 0;
+        dest[5] = c;
+        dest[6] = s;
+        dest[7] = 0;
+        dest[8] = 0;
+        dest[9] = -s;
+        dest[10] = c;
+        dest[11] = 0;
+        dest[12] = 0;
+        dest[13] = 0;
+        dest[14] = 0;
+        dest[15] = 1;
+        return dest;
+    }
+    mat4.createRotateX = createRotateX;
+    function createRotateY(theta, dest) {
+        if(!dest) {
+            dest = mat4.create();
+        }
+        var s = Math.sin(theta);
+        var c = Math.cos(theta);
+        dest[0] = c;
+        dest[1] = 0;
+        dest[2] = -s;
+        dest[3] = 0;
+        dest[4] = 0;
+        dest[5] = 1;
+        dest[6] = 0;
+        dest[7] = 0;
+        dest[8] = s;
+        dest[9] = 0;
+        dest[10] = c;
+        dest[11] = 0;
+        dest[12] = 0;
+        dest[13] = 0;
+        dest[14] = 0;
+        dest[15] = 1;
+        return dest;
+    }
+    mat4.createRotateY = createRotateY;
+    function createRotateZ(theta, dest) {
+        if(!dest) {
+            dest = mat4.create();
+        }
+        var s = Math.sin(theta);
+        var c = Math.cos(theta);
+        dest[0] = c;
+        dest[1] = s;
+        dest[2] = 0;
+        dest[3] = 0;
+        dest[4] = -s;
+        dest[5] = c;
+        dest[6] = 0;
+        dest[7] = 0;
+        dest[8] = 0;
+        dest[9] = 0;
+        dest[10] = 1;
+        dest[11] = 0;
+        dest[12] = 0;
+        dest[13] = 0;
+        dest[14] = 0;
+        dest[15] = 1;
+        return dest;
+    }
+    mat4.createRotateZ = createRotateZ;
+    function translate(mat, x, y, z) {
+        mat[12] += x;
+        mat[13] += y;
+        mat[14] += z;
+        return mat;
+    }
+    mat4.translate = translate;
+    function scale(mat, x, y, z) {
+        mat[0] *= x;
+        mat[4] *= x;
+        mat[8] *= x;
+        mat[12] *= x;
+        mat[1] *= y;
+        mat[5] *= y;
+        mat[9] *= y;
+        mat[13] *= y;
+        mat[2] *= z;
+        mat[6] *= z;
+        mat[10] *= z;
+        mat[14] *= z;
+        return mat;
+    }
+    mat4.scale = scale;
 })(mat4 || (mat4 = {}));
 //@ sourceMappingURL=RawMatrix.js.map

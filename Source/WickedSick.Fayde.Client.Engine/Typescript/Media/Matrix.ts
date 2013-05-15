@@ -61,7 +61,6 @@ module Fayde.Media {
             listeners.push(listener);
             return listener;
         }
-
         private _OnChanged() {
             this._Inverse = null;
             var listeners = this._Listeners;

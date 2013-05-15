@@ -472,6 +472,14 @@
     <Content Include="Tests\TransformTests.js">
       <DependentUpon>TransformTests.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Media\Matrix3D.ts" />
+    <Content Include="Typescript\Media\Matrix3D.js">
+      <DependentUpon>Matrix3D.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\PlaneProjection.ts" />
+    <Content Include="Typescript\Media\PlaneProjection.js">
+      <DependentUpon>PlaneProjection.ts</DependentUpon>
+    </Content>
     <Content Include="UnitTestList.txt" />
     <Content Include="Tests\XamlNodeTests.js">
       <DependentUpon>XamlNodeTests.ts</DependentUpon>

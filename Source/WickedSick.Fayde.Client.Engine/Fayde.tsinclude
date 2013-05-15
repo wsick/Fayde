@@ -16,6 +16,7 @@ Typescript\Engine\Interfaces.ts
 Typescript\Engine\XamlResolver.ts
 Typescript\Media\Enums.ts
 Typescript\Media\GradientMetrics.ts
+Typescript\Media\Matrix3D.ts
 Typescript\Media\MediaParser.ts
 Typescript\Media\Animation\Curves.ts
 Typescript\Media\Animation\Enums.ts
@@ -168,6 +169,7 @@ Typescript\Media\EllipseGeometry.ts
 Typescript\Media\GradientBrush.ts
 Typescript\Media\LinearGradientBrush.ts
 Typescript\Media\Matrix3DProjection.ts
+Typescript\Media\PlaneProjection.ts
 Typescript\Media\RadialGradientBrush.ts
 Typescript\Media\SolidColorBrush.ts
 Typescript\Media\TileBrush.ts

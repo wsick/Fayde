@@ -399,7 +399,8 @@ module Fayde {
             }
 
             var objectSize: ISize = (uie instanceof Shapes.Shape) ? this._GetShapeBrushSize(<Shapes.Shape>uie) : this._GetBrushSize();
-            var z = projection.GetDistanceFromXYPlane(objectSize);
+            projection.SetObjectSize(objectSize);
+            var z = projection.GetDistanceFromXYPlane();
             Controls.Panel.SetZ(uie, z);
         }
         ComputeTransform(uin: UINode, vplu: LayoutUpdater) {

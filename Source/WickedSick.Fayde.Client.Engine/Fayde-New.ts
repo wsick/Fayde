@@ -1763,6 +1763,86 @@ module Fayde.Media {
 }
 
 module Fayde.Media {
+    export interface IMatrix3DChangedListener {
+        Callback: (newMatrix3D: Matrix3D) => void;
+        Detach();
+    }
+    export class Matrix3D {
+        _Raw: number[];
+        private _Inverse: Matrix3D = null;
+        get M11() { return this._Raw[0]; }
+        set M11(val: number) { this._Raw[0] = val; this._OnChanged(); }
+        get M12() { return this._Raw[1]; }
+        set M12(val: number) { this._Raw[1] = val; this._OnChanged(); }
+        get M13() { return this._Raw[2]; }
+        set M13(val: number) { this._Raw[2] = val; this._OnChanged(); }
+        get M14() { return this._Raw[3]; }
+        set M14(val: number) { this._Raw[3] = val; this._OnChanged(); }
+        get M21() { return this._Raw[4]; }
+        set M21(val: number) { this._Raw[4] = val; this._OnChanged(); }
+        get M22() { return this._Raw[5]; }
+        set M22(val: number) { this._Raw[5] = val; this._OnChanged(); }
+        get M23() { return this._Raw[6]; }
+        set M23(val: number) { this._Raw[6] = val; this._OnChanged(); }
+        get M24() { return this._Raw[7]; }
+        set M24(val: number) { this._Raw[7] = val; this._OnChanged(); }
+        get M31() { return this._Raw[8]; }
+        set M31(val: number) { this._Raw[8] = val; this._OnChanged(); }
+        get M32() { return this._Raw[9]; }
+        set M32(val: number) { this._Raw[9] = val; this._OnChanged(); }
+        get M33() { return this._Raw[10]; }
+        set M33(val: number) { this._Raw[10] = val; this._OnChanged(); }
+        get M34() { return this._Raw[11]; }
+        set M34(val: number) { this._Raw[11] = val; this._OnChanged(); }
+        get OffsetX() { return this._Raw[12]; }
+        set OffsetX(val: number) { this._Raw[12] = val; this._OnChanged(); }
+        get OffsetY() { return this._Raw[13]; }
+        set OffsetY(val: number) { this._Raw[13] = val; this._OnChanged(); }
+        get OffsetZ() { return this._Raw[14]; }
+        set OffsetZ(val: number) { this._Raw[14] = val; this._OnChanged(); }
+        get M44() { return this._Raw[15]; }
+        set M44(val: number) { this._Raw[15] = val; this._OnChanged(); }
+        get Inverse(): Matrix3D {
+            var inverse = this._Inverse;
+            if (!inverse) {
+                var i = mat4.identity();
+                mat4.inverse(this._Raw, i);
+                if (!i)
+                    return;
+                inverse = new Matrix3D();
+                inverse._Raw = i;
+                this._Inverse = inverse;
+            }
+            return inverse;
+        }
+        private _Listeners: IMatrix3DChangedListener[] = [];
+        Listen(func: (newMatrix: Matrix3D) => void ): IMatrix3DChangedListener {
+            var listeners = this._Listeners;
+            var listener = {
+                Callback: func,
+                Detach: () => {
+                    var index = listeners.indexOf(listener);
+                    if (index > -1)
+                        listeners.splice(index, 1);
+                }
+            };
+            listeners.push(listener);
+            return listener;
+        }
+        private _OnChanged() {
+            this._Inverse = null;
+            var listeners = this._Listeners;
+            var len = listeners.length;
+            for (var i = 0; i < len; i++) {
+                listeners[i].Callback(this);
+            }
+        }
+        toString(): string { return mat4.str(this._Raw); }
+    }
+    Nullstone.RegisterType(Matrix3D, "Matrix3D");
+}
+
+module Fayde.Media {
     export function ParseGeometry(val: string): Geometry {
         return (new MediaParser(val)).ParseGeometryImpl();
     }
@@ -2386,9 +2466,9 @@ module mat3 {
         return dest;
     }
     export function str(mat: number[]): string {
-        return "[" + mat[0] + ", " + mat[1] + ", " + mat[2] +
-            ", " + mat[3] + ", " + mat[4] + ", " + mat[5] +
-            ", " + mat[6] + ", " + mat[7] + ", " + mat[8] + "]";
+        return "[" + mat[0] + ", " + mat[1] + ", " + mat[2]
+            + ", " + mat[3] + ", " + mat[4] + ", " + mat[5]
+            + ", " + mat[6] + ", " + mat[7] + ", " + mat[8] + "]";
     }
     export function clone(mat: number[]): number[] {
         if (typeof Float32Array !== "undefined")
@@ -2664,6 +2744,30 @@ module mat4 {
         dest[3] = mat[12] * x + mat[13] * y + mat[14] * z + mat[15] * w;
         return dest;
     }
+    export function toAffineMat3(mat: number[], dest?: number[]): number[] {
+        if (!dest) { dest = mat3.create(); }
+        dest[0] = mat[0];
+        dest[1] = mat[1];
+        dest[2] = mat[3];
+        dest[3] = mat[4];
+        dest[4] = mat[5];
+        dest[5] = mat[7];
+        dest[6] = 0;
+        dest[7] = 0;
+        dest[8] = 1;
+        return dest;
+    }
+    export function clone(mat: number[]): number[] {
+        if (typeof Float32Array !== "undefined")
+            return <number[]><any>new Float32Array(mat);
+        return mat.slice(0);
+    }
+    export function str(mat: number[]): string {
+        return "[" + mat[0] + ", " + mat[1] + ", " + mat[2] + ", " + mat[3]
+            + ", " + mat[4] + ", " + mat[5] + ", " + mat[6] + ", " + mat[7]
+            + ", " + mat[8] + ", " + mat[9] + ", " + mat[10] + ", " + mat[11]
+            + ", " + mat[12] + ", " + mat[13] + ", " + mat[14] + ", " + mat[15] + "]";
+    }
     export function createTranslate(x: number, y: number, z: number, dest?: number[]): number[] {
         if (!dest) { dest = mat4.create(); }
         dest[0] = 1;
@@ -2684,23 +2788,155 @@ module mat4 {
         dest[15] = 1;
         return dest;
     }
-    export function toAffineMat3(mat: number[], dest?: number[]): number[] {
-        if (!dest) { dest = mat3.create(); }
-        dest[0] = mat[0];
-        dest[1] = mat[1];
-        dest[2] = mat[3];
-        dest[3] = mat[4];
-        dest[4] = mat[5];
-        dest[5] = mat[7];
+    export function createScale(x: number, y: number, z: number, dest?: number[]): number[] {
+        if (!dest) { dest = mat4.create(); }
+        dest[0] = x;
+        dest[1] = 0;
+        dest[2] = 0;
+        dest[3] = 0;
+        dest[4] = 0;
+        dest[5] = y;
         dest[6] = 0;
         dest[7] = 0;
-        dest[8] = 1;
+        dest[8] = 0;
+        dest[9] = 0;
+        dest[10] = z;
+        dest[11] = 0;
+        dest[12] = 0;
+        dest[13] = 0;
+        dest[14] = 0;
+        dest[15] = 1;
         return dest;
     }
-    export function clone(mat: number[]): number[] {
-        if (typeof Float32Array !== "undefined")
-            return <number[]><any>new Float32Array(mat);
-        return mat.slice(0);
+    export function createPerspective(fieldOfViewY: number, aspectRatio: number, zNearPlane: number, zFarPlane: number, dest?: number[]): number[] {
+        if (!dest) { dest = mat4.create(); }
+        var height = 1.0 / Math.tan(fieldOfViewY / 2.0);
+        var width = height / aspectRatio;
+        var d = zNearPlane - zFarPlane;
+        dest[0] = width;
+        dest[1] = 0;
+        dest[2] = 0;
+        dest[3] = 0;
+        dest[4] = 0;
+        dest[5] = height;
+        dest[6] = 0;
+        dest[7] = 0;
+        dest[8] = 0;
+        dest[9] = 0;
+        dest[10] = zFarPlane / d;
+        dest[11] = -1.0;
+        dest[12] = 0;
+        dest[13] = 0;
+        dest[14] = zNearPlane * zFarPlane / d;
+        dest[15] = 0.0;
+        return dest;
+    }
+    export function createViewport(width: number, height: number, dest?: number[]): number[] {
+        if (!dest) { dest = mat4.create(); }
+        dest[0] = width / 2.0;
+        dest[1] = 0;
+        dest[2] = 0;
+        dest[3] = 0;
+        dest[4] = 0;
+        dest[5] = -height / 2.0;
+        dest[6] = 0;
+        dest[7] = 0;
+        dest[8] = 0;
+        dest[9] = 0;
+        dest[10] = 1;
+        dest[11] = 0;
+        dest[12] = width / 2.0;
+        dest[13] = height / 2.0;
+        dest[14] = 0;
+        dest[15] = 1;
+        return dest;
+    }
+    export function createRotateX(theta: number, dest?: number[]): number[] {
+        if (!dest) { dest = mat4.create(); }
+        var s = Math.sin(theta);
+        var c = Math.cos(theta);
+        dest[0] = 1;
+        dest[1] = 0;
+        dest[2] = 0;
+        dest[3] = 0;
+        dest[4] = 0;
+        dest[5] = c;
+        dest[6] = s;
+        dest[7] = 0;
+        dest[8] = 0;
+        dest[9] = -s;
+        dest[10] = c;
+        dest[11] = 0;
+        dest[12] = 0;
+        dest[13] = 0;
+        dest[14] = 0;
+        dest[15] = 1;
+        return dest;
+    }
+    export function createRotateY(theta: number, dest?: number[]): number[] {
+        if (!dest) { dest = mat4.create(); }
+        var s = Math.sin(theta);
+        var c = Math.cos(theta);
+        dest[0] = c;
+        dest[1] = 0;
+        dest[2] = -s;
+        dest[3] = 0;
+        dest[4] = 0;
+        dest[5] = 1;
+        dest[6] = 0;
+        dest[7] = 0;
+        dest[8] = s;
+        dest[9] = 0;
+        dest[10] = c;
+        dest[11] = 0;
+        dest[12] = 0;
+        dest[13] = 0;
+        dest[14] = 0;
+        dest[15] = 1;
+        return dest;
+    }
+    export function createRotateZ(theta: number, dest?: number[]): number[] {
+        if (!dest) { dest = mat4.create(); }
+        var s = Math.sin(theta);
+        var c = Math.cos(theta);
+        dest[0] = c;
+        dest[1] = s;
+        dest[2] = 0;
+        dest[3] = 0;
+        dest[4] = -s;
+        dest[5] = c;
+        dest[6] = 0;
+        dest[7] = 0;
+        dest[8] = 0;
+        dest[9] = 0;
+        dest[10] = 1;
+        dest[11] = 0;
+        dest[12] = 0;
+        dest[13] = 0;
+        dest[14] = 0;
+        dest[15] = 1;
+        return dest;
+    }
+    export function translate(mat: number[], x: number, y: number, z: number): number[] {
+        mat[12] += x;
+        mat[13] += y;
+        mat[14] += z;
+        return mat;
+    }
+    export function scale(mat: number[], x: number, y: number, z: number): number[] {
+        mat[0] *= x;
+        mat[4] *= x;
+        mat[8] *= x;
+        mat[12] *= x;
+        mat[1] *= y;
+        mat[5] *= y;
+        mat[9] *= y;
+        mat[13] *= y;
+        mat[2] *= z;
+        mat[6] *= z;
+        mat[10] *= z;
+        mat[14] *= z;
+        return mat;
     }
 }
 
@@ -5213,7 +5449,8 @@ module Fayde {
                 return;
             }
             var objectSize: ISize = (uie instanceof Shapes.Shape) ? this._GetShapeBrushSize(<Shapes.Shape>uie) : this._GetBrushSize();
-            var z = projection.GetDistanceFromXYPlane(objectSize);
+            projection.SetObjectSize(objectSize);
+            var z = projection.GetDistanceFromXYPlane();
             Controls.Panel.SetZ(uie, z);
         }
         ComputeTransform(uin: UINode, vplu: LayoutUpdater) {
@@ -12561,12 +12798,54 @@ module Fayde.Media {
 }
 
 module Fayde.Media {
+    export interface IProjectionChangedListener {
+        Callback: (source: Projection) => void;
+        Detach();
+    }
     export class Projection extends DependencyObject {
-        GetDistanceFromXYPlane(objectSize: ISize): number {
-            return NaN;
+        private _ProjectionMatrix: Matrix3D = null;
+        private _ObjectWidth: number = 1.0;
+        private _ObjectHeight: number = 1.0;
+        SetObjectSize(size: ISize) {
+            var w = Math.max(size.Width, 1.0);
+            var h = Math.max(size.Height, 1.0);
+            if (w !== this._ObjectWidth && h !== this._ObjectHeight) {
+                this._ObjectWidth = w;
+                this._ObjectHeight = h;
+                this._ProjectionMatrix = null;
+            }
         }
+        GetDistanceFromXYPlane(): number { return NaN; }
         GetTransform(): number[] {
-            return undefined;
+            var m3 = this._ProjectionMatrix;
+            if (!m3)
+                m3 = this._ProjectionMatrix = this.CreateProjectionMatrix();
+            if (m3)
+                return mat4.clone(m3._Raw);
+            return mat4.identity();
+        }
+        CreateProjectionMatrix(): Matrix3D { return null; }
+        private _Listeners: IProjectionChangedListener[] = [];
+        Listen(func: (source: Transform) => void ): IProjectionChangedListener {
+            var listeners = this._Listeners;
+            var listener = {
+                Callback: func,
+                Detach: () => {
+                    var index = listeners.indexOf(listener);
+                    if (index > -1)
+                        listeners.splice(index, 1);
+                }
+            };
+            listeners.push(listener);
+            return listener;
+        }
+        _InvalidateProjection() {
+            this._ProjectionMatrix = null;
+            var listeners = this._Listeners;
+            var len = listeners.length;
+            for (var i = 0; i < len; i++) {
+                listeners[i].Callback(this);
+            }
         }
     }
     Nullstone.RegisterType(Projection, "Projection");
@@ -15253,8 +15532,108 @@ module Fayde.Media {
 
 module Fayde.Media {
     export class Matrix3DProjection extends Projection {
+        static ProjectionMatrixProperty: DependencyProperty = DependencyProperty.Register("ProjectionMatrix", () => Matrix3D, Matrix3DProjection, undefined, (d, args) => (<Projection>d)._InvalidateProjection());
+        ProjectionMatrix: Matrix3D;
+        CreateProjectionMatrix(): Matrix3D { return this.ProjectionMatrix; }
     }
     Nullstone.RegisterType(Matrix3DProjection, "Matrix3DProjection");
+}
+
+module Fayde.Media {
+    var FIELD_OF_VIEW = 57.0 / 180 * Math.PI;
+    var CAMERA_DIST = 999.0;
+    var NEAR_VAL = 1.0;
+    var FAR_VAL = 65536.0;
+    var XY_PLANE_Z = (NEAR_VAL * FAR_VAL / (NEAR_VAL - FAR_VAL) * (1.0 - CAMERA_DIST)) / CAMERA_DIST;
+    var PI_OVER_180 = Math.PI / 180.0;
+    export class PlaneProjection extends Projection {
+        static CenterOfRotationXProperty: DependencyProperty = DependencyProperty.Register("CenterOfRotationX", () => Number, PlaneProjection, 0.5, (d, args) => (<Projection>d)._InvalidateProjection());
+        static CenterOfRotationYProperty: DependencyProperty = DependencyProperty.Register("CenterOfRotationY", () => Number, PlaneProjection, 0.5, (d, args) => (<Projection>d)._InvalidateProjection());
+        static CenterOfRotationZProperty: DependencyProperty = DependencyProperty.Register("CenterOfRotationZ", () => Number, PlaneProjection, 0.5, (d, args) => (<Projection>d)._InvalidateProjection());
+        static GlobalOffsetXProperty: DependencyProperty = DependencyProperty.Register("GlobalOffsetX", () => Number, PlaneProjection, 0.0, (d, args) => (<Projection>d)._InvalidateProjection());
+        static GlobalOffsetYProperty: DependencyProperty = DependencyProperty.Register("GlobalOffsetY", () => Number, PlaneProjection, 0.0, (d, args) => (<Projection>d)._InvalidateProjection());
+        static GlobalOffsetZProperty: DependencyProperty = DependencyProperty.Register("GlobalOffsetZ", () => Number, PlaneProjection, 0.0, (d, args) => (<Projection>d)._InvalidateProjection());
+        static LocalOffsetXProperty: DependencyProperty = DependencyProperty.Register("LocalOffsetX", () => Number, PlaneProjection, 0.0, (d, args) => (<Projection>d)._InvalidateProjection());
+        static LocalOffsetYProperty: DependencyProperty = DependencyProperty.Register("LocalOffsetY", () => Number, PlaneProjection, 0.0, (d, args) => (<Projection>d)._InvalidateProjection());
+        static LocalOffsetZProperty: DependencyProperty = DependencyProperty.Register("LocalOffsetZ", () => Number, PlaneProjection, 0.0, (d, args) => (<Projection>d)._InvalidateProjection());
+        static RotationXProperty: DependencyProperty = DependencyProperty.Register("RotationX", () => Number, PlaneProjection, 0.0, (d, args) => (<Projection>d)._InvalidateProjection());
+        static RotationYProperty: DependencyProperty = DependencyProperty.Register("RotationY", () => Number, PlaneProjection, 0.0, (d, args) => (<Projection>d)._InvalidateProjection());
+        static RotationZProperty: DependencyProperty = DependencyProperty.Register("RotationZ", () => Number, PlaneProjection, 0.0, (d, args) => (<Projection>d)._InvalidateProjection());
+        CenterOfRotationX: number;
+        CenterOfRotationY: number;
+        CenterOfRotationZ: number;
+        GlobalOffsetX: number;
+        GlobalOffsetY: number;
+        GlobalOffsetZ: number;
+        LocalOffsetX: number;
+        LocalOffsetY: number;
+        LocalOffsetZ: number;
+        RotationX: number;
+        RotationY: number;
+        RotationZ: number;
+        private _ObjectWidth; //Defined in Projection
+        private _ObjectHeight; //Defined in Projection
+        GetDistanceFromXYPlane(): number {
+            var w = Math.max(this._ObjectWidth, 1.0);
+            var h = Math.max(this._ObjectHeight, 1.0);
+            var p = [w / 2.0, h / 2.0, 0.0, 1.0];
+            var m = this.GetTransform();
+            mat4.transformVec4(m, p, p);
+            if (p[3] === 0.0)
+                return NaN;
+            return XY_PLANE_Z - (p[2] / p[3]);
+        }
+        CreateProjectionMatrix3D(): Matrix3D {
+            var rotationX = this.RotationX;
+            var rotationY = this.RotationY;
+            var rotationZ = this.RotationZ;
+            var radiansX = (rotationX || 0.0) * PI_OVER_180;
+            var radiansY = (rotationY || 0.0) * PI_OVER_180;
+            var radiansZ = (rotationZ || 0.0) * PI_OVER_180;
+            var globalOffsetX = this.GlobalOffsetX;
+            var globalOffsetY = this.GlobalOffsetY;
+            var globalOffsetZ = this.GlobalOffsetZ;
+            var globalX = globalOffsetX || 0.0;
+            var globalY = globalOffsetY || 0.0;
+            var globalZ = globalOffsetZ || 0.0;
+            var localOffsetX = this.LocalOffsetX
+            var localOffsetY = this.LocalOffsetY
+            var localOffsetZ = this.LocalOffsetZ;
+            var localX = localOffsetX || 0.0;
+            var localY = localOffsetY || 0.0;
+            var localZ = localOffsetZ || 0.0;
+            var ow = this._ObjectWidth;
+            var oh = this._ObjectHeight;
+            var m = mat4.identity();
+            mat4.translate(mat4.identity(), ow * -this.CenterOfRotationX, oh * -this.CenterOfRotationY, -this.CenterOfRotationZ);
+            mat4.scale(m, 1.0, -1.0, 1.0);
+            mat4.translate(m, localX, -localY, localZ);
+            if (radiansX !== 0) {
+                var rotX = mat4.createRotateX(radiansX);
+                mat4.multiply(m, rotX, m);
+            }
+            if (radiansY !== 0) {
+                var rotY = mat4.createRotateY(-radiansY);
+                mat4.multiply(m, rotY, m);
+            }
+            if (radiansZ !== 0) {
+                var rotZ = mat4.createRotateZ(radiansZ);
+                mat4.multiply(m, rotZ, m);
+            }
+            mat4.translate(m, ow * (this.CenterOfRotationX - 0.5) + globalX, -oh * (this.CenterOfRotationY - 0.5) - globalY, this.CenterOfRotationZ - CAMERA_DIST + globalZ);
+            var perspective = mat4.createPerspective(FIELD_OF_VIEW, ow / oh, NEAR_VAL, FAR_VAL);
+            mat4.multiply(m, perspective, m);
+            var height = 2.0 * CAMERA_DIST * Math.tan(FIELD_OF_VIEW / 2.0);
+            var scale = height / oh;
+            mat4.scale(m, scale, scale, 1.0);
+            var viewport = mat4.createViewport(ow, oh);
+            mat4.multiply(m, viewport, m);
+            var r = new Matrix3D();
+            r._Raw = m;
+            return r;
+        }
+    }
+    Nullstone.RegisterType(PlaneProjection, "PlaneProjection");
 }
 
 module Fayde.Media {

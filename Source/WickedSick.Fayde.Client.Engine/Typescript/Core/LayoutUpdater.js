@@ -342,7 +342,8 @@ var Fayde;
                 return;
             }
             var objectSize = (uie instanceof Fayde.Shapes.Shape) ? this._GetShapeBrushSize(uie) : this._GetBrushSize();
-            var z = projection.GetDistanceFromXYPlane(objectSize);
+            projection.SetObjectSize(objectSize);
+            var z = projection.GetDistanceFromXYPlane();
             Fayde.Controls.Panel.SetZ(uie, z);
         };
         LayoutUpdater.prototype.ComputeTransform = function (uin, vplu) {
