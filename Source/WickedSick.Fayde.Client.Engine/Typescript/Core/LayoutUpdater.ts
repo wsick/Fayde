@@ -33,8 +33,6 @@ module Fayde {
         DirtyArrangeHint = 0x800,
         DirtyMeasureHint = 0x1000,
         DirtySizeHint = 0x2000,
-
-        RenderProjection = 0x4000,
     }
 
     export interface ILayoutPass {
@@ -101,6 +99,7 @@ module Fayde {
         TotalOpacity: number = 1.0;
         TotalIsRenderVisible: bool = true;
         TotalIsHitTestVisible: bool = true;
+        TotalRenderProjection: bool = false;
 
         Extents: rect = new rect();
         ExtentsWithChildren: rect = new rect();
@@ -414,9 +413,11 @@ module Fayde {
             if (vplu) {
                 mat3.set(vplu.AbsoluteXform, this.AbsoluteXform);
                 mat4.set(vplu.AbsoluteProjection, this.AbsoluteProjection);
+                this.TotalRenderProjection = vplu.TotalRenderProjection;
             } else {
                 mat3.identity(this.AbsoluteXform);
                 mat4.identity(this.AbsoluteProjection);
+                this.TotalRenderProjection = false;
             }
             var carrierProjection = this.CarrierProjection;
             var carrierXform = this.CarrierXform;
@@ -444,7 +445,7 @@ module Fayde {
             if (projection) {
                 m = projection.GetTransform();
                 mat4.multiply(m, this.LocalProjection, this.LocalProjection); //local = local * m
-                this.Flags |= UIElementFlags.RenderProjection;
+                this.TotalRenderProjection = true;
             }
 
             mat4.multiply(this.LocalProjection, this.AbsoluteProjection, this.AbsoluteProjection); //abs = abs * local

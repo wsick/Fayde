@@ -651,10 +651,6 @@ module Fayde {
         }
         private static _SerializeFlags(flags: UIElementFlags): string {
             var str = "";
-            if (flags & UIElementFlags.RenderProjection) {
-                flags &= ~UIElementFlags.RenderProjection;
-                str += "RP+";
-            }
             if (flags & UIElementFlags.DirtySizeHint) {
                 flags &= ~UIElementFlags.DirtySizeHint;
                 str += "S+";
@@ -4898,7 +4894,6 @@ module Fayde {
         DirtyArrangeHint = 0x800,
         DirtyMeasureHint = 0x1000,
         DirtySizeHint = 0x2000,
-        RenderProjection = 0x4000,
     }
     export interface ILayoutPass {
         MeasureList: LayoutUpdater[];
@@ -4957,6 +4952,7 @@ module Fayde {
         TotalOpacity: number = 1.0;
         TotalIsRenderVisible: bool = true;
         TotalIsHitTestVisible: bool = true;
+        TotalRenderProjection: bool = false;
         Extents: rect = new rect();
         ExtentsWithChildren: rect = new rect();
         Bounds: rect = new rect();
@@ -5212,9 +5208,11 @@ module Fayde {
             if (vplu) {
                 mat3.set(vplu.AbsoluteXform, this.AbsoluteXform);
                 mat4.set(vplu.AbsoluteProjection, this.AbsoluteProjection);
+                this.TotalRenderProjection = vplu.TotalRenderProjection;
             } else {
                 mat3.identity(this.AbsoluteXform);
                 mat4.identity(this.AbsoluteProjection);
+                this.TotalRenderProjection = false;
             }
             var carrierProjection = this.CarrierProjection;
             var carrierXform = this.CarrierXform;
@@ -5236,7 +5234,7 @@ module Fayde {
             if (projection) {
                 m = projection.GetTransform();
                 mat4.multiply(m, this.LocalProjection, this.LocalProjection); //local = local * m
-                this.Flags |= UIElementFlags.RenderProjection;
+                this.TotalRenderProjection = true;
             }
             mat4.multiply(this.LocalProjection, this.AbsoluteProjection, this.AbsoluteProjection); //abs = abs * local
             if (uin instanceof Controls.Primitives.PopupNode) {
@@ -20711,14 +20709,8 @@ module Fayde.Controls.Primitives {
             if (!child)
                 return;
             var childLu = child.XamlNode.LayoutUpdater;
-            var hasProjection: bool = hasLocalProjection;
-            var curNode: UINode = this;
-            while ((curNode = curNode.VisualParentNode) && !hasProjection) {
-                if (curNode.LayoutUpdater.Flags & UIElementFlags.RenderProjection)
-                    hasProjection = true;
-            }
             var popup = this.XObject;
-            if (hasProjection) {
+            if (lu.TotalRenderProjection) {
                 var projection = mat4.clone(lu.AbsoluteProjection);
                 var m = mat4.createTranslate(popup.HorizontalOffset, popup.VerticalOffset, 0.0);
                 mat4.multiply(m, projection, projection); //projection = projection * m

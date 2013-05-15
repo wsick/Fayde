@@ -284,10 +284,6 @@ var Fayde;
         };
         VisualTreeHelper._SerializeFlags = function _SerializeFlags(flags) {
             var str = "";
-            if(flags & Fayde.UIElementFlags.RenderProjection) {
-                flags &= ~Fayde.UIElementFlags.RenderProjection;
-                str += "RP+";
-            }
             if(flags & Fayde.UIElementFlags.DirtySizeHint) {
                 flags &= ~Fayde.UIElementFlags.DirtySizeHint;
                 str += "S+";

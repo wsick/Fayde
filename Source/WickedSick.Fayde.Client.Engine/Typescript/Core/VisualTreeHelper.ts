@@ -278,10 +278,6 @@ module Fayde {
         }
         private static _SerializeFlags(flags: UIElementFlags): string {
             var str = "";
-            if (flags & UIElementFlags.RenderProjection) {
-                flags &= ~UIElementFlags.RenderProjection;
-                str += "RP+";
-            }
             if (flags & UIElementFlags.DirtySizeHint) {
                 flags &= ~UIElementFlags.DirtySizeHint;
                 str += "S+";

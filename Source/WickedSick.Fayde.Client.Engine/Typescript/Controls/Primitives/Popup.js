@@ -116,15 +116,8 @@ var Fayde;
                         return;
                     }
                     var childLu = child.XamlNode.LayoutUpdater;
-                    var hasProjection = hasLocalProjection;
-                    var curNode = this;
-                    while((curNode = curNode.VisualParentNode) && !hasProjection) {
-                        if(curNode.LayoutUpdater.Flags & Fayde.UIElementFlags.RenderProjection) {
-                            hasProjection = true;
-                        }
-                    }
                     var popup = this.XObject;
-                    if(hasProjection) {
+                    if(lu.TotalRenderProjection) {
                         var projection = mat4.clone(lu.AbsoluteProjection);
                         var m = mat4.createTranslate(popup.HorizontalOffset, popup.VerticalOffset, 0.0);
                         mat4.multiply(m, projection, projection)//projection = projection * m

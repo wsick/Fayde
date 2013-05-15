@@ -31,7 +31,6 @@ var Fayde;
         UIElementFlags.DirtyArrangeHint = 2048;
         UIElementFlags.DirtyMeasureHint = 4096;
         UIElementFlags.DirtySizeHint = 8192;
-        UIElementFlags.RenderProjection = 16384;
     })(Fayde.UIElementFlags || (Fayde.UIElementFlags = {}));
     var UIElementFlags = Fayde.UIElementFlags;
     var maxPassCount = 250;
@@ -60,6 +59,7 @@ var Fayde;
             this.TotalOpacity = 1.0;
             this.TotalIsRenderVisible = true;
             this.TotalIsHitTestVisible = true;
+            this.TotalRenderProjection = false;
             this.Extents = new rect();
             this.ExtentsWithChildren = new rect();
             this.Bounds = new rect();
@@ -354,9 +354,11 @@ var Fayde;
             if(vplu) {
                 mat3.set(vplu.AbsoluteXform, this.AbsoluteXform);
                 mat4.set(vplu.AbsoluteProjection, this.AbsoluteProjection);
+                this.TotalRenderProjection = vplu.TotalRenderProjection;
             } else {
                 mat3.identity(this.AbsoluteXform);
                 mat4.identity(this.AbsoluteProjection);
+                this.TotalRenderProjection = false;
             }
             var carrierProjection = this.CarrierProjection;
             var carrierXform = this.CarrierXform;
@@ -385,7 +387,7 @@ var Fayde;
                 m = projection.GetTransform();
                 mat4.multiply(m, this.LocalProjection, this.LocalProjection)//local = local * m
                 ;
-                this.Flags |= UIElementFlags.RenderProjection;
+                this.TotalRenderProjection = true;
             }
             mat4.multiply(this.LocalProjection, this.AbsoluteProjection, this.AbsoluteProjection)//abs = abs * local
             ;
