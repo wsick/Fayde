@@ -495,6 +495,8 @@ var Fayde;
             };
             RawPath.Merge = function Merge(path1, path2) {
                 path1._Path = path1._Path.concat(path2._Path);
+                path1._EndX += path2._EndX;
+                path1._EndY += path2._EndY;
             };
             RawPath.prototype.Serialize = function () {
                 var s = "";

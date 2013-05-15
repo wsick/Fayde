@@ -505,6 +505,8 @@ module Fayde.Shapes {
 
         static Merge(path1: RawPath, path2: RawPath) {
             path1._Path = path1._Path.concat(path2._Path);
+            path1._EndX += path2._EndX;
+            path1._EndY += path2._EndY;
         }
 
         Serialize(): string {
