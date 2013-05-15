@@ -20,12 +20,18 @@ module Fayde.Shapes {
 
     export class RawPath {
         private _Path: IPathEntry[] = [];
+        private _EndX: number = 0.0;
+        private _EndY: number = 0.0;
+        get EndX(): number { return this._EndX; }
+        get EndY(): number { return this._EndY; }
         Move(x: number, y: number) {
             this._Path.push({
                 type: PathEntryType.Move,
                 x: x,
                 y: y
             });
+            this._EndX = x;
+            this._EndY = y;
         }
         Line(x: number, y: number) {
             this._Path.push({
@@ -33,6 +39,8 @@ module Fayde.Shapes {
                 x: x,
                 y: y
             });
+            this._EndX = x;
+            this._EndY = y;
         }
         Rect(x: number, y: number, width: number, height: number) {
             this._Path.push({
@@ -105,6 +113,8 @@ module Fayde.Shapes {
                 x: x,
                 y: y
             });
+            this._EndX = x;
+            this._EndY = y;
         }
         Bezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number) {
             this._Path.push({
@@ -116,6 +126,8 @@ module Fayde.Shapes {
                 x: x,
                 y: y
             });
+            this._EndX = x;
+            this._EndY = y;
         }
         Ellipse(x: number, y: number, width: number, height: number) {
             var radiusX = width / 2;
@@ -144,7 +156,7 @@ module Fayde.Shapes {
                 this.Close();
             }
         }
-        EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: bool, sweepDirectionFlag: bool, ex: number, ey: number) {
+        EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: bool, sweepDirectionFlag: Shapes.SweepDirection, ex: number, ey: number) {
             this._Path.push({
                 type: PathEntryType.EllipticalArc,
                 width: width,
@@ -154,7 +166,7 @@ module Fayde.Shapes {
                 sweepDirectionFlag: sweepDirectionFlag,
                 ex: ex,
                 ey: ey
-            });
+            })
         }
         Arc(x: number, y: number, r: number, sAngle: number, eAngle: number, aClockwise: bool) {
             this._Path.push({
@@ -176,6 +188,8 @@ module Fayde.Shapes {
                 y: y,
                 r: radius
             });
+            this._EndX = x;
+            this._EndY = y;
         }
         Close() {
             this._Path.push({
@@ -490,7 +504,7 @@ module Fayde.Shapes {
         }
 
         static Merge(path1: RawPath, path2: RawPath) {
-            NotImplemented("RawPath.Merge");
+            path1._Path = path1._Path.concat(path2._Path);
         }
 
         Serialize(): string {

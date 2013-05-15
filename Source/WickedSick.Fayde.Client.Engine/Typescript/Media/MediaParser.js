@@ -303,7 +303,10 @@ var Fayde;
                                 }
                                 var angle = this.ParseDouble();
                                 var is_large = this.ParseDouble() !== 0;
-                                var sweep = this.ParseDouble() !== 0;
+                                var sweep = Fayde.Shapes.SweepDirection.Counterclockwise;
+                                if(this.ParseDouble() !== 0) {
+                                    sweep = Fayde.Shapes.SweepDirection.Clockwise;
+                                }
                                 if((cp2 = this.ParsePoint()) == null) {
                                     break;
                                 }

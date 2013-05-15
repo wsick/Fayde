@@ -311,7 +311,8 @@ module Fayde.Media {
 
                             var angle = this.ParseDouble();
                             var is_large = this.ParseDouble() !== 0;
-                            var sweep = this.ParseDouble() !== 0;
+                            var sweep = Shapes.SweepDirection.Counterclockwise;
+                            if (this.ParseDouble() !== 0) sweep = Shapes.SweepDirection.Clockwise;
 
                             if ((cp2 = this.ParsePoint()) == null)
                                 break;

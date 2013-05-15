@@ -8,13 +8,31 @@ var Fayde;
         var RawPath = (function () {
             function RawPath() {
                 this._Path = [];
+                this._EndX = 0.0;
+                this._EndY = 0.0;
             }
+            Object.defineProperty(RawPath.prototype, "EndX", {
+                get: function () {
+                    return this._EndX;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(RawPath.prototype, "EndY", {
+                get: function () {
+                    return this._EndY;
+                },
+                enumerable: true,
+                configurable: true
+            });
             RawPath.prototype.Move = function (x, y) {
                 this._Path.push({
                     type: Shapes.PathEntryType.Move,
                     x: x,
                     y: y
                 });
+                this._EndX = x;
+                this._EndY = y;
             };
             RawPath.prototype.Line = function (x, y) {
                 this._Path.push({
@@ -22,6 +40,8 @@ var Fayde;
                     x: x,
                     y: y
                 });
+                this._EndX = x;
+                this._EndY = y;
             };
             RawPath.prototype.Rect = function (x, y, width, height) {
                 this._Path.push({
@@ -96,6 +116,8 @@ var Fayde;
                     x: x,
                     y: y
                 });
+                this._EndX = x;
+                this._EndY = y;
             };
             RawPath.prototype.Bezier = function (cp1x, cp1y, cp2x, cp2y, x, y) {
                 this._Path.push({
@@ -107,6 +129,8 @@ var Fayde;
                     x: x,
                     y: y
                 });
+                this._EndX = x;
+                this._EndY = y;
             };
             RawPath.prototype.Ellipse = function (x, y, width, height) {
                 var radiusX = width / 2;
@@ -169,6 +193,8 @@ var Fayde;
                     y: y,
                     r: radius
                 });
+                this._EndX = x;
+                this._EndY = y;
             };
             RawPath.prototype.Close = function () {
                 this._Path.push({
@@ -468,7 +494,7 @@ var Fayde;
                 return false;
             };
             RawPath.Merge = function Merge(path1, path2) {
-                NotImplemented("RawPath.Merge");
+                path1._Path = path1._Path.concat(path2._Path);
             };
             RawPath.prototype.Serialize = function () {
                 var s = "";

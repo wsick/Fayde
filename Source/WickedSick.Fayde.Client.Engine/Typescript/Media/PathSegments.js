@@ -31,7 +31,13 @@ var Fayde;
                 return new Enum(Fayde.Shapes.SweepDirection);
             }, ArcSegment, Fayde.Shapes.SweepDirection.Counterclockwise);
             ArcSegment.prototype._Append = function (path) {
-                NotImplemented("ArcSegment._Append");
+                var size = this.Size;
+                var width = size ? size.Width : 0.0;
+                var height = size ? size.Height : 0.0;
+                var endpt = this.Point;
+                var ex = endpt ? endpt.X : 0.0;
+                var ey = endpt ? endpt.Y : 0.0;
+                path.EllipticalArc(width, height, this.RotationAngle, this.IsLargeArc, this.SweepDirection, ex, ey);
             };
             return ArcSegment;
         })(Media.PathSegment);
@@ -53,7 +59,16 @@ var Fayde;
                 return Point;
             }, BezierSegment);
             BezierSegment.prototype._Append = function (path) {
-                NotImplemented("BezierSegment._Append");
+                var p1 = this.Point1;
+                var p2 = this.Point2;
+                var p3 = this.Point3;
+                var x1 = p1 ? p1.X : 0.0;
+                var y1 = p1 ? p1.Y : 0.0;
+                var x2 = p2 ? p2.X : 0.0;
+                var y2 = p2 ? p2.Y : 0.0;
+                var x3 = p3 ? p3.X : 0.0;
+                var y3 = p3 ? p3.Y : 0.0;
+                path.Bezier(x1, y1, x2, y2, x3, y3);
             };
             return BezierSegment;
         })(Media.PathSegment);
@@ -69,7 +84,10 @@ var Fayde;
                 return Point;
             }, LineSegment);
             LineSegment.prototype._Append = function (path) {
-                NotImplemented("LineSegment._Append");
+                var p = this.Point;
+                var x = p ? p.X : 0.0;
+                var y = p ? p.Y : 0.0;
+                path.Line(x, y);
             };
             return LineSegment;
         })(Media.PathSegment);
@@ -85,7 +103,22 @@ var Fayde;
                 ContentProperty: "Points"
             };
             PolyBezierSegment.prototype._Append = function (path) {
-                NotImplemented("PolyBezierSegment._Append");
+                var points = this.Points;
+                if(!points || (points.Count % 3) !== 0) {
+                    return;
+                }
+                var p1;
+                var p2;
+                var p3;
+                var enumerator = points.GetEnumerator();
+                while(enumerator.MoveNext()) {
+                    p1 = enumerator.Current;
+                    enumerator.MoveNext();
+                    p2 = enumerator.Current;
+                    enumerator.MoveNext();
+                    p3 = enumerator.Current;
+                    path.Bezier(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y);
+                }
             };
             return PolyBezierSegment;
         })(Media.PathSegment);
@@ -101,6 +134,12 @@ var Fayde;
                 ContentProperty: "Points"
             };
             PolyLineSegment.prototype._Append = function (path) {
+                var p;
+                var enumerator = this.Points.GetEnumerator();
+                while(enumerator.MoveNext()) {
+                    p = enumerator.Current;
+                    path.Line(p.X, p.Y);
+                }
                 NotImplemented("PolyLineSegment._Append");
             };
             return PolyLineSegment;
@@ -117,7 +156,35 @@ var Fayde;
                 ContentProperty: "Points"
             };
             PolyQuadraticBezierSegment.prototype._Append = function (path) {
-                NotImplemented("PolyQuadraticBezierSegment._Append");
+                var points = this.Points;
+                if(!points || (points.Count % 2) !== 0) {
+                    return;
+                }
+                var x0 = path.EndX;
+                var y0 = path.EndY;
+                var x1;
+                var y1;
+                var x2;
+                var y2;
+                var x3;
+                var y3;
+                var enumerator = points.GetEnumerator();
+                while(enumerator.MoveNext()) {
+                    x1 = enumerator.Current.X;
+                    y1 = enumerator.Current.Y;
+                    enumerator.MoveNext();
+                    x2 = enumerator.Current.X;
+                    y2 = enumerator.Current.Y;
+                    x3 = x2;
+                    y3 = y2;
+                    x2 = x1 + (x2 - x1) / 3;
+                    y2 = y1 + (y2 - y1) / 3;
+                    x1 = x0 + 2 * (x1 - x0) / 3;
+                    y1 = y0 + 2 * (y1 - y0) / 3;
+                    path.Bezier(x1, y1, x2, y2, x3, y3);
+                    x0 = x3;
+                    y0 = y3;
+                }
             };
             return PolyQuadraticBezierSegment;
         })(Media.PathSegment);
@@ -136,7 +203,13 @@ var Fayde;
                 return Point;
             }, QuadraticBezierSegment);
             QuadraticBezierSegment.prototype._Append = function (path) {
-                NotImplemented("QuadraticBezierSegment._Append");
+                var p1 = this.Point1;
+                var p2 = this.Point2;
+                var x1 = p1 ? p1.X : 0.0;
+                var y1 = p1 ? p1.Y : 0.0;
+                var x2 = p2 ? p2.X : 0.0;
+                var y2 = p2 ? p2.Y : 0.0;
+                path.Quadratic(x1, y1, x2, y2);
             };
             return QuadraticBezierSegment;
         })(Media.PathSegment);
