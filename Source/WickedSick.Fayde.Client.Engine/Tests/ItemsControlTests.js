@@ -63,7 +63,7 @@ test("ItemsControl.NonUIItems", function () {
     var o4 = {
         id: 4
     };
-    ic.Items.Insert(o4, 1);
+    ic.Items.Insert(1, o4);
     ok(icg.ContainerFromIndex(1) === icg.ContainerFromItem(o4), "Items.Insert: Container @ 1 should now match container for o4.");
     ok(icg.ContainerFromIndex(2) === icg.ContainerFromItem(o2), "Items.Insert: Container @ 2 should now match container for o2.");
     ok(icg.ContainerFromIndex(3) === icg.ContainerFromItem(o3), "Items.Insert: Container @ 3 should now match container for o3.");
@@ -150,7 +150,7 @@ test("ItemsControl.VirtualizingNonUIItems", function () {
     var o4 = {
         id: 4
     };
-    ic.Items.Insert(o4, 1);
+    ic.Items.Insert(1, o4);
     ic.Panel.Measure(size.createInfinite());
     ok(icg.ContainerFromIndex(1) === icg.ContainerFromItem(o4), "Items.Insert: Container @ 1 should now match container for o4.");
     ok(icg.ContainerFromIndex(2) === icg.ContainerFromItem(o2), "Items.Insert: Container @ 2 should now match container for o2.");

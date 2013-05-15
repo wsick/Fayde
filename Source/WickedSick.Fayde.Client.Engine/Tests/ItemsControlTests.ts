@@ -40,11 +40,11 @@ test("ItemsControl.NonUIItems", () => {
     var icg = ic.ItemContainerGenerator;
 
     var o1 = { id: 1 };
-    ic.Items.Add(o1);
+    ic.Items.Add(<any>o1);
     var o2 = { id: 2 };
-    ic.Items.Add(o2);
+    ic.Items.Add(<any>o2);
     var o3 = { id: 3 };
-    ic.Items.Add(o3);
+    ic.Items.Add(<any>o3);
     ok(icg.ItemFromContainer(icg.ContainerFromIndex(0)) === o1, "Items.Add: ItemFromContainerFromIndex0 should be o1.");
     ok(icg.ItemFromContainer(icg.ContainerFromIndex(1)) === o2, "Items.Add: ItemFromContainerFromIndex1 should be o2.");
     ok(icg.ItemFromContainer(icg.ContainerFromIndex(2)) === o3, "Items.Add: ItemFromContainerFromIndex2 should be o3.");
@@ -53,12 +53,12 @@ test("ItemsControl.NonUIItems", () => {
     ok(icg.ContainerFromIndex(2) === icg.ContainerFromItem(o3), "Items.Add: Container @ 2 should match container for o3.");
 
     var o4 = { id: 4 };
-    ic.Items.Insert(o4, 1);
+    ic.Items.Insert(1, <any>o4);
     ok(icg.ContainerFromIndex(1) === icg.ContainerFromItem(o4), "Items.Insert: Container @ 1 should now match container for o4.");
     ok(icg.ContainerFromIndex(2) === icg.ContainerFromItem(o2), "Items.Insert: Container @ 2 should now match container for o2.");
     ok(icg.ContainerFromIndex(3) === icg.ContainerFromItem(o3), "Items.Insert: Container @ 3 should now match container for o3.");
     
-    ic.Items.Remove(o4);
+    ic.Items.Remove(<any>o4);
     ok(icg.ContainerFromItem(o4) === undefined, "Items.Remove: Container from o4 should no longer exist.");
     ok(icg.ContainerFromIndex(1) === icg.ContainerFromItem(o2), "Items.Remove: Container @ 1 should now match container for o2.");
     ok(icg.ContainerFromIndex(2) === icg.ContainerFromItem(o3), "Items.Remove: Container @ 2 should now match container for o3.");
@@ -120,11 +120,11 @@ test("ItemsControl.VirtualizingNonUIItems", () => {
     var icg = ic.ItemContainerGenerator;
 
     var o1 = { id: 1 };
-    ic.Items.Add(o1);
+    ic.Items.Add(<any>o1);
     var o2 = { id: 2 };
-    ic.Items.Add(o2);
+    ic.Items.Add(<any>o2);
     var o3 = { id: 3 };
-    ic.Items.Add(o3);
+    ic.Items.Add(<any>o3);
     ic.Panel.Measure(size.createInfinite());
     ok(icg.ItemFromContainer(icg.ContainerFromIndex(0)) === o1, "Items.Add: ItemFromContainerFromIndex0 should be o1.");
     ok(icg.ItemFromContainer(icg.ContainerFromIndex(1)) === o2, "Items.Add: ItemFromContainerFromIndex1 should be o2.");
@@ -134,13 +134,13 @@ test("ItemsControl.VirtualizingNonUIItems", () => {
     ok(icg.ContainerFromIndex(2) === icg.ContainerFromItem(o3), "Items.Add: Container @ 2 should match container for o3.");
 
     var o4 = { id: 4 };
-    ic.Items.Insert(o4, 1);
+    ic.Items.Insert(1, <any>o4);
     ic.Panel.Measure(size.createInfinite());
     ok(icg.ContainerFromIndex(1) === icg.ContainerFromItem(o4), "Items.Insert: Container @ 1 should now match container for o4.");
     ok(icg.ContainerFromIndex(2) === icg.ContainerFromItem(o2), "Items.Insert: Container @ 2 should now match container for o2.");
     ok(icg.ContainerFromIndex(3) === icg.ContainerFromItem(o3), "Items.Insert: Container @ 3 should now match container for o3.");
     
-    ic.Items.Remove(o4);
+    ic.Items.Remove(<any>o4);
     ic.Panel.Measure(size.createInfinite());
     ok(icg.ContainerFromItem(o4) === undefined, "Items.Remove: Container from o4 should no longer exist.");
     ok(icg.ContainerFromIndex(1) === icg.ContainerFromItem(o2), "Items.Remove: Container @ 1 should now match container for o2.");
