@@ -87,7 +87,7 @@ var Fayde;
                     this._TwoWayTextBox.LostFocus.Subscribe(this._TextBoxLostFocus, this);
                 }
                 if(this.Binding.Mode === Data.BindingMode.TwoWay && this.Property.IsCustom) {
-                    this._PropertyListener = Fayde.ListenToPropertyChanged(this.Target, this.Property, this._UpdateSourceCallback, this);
+                    this._PropertyListener = this.Property.Store.ListenToChanged(this.Target, this.Property, this._UpdateSourceCallback, this);
                 }
             };
             BindingExpressionBase.prototype._UpdateSourceCallback = function (sender, args) {
@@ -247,7 +247,7 @@ var Fayde;
                     if(!this.PropertyPathWalker.IsPathBroken && binding.Converter) {
                         value = binding.Converter.Convert(value, this.Property.GetTargetType(), binding.ConverterParameter, binding.ConverterCulture);
                     }
-                    if(value instanceof Fayde.UnsetValue || this.PropertyPathWalker.IsPathBroken) {
+                    if(value === Fayde.UnsetValue || this.PropertyPathWalker.IsPathBroken) {
                         value = binding.FallbackValue;
                         if(value === undefined) {
                             value = propd.DefaultValue;

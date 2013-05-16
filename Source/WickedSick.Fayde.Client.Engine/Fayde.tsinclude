@@ -3,11 +3,11 @@ Typescript\Controls\ItemContainerGenerator.ts
 Typescript\Controls\Primitives\ScrollData.ts
 Typescript\Core\Clone.ts
 Typescript\Core\Enums.ts
-Typescript\Core\PropertyChangedListener.ts
 Typescript\Core\VisualTreeHelper.ts
 Typescript\Core\Walkers.ts
-Typescript\Core\Providers\Enums.ts
-Typescript\Core\Providers\IProviderStore.ts
+Typescript\Core\Providers\ImplicitStyleBroker.ts
+Typescript\Core\Providers\LocalStyleBroker.ts
+Typescript\Core\Providers\PropertyStore.ts
 Typescript\Data\Enums.ts
 Typescript\Data\PropertyPathParser.ts
 Typescript\Data\PropertyPathWalker.ts
@@ -16,8 +16,8 @@ Typescript\Engine\Interfaces.ts
 Typescript\Engine\XamlResolver.ts
 Typescript\Media\Enums.ts
 Typescript\Media\GradientMetrics.ts
-Typescript\Media\Matrix3D.ts
 Typescript\Media\MediaParser.ts
+Typescript\Media\Animation\AnimationStore.ts
 Typescript\Media\Animation\Curves.ts
 Typescript\Media\Animation\Enums.ts
 Typescript\Primitives\RawMatrix.ts
@@ -44,14 +44,9 @@ Typescript\Core\StaticResourceExpression.ts
 Typescript\Core\TemplateBindingExpression.ts
 Typescript\Core\XamlNode.ts
 Typescript\Core\XamlObject.ts
-Typescript\Core\Providers\BasicProviderStore.ts
-Typescript\Core\Providers\FrameworkElementDynamicProvider.ts
-Typescript\Core\Providers\ImplicitStyleProvider.ts
-Typescript\Core\Providers\InheritedDataContextProvider.ts
-Typescript\Core\Providers\InheritedIsEnabledProvider.ts
-Typescript\Core\Providers\InheritedProvider.ts
-Typescript\Core\Providers\InheritedProviderStore.ts
-Typescript\Core\Providers\LocalStyleProvider.ts
+Typescript\Core\Providers\DataContextStore.ts
+Typescript\Core\Providers\InheritedStore.ts
+Typescript\Core\Providers\IsEnabledStore.ts
 Typescript\Data\BindingBase.ts
 Typescript\Data\BindingExpressionBase.ts
 Typescript\Data\ICollectionView.ts
@@ -68,6 +63,7 @@ Typescript\Markup\Markup.ts
 Typescript\Markup\StaticResourceMarkup.ts
 Typescript\Markup\TemplateBindingMarkup.ts
 Typescript\Media\Matrix.ts
+Typescript\Media\Matrix3D.ts
 Typescript\Media\Animation\AnimationStorage.ts
 Typescript\Media\Animation\RepeatBehavior.ts
 Typescript\Navigation\NavService.ts
@@ -98,6 +94,7 @@ Typescript\Controls\Primitives\SelectionChangedEventArgs.ts
 Typescript\Core\DataTemplate.ts
 Typescript\Core\DeferredValueExpression.ts
 Typescript\Core\DependencyObject.ts
+Typescript\Core\InheritableOwner.ts
 Typescript\Core\INotifyPropertyChanged.ts
 Typescript\Core\ResourceTarget.ts
 Typescript\Core\RoutedEvent.ts
@@ -106,7 +103,6 @@ Typescript\Core\RoutedPropertyChangedEventArgs.ts
 Typescript\Core\SizeChangedEventArgs.ts
 Typescript\Core\Style.ts
 Typescript\Core\XamlObjectCollection.ts
-Typescript\Core\Providers\FrameworkProviderStore.ts
 Typescript\Data\Binding.ts
 Typescript\Data\BindingExpression.ts
 Typescript\Data\CollectionViewSource.ts
@@ -155,7 +151,6 @@ Typescript\Core\ResourceDictionary.ts
 Typescript\Core\Setter.ts
 Typescript\Core\Triggers.ts
 Typescript\Core\UIElement.ts
-Typescript\Core\Providers\ControlProviderStore.ts
 Typescript\Documents\Block.ts
 Typescript\Documents\Inline.ts
 Typescript\Documents\LineBreak.ts

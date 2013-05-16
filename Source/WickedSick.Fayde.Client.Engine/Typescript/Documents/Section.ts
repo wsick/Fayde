@@ -23,7 +23,7 @@ module Fayde.Documents {
         }
         private BlocksChanged(newBlock: Block, isAdd: bool) {
             if (isAdd)
-                this._Store.PropagateInheritedOnAdd(newBlock.XamlNode);
+                Providers.InheritedStore.PropagateInheritedOnAdd(this, newBlock.XamlNode);
         }
     }
     Nullstone.RegisterType(Section, "Section");

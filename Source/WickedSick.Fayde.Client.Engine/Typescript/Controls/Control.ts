@@ -1,7 +1,6 @@
 /// <reference path="../Core/FrameworkElement.ts" />
 /// CODE
-/// <reference path="../Core/Providers/ControlProviderStore.ts" />
-/// <reference path="../Core/Providers/InheritedIsEnabledProvider.ts" />
+/// <reference path="../Core/Providers/IsEnabledStore.ts" />
 /// <reference path="../Media/VSM/VisualStateManager.ts" />
 
 module Fayde.Controls {
@@ -50,7 +49,7 @@ module Fayde.Controls {
 
         OnIsAttachedChanged(newIsAttached: bool) {
             super.OnIsAttachedChanged(newIsAttached);
-            //TODO: Propagate IsEnabled DataSource
+            Providers.IsEnabledStore.InitIsEnabledSource(this);
             if (!newIsAttached)
                 Media.VSM.VisualStateManager.DestroyStoryboards(this.XObject, this.TemplateRoot);
         }
@@ -102,39 +101,25 @@ module Fayde.Controls {
 
     export class Control extends FrameworkElement {
         XamlNode: ControlNode;
-        _Store: Providers.ControlProviderStore;
-        CreateStore(): Providers.ControlProviderStore {
-            var s = new Providers.ControlProviderStore(this);
-            s.SetProviders([
-                new Providers.InheritedIsEnabledProvider(s),
-                new Providers.LocalValueProvider(),
-                new Providers.LocalStyleProvider(s),
-                new Providers.ImplicitStyleProvider(s),
-                new Providers.InheritedProvider(),
-                new Providers.InheritedDataContextProvider(s),
-                new Providers.DefaultValueProvider()]
-            );
-            return s;
-        }
         CreateNode(): ControlNode { return new ControlNode(this); }
 
         static BackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Control);
         static BorderBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderBrush", () => Media.Brush, Control);
         static BorderThicknessProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderThickness", () => Thickness, Control, undefined, (d, args) => (<Control>d)._BorderThicknessChanged(args));
-        static FontFamilyProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontFamily", () => String, Control, Font.DEFAULT_FAMILY, undefined, Providers._Inheritable.FontFamily);
-        static FontSizeProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontSize", () => Number, Control, Font.DEFAULT_SIZE, undefined, Providers._Inheritable.FontSize);
-        static FontStretchProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStretch", () => String, Control, Font.DEFAULT_STRETCH, undefined, Providers._Inheritable.FontStretch);
-        static FontStyleProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStyle", () => String, Control, Font.DEFAULT_STYLE, undefined, Providers._Inheritable.FontStyle);
-        static FontWeightProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontWeight", () => new Enum(FontWeight), Control, Font.DEFAULT_WEIGHT, undefined, Providers._Inheritable.FontWeight);
-        static ForegroundProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Foreground", () => Media.Brush, Control, undefined, undefined, Providers._Inheritable.Foreground);
-        static HorizontalContentAlignmentProperty: DependencyProperty = DependencyProperty.RegisterCore("HorizontalContentAlignment", () => new Enum(HorizontalAlignment), Control, HorizontalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
-        static IsEnabledProperty: DependencyProperty = DependencyProperty.RegisterCore("IsEnabled", () => Boolean, Control, true, (d, args) => (<Control>d)._IsEnabledChanged(args));
+        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty;
+        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty;
+        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty;
+        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty;
+        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty;
+        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty;
+        static HorizontalContentAlignmentProperty: DependencyProperty = DependencyProperty.Register("HorizontalContentAlignment", () => new Enum(HorizontalAlignment), Control, HorizontalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
+        static IsEnabledProperty: DependencyProperty = DependencyProperty.Register("IsEnabled", () => Boolean, Control, true, (d, args) => (<Control>d)._IsEnabledChanged(args));
         static IsTabStopProperty: DependencyProperty = DependencyProperty.Register("IsTabStop", () => Boolean, Control, true);
         static PaddingProperty: DependencyProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, Control, undefined, (d, args) => (<Control>d)._BorderThicknessChanged(args));
         static TabIndexProperty: DependencyProperty = DependencyProperty.Register("TabIndex", () => Number, Control);
         static TabNavigationProperty: DependencyProperty = DependencyProperty.Register("TabNavigation", () => new Enum(Input.KeyboardNavigationMode), Control, Input.KeyboardNavigationMode.Local);
         static TemplateProperty: DependencyProperty = DependencyProperty.RegisterCore("Template", () => ControlTemplate, Control, undefined, (d, args) => (<Control>d)._TemplateChanged(args));
-        static VerticalContentAlignmentProperty: DependencyProperty = DependencyProperty.RegisterCore("VerticalContentAlignment", () => new Enum(VerticalAlignment), Control, VerticalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
+        static VerticalContentAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalContentAlignment", () => new Enum(VerticalAlignment), Control, VerticalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
         static DefaultStyleKeyProperty: DependencyProperty = DependencyProperty.Register("DefaultStyleKey", () => Function, Control);
 
         Background: Media.Brush;
@@ -253,4 +238,6 @@ module Fayde.Controls {
         }
     }
     Nullstone.RegisterType(Control, "Control");
+
+    Control.IsEnabledProperty.Store = Providers.IsEnabledStore.Instance;
 }

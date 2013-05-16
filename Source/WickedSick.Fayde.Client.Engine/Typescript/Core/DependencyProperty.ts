@@ -1,6 +1,8 @@
-/// <reference path="Providers/Enums.ts" />
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="DependencyObject.ts" />
+/// <reference path="Providers/PropertyStore.ts" />
+/// <reference path="Providers/InheritedStore.ts" />
 
 interface IDependencyPropertyChangedEventArgs {
     Property: DependencyProperty;
@@ -23,9 +25,10 @@ class DependencyProperty {
     IsReadOnly: bool = false;
     IsCustom: bool = true;
     IsAttached: bool = false;
-    Inheritable: number = 0;
+    Inheritable: Fayde.Providers.Inheritable = Fayde.Providers.Inheritable.None;
     ChangedCallback: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void;
     AlwaysChange: bool = false;
+    Store: Fayde.Providers.PropertyStore;
     private _Coercer: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any = null;
     private _Validator: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => bool = null;
 
@@ -36,6 +39,7 @@ class DependencyProperty {
         propd.OwnerType = ownerType;
         propd.DefaultValue = defaultValue;
         propd.ChangedCallback = changedCallback;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
         propd.FinishRegister();
         return propd;
     }
@@ -47,6 +51,7 @@ class DependencyProperty {
         propd.DefaultValue = defaultValue;
         propd.ChangedCallback = changedCallback;
         propd.IsReadOnly = true;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
         propd.FinishRegister();
         return propd;
     }
@@ -58,6 +63,7 @@ class DependencyProperty {
         propd.DefaultValue = defaultValue;
         propd.ChangedCallback = changedCallback;
         propd.IsAttached = true;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
         propd.FinishRegister();
         return propd;
     }
@@ -70,6 +76,7 @@ class DependencyProperty {
         propd.DefaultValue = defaultValue;
         propd.ChangedCallback = changedCallback;
         propd.IsCustom = false;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
         propd.FinishRegister();
         return propd;
     }
@@ -82,6 +89,7 @@ class DependencyProperty {
         propd.ChangedCallback = changedCallback;
         propd.IsCustom = false;
         propd.IsReadOnly = true;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
         propd.FinishRegister();
         return propd;
     }
@@ -94,30 +102,33 @@ class DependencyProperty {
         propd.ChangedCallback = changedCallback;
         propd.IsCustom = false;
         propd.IsAttached = true;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
         propd.FinishRegister();
         return propd;
     }
     
-    static RegisterInheritable(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void, inheritable?) {
+    static RegisterInheritable(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void, inheritable?: Fayde.Providers.Inheritable) {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
         propd.OwnerType = ownerType;
         propd.DefaultValue = defaultValue;
         propd.ChangedCallback = changedCallback;
-        propd.IsCustom = false;
+        propd.IsCustom = true;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
         propd.Inheritable = inheritable;
         if (inheritable !== undefined) {
             var i = _Inherited;
             if (!i[inheritable])
                 i[inheritable] = [];
             i[inheritable].push(propd);
+            propd.Store = Fayde.Providers.InheritedStore.Instance;
         }
         propd.FinishRegister();
         return propd;
     }
 
-    static RegisterFull(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void, coercer?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any, alwaysChange?: bool, validator?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => bool, isCustom?: bool, isReadOnly?: bool, isAttached?: bool, inheritable?): DependencyProperty {
+    static RegisterFull(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void, coercer?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any, alwaysChange?: bool, validator?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => bool, isCustom?: bool, isReadOnly?: bool, isAttached?: bool, inheritable?: Fayde.Providers.Inheritable): DependencyProperty {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -130,12 +141,14 @@ class DependencyProperty {
         propd.IsCustom = isCustom !== false;
         propd.IsReadOnly = isReadOnly === true;
         propd.IsAttached = isAttached === true;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
         propd.Inheritable = inheritable;
         if (inheritable !== undefined) {
             var i = _Inherited;
             if (!i[inheritable])
                 i[inheritable] = [];
             i[inheritable].push(propd);
+            propd.Store = Fayde.Providers.InheritedStore.Instance;
         }
         propd.FinishRegister();
         return propd;
@@ -180,7 +193,7 @@ class DependencyProperty {
         return coerced;
     }
 
-    static GetDependencyProperty(ownerType: Function, name: string, noError?: bool) {
+    static GetDependencyProperty(ownerType: Function, name: string, noError?: bool): DependencyProperty {
         if (!ownerType)
             return undefined;
         var reg: DependencyProperty[] = (<any>ownerType)._RegisteredDPs;

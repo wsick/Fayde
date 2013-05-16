@@ -3,7 +3,7 @@ var DependencyProperty = (function () {
         this.IsReadOnly = false;
         this.IsCustom = true;
         this.IsAttached = false;
-        this.Inheritable = 0;
+        this.Inheritable = Fayde.Providers.Inheritable.None;
         this.AlwaysChange = false;
         this._Coercer = null;
         this._Validator = null;
@@ -18,6 +18,7 @@ var DependencyProperty = (function () {
         propd.OwnerType = ownerType;
         propd.DefaultValue = defaultValue;
         propd.ChangedCallback = changedCallback;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
         propd.FinishRegister();
         return propd;
     };
@@ -29,6 +30,7 @@ var DependencyProperty = (function () {
         propd.DefaultValue = defaultValue;
         propd.ChangedCallback = changedCallback;
         propd.IsReadOnly = true;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
         propd.FinishRegister();
         return propd;
     };
@@ -40,6 +42,7 @@ var DependencyProperty = (function () {
         propd.DefaultValue = defaultValue;
         propd.ChangedCallback = changedCallback;
         propd.IsAttached = true;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
         propd.FinishRegister();
         return propd;
     };
@@ -51,6 +54,7 @@ var DependencyProperty = (function () {
         propd.DefaultValue = defaultValue;
         propd.ChangedCallback = changedCallback;
         propd.IsCustom = false;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
         propd.FinishRegister();
         return propd;
     };
@@ -63,6 +67,7 @@ var DependencyProperty = (function () {
         propd.ChangedCallback = changedCallback;
         propd.IsCustom = false;
         propd.IsReadOnly = true;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
         propd.FinishRegister();
         return propd;
     };
@@ -75,6 +80,7 @@ var DependencyProperty = (function () {
         propd.ChangedCallback = changedCallback;
         propd.IsCustom = false;
         propd.IsAttached = true;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
         propd.FinishRegister();
         return propd;
     };
@@ -85,7 +91,8 @@ var DependencyProperty = (function () {
         propd.OwnerType = ownerType;
         propd.DefaultValue = defaultValue;
         propd.ChangedCallback = changedCallback;
-        propd.IsCustom = false;
+        propd.IsCustom = true;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
         propd.Inheritable = inheritable;
         if(inheritable !== undefined) {
             var i = DependencyProperty._Inherited;
@@ -93,6 +100,7 @@ var DependencyProperty = (function () {
                 i[inheritable] = [];
             }
             i[inheritable].push(propd);
+            propd.Store = Fayde.Providers.InheritedStore.Instance;
         }
         propd.FinishRegister();
         return propd;
@@ -110,6 +118,7 @@ var DependencyProperty = (function () {
         propd.IsCustom = isCustom !== false;
         propd.IsReadOnly = isReadOnly === true;
         propd.IsAttached = isAttached === true;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
         propd.Inheritable = inheritable;
         if(inheritable !== undefined) {
             var i = DependencyProperty._Inherited;
@@ -117,6 +126,7 @@ var DependencyProperty = (function () {
                 i[inheritable] = [];
             }
             i[inheritable].push(propd);
+            propd.Store = Fayde.Providers.InheritedStore.Instance;
         }
         propd.FinishRegister();
         return propd;

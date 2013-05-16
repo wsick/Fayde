@@ -6,6 +6,7 @@ var Fayde;
         /// <reference path="AnimationBase.ts"/>
         /// <reference path="../../Core/DependencyObject.ts"/>
         /// <reference path="../../Core/DependencyProperty.ts"/>
+        /// <reference path="AnimationStore.ts"/>
         (function (Animation) {
             var AnimationStorage = (function () {
                 function AnimationStorage(animation, targetObj, targetProp) {
@@ -14,9 +15,8 @@ var Fayde;
                     this._Animation = animation;
                     this._TargetObj = targetObj;
                     this._TargetProp = targetProp;
-                    var store = targetObj._Store;
-                    var prevStorage = store._AttachAnimationStorage(targetProp, this);
-                    this._BaseValue = store.GetValue(targetProp);
+                    var prevStorage = Animation.AnimationStore.Attach(targetObj, targetProp, this);
+                    this._BaseValue = targetObj.GetValue(targetProp);
                     if(this._BaseValue === undefined) {
                         var targetType = targetProp.GetTargetType();
                         if(targetType === Number) {
@@ -30,7 +30,7 @@ var Fayde;
                     if(prevStorage) {
                         this.StopValue = prevStorage.StopValue;
                     } else {
-                        this.StopValue = store.ReadLocalValue(targetProp);
+                        this.StopValue = targetObj.ReadLocalValue(targetProp);
                     }
                 }
                 AnimationStorage.prototype.SwitchTarget = function (target) {
@@ -61,7 +61,7 @@ var Fayde;
                     if(!tp) {
                         return;
                     }
-                    to._Store._DetachAnimationStorage(tp, this);
+                    Animation.AnimationStore.Detach(to, tp, this);
                 };
                 AnimationStorage.prototype.ResetPropertyValue = function () {
                     var to = this._TargetObj;
@@ -72,7 +72,7 @@ var Fayde;
                     if(!tp) {
                         return;
                     }
-                    to._Store.SetValue(tp, this.StopValue);
+                    to.SetStoreValue(tp, this.StopValue);
                 };
                 AnimationStorage.prototype.UpdateCurrentValueAndApply = function (clockData) {
                     if(this._Disabled) {
@@ -94,7 +94,7 @@ var Fayde;
                     }
                     //var that = this;
                     //AnimationDebug(function () { return "ApplyCurrentValue: [" + that._TargetObj.constructor._TypeName + "." + that._TargetProp.Name + "] --> " + that._CurrentValue.toString(); });
-                    this._TargetObj._Store.SetValue(this._TargetProp, this._CurrentValue);
+                    this._TargetObj.SetStoreValue(this._TargetProp, this._CurrentValue);
                 };
                 return AnimationStorage;
             })();

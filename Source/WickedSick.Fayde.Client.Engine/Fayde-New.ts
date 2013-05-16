@@ -383,22 +383,6 @@ module Fayde {
 }
 
 module Fayde {
-    export function CreatePropertyChangedListener(property: DependencyProperty, func: (sender, args: IDependencyPropertyChangedEventArgs) => void , closure: any): Providers.IPropertyChangedListener {
-        return {
-            Detach: function () { },
-            Property: property,
-            OnPropertyChanged: function (sender: DependencyObject, args: IDependencyPropertyChangedEventArgs) { func.call(closure, sender, args); }
-        };
-    }
-    export function ListenToPropertyChanged(target: DependencyObject, property: DependencyProperty, func: (sender, args: IDependencyPropertyChangedEventArgs) => void , closure: any): Providers.IPropertyChangedListener {
-        var listener = CreatePropertyChangedListener(property, func, closure);
-        listener.Detach = function () { target._Store._UnsubscribePropertyChanged(listener); };
-        target._Store._SubscribePropertyChanged(listener);
-        return listener;
-    }
-}
-
-module Fayde {
     export class VisualTreeHelper {
         static GetParent(d: DependencyObject): DependencyObject {
             if (!(d instanceof FrameworkElement))
@@ -923,67 +907,400 @@ module Fayde {
 }
 
 module Fayde.Providers {
-    export enum _PropertyPrecedence {
-        IsEnabled = 0,
-        LocalValue = 1,
-        DynamicValue = 2,
-        LocalStyle = 3,
-        ImplicitStyle = 4,
-        Inherited = 5,
-        InheritedDataContext = 6,
-        DefaultValue = 7,
-        AutoCreate = 8,
-        Lowest = 8,
-        Highest = 0,
-        Count = 9,
-    }
-    export enum _StyleIndex {
+    export enum StyleIndex {
         VisualTree = 0,
         ApplicationResources = 1,
         GenericXaml = 2,
         Count = 3,
     }
-    export enum _StyleMask {
+    export enum StyleMask {
         None = 0,
-        VisualTree = 1 << _StyleIndex.VisualTree,
-        ApplicationResources = 1 << _StyleIndex.ApplicationResources,
-        GenericXaml = 1 << _StyleIndex.GenericXaml,
-        All = _StyleMask.VisualTree | _StyleMask.ApplicationResources | _StyleMask.GenericXaml,
+        VisualTree = 1 << StyleIndex.VisualTree,
+        ApplicationResources = 1 << StyleIndex.ApplicationResources,
+        GenericXaml = 1 << StyleIndex.GenericXaml,
+        All = StyleMask.VisualTree | StyleMask.ApplicationResources | StyleMask.GenericXaml,
     }
-    export enum _Inheritable {
-        Foreground = 1 << 0,
-        FontFamily = 1 << 1,
-        FontStretch = 1 << 2,
-        FontStyle = 1 << 3,
-        FontWeight = 1 << 4,
-        FontSize = 1 << 5,
-        Language = 1 << 6,
-        FlowDirection = 1 << 7,
-        UseLayoutRounding = 1 << 8,
-        TextDecorations = 1 << 9,
-        All = 0x7ff,
-        None = 0,
+    export interface IImplicitStyleHolder {
+        _ImplicitStyles: Style[];
+        _StyleMask: number;
+    }
+    export class ImplicitStyleBroker {
+        static Set(fe: FrameworkElement, mask: StyleMask, styles?: Style[]) {
+            if (!styles)
+                styles = ImplicitStyleBroker.GetImplicitStyles(fe, mask);
+            if (styles) {
+                var error = new BError();
+                var len = StyleIndex.Count;
+                for (var i = 0; i < len; i++) {
+                    var style = styles[i];
+                    if (!style)
+                        continue;
+                    if (!style.Validate(fe, error)) {
+                        error.ThrowException();
+                        return;
+                    }
+                }
+            }
+            ImplicitStyleBroker.SetImpl(fe, mask, styles);
+        }
+        private static SetImpl(fe: FrameworkElement, mask: StyleMask, styles: Style[]) {
+            if (!styles)
+                return;
+            var oldStyles = (<IImplicitStyleHolder>fe.XamlNode)._ImplicitStyles;
+            var newStyles: Style[] = [null, null, null];
+            if (oldStyles) {
+                newStyles[StyleIndex.GenericXaml] = oldStyles[StyleIndex.GenericXaml];
+                newStyles[StyleIndex.ApplicationResources] = oldStyles[StyleIndex.ApplicationResources];
+                newStyles[StyleIndex.VisualTree] = oldStyles[StyleIndex.VisualTree];
+            }
+            if (mask & StyleMask.GenericXaml)
+                newStyles[StyleIndex.GenericXaml] = styles[StyleIndex.GenericXaml];
+            if (mask & StyleMask.ApplicationResources)
+                newStyles[StyleIndex.ApplicationResources] = styles[StyleIndex.ApplicationResources];
+            if (mask & StyleMask.VisualTree)
+                newStyles[StyleIndex.VisualTree] = styles[StyleIndex.VisualTree];
+            ImplicitStyleBroker.ApplyStyles(fe, mask, styles);
+        }
+        static Clear(fe: FrameworkElement, mask: StyleMask) {
+            var holder = <IImplicitStyleHolder>fe.XamlNode;
+            var oldStyles = holder._ImplicitStyles;
+            if (!oldStyles)
+                return;
+            var newStyles = oldStyles.slice(0);
+            if (mask & StyleMask.GenericXaml)
+                newStyles[StyleIndex.GenericXaml] = null;
+            if (mask & StyleMask.ApplicationResources)
+                newStyles[StyleIndex.ApplicationResources] = null;
+            if (mask & StyleMask.VisualTree)
+                newStyles[StyleIndex.VisualTree] = null;
+            ImplicitStyleBroker.ApplyStyles(fe, holder._StyleMask & ~mask, newStyles);
+        }
+        private static ApplyStyles(fe: FrameworkElement, mask: StyleMask, styles: Style[]) {
+            var holder = <IImplicitStyleHolder>fe.XamlNode;
+            var oldStyles = holder._ImplicitStyles;
+            var isChanged = !oldStyles || mask !== holder._StyleMask;
+            if (!isChanged) {
+                for (var i = 0; i < StyleIndex.Count; i++) {
+                    if (styles[i] !== oldStyles[i]) {
+                        isChanged = true;
+                        break;
+                    }
+                }
+            }
+            if (!isChanged)
+                return;
+            var arr = (<IPropertyStorageOwner>fe)._PropertyStorage;
+            var store = PropertyStore.Instance;
+            var oldWalker = MultipleStylesWalker(oldStyles);
+            var newWalker = MultipleStylesWalker(styles);
+            var oldSetter = oldWalker.Step();
+            var newSetter = newWalker.Step();
+            var oldProp: DependencyProperty;
+            var newProp: DependencyProperty;
+            var storage: IPropertyStorage;
+            var oldValue = undefined;
+            var newValue = undefined;
+            var propd: DependencyProperty;
+            while (oldSetter || newSetter) {
+                if (oldSetter) {
+                    propd = oldProp = oldSetter.Property;
+                    oldValue = oldSetter.ConvertedValue;
+                }
+                if (newSetter) {
+                    propd = newProp = newSetter.Property;
+                    newValue = newSetter.ConvertedValue;
+                }
+                storage = arr[propd._ID];
+                if (!storage)
+                    storage = arr[propd._ID] = store.CreateStorage(fe, propd);
+                store.SetImplicitStyle(storage, newValue);
+                if (oldProp)
+                    oldSetter = oldWalker.Step();
+                if (newProp)
+                    newSetter = newWalker.Step();
+            }
+            holder._ImplicitStyles = styles;
+            holder._StyleMask = mask;
+        }
+        private static GetImplicitStyles(fe: FrameworkElement, mask: StyleMask) {
+            var feType = (<any>fe).constructor;
+            var feTypeName = (<any>feType)._TypeName;
+            var genericXamlStyle: Style = undefined;
+            if ((mask & StyleMask.GenericXaml) != 0) {
+                if (fe instanceof Controls.Control) {
+                    genericXamlStyle = (<Controls.Control>fe).GetDefaultStyle();
+                    if (!genericXamlStyle) {
+                        var styleKey = fe.DefaultStyleKey;
+                        if (styleKey)
+                            genericXamlStyle = ImplicitStyleBroker.GetGenericXamlStyleFor(styleKey);
+                    }
+                }
+            }
+            var appResourcesStyle: Style = undefined;
+            var rd = App.Current.Resources;
+            if ((mask & StyleMask.ApplicationResources) != 0) {
+                appResourcesStyle = <Style>rd.Get(feType);
+                if (!appResourcesStyle)
+                    appResourcesStyle = <Style>rd.Get(feTypeName);
+            }
+            var visualTreeStyle: Style = undefined;
+            if ((mask & StyleMask.VisualTree) != 0) {
+                var cur = fe;
+                var curNode = fe.XamlNode;
+                var isControl = curNode instanceof Controls.ControlNode;
+                while (curNode) {
+                    cur = curNode.XObject;
+                    if (cur.TemplateOwner && !fe.TemplateOwner) {
+                        cur = <FrameworkElement>cur.TemplateOwner;
+                        curNode = cur.XamlNode;
+                        continue;
+                    }
+                    if (!isControl && cur === fe.TemplateOwner)
+                        break;
+                    rd = cur.Resources;
+                    if (rd) {
+                        visualTreeStyle = <Style>rd.Get(feType);
+                        if (!visualTreeStyle)
+                            visualTreeStyle = <Style>rd.Get(feTypeName);
+                        if (visualTreeStyle)
+                            break;
+                    }
+                    curNode = <FENode>curNode.VisualParentNode;
+                }
+            }
+            var styles = [];
+            styles[StyleIndex.GenericXaml] = genericXamlStyle;
+            styles[StyleIndex.ApplicationResources] = appResourcesStyle;
+            styles[StyleIndex.VisualTree] = visualTreeStyle;
+            return styles;
+        }
+        private static GetGenericXamlStyleFor(type: any): Style {
+            var rd = App.GetGenericResourceDictionary();
+            if (rd)
+                return <Style>rd.Get(type);
+        }
     }
 }
 
 module Fayde.Providers {
-    export interface IPropertyProvider {
-        GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any;
+    export interface IStyleHolder {
+        _LocalStyle: Style;
+    }
+    export class LocalStyleBroker {
+        static Set(fe: FrameworkElement, newStyle: Style) {
+            var holder = <IStyleHolder>fe.XamlNode;
+            var arr = (<IPropertyStorageOwner>fe)._PropertyStorage;
+            var store = PropertyStore.Instance;
+            var oldWalker = SingleStyleWalker(holder._LocalStyle);
+            var newWalker = SingleStyleWalker(newStyle);
+            newStyle.Seal();
+            var oldSetter = oldWalker.Step();
+            var newSetter = newWalker.Step();
+            var oldProp: DependencyProperty;
+            var newProp: DependencyProperty;
+            var storage: IPropertyStorage;
+            var oldValue = undefined;
+            var newValue = undefined;
+            var propd: DependencyProperty;
+            while (oldSetter || newSetter) {
+                if (oldSetter) {
+                    propd = oldProp = oldSetter.Property;
+                    oldValue = oldSetter.ConvertedValue;
+                }
+                if (newSetter) {
+                    propd = newProp = newSetter.Property;
+                    newValue = newSetter.ConvertedValue;
+                }
+                storage = arr[propd._ID];
+                if (!storage)
+                    storage = arr[propd._ID] = store.CreateStorage(fe, propd);
+                store.SetLocalStyleValue(storage, newValue);
+                if (oldProp)
+                    oldSetter = oldWalker.Step();
+                if (newProp)
+                    newSetter = newWalker.Step();
+            }
+            holder._LocalStyle = newStyle;
+        }
+    }
+}
+
+module Fayde {
+    export var UnsetValue = {};
+}
+module Fayde.Providers {
+    export enum PropertyPrecedence {
+        IsEnabled = 0,
+        LocalValue = 1,
+        LocalStyle = 2,
+        ImplicitStyle = 3,
+        Inherited = 4,
+        InheritedDataContext = 5,
+        DefaultValue = 6,
+        Lowest = 6,
+        Highest = 0,
+        Count = 7,
     }
     export interface IPropertyChangedListener {
         Property: DependencyProperty;
         OnPropertyChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs);
         Detach();
     }
-    export interface IProviderStore {
-        GetValue(propd: DependencyProperty): any;
-        GetValueSpec(propd: DependencyProperty, startingPrecedence?, endingPrecedence?): any;
-        SetValue(propd: DependencyProperty, value: any);
-        ClearValue(propd: DependencyProperty, notifyListeners?: bool);
-        ReadLocalValue(propd: DependencyProperty): any;
-        _Object: DependencyObject;
-        _ProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldProviderValue: any, newProviderValue: any, notifyListeners: bool, error: BError);
+    export interface IPropertyStorage {
+        OwnerNode: DONode;
+        Property: DependencyProperty;
+        Precedence: PropertyPrecedence;
+        Animation: Media.Animation.AnimationStorage[];
+        Local: any;
+        LocalStyleValue: any;
+        ImplicitStyleValue: any;
+        PropListeners: IPropertyChangedListener[];
     }
+    export interface IPropertyStorageOwner {
+        _PropertyStorage: IPropertyStorage[];
+    }
+    export function GetStorage(dobj: DependencyObject, propd: DependencyProperty): IPropertyStorage {
+        var arr = (<IPropertyStorageOwner>dobj)._PropertyStorage;
+        var storage = arr[propd._ID];
+        if (!storage) arr[propd._ID] = storage = propd.Store.CreateStorage(dobj, propd);
+        return storage;
+    }
+    export class PropertyStore {
+        static Instance: PropertyStore;
+        GetValue(storage: IPropertyStorage): any {
+            var val: any;
+            if ((val = storage.Local) !== undefined)
+                return val;
+            if ((val = storage.LocalStyleValue) !== undefined)
+                return val;
+            if ((val = storage.ImplicitStyleValue) !== undefined)
+                return val;
+            return storage.Property.DefaultValue;
+        }
+        GetValuePrecedence(storage: IPropertyStorage): PropertyPrecedence {
+            if (storage.Local !== undefined)
+                return PropertyPrecedence.LocalValue;
+            if (storage.LocalStyleValue !== undefined)
+                return PropertyPrecedence.LocalStyle;
+            if (storage.ImplicitStyleValue !== undefined)
+                return PropertyPrecedence.ImplicitStyle;
+            return PropertyPrecedence.DefaultValue;
+        }
+        SetLocalValue(storage: Providers.IPropertyStorage, newValue: any) {
+            if (newValue === undefined || newValue === UnsetValue) {
+                this.ClearValue(storage);
+                return;
+            }
+            var propd = storage.Property;
+            if (newValue && propd.GetTargetType() === String) {
+                if (typeof newValue !== "string")
+                    newValue = newValue.toString();
+            }
+            var isValidOut = { IsValid: false };
+            newValue = propd.ValidateSetValue(storage.OwnerNode.XObject, newValue, isValidOut);
+            if (!isValidOut.IsValid)
+                return;
+            var oldValue = storage.Local;
+            storage.Local = newValue;
+            if (!propd.AlwaysChange && oldValue === newValue)
+                return;
+            this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldValue, newValue);
+        }
+        SetLocalStyleValue(storage: IPropertyStorage, newValue: any) {
+            var oldValue = storage.LocalStyleValue;
+            storage.LocalStyleValue = newValue;
+            if (oldValue === newValue || storage.Precedence < PropertyPrecedence.LocalStyle)
+                return;
+            this.OnPropertyChanged(storage, PropertyPrecedence.LocalStyle, oldValue, newValue);
+        }
+        SetImplicitStyle(storage: IPropertyStorage, newValue: any) {
+            var oldValue = storage.ImplicitStyleValue;
+            storage.ImplicitStyleValue = newValue;
+            if (oldValue === newValue || storage.Precedence < PropertyPrecedence.ImplicitStyle)
+                return;
+            this.OnPropertyChanged(storage, PropertyPrecedence.ImplicitStyle, oldValue, newValue);
+        }
+        ClearValue(storage: Providers.IPropertyStorage, notifyListeners?: bool) {
+            notifyListeners = notifyListeners !== false;
+            var oldLocal = storage.Local;
+            if (oldLocal === undefined)
+                return;
+            storage.Local = undefined;
+            this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldLocal, undefined);
+        }
+        OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any) {
+            if (!storage.Property.IsCustom) {
+                if (oldValue instanceof XamlObject)
+                    (<XamlObject>oldValue).XamlNode.Detach();
+                if (newValue instanceof XamlObject) {
+                    var error = new BError();
+                    if (!(<XamlObject>newValue).XamlNode.AttachTo(storage.OwnerNode, error))
+                        error.ThrowException();
+                }
+            }
+            if (newValue === undefined)
+                effectivePrecedence = this.GetValuePrecedence(storage);
+            storage.Precedence = effectivePrecedence;
+            var propd = storage.Property;
+            var args = {
+                Property: propd,
+                OldValue: oldValue,
+                NewValue: newValue
+            };
+            var sender = storage.OwnerNode.XObject;
+            if (propd.ChangedCallback)
+                propd.ChangedCallback(sender, args);
+            var listeners = storage.PropListeners;
+            if (listeners) {
+                var len = listeners.length;
+                for (var i = 0; i < len; i++) {
+                    listeners[i].OnPropertyChanged(sender, args);
+                }
+            }
+        }
+        ListenToChanged(target: DependencyObject, propd: DependencyProperty, func: (sender, args: IDependencyPropertyChangedEventArgs) => void , closure: any): Providers.IPropertyChangedListener {
+            var storage = GetStorage(target, propd);
+            var listeners = storage.PropListeners;
+            if (!listeners) listeners = storage.PropListeners = [];
+            var listener = {
+                Detach: function () {
+                    var index = listeners.indexOf(listener);
+                    if (index > -1)
+                        listeners.splice(index, 1);
+                },
+                Property: propd,
+                OnPropertyChanged: function (sender: DependencyObject, args: IDependencyPropertyChangedEventArgs) { func.call(closure, sender, args); }
+            };
+            listeners.push(listener);
+            return listener;
+        }
+        CreateStorage(dobj: DependencyObject, propd: DependencyProperty): IPropertyStorage {
+            return {
+                OwnerNode: dobj.XamlNode,
+                Property: propd,
+                Precedence: PropertyPrecedence.DefaultValue,
+                Animation: undefined,
+                Local: undefined,
+                LocalStyleValue: undefined,
+                ImplicitStyleValue: undefined,
+                PropListeners: undefined,
+            };
+        }
+        Clone(dobj: DependencyObject, sourceStorage: IPropertyStorage): IPropertyStorage {
+            var newStorage = this.CreateStorage(dobj, sourceStorage.Property);
+            newStorage.Precedence = sourceStorage.Precedence;
+            newStorage.Local = Fayde.Clone(sourceStorage.Local);
+            var srcRepo = sourceStorage.Animation;
+            if (!srcRepo)
+                return newStorage;
+            var thisRepo = newStorage.Animation;
+            for (var key in srcRepo) {
+                thisRepo[key] = srcRepo[key].slice(0);
+            }
+            return newStorage;
+        }
+    }
+    PropertyStore.Instance = new PropertyStore();
 }
 
 module Fayde.Data {
@@ -1334,10 +1651,10 @@ module Fayde.Data {
                 var propd = DependencyProperty.GetDependencyProperty(this.Source.constructor, this._PropertyName);
                 if (propd) {
                     this.DependencyProperty = propd;
-                    this._DPListener = listener = Fayde.ListenToPropertyChanged(newDO, propd, this.OnPropertyChanged, this);
+                    this._DPListener = listener = propd.Store.ListenToChanged(newDO, propd, this.OnPropertyChanged, this);
                 }
             }
-            if (!this.DependencyProperty || !this.DependencyProperty._IsAttached) {
+            if (!this.DependencyProperty || !this.DependencyProperty.IsAttached) {
                 this.PropertyInfo = PropertyInfo.Find(this.Source, this._PropertyName);
             }
         }
@@ -1419,7 +1736,7 @@ module Fayde.Data {
         _CheckIsBroken(): bool { return this.Source == null; }
         ConnectViewHandlers(source: CollectionViewSource, view: ICollectionView) {
             if (source instanceof CollectionViewSource) {
-                this._ViewPropertyListener = Fayde.ListenToPropertyChanged(source, CollectionViewSource.ViewProperty, this.ViewChanged, this);
+                this._ViewPropertyListener = CollectionViewSource.ViewProperty.Store.ListenToChanged(source, CollectionViewSource.ViewProperty, this.ViewChanged, this);
                 view = source.View;
             }
             if (Nullstone.ImplementsInterface(view, ICollectionView_)) {
@@ -1760,86 +2077,6 @@ module Fayde.Media {
             }
         }
     }
-}
-
-module Fayde.Media {
-    export interface IMatrix3DChangedListener {
-        Callback: (newMatrix3D: Matrix3D) => void;
-        Detach();
-    }
-    export class Matrix3D {
-        _Raw: number[];
-        private _Inverse: Matrix3D = null;
-        get M11() { return this._Raw[0]; }
-        set M11(val: number) { this._Raw[0] = val; this._OnChanged(); }
-        get M12() { return this._Raw[1]; }
-        set M12(val: number) { this._Raw[1] = val; this._OnChanged(); }
-        get M13() { return this._Raw[2]; }
-        set M13(val: number) { this._Raw[2] = val; this._OnChanged(); }
-        get M14() { return this._Raw[3]; }
-        set M14(val: number) { this._Raw[3] = val; this._OnChanged(); }
-        get M21() { return this._Raw[4]; }
-        set M21(val: number) { this._Raw[4] = val; this._OnChanged(); }
-        get M22() { return this._Raw[5]; }
-        set M22(val: number) { this._Raw[5] = val; this._OnChanged(); }
-        get M23() { return this._Raw[6]; }
-        set M23(val: number) { this._Raw[6] = val; this._OnChanged(); }
-        get M24() { return this._Raw[7]; }
-        set M24(val: number) { this._Raw[7] = val; this._OnChanged(); }
-        get M31() { return this._Raw[8]; }
-        set M31(val: number) { this._Raw[8] = val; this._OnChanged(); }
-        get M32() { return this._Raw[9]; }
-        set M32(val: number) { this._Raw[9] = val; this._OnChanged(); }
-        get M33() { return this._Raw[10]; }
-        set M33(val: number) { this._Raw[10] = val; this._OnChanged(); }
-        get M34() { return this._Raw[11]; }
-        set M34(val: number) { this._Raw[11] = val; this._OnChanged(); }
-        get OffsetX() { return this._Raw[12]; }
-        set OffsetX(val: number) { this._Raw[12] = val; this._OnChanged(); }
-        get OffsetY() { return this._Raw[13]; }
-        set OffsetY(val: number) { this._Raw[13] = val; this._OnChanged(); }
-        get OffsetZ() { return this._Raw[14]; }
-        set OffsetZ(val: number) { this._Raw[14] = val; this._OnChanged(); }
-        get M44() { return this._Raw[15]; }
-        set M44(val: number) { this._Raw[15] = val; this._OnChanged(); }
-        get Inverse(): Matrix3D {
-            var inverse = this._Inverse;
-            if (!inverse) {
-                var i = mat4.identity();
-                mat4.inverse(this._Raw, i);
-                if (!i)
-                    return;
-                inverse = new Matrix3D();
-                inverse._Raw = i;
-                this._Inverse = inverse;
-            }
-            return inverse;
-        }
-        private _Listeners: IMatrix3DChangedListener[] = [];
-        Listen(func: (newMatrix: Matrix3D) => void ): IMatrix3DChangedListener {
-            var listeners = this._Listeners;
-            var listener = {
-                Callback: func,
-                Detach: () => {
-                    var index = listeners.indexOf(listener);
-                    if (index > -1)
-                        listeners.splice(index, 1);
-                }
-            };
-            listeners.push(listener);
-            return listener;
-        }
-        private _OnChanged() {
-            this._Inverse = null;
-            var listeners = this._Listeners;
-            var len = listeners.length;
-            for (var i = 0; i < len; i++) {
-                listeners[i].Callback(this);
-            }
-        }
-        toString(): string { return mat4.str(this._Raw); }
-    }
-    Nullstone.RegisterType(Matrix3D, "Matrix3D");
 }
 
 module Fayde.Media {
@@ -2210,6 +2447,56 @@ module Fayde.Media {
                 return true;
             var code = this.str.charCodeAt(this.index);
             return code >= 48 && code <= 57;
+        }
+    }
+}
+
+module Fayde.Media.Animation {
+    export class AnimationStore {
+        static Get(dobj: DependencyObject, propd: DependencyProperty): AnimationStorage {
+            var storage = Providers.GetStorage(dobj, propd);
+            var list = storage.Animation;
+            if (list && list.length > 0)
+                return list[list.length - 1];
+            return undefined;
+        }
+        static Attach(dobj: DependencyObject, propd: DependencyProperty, animStorage: AnimationStorage): AnimationStorage {
+            var storage = Providers.GetStorage(dobj, propd);
+            var list = storage.Animation;
+            if (!list) {
+                storage.Animation = list = [animStorage];
+                return undefined;
+            }
+            var attached = list[list.length - 1];
+            if (attached)
+                attached.Disable();
+            list.push(animStorage);
+            return attached;
+        }
+        static Detach(dobj: DependencyObject, propd: DependencyProperty, animStorage: AnimationStorage) {
+            var storage = Providers.GetStorage(dobj, propd);
+            var list = storage.Animation;
+            if (!list)
+                return;
+            var len = list.length;
+            if (len < 1)
+                return;
+            var i;
+            var cur: Media.Animation.AnimationStorage;
+            for (i = len - 1; i >= 0; i--) {
+                cur = list[i];
+                if (cur === animStorage)
+                    break;
+            }
+            if (i === (len - 1)) {
+                list.pop();
+                if (len > 1)
+                    list[len - 2].Enable();
+            } else {
+                list.splice(i, 1);
+                if (i > 0)
+                    list[i - 1].StopValue = animStorage.StopValue;
+            }
         }
     }
 }
@@ -4941,9 +5228,6 @@ module Fayde.Controls.Primitives {
     Nullstone.RegisterType(SelectorSelection, "SelectorSelection");
 }
 
-interface IAutoCreator {
-    GetValue(propd: DependencyProperty, dobj: Fayde.DependencyObject): any;
-}
 interface IDependencyPropertyChangedEventArgs {
     Property: DependencyProperty;
     OldValue: any;
@@ -4952,101 +5236,143 @@ interface IDependencyPropertyChangedEventArgs {
 interface IOutIsValid {
     IsValid: bool;
 }
-module Fayde.Providers {
-    var pp = _PropertyPrecedence;
-    export function BuildBitmask(propd: DependencyProperty): number {
-        var bitmask = (1 << pp.Inherited) | (1 << pp.DynamicValue);
-        if (propd._IsAutoCreated)
-            bitmask |= (1 << pp.AutoCreate);
-        if (propd._HasDefaultValue)
-            bitmask |= (1 << pp.DefaultValue);
-        return bitmask;
-    }
-}
 class DependencyProperty {
     private static _IDs: DependencyProperty[] = [];
-    private static _Inherited: DependencyProperty[][] = [];
     private static _LastID: number = 0;
     _ID: number;
     Name: string;
     GetTargetType: () => Function;
     OwnerType: Function;
     DefaultValue: any;
-    IsReadOnly: bool;
-    IsCustom: bool;
-    _HasDefaultValue: bool;
-    _ChangedCallback: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void;
-    _AutoCreator: IAutoCreator;
-    _IsAutoCreated: bool;
-    private _Coercer: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any;
-    _AlwaysChange: bool;
-    private _Validator: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => bool;
-    _IsAttached: bool;
-    _BitmaskCache: number;
-    _Inheritable: number;
+    IsReadOnly: bool = false;
+    IsCustom: bool = true;
+    IsAttached: bool = false;
+    IsInheritable: bool = false;
+    ChangedCallback: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void;
+    AlwaysChange: bool = false;
+    Store: Fayde.Providers.PropertyStore;
+    private _Coercer: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any = null;
+    private _Validator: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => bool = null;
     static Register(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void) {
-        return RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, true);
-    }
-    static RegisterReadOnly(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void) {
-        return RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, true, true);
-    }
-    static RegisterAttached(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void) {
-        return RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, true, undefined, true);
-    }
-    static RegisterCore(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void) {
-        return RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false);
-    }
-    static RegisterReadOnlyCore(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void) {
-        return RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false, true);
-    }
-    static RegisterAttachedCore(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void) {
-        return RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false, undefined, true);
-    }
-    static RegisterInheritable(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void , autocreator?: IAutoCreator, inheritable?) {
-        return RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, undefined, undefined, undefined, false, undefined, undefined, inheritable);
-    }
-    static RegisterFull(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void, autocreator?: IAutoCreator, coercer?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any, alwaysChange?: bool, validator?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => bool, isCustom?: bool, isReadOnly?: bool, isAttached?: bool, inheritable?): DependencyProperty {
-        var registeredDPs: DependencyProperty[] = (<any>ownerType)._RegisteredDPs;
-        if (!registeredDPs)
-            (<any>ownerType)._RegisteredDPs = registeredDPs = [];
-        if (registeredDPs[name] !== undefined)
-            throw new InvalidOperationException("Dependency Property is already registered. [" + (<any>ownerType)._TypeName + "." + name + "]");
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
         propd.OwnerType = ownerType;
         propd.DefaultValue = defaultValue;
-        propd._HasDefaultValue = defaultValue !== undefined;
-        propd._ChangedCallback = changedCallback;
-        propd._AutoCreator = autocreator;
-        propd._IsAutoCreated = autocreator != null;
+        propd.ChangedCallback = changedCallback;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
+        propd.FinishRegister();
+        return propd;
+    }
+    static RegisterReadOnly(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void) {
+        var propd = new DependencyProperty();
+        propd.Name = name;
+        propd.GetTargetType = getTargetType;
+        propd.OwnerType = ownerType;
+        propd.DefaultValue = defaultValue;
+        propd.ChangedCallback = changedCallback;
+        propd.IsReadOnly = true;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
+        propd.FinishRegister();
+        return propd;
+    }
+    static RegisterAttached(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void) {
+        var propd = new DependencyProperty();
+        propd.Name = name;
+        propd.GetTargetType = getTargetType;
+        propd.OwnerType = ownerType;
+        propd.DefaultValue = defaultValue;
+        propd.ChangedCallback = changedCallback;
+        propd.IsAttached = true;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
+        propd.FinishRegister();
+        return propd;
+    }
+    static RegisterCore(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void) {
+        var propd = new DependencyProperty();
+        propd.Name = name;
+        propd.GetTargetType = getTargetType;
+        propd.OwnerType = ownerType;
+        propd.DefaultValue = defaultValue;
+        propd.ChangedCallback = changedCallback;
+        propd.IsCustom = false;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
+        propd.FinishRegister();
+        return propd;
+    }
+    static RegisterReadOnlyCore(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void) {
+        var propd = new DependencyProperty();
+        propd.Name = name;
+        propd.GetTargetType = getTargetType;
+        propd.OwnerType = ownerType;
+        propd.DefaultValue = defaultValue;
+        propd.ChangedCallback = changedCallback;
+        propd.IsCustom = false;
+        propd.IsReadOnly = true;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
+        propd.FinishRegister();
+        return propd;
+    }
+    static RegisterAttachedCore(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void ) {
+        var propd = new DependencyProperty();
+        propd.Name = name;
+        propd.GetTargetType = getTargetType;
+        propd.OwnerType = ownerType;
+        propd.DefaultValue = defaultValue;
+        propd.ChangedCallback = changedCallback;
+        propd.IsCustom = false;
+        propd.IsAttached = true;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
+        propd.FinishRegister();
+        return propd;
+    }
+    static RegisterInheritable(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void) {
+        var propd = new DependencyProperty();
+        propd.Name = name;
+        propd.GetTargetType = getTargetType;
+        propd.OwnerType = ownerType;
+        propd.DefaultValue = defaultValue;
+        propd.ChangedCallback = changedCallback;
+        propd.IsCustom = true;
+        propd.IsInheritable = true;
+        propd.Store = Fayde.Providers.InheritedStore.Instance;
+        propd.FinishRegister();
+        return propd;
+    }
+    static RegisterFull(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void, coercer?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any, alwaysChange?: bool, validator?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => bool, isCustom?: bool, isReadOnly?: bool, isAttached?: bool): DependencyProperty {
+        var propd = new DependencyProperty();
+        propd.Name = name;
+        propd.GetTargetType = getTargetType;
+        propd.OwnerType = ownerType;
+        propd.DefaultValue = defaultValue;
+        propd.ChangedCallback = changedCallback;
         propd._Coercer = coercer;
-        propd._AlwaysChange = alwaysChange;
+        propd.AlwaysChange = alwaysChange;
         propd._Validator = validator;
         propd.IsCustom = isCustom !== false;
         propd.IsReadOnly = isReadOnly === true;
-        propd._IsAttached = isAttached === true;
-        propd._ID = _LastID = _LastID + 1;
-        propd._BitmaskCache = Fayde.Providers.BuildBitmask(propd);
-        propd._Inheritable = inheritable;
-        if (inheritable !== undefined) {
-            var i = _Inherited;
-            if (!i[inheritable])
-                i[inheritable] = [];
-            i[inheritable].push(propd);
-        }
-        if (!ownerType || typeof ownerType !== "function")
-            throw new InvalidOperationException("DependencyProperty does not have a valid OwnerType.");
-        propd.CreateAutoProperty();
-        registeredDPs[name] = propd;
-        _IDs[propd._ID] = propd;
+        propd.IsAttached = isAttached === true;
+        propd.Store = Fayde.Providers.PropertyStore.Instance;
+        propd.FinishRegister();
         return propd;
     }
-    CreateAutoProperty() {
+    private FinishRegister() {
+        var name = this.Name;
+        var ownerType = this.OwnerType;
+        var registeredDPs: DependencyProperty[] = (<any>ownerType)._RegisteredDPs;
+        if (!registeredDPs)
+            (<any>ownerType)._RegisteredDPs = registeredDPs = [];
+        if (registeredDPs[name] !== undefined)
+            throw new InvalidOperationException("Dependency Property is already registered. [" + (<any>ownerType)._TypeName + "." + name + "]");
+        if (!ownerType || typeof ownerType !== "function")
+            throw new InvalidOperationException("DependencyProperty does not have a valid OwnerType.");
+        registeredDPs[name] = this;
+        this._ID = DependencyProperty._LastID = DependencyProperty._LastID + 1;
+        DependencyProperty._IDs[this._ID] = this;
         var propd = this;
         var getter = function () { return (<Fayde.DependencyObject>this).GetValue(propd); };
         var setter = function (value) { (<Fayde.DependencyObject>this).SetValue(propd, value); };
-        Object.defineProperty(this.OwnerType.prototype, this.Name, {
+        Object.defineProperty(ownerType.prototype, this.Name, {
             get: getter,
             set: setter,
             configurable: true
@@ -5066,7 +5392,7 @@ class DependencyProperty {
         isValidOut.IsValid = true;
         return coerced;
     }
-    static GetDependencyProperty(ownerType: Function, name: string, noError?: bool) {
+    static GetDependencyProperty(ownerType: Function, name: string, noError?: bool): DependencyProperty {
         if (!ownerType)
             return undefined;
         var reg: DependencyProperty[] = (<any>ownerType)._RegisteredDPs;
@@ -5543,7 +5869,7 @@ module Fayde {
             var raw = mat4.toAffineMat3(result);
             if (raw) {
                 var mt = new Media.MatrixTransform();
-                mt._Store.SetValue(Media.MatrixTransform.MatrixProperty, new Media.Matrix(raw));
+                mt.SetStoreValue(Media.MatrixTransform.MatrixProperty, new Media.Matrix(raw));
                 return mt;
             }
             return new Media.InternalTransform(result);
@@ -6217,7 +6543,7 @@ module Fayde {
             var ownerType: Function;
             var propd = this._Property;
             if (propd) {
-                isAttached = propd._IsAttached;
+                isAttached = propd.IsAttached;
                 ownerType = propd.OwnerType;
             }
             var value = this.GetValue(propd);
@@ -6246,7 +6572,7 @@ module Fayde {
             var source = target.TemplateOwner;
             var value;
             if (source)
-                value = source._Store.GetValue(this.SourceProperty);
+                value = source.GetValue(this.SourceProperty);
             value = TypeConverter.ConvertObject(this.TargetProperty, value, (<any>target).constructor, true);
             return value;
         }
@@ -6281,15 +6607,12 @@ module Fayde {
                 return;
             try {
                 this.IsUpdating = true;
-                var store = this._Target._Store;
                 var targetProp = this.TargetProperty;
                 try {
-                    store.SetValue(targetProp, this.GetValue(null));
+                    this._Target.SetStoreValue(targetProp, this.GetValue(null));
                 } catch (err2) {
                     var val = targetProp.DefaultValue;
-                    if (val === undefined)
-                        val = targetProp._IsAutoCreated ? targetProp._AutoCreator.GetValue(targetProp, this._Target) : undefined;
-                    store.SetValue(targetProp, val);
+                    this._Target.SetStoreValue(targetProp, val);
                 }
             } catch (err) {
             } finally {
@@ -6300,7 +6623,7 @@ module Fayde {
             var source = this._Target.TemplateOwner;
             if (!source)
                 return;
-            this._Listener = Fayde.ListenToPropertyChanged(source, this.SourceProperty, (sender, args) => this.OnSourcePropertyChanged(sender, args), this);
+            this._Listener = this.SourceProperty.Store.ListenToChanged(source, this.SourceProperty, (sender, args) => this.OnSourcePropertyChanged(sender, args), this);
         }
         private _DetachListener() {
             var listener = this._Listener;
@@ -6549,943 +6872,223 @@ module Fayde {
 }
 
 module Fayde.Providers {
-    export class DefaultValueProvider implements IPropertyProvider {
-        GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
-            return propd.DefaultValue;
-        }
+    export interface IDataContextStorage extends IPropertyStorage {
+        InheritedValue: any;
     }
-    Nullstone.RegisterType(DefaultValueProvider, "DefaultValueProvider");
-    export class AutoCreateProvider implements IPropertyProvider {
-        private _ht: any[] = [];
-        GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
-            var value = this.ReadLocalValue(propd);
-            if (value !== undefined)
-                return value;
-            value = propd._IsAutoCreated ? propd._AutoCreator.GetValue(propd, store._Object) : undefined;
-            if (value === undefined)
-                return undefined;
-            this._ht[propd._ID] = value;
-            var error = new BError();
-            store._ProviderValueChanged(_PropertyPrecedence.AutoCreate, propd, undefined, value, false, error);
-            return value;
-        }
-        ReadLocalValue(propd: DependencyProperty): any {
-            return this._ht[propd._ID];
-        }
-        RecomputePropertyValueOnClear(propd: DependencyProperty) {
-            this._ht[propd._ID] = undefined;
-        }
-        ClearValue(propd: DependencyProperty) {
-            this._ht[propd._ID] = undefined;
-        }
-    }
-    Nullstone.RegisterType(AutoCreateProvider, "AutoCreateProvider");
-    export class LocalValueProvider implements IPropertyProvider {
-        private _ht: any[] = [];
-        GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
-            return this._ht[propd._ID];
-        }
-        SetValue(propd: DependencyProperty, value: any) {
-            this._ht[propd._ID] = value;
-        }
-        ClearValue(propd: DependencyProperty) {
-            this._ht[propd._ID] = undefined;
-        }
-    }
-    Nullstone.RegisterType(LocalValueProvider, "LocalValueProvider");
-    export interface IInheritedDataContextProvider extends IPropertyProvider {
-        EmitChanged();
-        SetDataSourceNode(sourceNode: XamlNode);
-    }
-    export class BasicProviderStore {
-        _Object: DependencyObject;
-        private _Providers: IPropertyProvider[] = [null, null, null, null, null, null, null, null, null];
-        private _PropertyChangedListeners: IPropertyChangedListener[] = [];
-        _ProviderBitmasks: number[] = [];
-        private _AnimStorage: Media.Animation.AnimationStorage[][] = [];
-        private _LocalValueProvider: LocalValueProvider;
-        private _InheritedDataContextProvider: IInheritedDataContextProvider;
-        private _DefaultValueProvider: DefaultValueProvider;
-        private _AutoCreateProvider: AutoCreateProvider;
-        constructor(dobj: DependencyObject) {
-            this._Object = dobj;
-        }
-        SetProviders(providerArr: Providers.IPropertyProvider[]) {
-            this._LocalValueProvider = this._Providers[1] = <LocalValueProvider>providerArr[1];
-            this._InheritedDataContextProvider = this._Providers[6] = <IInheritedDataContextProvider>providerArr[6];
-            this._DefaultValueProvider = this._Providers[7] = <DefaultValueProvider>providerArr[7];
-            this._AutoCreateProvider = this._Providers[8] = <AutoCreateProvider>providerArr[8];
-        }
-        GetValue(propd: DependencyProperty):any {
-            var startingPrecedence = _PropertyPrecedence.Highest;
-            var endingPrecedence = _PropertyPrecedence.Lowest;
-            var bitmask = this._ProviderBitmasks[propd._ID] | propd._BitmaskCache;
-            for (var i = startingPrecedence; i <= endingPrecedence; i++) {
-                if (!(bitmask & (1 << i)))
-                    continue;
-                var provider = this._Providers[i];
-                if (!provider)
-                    continue;
-                var val = provider.GetPropertyValue(this, propd);
-                if (val === undefined)
-                    continue;
-                return val;
-            }
-            return undefined;
-        }
-        GetValueSpec(propd: DependencyProperty, startingPrecedence?, endingPrecedence?): any {
-            if (startingPrecedence === undefined)
-                startingPrecedence = _PropertyPrecedence.Highest;
-            if (endingPrecedence === undefined)
-                endingPrecedence = _PropertyPrecedence.Lowest;
-            var bitmask = this._ProviderBitmasks[propd._ID] | propd._BitmaskCache;
-            for (var i = startingPrecedence; i <= endingPrecedence; i++) {
-                if (!(bitmask & (1 << i)))
-                    continue;
-                var provider = this._Providers[i];
-                if (!provider)
-                    continue;
-                var val = provider.GetPropertyValue(this, propd);
-                if (val === undefined)
-                    continue;
-                return val;
-            }
-            return undefined;
-        }
-        SetValue(propd: DependencyProperty, value: any) {
-            if (value instanceof Fayde.UnsetValue) {
-                this.ClearValue(propd, true);
-                return;
-            }
-            if (value && propd.GetTargetType() === String) {
-                if (typeof value !== "string")
-                    value = value.toString();
-            }
-            var isValidOut = { IsValid: false };
-            value = propd.ValidateSetValue(this._Object, value, isValidOut);
-            if (!isValidOut.IsValid)
-                return;
-            var currentValue;
-            var equal = false;
-            if ((currentValue = this._LocalValueProvider.GetPropertyValue(this, propd)) === undefined)
-                if (propd._IsAutoCreated)
-                    currentValue = this._AutoCreateProvider.ReadLocalValue(propd);
-            if (currentValue !== undefined && value !== undefined)
-                equal = !propd._AlwaysChange && Nullstone.Equals(currentValue, value);
-            else
-                equal = currentValue === undefined && value === undefined;
-            if (!equal) {
-                var newValue;
-                this._LocalValueProvider.ClearValue(propd);
-                if (propd._IsAutoCreated)
-                    this._AutoCreateProvider.ClearValue(propd);
-                newValue = value;
-                if (newValue !== undefined) {
-                    this._LocalValueProvider.SetValue(propd, newValue);
-                }
-                var error = new BError();
-                this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, currentValue, newValue, true, error);
-                if (error.Message)
-                    throw new Exception(error.Message);
-            }
-        }
-        ClearValue(propd: DependencyProperty, notifyListeners?: bool) {
-            if (notifyListeners === undefined)
-                notifyListeners = true;
-            if (this._GetAnimationStorageFor(propd))
-                return;
-            var oldLocalValue;
-            if ((oldLocalValue = this._LocalValueProvider.GetPropertyValue(this, propd)) === undefined) {
-                if (propd._IsAutoCreated)
-                    oldLocalValue = this._AutoCreateProvider.ReadLocalValue(propd);
-            }
-            var error = new BError();
-            if (oldLocalValue !== undefined) {
-                this._DetachValue(oldLocalValue);
-                this._LocalValueProvider.ClearValue(propd);
-                if (propd._IsAutoCreated)
-                    this._AutoCreateProvider.ClearValue(propd);
-            }
-            /*
-            var count = _PropertyPrecedence.Count;
-            for (var i = _PropertyPrecedence.LocalValue + 1; i < count; i++) {
-                var provider = this._Providers[i];
-                if (provider)
-                    provider.RecomputePropertyValueOnClear(propd, error);
-            }
-            */
-            if (oldLocalValue !== undefined) {
-                this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, oldLocalValue, undefined, notifyListeners, error);
-                if (error.Message)
-                    throw new Exception(error.Message);
-            }
-        }
-        ReadLocalValue(propd: DependencyProperty): any {
-            var val = this._LocalValueProvider.GetPropertyValue(this, propd);
+    export class DataContextStore extends PropertyStore {
+        static Instance: DataContextStore;
+        GetValue(storage: IDataContextStorage): any {
+            var val = super.GetValue(storage);
             if (val === undefined)
-                return new UnsetValue();
+                val = storage.InheritedValue;
             return val;
         }
-        _ProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldProviderValue: any, newProviderValue: any, notifyListeners: bool, error: BError): bool {
-            var bitmask = this._ProviderBitmasks[propd._ID] | 0;
-            if (newProviderValue !== undefined)
-                bitmask |= 1 << providerPrecedence;
-            else
-                bitmask &= ~(1 << providerPrecedence);
-            this._ProviderBitmasks[propd._ID] = bitmask;
-            var higher = (((1 << (providerPrecedence + 1)) - 2) & bitmask) | propd._BitmaskCache;
-            var propPrecHighest = _PropertyPrecedence.Highest;
-            for (var j = providerPrecedence - 1; j >= propPrecHighest; j--) {
-                if (!(higher & (1 << j)))
-                    continue;
-                var provider = this._Providers[j];
-                if (!provider)
-                    continue;
-                if (provider.GetPropertyValue(this, propd) !== undefined)
-                    return false;
-            }
-            var oldValue;
-            var newValue;
-            if (oldProviderValue === undefined || newProviderValue === undefined) {
-                var lowerPriorityValue = this.GetValueSpec(propd, providerPrecedence + 1);
-                if (newProviderValue === undefined) {
-                    oldValue = oldProviderValue;
-                    newValue = lowerPriorityValue;
-                } else if (oldProviderValue === undefined) {
-                    oldValue = lowerPriorityValue;
-                    newValue = newProviderValue;
-                }
-            } else {
-                oldValue = oldProviderValue;
-                newValue = newProviderValue;
-            }
-            if (oldValue === null && newValue === null)
-                return false;
-            if (oldValue === undefined && newValue === undefined)
-                return false;
-            if (!propd._AlwaysChange && Nullstone.Equals(oldValue, newValue))
-                return false;
-            this._PostProviderValueChanged(providerPrecedence, propd, oldValue, newValue, notifyListeners, error);
-            return true;
+        GetValuePrecedence(storage: IDataContextStorage): PropertyPrecedence {
+            var prec = super.GetValuePrecedence(storage);
+            if (prec < PropertyPrecedence.InheritedDataContext)
+                return prec;
+            if (storage.InheritedValue !== undefined)
+                return PropertyPrecedence.InheritedDataContext;
+            return PropertyPrecedence.DefaultValue;
         }
-        _PostProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldValue: any, newValue: any, notifyListeners: bool, error: BError) {
-            if (!propd.IsCustom) {
-                this._DetachValue(oldValue);
-                this._AttachValue(newValue, error);
-            }
-            if (notifyListeners) {
-                var args = {
-                    Property: propd,
-                    OldValue: oldValue,
-                    NewValue: newValue
-                };
-                if (propd && propd._ChangedCallback)
-                    propd._ChangedCallback(this._Object, args);
-                try { this._Object._OnPropertyChanged(args); }
-                catch (err) { error.Message = err.Message; }
-                this._RaisePropertyChanged(args);
-            }
+        EmitInheritedChanged(storage: IDataContextStorage, newInherited?: any) {
+            var oldInherited = storage.InheritedValue;
+            storage.InheritedValue = newInherited;
+            if (storage.Precedence >= PropertyPrecedence.InheritedDataContext && oldInherited !== newInherited)
+                this.OnPropertyChanged(storage, PropertyPrecedence.InheritedDataContext, oldInherited, newInherited);
         }
-        private _GetAnimationStorageFor(propd: DependencyProperty): any {
-            var list = this._AnimStorage[propd._ID];
-            if (list && list.length > 0)
-                return list[list.length - 1];
-            return undefined;
-        }
-        private _CloneAnimationStorage(sourceStore: BasicProviderStore) {
-            var srcRepo = sourceStore._AnimStorage;
-            var thisRepo = this._AnimStorage;
-            var list;
-            for (var key in srcRepo) {
-                thisRepo[key] = srcRepo[key].slice(0);
-            }
-        }
-        _AttachAnimationStorage(propd: DependencyProperty, storage): Media.Animation.AnimationStorage {
-            var list = this._AnimStorage[propd._ID];
-            if (!list) {
-                this._AnimStorage[propd._ID] = list = [storage];
-                return undefined;
-            }
-            var attached = list[list.length - 1];
-            if (attached)
-                attached.Disable();
-            list.push(storage);
-            return attached;
-        }
-        _DetachAnimationStorage(propd: DependencyProperty, storage: Media.Animation.AnimationStorage) {
-            var list = this._AnimStorage[propd._ID];
-            if (!list)
-                return;
-            var len = list.length;
-            if (len < 1)
-                return;
-            var i;
-            var cur: Media.Animation.AnimationStorage;
-            for (i = len - 1; i >= 0; i--) {
-                cur = list[i];
-                if (cur === storage)
-                    break;
-            }
-            if (i === (len - 1)) {
-                list.pop();
-                if (len > 1)
-                    list[len - 2].Enable();
-            } else {
-                list.splice(i, 1);
-                if (i > 0)
-                    list[i - 1].StopValue = storage.StopValue;
-            }
-        }
-        _SubscribePropertyChanged(listener: Providers.IPropertyChangedListener) {
-            var l = this._PropertyChangedListeners;
-            if (l.indexOf(listener) < 0)
-                l.push(listener);
-        }
-        _UnsubscribePropertyChanged(listener: Providers.IPropertyChangedListener) {
-            var l = this._PropertyChangedListeners;
-            var index = l.indexOf(listener);
-            if (index > -1)
-                l.splice(index, 1);
-        }
-        _RaisePropertyChanged(args: IDependencyPropertyChangedEventArgs) {
-            var l = this._PropertyChangedListeners;
-            var len = l.length;
-            for (var i = 0; i < len; i++) {
-                l[i].OnPropertyChanged(this._Object, args);
-            }
-        }
-        _AttachValue(value: any, error: BError): bool {
-            if (!value)
-                return true;
-            if (value instanceof XamlObject) {
-                return (<XamlObject>value).XamlNode.AttachTo(this._Object.XamlNode, error);
-            }
-        }
-        _DetachValue(value: any) {
-            if (!value)
-                return;
-            if (value instanceof XamlObject) {
-                (<XamlObject>value).XamlNode.Detach();
-            }
-        }
-        CloneCore(sourceStore: BasicProviderStore) {
-            var dpIds = DependencyProperty._IDs;
-            var localStorage = (<any>this._LocalValueProvider)._ht;
-            for (var id in localStorage) {
-                this.SetValue(dpIds[id], Fayde.Clone(localStorage[id]));
-            }
-            this._CloneAnimationStorage(sourceStore);
-        }
-        EmitDataContextChanged() { this._InheritedDataContextProvider.EmitChanged(); }
-        SetDataContextSourceNode(sourceNode?: XamlNode) { this._InheritedDataContextProvider.SetDataSourceNode(sourceNode); }
-    }
-    Nullstone.RegisterType(BasicProviderStore, "BasicProviderStore");
-}
-
-module Fayde.Providers {
-    export class FrameworkElementDynamicProvider implements IPropertyProvider {
-        private _ActualHeight: number;
-        private _ActualWidth: number;
-        GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
-            var isWidth = propd._ID === FrameworkElement.ActualWidthProperty._ID;
-            var isHeight = propd._ID === FrameworkElement.ActualHeightProperty._ID;
-            if (isWidth) {
-                var feNode = (<FrameworkElement>store._Object).XamlNode;
-                return feNode.LayoutUpdater.ActualWidth;
-            } else if (isHeight) {
-                var feNode = (<FrameworkElement>store._Object).XamlNode;
-                return feNode.LayoutUpdater.ActualHeight;
-            }
-        }
-    }
-    Nullstone.RegisterType(FrameworkElementDynamicProvider, "FrameworkElementDynamicProvider");
-}
-
-module Fayde.Providers {
-    export class ImplicitStyleProvider implements IPropertyProvider, IImplicitStylesProvider {
-        private _ht: any[] = [];
-        private _Styles: any[] = [null, null, null];
-        private _StyleMask: _StyleMask = _StyleMask.None;
-        private _Store: IProviderStore;
-        constructor(store: IProviderStore) {
-            this._Store = store;
-        }
-        GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
-            return this._ht[propd._ID];
-        }
-        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError) {
-            if (!this._Styles)
-                return;
-            var oldValue;
-            var newValue;
-            var prop;
-            var walker = MultipleStylesWalker(this._Styles);
-            var setter: Setter;
-            while (setter = walker.Step()) {
-                prop = setter.Property;
-                if (prop._ID !== propd._ID)
-                    continue;
-                newValue = setter.ConvertedValue;
-                oldValue = this._ht[propd._ID];
-                this._ht[propd._ID] = newValue;
-                this._Store._ProviderValueChanged(_PropertyPrecedence.ImplicitStyle, propd, oldValue, newValue, true, error);
-                if (error.Message)
-                    return;
-            }
-        }
-        SetStyles(styleMask: _StyleMask, styles: Style[], error: BError) {
-            if (!styles)
-                return;
-            var newStyles = [null, null, null];
-            if (this._Styles) {
-                newStyles[_StyleIndex.GenericXaml] = this._Styles[_StyleIndex.GenericXaml];
-                newStyles[_StyleIndex.ApplicationResources] = this._Styles[_StyleIndex.ApplicationResources];
-                newStyles[_StyleIndex.VisualTree] = this._Styles[_StyleIndex.VisualTree];
-            }
-            if (styleMask & _StyleMask.GenericXaml)
-                newStyles[_StyleIndex.GenericXaml] = styles[_StyleIndex.GenericXaml];
-            if (styleMask & _StyleMask.ApplicationResources)
-                newStyles[_StyleIndex.ApplicationResources] = styles[_StyleIndex.ApplicationResources];
-            if (styleMask & _StyleMask.VisualTree)
-                newStyles[_StyleIndex.VisualTree] = styles[_StyleIndex.VisualTree];
-            this._ApplyStyles(this._StyleMask | styleMask, newStyles, error);
-        }
-        ClearStyles(styleMask: _StyleMask, error: BError) {
-            if (!this._Styles)
-                return;
-            var newStyles = this._Styles.slice(0);
-            if (styleMask & _StyleMask.GenericXaml)
-                newStyles[_StyleIndex.GenericXaml] = null;
-            if (styleMask & _StyleMask.ApplicationResources)
-                newStyles[_StyleIndex.ApplicationResources] = null;
-            if (styleMask & _StyleMask.VisualTree)
-                newStyles[_StyleIndex.VisualTree] = null;
-            this._ApplyStyles(this._StyleMask & ~styleMask, newStyles, error);
-        }
-        private _ApplyStyles(styleMask: _StyleMask, styles: Style[], error: BError) {
-            var isChanged = !this._Styles || styleMask !== this._StyleMask;
-            if (!isChanged) {
-                for (var i = 0; i < _StyleIndex.Count; i++) {
-                    if (styles[i] !== this._Styles[i]) {
-                        isChanged = true;
-                        break;
-                    }
-                }
-            }
-            if (!isChanged)
-                return;
-            var oldValue;
-            var newValue;
-            var oldWalker = MultipleStylesWalker(this._Styles);
-            var newWalker = MultipleStylesWalker(styles);
-            var oldSetter = oldWalker.Step();
-            var newSetter = newWalker.Step();
-            var oldProp: DependencyProperty;
-            var newProp: DependencyProperty;
-            while (oldSetter || newSetter) {
-                if (oldSetter)
-                    oldProp = oldSetter.Property;
-                if (newSetter)
-                    newProp = newSetter.Property;
-                if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
-                    oldValue = oldSetter.ConvertedValue;
-                    newValue = undefined;
-                    this._ht[oldProp._ID] = undefined;
-                    this._Store._ProviderValueChanged(_PropertyPrecedence.ImplicitStyle, oldProp, oldValue, newValue, true, error);
-                    oldSetter = oldWalker.Step();
-                }
-                else if (oldProp === newProp) {
-                    oldValue = oldSetter.ConvertedValue;
-                    newValue = newSetter.ConvertedValue;
-                    this._ht[oldProp._ID] = newValue;
-                    this._Store._ProviderValueChanged(_PropertyPrecedence.ImplicitStyle, oldProp, oldValue, newValue, true, error);
-                    oldSetter = oldWalker.Step();
-                    newSetter = newWalker.Step();
-                } else {
-                    oldValue = undefined;
-                    newValue = newSetter.ConvertedValue;
-                    this._ht[newProp._ID] = newValue;
-                    this._Store._ProviderValueChanged(_PropertyPrecedence.ImplicitStyle, newProp, oldValue, newValue, true, error);
-                    newSetter = newWalker.Step();
-                }
-            }
-            this._Styles = styles;
-            this._StyleMask = styleMask;
-        }
-    }
-    Nullstone.RegisterType(ImplicitStyleProvider, "ImplicitStyleProvider");
-}
-
-module Fayde.Providers {
-    export class InheritedDataContextProvider implements IPropertyProvider, IInheritedDataContextProvider {
-        private _SourceNode: XamlNode;
-        private _Store: IProviderStore;
-        constructor(store: IProviderStore) {
-            this._Store = store;
-        }
-        GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
-            var sourceNode = this._SourceNode;
-            if (!sourceNode)
-                return;
-            if (propd !== DependencyObject.DataContextProperty)
-                return;
-            return sourceNode.DataContext;
-        }
-        SetDataSourceNode(sourceNode: XamlNode) {
-            var oldSourceNode = this._SourceNode;
-            if (oldSourceNode === sourceNode)
-                return;
-            var oldValue: any = undefined;
-            var newValue: any = undefined;
-            if (oldSourceNode) oldValue = oldSourceNode.DataContext;
-            this._SourceNode = sourceNode;
-            if (sourceNode) newValue = sourceNode.DataContext;
-            if (!Nullstone.Equals(oldValue, newValue)) {
-                var error = new BError();
-                this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, DependencyObject.DataContextProperty, oldValue, newValue, false, error);
-            }
-        }
-        private EmitChanged() {
-            var sourceNode = this._SourceNode;
-            if (!sourceNode)
-                return;
-            var error = new BError();
-            this._Store._ProviderValueChanged(_PropertyPrecedence.InheritedDataContext, DependencyObject.DataContextProperty, undefined, sourceNode.DataContext, true, error);
-        }
-    }
-    Nullstone.RegisterType(InheritedDataContextProvider, "InheritedDataContextProvider");
-}
-
-module Fayde.Providers {
-    export class InheritedIsEnabledProvider implements IPropertyProvider, IInheritedIsEnabledProvider {
-        private _Source: Fayde.Controls.Control;
-        private _CurrentValue: bool = true;
-        private _Store: IProviderStore;
-        constructor(store: IProviderStore) {
-            this._Store = store;
-        }
-        GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
-            if (propd._ID === Controls.Control.IsEnabledProperty._ID)
-                return this._CurrentValue;
-            return undefined;
-        }
-        SetDataSource(source: DependencyObject) {
-            if (source) {
-                var curNode = <XamlNode>source.XamlNode;
-                while (curNode) {
-                    if (curNode.XObject instanceof Controls.Control)
-                        break;
-                    else if (curNode.XObject instanceof FrameworkElement)
-                        curNode = curNode.ParentNode;
-                    else
-                        curNode = null;
-                }
-                source = (curNode) ? (<DependencyObject>curNode.XObject) : null;
-            }
-            if (this._Source !== source) {
-                this._DetachListener(<Controls.Control>this._Source);
-                this._Source = <Controls.Control>source;
-                this._AttachListener(<Controls.Control>source);
-            }
-            if (!source && (this._Store._Object.XamlNode.IsAttached))
-                this.LocalValueChanged();
-        }
-        private _AttachListener(source: Controls.Control) {
-            if (!source)
-                return;
-            var matchFunc = function (sender, args) {
-                return this === args.Property; //Closure - Control.IsEnabledProperty
+        CreateStorage(dobj: DependencyObject, propd: DependencyProperty): IDataContextStorage {
+            return {
+                OwnerNode: dobj.XamlNode,
+                Property: propd,
+                Precedence: PropertyPrecedence.DefaultValue,
+                Animation: undefined,
+                Local: undefined,
+                LocalStyleValue: undefined,
+                ImplicitStyleValue: undefined,
+                InheritedValue: undefined,
+                PropListeners: undefined,
             };
-            (<any>source).PropertyChanged.SubscribeSpecific(this._IsEnabledChanged, this, matchFunc, Fayde.Controls.Control.IsEnabledProperty);
-        }
-        private _DetachListener(source: Controls.Control) {
-            if (!source)
-                return;
-            (<any>source).PropertyChanged.Unsubscribe(this._IsEnabledChanged, this, Fayde.Controls.Control.IsEnabledProperty);
-        }
-        private _IsEnabledChanged(sender: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
-            this.LocalValueChanged();
-        }
-        LocalValueChanged(propd?: DependencyProperty): bool {
-            if (propd && propd._ID !== Controls.Control.IsEnabledProperty._ID)
-                return false;
-            var store = this._Store;
-            var localEnabled = store.GetValueSpec(Controls.Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
-            var parentEnabled = false;
-            var source = this._Source;
-            if (source && (<UINode>store._Object.XamlNode).VisualParentNode)
-                parentEnabled = source.GetValue(Controls.Control.IsEnabledProperty) === true;
-            var newValue = localEnabled === true && parentEnabled;
-            if (newValue !== this._CurrentValue) {
-                var oldValue = this._CurrentValue;
-                this._CurrentValue = newValue;
-                var error = new BError();
-                store._ProviderValueChanged(_PropertyPrecedence.IsEnabled, Controls.Control.IsEnabledProperty, oldValue, newValue, true, error);
-                return true;
-            }
-            return false;
         }
     }
-    Nullstone.RegisterType(InheritedIsEnabledProvider, "InheritedIsEnabledProvider");
+    DataContextStore.Instance = new DataContextStore();
 }
 
 module Fayde.Providers {
-    export class _InheritedContext {
-        ForegroundSource: DependencyObject;
-        FontFamilySource: DependencyObject;
-        FontStretchSource: DependencyObject;
-        FontStyleSource: DependencyObject;
-        FontWeightSource: DependencyObject;
-        FontSizeSource: DependencyObject;
-        LanguageSource: DependencyObject;
-        FlowDirectionSource: DependencyObject;
-        UseLayoutRoundingSource: DependencyObject;
-        TextDecorationsSource: DependencyObject;
-        static FromSources(foregroundSource: DependencyObject, fontFamilySource: DependencyObject, fontStretchSource: DependencyObject, fontStyleSource: DependencyObject, fontWeightSource: DependencyObject, fontSizeSource: DependencyObject, languageSource: DependencyObject, flowDirectionSource: DependencyObject, useLayoutRoundingSource: DependencyObject, textDecorationsSource: DependencyObject) {
-            var ic = new _InheritedContext();
-            ic.ForegroundSource = foregroundSource;
-            ic.FontFamilySource = fontFamilySource;
-            ic.FontStretchSource = fontStretchSource;
-            ic.FontStyleSource = fontStyleSource;
-            ic.FontWeightSource = fontWeightSource;
-            ic.FontSizeSource = fontSizeSource;
-            ic.LanguageSource = languageSource;
-            ic.FlowDirectionSource = flowDirectionSource;
-            ic.UseLayoutRoundingSource = useLayoutRoundingSource;
-            ic.TextDecorationsSource = textDecorationsSource;
-            return ic;
-        }
-        static FromObject(dobj: DependencyObject, parentContext: _InheritedContext) {
-            var ic = new _InheritedContext();
-            ic.ForegroundSource = ic.GetLocalSource(dobj, _Inheritable.Foreground);
-            if (!ic.ForegroundSource && parentContext) ic.ForegroundSource = parentContext.ForegroundSource;
-            ic.FontFamilySource = ic.GetLocalSource(dobj, _Inheritable.FontFamily);
-            if (!ic.FontFamilySource && parentContext) ic.FontFamilySource = parentContext.FontFamilySource;
-            ic.FontStretchSource = ic.GetLocalSource(dobj, _Inheritable.FontStretch);
-            if (!ic.FontStretchSource && parentContext) ic.FontStretchSource = parentContext.FontStretchSource;
-            ic.FontStyleSource = ic.GetLocalSource(dobj, _Inheritable.FontStyle);
-            if (!ic.FontStretchSource && parentContext) ic.FontStretchSource = parentContext.FontStretchSource;
-            ic.FontWeightSource = ic.GetLocalSource(dobj, _Inheritable.FontWeight);
-            if (!ic.FontWeightSource && parentContext) ic.FontWeightSource = parentContext.FontWeightSource;
-            ic.FontSizeSource = ic.GetLocalSource(dobj, _Inheritable.FontSize);
-            if (!ic.FontSizeSource && parentContext) ic.FontSizeSource = parentContext.FontSizeSource;
-            ic.LanguageSource = ic.GetLocalSource(dobj, _Inheritable.Language);
-            if (!ic.LanguageSource && parentContext) ic.LanguageSource = parentContext.LanguageSource;
-            ic.FlowDirectionSource = ic.GetLocalSource(dobj, _Inheritable.FlowDirection);
-            if (!ic.FlowDirectionSource && parentContext) ic.FlowDirectionSource = parentContext.FlowDirectionSource;
-            ic.UseLayoutRoundingSource = ic.GetLocalSource(dobj, _Inheritable.UseLayoutRounding);
-            if (!ic.UseLayoutRoundingSource && parentContext) ic.UseLayoutRoundingSource = parentContext.UseLayoutRoundingSource;
-            ic.TextDecorationsSource = ic.GetLocalSource(dobj, _Inheritable.TextDecorations);
-            if (!ic.TextDecorationsSource && parentContext) ic.TextDecorationsSource = parentContext.TextDecorationsSource;
-            return ic;
-        }
-        Compare(withContext: _InheritedContext, props) {
-            var rv = _Inheritable.None;
-            if (props & _Inheritable.Foreground && withContext.ForegroundSource === this.ForegroundSource)
-                rv |= _Inheritable.Foreground;
-            if (props & _Inheritable.FontFamily && withContext.FontFamilySource === this.FontFamilySource)
-                rv |= _Inheritable.FontFamily;
-            if (props & _Inheritable.FontStretch && withContext.FontStretchSource === this.FontStretchSource)
-                rv |= _Inheritable.FontStretch;
-            if (props & _Inheritable.FontStyle && withContext.FontStyleSource === this.FontStyleSource)
-                rv |= _Inheritable.FontStyle;
-            if (props & _Inheritable.FontWeight && withContext.FontWeightSource === this.FontWeightSource)
-                rv |= _Inheritable.FontWeight;
-            if (props & _Inheritable.FontSize && withContext.FontSizeSource === this.FontSizeSource)
-                rv |= _Inheritable.FontSize;
-            if (props & _Inheritable.Language && withContext.LanguageSource === this.LanguageSource)
-                rv |= _Inheritable.Language;
-            if (props & _Inheritable.FlowDirection && withContext.FlowDirectionSource === this.FlowDirectionSource)
-                rv |= _Inheritable.FlowDirection;
-            if (props & _Inheritable.UseLayoutRounding && withContext.UseLayoutRoundingSource === this.UseLayoutRoundingSource)
-                rv |= _Inheritable.UseLayoutRounding;
-            if (props & _Inheritable.TextDecorations && withContext.TextDecorationsSource === this.TextDecorationsSource)
-                rv |= _Inheritable.TextDecorations;
-            return rv;
-        }
-        GetLocalSource(dobj: DependencyObject, prop) {
-            var propd = getProperty(prop, dobj);
-            if (!propd)
-                return;
-            if ((dobj._Store._ProviderBitmasks[propd._ID] & ((1 << _PropertyPrecedence.Inherited) - 1)) !== 0)
-                return dobj;
-        }
+    export interface IInheritedStorage extends IPropertyStorage {
+        InheritedValue: any;
     }
-    function getInheritable(dobj: DependencyObject, propd: DependencyProperty) {
-        var inh = propd._Inheritable || 0;
-        if (inh && propd.Name === "FlowDirection" && (dobj instanceof Fayde.Controls.Image || dobj instanceof Fayde.Controls.MediaElement))
-            inh = 0;
-        return inh;
-    }
-    function getProperty(inheritable: _Inheritable, ancestor: DependencyObject) {
-        var list = DependencyProperty._Inherited[inheritable];
-        if (!list)
-            return;
-        var len = list.length;
-        if (len > 0 && list[0].Name === "FlowDirection") {
-            if (ancestor instanceof Fayde.Controls.Image || ancestor instanceof Fayde.Controls.MediaElement)
-                return;
+    export class InheritedStore extends PropertyStore {
+        static Instance: InheritedStore;
+        GetValue(storage: IInheritedStorage): any {
+            var val: any;
+            if ((val = storage.Local) !== undefined)
+                return val;
+            if ((val = storage.LocalStyleValue) !== undefined)
+                return val;
+            if ((val = storage.ImplicitStyleValue) !== undefined)
+                return val;
+            if ((val = storage.InheritedValue) !== undefined)
+                return val;
+            return storage.Property.DefaultValue;
         }
-        for (var i = 0; i < len; i++) {
-            var propd = list[i];
-            if (ancestor instanceof propd.OwnerType)
-                return propd;
+        GetValuePrecedence(storage: IInheritedStorage): PropertyPrecedence {
+            var prec = super.GetValuePrecedence(storage);
+            if (prec < PropertyPrecedence.Inherited)
+                return prec;
+            if (storage.InheritedValue !== undefined)
+                return PropertyPrecedence.Inherited;
+            return PropertyPrecedence.DefaultValue;
         }
-    }
-    function propagateInheritedValue(inheritable: _Inheritable, source: DependencyObject, newValue: any) {
-        var provider: InheritedProvider = this._InheritedProvider;
-        if (!provider)
-            return true;
-        provider._SetPropertySource(inheritable, source);
-        var propd = getProperty(inheritable, this._Object);
-        if (!propd)
-            return false;
-        var error = new BError();
-        this._ProviderValueChanged(_PropertyPrecedence.Inherited, propd, undefined, newValue, true, error);
-    }
-    function getInheritedValueSource(inheritable: _Inheritable): DependencyObject {
-        var provider: InheritedProvider = this._InheritedProvider;
-        if (provider)
-            return provider._GetPropertySource(inheritable);
-    }
-    export class InheritedProvider implements IPropertyProvider, IInheritedProvider {
-        private _ht: DependencyObject[] = [];
-        GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
-            var inheritable = getInheritable(store._Object, propd);
-            if (!inheritable)
-                return undefined;
-            var ancestor = this._GetPropertySource(inheritable);
-            if (!ancestor)
-                return undefined;
-            var ancestorPropd = getProperty(inheritable, ancestor);
-            if (!ancestorPropd)
-                return undefined;
-            return ancestor.GetValue(ancestorPropd);
+        OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any) {
+            super.OnPropertyChanged(storage, effectivePrecedence, oldValue, newValue);
+            if (effectivePrecedence <= PropertyPrecedence.Inherited)
+                this.Propagate(storage.OwnerNode, storage.Property, newValue);
         }
-        WalkSubtree(rootParent: DependencyObject, elNode: XamlNode, context: _InheritedContext, props, adding) {
-            var enumerator = elNode.GetInheritedEnumerator();
-            if (!enumerator)
-                return;
+        CreateStorage(dobj: DependencyObject, propd: DependencyProperty): IInheritedStorage {
+            return {
+                OwnerNode: dobj.XamlNode,
+                Property: propd,
+                Precedence: PropertyPrecedence.DefaultValue,
+                Animation: undefined,
+                Local: undefined,
+                LocalStyleValue: undefined,
+                ImplicitStyleValue: undefined,
+                InheritedValue: undefined,
+                PropListeners: undefined,
+            };
+        }
+        static PropagateInheritedOnAdd(dobj: DependencyObject, subtreeNode: DONode) {
+            var store: InheritedStore = InheritedStore.Instance;
+            var arr = (<IPropertyStorageOwner>dobj)._PropertyStorage;
+            var storage: IPropertyStorage;
+            var allProps = InheritableOwner.AllInheritedProperties;
+            var len = allProps.length;
+            var propd: DependencyProperty;
+            var newValue: any;
+            for (var i = 0; i < len; i++) {
+                propd = allProps[i];
+                storage = arr[propd._ID];
+                if (!storage) storage = arr[propd._ID] = store.CreateStorage(dobj, propd);
+                newValue = store.GetValue(<IInheritedStorage>storage);
+                store.SetInheritedValue(subtreeNode, propd, newValue);
+            }
+        }
+        static ClearInheritedOnRemove(dobj: DependencyObject, subtreeNode: DONode) {
+            var store: InheritedStore = InheritedStore.Instance;
+            var allProps = InheritableOwner.AllInheritedProperties;
+            var len = allProps.length;
+            var prop: DependencyProperty;
+            for (var i = 0; i < len; i++) {
+                store.Propagate(subtreeNode, allProps[i], undefined);
+            }
+        }
+        private Propagate(ownerNode: XamlNode, propd: DependencyProperty, newValue: any) {
+            var enumerator = ownerNode.GetInheritedEnumerator();
+            var uin: UINode;
             while (enumerator.MoveNext()) {
-                this.WalkTree(rootParent, <XamlNode>enumerator.Current, context, props, adding);
+                uin = <UINode>enumerator.Current;
+                this.SetInheritedValue(uin, propd, newValue);
             }
         }
-        WalkTree(rootParent: DependencyObject, elNode: XamlNode, context: _InheritedContext, props: _Inheritable, adding: bool) {
-            if (props === _Inheritable.None)
+        private SetInheritedValue(don: DONode, propd: DependencyProperty, newValue: any) {
+            var dobj = don.XObject;
+            var storage = <IInheritedStorage>GetStorage(dobj, propd);
+            if (storage.Precedence < PropertyPrecedence.Inherited) {
+                storage.InheritedValue = newValue;
                 return;
-            var element = <DependencyObject>elNode.XObject;
-            if (adding) {
-                this.MaybePropagateInheritedValue(context.ForegroundSource, _Inheritable.Foreground, props, element);
-                this.MaybePropagateInheritedValue(context.FontFamilySource, _Inheritable.FontFamily, props, element);
-                this.MaybePropagateInheritedValue(context.FontStretchSource, _Inheritable.FontStretch, props, element);
-                this.MaybePropagateInheritedValue(context.FontStyleSource, _Inheritable.FontStyle, props, element);
-                this.MaybePropagateInheritedValue(context.FontWeightSource, _Inheritable.FontWeight, props, element);
-                this.MaybePropagateInheritedValue(context.FontSizeSource, _Inheritable.FontSize, props, element);
-                this.MaybePropagateInheritedValue(context.LanguageSource, _Inheritable.Language, props, element);
-                this.MaybePropagateInheritedValue(context.FlowDirectionSource, _Inheritable.FlowDirection, props, element);
-                this.MaybePropagateInheritedValue(context.UseLayoutRoundingSource, _Inheritable.UseLayoutRounding, props, element);
-                this.MaybePropagateInheritedValue(context.TextDecorationsSource, _Inheritable.TextDecorations, props, element);
-                var eleContext = _InheritedContext.FromObject(element, context);
-                props = eleContext.Compare(context, props);
-                if (props === _Inheritable.None)
-                    return;
-                this.WalkSubtree(rootParent, elNode, eleContext, props, adding);
-            } else {
-                var eleContext2 = _InheritedContext.FromObject(element, context);
-                this.MaybeRemoveInheritedValue(context.ForegroundSource, _Inheritable.Foreground, props, element);
-                this.MaybeRemoveInheritedValue(context.FontFamilySource, _Inheritable.FontFamily, props, element);
-                this.MaybeRemoveInheritedValue(context.FontStretchSource, _Inheritable.FontStretch, props, element);
-                this.MaybeRemoveInheritedValue(context.FontStyleSource, _Inheritable.FontStyle, props, element);
-                this.MaybeRemoveInheritedValue(context.FontWeightSource, _Inheritable.FontWeight, props, element);
-                this.MaybeRemoveInheritedValue(context.FontSizeSource, _Inheritable.FontSize, props, element);
-                this.MaybeRemoveInheritedValue(context.LanguageSource, _Inheritable.Language, props, element);
-                this.MaybeRemoveInheritedValue(context.FlowDirectionSource, _Inheritable.FlowDirection, props, element);
-                this.MaybeRemoveInheritedValue(context.UseLayoutRoundingSource, _Inheritable.UseLayoutRounding, props, element);
-                this.MaybeRemoveInheritedValue(context.TextDecorationsSource, _Inheritable.TextDecorations, props, element);
-                props = eleContext2.Compare(context, props);
-                if (props === _Inheritable.None)
-                    return;
-                this.WalkSubtree(rootParent, elNode, context, props, adding);
             }
-        }
-        MaybePropagateInheritedValue(source: DependencyObject, prop, props, element: DependencyObject) {
-            if (!source) return;
-            if ((props & prop) == 0) return;
-            var sourceProperty = getProperty(prop, source);
-            var value = source.GetValue(sourceProperty);
-            if (value !== undefined)
-                propagateInheritedValue.call(element._Store, prop, source, value);
-        }
-        MaybeRemoveInheritedValue(source: DependencyObject, prop, props, element: DependencyObject) {
-            if (!source) return;
-            if ((props & prop) == 0) return;
-            if (source === getInheritedValueSource.call(element, prop))
-                propagateInheritedValue.call(element._Store, prop, undefined, undefined);
-        }
-        PropagateInheritedPropertiesOnAddingToTree(store: IProviderStore, subtreeNode: XamlNode) {
-            var inhEnum = _Inheritable;
-            var baseContext = _InheritedContext.FromSources(
-                    this._GetPropertySource(inhEnum.Foreground),
-                    this._GetPropertySource(inhEnum.FontFamily),
-                    this._GetPropertySource(inhEnum.FontStretch),
-                    this._GetPropertySource(inhEnum.FontStyle),
-                    this._GetPropertySource(inhEnum.FontWeight),
-                    this._GetPropertySource(inhEnum.FontSize),
-                    this._GetPropertySource(inhEnum.Language),
-                    this._GetPropertySource(inhEnum.FlowDirection),
-                    this._GetPropertySource(inhEnum.UseLayoutRounding),
-                    this._GetPropertySource(inhEnum.TextDecorations));
-            var objContext = _InheritedContext.FromObject(store._Object, baseContext);
-            this.WalkTree(store._Object, subtreeNode, objContext, inhEnum.All, true);
-        }
-        PropagateInheritedProperty(store: IProviderStore, propd: DependencyProperty, source: DependencyObject) {
-            var inheritable = getInheritable(source, propd);
-            if (inheritable === 0)
-                return;
-            var objContext = _InheritedContext.FromObject(store._Object, null);
-            this.WalkSubtree(source, source.XamlNode, objContext, inheritable, true);
-        }
-        ClearInheritedPropertiesOnRemovingFromTree(store: IProviderStore, subtreeNode: XamlNode) {
-            var baseContext = _InheritedContext.FromSources(
-                    this._GetPropertySource(_Inheritable.Foreground),
-                    this._GetPropertySource(_Inheritable.FontFamily),
-                    this._GetPropertySource(_Inheritable.FontStretch),
-                    this._GetPropertySource(_Inheritable.FontStyle),
-                    this._GetPropertySource(_Inheritable.FontWeight),
-                    this._GetPropertySource(_Inheritable.FontSize),
-                    this._GetPropertySource(_Inheritable.Language),
-                    this._GetPropertySource(_Inheritable.FlowDirection),
-                    this._GetPropertySource(_Inheritable.UseLayoutRounding),
-                    this._GetPropertySource(_Inheritable.TextDecorations));
-            var objContext = _InheritedContext.FromObject(store._Object, baseContext);
-            this.WalkTree(store._Object, subtreeNode, objContext, _Inheritable.All, false);
-        }
-        _GetPropertySource(inheritable: _Inheritable): DependencyObject {
-            return this._ht[inheritable];
-        }
-        _SetPropertySource(inheritable: _Inheritable, source: DependencyObject) {
-            if (source)
-                this._ht[inheritable] = source;
-            else
-                this._ht[inheritable] = undefined;
+            var oldValue = storage.InheritedValue;
+            if (oldValue === undefined) oldValue = propd.DefaultValue;
+            storage.InheritedValue = newValue;
+            storage.Precedence = PropertyPrecedence.Inherited;
+            this.OnPropertyChanged(storage, PropertyPrecedence.Inherited, oldValue, newValue);
         }
     }
-    Nullstone.RegisterType(InheritedProvider, "InheritedProvider");
+    InheritedStore.Instance = new InheritedStore();
 }
 
 module Fayde.Providers {
-    export interface IInheritedProvider extends IPropertyProvider {
-        PropagateInheritedProperty(store: IProviderStore, propd: DependencyProperty, source: DependencyObject);
-        PropagateInheritedPropertiesOnAddingToTree(store: IProviderStore, subtreeNode: XamlNode);
-        ClearInheritedPropertiesOnRemovingFromTree(store: IProviderStore, subtreeNode: XamlNode);
+    export interface IIsEnabledStorage extends IPropertyStorage {
+        InheritedValue: bool;
+        SourceNode: Controls.ControlNode;
+        Listener: Controls.IIsEnabledListener;
     }
-    export class InheritedProviderStore extends BasicProviderStore {
-        constructor(dobj: DependencyObject) {
-            super(dobj);
+    export class IsEnabledStore extends PropertyStore {
+        static Instance: IsEnabledStore;
+        GetValue(storage: IIsEnabledStorage): bool {
+            if (storage.SourceNode)
+                return storage.InheritedValue;
+            return super.GetValue(storage);
         }
-        SetProviders(providerArr: Providers.IPropertyProvider[]) {
-            this._LocalValueProvider = this._Providers[1] = <LocalValueProvider>providerArr[1];
-            this._InheritedProvider = this._Providers[5] = <IInheritedProvider>providerArr[5];
-            this._InheritedDataContextProvider = this._Providers[6] = <IInheritedDataContextProvider>providerArr[6];
-            this._DefaultValueProvider = this._Providers[7] = <DefaultValueProvider>providerArr[7];
-            this._AutoCreateProvider = this._Providers[8] = <AutoCreateProvider>providerArr[8];
+        GetValuePrecedence(storage: IIsEnabledStorage): PropertyPrecedence {
+            if (storage.InheritedValue === false)
+                return PropertyPrecedence.IsEnabled;
+            return super.GetValuePrecedence(storage);
         }
-        private _Providers: IPropertyProvider[];
-        private _LocalValueProvider: LocalValueProvider;
-        private _InheritedProvider: IInheritedProvider;
-        private _InheritedDataContextProvider: IInheritedDataContextProvider;
-        private _DefaultValueProvider: DefaultValueProvider;
-        private _AutoCreateProvider: AutoCreateProvider;
-        _PostProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldValue: any, newValue: any, notifyListeners: bool, error: BError) {
-            super._PostProviderValueChanged(providerPrecedence, propd, oldValue, newValue, notifyListeners, error);
-            if (!notifyListeners)
+        SetLocalValue(storage: IIsEnabledStorage, newValue: bool) {
+            var oldValue = storage.Local;
+            storage.Local = newValue;
+            if (oldValue === newValue || storage.InheritedValue === false)
                 return;
-            if (propd._Inheritable > 0 && providerPrecedence !== _PropertyPrecedence.Inherited) {
-                var inheritedProvider = this._InheritedProvider;
-                if (inheritedProvider && ((this._ProviderBitmasks[propd._ID] & ((1 << _PropertyPrecedence.Inherited) - 1)) !== 0))
-                    inheritedProvider.PropagateInheritedProperty(this, propd, this._Object);
+            this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldValue, newValue);
+        }
+        SetInheritedSource(storage: IIsEnabledStorage, sourceNode: XamlNode) {
+            while (sourceNode) {
+                if (sourceNode instanceof Controls.ControlNode)
+                    break;
+                else if (sourceNode instanceof FENode)
+                    sourceNode = sourceNode.ParentNode;
+                else
+                    sourceNode = null;
             }
-        }
-        PropagateInheritedOnAdd(subtreeNode: XamlNode) {
-            this._InheritedProvider.PropagateInheritedPropertiesOnAddingToTree(this, subtreeNode);
-        }
-        ClearInheritedOnRemove(subtreeNode: XamlNode) {
-            this._InheritedProvider.ClearInheritedPropertiesOnRemovingFromTree(this, subtreeNode);
-        }
-    }
-    Nullstone.RegisterType(InheritedProviderStore, "InheritedProviderStore");
-}
-
-module Fayde.Providers {
-    export class LocalStyleProvider implements IPropertyProvider, ILocalStylesProvider {
-        private _ht: any[] = [];
-        private _Style: Style;
-        private _Store: IProviderStore;
-        constructor(store: IProviderStore) {
-            this._Store = store;
-        }
-        GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
-            return this._ht[propd._ID];
-        }
-        RecomputePropertyValueOnClear(propd: DependencyProperty, error: BError) {
-            var oldValue;
-            var newValue;
-            var walkPropd;
-            var walker = SingleStyleWalker(this._Style);
-            var setter: Setter;
-            while (setter = walker.Step()) {
-                walkPropd = setter.Property;
-                if (walkPropd._ID !== propd._ID)
-                    continue;
-                newValue = setter.ConvertedValue;
-                oldValue = this._ht[propd._ID];
-                this._ht[propd._ID] = newValue;
-                this._Store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, propd, oldValue, newValue, true, error);
-                if (error.Message)
-                    return;
-            }
-        }
-        UpdateStyle(style: Style, error: BError) {
-            var store = this._Store;
-            var oldValue = undefined;
-            var newValue = undefined;
-            var oldWalker = SingleStyleWalker(this._Style);
-            var newWalker = SingleStyleWalker(style);
-            style.Seal();
-            var oldSetter = oldWalker.Step();
-            var newSetter = newWalker.Step();
-            var oldProp: DependencyProperty;
-            var newProp: DependencyProperty;
-            while (oldSetter || newSetter) {
-                if (oldSetter)
-                    oldProp = oldSetter.Property;
-                if (newSetter)
-                    newProp = newSetter.Property;
-                if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
-                    oldValue = oldSetter.ConvertedValue;
-                    newValue = undefined;
-                    this._ht[oldProp._ID] = undefined;
-                    store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, oldProp, oldValue, newValue, true, error);
-                    oldSetter = oldWalker.Step();
-                } else if (oldProp === newProp) {
-                    oldValue = oldSetter.ConvertedValue;
-                    newValue = newSetter.ConvertedValue;
-                    this._ht[oldProp._ID] = newValue;
-                    store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, oldProp, oldValue, newValue, true, error);
-                    oldSetter = oldWalker.Step();
-                    newSetter = newWalker.Step();
-                } else {
-                    oldValue = undefined;
-                    newValue = newSetter.ConvertedValue;
-                    this._ht[newProp._ID] = newValue;
-                    store._ProviderValueChanged(_PropertyPrecedence.LocalStyle, newProp, oldValue, newValue, true, error);
-                    newSetter = newWalker.Step();
+            if (storage.SourceNode !== sourceNode) {
+                if (storage.Listener) {
+                    storage.Listener.Detach();
+                    storage.Listener = null;
                 }
+                storage.SourceNode = <Controls.ControlNode>sourceNode;
+                storage.Listener = storage.SourceNode.MonitorIsEnabled((newIsEnabled) => this.InheritedValueChanged(storage, newIsEnabled));
             }
-            this._Style = style;
+            if (!sourceNode && (storage.OwnerNode.IsAttached))
+                this.InheritedValueChanged(storage);
+        }
+        CreateStorage(dobj: DependencyObject, propd: DependencyProperty): IIsEnabledStorage {
+            return {
+                OwnerNode: dobj.XamlNode,
+                Property: propd,
+                Precedence: PropertyPrecedence.DefaultValue,
+                Animation: undefined,
+                Local: undefined,
+                LocalStyleValue: undefined,
+                ImplicitStyleValue: undefined,
+                InheritedValue: undefined,
+                SourceNode: undefined,
+                Listener: undefined,
+                PropListeners: undefined,
+            };
+        }
+        private InheritedValueChanged(storage: IIsEnabledStorage, newIsEnabled?: bool): bool {
+            var localIsEnabled = super.GetValue(storage);
+            var parentEnabled = false;
+            var sourceNode = storage.SourceNode;
+            if (sourceNode && (<UINode>storage.OwnerNode).VisualParentNode)
+                parentEnabled = sourceNode.XObject.IsEnabled === true;
+            var newValue = localIsEnabled === true && parentEnabled;
+            var oldValue = storage.InheritedValue;
+            if (oldValue === newValue)
+                return false;
+            storage.InheritedValue = newValue;
+            this.OnPropertyChanged(storage, PropertyPrecedence.IsEnabled, oldValue, newValue);
+            return true;
+        }
+        static InitIsEnabledSource(cn: Controls.ControlNode) {
+            var propd = Controls.Control.IsEnabledProperty;
+            var storage = <IIsEnabledStorage>GetStorage(cn.XObject, propd);
+            (<IsEnabledStore>propd.Store).SetInheritedSource(storage, cn.ParentNode);
         }
     }
-    Nullstone.RegisterType(LocalStyleProvider, "LocalStyleProvider");
+    IsEnabledStore.Instance = new IsEnabledStore();
 }
 
 module Fayde.Data {
@@ -7576,7 +7179,7 @@ module Fayde.Data {
             if (this._TwoWayTextBox)
                 this._TwoWayTextBox.LostFocus.Subscribe(this._TextBoxLostFocus, this);
             if (this.Binding.Mode === BindingMode.TwoWay && this.Property.IsCustom) {
-                this._PropertyListener = Fayde.ListenToPropertyChanged(this.Target, this.Property, this._UpdateSourceCallback, this);
+                this._PropertyListener = this.Property.Store.ListenToChanged(this.Target, this.Property, this._UpdateSourceCallback, this);
             }
         }
         private _UpdateSourceCallback(sender, args: IDependencyPropertyChangedEventArgs) {
@@ -7713,7 +7316,7 @@ module Fayde.Data {
                 if (!this.PropertyPathWalker.IsPathBroken && binding.Converter) {
                     value = binding.Converter.Convert(value, this.Property.GetTargetType(), binding.ConverterParameter, binding.ConverterCulture);
                 }
-                if (value instanceof Fayde.UnsetValue || this.PropertyPathWalker.IsPathBroken) {
+                if (value === UnsetValue || this.PropertyPathWalker.IsPathBroken) {
                     value = binding.FallbackValue;
                     if (value === undefined)
                         value = propd.DefaultValue;
@@ -9183,12 +8786,8 @@ module Fayde {
                 var targetType = propd.GetTargetType();
                 if (!Nullstone.DoesInheritFrom(targetType, XamlObjectCollection))
                     return false;
-                if (propd._IsAutoCreated) {
-                    coll = (<DependencyObject>xobj).GetValue(propd);
-                } else {
-                    coll = <XamlObjectCollection>new (<any>targetType)();
-                    (<DependencyObject>xobj).SetValue(propd, coll);
-                }
+                coll = <XamlObjectCollection>new (<any>targetType)();
+                (<DependencyObject>xobj).SetValue(propd, coll);
             } else if (typeof propertyName === "string") {
                 coll = xobj[propertyName];
             } else if (xobj instanceof XamlObjectCollection) {
@@ -9244,7 +8843,7 @@ module Fayde {
                 } else if (value instanceof Expression) {
                     (<DependencyObject>xobj).SetValueInternal(propd, value);
                 } else {
-                    (<DependencyObject>xobj)._Store.SetValue(propd, value);
+                    (<DependencyObject>xobj).SetStoreValue(propd, value);
                 }
             } else if (propName) {
                 xobj[propName] = value;
@@ -9369,6 +8968,86 @@ module Fayde.Media {
     Nullstone.RegisterType(Matrix, "Matrix");
 }
 
+module Fayde.Media {
+    export interface IMatrix3DChangedListener {
+        Callback: (newMatrix3D: Matrix3D) => void;
+        Detach();
+    }
+    export class Matrix3D {
+        _Raw: number[];
+        private _Inverse: Matrix3D = null;
+        get M11() { return this._Raw[0]; }
+        set M11(val: number) { this._Raw[0] = val; this._OnChanged(); }
+        get M12() { return this._Raw[1]; }
+        set M12(val: number) { this._Raw[1] = val; this._OnChanged(); }
+        get M13() { return this._Raw[2]; }
+        set M13(val: number) { this._Raw[2] = val; this._OnChanged(); }
+        get M14() { return this._Raw[3]; }
+        set M14(val: number) { this._Raw[3] = val; this._OnChanged(); }
+        get M21() { return this._Raw[4]; }
+        set M21(val: number) { this._Raw[4] = val; this._OnChanged(); }
+        get M22() { return this._Raw[5]; }
+        set M22(val: number) { this._Raw[5] = val; this._OnChanged(); }
+        get M23() { return this._Raw[6]; }
+        set M23(val: number) { this._Raw[6] = val; this._OnChanged(); }
+        get M24() { return this._Raw[7]; }
+        set M24(val: number) { this._Raw[7] = val; this._OnChanged(); }
+        get M31() { return this._Raw[8]; }
+        set M31(val: number) { this._Raw[8] = val; this._OnChanged(); }
+        get M32() { return this._Raw[9]; }
+        set M32(val: number) { this._Raw[9] = val; this._OnChanged(); }
+        get M33() { return this._Raw[10]; }
+        set M33(val: number) { this._Raw[10] = val; this._OnChanged(); }
+        get M34() { return this._Raw[11]; }
+        set M34(val: number) { this._Raw[11] = val; this._OnChanged(); }
+        get OffsetX() { return this._Raw[12]; }
+        set OffsetX(val: number) { this._Raw[12] = val; this._OnChanged(); }
+        get OffsetY() { return this._Raw[13]; }
+        set OffsetY(val: number) { this._Raw[13] = val; this._OnChanged(); }
+        get OffsetZ() { return this._Raw[14]; }
+        set OffsetZ(val: number) { this._Raw[14] = val; this._OnChanged(); }
+        get M44() { return this._Raw[15]; }
+        set M44(val: number) { this._Raw[15] = val; this._OnChanged(); }
+        get Inverse(): Matrix3D {
+            var inverse = this._Inverse;
+            if (!inverse) {
+                var i = mat4.identity();
+                mat4.inverse(this._Raw, i);
+                if (!i)
+                    return;
+                inverse = new Matrix3D();
+                inverse._Raw = i;
+                this._Inverse = inverse;
+            }
+            return inverse;
+        }
+        private _Listeners: IMatrix3DChangedListener[] = [];
+        Listen(func: (newMatrix: Matrix3D) => void ): IMatrix3DChangedListener {
+            var listeners = this._Listeners;
+            var listener = {
+                Callback: func,
+                Detach: () => {
+                    var index = listeners.indexOf(listener);
+                    if (index > -1)
+                        listeners.splice(index, 1);
+                }
+            };
+            listeners.push(listener);
+            return listener;
+        }
+        private _OnChanged() {
+            this._Inverse = null;
+            var listeners = this._Listeners;
+            var len = listeners.length;
+            for (var i = 0; i < len; i++) {
+                listeners[i].Callback(this);
+            }
+        }
+        toString(): string { return mat4.str(this._Raw); }
+    }
+    Nullstone.RegisterType(Matrix3D, "Matrix3D");
+}
+
 module Fayde.Media.Animation {
     export class AnimationStorage {
         private _Animation: AnimationBase;
@@ -9382,9 +9061,8 @@ module Fayde.Media.Animation {
             this._Animation = animation;
             this._TargetObj = targetObj;
             this._TargetProp = targetProp;
-            var store = targetObj._Store;
-            var prevStorage = store._AttachAnimationStorage(targetProp, this);
-            this._BaseValue = store.GetValue(targetProp);
+            var prevStorage = AnimationStore.Attach(targetObj, targetProp, this);
+            this._BaseValue = targetObj.GetValue(targetProp);
             if (this._BaseValue === undefined) {
                 var targetType = targetProp.GetTargetType();
                 if (targetType === Number)
@@ -9397,7 +9075,7 @@ module Fayde.Media.Animation {
             if (prevStorage)
                 this.StopValue = prevStorage.StopValue;
             else
-                this.StopValue = store.ReadLocalValue(targetProp);
+                this.StopValue = targetObj.ReadLocalValue(targetProp);
         }
         SwitchTarget(target: DependencyObject) {
             var wasDisabled = this._Disabled;
@@ -9422,7 +9100,7 @@ module Fayde.Media.Animation {
             var tp = this._TargetProp;
             if (!tp)
                 return;
-            to._Store._DetachAnimationStorage(tp, this);
+            AnimationStore.Detach(to, tp, this);
         }
         ResetPropertyValue() {
             var to = this._TargetObj;
@@ -9431,7 +9109,7 @@ module Fayde.Media.Animation {
             var tp = this._TargetProp;
             if (!tp)
                 return;
-            to._Store.SetValue(tp, this.StopValue);
+            to.SetStoreValue(tp, this.StopValue);
         }
         UpdateCurrentValueAndApply(clockData: IClockData) {
             if (this._Disabled)
@@ -9447,7 +9125,7 @@ module Fayde.Media.Animation {
         ApplyCurrentValue() {
             if (this._CurrentValue == null)
                 return;
-            this._TargetObj._Store.SetValue(this._TargetProp, this._CurrentValue);
+            this._TargetObj.SetStoreValue(this._TargetProp, this._CurrentValue);
         }
     }
     Nullstone.RegisterType(AnimationStorage, "AnimationStorage");
@@ -11053,19 +10731,22 @@ module Fayde {
 }
 
 module Fayde {
-    export class UnsetValue { }
     export class DONode extends XamlNode {
         XObject: DependencyObject;
-        Store: Providers.BasicProviderStore;
         constructor(xobj: DependencyObject) {
             super(xobj);
         }
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
-            this.Store.SetDataContextSourceNode(newParentNode);
+            var propd = DependencyObject.DataContextProperty;
+            var storage = <Providers.IDataContextStorage>Providers.GetStorage(this.XObject, propd);
+            var newInherited = newParentNode ? newParentNode.DataContext : undefined;
+            (<Providers.DataContextStore>propd.Store).EmitInheritedChanged(storage, newInherited);
         }
         get DataContext(): any { return this.XObject.DataContext; }
         set DataContext(value: any) {
-            this.Store.EmitDataContextChanged();
+            var propd = DependencyObject.DataContextProperty;
+            var storage = <Providers.IDataContextStorage>Providers.GetStorage(this.XObject, propd);
+            (<Providers.DataContextStore>propd.Store).EmitInheritedChanged(storage, value);
             this.OnDataContextChanged(undefined, value);
         }
         _DataContextPropertyChanged(args: IDependencyPropertyChangedEventArgs) {
@@ -11073,35 +10754,21 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(DONode, "DONode");
-    export class DependencyObject extends XamlObject implements ICloneable {
+    export class DependencyObject extends XamlObject implements ICloneable, Providers.IPropertyStorageOwner {
         private _Expressions: Expression[] = [];
-        _Store: Providers.BasicProviderStore;
-        static DataContextProperty: DependencyProperty = DependencyProperty.RegisterCore("DataContext", () => Object, DependencyObject, undefined, (d, args) => (<DependencyObject>d).XamlNode._DataContextPropertyChanged(args));
+        private _PropertyStorage: Providers.IPropertyStorage[] = [];
+        static DataContextProperty: DependencyProperty = DependencyProperty.Register("DataContext", () => Object, DependencyObject, undefined, (d, args) => (<DependencyObject>d).XamlNode._DataContextPropertyChanged(args));
         DataContext: any;
         constructor() {
             super();
-            this.XamlNode.Store = this._Store = this.CreateStore();
         }
         XamlNode: DONode;
         CreateNode(): DONode { return new DONode(this); }
-        CreateStore(): Providers.BasicProviderStore {
-            var s = new Providers.BasicProviderStore(this);
-            s.SetProviders([null, 
-                new Providers.LocalValueProvider(), 
-                null,
-                null,
-                null,
-                null,
-                new Providers.InheritedDataContextProvider(s),
-                new Providers.DefaultValueProvider(),
-                new Providers.AutoCreateProvider()]
-            );
-            return s;
-        }
         GetValue(propd: DependencyProperty): any {
             if (!propd)
                 throw new ArgumentException("No property specified.");
-            return this._Store.GetValue(propd);
+            var storage = Providers.GetStorage(this, propd);
+            return propd.Store.GetValue(storage);
         }
         SetValue(propd: DependencyProperty, value: any) {
             if (!propd)
@@ -11146,17 +10813,22 @@ module Fayde {
                     this._RemoveExpression(propd);
                 }
             }
+            var storage = Providers.GetStorage(this, propd);
             try {
-                this._Store.SetValue(propd, value);
+                propd.Store.SetLocalValue(storage, value);
                 if (updateTwoWay)
                     (<Data.BindingExpressionBase>existing)._TryUpdateSourceObject(value);
             } catch (err) {
                 if (!addingExpression)
                     throw err;
-                this._Store.SetValue(propd, propd.DefaultValue);
+                propd.Store.SetLocalValue(storage, propd.DefaultValue);
                 if (updateTwoWay)
                     (<Data.BindingExpressionBase>existing)._TryUpdateSourceObject(value);
             }
+        }
+        SetStoreValue(propd: DependencyProperty, value: any) {
+            var storage = Providers.GetStorage(this, propd);
+            propd.Store.SetLocalValue(storage, value);
         }
         ClearValue(propd: DependencyProperty) {
             if (!propd)
@@ -11164,7 +10836,10 @@ module Fayde {
             if (propd.IsReadOnly && !propd.IsCustom)
                 throw new ArgumentException("This property is readonly.");
             this._RemoveExpression(propd);
-            this._Store.ClearValue(propd, true);
+            if (Media.Animation.AnimationStore.Get(this, propd))
+                return;
+            var storage = Providers.GetStorage(this, propd);
+            propd.Store.ClearValue(storage);
         }
         ReadLocalValue(propd: DependencyProperty): any {
             if (!propd)
@@ -11172,9 +10847,12 @@ module Fayde {
             var expr = this._Expressions[propd._ID]
             if (expr)
                 return expr;
-            return this._Store.ReadLocalValue(propd);
+            var storage = Providers.GetStorage(this, propd);
+            var val = storage.Local;
+            if (val === undefined)
+                return UnsetValue;
+            return val;
         }
-        _OnPropertyChanged(args: IDependencyPropertyChangedEventArgs) { }
         private _AddExpression(propd: DependencyProperty, expr: Expression) {
             this._Expressions[propd._ID] = expr;
             expr.OnAttached(this);
@@ -11204,11 +10882,92 @@ module Fayde {
             this.SetValueInternal(propd, e);
             return e;
         }
-        CloneCore(source: DependencyObject) {
-            this._Store.CloneCore(source._Store);
+        private CloneCore(source: DependencyObject) {
+            var sarr = source._PropertyStorage;
+            var darr = this._PropertyStorage = [];
+            for (var id in sarr) {
+                var storage: Providers.IPropertyStorage = sarr[id];
+                darr[id] = storage.Property.Store.Clone(this, storage);
+            }
         }
     }
     Nullstone.RegisterType(DependencyObject, "DependencyObject");
+    DependencyObject.DataContextProperty.Store = Fayde.Providers.DataContextStore.Instance;
+}
+
+module Fayde {
+    export interface IFontChangeable {
+        FontChanged(args:IDependencyPropertyChangedEventArgs);
+    }
+    export class InheritableOwner {
+        static _UseLayoutRoundingPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
+            var uie = <UIElement>dobj;
+            var lu = uie.XamlNode.LayoutUpdater;
+            lu.InvalidateMeasure();
+            lu.InvalidateArrange();
+        }
+        static UseLayoutRoundingProperty: DependencyProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", () => Boolean, InheritableOwner, true, InheritableOwner._UseLayoutRoundingPropertyChanged);
+        static _FlowDirectionPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
+            var feNode = (<FrameworkElement>dobj).XamlNode;
+            if (feNode._FlowDirectionChanged)
+                feNode._FlowDirectionChanged(args);
+        }
+        static FlowDirectionProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FlowDirection", () => new Enum(FlowDirection), InheritableOwner, FlowDirection.LeftToRight, InheritableOwner._FlowDirectionPropertyChanged);
+        static _FontFamilyPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
+            if ((<IFontChangeable><any>dobj).FontChanged)
+                (<IFontChangeable><any>dobj).FontChanged(args);
+        }
+        static FontFamilyProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontFamily", () => String, InheritableOwner, Font.DEFAULT_FAMILY, InheritableOwner._FontFamilyPropertyChanged);
+        static _FontSizePropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
+            if ((<IFontChangeable><any>dobj).FontChanged)
+                (<IFontChangeable><any>dobj).FontChanged(args);
+        }
+        static FontSizeProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontSize", () => Number, InheritableOwner, Font.DEFAULT_SIZE, InheritableOwner._FontSizePropertyChanged);
+        static _FontStretchPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
+            if ((<IFontChangeable><any>dobj).FontChanged)
+                (<IFontChangeable><any>dobj).FontChanged(args);
+        }
+        static FontStretchProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStretch", () => String, InheritableOwner, Font.DEFAULT_STRETCH, InheritableOwner._FontStretchPropertyChanged);
+        static _FontStylePropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
+            if ((<IFontChangeable><any>dobj).FontChanged)
+                (<IFontChangeable><any>dobj).FontChanged(args);
+        }
+        static FontStyleProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStyle", () => String, InheritableOwner, Font.DEFAULT_STYLE, InheritableOwner._FontStylePropertyChanged);
+        static _FontWeightPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
+            if ((<IFontChangeable><any>dobj).FontChanged)
+                (<IFontChangeable><any>dobj).FontChanged(args);
+        }
+        static FontWeightProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontWeight", () => new Enum(FontWeight), InheritableOwner, Font.DEFAULT_WEIGHT, InheritableOwner._FontWeightPropertyChanged);
+        static _ForegroundPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
+            if ((<IFontChangeable><any>dobj).FontChanged)
+                (<IFontChangeable><any>dobj).FontChanged(args);
+        }
+        static ForegroundProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Foreground", () => Media.Brush, InheritableOwner, undefined, InheritableOwner._ForegroundPropertyChanged);
+        static _TextDecorationsPropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
+            if ((<IFontChangeable><any>dobj).FontChanged)
+                (<IFontChangeable><any>dobj).FontChanged(args);
+        }
+        static TextDecorationsProperty: DependencyProperty = DependencyProperty.RegisterInheritable("TextDecorations", () => new Enum(TextDecorations), InheritableOwner, TextDecorations.None, InheritableOwner._TextDecorationsPropertyChanged);
+        static _LanguagePropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
+            if ((<IFontChangeable><any>dobj).FontChanged)
+                (<IFontChangeable><any>dobj).FontChanged(args);
+        }
+        static LanguageProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Language", () => String, InheritableOwner, undefined, InheritableOwner._LanguagePropertyChanged);
+        static AllInheritedProperties: DependencyProperty[];
+    }
+    InheritableOwner.AllInheritedProperties = [
+        InheritableOwner.ForegroundProperty,
+        InheritableOwner.FontFamilyProperty,
+        InheritableOwner.FontStretchProperty,
+        InheritableOwner.FontStyleProperty,
+        InheritableOwner.FontWeightProperty,
+        InheritableOwner.FontSizeProperty,
+        InheritableOwner.LanguageProperty,
+        InheritableOwner.FlowDirectionProperty,
+        InheritableOwner.UseLayoutRoundingProperty,
+        InheritableOwner.TextDecorationsProperty,
+    ];
+    Nullstone.RegisterType(InheritableOwner, "InheritableOwner");
 }
 
 module Fayde {
@@ -11476,124 +11235,6 @@ module Fayde {
     Nullstone.RegisterType(XamlObjectCollection, "XamlObjectCollection", [IEnumerable_]);
 }
 
-module Fayde.Providers {
-    export interface ILocalStylesProvider extends IPropertyProvider {
-        UpdateStyle(style: Style, error: BError);
-    }
-    export interface IImplicitStylesProvider extends IPropertyProvider {
-        SetStyles(styleMask: _StyleMask, styles: Style[], error: BError);
-        ClearStyles(styleMask: _StyleMask, error: BError);
-    }
-    export class FrameworkProviderStore extends InheritedProviderStore {
-        constructor(dobj: DependencyObject) {
-            super(dobj);
-        }
-        SetProviders(providerArr: Providers.IPropertyProvider[]) {
-            this._LocalValueProvider = this._Providers[1] = <LocalValueProvider>providerArr[1];
-            this._DynamicValueProvider = this._Providers[2] = providerArr[2];
-            this._LocalStyleProvider = this._Providers[3] = <ILocalStylesProvider>providerArr[3];
-            this._ImplicitStyleProvider = this._Providers[4] = <IImplicitStylesProvider>providerArr[4];
-            this._InheritedProvider = this._Providers[5] = <IInheritedProvider>providerArr[5];
-            this._InheritedDataContextProvider = this._Providers[6] = <IInheritedDataContextProvider>providerArr[6];
-            this._DefaultValueProvider = this._Providers[7] = <DefaultValueProvider>providerArr[7];
-            this._AutoCreateProvider = this._Providers[8] = <AutoCreateProvider>providerArr[8];
-        }
-        private _Providers: IPropertyProvider[];
-        private _LocalValueProvider: LocalValueProvider;
-        private _DynamicValueProvider: IPropertyProvider;
-        private _LocalStyleProvider: ILocalStylesProvider;
-        private _ImplicitStyleProvider: IImplicitStylesProvider;
-        private _InheritedProvider: IInheritedProvider;
-        private _InheritedDataContextProvider: IInheritedDataContextProvider;
-        private _DefaultValueProvider: DefaultValueProvider;
-        private _AutoCreateProvider: AutoCreateProvider;
-        SetImplicitStyles(styleMask: _StyleMask, styles?: Style[]) {
-            if (!styles)
-                styles = this._GetImplicitStyles(styleMask);
-            if (styles) {
-                var error = new BError();
-                var len = Providers._StyleIndex.Count;
-                for (var i = 0; i < len; i++) {
-                    var style = styles[i];
-                    if (!style)
-                        continue;
-                    if (!style.Validate(this._Object, error)) {
-                        error.ThrowException();
-                        return;
-                    }
-                }
-            }
-            this._ImplicitStyleProvider.SetStyles(styleMask, styles, error);
-        }
-        private _GetImplicitStyles(styleMask: _StyleMask): Style[] {
-            var fe = <FrameworkElement>this._Object;
-            var feType = (<any>fe).constructor;
-            var feTypeName = (<any>feType)._TypeName;
-            var genericXamlStyle: Style = undefined;
-            if ((styleMask & _StyleMask.GenericXaml) != 0) {
-                if (fe instanceof Controls.Control) {
-                    genericXamlStyle = (<Controls.Control>fe).GetDefaultStyle();
-                    if (!genericXamlStyle) {
-                        var styleKey = fe.DefaultStyleKey;
-                        if (styleKey)
-                            genericXamlStyle = this._GetGenericXamlStyleFor(styleKey);
-                    }
-                }
-            }
-            var appResourcesStyle: Style = undefined;
-            var rd = App.Current.Resources;
-            if ((styleMask & _StyleMask.ApplicationResources) != 0) {
-                appResourcesStyle = <Style>rd.Get(feType);
-                if (!appResourcesStyle)
-                    appResourcesStyle = <Style>rd.Get(feTypeName);
-            }
-            var visualTreeStyle: Style = undefined;
-            if ((styleMask & _StyleMask.VisualTree) != 0) {
-                var cur = fe;
-                var curNode = fe.XamlNode;
-                var isControl = curNode instanceof Controls.ControlNode;
-                while (curNode) {
-                    cur = curNode.XObject;
-                    if (cur.TemplateOwner && !fe.TemplateOwner) {
-                        cur = <FrameworkElement>cur.TemplateOwner;
-                        curNode = cur.XamlNode;
-                        continue;
-                    }
-                    if (!isControl && cur === fe.TemplateOwner)
-                        break;
-                    rd = cur.Resources;
-                    if (rd) {
-                        visualTreeStyle = <Style>rd.Get(feType);
-                        if (!visualTreeStyle)
-                            visualTreeStyle = <Style>rd.Get(feTypeName);
-                        if (visualTreeStyle)
-                            break;
-                    }
-                    curNode = <FENode>curNode.VisualParentNode;
-                }
-            }
-            var styles = [];
-            styles[_StyleIndex.GenericXaml] = genericXamlStyle;
-            styles[_StyleIndex.ApplicationResources] = appResourcesStyle;
-            styles[_StyleIndex.VisualTree] = visualTreeStyle;
-            return styles;
-        }
-        private _GetGenericXamlStyleFor(type: any): Style {
-            var rd = App.GetGenericResourceDictionary();
-            if (rd)
-                return <Style>rd.Get(type);
-        }
-        ClearImplicitStyles(styleMask: _StyleMask) {
-            var error = new BError();
-            this._ImplicitStyleProvider.ClearStyles(styleMask, error);
-        }
-        SetLocalStyle(style: Style, error: BError) {
-            this._LocalStyleProvider.UpdateStyle(style, error);
-        }
-    }
-    Nullstone.RegisterType(FrameworkProviderStore, "FrameworkProviderStore");
-}
-
 module Fayde.Data {
     export interface IValueConverter {
         Convert(value: any, targetType: Function, parameter: any, culture: any): any;
@@ -11733,34 +11374,17 @@ module Fayde.Documents {
         }
     }
     Nullstone.RegisterType(TextElementNode, "TextElementNode");
-    export class TextElement extends DependencyObject implements Text.ITextAttributesSource {
-        _Store: Providers.InheritedProviderStore;
-        CreateStore(): Providers.BasicProviderStore {
-            var s = new Providers.InheritedProviderStore(this);
-            s.SetProviders([null,
-                new Providers.LocalValueProvider(),
-                null,
-                null,
-                null,
-                new Providers.InheritedProvider(),
-                new Providers.InheritedDataContextProvider(s),
-                new Providers.DefaultValueProvider(),
-                new Providers.AutoCreateProvider()]
-            );
-            return s;
-        }
+    export class TextElement extends DependencyObject implements Text.ITextAttributesSource, IFontChangeable {
         XamlNode: TextElementNode;
-        CreateNode(): TextElementNode {
-            return new TextElementNode(this, null);
-        }
-        static ForegroundProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Foreground", () => Media.Brush, TextElement, undefined, (d, args) => (<TextElement>d)._UpdateFont(false), undefined, Providers._Inheritable.Foreground);
-        static FontFamilyProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontFamily", () => String, TextElement, Font.DEFAULT_FAMILY, (d, args) => (<TextElement>d)._UpdateFont(false), undefined, Providers._Inheritable.FontFamily);
-        static FontStretchProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStretch", () => String, TextElement, Font.DEFAULT_STRETCH, (d, args) => (<TextElement>d)._UpdateFont(false), undefined, Providers._Inheritable.FontStretch);
-        static FontStyleProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStyle", () => String, TextElement, Font.DEFAULT_STYLE, (d, args) => (<TextElement>d)._UpdateFont(false), undefined, Providers._Inheritable.FontStyle);
-        static FontWeightProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontWeight", () => new Enum(FontWeight), TextElement, Font.DEFAULT_WEIGHT, (d, args) => (<TextElement>d)._UpdateFont(false), undefined, Providers._Inheritable.FontWeight);
-        static FontSizeProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontSize", () => Number, TextElement, Font.DEFAULT_SIZE, (d, args) => (<TextElement>d)._UpdateFont(false), undefined, Providers._Inheritable.FontSize);
-        static LanguageProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Language", () => String, TextElement, undefined, (d, args) => (<TextElement>d)._UpdateFont(false), undefined, Providers._Inheritable.Language);
-        static TextDecorationsProperty: DependencyProperty = DependencyProperty.RegisterInheritable("TextDecorations", () => new Enum(TextDecorations), TextElement, TextDecorations.None, (d, args) => (<TextElement>d)._UpdateFont(false), undefined, Providers._Inheritable.TextDecorations);
+        CreateNode(): TextElementNode { return new TextElementNode(this, null); }
+        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty;
+        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty;
+        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty;
+        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty;
+        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty;
+        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty;
+        static TextDecorationsProperty: DependencyProperty = InheritableOwner.TextDecorationsProperty;
+        static LanguageProperty: DependencyProperty = InheritableOwner.LanguageProperty;
         Foreground: Media.Brush;
         FontFamily: string;
         FontStretch: string;
@@ -11807,6 +11431,9 @@ module Fayde.Documents {
             if (!Nullstone.Equals(this.Foreground, te.Foreground))
                 return false;
             return true;
+        }
+        private FontChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._UpdateFont(false);
         }
     }
     Nullstone.RegisterType(TextElement, "TextElement");
@@ -12254,8 +11881,8 @@ module Fayde.Media {
             mat4.inverse(this._Raw, it._Raw);
             return it;
         }
-        get Value(): Matrix {
-            var m = new Matrix();
+        get Value(): Matrix3D {
+            var m = new Matrix3D();
             m._Raw = mat4.create(this._Raw);
             return m;
         }
@@ -12276,6 +11903,7 @@ module Fayde.Media {
         }
         CreateMatrix3DProjection(): Matrix3DProjection {
             var projection = new Matrix3DProjection();
+            projection.ProjectionMatrix = this.Inverse.Value;
             return projection
         }
     }
@@ -13379,7 +13007,7 @@ module Fayde.Media.Animation {
             for (; i >= 0; i--) {
                 keyFrame = sortedList[i];
                 valuePropd = DependencyProperty.GetDependencyProperty((<any>keyFrame).constructor, "Value");
-                if (keyFrame._Store.GetValue(valuePropd) !== undefined) {
+                if (keyFrame.GetValue(valuePropd) !== undefined) {
                     currentKeyFrame = keyFrame;
                     break;
                 }
@@ -13387,7 +13015,7 @@ module Fayde.Media.Animation {
             for (i--; i >= 0; i--) {
                 keyFrame = sortedList[i];
                 valuePropd = DependencyProperty.GetDependencyProperty((<any>keyFrame).constructor, "Value");
-                if (keyFrame._Store.GetValue(valuePropd) !== undefined) {
+                if (keyFrame.GetValue(valuePropd) !== undefined) {
                     previousKeyFrame = keyFrame;
                     break;
                 }
@@ -14737,7 +14365,7 @@ module Fayde {
             lu.PreviousConstraint = undefined;
             var un = uie.XamlNode;
             un.SetVisualParentNode(this);
-            this.XObject._Store.PropagateInheritedOnAdd(un);
+            Providers.InheritedStore.PropagateInheritedOnAdd(this.XObject, un);
             un.LayoutUpdater.OnAddedToTree();
         }
         OnVisualChildDetached(uie: UIElement) {
@@ -14747,7 +14375,7 @@ module Fayde {
             lu.InvalidateMeasure();
             un.SetVisualParentNode(null);
             un.LayoutUpdater.OnRemovedFromTree();
-            this.XObject._Store.ClearInheritedOnRemove(un);
+            Providers.InheritedStore.ClearInheritedOnRemove(this.XObject, un);
         }
         private SetVisualParentNode(visualParentNode: UINode) {
             if (this.VisualParentNode === visualParentNode)
@@ -14961,23 +14589,8 @@ module Fayde {
     Nullstone.RegisterType(UINode, "UINode");
     export class UIElement extends DependencyObject {
         XamlNode: UINode;
-        _Store: Providers.InheritedProviderStore;
         private _ClipListener: Media.IGeometryListener = null;
         private _EffectListener: Media.Effects.IEffectListener = null;
-        CreateStore(): Providers.InheritedProviderStore {
-            var s = new Providers.InheritedProviderStore(this);
-            s.SetProviders([null, 
-                new Providers.LocalValueProvider(), 
-                null,
-                null,
-                null,
-                new Providers.InheritedProvider(),
-                null,
-                new Providers.DefaultValueProvider(),
-                new Providers.AutoCreateProvider()]
-            );
-            return s;
-        }
         CreateNode(): UINode { return new UINode(this); }
         static AllowDropProperty: DependencyProperty;
         static CacheModeProperty: DependencyProperty;
@@ -14991,7 +14604,7 @@ module Fayde {
         static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", () => Point, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
         static TagProperty = DependencyProperty.Register("Tag", () => Object, UIElement);
         static TriggersProperty: DependencyProperty = DependencyProperty.RegisterCore("Triggers", () => TriggerCollection, UIElement, undefined, (d, args) => (<UIElement>d)._TriggersChanged(args));
-        static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", () => Boolean, UIElement, true, (d, args) => (<UIElement>d)._UseLayoutRoundingChanged(args), undefined, Providers._Inheritable.UseLayoutRounding);
+        static UseLayoutRoundingProperty = InheritableOwner.UseLayoutRoundingProperty;
         static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", () => new Enum(Visibility), UIElement, Visibility.Visible, (d, args) => (<UIElement>d).XamlNode.InvalidateVisibility(args.NewValue));
         private _IsMouseOver: bool = false;
         get IsMouseOver() { return this._IsMouseOver; }
@@ -15115,49 +14728,6 @@ module Fayde {
     Nullstone.RegisterType(UIElement, "UIElement");
 }
 
-module Fayde.Providers {
-    export interface IInheritedIsEnabledProvider extends IPropertyProvider {
-        LocalValueChanged(propd?: DependencyProperty): bool;
-        SetDataSource(source: DependencyObject);
-    }
-    export class ControlProviderStore extends FrameworkProviderStore {
-        constructor(dobj: DependencyObject) {
-            super(dobj);
-        }
-        SetProviders(providerArr: IPropertyProvider[]) {
-            this._InheritedIsEnabledProvider = this._Providers[0] = <IInheritedIsEnabledProvider>providerArr[0];
-            this._LocalValueProvider = this._Providers[1] = <LocalValueProvider>providerArr[1];
-            this._DynamicValueProvider = this._Providers[2] = providerArr[2];
-            this._LocalStyleProvider = this._Providers[3] = providerArr[3];
-            this._ImplicitStyleProvider = this._Providers[4] = providerArr[4];
-            this._InheritedProvider = this._Providers[5] = <IInheritedProvider>providerArr[5];
-            this._InheritedDataContextProvider = this._Providers[6] = providerArr[6];
-            this._DefaultValueProvider = this._Providers[7] = <DefaultValueProvider>providerArr[7];
-            this._AutoCreateProvider = this._Providers[8] = <AutoCreateProvider>providerArr[8];
-        }
-        private _Providers: IPropertyProvider[];
-        private _InheritedIsEnabledProvider: IInheritedIsEnabledProvider;
-        private _LocalValueProvider: LocalValueProvider;
-        private _DynamicValueProvider: IPropertyProvider;
-        private _LocalStyleProvider: IPropertyProvider;
-        private _ImplicitStyleProvider: IPropertyProvider;
-        private _InheritedProvider: IInheritedProvider;
-        private _InheritedDataContextProvider: IPropertyProvider;
-        private _DefaultValueProvider: DefaultValueProvider;
-        private _AutoCreateProvider: AutoCreateProvider;
-        _PostProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldValue: any, newValue: any, notifyListeners: bool, error: BError) {
-            var iiep: IInheritedIsEnabledProvider;
-            if (providerPrecedence !== _PropertyPrecedence.IsEnabled && (iiep = this._InheritedIsEnabledProvider) && iiep.LocalValueChanged(propd))
-                return;
-            super._PostProviderValueChanged(providerPrecedence, propd, oldValue, newValue, notifyListeners, error);
-        }
-        SetIsEnabledSource(source: DependencyObject) {
-            this._InheritedIsEnabledProvider.SetDataSource(source);
-        }
-    }
-    Nullstone.RegisterType(ControlProviderStore, "ControlProviderStore");
-}
-
 module Fayde.Documents {
     export interface IBlocksChangedListener {
         BlocksChanged(newBlock: Block, isAdd: bool);
@@ -15238,7 +14808,7 @@ module Fayde.Documents {
         }
         private InlinesChanged(newInline: Inline, isAdd: bool) {
             if (isAdd)
-                this._Store.PropagateInheritedOnAdd(newInline.XamlNode);
+                Providers.InheritedStore.PropagateInheritedOnAdd(this, newInline.XamlNode);
         }
     }
     Nullstone.RegisterType(Paragraph, "Paragraph");
@@ -15246,7 +14816,7 @@ module Fayde.Documents {
 
 module Fayde.Documents {
     export class Run extends Inline {
-        static FlowDirectionProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FlowDirection", () => new Enum(FlowDirection), Run, FlowDirection.LeftToRight, undefined, undefined, Providers._Inheritable.FlowDirection);
+        static FlowDirectionProperty: DependencyProperty = InheritableOwner.FlowDirectionProperty;
         static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, Run);
         FlowDirection: FlowDirection;
         Text: string;
@@ -15274,7 +14844,7 @@ module Fayde.Documents {
         }
         private BlocksChanged(newBlock: Block, isAdd: bool) {
             if (isAdd)
-                this._Store.PropagateInheritedOnAdd(newBlock.XamlNode);
+                Providers.InheritedStore.PropagateInheritedOnAdd(this, newBlock.XamlNode);
         }
     }
     Nullstone.RegisterType(Section, "Section");
@@ -15299,7 +14869,7 @@ module Fayde.Documents {
         }
         private InlinesChanged(newInline: Inline, isAdd: bool) {
             if (isAdd)
-                this._Store.PropagateInheritedOnAdd(newInline.XamlNode);
+                Providers.InheritedStore.PropagateInheritedOnAdd(this, newInline.XamlNode);
         }
         private _SerializeText(): string {
             var str = "";
@@ -16460,8 +16030,8 @@ module Fayde.Media.Imaging {
         return value > 0;
     }
     export class BitmapSource extends ImageSource {
-        static PixelWidthProperty: DependencyProperty = DependencyProperty.RegisterFull("PixelWidth", () => Number, BitmapSource, 0, undefined, undefined, undefined, undefined, intGreaterThanZeroValidator);
-        static PixelHeightProperty: DependencyProperty = DependencyProperty.RegisterFull("PixelHeight", () => Number, BitmapSource, 0, undefined, undefined, undefined, undefined, intGreaterThanZeroValidator);
+        static PixelWidthProperty: DependencyProperty = DependencyProperty.RegisterFull("PixelWidth", () => Number, BitmapSource, 0, undefined, undefined, undefined, intGreaterThanZeroValidator);
+        static PixelHeightProperty: DependencyProperty = DependencyProperty.RegisterFull("PixelHeight", () => Number, BitmapSource, 0, undefined, undefined, undefined, intGreaterThanZeroValidator);
         private _Listener: IImageChangedListener = null;
         private _Image: HTMLImageElement;
         get Image(): HTMLImageElement { return this._Image; }
@@ -16511,7 +16081,7 @@ module Fayde.Media.Imaging {
                 return new Media.Imaging.BitmapImage(value);
             return value;
         }
-        static ImageSourceProperty: DependencyProperty = DependencyProperty.RegisterFull("ImageSource", () => ImageSource, ImageBrush, undefined, (d, args) => (<ImageBrush>d)._ImageSourceChanged(args), undefined, ImageBrush._SourceCoercer);
+        static ImageSourceProperty: DependencyProperty = DependencyProperty.RegisterFull("ImageSource", () => ImageSource, ImageBrush, undefined, (d, args) => (<ImageBrush>d)._ImageSourceChanged(args), ImageBrush._SourceCoercer);
         ImageSource: ImageSource;
         ImageFailed: MulticastEvent = new MulticastEvent();
         ImageOpened: MulticastEvent = new MulticastEvent();
@@ -16550,7 +16120,10 @@ module Fayde.Media.Imaging {
 }
 
 module Fayde {
-    export class FENode extends UINode {
+    export class FENode extends UINode implements Providers.IStyleHolder, Providers.IImplicitStyleHolder {
+        private _LocalStyle: Style;
+        private _ImplicitStyles: Style[];
+        private _StyleMask: number;
         private _Surface: Surface;
         XObject: FrameworkElement;
         constructor(xobj: FrameworkElement) {
@@ -16577,12 +16150,11 @@ module Fayde {
         OnIsLoadedChanged(newIsLoaded: bool) {
             var xobj = this.XObject;
             var res = xobj.Resources;
-            var store = xobj._Store;
             if (!newIsLoaded) {
-                store.ClearImplicitStyles(Providers._StyleMask.VisualTree);
+                Providers.ImplicitStyleBroker.Clear(xobj, Providers.StyleMask.VisualTree);
                 xobj.Unloaded.Raise(xobj, EventArgs.Empty);
             } else {
-                store.SetImplicitStyles(Providers._StyleMask.All);
+                Providers.ImplicitStyleBroker.Set(xobj, Providers.StyleMask.All);
             }
             var enumerator = this.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {
@@ -16591,7 +16163,6 @@ module Fayde {
             if (newIsLoaded) {
                 xobj.Loaded.Raise(xobj, EventArgs.Empty);
                 this.InvokeLoaded();
-                store.EmitDataContextChanged();
             }
         }
         InvokeLoaded() { }
@@ -16734,6 +16305,19 @@ module Fayde {
                 return ArrayEx.GetEnumerator([this.SubtreeNode]);
             return ArrayEx.EmptyEnumerator;
         }
+        _SizeChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.LayoutUpdater;
+            lu.FullInvalidate(false);
+            var vpNode = this.VisualParentNode;
+            if (vpNode)
+                vpNode.LayoutUpdater.InvalidateMeasure();
+            lu.InvalidateMeasure();
+            lu.InvalidateArrange();
+            lu.UpdateBounds();
+        }
+        _FlowDirectionChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._SizeChanged(args);
+        }
     }
     Nullstone.RegisterType(FENode, "FENode");
     export class FrameworkElement extends UIElement implements IResourcable, IMeasurableHidden, IArrangeableHidden {
@@ -16749,33 +16333,19 @@ module Fayde {
                 writable: false
             });
         }
-        _Store: Providers.FrameworkProviderStore;
-        CreateStore(): Providers.FrameworkProviderStore {
-            var s = new Providers.FrameworkProviderStore(this);
-            s.SetProviders([null,
-                new Providers.LocalValueProvider(),
-                new Providers.FrameworkElementDynamicProvider(),
-                new Providers.LocalStyleProvider(s),
-                new Providers.ImplicitStyleProvider(s),
-                new Providers.InheritedProvider(),
-                new Providers.InheritedDataContextProvider(s),
-                new Providers.DefaultValueProvider(),
-                new Providers.AutoCreateProvider()]
-            );
-            return s;
-        }
         CreateNode(): FENode { return new FENode(this); }
         static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", () => Number, FrameworkElement);
         static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", () => Number, FrameworkElement);
         static CursorProperty: DependencyProperty = DependencyProperty.RegisterFull("Cursor", () => new Enum(CursorType), FrameworkElement, CursorType.Default);
-        static FlowDirectionProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FlowDirection", () => new Enum(FlowDirection), FrameworkElement, FlowDirection.LeftToRight, (d, args) => (<FrameworkElement>d)._SizeChanged(args), undefined, Providers._Inheritable.FlowDirection);
+        static FlowDirectionProperty: DependencyProperty = InheritableOwner.FlowDirectionProperty;
         static HeightProperty: DependencyProperty = DependencyProperty.Register("Height", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._HeightChanged(args));
         static HorizontalAlignmentProperty: DependencyProperty = DependencyProperty.Register("HorizontalAlignment", () => new Enum(HorizontalAlignment), FrameworkElement, HorizontalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
-        static MarginProperty: DependencyProperty = DependencyProperty.RegisterCore("Margin", () => Thickness, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d)._SizeChanged(args));
-        static MaxHeightProperty: DependencyProperty = DependencyProperty.Register("MaxHeight", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d)._SizeChanged(args));
-        static MaxWidthProperty: DependencyProperty = DependencyProperty.Register("MaxWidth", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d)._SizeChanged(args));
-        static MinHeightProperty: DependencyProperty = DependencyProperty.Register("MinHeight", () => Number, FrameworkElement, 0.0, (d, args) => (<FrameworkElement>d)._SizeChanged(args));
-        static MinWidthProperty: DependencyProperty = DependencyProperty.Register("MinWidth", () => Number, FrameworkElement, 0.0, (d, args) => (<FrameworkElement>d)._SizeChanged(args));
+        static LanguageProperty: DependencyProperty = InheritableOwner.LanguageProperty;
+        static MarginProperty: DependencyProperty = DependencyProperty.RegisterCore("Margin", () => Thickness, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
+        static MaxHeightProperty: DependencyProperty = DependencyProperty.Register("MaxHeight", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
+        static MaxWidthProperty: DependencyProperty = DependencyProperty.Register("MaxWidth", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
+        static MinHeightProperty: DependencyProperty = DependencyProperty.Register("MinHeight", () => Number, FrameworkElement, 0.0, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
+        static MinWidthProperty: DependencyProperty = DependencyProperty.Register("MinWidth", () => Number, FrameworkElement, 0.0, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
         static StyleProperty: DependencyProperty = DependencyProperty.Register("Style", () => Style, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d)._StyleChanged(args));
         static VerticalAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalAlignment", () => new Enum(VerticalAlignment), FrameworkElement, VerticalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
         static WidthProperty: DependencyProperty = DependencyProperty.Register("Width", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._WidthChanged(args));
@@ -16784,6 +16354,7 @@ module Fayde {
         FlowDirection: FlowDirection;
         Height: number;
         HorizontalAlignment: HorizontalAlignment;
+        Language: string;
         Margin: Thickness;
         MaxWidth: number;
         MaxHeight: number;
@@ -16829,21 +16400,7 @@ module Fayde {
             return arranged;
         }
         private _StyleChanged(args: IDependencyPropertyChangedEventArgs) {
-            var error = new BError();
-            this._Store.SetLocalStyle(args.NewValue, error);
-            if (error.Message)
-                error.ThrowException();
-        }
-        private _SizeChanged(args: IDependencyPropertyChangedEventArgs) {
-            var node = this.XamlNode;
-            var lu = node.LayoutUpdater;
-            lu.FullInvalidate(false);
-            var vpNode = node.VisualParentNode;
-            if (vpNode)
-                vpNode.LayoutUpdater.InvalidateMeasure();
-            lu.InvalidateMeasure();
-            lu.InvalidateArrange();
-            lu.UpdateBounds();
+            Providers.LocalStyleBroker.Set(this, <Style>args.NewValue);
         }
         private _AlignmentChanged(args: IDependencyPropertyChangedEventArgs) {
             var lu = this.XamlNode.LayoutUpdater;
@@ -16851,10 +16408,10 @@ module Fayde {
             lu.FullInvalidate(true);
         }
         _WidthChanged(args: IDependencyPropertyChangedEventArgs) {
-            this._SizeChanged(args);
+            this.XamlNode._SizeChanged(args);
         }
         _HeightChanged(args: IDependencyPropertyChangedEventArgs) {
-            this._SizeChanged(args);
+            this.XamlNode._SizeChanged(args);
         }
     }
     Nullstone.RegisterType(FrameworkElement, "FrameworkElement");
@@ -16955,7 +16512,7 @@ module Fayde {
             if (typeof targetType === "string" || targetType === String)
                 return doStringConversion ? val.toString() : "";
             var tc;
-            if (propd._IsAttached) {
+            if (propd.IsAttached) {
             } else {
             }
             return val;
@@ -16970,7 +16527,7 @@ module Fayde {
 
 module Fayde.Media.Imaging {
     export class BitmapImage extends BitmapSource {
-        static UriSourceProperty: DependencyProperty = DependencyProperty.RegisterFull("UriSource", () => Uri, BitmapImage, undefined, (d, args) => (<BitmapImage>d)._UriSourceChanged(args), undefined, undefined, true);
+        static UriSourceProperty: DependencyProperty = DependencyProperty.RegisterFull("UriSource", () => Uri, BitmapImage, undefined, (d, args) => (<BitmapImage>d)._UriSourceChanged(args), undefined, true);
         UriSource: Uri;
         ImageFailed: MulticastEvent = new MulticastEvent();
         ImageOpened: MulticastEvent = new MulticastEvent();
@@ -17652,11 +17209,11 @@ module Fayde.Controls {
                 return false;
             var xobj = this.XObject;
             if (xobj.TemplateOwner instanceof ContentControl) {
-                if (xobj.ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
+                if (xobj.ReadLocalValue(ContentPresenter.ContentProperty) === UnsetValue) {
                     xobj.SetValue(ContentPresenter.ContentProperty,
                         new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty, "Content"));
                 }
-                if (xobj.ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
+                if (xobj.ReadLocalValue(ContentPresenter.ContentTemplateProperty) === UnsetValue) {
                     xobj.SetValue(ContentPresenter.ContentTemplateProperty,
                         new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty, "ContentTemplate"));
                 }
@@ -17695,9 +17252,9 @@ module Fayde.Controls {
             if (newUie || args.OldValue instanceof UIElement)
                 this.ClearRoot();
             if (newContent && !newUie)
-                this.Store.SetValue(DependencyObject.DataContextProperty, newContent);
+                this.XObject.DataContext = newContent;
             else
-                this.Store.ClearValue(DependencyObject.DataContextProperty);
+                this.XObject.DataContext = undefined;
             this.LayoutUpdater.InvalidateMeasure();
         }
         _ContentTemplateChanged() {
@@ -17719,6 +17276,10 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
+    export interface IIsEnabledListener {
+        Callback: (newIsEnabled: bool) => void;
+        Detach();
+    }
     export class ControlNode extends FENode {
         private _Surface: Surface;
         XObject: Control;
@@ -17751,6 +17312,7 @@ module Fayde.Controls {
         GetDefaultVisualTree(): UIElement { return undefined; }
         OnIsAttachedChanged(newIsAttached: bool) {
             super.OnIsAttachedChanged(newIsAttached);
+            Providers.IsEnabledStore.InitIsEnabledSource(this);
             if (!newIsAttached)
                 Media.VSM.VisualStateManager.DestroyStoryboards(this.XObject, this.TemplateRoot);
         }
@@ -17761,6 +17323,24 @@ module Fayde.Controls {
                 TabNavigationWalker.Focus(this, true);
             }
             this.ReleaseMouseCapture();
+            var listeners = this._IsEnabledListeners;
+            for (var i = 0; i < listeners.length; i++) {
+                listeners[i].Callback(newIsEnabled);
+            }
+        }
+        private _IsEnabledListeners: any[] = [];
+        MonitorIsEnabled(func: (newIsEnabled: bool) => void ): IIsEnabledListener {
+            var listeners = this._IsEnabledListeners;
+            var listener = {
+                Callback: func,
+                Detach: function () {
+                    var index = listeners.indexOf(listener);
+                    if (index > -1)
+                        listeners.splice(index, 1);
+                }
+            };
+            listeners.push(listener);
+            return listener;
         }
         _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
             if (this.XObject.IsEnabled)
@@ -17778,40 +17358,24 @@ module Fayde.Controls {
     Nullstone.RegisterType(ControlNode, "ControlNode");
     export class Control extends FrameworkElement {
         XamlNode: ControlNode;
-        _Store: Providers.ControlProviderStore;
-        CreateStore(): Providers.ControlProviderStore {
-            var s = new Providers.ControlProviderStore(this);
-            s.SetProviders([
-                new Providers.InheritedIsEnabledProvider(s),
-                new Providers.LocalValueProvider(),
-                new Providers.FrameworkElementDynamicProvider(),
-                new Providers.LocalStyleProvider(s),
-                new Providers.ImplicitStyleProvider(s),
-                new Providers.InheritedProvider(),
-                new Providers.InheritedDataContextProvider(s),
-                new Providers.DefaultValueProvider(),
-                new Providers.AutoCreateProvider()]
-            );
-            return s;
-        }
         CreateNode(): ControlNode { return new ControlNode(this); }
         static BackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Control);
         static BorderBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderBrush", () => Media.Brush, Control);
         static BorderThicknessProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderThickness", () => Thickness, Control, undefined, (d, args) => (<Control>d)._BorderThicknessChanged(args));
-        static FontFamilyProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontFamily", () => String, Control, Font.DEFAULT_FAMILY, undefined, undefined, Providers._Inheritable.FontFamily);
-        static FontSizeProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontSize", () => Number, Control, Font.DEFAULT_SIZE, undefined, undefined, Providers._Inheritable.FontSize);
-        static FontStretchProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStretch", () => String, Control, Font.DEFAULT_STRETCH, undefined, undefined, Providers._Inheritable.FontStretch);
-        static FontStyleProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStyle", () => String, Control, Font.DEFAULT_STYLE, undefined, undefined, Providers._Inheritable.FontStyle);
-        static FontWeightProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontWeight", () => new Enum(FontWeight), Control, Font.DEFAULT_WEIGHT, undefined, undefined, Providers._Inheritable.FontWeight);
-        static ForegroundProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Foreground", () => Media.Brush, Control, undefined, undefined, undefined, Providers._Inheritable.Foreground);
-        static HorizontalContentAlignmentProperty: DependencyProperty = DependencyProperty.RegisterCore("HorizontalContentAlignment", () => new Enum(HorizontalAlignment), Control, HorizontalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
-        static IsEnabledProperty: DependencyProperty = DependencyProperty.RegisterCore("IsEnabled", () => Boolean, Control, true, (d, args) => (<Control>d)._IsEnabledChanged(args));
+        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty;
+        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty;
+        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty;
+        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty;
+        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty;
+        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty;
+        static HorizontalContentAlignmentProperty: DependencyProperty = DependencyProperty.Register("HorizontalContentAlignment", () => new Enum(HorizontalAlignment), Control, HorizontalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
+        static IsEnabledProperty: DependencyProperty = DependencyProperty.Register("IsEnabled", () => Boolean, Control, true, (d, args) => (<Control>d)._IsEnabledChanged(args));
         static IsTabStopProperty: DependencyProperty = DependencyProperty.Register("IsTabStop", () => Boolean, Control, true);
         static PaddingProperty: DependencyProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, Control, undefined, (d, args) => (<Control>d)._BorderThicknessChanged(args));
         static TabIndexProperty: DependencyProperty = DependencyProperty.Register("TabIndex", () => Number, Control);
         static TabNavigationProperty: DependencyProperty = DependencyProperty.Register("TabNavigation", () => new Enum(Input.KeyboardNavigationMode), Control, Input.KeyboardNavigationMode.Local);
         static TemplateProperty: DependencyProperty = DependencyProperty.RegisterCore("Template", () => ControlTemplate, Control, undefined, (d, args) => (<Control>d)._TemplateChanged(args));
-        static VerticalContentAlignmentProperty: DependencyProperty = DependencyProperty.RegisterCore("VerticalContentAlignment", () => new Enum(VerticalAlignment), Control, VerticalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
+        static VerticalContentAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalContentAlignment", () => new Enum(VerticalAlignment), Control, VerticalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
         static DefaultStyleKeyProperty: DependencyProperty = DependencyProperty.Register("DefaultStyleKey", () => Function, Control);
         Background: Media.Brush;
         BorderBrush: Media.Brush;
@@ -17921,6 +17485,7 @@ module Fayde.Controls {
         }
     }
     Nullstone.RegisterType(Control, "Control");
+    Control.IsEnabledProperty.Store = Providers.IsEnabledStore.Instance;
 }
 
 module Fayde.Controls {
@@ -18059,7 +17624,7 @@ module Fayde.Controls {
                 return new Media.Imaging.BitmapImage(value);
             return value;
         }
-        static SourceProperty: DependencyProperty = DependencyProperty.RegisterFull("Source", () => Media.Imaging.ImageSource, Image, undefined, (d, args) => (<Image>d)._SourceChanged(args), undefined, Image._SourceCoercer);
+        static SourceProperty: DependencyProperty = DependencyProperty.RegisterFull("Source", () => Media.Imaging.ImageSource, Image, undefined, (d, args) => (<Image>d)._SourceChanged(args), Image._SourceCoercer);
         static StretchProperty: DependencyProperty = DependencyProperty.RegisterCore("Stretch", () => new Enum(Media.Stretch), Image, Media.Stretch.Uniform);
         Source: Media.Imaging.ImageSource;
         Stretch: Media.Stretch;
@@ -19373,7 +18938,7 @@ module Fayde.Controls {
                     inlines.Add(run);
                 }
                 run.Text = text;
-                xobj._Store.PropagateInheritedOnAdd(run.XamlNode);
+                Providers.InheritedStore.PropagateInheritedOnAdd(xobj, run.XamlNode);
             } else {
                 inlines.Clear();
                 xobj.Text = "";
@@ -19385,10 +18950,10 @@ module Fayde.Controls {
                 return;
             var xobj = this.XObject;
             if (isAdd)
-                xobj._Store.PropagateInheritedOnAdd(newInline.XamlNode);
+                Providers.InheritedStore.PropagateInheritedOnAdd(xobj, newInline.XamlNode);
             var inlines = xobj.Inlines;
             this._SetsValue = false;
-            xobj._Store.SetValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
+            xobj.SetStoreValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
             this._SetsValue = true;
             this._UpdateLayoutAttributes();
             var lu = this.LayoutUpdater;
@@ -19399,17 +18964,17 @@ module Fayde.Controls {
         }
     }
     Nullstone.RegisterType(TextBlockNode, "TextBlockNode");
-    export class TextBlock extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable {
+    export class TextBlock extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable, IFontChangeable {
         XamlNode: TextBlockNode;
         CreateNode(): TextBlockNode { return new TextBlockNode(this); }
         static PaddingProperty: DependencyProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, TextBlock, undefined, (d, args) => (<TextBlock>d).XamlNode._InvalidateDirty(true));
-        static ForegroundProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Foreground", () => Media.Brush, TextBlock, undefined, undefined, undefined, Providers._Inheritable.Foreground);
-        static FontFamilyProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontFamily", () => String, TextBlock, Font.DEFAULT_FAMILY, (d, args) => (<TextBlock>d).XamlNode._FontChanged(args), undefined, Providers._Inheritable.FontFamily);
-        static FontStretchProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStretch", () => String, TextBlock, Font.DEFAULT_STRETCH, (d, args) => (<TextBlock>d).XamlNode._FontChanged(args), undefined, Providers._Inheritable.FontStretch);
-        static FontStyleProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStyle", () => String, TextBlock, Font.DEFAULT_STYLE, (d, args) => (<TextBlock>d).XamlNode._FontChanged(args), undefined, Providers._Inheritable.FontStyle);
-        static FontWeightProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontWeight", () => new Enum(FontWeight), TextBlock, Font.DEFAULT_WEIGHT, (d, args) => (<TextBlock>d).XamlNode._FontChanged(args), undefined, Providers._Inheritable.FontWeight);
-        static FontSizeProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontSize", () => Number, TextBlock, Font.DEFAULT_SIZE, (d, args) => (<TextBlock>d).XamlNode._FontChanged(args), undefined, Providers._Inheritable.FontSize);
-        static TextDecorationsProperty: DependencyProperty = DependencyProperty.RegisterInheritable("TextDecorations", () => new Enum(TextDecorations), TextBlock, TextDecorations.None, (d, args) => (<TextBlock>d).XamlNode._InvalidateDirty(true), undefined, Providers._Inheritable.TextDecorations);
+        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty;
+        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty;
+        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty;
+        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty;
+        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty;
+        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty;
+        static TextDecorationsProperty: DependencyProperty = InheritableOwner.TextDecorationsProperty;
         static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, TextBlock, "", (d, args) => (<TextBlock>d).XamlNode._TextChanged(args));
         static LineStackingStrategyProperty: DependencyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", () => new Enum(LineStackingStrategy), TextBlock, LineStackingStrategy.MaxHeight, (d, args) => (<TextBlock>d).XamlNode._LineStackingStrategyChanged(args));
         static LineHeightProperty: DependencyProperty = DependencyProperty.RegisterCore("LineHeight", () => Number, TextBlock, NaN, (d, args) => (<TextBlock>d).XamlNode._LineHeightChanged(args));
@@ -19483,6 +19048,12 @@ module Fayde.Controls {
         }
         private BrushChanged(newBrush: Media.Brush) {
             this.XamlNode.LayoutUpdater.Invalidate();
+        }
+        private FontChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (args.Property === InheritableOwner.TextDecorationsProperty)
+                this.XamlNode._InvalidateDirty();
+            else
+                this.XamlNode._FontChanged(args);
         }
     }
     Nullstone.RegisterType(TextBlock, "TextBlock");
@@ -19716,7 +19287,7 @@ module Fayde.Controls {
         }
         private _SyncText() {
             this._SettingValue = false;
-            this._Store.SetValue(this._TextProperty, this._Buffer);
+            this.SetStoreValue(this._TextProperty, this._Buffer);
             this._SettingValue = true;
         }
         _EmitTextChanged() { }
@@ -19752,11 +19323,11 @@ module Fayde.Controls {
                 var len = Math.abs(this._SelectionCursor - this._SelectionAnchor);
                 var text = !this._Buffer ? '' : this._Buffer.substr(start, len);
                 this._SettingValue = false;
-                this._Store.SetValue(this._SelectedTextProperty, text);
+                this.SetStoreValue(this._SelectedTextProperty, text);
                 this._SettingValue = true;
             } else {
                 this._SettingValue = false;
-                this._Store.SetValue(this._SelectedTextProperty, "");
+                this.SetStoreValue(this._SelectedTextProperty, "");
                 this._SettingValue = true;
             }
         }
@@ -21146,10 +20717,10 @@ module Fayde.Controls.Primitives {
             var popup = this.XObject;
             this._Hide();
             if (oldChild)
-                popup._Store.ClearInheritedOnRemove(oldChild.XamlNode);
+                Providers.InheritedStore.ClearInheritedOnRemove(popup, oldChild.XamlNode);
             this._PrepareVisualChild(newChild);
             if (newChild) {
-                popup._Store.PropagateInheritedOnAdd(newChild.XamlNode);
+                Providers.InheritedStore.PropagateInheritedOnAdd(popup, newChild.XamlNode);
                 if (popup.IsOpen)
                     this._Show();
             }
@@ -22120,7 +21691,7 @@ module Fayde.Data {
             return true;
         if (data.res != null) {
             var value = null;
-            if ((value = data.lu._Store.GetValue(data.res)) == null)
+            if ((value = data.lu.GetValue(data.res)) == null)
                 return false;
             if (!(value instanceof DependencyObject))
                 return false;
@@ -22129,8 +21700,8 @@ module Fayde.Data {
                 var clonedValue = Fayde.Clone(value);
                 if (clonedValue instanceof DependencyObject) {
                     newLu = clonedValue;
-                    data.lu._Store.SetValue(data.res, clonedValue);
-                    clonedValue = data.lu._Store.GetValue(data.res);
+                    data.lu.SetStoreValue(data.res, clonedValue);
+                    clonedValue = data.lu.GetValue(data.res);
                     data.promotedValues[clonedValue._ID] = clonedValue;
                 }
             }
@@ -22246,11 +21817,11 @@ module Fayde.Data {
             data.res = DependencyProperty.GetDependencyProperty((<any>data.lu).constructor, name);
         if (data.res == null)
             return false;
-        if (!data.res._IsAttached && !(data.lu instanceof data.type)) {
+        if (!data.res.IsAttached && !(data.lu instanceof data.type)) {
             if ((data.res = DependencyProperty.GetDependencyProperty((<any>data.lu).constructor, name)) == null)
                 return false;
         }
-        if (data.res._IsAttached && data.explicitType && !data.parenOpen)
+        if (data.res.IsAttached && data.explicitType && !data.parenOpen)
             return false;
         return true;
     }
@@ -22511,7 +22082,7 @@ module Fayde.Shapes {
                 return Media.ParseGeometry(value);
             return value;
         }
-        static DataProperty: DependencyProperty = DependencyProperty.RegisterFull("Data", () => Media.Geometry, Path, undefined, (d, args) => (<Shape>d)._InvalidateNaturalBounds(), undefined, Path._DataCoercer);
+        static DataProperty: DependencyProperty = DependencyProperty.RegisterFull("Data", () => Media.Geometry, Path, undefined, (d, args) => (<Shape>d)._InvalidateNaturalBounds(), Path._DataCoercer);
         Data: Media.Geometry;
         private _GetFillRule(): FillRule {
             var geom = this.Data;
@@ -22552,7 +22123,7 @@ module Fayde.Shapes {
             return value;
         }
         static FillRuleProperty: DependencyProperty = DependencyProperty.RegisterCore("FillRule", () => new Enum(FillRule), Polygon, FillRule.EvenOdd, (d, args) => (<Polygon>d)._FillRuleChanged(args));
-        static PointsProperty: DependencyProperty = DependencyProperty.RegisterFull("Points", () => PointCollection, Polygon, undefined, (d, args) => (<Polygon>d)._PointsChanged(args), undefined, Polygon._PointsCoercer);
+        static PointsProperty: DependencyProperty = DependencyProperty.RegisterFull("Points", () => PointCollection, Polygon, undefined, (d, args) => (<Polygon>d)._PointsChanged(args), Polygon._PointsCoercer);
         FillRule: FillRule;
         Points: PointCollection;
         private _PointsChanged(args: IDependencyPropertyChangedEventArgs) {
@@ -22654,7 +22225,7 @@ module Fayde.Shapes {
             return value;
         }
         static FillRuleProperty: DependencyProperty = DependencyProperty.RegisterCore("FillRule", () => new Enum(FillRule), Polyline, FillRule.EvenOdd, (d, args) => (<Polyline>d)._FillRuleChanged(args));
-        static PointsProperty: DependencyProperty = DependencyProperty.RegisterFull("Points", () => PointCollection, Polyline, undefined, (d, args) => (<Polyline>d)._PointsChanged(args), undefined, Polyline._PointsCoercer);
+        static PointsProperty: DependencyProperty = DependencyProperty.RegisterFull("Points", () => PointCollection, Polyline, undefined, (d, args) => (<Polyline>d)._PointsChanged(args), Polyline._PointsCoercer);
         FillRule: FillRule;
         Points: PointCollection;
         private _PointsChanged(args: IDependencyPropertyChangedEventArgs) {
@@ -25101,14 +24672,14 @@ module Fayde.Controls {
     export class TextBox extends TextBoxBase {
         static AcceptsReturnProperty: DependencyProperty = DependencyProperty.Register("AcceptsReturn", () => Boolean, TextBox, false, (d, args) => (<TextBox>d).$AcceptsReturn = (args.NewValue === true));
         static CaretBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, TextBox);
-        static MaxLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d).$MaxLength = args.NewValue, undefined, undefined, undefined, positiveIntValidator);
+        static MaxLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d).$MaxLength = args.NewValue, undefined, undefined, positiveIntValidator);
         static IsReadOnlyProperty: DependencyProperty = DependencyProperty.Register("IsReadOnly", () => Boolean, TextBox, undefined, (d, args) => (<TextBox>d)._IsReadOnlyChanged(args));
         static SelectionForegroundProperty: DependencyProperty = DependencyProperty.RegisterCore("SelectionForeground", () => Media.Brush, TextBox, undefined, (d, args) => (<TextBox>d)._SelectionForegroundChanged(args));
         static SelectionBackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("SelectionBackground", () => Media.Brush, TextBox, undefined, (d, args) => (<TextBox>d)._SelectionBackgroundChanged(args));
         static BaselineOffsetProperty: DependencyProperty = DependencyProperty.Register("BaselineOffset", () => Number, TextBox);
-        static SelectedTextProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectedText", () => String, TextBox, "", (d, args) => (<TextBox>d)._SelectedTextChanged(args.NewValue), undefined, undefined, true);
-        static SelectionLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectionLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d)._SelectionLengthChanged(args.NewValue), undefined, undefined, true, positiveIntValidator);
-        static SelectionStartProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectionStart", () => Number, TextBox, 0, (d, args) => (<TextBox>d)._SelectionStartChanged(args.NewValue), undefined, undefined, true, positiveIntValidator);
+        static SelectedTextProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectedText", () => String, TextBox, "", (d, args) => (<TextBox>d)._SelectedTextChanged(args.NewValue), undefined, true);
+        static SelectionLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectionLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d)._SelectionLengthChanged(args.NewValue), undefined, true, positiveIntValidator);
+        static SelectionStartProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectionStart", () => Number, TextBox, 0, (d, args) => (<TextBox>d)._SelectionStartChanged(args.NewValue), undefined, true, positiveIntValidator);
         static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, TextBox, undefined, (d, args) => (<TextBox>d)._TextChanged(args.NewValue));
         static TextAlignmentProperty: DependencyProperty = DependencyProperty.Register("TextAlignment", () => new Enum(TextAlignment), TextBox, TextAlignment.Left, (d, args) => (<TextBox>d)._TextAlignmentChanged(args));
         static TextWrappingProperty: DependencyProperty = DependencyProperty.Register("TextWrapping", () => new Enum(TextWrapping), TextBox, TextWrapping.NoWrap, (d, args) => (<TextBox>d)._TextWrappingChanged(args));

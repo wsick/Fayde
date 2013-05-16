@@ -175,7 +175,7 @@ module Fayde.Media.Animation {
             for (; i >= 0; i--) {
                 keyFrame = sortedList[i];
                 valuePropd = DependencyProperty.GetDependencyProperty((<any>keyFrame).constructor, "Value");
-                if (keyFrame._Store.GetValue(valuePropd) !== undefined) {
+                if (keyFrame.GetValue(valuePropd) !== undefined) {
                     currentKeyFrame = keyFrame;
                     break;
                 }
@@ -185,7 +185,7 @@ module Fayde.Media.Animation {
             for (i--; i >= 0; i--) {
                 keyFrame = sortedList[i];
                 valuePropd = DependencyProperty.GetDependencyProperty((<any>keyFrame).constructor, "Value");
-                if (keyFrame._Store.GetValue(valuePropd) !== undefined) {
+                if (keyFrame.GetValue(valuePropd) !== undefined) {
                     previousKeyFrame = keyFrame;
                     break;
                 }

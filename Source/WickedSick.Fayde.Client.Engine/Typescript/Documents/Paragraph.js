@@ -7,6 +7,7 @@ var Fayde;
 (function (Fayde) {
     /// <reference path="Block.ts" />
     /// CODE
+    /// <reference path="../Core/Providers/InheritedStore.ts" />
     (function (Documents) {
         var Paragraph = (function (_super) {
             __extends(Paragraph, _super);
@@ -28,7 +29,7 @@ var Fayde;
             };
             Paragraph.prototype.InlinesChanged = function (newInline, isAdd) {
                 if(isAdd) {
-                    this._Store.PropagateInheritedOnAdd(newInline.XamlNode);
+                    Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(this, newInline.XamlNode);
                 }
             };
             return Paragraph;

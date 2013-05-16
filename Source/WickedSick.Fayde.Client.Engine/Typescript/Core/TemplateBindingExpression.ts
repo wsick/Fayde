@@ -2,6 +2,7 @@
 /// CODE
 /// <reference path="TypeConverter.ts" />
 /// <reference path="../Controls/ContentControl.ts" />
+/// <reference path="Providers/PropertyStore.ts" />
 
 module Fayde {
     export class TemplateBindingExpression extends Expression {
@@ -23,7 +24,7 @@ module Fayde {
             var source = target.TemplateOwner;
             var value;
             if (source)
-                value = source._Store.GetValue(this.SourceProperty);
+                value = source.GetValue(this.SourceProperty);
             value = TypeConverter.ConvertObject(this.TargetProperty, value, (<any>target).constructor, true);
             return value;
         }
@@ -66,13 +67,12 @@ module Fayde {
             try {
                 // Type converting doesn't happen for TemplateBindings
                 this.IsUpdating = true;
-                var store = this._Target._Store;
                 var targetProp = this.TargetProperty;
                 try {
-                    store.SetValue(targetProp, this.GetValue(null));
+                    this._Target.SetStoreValue(targetProp, this.GetValue(null));
                 } catch (err2) {
                     var val = targetProp.DefaultValue;
-                    store.SetValue(targetProp, val);
+                    this._Target.SetStoreValue(targetProp, val);
                 }
             } catch (err) {
 
@@ -84,7 +84,7 @@ module Fayde {
             var source = this._Target.TemplateOwner;
             if (!source)
                 return;
-            this._Listener = Fayde.ListenToPropertyChanged(source, this.SourceProperty, (sender, args) => this.OnSourcePropertyChanged(sender, args), this);
+            this._Listener = this.SourceProperty.Store.ListenToChanged(source, this.SourceProperty, (sender, args) => this.OnSourcePropertyChanged(sender, args), this);
         }
         private _DetachListener() {
             var listener = this._Listener;

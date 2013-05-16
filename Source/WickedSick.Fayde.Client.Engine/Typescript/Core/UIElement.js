@@ -5,18 +5,17 @@ var __extends = this.__extends || function (d, b) {
 };
 /// <reference path="DependencyObject.ts" />
 /// <reference path="XamlNode.ts" />
-/// <reference path="Providers/Enums.ts" />
+/// <reference path="Providers/InheritedStore.ts" />
 /// <reference path="Enums.ts" />
 /// <reference path="../Media/Effects/Effect.ts"/>
 /// <reference path="../Media/Transform.ts"/>
 /// <reference path="../Media/Projection.ts"/>
 /// <reference path="../Primitives/Point.ts"/>
+/// <reference path="InheritableOwner.ts" />
 /// CODE
 /// <reference path="../Engine/Surface.ts" />
 /// <reference path="Walkers.ts" />
 /// <reference path="LayoutUpdater.ts" />
-/// <reference path="Providers/InheritedProvider.ts" />
-/// <reference path="Providers/InheritedProviderStore.ts"/>
 /// <reference path="../Runtime/MulticastEvent.ts"/>
 /// <reference path="RoutedEvent.ts"/>
 /// <reference path="../Engine/Interfaces.ts"/>
@@ -75,7 +74,7 @@ var Fayde;
             lu.PreviousConstraint = undefined;
             var un = uie.XamlNode;
             un.SetVisualParentNode(this);
-            this.XObject._Store.PropagateInheritedOnAdd(un);
+            Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(this.XObject, un);
             un.LayoutUpdater.OnAddedToTree();
         };
         UINode.prototype.OnVisualChildDetached = function (uie) {
@@ -85,7 +84,7 @@ var Fayde;
             lu.InvalidateMeasure();
             un.SetVisualParentNode(null);
             un.LayoutUpdater.OnRemovedFromTree();
-            this.XObject._Store.ClearInheritedOnRemove(un);
+            Fayde.Providers.InheritedStore.ClearInheritedOnRemove(this.XObject, un);
         };
         UINode.prototype.SetVisualParentNode = function (visualParentNode) {
             if(this.VisualParentNode === visualParentNode) {
@@ -345,19 +344,6 @@ var Fayde;
             this.MouseMove = new Fayde.RoutedEvent();
             this.MouseWheel = new Fayde.RoutedEvent();
         }
-        UIElement.prototype.CreateStore = function () {
-            var s = new Fayde.Providers.InheritedProviderStore(this);
-            s.SetProviders([
-                null, 
-                new Fayde.Providers.LocalValueProvider(), 
-                null, 
-                null, 
-                new Fayde.Providers.InheritedProvider(), 
-                null, 
-                new Fayde.Providers.DefaultValueProvider()
-            ]);
-            return s;
-        };
         UIElement.prototype.CreateNode = function () {
             return new UINode(this);
         };
@@ -407,11 +393,7 @@ var Fayde;
         }, UIElement, undefined, function (d, args) {
             return (d)._TriggersChanged(args);
         });
-        UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () {
-            return Boolean;
-        }, UIElement, true, function (d, args) {
-            return (d)._UseLayoutRoundingChanged(args);
-        }, Fayde.Providers._Inheritable.UseLayoutRounding);
+        UIElement.UseLayoutRoundingProperty = Fayde.InheritableOwner.UseLayoutRoundingProperty;
         UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () {
             return new Enum(Fayde.Visibility);
         }, UIElement, Fayde.Visibility.Visible, function (d, args) {

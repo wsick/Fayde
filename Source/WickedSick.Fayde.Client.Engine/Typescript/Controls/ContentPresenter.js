@@ -31,10 +31,10 @@ var Fayde;
                 }
                 var xobj = this.XObject;
                 if(xobj.TemplateOwner instanceof Controls.ContentControl) {
-                    if(xobj.ReadLocalValue(ContentPresenter.ContentProperty) instanceof Fayde.UnsetValue) {
+                    if(xobj.ReadLocalValue(ContentPresenter.ContentProperty) === Fayde.UnsetValue) {
                         xobj.SetValue(ContentPresenter.ContentProperty, new Fayde.TemplateBindingExpression(Controls.ContentControl.ContentProperty, ContentPresenter.ContentProperty, "Content"));
                     }
-                    if(xobj.ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof Fayde.UnsetValue) {
+                    if(xobj.ReadLocalValue(ContentPresenter.ContentTemplateProperty) === Fayde.UnsetValue) {
                         xobj.SetValue(ContentPresenter.ContentTemplateProperty, new Fayde.TemplateBindingExpression(Controls.ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty, "ContentTemplate"));
                     }
                 }
@@ -87,9 +87,9 @@ var Fayde;
                     this.ClearRoot();
                 }
                 if(newContent && !newUie) {
-                    this.Store.SetValue(Fayde.DependencyObject.DataContextProperty, newContent);
+                    this.XObject.DataContext = newContent;
                 } else {
-                    this.Store.ClearValue(Fayde.DependencyObject.DataContextProperty);
+                    this.XObject.DataContext = undefined;
                 }
                 this.LayoutUpdater.InvalidateMeasure();
             };

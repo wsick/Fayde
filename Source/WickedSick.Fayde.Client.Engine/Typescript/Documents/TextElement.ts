@@ -1,8 +1,7 @@
 /// <reference path="../Core/DependencyObject.ts"/>
+/// <reference path="../Core/Providers/InheritedStore.ts"/>
 /// CODE
 /// <reference path="../Core/XamlObjectCollection.ts"/>
-/// <reference path="../Core/Providers/InheritedProviderStore.ts"/>
-/// <reference path="../Core/Providers/InheritedProvider.ts"/>
 /// <reference path="../Text/TextAttributes.ts"/>
 /// <reference path="../Runtime/Enum.ts"/>
 
@@ -24,31 +23,18 @@ module Fayde.Documents {
     }
     Nullstone.RegisterType(TextElementNode, "TextElementNode");
 
-    export class TextElement extends DependencyObject implements Text.ITextAttributesSource {
-        _Store: Providers.InheritedProviderStore;
-        CreateStore(): Providers.BasicProviderStore {
-            var s = new Providers.InheritedProviderStore(this);
-            s.SetProviders([null,
-                new Providers.LocalValueProvider(),
-                null,
-                null,
-                new Providers.InheritedProvider(),
-                new Providers.InheritedDataContextProvider(s),
-                new Providers.DefaultValueProvider()]
-            );
-            return s;
-        }
+    export class TextElement extends DependencyObject implements Text.ITextAttributesSource, IFontChangeable {
         XamlNode: TextElementNode;
         CreateNode(): TextElementNode { return new TextElementNode(this, null); }
-
-        static ForegroundProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Foreground", () => Media.Brush, TextElement, undefined, (d, args) => (<TextElement>d)._UpdateFont(false), Providers._Inheritable.Foreground);
-        static FontFamilyProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontFamily", () => String, TextElement, Font.DEFAULT_FAMILY, (d, args) => (<TextElement>d)._UpdateFont(false), Providers._Inheritable.FontFamily);
-        static FontStretchProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStretch", () => String, TextElement, Font.DEFAULT_STRETCH, (d, args) => (<TextElement>d)._UpdateFont(false), Providers._Inheritable.FontStretch);
-        static FontStyleProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStyle", () => String, TextElement, Font.DEFAULT_STYLE, (d, args) => (<TextElement>d)._UpdateFont(false), Providers._Inheritable.FontStyle);
-        static FontWeightProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontWeight", () => new Enum(FontWeight), TextElement, Font.DEFAULT_WEIGHT, (d, args) => (<TextElement>d)._UpdateFont(false), Providers._Inheritable.FontWeight);
-        static FontSizeProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontSize", () => Number, TextElement, Font.DEFAULT_SIZE, (d, args) => (<TextElement>d)._UpdateFont(false), Providers._Inheritable.FontSize);
-        static LanguageProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Language", () => String, TextElement, undefined, (d, args) => (<TextElement>d)._UpdateFont(false), Providers._Inheritable.Language);
-        static TextDecorationsProperty: DependencyProperty = DependencyProperty.RegisterInheritable("TextDecorations", () => new Enum(TextDecorations), TextElement, TextDecorations.None, (d, args) => (<TextElement>d)._UpdateFont(false), Providers._Inheritable.TextDecorations);
+        
+        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty;
+        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty;
+        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty;
+        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty;
+        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty;
+        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty;
+        static TextDecorationsProperty: DependencyProperty = InheritableOwner.TextDecorationsProperty;
+        static LanguageProperty: DependencyProperty = InheritableOwner.LanguageProperty;
         Foreground: Media.Brush;
         FontFamily: string;
         FontStretch: string;
@@ -101,6 +87,10 @@ module Fayde.Documents {
             if (!Nullstone.Equals(this.Foreground, te.Foreground))
                 return false;
             return true;
+        }
+
+        private FontChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._UpdateFont(false);
         }
     }
     Nullstone.RegisterType(TextElement, "TextElement");

@@ -34,7 +34,7 @@ var Fayde;
             }
             if(data.res != null) {
                 var value = null;
-                if((value = data.lu._Store.GetValue(data.res)) == null) {
+                if((value = data.lu.GetValue(data.res)) == null) {
                     return false;
                 }
                 if(!(value instanceof Fayde.DependencyObject)) {
@@ -45,8 +45,8 @@ var Fayde;
                     var clonedValue = Fayde.Clone(value);
                     if(clonedValue instanceof Fayde.DependencyObject) {
                         newLu = clonedValue;
-                        data.lu._Store.SetValue(data.res, clonedValue);
-                        clonedValue = data.lu._Store.GetValue(data.res);
+                        data.lu.SetStoreValue(data.res, clonedValue);
+                        clonedValue = data.lu.GetValue(data.res);
                         data.promotedValues[clonedValue._ID] = clonedValue;
                     }
                 }

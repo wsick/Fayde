@@ -6,10 +6,9 @@ var __extends = this.__extends || function (d, b) {
 var Fayde;
 (function (Fayde) {
     /// <reference path="../Core/DependencyObject.ts"/>
+    /// <reference path="../Core/Providers/InheritedStore.ts"/>
     /// CODE
     /// <reference path="../Core/XamlObjectCollection.ts"/>
-    /// <reference path="../Core/Providers/InheritedProviderStore.ts"/>
-    /// <reference path="../Core/Providers/InheritedProvider.ts"/>
     /// <reference path="../Text/TextAttributes.ts"/>
     /// <reference path="../Runtime/Enum.ts"/>
     (function (Documents) {
@@ -39,62 +38,17 @@ var Fayde;
                 this._Font = new Font();
                 this._UpdateFont(true);
             }
-            TextElement.prototype.CreateStore = function () {
-                var s = new Fayde.Providers.InheritedProviderStore(this);
-                s.SetProviders([
-                    null, 
-                    new Fayde.Providers.LocalValueProvider(), 
-                    null, 
-                    null, 
-                    new Fayde.Providers.InheritedProvider(), 
-                    new Fayde.Providers.InheritedDataContextProvider(s), 
-                    new Fayde.Providers.DefaultValueProvider()
-                ]);
-                return s;
-            };
             TextElement.prototype.CreateNode = function () {
                 return new TextElementNode(this, null);
             };
-            TextElement.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () {
-                return Fayde.Media.Brush;
-            }, TextElement, undefined, function (d, args) {
-                return (d)._UpdateFont(false);
-            }, Fayde.Providers._Inheritable.Foreground);
-            TextElement.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () {
-                return String;
-            }, TextElement, Font.DEFAULT_FAMILY, function (d, args) {
-                return (d)._UpdateFont(false);
-            }, Fayde.Providers._Inheritable.FontFamily);
-            TextElement.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () {
-                return String;
-            }, TextElement, Font.DEFAULT_STRETCH, function (d, args) {
-                return (d)._UpdateFont(false);
-            }, Fayde.Providers._Inheritable.FontStretch);
-            TextElement.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () {
-                return String;
-            }, TextElement, Font.DEFAULT_STYLE, function (d, args) {
-                return (d)._UpdateFont(false);
-            }, Fayde.Providers._Inheritable.FontStyle);
-            TextElement.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () {
-                return new Enum(Fayde.FontWeight);
-            }, TextElement, Font.DEFAULT_WEIGHT, function (d, args) {
-                return (d)._UpdateFont(false);
-            }, Fayde.Providers._Inheritable.FontWeight);
-            TextElement.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () {
-                return Number;
-            }, TextElement, Font.DEFAULT_SIZE, function (d, args) {
-                return (d)._UpdateFont(false);
-            }, Fayde.Providers._Inheritable.FontSize);
-            TextElement.LanguageProperty = DependencyProperty.RegisterInheritable("Language", function () {
-                return String;
-            }, TextElement, undefined, function (d, args) {
-                return (d)._UpdateFont(false);
-            }, Fayde.Providers._Inheritable.Language);
-            TextElement.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () {
-                return new Enum(Fayde.TextDecorations);
-            }, TextElement, Fayde.TextDecorations.None, function (d, args) {
-                return (d)._UpdateFont(false);
-            }, Fayde.Providers._Inheritable.TextDecorations);
+            TextElement.FontFamilyProperty = Fayde.InheritableOwner.FontFamilyProperty;
+            TextElement.FontSizeProperty = Fayde.InheritableOwner.FontSizeProperty;
+            TextElement.FontStretchProperty = Fayde.InheritableOwner.FontStretchProperty;
+            TextElement.FontStyleProperty = Fayde.InheritableOwner.FontStyleProperty;
+            TextElement.FontWeightProperty = Fayde.InheritableOwner.FontWeightProperty;
+            TextElement.ForegroundProperty = Fayde.InheritableOwner.ForegroundProperty;
+            TextElement.TextDecorationsProperty = Fayde.InheritableOwner.TextDecorationsProperty;
+            TextElement.LanguageProperty = Fayde.InheritableOwner.LanguageProperty;
             TextElement.prototype._SerializeText = function () {
                 return undefined;
             };
@@ -173,6 +127,9 @@ var Fayde;
                     return false;
                 }
                 return true;
+            };
+            TextElement.prototype.FontChanged = function (args) {
+                this._UpdateFont(false);
             };
             return TextElement;
         })(Fayde.DependencyObject);

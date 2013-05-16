@@ -7,6 +7,7 @@ var __extends = this.__extends || function (d, b) {
 /// CODE
 /// <reference path="TypeConverter.ts" />
 /// <reference path="../Controls/ContentControl.ts" />
+/// <reference path="Providers/PropertyStore.ts" />
 var Fayde;
 (function (Fayde) {
     var TemplateBindingExpression = (function (_super) {
@@ -23,7 +24,7 @@ var Fayde;
             var source = target.TemplateOwner;
             var value;
             if(source) {
-                value = source._Store.GetValue(this.SourceProperty);
+                value = source.GetValue(this.SourceProperty);
             }
             value = Fayde.TypeConverter.ConvertObject(this.TargetProperty, value, (target).constructor, true);
             return value;
@@ -65,13 +66,12 @@ var Fayde;
             try  {
                 // Type converting doesn't happen for TemplateBindings
                 this.IsUpdating = true;
-                var store = this._Target._Store;
                 var targetProp = this.TargetProperty;
                 try  {
-                    store.SetValue(targetProp, this.GetValue(null));
+                    this._Target.SetStoreValue(targetProp, this.GetValue(null));
                 } catch (err2) {
                     var val = targetProp.DefaultValue;
-                    store.SetValue(targetProp, val);
+                    this._Target.SetStoreValue(targetProp, val);
                 }
             } catch (err) {
             }finally {
@@ -84,7 +84,7 @@ var Fayde;
             if(!source) {
                 return;
             }
-            this._Listener = Fayde.ListenToPropertyChanged(source, this.SourceProperty, function (sender, args) {
+            this._Listener = this.SourceProperty.Store.ListenToChanged(source, this.SourceProperty, function (sender, args) {
                 return _this.OnSourcePropertyChanged(sender, args);
             }, this);
         };

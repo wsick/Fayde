@@ -316,7 +316,7 @@ module Fayde {
                 } else if (value instanceof Expression) {
                     (<DependencyObject>xobj).SetValueInternal(propd, value);
                 } else {
-                    (<DependencyObject>xobj)._Store.SetValue(propd, value);
+                    (<DependencyObject>xobj).SetStoreValue(propd, value);
                 }
             } else if (propName) {
                 xobj[propName] = value;

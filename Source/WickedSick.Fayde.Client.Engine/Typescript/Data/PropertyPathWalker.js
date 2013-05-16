@@ -259,7 +259,7 @@ var Fayde;
                     var propd = DependencyProperty.GetDependencyProperty(this.Source.constructor, this._PropertyName);
                     if(propd) {
                         this.DependencyProperty = propd;
-                        this._DPListener = listener = Fayde.ListenToPropertyChanged(newDO, propd, this.OnPropertyChanged, this);
+                        this._DPListener = listener = propd.Store.ListenToChanged(newDO, propd, this.OnPropertyChanged, this);
                     }
                 }
                 if(!this.DependencyProperty || !this.DependencyProperty.IsAttached) {
@@ -347,7 +347,7 @@ var Fayde;
             };
             CollectionViewNode.prototype.ConnectViewHandlers = function (source, view) {
                 if(source instanceof Data.CollectionViewSource) {
-                    this._ViewPropertyListener = Fayde.ListenToPropertyChanged(source, Data.CollectionViewSource.ViewProperty, this.ViewChanged, this);
+                    this._ViewPropertyListener = Data.CollectionViewSource.ViewProperty.Store.ListenToChanged(source, Data.CollectionViewSource.ViewProperty, this.ViewChanged, this);
                     view = source.View;
                 }
                 if(Nullstone.ImplementsInterface(view, Data.ICollectionView_)) {

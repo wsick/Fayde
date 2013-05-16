@@ -237,7 +237,7 @@ module Fayde.Controls {
                     inlines.Add(run);
                 }
                 run.Text = text;
-                xobj._Store.PropagateInheritedOnAdd(run.XamlNode);
+                Providers.InheritedStore.PropagateInheritedOnAdd(xobj, run.XamlNode);
             } else {
                 inlines.Clear();
                 xobj.Text = "";
@@ -252,11 +252,11 @@ module Fayde.Controls {
             
             var xobj = this.XObject;
             if (isAdd)
-                xobj._Store.PropagateInheritedOnAdd(newInline.XamlNode);
+                Providers.InheritedStore.PropagateInheritedOnAdd(xobj, newInline.XamlNode);
             
             var inlines = xobj.Inlines;
             this._SetsValue = false;
-            xobj._Store.SetValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
+            xobj.SetStoreValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
             this._SetsValue = true;
 
             this._UpdateLayoutAttributes();
@@ -269,18 +269,18 @@ module Fayde.Controls {
     }
     Nullstone.RegisterType(TextBlockNode, "TextBlockNode");
 
-    export class TextBlock extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable {
+    export class TextBlock extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable, IFontChangeable {
         XamlNode: TextBlockNode;
         CreateNode(): TextBlockNode { return new TextBlockNode(this); }
 
         static PaddingProperty: DependencyProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, TextBlock, undefined, (d, args) => (<TextBlock>d).XamlNode._InvalidateDirty(true));
-        static ForegroundProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Foreground", () => Media.Brush, TextBlock, undefined, undefined, Providers._Inheritable.Foreground);
-        static FontFamilyProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontFamily", () => String, TextBlock, Font.DEFAULT_FAMILY, (d, args) => (<TextBlock>d).XamlNode._FontChanged(args), Providers._Inheritable.FontFamily);
-        static FontStretchProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStretch", () => String, TextBlock, Font.DEFAULT_STRETCH, (d, args) => (<TextBlock>d).XamlNode._FontChanged(args), Providers._Inheritable.FontStretch);
-        static FontStyleProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStyle", () => String, TextBlock, Font.DEFAULT_STYLE, (d, args) => (<TextBlock>d).XamlNode._FontChanged(args), Providers._Inheritable.FontStyle);
-        static FontWeightProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontWeight", () => new Enum(FontWeight), TextBlock, Font.DEFAULT_WEIGHT, (d, args) => (<TextBlock>d).XamlNode._FontChanged(args), Providers._Inheritable.FontWeight);
-        static FontSizeProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontSize", () => Number, TextBlock, Font.DEFAULT_SIZE, (d, args) => (<TextBlock>d).XamlNode._FontChanged(args), Providers._Inheritable.FontSize);
-        static TextDecorationsProperty: DependencyProperty = DependencyProperty.RegisterInheritable("TextDecorations", () => new Enum(TextDecorations), TextBlock, TextDecorations.None, (d, args) => (<TextBlock>d).XamlNode._InvalidateDirty(true), Providers._Inheritable.TextDecorations);
+        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty;
+        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty;
+        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty;
+        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty;
+        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty;
+        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty;
+        static TextDecorationsProperty: DependencyProperty = InheritableOwner.TextDecorationsProperty;
         static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, TextBlock, "", (d, args) => (<TextBlock>d).XamlNode._TextChanged(args));
         //static InlinesProperty: DependencyProperty = DependencyProperty.RegisterCore("Inlines", () => Documents.InlineCollection, TextBlock, undefined, (d, args) => (<TextBlock>d).XamlNode._InlinesChanged(args));
         static LineStackingStrategyProperty: DependencyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", () => new Enum(LineStackingStrategy), TextBlock, LineStackingStrategy.MaxHeight, (d, args) => (<TextBlock>d).XamlNode._LineStackingStrategyChanged(args));
@@ -362,6 +362,13 @@ module Fayde.Controls {
         }
         private BrushChanged(newBrush: Media.Brush) {
             this.XamlNode.LayoutUpdater.Invalidate();
+        }
+
+        private FontChanged(args: IDependencyPropertyChangedEventArgs) {
+            if (args.Property === InheritableOwner.TextDecorationsProperty)
+                this.XamlNode._InvalidateDirty();
+            else
+                this.XamlNode._FontChanged(args);
         }
     }
     Nullstone.RegisterType(TextBlock, "TextBlock");

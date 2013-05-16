@@ -3,11 +3,11 @@ Controls/ItemContainerGenerator.js
 Controls/Primitives/ScrollData.js
 Core/Clone.js
 Core/Enums.js
-Core/PropertyChangedListener.js
 Core/VisualTreeHelper.js
 Core/Walkers.js
-Core/Providers/Enums.js
-Core/Providers/IProviderStore.js
+Core/Providers/ImplicitStyleBroker.js
+Core/Providers/LocalStyleBroker.js
+Core/Providers/PropertyStore.js
 Data/Enums.js
 Data/PropertyPathParser.js
 Data/PropertyPathWalker.js
@@ -16,8 +16,8 @@ Engine/Interfaces.js
 Engine/XamlResolver.js
 Media/Enums.js
 Media/GradientMetrics.js
-Media/Matrix3D.js
 Media/MediaParser.js
+Media/Animation/AnimationStore.js
 Media/Animation/Curves.js
 Media/Animation/Enums.js
 Primitives/RawMatrix.js
@@ -44,14 +44,9 @@ Core/StaticResourceExpression.js
 Core/TemplateBindingExpression.js
 Core/XamlNode.js
 Core/XamlObject.js
-Core/Providers/BasicProviderStore.js
-Core/Providers/FrameworkElementDynamicProvider.js
-Core/Providers/ImplicitStyleProvider.js
-Core/Providers/InheritedDataContextProvider.js
-Core/Providers/InheritedIsEnabledProvider.js
-Core/Providers/InheritedProvider.js
-Core/Providers/InheritedProviderStore.js
-Core/Providers/LocalStyleProvider.js
+Core/Providers/DataContextStore.js
+Core/Providers/InheritedStore.js
+Core/Providers/IsEnabledStore.js
 Data/BindingBase.js
 Data/BindingExpressionBase.js
 Data/ICollectionView.js
@@ -68,6 +63,7 @@ Markup/Markup.js
 Markup/StaticResourceMarkup.js
 Markup/TemplateBindingMarkup.js
 Media/Matrix.js
+Media/Matrix3D.js
 Media/Animation/AnimationStorage.js
 Media/Animation/RepeatBehavior.js
 Navigation/NavService.js
@@ -98,6 +94,7 @@ Controls/Primitives/SelectionChangedEventArgs.js
 Core/DataTemplate.js
 Core/DeferredValueExpression.js
 Core/DependencyObject.js
+Core/InheritableOwner.js
 Core/INotifyPropertyChanged.js
 Core/ResourceTarget.js
 Core/RoutedEvent.js
@@ -106,7 +103,6 @@ Core/RoutedPropertyChangedEventArgs.js
 Core/SizeChangedEventArgs.js
 Core/Style.js
 Core/XamlObjectCollection.js
-Core/Providers/FrameworkProviderStore.js
 Data/Binding.js
 Data/BindingExpression.js
 Data/CollectionViewSource.js
@@ -155,7 +151,6 @@ Core/ResourceDictionary.js
 Core/Setter.js
 Core/Triggers.js
 Core/UIElement.js
-Core/Providers/ControlProviderStore.js
 Documents/Block.js
 Documents/Inline.js
 Documents/LineBreak.js

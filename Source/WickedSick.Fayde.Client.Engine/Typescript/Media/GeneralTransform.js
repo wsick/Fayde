@@ -49,7 +49,7 @@ var Fayde;
             });
             Object.defineProperty(InternalTransform.prototype, "Value", {
                 get: function () {
-                    var m = new Media.Matrix();
+                    var m = new Media.Matrix3D();
                     m._Raw = mat4.create(this._Raw);
                     return m;
                 },
@@ -74,8 +74,7 @@ var Fayde;
             };
             InternalTransform.prototype.CreateMatrix3DProjection = function () {
                 var projection = new Media.Matrix3DProjection();
-                //projection.ProjectionMatrix = this.Inverse.Value;
-                //TODO: Implement ProjectionMatrix
+                projection.ProjectionMatrix = this.Inverse.Value;
                 return projection;
             };
             return InternalTransform;

@@ -53,7 +53,7 @@ module Fayde.Data {
             return true;
         if (data.res != null) {
             var value = null;
-            if ((value = data.lu._Store.GetValue(data.res)) == null)
+            if ((value = data.lu.GetValue(data.res)) == null)
                 return false;
             if (!(value instanceof DependencyObject))
                 return false;
@@ -63,8 +63,8 @@ module Fayde.Data {
                 var clonedValue = Fayde.Clone(value);
                 if (clonedValue instanceof DependencyObject) {
                     newLu = clonedValue;
-                    data.lu._Store.SetValue(data.res, clonedValue);
-                    clonedValue = data.lu._Store.GetValue(data.res);
+                    data.lu.SetStoreValue(data.res, clonedValue);
+                    clonedValue = data.lu.GetValue(data.res);
                     data.promotedValues[clonedValue._ID] = clonedValue;
                 }
             }

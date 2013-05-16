@@ -307,7 +307,7 @@ var Fayde;
                 } else if(value instanceof Fayde.Expression) {
                     (xobj).SetValueInternal(propd, value);
                 } else {
-                    (xobj)._Store.SetValue(propd, value);
+                    (xobj).SetStoreValue(propd, value);
                 }
             } else if(propName) {
                 xobj[propName] = value;

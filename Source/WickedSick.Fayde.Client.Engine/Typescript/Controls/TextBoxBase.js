@@ -343,7 +343,7 @@ var Fayde;
             };
             TextBoxBase.prototype._SyncText = function () {
                 this._SettingValue = false;
-                this._Store.SetValue(this._TextProperty, this._Buffer);
+                this.SetStoreValue(this._TextProperty, this._Buffer);
                 this._SettingValue = true;
             };
             TextBoxBase.prototype._EmitTextChanged = function () {
@@ -384,11 +384,11 @@ var Fayde;
                     var len = Math.abs(this._SelectionCursor - this._SelectionAnchor);
                     var text = !this._Buffer ? '' : this._Buffer.substr(start, len);
                     this._SettingValue = false;
-                    this._Store.SetValue(this._SelectedTextProperty, text);
+                    this.SetStoreValue(this._SelectedTextProperty, text);
                     this._SettingValue = true;
                 } else {
                     this._SettingValue = false;
-                    this._Store.SetValue(this._SelectedTextProperty, "");
+                    this.SetStoreValue(this._SelectedTextProperty, "");
                     this._SettingValue = true;
                 }
             };

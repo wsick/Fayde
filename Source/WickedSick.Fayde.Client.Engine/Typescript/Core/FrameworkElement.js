@@ -8,10 +8,8 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path="../Runtime/Enumerable.ts" />
 /// <reference path="../Primitives/size.ts" />
 /// <reference path="ResourceDictionary.ts" />
-/// <reference path="Providers/FrameworkProviderStore.ts" />
-/// <reference path="Providers/InheritedDataContextProvider.ts" />
-/// <reference path="Providers/LocalStyleProvider.ts" />
-/// <reference path="Providers/ImplicitStyleProvider.ts" />
+/// <reference path="Providers/LocalStyleBroker.ts" />
+/// <reference path="Providers/ImplicitStyleBroker.ts" />
 var Fayde;
 (function (Fayde) {
     var FENode = (function (_super) {
@@ -41,13 +39,12 @@ var Fayde;
         FENode.prototype.OnIsLoadedChanged = function (newIsLoaded) {
             var xobj = this.XObject;
             var res = xobj.Resources;
-            var store = xobj._Store;
             if(!newIsLoaded) {
-                store.ClearImplicitStyles(Fayde.Providers._StyleMask.VisualTree);
+                Fayde.Providers.ImplicitStyleBroker.Clear(xobj, Fayde.Providers.StyleMask.VisualTree);
                 xobj.Unloaded.Raise(xobj, EventArgs.Empty);
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
                             } else {
-                store.SetImplicitStyles(Fayde.Providers._StyleMask.All);
+                Fayde.Providers.ImplicitStyleBroker.Set(xobj, Fayde.Providers.StyleMask.All);
             }
             var enumerator = this.GetVisualTreeEnumerator();
             while(enumerator.MoveNext()) {
@@ -57,8 +54,9 @@ var Fayde;
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
                 xobj.Loaded.Raise(xobj, EventArgs.Empty);
                 this.InvokeLoaded();
-                store.EmitDataContextChanged();
-            }
+                //LOOKS USELESS:
+                //Providers.DataContextStore.EmitDataContextChanged(xobj);
+                            }
         };
         FENode.prototype.InvokeLoaded = function () {
         };
@@ -233,6 +231,23 @@ var Fayde;
             }
             return Fayde.ArrayEx.EmptyEnumerator;
         };
+        FENode.prototype._SizeChanged = function (args) {
+            var lu = this.LayoutUpdater;
+            //LOOKS USELESS: this._PurgeSizeCache();
+            //TODO: var p = this._GetRenderTransformOrigin();
+            //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
+            lu.FullInvalidate(false);
+            var vpNode = this.VisualParentNode;
+            if(vpNode) {
+                vpNode.LayoutUpdater.InvalidateMeasure();
+            }
+            lu.InvalidateMeasure();
+            lu.InvalidateArrange();
+            lu.UpdateBounds();
+        };
+        FENode.prototype._FlowDirectionChanged = function (args) {
+            this._SizeChanged(args);
+        };
         return FENode;
     })(Fayde.UINode);
     Fayde.FENode = FENode;    
@@ -252,19 +267,6 @@ var Fayde;
                 writable: false
             });
         }
-        FrameworkElement.prototype.CreateStore = function () {
-            var s = new Fayde.Providers.FrameworkProviderStore(this);
-            s.SetProviders([
-                null, 
-                new Fayde.Providers.LocalValueProvider(), 
-                new Fayde.Providers.LocalStyleProvider(s), 
-                new Fayde.Providers.ImplicitStyleProvider(s), 
-                new Fayde.Providers.InheritedProvider(), 
-                new Fayde.Providers.InheritedDataContextProvider(s), 
-                new Fayde.Providers.DefaultValueProvider()
-            ]);
-            return s;
-        };
         FrameworkElement.prototype.CreateNode = function () {
             return new FENode(this);
         };
@@ -277,11 +279,7 @@ var Fayde;
         FrameworkElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () {
             return new Enum(Fayde.CursorType);
         }, FrameworkElement, Fayde.CursorType.Default);
-        FrameworkElement.FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", function () {
-            return new Enum(Fayde.FlowDirection);
-        }, FrameworkElement, Fayde.FlowDirection.LeftToRight, function (d, args) {
-            return (d)._SizeChanged(args);
-        }, Fayde.Providers._Inheritable.FlowDirection);
+        FrameworkElement.FlowDirectionProperty = Fayde.InheritableOwner.FlowDirectionProperty;
         FrameworkElement.HeightProperty = DependencyProperty.Register("Height", function () {
             return Number;
         }, FrameworkElement, NaN, function (d, args) {
@@ -292,30 +290,31 @@ var Fayde;
         }, FrameworkElement, Fayde.HorizontalAlignment.Stretch, function (d, args) {
             return (d)._AlignmentChanged(args);
         });
+        FrameworkElement.LanguageProperty = Fayde.InheritableOwner.LanguageProperty;
         FrameworkElement.MarginProperty = DependencyProperty.RegisterCore("Margin", function () {
             return Thickness;
         }, FrameworkElement, undefined, function (d, args) {
-            return (d)._SizeChanged(args);
+            return (d).XamlNode._SizeChanged(args);
         });
         FrameworkElement.MaxHeightProperty = DependencyProperty.Register("MaxHeight", function () {
             return Number;
         }, FrameworkElement, Number.POSITIVE_INFINITY, function (d, args) {
-            return (d)._SizeChanged(args);
+            return (d).XamlNode._SizeChanged(args);
         });
         FrameworkElement.MaxWidthProperty = DependencyProperty.Register("MaxWidth", function () {
             return Number;
         }, FrameworkElement, Number.POSITIVE_INFINITY, function (d, args) {
-            return (d)._SizeChanged(args);
+            return (d).XamlNode._SizeChanged(args);
         });
         FrameworkElement.MinHeightProperty = DependencyProperty.Register("MinHeight", function () {
             return Number;
         }, FrameworkElement, 0.0, function (d, args) {
-            return (d)._SizeChanged(args);
+            return (d).XamlNode._SizeChanged(args);
         });
         FrameworkElement.MinWidthProperty = DependencyProperty.Register("MinWidth", function () {
             return Number;
         }, FrameworkElement, 0.0, function (d, args) {
-            return (d)._SizeChanged(args);
+            return (d).XamlNode._SizeChanged(args);
         });
         FrameworkElement.StyleProperty = DependencyProperty.Register("Style", function () {
             return Fayde.Style;
@@ -369,26 +368,7 @@ var Fayde;
             return arranged;
         };
         FrameworkElement.prototype._StyleChanged = function (args) {
-            var error = new BError();
-            this._Store.SetLocalStyle(args.NewValue, error);
-            if(error.Message) {
-                error.ThrowException();
-            }
-        };
-        FrameworkElement.prototype._SizeChanged = function (args) {
-            var node = this.XamlNode;
-            var lu = node.LayoutUpdater;
-            //LOOKS USELESS: this._PurgeSizeCache();
-            //TODO: var p = this._GetRenderTransformOrigin();
-            //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
-            lu.FullInvalidate(false);
-            var vpNode = node.VisualParentNode;
-            if(vpNode) {
-                vpNode.LayoutUpdater.InvalidateMeasure();
-            }
-            lu.InvalidateMeasure();
-            lu.InvalidateArrange();
-            lu.UpdateBounds();
+            Fayde.Providers.LocalStyleBroker.Set(this, args.NewValue);
         };
         FrameworkElement.prototype._AlignmentChanged = function (args) {
             var lu = this.XamlNode.LayoutUpdater;
@@ -396,10 +376,10 @@ var Fayde;
             lu.FullInvalidate(true);
         };
         FrameworkElement.prototype._WidthChanged = function (args) {
-            this._SizeChanged(args);
+            this.XamlNode._SizeChanged(args);
         };
         FrameworkElement.prototype._HeightChanged = function (args) {
-            this._SizeChanged(args);
+            this.XamlNode._SizeChanged(args);
         };
         return FrameworkElement;
     })(Fayde.UIElement);

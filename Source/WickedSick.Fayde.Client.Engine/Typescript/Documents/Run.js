@@ -14,9 +14,7 @@ var Fayde;
                 _super.apply(this, arguments);
 
             }
-            Run.FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", function () {
-                return new Enum(Fayde.FlowDirection);
-            }, Run, Fayde.FlowDirection.LeftToRight, undefined, Fayde.Providers._Inheritable.FlowDirection);
+            Run.FlowDirectionProperty = Fayde.InheritableOwner.FlowDirectionProperty;
             Run.TextProperty = DependencyProperty.Register("Text", function () {
                 return String;
             }, Run);

@@ -262,7 +262,7 @@ module Fayde.Data {
                 var propd = DependencyProperty.GetDependencyProperty(this.Source.constructor, this._PropertyName);
                 if (propd) {
                     this.DependencyProperty = propd;
-                    this._DPListener = listener = Fayde.ListenToPropertyChanged(newDO, propd, this.OnPropertyChanged, this);
+                    this._DPListener = listener = propd.Store.ListenToChanged(newDO, propd, this.OnPropertyChanged, this);
                 }
             }
 
@@ -354,7 +354,7 @@ module Fayde.Data {
 
         ConnectViewHandlers(source: CollectionViewSource, view: ICollectionView) {
             if (source instanceof CollectionViewSource) {
-                this._ViewPropertyListener = Fayde.ListenToPropertyChanged(source, CollectionViewSource.ViewProperty, this.ViewChanged, this);
+                this._ViewPropertyListener = CollectionViewSource.ViewProperty.Store.ListenToChanged(source, CollectionViewSource.ViewProperty, this.ViewChanged, this);
                 view = source.View;
             }
             if (Nullstone.ImplementsInterface(view, ICollectionView_)) {

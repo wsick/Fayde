@@ -3,13 +3,15 @@
 /// <reference path="../Runtime/Enumerable.ts" />
 /// <reference path="../Primitives/size.ts" />
 /// <reference path="ResourceDictionary.ts" />
-/// <reference path="Providers/FrameworkProviderStore.ts" />
-/// <reference path="Providers/InheritedDataContextProvider.ts" />
-/// <reference path="Providers/LocalStyleProvider.ts" />
-/// <reference path="Providers/ImplicitStyleProvider.ts" />
+/// <reference path="Providers/LocalStyleBroker.ts" />
+/// <reference path="Providers/ImplicitStyleBroker.ts" />
 
 module Fayde {
-    export class FENode extends UINode {
+    export class FENode extends UINode implements Providers.IStyleHolder, Providers.IImplicitStyleHolder {
+        private _LocalStyle: Style;
+        private _ImplicitStyles: Style[];
+        private _StyleMask: number;
+
         private _Surface: Surface;
         XObject: FrameworkElement;
         constructor(xobj: FrameworkElement) {
@@ -37,13 +39,12 @@ module Fayde {
         OnIsLoadedChanged(newIsLoaded: bool) {
             var xobj = this.XObject;
             var res = xobj.Resources;
-            var store = xobj._Store;
             if (!newIsLoaded) {
-                store.ClearImplicitStyles(Providers._StyleMask.VisualTree);
+                Providers.ImplicitStyleBroker.Clear(xobj, Providers.StyleMask.VisualTree);
                 xobj.Unloaded.Raise(xobj, EventArgs.Empty);
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
             } else {
-                store.SetImplicitStyles(Providers._StyleMask.All);
+                Providers.ImplicitStyleBroker.Set(xobj, Providers.StyleMask.All);
             }
             var enumerator = this.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {
@@ -53,7 +54,8 @@ module Fayde {
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
                 xobj.Loaded.Raise(xobj, EventArgs.Empty);
                 this.InvokeLoaded();
-                store.EmitDataContextChanged();
+                //LOOKS USELESS: 
+                //Providers.DataContextStore.EmitDataContextChanged(xobj);
             }
         }
         InvokeLoaded() { }
@@ -214,6 +216,26 @@ module Fayde {
                 return ArrayEx.GetEnumerator([this.SubtreeNode]);
             return ArrayEx.EmptyEnumerator;
         }
+
+        _SizeChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.LayoutUpdater;
+            //LOOKS USELESS: this._PurgeSizeCache();
+
+            //TODO: var p = this._GetRenderTransformOrigin();
+            //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
+            lu.FullInvalidate(false);
+
+            var vpNode = this.VisualParentNode;
+            if (vpNode)
+                vpNode.LayoutUpdater.InvalidateMeasure();
+
+            lu.InvalidateMeasure();
+            lu.InvalidateArrange();
+            lu.UpdateBounds();
+        }
+        _FlowDirectionChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._SizeChanged(args);
+        }
     }
     Nullstone.RegisterType(FENode, "FENode");
 
@@ -230,33 +252,20 @@ module Fayde {
                 writable: false
             });
         }
-        _Store: Providers.FrameworkProviderStore;
-        CreateStore(): Providers.FrameworkProviderStore {
-            var s = new Providers.FrameworkProviderStore(this);
-            s.SetProviders([null,
-                new Providers.LocalValueProvider(),
-                new Providers.LocalStyleProvider(s),
-                new Providers.ImplicitStyleProvider(s),
-                new Providers.InheritedProvider(),
-                new Providers.InheritedDataContextProvider(s),
-                new Providers.DefaultValueProvider()]
-            );
-            return s;
-        }
         CreateNode(): FENode { return new FENode(this); }
         
         static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", () => Number, FrameworkElement);
         static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", () => Number, FrameworkElement);
         static CursorProperty: DependencyProperty = DependencyProperty.RegisterFull("Cursor", () => new Enum(CursorType), FrameworkElement, CursorType.Default);
-        static FlowDirectionProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FlowDirection", () => new Enum(FlowDirection), FrameworkElement, FlowDirection.LeftToRight, (d, args) => (<FrameworkElement>d)._SizeChanged(args), Providers._Inheritable.FlowDirection);
+        static FlowDirectionProperty: DependencyProperty = InheritableOwner.FlowDirectionProperty;
         static HeightProperty: DependencyProperty = DependencyProperty.Register("Height", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._HeightChanged(args));
         static HorizontalAlignmentProperty: DependencyProperty = DependencyProperty.Register("HorizontalAlignment", () => new Enum(HorizontalAlignment), FrameworkElement, HorizontalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
-        //static LanguageProperty: DependencyProperty;
-        static MarginProperty: DependencyProperty = DependencyProperty.RegisterCore("Margin", () => Thickness, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d)._SizeChanged(args));
-        static MaxHeightProperty: DependencyProperty = DependencyProperty.Register("MaxHeight", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d)._SizeChanged(args));
-        static MaxWidthProperty: DependencyProperty = DependencyProperty.Register("MaxWidth", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d)._SizeChanged(args));
-        static MinHeightProperty: DependencyProperty = DependencyProperty.Register("MinHeight", () => Number, FrameworkElement, 0.0, (d, args) => (<FrameworkElement>d)._SizeChanged(args));
-        static MinWidthProperty: DependencyProperty = DependencyProperty.Register("MinWidth", () => Number, FrameworkElement, 0.0, (d, args) => (<FrameworkElement>d)._SizeChanged(args));
+        static LanguageProperty: DependencyProperty = InheritableOwner.LanguageProperty;
+        static MarginProperty: DependencyProperty = DependencyProperty.RegisterCore("Margin", () => Thickness, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
+        static MaxHeightProperty: DependencyProperty = DependencyProperty.Register("MaxHeight", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
+        static MaxWidthProperty: DependencyProperty = DependencyProperty.Register("MaxWidth", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
+        static MinHeightProperty: DependencyProperty = DependencyProperty.Register("MinHeight", () => Number, FrameworkElement, 0.0, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
+        static MinWidthProperty: DependencyProperty = DependencyProperty.Register("MinWidth", () => Number, FrameworkElement, 0.0, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
         static StyleProperty: DependencyProperty = DependencyProperty.Register("Style", () => Style, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d)._StyleChanged(args));
         static VerticalAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalAlignment", () => new Enum(VerticalAlignment), FrameworkElement, VerticalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
         static WidthProperty: DependencyProperty = DependencyProperty.Register("Width", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._WidthChanged(args));
@@ -266,7 +275,7 @@ module Fayde {
         FlowDirection: FlowDirection;
         Height: number;
         HorizontalAlignment: HorizontalAlignment;
-        //Language;
+        Language: string;
         Margin: Thickness;
         MaxWidth: number;
         MaxHeight: number;
@@ -322,27 +331,7 @@ module Fayde {
         }
         
         private _StyleChanged(args: IDependencyPropertyChangedEventArgs) {
-            var error = new BError();
-            this._Store.SetLocalStyle(args.NewValue, error);
-            if (error.Message)
-                error.ThrowException();
-        }
-        private _SizeChanged(args: IDependencyPropertyChangedEventArgs) {
-            var node = this.XamlNode;
-            var lu = node.LayoutUpdater;
-            //LOOKS USELESS: this._PurgeSizeCache();
-
-            //TODO: var p = this._GetRenderTransformOrigin();
-            //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
-            lu.FullInvalidate(false);
-
-            var vpNode = node.VisualParentNode;
-            if (vpNode)
-                vpNode.LayoutUpdater.InvalidateMeasure();
-
-            lu.InvalidateMeasure();
-            lu.InvalidateArrange();
-            lu.UpdateBounds();
+            Providers.LocalStyleBroker.Set(this, <Style>args.NewValue);
         }
         private _AlignmentChanged(args: IDependencyPropertyChangedEventArgs) {
             var lu = this.XamlNode.LayoutUpdater;
@@ -350,10 +339,10 @@ module Fayde {
             lu.FullInvalidate(true);
         }
         _WidthChanged(args: IDependencyPropertyChangedEventArgs) {
-            this._SizeChanged(args);
+            this.XamlNode._SizeChanged(args);
         }
         _HeightChanged(args: IDependencyPropertyChangedEventArgs) {
-            this._SizeChanged(args);
+            this.XamlNode._SizeChanged(args);
         }
     }
     Nullstone.RegisterType(FrameworkElement, "FrameworkElement");

@@ -3,6 +3,7 @@
 /// <reference path="AnimationBase.ts"/>
 /// <reference path="../../Core/DependencyObject.ts"/>
 /// <reference path="../../Core/DependencyProperty.ts"/>
+/// <reference path="AnimationStore.ts"/>
 
 module Fayde.Media.Animation {
     export class AnimationStorage {
@@ -19,10 +20,9 @@ module Fayde.Media.Animation {
             this._TargetObj = targetObj;
             this._TargetProp = targetProp;
 
-            var store = targetObj._Store;
-            var prevStorage = store._AttachAnimationStorage(targetProp, this);
+            var prevStorage = AnimationStore.Attach(targetObj, targetProp, this);
 
-            this._BaseValue = store.GetValue(targetProp);
+            this._BaseValue = targetObj.GetValue(targetProp);
             if (this._BaseValue === undefined) {
                 var targetType = targetProp.GetTargetType();
                 if (targetType === Number)
@@ -36,7 +36,7 @@ module Fayde.Media.Animation {
             if (prevStorage)
                 this.StopValue = prevStorage.StopValue;
             else
-                this.StopValue = store.ReadLocalValue(targetProp);
+                this.StopValue = targetObj.ReadLocalValue(targetProp);
         }
 
         SwitchTarget(target: DependencyObject) {
@@ -64,7 +64,7 @@ module Fayde.Media.Animation {
             var tp = this._TargetProp;
             if (!tp)
                 return;
-            to._Store._DetachAnimationStorage(tp, this);
+            AnimationStore.Detach(to, tp, this);
         }
         ResetPropertyValue() {
             var to = this._TargetObj;
@@ -73,7 +73,7 @@ module Fayde.Media.Animation {
             var tp = this._TargetProp;
             if (!tp)
                 return;
-            to._Store.SetValue(tp, this.StopValue);
+            to.SetStoreValue(tp, this.StopValue);
         }
 
         UpdateCurrentValueAndApply(clockData: IClockData) {
@@ -92,7 +92,7 @@ module Fayde.Media.Animation {
                 return;
             //var that = this;
             //AnimationDebug(function () { return "ApplyCurrentValue: [" + that._TargetObj.constructor._TypeName + "." + that._TargetProp.Name + "] --> " + that._CurrentValue.toString(); });
-            this._TargetObj._Store.SetValue(this._TargetProp, this._CurrentValue);
+            this._TargetObj.SetStoreValue(this._TargetProp, this._CurrentValue);
         }
     }
     Nullstone.RegisterType(AnimationStorage, "AnimationStorage");

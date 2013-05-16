@@ -29,7 +29,7 @@ var Fayde;
             };
             Section.prototype.BlocksChanged = function (newBlock, isAdd) {
                 if(isAdd) {
-                    this._Store.PropagateInheritedOnAdd(newBlock.XamlNode);
+                    Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(this, newBlock.XamlNode);
                 }
             };
             return Section;

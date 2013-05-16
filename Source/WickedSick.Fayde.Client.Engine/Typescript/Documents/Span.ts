@@ -23,7 +23,7 @@ module Fayde.Documents {
         
         private InlinesChanged(newInline: Inline, isAdd: bool) {
             if (isAdd)
-                this._Store.PropagateInheritedOnAdd(newInline.XamlNode);
+                Providers.InheritedStore.PropagateInheritedOnAdd(this, newInline.XamlNode);
         }
 
         private _SerializeText(): string {

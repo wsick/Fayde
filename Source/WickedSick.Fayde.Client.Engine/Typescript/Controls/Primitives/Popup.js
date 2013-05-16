@@ -52,11 +52,11 @@ var Fayde;
                     var popup = this.XObject;
                     this._Hide();
                     if(oldChild) {
-                        popup._Store.ClearInheritedOnRemove(oldChild.XamlNode);
+                        Fayde.Providers.InheritedStore.ClearInheritedOnRemove(popup, oldChild.XamlNode);
                     }
                     this._PrepareVisualChild(newChild);
                     if(newChild) {
-                        popup._Store.PropagateInheritedOnAdd(newChild.XamlNode);
+                        Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(popup, newChild.XamlNode);
                         if(popup.IsOpen) {
                             this._Show();
                         }

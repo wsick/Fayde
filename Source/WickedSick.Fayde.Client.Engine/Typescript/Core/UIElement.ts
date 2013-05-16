@@ -1,17 +1,16 @@
 /// <reference path="DependencyObject.ts" />
 /// <reference path="XamlNode.ts" />
-/// <reference path="Providers/Enums.ts" />
+/// <reference path="Providers/InheritedStore.ts" />
 /// <reference path="Enums.ts" />
 /// <reference path="../Media/Effects/Effect.ts"/>
 /// <reference path="../Media/Transform.ts"/>
 /// <reference path="../Media/Projection.ts"/>
 /// <reference path="../Primitives/Point.ts"/>
+/// <reference path="InheritableOwner.ts" />
 /// CODE
 /// <reference path="../Engine/Surface.ts" />
 /// <reference path="Walkers.ts" />
 /// <reference path="LayoutUpdater.ts" />
-/// <reference path="Providers/InheritedProvider.ts" />
-/// <reference path="Providers/InheritedProviderStore.ts"/>
 /// <reference path="../Runtime/MulticastEvent.ts"/>
 /// <reference path="RoutedEvent.ts"/>
 /// <reference path="../Engine/Interfaces.ts"/>
@@ -77,7 +76,7 @@ module Fayde {
 
             var un = uie.XamlNode;
             un.SetVisualParentNode(this);
-            this.XObject._Store.PropagateInheritedOnAdd(un);
+            Providers.InheritedStore.PropagateInheritedOnAdd(this.XObject, un);
             un.LayoutUpdater.OnAddedToTree();
         }
         OnVisualChildDetached(uie: UIElement) {
@@ -88,7 +87,7 @@ module Fayde {
 
             un.SetVisualParentNode(null);
             un.LayoutUpdater.OnRemovedFromTree();
-            this.XObject._Store.ClearInheritedOnRemove(un);
+            Providers.InheritedStore.ClearInheritedOnRemove(this.XObject, un);
         }
 
         private SetVisualParentNode(visualParentNode: UINode) {
@@ -325,19 +324,6 @@ module Fayde {
         XamlNode: UINode;
         private _ClipListener: Media.IGeometryListener = null;
         private _EffectListener: Media.Effects.IEffectListener = null;
-        _Store: Providers.InheritedProviderStore;
-        CreateStore(): Providers.InheritedProviderStore {
-            var s = new Providers.InheritedProviderStore(this);
-            s.SetProviders([null, 
-                new Providers.LocalValueProvider(), 
-                null,
-                null,
-                new Providers.InheritedProvider(),
-                null,
-                new Providers.DefaultValueProvider()]
-            );
-            return s;
-        }
         CreateNode(): UINode { return new UINode(this); }
 
         static AllowDropProperty: DependencyProperty;
@@ -352,7 +338,7 @@ module Fayde {
         static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", () => Point, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
         static TagProperty = DependencyProperty.Register("Tag", () => Object, UIElement);
         static TriggersProperty: DependencyProperty = DependencyProperty.RegisterCore("Triggers", () => TriggerCollection, UIElement, undefined, (d, args) => (<UIElement>d)._TriggersChanged(args));
-        static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", () => Boolean, UIElement, true, (d, args) => (<UIElement>d)._UseLayoutRoundingChanged(args), Providers._Inheritable.UseLayoutRounding);
+        static UseLayoutRoundingProperty = InheritableOwner.UseLayoutRoundingProperty;
         static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", () => new Enum(Visibility), UIElement, Visibility.Visible, (d, args) => (<UIElement>d).XamlNode.InvalidateVisibility(args.NewValue));
 
         private _IsMouseOver: bool = false;

@@ -458,7 +458,7 @@ var Fayde;
             var raw = mat4.toAffineMat3(result);
             if(raw) {
                 var mt = new Fayde.Media.MatrixTransform();
-                mt._Store.SetValue(Fayde.Media.MatrixTransform.MatrixProperty, new Fayde.Media.Matrix(raw));
+                mt.SetStoreValue(Fayde.Media.MatrixTransform.MatrixProperty, new Fayde.Media.Matrix(raw));
                 return mt;
             }
             return new Fayde.Media.InternalTransform(result);

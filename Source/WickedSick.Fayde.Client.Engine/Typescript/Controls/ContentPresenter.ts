@@ -22,11 +22,11 @@ module Fayde.Controls {
                 
             var xobj = this.XObject;
             if (xobj.TemplateOwner instanceof ContentControl) {
-                if (xobj.ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
+                if (xobj.ReadLocalValue(ContentPresenter.ContentProperty) === UnsetValue) {
                     xobj.SetValue(ContentPresenter.ContentProperty,
                         new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty, "Content"));
                 }
-                if (xobj.ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
+                if (xobj.ReadLocalValue(ContentPresenter.ContentTemplateProperty) === UnsetValue) {
                     xobj.SetValue(ContentPresenter.ContentTemplateProperty,
                         new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty, "ContentTemplate"));
                 }
@@ -75,9 +75,9 @@ module Fayde.Controls {
                 this.ClearRoot();
             
             if (newContent && !newUie)
-                this.Store.SetValue(DependencyObject.DataContextProperty, newContent);
+                this.XObject.DataContext = newContent;
             else
-                this.Store.ClearValue(DependencyObject.DataContextProperty);
+                this.XObject.DataContext = undefined;
 
             this.LayoutUpdater.InvalidateMeasure();
         }

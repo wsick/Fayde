@@ -241,7 +241,7 @@ var Fayde;
                         inlines.Add(run);
                     }
                     run.Text = text;
-                    xobj._Store.PropagateInheritedOnAdd(run.XamlNode);
+                    Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(xobj, run.XamlNode);
                 } else {
                     inlines.Clear();
                     xobj.Text = "";
@@ -254,11 +254,11 @@ var Fayde;
                 }
                 var xobj = this.XObject;
                 if(isAdd) {
-                    xobj._Store.PropagateInheritedOnAdd(newInline.XamlNode);
+                    Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(xobj, newInline.XamlNode);
                 }
                 var inlines = xobj.Inlines;
                 this._SetsValue = false;
-                xobj._Store.SetValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
+                xobj.SetStoreValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
                 this._SetsValue = true;
                 this._UpdateLayoutAttributes();
                 var lu = this.LayoutUpdater;
@@ -291,39 +291,13 @@ var Fayde;
             }, TextBlock, undefined, function (d, args) {
                 return (d).XamlNode._InvalidateDirty(true);
             });
-            TextBlock.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () {
-                return Fayde.Media.Brush;
-            }, TextBlock, undefined, undefined, Fayde.Providers._Inheritable.Foreground);
-            TextBlock.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () {
-                return String;
-            }, TextBlock, Font.DEFAULT_FAMILY, function (d, args) {
-                return (d).XamlNode._FontChanged(args);
-            }, Fayde.Providers._Inheritable.FontFamily);
-            TextBlock.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () {
-                return String;
-            }, TextBlock, Font.DEFAULT_STRETCH, function (d, args) {
-                return (d).XamlNode._FontChanged(args);
-            }, Fayde.Providers._Inheritable.FontStretch);
-            TextBlock.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () {
-                return String;
-            }, TextBlock, Font.DEFAULT_STYLE, function (d, args) {
-                return (d).XamlNode._FontChanged(args);
-            }, Fayde.Providers._Inheritable.FontStyle);
-            TextBlock.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () {
-                return new Enum(Fayde.FontWeight);
-            }, TextBlock, Font.DEFAULT_WEIGHT, function (d, args) {
-                return (d).XamlNode._FontChanged(args);
-            }, Fayde.Providers._Inheritable.FontWeight);
-            TextBlock.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () {
-                return Number;
-            }, TextBlock, Font.DEFAULT_SIZE, function (d, args) {
-                return (d).XamlNode._FontChanged(args);
-            }, Fayde.Providers._Inheritable.FontSize);
-            TextBlock.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () {
-                return new Enum(Fayde.TextDecorations);
-            }, TextBlock, Fayde.TextDecorations.None, function (d, args) {
-                return (d).XamlNode._InvalidateDirty(true);
-            }, Fayde.Providers._Inheritable.TextDecorations);
+            TextBlock.FontFamilyProperty = Fayde.InheritableOwner.FontFamilyProperty;
+            TextBlock.FontSizeProperty = Fayde.InheritableOwner.FontSizeProperty;
+            TextBlock.FontStretchProperty = Fayde.InheritableOwner.FontStretchProperty;
+            TextBlock.FontStyleProperty = Fayde.InheritableOwner.FontStyleProperty;
+            TextBlock.FontWeightProperty = Fayde.InheritableOwner.FontWeightProperty;
+            TextBlock.ForegroundProperty = Fayde.InheritableOwner.ForegroundProperty;
+            TextBlock.TextDecorationsProperty = Fayde.InheritableOwner.TextDecorationsProperty;
             TextBlock.TextProperty = DependencyProperty.Register("Text", function () {
                 return String;
             }, TextBlock, "", function (d, args) {
@@ -410,6 +384,13 @@ var Fayde;
             };
             TextBlock.prototype.BrushChanged = function (newBrush) {
                 this.XamlNode.LayoutUpdater.Invalidate();
+            };
+            TextBlock.prototype.FontChanged = function (args) {
+                if(args.Property === Fayde.InheritableOwner.TextDecorationsProperty) {
+                    this.XamlNode._InvalidateDirty();
+                } else {
+                    this.XamlNode._FontChanged(args);
+                }
             };
             return TextBlock;
         })(Fayde.FrameworkElement);

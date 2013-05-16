@@ -1,5 +1,6 @@
 /// <reference path="Block.ts" />
 /// CODE
+/// <reference path="../Core/Providers/InheritedStore.ts" />
 
 module Fayde.Documents {
     export class Paragraph extends Block {
@@ -23,7 +24,7 @@ module Fayde.Documents {
         
         private InlinesChanged(newInline: Inline, isAdd: bool) {
             if (isAdd)
-                this._Store.PropagateInheritedOnAdd(newInline.XamlNode);
+                Providers.InheritedStore.PropagateInheritedOnAdd(this, newInline.XamlNode);
         }
     }
     Nullstone.RegisterType(Paragraph, "Paragraph");

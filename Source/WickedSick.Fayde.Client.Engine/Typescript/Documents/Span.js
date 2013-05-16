@@ -28,7 +28,7 @@ var Fayde;
             };
             Span.prototype.InlinesChanged = function (newInline, isAdd) {
                 if(isAdd) {
-                    this._Store.PropagateInheritedOnAdd(newInline.XamlNode);
+                    Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(this, newInline.XamlNode);
                 }
             };
             Span.prototype._SerializeText = function () {

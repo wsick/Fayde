@@ -1,29 +1,31 @@
 /// <reference path="XamlObject.ts" />
 /// <reference path="DependencyProperty.ts" />
 /// CODE
-/// <reference path="Providers/BasicProviderStore.ts" />
+/// <reference path="Providers/PropertyStore.ts" />
+/// <reference path="Providers/DataContextStore.ts" />
 /// <reference path="Expression.ts" />
 /// <reference path="../Data/BindingExpression.ts" />
 /// <reference path="FrameworkElement.ts" />
-/// <reference path="Providers/InheritedDataContextProvider.ts" />
+/// <reference path="../Media/Animation/AnimationStore.ts" />
 
 module Fayde {
-    export class UnsetValue { }
-
     export class DONode extends XamlNode {
         XObject: DependencyObject;
-        Store: Providers.BasicProviderStore;
         constructor(xobj: DependencyObject) {
             super(xobj);
         }
         
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
-            this.Store.SetDataContextSourceNode(newParentNode);
+            var propd = DependencyObject.DataContextProperty;
+            var storage = <Providers.IDataContextStorage>Providers.GetStorage(this.XObject, propd);
+            (<Providers.DataContextStore>propd.Store).SetInheritedSource(storage, newParentNode);
         }
 
         get DataContext(): any { return this.XObject.DataContext; }
         set DataContext(value: any) {
-            this.Store.EmitDataContextChanged();
+            var propd = DependencyObject.DataContextProperty;
+            var storage = <Providers.IDataContextStorage>Providers.GetStorage(this.XObject, propd);
+            (<Providers.DataContextStore>propd.Store).EmitInheritedChanged(storage, value);
             this.OnDataContextChanged(undefined, value);
         }
         
@@ -33,36 +35,24 @@ module Fayde {
     }
     Nullstone.RegisterType(DONode, "DONode");
 
-    export class DependencyObject extends XamlObject implements ICloneable {
+    export class DependencyObject extends XamlObject implements ICloneable, Providers.IPropertyStorageOwner {
         private _Expressions: Expression[] = [];
-        _Store: Providers.BasicProviderStore;
+        private _PropertyStorage: Providers.IPropertyStorage[] = [];
 
-        static DataContextProperty: DependencyProperty = DependencyProperty.RegisterCore("DataContext", () => Object, DependencyObject, undefined, (d, args) => (<DependencyObject>d).XamlNode._DataContextPropertyChanged(args));
+        static DataContextProperty: DependencyProperty = DependencyProperty.Register("DataContext", () => Object, DependencyObject, undefined, (d, args) => (<DependencyObject>d).XamlNode._DataContextPropertyChanged(args));
         DataContext: any;
 
         constructor() {
             super();
-            this.XamlNode.Store = this._Store = this.CreateStore();
         }
         XamlNode: DONode;
         CreateNode(): DONode { return new DONode(this); }
-        CreateStore(): Providers.BasicProviderStore {
-            var s = new Providers.BasicProviderStore(this);
-            s.SetProviders([null, 
-                new Providers.LocalValueProvider(), 
-                null,
-                null,
-                null,
-                new Providers.InheritedDataContextProvider(s),
-                new Providers.DefaultValueProvider()]
-            );
-            return s;
-        }
 
         GetValue(propd: DependencyProperty): any {
             if (!propd)
                 throw new ArgumentException("No property specified.");
-            return this._Store.GetValue(propd);
+            var storage = Providers.GetStorage(this, propd);
+            return propd.Store.GetValue(storage);
         }
         SetValue(propd: DependencyProperty, value: any) {
             if (!propd)
@@ -110,18 +100,23 @@ module Fayde {
                     this._RemoveExpression(propd);
                 }
             }
-
+            
+            var storage = Providers.GetStorage(this, propd);
             try {
-                this._Store.SetValue(propd, value);
+                propd.Store.SetLocalValue(storage, value);
                 if (updateTwoWay)
                     (<Data.BindingExpressionBase>existing)._TryUpdateSourceObject(value);
             } catch (err) {
                 if (!addingExpression)
                     throw err;
-                this._Store.SetValue(propd, propd.DefaultValue);
+                propd.Store.SetLocalValue(storage, propd.DefaultValue);
                 if (updateTwoWay)
                     (<Data.BindingExpressionBase>existing)._TryUpdateSourceObject(value);
             }
+        }
+        SetStoreValue(propd: DependencyProperty, value: any) {
+            var storage = Providers.GetStorage(this, propd);
+            propd.Store.SetLocalValue(storage, value);
         }
         ClearValue(propd: DependencyProperty) {
             if (!propd)
@@ -129,7 +124,12 @@ module Fayde {
             if (propd.IsReadOnly && !propd.IsCustom)
                 throw new ArgumentException("This property is readonly.");
             this._RemoveExpression(propd);
-            this._Store.ClearValue(propd, true);
+            
+            if (Media.Animation.AnimationStore.Get(this, propd))
+                return;
+                
+            var storage = Providers.GetStorage(this, propd);
+            propd.Store.ClearValue(storage);
         }
         ReadLocalValue(propd: DependencyProperty): any {
             if (!propd)
@@ -137,10 +137,13 @@ module Fayde {
             var expr = this._Expressions[propd._ID]
             if (expr)
                 return expr;
-            return this._Store.ReadLocalValue(propd);
+                
+            var storage = Providers.GetStorage(this, propd);
+            var val = storage.Local;
+            if (val === undefined)
+                return UnsetValue;
+            return val;
         }
-
-        _OnPropertyChanged(args: IDependencyPropertyChangedEventArgs) { }
 
         private _AddExpression(propd: DependencyProperty, expr: Expression) {
             this._Expressions[propd._ID] = expr;
@@ -173,9 +176,16 @@ module Fayde {
             return e;
         }
 
-        CloneCore(source: DependencyObject) {
-            this._Store.CloneCore(source._Store);
+        private CloneCore(source: DependencyObject) {
+            var sarr = source._PropertyStorage;
+            var darr = this._PropertyStorage = [];
+            for (var id in sarr) {
+                var storage: Providers.IPropertyStorage = sarr[id];
+                darr[id] = storage.Property.Store.Clone(this, storage);
+            }
         }
     }
     Nullstone.RegisterType(DependencyObject, "DependencyObject");
+
+    DependencyObject.DataContextProperty.Store = Fayde.Providers.DataContextStore.Instance;
 }

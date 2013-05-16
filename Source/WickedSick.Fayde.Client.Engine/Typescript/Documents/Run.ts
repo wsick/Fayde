@@ -3,7 +3,7 @@
 
 module Fayde.Documents {
     export class Run extends Inline {
-        static FlowDirectionProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FlowDirection", () => new Enum(FlowDirection), Run, FlowDirection.LeftToRight, undefined, Providers._Inheritable.FlowDirection);
+        static FlowDirectionProperty: DependencyProperty = InheritableOwner.FlowDirectionProperty;
         static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, Run);
         FlowDirection: FlowDirection;
         Text: string;

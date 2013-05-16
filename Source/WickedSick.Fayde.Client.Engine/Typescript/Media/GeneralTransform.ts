@@ -28,8 +28,8 @@ module Fayde.Media {
             mat4.inverse(this._Raw, it._Raw);
             return it;
         }
-        get Value(): Matrix {
-            var m = new Matrix();
+        get Value(): Matrix3D {
+            var m = new Matrix3D();
             m._Raw = mat4.create(this._Raw);
             return m;
         }
@@ -51,8 +51,7 @@ module Fayde.Media {
 
         CreateMatrix3DProjection(): Matrix3DProjection {
             var projection = new Matrix3DProjection();
-            //projection.ProjectionMatrix = this.Inverse.Value;
-            //TODO: Implement ProjectionMatrix
+            projection.ProjectionMatrix = this.Inverse.Value;
             return projection
         }
     }

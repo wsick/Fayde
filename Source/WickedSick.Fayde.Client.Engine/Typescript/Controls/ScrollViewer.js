@@ -266,7 +266,7 @@ var Fayde;
                 var orientation = Fayde.Orientation.Vertical;
                 var scrollEventType = Controls.Primitives.ScrollEventType.ThumbTrack;
                 //TODO: FlowDirection
-                //var flowDirection = base.FlowDirection === Fayde.FlowDirection.RightToLeft;
+                //var flowDirection = this.FlowDirection === Fayde.FlowDirection.RightToLeft;
                 switch(e.Key) {
                     case Fayde.Input.Key.PageUp:
                         scrollEventType = Controls.Primitives.ScrollEventType.LargeDecrement;

@@ -7,8 +7,7 @@ var Fayde;
 (function (Fayde) {
     /// <reference path="../Core/FrameworkElement.ts" />
     /// CODE
-    /// <reference path="../Core/Providers/ControlProviderStore.ts" />
-    /// <reference path="../Core/Providers/InheritedIsEnabledProvider.ts" />
+    /// <reference path="../Core/Providers/IsEnabledStore.ts" />
     /// <reference path="../Media/VSM/VisualStateManager.ts" />
     (function (Controls) {
         var ControlNode = (function (_super) {
@@ -51,7 +50,7 @@ var Fayde;
             };
             ControlNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
                 _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
-                //TODO: Propagate IsEnabled DataSource
+                Fayde.Providers.IsEnabledStore.InitIsEnabledSource(this);
                 if(!newIsAttached) {
                     Fayde.Media.VSM.VisualStateManager.DestroyStoryboards(this.XObject, this.TemplateRoot);
                 }
@@ -116,19 +115,6 @@ var Fayde;
                 this._IsMouseOver = false;
                 this.IsEnabledChanged = new MulticastEvent();
             }
-            Control.prototype.CreateStore = function () {
-                var s = new Fayde.Providers.ControlProviderStore(this);
-                s.SetProviders([
-                    new Fayde.Providers.InheritedIsEnabledProvider(s), 
-                    new Fayde.Providers.LocalValueProvider(), 
-                    new Fayde.Providers.LocalStyleProvider(s), 
-                    new Fayde.Providers.ImplicitStyleProvider(s), 
-                    new Fayde.Providers.InheritedProvider(), 
-                    new Fayde.Providers.InheritedDataContextProvider(s), 
-                    new Fayde.Providers.DefaultValueProvider()
-                ]);
-                return s;
-            };
             Control.prototype.CreateNode = function () {
                 return new ControlNode(this);
             };
@@ -143,30 +129,18 @@ var Fayde;
             }, Control, undefined, function (d, args) {
                 return (d)._BorderThicknessChanged(args);
             });
-            Control.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () {
-                return String;
-            }, Control, Font.DEFAULT_FAMILY, undefined, Fayde.Providers._Inheritable.FontFamily);
-            Control.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () {
-                return Number;
-            }, Control, Font.DEFAULT_SIZE, undefined, Fayde.Providers._Inheritable.FontSize);
-            Control.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () {
-                return String;
-            }, Control, Font.DEFAULT_STRETCH, undefined, Fayde.Providers._Inheritable.FontStretch);
-            Control.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () {
-                return String;
-            }, Control, Font.DEFAULT_STYLE, undefined, Fayde.Providers._Inheritable.FontStyle);
-            Control.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () {
-                return new Enum(Fayde.FontWeight);
-            }, Control, Font.DEFAULT_WEIGHT, undefined, Fayde.Providers._Inheritable.FontWeight);
-            Control.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () {
-                return Fayde.Media.Brush;
-            }, Control, undefined, undefined, Fayde.Providers._Inheritable.Foreground);
-            Control.HorizontalContentAlignmentProperty = DependencyProperty.RegisterCore("HorizontalContentAlignment", function () {
+            Control.FontFamilyProperty = Fayde.InheritableOwner.FontFamilyProperty;
+            Control.FontSizeProperty = Fayde.InheritableOwner.FontSizeProperty;
+            Control.FontStretchProperty = Fayde.InheritableOwner.FontStretchProperty;
+            Control.FontStyleProperty = Fayde.InheritableOwner.FontStyleProperty;
+            Control.FontWeightProperty = Fayde.InheritableOwner.FontWeightProperty;
+            Control.ForegroundProperty = Fayde.InheritableOwner.ForegroundProperty;
+            Control.HorizontalContentAlignmentProperty = DependencyProperty.Register("HorizontalContentAlignment", function () {
                 return new Enum(Fayde.HorizontalAlignment);
             }, Control, Fayde.HorizontalAlignment.Center, function (d, args) {
                 return (d)._ContentAlignmentChanged(args);
             });
-            Control.IsEnabledProperty = DependencyProperty.RegisterCore("IsEnabled", function () {
+            Control.IsEnabledProperty = DependencyProperty.Register("IsEnabled", function () {
                 return Boolean;
             }, Control, true, function (d, args) {
                 return (d)._IsEnabledChanged(args);
@@ -190,7 +164,7 @@ var Fayde;
             }, Control, undefined, function (d, args) {
                 return (d)._TemplateChanged(args);
             });
-            Control.VerticalContentAlignmentProperty = DependencyProperty.RegisterCore("VerticalContentAlignment", function () {
+            Control.VerticalContentAlignmentProperty = DependencyProperty.Register("VerticalContentAlignment", function () {
                 return new Enum(Fayde.VerticalAlignment);
             }, Control, Fayde.VerticalAlignment.Center, function (d, args) {
                 return (d)._ContentAlignmentChanged(args);
@@ -319,6 +293,7 @@ var Fayde;
         })(Fayde.FrameworkElement);
         Controls.Control = Control;        
         Nullstone.RegisterType(Control, "Control");
+        Control.IsEnabledProperty.Store = Fayde.Providers.IsEnabledStore.Instance;
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

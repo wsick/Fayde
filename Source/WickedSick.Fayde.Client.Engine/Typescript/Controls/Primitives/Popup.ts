@@ -41,10 +41,10 @@ module Fayde.Controls.Primitives {
             var popup = this.XObject;
             this._Hide();
             if (oldChild)
-                popup._Store.ClearInheritedOnRemove(oldChild.XamlNode);
+                Providers.InheritedStore.ClearInheritedOnRemove(popup, oldChild.XamlNode);
             this._PrepareVisualChild(newChild);
             if (newChild) {
-                popup._Store.PropagateInheritedOnAdd(newChild.XamlNode);
+                Providers.InheritedStore.PropagateInheritedOnAdd(popup, newChild.XamlNode);
                 if (popup.IsOpen)
                     this._Show();
             }

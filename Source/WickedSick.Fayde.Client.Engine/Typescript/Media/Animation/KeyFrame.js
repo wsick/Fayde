@@ -171,7 +171,7 @@ var Fayde;
                     for(; i >= 0; i--) {
                         keyFrame = sortedList[i];
                         valuePropd = DependencyProperty.GetDependencyProperty((keyFrame).constructor, "Value");
-                        if(keyFrame._Store.GetValue(valuePropd) !== undefined) {
+                        if(keyFrame.GetValue(valuePropd) !== undefined) {
                             currentKeyFrame = keyFrame;
                             break;
                         }
@@ -180,7 +180,7 @@ var Fayde;
                     for(i--; i >= 0; i--) {
                         keyFrame = sortedList[i];
                         valuePropd = DependencyProperty.GetDependencyProperty((keyFrame).constructor, "Value");
-                        if(keyFrame._Store.GetValue(valuePropd) !== undefined) {
+                        if(keyFrame.GetValue(valuePropd) !== undefined) {
                             previousKeyFrame = keyFrame;
                             break;
                         }

@@ -473,6 +473,38 @@
       <DependentUpon>TransformTests.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Media\Matrix3D.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Providers\PropertyStore.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Providers\InheritedStore.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Providers\DataContextStore.ts" />
+    <TypeScriptCompile Include="Typescript\Core\InheritableOwner.ts" />
+    <Content Include="Typescript\Core\InheritableOwner.js">
+      <DependentUpon>InheritableOwner.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\Providers\DataContextStore.js">
+      <DependentUpon>DataContextStore.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\Providers\ImplicitStyleBroker.ts" />
+    <Content Include="Typescript\Core\Providers\ImplicitStyleBroker.js">
+      <DependentUpon>ImplicitStyleBroker.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\Providers\InheritedStore.js">
+      <DependentUpon>InheritedStore.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\Providers\IsEnabledStore.ts" />
+    <Content Include="Typescript\Core\Providers\IsEnabledStore.js">
+      <DependentUpon>IsEnabledStore.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\Providers\LocalStyleBroker.ts" />
+    <Content Include="Typescript\Core\Providers\LocalStyleBroker.js">
+      <DependentUpon>LocalStyleBroker.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\Providers\PropertyStore.js">
+      <DependentUpon>PropertyStore.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\AnimationStore.ts" />
+    <Content Include="Typescript\Media\Animation\AnimationStore.js">
+      <DependentUpon>AnimationStore.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\Matrix3D.js">
       <DependentUpon>Matrix3D.ts</DependentUpon>
     </Content>
@@ -767,17 +799,12 @@
     <Content Include="Typescript\Core\Expression.js">
       <DependentUpon>Expression.ts</DependentUpon>
     </Content>
-    <TypeScriptCompile Include="Typescript\Core\Providers\InheritedProvider.ts" />
     <TypeScriptCompile Include="Typescript\Core\FrameworkElement.ts" />
     <Content Include="Typescript\Core\FrameworkElement.js">
       <DependentUpon>FrameworkElement.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Core\Style.ts" />
     <TypeScriptCompile Include="Typescript\Core\ResourceDictionary.ts" />
-    <TypeScriptCompile Include="Typescript\Core\Providers\InheritedIsEnabledProvider.ts" />
-    <TypeScriptCompile Include="Typescript\Core\Providers\InheritedDataContextProvider.ts" />
-    <TypeScriptCompile Include="Typescript\Core\Providers\ControlProviderStore.ts" />
-    <TypeScriptCompile Include="Typescript\Core\PropertyChangedListener.ts" />
     <TypeScriptCompile Include="Typescript\Core\LayoutInformation.ts" />
     <Content Include="Typescript\Core\LayoutInformation.js">
       <DependentUpon>LayoutInformation.ts</DependentUpon>
@@ -785,46 +812,6 @@
     <TypeScriptCompile Include="Typescript\Core\LayoutUpdater.ts" />
     <Content Include="Typescript\Core\LayoutUpdater.js">
       <DependentUpon>LayoutUpdater.ts</DependentUpon>
-    </Content>
-    <Content Include="Typescript\Core\PropertyChangedListener.js">
-      <DependentUpon>PropertyChangedListener.ts</DependentUpon>
-    </Content>
-    <Content Include="Typescript\Core\Providers\ControlProviderStore.js">
-      <DependentUpon>ControlProviderStore.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="Typescript\Core\Providers\Enums.ts" />
-    <Content Include="Typescript\Core\Providers\Enums.js">
-      <DependentUpon>Enums.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="Typescript\Core\Providers\FrameworkProviderStore.ts" />
-    <Content Include="Typescript\Core\Providers\FrameworkProviderStore.js">
-      <DependentUpon>FrameworkProviderStore.ts</DependentUpon>
-    </Content>
-    <Content Include="Typescript\Core\Providers\InheritedDataContextProvider.js">
-      <DependentUpon>InheritedDataContextProvider.ts</DependentUpon>
-    </Content>
-    <Content Include="Typescript\Core\Providers\InheritedIsEnabledProvider.js">
-      <DependentUpon>InheritedIsEnabledProvider.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="Typescript\Core\Providers\ImplicitStyleProvider.ts" />
-    <TypeScriptCompile Include="Typescript\Core\Providers\BasicProviderStore.ts" />
-    <Content Include="Typescript\Core\Providers\BasicProviderStore.js">
-      <DependentUpon>BasicProviderStore.ts</DependentUpon>
-    </Content>
-    <Content Include="Typescript\Core\Providers\ImplicitStyleProvider.js">
-      <DependentUpon>ImplicitStyleProvider.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="Typescript\Core\Providers\LocalStyleProvider.ts" />
-    <TypeScriptCompile Include="Typescript\Core\Providers\IProviderStore.ts" />
-    <TypeScriptCompile Include="Typescript\Core\Providers\InheritedProviderStore.ts" />
-    <Content Include="Typescript\Core\Providers\InheritedProviderStore.js">
-      <DependentUpon>InheritedProviderStore.ts</DependentUpon>
-    </Content>
-    <Content Include="Typescript\Core\Providers\IProviderStore.js">
-      <DependentUpon>IProviderStore.ts</DependentUpon>
-    </Content>
-    <Content Include="Typescript\Core\Providers\LocalStyleProvider.js">
-      <DependentUpon>LocalStyleProvider.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Core\ResourceDictionary.js">
       <DependentUpon>ResourceDictionary.ts</DependentUpon>
@@ -1315,9 +1302,6 @@
     </Content>
     <Content Include="Typescript\Runtime\Enumerable.js">
       <DependentUpon>Enumerable.ts</DependentUpon>
-    </Content>
-    <Content Include="Typescript\Core\Providers\InheritedProvider.js">
-      <DependentUpon>InheritedProvider.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Core\NameScope.js">
       <DependentUpon>NameScope.ts</DependentUpon>
