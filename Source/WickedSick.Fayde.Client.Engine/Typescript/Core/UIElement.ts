@@ -320,7 +320,7 @@ module Fayde {
     }
     Nullstone.RegisterType(UINode, "UINode");
 
-    export class UIElement extends DependencyObject {
+    export class UIElement extends DependencyObject implements Providers.IIsPropertyInheritable {
         XamlNode: UINode;
         private _ClipListener: Media.IGeometryListener = null;
         private _EffectListener: Media.Effects.IEffectListener = null;
@@ -338,8 +338,12 @@ module Fayde {
         static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", () => Point, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
         static TagProperty = DependencyProperty.Register("Tag", () => Object, UIElement);
         static TriggersProperty: DependencyProperty = DependencyProperty.RegisterCore("Triggers", () => TriggerCollection, UIElement, undefined, (d, args) => (<UIElement>d)._TriggersChanged(args));
-        static UseLayoutRoundingProperty = InheritableOwner.UseLayoutRoundingProperty;
+        static UseLayoutRoundingProperty = InheritableOwner.UseLayoutRoundingProperty.ExtendTo(UIElement);
         static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", () => new Enum(Visibility), UIElement, Visibility.Visible, (d, args) => (<UIElement>d).XamlNode.InvalidateVisibility(args.NewValue));
+        
+        private IsInheritable(propd: DependencyProperty): bool {
+            return propd === UIElement.UseLayoutRoundingProperty;
+        }
 
         private _IsMouseOver: bool = false;
         get IsMouseOver() { return this._IsMouseOver; }

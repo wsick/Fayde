@@ -239,7 +239,7 @@ module Fayde {
     }
     Nullstone.RegisterType(FENode, "FENode");
 
-    export class FrameworkElement extends UIElement implements IResourcable, IMeasurableHidden, IArrangeableHidden {
+    export class FrameworkElement extends UIElement implements IResourcable, IMeasurableHidden, IArrangeableHidden, Providers.IIsPropertyInheritable {
         DefaultStyleKey: any;
         XamlNode: FENode;
         Resources: ResourceDictionary;
@@ -257,10 +257,10 @@ module Fayde {
         static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", () => Number, FrameworkElement);
         static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", () => Number, FrameworkElement);
         static CursorProperty: DependencyProperty = DependencyProperty.RegisterFull("Cursor", () => new Enum(CursorType), FrameworkElement, CursorType.Default);
-        static FlowDirectionProperty: DependencyProperty = InheritableOwner.FlowDirectionProperty;
+        static FlowDirectionProperty: DependencyProperty = InheritableOwner.FlowDirectionProperty.ExtendTo(FrameworkElement);
         static HeightProperty: DependencyProperty = DependencyProperty.Register("Height", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._HeightChanged(args));
         static HorizontalAlignmentProperty: DependencyProperty = DependencyProperty.Register("HorizontalAlignment", () => new Enum(HorizontalAlignment), FrameworkElement, HorizontalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
-        static LanguageProperty: DependencyProperty = InheritableOwner.LanguageProperty;
+        static LanguageProperty: DependencyProperty = InheritableOwner.LanguageProperty.ExtendTo(FrameworkElement);
         static MarginProperty: DependencyProperty = DependencyProperty.RegisterCore("Margin", () => Thickness, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
         static MaxHeightProperty: DependencyProperty = DependencyProperty.Register("MaxHeight", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
         static MaxWidthProperty: DependencyProperty = DependencyProperty.Register("MaxWidth", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
@@ -269,6 +269,14 @@ module Fayde {
         static StyleProperty: DependencyProperty = DependencyProperty.Register("Style", () => Style, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d)._StyleChanged(args));
         static VerticalAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalAlignment", () => new Enum(VerticalAlignment), FrameworkElement, VerticalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
         static WidthProperty: DependencyProperty = DependencyProperty.Register("Width", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._WidthChanged(args));
+        
+        private IsInheritable(propd: DependencyProperty): bool {
+            if (propd === FrameworkElement.FlowDirectionProperty)
+                return true;
+            if (propd === FrameworkElement.LanguageProperty)
+                return true;
+            return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);
+        }
                 
         ActualHeight: number;
         ActualWidth: number;

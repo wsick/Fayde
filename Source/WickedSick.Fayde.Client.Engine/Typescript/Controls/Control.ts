@@ -99,19 +99,19 @@ module Fayde.Controls {
     }
     Nullstone.RegisterType(ControlNode, "ControlNode");
 
-    export class Control extends FrameworkElement {
+    export class Control extends FrameworkElement implements Providers.IIsPropertyInheritable {
         XamlNode: ControlNode;
         CreateNode(): ControlNode { return new ControlNode(this); }
 
         static BackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Control);
         static BorderBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderBrush", () => Media.Brush, Control);
         static BorderThicknessProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderThickness", () => Thickness, Control, undefined, (d, args) => (<Control>d)._BorderThicknessChanged(args));
-        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty;
-        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty;
-        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty;
-        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty;
-        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty;
-        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty;
+        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty.ExtendTo(Control);
+        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty.ExtendTo(Control);
+        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty.ExtendTo(Control);
+        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty.ExtendTo(Control);
+        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty.ExtendTo(Control);
+        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty.ExtendTo(Control);
         static HorizontalContentAlignmentProperty: DependencyProperty = DependencyProperty.Register("HorizontalContentAlignment", () => new Enum(HorizontalAlignment), Control, HorizontalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
         static IsEnabledProperty: DependencyProperty = DependencyProperty.Register("IsEnabled", () => Boolean, Control, true, (d, args) => (<Control>d)._IsEnabledChanged(args));
         static IsTabStopProperty: DependencyProperty = DependencyProperty.Register("IsTabStop", () => Boolean, Control, true);
@@ -121,6 +121,12 @@ module Fayde.Controls {
         static TemplateProperty: DependencyProperty = DependencyProperty.RegisterCore("Template", () => ControlTemplate, Control, undefined, (d, args) => (<Control>d)._TemplateChanged(args));
         static VerticalContentAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalContentAlignment", () => new Enum(VerticalAlignment), Control, VerticalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
         static DefaultStyleKeyProperty: DependencyProperty = DependencyProperty.Register("DefaultStyleKey", () => Function, Control);
+
+        private IsInheritable(propd: DependencyProperty): bool {
+            if (ControlInheritedProperties.indexOf(propd) > -1)
+                return;
+            return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);
+        }
 
         Background: Media.Brush;
         BorderBrush: Media.Brush;
@@ -240,4 +246,13 @@ module Fayde.Controls {
     Nullstone.RegisterType(Control, "Control");
 
     Control.IsEnabledProperty.Store = Providers.IsEnabledStore.Instance;
+
+    var ControlInheritedProperties = [
+        Control.FontFamilyProperty,
+        Control.FontSizeProperty,
+        Control.FontStretchProperty,
+        Control.FontStyleProperty,
+        Control.FontWeightProperty,
+        Control.ForegroundProperty,
+    ];
 }

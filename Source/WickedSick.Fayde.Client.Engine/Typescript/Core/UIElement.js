@@ -393,12 +393,15 @@ var Fayde;
         }, UIElement, undefined, function (d, args) {
             return (d)._TriggersChanged(args);
         });
-        UIElement.UseLayoutRoundingProperty = Fayde.InheritableOwner.UseLayoutRoundingProperty;
+        UIElement.UseLayoutRoundingProperty = Fayde.InheritableOwner.UseLayoutRoundingProperty.ExtendTo(UIElement);
         UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () {
             return new Enum(Fayde.Visibility);
         }, UIElement, Fayde.Visibility.Visible, function (d, args) {
             return (d).XamlNode.InvalidateVisibility(args.NewValue);
         });
+        UIElement.prototype.IsInheritable = function (propd) {
+            return propd === UIElement.UseLayoutRoundingProperty;
+        };
         Object.defineProperty(UIElement.prototype, "IsMouseOver", {
             get: function () {
                 return this._IsMouseOver;

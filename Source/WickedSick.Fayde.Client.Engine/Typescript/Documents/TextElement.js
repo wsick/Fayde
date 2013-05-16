@@ -41,14 +41,17 @@ var Fayde;
             TextElement.prototype.CreateNode = function () {
                 return new TextElementNode(this, null);
             };
-            TextElement.FontFamilyProperty = Fayde.InheritableOwner.FontFamilyProperty;
-            TextElement.FontSizeProperty = Fayde.InheritableOwner.FontSizeProperty;
-            TextElement.FontStretchProperty = Fayde.InheritableOwner.FontStretchProperty;
-            TextElement.FontStyleProperty = Fayde.InheritableOwner.FontStyleProperty;
-            TextElement.FontWeightProperty = Fayde.InheritableOwner.FontWeightProperty;
-            TextElement.ForegroundProperty = Fayde.InheritableOwner.ForegroundProperty;
-            TextElement.TextDecorationsProperty = Fayde.InheritableOwner.TextDecorationsProperty;
-            TextElement.LanguageProperty = Fayde.InheritableOwner.LanguageProperty;
+            TextElement.FontFamilyProperty = Fayde.InheritableOwner.FontFamilyProperty.ExtendTo(TextElement);
+            TextElement.FontSizeProperty = Fayde.InheritableOwner.FontSizeProperty.ExtendTo(TextElement);
+            TextElement.FontStretchProperty = Fayde.InheritableOwner.FontStretchProperty.ExtendTo(TextElement);
+            TextElement.FontStyleProperty = Fayde.InheritableOwner.FontStyleProperty.ExtendTo(TextElement);
+            TextElement.FontWeightProperty = Fayde.InheritableOwner.FontWeightProperty.ExtendTo(TextElement);
+            TextElement.ForegroundProperty = Fayde.InheritableOwner.ForegroundProperty.ExtendTo(TextElement);
+            TextElement.TextDecorationsProperty = Fayde.InheritableOwner.TextDecorationsProperty.ExtendTo(TextElement);
+            TextElement.LanguageProperty = Fayde.InheritableOwner.LanguageProperty.ExtendTo(TextElement);
+            TextElement.prototype.IsInheritable = function (propd) {
+                return TextElementInheritedProps.indexOf(propd) > -1;
+            };
             TextElement.prototype._SerializeText = function () {
                 return undefined;
             };
@@ -135,6 +138,17 @@ var Fayde;
         })(Fayde.DependencyObject);
         Documents.TextElement = TextElement;        
         Nullstone.RegisterType(TextElement, "TextElement");
+        var TextElementInheritedProps = [
+            TextElement.FontFamilyProperty, 
+            TextElement.FontSizeProperty, 
+            TextElement.FontStretchProperty, 
+            TextElement.FontStyleProperty, 
+            TextElement.FontWeightProperty, 
+            TextElement.ForegroundProperty, 
+            TextElement.TextDecorationsProperty, 
+            TextElement.LanguageProperty, 
+            
+        ];
     })(Fayde.Documents || (Fayde.Documents = {}));
     var Documents = Fayde.Documents;
 })(Fayde || (Fayde = {}));

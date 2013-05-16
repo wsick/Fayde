@@ -6,6 +6,10 @@ module Fayde.Providers {
         InheritedValue: any;
     }
 
+    export interface IIsPropertyInheritable {
+        IsInheritable(propd: DependencyProperty): bool;
+    }
+
     export class InheritedStore extends PropertyStore {
         static Instance: InheritedStore;
         GetValue(storage: IInheritedStorage): any {
@@ -72,7 +76,7 @@ module Fayde.Providers {
             var len = allProps.length;
             var prop: DependencyProperty;
             for (var i = 0; i < len; i++) {
-                store.Propagate(subtreeNode, allProps[i], undefined);
+                store.SetInheritedValue(subtreeNode, allProps[i], undefined);
             }
         }
         private Propagate(ownerNode: XamlNode, propd: DependencyProperty, newValue: any) {
@@ -85,6 +89,8 @@ module Fayde.Providers {
         }
         private SetInheritedValue(don: DONode, propd: DependencyProperty, newValue: any) {
             var dobj = don.XObject;
+            if (!(<IIsPropertyInheritable>dobj).IsInheritable(propd))
+                return;
             var storage = <IInheritedStorage>GetStorage(dobj, propd);
             if (storage.Precedence < PropertyPrecedence.Inherited) {
                 //Overriden locally, don't propagate

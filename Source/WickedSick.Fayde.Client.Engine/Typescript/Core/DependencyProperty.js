@@ -142,6 +142,21 @@ var DependencyProperty = (function () {
             configurable: true
         });
     };
+    DependencyProperty.prototype.ExtendTo = function (type) {
+        var propd = this;
+        var getter = function () {
+            return (this).GetValue(propd);
+        };
+        var setter = function (value) {
+            (this).SetValue(propd, value);
+        };
+        Object.defineProperty(type.prototype, this.Name, {
+            get: getter,
+            set: setter,
+            configurable: true
+        });
+        return this;
+    };
     DependencyProperty.prototype.ValidateSetValue = function (dobj, value, isValidOut) {
         isValidOut.IsValid = false;
         var coerced = value;

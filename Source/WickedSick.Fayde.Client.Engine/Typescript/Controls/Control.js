@@ -129,12 +129,12 @@ var Fayde;
             }, Control, undefined, function (d, args) {
                 return (d)._BorderThicknessChanged(args);
             });
-            Control.FontFamilyProperty = Fayde.InheritableOwner.FontFamilyProperty;
-            Control.FontSizeProperty = Fayde.InheritableOwner.FontSizeProperty;
-            Control.FontStretchProperty = Fayde.InheritableOwner.FontStretchProperty;
-            Control.FontStyleProperty = Fayde.InheritableOwner.FontStyleProperty;
-            Control.FontWeightProperty = Fayde.InheritableOwner.FontWeightProperty;
-            Control.ForegroundProperty = Fayde.InheritableOwner.ForegroundProperty;
+            Control.FontFamilyProperty = Fayde.InheritableOwner.FontFamilyProperty.ExtendTo(Control);
+            Control.FontSizeProperty = Fayde.InheritableOwner.FontSizeProperty.ExtendTo(Control);
+            Control.FontStretchProperty = Fayde.InheritableOwner.FontStretchProperty.ExtendTo(Control);
+            Control.FontStyleProperty = Fayde.InheritableOwner.FontStyleProperty.ExtendTo(Control);
+            Control.FontWeightProperty = Fayde.InheritableOwner.FontWeightProperty.ExtendTo(Control);
+            Control.ForegroundProperty = Fayde.InheritableOwner.ForegroundProperty.ExtendTo(Control);
             Control.HorizontalContentAlignmentProperty = DependencyProperty.Register("HorizontalContentAlignment", function () {
                 return new Enum(Fayde.HorizontalAlignment);
             }, Control, Fayde.HorizontalAlignment.Center, function (d, args) {
@@ -172,6 +172,12 @@ var Fayde;
             Control.DefaultStyleKeyProperty = DependencyProperty.Register("DefaultStyleKey", function () {
                 return Function;
             }, Control);
+            Control.prototype.IsInheritable = function (propd) {
+                if(ControlInheritedProperties.indexOf(propd) > -1) {
+                    return;
+                }
+                return (_super.prototype).IsInheritable.call(this, propd);
+            };
             Object.defineProperty(Control.prototype, "IsFocused", {
                 get: //Defined in UIElement
                 function () {
@@ -294,6 +300,15 @@ var Fayde;
         Controls.Control = Control;        
         Nullstone.RegisterType(Control, "Control");
         Control.IsEnabledProperty.Store = Fayde.Providers.IsEnabledStore.Instance;
+        var ControlInheritedProperties = [
+            Control.FontFamilyProperty, 
+            Control.FontSizeProperty, 
+            Control.FontStretchProperty, 
+            Control.FontStyleProperty, 
+            Control.FontWeightProperty, 
+            Control.ForegroundProperty, 
+            
+        ];
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

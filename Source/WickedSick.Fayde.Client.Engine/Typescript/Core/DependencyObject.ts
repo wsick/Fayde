@@ -36,7 +36,7 @@ module Fayde {
     }
     Nullstone.RegisterType(DONode, "DONode");
 
-    export class DependencyObject extends XamlObject implements ICloneable, Providers.IPropertyStorageOwner {
+    export class DependencyObject extends XamlObject implements ICloneable, Providers.IPropertyStorageOwner, Providers.IIsPropertyInheritable {
         private _Expressions: Expression[] = [];
         private _PropertyStorage: Providers.IPropertyStorage[] = [];
 
@@ -185,6 +185,8 @@ module Fayde {
                 darr[id] = storage.Property.Store.Clone(this, storage);
             }
         }
+
+        private IsInheritable(propd: DependencyProperty): bool { return false; }
     }
     Nullstone.RegisterType(DependencyObject, "DependencyObject");
 

@@ -274,13 +274,13 @@ module Fayde.Controls {
         CreateNode(): TextBlockNode { return new TextBlockNode(this); }
 
         static PaddingProperty: DependencyProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, TextBlock, undefined, (d, args) => (<TextBlock>d).XamlNode._InvalidateDirty(true));
-        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty;
-        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty;
-        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty;
-        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty;
-        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty;
-        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty;
-        static TextDecorationsProperty: DependencyProperty = InheritableOwner.TextDecorationsProperty;
+        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty.ExtendTo(TextBlock);
+        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty.ExtendTo(TextBlock);
+        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty.ExtendTo(TextBlock);
+        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty.ExtendTo(TextBlock);
+        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty.ExtendTo(TextBlock);
+        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty.ExtendTo(TextBlock);
+        static TextDecorationsProperty: DependencyProperty = InheritableOwner.TextDecorationsProperty.ExtendTo(TextBlock);
         static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, TextBlock, "", (d, args) => (<TextBlock>d).XamlNode._TextChanged(args));
         //static InlinesProperty: DependencyProperty = DependencyProperty.RegisterCore("Inlines", () => Documents.InlineCollection, TextBlock, undefined, (d, args) => (<TextBlock>d).XamlNode._InlinesChanged(args));
         static LineStackingStrategyProperty: DependencyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", () => new Enum(LineStackingStrategy), TextBlock, LineStackingStrategy.MaxHeight, (d, args) => (<TextBlock>d).XamlNode._LineStackingStrategyChanged(args));

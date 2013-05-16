@@ -161,6 +161,17 @@ class DependencyProperty {
             configurable: true
         });
     }
+    ExtendTo(type: any): DependencyProperty {
+        var propd = this;
+        var getter = function () { return (<Fayde.DependencyObject>this).GetValue(propd); };
+        var setter = function (value) { (<Fayde.DependencyObject>this).SetValue(propd, value); };
+        Object.defineProperty(type.prototype, this.Name, {
+            get: getter,
+            set: setter,
+            configurable: true
+        });
+        return this;
+    }
 
     ValidateSetValue(dobj: Fayde.DependencyObject, value: any, isValidOut: IOutIsValid) {
         isValidOut.IsValid = false;

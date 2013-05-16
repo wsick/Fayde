@@ -83,7 +83,7 @@ var Fayde;
                 var len = allProps.length;
                 var prop;
                 for(var i = 0; i < len; i++) {
-                    store.Propagate(subtreeNode, allProps[i], undefined);
+                    store.SetInheritedValue(subtreeNode, allProps[i], undefined);
                 }
             };
             InheritedStore.prototype.Propagate = function (ownerNode, propd, newValue) {
@@ -96,6 +96,9 @@ var Fayde;
             };
             InheritedStore.prototype.SetInheritedValue = function (don, propd, newValue) {
                 var dobj = don.XObject;
+                if(!(dobj).IsInheritable(propd)) {
+                    return;
+                }
                 var storage = Providers.GetStorage(dobj, propd);
                 if(storage.Precedence < Providers.PropertyPrecedence.Inherited) {
                     //Overriden locally, don't propagate

@@ -5378,6 +5378,17 @@ class DependencyProperty {
             configurable: true
         });
     }
+    ExtendTo(type: any): DependencyProperty {
+        var propd = this;
+        var getter = function () { return (<Fayde.DependencyObject>this).GetValue(propd); };
+        var setter = function (value) { (<Fayde.DependencyObject>this).SetValue(propd, value); };
+        Object.defineProperty(type.prototype, this.Name, {
+            get: getter,
+            set: setter,
+            configurable: true
+        });
+        return this;
+    }
     ValidateSetValue(dobj: Fayde.DependencyObject, value: any, isValidOut: IOutIsValid) {
         isValidOut.IsValid = false;
         var coerced = value;
@@ -6918,6 +6929,9 @@ module Fayde.Providers {
     export interface IInheritedStorage extends IPropertyStorage {
         InheritedValue: any;
     }
+    export interface IIsPropertyInheritable {
+        IsInheritable(propd: DependencyProperty): bool;
+    }
     export class InheritedStore extends PropertyStore {
         static Instance: InheritedStore;
         GetValue(storage: IInheritedStorage): any {
@@ -6980,7 +6994,7 @@ module Fayde.Providers {
             var len = allProps.length;
             var prop: DependencyProperty;
             for (var i = 0; i < len; i++) {
-                store.Propagate(subtreeNode, allProps[i], undefined);
+                store.SetInheritedValue(subtreeNode, allProps[i], undefined);
             }
         }
         private Propagate(ownerNode: XamlNode, propd: DependencyProperty, newValue: any) {
@@ -6993,6 +7007,8 @@ module Fayde.Providers {
         }
         private SetInheritedValue(don: DONode, propd: DependencyProperty, newValue: any) {
             var dobj = don.XObject;
+            if (!(<IIsPropertyInheritable>dobj).IsInheritable(propd))
+                return;
             var storage = <IInheritedStorage>GetStorage(dobj, propd);
             if (storage.Precedence < PropertyPrecedence.Inherited) {
                 storage.InheritedValue = newValue;
@@ -10754,7 +10770,7 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(DONode, "DONode");
-    export class DependencyObject extends XamlObject implements ICloneable, Providers.IPropertyStorageOwner {
+    export class DependencyObject extends XamlObject implements ICloneable, Providers.IPropertyStorageOwner, Providers.IIsPropertyInheritable {
         private _Expressions: Expression[] = [];
         private _PropertyStorage: Providers.IPropertyStorage[] = [];
         static DataContextProperty: DependencyProperty = DependencyProperty.Register("DataContext", () => Object, DependencyObject, undefined, (d, args) => (<DependencyObject>d).XamlNode._DataContextPropertyChanged(args));
@@ -10890,6 +10906,7 @@ module Fayde {
                 darr[id] = storage.Property.Store.Clone(this, storage);
             }
         }
+        private IsInheritable(propd: DependencyProperty): bool { return false; }
     }
     Nullstone.RegisterType(DependencyObject, "DependencyObject");
     DependencyObject.DataContextProperty.Store = Fayde.Providers.DataContextStore.Instance;
@@ -11377,14 +11394,14 @@ module Fayde.Documents {
     export class TextElement extends DependencyObject implements Text.ITextAttributesSource, IFontChangeable {
         XamlNode: TextElementNode;
         CreateNode(): TextElementNode { return new TextElementNode(this, null); }
-        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty;
-        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty;
-        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty;
-        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty;
-        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty;
-        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty;
-        static TextDecorationsProperty: DependencyProperty = InheritableOwner.TextDecorationsProperty;
-        static LanguageProperty: DependencyProperty = InheritableOwner.LanguageProperty;
+        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty.ExtendTo(TextElement);
+        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty.ExtendTo(TextElement);
+        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty.ExtendTo(TextElement);
+        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty.ExtendTo(TextElement);
+        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty.ExtendTo(TextElement);
+        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty.ExtendTo(TextElement);
+        static TextDecorationsProperty: DependencyProperty = InheritableOwner.TextDecorationsProperty.ExtendTo(TextElement);
+        static LanguageProperty: DependencyProperty = InheritableOwner.LanguageProperty.ExtendTo(TextElement);
         Foreground: Media.Brush;
         FontFamily: string;
         FontStretch: string;
@@ -11393,6 +11410,9 @@ module Fayde.Documents {
         FontSize: number;
         Language: string;
         TextDecorations: TextDecorations;
+        private IsInheritable(propd: DependencyProperty): bool {
+            return TextElementInheritedProps.indexOf(propd) > -1;
+        }
         private _Font: Font = new Font();
         constructor() {
             super();
@@ -11437,6 +11457,16 @@ module Fayde.Documents {
         }
     }
     Nullstone.RegisterType(TextElement, "TextElement");
+    var TextElementInheritedProps = [
+        TextElement.FontFamilyProperty,
+        TextElement.FontSizeProperty,
+        TextElement.FontStretchProperty,
+        TextElement.FontStyleProperty,
+        TextElement.FontWeightProperty,
+        TextElement.ForegroundProperty,
+        TextElement.TextDecorationsProperty,
+        TextElement.LanguageProperty,
+    ];
 }
 
 module Fayde.Input {
@@ -14587,7 +14617,7 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(UINode, "UINode");
-    export class UIElement extends DependencyObject {
+    export class UIElement extends DependencyObject implements Providers.IIsPropertyInheritable {
         XamlNode: UINode;
         private _ClipListener: Media.IGeometryListener = null;
         private _EffectListener: Media.Effects.IEffectListener = null;
@@ -14604,8 +14634,11 @@ module Fayde {
         static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", () => Point, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
         static TagProperty = DependencyProperty.Register("Tag", () => Object, UIElement);
         static TriggersProperty: DependencyProperty = DependencyProperty.RegisterCore("Triggers", () => TriggerCollection, UIElement, undefined, (d, args) => (<UIElement>d)._TriggersChanged(args));
-        static UseLayoutRoundingProperty = InheritableOwner.UseLayoutRoundingProperty;
+        static UseLayoutRoundingProperty = InheritableOwner.UseLayoutRoundingProperty.ExtendTo(UIElement);
         static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", () => new Enum(Visibility), UIElement, Visibility.Visible, (d, args) => (<UIElement>d).XamlNode.InvalidateVisibility(args.NewValue));
+        private IsInheritable(propd: DependencyProperty): bool {
+            return propd === UIElement.UseLayoutRoundingProperty;
+        }
         private _IsMouseOver: bool = false;
         get IsMouseOver() { return this._IsMouseOver; }
         get DesiredSize(): size { return this.XamlNode.LayoutUpdater.DesiredSize; }
@@ -14815,12 +14848,17 @@ module Fayde.Documents {
 }
 
 module Fayde.Documents {
-    export class Run extends Inline {
-        static FlowDirectionProperty: DependencyProperty = InheritableOwner.FlowDirectionProperty;
+    export class Run extends Inline implements Providers.IIsPropertyInheritable {
+        static FlowDirectionProperty: DependencyProperty = InheritableOwner.FlowDirectionProperty.ExtendTo(Run);
         static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, Run);
         FlowDirection: FlowDirection;
         Text: string;
         private _SerializeText(): string { return this.Text; }
+        private IsInheritable(propd: DependencyProperty): bool {
+            if (propd === Run.FlowDirectionProperty)
+                return true;
+            return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);
+        }
     }
     Nullstone.RegisterType(Run, "Run");
 }
@@ -16320,7 +16358,7 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(FENode, "FENode");
-    export class FrameworkElement extends UIElement implements IResourcable, IMeasurableHidden, IArrangeableHidden {
+    export class FrameworkElement extends UIElement implements IResourcable, IMeasurableHidden, IArrangeableHidden, Providers.IIsPropertyInheritable {
         DefaultStyleKey: any;
         XamlNode: FENode;
         Resources: ResourceDictionary;
@@ -16337,10 +16375,10 @@ module Fayde {
         static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", () => Number, FrameworkElement);
         static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", () => Number, FrameworkElement);
         static CursorProperty: DependencyProperty = DependencyProperty.RegisterFull("Cursor", () => new Enum(CursorType), FrameworkElement, CursorType.Default);
-        static FlowDirectionProperty: DependencyProperty = InheritableOwner.FlowDirectionProperty;
+        static FlowDirectionProperty: DependencyProperty = InheritableOwner.FlowDirectionProperty.ExtendTo(FrameworkElement);
         static HeightProperty: DependencyProperty = DependencyProperty.Register("Height", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._HeightChanged(args));
         static HorizontalAlignmentProperty: DependencyProperty = DependencyProperty.Register("HorizontalAlignment", () => new Enum(HorizontalAlignment), FrameworkElement, HorizontalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
-        static LanguageProperty: DependencyProperty = InheritableOwner.LanguageProperty;
+        static LanguageProperty: DependencyProperty = InheritableOwner.LanguageProperty.ExtendTo(FrameworkElement);
         static MarginProperty: DependencyProperty = DependencyProperty.RegisterCore("Margin", () => Thickness, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
         static MaxHeightProperty: DependencyProperty = DependencyProperty.Register("MaxHeight", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
         static MaxWidthProperty: DependencyProperty = DependencyProperty.Register("MaxWidth", () => Number, FrameworkElement, Number.POSITIVE_INFINITY, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
@@ -16349,6 +16387,13 @@ module Fayde {
         static StyleProperty: DependencyProperty = DependencyProperty.Register("Style", () => Style, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d)._StyleChanged(args));
         static VerticalAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalAlignment", () => new Enum(VerticalAlignment), FrameworkElement, VerticalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
         static WidthProperty: DependencyProperty = DependencyProperty.Register("Width", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._WidthChanged(args));
+        private IsInheritable(propd: DependencyProperty): bool {
+            if (propd === FrameworkElement.FlowDirectionProperty)
+                return true;
+            if (propd === FrameworkElement.LanguageProperty)
+                return true;
+            return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);
+        }
         ActualHeight: number;
         ActualWidth: number;
         FlowDirection: FlowDirection;
@@ -17356,18 +17401,18 @@ module Fayde.Controls {
         CanCaptureMouse(): bool { return this.XObject.IsEnabled; }
     }
     Nullstone.RegisterType(ControlNode, "ControlNode");
-    export class Control extends FrameworkElement {
+    export class Control extends FrameworkElement implements Providers.IIsPropertyInheritable {
         XamlNode: ControlNode;
         CreateNode(): ControlNode { return new ControlNode(this); }
         static BackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Control);
         static BorderBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderBrush", () => Media.Brush, Control);
         static BorderThicknessProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderThickness", () => Thickness, Control, undefined, (d, args) => (<Control>d)._BorderThicknessChanged(args));
-        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty;
-        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty;
-        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty;
-        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty;
-        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty;
-        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty;
+        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty.ExtendTo(Control);
+        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty.ExtendTo(Control);
+        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty.ExtendTo(Control);
+        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty.ExtendTo(Control);
+        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty.ExtendTo(Control);
+        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty.ExtendTo(Control);
         static HorizontalContentAlignmentProperty: DependencyProperty = DependencyProperty.Register("HorizontalContentAlignment", () => new Enum(HorizontalAlignment), Control, HorizontalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
         static IsEnabledProperty: DependencyProperty = DependencyProperty.Register("IsEnabled", () => Boolean, Control, true, (d, args) => (<Control>d)._IsEnabledChanged(args));
         static IsTabStopProperty: DependencyProperty = DependencyProperty.Register("IsTabStop", () => Boolean, Control, true);
@@ -17377,6 +17422,11 @@ module Fayde.Controls {
         static TemplateProperty: DependencyProperty = DependencyProperty.RegisterCore("Template", () => ControlTemplate, Control, undefined, (d, args) => (<Control>d)._TemplateChanged(args));
         static VerticalContentAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalContentAlignment", () => new Enum(VerticalAlignment), Control, VerticalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
         static DefaultStyleKeyProperty: DependencyProperty = DependencyProperty.Register("DefaultStyleKey", () => Function, Control);
+        private IsInheritable(propd: DependencyProperty): bool {
+            if (ControlInheritedProperties.indexOf(propd) > -1)
+                return;
+            return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);
+        }
         Background: Media.Brush;
         BorderBrush: Media.Brush;
         BorderThickness: Thickness;
@@ -17486,6 +17536,14 @@ module Fayde.Controls {
     }
     Nullstone.RegisterType(Control, "Control");
     Control.IsEnabledProperty.Store = Providers.IsEnabledStore.Instance;
+    var ControlInheritedProperties = [
+        Control.FontFamilyProperty,
+        Control.FontSizeProperty,
+        Control.FontStretchProperty,
+        Control.FontStyleProperty,
+        Control.FontWeightProperty,
+        Control.ForegroundProperty,
+    ];
 }
 
 module Fayde.Controls {
@@ -18968,13 +19026,13 @@ module Fayde.Controls {
         XamlNode: TextBlockNode;
         CreateNode(): TextBlockNode { return new TextBlockNode(this); }
         static PaddingProperty: DependencyProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, TextBlock, undefined, (d, args) => (<TextBlock>d).XamlNode._InvalidateDirty(true));
-        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty;
-        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty;
-        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty;
-        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty;
-        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty;
-        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty;
-        static TextDecorationsProperty: DependencyProperty = InheritableOwner.TextDecorationsProperty;
+        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty.ExtendTo(TextBlock);
+        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty.ExtendTo(TextBlock);
+        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty.ExtendTo(TextBlock);
+        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty.ExtendTo(TextBlock);
+        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty.ExtendTo(TextBlock);
+        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty.ExtendTo(TextBlock);
+        static TextDecorationsProperty: DependencyProperty = InheritableOwner.TextDecorationsProperty.ExtendTo(TextBlock);
         static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, TextBlock, "", (d, args) => (<TextBlock>d).XamlNode._TextChanged(args));
         static LineStackingStrategyProperty: DependencyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", () => new Enum(LineStackingStrategy), TextBlock, LineStackingStrategy.MaxHeight, (d, args) => (<TextBlock>d).XamlNode._LineStackingStrategyChanged(args));
         static LineHeightProperty: DependencyProperty = DependencyProperty.RegisterCore("LineHeight", () => Number, TextBlock, NaN, (d, args) => (<TextBlock>d).XamlNode._LineHeightChanged(args));

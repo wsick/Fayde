@@ -22,19 +22,19 @@ module Fayde.Documents {
         }
     }
     Nullstone.RegisterType(TextElementNode, "TextElementNode");
-
+    
     export class TextElement extends DependencyObject implements Text.ITextAttributesSource, IFontChangeable {
         XamlNode: TextElementNode;
         CreateNode(): TextElementNode { return new TextElementNode(this, null); }
         
-        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty;
-        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty;
-        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty;
-        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty;
-        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty;
-        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty;
-        static TextDecorationsProperty: DependencyProperty = InheritableOwner.TextDecorationsProperty;
-        static LanguageProperty: DependencyProperty = InheritableOwner.LanguageProperty;
+        static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty.ExtendTo(TextElement);
+        static FontSizeProperty: DependencyProperty = InheritableOwner.FontSizeProperty.ExtendTo(TextElement);
+        static FontStretchProperty: DependencyProperty = InheritableOwner.FontStretchProperty.ExtendTo(TextElement);
+        static FontStyleProperty: DependencyProperty = InheritableOwner.FontStyleProperty.ExtendTo(TextElement);
+        static FontWeightProperty: DependencyProperty = InheritableOwner.FontWeightProperty.ExtendTo(TextElement);
+        static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty.ExtendTo(TextElement);
+        static TextDecorationsProperty: DependencyProperty = InheritableOwner.TextDecorationsProperty.ExtendTo(TextElement);
+        static LanguageProperty: DependencyProperty = InheritableOwner.LanguageProperty.ExtendTo(TextElement);
         Foreground: Media.Brush;
         FontFamily: string;
         FontStretch: string;
@@ -43,6 +43,10 @@ module Fayde.Documents {
         FontSize: number;
         Language: string;
         TextDecorations: TextDecorations;
+
+        private IsInheritable(propd: DependencyProperty): bool {
+            return TextElementInheritedProps.indexOf(propd) > -1;
+        }
 
         private _Font: Font = new Font();
 
@@ -94,4 +98,15 @@ module Fayde.Documents {
         }
     }
     Nullstone.RegisterType(TextElement, "TextElement");
+
+    var TextElementInheritedProps = [
+        TextElement.FontFamilyProperty,
+        TextElement.FontSizeProperty,
+        TextElement.FontStretchProperty,
+        TextElement.FontStyleProperty,
+        TextElement.FontWeightProperty,
+        TextElement.ForegroundProperty,
+        TextElement.TextDecorationsProperty,
+        TextElement.LanguageProperty,
+    ];
 }

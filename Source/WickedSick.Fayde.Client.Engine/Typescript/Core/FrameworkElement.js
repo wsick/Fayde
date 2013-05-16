@@ -279,7 +279,7 @@ var Fayde;
         FrameworkElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () {
             return new Enum(Fayde.CursorType);
         }, FrameworkElement, Fayde.CursorType.Default);
-        FrameworkElement.FlowDirectionProperty = Fayde.InheritableOwner.FlowDirectionProperty;
+        FrameworkElement.FlowDirectionProperty = Fayde.InheritableOwner.FlowDirectionProperty.ExtendTo(FrameworkElement);
         FrameworkElement.HeightProperty = DependencyProperty.Register("Height", function () {
             return Number;
         }, FrameworkElement, NaN, function (d, args) {
@@ -290,7 +290,7 @@ var Fayde;
         }, FrameworkElement, Fayde.HorizontalAlignment.Stretch, function (d, args) {
             return (d)._AlignmentChanged(args);
         });
-        FrameworkElement.LanguageProperty = Fayde.InheritableOwner.LanguageProperty;
+        FrameworkElement.LanguageProperty = Fayde.InheritableOwner.LanguageProperty.ExtendTo(FrameworkElement);
         FrameworkElement.MarginProperty = DependencyProperty.RegisterCore("Margin", function () {
             return Thickness;
         }, FrameworkElement, undefined, function (d, args) {
@@ -331,6 +331,15 @@ var Fayde;
         }, FrameworkElement, NaN, function (d, args) {
             return (d)._WidthChanged(args);
         });
+        FrameworkElement.prototype.IsInheritable = function (propd) {
+            if(propd === FrameworkElement.FlowDirectionProperty) {
+                return true;
+            }
+            if(propd === FrameworkElement.LanguageProperty) {
+                return true;
+            }
+            return (_super.prototype).IsInheritable.call(this, propd);
+        };
         FrameworkElement.prototype.OnApplyTemplate = function () {
         };
         FrameworkElement.prototype.FindName = function (name) {

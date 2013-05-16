@@ -14,12 +14,18 @@ var Fayde;
                 _super.apply(this, arguments);
 
             }
-            Run.FlowDirectionProperty = Fayde.InheritableOwner.FlowDirectionProperty;
+            Run.FlowDirectionProperty = Fayde.InheritableOwner.FlowDirectionProperty.ExtendTo(Run);
             Run.TextProperty = DependencyProperty.Register("Text", function () {
                 return String;
             }, Run);
             Run.prototype._SerializeText = function () {
                 return this.Text;
+            };
+            Run.prototype.IsInheritable = function (propd) {
+                if(propd === Run.FlowDirectionProperty) {
+                    return true;
+                }
+                return (_super.prototype).IsInheritable.call(this, propd);
             };
             return Run;
         })(Documents.Inline);
