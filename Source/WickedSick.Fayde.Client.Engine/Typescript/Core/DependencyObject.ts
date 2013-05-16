@@ -18,7 +18,8 @@ module Fayde {
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
             var propd = DependencyObject.DataContextProperty;
             var storage = <Providers.IDataContextStorage>Providers.GetStorage(this.XObject, propd);
-            (<Providers.DataContextStore>propd.Store).SetInheritedSource(storage, newParentNode);
+            var newInherited = newParentNode ? newParentNode.DataContext : undefined;
+            (<Providers.DataContextStore>propd.Store).EmitInheritedChanged(storage, newInherited);
         }
 
         get DataContext(): any { return this.XObject.DataContext; }

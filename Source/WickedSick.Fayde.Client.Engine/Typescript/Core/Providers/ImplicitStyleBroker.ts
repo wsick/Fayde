@@ -24,7 +24,7 @@ module Fayde.Providers {
     export class ImplicitStyleBroker {
         static Set(fe: FrameworkElement, mask: StyleMask, styles?: Style[]) {
             if (!styles)
-                styles = ImplicitStyleBroker.GetImplicitStyles(mask);
+                styles = ImplicitStyleBroker.GetImplicitStyles(fe, mask);
             if (styles) {
                 var error = new BError();
                 var len = StyleIndex.Count;
@@ -32,7 +32,7 @@ module Fayde.Providers {
                     var style = styles[i];
                     if (!style)
                         continue;
-                    if (!style.Validate(this._Object, error)) {
+                    if (!style.Validate(fe, error)) {
                         error.ThrowException();
                         //Warn("Style validation failed. [" + error.Message + "]");
                         return;
@@ -62,7 +62,8 @@ module Fayde.Providers {
             ImplicitStyleBroker.ApplyStyles(fe, mask, styles);
         }
         static Clear(fe: FrameworkElement, mask: StyleMask) {
-            var oldStyles = (<IImplicitStyleHolder>fe.XamlNode)._ImplicitStyles;
+            var holder = <IImplicitStyleHolder>fe.XamlNode;
+            var oldStyles = holder._ImplicitStyles;
             if (!oldStyles)
                 return;
 
@@ -75,7 +76,7 @@ module Fayde.Providers {
             if (mask & StyleMask.VisualTree)
                 newStyles[StyleIndex.VisualTree] = null;
 
-            this.ApplyStyles(this._StyleMask & ~mask, newStyles);
+            ImplicitStyleBroker.ApplyStyles(fe, holder._StyleMask & ~mask, newStyles);
         }
         private static ApplyStyles(fe: FrameworkElement, mask: StyleMask, styles: Style[]) {
             var holder = <IImplicitStyleHolder>fe.XamlNode;
@@ -132,8 +133,7 @@ module Fayde.Providers {
             holder._StyleMask = mask;
         }
 
-        private static GetImplicitStyles(mask: StyleMask) {
-            var fe = <FrameworkElement>this._Object;
+        private static GetImplicitStyles(fe: FrameworkElement, mask: StyleMask) {
             var feType = (<any>fe).constructor;
             var feTypeName = (<any>feType)._TypeName;
 

@@ -31,32 +31,8 @@ var Fayde;
                 }
                 return Providers.PropertyPrecedence.DefaultValue;
             };
-            DataContextStore.prototype.SetInheritedSource = function (storage, sourceNode) {
-                var oldSourceNode = storage.SourceNode;
-                if(oldSourceNode === sourceNode) {
-                    return;
-                }
-                var oldValue = undefined;
-                var newValue = undefined;
-                if(oldSourceNode) {
-                    oldValue = oldSourceNode.DataContext;
-                }
-                storage.SourceNode = sourceNode;
-                if(sourceNode) {
-                    newValue = sourceNode.DataContext;
-                }
-                if(oldValue === newValue) {
-                    this.EmitInheritedChanged(storage, oldValue, newValue);
-                }
-            };
-            DataContextStore.prototype.EmitInheritedChanged = function (storage, oldInherited, newInherited) {
-                if(oldInherited === undefined) {
-                    oldInherited = storage.InheritedValue;
-                }
-                var sourceNode = storage.SourceNode;
-                if(sourceNode && newInherited === undefined) {
-                    newInherited = sourceNode.DataContext;
-                }
+            DataContextStore.prototype.EmitInheritedChanged = function (storage, newInherited) {
+                var oldInherited = storage.InheritedValue;
                 storage.InheritedValue = newInherited;
                 if(storage.Precedence >= Providers.PropertyPrecedence.InheritedDataContext && oldInherited !== newInherited) {
                     this.OnPropertyChanged(storage, Providers.PropertyPrecedence.InheritedDataContext, oldInherited, newInherited);
@@ -72,14 +48,8 @@ var Fayde;
                     LocalStyleValue: undefined,
                     ImplicitStyleValue: undefined,
                     InheritedValue: undefined,
-                    SourceNode: undefined,
                     PropListeners: undefined
                 };
-            };
-            DataContextStore.EmitDataContextChanged = function EmitDataContextChanged(dobj) {
-                var propd = Fayde.DependencyObject.DataContextProperty;
-                var storage = Providers.GetStorage(dobj, propd);
-                (propd.Store).EmitInheritedChanged(storage);
             };
             return DataContextStore;
         })(Providers.PropertyStore);

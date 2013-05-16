@@ -22,7 +22,8 @@ var Fayde;
         DONode.prototype.OnParentChanged = function (oldParentNode, newParentNode) {
             var propd = DependencyObject.DataContextProperty;
             var storage = Fayde.Providers.GetStorage(this.XObject, propd);
-            (propd.Store).SetInheritedSource(storage, newParentNode);
+            var newInherited = newParentNode ? newParentNode.DataContext : undefined;
+            (propd.Store).EmitInheritedChanged(storage, newInherited);
         };
         Object.defineProperty(DONode.prototype, "DataContext", {
             get: function () {

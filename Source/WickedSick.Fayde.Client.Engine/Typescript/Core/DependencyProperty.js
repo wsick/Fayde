@@ -3,13 +3,12 @@ var DependencyProperty = (function () {
         this.IsReadOnly = false;
         this.IsCustom = true;
         this.IsAttached = false;
-        this.Inheritable = Fayde.Providers.Inheritable.None;
+        this.IsInheritable = false;
         this.AlwaysChange = false;
         this._Coercer = null;
         this._Validator = null;
     }
     DependencyProperty._IDs = [];
-    DependencyProperty._Inherited = [];
     DependencyProperty._LastID = 0;
     DependencyProperty.Register = function Register(name, getTargetType, ownerType, defaultValue, changedCallback) {
         var propd = new DependencyProperty();
@@ -84,7 +83,7 @@ var DependencyProperty = (function () {
         propd.FinishRegister();
         return propd;
     };
-    DependencyProperty.RegisterInheritable = function RegisterInheritable(name, getTargetType, ownerType, defaultValue, changedCallback, inheritable) {
+    DependencyProperty.RegisterInheritable = function RegisterInheritable(name, getTargetType, ownerType, defaultValue, changedCallback) {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -92,20 +91,12 @@ var DependencyProperty = (function () {
         propd.DefaultValue = defaultValue;
         propd.ChangedCallback = changedCallback;
         propd.IsCustom = true;
-        propd.Store = Fayde.Providers.PropertyStore.Instance;
-        propd.Inheritable = inheritable;
-        if(inheritable !== undefined) {
-            var i = DependencyProperty._Inherited;
-            if(!i[inheritable]) {
-                i[inheritable] = [];
-            }
-            i[inheritable].push(propd);
-            propd.Store = Fayde.Providers.InheritedStore.Instance;
-        }
+        propd.IsInheritable = true;
+        propd.Store = Fayde.Providers.InheritedStore.Instance;
         propd.FinishRegister();
         return propd;
     };
-    DependencyProperty.RegisterFull = function RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, coercer, alwaysChange, validator, isCustom, isReadOnly, isAttached, inheritable) {
+    DependencyProperty.RegisterFull = function RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, coercer, alwaysChange, validator, isCustom, isReadOnly, isAttached) {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -119,15 +110,6 @@ var DependencyProperty = (function () {
         propd.IsReadOnly = isReadOnly === true;
         propd.IsAttached = isAttached === true;
         propd.Store = Fayde.Providers.PropertyStore.Instance;
-        propd.Inheritable = inheritable;
-        if(inheritable !== undefined) {
-            var i = DependencyProperty._Inherited;
-            if(!i[inheritable]) {
-                i[inheritable] = [];
-            }
-            i[inheritable].push(propd);
-            propd.Store = Fayde.Providers.InheritedStore.Instance;
-        }
         propd.FinishRegister();
         return propd;
     };

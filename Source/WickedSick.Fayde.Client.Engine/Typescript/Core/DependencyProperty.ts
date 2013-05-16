@@ -14,7 +14,6 @@ interface IOutIsValid {
 }
 class DependencyProperty {
     private static _IDs: DependencyProperty[] = [];
-    private static _Inherited: DependencyProperty[][] = [];
     private static _LastID: number = 0;
 
     _ID: number;
@@ -25,7 +24,7 @@ class DependencyProperty {
     IsReadOnly: bool = false;
     IsCustom: bool = true;
     IsAttached: bool = false;
-    Inheritable: Fayde.Providers.Inheritable = Fayde.Providers.Inheritable.None;
+    IsInheritable: bool = false;
     ChangedCallback: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void;
     AlwaysChange: bool = false;
     Store: Fayde.Providers.PropertyStore;
@@ -107,7 +106,7 @@ class DependencyProperty {
         return propd;
     }
     
-    static RegisterInheritable(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void, inheritable?: Fayde.Providers.Inheritable) {
+    static RegisterInheritable(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void) {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -115,20 +114,13 @@ class DependencyProperty {
         propd.DefaultValue = defaultValue;
         propd.ChangedCallback = changedCallback;
         propd.IsCustom = true;
-        propd.Store = Fayde.Providers.PropertyStore.Instance;
-        propd.Inheritable = inheritable;
-        if (inheritable !== undefined) {
-            var i = _Inherited;
-            if (!i[inheritable])
-                i[inheritable] = [];
-            i[inheritable].push(propd);
-            propd.Store = Fayde.Providers.InheritedStore.Instance;
-        }
+        propd.IsInheritable = true;
+        propd.Store = Fayde.Providers.InheritedStore.Instance;
         propd.FinishRegister();
         return propd;
     }
 
-    static RegisterFull(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void, coercer?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any, alwaysChange?: bool, validator?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => bool, isCustom?: bool, isReadOnly?: bool, isAttached?: bool, inheritable?: Fayde.Providers.Inheritable): DependencyProperty {
+    static RegisterFull(name: string, getTargetType: () => Function, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void, coercer?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any, alwaysChange?: bool, validator?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => bool, isCustom?: bool, isReadOnly?: bool, isAttached?: bool): DependencyProperty {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -142,14 +134,6 @@ class DependencyProperty {
         propd.IsReadOnly = isReadOnly === true;
         propd.IsAttached = isAttached === true;
         propd.Store = Fayde.Providers.PropertyStore.Instance;
-        propd.Inheritable = inheritable;
-        if (inheritable !== undefined) {
-            var i = _Inherited;
-            if (!i[inheritable])
-                i[inheritable] = [];
-            i[inheritable].push(propd);
-            propd.Store = Fayde.Providers.InheritedStore.Instance;
-        }
         propd.FinishRegister();
         return propd;
     }

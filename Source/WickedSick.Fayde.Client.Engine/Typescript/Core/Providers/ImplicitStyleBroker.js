@@ -24,7 +24,7 @@ var Fayde;
             function ImplicitStyleBroker() { }
             ImplicitStyleBroker.Set = function Set(fe, mask, styles) {
                 if(!styles) {
-                    styles = ImplicitStyleBroker.GetImplicitStyles(mask);
+                    styles = ImplicitStyleBroker.GetImplicitStyles(fe, mask);
                 }
                 if(styles) {
                     var error = new BError();
@@ -34,7 +34,7 @@ var Fayde;
                         if(!style) {
                             continue;
                         }
-                        if(!style.Validate(this._Object, error)) {
+                        if(!style.Validate(fe, error)) {
                             error.ThrowException();
                             //Warn("Style validation failed. [" + error.Message + "]");
                             return;
@@ -70,7 +70,8 @@ var Fayde;
                 ImplicitStyleBroker.ApplyStyles(fe, mask, styles);
             };
             ImplicitStyleBroker.Clear = function Clear(fe, mask) {
-                var oldStyles = (fe.XamlNode)._ImplicitStyles;
+                var holder = fe.XamlNode;
+                var oldStyles = holder._ImplicitStyles;
                 if(!oldStyles) {
                     return;
                 }
@@ -85,7 +86,7 @@ var Fayde;
                 if(mask & StyleMask.VisualTree) {
                     newStyles[StyleIndex.VisualTree] = null;
                 }
-                this.ApplyStyles(this._StyleMask & ~mask, newStyles);
+                ImplicitStyleBroker.ApplyStyles(fe, holder._StyleMask & ~mask, newStyles);
             };
             ImplicitStyleBroker.ApplyStyles = function ApplyStyles(fe, mask, styles) {
                 var holder = fe.XamlNode;
@@ -138,8 +139,7 @@ var Fayde;
                 holder._ImplicitStyles = styles;
                 holder._StyleMask = mask;
             };
-            ImplicitStyleBroker.GetImplicitStyles = function GetImplicitStyles(mask) {
-                var fe = this._Object;
+            ImplicitStyleBroker.GetImplicitStyles = function GetImplicitStyles(fe, mask) {
                 var feType = (fe).constructor;
                 var feTypeName = (feType)._TypeName;
                 var genericXamlStyle = undefined;
