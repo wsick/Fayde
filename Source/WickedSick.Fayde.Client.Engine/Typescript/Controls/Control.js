@@ -16,6 +16,7 @@ var Fayde;
             function ControlNode(xobj) {
                         _super.call(this, xobj);
                 this.IsFocused = false;
+                this._IsEnabledListeners = [];
                 this.LayoutUpdater.SetContainerMode(true);
             }
             ControlNode.prototype.TabTo = function () {
@@ -62,6 +63,24 @@ var Fayde;
                     Fayde.TabNavigationWalker.Focus(this, true);
                 }
                 this.ReleaseMouseCapture();
+                var listeners = this._IsEnabledListeners;
+                for(var i = 0; i < listeners.length; i++) {
+                    listeners[i].Callback(newIsEnabled);
+                }
+            };
+            ControlNode.prototype.MonitorIsEnabled = function (func) {
+                var listeners = this._IsEnabledListeners;
+                var listener = {
+                    Callback: func,
+                    Detach: function () {
+                        var index = listeners.indexOf(listener);
+                        if(index > -1) {
+                            listeners.splice(index, 1);
+                        }
+                    }
+                };
+                listeners.push(listener);
+                return listener;
             };
             ControlNode.prototype._FindElementsInHostCoordinates = function (ctx, p, uinlist) {
                 if(this.XObject.IsEnabled) {
@@ -102,13 +121,11 @@ var Fayde;
                 s.SetProviders([
                     new Fayde.Providers.InheritedIsEnabledProvider(s), 
                     new Fayde.Providers.LocalValueProvider(), 
-                    new Fayde.Providers.FrameworkElementDynamicProvider(), 
                     new Fayde.Providers.LocalStyleProvider(s), 
                     new Fayde.Providers.ImplicitStyleProvider(s), 
                     new Fayde.Providers.InheritedProvider(), 
                     new Fayde.Providers.InheritedDataContextProvider(s), 
-                    new Fayde.Providers.DefaultValueProvider(), 
-                    new Fayde.Providers.AutoCreateProvider()
+                    new Fayde.Providers.DefaultValueProvider()
                 ]);
                 return s;
             };
@@ -128,22 +145,22 @@ var Fayde;
             });
             Control.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () {
                 return String;
-            }, Control, Font.DEFAULT_FAMILY, undefined, undefined, Fayde.Providers._Inheritable.FontFamily);
+            }, Control, Font.DEFAULT_FAMILY, undefined, Fayde.Providers._Inheritable.FontFamily);
             Control.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () {
                 return Number;
-            }, Control, Font.DEFAULT_SIZE, undefined, undefined, Fayde.Providers._Inheritable.FontSize);
+            }, Control, Font.DEFAULT_SIZE, undefined, Fayde.Providers._Inheritable.FontSize);
             Control.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () {
                 return String;
-            }, Control, Font.DEFAULT_STRETCH, undefined, undefined, Fayde.Providers._Inheritable.FontStretch);
+            }, Control, Font.DEFAULT_STRETCH, undefined, Fayde.Providers._Inheritable.FontStretch);
             Control.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () {
                 return String;
-            }, Control, Font.DEFAULT_STYLE, undefined, undefined, Fayde.Providers._Inheritable.FontStyle);
+            }, Control, Font.DEFAULT_STYLE, undefined, Fayde.Providers._Inheritable.FontStyle);
             Control.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () {
                 return new Enum(Fayde.FontWeight);
-            }, Control, Font.DEFAULT_WEIGHT, undefined, undefined, Fayde.Providers._Inheritable.FontWeight);
+            }, Control, Font.DEFAULT_WEIGHT, undefined, Fayde.Providers._Inheritable.FontWeight);
             Control.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () {
                 return Fayde.Media.Brush;
-            }, Control, undefined, undefined, undefined, Fayde.Providers._Inheritable.Foreground);
+            }, Control, undefined, undefined, Fayde.Providers._Inheritable.Foreground);
             Control.HorizontalContentAlignmentProperty = DependencyProperty.RegisterCore("HorizontalContentAlignment", function () {
                 return new Enum(Fayde.HorizontalAlignment);
             }, Control, Fayde.HorizontalAlignment.Center, function (d, args) {

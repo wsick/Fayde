@@ -26,7 +26,7 @@ var Fayde;
                     return Uri;
                 }, BitmapImage, undefined, function (d, args) {
                     return (d)._UriSourceChanged(args);
-                }, undefined, undefined, true);
+                }, undefined, true);
                 BitmapImage.prototype._UriSourceChanged = function (args) {
                     var uri = args.NewValue;
                     if(Uri.IsNullOrEmpty(uri)) {

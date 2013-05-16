@@ -5,6 +5,11 @@
 /// <reference path="../Media/VSM/VisualStateManager.ts" />
 
 module Fayde.Controls {
+    export interface IIsEnabledListener {
+        Callback: (newIsEnabled: bool) => void;
+        Detach();
+    }
+
     export class ControlNode extends FENode {
         private _Surface: Surface;
         XObject: Control;
@@ -57,6 +62,25 @@ module Fayde.Controls {
                 TabNavigationWalker.Focus(this, true);
             }
             this.ReleaseMouseCapture();
+
+            var listeners = this._IsEnabledListeners;
+            for (var i = 0; i < listeners.length; i++) {
+                listeners[i].Callback(newIsEnabled);
+            }
+        }
+        private _IsEnabledListeners: any[] = [];
+        MonitorIsEnabled(func: (newIsEnabled: bool) => void ): IIsEnabledListener {
+            var listeners = this._IsEnabledListeners;
+            var listener = {
+                Callback: func,
+                Detach: function () {
+                    var index = listeners.indexOf(listener);
+                    if (index > -1)
+                        listeners.splice(index, 1);
+                }
+            };
+            listeners.push(listener);
+            return listener;
         }
         
         _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
@@ -84,13 +108,11 @@ module Fayde.Controls {
             s.SetProviders([
                 new Providers.InheritedIsEnabledProvider(s),
                 new Providers.LocalValueProvider(),
-                new Providers.FrameworkElementDynamicProvider(),
                 new Providers.LocalStyleProvider(s),
                 new Providers.ImplicitStyleProvider(s),
                 new Providers.InheritedProvider(),
                 new Providers.InheritedDataContextProvider(s),
-                new Providers.DefaultValueProvider(),
-                new Providers.AutoCreateProvider()]
+                new Providers.DefaultValueProvider()]
             );
             return s;
         }
@@ -99,12 +121,12 @@ module Fayde.Controls {
         static BackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Control);
         static BorderBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderBrush", () => Media.Brush, Control);
         static BorderThicknessProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderThickness", () => Thickness, Control, undefined, (d, args) => (<Control>d)._BorderThicknessChanged(args));
-        static FontFamilyProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontFamily", () => String, Control, Font.DEFAULT_FAMILY, undefined, undefined, Providers._Inheritable.FontFamily);
-        static FontSizeProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontSize", () => Number, Control, Font.DEFAULT_SIZE, undefined, undefined, Providers._Inheritable.FontSize);
-        static FontStretchProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStretch", () => String, Control, Font.DEFAULT_STRETCH, undefined, undefined, Providers._Inheritable.FontStretch);
-        static FontStyleProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStyle", () => String, Control, Font.DEFAULT_STYLE, undefined, undefined, Providers._Inheritable.FontStyle);
-        static FontWeightProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontWeight", () => new Enum(FontWeight), Control, Font.DEFAULT_WEIGHT, undefined, undefined, Providers._Inheritable.FontWeight);
-        static ForegroundProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Foreground", () => Media.Brush, Control, undefined, undefined, undefined, Providers._Inheritable.Foreground);
+        static FontFamilyProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontFamily", () => String, Control, Font.DEFAULT_FAMILY, undefined, Providers._Inheritable.FontFamily);
+        static FontSizeProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontSize", () => Number, Control, Font.DEFAULT_SIZE, undefined, Providers._Inheritable.FontSize);
+        static FontStretchProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStretch", () => String, Control, Font.DEFAULT_STRETCH, undefined, Providers._Inheritable.FontStretch);
+        static FontStyleProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontStyle", () => String, Control, Font.DEFAULT_STYLE, undefined, Providers._Inheritable.FontStyle);
+        static FontWeightProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FontWeight", () => new Enum(FontWeight), Control, Font.DEFAULT_WEIGHT, undefined, Providers._Inheritable.FontWeight);
+        static ForegroundProperty: DependencyProperty = DependencyProperty.RegisterInheritable("Foreground", () => Media.Brush, Control, undefined, undefined, Providers._Inheritable.Foreground);
         static HorizontalContentAlignmentProperty: DependencyProperty = DependencyProperty.RegisterCore("HorizontalContentAlignment", () => new Enum(HorizontalAlignment), Control, HorizontalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
         static IsEnabledProperty: DependencyProperty = DependencyProperty.RegisterCore("IsEnabled", () => Boolean, Control, true, (d, args) => (<Control>d)._IsEnabledChanged(args));
         static IsTabStopProperty: DependencyProperty = DependencyProperty.Register("IsTabStop", () => Boolean, Control, true);

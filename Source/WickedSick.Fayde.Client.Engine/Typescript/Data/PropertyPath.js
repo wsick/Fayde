@@ -181,12 +181,12 @@ var Fayde;
             if(data.res == null) {
                 return false;
             }
-            if(!data.res._IsAttached && !(data.lu instanceof data.type)) {
+            if(!data.res.IsAttached && !(data.lu instanceof data.type)) {
                 if((data.res = DependencyProperty.GetDependencyProperty((data.lu).constructor, name)) == null) {
                     return false;
                 }
             }
-            if(data.res._IsAttached && data.explicitType && !data.parenOpen) {
+            if(data.res.IsAttached && data.explicitType && !data.parenOpen) {
                 return false;
             }
             return true;

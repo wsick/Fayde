@@ -29,7 +29,7 @@ var Fayde;
                 return Number;
             }, TextBox, 0, function (d, args) {
                 return (d).$MaxLength = args.NewValue;
-            }, undefined, undefined, undefined, positiveIntValidator);
+            }, undefined, undefined, positiveIntValidator);
             TextBox.IsReadOnlyProperty = DependencyProperty.Register("IsReadOnly", function () {
                 return Boolean;
             }, TextBox, undefined, function (d, args) {
@@ -52,17 +52,17 @@ var Fayde;
                 return String;
             }, TextBox, "", function (d, args) {
                 return (d)._SelectedTextChanged(args.NewValue);
-            }, undefined, undefined, true);
+            }, undefined, true);
             TextBox.SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", function () {
                 return Number;
             }, TextBox, 0, function (d, args) {
                 return (d)._SelectionLengthChanged(args.NewValue);
-            }, undefined, undefined, true, positiveIntValidator);
+            }, undefined, true, positiveIntValidator);
             TextBox.SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", function () {
                 return Number;
             }, TextBox, 0, function (d, args) {
                 return (d)._SelectionStartChanged(args.NewValue);
-            }, undefined, undefined, true, positiveIntValidator);
+            }, undefined, true, positiveIntValidator);
             TextBox.TextProperty = DependencyProperty.Register("Text", function () {
                 return String;
             }, TextBox, undefined, function (d, args) {

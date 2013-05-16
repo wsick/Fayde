@@ -26,10 +26,10 @@ var Fayde;
                 }
                 BitmapSource.PixelWidthProperty = DependencyProperty.RegisterFull("PixelWidth", function () {
                     return Number;
-                }, BitmapSource, 0, undefined, undefined, undefined, undefined, intGreaterThanZeroValidator);
+                }, BitmapSource, 0, undefined, undefined, undefined, intGreaterThanZeroValidator);
                 BitmapSource.PixelHeightProperty = DependencyProperty.RegisterFull("PixelHeight", function () {
                     return Number;
-                }, BitmapSource, 0, undefined, undefined, undefined, undefined, intGreaterThanZeroValidator);
+                }, BitmapSource, 0, undefined, undefined, undefined, intGreaterThanZeroValidator);
                 Object.defineProperty(BitmapSource.prototype, "Image", {
                     get: function () {
                         return this._Image;

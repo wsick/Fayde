@@ -15,10 +15,9 @@ module Fayde.Providers {
 
         SetProviders(providerArr: Providers.IPropertyProvider[]) {
             this._LocalValueProvider = this._Providers[1] = <LocalValueProvider>providerArr[1];
-            this._InheritedProvider = this._Providers[5] = <IInheritedProvider>providerArr[5];
-            this._InheritedDataContextProvider = this._Providers[6] = <IInheritedDataContextProvider>providerArr[6];
-            this._DefaultValueProvider = this._Providers[7] = <DefaultValueProvider>providerArr[7];
-            this._AutoCreateProvider = this._Providers[8] = <AutoCreateProvider>providerArr[8];
+            this._InheritedProvider = this._Providers[4] = <IInheritedProvider>providerArr[4];
+            this._InheritedDataContextProvider = this._Providers[5] = <IInheritedDataContextProvider>providerArr[5];
+            this._DefaultValueProvider = this._Providers[6] = <DefaultValueProvider>providerArr[6];
         }
 
         private _Providers: IPropertyProvider[];
@@ -26,13 +25,12 @@ module Fayde.Providers {
         private _InheritedProvider: IInheritedProvider;
         private _InheritedDataContextProvider: IInheritedDataContextProvider;
         private _DefaultValueProvider: DefaultValueProvider;
-        private _AutoCreateProvider: AutoCreateProvider;
 
         _PostProviderValueChanged(providerPrecedence: number, propd: DependencyProperty, oldValue: any, newValue: any, notifyListeners: bool, error: BError) {
             super._PostProviderValueChanged(providerPrecedence, propd, oldValue, newValue, notifyListeners, error);
             if (!notifyListeners)
                 return;
-            if (propd._Inheritable > 0 && providerPrecedence !== _PropertyPrecedence.Inherited) {
+            if (propd.Inheritable > 0 && providerPrecedence !== _PropertyPrecedence.Inherited) {
                 // NOTE: We only propagate if inherited exists and has the highest priority in the bitmask
                 var inheritedProvider = this._InheritedProvider;
                 // GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited

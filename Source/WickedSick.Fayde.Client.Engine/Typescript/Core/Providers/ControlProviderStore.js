@@ -16,13 +16,11 @@ var Fayde;
             ControlProviderStore.prototype.SetProviders = function (providerArr) {
                 this._InheritedIsEnabledProvider = this._Providers[0] = providerArr[0];
                 this._LocalValueProvider = this._Providers[1] = providerArr[1];
-                this._DynamicValueProvider = this._Providers[2] = providerArr[2];
-                this._LocalStyleProvider = this._Providers[3] = providerArr[3];
-                this._ImplicitStyleProvider = this._Providers[4] = providerArr[4];
-                this._InheritedProvider = this._Providers[5] = providerArr[5];
-                this._InheritedDataContextProvider = this._Providers[6] = providerArr[6];
-                this._DefaultValueProvider = this._Providers[7] = providerArr[7];
-                this._AutoCreateProvider = this._Providers[8] = providerArr[8];
+                this._LocalStyleProvider = this._Providers[2] = providerArr[2];
+                this._ImplicitStyleProvider = this._Providers[3] = providerArr[3];
+                this._InheritedProvider = this._Providers[4] = providerArr[4];
+                this._InheritedDataContextProvider = this._Providers[5] = providerArr[5];
+                this._DefaultValueProvider = this._Providers[6] = providerArr[6];
             };
             ControlProviderStore.prototype._PostProviderValueChanged = function (providerPrecedence, propd, oldValue, newValue, notifyListeners, error) {
                 var iiep;

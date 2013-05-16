@@ -17,37 +17,6 @@ var Fayde;
         })();
         Providers.DefaultValueProvider = DefaultValueProvider;        
         Nullstone.RegisterType(DefaultValueProvider, "DefaultValueProvider");
-        var AutoCreateProvider = (function () {
-            function AutoCreateProvider() {
-                this._ht = [];
-            }
-            AutoCreateProvider.prototype.GetPropertyValue = function (store, propd) {
-                var value = this.ReadLocalValue(propd);
-                if(value !== undefined) {
-                    return value;
-                }
-                value = propd._IsAutoCreated ? propd._AutoCreator.GetValue(propd, store._Object) : undefined;
-                if(value === undefined) {
-                    return undefined;
-                }
-                this._ht[propd._ID] = value;
-                var error = new BError();
-                store._ProviderValueChanged(Providers._PropertyPrecedence.AutoCreate, propd, undefined, value, false, error);
-                return value;
-            };
-            AutoCreateProvider.prototype.ReadLocalValue = function (propd) {
-                return this._ht[propd._ID];
-            };
-            AutoCreateProvider.prototype.RecomputePropertyValueOnClear = function (propd) {
-                this._ht[propd._ID] = undefined;
-            };
-            AutoCreateProvider.prototype.ClearValue = function (propd) {
-                this._ht[propd._ID] = undefined;
-            };
-            return AutoCreateProvider;
-        })();
-        Providers.AutoCreateProvider = AutoCreateProvider;        
-        Nullstone.RegisterType(AutoCreateProvider, "AutoCreateProvider");
         var LocalValueProvider = (function () {
             function LocalValueProvider() {
                 this._ht = [];
@@ -85,15 +54,14 @@ var Fayde;
             }
             BasicProviderStore.prototype.SetProviders = function (providerArr) {
                 this._LocalValueProvider = this._Providers[1] = providerArr[1];
-                this._InheritedDataContextProvider = this._Providers[6] = providerArr[6];
-                this._DefaultValueProvider = this._Providers[7] = providerArr[7];
-                this._AutoCreateProvider = this._Providers[8] = providerArr[8];
+                this._InheritedDataContextProvider = this._Providers[5] = providerArr[5];
+                this._DefaultValueProvider = this._Providers[6] = providerArr[6];
             };
             BasicProviderStore.prototype.GetValue = function (propd) {
                 var startingPrecedence = Providers._PropertyPrecedence.Highest;
                 var endingPrecedence = Providers._PropertyPrecedence.Lowest;
                 //Establish providers used
-                var bitmask = this._ProviderBitmasks[propd._ID] | propd._BitmaskCache;
+                var bitmask = this._ProviderBitmasks[propd._ID] | (1 << Providers._PropertyPrecedence.DefaultValue);
                 //Loop through providers and find the first provider that is on and contains the property value
                 for(var i = startingPrecedence; i <= endingPrecedence; i++) {
                     if(!(bitmask & (1 << i))) {
@@ -119,7 +87,7 @@ var Fayde;
                     endingPrecedence = Providers._PropertyPrecedence.Lowest;
                 }
                 //Establish providers used
-                var bitmask = this._ProviderBitmasks[propd._ID] | propd._BitmaskCache;
+                var bitmask = this._ProviderBitmasks[propd._ID] | (1 << Providers._PropertyPrecedence.DefaultValue);
                 //Loop through providers and find the first provider that is on and contains the property value
                 for(var i = startingPrecedence; i <= endingPrecedence; i++) {
                     if(!(bitmask & (1 << i))) {
@@ -158,21 +126,15 @@ var Fayde;
                 var currentValue;
                 var equal = false;
                 if((currentValue = this._LocalValueProvider.GetPropertyValue(this, propd)) === undefined) {
-                    if(propd._IsAutoCreated) {
-                        currentValue = this._AutoCreateProvider.ReadLocalValue(propd);
+                    if(currentValue !== undefined && value !== undefined) {
+                        equal = !propd.AlwaysChange && Nullstone.Equals(currentValue, value);
+                    } else {
+                        equal = currentValue === undefined && value === undefined;
                     }
-                }
-                if(currentValue !== undefined && value !== undefined) {
-                    equal = !propd._AlwaysChange && Nullstone.Equals(currentValue, value);
-                } else {
-                    equal = currentValue === undefined && value === undefined;
                 }
                 if(!equal) {
                     var newValue;
                     this._LocalValueProvider.ClearValue(propd);
-                    if(propd._IsAutoCreated) {
-                        this._AutoCreateProvider.ClearValue(propd);
-                    }
                     newValue = value;
                     if(newValue !== undefined) {
                         this._LocalValueProvider.SetValue(propd, newValue);
@@ -191,19 +153,11 @@ var Fayde;
                 if(this._GetAnimationStorageFor(propd)) {
                     return;
                 }
-                var oldLocalValue;
-                if((oldLocalValue = this._LocalValueProvider.GetPropertyValue(this, propd)) === undefined) {
-                    if(propd._IsAutoCreated) {
-                        oldLocalValue = this._AutoCreateProvider.ReadLocalValue(propd);
-                    }
-                }
+                var oldLocalValue = this._LocalValueProvider.GetPropertyValue(this, propd);
                 var error = new BError();
                 if(oldLocalValue !== undefined) {
                     this._DetachValue(oldLocalValue);
                     this._LocalValueProvider.ClearValue(propd);
-                    if(propd._IsAutoCreated) {
-                        this._AutoCreateProvider.ClearValue(propd);
-                    }
                 }
                 /*
                 var count = _PropertyPrecedence.Count;
@@ -236,7 +190,7 @@ var Fayde;
                     bitmask &= ~(1 << providerPrecedence);
                 }
                 this._ProviderBitmasks[propd._ID] = bitmask;
-                var higher = (((1 << (providerPrecedence + 1)) - 2) & bitmask) | propd._BitmaskCache;
+                var higher = (((1 << (providerPrecedence + 1)) - 2) & bitmask);
                 var propPrecHighest = Providers._PropertyPrecedence.Highest;
                 for(var j = providerPrecedence - 1; j >= propPrecHighest; j--) {
                     if(!(higher & (1 << j))) {
@@ -272,7 +226,7 @@ var Fayde;
                 if(oldValue === undefined && newValue === undefined) {
                     return false;
                 }
-                if(!propd._AlwaysChange && Nullstone.Equals(oldValue, newValue)) {
+                if(!propd.AlwaysChange && Nullstone.Equals(oldValue, newValue)) {
                     return false;
                 }
                 this._PostProviderValueChanged(providerPrecedence, propd, oldValue, newValue, notifyListeners, error);
@@ -290,8 +244,8 @@ var Fayde;
                         OldValue: oldValue,
                         NewValue: newValue
                     };
-                    if(propd && propd._ChangedCallback) {
-                        propd._ChangedCallback(this._Object, args);
+                    if(propd && propd.ChangedCallback) {
+                        propd.ChangedCallback(this._Object, args);
                     }
                     try  {
                         this._Object._OnPropertyChanged(args);

@@ -163,7 +163,7 @@ var Fayde;
                 return Fayde.Media.Imaging.ImageSource;
             }, Image, undefined, function (d, args) {
                 return (d)._SourceChanged(args);
-            }, undefined, Image._SourceCoercer);
+            }, Image._SourceCoercer);
             Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () {
                 return new Enum(Fayde.Media.Stretch);
             }, Image, Fayde.Media.Stretch.Uniform);

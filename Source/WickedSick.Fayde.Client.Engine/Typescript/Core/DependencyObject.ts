@@ -53,10 +53,8 @@ module Fayde {
                 null,
                 null,
                 null,
-                null,
                 new Providers.InheritedDataContextProvider(s),
-                new Providers.DefaultValueProvider(),
-                new Providers.AutoCreateProvider()]
+                new Providers.DefaultValueProvider()]
             );
             return s;
         }

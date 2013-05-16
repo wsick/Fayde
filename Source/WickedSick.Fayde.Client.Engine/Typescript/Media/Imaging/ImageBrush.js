@@ -34,7 +34,7 @@ var Fayde;
                     return Imaging.ImageSource;
                 }, ImageBrush, undefined, function (d, args) {
                     return (d)._ImageSourceChanged(args);
-                }, undefined, ImageBrush._SourceCoercer);
+                }, ImageBrush._SourceCoercer);
                 ImageBrush.prototype.SetupBrush = function (ctx, bounds) {
                     var source = this.ImageSource;
                     if(source && source.Image) {

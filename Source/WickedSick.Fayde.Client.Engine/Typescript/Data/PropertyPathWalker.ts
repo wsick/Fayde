@@ -266,7 +266,7 @@ module Fayde.Data {
                 }
             }
 
-            if (!this.DependencyProperty || !this.DependencyProperty._IsAttached) {
+            if (!this.DependencyProperty || !this.DependencyProperty.IsAttached) {
                 this.PropertyInfo = PropertyInfo.Find(this.Source, this._PropertyName);
             }
         }

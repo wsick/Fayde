@@ -33,7 +33,7 @@ var Fayde;
                 return Shapes.PointCollection;
             }, Polygon, undefined, function (d, args) {
                 return (d)._PointsChanged(args);
-            }, undefined, Polygon._PointsCoercer);
+            }, Polygon._PointsCoercer);
             Polygon.prototype._PointsChanged = function (args) {
                 var oldColl = args.OldValue;
                 var newColl = args.NewValue;

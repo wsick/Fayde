@@ -100,7 +100,7 @@ module Fayde.Providers {
     }
 
     function getInheritable(dobj: DependencyObject, propd: DependencyProperty) {
-        var inh = propd._Inheritable || 0;
+        var inh = propd.Inheritable || 0;
         if (inh && propd.Name === "FlowDirection" && (dobj instanceof Fayde.Controls.Image || dobj instanceof Fayde.Controls.MediaElement))
             inh = 0;
         return inh;

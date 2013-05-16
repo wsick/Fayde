@@ -776,7 +776,6 @@
     <TypeScriptCompile Include="Typescript\Core\ResourceDictionary.ts" />
     <TypeScriptCompile Include="Typescript\Core\Providers\InheritedIsEnabledProvider.ts" />
     <TypeScriptCompile Include="Typescript\Core\Providers\InheritedDataContextProvider.ts" />
-    <TypeScriptCompile Include="Typescript\Core\Providers\FrameworkElementDynamicProvider.ts" />
     <TypeScriptCompile Include="Typescript\Core\Providers\ControlProviderStore.ts" />
     <TypeScriptCompile Include="Typescript\Core\PropertyChangedListener.ts" />
     <TypeScriptCompile Include="Typescript\Core\LayoutInformation.ts" />
@@ -796,9 +795,6 @@
     <TypeScriptCompile Include="Typescript\Core\Providers\Enums.ts" />
     <Content Include="Typescript\Core\Providers\Enums.js">
       <DependentUpon>Enums.ts</DependentUpon>
-    </Content>
-    <Content Include="Typescript\Core\Providers\FrameworkElementDynamicProvider.js">
-      <DependentUpon>FrameworkElementDynamicProvider.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Core\Providers\FrameworkProviderStore.ts" />
     <Content Include="Typescript\Core\Providers\FrameworkProviderStore.js">

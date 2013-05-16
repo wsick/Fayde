@@ -243,12 +243,8 @@ var Fayde;
                 if(!Nullstone.DoesInheritFrom(targetType, Fayde.XamlObjectCollection)) {
                     return false;
                 }
-                if(propd._IsAutoCreated) {
-                    coll = (xobj).GetValue(propd);
-                } else {
-                    coll = new (targetType)();
-                    (xobj).SetValue(propd, coll);
-                }
+                coll = new (targetType)();
+                (xobj).SetValue(propd, coll);
             } else if(typeof propertyName === "string") {
                 coll = xobj[propertyName];
             } else if(xobj instanceof Fayde.XamlObjectCollection) {

@@ -262,7 +262,7 @@ var Fayde;
                         this._DPListener = listener = Fayde.ListenToPropertyChanged(newDO, propd, this.OnPropertyChanged, this);
                     }
                 }
-                if(!this.DependencyProperty || !this.DependencyProperty._IsAttached) {
+                if(!this.DependencyProperty || !this.DependencyProperty.IsAttached) {
                     this.PropertyInfo = PropertyInfo.Find(this.Source, this._PropertyName);
                 }
             };

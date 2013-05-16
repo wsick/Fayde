@@ -62,7 +62,7 @@ var Fayde;
             var ownerType;
             var propd = this._Property;
             if(propd) {
-                isAttached = propd._IsAttached;
+                isAttached = propd.IsAttached;
                 ownerType = propd.OwnerType;
             }
             var value = this.GetValue(propd);

@@ -157,7 +157,7 @@ module Fayde.Controls {
                 return new Media.Imaging.BitmapImage(value);
             return value;
         }
-        static SourceProperty: DependencyProperty = DependencyProperty.RegisterFull("Source", () => Media.Imaging.ImageSource, Image, undefined, (d, args) => (<Image>d)._SourceChanged(args), undefined, Image._SourceCoercer);
+        static SourceProperty: DependencyProperty = DependencyProperty.RegisterFull("Source", () => Media.Imaging.ImageSource, Image, undefined, (d, args) => (<Image>d)._SourceChanged(args), Image._SourceCoercer);
         // http: //msdn.microsoft.com/en-us/library/system.windows.media.stretch(v=vs.95).aspx
         static StretchProperty: DependencyProperty = DependencyProperty.RegisterCore("Stretch", () => new Enum(Media.Stretch), Image, Media.Stretch.Uniform);
         Source: Media.Imaging.ImageSource;

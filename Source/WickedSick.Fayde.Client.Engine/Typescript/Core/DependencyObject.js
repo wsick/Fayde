@@ -67,10 +67,8 @@ var Fayde;
                 null, 
                 null, 
                 null, 
-                null, 
                 new Fayde.Providers.InheritedDataContextProvider(s), 
-                new Fayde.Providers.DefaultValueProvider(), 
-                new Fayde.Providers.AutoCreateProvider()
+                new Fayde.Providers.DefaultValueProvider()
             ]);
             return s;
         };

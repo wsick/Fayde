@@ -352,11 +352,9 @@ var Fayde;
                 new Fayde.Providers.LocalValueProvider(), 
                 null, 
                 null, 
-                null, 
                 new Fayde.Providers.InheritedProvider(), 
                 null, 
-                new Fayde.Providers.DefaultValueProvider(), 
-                new Fayde.Providers.AutoCreateProvider()
+                new Fayde.Providers.DefaultValueProvider()
             ]);
             return s;
         };
@@ -413,7 +411,7 @@ var Fayde;
             return Boolean;
         }, UIElement, true, function (d, args) {
             return (d)._UseLayoutRoundingChanged(args);
-        }, undefined, Fayde.Providers._Inheritable.UseLayoutRounding);
+        }, Fayde.Providers._Inheritable.UseLayoutRounding);
         UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () {
             return new Enum(Fayde.Visibility);
         }, UIElement, Fayde.Visibility.Visible, function (d, args) {

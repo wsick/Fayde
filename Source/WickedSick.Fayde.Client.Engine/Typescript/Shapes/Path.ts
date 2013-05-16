@@ -13,7 +13,7 @@ module Fayde.Shapes {
             return value;
         }
         // Path.Data Description: http://msdn.microsoft.com/en-us/library/system.windows.shapes.path.data(v=vs.95).aspx
-        static DataProperty: DependencyProperty = DependencyProperty.RegisterFull("Data", () => Media.Geometry, Path, undefined, (d, args) => (<Shape>d)._InvalidateNaturalBounds(), undefined, Path._DataCoercer);
+        static DataProperty: DependencyProperty = DependencyProperty.RegisterFull("Data", () => Media.Geometry, Path, undefined, (d, args) => (<Shape>d)._InvalidateNaturalBounds(), Path._DataCoercer);
         Data: Media.Geometry;
 
         private _GetFillRule(): FillRule {

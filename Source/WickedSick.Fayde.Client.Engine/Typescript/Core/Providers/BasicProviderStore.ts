@@ -14,34 +14,6 @@ module Fayde.Providers {
     }
     Nullstone.RegisterType(DefaultValueProvider, "DefaultValueProvider");
 
-    export class AutoCreateProvider implements IPropertyProvider {
-        private _ht: any[] = [];
-        GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
-            var value = this.ReadLocalValue(propd);
-            if (value !== undefined)
-                return value;
-
-            value = propd._IsAutoCreated ? propd._AutoCreator.GetValue(propd, store._Object) : undefined;
-            if (value === undefined)
-                return undefined;
-
-            this._ht[propd._ID] = value;
-            var error = new BError();
-            store._ProviderValueChanged(_PropertyPrecedence.AutoCreate, propd, undefined, value, false, error);
-            return value;
-        }
-        ReadLocalValue(propd: DependencyProperty): any {
-            return this._ht[propd._ID];
-        }
-        RecomputePropertyValueOnClear(propd: DependencyProperty) {
-            this._ht[propd._ID] = undefined;
-        }
-        ClearValue(propd: DependencyProperty) {
-            this._ht[propd._ID] = undefined;
-        }
-    }
-    Nullstone.RegisterType(AutoCreateProvider, "AutoCreateProvider");
-
     export class LocalValueProvider implements IPropertyProvider {
         private _ht: any[] = [];
         GetPropertyValue(store: IProviderStore, propd: DependencyProperty): any {
@@ -71,7 +43,6 @@ module Fayde.Providers {
         private _LocalValueProvider: LocalValueProvider;
         private _InheritedDataContextProvider: IInheritedDataContextProvider;
         private _DefaultValueProvider: DefaultValueProvider;
-        private _AutoCreateProvider: AutoCreateProvider;
 
         constructor(dobj: DependencyObject) {
             this._Object = dobj;
@@ -79,9 +50,8 @@ module Fayde.Providers {
 
         SetProviders(providerArr: Providers.IPropertyProvider[]) {
             this._LocalValueProvider = this._Providers[1] = <LocalValueProvider>providerArr[1];
-            this._InheritedDataContextProvider = this._Providers[6] = <IInheritedDataContextProvider>providerArr[6];
-            this._DefaultValueProvider = this._Providers[7] = <DefaultValueProvider>providerArr[7];
-            this._AutoCreateProvider = this._Providers[8] = <AutoCreateProvider>providerArr[8];
+            this._InheritedDataContextProvider = this._Providers[5] = <IInheritedDataContextProvider>providerArr[5];
+            this._DefaultValueProvider = this._Providers[6] = <DefaultValueProvider>providerArr[6];
         }
 
         GetValue(propd: DependencyProperty):any {
@@ -89,7 +59,7 @@ module Fayde.Providers {
             var endingPrecedence = _PropertyPrecedence.Lowest;
 
             //Establish providers used
-            var bitmask = this._ProviderBitmasks[propd._ID] | propd._BitmaskCache;
+            var bitmask = this._ProviderBitmasks[propd._ID] | (1 << _PropertyPrecedence.DefaultValue);
 
             //Loop through providers and find the first provider that is on and contains the property value
             for (var i = startingPrecedence; i <= endingPrecedence; i++) {
@@ -112,7 +82,7 @@ module Fayde.Providers {
                 endingPrecedence = _PropertyPrecedence.Lowest;
 
             //Establish providers used
-            var bitmask = this._ProviderBitmasks[propd._ID] | propd._BitmaskCache;
+            var bitmask = this._ProviderBitmasks[propd._ID] | (1 << _PropertyPrecedence.DefaultValue);
 
             //Loop through providers and find the first provider that is on and contains the property value
             for (var i = startingPrecedence; i <= endingPrecedence; i++) {
@@ -150,19 +120,15 @@ module Fayde.Providers {
             var equal = false;
 
             if ((currentValue = this._LocalValueProvider.GetPropertyValue(this, propd)) === undefined)
-                if (propd._IsAutoCreated)
-                    currentValue = this._AutoCreateProvider.ReadLocalValue(propd);
 
             if (currentValue !== undefined && value !== undefined)
-                equal = !propd._AlwaysChange && Nullstone.Equals(currentValue, value);
+                equal = !propd.AlwaysChange && Nullstone.Equals(currentValue, value);
             else
                 equal = currentValue === undefined && value === undefined;
 
             if (!equal) {
                 var newValue;
                 this._LocalValueProvider.ClearValue(propd);
-                if (propd._IsAutoCreated)
-                    this._AutoCreateProvider.ClearValue(propd);
 
                 newValue = value;
 
@@ -183,18 +149,12 @@ module Fayde.Providers {
             if (this._GetAnimationStorageFor(propd))
                 return;
 
-            var oldLocalValue;
-            if ((oldLocalValue = this._LocalValueProvider.GetPropertyValue(this, propd)) === undefined) {
-                if (propd._IsAutoCreated)
-                    oldLocalValue = this._AutoCreateProvider.ReadLocalValue(propd);
-            }
+            var oldLocalValue = this._LocalValueProvider.GetPropertyValue(this, propd);
 
             var error = new BError();
             if (oldLocalValue !== undefined) {
                 this._DetachValue(oldLocalValue);
                 this._LocalValueProvider.ClearValue(propd);
-                if (propd._IsAutoCreated)
-                    this._AutoCreateProvider.ClearValue(propd);
             }
 
             /*
@@ -229,7 +189,7 @@ module Fayde.Providers {
                 bitmask &= ~(1 << providerPrecedence);
             this._ProviderBitmasks[propd._ID] = bitmask;
 
-            var higher = (((1 << (providerPrecedence + 1)) - 2) & bitmask) | propd._BitmaskCache;
+            var higher = (((1 << (providerPrecedence + 1)) - 2) & bitmask);
 
             var propPrecHighest = _PropertyPrecedence.Highest;
             for (var j = providerPrecedence - 1; j >= propPrecHighest; j--) {
@@ -264,7 +224,7 @@ module Fayde.Providers {
                 return false;
             if (oldValue === undefined && newValue === undefined)
                 return false;
-            if (!propd._AlwaysChange && Nullstone.Equals(oldValue, newValue))
+            if (!propd.AlwaysChange && Nullstone.Equals(oldValue, newValue))
                 return false;
 
             this._PostProviderValueChanged(providerPrecedence, propd, oldValue, newValue, notifyListeners, error);
@@ -283,8 +243,8 @@ module Fayde.Providers {
                     OldValue: oldValue,
                     NewValue: newValue
                 };
-                if (propd && propd._ChangedCallback)
-                    propd._ChangedCallback(this._Object, args);
+                if (propd && propd.ChangedCallback)
+                    propd.ChangedCallback(this._Object, args);
                 try { this._Object._OnPropertyChanged(args); }
                 catch (err) { error.Message = err.Message; }
                 this._RaisePropertyChanged(args);

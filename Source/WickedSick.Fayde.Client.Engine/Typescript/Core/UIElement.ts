@@ -323,20 +323,18 @@ module Fayde {
 
     export class UIElement extends DependencyObject {
         XamlNode: UINode;
-        _Store: Providers.InheritedProviderStore;
         private _ClipListener: Media.IGeometryListener = null;
         private _EffectListener: Media.Effects.IEffectListener = null;
+        _Store: Providers.InheritedProviderStore;
         CreateStore(): Providers.InheritedProviderStore {
             var s = new Providers.InheritedProviderStore(this);
             s.SetProviders([null, 
                 new Providers.LocalValueProvider(), 
                 null,
                 null,
-                null,
                 new Providers.InheritedProvider(),
                 null,
-                new Providers.DefaultValueProvider(),
-                new Providers.AutoCreateProvider()]
+                new Providers.DefaultValueProvider()]
             );
             return s;
         }
@@ -354,7 +352,7 @@ module Fayde {
         static RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", () => Point, UIElement, undefined, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.UpdateTransform());
         static TagProperty = DependencyProperty.Register("Tag", () => Object, UIElement);
         static TriggersProperty: DependencyProperty = DependencyProperty.RegisterCore("Triggers", () => TriggerCollection, UIElement, undefined, (d, args) => (<UIElement>d)._TriggersChanged(args));
-        static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", () => Boolean, UIElement, true, (d, args) => (<UIElement>d)._UseLayoutRoundingChanged(args), undefined, Providers._Inheritable.UseLayoutRounding);
+        static UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", () => Boolean, UIElement, true, (d, args) => (<UIElement>d)._UseLayoutRoundingChanged(args), Providers._Inheritable.UseLayoutRounding);
         static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", () => new Enum(Visibility), UIElement, Visibility.Visible, (d, args) => (<UIElement>d).XamlNode.InvalidateVisibility(args.NewValue));
 
         private _IsMouseOver: bool = false;

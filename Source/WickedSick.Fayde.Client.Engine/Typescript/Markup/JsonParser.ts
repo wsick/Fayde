@@ -253,12 +253,8 @@ module Fayde {
                 var targetType = propd.GetTargetType();
                 if (!Nullstone.DoesInheritFrom(targetType, XamlObjectCollection))
                     return false;
-                if (propd._IsAutoCreated) {
-                    coll = (<DependencyObject>xobj).GetValue(propd);
-                } else {
-                    coll = <XamlObjectCollection>new (<any>targetType)();
-                    (<DependencyObject>xobj).SetValue(propd, coll);
-                }
+                coll = <XamlObjectCollection>new (<any>targetType)();
+                (<DependencyObject>xobj).SetValue(propd, coll);
             } else if (typeof propertyName === "string") {
                 coll = xobj[propertyName];
             } else if (xobj instanceof XamlObjectCollection) {

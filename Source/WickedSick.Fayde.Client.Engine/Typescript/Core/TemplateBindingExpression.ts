@@ -72,8 +72,6 @@ module Fayde {
                     store.SetValue(targetProp, this.GetValue(null));
                 } catch (err2) {
                     var val = targetProp.DefaultValue;
-                    if (val === undefined)
-                        val = targetProp._IsAutoCreated ? targetProp._AutoCreator.GetValue(targetProp, this._Target) : undefined;
                     store.SetValue(targetProp, val);
                 }
             } catch (err) {

@@ -15,17 +15,16 @@ var Fayde;
             }
             InheritedProviderStore.prototype.SetProviders = function (providerArr) {
                 this._LocalValueProvider = this._Providers[1] = providerArr[1];
-                this._InheritedProvider = this._Providers[5] = providerArr[5];
-                this._InheritedDataContextProvider = this._Providers[6] = providerArr[6];
-                this._DefaultValueProvider = this._Providers[7] = providerArr[7];
-                this._AutoCreateProvider = this._Providers[8] = providerArr[8];
+                this._InheritedProvider = this._Providers[4] = providerArr[4];
+                this._InheritedDataContextProvider = this._Providers[5] = providerArr[5];
+                this._DefaultValueProvider = this._Providers[6] = providerArr[6];
             };
             InheritedProviderStore.prototype._PostProviderValueChanged = function (providerPrecedence, propd, oldValue, newValue, notifyListeners, error) {
                 _super.prototype._PostProviderValueChanged.call(this, providerPrecedence, propd, oldValue, newValue, notifyListeners, error);
                 if(!notifyListeners) {
                     return;
                 }
-                if(propd._Inheritable > 0 && providerPrecedence !== Providers._PropertyPrecedence.Inherited) {
+                if(propd.Inheritable > 0 && providerPrecedence !== Providers._PropertyPrecedence.Inherited) {
                     // NOTE: We only propagate if inherited exists and has the highest priority in the bitmask
                     var inheritedProvider = this._InheritedProvider;
                     // GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited

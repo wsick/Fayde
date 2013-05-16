@@ -6,14 +6,14 @@ module Fayde.Controls {
     export class TextBox extends TextBoxBase {
         static AcceptsReturnProperty: DependencyProperty = DependencyProperty.Register("AcceptsReturn", () => Boolean, TextBox, false, (d, args) => (<TextBox>d).$AcceptsReturn = (args.NewValue === true));
         static CaretBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, TextBox);
-        static MaxLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d).$MaxLength = args.NewValue, undefined, undefined, undefined, positiveIntValidator);
+        static MaxLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d).$MaxLength = args.NewValue, undefined, undefined, positiveIntValidator);
         static IsReadOnlyProperty: DependencyProperty = DependencyProperty.Register("IsReadOnly", () => Boolean, TextBox, undefined, (d, args) => (<TextBox>d)._IsReadOnlyChanged(args));
         static SelectionForegroundProperty: DependencyProperty = DependencyProperty.RegisterCore("SelectionForeground", () => Media.Brush, TextBox, undefined, (d, args) => (<TextBox>d)._SelectionForegroundChanged(args));
         static SelectionBackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("SelectionBackground", () => Media.Brush, TextBox, undefined, (d, args) => (<TextBox>d)._SelectionBackgroundChanged(args));
         static BaselineOffsetProperty: DependencyProperty = DependencyProperty.Register("BaselineOffset", () => Number, TextBox);
-        static SelectedTextProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectedText", () => String, TextBox, "", (d, args) => (<TextBox>d)._SelectedTextChanged(args.NewValue), undefined, undefined, true);
-        static SelectionLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectionLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d)._SelectionLengthChanged(args.NewValue), undefined, undefined, true, positiveIntValidator);
-        static SelectionStartProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectionStart", () => Number, TextBox, 0, (d, args) => (<TextBox>d)._SelectionStartChanged(args.NewValue), undefined, undefined, true, positiveIntValidator);
+        static SelectedTextProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectedText", () => String, TextBox, "", (d, args) => (<TextBox>d)._SelectedTextChanged(args.NewValue), undefined, true);
+        static SelectionLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectionLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d)._SelectionLengthChanged(args.NewValue), undefined, true, positiveIntValidator);
+        static SelectionStartProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectionStart", () => Number, TextBox, 0, (d, args) => (<TextBox>d)._SelectionStartChanged(args.NewValue), undefined, true, positiveIntValidator);
         static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, TextBox, undefined, (d, args) => (<TextBox>d)._TextChanged(args.NewValue));
         static TextAlignmentProperty: DependencyProperty = DependencyProperty.Register("TextAlignment", () => new Enum(TextAlignment), TextBox, TextAlignment.Left, (d, args) => (<TextBox>d)._TextAlignmentChanged(args));
         static TextWrappingProperty: DependencyProperty = DependencyProperty.Register("TextWrapping", () => new Enum(TextWrapping), TextBox, TextWrapping.NoWrap, (d, args) => (<TextBox>d)._TextWrappingChanged(args));

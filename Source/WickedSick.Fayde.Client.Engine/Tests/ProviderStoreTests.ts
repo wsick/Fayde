@@ -4,8 +4,8 @@
 /// <reference path="../Typescript/Core/UIElement.ts" />
 /// <reference path="../Typescript/Core/Providers/InheritedProvider.ts" />
 
-var Mock1Property = DependencyProperty.RegisterFull("Mock1", () =>{ return String; }, Fayde.DependencyObject, undefined, undefined, { GetValue: () => { return "AutoCreated"; } });
-var Mock2Property = DependencyProperty.RegisterFull("Mock2", () => { return String; }, Fayde.DependencyObject, "Default");
+var Mock1Property = DependencyProperty.Register("Mock1", () => String, Fayde.DependencyObject);
+var Mock2Property = DependencyProperty.Register("Mock2", () => String, Fayde.DependencyObject, "Default");
 
 test("ProviderStoreTests.BasicProvider", () => {
     var d = new Fayde.DependencyObject();
@@ -13,19 +13,12 @@ test("ProviderStoreTests.BasicProvider", () => {
 
     var val;
 
-    val = store.GetValue(Mock1Property);
-    strictEqual(val, "AutoCreated", "Initial GetValue (Mock1) should return value from auto creator provider.");
-
     val = store.ReadLocalValue(Mock1Property);
     ok(val instanceof Fayde.UnsetValue, "ReadLocalValue (Mock1) should return UnsetValue since value has not been set.");
 
     store.SetValue(Mock1Property, "Modified");
     val = store.GetValue(Mock1Property);
     strictEqual(val, "Modified", "GetValue (Mock1) should return value from local value provider after a SetValue.");
-
-    val = store.ClearValue(Mock1Property);
-    val = store.GetValue(Mock1Property);
-    strictEqual(val, "AutoCreated", "GetValue (Mock1) after ClearValue should revert to using auto creator provider.");
 
 
     val = store.GetValue(Mock2Property);

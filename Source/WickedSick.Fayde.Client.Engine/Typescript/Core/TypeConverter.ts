@@ -108,7 +108,7 @@ module Fayde {
                 return doStringConversion ? val.toString() : "";
 
             var tc;
-            if (propd._IsAttached) {
+            if (propd.IsAttached) {
                 //TODO: Find type converter for attached property
             } else {
                 //TODO: Find type converter

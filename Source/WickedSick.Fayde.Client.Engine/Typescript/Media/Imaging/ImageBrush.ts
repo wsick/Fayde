@@ -14,7 +14,7 @@ module Fayde.Media.Imaging {
                 return new Media.Imaging.BitmapImage(value);
             return value;
         }
-        static ImageSourceProperty: DependencyProperty = DependencyProperty.RegisterFull("ImageSource", () => ImageSource, ImageBrush, undefined, (d, args) => (<ImageBrush>d)._ImageSourceChanged(args), undefined, ImageBrush._SourceCoercer);
+        static ImageSourceProperty: DependencyProperty = DependencyProperty.RegisterFull("ImageSource", () => ImageSource, ImageBrush, undefined, (d, args) => (<ImageBrush>d)._ImageSourceChanged(args), ImageBrush._SourceCoercer);
         ImageSource: ImageSource;
         ImageFailed: MulticastEvent = new MulticastEvent();
         ImageOpened: MulticastEvent = new MulticastEvent();

@@ -4,7 +4,6 @@
 /// <reference path="../Primitives/size.ts" />
 /// <reference path="ResourceDictionary.ts" />
 /// <reference path="Providers/FrameworkProviderStore.ts" />
-/// <reference path="Providers/FrameworkElementDynamicProvider.ts" />
 /// <reference path="Providers/InheritedDataContextProvider.ts" />
 /// <reference path="Providers/LocalStyleProvider.ts" />
 /// <reference path="Providers/ImplicitStyleProvider.ts" />
@@ -236,13 +235,11 @@ module Fayde {
             var s = new Providers.FrameworkProviderStore(this);
             s.SetProviders([null,
                 new Providers.LocalValueProvider(),
-                new Providers.FrameworkElementDynamicProvider(),
                 new Providers.LocalStyleProvider(s),
                 new Providers.ImplicitStyleProvider(s),
                 new Providers.InheritedProvider(),
                 new Providers.InheritedDataContextProvider(s),
-                new Providers.DefaultValueProvider(),
-                new Providers.AutoCreateProvider()]
+                new Providers.DefaultValueProvider()]
             );
             return s;
         }
@@ -251,7 +248,7 @@ module Fayde {
         static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", () => Number, FrameworkElement);
         static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", () => Number, FrameworkElement);
         static CursorProperty: DependencyProperty = DependencyProperty.RegisterFull("Cursor", () => new Enum(CursorType), FrameworkElement, CursorType.Default);
-        static FlowDirectionProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FlowDirection", () => new Enum(FlowDirection), FrameworkElement, FlowDirection.LeftToRight, (d, args) => (<FrameworkElement>d)._SizeChanged(args), undefined, Providers._Inheritable.FlowDirection);
+        static FlowDirectionProperty: DependencyProperty = DependencyProperty.RegisterInheritable("FlowDirection", () => new Enum(FlowDirection), FrameworkElement, FlowDirection.LeftToRight, (d, args) => (<FrameworkElement>d)._SizeChanged(args), Providers._Inheritable.FlowDirection);
         static HeightProperty: DependencyProperty = DependencyProperty.Register("Height", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._HeightChanged(args));
         static HorizontalAlignmentProperty: DependencyProperty = DependencyProperty.Register("HorizontalAlignment", () => new Enum(HorizontalAlignment), FrameworkElement, HorizontalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
         //static LanguageProperty: DependencyProperty;

@@ -33,7 +33,7 @@ var Fayde;
                 return Shapes.PointCollection;
             }, Polyline, undefined, function (d, args) {
                 return (d)._PointsChanged(args);
-            }, undefined, Polyline._PointsCoercer);
+            }, Polyline._PointsCoercer);
             Polyline.prototype._PointsChanged = function (args) {
                 var oldColl = args.OldValue;
                 var newColl = args.NewValue;

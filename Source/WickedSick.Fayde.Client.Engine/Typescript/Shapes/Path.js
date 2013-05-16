@@ -26,7 +26,7 @@ var Fayde;
                 return Fayde.Media.Geometry;
             }, Path, undefined, function (d, args) {
                 return (d)._InvalidateNaturalBounds();
-            }, undefined, Path._DataCoercer);
+            }, Path._DataCoercer);
             Path.prototype._GetFillRule = function () {
                 var geom = this.Data;
                 if(!geom) {

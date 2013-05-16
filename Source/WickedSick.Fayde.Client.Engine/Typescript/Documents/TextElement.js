@@ -46,11 +46,9 @@ var Fayde;
                     new Fayde.Providers.LocalValueProvider(), 
                     null, 
                     null, 
-                    null, 
                     new Fayde.Providers.InheritedProvider(), 
                     new Fayde.Providers.InheritedDataContextProvider(s), 
-                    new Fayde.Providers.DefaultValueProvider(), 
-                    new Fayde.Providers.AutoCreateProvider()
+                    new Fayde.Providers.DefaultValueProvider()
                 ]);
                 return s;
             };
@@ -61,42 +59,42 @@ var Fayde;
                 return Fayde.Media.Brush;
             }, TextElement, undefined, function (d, args) {
                 return (d)._UpdateFont(false);
-            }, undefined, Fayde.Providers._Inheritable.Foreground);
+            }, Fayde.Providers._Inheritable.Foreground);
             TextElement.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () {
                 return String;
             }, TextElement, Font.DEFAULT_FAMILY, function (d, args) {
                 return (d)._UpdateFont(false);
-            }, undefined, Fayde.Providers._Inheritable.FontFamily);
+            }, Fayde.Providers._Inheritable.FontFamily);
             TextElement.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () {
                 return String;
             }, TextElement, Font.DEFAULT_STRETCH, function (d, args) {
                 return (d)._UpdateFont(false);
-            }, undefined, Fayde.Providers._Inheritable.FontStretch);
+            }, Fayde.Providers._Inheritable.FontStretch);
             TextElement.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () {
                 return String;
             }, TextElement, Font.DEFAULT_STYLE, function (d, args) {
                 return (d)._UpdateFont(false);
-            }, undefined, Fayde.Providers._Inheritable.FontStyle);
+            }, Fayde.Providers._Inheritable.FontStyle);
             TextElement.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () {
                 return new Enum(Fayde.FontWeight);
             }, TextElement, Font.DEFAULT_WEIGHT, function (d, args) {
                 return (d)._UpdateFont(false);
-            }, undefined, Fayde.Providers._Inheritable.FontWeight);
+            }, Fayde.Providers._Inheritable.FontWeight);
             TextElement.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () {
                 return Number;
             }, TextElement, Font.DEFAULT_SIZE, function (d, args) {
                 return (d)._UpdateFont(false);
-            }, undefined, Fayde.Providers._Inheritable.FontSize);
+            }, Fayde.Providers._Inheritable.FontSize);
             TextElement.LanguageProperty = DependencyProperty.RegisterInheritable("Language", function () {
                 return String;
             }, TextElement, undefined, function (d, args) {
                 return (d)._UpdateFont(false);
-            }, undefined, Fayde.Providers._Inheritable.Language);
+            }, Fayde.Providers._Inheritable.Language);
             TextElement.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () {
                 return new Enum(Fayde.TextDecorations);
             }, TextElement, Fayde.TextDecorations.None, function (d, args) {
                 return (d)._UpdateFont(false);
-            }, undefined, Fayde.Providers._Inheritable.TextDecorations);
+            }, Fayde.Providers._Inheritable.TextDecorations);
             TextElement.prototype._SerializeText = function () {
                 return undefined;
             };

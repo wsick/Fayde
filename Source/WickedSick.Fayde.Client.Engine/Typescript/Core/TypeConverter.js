@@ -118,7 +118,7 @@ var Fayde;
                 return doStringConversion ? val.toString() : "";
             }
             var tc;
-            if(propd._IsAttached) {
+            if(propd.IsAttached) {
             } else {
             }
             return val;

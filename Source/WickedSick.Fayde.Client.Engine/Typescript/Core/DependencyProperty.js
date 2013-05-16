@@ -1,73 +1,92 @@
-var Fayde;
-(function (Fayde) {
-    (function (Providers) {
-        var pp = Providers._PropertyPrecedence;
-        function BuildBitmask(propd) {
-            var bitmask = (1 << pp.Inherited) | (1 << pp.DynamicValue);
-            if(propd._IsAutoCreated) {
-                bitmask |= (1 << pp.AutoCreate);
-            }
-            if(propd._HasDefaultValue) {
-                bitmask |= (1 << pp.DefaultValue);
-            }
-            return bitmask;
-        }
-        Providers.BuildBitmask = BuildBitmask;
-    })(Fayde.Providers || (Fayde.Providers = {}));
-    var Providers = Fayde.Providers;
-})(Fayde || (Fayde = {}));
 var DependencyProperty = (function () {
-    function DependencyProperty() { }
+    function DependencyProperty() {
+        this.IsReadOnly = false;
+        this.IsCustom = true;
+        this.IsAttached = false;
+        this.Inheritable = 0;
+        this.AlwaysChange = false;
+        this._Coercer = null;
+        this._Validator = null;
+    }
     DependencyProperty._IDs = [];
     DependencyProperty._Inherited = [];
     DependencyProperty._LastID = 0;
     DependencyProperty.Register = function Register(name, getTargetType, ownerType, defaultValue, changedCallback) {
-        return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, true);
-    };
-    DependencyProperty.RegisterReadOnly = function RegisterReadOnly(name, getTargetType, ownerType, defaultValue, changedCallback) {
-        return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, true, true);
-    };
-    DependencyProperty.RegisterAttached = function RegisterAttached(name, getTargetType, ownerType, defaultValue, changedCallback) {
-        return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, true, undefined, true);
-    };
-    DependencyProperty.RegisterCore = function RegisterCore(name, getTargetType, ownerType, defaultValue, changedCallback) {
-        return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false);
-    };
-    DependencyProperty.RegisterReadOnlyCore = function RegisterReadOnlyCore(name, getTargetType, ownerType, defaultValue, changedCallback) {
-        return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false, true);
-    };
-    DependencyProperty.RegisterAttachedCore = function RegisterAttachedCore(name, getTargetType, ownerType, defaultValue, changedCallback) {
-        return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false, undefined, true);
-    };
-    DependencyProperty.RegisterInheritable = function RegisterInheritable(name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, inheritable) {
-        return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, undefined, undefined, undefined, false, undefined, undefined, inheritable);
-    };
-    DependencyProperty.RegisterFull = function RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, coercer, alwaysChange, validator, isCustom, isReadOnly, isAttached, inheritable) {
-        var registeredDPs = (ownerType)._RegisteredDPs;
-        if(!registeredDPs) {
-            (ownerType)._RegisteredDPs = registeredDPs = [];
-        }
-        if(registeredDPs[name] !== undefined) {
-            throw new InvalidOperationException("Dependency Property is already registered. [" + (ownerType)._TypeName + "." + name + "]");
-        }
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
         propd.OwnerType = ownerType;
         propd.DefaultValue = defaultValue;
-        propd._HasDefaultValue = defaultValue !== undefined;
-        propd._ChangedCallback = changedCallback;
-        propd._AutoCreator = autocreator;
-        propd._IsAutoCreated = autocreator != null;
-        propd._Coercer = coercer;
-        propd._AlwaysChange = alwaysChange;
-        propd._Validator = validator;
-        propd.IsCustom = isCustom !== false;
-        propd.IsReadOnly = isReadOnly === true;
-        propd._IsAttached = isAttached === true;
-        propd._ID = DependencyProperty._LastID = DependencyProperty._LastID + 1;
-        propd._BitmaskCache = Fayde.Providers.BuildBitmask(propd);
-        propd._Inheritable = inheritable;
+        propd.ChangedCallback = changedCallback;
+        propd.FinishRegister();
+        return propd;
+    };
+    DependencyProperty.RegisterReadOnly = function RegisterReadOnly(name, getTargetType, ownerType, defaultValue, changedCallback) {
+        var propd = new DependencyProperty();
+        propd.Name = name;
+        propd.GetTargetType = getTargetType;
+        propd.OwnerType = ownerType;
+        propd.DefaultValue = defaultValue;
+        propd.ChangedCallback = changedCallback;
+        propd.IsReadOnly = true;
+        propd.FinishRegister();
+        return propd;
+    };
+    DependencyProperty.RegisterAttached = function RegisterAttached(name, getTargetType, ownerType, defaultValue, changedCallback) {
+        var propd = new DependencyProperty();
+        propd.Name = name;
+        propd.GetTargetType = getTargetType;
+        propd.OwnerType = ownerType;
+        propd.DefaultValue = defaultValue;
+        propd.ChangedCallback = changedCallback;
+        propd.IsAttached = true;
+        propd.FinishRegister();
+        return propd;
+    };
+    DependencyProperty.RegisterCore = function RegisterCore(name, getTargetType, ownerType, defaultValue, changedCallback) {
+        var propd = new DependencyProperty();
+        propd.Name = name;
+        propd.GetTargetType = getTargetType;
+        propd.OwnerType = ownerType;
+        propd.DefaultValue = defaultValue;
+        propd.ChangedCallback = changedCallback;
+        propd.IsCustom = false;
+        propd.FinishRegister();
+        return propd;
+    };
+    DependencyProperty.RegisterReadOnlyCore = function RegisterReadOnlyCore(name, getTargetType, ownerType, defaultValue, changedCallback) {
+        var propd = new DependencyProperty();
+        propd.Name = name;
+        propd.GetTargetType = getTargetType;
+        propd.OwnerType = ownerType;
+        propd.DefaultValue = defaultValue;
+        propd.ChangedCallback = changedCallback;
+        propd.IsCustom = false;
+        propd.IsReadOnly = true;
+        propd.FinishRegister();
+        return propd;
+    };
+    DependencyProperty.RegisterAttachedCore = function RegisterAttachedCore(name, getTargetType, ownerType, defaultValue, changedCallback) {
+        var propd = new DependencyProperty();
+        propd.Name = name;
+        propd.GetTargetType = getTargetType;
+        propd.OwnerType = ownerType;
+        propd.DefaultValue = defaultValue;
+        propd.ChangedCallback = changedCallback;
+        propd.IsCustom = false;
+        propd.IsAttached = true;
+        propd.FinishRegister();
+        return propd;
+    };
+    DependencyProperty.RegisterInheritable = function RegisterInheritable(name, getTargetType, ownerType, defaultValue, changedCallback, inheritable) {
+        var propd = new DependencyProperty();
+        propd.Name = name;
+        propd.GetTargetType = getTargetType;
+        propd.OwnerType = ownerType;
+        propd.DefaultValue = defaultValue;
+        propd.ChangedCallback = changedCallback;
+        propd.IsCustom = false;
+        propd.Inheritable = inheritable;
         if(inheritable !== undefined) {
             var i = DependencyProperty._Inherited;
             if(!i[inheritable]) {
@@ -75,15 +94,49 @@ var DependencyProperty = (function () {
             }
             i[inheritable].push(propd);
         }
+        propd.FinishRegister();
+        return propd;
+    };
+    DependencyProperty.RegisterFull = function RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, coercer, alwaysChange, validator, isCustom, isReadOnly, isAttached, inheritable) {
+        var propd = new DependencyProperty();
+        propd.Name = name;
+        propd.GetTargetType = getTargetType;
+        propd.OwnerType = ownerType;
+        propd.DefaultValue = defaultValue;
+        propd.ChangedCallback = changedCallback;
+        propd._Coercer = coercer;
+        propd.AlwaysChange = alwaysChange;
+        propd._Validator = validator;
+        propd.IsCustom = isCustom !== false;
+        propd.IsReadOnly = isReadOnly === true;
+        propd.IsAttached = isAttached === true;
+        propd.Inheritable = inheritable;
+        if(inheritable !== undefined) {
+            var i = DependencyProperty._Inherited;
+            if(!i[inheritable]) {
+                i[inheritable] = [];
+            }
+            i[inheritable].push(propd);
+        }
+        propd.FinishRegister();
+        return propd;
+    };
+    DependencyProperty.prototype.FinishRegister = function () {
+        var name = this.Name;
+        var ownerType = this.OwnerType;
+        var registeredDPs = (ownerType)._RegisteredDPs;
+        if(!registeredDPs) {
+            (ownerType)._RegisteredDPs = registeredDPs = [];
+        }
+        if(registeredDPs[name] !== undefined) {
+            throw new InvalidOperationException("Dependency Property is already registered. [" + (ownerType)._TypeName + "." + name + "]");
+        }
         if(!ownerType || typeof ownerType !== "function") {
             throw new InvalidOperationException("DependencyProperty does not have a valid OwnerType.");
         }
-        propd.CreateAutoProperty();
-        registeredDPs[name] = propd;
-        DependencyProperty._IDs[propd._ID] = propd;
-        return propd;
-    };
-    DependencyProperty.prototype.CreateAutoProperty = function () {
+        registeredDPs[name] = this;
+        this._ID = DependencyProperty._LastID = DependencyProperty._LastID + 1;
+        DependencyProperty._IDs[this._ID] = this;
         var propd = this;
         var getter = function () {
             return (this).GetValue(propd);
@@ -91,7 +144,7 @@ var DependencyProperty = (function () {
         var setter = function (value) {
             (this).SetValue(propd, value);
         };
-        Object.defineProperty(this.OwnerType.prototype, this.Name, {
+        Object.defineProperty(ownerType.prototype, this.Name, {
             get: getter,
             set: setter,
             configurable: true

@@ -2,18 +2,15 @@ module Fayde.Providers {
     export enum _PropertyPrecedence {
         IsEnabled = 0,
         LocalValue = 1,
-        DynamicValue = 2,
+        LocalStyle = 2,
+        ImplicitStyle = 3,
+        Inherited = 4,
+        InheritedDataContext = 5,
+        DefaultValue = 6,
 
-        LocalStyle = 3,
-        ImplicitStyle = 4,
-
-        Inherited = 5,
-        InheritedDataContext = 6,
-        DefaultValue = 7,
-        AutoCreate = 8,
-        Lowest = 8,
+        Lowest = 6,
         Highest = 0,
-        Count = 9,
+        Count = 7,
     }
     export enum _StyleIndex {
         VisualTree = 0,
