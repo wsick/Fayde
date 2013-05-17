@@ -35,8 +35,7 @@ var Fayde;
         var MAX_UNDO_COUNT = 10;
         var TextBoxBase = (function (_super) {
             __extends(TextBoxBase, _super);
-            //Will be overriden
-            function TextBoxBase(eventsMask, textPropd, selTextPropd) {
+            function TextBoxBase(eventsMask, textPropd) {
                         _super.call(this);
                 this._Undo = [];
                 this._Redo = [];
@@ -59,7 +58,6 @@ var Fayde;
                 this._ModelListener = null;
                 this._EventsMask = eventsMask;
                 this._TextProperty = textPropd;
-                this._SelectedTextProperty = selTextPropd;
             }
             Object.defineProperty(TextBoxBase.prototype, "SelectionCursor", {
                 get: function () {
@@ -384,11 +382,13 @@ var Fayde;
                     var len = Math.abs(this._SelectionCursor - this._SelectionAnchor);
                     var text = !this._Buffer ? '' : this._Buffer.substr(start, len);
                     this._SettingValue = false;
-                    this.SetStoreValue(this._SelectedTextProperty, text);
+                    this._SelectedText = text;
+                    this._SelectedTextChanged(text);
                     this._SettingValue = true;
                 } else {
                     this._SettingValue = false;
-                    this.SetStoreValue(this._SelectedTextProperty, "");
+                    this._SelectedText = "";
+                    this._SelectedTextChanged("");
                     this._SettingValue = true;
                 }
             };
@@ -527,24 +527,10 @@ var Fayde;
                 return cursor;
             };
             TextBoxBase.prototype.CursorLineBegin = function (cursor) {
-                var buffer = this._Buffer;
-                var len = buffer.length;
-                var r = buffer.lastIndexOf("\r", cursor);
-                var n = buffer.lastIndexOf("\n", cursor);
-                return Math.max(r, n, 0);
+                return cursor;
             };
             TextBoxBase.prototype.CursorLineEnd = function (cursor) {
-                var buffer = this._Buffer;
-                var len = buffer.length;
-                var r = buffer.indexOf("\r", cursor);
-                if(r < 0) {
-                    r = len;
-                }
-                var n = buffer.indexOf("\n", cursor);
-                if(n < 0) {
-                    n = len;
-                }
-                return Math.min(r, n);
+                return cursor;
             };
             TextBoxBase.prototype._EmitCursorPositionChanged = function (height, x, y) {
                 //LOOKS USELESS
@@ -630,7 +616,8 @@ var Fayde;
                                         break;
                                     }
                                     //copy to clipboard
-                                    this.SelectedText = "";
+                                    this._SelectedText = "";
+                                    this._SelectedTextChanged("");
                                     handled = true;
                                     break;
                                 case Key.Y:

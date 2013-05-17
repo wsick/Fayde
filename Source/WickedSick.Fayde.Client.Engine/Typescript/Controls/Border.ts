@@ -23,7 +23,7 @@ module Fayde.Controls {
         static BackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Border, undefined, (d, args) => (<Border>d)._BackgroundChanged(args));
         static BorderBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderBrush", () => Media.Brush, Border, undefined, (d, args) => (<Border>d)._BorderBrushChanged(args));
         static BorderThicknessProperty: DependencyProperty = DependencyProperty.RegisterFull("BorderThickness", () => Thickness, Border, undefined, (d, args) => (<Border>d)._BorderThicknessChanged(args)); //TODO: Validator
-        static ChildProperty: DependencyProperty = DependencyProperty.RegisterCore("Child", () => UIElement, Border, undefined, (d, args) => (<Border>d)._ChildChanged(args));
+        static ChildProperty: DependencyProperty = DependencyProperty.Register("Child", () => UIElement, Border, undefined, (d, args) => (<Border>d)._ChildChanged(args));
         static CornerRadiusProperty: DependencyProperty = DependencyProperty.RegisterFull("CornerRadius", () => CornerRadius, Border); //TODO: Validator
         static PaddingProperty: DependencyProperty = DependencyProperty.RegisterFull("Padding", () => Thickness, Border, undefined, (d, args) => (<Border>d)._PaddingChanged(args)); //TODO: Validator
         Background: Media.Brush;

@@ -130,6 +130,9 @@
     <Content Include="Tests\Controls\slider.fap">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Tests\Controls\passwordbox.fap">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Tests\Shapes\rectangle-grid.fap">
       <SubType>Designer</SubType>
     </None>

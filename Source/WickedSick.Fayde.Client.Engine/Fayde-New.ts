@@ -6875,6 +6875,7 @@ module Fayde {
                 if (ns) ns.UnregisterName(this.Name);
             }
             this._OwnerNameScope = null;
+            this.SetIsAttached(false);
             var old = this.ParentNode;
             this.ParentNode = null;
             if (old) {
@@ -6882,7 +6883,6 @@ module Fayde {
                 if (index > -1) old._LogicalChildren.splice(index, 1);
                 this.OnParentChanged(old, null);
             }
-            this.SetIsAttached(false);
         }
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) { }
         GetInheritedEnumerator(): IEnumerator { return undefined; }
@@ -17097,7 +17097,7 @@ module Fayde.Controls {
         static BackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Border, undefined, (d, args) => (<Border>d)._BackgroundChanged(args));
         static BorderBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderBrush", () => Media.Brush, Border, undefined, (d, args) => (<Border>d)._BorderBrushChanged(args));
         static BorderThicknessProperty: DependencyProperty = DependencyProperty.RegisterFull("BorderThickness", () => Thickness, Border, undefined, (d, args) => (<Border>d)._BorderThicknessChanged(args)); //TODO: Validator
-        static ChildProperty: DependencyProperty = DependencyProperty.RegisterCore("Child", () => UIElement, Border, undefined, (d, args) => (<Border>d)._ChildChanged(args));
+        static ChildProperty: DependencyProperty = DependencyProperty.Register("Child", () => UIElement, Border, undefined, (d, args) => (<Border>d)._ChildChanged(args));
         static CornerRadiusProperty: DependencyProperty = DependencyProperty.RegisterFull("CornerRadius", () => CornerRadius, Border); //TODO: Validator
         static PaddingProperty: DependencyProperty = DependencyProperty.RegisterFull("Padding", () => Thickness, Border, undefined, (d, args) => (<Border>d)._PaddingChanged(args)); //TODO: Validator
         Background: Media.Brush;
@@ -19191,9 +19191,9 @@ module Fayde.Controls {
         private _SettingValue: bool = true;
         private _SelectionCursor: number = 0;
         private _SelectionAnchor: number = 0;
+        private _SelectedText: string;
         private _EventsMask: TextBoxEmitChangedType;
         private _TextProperty: DependencyProperty;
-        private _SelectedTextProperty: DependencyProperty;
         private _Font: Font = new Font();
         private _CursorOffset: number = 0;
         private _Batch: number = 0;
@@ -19204,12 +19204,10 @@ module Fayde.Controls {
         $AcceptsReturn: bool = false;
         $MaxLength: number = 0;
         $HasOffset: bool = false;
-        SelectedText: string; //Will be overriden
-        constructor(eventsMask: TextBoxEmitChangedType, textPropd: DependencyProperty, selTextPropd: DependencyProperty) {
+        constructor(eventsMask: TextBoxEmitChangedType, textPropd: DependencyProperty) {
             super();
             this._EventsMask = eventsMask;
             this._TextProperty = textPropd;
-            this._SelectedTextProperty = selTextPropd;
         }
         get SelectionCursor(): number { return this._SelectionCursor; }
         get HasSelectedText(): bool { return this._SelectionCursor !== this._SelectionAnchor; }
@@ -19420,11 +19418,13 @@ module Fayde.Controls {
                 var len = Math.abs(this._SelectionCursor - this._SelectionAnchor);
                 var text = !this._Buffer ? '' : this._Buffer.substr(start, len);
                 this._SettingValue = false;
-                this.SetStoreValue(this._SelectedTextProperty, text);
+                this._SelectedText = text;
+                this._SelectedTextChanged(text);
                 this._SettingValue = true;
             } else {
                 this._SettingValue = false;
-                this.SetStoreValue(this._SelectedTextProperty, "");
+                this._SelectedText = "";
+                this._SelectedTextChanged("");
                 this._SettingValue = true;
             }
         }
@@ -19529,34 +19529,12 @@ module Fayde.Controls {
                 this._SyncAndEmit();
             }
         }
-        CursorDown(cursor: number, isPage: bool): number {
-            return cursor;
-        }
-        CursorUp(cursor: number, isPage: bool): number {
-            return cursor;
-        }
-        CursorNextWord(cursor: number): number {
-            return cursor;
-        }
-        CursorPrevWord(cursor: number): number {
-            return cursor;
-        }
-        CursorLineBegin(cursor: number): number {
-            var buffer = this._Buffer;
-            var len = buffer.length;
-            var r = buffer.lastIndexOf("\r", cursor);
-            var n = buffer.lastIndexOf("\n", cursor);
-            return Math.max(r, n, 0);
-        }
-        CursorLineEnd(cursor: number): number {
-            var buffer = this._Buffer;
-            var len = buffer.length;
-            var r = buffer.indexOf("\r", cursor);
-            if (r < 0) r = len;
-            var n = buffer.indexOf("\n", cursor);
-            if (n < 0) n = len;
-            return Math.min(r, n);
-        }
+        CursorDown(cursor: number, isPage: bool): number { return cursor; }
+        CursorUp(cursor: number, isPage: bool): number { return cursor; }
+        CursorNextWord(cursor: number): number { return cursor; }
+        CursorPrevWord(cursor: number): number { return cursor; }
+        CursorLineBegin(cursor: number): number { return cursor; }
+        CursorLineEnd(cursor: number): number { return cursor; }
         _EmitCursorPositionChanged(height: number, x: number, y: number) {
         }
         OnKeyDown(args: Input.KeyEventArgs) {
@@ -19628,7 +19606,8 @@ module Fayde.Controls {
                             case Key.X:
                                 if (this.$IsReadOnly)
                                     break;
-                                this.SelectedText = "";
+                                this._SelectedText = "";
+                                this._SelectedTextChanged("");
                                 handled = true;
                                 break;
                             case Key.Y:
@@ -24122,8 +24101,98 @@ module Fayde.Controls {
 
 module Fayde.Controls {
     export class PasswordBox extends TextBoxBase {
+        static BaselineOffsetProperty: DependencyProperty = DependencyProperty.Register("BaselineOffset", () => Number, PasswordBox);
+        static CaretBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, PasswordBox);
+        static MaxLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, PasswordBox, 0, (d, args) => (<PasswordBox>d).$MaxLength = args.NewValue, undefined, undefined, positiveIntValidator);
+        static PasswordCharProperty: DependencyProperty = DependencyProperty.Register("PasswordChar", () => String, PasswordBox, String.fromCharCode(9679), (d, args) => (<PasswordBox>d)._ModelChanged(TextBoxModelChangedType.Text, args.NewValue));
+        static PasswordProperty: DependencyProperty = DependencyProperty.Register("Password", () => String, PasswordBox, undefined, (d, args) => (<PasswordBox>d)._TextChanged(args.NewValue));
+        static SelectionForegroundProperty: DependencyProperty = DependencyProperty.RegisterCore("SelectionForeground", () => Media.Brush, PasswordBox, undefined, (d, args) => (<PasswordBox>d)._SelectionForegroundChanged(args));
+        static SelectionBackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("SelectionBackground", () => Media.Brush, PasswordBox, undefined, (d, args) => (<PasswordBox>d)._SelectionBackgroundChanged(args));
+        BaselineOffset: number;
+        CaretBrush: Media.Brush;
+        MaxLength; number;
+        PasswordChar: string;
+        Password: string;
+        SelectionForeground: Media.Brush;
+        SelectionBackground: Media.Brush;
+        private static DEFAULT_SELECTION_FOREGROUND = Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 1.0));
+        get SelectionForeground(): Media.Brush {
+            var b = this.GetValue(PasswordBox.SelectionForegroundProperty);
+            if (b)
+                return b;
+            return PasswordBox.DEFAULT_SELECTION_FOREGROUND;
+        }
+        set SelectionForeground(value: Media.Brush) { this.SetValue(PasswordBox.SelectionForegroundProperty, value); }
+        private static DEFAULT_SELECTION_BACKGROUND = Media.SolidColorBrush.FromColor(Color.FromRgba(68, 68, 68, 1.0));
+        get SelectionBackground(): Media.Brush {
+            var b = this.GetValue(PasswordBox.SelectionBackgroundProperty);
+            if (b)
+                return b;
+            return PasswordBox.DEFAULT_SELECTION_BACKGROUND;
+        }
+        set SelectionBackground(value: Media.Brush) { this.SetValue(PasswordBox.SelectionBackgroundProperty, value); }
+        PasswordChangedEvent: RoutedEvent = new RoutedEvent();
+        private _Buffer: string; //Defined in TextBoxBase
+        constructor() {
+            super(TextBoxEmitChangedType.TEXT, PasswordBox.PasswordProperty);
+            this.DefaultStyleKey = (<any>this).constructor;
+        }
+        get DisplayText(): string {
+            var result = "";
+            var count = this._Buffer.length;
+            var pattern = this.PasswordChar;
+            while (count > 0) {
+                if (count & 1) result += pattern;
+                count >>= 1, pattern += pattern;
+            }
+            return result;
+        }
+        private CursorDown(cursor: number, isPage: bool): number { return this._Buffer.length; }
+        private CursorUp(cursor: number, isPage: bool): number { return 0; }
+        private CursorNextWord(cursor: number): number { return this._Buffer.length; }
+        private CursorPrevWord(cursor: number): number { return 0; }
+        private CursorLineBegin(cursor: number): number { return 0; }
+        private CursorLineEnd(cursor: number): number { return this._Buffer.length; }
+        private _EmitTextChanged() {
+            this.PasswordChangedEvent.RaiseAsync(this, EventArgs.Empty);
+        }
+        private _SelectionBackgroundListener: Media.IBrushChangedListener;
+        private _SelectionBackgroundChanged(args: IDependencyPropertyChangedEventArgs) {
+            var newBrush = <Media.Brush>args.NewValue;
+            if (this._SelectionBackgroundListener)
+                this._SelectionBackgroundListener.Detach();
+            this._SelectionBackgroundListener = null;
+            if (newBrush) {
+                this._SelectionBackgroundListener = newBrush.Listen((brush) => {
+                    this._ModelChanged(TextBoxModelChangedType.Brush, newBrush);
+                    this.XamlNode.LayoutUpdater.Invalidate();
+                });
+            }
+            this._ModelChanged(TextBoxModelChangedType.Brush, newBrush);
+            this.XamlNode.LayoutUpdater.Invalidate();
+        }
+        private _SelectionForegroundListener: Media.IBrushChangedListener;
+        private _SelectionForegroundChanged(args: IDependencyPropertyChangedEventArgs) {
+            var newBrush = <Media.Brush>args.NewValue;
+            if (this._SelectionForegroundListener)
+                this._SelectionForegroundListener.Detach();
+            this._SelectionForegroundListener = null;
+            if (newBrush) {
+                this._SelectionForegroundListener = newBrush.Listen((brush) => {
+                    this._ModelChanged(TextBoxModelChangedType.Brush, newBrush);
+                    this.XamlNode.LayoutUpdater.Invalidate();
+                });
+            }
+            this._ModelChanged(TextBoxModelChangedType.Brush, newBrush);
+            this.XamlNode.LayoutUpdater.Invalidate();
+        }
     }
     Nullstone.RegisterType(PasswordBox, "PasswordBox");
+    function positiveIntValidator(dobj: DependencyObject, propd: DependencyProperty, value: any): bool {
+        if (typeof value !== 'number')
+            return false;
+        return value >= 0;
+    }
 }
 
 module Fayde.Controls {
@@ -24774,7 +24843,6 @@ module Fayde.Controls {
         static SelectionForegroundProperty: DependencyProperty = DependencyProperty.RegisterCore("SelectionForeground", () => Media.Brush, TextBox, undefined, (d, args) => (<TextBox>d)._SelectionForegroundChanged(args));
         static SelectionBackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("SelectionBackground", () => Media.Brush, TextBox, undefined, (d, args) => (<TextBox>d)._SelectionBackgroundChanged(args));
         static BaselineOffsetProperty: DependencyProperty = DependencyProperty.Register("BaselineOffset", () => Number, TextBox);
-        static SelectedTextProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectedText", () => String, TextBox, "", (d, args) => (<TextBox>d)._SelectedTextChanged(args.NewValue), undefined, true);
         static SelectionLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectionLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d)._SelectionLengthChanged(args.NewValue), undefined, true, positiveIntValidator);
         static SelectionStartProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectionStart", () => Number, TextBox, 0, (d, args) => (<TextBox>d)._SelectionStartChanged(args.NewValue), undefined, true, positiveIntValidator);
         static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, TextBox, undefined, (d, args) => (<TextBox>d)._TextChanged(args.NewValue));
@@ -24787,7 +24855,6 @@ module Fayde.Controls {
         MaxLength: number;
         IsReadOnly: bool;
         BaselineOffset: number;
-        SelectedText: string;
         SelectionLength: number;
         SelectionStart: number;
         Text: string;
@@ -24813,8 +24880,9 @@ module Fayde.Controls {
             return TextBox.DEFAULT_SELECTION_BACKGROUND;
         }
         set SelectionBackground(value: Media.Brush) { this.SetValue(TextBox.SelectionBackgroundProperty, value); }
+        private _Buffer: string; //Defined in TextBoxBase
         constructor() {
-            super(TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION, TextBox.TextProperty, TextBox.SelectedTextProperty);
+            super(TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION, TextBox.TextProperty);
             this.DefaultStyleKey = (<any>this).constructor;
         }
         OnApplyTemplate() {
@@ -24833,6 +24901,34 @@ module Fayde.Controls {
             }
         }
         get DisplayText(): string { return this.Text; }
+        private CursorDown(cursor: number, isPage: bool): number {
+            return cursor;
+        }
+        private CursorUp(cursor: number, isPage: bool): number {
+            return cursor;
+        }
+        private CursorNextWord(cursor: number): number {
+            return cursor;
+        }
+        private CursorPrevWord(cursor: number): number {
+            return cursor;
+        }
+        private CursorLineBegin(cursor: number): number {
+            var buffer = this._Buffer;
+            var len = buffer.length;
+            var r = buffer.lastIndexOf("\r", cursor);
+            var n = buffer.lastIndexOf("\n", cursor);
+            return Math.max(r, n, 0);
+        }
+        private CursorLineEnd(cursor: number): number {
+            var buffer = this._Buffer;
+            var len = buffer.length;
+            var r = buffer.indexOf("\r", cursor);
+            if (r < 0) r = len;
+            var n = buffer.indexOf("\n", cursor);
+            if (n < 0) n = len;
+            return Math.min(r, n);
+        }
         private _EmitTextChanged() {
             this.TextChanged.RaiseAsync(this, EventArgs.Empty);
         }

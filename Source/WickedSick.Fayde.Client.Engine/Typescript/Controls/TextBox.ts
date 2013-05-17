@@ -11,7 +11,6 @@ module Fayde.Controls {
         static SelectionForegroundProperty: DependencyProperty = DependencyProperty.RegisterCore("SelectionForeground", () => Media.Brush, TextBox, undefined, (d, args) => (<TextBox>d)._SelectionForegroundChanged(args));
         static SelectionBackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("SelectionBackground", () => Media.Brush, TextBox, undefined, (d, args) => (<TextBox>d)._SelectionBackgroundChanged(args));
         static BaselineOffsetProperty: DependencyProperty = DependencyProperty.Register("BaselineOffset", () => Number, TextBox);
-        static SelectedTextProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectedText", () => String, TextBox, "", (d, args) => (<TextBox>d)._SelectedTextChanged(args.NewValue), undefined, true);
         static SelectionLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectionLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d)._SelectionLengthChanged(args.NewValue), undefined, true, positiveIntValidator);
         static SelectionStartProperty: DependencyProperty = DependencyProperty.RegisterFull("SelectionStart", () => Number, TextBox, 0, (d, args) => (<TextBox>d)._SelectionStartChanged(args.NewValue), undefined, true, positiveIntValidator);
         static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, TextBox, undefined, (d, args) => (<TextBox>d)._TextChanged(args.NewValue));
@@ -24,7 +23,6 @@ module Fayde.Controls {
         MaxLength: number;
         IsReadOnly: bool;
         BaselineOffset: number;
-        SelectedText: string;
         SelectionLength: number;
         SelectionStart: number;
         Text: string;
@@ -53,8 +51,10 @@ module Fayde.Controls {
         }
         set SelectionBackground(value: Media.Brush) { this.SetValue(TextBox.SelectionBackgroundProperty, value); }
 
+        private _Buffer: string; //Defined in TextBoxBase
+
         constructor() {
-            super(TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION, TextBox.TextProperty, TextBox.SelectedTextProperty);
+            super(TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION, TextBox.TextProperty);
             this.DefaultStyleKey = (<any>this).constructor;
         }
 
@@ -78,6 +78,39 @@ module Fayde.Controls {
         }
 
         get DisplayText(): string { return this.Text; }
+
+        private CursorDown(cursor: number, isPage: bool): number {
+            //TODO:
+            return cursor;
+        }
+        private CursorUp(cursor: number, isPage: bool): number {
+            //TODO:
+            return cursor;
+        }
+        private CursorNextWord(cursor: number): number {
+            //TODO:
+            return cursor;
+        }
+        private CursorPrevWord(cursor: number): number {
+            //TODO:
+            return cursor;
+        }
+        private CursorLineBegin(cursor: number): number {
+            var buffer = this._Buffer;
+            var len = buffer.length;
+            var r = buffer.lastIndexOf("\r", cursor);
+            var n = buffer.lastIndexOf("\n", cursor);
+            return Math.max(r, n, 0);
+        }
+        private CursorLineEnd(cursor: number): number {
+            var buffer = this._Buffer;
+            var len = buffer.length;
+            var r = buffer.indexOf("\r", cursor);
+            if (r < 0) r = len;
+            var n = buffer.indexOf("\n", cursor);
+            if (n < 0) n = len;
+            return Math.min(r, n);
+        }
 
         private _EmitTextChanged() {
             this.TextChanged.RaiseAsync(this, EventArgs.Empty);

@@ -11,8 +11,9 @@ var Fayde;
     (function (Controls) {
         var TextBox = (function (_super) {
             __extends(TextBox, _super);
+            //Defined in TextBoxBase
             function TextBox() {
-                        _super.call(this, Controls.TextBoxEmitChangedType.TEXT | Controls.TextBoxEmitChangedType.SELECTION, TextBox.TextProperty, TextBox.SelectedTextProperty);
+                        _super.call(this, Controls.TextBoxEmitChangedType.TEXT | Controls.TextBoxEmitChangedType.SELECTION, TextBox.TextProperty);
                 this.SelectionChanged = new MulticastEvent();
                 this.TextChanged = new MulticastEvent();
                 this.DefaultStyleKey = (this).constructor;
@@ -48,11 +49,6 @@ var Fayde;
             TextBox.BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", function () {
                 return Number;
             }, TextBox);
-            TextBox.SelectedTextProperty = DependencyProperty.RegisterFull("SelectedText", function () {
-                return String;
-            }, TextBox, "", function (d, args) {
-                return (d)._SelectedTextChanged(args.NewValue);
-            }, undefined, true);
             TextBox.SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", function () {
                 return Number;
             }, TextBox, 0, function (d, args) {
@@ -142,6 +138,42 @@ var Fayde;
                 enumerable: true,
                 configurable: true
             });
+            TextBox.prototype.CursorDown = function (cursor, isPage) {
+                //TODO:
+                return cursor;
+            };
+            TextBox.prototype.CursorUp = function (cursor, isPage) {
+                //TODO:
+                return cursor;
+            };
+            TextBox.prototype.CursorNextWord = function (cursor) {
+                //TODO:
+                return cursor;
+            };
+            TextBox.prototype.CursorPrevWord = function (cursor) {
+                //TODO:
+                return cursor;
+            };
+            TextBox.prototype.CursorLineBegin = function (cursor) {
+                var buffer = this._Buffer;
+                var len = buffer.length;
+                var r = buffer.lastIndexOf("\r", cursor);
+                var n = buffer.lastIndexOf("\n", cursor);
+                return Math.max(r, n, 0);
+            };
+            TextBox.prototype.CursorLineEnd = function (cursor) {
+                var buffer = this._Buffer;
+                var len = buffer.length;
+                var r = buffer.indexOf("\r", cursor);
+                if(r < 0) {
+                    r = len;
+                }
+                var n = buffer.indexOf("\n", cursor);
+                if(n < 0) {
+                    n = len;
+                }
+                return Math.min(r, n);
+            };
             TextBox.prototype._EmitTextChanged = function () {
                 this.TextChanged.RaiseAsync(this, EventArgs.Empty);
             };

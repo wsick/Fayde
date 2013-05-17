@@ -46,7 +46,7 @@ var Fayde;
             }, Border, undefined, function (d, args) {
                 return (d)._BorderThicknessChanged(args);
             });
-            Border.ChildProperty = DependencyProperty.RegisterCore("Child", function () {
+            Border.ChildProperty = DependencyProperty.Register("Child", function () {
                 return Fayde.UIElement;
             }, Border, undefined, function (d, args) {
                 return (d)._ChildChanged(args);

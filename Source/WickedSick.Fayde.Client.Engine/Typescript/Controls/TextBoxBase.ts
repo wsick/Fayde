@@ -46,9 +46,10 @@ module Fayde.Controls {
         private _SelectionCursor: number = 0;
         private _SelectionAnchor: number = 0;
 
+        private _SelectedText: string;
+
         private _EventsMask: TextBoxEmitChangedType;
         private _TextProperty: DependencyProperty;
-        private _SelectedTextProperty: DependencyProperty;
 
         private _Font: Font = new Font();
         private _CursorOffset: number = 0;
@@ -62,13 +63,10 @@ module Fayde.Controls {
         $MaxLength: number = 0;
         $HasOffset: bool = false;
 
-        SelectedText: string; //Will be overriden
-
-        constructor(eventsMask: TextBoxEmitChangedType, textPropd: DependencyProperty, selTextPropd: DependencyProperty) {
+        constructor(eventsMask: TextBoxEmitChangedType, textPropd: DependencyProperty) {
             super();
             this._EventsMask = eventsMask;
             this._TextProperty = textPropd;
-            this._SelectedTextProperty = selTextPropd;
         }
 
         get SelectionCursor(): number { return this._SelectionCursor; }
@@ -320,11 +318,13 @@ module Fayde.Controls {
                 var text = !this._Buffer ? '' : this._Buffer.substr(start, len);
 
                 this._SettingValue = false;
-                this.SetStoreValue(this._SelectedTextProperty, text);
+                this._SelectedText = text;
+                this._SelectedTextChanged(text);
                 this._SettingValue = true;
             } else {
                 this._SettingValue = false;
-                this.SetStoreValue(this._SelectedTextProperty, "");
+                this._SelectedText = "";
+                this._SelectedTextChanged("");
                 this._SettingValue = true;
             }
         }
@@ -465,34 +465,12 @@ module Fayde.Controls {
             }
         }
 
-        CursorDown(cursor: number, isPage: bool): number {
-            return cursor;
-        }
-        CursorUp(cursor: number, isPage: bool): number {
-            return cursor;
-        }
-        CursorNextWord(cursor: number): number {
-            return cursor;
-        }
-        CursorPrevWord(cursor: number): number {
-            return cursor;
-        }
-        CursorLineBegin(cursor: number): number {
-            var buffer = this._Buffer;
-            var len = buffer.length;
-            var r = buffer.lastIndexOf("\r", cursor);
-            var n = buffer.lastIndexOf("\n", cursor);
-            return Math.max(r, n, 0);
-        }
-        CursorLineEnd(cursor: number): number {
-            var buffer = this._Buffer;
-            var len = buffer.length;
-            var r = buffer.indexOf("\r", cursor);
-            if (r < 0) r = len;
-            var n = buffer.indexOf("\n", cursor);
-            if (n < 0) n = len;
-            return Math.min(r, n);
-        }
+        CursorDown(cursor: number, isPage: bool): number { return cursor; }
+        CursorUp(cursor: number, isPage: bool): number { return cursor; }
+        CursorNextWord(cursor: number): number { return cursor; }
+        CursorPrevWord(cursor: number): number { return cursor; }
+        CursorLineBegin(cursor: number): number { return cursor; }
+        CursorLineEnd(cursor: number): number { return cursor; }
         _EmitCursorPositionChanged(height: number, x: number, y: number) {
             //LOOKS USELESS
         }
@@ -577,7 +555,8 @@ module Fayde.Controls {
                                 if (this.$IsReadOnly)
                                     break;
                                 //copy to clipboard
-                                this.SelectedText = "";
+                                this._SelectedText = "";
+                                this._SelectedTextChanged("");
                                 handled = true;
                                 break;
                             case Key.Y:

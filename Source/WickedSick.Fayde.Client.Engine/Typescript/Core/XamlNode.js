@@ -243,6 +243,7 @@ var Fayde;
                 }
             }
             this._OwnerNameScope = null;
+            this.SetIsAttached(false);
             var old = this.ParentNode;
             this.ParentNode = null;
             if(old) {
@@ -252,7 +253,6 @@ var Fayde;
                 }
                 this.OnParentChanged(old, null);
             }
-            this.SetIsAttached(false);
         };
         XamlNode.prototype.OnParentChanged = function (oldParentNode, newParentNode) {
         };

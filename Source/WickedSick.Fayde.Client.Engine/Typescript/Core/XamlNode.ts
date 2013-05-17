@@ -236,6 +236,7 @@ module Fayde {
                 if (ns) ns.UnregisterName(this.Name);
             }
             this._OwnerNameScope = null;
+            this.SetIsAttached(false);
             var old = this.ParentNode;
             this.ParentNode = null;
             if (old) {
@@ -243,7 +244,6 @@ module Fayde {
                 if (index > -1) old._LogicalChildren.splice(index, 1);
                 this.OnParentChanged(old, null);
             }
-            this.SetIsAttached(false);
         }
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) { }
 
