@@ -96,6 +96,9 @@ var Fayde;
                     //AnimationDebug(function () { return "ApplyCurrentValue: [" + that._TargetObj.constructor._TypeName + "." + that._TargetProp.Name + "] --> " + that._CurrentValue.toString(); });
                     this._TargetObj.SetStoreValue(this._TargetProp, this._CurrentValue);
                 };
+                AnimationStorage.prototype.CloneCore = function () {
+                    //TODO: Implement
+                                    };
                 return AnimationStorage;
             })();
             Animation.AnimationStorage = AnimationStorage;            

@@ -3,6 +3,10 @@
 
 module Fayde {
     export function Clone(value: any): any {
+        if (value === undefined)
+            return undefined;
+        if (value === null)
+            return null;
         if (value instanceof XamlObject)
             return (<XamlObject>value).Clone();
 

@@ -3,6 +3,12 @@
 var Fayde;
 (function (Fayde) {
     function Clone(value) {
+        if(value === undefined) {
+            return undefined;
+        }
+        if(value === null) {
+            return null;
+        }
         if(value instanceof Fayde.XamlObject) {
             return (value).Clone();
         }

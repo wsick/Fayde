@@ -195,12 +195,10 @@ module Fayde.Providers {
             var srcRepo = sourceStorage.Animation;
             if (!srcRepo)
                 return newStorage;
-            var thisRepo = newStorage.Animation;
-            for (var key in srcRepo) {
-                thisRepo[key] = srcRepo[key].slice(0);
-                //TODO: Clone each AnimationStorage also?
+            var thisRepo = newStorage.Animation = srcRepo.slice(0);
+            for (var key in thisRepo) {
+                thisRepo[key].CloneCore();
             }
-
             return newStorage;
         }
     }

@@ -295,6 +295,10 @@ module Fayde.Controls.Primitives {
 
 module Fayde {
     export function Clone(value: any): any {
+        if (value === undefined)
+            return undefined;
+        if (value === null)
+            return null;
         if (value instanceof XamlObject)
             return (<XamlObject>value).Clone();
         if (typeof value === "number" || typeof value === "string")
@@ -1295,9 +1299,9 @@ module Fayde.Providers {
             var srcRepo = sourceStorage.Animation;
             if (!srcRepo)
                 return newStorage;
-            var thisRepo = newStorage.Animation;
-            for (var key in srcRepo) {
-                thisRepo[key] = srcRepo[key].slice(0);
+            var thisRepo = newStorage.Animation = srcRepo.slice(0);
+            for (var key in thisRepo) {
+                thisRepo[key].CloneCore();
             }
             return newStorage;
         }
@@ -9184,6 +9188,8 @@ module Fayde.Media.Animation {
             if (this._CurrentValue == null)
                 return;
             this._TargetObj.SetStoreValue(this._TargetProp, this._CurrentValue);
+        }
+        CloneCore() {
         }
     }
     Nullstone.RegisterType(AnimationStorage, "AnimationStorage");

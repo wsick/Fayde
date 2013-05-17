@@ -94,6 +94,10 @@ module Fayde.Media.Animation {
             //AnimationDebug(function () { return "ApplyCurrentValue: [" + that._TargetObj.constructor._TypeName + "." + that._TargetProp.Name + "] --> " + that._CurrentValue.toString(); });
             this._TargetObj.SetStoreValue(this._TargetProp, this._CurrentValue);
         }
+
+        CloneCore() {
+            //TODO: Implement
+        }
     }
     Nullstone.RegisterType(AnimationStorage, "AnimationStorage");
 }
