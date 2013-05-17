@@ -51,9 +51,11 @@ var Fayde;
                         storage.Listener = null;
                     }
                     storage.SourceNode = sourceNode;
-                    storage.Listener = storage.SourceNode.MonitorIsEnabled(function (newIsEnabled) {
-                        return _this.InheritedValueChanged(storage, newIsEnabled);
-                    });
+                    if(sourceNode) {
+                        storage.Listener = storage.SourceNode.MonitorIsEnabled(function (newIsEnabled) {
+                            return _this.InheritedValueChanged(storage, newIsEnabled);
+                        });
+                    }
                 }
                 if(!sourceNode && (storage.OwnerNode.IsAttached)) {
                     this.InheritedValueChanged(storage);

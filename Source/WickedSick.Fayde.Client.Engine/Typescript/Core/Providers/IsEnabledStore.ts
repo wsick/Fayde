@@ -44,7 +44,8 @@ module Fayde.Providers {
                     storage.Listener = null;
                 }
                 storage.SourceNode = <Controls.ControlNode>sourceNode;
-                storage.Listener = storage.SourceNode.MonitorIsEnabled((newIsEnabled) => this.InheritedValueChanged(storage, newIsEnabled));
+                if (sourceNode)
+                    storage.Listener = storage.SourceNode.MonitorIsEnabled((newIsEnabled) => this.InheritedValueChanged(storage, newIsEnabled));
             }
             if (!sourceNode && (storage.OwnerNode.IsAttached))
                 this.InheritedValueChanged(storage);
