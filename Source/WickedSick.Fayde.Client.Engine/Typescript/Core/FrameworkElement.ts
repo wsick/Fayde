@@ -3,6 +3,7 @@
 /// <reference path="../Runtime/Enumerable.ts" />
 /// <reference path="../Primitives/size.ts" />
 /// <reference path="ResourceDictionary.ts" />
+/// <reference path="Providers/ActualSizeStore.ts" />
 /// <reference path="Providers/LocalStyleBroker.ts" />
 /// <reference path="Providers/ImplicitStyleBroker.ts" />
 
@@ -254,8 +255,8 @@ module Fayde {
         }
         CreateNode(): FENode { return new FENode(this); }
         
-        static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", () => Number, FrameworkElement);
-        static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", () => Number, FrameworkElement);
+        static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("ActualHeight", () => Number, FrameworkElement);
+        static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("ActualWidth", () => Number, FrameworkElement);
         static CursorProperty: DependencyProperty = DependencyProperty.RegisterFull("Cursor", () => new Enum(CursorType), FrameworkElement, CursorType.Default);
         static FlowDirectionProperty: DependencyProperty = InheritableOwner.FlowDirectionProperty.ExtendTo(FrameworkElement);
         static HeightProperty: DependencyProperty = DependencyProperty.Register("Height", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._HeightChanged(args));
@@ -354,4 +355,7 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(FrameworkElement, "FrameworkElement");
+
+    FrameworkElement.ActualWidthProperty.Store = Providers.ActualSizeStore.Instance;
+    FrameworkElement.ActualHeightProperty.Store = Providers.ActualSizeStore.Instance;
 }

@@ -5359,13 +5359,13 @@ class DependencyProperty {
     private FinishRegister() {
         var name = this.Name;
         var ownerType = this.OwnerType;
+        if (!ownerType || typeof ownerType !== "function")
+            throw new InvalidOperationException("DependencyProperty does not have a valid OwnerType.");
         var registeredDPs: DependencyProperty[] = (<any>ownerType)._RegisteredDPs;
         if (!registeredDPs)
             (<any>ownerType)._RegisteredDPs = registeredDPs = [];
         if (registeredDPs[name] !== undefined)
             throw new InvalidOperationException("Dependency Property is already registered. [" + (<any>ownerType)._TypeName + "." + name + "]");
-        if (!ownerType || typeof ownerType !== "function")
-            throw new InvalidOperationException("DependencyProperty does not have a valid OwnerType.");
         registeredDPs[name] = this;
         this._ID = DependencyProperty._LastID = DependencyProperty._LastID + 1;
         DependencyProperty._IDs[this._ID] = this;
@@ -5379,6 +5379,10 @@ class DependencyProperty {
         });
     }
     ExtendTo(type: any): DependencyProperty {
+        var registeredDPs: DependencyProperty[] = type._RegisteredDPs;
+        if (!registeredDPs)
+            type._RegisteredDPs = registeredDPs = [];
+        registeredDPs[this.Name] = this;
         var propd = this;
         var getter = function () { return (<Fayde.DependencyObject>this).GetValue(propd); };
         var setter = function (value) { (<Fayde.DependencyObject>this).SetValue(propd, value); };
@@ -5990,6 +5994,10 @@ module Fayde {
             this.ActualHeight = s.Height;
             if (last && size.isEqual(last, s))
                 return;
+            var propd = FrameworkElement.ActualWidthProperty;
+            propd.Store.SetLocalValue(Providers.GetStorage(fe, propd), s.Width);
+            var propd = FrameworkElement.ActualHeightProperty;
+            propd.Store.SetLocalValue(Providers.GetStorage(fe, propd), s.Height);
             this.LastRenderSize = undefined;
             fe.SizeChanged.Raise(fe, new SizeChangedEventArgs(last, s));
         }
@@ -6883,6 +6891,25 @@ module Fayde {
 }
 
 module Fayde.Providers {
+    export class ActualSizeStore extends PropertyStore {
+        static Instance: ActualSizeStore;
+        GetValue(storage: IPropertyStorage): number { return storage.Local; }
+        GetValuePrecedence(storage: IPropertyStorage): PropertyPrecedence { return PropertyPrecedence.LocalValue; }
+        SetLocalValue(storage: Providers.IPropertyStorage, newValue: number) {
+            var oldValue = storage.Local;
+            storage.Local = newValue;
+            if (oldValue === newValue)
+                return;
+            this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldValue, newValue);
+        }
+        SetLocalStyleValue(storage: IPropertyStorage, newValue: any) { }
+        SetImplicitStyle(storage: IPropertyStorage, newValue: any) { }
+        ClearValue(storage: Providers.IPropertyStorage, notifyListeners?: bool) { }
+    }
+    ActualSizeStore.Instance = new ActualSizeStore();
+}
+
+module Fayde.Providers {
     export interface IDataContextStorage extends IPropertyStorage {
         InheritedValue: any;
     }
@@ -7064,7 +7091,8 @@ module Fayde.Providers {
                     storage.Listener = null;
                 }
                 storage.SourceNode = <Controls.ControlNode>sourceNode;
-                storage.Listener = storage.SourceNode.MonitorIsEnabled((newIsEnabled) => this.InheritedValueChanged(storage, newIsEnabled));
+                if (sourceNode)
+                    storage.Listener = storage.SourceNode.MonitorIsEnabled((newIsEnabled) => this.InheritedValueChanged(storage, newIsEnabled));
             }
             if (!sourceNode && (storage.OwnerNode.IsAttached))
                 this.InheritedValueChanged(storage);
@@ -16372,8 +16400,8 @@ module Fayde {
             });
         }
         CreateNode(): FENode { return new FENode(this); }
-        static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", () => Number, FrameworkElement);
-        static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", () => Number, FrameworkElement);
+        static ActualHeightProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("ActualHeight", () => Number, FrameworkElement);
+        static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("ActualWidth", () => Number, FrameworkElement);
         static CursorProperty: DependencyProperty = DependencyProperty.RegisterFull("Cursor", () => new Enum(CursorType), FrameworkElement, CursorType.Default);
         static FlowDirectionProperty: DependencyProperty = InheritableOwner.FlowDirectionProperty.ExtendTo(FrameworkElement);
         static HeightProperty: DependencyProperty = DependencyProperty.Register("Height", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._HeightChanged(args));
@@ -16460,6 +16488,8 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(FrameworkElement, "FrameworkElement");
+    FrameworkElement.ActualWidthProperty.Store = Providers.ActualSizeStore.Instance;
+    FrameworkElement.ActualHeightProperty.Store = Providers.ActualSizeStore.Instance;
 }
 
 module Fayde {

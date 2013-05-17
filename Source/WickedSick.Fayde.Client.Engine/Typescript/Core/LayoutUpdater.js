@@ -588,6 +588,10 @@ var Fayde;
             if(last && size.isEqual(last, s)) {
                 return;
             }
+            var propd = Fayde.FrameworkElement.ActualWidthProperty;
+            propd.Store.SetLocalValue(Fayde.Providers.GetStorage(fe, propd), s.Width);
+            var propd = Fayde.FrameworkElement.ActualHeightProperty;
+            propd.Store.SetLocalValue(Fayde.Providers.GetStorage(fe, propd), s.Height);
             this.LastRenderSize = undefined;
             fe.SizeChanged.Raise(fe, new Fayde.SizeChangedEventArgs(last, s));
         };

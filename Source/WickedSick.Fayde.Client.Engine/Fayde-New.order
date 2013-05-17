@@ -44,6 +44,7 @@ Core/StaticResourceExpression.js
 Core/TemplateBindingExpression.js
 Core/XamlNode.js
 Core/XamlObject.js
+Core/Providers/ActualSizeStore.js
 Core/Providers/DataContextStore.js
 Core/Providers/InheritedStore.js
 Core/Providers/IsEnabledStore.js

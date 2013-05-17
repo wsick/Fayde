@@ -8,6 +8,7 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path="../Runtime/Enumerable.ts" />
 /// <reference path="../Primitives/size.ts" />
 /// <reference path="ResourceDictionary.ts" />
+/// <reference path="Providers/ActualSizeStore.ts" />
 /// <reference path="Providers/LocalStyleBroker.ts" />
 /// <reference path="Providers/ImplicitStyleBroker.ts" />
 var Fayde;
@@ -270,10 +271,10 @@ var Fayde;
         FrameworkElement.prototype.CreateNode = function () {
             return new FENode(this);
         };
-        FrameworkElement.ActualHeightProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", function () {
+        FrameworkElement.ActualHeightProperty = DependencyProperty.RegisterReadOnly("ActualHeight", function () {
             return Number;
         }, FrameworkElement);
-        FrameworkElement.ActualWidthProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", function () {
+        FrameworkElement.ActualWidthProperty = DependencyProperty.RegisterReadOnly("ActualWidth", function () {
             return Number;
         }, FrameworkElement);
         FrameworkElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () {
@@ -394,5 +395,7 @@ var Fayde;
     })(Fayde.UIElement);
     Fayde.FrameworkElement = FrameworkElement;    
     Nullstone.RegisterType(FrameworkElement, "FrameworkElement");
+    FrameworkElement.ActualWidthProperty.Store = Fayde.Providers.ActualSizeStore.Instance;
+    FrameworkElement.ActualHeightProperty.Store = Fayde.Providers.ActualSizeStore.Instance;
 })(Fayde || (Fayde = {}));
 //@ sourceMappingURL=FrameworkElement.js.map

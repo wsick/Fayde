@@ -44,6 +44,7 @@ Typescript\Core\StaticResourceExpression.ts
 Typescript\Core\TemplateBindingExpression.ts
 Typescript\Core\XamlNode.ts
 Typescript\Core\XamlObject.ts
+Typescript\Core\Providers\ActualSizeStore.ts
 Typescript\Core\Providers\DataContextStore.ts
 Typescript\Core\Providers\InheritedStore.ts
 Typescript\Core\Providers\IsEnabledStore.ts

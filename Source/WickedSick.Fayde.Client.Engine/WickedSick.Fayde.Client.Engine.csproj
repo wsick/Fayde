@@ -480,6 +480,10 @@
     <Content Include="Typescript\Core\InheritableOwner.js">
       <DependentUpon>InheritableOwner.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Core\Providers\ActualSizeStore.ts" />
+    <Content Include="Typescript\Core\Providers\ActualSizeStore.js">
+      <DependentUpon>ActualSizeStore.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\Providers\DataContextStore.js">
       <DependentUpon>DataContextStore.ts</DependentUpon>
     </Content>

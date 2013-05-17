@@ -640,6 +640,12 @@ module Fayde {
             this.ActualHeight = s.Height;
             if (last && size.isEqual(last, s))
                 return;
+
+            var propd = FrameworkElement.ActualWidthProperty;
+            propd.Store.SetLocalValue(Providers.GetStorage(fe, propd), s.Width);
+            var propd = FrameworkElement.ActualHeightProperty;
+            propd.Store.SetLocalValue(Providers.GetStorage(fe, propd), s.Height);
+
             this.LastRenderSize = undefined;
             fe.SizeChanged.Raise(fe, new SizeChangedEventArgs(last, s));
         }
