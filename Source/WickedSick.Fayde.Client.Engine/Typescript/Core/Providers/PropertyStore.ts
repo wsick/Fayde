@@ -122,6 +122,11 @@ module Fayde.Providers {
         }
 
         OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any) {
+            if (newValue === undefined) {
+                effectivePrecedence = this.GetValuePrecedence(storage);
+                newValue = this.GetValue(storage);
+            }
+
             if (!storage.Property.IsCustom) {
                 if (oldValue instanceof XamlObject)
                     (<XamlObject>oldValue).XamlNode.Detach();
@@ -132,10 +137,6 @@ module Fayde.Providers {
                 }
             }
 
-            if (newValue === undefined) {
-                effectivePrecedence = this.GetValuePrecedence(storage);
-                //Set new effective value?
-            }
             storage.Precedence = effectivePrecedence;
             var propd = storage.Property;
             var args = {

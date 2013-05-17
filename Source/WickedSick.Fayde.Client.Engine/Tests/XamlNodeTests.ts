@@ -7,7 +7,9 @@
 //Test isattached modification
 //Test AttachTo/Detach
 
-test("XamlNodeTests.AttachTo_Detach", () => {
+QUnit.module("XamlNode Tests");
+
+test("AttachTo & Detach", () => {
     var root = new Fayde.XamlObject();
     root.XamlNode.NameScope = new Fayde.NameScope(true);
     root.XamlNode.SetIsAttached(true);
@@ -32,7 +34,7 @@ test("XamlNodeTests.AttachTo_Detach", () => {
     equal(child.XamlNode.ParentNode, null, "Child Node should no longer have a parent node after being detached.");
 });
 
-test("XamlNodeTests.MergeNameScopes", () => {
+test("Merge NameScopes", () => {
     var root = new Fayde.XamlObject();
     root.XamlNode.NameScope = new Fayde.NameScope(true);
     root.XamlNode.SetIsAttached(true);
@@ -50,7 +52,7 @@ test("XamlNodeTests.MergeNameScopes", () => {
     strictEqual(ns.FindName("CHILD"), child.XamlNode, "Child should be registered in root namescope after merge.");
 });
 
-test("XamlNodeTests.ChildRootNameScope", () => {
+test("Child Root NameScope", () => {
     var root = new Fayde.XamlObject();
     root.XamlNode.NameScope = new Fayde.NameScope(true);
     root.XamlNode.SetIsAttached(true);
@@ -70,7 +72,7 @@ test("XamlNodeTests.ChildRootNameScope", () => {
     strictEqual(childNs.FindName("CHILD"), child.XamlNode, "Child should be still be registered in its own namescope after detach.");
 });
 
-test("XamlNodeTests.NameCollision", () => {
+test("Name Collision", () => {
     var root = new Fayde.XamlObject();
     root.XamlNode.NameScope = new Fayde.NameScope(true);
     root.XamlNode.SetIsAttached(true);

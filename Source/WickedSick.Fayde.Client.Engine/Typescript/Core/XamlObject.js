@@ -28,6 +28,9 @@ var Fayde;
         };
         XamlObject.prototype.CloneCore = function (source) {
         };
+        XamlObject.prototype.IsInheritable = function (propd) {
+            return false;
+        };
         return XamlObject;
     })();
     Fayde.XamlObject = XamlObject;    

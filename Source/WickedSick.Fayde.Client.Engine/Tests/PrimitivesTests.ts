@@ -2,6 +2,8 @@
 /// <reference path="../Typescript/Primitives/size.ts" />
 /// <reference path="../Typescript/Primitives/rect.ts" />
 
+QUnit.module("Primitives Tests");
+
 test("size", () => {
     var s = size.fromRaw(125, 250);
     strictEqual(s.Width, 125, "FromRaw should properly set width.");

@@ -111,6 +111,10 @@ var Fayde;
                 this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldLocal, undefined);
             };
             PropertyStore.prototype.OnPropertyChanged = function (storage, effectivePrecedence, oldValue, newValue) {
+                if(newValue === undefined) {
+                    effectivePrecedence = this.GetValuePrecedence(storage);
+                    newValue = this.GetValue(storage);
+                }
                 if(!storage.Property.IsCustom) {
                     if(oldValue instanceof Fayde.XamlObject) {
                         (oldValue).XamlNode.Detach();
@@ -122,10 +126,6 @@ var Fayde;
                         }
                     }
                 }
-                if(newValue === undefined) {
-                    effectivePrecedence = this.GetValuePrecedence(storage);
-                    //Set new effective value?
-                                    }
                 storage.Precedence = effectivePrecedence;
                 var propd = storage.Property;
                 var args = {

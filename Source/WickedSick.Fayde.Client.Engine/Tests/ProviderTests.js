@@ -2,13 +2,14 @@
 /// <reference path="../Typescript/Controls/Control.ts" />
 /// <reference path="../Typescript/Core/DependencyObject.ts" />
 /// <reference path="../Typescript/Core/UIElement.ts" />
+QUnit.module("Provider Tests");
 var Mock1Property = DependencyProperty.Register("Mock1", function () {
     return String;
 }, Fayde.DependencyObject);
 var Mock2Property = DependencyProperty.Register("Mock2", function () {
     return String;
 }, Fayde.DependencyObject, "Default");
-test("ProviderTests.Basic", function () {
+test("Basic", function () {
     var dobj = new Fayde.DependencyObject();
     var val;
     val = dobj.ReadLocalValue(Mock1Property);
@@ -25,38 +26,77 @@ test("ProviderTests.Basic", function () {
     val = dobj.GetValue(Mock2Property);
     strictEqual(val, "Default", "GetValue (Mock2) after ClearValue should revert to using default value provider.");
 });
-test("ProviderTests.Inherited", function () {
+test("Inherited", function () {
     var root = new Fayde.FrameworkElement();
     var child = new Fayde.FrameworkElement();
-    root.SetValue(Fayde.UIElement.UseLayoutRoundingProperty, false);
-    var val = child.GetValue(Fayde.UIElement.UseLayoutRoundingProperty);
+    root.UseLayoutRounding = false;
+    var val = child.UseLayoutRounding;
     strictEqual(val, true, "Inherited property that hasn't been propagated should default to true.");
     var error = new BError();
     ok(root.XamlNode.AttachVisualChild(child, error), "Attaching child to root should not fail: " + error.Message);
-    val = child.GetValue(Fayde.UIElement.UseLayoutRoundingProperty);
+    val = child.UseLayoutRounding;
     strictEqual(val, false, "Inherited property should be propagated from root to false.");
     root.ClearValue(Fayde.UIElement.UseLayoutRoundingProperty);
-    val = child.GetValue(Fayde.UIElement.UseLayoutRoundingProperty);
+    val = child.UseLayoutRounding;
     strictEqual(val, true, "Inherited property should be reset to true after value at root is cleared.");
+    if(Font.DEFAULT_SIZE === 50 || Font.DEFAULT_SIZE === 90 || Font.DEFAULT_SIZE === 120) {
+        ok(false, "Further tests are invalid. Default font size cannot be equal to 50, 90, or 120.");
+    }
+    var Controls = Fayde.Controls;
+    var root2 = new Controls.Control();
+    root2.Template = new Controls.ControlTemplate(Controls.Control, {
+        ParseType: Controls.Grid,
+        Children: [
+            {
+                ParseType: Controls.Border,
+                Name: "TheBorder"
+            }
+        ]
+    });
+    var child2 = new Controls.Control();
+    child2.Template = new Controls.ControlTemplate(Controls.Control, {
+        ParseType: Controls.Grid
+    });
+    root2.ApplyTemplate();
+    strictEqual(root2.FontSize, Font.DEFAULT_SIZE, "Root FontSize should be default.");
+    strictEqual(child2.FontSize, Font.DEFAULT_SIZE, "Child FontSize should be default.");
+    root2.FontSize = 120;
+    strictEqual(root2.FontSize, 120, "Root FontSize should change to 120 after setting local value.");
+    var theBorder = root2.GetTemplateChild("TheBorder");
+    theBorder.Child = child2;
+    strictEqual(child2.FontSize, 120, "Child FontSize should inherited 120 immediately after attaching.");
+    root2.ClearValue(Controls.Control.FontSizeProperty);
+    child2.FontSize = 50;
+    strictEqual(child2.FontSize, 50, "Child FontSize should change to 50 after setting local value.");
+    root2.FontSize = 90;
+    strictEqual(root2.FontSize, 90, "Root FontSize should change to 90 after setting local value.");
+    root2.ClearValue(Controls.Control.FontSizeProperty);
+    child2.ClearValue(Controls.Control.FontSizeProperty);
+    strictEqual(root2.FontSize, Font.DEFAULT_SIZE, "Root FontSize should be default.");
+    strictEqual(child2.FontSize, Font.DEFAULT_SIZE, "Child FontSize should be default.");
+    root2.FontSize = 90;
+    strictEqual(root2.FontSize, 90, "Root FontSize should change to 90 after setting local value.");
+    strictEqual(child2.FontSize, 90, "Root FontSize should inherit 90 from Root.");
+    child2.FontSize = 50;
+    strictEqual(child2.FontSize, 50, "Child FontSize should override inherited with local value 50.");
+    child2.ClearValue(Controls.Control.FontSizeProperty);
+    strictEqual(child2.FontSize, 90, "Child FontSize should inherit 90 from root after clearing local value.");
+    root2.ClearValue(Controls.Control.FontSizeProperty);
+    strictEqual(root2.FontSize, Font.DEFAULT_SIZE, "Root FontSize should be default after clearing Root Value.");
+    strictEqual(child2.FontSize, Font.DEFAULT_SIZE, "Child FontSize should be default after clearing Root Value.");
+    root2.FontSize = 90;
+    strictEqual(root2.FontSize, 90, "Root FontSize should change to 90 after setting local value.");
+    strictEqual(child2.FontSize, 90, "Child FontSize should inherit 90 from Root.");
+    theBorder.Child = null;
+    strictEqual(child2.FontSize, Font.DEFAULT_SIZE, "Child FontSize should clear inherited 90 from Root immediately after detaching.");
 });
-test("ProviderTests.DataContext", function () {
+test("Styles", function () {
     var root = new Fayde.FrameworkElement();
     var child = new Fayde.FrameworkElement();
-    //Test inherited DataContext
-    var effectiveDataContext = {
-    };
-    root.SetValue(Fayde.DependencyObject.DataContextProperty, effectiveDataContext);
-    var val = child.GetValue(Fayde.DependencyObject.DataContextProperty);
-    strictEqual(val, undefined, "Child DataContext should be undefined before attaching to tree.");
     var error = new BError();
     ok(root.XamlNode.AttachVisualChild(child, error), "Attaching child to root should not fail: " + error.Message);
-    val = child.GetValue(Fayde.DependencyObject.DataContextProperty);
-    strictEqual(val, effectiveDataContext, "Child DataContext should inherit DataContext from root after attaching to tree.");
-    root.ClearValue(Fayde.DependencyObject.DataContextProperty);
-    val = child.GetValue(Fayde.DependencyObject.DataContextProperty);
-    strictEqual(val, undefined, "Child DataContext should be undefined after clearing root DataContext value.");
     //Test implicit style
-    val = child.GetValue(Fayde.UIElement.TagProperty);
+    var val = child.GetValue(Fayde.UIElement.TagProperty);
     strictEqual(val, undefined, "Child Tag should be undefined by default.");
     var visualTreeStyle = new Fayde.Style();
     visualTreeStyle.TargetType = Fayde.FrameworkElement;
@@ -100,7 +140,24 @@ test("ProviderTests.DataContext", function () {
     val = child.GetValue(Fayde.UIElement.VisibilityProperty);
     strictEqual(val, Fayde.Visibility.Visible, "After a new style is applied without Visibility property, Visibility revert to default value.");
 });
-test("ProviderTests.IsEnabled", function () {
+test("DataContext", function () {
+    var root = new Fayde.FrameworkElement();
+    var child = new Fayde.FrameworkElement();
+    //Test inherited DataContext
+    var effectiveDataContext = {
+    };
+    root.SetValue(Fayde.DependencyObject.DataContextProperty, effectiveDataContext);
+    var val = child.GetValue(Fayde.DependencyObject.DataContextProperty);
+    strictEqual(val, undefined, "Child DataContext should be undefined before attaching to tree.");
+    var error = new BError();
+    ok(root.XamlNode.AttachVisualChild(child, error), "Attaching child to root should not fail: " + error.Message);
+    val = child.GetValue(Fayde.DependencyObject.DataContextProperty);
+    strictEqual(val, effectiveDataContext, "Child DataContext should inherit DataContext from root after attaching to tree.");
+    root.ClearValue(Fayde.DependencyObject.DataContextProperty);
+    val = child.GetValue(Fayde.DependencyObject.DataContextProperty);
+    strictEqual(val, undefined, "Child DataContext should be undefined after clearing root DataContext value.");
+});
+test("IsEnabled", function () {
     var Controls = Fayde.Controls;
     var root = new Controls.Control();
     root.Template = new Controls.ControlTemplate(Controls.Control, {

@@ -2,7 +2,9 @@
 /// <reference path="../Typescript/Media/Transform.ts" />
 /// <reference path="../Typescript/Media/Transforms.ts" />
 
-test("Transforms", () => {
+QUnit.module("Transform Tests");
+
+test("Change Notification", () => {
     var collchanged = false;
     var coll = new Fayde.Media.TransformCollection();
     coll.RelayChanges(() => collchanged = true);

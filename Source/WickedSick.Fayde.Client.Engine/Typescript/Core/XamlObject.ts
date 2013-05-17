@@ -4,7 +4,7 @@
 /// <reference path="DependencyObject.ts" />
 
 module Fayde {
-    export class XamlObject {
+    export class XamlObject implements Providers.IIsPropertyInheritable {
         private static _LastID: number = 0;
         private _ID: number;
         XamlNode: Fayde.XamlNode;
@@ -25,6 +25,8 @@ module Fayde {
             return xobj;
         }
         CloneCore(source: XamlObject) { }
+
+        private IsInheritable(propd: DependencyProperty): bool { return false; }
     }
     Nullstone.RegisterType(XamlObject, "XamlObject");
 }

@@ -118,7 +118,7 @@ module Fayde.Controls {
 
         private IsInheritable(propd: DependencyProperty): bool {
             if (ControlInheritedProperties.indexOf(propd) > -1)
-                return;
+                return true;
             return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);
         }
 

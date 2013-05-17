@@ -1229,6 +1229,10 @@ module Fayde.Providers {
             this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldLocal, undefined);
         }
         OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any) {
+            if (newValue === undefined) {
+                effectivePrecedence = this.GetValuePrecedence(storage);
+                newValue = this.GetValue(storage);
+            }
             if (!storage.Property.IsCustom) {
                 if (oldValue instanceof XamlObject)
                     (<XamlObject>oldValue).XamlNode.Detach();
@@ -1237,9 +1241,6 @@ module Fayde.Providers {
                     if (!(<XamlObject>newValue).XamlNode.AttachTo(storage.OwnerNode, error))
                         error.ThrowException();
                 }
-            }
-            if (newValue === undefined) {
-                effectivePrecedence = this.GetValuePrecedence(storage);
             }
             storage.Precedence = effectivePrecedence;
             var propd = storage.Property;
@@ -6887,7 +6888,7 @@ module Fayde {
 }
 
 module Fayde {
-    export class XamlObject {
+    export class XamlObject implements Providers.IIsPropertyInheritable {
         private static _LastID: number = 0;
         private _ID: number;
         XamlNode: Fayde.XamlNode;
@@ -6906,6 +6907,7 @@ module Fayde {
             return xobj;
         }
         CloneCore(source: XamlObject) { }
+        private IsInheritable(propd: DependencyProperty): bool { return false; }
     }
     Nullstone.RegisterType(XamlObject, "XamlObject");
 }
@@ -7020,28 +7022,41 @@ module Fayde.Providers {
             };
         }
         static PropagateInheritedOnAdd(dobj: DependencyObject, subtreeNode: DONode) {
+            var destination = subtreeNode.XObject;
             var store: InheritedStore = InheritedStore.Instance;
-            var arr = (<IPropertyStorageOwner>dobj)._PropertyStorage;
+            var arr = (<IPropertyStorageOwner>destination)._PropertyStorage;
             var storage: IPropertyStorage;
             var allProps = InheritableOwner.AllInheritedProperties;
             var len = allProps.length;
             var propd: DependencyProperty;
             var newValue: any;
+            var sourceNode: XamlNode;
             for (var i = 0; i < len; i++) {
                 propd = allProps[i];
+                sourceNode = dobj.XamlNode;
+                while (sourceNode && !((<IIsPropertyInheritable>sourceNode.XObject).IsInheritable(propd))) {
+                    sourceNode = sourceNode.ParentNode;
+                }
+                if (!sourceNode)
+                    continue;
+                newValue = (<DependencyObject>sourceNode.XObject).GetValue(propd);
+                if (newValue === propd.DefaultValue)
+                    continue;
                 storage = arr[propd._ID];
-                if (!storage) storage = arr[propd._ID] = store.CreateStorage(dobj, propd);
-                newValue = store.GetValue(<IInheritedStorage>storage);
-                store.SetInheritedValue(subtreeNode, propd, newValue);
+                if (!storage) storage = arr[propd._ID] = store.CreateStorage(destination, propd);
+                if (!store.SetInheritedValue(subtreeNode, propd, newValue))
+                    store.Propagate(subtreeNode, propd, newValue);
             }
         }
         static ClearInheritedOnRemove(dobj: DependencyObject, subtreeNode: DONode) {
             var store: InheritedStore = InheritedStore.Instance;
             var allProps = InheritableOwner.AllInheritedProperties;
             var len = allProps.length;
-            var prop: DependencyProperty;
+            var propd: DependencyProperty;
             for (var i = 0; i < len; i++) {
-                store.SetInheritedValue(subtreeNode, allProps[i], undefined);
+                propd = allProps[i];
+                if (!store.SetInheritedValue(subtreeNode, propd, undefined))
+                    store.Propagate(subtreeNode, propd, undefined);
             }
         }
         private Propagate(ownerNode: XamlNode, propd: DependencyProperty, newValue: any) {
@@ -7049,23 +7064,25 @@ module Fayde.Providers {
             var uin: UINode;
             while (enumerator.MoveNext()) {
                 uin = <UINode>enumerator.Current;
-                this.SetInheritedValue(uin, propd, newValue);
+                if (!this.SetInheritedValue(uin, propd, newValue))
+                    this.Propagate(uin, propd, newValue);
             }
         }
-        private SetInheritedValue(don: DONode, propd: DependencyProperty, newValue: any) {
+        private SetInheritedValue(don: DONode, propd: DependencyProperty, newValue: any): bool {
             var dobj = don.XObject;
             if (!(<IIsPropertyInheritable>dobj).IsInheritable(propd))
-                return;
+                return false;
             var storage = <IInheritedStorage>GetStorage(dobj, propd);
             if (storage.Precedence < PropertyPrecedence.Inherited) {
                 storage.InheritedValue = newValue;
-                return;
+                return true;
             }
             var oldValue = storage.InheritedValue;
             if (oldValue === undefined) oldValue = propd.DefaultValue;
             storage.InheritedValue = newValue;
             storage.Precedence = PropertyPrecedence.Inherited;
             this.OnPropertyChanged(storage, PropertyPrecedence.Inherited, oldValue, newValue);
+            return true;
         }
     }
     InheritedStore.Instance = new InheritedStore();
@@ -10795,7 +10812,7 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(DONode, "DONode");
-    export class DependencyObject extends XamlObject implements ICloneable, Providers.IPropertyStorageOwner, Providers.IIsPropertyInheritable {
+    export class DependencyObject extends XamlObject implements ICloneable, Providers.IPropertyStorageOwner {
         private _Expressions: Expression[] = [];
         private _PropertyStorage: Providers.IPropertyStorage[] = [];
         static DataContextProperty: DependencyProperty = DependencyProperty.Register("DataContext", () => Object, DependencyObject, undefined, (d, args) => (<DependencyObject>d).XamlNode._DataContextPropertyChanged(args));
@@ -10931,7 +10948,6 @@ module Fayde {
                 darr[id] = storage.Property.Store.Clone(this, storage);
             }
         }
-        private IsInheritable(propd: DependencyProperty): bool { return false; }
     }
     Nullstone.RegisterType(DependencyObject, "DependencyObject");
     DependencyObject.DataContextProperty.Store = Fayde.Providers.DataContextStore.Instance;
@@ -17445,7 +17461,7 @@ module Fayde.Controls {
         static DefaultStyleKeyProperty: DependencyProperty = DependencyProperty.Register("DefaultStyleKey", () => Function, Control);
         private IsInheritable(propd: DependencyProperty): bool {
             if (ControlInheritedProperties.indexOf(propd) > -1)
-                return;
+                return true;
             return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);
         }
         Background: Media.Brush;

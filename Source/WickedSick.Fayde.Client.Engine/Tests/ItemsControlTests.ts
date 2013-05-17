@@ -1,7 +1,9 @@
 /// <reference path="qunit-1.10.0.d.ts" />
 /// <reference path="../Typescript/Controls/ItemContainerGenerator.ts" />
 
-test("ItemContainerGenerator.Initialization", () => {
+QUnit.module("ItemsControl Tests");
+
+test("ItemContainerGenerator Initialization", () => {
     var ic = new Fayde.Controls.ItemsControl();
     var generator = new Fayde.Controls.ItemContainerGenerator(ic);
 
@@ -34,7 +36,7 @@ test("ItemContainerGenerator.Initialization", () => {
     }
 });
 
-test("ItemsControl.NonUIItems", () => {
+test("Non-UI Items", () => {
     var ic = new Fayde.Controls.ItemsControl();
     ic.Measure(size.createInfinite());
     var icg = ic.ItemContainerGenerator;
@@ -97,7 +99,7 @@ test("ItemsControl.NonUIItems", () => {
     ok(icg.ContainerFromIndex(0) === undefined, "Items.Clear: Container @ 0 should no longer exist.");
 });
 
-test("ItemsControl.UIItems", () => {
+test("UI Items", () => {
     var ic = new Fayde.Controls.ItemsControl();
     ic.Measure(size.createInfinite());
     var icg = ic.ItemContainerGenerator;
@@ -113,7 +115,7 @@ test("ItemsControl.UIItems", () => {
     ok(icg.ContainerFromIndex(2) === lbi3, "Items.Add: Container @ 2 should be lbi3.");
 });
 
-test("ItemsControl.VirtualizingNonUIItems", () => {
+test("Virtualizing Non-UI Items", () => {
     var ic = new Fayde.Controls.ItemsControl();
     ic.ItemsPanel = new Fayde.Controls.ItemsPanelTemplate({ ParseType: Fayde.Controls.VirtualizingStackPanel });
     ic.Measure(size.createInfinite());

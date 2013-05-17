@@ -60,30 +60,47 @@ var Fayde;
                 };
             };
             InheritedStore.PropagateInheritedOnAdd = function PropagateInheritedOnAdd(dobj, subtreeNode) {
+                var destination = subtreeNode.XObject;
                 var store = InheritedStore.Instance;
-                var arr = (dobj)._PropertyStorage;
+                var arr = (destination)._PropertyStorage;
                 var storage;
                 var allProps = Fayde.InheritableOwner.AllInheritedProperties;
                 var len = allProps.length;
                 var propd;
                 var newValue;
+                var sourceNode;
                 for(var i = 0; i < len; i++) {
                     propd = allProps[i];
+                    sourceNode = dobj.XamlNode;
+                    while(sourceNode && !((sourceNode.XObject).IsInheritable(propd))) {
+                        sourceNode = sourceNode.ParentNode;
+                    }
+                    if(!sourceNode) {
+                        continue;
+                    }
+                    newValue = (sourceNode.XObject).GetValue(propd);
+                    if(newValue === propd.DefaultValue) {
+                        continue;
+                    }
                     storage = arr[propd._ID];
                     if(!storage) {
-                        storage = arr[propd._ID] = store.CreateStorage(dobj, propd);
+                        storage = arr[propd._ID] = store.CreateStorage(destination, propd);
                     }
-                    newValue = store.GetValue(storage);
-                    store.SetInheritedValue(subtreeNode, propd, newValue);
+                    if(!store.SetInheritedValue(subtreeNode, propd, newValue)) {
+                        store.Propagate(subtreeNode, propd, newValue);
+                    }
                 }
             };
             InheritedStore.ClearInheritedOnRemove = function ClearInheritedOnRemove(dobj, subtreeNode) {
                 var store = InheritedStore.Instance;
                 var allProps = Fayde.InheritableOwner.AllInheritedProperties;
                 var len = allProps.length;
-                var prop;
+                var propd;
                 for(var i = 0; i < len; i++) {
-                    store.SetInheritedValue(subtreeNode, allProps[i], undefined);
+                    propd = allProps[i];
+                    if(!store.SetInheritedValue(subtreeNode, propd, undefined)) {
+                        store.Propagate(subtreeNode, propd, undefined);
+                    }
                 }
             };
             InheritedStore.prototype.Propagate = function (ownerNode, propd, newValue) {
@@ -91,19 +108,22 @@ var Fayde;
                 var uin;
                 while(enumerator.MoveNext()) {
                     uin = enumerator.Current;
-                    this.SetInheritedValue(uin, propd, newValue);
+                    if(!this.SetInheritedValue(uin, propd, newValue)) {
+                        this.Propagate(uin, propd, newValue);
+                    }
                 }
             };
             InheritedStore.prototype.SetInheritedValue = function (don, propd, newValue) {
+                /// Returns false if object doesn't understand this inheritable property
                 var dobj = don.XObject;
                 if(!(dobj).IsInheritable(propd)) {
-                    return;
+                    return false;
                 }
                 var storage = Providers.GetStorage(dobj, propd);
                 if(storage.Precedence < Providers.PropertyPrecedence.Inherited) {
                     //Overriden locally, don't propagate
                     storage.InheritedValue = newValue;
-                    return;
+                    return true;
                 }
                 var oldValue = storage.InheritedValue;
                 if(oldValue === undefined) {
@@ -112,6 +132,7 @@ var Fayde;
                 storage.InheritedValue = newValue;
                 storage.Precedence = Providers.PropertyPrecedence.Inherited;
                 this.OnPropertyChanged(storage, Providers.PropertyPrecedence.Inherited, oldValue, newValue);
+                return true;
             };
             return InheritedStore;
         })(Providers.PropertyStore);

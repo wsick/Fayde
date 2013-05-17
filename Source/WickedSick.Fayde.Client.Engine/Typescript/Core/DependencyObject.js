@@ -205,9 +205,6 @@ var Fayde;
                 darr[id] = storage.Property.Store.Clone(this, storage);
             }
         };
-        DependencyObject.prototype.IsInheritable = function (propd) {
-            return false;
-        };
         return DependencyObject;
     })(Fayde.XamlObject);
     Fayde.DependencyObject = DependencyObject;    

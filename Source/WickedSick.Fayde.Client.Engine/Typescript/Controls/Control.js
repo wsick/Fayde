@@ -173,7 +173,7 @@ var Fayde;
             }, Control);
             Control.prototype.IsInheritable = function (propd) {
                 if(ControlInheritedProperties.indexOf(propd) > -1) {
-                    return;
+                    return true;
                 }
                 return (_super.prototype).IsInheritable.call(this, propd);
             };
