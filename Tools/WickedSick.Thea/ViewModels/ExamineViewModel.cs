@@ -63,7 +63,7 @@ namespace WickedSick.Thea.ViewModels
 
         protected void Run()
         {
-            var resolution = Visual.ResolveVisualWithJavascript((int)JsContext.ID);
+            var resolution = Visual.ResolveVisualWithJavascript();
             if (!string.IsNullOrWhiteSpace(ExamineText))
                 resolution += "." + ExamineText;
             var js = string.Format("FaydeInterop.StringifyEx({0})", resolution);

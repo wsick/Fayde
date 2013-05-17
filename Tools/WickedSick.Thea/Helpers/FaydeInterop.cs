@@ -12,28 +12,28 @@ namespace WickedSick.Thea.Helpers
 {
     public class FaydeInterop : IJavascriptContext
     {
-        private static readonly string INITIALIZATION_SCRIPT = "(function() { var fi = new FaydeInterop(App.Instance); return fi._ID; })();";
+        //private static readonly string INITIALIZATION_SCRIPT = "(function() { var fi = new Fayde.DebugInterop(App.Current); return fi._ID; })();";
 
         private Browser _Browser;
-        private int? _ID = null;
+        //private int? _ID = null;
         private VisualStudioInstance _VSI;
 
-        public int? ID { get { return _ID; } }
+        //public int? ID { get { return _ID; } }
 
         public FaydeInterop(Browser browser)
         {
             _Browser = browser;
-            InitializeFaydeInteropJs();
-            int id;
-            if (int.TryParse(_Browser.Eval(INITIALIZATION_SCRIPT), out id))
-                _ID = id;
+            //InitializeFaydeInteropJs();
+            //int id;
+            //if (int.TryParse(_Browser.Eval(INITIALIZATION_SCRIPT), out id))
+                //_ID = id;
         }
 
         public bool IsCacheInvalidated
         {
             get
             {
-                return Eval(string.Format("FaydeInterop.Reg[{0}]._InvalidatedCache", this._ID)) == "true";
+                return Eval("App.Current.DebugInterop._IsCacheInvalidated") == "true";
             }
         }
 
@@ -89,7 +89,7 @@ namespace WickedSick.Thea.Helpers
         private Tuple<VisualViewModel, int> GetVisual(IEnumerable<int> indices)
         {
             var indexPath = string.Join("", indices.Reverse().Select(i => string.Format(".Children[{0}]", i)));
-            string js = string.Format("FaydeInterop.Reg[{0}]._Cache{1}.Serialized", this._ID, indexPath);
+            string js = string.Format("App.Current.DebugInterop._Cache{0}.Serialized", indexPath);
             var tuple = DeserializeVisual(_Browser.Eval(js));
             tuple.Item1.IndexPath = indexPath;
             RefreshIsThisOnStackFrame(tuple.Item1);
@@ -99,13 +99,28 @@ namespace WickedSick.Thea.Helpers
         private static Tuple<VisualViewModel, int> DeserializeVisual(string formatted)
         {
             var tokens = formatted.Split(new[] { "~|~" }, StringSplitOptions.None);
-            var childCount = int.Parse(tokens[3]);
-            var vvm = new VisualViewModel
+            VisualViewModel vvm;
+            int childCount;
+            if (tokens[0] == "Surface")
             {
-                Type = tokens[0],
-                Name = tokens[1],
-                ID = tokens[2],
-            };
+                vvm = new VisualViewModel
+                {
+                    ID = "-1",
+                    Name = "MainSurface",
+                    Type = "Surface",
+                };
+                childCount = int.Parse(tokens[1]);
+            }
+            else
+            {
+                vvm = new VisualViewModel
+                {
+                    ID = tokens[0],
+                    Name = tokens[1],
+                    Type = tokens[2],
+                };
+                childCount = int.Parse(tokens[3]);
+            }
             if (string.IsNullOrWhiteSpace(vvm.Name))
                 vvm.Name = null;
             return Tuple.Create(vvm, childCount);
@@ -207,12 +222,12 @@ namespace WickedSick.Thea.Helpers
 
         private string GetJsCodeToGetVisual(VisualViewModel vvm)
         {
-            return vvm.ResolveVisualWithJavascript((int)this._ID);
+            return vvm.ResolveVisualWithJavascript();
         }
 
         private string RunFunc(string functionName, string args = null)
         {
-            return Eval(string.Format("FaydeInterop.Reg[{0}].{1}({2})", this._ID, functionName, args));
+            return Eval(string.Format("App.Current.DebugInterop.{0}({1})", functionName, args));
         }
 
         #endregion

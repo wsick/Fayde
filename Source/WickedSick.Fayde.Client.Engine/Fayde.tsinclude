@@ -54,6 +54,7 @@ Typescript\Data\ICollectionView.ts
 Typescript\Data\RelativeSource.ts
 Typescript\Engine\App.ts
 Typescript\Engine\ClockTimer.ts
+Typescript\Engine\DebugInterop.ts
 Typescript\Engine\Exceptions.ts
 Typescript\Engine\RenderContext.ts
 Typescript\Engine\Surface.ts

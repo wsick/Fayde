@@ -54,6 +54,7 @@ Data/ICollectionView.js
 Data/RelativeSource.js
 Engine/App.js
 Engine/ClockTimer.js
+Engine/DebugInterop.js
 Engine/Exceptions.js
 Engine/RenderContext.js
 Engine/Surface.js

@@ -107,28 +107,24 @@ FaydeInterop.prototype.GetAttachedDPs = function (dobj) {
 
 FaydeInterop.prototype.RegisterHitTestDebugService = function () {
     var fi = this;
-    this.App._SubscribeDebugService("HitTest", function (inputList) {
+    this.App.MainSurface.HitTestCallback = function (inputList) {
         fi._CachedHitTest = inputList;
-    });
+    };
 };
 FaydeInterop.prototype.GetVisualIDsInHitTest = function () {
-    if (!this._CachedHitTest)
-        return "[]";
-
-    var arr = [];
-    var cur = this._CachedHitTest.Head;
-    while (cur != null) {
-        arr.push(cur.UIElement._ID);
-        cur = cur.Next;
-    }
-    return "[" + arr.toString() + "]";
+    var rv = "[";
+    if (this._CachedHitTest)
+        rv += this._CachedHitTest.map(function (uin) { return uin.XObject._ID; }).join(",");
+    rv += "]";
 };
 
 FaydeInterop.prototype.RegisterLayerDebugService = function () {
+    /*
     var fi = this;
     this.App._SubscribeDebugService("Layer", function (isAdd, layer) {
         fi._InvalidatedCache = true;
     });
+    */
 };
 
 FaydeInterop.prototype.SerializeDependencyValue = function (dobj, dp) {

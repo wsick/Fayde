@@ -506,6 +506,10 @@
       <DependentUpon>PropertyStore.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Media\Animation\AnimationStore.ts" />
+    <TypeScriptCompile Include="Typescript\Engine\DebugInterop.ts" />
+    <Content Include="Typescript\Engine\DebugInterop.js">
+      <DependentUpon>DebugInterop.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\Animation\AnimationStore.js">
       <DependentUpon>AnimationStore.ts</DependentUpon>
     </Content>

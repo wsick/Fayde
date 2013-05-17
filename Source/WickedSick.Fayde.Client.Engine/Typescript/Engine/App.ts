@@ -7,6 +7,7 @@
 /// <reference path="ClockTimer.ts" />
 /// <reference path="../Markup/JsonParser.ts" />
 /// <reference path="../Navigation/NavService.ts" />
+/// <reference path="DebugInterop.ts" />
 
 module Fayde {
     export function Run() { }
@@ -25,6 +26,7 @@ class App implements Fayde.IResourcable {
     Loaded: MulticastEvent = new MulticastEvent();
     Address: Uri = null;
     NavService: Fayde.Navigation.NavService;
+    DebugInterop: Fayde.DebugInterop;
     private _IsRunning: bool = false;
     private _Storyboards: Fayde.IStoryboard[] = [];
     private _ClockTimer: Fayde.ClockTimer = new Fayde.ClockTimer();
@@ -36,6 +38,7 @@ class App implements Fayde.IResourcable {
             writable: false
         });
         this.Resources.XamlNode.NameScope = new Fayde.NameScope(true);
+        this.DebugInterop = new Fayde.DebugInterop(this);
     }
     get RootVisual(): Fayde.UIElement {
         return this.MainSurface._TopLevel;

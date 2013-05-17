@@ -91,9 +91,9 @@ namespace WickedSick.Thea.ViewModels
             }
         }
 
-        public string ResolveVisualWithJavascript(int faydeInteropId)
+        public string ResolveVisualWithJavascript()
         {
-            return string.Format("FaydeInterop.Reg[{0}]._Cache{1}.Visual", faydeInteropId, IndexPath);
+            return string.Format("App.Current.DebugInterop._Cache{0}.Visual", IndexPath);
         }
     }
 }

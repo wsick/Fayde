@@ -57,6 +57,9 @@ class Surface {
     private _Cursor: string = Fayde.CursorType.Default;
     private _InvalidatedRect: rect;
     private _RenderContext: Fayde.RenderContext;
+
+    HitTestCallback: (inputList: Fayde.UINode[]) => void;
+
     constructor(app: App) {
         this._App = app;
         this._KeyInterop = Fayde.Input.KeyInterop.CreateInterop(this);
@@ -200,6 +203,8 @@ class Surface {
         if (!dirty)
             return false;
         //this.LayoutUpdated.Raise(this, new EventArgs());
+        if (this._App.DebugInterop)
+            this._App.DebugInterop.LayoutUpdated();
         return true;
     }
     _UpdateLayout(error: BError): bool {
@@ -542,6 +547,7 @@ class Surface {
 
             //app._NotifyDebugHitTest(newInputList, new Date().getTime() - startTime);
             this._InputList = newInputList;
+            if (this.HitTestCallback) this.HitTestCallback(newInputList);
         }
 
         if (this._PendingCapture)

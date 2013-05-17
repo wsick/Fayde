@@ -7,6 +7,7 @@
 /// <reference path="ClockTimer.ts" />
 /// <reference path="../Markup/JsonParser.ts" />
 /// <reference path="../Navigation/NavService.ts" />
+/// <reference path="DebugInterop.ts" />
 var Fayde;
 (function (Fayde) {
     function Run() {
@@ -32,6 +33,7 @@ var App = (function () {
             writable: false
         });
         this.Resources.XamlNode.NameScope = new Fayde.NameScope(true);
+        this.DebugInterop = new Fayde.DebugInterop(this);
     }
     App.Version = "0.9.4.0";
     App._GenericResourceDictionary = null;

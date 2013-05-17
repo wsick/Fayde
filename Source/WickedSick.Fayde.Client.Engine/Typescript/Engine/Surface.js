@@ -209,6 +209,9 @@ var Surface = (function () {
             return false;
         }
         //this.LayoutUpdated.Raise(this, new EventArgs());
+        if(this._App.DebugInterop) {
+            this._App.DebugInterop.LayoutUpdated();
+        }
         return true;
     };
     Surface.prototype._UpdateLayout = function (error) {
@@ -551,6 +554,9 @@ var Surface = (function () {
             }
             //app._NotifyDebugHitTest(newInputList, new Date().getTime() - startTime);
             this._InputList = newInputList;
+            if(this.HitTestCallback) {
+                this.HitTestCallback(newInputList);
+            }
         }
         if(this._PendingCapture) {
             this._PerformCapture(this._PendingCapture);
