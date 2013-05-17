@@ -141,13 +141,13 @@ class DependencyProperty {
     private FinishRegister() {
         var name = this.Name;
         var ownerType = this.OwnerType;
+        if (!ownerType || typeof ownerType !== "function")
+            throw new InvalidOperationException("DependencyProperty does not have a valid OwnerType.");
         var registeredDPs: DependencyProperty[] = (<any>ownerType)._RegisteredDPs;
         if (!registeredDPs)
             (<any>ownerType)._RegisteredDPs = registeredDPs = [];
         if (registeredDPs[name] !== undefined)
             throw new InvalidOperationException("Dependency Property is already registered. [" + (<any>ownerType)._TypeName + "." + name + "]");
-        if (!ownerType || typeof ownerType !== "function")
-            throw new InvalidOperationException("DependencyProperty does not have a valid OwnerType.");
         registeredDPs[name] = this;
         this._ID = DependencyProperty._LastID = DependencyProperty._LastID + 1;
         DependencyProperty._IDs[this._ID] = this;
@@ -162,6 +162,11 @@ class DependencyProperty {
         });
     }
     ExtendTo(type: any): DependencyProperty {
+        var registeredDPs: DependencyProperty[] = type._RegisteredDPs;
+        if (!registeredDPs)
+            type._RegisteredDPs = registeredDPs = [];
+        registeredDPs[this.Name] = this;
+
         var propd = this;
         var getter = function () { return (<Fayde.DependencyObject>this).GetValue(propd); };
         var setter = function (value) { (<Fayde.DependencyObject>this).SetValue(propd, value); };

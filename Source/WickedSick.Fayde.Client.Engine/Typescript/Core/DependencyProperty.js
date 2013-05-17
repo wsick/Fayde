@@ -116,15 +116,15 @@ var DependencyProperty = (function () {
     DependencyProperty.prototype.FinishRegister = function () {
         var name = this.Name;
         var ownerType = this.OwnerType;
+        if(!ownerType || typeof ownerType !== "function") {
+            throw new InvalidOperationException("DependencyProperty does not have a valid OwnerType.");
+        }
         var registeredDPs = (ownerType)._RegisteredDPs;
         if(!registeredDPs) {
             (ownerType)._RegisteredDPs = registeredDPs = [];
         }
         if(registeredDPs[name] !== undefined) {
             throw new InvalidOperationException("Dependency Property is already registered. [" + (ownerType)._TypeName + "." + name + "]");
-        }
-        if(!ownerType || typeof ownerType !== "function") {
-            throw new InvalidOperationException("DependencyProperty does not have a valid OwnerType.");
         }
         registeredDPs[name] = this;
         this._ID = DependencyProperty._LastID = DependencyProperty._LastID + 1;
@@ -143,6 +143,11 @@ var DependencyProperty = (function () {
         });
     };
     DependencyProperty.prototype.ExtendTo = function (type) {
+        var registeredDPs = type._RegisteredDPs;
+        if(!registeredDPs) {
+            type._RegisteredDPs = registeredDPs = [];
+        }
+        registeredDPs[this.Name] = this;
         var propd = this;
         var getter = function () {
             return (this).GetValue(propd);
