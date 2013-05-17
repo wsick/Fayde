@@ -69,6 +69,13 @@ module Fayde.Controls {
             this._TextProperty = textPropd;
         }
 
+        get Cursor(): string {
+            var cursor = this.GetValue(FrameworkElement.CursorProperty);
+            if (cursor === CursorType.Default)
+                return CursorType.IBeam;
+            return cursor;
+        }
+
         get SelectionCursor(): number { return this._SelectionCursor; }
         get HasSelectedText(): bool { return this._SelectionCursor !== this._SelectionAnchor; }
         get CaretBrush(): Media.Brush { return undefined; }

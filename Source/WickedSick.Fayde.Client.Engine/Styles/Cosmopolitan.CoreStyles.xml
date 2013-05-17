@@ -612,7 +612,6 @@
         <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
         <Setter Property="Padding" Value="0"/>
         <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderBrush}"/>
-        <Setter Property="Cursor" Value="IBeam" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">

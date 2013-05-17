@@ -43,7 +43,6 @@ var Fayde;
                     this._BlinkTimeout = 0;
                     this._TextBox = null;
                     this._Dirty = false;
-                    this.Cursor = Fayde.CursorType.IBeam;
                 }
                 TextBoxView.prototype.CreateNode = function () {
                     return new TextBoxViewNode(this);

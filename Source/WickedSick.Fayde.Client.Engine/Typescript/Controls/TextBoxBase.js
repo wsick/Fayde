@@ -59,6 +59,17 @@ var Fayde;
                 this._EventsMask = eventsMask;
                 this._TextProperty = textPropd;
             }
+            Object.defineProperty(TextBoxBase.prototype, "Cursor", {
+                get: function () {
+                    var cursor = this.GetValue(Fayde.FrameworkElement.CursorProperty);
+                    if(cursor === Fayde.CursorType.Default) {
+                        return Fayde.CursorType.IBeam;
+                    }
+                    return cursor;
+                },
+                enumerable: true,
+                configurable: true
+            });
             Object.defineProperty(TextBoxBase.prototype, "SelectionCursor", {
                 get: function () {
                     return this._SelectionCursor;

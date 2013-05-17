@@ -319,7 +319,7 @@ class rect implements ICloneable {
         rect.transform4(dest, projection);
     }
 
-    static containsPoint(rect1: rect, p): bool {
+    static containsPoint(rect1: rect, p: Point): bool {
         return rect1.X <= p.X
             && rect1.Y <= p.Y
             && (rect1.X + rect1.Width) >= p.X

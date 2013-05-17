@@ -35,7 +35,6 @@ module Fayde.Controls.Internal {
         private _BlinkTimeout: number = 0;
         private _TextBox: TextBoxBase = null;
         private _Dirty: bool = false;
-        private Cursor: string = CursorType.IBeam;
 
         SetTextBox(textBox: TextBoxBase) {
             if (this._TextBox === textBox)

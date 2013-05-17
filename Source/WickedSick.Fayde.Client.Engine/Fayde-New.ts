@@ -10048,7 +10048,7 @@ class rect implements ICloneable {
         rect.growByThickness(dest, thickness);
         rect.transform4(dest, projection);
     }
-    static containsPoint(rect1: rect, p): bool {
+    static containsPoint(rect1: rect, p: Point): bool {
         return rect1.X <= p.X
             && rect1.Y <= p.Y
             && (rect1.X + rect1.Width) >= p.X
@@ -19209,6 +19209,12 @@ module Fayde.Controls {
             this._EventsMask = eventsMask;
             this._TextProperty = textPropd;
         }
+        get Cursor(): string {
+            var cursor = this.GetValue(FrameworkElement.CursorProperty);
+            if (cursor === CursorType.Default)
+                return CursorType.IBeam;
+            return cursor;
+        }
         get SelectionCursor(): number { return this._SelectionCursor; }
         get HasSelectedText(): bool { return this._SelectionCursor !== this._SelectionAnchor; }
         get CaretBrush(): Media.Brush { return undefined; }
@@ -19990,7 +19996,6 @@ module Fayde.Controls.Internal {
         private _BlinkTimeout: number = 0;
         private _TextBox: TextBoxBase = null;
         private _Dirty: bool = false;
-        private Cursor: string = CursorType.IBeam;
         SetTextBox(textBox: TextBoxBase) {
             if (this._TextBox === textBox)
                 return;
