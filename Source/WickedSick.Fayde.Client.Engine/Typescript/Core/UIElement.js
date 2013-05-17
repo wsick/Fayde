@@ -28,6 +28,7 @@ var Fayde;
         function UINode(xobj) {
                 _super.call(this, xobj);
             this.IsTopLevel = false;
+            this.IsMouseOver = false;
             this.IsLoaded = false;
             this.LayoutUpdater = new Fayde.LayoutUpdater(this);
             this.LayoutUpdater.SetContainerMode(false);
@@ -157,12 +158,12 @@ var Fayde;
                     }
                     break;
                 case InputType.MouseLeave:
-                    (x)._IsMouseOver = false;
+                    this.IsMouseOver = false;
                     x.OnMouseLeave(args);
                     x.MouseLeave.Raise(x, args);
                     break;
                 case InputType.MouseEnter:
-                    (x)._IsMouseOver = true;
+                    this.IsMouseOver = true;
                     x.OnMouseEnter(args);
                     x.MouseEnter.Raise(x, args);
                     break;
@@ -329,7 +330,6 @@ var Fayde;
 
             this._ClipListener = null;
             this._EffectListener = null;
-            this._IsMouseOver = false;
             this.LostFocus = new Fayde.RoutedEvent();
             this.GotFocus = new Fayde.RoutedEvent();
             this.LostMouseCapture = new Fayde.RoutedEvent();
@@ -404,7 +404,7 @@ var Fayde;
         };
         Object.defineProperty(UIElement.prototype, "IsMouseOver", {
             get: function () {
-                return this._IsMouseOver;
+                return this.XamlNode.IsMouseOver;
             },
             enumerable: true,
             configurable: true

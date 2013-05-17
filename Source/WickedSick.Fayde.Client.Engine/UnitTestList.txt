@@ -1,5 +1,5 @@
 ﻿Tests\PrimitivesTests.ts
 Tests\XamlNodeTests.ts
-Tests\ProviderStoreTests.ts
+Tests\ProviderTests.ts
 Tests\TransformTests.ts
 Tests\ItemsControlTests.ts

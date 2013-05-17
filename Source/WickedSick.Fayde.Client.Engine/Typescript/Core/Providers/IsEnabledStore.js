@@ -15,8 +15,8 @@ var Fayde;
 
             }
             IsEnabledStore.prototype.GetValue = function (storage) {
-                if(storage.SourceNode) {
-                    return storage.InheritedValue;
+                if(storage.InheritedValue === false) {
+                    return false;
                 }
                 return _super.prototype.GetValue.call(this, storage);
             };
@@ -34,68 +34,40 @@ var Fayde;
                 }
                 this.OnPropertyChanged(storage, Providers.PropertyPrecedence.LocalValue, oldValue, newValue);
             };
-            IsEnabledStore.prototype.SetInheritedSource = function (storage, sourceNode) {
-                var _this = this;
-                while(sourceNode) {
-                    if(sourceNode instanceof Fayde.Controls.ControlNode) {
-                        break;
-                    } else if(sourceNode instanceof Fayde.FENode) {
-                        sourceNode = sourceNode.ParentNode;
-                    } else {
-                        sourceNode = null;
-                    }
-                }
-                if(storage.SourceNode !== sourceNode) {
-                    if(storage.Listener) {
-                        storage.Listener.Detach();
-                        storage.Listener = null;
-                    }
-                    storage.SourceNode = sourceNode;
-                    if(sourceNode) {
-                        storage.Listener = storage.SourceNode.MonitorIsEnabled(function (newIsEnabled) {
-                            return _this.InheritedValueChanged(storage, newIsEnabled);
-                        });
-                    }
-                }
-                if(!sourceNode && (storage.OwnerNode.IsAttached)) {
-                    this.InheritedValueChanged(storage);
-                }
+            IsEnabledStore.prototype.OnPropertyChanged = function (storage, effectivePrecedence, oldValue, newValue) {
+                _super.prototype.OnPropertyChanged.call(this, storage, effectivePrecedence, oldValue, newValue);
+                storage.OwnerNode.OnIsEnabledChanged(oldValue, newValue);
             };
             IsEnabledStore.prototype.CreateStorage = function (dobj, propd) {
                 return {
                     OwnerNode: dobj.XamlNode,
                     Property: propd,
                     Precedence: Providers.PropertyPrecedence.DefaultValue,
+                    InheritedValue: true,
                     Animation: undefined,
                     Local: undefined,
                     LocalStyleValue: undefined,
                     ImplicitStyleValue: undefined,
-                    InheritedValue: undefined,
-                    SourceNode: undefined,
-                    Listener: undefined,
                     PropListeners: undefined
                 };
             };
-            IsEnabledStore.prototype.InheritedValueChanged = function (storage, newIsEnabled) {
-                var localIsEnabled = _super.prototype.GetValue.call(this, storage);
-                var parentEnabled = false;
-                var sourceNode = storage.SourceNode;
-                if(sourceNode && (storage.OwnerNode).VisualParentNode) {
-                    parentEnabled = sourceNode.XObject.IsEnabled === true;
+            IsEnabledStore.prototype.EmitInheritedChanged = function (storage, newInherited) {
+                var oldInherited = storage.InheritedValue;
+                if(newInherited !== false) {
+                    storage.Precedence = _super.prototype.GetValuePrecedence.call(this, storage);
+                    storage.InheritedValue = true;
+                } else {
+                    storage.InheritedValue = false;
                 }
-                var newValue = localIsEnabled === true && parentEnabled;
-                var oldValue = storage.InheritedValue;
-                if(oldValue === newValue) {
-                    return false;
+                if(oldInherited === newInherited) {
+                    return;
                 }
-                storage.InheritedValue = newValue;
-                this.OnPropertyChanged(storage, Providers.PropertyPrecedence.IsEnabled, oldValue, newValue);
-                return true;
+                this.OnPropertyChanged(storage, Providers.PropertyPrecedence.IsEnabled, oldInherited, newInherited);
             };
-            IsEnabledStore.InitIsEnabledSource = function InitIsEnabledSource(cn) {
+            IsEnabledStore.EmitInheritedChanged = function EmitInheritedChanged(cn, value) {
                 var propd = Fayde.Controls.Control.IsEnabledProperty;
-                var storage = Providers.GetStorage(cn.XObject, propd);
-                (propd.Store).SetInheritedSource(storage, cn.ParentNode);
+                var storage = Fayde.Providers.GetStorage(cn.XObject, propd);
+                (propd.Store).EmitInheritedChanged(storage, value);
             };
             return IsEnabledStore;
         })(Providers.PropertyStore);

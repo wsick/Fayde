@@ -1238,8 +1238,9 @@ module Fayde.Providers {
                         error.ThrowException();
                 }
             }
-            if (newValue === undefined)
+            if (newValue === undefined) {
                 effectivePrecedence = this.GetValuePrecedence(storage);
+            }
             storage.Precedence = effectivePrecedence;
             var propd = storage.Property;
             var args = {
@@ -6724,6 +6725,25 @@ module Fayde {
             this._DCMonitors.push(monitor);
             return monitor;
         }
+        private _IsEnabled: bool = true;
+        get IsEnabled(): bool { return this._IsEnabled; }
+        set IsEnabled(value: bool) {
+            value = value !== false;
+            var old = this._IsEnabled;
+            if (old === value)
+                return;
+            this._IsEnabled = value;
+            this.OnIsEnabledChanged(old, value);
+        }
+        OnIsEnabledChanged(oldValue: bool, newValue: bool) {
+            var childNodes = this._LogicalChildren;
+            var len = childNodes.length;
+            var childNode: XamlNode = null;
+            for (var i = 0; i < len; i++) {
+                childNode = childNodes[i];
+                childNode.IsEnabled = newValue;
+            }
+        }
         FindName(name: string): XamlNode {
             var scope = this.FindNameScope();
             if (scope)
@@ -6849,7 +6869,6 @@ module Fayde {
                 var ns = this.FindNameScope();
                 if (ns) ns.UnregisterName(this.Name);
             }
-            this.SetIsAttached(false);
             this._OwnerNameScope = null;
             var old = this.ParentNode;
             this.ParentNode = null;
@@ -6858,6 +6877,7 @@ module Fayde {
                 if (index > -1) old._LogicalChildren.splice(index, 1);
                 this.OnParentChanged(old, null);
             }
+            this.SetIsAttached(false);
         }
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) { }
         GetInheritedEnumerator(): IEnumerator { return undefined; }
@@ -7054,14 +7074,12 @@ module Fayde.Providers {
 module Fayde.Providers {
     export interface IIsEnabledStorage extends IPropertyStorage {
         InheritedValue: bool;
-        SourceNode: Controls.ControlNode;
-        Listener: Controls.IIsEnabledListener;
     }
     export class IsEnabledStore extends PropertyStore {
         static Instance: IsEnabledStore;
         GetValue(storage: IIsEnabledStorage): bool {
-            if (storage.SourceNode)
-                return storage.InheritedValue;
+            if (storage.InheritedValue === false)
+                return false;
             return super.GetValue(storage);
         }
         GetValuePrecedence(storage: IIsEnabledStorage): PropertyPrecedence {
@@ -7076,60 +7094,39 @@ module Fayde.Providers {
                 return;
             this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldValue, newValue);
         }
-        SetInheritedSource(storage: IIsEnabledStorage, sourceNode: XamlNode) {
-            while (sourceNode) {
-                if (sourceNode instanceof Controls.ControlNode)
-                    break;
-                else if (sourceNode instanceof FENode)
-                    sourceNode = sourceNode.ParentNode;
-                else
-                    sourceNode = null;
-            }
-            if (storage.SourceNode !== sourceNode) {
-                if (storage.Listener) {
-                    storage.Listener.Detach();
-                    storage.Listener = null;
-                }
-                storage.SourceNode = <Controls.ControlNode>sourceNode;
-                if (sourceNode)
-                    storage.Listener = storage.SourceNode.MonitorIsEnabled((newIsEnabled) => this.InheritedValueChanged(storage, newIsEnabled));
-            }
-            if (!sourceNode && (storage.OwnerNode.IsAttached))
-                this.InheritedValueChanged(storage);
+        OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any) {
+            super.OnPropertyChanged(storage, effectivePrecedence, oldValue, newValue);
+            storage.OwnerNode.OnIsEnabledChanged(oldValue, newValue);
         }
         CreateStorage(dobj: DependencyObject, propd: DependencyProperty): IIsEnabledStorage {
             return {
                 OwnerNode: dobj.XamlNode,
                 Property: propd,
                 Precedence: PropertyPrecedence.DefaultValue,
+                InheritedValue: true,
                 Animation: undefined,
                 Local: undefined,
                 LocalStyleValue: undefined,
                 ImplicitStyleValue: undefined,
-                InheritedValue: undefined,
-                SourceNode: undefined,
-                Listener: undefined,
                 PropListeners: undefined,
             };
         }
-        private InheritedValueChanged(storage: IIsEnabledStorage, newIsEnabled?: bool): bool {
-            var localIsEnabled = super.GetValue(storage);
-            var parentEnabled = false;
-            var sourceNode = storage.SourceNode;
-            if (sourceNode && (<UINode>storage.OwnerNode).VisualParentNode)
-                parentEnabled = sourceNode.XObject.IsEnabled === true;
-            var newValue = localIsEnabled === true && parentEnabled;
-            var oldValue = storage.InheritedValue;
-            if (oldValue === newValue)
-                return false;
-            storage.InheritedValue = newValue;
-            this.OnPropertyChanged(storage, PropertyPrecedence.IsEnabled, oldValue, newValue);
-            return true;
+        EmitInheritedChanged(storage: IIsEnabledStorage, newInherited: bool) {
+            var oldInherited = storage.InheritedValue;
+            if (newInherited !== false) {
+                storage.Precedence = super.GetValuePrecedence(storage);
+                storage.InheritedValue = true;
+            } else {
+                storage.InheritedValue = false;
+            }
+            if (oldInherited === newInherited)
+                return;
+            this.OnPropertyChanged(storage, PropertyPrecedence.IsEnabled, oldInherited, newInherited);
         }
-        static InitIsEnabledSource(cn: Controls.ControlNode) {
+        static EmitInheritedChanged(cn: Controls.ControlNode, value: bool) {
             var propd = Controls.Control.IsEnabledProperty;
-            var storage = <IIsEnabledStorage>GetStorage(cn.XObject, propd);
-            (<IsEnabledStore>propd.Store).SetInheritedSource(storage, cn.ParentNode);
+            var storage = <Providers.IIsEnabledStorage>Providers.GetStorage(cn.XObject, propd);
+            (<Providers.IsEnabledStore>propd.Store).EmitInheritedChanged(storage, value);
         }
     }
     IsEnabledStore.Instance = new IsEnabledStore();
@@ -14378,6 +14375,7 @@ module Fayde {
         LayoutUpdater: LayoutUpdater;
         IsTopLevel: bool = false;
         private _Surface: Surface;
+        IsMouseOver: bool = false;
         SetSurfaceFromVisualParent(): UINode {
             if (this._Surface)
                 return this.VisualParentNode;
@@ -14502,12 +14500,12 @@ module Fayde {
                     }
                     break;
                 case InputType.MouseLeave:
-                    (<any>x)._IsMouseOver = false;
+                    this.IsMouseOver = false;
                     x.OnMouseLeave(args);
                     x.MouseLeave.Raise(x, args);
                     break;
                 case InputType.MouseEnter:
-                    (<any>x)._IsMouseOver = true;
+                    this.IsMouseOver = true;
                     x.OnMouseEnter(args);
                     x.MouseEnter.Raise(x, args);
                     break;
@@ -14667,8 +14665,7 @@ module Fayde {
         private IsInheritable(propd: DependencyProperty): bool {
             return propd === UIElement.UseLayoutRoundingProperty;
         }
-        private _IsMouseOver: bool = false;
-        get IsMouseOver() { return this._IsMouseOver; }
+        get IsMouseOver() { return this.XamlNode.IsMouseOver; }
         get DesiredSize(): size { return this.XamlNode.LayoutUpdater.DesiredSize; }
         get RenderSize(): size { return this.XamlNode.LayoutUpdater.RenderSize; }
         Clip: Media.Geometry;
@@ -17387,35 +17384,29 @@ module Fayde.Controls {
         GetDefaultVisualTree(): UIElement { return undefined; }
         OnIsAttachedChanged(newIsAttached: bool) {
             super.OnIsAttachedChanged(newIsAttached);
-            Providers.IsEnabledStore.InitIsEnabledSource(this);
             if (!newIsAttached)
                 Media.VSM.VisualStateManager.DestroyStoryboards(this.XObject, this.TemplateRoot);
         }
-        OnIsEnabledChanged(newIsEnabled: bool) {
-            var surface = this._Surface;
-            if (surface) {
-                surface._RemoveFocusFrom(this.LayoutUpdater);
-                TabNavigationWalker.Focus(this, true);
-            }
-            this.ReleaseMouseCapture();
-            var listeners = this._IsEnabledListeners;
-            for (var i = 0; i < listeners.length; i++) {
-                listeners[i].Callback(newIsEnabled);
-            }
+        OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
+            super.OnParentChanged(oldParentNode, newParentNode);
+            this.IsEnabled = newParentNode ? newParentNode.IsEnabled : true;
         }
-        private _IsEnabledListeners: any[] = [];
-        MonitorIsEnabled(func: (newIsEnabled: bool) => void ): IIsEnabledListener {
-            var listeners = this._IsEnabledListeners;
-            var listener = {
-                Callback: func,
-                Detach: function () {
-                    var index = listeners.indexOf(listener);
-                    if (index > -1)
-                        listeners.splice(index, 1);
+        get IsEnabled(): bool { return this.XObject.IsEnabled; }
+        set IsEnabled(value: bool) {
+            Providers.IsEnabledStore.EmitInheritedChanged(this, value);
+            this.OnIsEnabledChanged(undefined, value);
+        }
+        OnIsEnabledChanged(oldValue: bool, newValue: bool) {
+            if (!newValue) {
+                this.IsMouseOver = false;
+                var surface = this._Surface;
+                if (surface) {
+                    surface._RemoveFocusFrom(this.LayoutUpdater);
+                    TabNavigationWalker.Focus(this, true);
                 }
-            };
-            listeners.push(listener);
-            return listener;
+                this.ReleaseMouseCapture();
+            }
+            super.OnIsEnabledChanged(oldValue, newValue);
         }
         _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
             if (this.XObject.IsEnabled)
@@ -17496,10 +17487,6 @@ module Fayde.Controls {
         }
         IsEnabledChanged: MulticastEvent = new MulticastEvent();
         _IsEnabledChanged(args: IDependencyPropertyChangedEventArgs) {
-            if (!args.NewValue) {
-                this._IsMouseOver = false;
-                this.XamlNode.OnIsEnabledChanged(args.NewValue);
-            }
             this.OnIsEnabledChanged(args);
             this.IsEnabledChanged.RaiseAsync(this, EventArgs.Empty);
         }

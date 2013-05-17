@@ -49,37 +49,31 @@ module Fayde.Controls {
 
         OnIsAttachedChanged(newIsAttached: bool) {
             super.OnIsAttachedChanged(newIsAttached);
-            Providers.IsEnabledStore.InitIsEnabledSource(this);
             if (!newIsAttached)
                 Media.VSM.VisualStateManager.DestroyStoryboards(this.XObject, this.TemplateRoot);
         }
 
-        OnIsEnabledChanged(newIsEnabled: bool) {
-            var surface = this._Surface;
-            if (surface) {
-                surface._RemoveFocusFrom(this.LayoutUpdater);
-                TabNavigationWalker.Focus(this, true);
-            }
-            this.ReleaseMouseCapture();
-
-            var listeners = this._IsEnabledListeners;
-            for (var i = 0; i < listeners.length; i++) {
-                listeners[i].Callback(newIsEnabled);
-            }
+        OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
+            super.OnParentChanged(oldParentNode, newParentNode);
+            this.IsEnabled = newParentNode ? newParentNode.IsEnabled : true;
         }
-        private _IsEnabledListeners: any[] = [];
-        MonitorIsEnabled(func: (newIsEnabled: bool) => void ): IIsEnabledListener {
-            var listeners = this._IsEnabledListeners;
-            var listener = {
-                Callback: func,
-                Detach: function () {
-                    var index = listeners.indexOf(listener);
-                    if (index > -1)
-                        listeners.splice(index, 1);
+        
+        get IsEnabled(): bool { return this.XObject.IsEnabled; }
+        set IsEnabled(value: bool) {
+            Providers.IsEnabledStore.EmitInheritedChanged(this, value);
+            this.OnIsEnabledChanged(undefined, value);
+        }
+        OnIsEnabledChanged(oldValue: bool, newValue: bool) {
+            if (!newValue) {
+                this.IsMouseOver = false;
+                var surface = this._Surface;
+                if (surface) {
+                    surface._RemoveFocusFrom(this.LayoutUpdater);
+                    TabNavigationWalker.Focus(this, true);
                 }
-            };
-            listeners.push(listener);
-            return listener;
+                this.ReleaseMouseCapture();
+            }
+            super.OnIsEnabledChanged(oldValue, newValue);
         }
         
         _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
@@ -172,10 +166,6 @@ module Fayde.Controls {
 
         IsEnabledChanged: MulticastEvent = new MulticastEvent();
         _IsEnabledChanged(args: IDependencyPropertyChangedEventArgs) {
-            if (!args.NewValue) {
-                this._IsMouseOver = false;
-                this.XamlNode.OnIsEnabledChanged(args.NewValue);
-            }
             this.OnIsEnabledChanged(args);
             this.IsEnabledChanged.RaiseAsync(this, EventArgs.Empty);
         }

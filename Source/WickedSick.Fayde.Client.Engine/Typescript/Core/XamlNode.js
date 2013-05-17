@@ -25,6 +25,7 @@ var Fayde;
             this._DCMonitors = null;
             this._IAMonitors = null;
             this._DataContext = undefined;
+            this._IsEnabled = true;
             this.IsAttached = false;
             this.XObject = xobj;
         }
@@ -77,6 +78,31 @@ var Fayde;
             };
             this._DCMonitors.push(monitor);
             return monitor;
+        };
+        Object.defineProperty(XamlNode.prototype, "IsEnabled", {
+            get: function () {
+                return this._IsEnabled;
+            },
+            set: function (value) {
+                value = value !== false;
+                var old = this._IsEnabled;
+                if(old === value) {
+                    return;
+                }
+                this._IsEnabled = value;
+                this.OnIsEnabledChanged(old, value);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        XamlNode.prototype.OnIsEnabledChanged = function (oldValue, newValue) {
+            var childNodes = this._LogicalChildren;
+            var len = childNodes.length;
+            var childNode = null;
+            for(var i = 0; i < len; i++) {
+                childNode = childNodes[i];
+                childNode.IsEnabled = newValue;
+            }
         };
         XamlNode.prototype.FindName = function (name) {
             var scope = this.FindNameScope();
@@ -216,7 +242,6 @@ var Fayde;
                     ns.UnregisterName(this.Name);
                 }
             }
-            this.SetIsAttached(false);
             this._OwnerNameScope = null;
             var old = this.ParentNode;
             this.ParentNode = null;
@@ -227,6 +252,7 @@ var Fayde;
                 }
                 this.OnParentChanged(old, null);
             }
+            this.SetIsAttached(false);
         };
         XamlNode.prototype.OnParentChanged = function (oldParentNode, newParentNode) {
         };

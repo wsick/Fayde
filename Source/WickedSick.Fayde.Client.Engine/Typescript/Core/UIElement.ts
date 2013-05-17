@@ -23,6 +23,7 @@ module Fayde {
         LayoutUpdater: LayoutUpdater;
         IsTopLevel: bool = false;
         private _Surface: Surface;
+        IsMouseOver: bool = false;
 
         SetSurfaceFromVisualParent(): UINode {
             if (this._Surface)
@@ -159,12 +160,12 @@ module Fayde {
                     }
                     break;
                 case InputType.MouseLeave:
-                    (<any>x)._IsMouseOver = false;
+                    this.IsMouseOver = false;
                     x.OnMouseLeave(args);
                     x.MouseLeave.Raise(x, args);
                     break;
                 case InputType.MouseEnter:
-                    (<any>x)._IsMouseOver = true;
+                    this.IsMouseOver = true;
                     x.OnMouseEnter(args);
                     x.MouseEnter.Raise(x, args);
                     break;
@@ -345,9 +346,7 @@ module Fayde {
             return propd === UIElement.UseLayoutRoundingProperty;
         }
 
-        private _IsMouseOver: bool = false;
-        get IsMouseOver() { return this._IsMouseOver; }
-
+        get IsMouseOver() { return this.XamlNode.IsMouseOver; }
         get DesiredSize(): size { return this.XamlNode.LayoutUpdater.DesiredSize; }
         get RenderSize(): size { return this.XamlNode.LayoutUpdater.RenderSize; }
 

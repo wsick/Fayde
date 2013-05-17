@@ -132,8 +132,10 @@ module Fayde.Providers {
                 }
             }
 
-            if (newValue === undefined)
+            if (newValue === undefined) {
                 effectivePrecedence = this.GetValuePrecedence(storage);
+                //Set new effective value?
+            }
             storage.Precedence = effectivePrecedence;
             var propd = storage.Property;
             var args = {

@@ -443,7 +443,6 @@
     <None Include="jsTestDriver.conf" />
     <Content Include="Silo\heightTest.htm" />
     <Content Include="Docs\Tips.txt" />
-    <TypeScriptCompile Include="Tests\ProviderStoreTests.ts" />
     <TypeScriptCompile Include="Tests\ItemsControlTests.ts" />
     <Content Include="Tests\ItemsControlTests.js">
       <DependentUpon>ItemsControlTests.ts</DependentUpon>
@@ -452,8 +451,9 @@
     <Content Include="Tests\PrimitivesTests.js">
       <DependentUpon>PrimitivesTests.ts</DependentUpon>
     </Content>
-    <Content Include="Tests\ProviderStoreTests.js">
-      <DependentUpon>ProviderStoreTests.ts</DependentUpon>
+    <TypeScriptCompile Include="Tests\ProviderTests.ts" />
+    <Content Include="Tests\ProviderTests.js">
+      <DependentUpon>ProviderTests.ts</DependentUpon>
     </Content>
     <Content Include="Tests\qunit-1.10.0.d.ts" />
     <Content Include="Tests\qunit-1.11.0.css" />

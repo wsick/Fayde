@@ -81,6 +81,26 @@ module Fayde {
             return monitor;
         }
 
+        private _IsEnabled: bool = true;
+        get IsEnabled(): bool { return this._IsEnabled; }
+        set IsEnabled(value: bool) {
+            value = value !== false;
+            var old = this._IsEnabled;
+            if (old === value)
+                return;
+            this._IsEnabled = value;
+            this.OnIsEnabledChanged(old, value);
+        }
+        OnIsEnabledChanged(oldValue: bool, newValue: bool) {
+            var childNodes = this._LogicalChildren;
+            var len = childNodes.length;
+            var childNode: XamlNode = null;
+            for (var i = 0; i < len; i++) {
+                childNode = childNodes[i];
+                childNode.IsEnabled = newValue;
+            }
+        }
+
         FindName(name: string): XamlNode {
             var scope = this.FindNameScope();
             if (scope)
@@ -215,7 +235,6 @@ module Fayde {
                 var ns = this.FindNameScope();
                 if (ns) ns.UnregisterName(this.Name);
             }
-            this.SetIsAttached(false);
             this._OwnerNameScope = null;
             var old = this.ParentNode;
             this.ParentNode = null;
@@ -224,6 +243,7 @@ module Fayde {
                 if (index > -1) old._LogicalChildren.splice(index, 1);
                 this.OnParentChanged(old, null);
             }
+            this.SetIsAttached(false);
         }
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) { }
 

@@ -15,7 +15,6 @@ var Fayde;
             function ControlNode(xobj) {
                         _super.call(this, xobj);
                 this.IsFocused = false;
-                this._IsEnabledListeners = [];
                 this.LayoutUpdater.SetContainerMode(true);
             }
             ControlNode.prototype.TabTo = function () {
@@ -50,36 +49,36 @@ var Fayde;
             };
             ControlNode.prototype.OnIsAttachedChanged = function (newIsAttached) {
                 _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
-                Fayde.Providers.IsEnabledStore.InitIsEnabledSource(this);
                 if(!newIsAttached) {
                     Fayde.Media.VSM.VisualStateManager.DestroyStoryboards(this.XObject, this.TemplateRoot);
                 }
             };
-            ControlNode.prototype.OnIsEnabledChanged = function (newIsEnabled) {
-                var surface = this._Surface;
-                if(surface) {
-                    surface._RemoveFocusFrom(this.LayoutUpdater);
-                    Fayde.TabNavigationWalker.Focus(this, true);
-                }
-                this.ReleaseMouseCapture();
-                var listeners = this._IsEnabledListeners;
-                for(var i = 0; i < listeners.length; i++) {
-                    listeners[i].Callback(newIsEnabled);
-                }
+            ControlNode.prototype.OnParentChanged = function (oldParentNode, newParentNode) {
+                _super.prototype.OnParentChanged.call(this, oldParentNode, newParentNode);
+                this.IsEnabled = newParentNode ? newParentNode.IsEnabled : true;
             };
-            ControlNode.prototype.MonitorIsEnabled = function (func) {
-                var listeners = this._IsEnabledListeners;
-                var listener = {
-                    Callback: func,
-                    Detach: function () {
-                        var index = listeners.indexOf(listener);
-                        if(index > -1) {
-                            listeners.splice(index, 1);
-                        }
+            Object.defineProperty(ControlNode.prototype, "IsEnabled", {
+                get: function () {
+                    return this.XObject.IsEnabled;
+                },
+                set: function (value) {
+                    Fayde.Providers.IsEnabledStore.EmitInheritedChanged(this, value);
+                    this.OnIsEnabledChanged(undefined, value);
+                },
+                enumerable: true,
+                configurable: true
+            });
+            ControlNode.prototype.OnIsEnabledChanged = function (oldValue, newValue) {
+                if(!newValue) {
+                    this.IsMouseOver = false;
+                    var surface = this._Surface;
+                    if(surface) {
+                        surface._RemoveFocusFrom(this.LayoutUpdater);
+                        Fayde.TabNavigationWalker.Focus(this, true);
                     }
-                };
-                listeners.push(listener);
-                return listener;
+                    this.ReleaseMouseCapture();
+                }
+                _super.prototype.OnIsEnabledChanged.call(this, oldValue, newValue);
             };
             ControlNode.prototype._FindElementsInHostCoordinates = function (ctx, p, uinlist) {
                 if(this.XObject.IsEnabled) {
@@ -207,10 +206,6 @@ var Fayde;
                 return undefined;
             };
             Control.prototype._IsEnabledChanged = function (args) {
-                if(!args.NewValue) {
-                    this._IsMouseOver = false;
-                    this.XamlNode.OnIsEnabledChanged(args.NewValue);
-                }
                 this.OnIsEnabledChanged(args);
                 this.IsEnabledChanged.RaiseAsync(this, EventArgs.Empty);
             };
