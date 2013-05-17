@@ -166,7 +166,7 @@ namespace WickedSick.Server.Framework.Fayde
 #endif
                 writer.WriteStart();
                 writer.WriteHeadStart();
-                writer.WriteScriptIncludes(fap.ScriptResolution, includes);
+                writer.WriteScriptIncludes(fap.ScriptResolution, includes, fap.UseNew);
 
                 var codeBehindPath = string.Format("{0}.js", context.Request.Path);
                 if (File.Exists(context.Server.MapPath(codeBehindPath)))
