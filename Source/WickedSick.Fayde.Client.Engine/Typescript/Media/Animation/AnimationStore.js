@@ -4,17 +4,82 @@ var Fayde;
         /// CODE
         /// <reference path="../../Core/DependencyObject.ts" />
         /// <reference path="../../Core/DependencyProperty.ts" />
-        /// <reference path="AnimationStorage.ts" />
+        /// <reference path="AnimationBase.ts" />
         (function (Animation) {
             var AnimationStore = (function () {
                 function AnimationStore() { }
-                AnimationStore.Get = function Get(dobj, propd) {
-                    var storage = Fayde.Providers.GetStorage(dobj, propd);
-                    var list = storage.Animation;
-                    if(list && list.length > 0) {
-                        return list[list.length - 1];
+                AnimationStore.Clone = function Clone(oldanims, newTarget) {
+                    if(!oldanims) {
+                        return undefined;
                     }
-                    return undefined;
+                    var newanims = oldanims.slice(0);
+                    var len = newanims.length;
+                    var newanim;
+                    var wasDisabled;
+                    for(var i = 0; i < len; i++) {
+                        newanim = newanims[i];
+                        wasDisabled = newanim.IsDisabled;
+                        newanim.IsDisabled = true;
+                        newanim.TargetObj = newTarget;
+                        newanim.IsDisabled = wasDisabled;
+                    }
+                    return newanims;
+                };
+                AnimationStore.AttachAnimation = function AttachAnimation(animation, targetObj, targetProp) {
+                    var storage = {
+                        Animation: animation,
+                        TargetObj: targetObj,
+                        TargetProp: targetProp,
+                        IsDisabled: false,
+                        BaseValue: undefined,
+                        CurrentValue: undefined,
+                        StopValue: undefined
+                    };
+                    var prevStorage = AnimationStore.Attach(targetObj, targetProp, storage);
+                    var baseValue = targetObj.GetValue(targetProp);
+                    if(baseValue === undefined) {
+                        var targetType = targetProp.GetTargetType();
+                        if(targetType === Number) {
+                            baseValue = 0;
+                        } else if(targetType === String) {
+                            baseValue = "";
+                        } else {
+                            baseValue = new (targetType)();
+                        }
+                    }
+                    storage.BaseValue = baseValue;
+                    if(prevStorage) {
+                        storage.StopValue = prevStorage.StopValue;
+                    } else {
+                        storage.StopValue = targetObj.ReadLocalValue(targetProp);
+                    }
+                    return (animation)._Storage = storage;
+                };
+                AnimationStore.UpdateCurrentValueAndApply = function UpdateCurrentValueAndApply(storage, clockData) {
+                    if(storage.IsDisabled || !storage.TargetObj) {
+                        return;
+                    }
+                    var oldValue = storage.CurrentValue;
+                    storage.CurrentValue = storage.Animation.GetCurrentValue(storage.BaseValue, storage.StopValue !== undefined ? storage.StopValue : storage.BaseValue, clockData);
+                    if(oldValue === storage.CurrentValue) {
+                        return;
+                    }
+                    AnimationStore.ApplyCurrentValue(storage);
+                };
+                AnimationStore.Disable = function Disable(storage) {
+                    storage.IsDisabled = true;
+                };
+                AnimationStore.Stop = function Stop(storage) {
+                    var to = storage.TargetObj;
+                    if(!to) {
+                        return;
+                    }
+                    var tp = storage.TargetProp;
+                    if(!tp) {
+                        return;
+                    }
+                    AnimationStore.Detach(to, tp, storage);
+                    to.SetStoreValue(tp, storage.StopValue);
                 };
                 AnimationStore.Attach = function Attach(dobj, propd, animStorage) {
                     var storage = Fayde.Providers.GetStorage(dobj, propd);
@@ -27,7 +92,7 @@ var Fayde;
                     }
                     var attached = list[list.length - 1];
                     if(attached) {
-                        attached.Disable();
+                        attached.IsDisabled = true;
                     }
                     list.push(animStorage);
                     return attached;
@@ -53,7 +118,7 @@ var Fayde;
                     if(i === (len - 1)) {
                         list.pop();
                         if(len > 1) {
-                            list[len - 2].Enable();
+                            AnimationStore.Enable(list[len - 2]);
                         }
                     } else {
                         list.splice(i, 1);
@@ -61,6 +126,17 @@ var Fayde;
                             list[i - 1].StopValue = animStorage.StopValue;
                         }
                     }
+                };
+                AnimationStore.Enable = function Enable(storage) {
+                    storage.IsDisabled = false;
+                    AnimationStore.ApplyCurrentValue(storage);
+                };
+                AnimationStore.ApplyCurrentValue = function ApplyCurrentValue(storage) {
+                    if(storage.CurrentValue === undefined) {
+                        return;
+                    }
+                    //AnimationDebug(function () { return "ApplyCurrentValue: [" + that._TargetObj.constructor._TypeName + "." + that._TargetProp.Name + "] --> " + that._CurrentValue.toString(); });
+                    storage.TargetObj.SetStoreValue(storage.TargetProp, storage.CurrentValue);
                 };
                 return AnimationStore;
             })();

@@ -1,30 +1,27 @@
 /// <reference path="Timeline.ts" />
 /// CODE
-/// <reference path="AnimationStorage.ts"/>
+/// <reference path="AnimationStore.ts"/>
 
 module Fayde.Media.Animation {
-    export class AnimationBase extends Timeline {
-        private _Storage: AnimationStorage;
+    export class AnimationBase extends Timeline implements IAnimStorageHidden {
+        private _Storage: IAnimationStorage;
 
         Resolve(target: DependencyObject, propd: DependencyProperty) { return true; }
 
-        HookupStorage(targetObj: DependencyObject, targetProp: DependencyProperty): AnimationStorage {
-            return (this._Storage = new AnimationStorage(this, targetObj, targetProp));
-        }
         Disable() {
             var storage = this._Storage;
             if (storage)
-                storage.Disable();
+                AnimationStore.Disable(storage);
         }
         Stop() {
             var storage = this._Storage;
             if (storage)
-                storage.Stop();
+                AnimationStore.Stop(storage);
         }
         UpdateInternal(clockData: IClockData) {
             var storage = this._Storage;
             if (storage)
-                storage.UpdateCurrentValueAndApply(clockData);
+                AnimationStore.UpdateCurrentValueAndApply(storage, clockData);
         }
         GetNaturalDurationCore(): Duration { return Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 1)); }
 

@@ -8,7 +8,7 @@ var Fayde;
     (function (Media) {
         /// <reference path="Timeline.ts" />
         /// CODE
-        /// <reference path="AnimationStorage.ts"/>
+        /// <reference path="AnimationStore.ts"/>
         (function (Animation) {
             var AnimationBase = (function (_super) {
                 __extends(AnimationBase, _super);
@@ -19,25 +19,22 @@ var Fayde;
                 AnimationBase.prototype.Resolve = function (target, propd) {
                     return true;
                 };
-                AnimationBase.prototype.HookupStorage = function (targetObj, targetProp) {
-                    return (this._Storage = new Animation.AnimationStorage(this, targetObj, targetProp));
-                };
                 AnimationBase.prototype.Disable = function () {
                     var storage = this._Storage;
                     if(storage) {
-                        storage.Disable();
+                        Animation.AnimationStore.Disable(storage);
                     }
                 };
                 AnimationBase.prototype.Stop = function () {
                     var storage = this._Storage;
                     if(storage) {
-                        storage.Stop();
+                        Animation.AnimationStore.Stop(storage);
                     }
                 };
                 AnimationBase.prototype.UpdateInternal = function (clockData) {
                     var storage = this._Storage;
                     if(storage) {
-                        storage.UpdateCurrentValueAndApply(clockData);
+                        Animation.AnimationStore.UpdateCurrentValueAndApply(storage, clockData);
                     }
                 };
                 AnimationBase.prototype.GetNaturalDurationCore = function () {

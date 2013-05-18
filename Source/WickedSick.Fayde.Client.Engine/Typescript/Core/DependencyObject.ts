@@ -6,7 +6,6 @@
 /// <reference path="Expression.ts" />
 /// <reference path="../Data/BindingExpression.ts" />
 /// <reference path="FrameworkElement.ts" />
-/// <reference path="../Media/Animation/AnimationStore.ts" />
 
 module Fayde {
     export class DONode extends XamlNode {
@@ -126,10 +125,10 @@ module Fayde {
                 throw new ArgumentException("This property is readonly.");
             this._RemoveExpression(propd);
             
-            if (Media.Animation.AnimationStore.Get(this, propd))
-                return;
-                
             var storage = Providers.GetStorage(this, propd);
+            var anims = storage.Animation;
+            if (anims && anims.length > 0)
+                return;
             propd.Store.ClearValue(storage);
         }
         ReadLocalValue(propd: DependencyProperty): any {

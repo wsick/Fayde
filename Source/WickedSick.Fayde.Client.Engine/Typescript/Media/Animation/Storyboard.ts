@@ -105,7 +105,7 @@ module Fayde.Media.Animation {
                 return false;
             }
             //AnimationDebug(function () { return "Hookup (" + Storyboard.GetTargetName(animation) + "." + targetPropertyPath.Path + ")"; });
-            animation.HookupStorage(refobj.Value, targetProperty);
+            AnimationStore.AttachAnimation(animation, refobj.Value, targetProperty);
             return true;
         }
 

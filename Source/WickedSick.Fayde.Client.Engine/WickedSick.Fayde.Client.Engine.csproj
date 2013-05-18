@@ -999,13 +999,9 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Media\Animation\Timeline.ts" />
     <TypeScriptCompile Include="Typescript\Media\Animation\Enums.ts" />
-    <TypeScriptCompile Include="Typescript\Media\Animation\AnimationStorage.ts" />
     <TypeScriptCompile Include="Typescript\Media\Animation\AnimationBase.ts" />
     <Content Include="Typescript\Media\Animation\AnimationBase.js">
       <DependentUpon>AnimationBase.ts</DependentUpon>
-    </Content>
-    <Content Include="Typescript\Media\Animation\AnimationStorage.js">
-      <DependentUpon>AnimationStorage.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Media\Animation\AnimationUsingKeyFrames.ts" />
     <Content Include="Typescript\Media\Animation\AnimationUsingKeyFrames.js">

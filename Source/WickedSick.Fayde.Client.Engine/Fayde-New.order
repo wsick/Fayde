@@ -66,7 +66,6 @@ Markup/StaticResourceMarkup.js
 Markup/TemplateBindingMarkup.js
 Media/Matrix.js
 Media/Matrix3D.js
-Media/Animation/AnimationStorage.js
 Media/Animation/RepeatBehavior.js
 Navigation/NavService.js
 Primitives/Clip.js

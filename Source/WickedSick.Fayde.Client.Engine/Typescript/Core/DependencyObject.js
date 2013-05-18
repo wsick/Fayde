@@ -11,7 +11,6 @@ var __extends = this.__extends || function (d, b) {
 /// <reference path="Expression.ts" />
 /// <reference path="../Data/BindingExpression.ts" />
 /// <reference path="FrameworkElement.ts" />
-/// <reference path="../Media/Animation/AnimationStore.ts" />
 var Fayde;
 (function (Fayde) {
     var DONode = (function (_super) {
@@ -144,10 +143,11 @@ var Fayde;
                 throw new ArgumentException("This property is readonly.");
             }
             this._RemoveExpression(propd);
-            if(Fayde.Media.Animation.AnimationStore.Get(this, propd)) {
+            var storage = Fayde.Providers.GetStorage(this, propd);
+            var anims = storage.Animation;
+            if(anims && anims.length > 0) {
                 return;
             }
-            var storage = Fayde.Providers.GetStorage(this, propd);
             propd.Store.ClearValue(storage);
         };
         DependencyObject.prototype.ReadLocalValue = function (propd) {

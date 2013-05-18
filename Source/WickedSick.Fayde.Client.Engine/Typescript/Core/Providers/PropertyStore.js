@@ -1,6 +1,6 @@
 /// CODE
 /// <reference path="../DependencyObject.ts" />
-/// <reference path="../../Media/Animation/AnimationStorage.ts" />
+/// <reference path="../../Media/Animation/AnimationStore.ts" />
 var Fayde;
 (function (Fayde) {
     Fayde.UnsetValue = {
@@ -184,14 +184,7 @@ var Fayde;
                 //newStorage.ImplicitStyleValue = undefined;
                 //newStorage.LocalStyleValue = undefined;
                 newStorage.Local = Fayde.Clone(sourceStorage.Local);
-                var srcRepo = sourceStorage.Animation;
-                if(!srcRepo) {
-                    return newStorage;
-                }
-                var thisRepo = newStorage.Animation = srcRepo.slice(0);
-                for(var key in thisRepo) {
-                    thisRepo[key].CloneCore();
-                }
+                newStorage.Animation = Fayde.Media.Animation.AnimationStore.Clone(sourceStorage.Animation, dobj);
                 return newStorage;
             };
             return PropertyStore;

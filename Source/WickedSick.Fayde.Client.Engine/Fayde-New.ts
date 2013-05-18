@@ -1154,7 +1154,7 @@ module Fayde.Providers {
         OwnerNode: DONode;
         Property: DependencyProperty;
         Precedence: PropertyPrecedence;
-        Animation: Media.Animation.AnimationStorage[];
+        Animation: Media.Animation.IAnimationStorage[];
         Local: any;
         LocalStyleValue: any;
         ImplicitStyleValue: any;
@@ -1296,13 +1296,7 @@ module Fayde.Providers {
             var newStorage = this.CreateStorage(dobj, sourceStorage.Property);
             newStorage.Precedence = sourceStorage.Precedence;
             newStorage.Local = Fayde.Clone(sourceStorage.Local);
-            var srcRepo = sourceStorage.Animation;
-            if (!srcRepo)
-                return newStorage;
-            var thisRepo = newStorage.Animation = srcRepo.slice(0);
-            for (var key in thisRepo) {
-                thisRepo[key].CloneCore();
-            }
+            newStorage.Animation = Media.Animation.AnimationStore.Clone(sourceStorage.Animation, dobj);
             return newStorage;
         }
     }
@@ -2458,15 +2452,86 @@ module Fayde.Media {
 }
 
 module Fayde.Media.Animation {
+    export interface IAnimationStorage {
+        Animation: AnimationBase;
+        TargetObj: DependencyObject;
+        TargetProp: DependencyProperty;
+        IsDisabled: bool;
+        BaseValue: any;
+        CurrentValue: any;
+        StopValue: any;
+    }
+    export interface IAnimStorageHidden {
+        _Storage: IAnimationStorage;
+    }
     export class AnimationStore {
-        static Get(dobj: DependencyObject, propd: DependencyProperty): AnimationStorage {
-            var storage = Providers.GetStorage(dobj, propd);
-            var list = storage.Animation;
-            if (list && list.length > 0)
-                return list[list.length - 1];
-            return undefined;
+        static Clone(oldanims: IAnimationStorage[], newTarget: DependencyObject): IAnimationStorage[] {
+            if (!oldanims)
+                return undefined;
+            var newanims = oldanims.slice(0);
+            var len = newanims.length;
+            var newanim: IAnimationStorage;
+            var wasDisabled: bool;
+            for (var i = 0; i < len; i++) {
+                newanim = newanims[i];
+                wasDisabled = newanim.IsDisabled;
+                newanim.IsDisabled = true;
+                newanim.TargetObj = newTarget;
+                newanim.IsDisabled = wasDisabled;
+            }
+            return newanims;
         }
-        static Attach(dobj: DependencyObject, propd: DependencyProperty, animStorage: AnimationStorage): AnimationStorage {
+        static AttachAnimation(animation: AnimationBase, targetObj: DependencyObject, targetProp: DependencyProperty): IAnimationStorage {
+            var storage: IAnimationStorage = {
+                Animation: animation,
+                TargetObj: targetObj,
+                TargetProp: targetProp,
+                IsDisabled: false,
+                BaseValue: undefined,
+                CurrentValue: undefined,
+                StopValue: undefined,
+            };
+            var prevStorage = AnimationStore.Attach(targetObj, targetProp, storage);
+            var baseValue = targetObj.GetValue(targetProp);
+            if (baseValue === undefined) {
+                var targetType = targetProp.GetTargetType();
+                if (targetType === Number)
+                    baseValue = 0;
+                else if (targetType === String)
+                    baseValue = "";
+                else
+                    baseValue = new (<any>targetType)();
+            }
+            storage.BaseValue = baseValue;
+            if (prevStorage)
+                storage.StopValue = prevStorage.StopValue;
+            else
+                storage.StopValue = targetObj.ReadLocalValue(targetProp);
+            return (<IAnimStorageHidden>animation)._Storage = storage;
+        }
+        static UpdateCurrentValueAndApply(storage: IAnimationStorage, clockData: IClockData) {
+            if (storage.IsDisabled || !storage.TargetObj)
+                return;
+            var oldValue = storage.CurrentValue;
+            storage.CurrentValue = storage.Animation.GetCurrentValue(storage.BaseValue, storage.StopValue !== undefined ? storage.StopValue : storage.BaseValue, clockData);
+            if (oldValue === storage.CurrentValue)
+                return;
+            ApplyCurrentValue(storage);
+        }
+        static Disable(storage: IAnimationStorage) {
+            storage.IsDisabled = true;
+        }
+        static Stop(storage: IAnimationStorage) {
+            var to = storage.TargetObj;
+            if (!to)
+                return;
+            var tp = storage.TargetProp;
+            if (!tp)
+                return;
+            Detach(to, tp, storage);
+            to.SetStoreValue(tp, storage.StopValue);
+        }
+        private static Attach(dobj: DependencyObject, propd: DependencyProperty, animStorage: IAnimationStorage): IAnimationStorage {
             var storage = Providers.GetStorage(dobj, propd);
             var list = storage.Animation;
             if (!list) {
@@ -2475,11 +2540,11 @@ module Fayde.Media.Animation {
             }
             var attached = list[list.length - 1];
             if (attached)
-                attached.Disable();
+                attached.IsDisabled = true;
             list.push(animStorage);
             return attached;
         }
-        static Detach(dobj: DependencyObject, propd: DependencyProperty, animStorage: AnimationStorage) {
+        private static Detach(dobj: DependencyObject, propd: DependencyProperty, animStorage: IAnimationStorage) {
             var storage = Providers.GetStorage(dobj, propd);
             var list = storage.Animation;
             if (!list)
@@ -2488,7 +2553,7 @@ module Fayde.Media.Animation {
             if (len < 1)
                 return;
             var i;
-            var cur: Media.Animation.AnimationStorage;
+            var cur: Media.Animation.IAnimationStorage;
             for (i = len - 1; i >= 0; i--) {
                 cur = list[i];
                 if (cur === animStorage)
@@ -2497,12 +2562,20 @@ module Fayde.Media.Animation {
             if (i === (len - 1)) {
                 list.pop();
                 if (len > 1)
-                    list[len - 2].Enable();
+                    Enable(list[len - 2]);
             } else {
                 list.splice(i, 1);
                 if (i > 0)
                     list[i - 1].StopValue = animStorage.StopValue;
             }
+        }
+        private static Enable(storage: IAnimationStorage) {
+            storage.IsDisabled = false;
+            ApplyCurrentValue(storage);
+        }
+        private static ApplyCurrentValue(storage: IAnimationStorage) {
+            if (storage.CurrentValue === undefined) return;
+            storage.TargetObj.SetStoreValue(storage.TargetProp, storage.CurrentValue);
         }
     }
 }
@@ -9257,91 +9330,6 @@ module Fayde.Media {
 }
 
 module Fayde.Media.Animation {
-    export class AnimationStorage {
-        private _Animation: AnimationBase;
-        private _TargetObj: DependencyObject;
-        private _TargetProp: DependencyProperty;
-        private _Disabled: bool = false;
-        private _BaseValue: any;
-        private _CurrentValue: any = undefined;
-        StopValue: any;
-        constructor(animation: AnimationBase, targetObj: DependencyObject, targetProp: DependencyProperty) {
-            this._Animation = animation;
-            this._TargetObj = targetObj;
-            this._TargetProp = targetProp;
-            var prevStorage = AnimationStore.Attach(targetObj, targetProp, this);
-            this._BaseValue = targetObj.GetValue(targetProp);
-            if (this._BaseValue === undefined) {
-                var targetType = targetProp.GetTargetType();
-                if (targetType === Number)
-                    this._BaseValue = 0;
-                else if (targetType === String)
-                    this._BaseValue = "";
-                else
-                    this._BaseValue = new (<any>targetType)();
-            }
-            if (prevStorage)
-                this.StopValue = prevStorage.StopValue;
-            else
-                this.StopValue = targetObj.ReadLocalValue(targetProp);
-        }
-        SwitchTarget(target: DependencyObject) {
-            var wasDisabled = this._Disabled;
-            if (!this._Disabled)
-                this.Disable();
-            this._TargetObj = target;
-            this._Disabled = wasDisabled;
-        }
-        Enable() {
-            this._Disabled = false;
-            this.ApplyCurrentValue();
-        }
-        Disable() { this._Disabled = true; }
-        Stop() {
-            this.DetachFromObject();
-            this.ResetPropertyValue();
-        }
-        DetachFromObject() {
-            var to = this._TargetObj;
-            if (!to)
-                return;
-            var tp = this._TargetProp;
-            if (!tp)
-                return;
-            AnimationStore.Detach(to, tp, this);
-        }
-        ResetPropertyValue() {
-            var to = this._TargetObj;
-            if (!to)
-                return;
-            var tp = this._TargetProp;
-            if (!tp)
-                return;
-            to.SetStoreValue(tp, this.StopValue);
-        }
-        UpdateCurrentValueAndApply(clockData: IClockData) {
-            if (this._Disabled)
-                return;
-            if (!this._TargetObj)
-                return;
-            var oldValue = this._CurrentValue;
-            this._CurrentValue = this._Animation.GetCurrentValue(this._BaseValue, this.StopValue !== undefined ? this.StopValue : this._BaseValue, clockData);
-            if (Nullstone.Equals(oldValue, this._CurrentValue))
-                return;
-            this.ApplyCurrentValue();
-        }
-        ApplyCurrentValue() {
-            if (this._CurrentValue == null)
-                return;
-            this._TargetObj.SetStoreValue(this._TargetProp, this._CurrentValue);
-        }
-        CloneCore() {
-        }
-    }
-    Nullstone.RegisterType(AnimationStorage, "AnimationStorage");
-}
-
-module Fayde.Media.Animation {
     export class RepeatBehavior {
         private _Duration: Duration = null;
         private _Count: number = null;
@@ -11046,9 +11034,10 @@ module Fayde {
             if (propd.IsReadOnly && !propd.IsCustom)
                 throw new ArgumentException("This property is readonly.");
             this._RemoveExpression(propd);
-            if (Media.Animation.AnimationStore.Get(this, propd))
-                return;
             var storage = Providers.GetStorage(this, propd);
+            var anims = storage.Animation;
+            if (anims && anims.length > 0)
+                return;
             propd.Store.ClearValue(storage);
         }
         ReadLocalValue(propd: DependencyProperty): any {
@@ -15556,26 +15545,23 @@ module Fayde.Media {
 }
 
 module Fayde.Media.Animation {
-    export class AnimationBase extends Timeline {
-        private _Storage: AnimationStorage;
+    export class AnimationBase extends Timeline implements IAnimStorageHidden {
+        private _Storage: IAnimationStorage;
         Resolve(target: DependencyObject, propd: DependencyProperty) { return true; }
-        HookupStorage(targetObj: DependencyObject, targetProp: DependencyProperty): AnimationStorage {
-            return (this._Storage = new AnimationStorage(this, targetObj, targetProp));
-        }
         Disable() {
             var storage = this._Storage;
             if (storage)
-                storage.Disable();
+                AnimationStore.Disable(storage);
         }
         Stop() {
             var storage = this._Storage;
             if (storage)
-                storage.Stop();
+                AnimationStore.Stop(storage);
         }
         UpdateInternal(clockData: IClockData) {
             var storage = this._Storage;
             if (storage)
-                storage.UpdateCurrentValueAndApply(clockData);
+                AnimationStore.UpdateCurrentValueAndApply(storage, clockData);
         }
         GetNaturalDurationCore(): Duration { return Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 1)); }
         GetTargetValue(defaultOriginalValue: any): any { return undefined; }
@@ -16114,7 +16100,7 @@ module Fayde.Media.Animation {
                 error.Message = "Storyboard value could not be converted to the correct type";
                 return false;
             }
-            animation.HookupStorage(refobj.Value, targetProperty);
+            AnimationStore.AttachAnimation(animation, refobj.Value, targetProperty);
             return true;
         }
         UpdateInternal(clockData: IClockData) {

@@ -1,6 +1,6 @@
 /// CODE
 /// <reference path="../DependencyObject.ts" />
-/// <reference path="../../Media/Animation/AnimationStorage.ts" />
+/// <reference path="../../Media/Animation/AnimationStore.ts" />
 
 module Fayde {
     export var UnsetValue = {};
@@ -31,7 +31,7 @@ module Fayde.Providers {
         OwnerNode: DONode;
         Property: DependencyProperty;
         Precedence: PropertyPrecedence;
-        Animation: Media.Animation.AnimationStorage[];
+        Animation: Media.Animation.IAnimationStorage[];
         Local: any;
         LocalStyleValue: any;
         ImplicitStyleValue: any;
@@ -191,14 +191,7 @@ module Fayde.Providers {
             //newStorage.ImplicitStyleValue = undefined;
             //newStorage.LocalStyleValue = undefined;
             newStorage.Local = Fayde.Clone(sourceStorage.Local);
-
-            var srcRepo = sourceStorage.Animation;
-            if (!srcRepo)
-                return newStorage;
-            var thisRepo = newStorage.Animation = srcRepo.slice(0);
-            for (var key in thisRepo) {
-                thisRepo[key].CloneCore();
-            }
+            newStorage.Animation = Media.Animation.AnimationStore.Clone(sourceStorage.Animation, dobj);
             return newStorage;
         }
     }

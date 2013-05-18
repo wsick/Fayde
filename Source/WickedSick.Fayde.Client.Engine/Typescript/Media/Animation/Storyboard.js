@@ -119,7 +119,7 @@ var Fayde;
                         return false;
                     }
                     //AnimationDebug(function () { return "Hookup (" + Storyboard.GetTargetName(animation) + "." + targetPropertyPath.Path + ")"; });
-                    animation.HookupStorage(refobj.Value, targetProperty);
+                    Animation.AnimationStore.AttachAnimation(animation, refobj.Value, targetProperty);
                     return true;
                 };
                 Storyboard.prototype.UpdateInternal = function (clockData) {

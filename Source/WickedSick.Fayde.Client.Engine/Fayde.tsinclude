@@ -66,7 +66,6 @@ Typescript\Markup\StaticResourceMarkup.ts
 Typescript\Markup\TemplateBindingMarkup.ts
 Typescript\Media\Matrix.ts
 Typescript\Media\Matrix3D.ts
-Typescript\Media\Animation\AnimationStorage.ts
 Typescript\Media\Animation\RepeatBehavior.ts
 Typescript\Navigation\NavService.ts
 Typescript\Primitives\Clip.ts
