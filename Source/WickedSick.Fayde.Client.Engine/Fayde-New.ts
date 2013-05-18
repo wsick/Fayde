@@ -7679,7 +7679,8 @@ module Fayde {
 
 module Fayde {
     export interface IDebugInteropCache {
-        Visual: UINode;
+        Node: UINode;
+        Visual: UIElement;
         Children: IDebugInteropCache[];
         Serialized: string;
     }
@@ -7693,12 +7694,14 @@ module Fayde {
         constructor(app: App) {
             this.App = app;
             this.Surface = app.MainSurface;
+            this.RegisterHitTestDebugService();
         }
         LayoutUpdated() {
             this._IsCacheInvalidated = true;
         }
         GenerateCache(): string {
             this._Cache = {
+                Node: null,
                 Visual: null,
                 Children: [],
                 Serialized: ""
@@ -7711,7 +7714,8 @@ module Fayde {
                 var cur = layers[i];
                 children = this.GetCacheChildren(cur);
                 var item: IDebugInteropCache = {
-                    Visual: cur,
+                    Node: cur,
+                    Visual: cur.XObject,
                     Children: children,
                     Serialized: this.SerializeUINode(cur, children.length)
                 };

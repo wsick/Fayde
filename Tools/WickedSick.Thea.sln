@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.Thea", "WickedSick.Thea.csproj", "{CB80E97E-9CFA-4572-8F78-5E6E608F2B36}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.Thea", "WickedSick.Thea\WickedSick.Thea.csproj", "{CB80E97E-9CFA-4572-8F78-5E6E608F2B36}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.MVVM", "..\WickedSick.MVVM\WickedSick.MVVM.csproj", "{C90D69F2-9AB0-468E-8F42-E2C9F7705290}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.MVVM", "WickedSick.MVVM\WickedSick.MVVM.csproj", "{C90D69F2-9AB0-468E-8F42-E2C9F7705290}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.Thea.VisualStudioInterop", "..\WickedSick.Thea.VisualStudioInterop\WickedSick.Thea.VisualStudioInterop.csproj", "{0CFF9784-6467-4BDC-B3D1-DB6089BEB488}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.Thea.VisualStudioInterop", "WickedSick.Thea.VisualStudioInterop\WickedSick.Thea.VisualStudioInterop.csproj", "{0CFF9784-6467-4BDC-B3D1-DB6089BEB488}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

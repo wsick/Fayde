@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Web.Script.Serialization;
 using WatiN.Core;
+using WatiN.Core.Exceptions;
 using WickedSick.Thea.Models;
 using WickedSick.Thea.ViewModels;
 using WickedSick.Thea.VisualStudioInterop;
@@ -12,34 +13,30 @@ namespace WickedSick.Thea.Helpers
 {
     public class FaydeInterop : IJavascriptContext
     {
-        //private static readonly string INITIALIZATION_SCRIPT = "(function() { var fi = new Fayde.DebugInterop(App.Current); return fi._ID; })();";
-
         private Browser _Browser;
-        //private int? _ID = null;
         private VisualStudioInstance _VSI;
-
-        //public int? ID { get { return _ID; } }
 
         public FaydeInterop(Browser browser)
         {
             _Browser = browser;
-            //InitializeFaydeInteropJs();
-            //int id;
-            //if (int.TryParse(_Browser.Eval(INITIALIZATION_SCRIPT), out id))
-                //_ID = id;
         }
 
         public bool IsCacheInvalidated
         {
             get
             {
-                return Eval("App.Current.DebugInterop._IsCacheInvalidated") == "true";
+                IsFaydeAlive = VerifyInterop();
+                return IsFaydeAlive && Eval("App.Current.DebugInterop._IsCacheInvalidated") == "true";
             }
         }
-
+        public bool IsFaydeAlive { get; protected set; }
 
         public IEnumerable<VisualViewModel> GetVisualTree()
         {
+            IsFaydeAlive = VerifyInterop();
+            if (!IsFaydeAlive)
+                return Enumerable.Empty<VisualViewModel>();
+
             RunFunc("GenerateCache");
 
             var indexStack = new Stack<int>();
@@ -47,9 +44,12 @@ namespace WickedSick.Thea.Helpers
             GetVisualTreeChildren(tuple, indexStack);
             return tuple.Item1.VisualChildren;
         }
-
         public void PopulateProperties(VisualViewModel vvm)
         {
+            IsFaydeAlive = VerifyInterop();
+            if (!IsFaydeAlive)
+                return;
+
             var formattedArr = RunFunc("GetProperties", GetJsCodeToGetVisual(vvm));
             var props = ParseDependencyValueArray(formattedArr)
                 .OrderBy(dv => dv.OwnerTypeName)
@@ -59,9 +59,12 @@ namespace WickedSick.Thea.Helpers
             foreach (var p in props)
                 vvm.Properties.Add(p);
         }
-
         public IEnumerable<string> GetVisualIDsInHitTest()
         {
+            IsFaydeAlive = VerifyInterop();
+            if (!IsFaydeAlive)
+                return Enumerable.Empty<string>();
+
             var formattedArr = RunFunc("GetVisualIDsInHitTest");
             return ParseStringArray(formattedArr);
         }
@@ -73,7 +76,6 @@ namespace WickedSick.Thea.Helpers
             _VSI.Attach();
         }
 
-        
         private void GetVisualTreeChildren(Tuple<VisualViewModel, int> rootTuple, Stack<int> indexStack)
         {
             for (int i = 0; i < rootTuple.Item2; i++)
@@ -85,7 +87,6 @@ namespace WickedSick.Thea.Helpers
                 indexStack.Pop();
             }
         }
-
         private Tuple<VisualViewModel, int> GetVisual(IEnumerable<int> indices)
         {
             var indexPath = string.Join("", indices.Reverse().Select(i => string.Format(".Children[{0}]", i)));
@@ -95,7 +96,6 @@ namespace WickedSick.Thea.Helpers
             RefreshIsThisOnStackFrame(tuple.Item1);
             return tuple;
         }
-
         private static Tuple<VisualViewModel, int> DeserializeVisual(string formatted)
         {
             var tokens = formatted.Split(new[] { "~|~" }, StringSplitOptions.None);
@@ -125,7 +125,6 @@ namespace WickedSick.Thea.Helpers
                 vvm.Name = null;
             return Tuple.Create(vvm, childCount);
         }
-
         private static IEnumerable<DependencyValue> ParseDependencyValueArray(string s)
         {
             var js = new JavaScriptSerializer();
@@ -143,7 +142,6 @@ namespace WickedSick.Thea.Helpers
                 };
 			}
         }
-
         private static IEnumerable<string> ParseStringArray(string s)
         {
             var js = new JavaScriptSerializer();
@@ -159,6 +157,17 @@ namespace WickedSick.Thea.Helpers
 
         #region Execution Wrapper
 
+        protected bool VerifyInterop()
+        {
+            try
+            {
+                return !string.IsNullOrWhiteSpace(Eval("App.Current.DebugInterop"));
+            }
+            catch (JavaScriptException)
+            {
+                return false;
+            }
+        }
         public void Execute(string script)
         {
             if (_VSI != null && _VSI.IsDebugging)
@@ -175,7 +184,6 @@ namespace WickedSick.Thea.Helpers
             }
             _Browser.RunScript(script);
         }
-
         public string Eval(string expression)
         {
             if (_VSI != null && _VSI.IsDebugging)
@@ -190,7 +198,6 @@ namespace WickedSick.Thea.Helpers
             }
             return _Browser.Eval(expression);
         }
-
         public string EvalAgainstStackFrame(string expression)
         {
             if (_VSI != null && _VSI.IsDebugging)
@@ -210,28 +217,16 @@ namespace WickedSick.Thea.Helpers
 
         #region Fayde Interop Js Wrapper
 
-        private void InitializeFaydeInteropJs()
-        {
-            var jsStream = this.GetType().Assembly.GetManifestResourceStream("WickedSick.Thea.Helpers.FaydeInterop.js");
-            using (var sr = new StreamReader(jsStream))
-            {
-                var js = sr.ReadToEnd();
-                Execute(js);
-            }
-        }
-
         private string GetJsCodeToGetVisual(VisualViewModel vvm)
         {
             return vvm.ResolveVisualWithJavascript();
         }
-
         private string RunFunc(string functionName, string args = null)
         {
             return Eval(string.Format("App.Current.DebugInterop.{0}({1})", functionName, args));
         }
 
         #endregion
-
 
         private void RefreshIsThisOnStackFrame(VisualViewModel vvm)
         {

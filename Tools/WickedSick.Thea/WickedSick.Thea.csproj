@@ -68,6 +68,7 @@
     </ApplicationDefinition>
     <Compile Include="Helpers\FaydeInterop.cs" />
     <Compile Include="Helpers\IJavascriptContext.cs" />
+    <Compile Include="IEnumerableEx.cs" />
     <Compile Include="Models\DependencyValue.cs" />
     <Compile Include="Resources\BoolSolidColorBrushConverter.cs" />
     <Compile Include="Resources\BoolFontWeightConverter.cs" />
@@ -148,7 +149,6 @@
       <Link>Interop.SHDocVw.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <EmbeddedResource Include="Helpers\FaydeInterop.js" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WickedSick.MVVM\WickedSick.MVVM.csproj">

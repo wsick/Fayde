@@ -7,12 +7,14 @@ var Fayde;
             this._IsCacheInvalidated = true;
             this.App = app;
             this.Surface = app.MainSurface;
+            this.RegisterHitTestDebugService();
         }
         DebugInterop.prototype.LayoutUpdated = function () {
             this._IsCacheInvalidated = true;
         };
         DebugInterop.prototype.GenerateCache = function () {
             this._Cache = {
+                Node: null,
                 Visual: null,
                 Children: [],
                 Serialized: ""
@@ -25,7 +27,8 @@ var Fayde;
                 var cur = layers[i];
                 children = this.GetCacheChildren(cur);
                 var item = {
-                    Visual: cur,
+                    Node: cur,
+                    Visual: cur.XObject,
                     Children: children,
                     Serialized: this.SerializeUINode(cur, children.length)
                 };

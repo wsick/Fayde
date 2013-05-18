@@ -145,7 +145,7 @@ namespace WickedSick.Thea.ViewModels
         {
             AttachedBrowser = browser;
             _Interop = new FaydeInterop(AttachedBrowser);
-            MergeTree(_Interop.GetVisualTree());
+            RefreshTree();
             //_Interop.PopulateProperties(RootLayers[0]);
             StartTimer();
         }
@@ -190,10 +190,14 @@ namespace WickedSick.Thea.ViewModels
 
         private void RefreshTree()
         {
-            if (_Interop.IsCacheInvalidated)
-                MergeTree(_Interop.GetVisualTree());
-        }
+            if (!_Interop.IsFaydeAlive)
+                RootLayers.Clear();
+            if (!_Interop.IsCacheInvalidated)
+                return;
 
+            _Interop.GetVisualTree().ToList()
+                .MergeInto(RootLayers, (v1, v2) => v1.ID == v2.ID, vvm => vvm.VisualChildren);
+        }
         private void RefreshThisVisual(List<VisualViewModel> allVisuals)
         {
             var sid = _Interop.EvalAgainstStackFrame("this._ID");
@@ -206,7 +210,6 @@ namespace WickedSick.Thea.ViewModels
             if (thisVisual != null)
                 thisVisual.IsThisOnStackFrame = true;
         }
-
         private void RefreshHitTestVisuals(List<VisualViewModel> allVisuals)
         {
             var hitTested = _Interop.GetVisualIDsInHitTest().ToList();
@@ -218,15 +221,6 @@ namespace WickedSick.Thea.ViewModels
 
             foreach (var v in allVisuals.Where(vvm => hitTested.Any(s => vvm.ID == s)))
                 v.IsInHitTest = true;
-        }
-
-        private void MergeTree(IEnumerable<VisualViewModel> allVisuals)
-        {
-            RootLayers.Clear();
-            foreach (var v in allVisuals)
-            {
-                RootLayers.Add(v);
-            }
         }
 
         #endregion
