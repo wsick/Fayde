@@ -37,8 +37,9 @@ var Fayde;
                 }
                 if(d instanceof Controls.ListBox) {
                     var listbox = d;
-                    //if (listbox.$TemplateScrollViewer)
-                    //listbox.$TemplateScrollViewer.SetValue(args.Property, args.NewValue);
+                    if(listbox.$TemplateScrollViewer) {
+                        listbox.$TemplateScrollViewer.SetValue(args.Property, args.NewValue);
+                    }
                     return;
                 }
             };

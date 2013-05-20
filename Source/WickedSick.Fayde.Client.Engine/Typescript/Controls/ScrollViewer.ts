@@ -23,8 +23,8 @@ module Fayde.Controls {
 
             if (d instanceof ListBox) {
                 var listbox = <ListBox>d;
-                //if (listbox.$TemplateScrollViewer)
-                //listbox.$TemplateScrollViewer.SetValue(args.Property, args.NewValue);
+                if (listbox.$TemplateScrollViewer)
+                    listbox.$TemplateScrollViewer.SetValue(args.Property, args.NewValue);
                 return;
             }
         }
