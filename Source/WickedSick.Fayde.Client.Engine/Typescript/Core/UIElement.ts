@@ -215,7 +215,7 @@ module Fayde {
                 rect.copyTo(newClip.GetBounds(), lu.ClipBounds);
             this.InvalidateParent(lu.SurfaceBoundsWithChildren);
             lu.UpdateBounds(true);
-            lu.ComputeComposite();
+            lu.UpdateClip();
         }
         InvalidateEffect(oldEffect: Media.Effects.Effect, newEffect: Media.Effects.Effect) {
             var lu = this.LayoutUpdater;

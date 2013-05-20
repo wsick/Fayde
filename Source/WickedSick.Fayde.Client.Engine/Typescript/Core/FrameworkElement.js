@@ -144,7 +144,6 @@ var Fayde;
         };
         FENode.prototype._SizeChanged = function (args) {
             var lu = this.LayoutUpdater;
-            //LOOKS USELESS: this._PurgeSizeCache();
             //TODO: var p = this._GetRenderTransformOrigin();
             //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
             lu.FullInvalidate(false);

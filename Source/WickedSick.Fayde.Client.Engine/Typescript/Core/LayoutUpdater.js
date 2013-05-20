@@ -18,6 +18,7 @@ var Fayde;
     var rvFlag = _Dirty.RenderVisibility;
     var htvFlag = _Dirty.HitTestVisibility;
     var localClipFlag = _Dirty.LocalClip;
+    var layoutClipFlag = _Dirty.LayoutClip;
     var clipFlag = _Dirty.Clip;
     var downDirtyFlag = _Dirty.DownDirtyState;
     var upDirtyFlag = _Dirty.UpDirtyState;
@@ -38,6 +39,7 @@ var Fayde;
         function LayoutUpdater(Node) {
             this.Node = Node;
             this.LayoutClip = undefined;
+            this.CompositeLayoutClip = undefined;
             this.LayoutSlot = undefined;
             this.PreviousConstraint = undefined;
             this.LastRenderSize = undefined;
@@ -186,11 +188,15 @@ var Fayde;
                 this._PropagateDirtyFlagToChildren(dirtyEnum.Transform);
             }
             var isLocalClip = this.DirtyFlags & localClipFlag;
+            var isLayoutClip = this.DirtyFlags & layoutClipFlag;
             var isClip = isLocalClip || this.DirtyFlags & clipFlag;
-            this.DirtyFlags &= ~(localClipFlag | clipFlag);
-            if(isClip) {
-                this._PropagateDirtyFlagToChildren(dirtyEnum.Clip);
+            this.DirtyFlags &= ~(localClipFlag | layoutClipFlag | clipFlag);
+            if(isLayoutClip) {
+                this.ComputeLayoutClip(visualParentLu);
+                this._PropagateDirtyFlagToChildren(dirtyEnum.LayoutClip);
             }
+            //if (isClip)
+            //this._PropagateDirtyFlagToChildren(dirtyEnum.Clip);
             if(this.DirtyFlags & dirtyEnum.ChildrenZIndices) {
                 this.DirtyFlags &= ~dirtyEnum.ChildrenZIndices;
                 thisNode._ResortChildrenByZIndex();
@@ -312,6 +318,41 @@ var Fayde;
         };
         LayoutUpdater.prototype.InvalidateSubtreePaint = function () {
             this.Invalidate(this.SurfaceBoundsWithChildren);
+        };
+        LayoutUpdater.prototype.UpdateClip = function () {
+            if(this.Node.IsAttached) {
+                this.Surface._AddDirtyElement(this, localClipFlag);
+            }
+        };
+        LayoutUpdater.prototype.SetLayoutClip = function (layoutClip) {
+            var old = this.LayoutClip;
+            this.LayoutClip = layoutClip;
+            if(old === layoutClip) {
+                return;
+            }
+            if(old && layoutClip && rect.isEqual(old, layoutClip)) {
+                return;
+            }
+            if(this.Node.IsAttached) {
+                this.Surface._AddDirtyElement(this, layoutClipFlag);
+            }
+        };
+        LayoutUpdater.prototype.ComputeLayoutClip = function (vpLu) {
+            if(this.BreaksLayoutClipRender) {
+                this.CompositeLayoutClip = undefined;
+                return;
+            }
+            var vpcomposite = (vpLu) ? vpLu.CompositeLayoutClip : undefined;
+            var local = this.LayoutClip;
+            if(vpcomposite && local) {
+                this.CompositeLayoutClip = rect.intersection(rect.copyTo(local), vpcomposite);
+            } else if(vpcomposite) {
+                this.CompositeLayoutClip = rect.copyTo(vpcomposite);
+            } else if(local) {
+                this.CompositeLayoutClip = rect.copyTo(local);
+            } else {
+                this.CompositeLayoutClip = undefined;
+            }
         };
         LayoutUpdater.prototype.UpdateTransform = function () {
             if(this.Node.IsAttached) {
@@ -1006,11 +1047,14 @@ var Fayde;
                 layoutClip.X = Math.round(layoutClip.X);
                 layoutClip.Y = Math.round(layoutClip.Y);
             }
-            if(((!isTopLevel && rect.isRectContainedIn(element, layoutClip)) || !size.isEqual(constrainedResponse, response)) && !(node instanceof Fayde.Controls.CanvasNode) && ((visualParentNode && !(visualParentNode instanceof Fayde.Controls.CanvasNode)) || this.IsContainer)) {
+            var oldLayoutClip = this.LayoutClip;
+            if(((!isTopLevel && !rect.isRectContainedIn(element, layoutClip)) || !size.isEqual(constrainedResponse, response)) && !(node instanceof Fayde.Controls.CanvasNode) && ((visualParentNode && !(visualParentNode instanceof Fayde.Controls.CanvasNode)) || this.IsContainer)) {
                 var frameworkClip = this.CoerceSize(size.createInfinite());
                 var frect = rect.fromSize(frameworkClip);
                 rect.intersection(layoutClip, frect);
-                this.LayoutClip = layoutClip;
+                this.SetLayoutClip(layoutClip);
+            } else {
+                this.SetLayoutClip(undefined);
             }
             if(!size.isEqual(oldSize, response)) {
                 if(!this.LastRenderSize) {

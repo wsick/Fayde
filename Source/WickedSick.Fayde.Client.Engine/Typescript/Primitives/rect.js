@@ -68,43 +68,46 @@ var rect = (function () {
     rect.isEqual = function isEqual(rect1, rect2) {
         return rect1.X === rect2.X && rect1.Y === rect2.Y && rect1.Width === rect2.Width && rect1.Height === rect2.Height;
     };
-    rect.intersection = function intersection(rect1, rect2) {
-        var x = Math.max(rect1.X, rect2.X);
-        var y = Math.max(rect1.Y, rect2.Y);
-        rect1.Width = Math.max(0, Math.min(rect1.X + rect1.Width, rect2.X + rect2.Width) - x);
-        rect1.Height = Math.max(0, Math.min(rect1.Y + rect1.Height, rect2.Y + rect2.Height) - y);
-        rect1.X = x;
-        rect1.Y = y;
+    rect.intersection = function intersection(dest, rect2) {
+        var x = Math.max(dest.X, rect2.X);
+        var y = Math.max(dest.Y, rect2.Y);
+        dest.Width = Math.max(0, Math.min(dest.X + dest.Width, rect2.X + rect2.Width) - x);
+        dest.Height = Math.max(0, Math.min(dest.Y + dest.Height, rect2.Y + rect2.Height) - y);
+        dest.X = x;
+        dest.Y = y;
+        return dest;
     };
-    rect.union = function union(rect1, rect2) {
+    rect.union = function union(dest, rect2) {
         if(rect.isEmpty(rect2)) {
             return;
         }
-        if(rect.isEmpty(rect1)) {
-            rect.copyTo(rect2, rect1);
+        if(rect.isEmpty(dest)) {
+            rect.copyTo(rect2, dest);
             return;
         }
-        var x = Math.min(rect1.X, rect2.X);
-        var y = Math.min(rect1.Y, rect2.Y);
-        rect1.Width = Math.max(rect1.X + rect1.Width, rect2.X + rect2.Width) - x;
-        rect1.Height = Math.max(rect1.Y + rect1.Height, rect2.Y + rect2.Height) - y;
-        rect1.X = x;
-        rect1.Y = y;
+        var x = Math.min(dest.X, rect2.X);
+        var y = Math.min(dest.Y, rect2.Y);
+        dest.Width = Math.max(dest.X + dest.Width, rect2.X + rect2.Width) - x;
+        dest.Height = Math.max(dest.Y + dest.Height, rect2.Y + rect2.Height) - y;
+        dest.X = x;
+        dest.Y = y;
+        return dest;
     };
-    rect.unionLogical = function unionLogical(rect1, rect2) {
+    rect.unionLogical = function unionLogical(dest, rect2) {
         if(rect.isEmptyLogical(rect2)) {
             return;
         }
-        if(rect.isEmptyLogical(rect1)) {
-            rect.copyTo(rect2, rect1);
+        if(rect.isEmptyLogical(dest)) {
+            rect.copyTo(rect2, dest);
             return;
         }
-        var x = Math.min(rect1.X, rect2.X);
-        var y = Math.min(rect1.Y, rect2.Y);
-        rect1.Width = Math.max(rect1.X + rect1.Width, rect2.X + rect2.Width) - x;
-        rect1.Height = Math.max(rect1.Y + rect1.Height, rect2.Y + rect2.Height) - y;
-        rect1.X = x;
-        rect1.Y = y;
+        var x = Math.min(dest.X, rect2.X);
+        var y = Math.min(dest.Y, rect2.Y);
+        dest.Width = Math.max(dest.X + dest.Width, rect2.X + rect2.Width) - x;
+        dest.Height = Math.max(dest.Y + dest.Height, rect2.Y + rect2.Height) - y;
+        dest.X = x;
+        dest.Y = y;
+        return dest;
     };
     rect.growBy = function growBy(dest, left, top, right, bottom) {
         dest.X -= left;
@@ -335,7 +338,7 @@ var rect = (function () {
     rect.isRectContainedIn = function isRectContainedIn(src, test) {
         var copy = rect.copyTo(src);
         rect.intersection(copy, test);
-        return !rect.isEqual(src, copy);
+        return rect.isEqual(src, copy);
     };
     return rect;
 })();

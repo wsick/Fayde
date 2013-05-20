@@ -1831,18 +1831,19 @@ enum _Dirty {
     LocalProjection = 1 << 2,
     Clip = 1 << 3,
     LocalClip = 1 << 4,
-    RenderVisibility = 1 << 5,
-    HitTestVisibility = 1 << 6,
-    Measure = 1 << 7,
-    Arrange = 1 << 8,
-    ChildrenZIndices = 1 << 9,
+    LayoutClip = 1 << 5,
+    RenderVisibility = 1 << 6,
+    HitTestVisibility = 1 << 7,
+    Measure = 1 << 8,
+    Arrange = 1 << 9,
+    ChildrenZIndices = 1 << 10,
     Bounds = 1 << 20,
     NewBounds = 1 << 21,
     Invalidate = 1 << 22,
     InUpDirtyList = 1 << 30,
     InDownDirtyList = 1 << 31,
-    DownDirtyState = Transform | LocalTransform | LocalProjection 
-        | Clip | LocalClip | RenderVisibility | HitTestVisibility | ChildrenZIndices,
+    DownDirtyState = Transform | LocalTransform | LocalProjection
+        | Clip | LocalClip | LayoutClip | RenderVisibility | HitTestVisibility | ChildrenZIndices,
     UpDirtyState = Bounds | Invalidate,
 }
 
@@ -5548,6 +5549,7 @@ module Fayde {
     var rvFlag = _Dirty.RenderVisibility;
     var htvFlag = _Dirty.HitTestVisibility;
     var localClipFlag = _Dirty.LocalClip;
+    var layoutClipFlag = _Dirty.LayoutClip;
     var clipFlag = _Dirty.Clip;
     var downDirtyFlag = _Dirty.DownDirtyState
     var upDirtyFlag = _Dirty.UpDirtyState;
@@ -5600,6 +5602,7 @@ module Fayde {
         static LayoutExceptionUpdater: LayoutUpdater = undefined;
         Surface: Surface;
         LayoutClip: rect = undefined;
+        CompositeLayoutClip: rect = undefined;
         LayoutSlot: rect = undefined;
         PreviousConstraint: size = undefined;
         LastRenderSize: size = undefined;
@@ -5727,10 +5730,13 @@ module Fayde {
                 this._PropagateDirtyFlagToChildren(dirtyEnum.Transform);
             }
             var isLocalClip = this.DirtyFlags & localClipFlag;
+            var isLayoutClip = this.DirtyFlags & layoutClipFlag;
             var isClip = isLocalClip || this.DirtyFlags & clipFlag;
-            this.DirtyFlags &= ~(localClipFlag | clipFlag);
-            if (isClip)
-                this._PropagateDirtyFlagToChildren(dirtyEnum.Clip);
+            this.DirtyFlags &= ~(localClipFlag | layoutClipFlag | clipFlag);
+            if (isLayoutClip) {
+                this.ComputeLayoutClip(visualParentLu);
+                this._PropagateDirtyFlagToChildren(dirtyEnum.LayoutClip);
+            }
             if (this.DirtyFlags & dirtyEnum.ChildrenZIndices) {
                 this.DirtyFlags &= ~dirtyEnum.ChildrenZIndices;
                 thisNode._ResortChildrenByZIndex();
@@ -5839,6 +5845,36 @@ module Fayde {
         }
         InvalidateSubtreePaint() {
             this.Invalidate(this.SurfaceBoundsWithChildren);
+        }
+        UpdateClip() {
+            if (this.Node.IsAttached)
+                this.Surface._AddDirtyElement(this, localClipFlag);
+        }
+        SetLayoutClip(layoutClip: rect) {
+            var old = this.LayoutClip;
+            this.LayoutClip = layoutClip;
+            if (old === layoutClip)
+                return;
+            if (old && layoutClip && rect.isEqual(old, layoutClip))
+                return;
+            if (this.Node.IsAttached)
+                this.Surface._AddDirtyElement(this, layoutClipFlag);
+        }
+        ComputeLayoutClip(vpLu: LayoutUpdater) {
+            if (this.BreaksLayoutClipRender) {
+                this.CompositeLayoutClip = undefined;
+                return;
+            }
+            var vpcomposite = (vpLu) ? vpLu.CompositeLayoutClip : undefined;
+            var local = this.LayoutClip;
+            if (vpcomposite && local)
+                this.CompositeLayoutClip = rect.intersection(rect.copyTo(local), vpcomposite);
+            else if (vpcomposite)
+                this.CompositeLayoutClip = rect.copyTo(vpcomposite);
+            else if (local)
+                this.CompositeLayoutClip = rect.copyTo(local);
+            else
+                this.CompositeLayoutClip = undefined;
         }
         UpdateTransform() {
             if (this.Node.IsAttached)
@@ -6448,12 +6484,15 @@ module Fayde {
                 layoutClip.X = Math.round(layoutClip.X);
                 layoutClip.Y = Math.round(layoutClip.Y);
             }
-            if (((!isTopLevel && rect.isRectContainedIn(element, layoutClip)) || !size.isEqual(constrainedResponse, response))
+            var oldLayoutClip = this.LayoutClip;
+            if (((!isTopLevel && !rect.isRectContainedIn(element, layoutClip)) || !size.isEqual(constrainedResponse, response))
                 && !(node instanceof Controls.CanvasNode) && ((visualParentNode && !(visualParentNode instanceof Controls.CanvasNode)) || this.IsContainer)) {
                 var frameworkClip = this.CoerceSize(size.createInfinite());
                 var frect = rect.fromSize(frameworkClip);
                 rect.intersection(layoutClip, frect);
-                this.LayoutClip = layoutClip;
+                this.SetLayoutClip(layoutClip);
+            } else {
+                this.SetLayoutClip(undefined);
             }
             if (!size.isEqual(oldSize, response)) {
                 if (!this.LastRenderSize) {
@@ -10063,41 +10102,44 @@ class rect implements ICloneable {
             && rect1.Width === rect2.Width
             && rect1.Height === rect2.Height;
     }
-    static intersection(rect1: rect, rect2: rect) {
-        var x = Math.max(rect1.X, rect2.X);
-        var y = Math.max(rect1.Y, rect2.Y);
-        rect1.Width = Math.max(0, Math.min(rect1.X + rect1.Width, rect2.X + rect2.Width) - x);
-        rect1.Height = Math.max(0, Math.min(rect1.Y + rect1.Height, rect2.Y + rect2.Height) - y);
-        rect1.X = x;
-        rect1.Y = y;
+    static intersection(dest: rect, rect2: rect): rect {
+        var x = Math.max(dest.X, rect2.X);
+        var y = Math.max(dest.Y, rect2.Y);
+        dest.Width = Math.max(0, Math.min(dest.X + dest.Width, rect2.X + rect2.Width) - x);
+        dest.Height = Math.max(0, Math.min(dest.Y + dest.Height, rect2.Y + rect2.Height) - y);
+        dest.X = x;
+        dest.Y = y;
+        return dest;
     }
-    static union(rect1: rect, rect2: rect) {
+    static union(dest: rect, rect2: rect): rect {
         if (rect.isEmpty(rect2))
             return;
-        if (rect.isEmpty(rect1)) {
-            rect.copyTo(rect2, rect1);
+        if (rect.isEmpty(dest)) {
+            rect.copyTo(rect2, dest);
             return;
         }
-        var x = Math.min(rect1.X, rect2.X);
-        var y = Math.min(rect1.Y, rect2.Y);
-        rect1.Width = Math.max(rect1.X + rect1.Width, rect2.X + rect2.Width) - x;
-        rect1.Height = Math.max(rect1.Y + rect1.Height, rect2.Y + rect2.Height) - y;
-        rect1.X = x;
-        rect1.Y = y;
+        var x = Math.min(dest.X, rect2.X);
+        var y = Math.min(dest.Y, rect2.Y);
+        dest.Width = Math.max(dest.X + dest.Width, rect2.X + rect2.Width) - x;
+        dest.Height = Math.max(dest.Y + dest.Height, rect2.Y + rect2.Height) - y;
+        dest.X = x;
+        dest.Y = y;
+        return dest;
     }
-    static unionLogical(rect1: rect, rect2: rect) {
+    static unionLogical(dest: rect, rect2: rect): rect {
         if (rect.isEmptyLogical(rect2))
             return;
-        if (rect.isEmptyLogical(rect1)) {
-            rect.copyTo(rect2, rect1);
+        if (rect.isEmptyLogical(dest)) {
+            rect.copyTo(rect2, dest);
             return;
         }
-        var x = Math.min(rect1.X, rect2.X);
-        var y = Math.min(rect1.Y, rect2.Y);
-        rect1.Width = Math.max(rect1.X + rect1.Width, rect2.X + rect2.Width) - x;
-        rect1.Height = Math.max(rect1.Y + rect1.Height, rect2.Y + rect2.Height) - y;
-        rect1.X = x;
-        rect1.Y = y;
+        var x = Math.min(dest.X, rect2.X);
+        var y = Math.min(dest.Y, rect2.Y);
+        dest.Width = Math.max(dest.X + dest.Width, rect2.X + rect2.Width) - x;
+        dest.Height = Math.max(dest.Y + dest.Height, rect2.Y + rect2.Height) - y;
+        dest.X = x;
+        dest.Y = y;
+        return dest;
     }
     static growBy(dest: rect, left: number, top: number, right: number, bottom: number) {
         dest.X -= left;
@@ -10303,7 +10345,7 @@ class rect implements ICloneable {
     static isRectContainedIn(src: rect, test: rect) {
         var copy = rect.copyTo(src);
         rect.intersection(copy, test);
-        return !rect.isEqual(src, copy);
+        return rect.isEqual(src, copy);
     }
 }
 Nullstone.RegisterType(rect, "rect");
@@ -14806,7 +14848,7 @@ module Fayde {
                 rect.copyTo(newClip.GetBounds(), lu.ClipBounds);
             this.InvalidateParent(lu.SurfaceBoundsWithChildren);
             lu.UpdateBounds(true);
-            lu.ComputeComposite();
+            lu.UpdateClip();
         }
         InvalidateEffect(oldEffect: Media.Effects.Effect, newEffect: Media.Effects.Effect) {
             var lu = this.LayoutUpdater;

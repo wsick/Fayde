@@ -216,7 +216,7 @@ var Fayde;
             }
             this.InvalidateParent(lu.SurfaceBoundsWithChildren);
             lu.UpdateBounds(true);
-            lu.ComputeComposite();
+            lu.UpdateClip();
         };
         UINode.prototype.InvalidateEffect = function (oldEffect, newEffect) {
             var lu = this.LayoutUpdater;

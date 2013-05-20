@@ -135,8 +135,6 @@ module Fayde {
 
         _SizeChanged(args: IDependencyPropertyChangedEventArgs) {
             var lu = this.LayoutUpdater;
-            //LOOKS USELESS: this._PurgeSizeCache();
-
             //TODO: var p = this._GetRenderTransformOrigin();
             //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
             lu.FullInvalidate(false);

@@ -76,43 +76,46 @@ class rect implements ICloneable {
             && rect1.Height === rect2.Height;
     }
 
-    static intersection(rect1: rect, rect2: rect) {
-        var x = Math.max(rect1.X, rect2.X);
-        var y = Math.max(rect1.Y, rect2.Y);
-        rect1.Width = Math.max(0, Math.min(rect1.X + rect1.Width, rect2.X + rect2.Width) - x);
-        rect1.Height = Math.max(0, Math.min(rect1.Y + rect1.Height, rect2.Y + rect2.Height) - y);
-        rect1.X = x;
-        rect1.Y = y;
+    static intersection(dest: rect, rect2: rect): rect {
+        var x = Math.max(dest.X, rect2.X);
+        var y = Math.max(dest.Y, rect2.Y);
+        dest.Width = Math.max(0, Math.min(dest.X + dest.Width, rect2.X + rect2.Width) - x);
+        dest.Height = Math.max(0, Math.min(dest.Y + dest.Height, rect2.Y + rect2.Height) - y);
+        dest.X = x;
+        dest.Y = y;
+        return dest;
     }
-    static union(rect1: rect, rect2: rect) {
+    static union(dest: rect, rect2: rect): rect {
         if (rect.isEmpty(rect2))
             return;
-        if (rect.isEmpty(rect1)) {
-            rect.copyTo(rect2, rect1);
+        if (rect.isEmpty(dest)) {
+            rect.copyTo(rect2, dest);
             return;
         }
 
-        var x = Math.min(rect1.X, rect2.X);
-        var y = Math.min(rect1.Y, rect2.Y);
-        rect1.Width = Math.max(rect1.X + rect1.Width, rect2.X + rect2.Width) - x;
-        rect1.Height = Math.max(rect1.Y + rect1.Height, rect2.Y + rect2.Height) - y;
-        rect1.X = x;
-        rect1.Y = y;
+        var x = Math.min(dest.X, rect2.X);
+        var y = Math.min(dest.Y, rect2.Y);
+        dest.Width = Math.max(dest.X + dest.Width, rect2.X + rect2.Width) - x;
+        dest.Height = Math.max(dest.Y + dest.Height, rect2.Y + rect2.Height) - y;
+        dest.X = x;
+        dest.Y = y;
+        return dest;
     }
-    static unionLogical(rect1: rect, rect2: rect) {
+    static unionLogical(dest: rect, rect2: rect): rect {
         if (rect.isEmptyLogical(rect2))
             return;
-        if (rect.isEmptyLogical(rect1)) {
-            rect.copyTo(rect2, rect1);
+        if (rect.isEmptyLogical(dest)) {
+            rect.copyTo(rect2, dest);
             return;
         }
 
-        var x = Math.min(rect1.X, rect2.X);
-        var y = Math.min(rect1.Y, rect2.Y);
-        rect1.Width = Math.max(rect1.X + rect1.Width, rect2.X + rect2.Width) - x;
-        rect1.Height = Math.max(rect1.Y + rect1.Height, rect2.Y + rect2.Height) - y;
-        rect1.X = x;
-        rect1.Y = y;
+        var x = Math.min(dest.X, rect2.X);
+        var y = Math.min(dest.Y, rect2.Y);
+        dest.Width = Math.max(dest.X + dest.Width, rect2.X + rect2.Width) - x;
+        dest.Height = Math.max(dest.Y + dest.Height, rect2.Y + rect2.Height) - y;
+        dest.X = x;
+        dest.Y = y;
+        return dest;
     }
 
     static growBy(dest: rect, left: number, top: number, right: number, bottom: number) {
@@ -343,7 +346,7 @@ class rect implements ICloneable {
     static isRectContainedIn(src: rect, test: rect) {
         var copy = rect.copyTo(src);
         rect.intersection(copy, test);
-        return !rect.isEqual(src, copy);
+        return rect.isEqual(src, copy);
     }
 }
 Nullstone.RegisterType(rect, "rect");
