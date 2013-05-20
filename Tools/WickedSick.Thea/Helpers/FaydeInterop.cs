@@ -25,16 +25,16 @@ namespace WickedSick.Thea.Helpers
         {
             get
             {
-                IsFaydeAlive = VerifyInterop();
-                return IsFaydeAlive && Eval("App.Current.DebugInterop._IsCacheInvalidated") == "true";
+                IsAlive = VerifyInterop();
+                return IsAlive && Eval("App.Current.DebugInterop._IsCacheInvalidated") == "true";
             }
         }
-        public bool IsFaydeAlive { get; protected set; }
+        public bool IsAlive { get; protected set; }
 
         public IEnumerable<VisualViewModel> GetVisualTree()
         {
-            IsFaydeAlive = VerifyInterop();
-            if (!IsFaydeAlive)
+            IsAlive = VerifyInterop();
+            if (!IsAlive)
                 return Enumerable.Empty<VisualViewModel>();
 
             RunFunc("GenerateCache");
@@ -46,8 +46,8 @@ namespace WickedSick.Thea.Helpers
         }
         public void PopulateProperties(VisualViewModel vvm)
         {
-            IsFaydeAlive = VerifyInterop();
-            if (!IsFaydeAlive)
+            IsAlive = VerifyInterop();
+            if (!IsAlive)
                 return;
 
             var formattedArr = RunFunc("GetProperties", GetJsCodeToGetVisual(vvm));
@@ -61,8 +61,8 @@ namespace WickedSick.Thea.Helpers
         }
         public IEnumerable<string> GetVisualIDsInHitTest()
         {
-            IsFaydeAlive = VerifyInterop();
-            if (!IsFaydeAlive)
+            IsAlive = VerifyInterop();
+            if (!IsAlive)
                 return Enumerable.Empty<string>();
 
             var formattedArr = RunFunc("GetVisualIDsInHitTest");

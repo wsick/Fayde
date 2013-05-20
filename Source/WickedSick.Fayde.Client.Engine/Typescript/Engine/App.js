@@ -73,6 +73,7 @@ var App = (function () {
         this._ClockTimer.RegisterTimer(this);
     };
     App.prototype.Tick = function (lastTime, nowTime) {
+        this.DebugInterop.NumFrames++;
         this.ProcessStoryboards(lastTime, nowTime);
         this.Update();
         this.Render();

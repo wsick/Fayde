@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="WickedSick.Thea.Views.PerformanceView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:dv="clr-namespace:System.Windows.Controls.DataVisualization;assembly=System.Windows.Controls.DataVisualization.Toolkit"
+    xmlns:charting="clr-namespace:System.Windows.Controls.DataVisualization.Charting;assembly=System.Windows.Controls.DataVisualization.Toolkit">
+    <Grid>
+        <charting:Chart>
+            <charting:Chart.Series>
+                <charting:LineSeries Title="Frames Per Second" 
+                                     ItemsSource="{Binding FramesPerSecond}"
+                                     IndependentValueBinding="{Binding TimeDiff}"
+                                     DependentValueBinding="{Binding NumFrames}">
+                    <charting:LineSeries.IndependentAxis>
+                        <charting:LinearAxis Orientation="X" />
+                    </charting:LineSeries.IndependentAxis>
+                    <charting:LineSeries.DependentRangeAxis>
+                        <charting:LinearAxis Orientation="Y" Minimum="0" Maximum="70" />
+                    </charting:LineSeries.DependentRangeAxis>
+                </charting:LineSeries>
+            </charting:Chart.Series>
+        </charting:Chart>
+    </Grid>
+</UserControl>

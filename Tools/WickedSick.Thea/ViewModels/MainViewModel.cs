@@ -54,6 +54,17 @@ namespace WickedSick.Thea.ViewModels
             }
         }
 
+        private PerformanceViewModel _PerformanceViewModel = new PerformanceViewModel();
+        public PerformanceViewModel PerformanceViewModel
+        {
+            get { return _PerformanceViewModel; }
+            set
+            {
+                _PerformanceViewModel = value;
+                OnPropertyChanged("PerformanceViewModel");
+            }
+        }
+
         #endregion
 
         #region Load
@@ -145,7 +156,9 @@ namespace WickedSick.Thea.ViewModels
         {
             AttachedBrowser = browser;
             _Interop = new FaydeInterop(AttachedBrowser);
+            PerformanceViewModel.JsContext = _Interop;
             RefreshTree();
+            PerformanceViewModel.Update();
             //_Interop.PopulateProperties(RootLayers[0]);
             StartTimer();
         }
@@ -178,25 +191,25 @@ namespace WickedSick.Thea.ViewModels
         private void _Timer_Tick(object sender, EventArgs e)
         {
             RefreshTree();
-
             var allVisuals = RootLayers
                 .SelectMany(l => l.AllChildren)
                 .Concat(RootLayers)
                 .ToList();
-
             //RefreshThisVisual(allVisuals);
             RefreshHitTestVisuals(allVisuals);
+            PerformanceViewModel.Update();
         }
 
         private void RefreshTree()
         {
-            if (!_Interop.IsFaydeAlive)
+            if (!_Interop.IsAlive)
                 RootLayers.Clear();
             if (!_Interop.IsCacheInvalidated)
                 return;
 
             _Interop.GetVisualTree().ToList()
                 .MergeInto(RootLayers, (v1, v2) => v1.ID == v2.ID, vvm => vvm.VisualChildren);
+
         }
         private void RefreshThisVisual(List<VisualViewModel> allVisuals)
         {
@@ -239,7 +252,7 @@ namespace WickedSick.Thea.ViewModels
             base.OnPropertyChanged(propertyName);
             if (propertyName == "SelectedVisual")
             {
-                _Interop.PopulateProperties(SelectedVisual);
+                //_Interop.PopulateProperties(SelectedVisual);
             }
         }
     }

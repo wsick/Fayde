@@ -78,6 +78,7 @@ class App implements Fayde.IResourcable {
         this._ClockTimer.RegisterTimer(this);
     }
     private Tick(lastTime: number, nowTime: number) {
+        this.DebugInterop.NumFrames++;
         this.ProcessStoryboards(lastTime, nowTime);
         this.Update();
         this.Render();

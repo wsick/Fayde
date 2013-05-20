@@ -5,6 +5,7 @@ var Fayde;
     var DebugInterop = (function () {
         function DebugInterop(app) {
             this._IsCacheInvalidated = true;
+            this.NumFrames = 0;
             this.App = app;
             this.Surface = app.MainSurface;
             this.RegisterHitTestDebugService();
@@ -70,6 +71,14 @@ var Fayde;
                 });
             }
             return arr;
+        };
+        DebugInterop.prototype.GetResetPerfInfo = function () {
+            var numFrames = this.NumFrames;
+            this.NumFrames = 0;
+            var oldFrameTime = this.LastFrameTime || new Date();
+            this.LastFrameTime = new Date();
+            var diff = this.LastFrameTime.getTime() - oldFrameTime.getTime();
+            return numFrames.toString() + ";" + diff.toString();
         };
         DebugInterop.prototype.RegisterHitTestDebugService = /*
         GetProperties(visual: UIElement): string {

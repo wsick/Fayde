@@ -14,6 +14,8 @@ module Fayde {
         private _CachedHitTest: UINode[];
         private _DPCache: DependencyProperty[];
         private _IsCacheInvalidated: bool = true;
+        LastFrameTime: Date;
+        NumFrames: number = 0;
         App: App;
         Surface: Surface;
         
@@ -87,6 +89,17 @@ module Fayde {
                 });
             }
             return arr;
+        }
+        
+        GetResetPerfInfo(): string {
+            var numFrames = this.NumFrames;
+            this.NumFrames = 0;
+
+            var oldFrameTime = this.LastFrameTime || new Date();
+            this.LastFrameTime = new Date();
+            var diff = this.LastFrameTime.getTime() - oldFrameTime.getTime();
+
+            return numFrames.toString() + ";" + diff.toString();
         }
         
         /*
