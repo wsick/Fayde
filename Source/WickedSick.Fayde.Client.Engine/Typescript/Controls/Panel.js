@@ -240,7 +240,7 @@ var Fayde;
                 }
                 var area = rect.fromSize(framework);
                 ctx.Save();
-                lu._RenderLayoutClip(ctx);
+                lu.RenderLayoutClip(ctx);
                 ctx.FillRect(background, area);
                 ctx.Restore();
             };

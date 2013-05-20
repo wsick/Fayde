@@ -238,7 +238,7 @@ var Fayde;
                         this._SelectionChanged = false;
                     }
                     ctx.Save();
-                    lu._RenderLayoutClip(ctx);
+                    lu.RenderLayoutClip(ctx);
                     this._Layout.AvailableWidth = renderSize.Width;
                     this._RenderImpl(ctx, region);
                     ctx.Restore();

@@ -270,8 +270,8 @@ module Fayde.Controls {
             }
 
             ctx.Save();
-            if (metrics.Overlap !== RectOverlap.In || lu._HasLayoutClip())
-                lu._RenderLayoutClip(ctx);
+            if (lu.CompositeLayoutClip || metrics.Overlap !== RectOverlap.In)
+                lu.RenderLayoutClip(ctx);
             ctx.PreTransformMatrix(metrics.Matrix);
             ctx.CanvasContext.drawImage(source.Image, 0, 0);
             //DrawDebug("Image: [" + source.Image.src + "]");

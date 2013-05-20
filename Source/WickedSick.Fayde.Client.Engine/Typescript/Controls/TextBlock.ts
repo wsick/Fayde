@@ -335,7 +335,7 @@ module Fayde.Controls {
 
         private Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
             ctx.Save();
-            lu._RenderLayoutClip(ctx);
+            lu.RenderLayoutClip(ctx);
             var padding = this.Padding;
             var offset: Point = null;
             if (padding) offset = new Point(padding.Left, padding.Top);

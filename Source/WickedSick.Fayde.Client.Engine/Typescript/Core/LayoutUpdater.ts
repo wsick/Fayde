@@ -397,7 +397,7 @@ module Fayde {
                 this.Surface._AddDirtyElement(this, layoutClipFlag);
         }
         ComputeLayoutClip(vpLu: LayoutUpdater) {
-            if (this.BreaksLayoutClipRender) {
+            if (this.BreaksLayoutClipRender) { //Canvas or UserControl
                 this.CompositeLayoutClip = undefined;
                 return;
             }
@@ -1003,8 +1003,8 @@ module Fayde {
                 this._Measure(size.fromRect(finalRect), error);
             }
             measure = this.PreviousConstraint;
-
-            this.LayoutClip = undefined;
+            
+            this.SetLayoutClip(undefined);
 
             var childRect = rect.copyTo(finalRect);
             var margin = fe.Margin;
@@ -1150,8 +1150,6 @@ module Fayde {
                 var frect = rect.fromSize(frameworkClip);
                 rect.intersection(layoutClip, frect);
                 this.SetLayoutClip(layoutClip);
-            } else {
-                this.SetLayoutClip(undefined);
             }
 
             if (!size.isEqual(oldSize, response)) {
@@ -1341,42 +1339,10 @@ module Fayde {
             rect.transform(layoutClipBounds, ctx.CurrentTransform);
             return rect.containsPointXY(layoutClipBounds, x, y);
         }
-        _RenderLayoutClip(ctx: RenderContext) {
-            var iX = 0;
-            var iY = 0;
-
-            var curNode = this.Node;
-            while (curNode) {
-                var lu = curNode.LayoutUpdater;
-                var r = lu.LayoutClip;
-                if (r)
-                    ctx.ClipRect(r);
-
-                if (lu.BreaksLayoutClipRender) //Canvas or UserControl
-                    break;
-                var visualOffset = lu.VisualOffset;
-                if (visualOffset) {
-                    ctx.Translate(-visualOffset.X, -visualOffset.Y);
-                    iX += visualOffset.X;
-                    iY += visualOffset.Y;
-                }
-
-                curNode = curNode.VisualParentNode;
-            }
-            ctx.Translate(iX, iY);
-        }
-        _HasLayoutClip(): bool {
-            var curNode = this.Node;
-            var lu: LayoutUpdater;
-            while (curNode) {
-                lu = curNode.LayoutUpdater;
-                if (lu.LayoutClip)
-                    return true;
-                if (lu.BreaksLayoutClipRender)
-                    break;
-                curNode = curNode.VisualParentNode;
-            }
-            return false;
+        RenderLayoutClip(ctx: RenderContext) {
+            var composite = this.CompositeLayoutClip;
+            if (composite)
+                ctx.ClipRect(composite);
         }
     }
     Nullstone.RegisterType(LayoutUpdater, "LayoutUpdater");

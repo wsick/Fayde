@@ -352,7 +352,7 @@ var Fayde;
             };
             TextBlock.prototype.Render = function (ctx, lu, region) {
                 ctx.Save();
-                lu._RenderLayoutClip(ctx);
+                lu.RenderLayoutClip(ctx);
                 var padding = this.Padding;
                 var offset = null;
                 if(padding) {

@@ -148,7 +148,7 @@ module Fayde.Controls {
             if (fillOnly && !backgroundBrush)
                 return;
             ctx.Save();
-            lu._RenderLayoutClip(ctx);
+            lu.RenderLayoutClip(ctx);
             if (fillOnly)
                 this._RenderFillOnly(ctx, extents, backgroundBrush, thickness, this.CornerRadius);
             else if (thickness && thickness.IsBalanced())

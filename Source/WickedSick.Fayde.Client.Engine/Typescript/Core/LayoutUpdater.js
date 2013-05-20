@@ -339,6 +339,7 @@ var Fayde;
         };
         LayoutUpdater.prototype.ComputeLayoutClip = function (vpLu) {
             if(this.BreaksLayoutClipRender) {
+                //Canvas or UserControl
                 this.CompositeLayoutClip = undefined;
                 return;
             }
@@ -927,7 +928,7 @@ var Fayde;
                 this._Measure(size.fromRect(finalRect), error);
             }
             measure = this.PreviousConstraint;
-            this.LayoutClip = undefined;
+            this.SetLayoutClip(undefined);
             var childRect = rect.copyTo(finalRect);
             var margin = fe.Margin;
             if(margin) {
@@ -1053,8 +1054,6 @@ var Fayde;
                 var frect = rect.fromSize(frameworkClip);
                 rect.intersection(layoutClip, frect);
                 this.SetLayoutClip(layoutClip);
-            } else {
-                this.SetLayoutClip(undefined);
             }
             if(!size.isEqual(oldSize, response)) {
                 if(!this.LastRenderSize) {
@@ -1232,44 +1231,11 @@ var Fayde;
             rect.transform(layoutClipBounds, ctx.CurrentTransform);
             return rect.containsPointXY(layoutClipBounds, x, y);
         };
-        LayoutUpdater.prototype._RenderLayoutClip = function (ctx) {
-            var iX = 0;
-            var iY = 0;
-            var curNode = this.Node;
-            while(curNode) {
-                var lu = curNode.LayoutUpdater;
-                var r = lu.LayoutClip;
-                if(r) {
-                    ctx.ClipRect(r);
-                }
-                if(lu.BreaksLayoutClipRender) {
-                    //Canvas or UserControl
-                    break;
-                }
-                var visualOffset = lu.VisualOffset;
-                if(visualOffset) {
-                    ctx.Translate(-visualOffset.X, -visualOffset.Y);
-                    iX += visualOffset.X;
-                    iY += visualOffset.Y;
-                }
-                curNode = curNode.VisualParentNode;
+        LayoutUpdater.prototype.RenderLayoutClip = function (ctx) {
+            var composite = this.CompositeLayoutClip;
+            if(composite) {
+                ctx.ClipRect(composite);
             }
-            ctx.Translate(iX, iY);
-        };
-        LayoutUpdater.prototype._HasLayoutClip = function () {
-            var curNode = this.Node;
-            var lu;
-            while(curNode) {
-                lu = curNode.LayoutUpdater;
-                if(lu.LayoutClip) {
-                    return true;
-                }
-                if(lu.BreaksLayoutClipRender) {
-                    break;
-                }
-                curNode = curNode.VisualParentNode;
-            }
-            return false;
         };
         return LayoutUpdater;
     })();
