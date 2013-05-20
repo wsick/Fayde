@@ -2,13 +2,13 @@
 /// CODE
 
 module Fayde.Controls {
-    export class MENode extends FENode {
+    export class MENode extends FENode implements IPostInsideObject {
         XObject: MediaElement;
         constructor(xobj: MediaElement) {
             super(xobj);
         }
 
-        _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
+        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
             //TODO: Implement
             return false;
         }

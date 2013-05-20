@@ -18,6 +18,7 @@ module Fayde.Controls {
         constructor(xobj: Control) {
             super(xobj);
             this.LayoutUpdater.SetContainerMode(true);
+            this.LayoutUpdater.IsNeverInsideObject = true;
         }
 
         TabTo() {
@@ -75,17 +76,6 @@ module Fayde.Controls {
             }
             super.OnIsEnabledChanged(oldValue, newValue);
         }
-        
-        _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
-            if (this.XObject.IsEnabled)
-                super._FindElementsInHostCoordinates(ctx, p, uinlist);
-        }
-        _HitTestPoint(ctx: RenderContext, p: Point, uinlist: UINode[]) {
-            if (this.XObject.IsEnabled)
-                super._HitTestPoint(ctx, p, uinlist);
-        }
-        _CanFindElement(): bool { return this.XObject.IsEnabled; }
-        _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool { return false; }
 
         Focus(recurse?: bool): bool { return this._Surface.Focus(this, recurse); }
 
@@ -166,6 +156,9 @@ module Fayde.Controls {
 
         IsEnabledChanged: MulticastEvent = new MulticastEvent();
         _IsEnabledChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
+            lu.ShouldSkipHitTest = args.NewValue === false;
+            lu.CanHitElement = args.NewValue !== false;
             this.OnIsEnabledChanged(args);
             this.IsEnabledChanged.RaiseAsync(this, EventArgs.Empty);
         }

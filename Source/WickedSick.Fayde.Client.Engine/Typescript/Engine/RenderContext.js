@@ -66,13 +66,13 @@ var Fayde;
             //DrawDebug("DrawClip (RawPath): " + p.toString());
             this.CanvasContext.clip();
         };
-        RenderContext.prototype.IsPointInPath = function (p) {
-            return this.CanvasContext.isPointInPath(p.X, p.Y);
+        RenderContext.prototype.IsPointInPath = function (x, y) {
+            return this.CanvasContext.isPointInPath(x, y);
         };
-        RenderContext.prototype.IsPointInClipPath = function (clip, p) {
+        RenderContext.prototype.IsPointInClipPath = function (clip, x, y) {
             clip.Draw(this);
             //DrawDebug("DrawClip (Geometry): " + clip.toString());
-            return this.CanvasContext.isPointInPath(p.X, p.Y);
+            return this.CanvasContext.isPointInPath(x, y);
         };
         RenderContext.prototype.Rect = function (r) {
             var cc = this.CanvasContext;

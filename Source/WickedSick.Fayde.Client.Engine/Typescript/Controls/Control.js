@@ -16,6 +16,7 @@ var Fayde;
                         _super.call(this, xobj);
                 this.IsFocused = false;
                 this.LayoutUpdater.SetContainerMode(true);
+                this.LayoutUpdater.IsNeverInsideObject = true;
             }
             ControlNode.prototype.TabTo = function () {
                 var xobj = this.XObject;
@@ -79,22 +80,6 @@ var Fayde;
                     this.ReleaseMouseCapture();
                 }
                 _super.prototype.OnIsEnabledChanged.call(this, oldValue, newValue);
-            };
-            ControlNode.prototype._FindElementsInHostCoordinates = function (ctx, p, uinlist) {
-                if(this.XObject.IsEnabled) {
-                    _super.prototype._FindElementsInHostCoordinates.call(this, ctx, p, uinlist);
-                }
-            };
-            ControlNode.prototype._HitTestPoint = function (ctx, p, uinlist) {
-                if(this.XObject.IsEnabled) {
-                    _super.prototype._HitTestPoint.call(this, ctx, p, uinlist);
-                }
-            };
-            ControlNode.prototype._CanFindElement = function () {
-                return this.XObject.IsEnabled;
-            };
-            ControlNode.prototype._InsideObject = function (ctx, lu, x, y) {
-                return false;
             };
             ControlNode.prototype.Focus = function (recurse) {
                 return this._Surface.Focus(this, recurse);
@@ -206,6 +191,9 @@ var Fayde;
                 return undefined;
             };
             Control.prototype._IsEnabledChanged = function (args) {
+                var lu = this.XamlNode.LayoutUpdater;
+                lu.ShouldSkipHitTest = args.NewValue === false;
+                lu.CanHitElement = args.NewValue !== false;
                 this.OnIsEnabledChanged(args);
                 this.IsEnabledChanged.RaiseAsync(this, EventArgs.Empty);
             };

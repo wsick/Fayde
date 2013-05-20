@@ -73,7 +73,7 @@ module Fayde.Controls {
     }
     Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");
 
-    export class PanelNode extends FENode implements IBoundsComputable {
+    export class PanelNode extends FENode implements IBoundsComputable, IPostInsideObject {
         XObject: Panel;
         constructor(xobj: Panel) {
             super(xobj);
@@ -114,9 +114,8 @@ module Fayde.Controls {
             super.OnIsAttachedChanged(newIsAttached);
         }
 
-        _CanFindElement(): bool { return this.XObject.Background != null; }
-        _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
-            return (this.XObject.Background != null) && super._InsideObject(ctx, lu, x, y);
+        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
+            return this.XObject.Background != null;
         }
 
         ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
@@ -180,20 +179,20 @@ module Fayde.Controls {
         static SetZ(uie: UIElement, value: number) { uie.SetValue(ZProperty, value); }
 
         private _BackgroundChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
+
             var newBrush = <Media.Brush>args.NewValue;
             if (this._BackgroundListener)
                 this._BackgroundListener.Detach();
                 this._BackgroundListener = null;
             if (newBrush)
-                this._BackgroundListener = newBrush.Listen((brush) => this.BrushChanged(brush));
-            this.BrushChanged(newBrush);
+                this._BackgroundListener = newBrush.Listen((brush) => lu.Invalidate());
 
-            var lu = this.XamlNode.LayoutUpdater;
+            lu.CanHitElement = newBrush != null;
+
             lu.UpdateBounds();
             lu.Invalidate();
         }
-        private BrushChanged(newBrush: Media.Brush) { this.XamlNode.LayoutUpdater.Invalidate(); }
-
         private _MeasureOverride(availableSize: size, error: BError): size {
             //Abstract Method
             return new size();

@@ -12,8 +12,8 @@ module Fayde {
         private _LocalStyle: Style;
         private _ImplicitStyles: Style[];
         private _StyleMask: number;
-
         private _Surface: Surface;
+
         XObject: FrameworkElement;
         constructor(xobj: FrameworkElement) {
             super(xobj);
@@ -91,91 +91,6 @@ module Fayde {
             return error.Message == null;
         }
         
-        _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
-            var lu = this.LayoutUpdater;
-            if (!lu.TotalIsRenderVisible)
-                return;
-            if (!lu.TotalIsHitTestVisible)
-                return;
-            if (lu.SurfaceBoundsWithChildren.Height <= 0)
-                return;
-            if (!this._InsideClip(ctx, lu, p.X, p.Y))
-                return;
-                
-            ctx.Save();
-            uinlist.unshift(this);
-            var enumerator = this.GetVisualTreeEnumerator(VisualTreeDirection.ZFoward);
-            while (enumerator.MoveNext()) {
-                (<UINode>enumerator.Current)._FindElementsInHostCoordinates(ctx, p, uinlist);
-            }
-
-            if (this === uinlist[0]) {
-                if (!this._CanFindElement() || !this._InsideObject(ctx, lu, p.X, p.Y))
-                    uinlist.shift();
-            }
-            ctx.Restore();
-        }
-        _HitTestPoint(ctx: RenderContext, p: Point, uinlist: UINode[]) {
-            var lu = this.LayoutUpdater;
-            if (!lu.TotalIsRenderVisible)
-                return;
-            if (!lu.TotalIsHitTestVisible)
-                return;
-            if (!this._InsideClip(ctx, lu, p.X, p.Y))
-                return;
-
-            uinlist.unshift(this);
-            var hit = false;
-            var enumerator = this.GetVisualTreeEnumerator(VisualTreeDirection.ZReverse);
-            while (enumerator.MoveNext()) {
-                var childNode = (<FENode>enumerator.Current);
-                childNode._HitTestPoint(ctx, p, uinlist);
-                if (this !== uinlist[0]) {
-                    hit = true;
-                    break;
-                }
-            }
-
-            if (!hit && !(this._CanFindElement() && this._InsideObject(ctx, lu, p.X, p.Y))) {
-                //We're really trying to remove "this", is there a chance "this" is not at the head?
-                if (uinlist.shift() !== this) {
-                    throw new Exception("Look at my code! -> FENode._HitTestPoint");
-                }
-            }
-        }
-        _CanFindElement(): bool { return false; }
-        _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
-            var np = new Point(x, y);
-            lu.TransformPoint(np);
-            var fe = this.XObject;
-            if (np.X < 0 || np.Y < 0 || np.X > fe.ActualWidth || np.Y > fe.ActualHeight)
-                return false;
-
-            if (!this._InsideLayoutClip(lu, x, y))
-                return false;
-                
-            return this._InsideClip(ctx, lu, x, y);
-        }
-        _InsideLayoutClip(lu: LayoutUpdater, x: number, y: number): bool {
-            //TODO: Implement
-            /*
-            Geometry * composite_clip = LayoutInformation:: GetCompositeClip(this);
-            bool inside = true;
-
-            if (!composite_clip)
-                return inside;
-
-            var np = new Point();
-            lu.TransformPoint(np);
-
-            inside = composite_clip - > GetBounds().PointInside(x, y);
-            composite_clip - > unref();
-
-            return inside;
-            */
-            return true;
-        }
-
         _HasFocus(): bool {
             var curNode = this._Surface.FocusedNode
             while (curNode) {

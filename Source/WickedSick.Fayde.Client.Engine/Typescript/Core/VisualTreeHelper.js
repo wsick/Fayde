@@ -54,12 +54,9 @@ var Fayde;
             return 0;
         };
         VisualTreeHelper.FindElementsInHostCoordinates = function FindElementsInHostCoordinates(intersectingPoint, subtree) {
-            var uies = [];
-            var enumerator = Fayde.ArrayEx.GetEnumerator(subtree.XamlNode.FindElementsInHostCoordinates(intersectingPoint));
-            while(enumerator.MoveNext()) {
-                uies.push((enumerator.Current).XObject);
-            }
-            return uies;
+            return subtree.XamlNode.LayoutUpdater.FindElementsInHostCoordinates(intersectingPoint).map(function (uin) {
+                return uin.XObject;
+            });
         };
         VisualTreeHelper.__Debug = function __Debug(ui, func) {
             var uin;

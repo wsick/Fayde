@@ -8,10 +8,10 @@ var Fayde;
     var LayoutInformation = (function () {
         function LayoutInformation() { }
         LayoutInformation.GetLayoutClip = function GetLayoutClip(uie) {
-            return uie.XamlNode.LayoutUpdater.LayoutClip;
-        };
-        LayoutInformation.SetLayoutClip = function SetLayoutClip(uie, value) {
-            uie.XamlNode.LayoutUpdater.LayoutClip = value;
+            var r = uie.XamlNode.LayoutUpdater.LayoutClip;
+            var geom = new Fayde.Media.RectangleGeometry();
+            geom.Rect = rect.copyTo(r);
+            return geom;
         };
         LayoutInformation.GetLayoutExceptionElement = function GetLayoutExceptionElement() {
             var lu = Fayde.LayoutUpdater.LayoutExceptionUpdater;
@@ -21,9 +21,6 @@ var Fayde;
         };
         LayoutInformation.GetLayoutSlot = function GetLayoutSlot(uie) {
             return uie.XamlNode.LayoutUpdater.LayoutSlot;
-        };
-        LayoutInformation.SetLayoutSlot = function SetLayoutSlot(uie, value) {
-            uie.XamlNode.LayoutUpdater.LayoutSlot = value;
         };
         return LayoutInformation;
     })();

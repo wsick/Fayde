@@ -132,11 +132,8 @@ var Fayde;
                 this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
                 _super.prototype.OnIsAttachedChanged.call(this, newIsAttached);
             };
-            PanelNode.prototype._CanFindElement = function () {
+            PanelNode.prototype.PostInsideObject = function (ctx, lu, x, y) {
                 return this.XObject.Background != null;
-            };
-            PanelNode.prototype._InsideObject = function (ctx, lu, x, y) {
-                return (this.XObject.Background != null) && _super.prototype._InsideObject.call(this, ctx, lu, x, y);
             };
             PanelNode.prototype.ComputeBounds = function (baseComputer, lu) {
                 rect.clear(lu.Extents);
@@ -213,7 +210,7 @@ var Fayde;
                 uie.SetValue(Panel.ZProperty, value);
             };
             Panel.prototype._BackgroundChanged = function (args) {
-                var _this = this;
+                var lu = this.XamlNode.LayoutUpdater;
                 var newBrush = args.NewValue;
                 if(this._BackgroundListener) {
                     this._BackgroundListener.Detach();
@@ -221,16 +218,12 @@ var Fayde;
                 this._BackgroundListener = null;
                 if(newBrush) {
                     this._BackgroundListener = newBrush.Listen(function (brush) {
-                        return _this.BrushChanged(brush);
+                        return lu.Invalidate();
                     });
                 }
-                this.BrushChanged(newBrush);
-                var lu = this.XamlNode.LayoutUpdater;
+                lu.CanHitElement = newBrush != null;
                 lu.UpdateBounds();
                 lu.Invalidate();
-            };
-            Panel.prototype.BrushChanged = function (newBrush) {
-                this.XamlNode.LayoutUpdater.Invalidate();
             };
             Panel.prototype._MeasureOverride = function (availableSize, error) {
                 //Abstract Method

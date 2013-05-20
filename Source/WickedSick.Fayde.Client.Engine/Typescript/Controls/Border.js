@@ -14,10 +14,6 @@ var Fayde;
                         _super.call(this, xobj);
                 this.LayoutUpdater.SetContainerMode(true);
             }
-            BorderNode.prototype._CanFindElement = function () {
-                var xobj = this.XObject;
-                return xobj.Background != null || xobj.BorderBrush != null;
-            };
             return BorderNode;
         })(Fayde.FENode);
         Controls.BorderNode = BorderNode;        
@@ -134,7 +130,7 @@ var Fayde;
                 lu.InvalidateMeasure();
             };
             Border.prototype._BackgroundChanged = function (args) {
-                var _this = this;
+                var lu = this.XamlNode.LayoutUpdater;
                 var newBrush = args.NewValue;
                 if(this._BackgroundListener) {
                     this._BackgroundListener.Detach();
@@ -142,13 +138,14 @@ var Fayde;
                 this._BackgroundListener = null;
                 if(newBrush) {
                     this._BackgroundListener = newBrush.Listen(function (brush) {
-                        return _this.BrushChanged(brush);
+                        return lu.Invalidate();
                     });
                 }
-                this.BrushChanged(newBrush);
+                lu.CanHitElement = newBrush != null || this.BorderBrush != null;
+                lu.Invalidate();
             };
             Border.prototype._BorderBrushChanged = function (args) {
-                var _this = this;
+                var lu = this.XamlNode.LayoutUpdater;
                 var newBrush = args.NewValue;
                 if(this._BorderBrushListener) {
                     this._BorderBrushListener.Detach();
@@ -156,19 +153,17 @@ var Fayde;
                 this._BorderBrushListener = null;
                 if(newBrush) {
                     this._BorderBrushListener = newBrush.Listen(function (brush) {
-                        return _this.BrushChanged(brush);
+                        return lu.Invalidate();
                     });
                 }
-                this.BrushChanged(newBrush);
+                lu.CanHitElement = newBrush != null || this.Background != null;
+                lu.Invalidate();
             };
             Border.prototype._BorderThicknessChanged = function (args) {
                 this.XamlNode.LayoutUpdater.InvalidateMeasure();
             };
             Border.prototype._PaddingChanged = function (args) {
                 this.XamlNode.LayoutUpdater.InvalidateMeasure();
-            };
-            Border.prototype.BrushChanged = function (newBrush) {
-                this.XamlNode.LayoutUpdater.Invalidate();
             };
             Border.prototype.Render = function (ctx, lu, region) {
                 var borderBrush = this.BorderBrush;

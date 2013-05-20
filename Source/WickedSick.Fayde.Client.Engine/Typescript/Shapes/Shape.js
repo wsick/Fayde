@@ -20,23 +20,11 @@ var Fayde;
             function ShapeNode(xobj) {
                         _super.call(this, xobj);
             }
-            ShapeNode.prototype._CanFindElement = function () {
+            ShapeNode.prototype.PostInsideObject = function (ctx, lu, x, y) {
                 var shape = this.XObject;
-                return (shape)._Fill != null || (shape)._Stroke != null;
-            };
-            ShapeNode.prototype._InsideObject = function (ctx, lu, x, y) {
-                if(!this._InsideLayoutClip(lu, x, y)) {
-                    return false;
-                }
-                if(!this._InsideClip(ctx, lu, x, y)) {
-                    return false;
-                }
-                var p = new Point(x, y);
-                lu.TransformPoint(p);
-                x = p.X;
-                y = p.Y;
-                var shape = this.XObject;
-                if(!rect.containsPointXY(this.GetStretchExtents(shape, lu), x, y)) {
+                var extents = rect.copyTo(this.GetStretchExtents(shape, lu));
+                rect.transform(extents, ctx.CurrentTransform);
+                if(!rect.containsPointXY(extents, x, y)) {
                     return false;
                 }
                 return shape._InsideShape(ctx, lu, x, y);
@@ -49,7 +37,7 @@ var Fayde;
             };
             ShapeNode.prototype.IntersectBaseBoundsWithClipPath = function (lu, dest, baseBounds, xform) {
                 var isClipEmpty = rect.isEmpty(lu.ClipBounds);
-                var isLayoutClipEmpty = rect.isEmpty(lu.LayoutClipBounds);
+                var isLayoutClipEmpty = lu.LayoutClip ? rect.isEmpty(lu.LayoutClip) : true;
                 if((!isClipEmpty || !isLayoutClipEmpty) && !lu.TotalIsRenderVisible) {
                     rect.clear(dest);
                     return;
@@ -59,7 +47,7 @@ var Fayde;
                     rect.intersection(dest, lu.ClipBounds);
                 }
                 if(!isLayoutClipEmpty) {
-                    rect.intersection(dest, lu.LayoutClipBounds);
+                    rect.intersection(dest, lu.LayoutClip);
                 }
             };
             ShapeNode.prototype.UpdateStretch = function () {
@@ -155,12 +143,11 @@ var Fayde;
                     return false;
                 }
                 var ret = false;
-                var area = this.XamlNode.GetStretchExtents(this, lu);
                 ctx.Save();
                 ctx.PreTransformMatrix(this._StretchXform);
                 if(this._Fill != null) {
                     this._DrawPath(ctx);
-                    if(ctx.IsPointInPath(new Point(x, y))) {
+                    if(ctx.IsPointInPath(x, y)) {
                         ret = true;
                     }
                 }
@@ -477,7 +464,7 @@ var Fayde;
                 this.XamlNode.LayoutUpdater.Invalidate();
             };
             Shape.prototype._FillChanged = function (args) {
-                var _this = this;
+                var lu = this.XamlNode.LayoutUpdater;
                 var newBrush = args.NewValue;
                 if(this._FillListener) {
                     this._FillListener.Detach();
@@ -485,16 +472,17 @@ var Fayde;
                 this._FillListener = null;
                 if(newBrush) {
                     this._FillListener = newBrush.Listen(function (brush) {
-                        return _this.BrushChanged(brush);
+                        return lu.Invalidate();
                     });
                 }
                 if(this._Fill || newBrush) {
                     this._InvalidateNaturalBounds();
                 }
                 this._Fill = newBrush;
+                lu.CanHitElement = this._Stroke != null || this._Fill != null;
             };
             Shape.prototype._StrokeChanged = function (args) {
-                var _this = this;
+                var lu = this.XamlNode.LayoutUpdater;
                 var newBrush = args.NewValue;
                 if(this._StrokeListener) {
                     this._StrokeListener.Detach();
@@ -502,18 +490,15 @@ var Fayde;
                 this._StrokeListener = null;
                 if(newBrush) {
                     this._StrokeListener = newBrush.Listen(function (brush) {
-                        return _this.BrushChanged(brush);
+                        return lu.Invalidate();
                     });
                 }
                 if(this._Stroke || newBrush) {
                     this._InvalidateNaturalBounds();
                 }
                 this._Stroke = newBrush;
+                lu.CanHitElement = this._Stroke != null || this._Fill != null;
             };
-            Shape.prototype.BrushChanged = function (newBrush) {
-                this.XamlNode.LayoutUpdater.Invalidate();
-                //this._InvalidateSurfaceCache();
-                            };
             Shape.prototype._StretchChanged = function (args) {
                 this.XamlNode.LayoutUpdater.InvalidateMeasure();
                 this._InvalidateStretch();

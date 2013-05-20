@@ -114,16 +114,14 @@ module Fayde.Controls {
         Overlap: number;
     }
 
-    export class ImageNode extends FENode {
+    export class ImageNode extends FENode implements IPostInsideObject {
         XObject: Image;
         constructor(xobj: Image) {
             super(xobj);
+            this.LayoutUpdater.CanHitElement = true;
         }
 
-        _CanFindElement(): bool { return true; }
-        _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
-            if (!super._InsideObject(ctx, lu, x, y))
-                return false;
+        PostInsideObject(ctx: RenderContext, lu:LayoutUpdater, x: number, y: number): bool {
             var img = this.XObject;
             var source = img.Source;
             if (!source)

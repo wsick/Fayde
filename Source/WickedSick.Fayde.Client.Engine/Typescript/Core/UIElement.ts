@@ -183,31 +183,6 @@ module Fayde {
             return args.Handled;
         }
         
-        FindElementsInHostCoordinates(intersectingPoint: Point): Fayde.UINode[] {
-            var uinlist: UINode[] = [];
-            this._FindElementsInHostCoordinates(this._Surface.TestRenderContext, intersectingPoint, uinlist);
-            return uinlist;
-        }
-        _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
-            uinlist.unshift(this);
-        }
-        _HitTestPoint(ctx: Fayde.RenderContext, p: Point, uinlist: Fayde.UINode[]) {
-            uinlist.unshift(this);
-        }
-        _InsideClip(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
-            var clip = this.XObject.Clip;
-            if (!clip)
-                return true;
-
-            var np = new Point(x, y);
-            lu.TransformPoint(np);
-
-            if (!rect.containsPoint(clip.GetBounds(), np))
-                return false;
-
-            return ctx.IsPointInClipPath(clip, np);
-        }
-
         CanCaptureMouse(): bool { return true; }
         CaptureMouse(): bool {
             if (!this.IsAttached)

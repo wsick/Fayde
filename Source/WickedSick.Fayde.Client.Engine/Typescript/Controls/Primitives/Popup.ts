@@ -25,11 +25,6 @@ module Fayde.Controls.Primitives {
                 this.XObject.IsOpen = false;
         }
 
-        _HitTestPoint(ctx: RenderContext, p: Point, uinlist: UINode[]) {
-            if (this._IsVisible)
-                super._HitTestPoint(ctx, p, uinlist);
-        }
-        
         private _HorizontalOffset: number = 0;
         private _VerticalOffset: number = 0;
         private _IsVisible: bool = false;
@@ -159,6 +154,7 @@ module Fayde.Controls.Primitives {
             if (!this._IsVisible || !child)
                 return;
             this._IsVisible = false;
+            this.LayoutUpdater.ShouldSkipHitTest = true;
             this._Surface.DetachLayer(child);
         }
         _Show() {
@@ -167,6 +163,7 @@ module Fayde.Controls.Primitives {
             if (this._IsVisible || !child)
                 return;
             this._IsVisible = true;
+            this.LayoutUpdater.ShouldSkipHitTest = false;
             this._Surface.AttachLayer(child);
         }
     }

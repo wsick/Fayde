@@ -9,27 +9,17 @@
 /// <reference path="Line.ts" />
 
 module Fayde.Shapes {
-    export class ShapeNode extends FENode implements IBoundsComputable {
+    export class ShapeNode extends FENode implements IBoundsComputable, IPostInsideObject {
         XObject: Shape;
         constructor(xobj: Shape) {
             super(xobj);
         }
 
-        _CanFindElement(): bool {
+        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
             var shape = this.XObject;
-            return (<any>shape)._Fill != null || (<any>shape)._Stroke != null;
-        }
-        _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
-            if (!this._InsideLayoutClip(lu, x, y))
-                return false;
-            if (!this._InsideClip(ctx, lu, x, y))
-                return false;
-            var p = new Point(x, y);
-            lu.TransformPoint(p);
-            x = p.X;
-            y = p.Y;
-            var shape = this.XObject;
-            if (!rect.containsPointXY(this.GetStretchExtents(shape, lu), x, y))
+            var extents = rect.copyTo(this.GetStretchExtents(shape, lu));
+            rect.transform(extents, ctx.CurrentTransform);
+            if (!rect.containsPointXY(extents, x, y))
                 return false;
             return shape._InsideShape(ctx, lu, x, y);
         }
@@ -42,7 +32,7 @@ module Fayde.Shapes {
         }
         private IntersectBaseBoundsWithClipPath(lu: LayoutUpdater, dest: rect, baseBounds: rect, xform: number[]) {
             var isClipEmpty = rect.isEmpty(lu.ClipBounds);
-            var isLayoutClipEmpty = rect.isEmpty(lu.LayoutClipBounds);
+            var isLayoutClipEmpty = lu.LayoutClip ? rect.isEmpty(lu.LayoutClip) : true;
 
             if ((!isClipEmpty || !isLayoutClipEmpty) && !lu.TotalIsRenderVisible) {
                 rect.clear(dest);
@@ -54,7 +44,7 @@ module Fayde.Shapes {
             if (!isClipEmpty)
                 rect.intersection(dest, lu.ClipBounds);
             if (!isLayoutClipEmpty)
-                rect.intersection(dest, lu.LayoutClipBounds);
+                rect.intersection(dest, lu.LayoutClip);
         }
 
         UpdateStretch() {
@@ -114,12 +104,11 @@ module Fayde.Shapes {
             if (this._ShapeFlags & ShapeFlags.Empty)
                 return false;
             var ret = false;
-            var area = this.XamlNode.GetStretchExtents(this, lu);
             ctx.Save();
             ctx.PreTransformMatrix(this._StretchXform);
             if (this._Fill != null) {
                 this._DrawPath(ctx);
-                if (ctx.IsPointInPath(new Point(x, y)))
+                if (ctx.IsPointInPath(x, y))
                     ret = true;
             }
             if (!ret && this._Stroke != null) {
@@ -454,33 +443,37 @@ module Fayde.Shapes {
         
         private _FillListener: Media.IBrushChangedListener;
         private _FillChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
+
             var newBrush = <Media.Brush>args.NewValue;
             if (this._FillListener)
                 this._FillListener.Detach();
                 this._FillListener = null;
             if (newBrush)
-                this._FillListener = newBrush.Listen((brush) => this.BrushChanged(brush));
+                this._FillListener = newBrush.Listen((brush) => lu.Invalidate());
 
             if (this._Fill || newBrush)
                 this._InvalidateNaturalBounds();
             this._Fill = newBrush;
+
+            lu.CanHitElement = this._Stroke != null || this._Fill != null;
         }
         private _StrokeListener: Media.IBrushChangedListener;
         private _StrokeChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
+
             var newBrush = <Media.Brush>args.NewValue;
             if (this._StrokeListener)
                 this._StrokeListener.Detach();
                 this._StrokeListener = null;
             if (newBrush)
-                this._StrokeListener = newBrush.Listen((brush) => this.BrushChanged(brush));
+                this._StrokeListener = newBrush.Listen((brush) => lu.Invalidate());
 
             if (this._Stroke || newBrush)
                 this._InvalidateNaturalBounds();
             this._Stroke = newBrush;
-        }
-        private BrushChanged(newBrush: Media.Brush) {
-            this.XamlNode.LayoutUpdater.Invalidate();
-            //this._InvalidateSurfaceCache();
+
+            lu.CanHitElement = this._Stroke != null || this._Fill != null;
         }
         private _StretchChanged(args: IDependencyPropertyChangedEventArgs) {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();

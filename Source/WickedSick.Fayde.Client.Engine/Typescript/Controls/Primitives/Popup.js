@@ -43,11 +43,6 @@ var Fayde;
                         this.XObject.IsOpen = false;
                     }
                 };
-                PopupNode.prototype._HitTestPoint = function (ctx, p, uinlist) {
-                    if(this._IsVisible) {
-                        _super.prototype._HitTestPoint.call(this, ctx, p, uinlist);
-                    }
-                };
                 PopupNode.prototype._ChildChanged = function (oldChild, newChild) {
                     var popup = this.XObject;
                     this._Hide();
@@ -177,6 +172,7 @@ var Fayde;
                         return;
                     }
                     this._IsVisible = false;
+                    this.LayoutUpdater.ShouldSkipHitTest = true;
                     this._Surface.DetachLayer(child);
                 };
                 PopupNode.prototype._Show = function () {
@@ -186,6 +182,7 @@ var Fayde;
                         return;
                     }
                     this._IsVisible = true;
+                    this.LayoutUpdater.ShouldSkipHitTest = false;
                     this._Surface.AttachLayer(child);
                 };
                 return PopupNode;

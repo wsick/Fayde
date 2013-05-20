@@ -68,12 +68,14 @@ var Fayde;
             this.GlobalBoundsWithChildren = new rect();
             this.SurfaceBounds = new rect();
             this.SurfaceBoundsWithChildren = new rect();
-            this.LayoutClipBounds = new rect();
             this.EffectPadding = new Thickness();
             this.ClipBounds = new rect();
             this.IsContainer = false;
             this.IsLayoutContainer = false;
             this.BreaksLayoutClipRender = false;
+            this.CanHitElement = false;
+            this.ShouldSkipHitTest = false;
+            this.IsNeverInsideObject = false;
             this.Flags = Fayde.UIElementFlags.RenderVisible | Fayde.UIElementFlags.HitTestVisible;
             this.DirtyFlags = 0;
             this.InUpDirty = false;
@@ -96,7 +98,7 @@ var Fayde;
             this.UpdateTotalRenderVisibility();
             this.UpdateTotalHitTestVisibility();
             this.Invalidate();
-            this.SetLayoutClip(undefined);
+            this.LayoutClip = undefined;
             size.clear(this.RenderSize);
             this.UpdateTransform();
             this.UpdateProjection();
@@ -108,7 +110,7 @@ var Fayde;
         };
         LayoutUpdater.prototype.OnRemovedFromTree = function () {
             this.LayoutSlot = new rect();
-            this.SetLayoutClip(undefined);
+            this.LayoutClip = undefined;
         };
         LayoutUpdater.prototype.SetContainerMode = function (isLayoutContainer, isContainer) {
             if(isLayoutContainer != null) {
@@ -553,7 +555,7 @@ var Fayde;
         };
         LayoutUpdater.prototype.IntersectBoundsWithClipPath = function (dest, xform) {
             var isClipEmpty = rect.isEmpty(this.ClipBounds);
-            var isLayoutClipEmpty = rect.isEmpty(this.LayoutClipBounds);
+            var isLayoutClipEmpty = this.LayoutClip ? rect.isEmpty(this.LayoutClip) : true;
             if((!isClipEmpty || !isLayoutClipEmpty) && !this.TotalIsRenderVisible) {
                 rect.clear(dest);
                 return;
@@ -563,15 +565,7 @@ var Fayde;
                 rect.intersection(dest, this.ClipBounds);
             }
             if(!isLayoutClipEmpty) {
-                rect.intersection(dest, this.LayoutClipBounds);
-            }
-        };
-        LayoutUpdater.prototype.SetLayoutClip = function (layoutClip) {
-            this.LayoutClip = layoutClip;
-            if(!layoutClip) {
-                rect.clear(this.LayoutClipBounds);
-            } else {
-                rect.copyTo(layoutClip.GetBounds(), this.LayoutClipBounds);
+                rect.intersection(dest, this.LayoutClip);
             }
         };
         LayoutUpdater.prototype._UpdateActualSize = function () {
@@ -892,7 +886,7 @@ var Fayde;
                 this._Measure(size.fromRect(finalRect), error);
             }
             measure = this.PreviousConstraint;
-            this.SetLayoutClip(undefined);
+            this.LayoutClip = undefined;
             var childRect = rect.copyTo(finalRect);
             var margin = fe.Margin;
             if(margin) {
@@ -1016,9 +1010,7 @@ var Fayde;
                 var frameworkClip = this.CoerceSize(size.createInfinite());
                 var frect = rect.fromSize(frameworkClip);
                 rect.intersection(layoutClip, frect);
-                var rectangle = new Fayde.Media.RectangleGeometry();
-                rectangle.Rect = layoutClip;
-                this.SetLayoutClip(rectangle);
+                this.LayoutClip = layoutClip;
             }
             if(!size.isEqual(oldSize, response)) {
                 if(!this.LastRenderSize) {
@@ -1081,15 +1073,130 @@ var Fayde;
             //if (window.RenderDebug) RenderDebug.Unindent();
             ctx.Restore();
         };
+        LayoutUpdater.prototype.FindElementsInHostCoordinates = function (p) {
+            var uinlist = [];
+            this._FindElementsInHostCoordinates(this.Surface.TestRenderContext, p, uinlist);
+            return uinlist;
+        };
+        LayoutUpdater.prototype._FindElementsInHostCoordinates = function (ctx, p, uinlist) {
+            if(this.ShouldSkipHitTest) {
+                return;
+            }
+            if(!this.TotalIsRenderVisible) {
+                return;
+            }
+            if(!this.TotalIsHitTestVisible) {
+                return;
+            }
+            if(this.SurfaceBoundsWithChildren.Height <= 0) {
+                return;
+            }
+            var thisNode = this.Node;
+            ctx.Save();
+            ctx.TransformMatrix(this.RenderXform);
+            if(!this._InsideClip(ctx, p.X, p.Y)) {
+                ctx.Restore();
+                return;
+            }
+            uinlist.unshift(thisNode);
+            var enumerator = thisNode.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.ZFoward);
+            while(enumerator.MoveNext()) {
+                (enumerator.Current).LayoutUpdater._FindElementsInHostCoordinates(ctx, p, uinlist);
+            }
+            if(thisNode === uinlist[0]) {
+                if(!this.CanHitElement || !this._InsideObject(ctx, p.X, p.Y)) {
+                    uinlist.shift();
+                }
+            }
+            ctx.Restore();
+        };
+        LayoutUpdater.prototype.HitTestPoint = function (ctx, p, uinlist) {
+            if(this.ShouldSkipHitTest) {
+                return;
+            }
+            if(!this.TotalIsRenderVisible) {
+                return;
+            }
+            if(!this.TotalIsHitTestVisible) {
+                return;
+            }
+            ctx.Save();
+            ctx.TransformMatrix(this.RenderXform);
+            if(!this._InsideClip(ctx, p.X, p.Y)) {
+                ctx.Restore();
+                return;
+            }
+            var thisNode = this.Node;
+            uinlist.unshift(thisNode);
+            var hit = false;
+            var enumerator = thisNode.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.ZReverse);
+            while(enumerator.MoveNext()) {
+                var childNode = (enumerator.Current);
+                childNode.LayoutUpdater.HitTestPoint(ctx, p, uinlist);
+                if(thisNode !== uinlist[0]) {
+                    hit = true;
+                    break;
+                }
+            }
+            if(!hit && !(this.CanHitElement && this._InsideObject(ctx, p.X, p.Y))) {
+                //We're really trying to remove "this", is there a chance "this" is not at the head?
+                if(uinlist.shift() !== thisNode) {
+                    throw new Exception("Look at my code! -> FENode._HitTestPoint");
+                }
+            }
+            ctx.Restore();
+        };
+        LayoutUpdater.prototype._InsideObject = function (ctx, x, y) {
+            if(this.IsNeverInsideObject) {
+                return false;
+            }
+            var bounds = new rect();
+            var fe = this.Node.XObject;
+            rect.set(bounds, 0, 0, fe.ActualWidth, fe.ActualHeight);
+            //TODO: Use local variable bounds, figure out which one matches up
+            rect.transform(bounds, ctx.CurrentTransform);
+            if(!rect.containsPointXY(bounds, x, y)) {
+                return false;
+            }
+            if(!this._InsideLayoutClip(ctx, x, y)) {
+                return false;
+            }
+            if((this.Node).PostInsideObject) {
+                return (this.Node).PostInsideObject(ctx, this, x, y);
+            }
+            return true;
+        };
+        LayoutUpdater.prototype._InsideClip = function (ctx, x, y) {
+            var clip = this.Node.XObject.Clip;
+            if(!clip) {
+                return true;
+            }
+            var bounds = clip.GetBounds();
+            rect.transform(bounds, ctx.CurrentTransform);
+            if(!rect.containsPointXY(bounds, x, y)) {
+                return false;
+            }
+            return ctx.IsPointInClipPath(clip, x, y);
+        };
+        LayoutUpdater.prototype._InsideLayoutClip = function (ctx, x, y) {
+            var layoutClip = this.LayoutClip;
+            if(!layoutClip) {
+                return true;
+            }
+            //TODO: Handle composite LayoutClip
+            var layoutClipBounds = rect.copyTo(layoutClip);
+            rect.transform(layoutClipBounds, ctx.CurrentTransform);
+            return rect.containsPointXY(layoutClipBounds, x, y);
+        };
         LayoutUpdater.prototype._RenderLayoutClip = function (ctx) {
             var iX = 0;
             var iY = 0;
             var curNode = this.Node;
             while(curNode) {
                 var lu = curNode.LayoutUpdater;
-                var geom = lu.LayoutClip;
-                if(geom) {
-                    ctx.ClipGeometry(geom);
+                var r = lu.LayoutClip;
+                if(r) {
+                    ctx.ClipRect(r);
                 }
                 if(lu.BreaksLayoutClipRender) {
                     //Canvas or UserControl

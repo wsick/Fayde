@@ -24,6 +24,7 @@ var Fayde;
                 this._Dirty = true;
                 this._Font = new Font();
                 this._SetsValue = true;
+                this.LayoutUpdater.CanHitElement = true;
             }
             TextBlockNode.prototype.GetInheritedEnumerator = function () {
                 var xobj = this.XObject;
@@ -94,9 +95,6 @@ var Fayde;
                     size.growByThickness(result, padding);
                 }
                 return result;
-            };
-            TextBlockNode.prototype._CanFindElement = function () {
-                return true;
             };
             TextBlockNode.prototype._FontChanged = function (args) {
                 this._UpdateFonts(false);

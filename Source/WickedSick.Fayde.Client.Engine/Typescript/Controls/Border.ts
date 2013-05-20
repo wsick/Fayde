@@ -8,11 +8,6 @@ module Fayde.Controls {
             super(xobj);
             this.LayoutUpdater.SetContainerMode(true);
         }
-
-        _CanFindElement(): bool {
-            var xobj = this.XObject;
-            return xobj.Background != null || xobj.BorderBrush != null;
-        }
     }
     Nullstone.RegisterType(BorderNode, "BorderNode");
 
@@ -105,22 +100,30 @@ module Fayde.Controls {
             lu.InvalidateMeasure();
         }
         private _BackgroundChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
+
             var newBrush = <Media.Brush>args.NewValue;
             if (this._BackgroundListener)
                 this._BackgroundListener.Detach();
                 this._BackgroundListener = null;
             if (newBrush)
-                this._BackgroundListener = newBrush.Listen((brush) => this.BrushChanged(brush));
-            this.BrushChanged(newBrush);
+                this._BackgroundListener = newBrush.Listen((brush) => lu.Invalidate());
+            
+            lu.CanHitElement = newBrush != null || this.BorderBrush != null;
+            lu.Invalidate();
         }
         private _BorderBrushChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
+
             var newBrush = <Media.Brush>args.NewValue;
             if (this._BorderBrushListener)
                 this._BorderBrushListener.Detach();
                 this._BorderBrushListener = null;
             if (newBrush)
-                this._BorderBrushListener = newBrush.Listen((brush) => this.BrushChanged(brush));
-            this.BrushChanged(newBrush);
+                this._BorderBrushListener = newBrush.Listen((brush) => lu.Invalidate());
+
+            lu.CanHitElement = newBrush != null || this.Background != null;
+            lu.Invalidate();
         }
         private _BorderThicknessChanged(args: IDependencyPropertyChangedEventArgs) {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
@@ -128,8 +131,6 @@ module Fayde.Controls {
         private _PaddingChanged(args: IDependencyPropertyChangedEventArgs) {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
         }
-
-        private BrushChanged(newBrush: Media.Brush) { this.XamlNode.LayoutUpdater.Invalidate(); }
 
         private Render(ctx: RenderContext, lu:LayoutUpdater, region: rect) {
             var borderBrush = this.BorderBrush;

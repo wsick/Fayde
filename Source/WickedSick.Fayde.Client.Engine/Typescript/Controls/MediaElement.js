@@ -13,7 +13,7 @@ var Fayde;
             function MENode(xobj) {
                         _super.call(this, xobj);
             }
-            MENode.prototype._InsideObject = function (ctx, lu, x, y) {
+            MENode.prototype.PostInsideObject = function (ctx, lu, x, y) {
                 //TODO: Implement
                 return false;
             };

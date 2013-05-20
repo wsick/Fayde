@@ -427,12 +427,8 @@ module Fayde {
             return 0;
         }
         static FindElementsInHostCoordinates(intersectingPoint: Point, subtree: UIElement): UIElement[] {
-            var uies: UIElement[] = [];
-            var enumerator = ArrayEx.GetEnumerator(subtree.XamlNode.FindElementsInHostCoordinates(intersectingPoint));
-            while (enumerator.MoveNext()) {
-                uies.push((<UINode>enumerator.Current).XObject);
-            }
-            return uies;
+            return subtree.XamlNode.LayoutUpdater.FindElementsInHostCoordinates(intersectingPoint)
+                .map(function (uin) { return uin.XObject; });
         }
         static __Debug(ui: any, func?: (uin: UINode, tabIndex: number) => string): string {
             var uin: UINode;
@@ -5527,10 +5523,10 @@ module Fayde {
 module Fayde {
     export class LayoutInformation {
         static GetLayoutClip(uie: UIElement): Media.Geometry {
-            return uie.XamlNode.LayoutUpdater.LayoutClip;
-        }
-        static SetLayoutClip(uie: UIElement, value: Media.Geometry) {
-            uie.XamlNode.LayoutUpdater.LayoutClip = value;
+            var r = uie.XamlNode.LayoutUpdater.LayoutClip;
+            var geom = new Media.RectangleGeometry();
+            geom.Rect = rect.copyTo(r);
+            return geom;
         }
         static GetLayoutExceptionElement(): UIElement {
             var lu = LayoutUpdater.LayoutExceptionUpdater;
@@ -5539,9 +5535,6 @@ module Fayde {
         }
         static GetLayoutSlot(uie: UIElement): rect {
             return uie.XamlNode.LayoutUpdater.LayoutSlot;
-        }
-        static SetLayoutSlot(uie: UIElement, value: rect) {
-            uie.XamlNode.LayoutUpdater.LayoutSlot = value;
         }
     }
     Nullstone.RegisterType(LayoutInformation, "LayoutInformation");
@@ -5599,11 +5592,14 @@ module Fayde {
     export interface IPostComputeTransformable {
         PostCompute(lu: LayoutUpdater, hasLocalProjection: bool);
     }
+    export interface IPostInsideObject {
+        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool;
+    }
     var maxPassCount = 250;
     export class LayoutUpdater {
         static LayoutExceptionUpdater: LayoutUpdater = undefined;
         Surface: Surface;
-        LayoutClip: Media.Geometry = undefined;
+        LayoutClip: rect = undefined;
         LayoutSlot: rect = undefined;
         PreviousConstraint: size = undefined;
         LastRenderSize: size = undefined;
@@ -5634,12 +5630,14 @@ module Fayde {
         GlobalBoundsWithChildren: rect = new rect();
         SurfaceBounds: rect = new rect();
         SurfaceBoundsWithChildren: rect = new rect();
-        LayoutClipBounds: rect = new rect();
         EffectPadding: Thickness = new Thickness();
         ClipBounds: rect = new rect();
         IsContainer: bool = false;
         IsLayoutContainer: bool = false;
         BreaksLayoutClipRender: bool = false;
+        CanHitElement: bool = false;
+        ShouldSkipHitTest: bool = false;
+        IsNeverInsideObject: bool = false;
         Flags: Fayde.UIElementFlags = Fayde.UIElementFlags.RenderVisible | Fayde.UIElementFlags.HitTestVisible;
         DirtyFlags: _Dirty = 0;
         InUpDirty: bool = false;
@@ -5659,7 +5657,7 @@ module Fayde {
             this.UpdateTotalRenderVisibility();
             this.UpdateTotalHitTestVisibility();
             this.Invalidate();
-            this.SetLayoutClip(undefined);
+            this.LayoutClip = undefined;
             size.clear(this.RenderSize);
             this.UpdateTransform();
             this.UpdateProjection();
@@ -5670,7 +5668,7 @@ module Fayde {
         }
         OnRemovedFromTree() {
             this.LayoutSlot = new rect();
-            this.SetLayoutClip(undefined);
+            this.LayoutClip = undefined;
         }
         SetContainerMode(isLayoutContainer: bool, isContainer?: bool) {
             if (isLayoutContainer != null)
@@ -6043,7 +6041,7 @@ module Fayde {
         }
         IntersectBoundsWithClipPath(dest: rect, xform: number[]) {
             var isClipEmpty = rect.isEmpty(this.ClipBounds);
-            var isLayoutClipEmpty = rect.isEmpty(this.LayoutClipBounds);
+            var isLayoutClipEmpty = this.LayoutClip ? rect.isEmpty(this.LayoutClip) : true;
             if ((!isClipEmpty || !isLayoutClipEmpty) && !this.TotalIsRenderVisible) {
                 rect.clear(dest);
                 return;
@@ -6052,14 +6050,7 @@ module Fayde {
             if (!isClipEmpty)
                 rect.intersection(dest, this.ClipBounds);
             if (!isLayoutClipEmpty)
-                rect.intersection(dest, this.LayoutClipBounds);
-        }
-        SetLayoutClip(layoutClip: Media.Geometry) {
-            this.LayoutClip = layoutClip;
-            if (!layoutClip)
-                rect.clear(this.LayoutClipBounds);
-            else
-                rect.copyTo(layoutClip.GetBounds(), this.LayoutClipBounds);
+                rect.intersection(dest, this.LayoutClip);
         }
         private _UpdateActualSize() {
             var last = this.LastRenderSize;
@@ -6344,7 +6335,7 @@ module Fayde {
                 this._Measure(size.fromRect(finalRect), error);
             }
             measure = this.PreviousConstraint;
-            this.SetLayoutClip(undefined);
+            this.LayoutClip = undefined;
             var childRect = rect.copyTo(finalRect);
             var margin = fe.Margin;
             if (margin)
@@ -6462,9 +6453,7 @@ module Fayde {
                 var frameworkClip = this.CoerceSize(size.createInfinite());
                 var frect = rect.fromSize(frameworkClip);
                 rect.intersection(layoutClip, frect);
-                var rectangle = new Media.RectangleGeometry();
-                rectangle.Rect = layoutClip;
-                this.SetLayoutClip(rectangle);
+                this.LayoutClip = layoutClip;
             }
             if (!size.isEqual(oldSize, response)) {
                 if (!this.LastRenderSize) {
@@ -6521,15 +6510,112 @@ module Fayde {
             }
             ctx.Restore();
         }
+        FindElementsInHostCoordinates(p: Point): UINode[] {
+            var uinlist: UINode[] = [];
+            this._FindElementsInHostCoordinates(this.Surface.TestRenderContext, p, uinlist);
+            return uinlist;
+        }
+        private _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
+            if (this.ShouldSkipHitTest)
+                return;
+            if (!this.TotalIsRenderVisible)
+                return;
+            if (!this.TotalIsHitTestVisible)
+                return;
+            if (this.SurfaceBoundsWithChildren.Height <= 0)
+                return;
+            var thisNode = this.Node;
+            ctx.Save();
+            ctx.TransformMatrix(this.RenderXform);
+            if (!this._InsideClip(ctx, p.X, p.Y)) {
+                ctx.Restore();
+                return;
+            }
+            uinlist.unshift(thisNode);
+            var enumerator = thisNode.GetVisualTreeEnumerator(VisualTreeDirection.ZFoward);
+            while (enumerator.MoveNext()) {
+                (<UINode>enumerator.Current).LayoutUpdater._FindElementsInHostCoordinates(ctx, p, uinlist);
+            }
+            if (thisNode === uinlist[0]) {
+                if (!this.CanHitElement || !this._InsideObject(ctx, p.X, p.Y))
+                    uinlist.shift();
+            }
+            ctx.Restore();
+        }
+        HitTestPoint(ctx: RenderContext, p: Point, uinlist: UINode[]) {
+            if (this.ShouldSkipHitTest)
+                return;
+            if (!this.TotalIsRenderVisible)
+                return;
+            if (!this.TotalIsHitTestVisible)
+                return;
+            ctx.Save();
+            ctx.TransformMatrix(this.RenderXform);
+            if (!this._InsideClip(ctx, p.X, p.Y)) {
+                ctx.Restore();
+                return;
+            }
+            var thisNode = this.Node;
+            uinlist.unshift(thisNode);
+            var hit = false;
+            var enumerator = thisNode.GetVisualTreeEnumerator(VisualTreeDirection.ZReverse);
+            while (enumerator.MoveNext()) {
+                var childNode = (<FENode>enumerator.Current);
+                childNode.LayoutUpdater.HitTestPoint(ctx, p, uinlist);
+                if (thisNode !== uinlist[0]) {
+                    hit = true;
+                    break;
+                }
+            }
+            if (!hit && !(this.CanHitElement && this._InsideObject(ctx, p.X, p.Y))) {
+                if (uinlist.shift() !== thisNode) {
+                    throw new Exception("Look at my code! -> FENode._HitTestPoint");
+                }
+            }
+            ctx.Restore();
+        }
+        private _InsideObject(ctx: RenderContext, x: number, y: number): bool {
+            if (this.IsNeverInsideObject)
+                return false;
+            var bounds = new rect();
+            var fe = <FrameworkElement>this.Node.XObject;
+            rect.set(bounds, 0, 0, fe.ActualWidth, fe.ActualHeight);
+            rect.transform(bounds, ctx.CurrentTransform);
+            if (!rect.containsPointXY(bounds, x, y))
+                return false;
+            if (!this._InsideLayoutClip(ctx, x, y))
+                return false;
+            if ((<IPostInsideObject><any>this.Node).PostInsideObject)
+                return (<IPostInsideObject><any>this.Node).PostInsideObject(ctx, this, x, y);
+            return true;
+        }
+        private _InsideClip(ctx: RenderContext, x: number, y: number): bool {
+            var clip = this.Node.XObject.Clip;
+            if (!clip)
+                return true;
+            var bounds = clip.GetBounds();
+            rect.transform(bounds, ctx.CurrentTransform);
+            if (!rect.containsPointXY(bounds, x,y))
+                return false;
+            return ctx.IsPointInClipPath(clip, x, y);
+        }
+        private _InsideLayoutClip(ctx: RenderContext, x: number, y: number): bool {
+            var layoutClip = this.LayoutClip;
+            if (!layoutClip)
+                return true;
+            var layoutClipBounds = rect.copyTo(layoutClip);
+            rect.transform(layoutClipBounds, ctx.CurrentTransform);
+            return rect.containsPointXY(layoutClipBounds, x, y);
+        }
         _RenderLayoutClip(ctx: RenderContext) {
             var iX = 0;
             var iY = 0;
             var curNode = this.Node;
             while (curNode) {
                 var lu = curNode.LayoutUpdater;
-                var geom = lu.LayoutClip;
-                if (geom)
-                    ctx.ClipGeometry(geom);
+                var r = lu.LayoutClip;
+                if (r)
+                    ctx.ClipRect(r);
                 if (lu.BreaksLayoutClipRender) //Canvas or UserControl
                     break;
                 var visualOffset = lu.VisualOffset;
@@ -7646,6 +7732,7 @@ class App implements Fayde.IResourcable {
         this._ClockTimer.RegisterTimer(this);
     }
     private Tick(lastTime: number, nowTime: number) {
+        this.DebugInterop.NumFrames++;
         this.ProcessStoryboards(lastTime, nowTime);
         this.Update();
         this.Render();
@@ -7762,6 +7849,8 @@ module Fayde {
         private _CachedHitTest: UINode[];
         private _DPCache: DependencyProperty[];
         private _IsCacheInvalidated: bool = true;
+        LastFrameTime: Date;
+        NumFrames: number = 0;
         App: App;
         Surface: Surface;
         constructor(app: App) {
@@ -7830,6 +7919,14 @@ module Fayde {
                 });
             }
             return arr;
+        }
+        GetResetPerfInfo(): string {
+            var numFrames = this.NumFrames;
+            this.NumFrames = 0;
+            var oldFrameTime = this.LastFrameTime || new Date();
+            this.LastFrameTime = new Date();
+            var diff = this.LastFrameTime.getTime() - oldFrameTime.getTime();
+            return numFrames.toString() + ";" + diff.toString();
         }
         /*
         GetProperties(visual: UIElement): string {
@@ -8022,12 +8119,12 @@ module Fayde {
             p.Draw(this);
             this.CanvasContext.clip();
         }
-        IsPointInPath(p: Point): bool {
-            return this.CanvasContext.isPointInPath(p.X, p.Y);
+        IsPointInPath(x: number, y: number): bool {
+            return this.CanvasContext.isPointInPath(x, y);
         }
-        IsPointInClipPath(clip: Media.Geometry, p: Point): bool {
+        IsPointInClipPath(clip: Media.Geometry, x: number, y: number): bool {
             clip.Draw(this);
-            return this.CanvasContext.isPointInPath(p.X, p.Y);
+            return this.CanvasContext.isPointInPath(x, y);
         }
         Rect(r: rect) {
             var cc = this.CanvasContext;
@@ -8554,7 +8651,7 @@ class Surface {
             var layerCount = layers.length;
             for (var i = layerCount - 1; i >= 0 && newInputList.length === 0; i--) {
                 var layer = layers[i];
-                layer._HitTestPoint(ctx, pos, newInputList);
+                layer.LayoutUpdater.HitTestPoint(ctx, pos, newInputList);
             }
             var indices = { Index1: -1, Index2: -1 };
             this._FindFirstCommonElement(this._InputList, newInputList, indices);
@@ -14679,27 +14776,6 @@ module Fayde {
             }
             return args.Handled;
         }
-        FindElementsInHostCoordinates(intersectingPoint: Point): Fayde.UINode[] {
-            var uinlist: UINode[] = [];
-            this._FindElementsInHostCoordinates(this._Surface.TestRenderContext, intersectingPoint, uinlist);
-            return uinlist;
-        }
-        _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
-            uinlist.unshift(this);
-        }
-        _HitTestPoint(ctx: Fayde.RenderContext, p: Point, uinlist: Fayde.UINode[]) {
-            uinlist.unshift(this);
-        }
-        _InsideClip(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
-            var clip = this.XObject.Clip;
-            if (!clip)
-                return true;
-            var np = new Point(x, y);
-            lu.TransformPoint(np);
-            if (!rect.containsPoint(clip.GetBounds(), np))
-                return false;
-            return ctx.IsPointInClipPath(clip, np);
-        }
         CanCaptureMouse(): bool { return true; }
         CaptureMouse(): bool {
             if (!this.IsAttached)
@@ -16411,78 +16487,6 @@ module Fayde {
             this.AttachVisualChild(uie, error);
             return error.Message == null;
         }
-        _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
-            var lu = this.LayoutUpdater;
-            if (!lu.TotalIsRenderVisible)
-                return;
-            if (!lu.TotalIsHitTestVisible)
-                return;
-            if (lu.SurfaceBoundsWithChildren.Height <= 0)
-                return;
-            if (!this._InsideClip(ctx, lu, p.X, p.Y))
-                return;
-            ctx.Save();
-            uinlist.unshift(this);
-            var enumerator = this.GetVisualTreeEnumerator(VisualTreeDirection.ZFoward);
-            while (enumerator.MoveNext()) {
-                (<UINode>enumerator.Current)._FindElementsInHostCoordinates(ctx, p, uinlist);
-            }
-            if (this === uinlist[0]) {
-                if (!this._CanFindElement() || !this._InsideObject(ctx, lu, p.X, p.Y))
-                    uinlist.shift();
-            }
-            ctx.Restore();
-        }
-        _HitTestPoint(ctx: RenderContext, p: Point, uinlist: UINode[]) {
-            var lu = this.LayoutUpdater;
-            if (!lu.TotalIsRenderVisible)
-                return;
-            if (!lu.TotalIsHitTestVisible)
-                return;
-            if (!this._InsideClip(ctx, lu, p.X, p.Y))
-                return;
-            uinlist.unshift(this);
-            var hit = false;
-            var enumerator = this.GetVisualTreeEnumerator(VisualTreeDirection.ZReverse);
-            while (enumerator.MoveNext()) {
-                var childNode = (<FENode>enumerator.Current);
-                childNode._HitTestPoint(ctx, p, uinlist);
-                if (this !== uinlist[0]) {
-                    hit = true;
-                    break;
-                }
-            }
-            if (!hit && !(this._CanFindElement() && this._InsideObject(ctx, lu, p.X, p.Y))) {
-                if (uinlist.shift() !== this) {
-                    throw new Exception("Look at my code! -> FENode._HitTestPoint");
-                }
-            }
-        }
-        _CanFindElement(): bool { return false; }
-        _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
-            var np = new Point(x, y);
-            lu.TransformPoint(np);
-            var fe = this.XObject;
-            if (np.X < 0 || np.Y < 0 || np.X > fe.ActualWidth || np.Y > fe.ActualHeight)
-                return false;
-            if (!this._InsideLayoutClip(lu, x, y))
-                return false;
-            return this._InsideClip(ctx, lu, x, y);
-        }
-        _InsideLayoutClip(lu: LayoutUpdater, x: number, y: number): bool {
-            /*
-            Geometry * composite_clip = LayoutInformation:: GetCompositeClip(this);
-            bool inside = true;
-            if (!composite_clip)
-                return inside;
-            var np = new Point();
-            lu.TransformPoint(np);
-            inside = composite_clip - > GetBounds().PointInside(x, y);
-            composite_clip - > unref();
-            return inside;
-            */
-            return true;
-        }
         _HasFocus(): bool {
             var curNode = this._Surface.FocusedNode
             while (curNode) {
@@ -16782,26 +16786,16 @@ module Fayde.Media.Imaging {
 }
 
 module Fayde.Shapes {
-    export class ShapeNode extends FENode implements IBoundsComputable {
+    export class ShapeNode extends FENode implements IBoundsComputable, IPostInsideObject {
         XObject: Shape;
         constructor(xobj: Shape) {
             super(xobj);
         }
-        _CanFindElement(): bool {
+        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
             var shape = this.XObject;
-            return (<any>shape)._Fill != null || (<any>shape)._Stroke != null;
-        }
-        _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
-            if (!this._InsideLayoutClip(lu, x, y))
-                return false;
-            if (!this._InsideClip(ctx, lu, x, y))
-                return false;
-            var p = new Point(x, y);
-            lu.TransformPoint(p);
-            x = p.X;
-            y = p.Y;
-            var shape = this.XObject;
-            if (!rect.containsPointXY(this.GetStretchExtents(shape, lu), x, y))
+            var extents = rect.copyTo(this.GetStretchExtents(shape, lu));
+            rect.transform(extents, ctx.CurrentTransform);
+            if (!rect.containsPointXY(extents, x, y))
                 return false;
             return shape._InsideShape(ctx, lu, x, y);
         }
@@ -16813,7 +16807,7 @@ module Fayde.Shapes {
         }
         private IntersectBaseBoundsWithClipPath(lu: LayoutUpdater, dest: rect, baseBounds: rect, xform: number[]) {
             var isClipEmpty = rect.isEmpty(lu.ClipBounds);
-            var isLayoutClipEmpty = rect.isEmpty(lu.LayoutClipBounds);
+            var isLayoutClipEmpty = lu.LayoutClip ? rect.isEmpty(lu.LayoutClip) : true;
             if ((!isClipEmpty || !isLayoutClipEmpty) && !lu.TotalIsRenderVisible) {
                 rect.clear(dest);
                 return;
@@ -16822,7 +16816,7 @@ module Fayde.Shapes {
             if (!isClipEmpty)
                 rect.intersection(dest, lu.ClipBounds);
             if (!isLayoutClipEmpty)
-                rect.intersection(dest, lu.LayoutClipBounds);
+                rect.intersection(dest, lu.LayoutClip);
         }
         UpdateStretch() {
             var lu = this.LayoutUpdater;
@@ -16875,12 +16869,11 @@ module Fayde.Shapes {
             if (this._ShapeFlags & ShapeFlags.Empty)
                 return false;
             var ret = false;
-            var area = this.XamlNode.GetStretchExtents(this, lu);
             ctx.Save();
             ctx.PreTransformMatrix(this._StretchXform);
             if (this._Fill != null) {
                 this._DrawPath(ctx);
-                if (ctx.IsPointInPath(new Point(x, y)))
+                if (ctx.IsPointInPath(x, y))
                     ret = true;
             }
             if (!ret && this._Stroke != null) {
@@ -17169,30 +17162,31 @@ module Fayde.Shapes {
         }
         private _FillListener: Media.IBrushChangedListener;
         private _FillChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
             var newBrush = <Media.Brush>args.NewValue;
             if (this._FillListener)
                 this._FillListener.Detach();
                 this._FillListener = null;
             if (newBrush)
-                this._FillListener = newBrush.Listen((brush) => this.BrushChanged(brush));
+                this._FillListener = newBrush.Listen((brush) => lu.Invalidate());
             if (this._Fill || newBrush)
                 this._InvalidateNaturalBounds();
             this._Fill = newBrush;
+            lu.CanHitElement = this._Stroke != null || this._Fill != null;
         }
         private _StrokeListener: Media.IBrushChangedListener;
         private _StrokeChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
             var newBrush = <Media.Brush>args.NewValue;
             if (this._StrokeListener)
                 this._StrokeListener.Detach();
                 this._StrokeListener = null;
             if (newBrush)
-                this._StrokeListener = newBrush.Listen((brush) => this.BrushChanged(brush));
+                this._StrokeListener = newBrush.Listen((brush) => lu.Invalidate());
             if (this._Stroke || newBrush)
                 this._InvalidateNaturalBounds();
             this._Stroke = newBrush;
-        }
-        private BrushChanged(newBrush: Media.Brush) {
-            this.XamlNode.LayoutUpdater.Invalidate();
+            lu.CanHitElement = this._Stroke != null || this._Fill != null;
         }
         private _StretchChanged(args: IDependencyPropertyChangedEventArgs) {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
@@ -17216,10 +17210,6 @@ module Fayde.Controls {
         constructor(xobj: Border) {
             super(xobj);
             this.LayoutUpdater.SetContainerMode(true);
-        }
-        _CanFindElement(): bool {
-            var xobj = this.XObject;
-            return xobj.Background != null || xobj.BorderBrush != null;
         }
     }
     Nullstone.RegisterType(BorderNode, "BorderNode");
@@ -17304,22 +17294,26 @@ module Fayde.Controls {
             lu.InvalidateMeasure();
         }
         private _BackgroundChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
             var newBrush = <Media.Brush>args.NewValue;
             if (this._BackgroundListener)
                 this._BackgroundListener.Detach();
                 this._BackgroundListener = null;
             if (newBrush)
-                this._BackgroundListener = newBrush.Listen((brush) => this.BrushChanged(brush));
-            this.BrushChanged(newBrush);
+                this._BackgroundListener = newBrush.Listen((brush) => lu.Invalidate());
+            lu.CanHitElement = newBrush != null || this.BorderBrush != null;
+            lu.Invalidate();
         }
         private _BorderBrushChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
             var newBrush = <Media.Brush>args.NewValue;
             if (this._BorderBrushListener)
                 this._BorderBrushListener.Detach();
                 this._BorderBrushListener = null;
             if (newBrush)
-                this._BorderBrushListener = newBrush.Listen((brush) => this.BrushChanged(brush));
-            this.BrushChanged(newBrush);
+                this._BorderBrushListener = newBrush.Listen((brush) => lu.Invalidate());
+            lu.CanHitElement = newBrush != null || this.Background != null;
+            lu.Invalidate();
         }
         private _BorderThicknessChanged(args: IDependencyPropertyChangedEventArgs) {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
@@ -17327,7 +17321,6 @@ module Fayde.Controls {
         private _PaddingChanged(args: IDependencyPropertyChangedEventArgs) {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
         }
-        private BrushChanged(newBrush: Media.Brush) { this.XamlNode.LayoutUpdater.Invalidate(); }
         private Render(ctx: RenderContext, lu:LayoutUpdater, region: rect) {
             var borderBrush = this.BorderBrush;
             var extents = lu.Extents;
@@ -17514,6 +17507,7 @@ module Fayde.Controls {
         constructor(xobj: Control) {
             super(xobj);
             this.LayoutUpdater.SetContainerMode(true);
+            this.LayoutUpdater.IsNeverInsideObject = true;
         }
         TabTo() {
             var xobj = this.XObject;
@@ -17562,16 +17556,6 @@ module Fayde.Controls {
             }
             super.OnIsEnabledChanged(oldValue, newValue);
         }
-        _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
-            if (this.XObject.IsEnabled)
-                super._FindElementsInHostCoordinates(ctx, p, uinlist);
-        }
-        _HitTestPoint(ctx: RenderContext, p: Point, uinlist: UINode[]) {
-            if (this.XObject.IsEnabled)
-                super._HitTestPoint(ctx, p, uinlist);
-        }
-        _CanFindElement(): bool { return this.XObject.IsEnabled; }
-        _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool { return false; }
         Focus(recurse?: bool): bool { return this._Surface.Focus(this, recurse); }
         CanCaptureMouse(): bool { return this.XObject.IsEnabled; }
     }
@@ -17641,6 +17625,9 @@ module Fayde.Controls {
         }
         IsEnabledChanged: MulticastEvent = new MulticastEvent();
         _IsEnabledChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
+            lu.ShouldSkipHitTest = args.NewValue === false;
+            lu.CanHitElement = args.NewValue !== false;
             this.OnIsEnabledChanged(args);
             this.IsEnabledChanged.RaiseAsync(this, EventArgs.Empty);
         }
@@ -17814,15 +17801,13 @@ module Fayde.Controls {
         Matrix: number[];
         Overlap: number;
     }
-    export class ImageNode extends FENode {
+    export class ImageNode extends FENode implements IPostInsideObject {
         XObject: Image;
         constructor(xobj: Image) {
             super(xobj);
+            this.LayoutUpdater.CanHitElement = true;
         }
-        _CanFindElement(): bool { return true; }
-        _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
-            if (!super._InsideObject(ctx, lu, x, y))
-                return false;
+        PostInsideObject(ctx: RenderContext, lu:LayoutUpdater, x: number, y: number): bool {
             var img = this.XObject;
             var source = img.Source;
             if (!source)
@@ -18366,12 +18351,12 @@ module Fayde.Controls {
 }
 
 module Fayde.Controls {
-    export class MENode extends FENode {
+    export class MENode extends FENode implements IPostInsideObject {
         XObject: MediaElement;
         constructor(xobj: MediaElement) {
             super(xobj);
         }
-        _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
+        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
             return false;
         }
     }
@@ -18456,7 +18441,7 @@ module Fayde.Controls {
         }
     }
     Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");
-    export class PanelNode extends FENode implements IBoundsComputable {
+    export class PanelNode extends FENode implements IBoundsComputable, IPostInsideObject {
         XObject: Panel;
         constructor(xobj: Panel) {
             super(xobj);
@@ -18493,9 +18478,8 @@ module Fayde.Controls {
             this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
             super.OnIsAttachedChanged(newIsAttached);
         }
-        _CanFindElement(): bool { return this.XObject.Background != null; }
-        _InsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
-            return (this.XObject.Background != null) && super._InsideObject(ctx, lu, x, y);
+        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
+            return this.XObject.Background != null;
         }
         ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
             rect.clear(lu.Extents);
@@ -18545,18 +18529,17 @@ module Fayde.Controls {
         static GetZ(uie: UIElement): number { return uie.GetValue(ZProperty); }
         static SetZ(uie: UIElement, value: number) { uie.SetValue(ZProperty, value); }
         private _BackgroundChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
             var newBrush = <Media.Brush>args.NewValue;
             if (this._BackgroundListener)
                 this._BackgroundListener.Detach();
                 this._BackgroundListener = null;
             if (newBrush)
-                this._BackgroundListener = newBrush.Listen((brush) => this.BrushChanged(brush));
-            this.BrushChanged(newBrush);
-            var lu = this.XamlNode.LayoutUpdater;
+                this._BackgroundListener = newBrush.Listen((brush) => lu.Invalidate());
+            lu.CanHitElement = newBrush != null;
             lu.UpdateBounds();
             lu.Invalidate();
         }
-        private BrushChanged(newBrush: Media.Brush) { this.XamlNode.LayoutUpdater.Invalidate(); }
         private _MeasureOverride(availableSize: size, error: BError): size {
             return new size();
         }
@@ -18965,6 +18948,7 @@ module Fayde.Controls {
         private _SetsValue: bool = true;
         constructor(xobj: TextBlock) {
             super(xobj);
+            this.LayoutUpdater.CanHitElement = true;
         }
         GetInheritedEnumerator(): IEnumerator {
             var xobj = this.XObject;
@@ -19029,7 +19013,6 @@ module Fayde.Controls {
             if (padding) size.growByThickness(result, padding);
             return result;
         }
-        _CanFindElement(): bool { return true; }
         _FontChanged(args: IDependencyPropertyChangedEventArgs) {
             this._UpdateFonts(false);
             this._InvalidateDirty();
@@ -20916,10 +20899,6 @@ module Fayde.Controls.Primitives {
             if (!newIsAttached && this.XObject.IsOpen)
                 this.XObject.IsOpen = false;
         }
-        _HitTestPoint(ctx: RenderContext, p: Point, uinlist: UINode[]) {
-            if (this._IsVisible)
-                super._HitTestPoint(ctx, p, uinlist);
-        }
         private _HorizontalOffset: number = 0;
         private _VerticalOffset: number = 0;
         private _IsVisible: bool = false;
@@ -21042,6 +21021,7 @@ module Fayde.Controls.Primitives {
             if (!this._IsVisible || !child)
                 return;
             this._IsVisible = false;
+            this.LayoutUpdater.ShouldSkipHitTest = true;
             this._Surface.DetachLayer(child);
         }
         _Show() {
@@ -21050,6 +21030,7 @@ module Fayde.Controls.Primitives {
             if (this._IsVisible || !child)
                 return;
             this._IsVisible = true;
+            this.LayoutUpdater.ShouldSkipHitTest = false;
             this._Surface.AttachLayer(child);
         }
     }

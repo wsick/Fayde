@@ -106,14 +106,9 @@ var Fayde;
             __extends(ImageNode, _super);
             function ImageNode(xobj) {
                         _super.call(this, xobj);
+                this.LayoutUpdater.CanHitElement = true;
             }
-            ImageNode.prototype._CanFindElement = function () {
-                return true;
-            };
-            ImageNode.prototype._InsideObject = function (ctx, lu, x, y) {
-                if(!_super.prototype._InsideObject.call(this, ctx, lu, x, y)) {
-                    return false;
-                }
+            ImageNode.prototype.PostInsideObject = function (ctx, lu, x, y) {
                 var img = this.XObject;
                 var source = img.Source;
                 if(!source) {

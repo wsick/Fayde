@@ -49,12 +49,8 @@ module Fayde {
             return 0;
         }
         static FindElementsInHostCoordinates(intersectingPoint: Point, subtree: UIElement): UIElement[] {
-            var uies: UIElement[] = [];
-            var enumerator = ArrayEx.GetEnumerator(subtree.XamlNode.FindElementsInHostCoordinates(intersectingPoint));
-            while (enumerator.MoveNext()) {
-                uies.push((<UINode>enumerator.Current).XObject);
-            }
-            return uies;
+            return subtree.XamlNode.LayoutUpdater.FindElementsInHostCoordinates(intersectingPoint)
+                .map(function (uin) { return uin.XObject; });
         }
 
         static __Debug(ui: any, func?: (uin: UINode, tabIndex: number) => string): string {

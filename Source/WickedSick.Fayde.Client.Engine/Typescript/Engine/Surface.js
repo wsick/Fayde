@@ -536,7 +536,7 @@ var Surface = (function () {
             //var startTime = new Date().getTime();
             for(var i = layerCount - 1; i >= 0 && newInputList.length === 0; i--) {
                 var layer = layers[i];
-                layer._HitTestPoint(ctx, pos, newInputList);
+                layer.LayoutUpdater.HitTestPoint(ctx, pos, newInputList);
             }
             var indices = {
                 Index1: -1,

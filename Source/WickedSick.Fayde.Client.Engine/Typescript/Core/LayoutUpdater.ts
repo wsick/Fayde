@@ -67,6 +67,9 @@ module Fayde {
     export interface IPostComputeTransformable {
         PostCompute(lu: LayoutUpdater, hasLocalProjection: bool);
     }
+    export interface IPostInsideObject {
+        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool;
+    }
 
     var maxPassCount = 250;
     export class LayoutUpdater {
@@ -74,7 +77,7 @@ module Fayde {
 
         Surface: Surface;
 
-        LayoutClip: Media.Geometry = undefined;
+        LayoutClip: rect = undefined;
         LayoutSlot: rect = undefined;
         PreviousConstraint: size = undefined;
         LastRenderSize: size = undefined;
@@ -109,13 +112,16 @@ module Fayde {
         GlobalBoundsWithChildren: rect = new rect();
         SurfaceBounds: rect = new rect();
         SurfaceBoundsWithChildren: rect = new rect();
-        LayoutClipBounds: rect = new rect();
         EffectPadding: Thickness = new Thickness();
         ClipBounds: rect = new rect();
 
         IsContainer: bool = false;
         IsLayoutContainer: bool = false;
         BreaksLayoutClipRender: bool = false;
+
+        CanHitElement: bool = false;
+        ShouldSkipHitTest: bool = false;
+        IsNeverInsideObject: bool = false;
 
         Flags: Fayde.UIElementFlags = Fayde.UIElementFlags.RenderVisible | Fayde.UIElementFlags.HitTestVisible;
 
@@ -140,7 +146,7 @@ module Fayde {
             this.UpdateTotalHitTestVisibility();
             this.Invalidate();
 
-            this.SetLayoutClip(undefined);
+            this.LayoutClip = undefined;
 
             size.clear(this.RenderSize);
             this.UpdateTransform();
@@ -152,7 +158,7 @@ module Fayde {
         }
         OnRemovedFromTree() {
             this.LayoutSlot = new rect();
-            this.SetLayoutClip(undefined);
+            this.LayoutClip = undefined;
         }
 
         SetContainerMode(isLayoutContainer: bool, isContainer?: bool) {
@@ -605,7 +611,7 @@ module Fayde {
         }
         IntersectBoundsWithClipPath(dest: rect, xform: number[]) {
             var isClipEmpty = rect.isEmpty(this.ClipBounds);
-            var isLayoutClipEmpty = rect.isEmpty(this.LayoutClipBounds);
+            var isLayoutClipEmpty = this.LayoutClip ? rect.isEmpty(this.LayoutClip) : true;
 
             if ((!isClipEmpty || !isLayoutClipEmpty) && !this.TotalIsRenderVisible) {
                 rect.clear(dest);
@@ -617,15 +623,7 @@ module Fayde {
             if (!isClipEmpty)
                 rect.intersection(dest, this.ClipBounds);
             if (!isLayoutClipEmpty)
-                rect.intersection(dest, this.LayoutClipBounds);
-        }
-
-        SetLayoutClip(layoutClip: Media.Geometry) {
-            this.LayoutClip = layoutClip;
-            if (!layoutClip)
-                rect.clear(this.LayoutClipBounds);
-            else
-                rect.copyTo(layoutClip.GetBounds(), this.LayoutClipBounds);
+                rect.intersection(dest, this.LayoutClip);
         }
 
         private _UpdateActualSize() {
@@ -966,7 +964,7 @@ module Fayde {
             }
             measure = this.PreviousConstraint;
 
-            this.SetLayoutClip(undefined);
+            this.LayoutClip = undefined;
 
             var childRect = rect.copyTo(finalRect);
             var margin = fe.Margin;
@@ -1110,9 +1108,7 @@ module Fayde {
                 var frameworkClip = this.CoerceSize(size.createInfinite());
                 var frect = rect.fromSize(frameworkClip);
                 rect.intersection(layoutClip, frect);
-                var rectangle = new Media.RectangleGeometry();
-                rectangle.Rect = layoutClip;
-                this.SetLayoutClip(rectangle);
+                this.LayoutClip = layoutClip;
             }
 
             if (!size.isEqual(oldSize, response)) {
@@ -1122,6 +1118,7 @@ module Fayde {
                 }
             }
         }
+
         DoRender(ctx: Fayde.RenderContext, r: rect) {
             if (!this.TotalIsRenderVisible)
                 return;
@@ -1182,6 +1179,125 @@ module Fayde {
 
             ctx.Restore();
         }
+
+        FindElementsInHostCoordinates(p: Point): UINode[] {
+            var uinlist: UINode[] = [];
+            this._FindElementsInHostCoordinates(this.Surface.TestRenderContext, p, uinlist);
+            return uinlist;
+        }
+        private _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
+            if (this.ShouldSkipHitTest)
+                return;
+            if (!this.TotalIsRenderVisible)
+                return;
+            if (!this.TotalIsHitTestVisible)
+                return;
+            if (this.SurfaceBoundsWithChildren.Height <= 0)
+                return;
+                
+            var thisNode = this.Node;
+            
+            ctx.Save();
+            ctx.TransformMatrix(this.RenderXform);
+            
+            if (!this._InsideClip(ctx, p.X, p.Y)) {
+                ctx.Restore();
+                return;
+            }
+
+            uinlist.unshift(thisNode);
+            var enumerator = thisNode.GetVisualTreeEnumerator(VisualTreeDirection.ZFoward);
+            while (enumerator.MoveNext()) {
+                (<UINode>enumerator.Current).LayoutUpdater._FindElementsInHostCoordinates(ctx, p, uinlist);
+            }
+
+            if (thisNode === uinlist[0]) {
+                if (!this.CanHitElement || !this._InsideObject(ctx, p.X, p.Y))
+                    uinlist.shift();
+            }
+            ctx.Restore();
+        }
+        HitTestPoint(ctx: RenderContext, p: Point, uinlist: UINode[]) {
+            if (this.ShouldSkipHitTest)
+                return;
+            if (!this.TotalIsRenderVisible)
+                return;
+            if (!this.TotalIsHitTestVisible)
+                return;
+
+            ctx.Save();
+            ctx.TransformMatrix(this.RenderXform);
+            
+            if (!this._InsideClip(ctx, p.X, p.Y)) {
+                ctx.Restore();
+                return;
+            }
+
+            var thisNode = this.Node;
+
+            uinlist.unshift(thisNode);
+            var hit = false;
+            var enumerator = thisNode.GetVisualTreeEnumerator(VisualTreeDirection.ZReverse);
+            while (enumerator.MoveNext()) {
+                var childNode = (<FENode>enumerator.Current);
+                childNode.LayoutUpdater.HitTestPoint(ctx, p, uinlist);
+                if (thisNode !== uinlist[0]) {
+                    hit = true;
+                    break;
+                }
+            }
+
+            if (!hit && !(this.CanHitElement && this._InsideObject(ctx, p.X, p.Y))) {
+                //We're really trying to remove "this", is there a chance "this" is not at the head?
+                if (uinlist.shift() !== thisNode) {
+                    throw new Exception("Look at my code! -> FENode._HitTestPoint");
+                }
+            }
+
+            ctx.Restore();
+        }
+        private _InsideObject(ctx: RenderContext, x: number, y: number): bool {
+            if (this.IsNeverInsideObject)
+                return false;
+
+            var bounds = new rect();
+            var fe = <FrameworkElement>this.Node.XObject;
+            rect.set(bounds, 0, 0, fe.ActualWidth, fe.ActualHeight);
+            //TODO: Use local variable bounds, figure out which one matches up
+            rect.transform(bounds, ctx.CurrentTransform);
+            if (!rect.containsPointXY(bounds, x, y))
+                return false;
+
+            if (!this._InsideLayoutClip(ctx, x, y))
+                return false;
+                
+            if ((<IPostInsideObject><any>this.Node).PostInsideObject)
+                return (<IPostInsideObject><any>this.Node).PostInsideObject(ctx, this, x, y);
+            return true;
+        }
+        private _InsideClip(ctx: RenderContext, x: number, y: number): bool {
+            var clip = this.Node.XObject.Clip;
+            if (!clip)
+                return true;
+
+            var bounds = clip.GetBounds();
+            rect.transform(bounds, ctx.CurrentTransform);
+            if (!rect.containsPointXY(bounds, x,y))
+                return false;
+
+            return ctx.IsPointInClipPath(clip, x, y);
+        }
+        private _InsideLayoutClip(ctx: RenderContext, x: number, y: number): bool {
+            var layoutClip = this.LayoutClip;
+            if (!layoutClip)
+                return true;
+
+            //TODO: Handle composite LayoutClip
+
+            var layoutClipBounds = rect.copyTo(layoutClip);
+            rect.transform(layoutClipBounds, ctx.CurrentTransform);
+            return rect.containsPointXY(layoutClipBounds, x, y);
+        }
         _RenderLayoutClip(ctx: RenderContext) {
             var iX = 0;
             var iY = 0;
@@ -1189,9 +1305,9 @@ module Fayde {
             var curNode = this.Node;
             while (curNode) {
                 var lu = curNode.LayoutUpdater;
-                var geom = lu.LayoutClip;
-                if (geom)
-                    ctx.ClipGeometry(geom);
+                var r = lu.LayoutClip;
+                if (r)
+                    ctx.ClipRect(r);
 
                 if (lu.BreaksLayoutClipRender) //Canvas or UserControl
                     break;

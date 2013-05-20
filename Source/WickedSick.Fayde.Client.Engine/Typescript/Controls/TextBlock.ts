@@ -21,6 +21,7 @@ module Fayde.Controls {
 
         constructor(xobj: TextBlock) {
             super(xobj);
+            this.LayoutUpdater.CanHitElement = true;
         }
 
         GetInheritedEnumerator(): IEnumerator {
@@ -91,8 +92,6 @@ module Fayde.Controls {
             if (padding) size.growByThickness(result, padding);
             return result;
         }
-
-        _CanFindElement(): bool { return true; }
 
         _FontChanged(args: IDependencyPropertyChangedEventArgs) {
             this._UpdateFonts(false);
