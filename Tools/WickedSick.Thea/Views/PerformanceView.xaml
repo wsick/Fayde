@@ -1,10 +1,11 @@
 ﻿<UserControl x:Class="WickedSick.Thea.Views.PerformanceView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:localcontrols="clr-namespace:WickedSick.Thea.Controls"
     xmlns:dv="clr-namespace:System.Windows.Controls.DataVisualization;assembly=System.Windows.Controls.DataVisualization.Toolkit"
     xmlns:charting="clr-namespace:System.Windows.Controls.DataVisualization.Charting;assembly=System.Windows.Controls.DataVisualization.Toolkit">
     <Grid>
-        <charting:Chart>
+        <charting:Chart Visibility="Collapsed">
             <charting:Chart.Series>
                 <charting:LineSeries Title="Frames Per Second" 
                                      ItemsSource="{Binding FramesPerSecond}"
@@ -19,5 +20,7 @@
                 </charting:LineSeries>
             </charting:Chart.Series>
         </charting:Chart>
+        <localcontrols:PerformanceTicker Data="{Binding FramesPerSecond}">
+        </localcontrols:PerformanceTicker>
     </Grid>
 </UserControl>

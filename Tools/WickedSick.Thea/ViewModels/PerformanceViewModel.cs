@@ -3,15 +3,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using WickedSick.MVVM;
 using WickedSick.Thea.Helpers;
+using WickedSick.Thea.Models;
 
 namespace WickedSick.Thea.ViewModels
 {
-    public class FrameInfo
-    {
-        public double TimeDiff { get; set; }
-        public double NumFrames { get; set; }
-    }
-
     public class PerformanceViewModel : ViewModelBase
     {
         private ObservableCollection<FrameInfo> _FramesPerSecond = new ObservableCollection<FrameInfo>();
@@ -34,6 +29,8 @@ namespace WickedSick.Thea.ViewModels
             var info = GetFrameInfo();
             if (info == null)
                 return;
+            if (FramesPerSecond.Count < 1)
+                info.TimeDiff = 0.0;
             FramesPerSecond.Add(info);
         }
 
@@ -52,11 +49,10 @@ namespace WickedSick.Thea.ViewModels
 
             double diff;
             double.TryParse(tokens.Skip(1).FirstOrDefault(), out diff);
-            TotalTimeDiff += diff;
             return new FrameInfo
             {
                 NumFrames = numFrames,
-                TimeDiff = TotalTimeDiff,
+                TimeDiff = diff,
             };
         }
     }

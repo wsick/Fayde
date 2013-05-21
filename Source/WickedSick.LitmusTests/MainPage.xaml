@@ -14,5 +14,15 @@
     <!--<tests:MapTest />-->
     <!--<tests:ResourceTest />-->
     <!--<tests:ImageTest />-->
-    <tests:ScrollBarTest />
+    <!--<tests:ScrollBarTest />-->
+    <ComboBox HorizontalAlignment="Center" VerticalAlignment="Center">
+        <ComboBoxItem Content="Test 1" />
+        <ComboBoxItem Content="Test 2" />
+        <ComboBoxItem Content="Test 3" />
+        <ComboBoxItem Content="Test 4" />
+        <ComboBoxItem Content="Test 5" />
+        <ComboBoxItem Content="Test 6" />
+        <ComboBoxItem Content="Test 7" />
+        <ComboBoxItem Content="Test 8" />
+    </ComboBox>
 </UserControl>

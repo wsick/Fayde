@@ -67,10 +67,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\PerformanceTicker.xaml.cs">
+      <DependentUpon>PerformanceTicker.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Helpers\FaydeInterop.cs" />
     <Compile Include="Helpers\IJavascriptContext.cs" />
     <Compile Include="IEnumerableEx.cs" />
     <Compile Include="Models\DependencyValue.cs" />
+    <Compile Include="Models\FrameInfo.cs" />
     <Compile Include="Resources\BoolSolidColorBrushConverter.cs" />
     <Compile Include="Resources\BoolFontWeightConverter.cs" />
     <Compile Include="Resources\BoolVisibilityConverter.cs" />
@@ -95,6 +99,10 @@
     <Compile Include="Views\VisualTree.xaml.cs">
       <DependentUpon>VisualTree.xaml</DependentUpon>
     </Compile>
+    <Page Include="Controls\PerformanceTicker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
