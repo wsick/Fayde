@@ -2461,6 +2461,7 @@ module Fayde.Media.Animation {
     export interface IAnimStorageHidden {
         _Storage: IAnimationStorage;
     }
+    var DEBUG_ON = true;
     export class AnimationStore {
         static Clone(oldanims: IAnimationStorage[], newTarget: DependencyObject): IAnimationStorage[] {
             if (!oldanims)
@@ -2504,6 +2505,8 @@ module Fayde.Media.Animation {
                 storage.StopValue = prevStorage.StopValue;
             else
                 storage.StopValue = targetObj.ReadLocalValue(targetProp);
+            if (DEBUG_ON && window.console)
+                console.info("AnimationStore.AttachAnimation");
             return (<IAnimStorageHidden>animation)._Storage = storage;
         }
         static UpdateCurrentValueAndApply(storage: IAnimationStorage, clockData: IClockData) {
@@ -2516,14 +2519,16 @@ module Fayde.Media.Animation {
             ApplyCurrentValue(storage);
         }
         static Disable(storage: IAnimationStorage) {
+            if (DEBUG_ON && window.console)
+                console.info("AnimationStore.Disable");
             storage.IsDisabled = true;
         }
         static Stop(storage: IAnimationStorage) {
+            if (DEBUG_ON && window.console)
+                console.info("AnimationStore.Stop");
             var to = storage.TargetObj;
-            if (!to)
-                return;
             var tp = storage.TargetProp;
-            if (!tp)
+            if (!to || !tp)
                 return;
             Detach(to, tp, storage);
             to.SetStoreValue(tp, storage.StopValue);
@@ -2571,6 +2576,8 @@ module Fayde.Media.Animation {
             ApplyCurrentValue(storage);
         }
         private static ApplyCurrentValue(storage: IAnimationStorage) {
+            if (DEBUG_ON && window.console)
+                console.info("AnimationStore.ApplyCurrentValue");
             if (storage.CurrentValue === undefined) return;
             storage.TargetObj.SetStoreValue(storage.TargetProp, storage.CurrentValue);
         }
@@ -13520,6 +13527,7 @@ module Fayde.Media.Animation {
         private _BeginTicks: number = undefined;
         private _InitialStep: number = undefined;
         private _ManualTarget: DependencyObject = undefined;
+        private _HasCompleted: bool = false;
         get HasManualTarget():bool { return this._ManualTarget != null; }
         get ManualTarget(): DependencyObject { return this._ManualTarget; }
         Reset() {
@@ -13527,6 +13535,7 @@ module Fayde.Media.Animation {
             this._IsFirstUpdate = true;
             this._BeginTicks = undefined;
             this._HasBegun = false;
+            this._HasCompleted = false;
         }
         Pause() {
             if (this._IsPaused)
@@ -13545,6 +13554,7 @@ module Fayde.Media.Animation {
             this.Reset();
         }
         OnCompleted() {
+            this._HasCompleted = true;
             var fill = this.FillBehavior;
             switch (fill) {
                 case FillBehavior.HoldEnd:
@@ -13563,7 +13573,7 @@ module Fayde.Media.Animation {
             if (this._IsPaused)
                 return;
             this.UpdateInternal(clockData);
-            if (clockData.Completed)
+            if (clockData.Completed && !this._HasCompleted)
                 this.OnCompleted();
         }
         UpdateInternal(clockData: IClockData) { }
@@ -13634,7 +13644,7 @@ module Fayde.Media.Animation {
         }
         GetNaturalDuration(): Duration {
             var d = this.Duration;
-            if (!d || d.IsAutomatic)
+            if (d && d.IsAutomatic)
                 return this.GetNaturalDurationCore();
             return d;
         }
@@ -15651,7 +15661,6 @@ module Fayde.Media.Animation {
                 AnimationStore.UpdateCurrentValueAndApply(storage, clockData);
         }
         GetNaturalDurationCore(): Duration { return Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 1)); }
-        GetTargetValue(defaultOriginalValue: any): any { return undefined; }
         GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): any { return undefined; }
     }
     Nullstone.RegisterType(AnimationBase, "AnimationBase");
@@ -15744,63 +15753,47 @@ module Fayde.Media.Animation {
 
 module Fayde.Media.Animation {
     export class ColorAnimation extends AnimationBase {
-        static ByProperty: DependencyProperty = DependencyProperty.Register("By", () => Color, ColorAnimation, undefined, (d, args) => (<ColorAnimation>d)._InvalidateCache());
-        static EasingFunctionProperty: DependencyProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, ColorAnimation, undefined, (d, args) => (<ColorAnimation>d)._InvalidateCache());
-        static FromProperty: DependencyProperty = DependencyProperty.Register("From", () => Color, ColorAnimation, undefined, (d, args) => (<ColorAnimation>d)._InvalidateCache());
-        static ToProperty: DependencyProperty = DependencyProperty.Register("To", () => Color, ColorAnimation, undefined, (d, args) => (<ColorAnimation>d)._InvalidateCache());
+        static ByProperty: DependencyProperty = DependencyProperty.Register("By", () => Color, ColorAnimation, null, (d, args) => (<ColorAnimation>d)._ByChanged(args));
+        static EasingFunctionProperty: DependencyProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, ColorAnimation, undefined, (d, args) => (<ColorAnimation>d)._EasingChanged(args));
+        static FromProperty: DependencyProperty = DependencyProperty.Register("From", () => Color, ColorAnimation, null, (d, args) => (<ColorAnimation>d)._FromChanged(args));
+        static ToProperty: DependencyProperty = DependencyProperty.Register("To", () => Color, ColorAnimation, null, (d, args) => (<ColorAnimation>d)._ToChanged(args));
         By: Color;
         EasingFunction: IEasingFunction;
         From: Color;
         To: Color;
-        private _HasCached: bool = false;
         private _FromCached: Color = null;
         private _ToCached: Color = null;
         private _ByCached: Color = null;
-        GetTargetValue(defaultOriginalValue: any): Color {
-            this._EnsureCache();
-            var start = new Color();
-            if (this._FromCached != null)
-                start = this._FromCached;
-            else if (defaultOriginalValue != null && defaultOriginalValue instanceof Color)
-                start = defaultOriginalValue;
-            if (this._ToCached != null)
-                return this._ToCached;
-            else if (this._ByCached != null)
-                return start.Add(this._ByCached);
-            return start;
-        }
+        private _EasingCached: EasingFunctionBase = undefined;
         GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): Color {
-            this._EnsureCache();
             var start = new Color();
-            if (this._FromCached != null)
+            if (this._FromCached)
                 start = this._FromCached;
-            else if (defaultOriginalValue != null && defaultOriginalValue instanceof Color)
+            else if (defaultOriginalValue instanceof Color)
                 start = defaultOriginalValue;
             var end = start;
-            if (this._ToCached != null)
+            if (this._ToCached)
                 end = this._ToCached;
-            else if (this._ByCached != null)
+            else if (this._ByCached)
                 end = start.Add(this._ByCached);
-            else if (defaultDestinationValue != null && defaultDestinationValue instanceof Color)
+            else if (defaultDestinationValue instanceof Color)
                 end = defaultDestinationValue;
-            var easingFunc = this.EasingFunction;
-            if (easingFunc != null)
+            var easingFunc = this._EasingCached;
+            if (easingFunc)
                 clockData.Progress = easingFunc.Ease(clockData.Progress);
             return Color.LERP(start, end, clockData.Progress);
         }
-        private _EnsureCache() {
-            if (this._HasCached)
-                return;
-            this._FromCached = this.From;
-            this._ToCached = this.To;
-            this._ByCached = this.By;
-            this._HasCached = true;
+        private _FromChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._FromCached = args.NewValue;
         }
-        private _InvalidateCache() {
-            this._FromCached = null;
-            this._ToCached = null;
-            this._ByCached = null;
-            this._HasCached = false;
+        private _ToChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._ToCached = args.NewValue;
+        }
+        private _ByChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._ByCached = args.NewValue;
+        }
+        private _EasingChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._EasingCached = args.NewValue;
         }
     }
     Nullstone.RegisterType(ColorAnimation, "ColorAnimation");
@@ -15868,33 +15861,19 @@ module Fayde.Media.Animation {
 
 module Fayde.Media.Animation {
     export class DoubleAnimation extends AnimationBase {
-        static ByProperty: DependencyProperty = DependencyProperty.Register("By", () => Number, DoubleAnimation, undefined, (d, args) => (<DoubleAnimation>d)._InvalidateCache());
-        static EasingFunctionProperty: DependencyProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, DoubleAnimation, undefined, (d, args) => (<DoubleAnimation>d)._InvalidateCache());
-        static FromProperty: DependencyProperty = DependencyProperty.Register("From", () => Number, DoubleAnimation, undefined, (d, args) => (<DoubleAnimation>d)._InvalidateCache());
-        static ToProperty: DependencyProperty = DependencyProperty.Register("To", () => Number, DoubleAnimation, undefined, (d, args) => (<DoubleAnimation>d)._InvalidateCache());
+        static ByProperty: DependencyProperty = DependencyProperty.Register("By", () => Number, DoubleAnimation, null, (d, args) => (<DoubleAnimation>d)._ByChanged(args));
+        static EasingFunctionProperty: DependencyProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, DoubleAnimation, undefined, (d, args) => (<DoubleAnimation>d)._EasingChanged(args));
+        static FromProperty: DependencyProperty = DependencyProperty.Register("From", () => Number, DoubleAnimation, null, (d, args) => (<DoubleAnimation>d)._FromChanged(args));
+        static ToProperty: DependencyProperty = DependencyProperty.Register("To", () => Number, DoubleAnimation, null, (d, args) => (<DoubleAnimation>d)._ToChanged(args));
         By: number;
         EasingFunction: IEasingFunction;
         From: number;
         To: number;
-        private _HasCached: bool = false;
-        private _FromCached: number = 0.0;
-        private _ToCached: number = 0.0;
-        private _ByCached: number = 0.0;
-        GetTargetValue(defaultOriginalValue: any): number {
-            this._EnsureCache();
-            var start = 0.0;
-            if (this._FromCached != null)
-                start = this._FromCached;
-            else if (defaultOriginalValue != null && typeof defaultOriginalValue === "number")
-                start = defaultOriginalValue;
-            if (this._ToCached != null)
-                return this._ToCached;
-            else if (this._ByCached != null)
-                return start + this._ByCached;
-            return start;
-        }
+        private _FromCached: number = null;
+        private _ToCached: number = null;
+        private _ByCached: number = null;
+        private _EasingCached: EasingFunctionBase = undefined;
         GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): number {
-            this._EnsureCache();
             var start = 0.0;
             if (this._FromCached != null)
                 start = this._FromCached;
@@ -15907,24 +15886,22 @@ module Fayde.Media.Animation {
                 end = start + this._ByCached;
             else if (defaultDestinationValue != null && typeof defaultDestinationValue === "number")
                 end = defaultDestinationValue;
-            var easingFunc = this.EasingFunction;
+            var easingFunc = this._EasingCached;
             if (easingFunc != null)
                 clockData.Progress = easingFunc.Ease(clockData.Progress);
             return start + ((end - start) * clockData.Progress);
         }
-        private _EnsureCache() {
-            if (this._HasCached)
-                return;
-            this._FromCached = this.From;
-            this._ToCached = this.To;
-            this._ByCached = this.By;
-            this._HasCached = true;
+        private _FromChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._FromCached = args.NewValue;
         }
-        private _InvalidateCache() {
-            this._FromCached = 0.0;
-            this._ToCached = 0.0;
-            this._ByCached = 0.0;
-            this._HasCached = false;
+        private _ToChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._ToCached = args.NewValue;
+        }
+        private _ByChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._ByCached = args.NewValue;
+        }
+        private _EasingChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._EasingCached = args.NewValue;
         }
     }
     Nullstone.RegisterType(DoubleAnimation, "DoubleAnimation");
@@ -16027,63 +16004,47 @@ module Fayde.Media.Animation {
 
 module Fayde.Media.Animation {
     export class PointAnimation extends AnimationBase {
-        static ByProperty: DependencyProperty = DependencyProperty.Register("By", () => Point, PointAnimation, undefined, (d, args) => (<PointAnimation>d)._InvalidateCache());
-        static EasingFunctionProperty: DependencyProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, PointAnimation, undefined, (d, args) => (<PointAnimation>d)._InvalidateCache());
-        static FromProperty: DependencyProperty = DependencyProperty.Register("From", () => Point, PointAnimation, undefined, (d, args) => (<PointAnimation>d)._InvalidateCache());
-        static ToProperty: DependencyProperty = DependencyProperty.Register("To", () => Point, PointAnimation, undefined, (d, args) => (<PointAnimation>d)._InvalidateCache());
+        static ByProperty: DependencyProperty = DependencyProperty.Register("By", () => Point, PointAnimation, null, (d, args) => (<PointAnimation>d)._ByChanged(args));
+        static EasingFunctionProperty: DependencyProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, PointAnimation, undefined, (d, args) => (<PointAnimation>d)._EasingChanged(args));
+        static FromProperty: DependencyProperty = DependencyProperty.Register("From", () => Point, PointAnimation, null, (d, args) => (<PointAnimation>d)._FromChanged(args));
+        static ToProperty: DependencyProperty = DependencyProperty.Register("To", () => Point, PointAnimation, null, (d, args) => (<PointAnimation>d)._ToChanged(args));
         By: Point;
         EasingFunction: IEasingFunction;
         From: Point;
         To: Point;
-        private _HasCached: bool = false;
         private _FromCached: Point = null;
         private _ToCached: Point = null;
         private _ByCached: Point = null;
-        GetTargetValue(defaultOriginalValue: any): Point {
-            this._EnsureCache();
-            var start = new Point();
-            if (this._FromCached != null)
-                start = this._FromCached;
-            else if (defaultOriginalValue != null && defaultOriginalValue instanceof Point)
-                start = defaultOriginalValue;
-            if (this._ToCached != null)
-                return this._ToCached;
-            else if (this._ByCached != null)
-                return new Point(start.X + this._ByCached.X, start.Y + this._ByCached.Y);
-            return start;
-        }
+        private _EasingCached: EasingFunctionBase = undefined;
         GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): Point {
-            this._EnsureCache();
             var start = new Point();
             if (this._FromCached != null)
                 start = this._FromCached;
-            else if (defaultOriginalValue != null && defaultOriginalValue instanceof Point)
+            else if (defaultOriginalValue instanceof Point)
                 start = defaultOriginalValue;
             var end = start;
             if (this._ToCached != null)
                 end = this._ToCached;
             else if (this._ByCached != null)
                 end = new Point(start.X + this._ByCached.X, start.Y + this._ByCached.Y);
-            else if (defaultDestinationValue != null && defaultDestinationValue instanceof Point)
+            else if (defaultDestinationValue instanceof Point)
                 end = defaultDestinationValue;
-            var easingFunc = this.EasingFunction;
+            var easingFunc = this._EasingCached;
             if (easingFunc != null)
                 clockData.Progress = easingFunc.Ease(clockData.Progress);
             return Point.LERP(start, end, clockData.Progress);
         }
-        private _EnsureCache() {
-            if (this._HasCached)
-                return;
-            this._FromCached = this.From;
-            this._ToCached = this.To;
-            this._ByCached = this.By;
-            this._HasCached = true;
+        private _FromChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._FromCached = args.NewValue;
         }
-        private _InvalidateCache() {
-            this._FromCached = null;
-            this._ToCached = null;
-            this._ByCached = null;
-            this._HasCached = false;
+        private _ToChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._ToCached = args.NewValue;
+        }
+        private _ByChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._ByCached = args.NewValue;
+        }
+        private _EasingChanged(args: IDependencyPropertyChangedEventArgs) {
+            this._EasingCached = args.NewValue;
         }
     }
     Nullstone.RegisterType(PointAnimation, "PointAnimation");

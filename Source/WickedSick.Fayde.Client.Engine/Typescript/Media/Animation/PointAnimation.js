@@ -16,52 +16,36 @@ var Fayde;
                 function PointAnimation() {
                     _super.apply(this, arguments);
 
-                    this._HasCached = false;
                     this._FromCached = null;
                     this._ToCached = null;
                     this._ByCached = null;
+                    this._EasingCached = undefined;
                 }
                 PointAnimation.ByProperty = DependencyProperty.Register("By", function () {
                     return Point;
-                }, PointAnimation, undefined, function (d, args) {
-                    return (d)._InvalidateCache();
+                }, PointAnimation, null, function (d, args) {
+                    return (d)._ByChanged(args);
                 });
                 PointAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () {
                     return Animation.EasingFunctionBase;
                 }, PointAnimation, undefined, function (d, args) {
-                    return (d)._InvalidateCache();
+                    return (d)._EasingChanged(args);
                 });
                 PointAnimation.FromProperty = DependencyProperty.Register("From", function () {
                     return Point;
-                }, PointAnimation, undefined, function (d, args) {
-                    return (d)._InvalidateCache();
+                }, PointAnimation, null, function (d, args) {
+                    return (d)._FromChanged(args);
                 });
                 PointAnimation.ToProperty = DependencyProperty.Register("To", function () {
                     return Point;
-                }, PointAnimation, undefined, function (d, args) {
-                    return (d)._InvalidateCache();
+                }, PointAnimation, null, function (d, args) {
+                    return (d)._ToChanged(args);
                 });
-                PointAnimation.prototype.GetTargetValue = function (defaultOriginalValue) {
-                    this._EnsureCache();
-                    var start = new Point();
-                    if(this._FromCached != null) {
-                        start = this._FromCached;
-                    } else if(defaultOriginalValue != null && defaultOriginalValue instanceof Point) {
-                        start = defaultOriginalValue;
-                    }
-                    if(this._ToCached != null) {
-                        return this._ToCached;
-                    } else if(this._ByCached != null) {
-                        return new Point(start.X + this._ByCached.X, start.Y + this._ByCached.Y);
-                    }
-                    return start;
-                };
                 PointAnimation.prototype.GetCurrentValue = function (defaultOriginalValue, defaultDestinationValue, clockData) {
-                    this._EnsureCache();
                     var start = new Point();
                     if(this._FromCached != null) {
                         start = this._FromCached;
-                    } else if(defaultOriginalValue != null && defaultOriginalValue instanceof Point) {
+                    } else if(defaultOriginalValue instanceof Point) {
                         start = defaultOriginalValue;
                     }
                     var end = start;
@@ -69,29 +53,26 @@ var Fayde;
                         end = this._ToCached;
                     } else if(this._ByCached != null) {
                         end = new Point(start.X + this._ByCached.X, start.Y + this._ByCached.Y);
-                    } else if(defaultDestinationValue != null && defaultDestinationValue instanceof Point) {
+                    } else if(defaultDestinationValue instanceof Point) {
                         end = defaultDestinationValue;
                     }
-                    var easingFunc = this.EasingFunction;
+                    var easingFunc = this._EasingCached;
                     if(easingFunc != null) {
                         clockData.Progress = easingFunc.Ease(clockData.Progress);
                     }
                     return Point.LERP(start, end, clockData.Progress);
                 };
-                PointAnimation.prototype._EnsureCache = function () {
-                    if(this._HasCached) {
-                        return;
-                    }
-                    this._FromCached = this.From;
-                    this._ToCached = this.To;
-                    this._ByCached = this.By;
-                    this._HasCached = true;
+                PointAnimation.prototype._FromChanged = function (args) {
+                    this._FromCached = args.NewValue;
                 };
-                PointAnimation.prototype._InvalidateCache = function () {
-                    this._FromCached = null;
-                    this._ToCached = null;
-                    this._ByCached = null;
-                    this._HasCached = false;
+                PointAnimation.prototype._ToChanged = function (args) {
+                    this._ToCached = args.NewValue;
+                };
+                PointAnimation.prototype._ByChanged = function (args) {
+                    this._ByCached = args.NewValue;
+                };
+                PointAnimation.prototype._EasingChanged = function (args) {
+                    this._EasingCached = args.NewValue;
                 };
                 return PointAnimation;
             })(Animation.AnimationBase);

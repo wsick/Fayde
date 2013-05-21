@@ -31,6 +31,7 @@ var Fayde;
                     this._BeginTicks = undefined;
                     this._InitialStep = undefined;
                     this._ManualTarget = undefined;
+                    this._HasCompleted = false;
                 }
                 Timeline.DEFAULT_REPEAT_BEHAVIOR = Animation.RepeatBehavior.FromIterationCount(1);
                 Timeline.AutoReverseProperty = DependencyProperty.Register("AutoReverse", function () {
@@ -70,6 +71,7 @@ var Fayde;
                     this._IsFirstUpdate = true;
                     this._BeginTicks = undefined;
                     this._HasBegun = false;
+                    this._HasCompleted = false;
                 };
                 Timeline.prototype.Pause = function () {
                     if(this._IsPaused) {
@@ -90,6 +92,7 @@ var Fayde;
                     this.Reset();
                 };
                 Timeline.prototype.OnCompleted = function () {
+                    this._HasCompleted = true;
                     var fill = this.FillBehavior;
                     switch(fill) {
                         case Animation.FillBehavior.HoldEnd:
@@ -110,7 +113,7 @@ var Fayde;
                         return;
                     }
                     this.UpdateInternal(clockData);
-                    if(clockData.Completed) {
+                    if(clockData.Completed && !this._HasCompleted) {
                         this.OnCompleted();
                     }
                 };
@@ -193,7 +196,7 @@ var Fayde;
                 };
                 Timeline.prototype.GetNaturalDuration = function () {
                     var d = this.Duration;
-                    if(!d || d.IsAutomatic) {
+                    if(d && d.IsAutomatic) {
                         return this.GetNaturalDurationCore();
                     }
                     return d;

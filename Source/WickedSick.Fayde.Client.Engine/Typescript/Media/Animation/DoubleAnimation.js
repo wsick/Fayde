@@ -15,48 +15,32 @@ var Fayde;
                 function DoubleAnimation() {
                     _super.apply(this, arguments);
 
-                    this._HasCached = false;
-                    this._FromCached = 0.0;
-                    this._ToCached = 0.0;
-                    this._ByCached = 0.0;
+                    this._FromCached = null;
+                    this._ToCached = null;
+                    this._ByCached = null;
+                    this._EasingCached = undefined;
                 }
                 DoubleAnimation.ByProperty = DependencyProperty.Register("By", function () {
                     return Number;
-                }, DoubleAnimation, undefined, function (d, args) {
-                    return (d)._InvalidateCache();
+                }, DoubleAnimation, null, function (d, args) {
+                    return (d)._ByChanged(args);
                 });
                 DoubleAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () {
                     return Animation.EasingFunctionBase;
                 }, DoubleAnimation, undefined, function (d, args) {
-                    return (d)._InvalidateCache();
+                    return (d)._EasingChanged(args);
                 });
                 DoubleAnimation.FromProperty = DependencyProperty.Register("From", function () {
                     return Number;
-                }, DoubleAnimation, undefined, function (d, args) {
-                    return (d)._InvalidateCache();
+                }, DoubleAnimation, null, function (d, args) {
+                    return (d)._FromChanged(args);
                 });
                 DoubleAnimation.ToProperty = DependencyProperty.Register("To", function () {
                     return Number;
-                }, DoubleAnimation, undefined, function (d, args) {
-                    return (d)._InvalidateCache();
+                }, DoubleAnimation, null, function (d, args) {
+                    return (d)._ToChanged(args);
                 });
-                DoubleAnimation.prototype.GetTargetValue = function (defaultOriginalValue) {
-                    this._EnsureCache();
-                    var start = 0.0;
-                    if(this._FromCached != null) {
-                        start = this._FromCached;
-                    } else if(defaultOriginalValue != null && typeof defaultOriginalValue === "number") {
-                        start = defaultOriginalValue;
-                    }
-                    if(this._ToCached != null) {
-                        return this._ToCached;
-                    } else if(this._ByCached != null) {
-                        return start + this._ByCached;
-                    }
-                    return start;
-                };
                 DoubleAnimation.prototype.GetCurrentValue = function (defaultOriginalValue, defaultDestinationValue, clockData) {
-                    this._EnsureCache();
                     var start = 0.0;
                     if(this._FromCached != null) {
                         start = this._FromCached;
@@ -71,26 +55,23 @@ var Fayde;
                     } else if(defaultDestinationValue != null && typeof defaultDestinationValue === "number") {
                         end = defaultDestinationValue;
                     }
-                    var easingFunc = this.EasingFunction;
+                    var easingFunc = this._EasingCached;
                     if(easingFunc != null) {
                         clockData.Progress = easingFunc.Ease(clockData.Progress);
                     }
                     return start + ((end - start) * clockData.Progress);
                 };
-                DoubleAnimation.prototype._EnsureCache = function () {
-                    if(this._HasCached) {
-                        return;
-                    }
-                    this._FromCached = this.From;
-                    this._ToCached = this.To;
-                    this._ByCached = this.By;
-                    this._HasCached = true;
+                DoubleAnimation.prototype._FromChanged = function (args) {
+                    this._FromCached = args.NewValue;
                 };
-                DoubleAnimation.prototype._InvalidateCache = function () {
-                    this._FromCached = 0.0;
-                    this._ToCached = 0.0;
-                    this._ByCached = 0.0;
-                    this._HasCached = false;
+                DoubleAnimation.prototype._ToChanged = function (args) {
+                    this._ToCached = args.NewValue;
+                };
+                DoubleAnimation.prototype._ByChanged = function (args) {
+                    this._ByCached = args.NewValue;
+                };
+                DoubleAnimation.prototype._EasingChanged = function (args) {
+                    this._EasingCached = args.NewValue;
                 };
                 return DoubleAnimation;
             })(Animation.AnimationBase);

@@ -40,9 +40,6 @@ var Fayde;
                 AnimationBase.prototype.GetNaturalDurationCore = function () {
                     return Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 1));
                 };
-                AnimationBase.prototype.GetTargetValue = function (defaultOriginalValue) {
-                    return undefined;
-                };
                 AnimationBase.prototype.GetCurrentValue = function (defaultOriginalValue, defaultDestinationValue, clockData) {
                     return undefined;
                 };

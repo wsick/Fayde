@@ -25,7 +25,6 @@ module Fayde.Media.Animation {
         }
         GetNaturalDurationCore(): Duration { return Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 1)); }
 
-        GetTargetValue(defaultOriginalValue: any): any { return undefined; }
         GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): any { return undefined; }
     }
     Nullstone.RegisterType(AnimationBase, "AnimationBase");

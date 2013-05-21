@@ -16,82 +16,63 @@ var Fayde;
                 function ColorAnimation() {
                     _super.apply(this, arguments);
 
-                    this._HasCached = false;
                     this._FromCached = null;
                     this._ToCached = null;
                     this._ByCached = null;
+                    this._EasingCached = undefined;
                 }
                 ColorAnimation.ByProperty = DependencyProperty.Register("By", function () {
                     return Color;
-                }, ColorAnimation, undefined, function (d, args) {
-                    return (d)._InvalidateCache();
+                }, ColorAnimation, null, function (d, args) {
+                    return (d)._ByChanged(args);
                 });
                 ColorAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () {
                     return Animation.EasingFunctionBase;
                 }, ColorAnimation, undefined, function (d, args) {
-                    return (d)._InvalidateCache();
+                    return (d)._EasingChanged(args);
                 });
                 ColorAnimation.FromProperty = DependencyProperty.Register("From", function () {
                     return Color;
-                }, ColorAnimation, undefined, function (d, args) {
-                    return (d)._InvalidateCache();
+                }, ColorAnimation, null, function (d, args) {
+                    return (d)._FromChanged(args);
                 });
                 ColorAnimation.ToProperty = DependencyProperty.Register("To", function () {
                     return Color;
-                }, ColorAnimation, undefined, function (d, args) {
-                    return (d)._InvalidateCache();
+                }, ColorAnimation, null, function (d, args) {
+                    return (d)._ToChanged(args);
                 });
-                ColorAnimation.prototype.GetTargetValue = function (defaultOriginalValue) {
-                    this._EnsureCache();
-                    var start = new Color();
-                    if(this._FromCached != null) {
-                        start = this._FromCached;
-                    } else if(defaultOriginalValue != null && defaultOriginalValue instanceof Color) {
-                        start = defaultOriginalValue;
-                    }
-                    if(this._ToCached != null) {
-                        return this._ToCached;
-                    } else if(this._ByCached != null) {
-                        return start.Add(this._ByCached);
-                    }
-                    return start;
-                };
                 ColorAnimation.prototype.GetCurrentValue = function (defaultOriginalValue, defaultDestinationValue, clockData) {
-                    this._EnsureCache();
                     var start = new Color();
-                    if(this._FromCached != null) {
+                    if(this._FromCached) {
                         start = this._FromCached;
-                    } else if(defaultOriginalValue != null && defaultOriginalValue instanceof Color) {
+                    } else if(defaultOriginalValue instanceof Color) {
                         start = defaultOriginalValue;
                     }
                     var end = start;
-                    if(this._ToCached != null) {
+                    if(this._ToCached) {
                         end = this._ToCached;
-                    } else if(this._ByCached != null) {
+                    } else if(this._ByCached) {
                         end = start.Add(this._ByCached);
-                    } else if(defaultDestinationValue != null && defaultDestinationValue instanceof Color) {
+                    } else if(defaultDestinationValue instanceof Color) {
                         end = defaultDestinationValue;
                     }
-                    var easingFunc = this.EasingFunction;
-                    if(easingFunc != null) {
+                    var easingFunc = this._EasingCached;
+                    if(easingFunc) {
                         clockData.Progress = easingFunc.Ease(clockData.Progress);
                     }
                     return Color.LERP(start, end, clockData.Progress);
                 };
-                ColorAnimation.prototype._EnsureCache = function () {
-                    if(this._HasCached) {
-                        return;
-                    }
-                    this._FromCached = this.From;
-                    this._ToCached = this.To;
-                    this._ByCached = this.By;
-                    this._HasCached = true;
+                ColorAnimation.prototype._FromChanged = function (args) {
+                    this._FromCached = args.NewValue;
                 };
-                ColorAnimation.prototype._InvalidateCache = function () {
-                    this._FromCached = null;
-                    this._ToCached = null;
-                    this._ByCached = null;
-                    this._HasCached = false;
+                ColorAnimation.prototype._ToChanged = function (args) {
+                    this._ToCached = args.NewValue;
+                };
+                ColorAnimation.prototype._ByChanged = function (args) {
+                    this._ByCached = args.NewValue;
+                };
+                ColorAnimation.prototype._EasingChanged = function (args) {
+                    this._EasingCached = args.NewValue;
                 };
                 return ColorAnimation;
             })(Animation.AnimationBase);

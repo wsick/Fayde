@@ -6,6 +6,7 @@ var Fayde;
         /// <reference path="../../Core/DependencyProperty.ts" />
         /// <reference path="AnimationBase.ts" />
         (function (Animation) {
+            var DEBUG_ON = true;
             var AnimationStore = (function () {
                 function AnimationStore() { }
                 AnimationStore.Clone = function Clone(oldanims, newTarget) {
@@ -53,6 +54,9 @@ var Fayde;
                     } else {
                         storage.StopValue = targetObj.ReadLocalValue(targetProp);
                     }
+                    if(DEBUG_ON && window.console) {
+                        console.info("AnimationStore.AttachAnimation");
+                    }
                     return (animation)._Storage = storage;
                 };
                 AnimationStore.UpdateCurrentValueAndApply = function UpdateCurrentValueAndApply(storage, clockData) {
@@ -67,15 +71,18 @@ var Fayde;
                     AnimationStore.ApplyCurrentValue(storage);
                 };
                 AnimationStore.Disable = function Disable(storage) {
+                    if(DEBUG_ON && window.console) {
+                        console.info("AnimationStore.Disable");
+                    }
                     storage.IsDisabled = true;
                 };
                 AnimationStore.Stop = function Stop(storage) {
-                    var to = storage.TargetObj;
-                    if(!to) {
-                        return;
+                    if(DEBUG_ON && window.console) {
+                        console.info("AnimationStore.Stop");
                     }
+                    var to = storage.TargetObj;
                     var tp = storage.TargetProp;
-                    if(!tp) {
+                    if(!to || !tp) {
                         return;
                     }
                     AnimationStore.Detach(to, tp, storage);
@@ -132,6 +139,9 @@ var Fayde;
                     AnimationStore.ApplyCurrentValue(storage);
                 };
                 AnimationStore.ApplyCurrentValue = function ApplyCurrentValue(storage) {
+                    if(DEBUG_ON && window.console) {
+                        console.info("AnimationStore.ApplyCurrentValue");
+                    }
                     if(storage.CurrentValue === undefined) {
                         return;
                     }
