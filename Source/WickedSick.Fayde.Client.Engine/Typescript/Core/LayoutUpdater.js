@@ -1118,10 +1118,10 @@ var Fayde;
         };
         LayoutUpdater.prototype.FindElementsInHostCoordinates = function (p) {
             var uinlist = [];
-            this._FindElementsInHostCoordinates(this.Surface.TestRenderContext, p, uinlist);
+            this._FindElementsInHostCoordinates(this.Surface.TestRenderContext, p, uinlist, false);
             return uinlist;
         };
-        LayoutUpdater.prototype._FindElementsInHostCoordinates = function (ctx, p, uinlist) {
+        LayoutUpdater.prototype._FindElementsInHostCoordinates = function (ctx, p, uinlist, applyXform) {
             if(this.ShouldSkipHitTest) {
                 return;
             }
@@ -1136,7 +1136,9 @@ var Fayde;
             }
             var thisNode = this.Node;
             ctx.Save();
-            ctx.TransformMatrix(this.RenderXform);
+            if(applyXform) {
+                ctx.TransformMatrix(this.RenderXform);
+            }
             if(!this._InsideClip(ctx, p.X, p.Y)) {
                 ctx.Restore();
                 return;
@@ -1144,7 +1146,7 @@ var Fayde;
             uinlist.unshift(thisNode);
             var enumerator = thisNode.GetVisualTreeEnumerator(Fayde.VisualTreeDirection.ZFoward);
             while(enumerator.MoveNext()) {
-                (enumerator.Current).LayoutUpdater._FindElementsInHostCoordinates(ctx, p, uinlist);
+                (enumerator.Current).LayoutUpdater._FindElementsInHostCoordinates(ctx, p, uinlist, true);
             }
             if(thisNode === uinlist[0]) {
                 if(!this.CanHitElement || !this._InsideObject(ctx, p.X, p.Y)) {

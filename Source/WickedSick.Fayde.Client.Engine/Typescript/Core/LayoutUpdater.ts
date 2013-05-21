@@ -1223,10 +1223,10 @@ module Fayde {
 
         FindElementsInHostCoordinates(p: Point): UINode[] {
             var uinlist: UINode[] = [];
-            this._FindElementsInHostCoordinates(this.Surface.TestRenderContext, p, uinlist);
+            this._FindElementsInHostCoordinates(this.Surface.TestRenderContext, p, uinlist, false);
             return uinlist;
         }
-        private _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
+        private _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[], applyXform: bool) {
             if (this.ShouldSkipHitTest)
                 return;
             if (!this.TotalIsRenderVisible)
@@ -1235,12 +1235,13 @@ module Fayde {
                 return;
             if (this.SurfaceBoundsWithChildren.Height <= 0)
                 return;
-                
+
             var thisNode = this.Node;
-            
+
             ctx.Save();
-            ctx.TransformMatrix(this.RenderXform);
-            
+            if (applyXform)
+                ctx.TransformMatrix(this.RenderXform);
+
             if (!this._InsideClip(ctx, p.X, p.Y)) {
                 ctx.Restore();
                 return;
@@ -1249,13 +1250,14 @@ module Fayde {
             uinlist.unshift(thisNode);
             var enumerator = thisNode.GetVisualTreeEnumerator(VisualTreeDirection.ZFoward);
             while (enumerator.MoveNext()) {
-                (<UINode>enumerator.Current).LayoutUpdater._FindElementsInHostCoordinates(ctx, p, uinlist);
+                (<UINode>enumerator.Current).LayoutUpdater._FindElementsInHostCoordinates(ctx, p, uinlist, true);
             }
 
             if (thisNode === uinlist[0]) {
                 if (!this.CanHitElement || !this._InsideObject(ctx, p.X, p.Y))
                     uinlist.shift();
             }
+
             ctx.Restore();
         }
         HitTestPoint(ctx: RenderContext, p: Point, uinlist: UINode[]) {
