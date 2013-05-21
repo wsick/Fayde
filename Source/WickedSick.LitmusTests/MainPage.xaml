@@ -14,5 +14,5 @@
     <!--<tests:MapTest />-->
     <!--<tests:ResourceTest />-->
     <!--<tests:ImageTest />-->
-    <TextBox />
+    <tests:ScrollBarTest />
 </UserControl>

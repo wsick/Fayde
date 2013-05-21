@@ -33,21 +33,7 @@ var Fayde;
                     _super.prototype.OnApplyTemplate.call(this);
                     this.UpdateVisualState(false);
                 };
-                Thumb.prototype.CancelDrag = function () {
-                    if(this.IsDragging) {
-                        this.SetValueInternal(Thumb.IsDraggingProperty, false);
-                        this._RaiseDragCompleted(true);
-                    }
-                };
-                Thumb.prototype._FocusChanged = function (hasFocus) {
-                    this.SetValueInternal(Thumb.IsFocusedProperty, hasFocus);
-                    this.UpdateVisualState();
-                };
                 Thumb.prototype.OnDraggingChanged = function (args) {
-                    this.UpdateVisualState();
-                };
-                Thumb.prototype.OnIsEnabledChanged = function (e) {
-                    _super.prototype.OnIsEnabledChanged.call(this, e);
                     this.UpdateVisualState();
                 };
                 Thumb.prototype.OnGotFocus = function (e) {
@@ -58,47 +44,48 @@ var Fayde;
                     _super.prototype.OnLostFocus.call(this, e);
                     this._FocusChanged(this.XamlNode._HasFocus());
                 };
+                Thumb.prototype._FocusChanged = function (hasFocus) {
+                    this.SetStoreValue(Thumb.IsFocusedProperty, hasFocus);
+                    this.UpdateVisualState();
+                };
                 Thumb.prototype.OnLostMouseCapture = function (e) {
-                    _super.prototype.OnLostMouseCapture.call(this, e);
+                    if(!this.IsDragging || !this.IsEnabled) {
+                        return;
+                    }
+                    this.SetStoreValue(Thumb.IsDraggingProperty, false);
                     this._RaiseDragCompleted(false);
-                    this.SetValueInternal(Thumb.IsDraggingProperty, false);
                 };
                 Thumb.prototype.OnMouseEnter = function (e) {
-                    _super.prototype.OnMouseEnter.call(this, e);
                     if(this.IsEnabled) {
                         this.UpdateVisualState();
                     }
                 };
                 Thumb.prototype.OnMouseLeave = function (e) {
-                    _super.prototype.OnMouseLeave.call(this, e);
                     if(this.IsEnabled) {
                         this.UpdateVisualState();
                     }
                 };
                 Thumb.prototype.OnMouseLeftButtonDown = function (e) {
                     _super.prototype.OnMouseLeftButtonDown.call(this, e);
-                    if(e.Handled) {
+                    if(e.Handled || this.IsDragging || !this.IsEnabled) {
                         return;
                     }
-                    if(!this.IsDragging && this.IsEnabled) {
-                        e.Handled = true;
-                        this.CaptureMouse();
-                        this.SetValueInternal(Thumb.IsDraggingProperty, true);
-                        var vpNode = this.XamlNode.VisualParentNode;
-                        this._Origin = this._PreviousPosition = e.GetPosition((vpNode) ? vpNode.XObject : undefined);
-                        var success = false;
-                        try  {
-                            this._RaiseDragStarted();
-                            success = true;
-                        }finally {
-                            if(!success) {
-                                this.CancelDrag();
-                            }
+                    e.Handled = true;
+                    this.CaptureMouse();
+                    this.SetStoreValue(Thumb.IsDraggingProperty, true);
+                    var vpNode = this.XamlNode.VisualParentNode;
+                    this._Origin = this._PreviousPosition = e.GetPosition((vpNode) ? vpNode.XObject : undefined);
+                    var success = false;
+                    try  {
+                        this._RaiseDragStarted();
+                        success = true;
+                    }finally {
+                        if(!success) {
+                            this.CancelDrag();
                         }
                     }
                 };
                 Thumb.prototype.OnMouseMove = function (e) {
-                    _super.prototype.OnMouseMove.call(this, e);
                     if(!this.IsDragging) {
                         return;
                     }
@@ -108,6 +95,13 @@ var Fayde;
                         this._RaiseDragDelta(p.X - this._PreviousPosition.X, p.Y - this._PreviousPosition.Y);
                         this._PreviousPosition = p;
                     }
+                };
+                Thumb.prototype.CancelDrag = function () {
+                    if(!this.IsDragging) {
+                        return;
+                    }
+                    this.SetStoreValue(Thumb.IsDraggingProperty, false);
+                    this._RaiseDragCompleted(true);
                 };
                 Thumb.prototype._RaiseDragStarted = function () {
                     this.DragStarted.Raise(this, new Primitives.DragStartedEventArgs(this._Origin.X, this._Origin.Y));

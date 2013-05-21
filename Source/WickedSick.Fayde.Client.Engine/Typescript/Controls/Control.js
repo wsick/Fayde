@@ -195,6 +195,10 @@ var Fayde;
                 lu.ShouldSkipHitTest = args.NewValue === false;
                 lu.CanHitElement = args.NewValue !== false;
                 this.OnIsEnabledChanged(args);
+                if(args.NewValue !== true) {
+                    this.XamlNode.IsMouseOver = false;
+                }
+                this.UpdateVisualState();
                 this.IsEnabledChanged.RaiseAsync(this, EventArgs.Empty);
             };
             Control.prototype.OnIsEnabledChanged = function (e) {

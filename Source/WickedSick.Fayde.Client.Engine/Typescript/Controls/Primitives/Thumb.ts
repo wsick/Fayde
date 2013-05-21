@@ -26,26 +26,10 @@ module Fayde.Controls.Primitives {
             this.UpdateVisualState(false);
         }
 
-        CancelDrag() {
-            if (this.IsDragging) {
-                this.SetValueInternal(Thumb.IsDraggingProperty, false);
-                this._RaiseDragCompleted(true);
-            }
-        }
-
-        private _FocusChanged(hasFocus: bool) {
-            this.SetValueInternal(Thumb.IsFocusedProperty, hasFocus);
-            this.UpdateVisualState();
-        }
-
         private OnDraggingChanged(args: IDependencyPropertyChangedEventArgs) {
             this.UpdateVisualState();
         }
-        private OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs) {
-            super.OnIsEnabledChanged(e);
-            this.UpdateVisualState();
-        }
-
+        
         OnGotFocus(e: RoutedEventArgs) {
             super.OnGotFocus(e);
             this._FocusChanged(this.XamlNode._HasFocus());
@@ -54,45 +38,45 @@ module Fayde.Controls.Primitives {
             super.OnLostFocus(e);
             this._FocusChanged(this.XamlNode._HasFocus());
         }
+        private _FocusChanged(hasFocus: bool) {
+            this.SetStoreValue(Thumb.IsFocusedProperty, hasFocus);
+            this.UpdateVisualState();
+        }
 
         OnLostMouseCapture(e: Input.MouseEventArgs) {
-            super.OnLostMouseCapture(e);
+            if (!this.IsDragging || !this.IsEnabled)
+                return;
+            this.SetStoreValue(Thumb.IsDraggingProperty, false);
             this._RaiseDragCompleted(false);
-            this.SetValueInternal(Thumb.IsDraggingProperty, false);
         }
         OnMouseEnter(e: Input.MouseEventArgs) {
-            super.OnMouseEnter(e);
             if (this.IsEnabled)
                 this.UpdateVisualState();
         }
         OnMouseLeave(e: Input.MouseEventArgs) {
-            super.OnMouseLeave(e);
             if (this.IsEnabled)
                 this.UpdateVisualState();
         }
         OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
             super.OnMouseLeftButtonDown(e);
-            if (e.Handled)
+            if (e.Handled || this.IsDragging || !this.IsEnabled)
                 return;
-            if (!this.IsDragging && this.IsEnabled) {
-                e.Handled = true;
-                this.CaptureMouse();
-                this.SetValueInternal(Thumb.IsDraggingProperty, true);
+            e.Handled = true;
+            this.CaptureMouse();
+            this.SetStoreValue(Thumb.IsDraggingProperty, true);
 
-                var vpNode = this.XamlNode.VisualParentNode;
-                this._Origin = this._PreviousPosition = e.GetPosition((vpNode) ? vpNode.XObject : undefined);
-                var success = false;
-                try {
-                    this._RaiseDragStarted();
-                    success = true;
-                } finally {
-                    if (!success)
-                        this.CancelDrag();
-                }
+            var vpNode = this.XamlNode.VisualParentNode;
+            this._Origin = this._PreviousPosition = e.GetPosition((vpNode) ? vpNode.XObject : undefined);
+            var success = false;
+            try {
+                this._RaiseDragStarted();
+                success = true;
+            } finally {
+                if (!success)
+                    this.CancelDrag();
             }
         }
         OnMouseMove(e: Input.MouseEventArgs) {
-            super.OnMouseMove(e);
             if (!this.IsDragging)
                 return;
             var vpNode = this.XamlNode.VisualParentNode;
@@ -101,6 +85,13 @@ module Fayde.Controls.Primitives {
                 this._RaiseDragDelta(p.X - this._PreviousPosition.X, p.Y - this._PreviousPosition.Y);
                 this._PreviousPosition = p;
             }
+        }
+
+        CancelDrag() {
+            if (!this.IsDragging)
+                return;
+            this.SetStoreValue(Thumb.IsDraggingProperty, false);
+            this._RaiseDragCompleted(true);
         }
 
         private _RaiseDragStarted() {

@@ -33,6 +33,7 @@ var Surface = (function () {
         this._PercentageHeight = 0;
         this._CanvasOffset = null;
         this._Extents = null;
+        this._CapturedInputList = [];
         this._InputList = [];
         this._FocusedNode = null;
         this._FocusChangedEvents = [];
@@ -421,7 +422,7 @@ var Surface = (function () {
     Surface.prototype._UpdateCursorFromInputList = // CURSOR
     function () {
         var newCursor = Fayde.CursorType.Default;
-        var list = this._InputList;
+        var list = this._Captured ? this._CapturedInputList : this._InputList;
         var len = list.length;
         for(var i = 0; i < len; i++) {
             newCursor = list[i].XObject.Cursor;
@@ -524,39 +525,31 @@ var Surface = (function () {
         if(this._TopLevel == null) {
             return false;
         }
+        var newInputList = [];
+        var layers = this._Layers;
+        var layerCount = layers.length;
+        for(var i = layerCount - 1; i >= 0 && newInputList.length === 0; i--) {
+            var layer = layers[i];
+            layer.LayoutUpdater.HitTestPoint(this._RenderContext, pos, newInputList);
+        }
         this._EmittingMouseEvent = true;
-        if(this._Captured) {
-            this._EmitMouseList(type, button, pos, delta, this._InputList);
-        } else {
-            this.ProcessDirtyElements();
-            var ctx = this._RenderContext;
-            var newInputList = [];
-            var layers = this._Layers;
-            var layerCount = layers.length;
-            //var startTime = new Date().getTime();
-            for(var i = layerCount - 1; i >= 0 && newInputList.length === 0; i--) {
-                var layer = layers[i];
-                layer.LayoutUpdater.HitTestPoint(ctx, pos, newInputList);
-            }
-            var indices = {
-                Index1: -1,
-                Index2: -1
-            };
-            this._FindFirstCommonElement(this._InputList, newInputList, indices);
-            if(emitLeave === undefined || emitLeave === true) {
-                this._EmitMouseList(InputType.MouseLeave, button, pos, delta, this._InputList, indices.Index1);
-            }
-            if(emitEnter === undefined || emitEnter === true) {
-                this._EmitMouseList(InputType.MouseEnter, button, pos, delta, newInputList, indices.Index2);
-            }
-            if(type !== InputType.NoOp) {
-                this._EmitMouseList(type, button, pos, delta, newInputList);
-            }
-            //app._NotifyDebugHitTest(newInputList, new Date().getTime() - startTime);
-            this._InputList = newInputList;
-            if(this.HitTestCallback) {
-                this.HitTestCallback(newInputList);
-            }
+        var indices = {
+            Index1: -1,
+            Index2: -1
+        };
+        this._FindFirstCommonElement(this._InputList, newInputList, indices);
+        if(emitLeave === undefined || emitLeave === true) {
+            this._EmitMouseList(InputType.MouseLeave, button, pos, delta, this._InputList, indices.Index1);
+        }
+        if(emitEnter === undefined || emitEnter === true) {
+            this._EmitMouseList(InputType.MouseEnter, button, pos, delta, newInputList, indices.Index2);
+        }
+        if(type !== InputType.NoOp) {
+            this._EmitMouseList(type, button, pos, delta, this._Captured ? this._CapturedInputList : newInputList);
+        }
+        this._InputList = newInputList;
+        if(this.HitTestCallback) {
+            this.HitTestCallback(newInputList);
         }
         if(this._PendingCapture) {
             this._PerformCapture(this._PendingCapture);
@@ -655,7 +648,7 @@ var Surface = (function () {
             newInputList.push(uin);
             uin = uin.VisualParentNode;
         }
-        this._InputList = newInputList;
+        this._CapturedInputList = newInputList;
         this._PendingCapture = null;
     };
     Surface.prototype._PerformReleaseCapture = function () {

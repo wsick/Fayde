@@ -112,6 +112,9 @@
     <Compile Include="Tests\ResourceTest.xaml.cs">
       <DependentUpon>ResourceTest.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tests\ScrollBarTest.xaml.cs">
+      <DependentUpon>ScrollBarTest.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tests\ScrollViewerTest.xaml.cs">
       <DependentUpon>ScrollViewerTest.xaml</DependentUpon>
     </Compile>
@@ -165,6 +168,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Tests\ResourceTest.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Tests\ScrollBarTest.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

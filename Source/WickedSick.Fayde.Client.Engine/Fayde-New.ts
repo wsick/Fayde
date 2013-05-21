@@ -8250,6 +8250,7 @@ class Surface {
     private _CanvasOffset: any = null;
     private _Extents: size = null;
     private _KeyInterop: Fayde.Input.KeyInterop;
+    private _CapturedInputList: Fayde.UINode[] = [];
     private _InputList: Fayde.UINode[] = [];
     private _FocusedNode: Fayde.UINode = null;
     get FocusedNode(): Fayde.UINode { return this._FocusedNode; }
@@ -8555,7 +8556,7 @@ class Surface {
     }
     private _UpdateCursorFromInputList() {
         var newCursor = Fayde.CursorType.Default;
-        var list = this._InputList;
+        var list = this._Captured ? this._CapturedInputList : this._InputList;
         var len = list.length;
         for (var i = 0; i < len; i++) {
             newCursor = list[i].XObject.Cursor;
@@ -8646,30 +8647,25 @@ class Surface {
             return false;
         if (this._TopLevel == null)
             return false;
-        this._EmittingMouseEvent = true;
-        if (this._Captured) {
-            this._EmitMouseList(type, button, pos, delta, this._InputList);
-        } else {
-            this.ProcessDirtyElements();
-            var ctx = this._RenderContext;
-            var newInputList: Fayde.UINode[] = [];
-            var layers = this._Layers;
-            var layerCount = layers.length;
-            for (var i = layerCount - 1; i >= 0 && newInputList.length === 0; i--) {
-                var layer = layers[i];
-                layer.LayoutUpdater.HitTestPoint(ctx, pos, newInputList);
-            }
-            var indices = { Index1: -1, Index2: -1 };
-            this._FindFirstCommonElement(this._InputList, newInputList, indices);
-            if (emitLeave === undefined || emitLeave === true)
-                this._EmitMouseList(InputType.MouseLeave, button, pos, delta, this._InputList, indices.Index1);
-            if (emitEnter === undefined || emitEnter === true)
-                this._EmitMouseList(InputType.MouseEnter, button, pos, delta, newInputList, indices.Index2);
-            if (type !== InputType.NoOp)
-                this._EmitMouseList(type, button, pos, delta, newInputList);
-            this._InputList = newInputList;
-            if (this.HitTestCallback) this.HitTestCallback(newInputList);
+        var newInputList: Fayde.UINode[] = [];
+        var layers = this._Layers;
+        var layerCount = layers.length;
+        for (var i = layerCount - 1; i >= 0 && newInputList.length === 0; i--) {
+            var layer = layers[i];
+            layer.LayoutUpdater.HitTestPoint(this._RenderContext, pos, newInputList);
         }
+        this._EmittingMouseEvent = true;
+        var indices = { Index1: -1, Index2: -1 };
+        this._FindFirstCommonElement(this._InputList, newInputList, indices);
+        if (emitLeave === undefined || emitLeave === true)
+            this._EmitMouseList(InputType.MouseLeave, button, pos, delta, this._InputList, indices.Index1);
+        if (emitEnter === undefined || emitEnter === true)
+            this._EmitMouseList(InputType.MouseEnter, button, pos, delta, newInputList, indices.Index2);
+        if (type !== InputType.NoOp)
+            this._EmitMouseList(type, button, pos, delta, this._Captured ? this._CapturedInputList : newInputList);
+        this._InputList = newInputList;
+        if (this.HitTestCallback)
+            this.HitTestCallback(newInputList);
         if (this._PendingCapture)
             this._PerformCapture(this._PendingCapture);
         if (this._PendingReleaseCapture || (this._Captured && !this._Captured.CanCaptureMouse()))
@@ -8755,7 +8751,7 @@ class Surface {
             newInputList.push(uin);
             uin = uin.VisualParentNode;
         }
-        this._InputList = newInputList;
+        this._CapturedInputList = newInputList;
         this._PendingCapture = null;
     }
     private _PerformReleaseCapture() {
@@ -17585,6 +17581,9 @@ module Fayde.Controls {
             lu.ShouldSkipHitTest = args.NewValue === false;
             lu.CanHitElement = args.NewValue !== false;
             this.OnIsEnabledChanged(args);
+            if (args.NewValue !== true)
+                this.XamlNode.IsMouseOver = false;
+            this.UpdateVisualState();
             this.IsEnabledChanged.RaiseAsync(this, EventArgs.Empty);
         }
         OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs) { }
@@ -21702,21 +21701,7 @@ module Fayde.Controls.Primitives {
             super.OnApplyTemplate();
             this.UpdateVisualState(false);
         }
-        CancelDrag() {
-            if (this.IsDragging) {
-                this.SetValueInternal(Thumb.IsDraggingProperty, false);
-                this._RaiseDragCompleted(true);
-            }
-        }
-        private _FocusChanged(hasFocus: bool) {
-            this.SetValueInternal(Thumb.IsFocusedProperty, hasFocus);
-            this.UpdateVisualState();
-        }
         private OnDraggingChanged(args: IDependencyPropertyChangedEventArgs) {
-            this.UpdateVisualState();
-        }
-        private OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs) {
-            super.OnIsEnabledChanged(e);
             this.UpdateVisualState();
         }
         OnGotFocus(e: RoutedEventArgs) {
@@ -21727,43 +21712,43 @@ module Fayde.Controls.Primitives {
             super.OnLostFocus(e);
             this._FocusChanged(this.XamlNode._HasFocus());
         }
+        private _FocusChanged(hasFocus: bool) {
+            this.SetStoreValue(Thumb.IsFocusedProperty, hasFocus);
+            this.UpdateVisualState();
+        }
         OnLostMouseCapture(e: Input.MouseEventArgs) {
-            super.OnLostMouseCapture(e);
+            if (!this.IsDragging || !this.IsEnabled)
+                return;
+            this.SetStoreValue(Thumb.IsDraggingProperty, false);
             this._RaiseDragCompleted(false);
-            this.SetValueInternal(Thumb.IsDraggingProperty, false);
         }
         OnMouseEnter(e: Input.MouseEventArgs) {
-            super.OnMouseEnter(e);
             if (this.IsEnabled)
                 this.UpdateVisualState();
         }
         OnMouseLeave(e: Input.MouseEventArgs) {
-            super.OnMouseLeave(e);
             if (this.IsEnabled)
                 this.UpdateVisualState();
         }
         OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) {
             super.OnMouseLeftButtonDown(e);
-            if (e.Handled)
+            if (e.Handled || this.IsDragging || !this.IsEnabled)
                 return;
-            if (!this.IsDragging && this.IsEnabled) {
-                e.Handled = true;
-                this.CaptureMouse();
-                this.SetValueInternal(Thumb.IsDraggingProperty, true);
-                var vpNode = this.XamlNode.VisualParentNode;
-                this._Origin = this._PreviousPosition = e.GetPosition((vpNode) ? vpNode.XObject : undefined);
-                var success = false;
-                try {
-                    this._RaiseDragStarted();
-                    success = true;
-                } finally {
-                    if (!success)
-                        this.CancelDrag();
-                }
+            e.Handled = true;
+            this.CaptureMouse();
+            this.SetStoreValue(Thumb.IsDraggingProperty, true);
+            var vpNode = this.XamlNode.VisualParentNode;
+            this._Origin = this._PreviousPosition = e.GetPosition((vpNode) ? vpNode.XObject : undefined);
+            var success = false;
+            try {
+                this._RaiseDragStarted();
+                success = true;
+            } finally {
+                if (!success)
+                    this.CancelDrag();
             }
         }
         OnMouseMove(e: Input.MouseEventArgs) {
-            super.OnMouseMove(e);
             if (!this.IsDragging)
                 return;
             var vpNode = this.XamlNode.VisualParentNode;
@@ -21772,6 +21757,12 @@ module Fayde.Controls.Primitives {
                 this._RaiseDragDelta(p.X - this._PreviousPosition.X, p.Y - this._PreviousPosition.Y);
                 this._PreviousPosition = p;
             }
+        }
+        CancelDrag() {
+            if (!this.IsDragging)
+                return;
+            this.SetStoreValue(Thumb.IsDraggingProperty, false);
+            this._RaiseDragCompleted(true);
         }
         private _RaiseDragStarted() {
             this.DragStarted.Raise(this, new DragStartedEventArgs(this._Origin.X, this._Origin.Y));
