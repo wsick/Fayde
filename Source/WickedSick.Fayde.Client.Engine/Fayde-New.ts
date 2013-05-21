@@ -6539,10 +6539,10 @@ module Fayde {
         }
         FindElementsInHostCoordinates(p: Point): UINode[] {
             var uinlist: UINode[] = [];
-            this._FindElementsInHostCoordinates(this.Surface.TestRenderContext, p, uinlist);
+            this._FindElementsInHostCoordinates(this.Surface.TestRenderContext, p, uinlist, false);
             return uinlist;
         }
-        private _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[]) {
+        private _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[], applyXform: bool) {
             if (this.ShouldSkipHitTest)
                 return;
             if (!this.TotalIsRenderVisible)
@@ -6553,7 +6553,8 @@ module Fayde {
                 return;
             var thisNode = this.Node;
             ctx.Save();
-            ctx.TransformMatrix(this.RenderXform);
+            if (applyXform)
+                ctx.TransformMatrix(this.RenderXform);
             if (!this._InsideClip(ctx, p.X, p.Y)) {
                 ctx.Restore();
                 return;
@@ -6561,7 +6562,7 @@ module Fayde {
             uinlist.unshift(thisNode);
             var enumerator = thisNode.GetVisualTreeEnumerator(VisualTreeDirection.ZFoward);
             while (enumerator.MoveNext()) {
-                (<UINode>enumerator.Current).LayoutUpdater._FindElementsInHostCoordinates(ctx, p, uinlist);
+                (<UINode>enumerator.Current).LayoutUpdater._FindElementsInHostCoordinates(ctx, p, uinlist, true);
             }
             if (thisNode === uinlist[0]) {
                 if (!this.CanHitElement || !this._InsideObject(ctx, p.X, p.Y))
@@ -25443,12 +25444,16 @@ module Fayde.Controls.Primitives {
         private _UpdateRepeatState() {
             if (this._MouseCausingRepeat || this._KeyboardCausingRepeat) {
                 if (this._IntervalID == null)
-                    this._IntervalID = window.setInterval(() => this._OnTimeout(), this.Interval);
+                    this._IntervalID = window.setInterval(() => this._StartRepeatingAfterDelay(), this.Delay);
             } else {
                 if (this._IntervalID != null)
                     window.clearInterval(this._IntervalID);
                 this._IntervalID = null;
             }
+        }
+        private _StartRepeatingAfterDelay() {
+            window.clearInterval(this._IntervalID);
+            this._IntervalID = window.setInterval(() => this._OnTimeout(), this.Interval);
         }
         private _OnTimeout() {
             if (this._NewInterval != null) {

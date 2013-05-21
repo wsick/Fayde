@@ -122,7 +122,7 @@ module Fayde.Controls.Primitives {
         private _UpdateRepeatState() {
             if (this._MouseCausingRepeat || this._KeyboardCausingRepeat) {
                 if (this._IntervalID == null)
-                    this._IntervalID = window.setInterval(() => this._OnTimeout(), this.Interval);
+                    this._IntervalID = window.setInterval(() => this._StartRepeatingAfterDelay(), this.Delay);
             } else {
                 if (this._IntervalID != null)
                     window.clearInterval(this._IntervalID);
@@ -130,6 +130,10 @@ module Fayde.Controls.Primitives {
             }
         }
 
+        private _StartRepeatingAfterDelay() {
+            window.clearInterval(this._IntervalID);
+            this._IntervalID = window.setInterval(() => this._OnTimeout(), this.Interval);
+        }
         private _OnTimeout() {
             if (this._NewInterval != null) {
                 window.clearInterval(this._IntervalID);

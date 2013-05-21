@@ -136,8 +136,8 @@ var Fayde;
                     if(this._MouseCausingRepeat || this._KeyboardCausingRepeat) {
                         if(this._IntervalID == null) {
                             this._IntervalID = window.setInterval(function () {
-                                return _this._OnTimeout();
-                            }, this.Interval);
+                                return _this._StartRepeatingAfterDelay();
+                            }, this.Delay);
                         }
                     } else {
                         if(this._IntervalID != null) {
@@ -145,6 +145,13 @@ var Fayde;
                         }
                         this._IntervalID = null;
                     }
+                };
+                RepeatButton.prototype._StartRepeatingAfterDelay = function () {
+                    var _this = this;
+                    window.clearInterval(this._IntervalID);
+                    this._IntervalID = window.setInterval(function () {
+                        return _this._OnTimeout();
+                    }, this.Interval);
                 };
                 RepeatButton.prototype._OnTimeout = function () {
                     var _this = this;
