@@ -57,12 +57,13 @@ var Fayde;
                 ToggleButton.prototype.OnIsCheckedChanged = function (args) {
                     var isChecked = args.NewValue;
                     this.UpdateVisualState();
+                    var rargs = new Fayde.RoutedEventArgs();
                     if(isChecked === true) {
-                        this.Checked.Raise(this, new Fayde.RoutedEventArgs());
+                        this.Checked.Raise(this, rargs);
                     } else if(isChecked === false) {
-                        this.Unchecked.Raise(this, new Fayde.RoutedEventArgs());
+                        this.Unchecked.Raise(this, rargs);
                     } else {
-                        this.Indeterminate.Raise(this, new Fayde.RoutedEventArgs());
+                        this.Indeterminate.Raise(this, rargs);
                     }
                 };
                 ToggleButton.prototype.OnToggle = function () {

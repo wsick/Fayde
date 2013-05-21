@@ -947,10 +947,6 @@
       <DependentUpon>Dirty.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Engine\RenderContext.ts" />
-    <TypeScriptCompile Include="Typescript\Engine\Interfaces.ts" />
-    <Content Include="Typescript\Engine\Interfaces.js">
-      <DependentUpon>Interfaces.ts</DependentUpon>
-    </Content>
     <Content Include="Typescript\Engine\RenderContext.js">
       <DependentUpon>RenderContext.ts</DependentUpon>
     </Content>

@@ -106,14 +106,11 @@ var Fayde;
                 };
                 Timeline.prototype.Update = function (nowTime) {
                     var clockData = this.CreateClockData(nowTime);
-                    if(!clockData) {
-                        return;
-                    }
-                    if(this._IsPaused) {
+                    if(!clockData || this._IsPaused || this._HasCompleted) {
                         return;
                     }
                     this.UpdateInternal(clockData);
-                    if(clockData.Completed && !this._HasCompleted) {
+                    if(clockData.Completed) {
                         this.OnCompleted();
                     }
                 };

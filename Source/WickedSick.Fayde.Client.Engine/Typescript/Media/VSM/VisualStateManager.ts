@@ -6,8 +6,6 @@
 /// <reference path="VisualStateGroup.ts" />
 
 module Fayde.Media.VSM {
-    declare var NotImplemented;
-
     export interface IStateData {
         state: VisualState;
         group: VisualStateGroup;
@@ -31,23 +29,23 @@ module Fayde.Media.VSM {
         static SetCustomVisualStateManager(d: DependencyObject, value: VisualStateManager) { d.SetValue(CustomVisualStateManagerProperty, value); }
 
         static GoToState(control: Controls.Control, stateName: string, useTransitions: bool): bool {
-            var root = VisualStateManager._GetTemplateRoot(control);
+            var root = _GetTemplateRoot(control);
             if (!root)
                 return false;
 
-            var groups = VisualStateManager._GetVisualStateGroupsInternal(root);
+            var groups = _GetVisualStateGroupsInternal(root);
             if (!groups)
                 return false;
 
             var data: IStateData = { group: null, state: null };
-            if (!VisualStateManager._TryGetState(groups, stateName, data))
+            if (!_TryGetState(groups, stateName, data))
                 return false;
 
-            var customVsm = VisualStateManager.GetCustomVisualStateManager(root);
+            var customVsm = GetCustomVisualStateManager(root);
             if (customVsm) {
                 return customVsm.GoToStateCore(control, root, stateName, data.group, data.state, useTransitions);
             } else if (data.state != null) {
-                return VisualStateManager.GoToStateInternal(control, root, data.group, data.state, useTransitions);
+                return GoToStateInternal(control, root, data.group, data.state, useTransitions);
             }
 
             return false;
@@ -60,9 +58,7 @@ module Fayde.Media.VSM {
             if (lastState === state)
                 return true;
 
-            //VsmDebug("GoToStateInternal: " + state.Name);
-
-            var transition = useTransitions ? VisualStateManager._GetTransition(element, group, lastState, state) : null;
+            var transition = useTransitions ? _GetTransition(element, group, lastState, state) : null;
             var storyboard;
             if (transition == null || (transition.GeneratedDuration.IsZero() && ((storyboard = transition.Storyboard) == null || storyboard.Duration.IsZero()))) {
                 if (transition != null && storyboard != null) {
@@ -73,7 +69,7 @@ module Fayde.Media.VSM {
                 group.RaiseCurrentStateChanging(element, lastState, state, control);
                 group.RaiseCurrentStateChanged(element, lastState, state, control);
             } else {
-                var dynamicTransition = VisualStateManager._GenerateDynamicTransitionAnimations(element, group, state, transition);
+                var dynamicTransition = _GenerateDynamicTransitionAnimations(element, group, state, transition);
                 //LOOKS USELESS: dynamicTransition.IsTemplateItem = true;
 
                 transition.DynamicStoryboardCompleted = false;
@@ -110,7 +106,7 @@ module Fayde.Media.VSM {
         private static DestroyStoryboards(control: Controls.Control, root: FrameworkElement) {
             if (!root)
                 return false;
-            var groups = VisualStateManager._GetVisualStateGroupsInternal(root);
+            var groups = _GetVisualStateGroupsInternal(root);
             if (!groups)
                 return false;
             var enumerator = groups.GetEnumerator();

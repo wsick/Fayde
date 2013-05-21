@@ -1,4 +1,3 @@
-/// <reference path="Interfaces.ts" />
 /// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="Surface.ts" />

@@ -51,12 +51,13 @@ module Fayde.Controls.Primitives {
         OnIsCheckedChanged(args: IDependencyPropertyChangedEventArgs) {
             var isChecked = args.NewValue;
             this.UpdateVisualState();
+            var rargs = new RoutedEventArgs();
             if (isChecked === true) {
-                this.Checked.Raise(this, new RoutedEventArgs());
+                this.Checked.Raise(this, rargs);
             } else if (isChecked === false) {
-                this.Unchecked.Raise(this, new RoutedEventArgs());
+                this.Unchecked.Raise(this, rargs);
             } else {
-                this.Indeterminate.Raise(this, new RoutedEventArgs());
+                this.Indeterminate.Raise(this, rargs);
             }
         }
         OnToggle() {

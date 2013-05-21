@@ -1,6 +1,5 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
-/// <reference path="Interfaces.ts" />
 /// <reference path="Surface.ts" />
 /// <reference path="../Core/ResourceDictionary.ts" />
 /// <reference path="../Primitives/Uri.ts" />

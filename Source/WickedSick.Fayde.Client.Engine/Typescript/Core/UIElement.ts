@@ -11,11 +11,10 @@
 /// <reference path="../Engine/Surface.ts" />
 /// <reference path="Walkers.ts" />
 /// <reference path="LayoutUpdater.ts" />
-/// <reference path="../Runtime/MulticastEvent.ts"/>
-/// <reference path="RoutedEvent.ts"/>
-/// <reference path="../Engine/Interfaces.ts"/>
-/// <reference path="../Media/GeneralTransform.ts"/>
-/// <reference path="Triggers.ts"/>
+/// <reference path="../Runtime/MulticastEvent.ts" />
+/// <reference path="RoutedEvent.ts" />
+/// <reference path="../Media/GeneralTransform.ts" />
+/// <reference path="Triggers.ts" />
 
 module Fayde {
     export class UINode extends DONode {

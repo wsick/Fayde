@@ -1,10 +1,9 @@
-/// <reference path="Interfaces.ts" />
 /// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="Surface.ts" />
 
 module Fayde {
-    export class RenderContext implements IRenderContext {
+    export class RenderContext {
         CanvasContext: CanvasRenderingContext2D;
         CurrentTransform: number[] = null;
         private _Transforms: number[][] = [];

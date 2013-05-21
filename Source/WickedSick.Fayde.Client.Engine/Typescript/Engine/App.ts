@@ -1,6 +1,5 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
-/// <reference path="Interfaces.ts" />
 /// <reference path="Surface.ts" />
 /// <reference path="../Core/ResourceDictionary.ts" />
 /// <reference path="../Primitives/Uri.ts" />
@@ -18,6 +17,10 @@ module Fayde {
     }
 }
 
+interface ITimeline {
+    Update(nowTime: number);
+}
+
 class App implements Fayde.IResourcable {
     static Version: string = "0.9.4.0";
     static Current: App;
@@ -28,7 +31,7 @@ class App implements Fayde.IResourcable {
     NavService: Fayde.Navigation.NavService;
     DebugInterop: Fayde.DebugInterop;
     private _IsRunning: bool = false;
-    private _Storyboards: Fayde.IStoryboard[] = [];
+    private _Storyboards: ITimeline[] = [];
     private _ClockTimer: Fayde.ClockTimer = new Fayde.ClockTimer();
     private static _GenericResourceDictionary: Fayde.ResourceDictionary = null;
     constructor() {
@@ -118,13 +121,13 @@ class App implements Fayde.IResourcable {
         this.MainSurface.Render();
     }
 
-    RegisterStoryboard(storyboard: Fayde.IStoryboard) {
+    RegisterStoryboard(storyboard: ITimeline) {
         var sbs = this._Storyboards;
         var index = sbs.indexOf(storyboard);
         if (index === -1)
             sbs.push(storyboard);
     }
-    UnregisterStoryboard(storyboard: Fayde.IStoryboard) {
+    UnregisterStoryboard(storyboard: ITimeline) {
         var sbs = this._Storyboards;
         var index = sbs.indexOf(storyboard);
         if (index !== -1)

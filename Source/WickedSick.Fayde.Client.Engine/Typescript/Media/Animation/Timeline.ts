@@ -16,7 +16,7 @@ module Fayde.Media.Animation {
         Completed: bool;
     }
 
-    export class Timeline extends DependencyObject {
+    export class Timeline extends DependencyObject implements ITimeline {
         static DEFAULT_REPEAT_BEHAVIOR: RepeatBehavior = RepeatBehavior.FromIterationCount(1);
         static AutoReverseProperty: DependencyProperty = DependencyProperty.Register("AutoReverse", () => Boolean, Timeline, false);
         static BeginTimeProperty: DependencyProperty = DependencyProperty.Register("BeginTime", () => TimeSpan, Timeline);
@@ -87,12 +87,10 @@ module Fayde.Media.Animation {
 
         Update(nowTime: number) {
             var clockData = this.CreateClockData(nowTime);
-            if (!clockData)
-                return;
-            if (this._IsPaused)
+            if (!clockData || this._IsPaused || this._HasCompleted)
                 return;
             this.UpdateInternal(clockData);
-            if (clockData.Completed && !this._HasCompleted)
+            if (clockData.Completed)
                 this.OnCompleted();
         }
         UpdateInternal(clockData: IClockData) { }
