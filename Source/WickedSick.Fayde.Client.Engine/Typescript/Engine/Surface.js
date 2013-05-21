@@ -570,20 +570,16 @@ var Surface = (function () {
         return new Point(evt.clientX + window.pageXOffset + this._CanvasOffset.left, evt.clientY + window.pageYOffset + this._CanvasOffset.top);
     };
     Surface.prototype._FindFirstCommonElement = function (list1, list2, outObj) {
-        var len1 = list1.length;
-        var len2 = list2.length;
+        var i = list1.length - 1;
+        var j = list2.length - 1;
         outObj.Index1 = -1;
         outObj.Index2 = -1;
-        var i = 0;
-        var j = 0;
-        for(i = 0; i < len1 && j < len2; i++ , j++) {
-            var n1 = list1[i];
-            var n2 = list2[i];
-            if(n1 !== n2) {
+        while(i >= 0 && j >= 0) {
+            if(list1[i] !== list2[j]) {
                 return;
             }
-            outObj.Index1 = i;
-            outObj.Index2 = j;
+            outObj.Index1 = i--;
+            outObj.Index2 = j--;
         }
     };
     Surface.prototype._EmitMouseList = function (type, button, pos, delta, list, endIndex) {

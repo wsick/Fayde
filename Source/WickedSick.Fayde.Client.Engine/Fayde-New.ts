@@ -1848,14 +1848,6 @@ enum _Dirty {
 }
 
 module Fayde {
-    export interface IRenderContext {
-    }
-    export interface IStoryboard {
-        Update(nowTime: number);
-    }
-}
-
-module Fayde {
     export class XamlResolver {
         private _IsXamlLoaded: bool = false;
         private _IsScriptLoaded: bool = false;
@@ -2461,7 +2453,6 @@ module Fayde.Media.Animation {
     export interface IAnimStorageHidden {
         _Storage: IAnimationStorage;
     }
-    var DEBUG_ON = true;
     export class AnimationStore {
         static Clone(oldanims: IAnimationStorage[], newTarget: DependencyObject): IAnimationStorage[] {
             if (!oldanims)
@@ -2505,8 +2496,6 @@ module Fayde.Media.Animation {
                 storage.StopValue = prevStorage.StopValue;
             else
                 storage.StopValue = targetObj.ReadLocalValue(targetProp);
-            if (DEBUG_ON && window.console)
-                console.info("AnimationStore.AttachAnimation");
             return (<IAnimStorageHidden>animation)._Storage = storage;
         }
         static UpdateCurrentValueAndApply(storage: IAnimationStorage, clockData: IClockData) {
@@ -2519,13 +2508,9 @@ module Fayde.Media.Animation {
             ApplyCurrentValue(storage);
         }
         static Disable(storage: IAnimationStorage) {
-            if (DEBUG_ON && window.console)
-                console.info("AnimationStore.Disable");
             storage.IsDisabled = true;
         }
         static Stop(storage: IAnimationStorage) {
-            if (DEBUG_ON && window.console)
-                console.info("AnimationStore.Stop");
             var to = storage.TargetObj;
             var tp = storage.TargetProp;
             if (!to || !tp)
@@ -2576,8 +2561,6 @@ module Fayde.Media.Animation {
             ApplyCurrentValue(storage);
         }
         private static ApplyCurrentValue(storage: IAnimationStorage) {
-            if (DEBUG_ON && window.console)
-                console.info("AnimationStore.ApplyCurrentValue");
             if (storage.CurrentValue === undefined) return;
             storage.TargetObj.SetStoreValue(storage.TargetProp, storage.CurrentValue);
         }
@@ -7698,6 +7681,9 @@ module Fayde {
         cur.LoadInitial(canvas, json);
     }
 }
+interface ITimeline {
+    Update(nowTime: number);
+}
 class App implements Fayde.IResourcable {
     static Version: string = "0.9.4.0";
     static Current: App;
@@ -7708,7 +7694,7 @@ class App implements Fayde.IResourcable {
     NavService: Fayde.Navigation.NavService;
     DebugInterop: Fayde.DebugInterop;
     private _IsRunning: bool = false;
-    private _Storyboards: Fayde.IStoryboard[] = [];
+    private _Storyboards: ITimeline[] = [];
     private _ClockTimer: Fayde.ClockTimer = new Fayde.ClockTimer();
     private static _GenericResourceDictionary: Fayde.ResourceDictionary = null;
     constructor() {
@@ -7772,13 +7758,13 @@ class App implements Fayde.IResourcable {
     private Render() {
         this.MainSurface.Render();
     }
-    RegisterStoryboard(storyboard: Fayde.IStoryboard) {
+    RegisterStoryboard(storyboard: ITimeline) {
         var sbs = this._Storyboards;
         var index = sbs.indexOf(storyboard);
         if (index === -1)
             sbs.push(storyboard);
     }
-    UnregisterStoryboard(storyboard: Fayde.IStoryboard) {
+    UnregisterStoryboard(storyboard: ITimeline) {
         var sbs = this._Storyboards;
         var index = sbs.indexOf(storyboard);
         if (index !== -1)
@@ -8081,7 +8067,7 @@ class UnknownTypeException extends Exception {
 Nullstone.RegisterType(UnknownTypeException, "UnknownTypeException");
 
 module Fayde {
-    export class RenderContext implements IRenderContext {
+    export class RenderContext {
         CanvasContext: CanvasRenderingContext2D;
         CurrentTransform: number[] = null;
         private _Transforms: number[][] = [];
@@ -8243,6 +8229,10 @@ enum InputType {
     MouseEnter = 4,
     MouseMove = 5,
     MouseWheel = 6,
+}
+interface ICommonElementIndices {
+    Index1: number;
+    Index2: number;
 }
 class Surface {
     static TestCanvas: HTMLCanvasElement = <HTMLCanvasElement>document.createElement("canvas");
@@ -8690,20 +8680,16 @@ class Surface {
             evt.clientX + window.pageXOffset + this._CanvasOffset.left,
             evt.clientY + window.pageYOffset + this._CanvasOffset.top);
     }
-    private _FindFirstCommonElement(list1: Fayde.UINode[], list2: Fayde.UINode[], outObj) {
-        var len1 = list1.length;
-        var len2 = list2.length;
+    private _FindFirstCommonElement(list1: Fayde.UINode[], list2: Fayde.UINode[], outObj: ICommonElementIndices) {
+        var i = list1.length - 1;
+        var j = list2.length - 1;
         outObj.Index1 = -1;
         outObj.Index2 = -1;
-        var i = 0;
-        var j = 0;
-        for (i = 0; i < len1 && j < len2; i++, j++) {
-            var n1 = list1[i];
-            var n2 = list2[i];
-            if (n1 !== n2)
+        while (i >= 0 && j >= 0) {
+            if (list1[i] !== list2[j])
                 return;
-            outObj.Index1 = i;
-            outObj.Index2 = j;
+            outObj.Index1 = i--;
+            outObj.Index2 = j--;
         }
     }
     private _EmitMouseList(type: InputType, button: number, pos: Point, delta: number, list: Fayde.UINode[], endIndex?: number) {
@@ -13504,7 +13490,7 @@ module Fayde.Media.Animation {
         Progress: number;
         Completed: bool;
     }
-    export class Timeline extends DependencyObject {
+    export class Timeline extends DependencyObject implements ITimeline {
         static DEFAULT_REPEAT_BEHAVIOR: RepeatBehavior = RepeatBehavior.FromIterationCount(1);
         static AutoReverseProperty: DependencyProperty = DependencyProperty.Register("AutoReverse", () => Boolean, Timeline, false);
         static BeginTimeProperty: DependencyProperty = DependencyProperty.Register("BeginTime", () => TimeSpan, Timeline);
@@ -13568,12 +13554,10 @@ module Fayde.Media.Animation {
         }
         Update(nowTime: number) {
             var clockData = this.CreateClockData(nowTime);
-            if (!clockData)
-                return;
-            if (this._IsPaused)
+            if (!clockData || this._IsPaused || this._HasCompleted)
                 return;
             this.UpdateInternal(clockData);
-            if (clockData.Completed && !this._HasCompleted)
+            if (clockData.Completed)
                 this.OnCompleted();
         }
         UpdateInternal(clockData: IClockData) { }
@@ -13800,7 +13784,6 @@ module Fayde.Media.VSM {
 }
 
 module Fayde.Media.VSM {
-    declare var NotImplemented;
     export interface IStateData {
         state: VisualState;
         group: VisualStateGroup;
@@ -13821,20 +13804,20 @@ module Fayde.Media.VSM {
         static GetCustomVisualStateManager(d: DependencyObject): VisualStateManager { return d.GetValue(CustomVisualStateManagerProperty); }
         static SetCustomVisualStateManager(d: DependencyObject, value: VisualStateManager) { d.SetValue(CustomVisualStateManagerProperty, value); }
         static GoToState(control: Controls.Control, stateName: string, useTransitions: bool): bool {
-            var root = VisualStateManager._GetTemplateRoot(control);
+            var root = _GetTemplateRoot(control);
             if (!root)
                 return false;
-            var groups = VisualStateManager._GetVisualStateGroupsInternal(root);
+            var groups = _GetVisualStateGroupsInternal(root);
             if (!groups)
                 return false;
             var data: IStateData = { group: null, state: null };
-            if (!VisualStateManager._TryGetState(groups, stateName, data))
+            if (!_TryGetState(groups, stateName, data))
                 return false;
-            var customVsm = VisualStateManager.GetCustomVisualStateManager(root);
+            var customVsm = GetCustomVisualStateManager(root);
             if (customVsm) {
                 return customVsm.GoToStateCore(control, root, stateName, data.group, data.state, useTransitions);
             } else if (data.state != null) {
-                return VisualStateManager.GoToStateInternal(control, root, data.group, data.state, useTransitions);
+                return GoToStateInternal(control, root, data.group, data.state, useTransitions);
             }
             return false;
         }
@@ -13845,7 +13828,7 @@ module Fayde.Media.VSM {
             var lastState = group.CurrentState;
             if (lastState === state)
                 return true;
-            var transition = useTransitions ? VisualStateManager._GetTransition(element, group, lastState, state) : null;
+            var transition = useTransitions ? _GetTransition(element, group, lastState, state) : null;
             var storyboard;
             if (transition == null || (transition.GeneratedDuration.IsZero() && ((storyboard = transition.Storyboard) == null || storyboard.Duration.IsZero()))) {
                 if (transition != null && storyboard != null) {
@@ -13856,7 +13839,7 @@ module Fayde.Media.VSM {
                 group.RaiseCurrentStateChanging(element, lastState, state, control);
                 group.RaiseCurrentStateChanged(element, lastState, state, control);
             } else {
-                var dynamicTransition = VisualStateManager._GenerateDynamicTransitionAnimations(element, group, state, transition);
+                var dynamicTransition = _GenerateDynamicTransitionAnimations(element, group, state, transition);
                 transition.DynamicStoryboardCompleted = false;
                 var dynamicCompleted = function (sender, e) {
                     if (transition.Storyboard == null || transition.ExplicitStoryboardCompleted === true) {
@@ -13888,7 +13871,7 @@ module Fayde.Media.VSM {
         private static DestroyStoryboards(control: Controls.Control, root: FrameworkElement) {
             if (!root)
                 return false;
-            var groups = VisualStateManager._GetVisualStateGroupsInternal(root);
+            var groups = _GetVisualStateGroupsInternal(root);
             if (!groups)
                 return false;
             var enumerator = groups.GetEnumerator();
@@ -25533,12 +25516,13 @@ module Fayde.Controls.Primitives {
         OnIsCheckedChanged(args: IDependencyPropertyChangedEventArgs) {
             var isChecked = args.NewValue;
             this.UpdateVisualState();
+            var rargs = new RoutedEventArgs();
             if (isChecked === true) {
-                this.Checked.Raise(this, new RoutedEventArgs());
+                this.Checked.Raise(this, rargs);
             } else if (isChecked === false) {
-                this.Unchecked.Raise(this, new RoutedEventArgs());
+                this.Unchecked.Raise(this, rargs);
             } else {
-                this.Indeterminate.Raise(this, new RoutedEventArgs());
+                this.Indeterminate.Raise(this, rargs);
             }
         }
         OnToggle() {

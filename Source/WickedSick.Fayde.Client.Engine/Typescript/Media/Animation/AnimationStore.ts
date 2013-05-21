@@ -18,8 +18,6 @@ module Fayde.Media.Animation {
         _Storage: IAnimationStorage;
     }
 
-    var DEBUG_ON = true;
-
     export class AnimationStore {
         static Clone(oldanims: IAnimationStorage[], newTarget: DependencyObject): IAnimationStorage[] {
             if (!oldanims)
@@ -68,9 +66,6 @@ module Fayde.Media.Animation {
             else
                 storage.StopValue = targetObj.ReadLocalValue(targetProp);
 
-            if (DEBUG_ON && window.console)
-                console.info("AnimationStore.AttachAnimation");
-
             return (<IAnimStorageHidden>animation)._Storage = storage;
         }
         static UpdateCurrentValueAndApply(storage: IAnimationStorage, clockData: IClockData) {
@@ -83,13 +78,9 @@ module Fayde.Media.Animation {
             ApplyCurrentValue(storage);
         }
         static Disable(storage: IAnimationStorage) {
-            if (DEBUG_ON && window.console)
-                console.info("AnimationStore.Disable");
             storage.IsDisabled = true;
         }
         static Stop(storage: IAnimationStorage) {
-            if (DEBUG_ON && window.console)
-                console.info("AnimationStore.Stop");
             var to = storage.TargetObj;
             var tp = storage.TargetProp;
             if (!to || !tp)
@@ -146,8 +137,6 @@ module Fayde.Media.Animation {
             ApplyCurrentValue(storage);
         }
         private static ApplyCurrentValue(storage: IAnimationStorage) {
-            if (DEBUG_ON && window.console)
-                console.info("AnimationStore.ApplyCurrentValue");
             if (storage.CurrentValue === undefined) return;
             //AnimationDebug(function () { return "ApplyCurrentValue: [" + that._TargetObj.constructor._TypeName + "." + that._TargetProp.Name + "] --> " + that._CurrentValue.toString(); });
             storage.TargetObj.SetStoreValue(storage.TargetProp, storage.CurrentValue);

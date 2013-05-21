@@ -12,7 +12,6 @@ Typescript\Data\Enums.ts
 Typescript\Data\PropertyPathParser.ts
 Typescript\Data\PropertyPathWalker.ts
 Typescript\Engine\Dirty.ts
-Typescript\Engine\Interfaces.ts
 Typescript\Engine\XamlResolver.ts
 Typescript\Media\Enums.ts
 Typescript\Media\GradientMetrics.ts

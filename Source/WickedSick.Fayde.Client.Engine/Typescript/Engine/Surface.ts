@@ -27,6 +27,11 @@ enum InputType {
     MouseWheel = 6,
 }
 
+interface ICommonElementIndices {
+    Index1: number;
+    Index2: number;
+}
+
 class Surface {
     static TestCanvas: HTMLCanvasElement = <HTMLCanvasElement>document.createElement("canvas");
     TestRenderContext: Fayde.RenderContext = new Fayde.RenderContext(Surface.TestCanvas.getContext("2d"));
@@ -562,23 +567,19 @@ class Surface {
             evt.clientY + window.pageYOffset + this._CanvasOffset.top);
     }
 
-    private _FindFirstCommonElement(list1: Fayde.UINode[], list2: Fayde.UINode[], outObj) {
-        var len1 = list1.length;
-        var len2 = list2.length;
-
+    private _FindFirstCommonElement(list1: Fayde.UINode[], list2: Fayde.UINode[], outObj: ICommonElementIndices) {
+        var i = list1.length - 1;
+        var j = list2.length - 1;
         outObj.Index1 = -1;
         outObj.Index2 = -1;
-        var i = 0;
-        var j = 0;
-        for (i = 0; i < len1 && j < len2; i++, j++) {
-            var n1 = list1[i];
-            var n2 = list2[i];
-            if (n1 !== n2)
+        while (i >= 0 && j >= 0) {
+            if (list1[i] !== list2[j])
                 return;
-            outObj.Index1 = i;
-            outObj.Index2 = j;
+            outObj.Index1 = i--;
+            outObj.Index2 = j--;
         }
     }
+
     private _EmitMouseList(type: InputType, button: number, pos: Point, delta: number, list: Fayde.UINode[], endIndex?: number) {
         var handled = false;
         if (endIndex === 0)
