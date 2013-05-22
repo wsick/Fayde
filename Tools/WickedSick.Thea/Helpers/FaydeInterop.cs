@@ -91,6 +91,10 @@ namespace WickedSick.Thea.Helpers
 
         public IEnumerable<DependencyPropertyCache> GetDependencyProperties()
         {
+            IsAlive = VerifyInterop();
+            if (!IsAlive)
+                return Enumerable.Empty<DependencyPropertyCache>();
+
             var json = RunFunc("GetDPCache");
             return ParseJson<List<DependencyPropertyCache>>(json) 
                 ?? Enumerable.Empty<DependencyPropertyCache>();
