@@ -10,7 +10,6 @@ namespace WickedSick.Thea.ViewModels
     {
         #region Properties
 
-        public string IndexPath { get; set; }
         public string ID { get; set; }
 
         private bool _IsThisOnStackFrame;
@@ -35,14 +34,14 @@ namespace WickedSick.Thea.ViewModels
             }
         }
 
-        private string _Type;
-        public string Type
+        private string _TypeName;
+        public string TypeName
         {
-            get { return _Type; }
+            get { return _TypeName; }
             set
             {
-                _Type = value;
-                OnPropertyChanged("Type");
+                _TypeName = value;
+                OnPropertyChanged("TypeName");
             }
         }
 
@@ -89,11 +88,6 @@ namespace WickedSick.Thea.ViewModels
                     return Enumerable.Empty<VisualViewModel>();
                 return VisualChildren.Concat(VisualChildren.SelectMany(vc => vc.AllChildren));
             }
-        }
-
-        public string ResolveVisualWithJavascript()
-        {
-            return string.Format("App.Current.DebugInterop._Cache{0}.Visual", IndexPath);
         }
     }
 }

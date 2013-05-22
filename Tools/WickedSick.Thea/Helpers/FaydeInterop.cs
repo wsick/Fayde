@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Json;
 using System.Web.Script.Serialization;
 using WatiN.Core;
 using WatiN.Core.Exceptions;
@@ -19,6 +21,7 @@ namespace WickedSick.Thea.Helpers
         public FaydeInterop(Browser browser)
         {
             _Browser = browser;
+            InvalidateCache();
         }
 
         public bool IsCacheInvalidated
@@ -26,10 +29,21 @@ namespace WickedSick.Thea.Helpers
             get
             {
                 IsAlive = VerifyInterop();
-                return IsAlive && Eval("App.Current.DebugInterop._IsCacheInvalidated") == "true";
+                return IsAlive && Eval("App.Current.DebugInterop.IsCacheInvalidated") == "true";
             }
         }
         public bool IsAlive { get; protected set; }
+
+        public void InvalidateCache()
+        {
+            try
+            {
+                Execute("if (window.App && App.Current.DebugInterop) App.Current.DebugInterop.InvalidateCache();");
+            }
+            catch (Exception)
+            {
+            }
+        }
 
         public IEnumerable<VisualViewModel> GetVisualTree()
         {
@@ -37,28 +51,38 @@ namespace WickedSick.Thea.Helpers
             if (!IsAlive)
                 return Enumerable.Empty<VisualViewModel>();
 
-            RunFunc("GenerateCache");
-
-            var indexStack = new Stack<int>();
-            var tuple = GetVisual(indexStack);
-            GetVisualTreeChildren(tuple, indexStack);
-            return tuple.Item1.VisualChildren;
+            var json = RunFunc("GetCache");
+            var serializer = new DataContractJsonSerializer(typeof(DebugInteropCache));
+            try
+            {
+                using (var ms = new MemoryStream(System.Text.UTF8Encoding.UTF8.GetBytes(json)))
+                {
+                    var cache = serializer.ReadObject(ms) as DebugInteropCache;
+                    if (cache != null)
+                        return cache.Children.Select(CreateVisualViewModel);
+                }
+            }
+            catch (Exception)
+            {
+                //What to do?
+            }
+            return Enumerable.Empty<VisualViewModel>();
         }
-        public void PopulateProperties(VisualViewModel vvm)
+        protected VisualViewModel CreateVisualViewModel(DebugInteropCache cache)
         {
-            IsAlive = VerifyInterop();
-            if (!IsAlive)
-                return;
-
-            var formattedArr = RunFunc("GetProperties", GetJsCodeToGetVisual(vvm));
-            var props = ParseDependencyValueArray(formattedArr)
-                .OrderBy(dv => dv.OwnerTypeName)
-                .ThenBy(dv => dv.Name)
-                .ToList();
-            vvm.Properties.Clear();
-            foreach (var p in props)
-                vvm.Properties.Add(p);
+            var vvm = new VisualViewModel
+            {
+                ID = cache.ID.ToString(),
+                Name = cache.Name,
+                TypeName = cache.TypeName,
+            };
+            if (string.IsNullOrWhiteSpace(vvm.Name))
+                vvm.Name = null;
+            if (cache.Children != null)
+                vvm.VisualChildren = new ObservableCollection<VisualViewModel>(cache.Children.Select(CreateVisualViewModel));
+            return vvm;
         }
+
         public IEnumerable<string> GetVisualIDsInHitTest()
         {
             IsAlive = VerifyInterop();
@@ -69,61 +93,44 @@ namespace WickedSick.Thea.Helpers
             return ParseStringArray(formattedArr);
         }
 
-
         public void AttachToVisualStudio(VisualStudioInstance instance)
         {
             _VSI = instance;
             _VSI.Attach();
         }
 
-        private void GetVisualTreeChildren(Tuple<VisualViewModel, int> rootTuple, Stack<int> indexStack)
+        public IEnumerable<DependencyPropertyCache> GetDependencyProperties()
         {
-            for (int i = 0; i < rootTuple.Item2; i++)
+            var json = RunFunc("GetDPCache");
+            var serializer = new DataContractJsonSerializer(typeof(List<DependencyPropertyCache>));
+            try
             {
-                indexStack.Push(i);
-                var tuple = GetVisual(indexStack);
-                rootTuple.Item1.VisualChildren.Add(tuple.Item1);
-                GetVisualTreeChildren(tuple, indexStack);
-                indexStack.Pop();
-            }
-        }
-        private Tuple<VisualViewModel, int> GetVisual(IEnumerable<int> indices)
-        {
-            var indexPath = string.Join("", indices.Reverse().Select(i => string.Format(".Children[{0}]", i)));
-            string js = string.Format("App.Current.DebugInterop._Cache{0}.Serialized", indexPath);
-            var tuple = DeserializeVisual(_Browser.Eval(js));
-            tuple.Item1.IndexPath = indexPath;
-            RefreshIsThisOnStackFrame(tuple.Item1);
-            return tuple;
-        }
-        private static Tuple<VisualViewModel, int> DeserializeVisual(string formatted)
-        {
-            var tokens = formatted.Split(new[] { "~|~" }, StringSplitOptions.None);
-            VisualViewModel vvm;
-            int childCount;
-            if (tokens[0] == "Surface")
-            {
-                vvm = new VisualViewModel
+                using (var ms = new MemoryStream(System.Text.UTF8Encoding.UTF8.GetBytes(json)))
                 {
-                    ID = "-1",
-                    Name = "MainSurface",
-                    Type = "Surface",
-                };
-                childCount = int.Parse(tokens[1]);
+                    return serializer.ReadObject(ms) as List<DependencyPropertyCache>;
+                }
             }
-            else
+            catch (Exception)
             {
-                vvm = new VisualViewModel
-                {
-                    ID = tokens[0],
-                    Name = tokens[1],
-                    Type = tokens[2],
-                };
-                childCount = int.Parse(tokens[3]);
+                //What to do?
             }
-            if (string.IsNullOrWhiteSpace(vvm.Name))
-                vvm.Name = null;
-            return Tuple.Create(vvm, childCount);
+            return Enumerable.Empty<DependencyPropertyCache>();
+        }
+
+        public void PopulateProperties(VisualViewModel vvm)
+        {
+            IsAlive = VerifyInterop();
+            if (!IsAlive)
+                return;
+
+            var formattedArr = RunFunc("GetProperties", vvm.ID);
+            var props = ParseDependencyValueArray(formattedArr)
+                .OrderBy(dv => dv.OwnerTypeName)
+                .ThenBy(dv => dv.Name)
+                .ToList();
+            vvm.Properties.Clear();
+            foreach (var p in props)
+                vvm.Properties.Add(p);
         }
         private static IEnumerable<DependencyValue> ParseDependencyValueArray(string s)
         {
@@ -153,7 +160,6 @@ namespace WickedSick.Thea.Helpers
                     yield return o.ToString();
             }
         }
-
 
         #region Execution Wrapper
 
@@ -217,10 +223,6 @@ namespace WickedSick.Thea.Helpers
 
         #region Fayde Interop Js Wrapper
 
-        private string GetJsCodeToGetVisual(VisualViewModel vvm)
-        {
-            return vvm.ResolveVisualWithJavascript();
-        }
         private string RunFunc(string functionName, string args = null)
         {
             return Eval(string.Format("App.Current.DebugInterop.{0}({1})", functionName, args));

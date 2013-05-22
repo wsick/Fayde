@@ -7,6 +7,7 @@ using WatiN.Core;
 using WickedSick.MVVM;
 using WickedSick.MVVM.DialogEx;
 using WickedSick.Thea.Helpers;
+using WickedSick.Thea.Models;
 
 namespace WickedSick.Thea.ViewModels
 {
@@ -40,6 +41,17 @@ namespace WickedSick.Thea.ViewModels
             {
                 _RootLayers = value;
                 OnPropertyChanged("RootLayers");
+            }
+        }
+
+        private ObservableCollection<DependencyPropertyCache> _DependencyProperties = new ObservableCollection<DependencyPropertyCache>();
+        public ObservableCollection<DependencyPropertyCache> DependencyProperties
+        {
+            get { return _DependencyProperties; }
+            set
+            {
+                _DependencyProperties = value;
+                OnPropertyChanged("DependencyProperties");
             }
         }
 
@@ -157,6 +169,7 @@ namespace WickedSick.Thea.ViewModels
             AttachedBrowser = browser;
             _Interop = new FaydeInterop(AttachedBrowser);
             PerformanceViewModel.JsContext = _Interop;
+            RefreshDPs();
             RefreshTree();
             PerformanceViewModel.Update();
             //_Interop.PopulateProperties(RootLayers[0]);
@@ -190,6 +203,7 @@ namespace WickedSick.Thea.ViewModels
 
         private void _Timer_Tick(object sender, EventArgs e)
         {
+            RefreshDPs();
             RefreshTree();
             var allVisuals = RootLayers
                 .SelectMany(l => l.AllChildren)
@@ -234,6 +248,12 @@ namespace WickedSick.Thea.ViewModels
 
             foreach (var v in allVisuals.Where(vvm => hitTested.Any(s => vvm.ID == s)))
                 v.IsInHitTest = true;
+        }
+        private void RefreshDPs()
+        {
+            if (DependencyProperties.Count > 0)
+                return;
+            DependencyProperties = new ObservableCollection<DependencyPropertyCache>(_Interop.GetDependencyProperties());
         }
 
         #endregion

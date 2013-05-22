@@ -12,7 +12,7 @@ namespace WickedSick.Thea.Controls
 {
     public partial class PerformanceTicker : UserControl
     {
-        public static readonly DependencyProperty DataProperty = DependencyProperty.Register(
+        public static readonly System.Windows.DependencyProperty DataProperty = System.Windows.DependencyProperty.Register(
             "Data", typeof(ObservableCollection<FrameInfo>), typeof(PerformanceTicker), new PropertyMetadata(DataPropertyChanged));
 
         public ObservableCollection<FrameInfo> Data

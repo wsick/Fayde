@@ -32,7 +32,7 @@
         </Menu>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition />
+                <ColumnDefinition Width="175" />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <Grid Margin="5,5,10,5">
@@ -50,7 +50,7 @@
                                 <TextBlock Text="{Binding ID}" />
                                 <TextBlock FontWeight="{Binding IsThisOnStackFrame, Converter={StaticResource boolFontWeightConverter}}" 
                                        Foreground="{Binding IsInHitTest, Converter={StaticResource boolSolidColorBrushConverter}}"
-                                       Margin="5,0,0,0" Text="{Binding Type}" />
+                                       Margin="5,0,0,0" Text="{Binding TypeName}" />
                                 <TextBlock FontWeight="{Binding IsThisOnStackFrame, Converter={StaticResource boolFontWeightConverter}}" 
                                        Foreground="{Binding IsInHitTest, Converter={StaticResource boolSolidColorBrushConverter}}"
                                        Margin="5,0,0,0" Text="{Binding Name, StringFormat=[{0}], TargetNullValue=''}" />
@@ -67,9 +67,28 @@
                 </Grid>
             </Grid>
             <GridSplitter HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="5" />
-            <Grid Grid.Column="1">
-                <views:PerformanceView DataContext="{Binding PerformanceViewModel}" />
-            </Grid>
+            <TabControl Grid.Column="1">
+                <TabItem Header="Properties">
+                    
+                </TabItem>
+                <TabItem Header="Performance">
+                    <views:PerformanceView DataContext="{Binding PerformanceViewModel}" />
+                </TabItem>
+                <TabItem Header="Dependency Properties">
+                    <ListView ItemsSource="{Binding DependencyProperties}">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="ID" DisplayMemberBinding="{Binding ID}" />
+                                <GridViewColumn Header="Owner Type" DisplayMemberBinding="{Binding OwnerTypeName}" />
+                                <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" />
+                                <GridViewColumn Header="Target Type" DisplayMemberBinding="{Binding TargetTypeName}" />
+                                <GridViewColumn Header="IsReadOnly" DisplayMemberBinding="{Binding IsReadOnly}" />
+                                <GridViewColumn Header="IsAttached" DisplayMemberBinding="{Binding IsAttached}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </TabItem>
+            </TabControl>
         </Grid>
     </Grid>
 </Window>

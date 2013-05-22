@@ -4,21 +4,44 @@ var Fayde;
 (function (Fayde) {
     var DebugInterop = (function () {
         function DebugInterop(app) {
-            this._IsCacheInvalidated = true;
             this.NumFrames = 0;
             this.App = app;
             this.Surface = app.MainSurface;
             this.RegisterHitTestDebugService();
         }
         DebugInterop.prototype.LayoutUpdated = function () {
-            this._IsCacheInvalidated = true;
+            this._Cache = null;
+        };
+        Object.defineProperty(DebugInterop.prototype, "IsCacheInvalidated", {
+            get: function () {
+                return this._Cache == null;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        DebugInterop.prototype.InvalidateCache = function () {
+            this._Cache = null;
+            this._DPCache = null;
+        };
+        DebugInterop.prototype.GetCache = function () {
+            if(!this._Cache) {
+                this.GenerateCache();
+            }
+            return JSON.stringify(this._Cache, function (key, value) {
+                if(value instanceof Fayde.XamlNode || value instanceof Fayde.XamlObject) {
+                    return undefined;
+                }
+                return value;
+            });
         };
         DebugInterop.prototype.GenerateCache = function () {
             this._Cache = {
                 Node: null,
                 Visual: null,
                 Children: [],
-                Serialized: ""
+                ID: 0,
+                Name: "",
+                TypeName: "Surface"
             };
             var surface = this.Surface;
             var layers = (surface)._Layers;
@@ -26,51 +49,88 @@ var Fayde;
             var children;
             for(var i = 0; i < layerCount; i++) {
                 var cur = layers[i];
-                children = this.GetCacheChildren(cur);
-                var item = {
-                    Node: cur,
-                    Visual: cur.XObject,
-                    Children: children,
-                    Serialized: this.SerializeUINode(cur, children.length)
-                };
+                var item = this.CreateDebugInteropCacheItem(cur);
                 this._Cache.Children.push(item);
+                this.PopulateCacheChildren(item);
             }
-            this._Cache.Serialized = "Surface~|~" + layerCount;
-            this.GenerateDPCache();
-            this._IsCacheInvalidated = false;
-            return this._Cache.Serialized;
         };
-        DebugInterop.prototype.SerializeUINode = function (uin, len) {
-            return (uin.XObject)._ID + "~|~" + uin.Name + "~|~" + (uin.XObject).constructor._TypeName + "~|~" + len;
-        };
-        DebugInterop.prototype.GenerateDPCache = function () {
-            var dpCache = [];
-            var reg = (DependencyProperty)._Registered;
-            var curReg;
-            var propd;
-            for(var tn in reg) {
-                curReg = reg[tn];
-                for(var name in curReg) {
-                    dpCache[propd._ID] = curReg[name];
-                }
-            }
-            this._DPCache = dpCache;
-        };
-        DebugInterop.prototype.GetCacheChildren = function (visual) {
+        DebugInterop.prototype.PopulateCacheChildren = function (item) {
             var arr = [];
-            var enumerator = visual.GetVisualTreeEnumerator();
+            var enumerator = item.Node.GetVisualTreeEnumerator();
             var cur;
             var children;
             while(enumerator.MoveNext()) {
                 cur = enumerator.Current;
-                children = this.GetCacheChildren(cur);
-                arr.push({
-                    Visual: cur,
-                    Children: children,
-                    Serialized: this.SerializeUINode(cur, children.length)
-                });
+                var childItem = this.CreateDebugInteropCacheItem(cur);
+                item.Children.push(childItem);
+                this.PopulateCacheChildren(childItem);
             }
             return arr;
+        };
+        DebugInterop.prototype.CreateDebugInteropCacheItem = function (node) {
+            var uie = node.XObject;
+            return {
+                Node: node,
+                Visual: uie,
+                Children: [],
+                ID: (uie)._ID,
+                TypeName: (uie).constructor._TypeName,
+                Name: uie.Name
+            };
+        };
+        DebugInterop.prototype.GetDPCache = function () {
+            if(!this._DPCache) {
+                this.GenerateDPCache();
+            }
+            return JSON.stringify(this._DPCache, function (key, value) {
+                if(value instanceof DependencyProperty) {
+                    var propd = value;
+                    var ownerType = propd.OwnerType;
+                    var targetType = propd.GetTargetType();
+                    var targetTypeName;
+                    if(targetType instanceof Enum) {
+                        targetType = (targetType).Object;
+                        targetTypeName = "Enum";
+                        //targetTypeName = targetType ? ("Enum: " + targetType._TypeName) : null;
+                                            } else {
+                        targetTypeName = targetType ? targetType._TypeName : null;
+                    }
+                    return {
+                        ID: propd._ID,
+                        Name: propd.Name,
+                        OwnerTypeName: ownerType ? ownerType._TypeName : null,
+                        TargetTypeName: targetTypeName,
+                        IsReadOnly: propd.IsReadOnly === true,
+                        IsAttached: propd.IsAttached === true
+                    };
+                }
+                return value;
+            });
+        };
+        DebugInterop.prototype.GenerateDPCache = function () {
+            var dpCache = [];
+            var reg = (DependencyProperty)._IDs;
+            for(var id in reg) {
+                dpCache.push(reg[id]);
+            }
+            this._DPCache = dpCache;
+        };
+        DebugInterop.prototype.GetById = function (id, cur) {
+            var children = cur ? cur.Children : this._Cache.Children;
+            var len = children.length;
+            var found;
+            var child;
+            for(var i = 0; i < len; i++) {
+                child = children[i];
+                if((child.Visual)._ID === id) {
+                    return child;
+                }
+                found = this.GetById(id, child);
+                if(found) {
+                    return found;
+                }
+            }
+            return undefined;
         };
         DebugInterop.prototype.GetResetPerfInfo = function () {
             var numFrames = this.NumFrames;
