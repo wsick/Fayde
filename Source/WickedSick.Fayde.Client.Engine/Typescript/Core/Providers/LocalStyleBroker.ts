@@ -10,7 +10,6 @@ module Fayde.Providers {
         static Set(fe: FrameworkElement, newStyle: Style) {
             var holder = <IStyleHolder>fe.XamlNode;
             var arr = (<IPropertyStorageOwner>fe)._PropertyStorage;
-            var store = PropertyStore.Instance;
 
             var oldWalker = SingleStyleWalker(holder._LocalStyle);
             var newWalker = SingleStyleWalker(newStyle);
@@ -36,8 +35,8 @@ module Fayde.Providers {
 
                 storage = arr[propd._ID];
                 if (!storage)
-                    storage = arr[propd._ID] = store.CreateStorage(fe, propd);
-                store.SetLocalStyleValue(storage, newValue);
+                    storage = arr[propd._ID] = propd.Store.CreateStorage(fe, propd);
+                propd.Store.SetLocalStyleValue(storage, newValue);
 
                 if (oldProp)
                     oldSetter = oldWalker.Step();

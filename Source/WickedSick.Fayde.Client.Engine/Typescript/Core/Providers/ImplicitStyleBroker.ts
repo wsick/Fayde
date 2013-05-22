@@ -95,7 +95,6 @@ module Fayde.Providers {
                 return;
 
             var arr = (<IPropertyStorageOwner>fe)._PropertyStorage;
-            var store = PropertyStore.Instance;
 
             var oldWalker = MultipleStylesWalker(oldStyles);
             var newWalker = MultipleStylesWalker(styles);
@@ -120,8 +119,8 @@ module Fayde.Providers {
                 
                 storage = arr[propd._ID];
                 if (!storage)
-                    storage = arr[propd._ID] = store.CreateStorage(fe, propd);
-                store.SetImplicitStyle(storage, newValue);
+                    storage = arr[propd._ID] = propd.Store.CreateStorage(fe, propd);
+                propd.Store.SetImplicitStyle(storage, newValue);
                 
                 if (oldProp)
                     oldSetter = oldWalker.Step();

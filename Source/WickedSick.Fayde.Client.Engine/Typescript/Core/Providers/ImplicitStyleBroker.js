@@ -104,7 +104,6 @@ var Fayde;
                     return;
                 }
                 var arr = (fe)._PropertyStorage;
-                var store = Providers.PropertyStore.Instance;
                 var oldWalker = Fayde.MultipleStylesWalker(oldStyles);
                 var newWalker = Fayde.MultipleStylesWalker(styles);
                 var oldSetter = oldWalker.Step();
@@ -126,9 +125,9 @@ var Fayde;
                     }
                     storage = arr[propd._ID];
                     if(!storage) {
-                        storage = arr[propd._ID] = store.CreateStorage(fe, propd);
+                        storage = arr[propd._ID] = propd.Store.CreateStorage(fe, propd);
                     }
-                    store.SetImplicitStyle(storage, newValue);
+                    propd.Store.SetImplicitStyle(storage, newValue);
                     if(oldProp) {
                         oldSetter = oldWalker.Step();
                     }

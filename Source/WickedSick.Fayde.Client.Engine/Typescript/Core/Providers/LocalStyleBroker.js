@@ -8,7 +8,6 @@ var Fayde;
             LocalStyleBroker.Set = function Set(fe, newStyle) {
                 var holder = fe.XamlNode;
                 var arr = (fe)._PropertyStorage;
-                var store = Providers.PropertyStore.Instance;
                 var oldWalker = Fayde.SingleStyleWalker(holder._LocalStyle);
                 var newWalker = Fayde.SingleStyleWalker(newStyle);
                 newStyle.Seal();
@@ -31,9 +30,9 @@ var Fayde;
                     }
                     storage = arr[propd._ID];
                     if(!storage) {
-                        storage = arr[propd._ID] = store.CreateStorage(fe, propd);
+                        storage = arr[propd._ID] = propd.Store.CreateStorage(fe, propd);
                     }
-                    store.SetLocalStyleValue(storage, newValue);
+                    propd.Store.SetLocalStyleValue(storage, newValue);
                     if(oldProp) {
                         oldSetter = oldWalker.Step();
                     }
