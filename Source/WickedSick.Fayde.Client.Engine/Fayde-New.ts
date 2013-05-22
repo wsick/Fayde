@@ -7980,11 +7980,10 @@ module Fayde {
             this.Surface.HitTestCallback = (inputList) => this._CachedHitTest = inputList;
         }
         GetVisualIDsInHitTest(): string {
-            var rv = "[";
-            if (this._CachedHitTest)
-                rv += this._CachedHitTest.map(function (uin) { return (<any>uin.XObject)._ID; }).join(",");
-            rv += "]";
-            return rv;
+            if (!this._CachedHitTest)
+                return "[]";
+            var mapped = this._CachedHitTest.map((uin) => (<any>uin.XObject)._ID);
+            return JSON.stringify(mapped);
         }
         private static _StringifyReplacer(key: any, value: any): any {
             if (value instanceof XamlNode || value instanceof XamlObject)

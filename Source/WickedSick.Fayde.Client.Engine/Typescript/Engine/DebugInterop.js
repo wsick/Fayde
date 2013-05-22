@@ -144,14 +144,13 @@ var Fayde;
             };
         };
         DebugInterop.prototype.GetVisualIDsInHitTest = function () {
-            var rv = "[";
-            if(this._CachedHitTest) {
-                rv += this._CachedHitTest.map(function (uin) {
-                    return (uin.XObject)._ID;
-                }).join(",");
+            if(!this._CachedHitTest) {
+                return "[]";
             }
-            rv += "]";
-            return rv;
+            var mapped = this._CachedHitTest.map(function (uin) {
+                return (uin.XObject)._ID;
+            });
+            return JSON.stringify(mapped);
         };
         DebugInterop._StringifyReplacer = function _StringifyReplacer(key, value) {
             if(value instanceof Fayde.XamlNode || value instanceof Fayde.XamlObject) {

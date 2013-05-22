@@ -79,8 +79,8 @@ namespace WickedSick.Thea.Helpers
             if (!IsAlive)
                 return Enumerable.Empty<int>();
 
-            var formattedArr = RunFunc("GetVisualIDsInHitTest");
-            return ParseJson<List<int>>(formattedArr);
+            var json = RunFunc("GetVisualIDsInHitTest");
+            return DeserializeList<int>(json);
         }
 
         public void AttachToVisualStudio(VisualStudioInstance instance)
@@ -104,13 +104,9 @@ namespace WickedSick.Thea.Helpers
 
             var json = RunFunc("GetStorages", id.ToString());
 
-            dynamic result = JsonConvert.DeserializeObject<dynamic>(json) ?? Enumerable.Empty<dynamic>();
-            var list = new List<PropertyStorageWrapper>();
-            foreach (dynamic d in result)
-            {
-                list.Add(new PropertyStorageWrapper { DynamicObject = d, });
-            }
-            return list;
+            return DeserializeList(json)
+                .Select(d => new PropertyStorageWrapper { DynamicObject = d, })
+                .ToList();
         }
 
         #region Execution Wrapper
@@ -208,6 +204,28 @@ namespace WickedSick.Thea.Helpers
             {
                 return default(T);
             }
+        }
+
+        private static List<dynamic> DeserializeList(string json)
+        {
+            dynamic result = JsonConvert.DeserializeObject<dynamic>(json) ?? Enumerable.Empty<dynamic>();
+            var list = new List<dynamic>();
+            foreach (dynamic d in result)
+            {
+                list.Add(d);
+            }
+            return list;
+        }
+
+        private static List<T> DeserializeList<T>(string json)
+        {
+            dynamic result = JsonConvert.DeserializeObject<dynamic>(json) ?? Enumerable.Empty<dynamic>();
+            var list = new List<T>();
+            foreach (dynamic d in result)
+            {
+                list.Add((T)d.Value);
+            }
+            return list;
         }
     }
 }
