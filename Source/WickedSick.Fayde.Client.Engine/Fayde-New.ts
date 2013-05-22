@@ -990,7 +990,6 @@ module Fayde.Providers {
             if (!isChanged)
                 return;
             var arr = (<IPropertyStorageOwner>fe)._PropertyStorage;
-            var store = PropertyStore.Instance;
             var oldWalker = MultipleStylesWalker(oldStyles);
             var newWalker = MultipleStylesWalker(styles);
             var oldSetter = oldWalker.Step();
@@ -1012,8 +1011,8 @@ module Fayde.Providers {
                 }
                 storage = arr[propd._ID];
                 if (!storage)
-                    storage = arr[propd._ID] = store.CreateStorage(fe, propd);
-                store.SetImplicitStyle(storage, newValue);
+                    storage = arr[propd._ID] = propd.Store.CreateStorage(fe, propd);
+                propd.Store.SetImplicitStyle(storage, newValue);
                 if (oldProp)
                     oldSetter = oldWalker.Step();
                 if (newProp)
@@ -1090,7 +1089,6 @@ module Fayde.Providers {
         static Set(fe: FrameworkElement, newStyle: Style) {
             var holder = <IStyleHolder>fe.XamlNode;
             var arr = (<IPropertyStorageOwner>fe)._PropertyStorage;
-            var store = PropertyStore.Instance;
             var oldWalker = SingleStyleWalker(holder._LocalStyle);
             var newWalker = SingleStyleWalker(newStyle);
             newStyle.Seal();
@@ -1113,8 +1111,8 @@ module Fayde.Providers {
                 }
                 storage = arr[propd._ID];
                 if (!storage)
-                    storage = arr[propd._ID] = store.CreateStorage(fe, propd);
-                store.SetLocalStyleValue(storage, newValue);
+                    storage = arr[propd._ID] = propd.Store.CreateStorage(fe, propd);
+                propd.Store.SetLocalStyleValue(storage, newValue);
                 if (oldProp)
                     oldSetter = oldWalker.Step();
                 if (newProp)
@@ -19205,22 +19203,22 @@ module Fayde.Controls {
             return this.XamlNode.ComputeActualSize(lu, this.Padding);
         }
         private _ForegroundListener: Media.IBrushChangedListener;
-        private _ForegroundChanged(args: IDependencyPropertyChangedEventArgs) {
-            var newBrush = <Media.Brush>args.NewValue;
-            if (this._ForegroundListener)
-                this._ForegroundListener.Detach();
-                this._ForegroundListener = null;
-            if (newBrush)
-                this._ForegroundListener = newBrush.Listen((brush) => this.BrushChanged(brush));
-        }
-        private BrushChanged(newBrush: Media.Brush) {
-            this.XamlNode.LayoutUpdater.Invalidate();
-        }
         private FontChanged(args: IDependencyPropertyChangedEventArgs) {
-            if (args.Property === InheritableOwner.TextDecorationsProperty)
-                this.XamlNode._InvalidateDirty();
-            else
+            var node = this.XamlNode;
+            if (args.Property === InheritableOwner.TextDecorationsProperty) {
+                node._InvalidateDirty();
+            } else if (args.Property === InheritableOwner.ForegroundProperty) {
+                var lu = node.LayoutUpdater;
+                var newBrush = <Media.Brush>args.NewValue;
+                if (this._ForegroundListener)
+                    this._ForegroundListener.Detach();
+                this._ForegroundListener = null;
+                if (newBrush)
+                    this._ForegroundListener = newBrush.Listen((brush) => lu.Invalidate());
+                lu.Invalidate();
+            } else {
                 this.XamlNode._FontChanged(args);
+            }
         }
     }
     Nullstone.RegisterType(TextBlock, "TextBlock");

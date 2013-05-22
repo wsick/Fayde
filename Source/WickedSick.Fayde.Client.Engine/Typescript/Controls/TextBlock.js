@@ -367,25 +367,23 @@ var Fayde;
             TextBlock.prototype.ComputeActualSize = function (baseComputer, lu) {
                 return this.XamlNode.ComputeActualSize(lu, this.Padding);
             };
-            TextBlock.prototype._ForegroundChanged = function (args) {
-                var _this = this;
-                var newBrush = args.NewValue;
-                if(this._ForegroundListener) {
-                    this._ForegroundListener.Detach();
-                }
-                this._ForegroundListener = null;
-                if(newBrush) {
-                    this._ForegroundListener = newBrush.Listen(function (brush) {
-                        return _this.BrushChanged(brush);
-                    });
-                }
-            };
-            TextBlock.prototype.BrushChanged = function (newBrush) {
-                this.XamlNode.LayoutUpdater.Invalidate();
-            };
             TextBlock.prototype.FontChanged = function (args) {
+                var node = this.XamlNode;
                 if(args.Property === Fayde.InheritableOwner.TextDecorationsProperty) {
-                    this.XamlNode._InvalidateDirty();
+                    node._InvalidateDirty();
+                } else if(args.Property === Fayde.InheritableOwner.ForegroundProperty) {
+                    var lu = node.LayoutUpdater;
+                    var newBrush = args.NewValue;
+                    if(this._ForegroundListener) {
+                        this._ForegroundListener.Detach();
+                    }
+                    this._ForegroundListener = null;
+                    if(newBrush) {
+                        this._ForegroundListener = newBrush.Listen(function (brush) {
+                            return lu.Invalidate();
+                        });
+                    }
+                    lu.Invalidate();
                 } else {
                     this.XamlNode._FontChanged(args);
                 }

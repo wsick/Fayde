@@ -351,23 +351,22 @@ module Fayde.Controls {
         }
 
         private _ForegroundListener: Media.IBrushChangedListener;
-        private _ForegroundChanged(args: IDependencyPropertyChangedEventArgs) {
-            var newBrush = <Media.Brush>args.NewValue;
-            if (this._ForegroundListener)
-                this._ForegroundListener.Detach();
-                this._ForegroundListener = null;
-            if (newBrush)
-                this._ForegroundListener = newBrush.Listen((brush) => this.BrushChanged(brush));
-        }
-        private BrushChanged(newBrush: Media.Brush) {
-            this.XamlNode.LayoutUpdater.Invalidate();
-        }
-
         private FontChanged(args: IDependencyPropertyChangedEventArgs) {
-            if (args.Property === InheritableOwner.TextDecorationsProperty)
-                this.XamlNode._InvalidateDirty();
-            else
+            var node = this.XamlNode;
+            if (args.Property === InheritableOwner.TextDecorationsProperty) {
+                node._InvalidateDirty();
+            } else if (args.Property === InheritableOwner.ForegroundProperty) {
+                var lu = node.LayoutUpdater;
+                var newBrush = <Media.Brush>args.NewValue;
+                if (this._ForegroundListener)
+                    this._ForegroundListener.Detach();
+                this._ForegroundListener = null;
+                if (newBrush)
+                    this._ForegroundListener = newBrush.Listen((brush) => lu.Invalidate());
+                lu.Invalidate();
+            } else {
                 this.XamlNode._FontChanged(args);
+            }
         }
     }
     Nullstone.RegisterType(TextBlock, "TextBlock");
