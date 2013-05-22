@@ -158,11 +158,7 @@ module Fayde {
             this.Surface.HitTestCallback = (inputList) => this._CachedHitTest = inputList;
         }
         GetVisualIDsInHitTest(): string {
-            var rv = "[";
-            if (this._CachedHitTest)
-                rv += this._CachedHitTest.map(function (uin) { return (<any>uin.XObject)._ID; }).join(",");
-            rv += "]";
-            return rv;
+            return JSON.stringify(this._CachedHitTest.map((uin) => (<any>uin.XObject).ID));
         }
 
         private static _StringifyReplacer(key: any, value: any): any {

@@ -69,7 +69,15 @@
             <GridSplitter HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="5" />
             <TabControl Grid.Column="1">
                 <TabItem Header="Properties">
-                    
+                    <ListView ItemsSource="{Binding SelectedVisual.PropertyStorages}">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Property Name" DisplayMemberBinding="{Binding DependencyProperty.Name}" />
+                                <GridViewColumn Header="Effective" DisplayMemberBinding="{Binding EffectiveValue}" />
+                                <GridViewColumn Header="Effective" DisplayMemberBinding="{Binding EffectivePrecedence}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
                 </TabItem>
                 <TabItem Header="Performance">
                     <views:PerformanceView DataContext="{Binding PerformanceViewModel}" />

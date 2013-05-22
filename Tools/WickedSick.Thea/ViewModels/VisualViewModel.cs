@@ -10,7 +10,7 @@ namespace WickedSick.Thea.ViewModels
     {
         #region Properties
 
-        public string ID { get; set; }
+        public int ID { get; set; }
 
         private bool _IsThisOnStackFrame;
         public bool IsThisOnStackFrame
@@ -67,14 +67,14 @@ namespace WickedSick.Thea.ViewModels
             }
         }
 
-        private ObservableCollection<DependencyValue> _Properties = new ObservableCollection<DependencyValue>();
-        public ObservableCollection<DependencyValue> Properties
+        private ObservableCollection<PropertyStorageWrapper> _PropertyStorages;
+        public ObservableCollection<PropertyStorageWrapper> PropertyStorages
         {
-            get { return _Properties; }
+            get { return _PropertyStorages; }
             set
             {
-                _Properties = value;
-                OnPropertyChanged("Properties");
+                _PropertyStorages = value;
+                OnPropertyChanged("PropertyStorages");
             }
         }
 

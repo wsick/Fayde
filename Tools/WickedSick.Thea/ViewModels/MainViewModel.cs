@@ -233,7 +233,7 @@ namespace WickedSick.Thea.ViewModels
 
             foreach (var v in allVisuals)
                 v.IsThisOnStackFrame = false;
-            var thisVisual = allVisuals.FirstOrDefault(vvm => vvm.ID == sid);
+            var thisVisual = allVisuals.FirstOrDefault(vvm => vvm.ID.ToString() == sid);
             if (thisVisual != null)
                 thisVisual.IsThisOnStackFrame = true;
         }
@@ -272,7 +272,16 @@ namespace WickedSick.Thea.ViewModels
             base.OnPropertyChanged(propertyName);
             if (propertyName == "SelectedVisual")
             {
-                //_Interop.PopulateProperties(SelectedVisual);
+                if (SelectedVisual != null)
+                {
+                    SelectedVisual.PropertyStorages = new ObservableCollection<PropertyStorageWrapper>(_Interop.GetStorages(SelectedVisual.ID));
+                    foreach (var storage in SelectedVisual.PropertyStorages)
+                    {
+                        int? propID = storage.DynamicObject.PropertyID;
+                        if (propID != null)
+                            storage.DependencyProperty = DependencyProperties.FirstOrDefault(dp => dp.ID == propID.ToString());
+                    }
+                }
             }
         }
     }

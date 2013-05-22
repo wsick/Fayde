@@ -42,6 +42,9 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>..\ThirdParty\WatiN\Microsoft.mshtml.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\ThirdParty\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Runtime.Serialization" />
@@ -78,6 +81,7 @@
     <Compile Include="Models\DependencyPropertyCache.cs" />
     <Compile Include="Models\DependencyValue.cs" />
     <Compile Include="Models\FrameInfo.cs" />
+    <Compile Include="Models\PropertyStorageWrapper.cs" />
     <Compile Include="Resources\BoolSolidColorBrushConverter.cs" />
     <Compile Include="Resources\BoolFontWeightConverter.cs" />
     <Compile Include="Resources\BoolVisibilityConverter.cs" />

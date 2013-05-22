@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 using WatiN.Core;
 using WatiN.Core.Exceptions;
 using WickedSick.Thea.Models;
@@ -52,27 +53,16 @@ namespace WickedSick.Thea.Helpers
                 return Enumerable.Empty<VisualViewModel>();
 
             var json = RunFunc("GetCache");
-            var serializer = new DataContractJsonSerializer(typeof(DebugInteropCache));
-            try
-            {
-                using (var ms = new MemoryStream(System.Text.UTF8Encoding.UTF8.GetBytes(json)))
-                {
-                    var cache = serializer.ReadObject(ms) as DebugInteropCache;
-                    if (cache != null)
-                        return cache.Children.Select(CreateVisualViewModel);
-                }
-            }
-            catch (Exception)
-            {
-                //What to do?
-            }
-            return Enumerable.Empty<VisualViewModel>();
+            var cache = ParseJson<DebugInteropCache>(json);
+            if (cache == null)
+                return Enumerable.Empty<VisualViewModel>();
+            return cache.Children.Select(CreateVisualViewModel);
         }
         protected VisualViewModel CreateVisualViewModel(DebugInteropCache cache)
         {
             var vvm = new VisualViewModel
             {
-                ID = cache.ID.ToString(),
+                ID = cache.ID,
                 Name = cache.Name,
                 TypeName = cache.TypeName,
             };
@@ -83,14 +73,14 @@ namespace WickedSick.Thea.Helpers
             return vvm;
         }
 
-        public IEnumerable<string> GetVisualIDsInHitTest()
+        public IEnumerable<int> GetVisualIDsInHitTest()
         {
             IsAlive = VerifyInterop();
             if (!IsAlive)
-                return Enumerable.Empty<string>();
+                return Enumerable.Empty<int>();
 
             var formattedArr = RunFunc("GetVisualIDsInHitTest");
-            return ParseStringArray(formattedArr);
+            return ParseJson<List<int>>(formattedArr);
         }
 
         public void AttachToVisualStudio(VisualStudioInstance instance)
@@ -102,63 +92,25 @@ namespace WickedSick.Thea.Helpers
         public IEnumerable<DependencyPropertyCache> GetDependencyProperties()
         {
             var json = RunFunc("GetDPCache");
-            var serializer = new DataContractJsonSerializer(typeof(List<DependencyPropertyCache>));
-            try
-            {
-                using (var ms = new MemoryStream(System.Text.UTF8Encoding.UTF8.GetBytes(json)))
-                {
-                    return serializer.ReadObject(ms) as List<DependencyPropertyCache>;
-                }
-            }
-            catch (Exception)
-            {
-                //What to do?
-            }
-            return Enumerable.Empty<DependencyPropertyCache>();
+            return ParseJson<List<DependencyPropertyCache>>(json) 
+                ?? Enumerable.Empty<DependencyPropertyCache>();
         }
 
-        public void PopulateProperties(VisualViewModel vvm)
+        public IEnumerable<PropertyStorageWrapper> GetStorages(int id)
         {
             IsAlive = VerifyInterop();
             if (!IsAlive)
-                return;
+                return Enumerable.Empty<PropertyStorageWrapper>();
 
-            var formattedArr = RunFunc("GetProperties", vvm.ID);
-            var props = ParseDependencyValueArray(formattedArr)
-                .OrderBy(dv => dv.OwnerTypeName)
-                .ThenBy(dv => dv.Name)
-                .ToList();
-            vvm.Properties.Clear();
-            foreach (var p in props)
-                vvm.Properties.Add(p);
-        }
-        private static IEnumerable<DependencyValue> ParseDependencyValueArray(string s)
-        {
-            var js = new JavaScriptSerializer();
-            dynamic obj = js.Deserialize(s, typeof(object));
-            for (int i = 0; i < obj.Length; i++)
-			{
-                var ownerTypeName = obj[i]["OwnerType"].ToString();
-                var name = obj[i]["Name"].ToString();
-                var value = (obj[i]["Value"] ?? string.Empty).ToString();
-                yield return new DependencyValue
-                {
-                    OwnerTypeName = ownerTypeName,
-                    Name = name,
-                    Value = value,
-                };
-			}
-        }
-        private static IEnumerable<string> ParseStringArray(string s)
-        {
-            var js = new JavaScriptSerializer();
-            dynamic obj = js.Deserialize(s, typeof(object));
-            for (int i = 0; i < obj.Length; i++)
+            var json = RunFunc("GetStorages", id.ToString());
+
+            dynamic result = JsonConvert.DeserializeObject<dynamic>(json) ?? Enumerable.Empty<dynamic>();
+            var list = new List<PropertyStorageWrapper>();
+            foreach (dynamic d in result)
             {
-                object o = obj[i];
-                if (o != null)
-                    yield return o.ToString();
+                list.Add(new PropertyStorageWrapper { DynamicObject = d, });
             }
+            return list;
         }
 
         #region Execution Wrapper
@@ -238,8 +190,24 @@ namespace WickedSick.Thea.Helpers
             var obj = _VSI.GetExpression("this._ID") as string;
             if (obj == null)
                 return;
-            if (obj == vvm.ID)
+            if (obj == vvm.ID.ToString())
                 vvm.IsThisOnStackFrame = true;
+        }
+
+        private static T ParseJson<T>(string json) where T : class
+        {
+            var serializer = new DataContractJsonSerializer(typeof(T));
+            try
+            {
+                using (var ms = new MemoryStream(System.Text.UTF8Encoding.UTF8.GetBytes(json)))
+                {
+                    return serializer.ReadObject(ms) as T;
+                }
+            }
+            catch (Exception)
+            {
+                return default(T);
+            }
         }
     }
 }
