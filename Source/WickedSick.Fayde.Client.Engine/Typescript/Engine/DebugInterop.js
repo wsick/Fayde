@@ -27,12 +27,7 @@ var Fayde;
             if(!this._Cache) {
                 this.GenerateCache();
             }
-            return JSON.stringify(this._Cache, function (key, value) {
-                if(value instanceof Fayde.XamlNode || value instanceof Fayde.XamlObject) {
-                    return undefined;
-                }
-                return value;
-            });
+            return JSON.stringify(this._Cache, DebugInterop._StringifyReplacer);
         };
         DebugInterop.prototype.GenerateCache = function () {
             this._Cache = {
@@ -82,30 +77,7 @@ var Fayde;
             if(!this._DPCache) {
                 this.GenerateDPCache();
             }
-            return JSON.stringify(this._DPCache, function (key, value) {
-                if(value instanceof DependencyProperty) {
-                    var propd = value;
-                    var ownerType = propd.OwnerType;
-                    var targetType = propd.GetTargetType();
-                    var targetTypeName;
-                    if(targetType instanceof Enum) {
-                        targetType = (targetType).Object;
-                        targetTypeName = "Enum";
-                        //targetTypeName = targetType ? ("Enum: " + targetType._TypeName) : null;
-                                            } else {
-                        targetTypeName = targetType ? targetType._TypeName : null;
-                    }
-                    return {
-                        ID: propd._ID,
-                        Name: propd.Name,
-                        OwnerTypeName: ownerType ? ownerType._TypeName : null,
-                        TargetTypeName: targetTypeName,
-                        IsReadOnly: propd.IsReadOnly === true,
-                        IsAttached: propd.IsAttached === true
-                    };
-                }
-                return value;
-            });
+            return JSON.stringify(this._DPCache, DebugInterop._StringifyReplacer);
         };
         DebugInterop.prototype.GenerateDPCache = function () {
             var dpCache = [];
@@ -114,6 +86,31 @@ var Fayde;
                 dpCache.push(reg[id]);
             }
             this._DPCache = dpCache;
+        };
+        DebugInterop.prototype.GetStorages = function (id) {
+            var c = this.GetById(id);
+            var uie = c.Visual;
+            var storage = (uie)._PropertyStorage;
+            var value;
+            var arr = [];
+            for(var key in storage) {
+                value = storage[key];
+                if(value == null) {
+                    continue;
+                }
+                arr.push(value);
+            }
+            arr = arr.map(function (s) {
+                return {
+                    PropertyID: s.Property._ID,
+                    Precedence: s.Precedence,
+                    Local: s.Local,
+                    LocalStyleValue: s.LocalStyleValue,
+                    ImplicitStyleValue: s.ImplicitStyleValue,
+                    InheritedValue: (s).InheritedValue
+                };
+            });
+            return JSON.stringify(arr, DebugInterop._StringifyReplacer);
         };
         DebugInterop.prototype.GetById = function (id, cur) {
             var children = cur ? cur.Children : this._Cache.Children;
@@ -140,54 +137,7 @@ var Fayde;
             var diff = this.LastFrameTime.getTime() - oldFrameTime.getTime();
             return numFrames.toString() + ";" + diff.toString();
         };
-        DebugInterop.prototype.RegisterHitTestDebugService = /*
-        GetProperties(visual: UIElement): string {
-        var dps = this.GetDPs(visual);
-        var dpCount = dps.length;
-        var arr = [];
-        for (var i = 0; i < dpCount; i++) {
-        arr.push(this.SerializeDependencyValue(visual, dps[i]));
-        }
-        var adps = this.GetAttachedDPs(visual);
-        var adpCount = adps.length;
-        for (var i = 0; i < adpCount; i++) {
-        arr.push(this.SerializeDependencyValue(visual, adps[i]));
-        }
-        return "[" + arr.toString() + "]";
-        }
-        
-        GetDPs(dobj: DependencyObject): DependencyProperty[] {
-        if (!(dobj instanceof DependencyObject))
-        return [];
-        var reg;
-        var arr = [];
-        var curType = dobj.constructor;
-        while (curType) {
-        reg = DependencyProperty._Registered[curType._TypeName];
-        for (var h in reg) {
-        var dp = reg[h];
-        if (!dp._IsAttached)
-        arr.push(dp);
-        }
-        curType = curType._BaseClass;
-        }
-        return arr;
-        }
-        GetAttachedDPs(dobj: DependencyObject): DependencyProperty[] {
-        if (!(dobj instanceof DependencyObject))
-        return [];
-        var arr = [];
-        var localProvider = dobj._Providers[_PropertyPrecedence.LocalValue];
-        var dpCache = this._DPCache;
-        for (var dpid in localProvider._ht) {
-        var dp = dpCache[dpid];
-        if (dp._IsAttached)
-        arr.push(dp);
-        }
-        return arr;
-        }
-        */
-        function () {
+        DebugInterop.prototype.RegisterHitTestDebugService = function () {
             var _this = this;
             this.Surface.HitTestCallback = function (inputList) {
                 return _this._CachedHitTest = inputList;
@@ -202,6 +152,33 @@ var Fayde;
             }
             rv += "]";
             return rv;
+        };
+        DebugInterop._StringifyReplacer = function _StringifyReplacer(key, value) {
+            if(value instanceof Fayde.XamlNode || value instanceof Fayde.XamlObject) {
+                return undefined;
+            }
+            if(value instanceof DependencyProperty) {
+                var propd = value;
+                var ownerType = propd.OwnerType;
+                var targetType = propd.GetTargetType();
+                var targetTypeName;
+                if(targetType instanceof Enum) {
+                    targetType = (targetType).Object;
+                    targetTypeName = "Enum";
+                    //targetTypeName = targetType ? ("Enum: " + targetType._TypeName) : null;
+                                    } else {
+                    targetTypeName = targetType ? targetType._TypeName : null;
+                }
+                return {
+                    ID: propd._ID,
+                    Name: propd.Name,
+                    OwnerTypeName: ownerType ? ownerType._TypeName : null,
+                    TargetTypeName: targetTypeName,
+                    IsReadOnly: propd.IsReadOnly === true,
+                    IsAttached: propd.IsAttached === true
+                };
+            }
+            return value;
         };
         return DebugInterop;
     })();
