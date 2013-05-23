@@ -12,3 +12,8 @@ JsBin/Fayde.Generic.js
 Source/WickedSick.Fayde.Client.Engine/Fayde-New.d.ts
 Source/WickedSick.Fayde.Client.Engine/Fayde-New.js
 *.js.map
+Source/jsbin/Fayde.Generic.js
+Source/jsbin/Fayde.js
+Source/jsbin/Fayde.tsorder
+Source/WickedSick.Fayde.Client.Engine/Fayde.ts
+Source/WickedSick.Fayde.Client.Engine/Fayde.tsorder
