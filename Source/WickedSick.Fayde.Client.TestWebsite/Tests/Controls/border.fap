@@ -2,7 +2,6 @@
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde"
     Debug="true"
-    UseNew="true"
     ScriptResolution="/Fayde/">
     <Grid>
         <Border BorderBrush="Black" BorderThickness="10,20,30,40" CornerRadius="10,15,20,25" Margin="5" Background="Yellow">

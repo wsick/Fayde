@@ -68,11 +68,6 @@
     <Content Include="Benchmarks\Matrix\glMatrix-min.js" />
     <Content Include="Benchmarks\Matrix\Matrix3D.js" />
     <Content Include="Benchmarks\Matrix\test.html" />
-    <Content Include="Fayde-New.d.ts">
-      <DependentUpon>Fayde-New.ts</DependentUpon>
-    </Content>
-    <Content Include="Fayde-New.order" />
-    <None Include="Fayde.Generic.js.old" />
     <Content Include="Benchmarks\refequals.html" />
     <Content Include="Docs\DebugServices.txt" />
     <Content Include="Docs\Links.txt" />
@@ -80,14 +75,11 @@
     <Content Include="Docs\Notes.txt" />
     <Content Include="Docs\Plugins.txt" />
     <Content Include="Docs\XamlNotes.txt" />
-    <Content Include="Fayde-New.js">
-      <DependentUpon>Fayde-New.ts</DependentUpon>
-    </Content>
-    <Content Include="Fayde-New.ts" />
     <Content Include="Fayde.Generic.js" />
-    <Content Include="Fayde.js" />
-    <None Include="Fayde.tsinclude" />
-    <Content Include="gl-matrix.js" />
+    <Content Include="Fayde.js">
+      <DependentUpon>Fayde.ts</DependentUpon>
+    </Content>
+    <Content Include="Fayde.ts" />
     <Content Include="Global.asax" />
     <Content Include="Javascript\Controls\CanvasMetrics.js" />
     <Content Include="Javascript\Controls\GridMetrics.js" />
@@ -99,7 +91,9 @@
     <Content Include="Javascript\Core\UpdateMetrics.js" />
     <Content Include="Javascript\Core\Xformer.js" />
     <Content Include="Javascript\Engine\XamlResolver.js" />
-    <Content Include="Fayde.d.ts" />
+    <Content Include="Fayde.d.ts">
+      <DependentUpon>Fayde.ts</DependentUpon>
+    </Content>
     <Content Include="Javascript\Primitives.js" />
     <Content Include="Javascript\Runtime\IEnumerable.js" />
     <Content Include="Javascript\Shapes\ShapeMetrics.js" />
@@ -404,8 +398,6 @@
     <Content Include="Javascript\Text\TextLayoutAttributes.js" />
     <Content Include="Javascript\Media\VSM\VisualStateManager.js" />
     <Content Include="Javascript\Core\VisualTreeHelper.js" />
-    <Content Include="jquery-1.7.js" />
-    <Content Include="jsTestDriverAsserts.js" />
     <Content Include="Silo\brush-transform.html" />
     <Content Include="Silo\lineargradient-pattern.html" />
     <Content Include="Silo\matrix-multiplypoint.html" />
@@ -440,7 +432,6 @@
     <Content Include="Styles\Thumb.xml">
       <SubType>Designer</SubType>
     </Content>
-    <None Include="jsTestDriver.conf" />
     <Content Include="Silo\heightTest.htm" />
     <Content Include="Docs\Tips.txt" />
     <TypeScriptCompile Include="Tests\ItemsControlTests.ts" />
@@ -1463,8 +1454,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Fayde.order" />
-    <None Include="PackageAssemblies.bat" />
+    <Content Include="Fayde.tsorder">
+      <DependentUpon>Fayde.ts</DependentUpon>
+    </Content>
+    <None Include="build.bat" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WickedSick.Server.Framework.Fayde\WickedSick.Server.Framework.Fayde.csproj">
@@ -1500,13 +1493,16 @@
     <TypeScriptSourceMap> --sourcemap</TypeScriptSourceMap>
   </PropertyGroup>
   <Target Name="BeforeBuild">
-    <Message Text="Running JsSingularity" />
-    <Exec Command="&quot;$(ProjectDir)PackageAssemblies.bat&quot; &quot;$(ProjectDir)&quot;" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>xcopy /s /y "$(ProjectDir)Fayde.js" "$(SolutionDir)..\JsBin\"
-xcopy /s /y "$(ProjectDir)Fayde.order" "$(SolutionDir)..\JsBin\"
-xcopy /s /y "$(ProjectDir)Fayde.Generic.js" "$(SolutionDir)..\JsBin\"</PostBuildEvent>
+    <PostBuildEvent>cd "$(ProjectDir)"
+xcopy /s /y Fayde.js ..\jsbin\
+xcopy /s /y Fayde.tsorder ..\jsbin\
+xcopy /s /y Fayde.Generic.js ..\jsbin\</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>cd "$(ProjectDir)"
+build.bat "$(ProjectDir)"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -39,10 +39,7 @@ namespace WickedSick.Server.Framework.Fayde
             var includes = new List<string>();
 #if DEBUG
             if (fap.Debug)
-                if (fap.UseNew)
-                    includes = CollectNewIncludes(FindOrderFile(context.Request, fap)).ToList();
-                else
-                    includes = CollectIncludes(FindOrderFile(context.Request, fap)).ToList();
+                includes = CollectNewIncludes(FindOrderFile(context.Request, fap)).ToList();
 #endif
             WriteFapFull(context, fap, includes);
             WriteDependencyHeader(context.Response, result);
@@ -124,7 +121,7 @@ namespace WickedSick.Server.Framework.Fayde
         private string FindOrderFile(HttpRequest request, FaydeApplication fap)
         {
             var localRes = request.MapPath(fap.ScriptResolution);
-            var path = fap.UseNew ? Path.Combine(localRes, "Fayde.tsinclude") : Path.Combine(localRes, "Fayde.order");
+            var path = Path.Combine(localRes, "Fayde.tsorder");
             var orderFile = new FileInfo(path);
             return orderFile.FullName;
         }
@@ -166,7 +163,7 @@ namespace WickedSick.Server.Framework.Fayde
 #endif
                 writer.WriteStart();
                 writer.WriteHeadStart();
-                writer.WriteScriptIncludes(fap.ScriptResolution, includes, fap.UseNew);
+                writer.WriteScriptIncludes(fap.ScriptResolution, includes);
 
                 var codeBehindPath = string.Format("{0}.js", context.Request.Path);
                 if (File.Exists(context.Server.MapPath(codeBehindPath)))

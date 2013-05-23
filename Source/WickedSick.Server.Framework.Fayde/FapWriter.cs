@@ -59,7 +59,7 @@ namespace WickedSick.Server.Framework.Fayde
             Writer.WriteLine(string.Format("\t\t<title>{0}</title>", title));
         }
 
-        public void WriteScriptIncludes(string scriptResolution, IEnumerable<string> includes, bool useNew = false)
+        public void WriteScriptIncludes(string scriptResolution, IEnumerable<string> includes)
         {
             if (Debug)
             {
@@ -70,7 +70,7 @@ namespace WickedSick.Server.Framework.Fayde
             }
             else
             {
-                Writer.WriteLine(string.Format("\t\t<script src=\"{0}Fayde{1}.js\" type=\"text/javascript\"></script>", scriptResolution, useNew ? "-New" : ""));
+                Writer.WriteLine(string.Format("\t\t<script src=\"{0}Fayde.js\" type=\"text/javascript\"></script>", scriptResolution));
             }
             Writer.WriteLine(string.Format("\t\t<script src=\"{0}Fayde.Generic.js\" type=\"text/javascript\"></script>", scriptResolution));
         }
