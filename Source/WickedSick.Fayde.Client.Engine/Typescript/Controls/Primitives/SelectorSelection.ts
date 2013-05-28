@@ -43,7 +43,7 @@ module Fayde.Controls.Primitives {
                         break;
                     case Collections.NotifyCollectionChangedAction.Reset:
                         var ownerItems = this._Owner.SelectedItems;
-                        
+
                         var item: any;
                         var enumerator = ownerItems.GetEnumerator();
                         while (enumerator.MoveNext()) {
@@ -101,7 +101,7 @@ module Fayde.Controls.Primitives {
                 this._IsUpdating = false;
             }
         }
-        Select(item:any, ignoreSelectedValue?:bool) {
+        Select(item: any, ignoreSelectedValue?: bool) {
             if (ignoreSelectedValue === undefined) ignoreSelectedValue = false;
 
             var ownerItems = this._Owner.Items;
@@ -150,7 +150,7 @@ module Fayde.Controls.Primitives {
                             this.AddToSelected(item);
                         break;
                     default:
-                        throw new NotSupportedException("SelectionMode " + this.Mode + " is not support");
+                        throw new NotSupportedException("SelectionMode " + this.Mode + " is not supported.");
                 }
             } finally {
                 this._IsUpdating = false;
@@ -266,29 +266,22 @@ module Fayde.Controls.Primitives {
                 return;
             }
 
-            var added = [];
-            var oldItems = [];
-            var selectedItems = this._SelectedItems;
-            var count = selectedItems.length
-            var cur: any;
-            for (var i = 0; i < count; i++) {
-                cur = selectedItems[i];
-                if (cur !== item)
-                    oldItems.push(cur);
+            var oldItems = this._SelectedItems.slice(0);
+            var newItems = [];
+            var itemIndex = oldItems.indexOf(item);
+            if (itemIndex > -1) {
+                oldItems.splice(itemIndex, 1);
+            } else {
+                newItems.push(item);
             }
-
-            selectedItems = ArrayEx.Except(selectedItems, oldItems);
-            if (selectedItems.length === 0) {
-                added = [item];
-                selectedItems.push(item);
-            }
+            this._SelectedItems = [item];
 
             this._SelectedItem = item;
             this.UpdateSelectorProperties(item, owner.Items.IndexOf(item), owner._GetValueFromItem(item));
 
-            if (added.length !== 0 || oldItems.length !== 0) {
+            if (newItems.length !== 0 || oldItems.length !== 0) {
                 owner._SelectedItemsIsInvalid = true;
-                owner._RaiseSelectionChanged(oldItems, added);
+                owner._RaiseSelectionChanged(oldItems, newItems);
             }
         }
         UpdateSelectorProperties(item: any, index: number, value: any) {

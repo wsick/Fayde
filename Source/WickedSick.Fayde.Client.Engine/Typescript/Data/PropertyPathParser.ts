@@ -15,6 +15,8 @@ module Fayde.Data {
         Property = 3,
     }
 
+    /// Property Path Syntax
+    /// http://msdn.microsoft.com/en-us/library/cc645024(v=vs.95).aspx
     export class PropertyPathParser {
         Path: string;
         constructor(path: string) {
