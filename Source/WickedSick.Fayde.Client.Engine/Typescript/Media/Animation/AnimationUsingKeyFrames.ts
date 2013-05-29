@@ -77,7 +77,7 @@ module Fayde.Media.Animation {
                 ts = sortedList[len - 1]._ResolvedKeyTime;
             else
                 ts = new TimeSpan();
-            return Duration.CreateTimeSpan(ts);
+            return new Duration(ts);
         }
 
         AddKeyFrame(kf: KeyFrame) { this.KeyFrames.Add(kf); }

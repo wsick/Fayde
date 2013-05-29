@@ -191,7 +191,7 @@ module Fayde.Media.VSM {
             if (transition != null) {
                 dynamic.Duration = transition.GeneratedDuration;
             } else {
-                dynamic.Duration = Duration.CreateTimeSpan(new TimeSpan());
+                dynamic.Duration = new Duration(new TimeSpan());
             }
 
             var currentAnimations; //FlattenTimelines

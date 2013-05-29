@@ -175,7 +175,7 @@ module Fayde.Media.Animation {
                 return this.GetNaturalDurationCore();
             return d;
         }
-        GetNaturalDurationCore(): Duration { return Duration.CreateAutomatic(); }
+        GetNaturalDurationCore(): Duration { return Duration.Automatic; }
     }
     Nullstone.RegisterType(Timeline, "Timeline");
 

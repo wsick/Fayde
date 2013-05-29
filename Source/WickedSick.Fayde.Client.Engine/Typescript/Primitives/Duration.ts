@@ -10,24 +10,11 @@ enum DurationType {
 }
 
 class Duration implements ICloneable {
-    private _Type: DurationType;
+    private _Type: DurationType = DurationType.TimeSpan;
     private _TimeSpan: TimeSpan;
 
-    static CreateAutomatic(): Duration {
-        var d = new Duration();
-        d._Type = DurationType.Automatic;
-        return d;
-    }
-    static CreateForever(): Duration {
-        var d = new Duration();
-        d._Type = DurationType.Forever;
-        return d;
-    }
-    static CreateTimeSpan(ts: TimeSpan): Duration {
-        var d = new Duration();
-        d._Type = DurationType.TimeSpan;
-        d._TimeSpan = ts;
-        return d;
+    constructor(ts?: TimeSpan) {
+        this._TimeSpan = ts;
     }
 
     Clone(): Duration {
@@ -46,5 +33,8 @@ class Duration implements ICloneable {
     get HasTimeSpan(): bool { return this._Type === DurationType.TimeSpan }
     get IsForever(): bool { return this._Type === DurationType.Forever; }
     get IsAutomatic(): bool { return this._Type === DurationType.Automatic; }
+
+    static Automatic: Duration = (function () { var d = new Duration(); (<any>d)._Type = DurationType.Automatic; return d; })();
+    static Forever: Duration = (function () { var d = new Duration(); (<any>d)._Type = DurationType.Forever; return d; })();
 }
 Nullstone.RegisterType(Duration, "Duration");

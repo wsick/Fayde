@@ -23,7 +23,7 @@ module Fayde.Media.Animation {
             if (storage)
                 AnimationStore.UpdateCurrentValueAndApply(storage, clockData);
         }
-        GetNaturalDurationCore(): Duration { return Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 1)); }
+        GetNaturalDurationCore(): Duration { return new Duration(TimeSpan.FromArgs(0, 0, 0, 1)); }
 
         GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): any { return undefined; }
     }

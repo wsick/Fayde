@@ -125,12 +125,12 @@ module Fayde.Media.Animation {
                 if (dur.IsAutomatic)
                     continue;
                 if (dur.IsForever)
-                    return Duration.CreateForever();
+                    return Duration.Forever;
                 //duration must have a timespan if we got here
                 var spanTicks = dur.TimeSpan.Ticks;
                 var repeat = timeline.RepeatBehavior || Timeline.DEFAULT_REPEAT_BEHAVIOR;
                 if (repeat.IsForever)
-                    return Duration.CreateForever();
+                    return Duration.Forever;
                 if (repeat.HasCount)
                     spanTicks = spanTicks * repeat.Count;
                 if (timeline.AutoReverse)
@@ -146,8 +146,8 @@ module Fayde.Media.Animation {
             }
 
             if (!fullTicks)
-                return Duration.CreateAutomatic();
-            return Duration.CreateTimeSpan(TimeSpan.FromTicks(fullTicks));
+                return Duration.Automatic;
+            return new Duration(TimeSpan.FromTicks(fullTicks));
         }
     }
     Nullstone.RegisterType(Storyboard, "Storyboard");
