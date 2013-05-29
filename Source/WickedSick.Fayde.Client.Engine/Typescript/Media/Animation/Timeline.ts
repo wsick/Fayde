@@ -97,7 +97,7 @@ module Fayde.Media.Animation {
 
         Disable() { }
 
-        CreateClockData(nowTime: number): IClockData {
+        private CreateClockData(nowTime: number): IClockData {
             if (this._IsFirstUpdate) {
                 this._InitialStep = nowTime;
                 this._HasBegun = false;
@@ -157,7 +157,7 @@ module Fayde.Media.Animation {
                 Completed: completed
             };
         }
-        IsAfterBeginTime(nowTime: number): bool {
+        private IsAfterBeginTime(nowTime: number): bool {
             var beginTime = this.BeginTime;
             if (beginTime == null)
                 return true;

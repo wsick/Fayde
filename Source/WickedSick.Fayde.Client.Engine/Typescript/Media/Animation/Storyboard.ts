@@ -109,14 +109,14 @@ module Fayde.Media.Animation {
             return true;
         }
 
-        UpdateInternal(clockData: IClockData) {
+        private UpdateInternal(clockData: IClockData) {
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.MoveNext()) {
                 (<Timeline>enumerator.Current).Update(clockData.CurrentTime.Ticks);
             }
         }
 
-        GetNaturalDurationCore(): Duration {
+        private GetNaturalDurationCore(): Duration {
             var fullTicks = 0;
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.MoveNext()) {
