@@ -147,8 +147,12 @@ module Fayde {
                 LayoutXform: Array.prototype.slice.call(lu.LayoutXform),
                 LocalXform: Array.prototype.slice.call(lu.LocalXform),
                 RenderXform: Array.prototype.slice.call(lu.RenderXform),
-            };
 
+                TotalOpacity: lu.TotalOpacity,
+                TotalIsRenderVisible: lu.TotalIsRenderVisible,
+                TotalIsHitTestVisible: lu.TotalIsHitTestVisible,
+                TotalRenderProjection: lu.TotalRenderProjection,
+            };
             return JSON.stringify(metrics);
         }
 

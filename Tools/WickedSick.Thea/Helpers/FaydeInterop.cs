@@ -119,8 +119,9 @@ namespace WickedSick.Thea.Helpers
                 return null;
 
             var json = RunFunc("GetLayoutMetrics", id.ToString());
-            dynamic des = JsonConvert.DeserializeObject<dynamic>(json);
-            return LayoutMetrics.FromDynamic(des);
+            //JsonConvert.DeserializeObject<JsLayoutMetrics>(json);
+            //dynamic des = JsonConvert.DeserializeObject<dynamic>(json);
+            return LayoutMetrics.FromJson(json);
         }
 
         #region Execution Wrapper

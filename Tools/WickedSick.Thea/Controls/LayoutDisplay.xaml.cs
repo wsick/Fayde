@@ -69,19 +69,27 @@ namespace WickedSick.Thea.Controls
 
         protected void Update(LayoutMetrics metrics)
         {
-            TheCanvas.Children.Clear();
+            if (metrics == null)
+                return;
+            try
+            {
+                TheCanvas.Children.Clear();
 
-            _Min = new Point(metrics.VisualOffset.X, metrics.VisualOffset.Y);
-            _Max = new Point(_Min.X + metrics.ActualWidth, _Min.Y + metrics.ActualHeight);
+                _Min = new Point(metrics.VisualOffset.X, metrics.VisualOffset.Y);
+                _Max = new Point(_Min.X + (metrics.ActualWidth ?? 0.0), _Min.Y + (metrics.ActualHeight ?? 0.0));
 
-            var actualr = new Rectangle { Width = metrics.ActualWidth, Height = metrics.ActualHeight };
-            Canvas.SetLeft(actualr, metrics.VisualOffset.X);
-            Canvas.SetTop(actualr, metrics.VisualOffset.Y);
-            var ax = metrics.AbsoluteXform;
-            actualr.RenderTransform = new MatrixTransform(ax[0], ax[1], ax[3], ax[4], ax[2], ax[5]);
-            actualr.Stroke = new SolidColorBrush(Colors.Black);
-            actualr.StrokeThickness = 2;
-            TheCanvas.Children.Add(actualr);
+                var actualr = new Rectangle { Width = (metrics.ActualWidth ?? 0.0), Height = (metrics.ActualHeight ?? 0.0) };
+                Canvas.SetLeft(actualr, metrics.VisualOffset.X);
+                Canvas.SetTop(actualr, metrics.VisualOffset.Y);
+                var ax = metrics.AbsoluteXform;
+                actualr.RenderTransform = new MatrixTransform(ax[0], ax[1], ax[3], ax[4], ax[2], ax[5]);
+                actualr.Stroke = new SolidColorBrush(Colors.Black);
+                actualr.StrokeThickness = 2;
+                TheCanvas.Children.Add(actualr);
+            }
+            catch (Exception)
+            {
+            }
 
             InitBackground();
 
@@ -89,21 +97,27 @@ namespace WickedSick.Thea.Controls
         }
         protected void Fit()
         {
-            var px = 10.0;
-            var py = 10.0;
+            try
+            {
+                var px = 10.0;
+                var py = 10.0;
 
-            var avail = new Size(ActualWidth - px * 2, ActualHeight - py * 2);
-            var view = new Rect(_Min.X, _Min.Y, _Max.X - _Min.X, _Max.Y - _Min.Y);
+                var avail = new Size(Math.Max(0.0, ActualWidth - px * 2), Math.Max(0.0, ActualHeight - py * 2));
+                var view = new Rect(_Min.X, _Min.Y, _Max.X - _Min.X, _Max.Y - _Min.Y);
 
-            var x = new TransformGroup();
-            x.Children.Add(new TranslateTransform(-view.X, -view.Y));
-            if (view.Width > 0 && view.Height > 0)
-                x.Children.Add(new ScaleTransform(1 / view.Width, 1 / view.Height));
-            x.Children.Add(new ScaleTransform(avail.Width, avail.Height));
-            x.Children.Add(new TranslateTransform(view.X, view.Y));
-            TheCanvas.LayoutTransform = x;
+                var x = new TransformGroup();
+                x.Children.Add(new TranslateTransform(-view.X, -view.Y));
+                if (view.Width > 0 && view.Height > 0)
+                    x.Children.Add(new ScaleTransform(1 / view.Width, 1 / view.Height));
+                x.Children.Add(new ScaleTransform(avail.Width, avail.Height));
+                x.Children.Add(new TranslateTransform(view.X, view.Y));
+                TheCanvas.LayoutTransform = x;
 
-            TheCanvas.RenderTransform = new TranslateTransform(px, py);
+                TheCanvas.RenderTransform = new TranslateTransform(px, py);
+            }
+            catch (Exception)
+            {
+            }
         }
     }
 }

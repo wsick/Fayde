@@ -20,8 +20,6 @@ namespace WickedSick.Thea.ViewModels
             }
         }
 
-        private double TotalTimeDiff = 0;
-
         public IJavascriptContext JsContext { get; set; }
 
         public void Update()

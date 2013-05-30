@@ -271,18 +271,27 @@ namespace WickedSick.Thea.ViewModels
         {
             base.OnPropertyChanged(propertyName);
             if (propertyName == "SelectedVisual")
+                UpdateSelectedVisual();
+        }
+
+        protected void UpdateSelectedVisual()
+        {
+            if (SelectedVisual == null)
+                return;
+            try
             {
-                if (SelectedVisual != null)
+                SelectedVisual.PropertyStorages = new ObservableCollection<PropertyStorageWrapper>(_Interop.GetStorages(SelectedVisual.ID));
+                SelectedVisual.LayoutMetrics = _Interop.GetLayoutMetrics(SelectedVisual.ID);
+                foreach (var storage in SelectedVisual.PropertyStorages)
                 {
-                    SelectedVisual.PropertyStorages = new ObservableCollection<PropertyStorageWrapper>(_Interop.GetStorages(SelectedVisual.ID));
-                    SelectedVisual.LayoutMetrics = _Interop.GetLayoutMetrics(SelectedVisual.ID);
-                    foreach (var storage in SelectedVisual.PropertyStorages)
-                    {
-                        int? propID = storage.DynamicObject.PropertyID;
-                        if (propID != null)
-                            storage.DependencyProperty = DependencyProperties.FirstOrDefault(dp => dp.ID == propID.ToString());
-                    }
+                    int? propID = storage.DynamicObject.PropertyID;
+                    if (propID != null)
+                        storage.DependencyProperty = DependencyProperties.FirstOrDefault(dp => dp.ID == propID.ToString());
                 }
+            }
+            catch (Exception)
+            {
+
             }
         }
     }
