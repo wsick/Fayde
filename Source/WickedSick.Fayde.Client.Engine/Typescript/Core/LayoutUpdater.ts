@@ -1260,7 +1260,7 @@ module Fayde {
 
             ctx.Restore();
         }
-        HitTestPoint(ctx: RenderContext, p: Point, uinlist: UINode[]) {
+        HitTestPoint(ctx: Fayde.RenderContext, p: Point, uinlist: Fayde.UINode[]) {
             if (this.ShouldSkipHitTest)
                 return;
             if (!this.TotalIsRenderVisible)

@@ -126,6 +126,31 @@ module Fayde {
             });
             return JSON.stringify(arr, DebugInterop._StringifyReplacer);
         }
+        GetLayoutMetrics(id: number): string {
+            var c = this.GetById(id);
+            var uie = c.Visual;
+            var lu = uie.XamlNode.LayoutUpdater;
+
+            var metrics = {
+                ActualHeight: lu.ActualHeight,
+                ActualWidth: lu.ActualWidth,
+
+                LayoutSlot: lu.LayoutSlot,
+                VisualOffset: lu.VisualOffset,
+                LayoutClip: lu.LayoutClip,
+
+                HiddenDesire: lu.HiddenDesire,
+                DesiredSize: lu.DesiredSize,
+                RenderSize: lu.RenderSize,
+
+                AbsoluteXform: Array.prototype.slice.call(lu.AbsoluteXform),
+                LayoutXform: Array.prototype.slice.call(lu.LayoutXform),
+                LocalXform: Array.prototype.slice.call(lu.LocalXform),
+                RenderXform: Array.prototype.slice.call(lu.RenderXform),
+            };
+
+            return JSON.stringify(metrics);
+        }
 
         GetById(id: number, cur?: IDebugInteropCache): IDebugInteropCache {
             var children = cur ? cur.Children : this._Cache.Children;

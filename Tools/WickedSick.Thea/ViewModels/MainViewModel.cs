@@ -275,6 +275,7 @@ namespace WickedSick.Thea.ViewModels
                 if (SelectedVisual != null)
                 {
                     SelectedVisual.PropertyStorages = new ObservableCollection<PropertyStorageWrapper>(_Interop.GetStorages(SelectedVisual.ID));
+                    SelectedVisual.LayoutMetrics = _Interop.GetLayoutMetrics(SelectedVisual.ID);
                     foreach (var storage in SelectedVisual.PropertyStorages)
                     {
                         int? propID = storage.DynamicObject.PropertyID;

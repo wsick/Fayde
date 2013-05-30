@@ -107,10 +107,20 @@ namespace WickedSick.Thea.Helpers
                 return Enumerable.Empty<PropertyStorageWrapper>();
 
             var json = RunFunc("GetStorages", id.ToString());
-
             return DeserializeList(json)
                 .Select(d => new PropertyStorageWrapper { DynamicObject = d, })
                 .ToList();
+        }
+
+        public LayoutMetrics GetLayoutMetrics(int id)
+        {
+            IsAlive = VerifyInterop();
+            if (!IsAlive)
+                return null;
+
+            var json = RunFunc("GetLayoutMetrics", id.ToString());
+            dynamic des = JsonConvert.DeserializeObject<dynamic>(json);
+            return LayoutMetrics.FromDynamic(des);
         }
 
         #region Execution Wrapper

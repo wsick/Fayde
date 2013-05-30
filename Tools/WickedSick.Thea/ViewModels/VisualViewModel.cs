@@ -78,6 +78,17 @@ namespace WickedSick.Thea.ViewModels
             }
         }
 
+        private LayoutMetrics _LayoutMetrics;
+        public LayoutMetrics LayoutMetrics
+        {
+            get { return _LayoutMetrics; }
+            set
+            {
+                _LayoutMetrics = value;
+                OnPropertyChanged("LayoutMetrics");
+            }
+        }
+
         #endregion
 
         public IEnumerable<VisualViewModel> AllChildren

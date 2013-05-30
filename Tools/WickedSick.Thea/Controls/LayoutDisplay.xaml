@@ -1,0 +1,7 @@
+﻿<UserControl x:Class="WickedSick.Thea.Controls.LayoutDisplay"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    SizeChanged="UserControl_SizeChanged" ClipToBounds="True">
+    <Canvas x:Name="TheCanvas" ClipToBounds="False">
+    </Canvas>
+</UserControl>

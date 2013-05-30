@@ -6,6 +6,7 @@
     xmlns:views="clr-namespace:WickedSick.Thea.Views"
     xmlns:treeviewex="clr-namespace:WickedSick.MVVM.TreeViewEx;assembly=WickedSick.MVVM"
     xmlns:e="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+    xmlns:localcontrols="clr-namespace:WickedSick.Thea.Controls"
     Title="Thea" Height="600" Width="1000" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
@@ -68,6 +69,9 @@
             </Grid>
             <GridSplitter HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="5" />
             <TabControl Grid.Column="1">
+                <TabItem Header="Layout">
+                    <localcontrols:LayoutDisplay LayoutMetrics="{Binding SelectedVisual.LayoutMetrics}" />
+                </TabItem>
                 <TabItem Header="Properties">
                     <ListView ItemsSource="{Binding SelectedVisual.PropertyStorages}">
                         <ListView.View>
