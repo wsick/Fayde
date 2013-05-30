@@ -4,6 +4,7 @@
 /// <reference path="../../Data/PropertyPath.ts" />
 
 module Fayde.Media.Animation {
+    /// http://msdn.microsoft.com/en-us/library/cc189019(v=vs.95).aspx
     export class Storyboard extends Timeline {
         static TargetNameProperty: DependencyProperty = DependencyProperty.RegisterAttached("TargetName", () => String, Storyboard);
         static GetTargetName(d: DependencyObject): string { return d.GetValue(TargetNameProperty); }
@@ -29,6 +30,10 @@ module Fayde.Media.Animation {
                 value: coll,
                 writable: false
             });
+        }
+
+        static SetTarget(timeline: Timeline, target: DependencyObject) {
+            timeline.ManualTarget = target;
         }
 
         Begin() {

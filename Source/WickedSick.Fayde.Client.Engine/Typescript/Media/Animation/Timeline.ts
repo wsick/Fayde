@@ -40,11 +40,10 @@ module Fayde.Media.Animation {
         private _HasBegun: bool = false;
         private _BeginTicks: number = undefined;
         private _InitialStep: number = undefined;
-        private _ManualTarget: DependencyObject = undefined;
         private _HasCompleted: bool = false;
-        
-        get HasManualTarget():bool { return this._ManualTarget != null; }
-        get ManualTarget(): DependencyObject { return this._ManualTarget; }
+
+        ManualTarget: DependencyObject = undefined;
+        get HasManualTarget(): bool { return this.ManualTarget !== undefined; }
 
         Reset() {
             this._TicksPaused = 0;
@@ -116,7 +115,7 @@ module Fayde.Media.Animation {
             var completed = false;
 
             var duration = this.GetNaturalDuration();
-            if (!duration || duration.IsAutomatic) {
+            if (duration.IsAutomatic) {
                 progress = 1.0;
                 completed = true;
             } else if (duration.HasTimeSpan) {
@@ -171,7 +170,7 @@ module Fayde.Media.Animation {
         }
         GetNaturalDuration(): Duration {
             var d = this.Duration;
-            if (d && d.IsAutomatic)
+            if (!d || d.IsAutomatic)
                 return this.GetNaturalDurationCore();
             return d;
         }

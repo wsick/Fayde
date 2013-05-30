@@ -18,11 +18,6 @@ module Fayde.Media.Animation {
             rb._Count = count;
             return rb;
         }
-        static FromForever(): RepeatBehavior {
-            var rb = new RepeatBehavior();
-            rb.IsForever = true;
-            return rb;
-        }
 
         get HasCount(): bool { return this._Count != null; }
         get Count(): number { return this._Count; }
@@ -37,6 +32,8 @@ module Fayde.Media.Animation {
             rb.IsForever = this.IsForever;
             return rb;
         }
+
+        static Forever: RepeatBehavior = (function () { var rb = new RepeatBehavior(); rb.IsForever = true; return rb; })();
     }
     Nullstone.RegisterType(RepeatBehavior, "RepeatBehavior");
 }
