@@ -40,11 +40,11 @@ namespace WickedSick.Server.XamlParser.Elements.Types
             {
                 case DurationType.Automatic:
                 default:
-                    return string.Format("{0}.CreateAutomatic()", typeName);
+                    return string.Format("{0}.Automatic", typeName);
                 case DurationType.Forever:
-                    return string.Format("{0}.CreateForever()", typeName);
+                    return string.Format("{0}.Forever", typeName);
                 case DurationType.TimeSpan:
-                    return string.Format("{0}.CreateTimeSpan({1})", typeName, TimeSpan.ToJson(tabIndents, outputMods));
+                    return string.Format("new {0}({1})", typeName, TimeSpan.ToJson(tabIndents, outputMods));
             }
         }
     }

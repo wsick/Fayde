@@ -1337,7 +1337,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: ColorAnimation,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                                     To: new StaticResourceMarkup("HighlightLightColor")
                                                 },
                                                 AttachedProps: [{
@@ -1356,7 +1356,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: ColorAnimation,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                                     To: new StaticResourceMarkup("Gray5")
                                                 },
                                                 AttachedProps: [{
@@ -1384,7 +1384,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: ColorAnimation,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                                     To: new StaticResourceMarkup("Gray5")
                                                 },
                                                 AttachedProps: [{
@@ -1403,7 +1403,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                                     To: 0.8
                                                 },
                                                 AttachedProps: [{
@@ -1431,7 +1431,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: ObjectAnimationUsingKeyFrames,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -1625,13 +1625,13 @@ App.GetGenericResourceDictionaryImpl = function () {
                             {
                                 ParseType: VisualTransition,
                                 Props: {
-                                    GeneratedDuration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                    GeneratedDuration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                 }
                             },
                             {
                                 ParseType: VisualTransition,
                                 Props: {
-                                    GeneratedDuration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 200)),
+                                    GeneratedDuration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 200)),
                                     To: "Open"
                                 },
                                 Content: {
@@ -1875,13 +1875,13 @@ App.GetGenericResourceDictionaryImpl = function () {
                             {
                                 ParseType: VisualTransition,
                                 Props: {
-                                    GeneratedDuration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                    GeneratedDuration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                 }
                             },
                             {
                                 ParseType: VisualTransition,
                                 Props: {
-                                    GeneratedDuration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 200)),
+                                    GeneratedDuration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 200)),
                                     To: "Open"
                                 },
                                 Content: {
@@ -1890,7 +1890,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                     {
                                         ParseType: DoubleAnimation,
                                         Props: {
-                                            Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 200)),
+                                            Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 200)),
                                             To: 0,
                                             EasingFunction: {
                                                 ParseType: BackEase,
@@ -1916,7 +1916,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                     {
                                         ParseType: DoubleAnimation,
                                         Props: {
-                                            Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 200)),
+                                            Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 200)),
                                             To: 1
                                         },
                                         AttachedProps: [{
@@ -1947,7 +1947,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                 {
                                     ParseType: DoubleAnimation,
                                     Props: {
-                                        Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                        Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                         To: 0
                                     },
                                     AttachedProps: [{
@@ -1975,7 +1975,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                 {
                                     ParseType: DoubleAnimation,
                                     Props: {
-                                        Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                        Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                         To: 0
                                     },
                                     AttachedProps: [{
@@ -1994,7 +1994,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                 {
                                     ParseType: DoubleAnimation,
                                     Props: {
-                                        Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                        Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                         To: 1
                                     },
                                     AttachedProps: [{
@@ -2171,7 +2171,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -2199,7 +2199,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -2227,7 +2227,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 0.7,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -2246,7 +2246,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 0.3,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -2280,7 +2280,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -2299,7 +2299,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -2510,7 +2510,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: ObjectAnimationUsingKeyFrames,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -2538,7 +2538,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: ColorAnimation,
                                                 Props: {
                                                     To: new StaticResourceMarkup("HighlightLightColor"),
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -2565,7 +2565,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: ObjectAnimationUsingKeyFrames,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -2601,7 +2601,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: ObjectAnimationUsingKeyFrames,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -2644,7 +2644,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -2827,13 +2827,6 @@ App.GetGenericResourceDictionaryImpl = function () {
                 {
                     ParseType: Setter,
                     Props: {
-                        Property: DependencyProperty.GetDependencyProperty(TextBox, "Cursor"),
-                        Value: "IBeam"
-                    }
-                },
-                {
-                    ParseType: Setter,
-                    Props: {
                         Property: DependencyProperty.GetDependencyProperty(TextBox, "Template"),
                         Value: new ControlTemplate(TextBox, {
                             ParseType: Grid,
@@ -2859,7 +2852,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                                     To: 1
                                                 },
                                                 AttachedProps: [{
@@ -2888,7 +2881,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -2916,7 +2909,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -2949,7 +2942,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                                     To: 1
                                                 },
                                                 AttachedProps: [{
@@ -2968,7 +2961,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                                     To: 1
                                                 },
                                                 AttachedProps: [{
@@ -3513,7 +3506,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: ObjectAnimationUsingKeyFrames,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -3946,7 +3939,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                                         ParseType: DoubleAnimation,
                                                                         Props: {
                                                                             To: 1,
-                                                                            Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                                            Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                                         },
                                                                         AttachedProps: [{
                                                                             Owner: Storyboard,
@@ -3974,7 +3967,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                                         ParseType: DoubleAnimation,
                                                                         Props: {
                                                                             To: 1,
-                                                                            Duration: Duration.CreateTimeSpan(TimeSpan.FromTicks(1))
+                                                                            Duration: new Duration(TimeSpan.FromTicks(1))
                                                                         },
                                                                         AttachedProps: [{
                                                                             Owner: Storyboard,
@@ -4079,7 +4072,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                                         ParseType: DoubleAnimation,
                                                                         Props: {
                                                                             To: 1,
-                                                                            Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                                            Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                                         },
                                                                         AttachedProps: [{
                                                                             Owner: Storyboard,
@@ -4098,7 +4091,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                                         ParseType: DoubleAnimation,
                                                                         Props: {
                                                                             To: 1,
-                                                                            Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                                            Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                                         },
                                                                         AttachedProps: [{
                                                                             Owner: Storyboard,
@@ -6821,7 +6814,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                                     To: 0.55
                                                 },
                                                 AttachedProps: [{
@@ -6840,7 +6833,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: ColorAnimation,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                                     To: new StaticResourceMarkup("HoverForegroundColor")
                                                 },
                                                 AttachedProps: [{
@@ -6868,7 +6861,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                                     To: 0.55
                                                 },
                                                 AttachedProps: [{
@@ -6906,7 +6899,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: ColorAnimation,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                                     To: new StaticResourceMarkup("HoverForegroundColor")
                                                 },
                                                 AttachedProps: [{
@@ -6925,7 +6918,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                                     To: 1
                                                 },
                                                 AttachedProps: [{
@@ -6963,7 +6956,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: ObjectAnimationUsingKeyFrames,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -6990,7 +6983,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                                     To: 1
                                                 },
                                                 AttachedProps: [{
@@ -7009,7 +7002,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: ColorAnimation,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                                     To: new StaticResourceMarkup("HoverForegroundColor")
                                                 },
                                                 AttachedProps: [{
@@ -7211,14 +7204,14 @@ App.GetGenericResourceDictionaryImpl = function () {
                                         Content: {
                                             ParseType: Storyboard,
                                             Props: {
-                                                Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100))
+                                                Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 100))
                                             },
                                             Children: [
                                             {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 100))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -7237,7 +7230,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: ColorAnimation,
                                                 Props: {
                                                     To: new StaticResourceMarkup("Gray2"),
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -7256,7 +7249,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 100))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -7280,14 +7273,14 @@ App.GetGenericResourceDictionaryImpl = function () {
                                         Content: {
                                             ParseType: Storyboard,
                                             Props: {
-                                                Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100))
+                                                Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 100))
                                             },
                                             Children: [
                                             {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 100))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -7315,7 +7308,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 0.55,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -7334,7 +7327,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 0.55,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -7368,7 +7361,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -7400,7 +7393,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -7888,7 +7881,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                                     To: 0.8
                                                 },
                                                 AttachedProps: [{
@@ -7916,7 +7909,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                                     To: 1
                                                 },
                                                 AttachedProps: [{
@@ -7950,7 +7943,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                                     To: 1
                                                 },
                                                 AttachedProps: [{
@@ -8002,7 +7995,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0)),
                                                     To: 0
                                                 },
                                                 AttachedProps: [{
@@ -8375,13 +8368,13 @@ App.GetGenericResourceDictionaryImpl = function () {
                                         Content: {
                                             ParseType: Storyboard,
                                             Props: {
-                                                RepeatBehavior: RepeatBehavior.FromForever()
+                                                RepeatBehavior: RepeatBehavior.Forever
                                             },
                                             Children: [
                                             {
                                                 ParseType: ObjectAnimationUsingKeyFrames,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -8408,7 +8401,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: ObjectAnimationUsingKeyFrames,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -8779,14 +8772,14 @@ App.GetGenericResourceDictionaryImpl = function () {
                                         Content: {
                                             ParseType: Storyboard,
                                             Props: {
-                                                Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100))
+                                                Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 100))
                                             },
                                             Children: [
                                             {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 100))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -8805,7 +8798,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: ColorAnimation,
                                                 Props: {
                                                     To: new StaticResourceMarkup("Gray2"),
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -8824,7 +8817,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 100))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 100))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -8859,7 +8852,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 0.55,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -8878,7 +8871,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 0.55,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -8912,7 +8905,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -9372,7 +9365,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -9400,7 +9393,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -9428,7 +9421,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 0.55,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -9447,7 +9440,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 0.5,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -9481,7 +9474,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -9500,7 +9493,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -9680,7 +9673,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 0.55,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -9813,7 +9806,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 0.55,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -10043,7 +10036,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: ObjectAnimationUsingKeyFrames,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -10070,7 +10063,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: ObjectAnimationUsingKeyFrames,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -10097,7 +10090,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             {
                                                 ParseType: ObjectAnimationUsingKeyFrames,
                                                 Props: {
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -10660,7 +10653,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -10688,7 +10681,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -10716,7 +10709,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 0.55,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -10735,7 +10728,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 0.5,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -10769,7 +10762,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -10788,7 +10781,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -10826,7 +10819,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -10845,7 +10838,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                                 ParseType: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 0))
+                                                    Duration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 0))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -11056,7 +11049,7 @@ App.GetGenericResourceDictionaryImpl = function () {
                                             ParseType: VisualTransition,
                                             Props: {
                                                 From: "Open",
-                                                GeneratedDuration: Duration.CreateTimeSpan(TimeSpan.FromArgs(0, 0, 0, 0, 300)),
+                                                GeneratedDuration: new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 300)),
                                                 To: "Closed"
                                             }
                                         }]
