@@ -38,14 +38,14 @@ test("Storyboard Natural Duration", function () {
     duration = storyboard.GetNaturalDuration();
     ok(duration.IsForever, "Setting a forever repeat behavior should force the natural duration to be a forever duration.");
 });
-test("Storyboard Clock Data", function () {
+test("Storyboard Update", function () {
     var storyboard = new Fayde.Media.Animation.Storyboard();
     var a1 = new Fayde.Media.Animation.DoubleAnimation();
     a1.From = 1.0;
     a1.To = 2.0;
     storyboard.Children.Add(a1);
     a1.Duration = new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 100));
-    //Animation #2 delays 0ms, duration of 200ms, no speed up, no auto reverse, run once
+    //Animation #1 delays 0ms, duration of 200ms, no speed up, no auto reverse, run once
     var b1 = new Fayde.Controls.Border();
     Fayde.Media.Animation.Storyboard.SetTargetProperty(a1, new Fayde.Data.PropertyPath("(FrameworkElement.Height)"));
     Fayde.Media.Animation.Storyboard.SetTarget(a1, b1);
@@ -58,7 +58,7 @@ test("Storyboard Clock Data", function () {
     a2.AutoReverse = true;
     a2.SpeedRatio = 2.0;
     a2.BeginTime = TimeSpan.FromArgs(0, 0, 0, 0, 50);
-    //Animation #2 delays until 50ms, duration of 200ms, sped up x2, autoreverse, run twice
+    //Animation #2 delays 50ms, duration of 200ms, sped up x2, autoreverse, run twice
     var b2 = new Fayde.Controls.Border();
     Fayde.Media.Animation.Storyboard.SetTargetProperty(a2, new Fayde.Data.PropertyPath("(FrameworkElement.Height)"));
     Fayde.Media.Animation.Storyboard.SetTarget(a2, b2);
