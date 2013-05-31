@@ -102,8 +102,6 @@ module Fayde.Providers {
             else
                 oldValue = storage.Local;
             storage.Local = newValue;
-            if (!propd.AlwaysChange && oldValue === newValue)
-                return;
             this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldValue, newValue);
         }
         SetLocalStyleValue(storage: IPropertyStorage, newValue: any) {
@@ -119,8 +117,6 @@ module Fayde.Providers {
             else
                 oldValue = storage.LocalStyleValue;
             storage.LocalStyleValue = newValue;
-            if (oldValue === newValue)
-                return;
             this.OnPropertyChanged(storage, PropertyPrecedence.LocalStyle, oldValue, newValue);
         }
         SetImplicitStyle(storage: IPropertyStorage, newValue: any) {
@@ -136,8 +132,6 @@ module Fayde.Providers {
             else
                 oldValue = storage.ImplicitStyleValue;
             storage.ImplicitStyleValue = newValue;
-            if (oldValue === newValue)
-                return;
             this.OnPropertyChanged(storage, PropertyPrecedence.ImplicitStyle, oldValue, newValue);
         }
 
@@ -154,9 +148,11 @@ module Fayde.Providers {
             if (newValue === undefined) {
                 effectivePrecedence = this.GetValuePrecedence(storage);
                 newValue = this.GetValue(storage);
-                if (!propd.AlwaysChange && oldValue === newValue)
-                    return;
             }
+            
+            storage.Precedence = effectivePrecedence;
+            if (!propd.AlwaysChange && oldValue === newValue)
+                return;
 
             if (!storage.Property.IsCustom) {
                 if (oldValue instanceof XamlObject)
@@ -168,7 +164,6 @@ module Fayde.Providers {
                 }
             }
 
-            storage.Precedence = effectivePrecedence;
             var args = {
                 Property: propd,
                 OldValue: oldValue,
