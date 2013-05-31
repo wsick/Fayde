@@ -137,6 +137,7 @@ module Fayde {
 
         OnIsAttachedChanged(newIsAttached: bool, visualParentNode: UINode) {
             this.UpdateTotalRenderVisibility();
+            this.UpdateTotalHitTestVisibility();
             if (!newIsAttached) {
                 this._CacheInvalidateHint();
                 var surface = this.Surface;
