@@ -25,6 +25,12 @@ test("Basic", function () {
     val = dobj.ClearValue(Mock2Property);
     val = dobj.GetValue(Mock2Property);
     strictEqual(val, "Default", "GetValue (Mock2) after ClearValue should revert to using default value provider.");
+    var mock2changed = false;
+    Mock2Property.ChangedCallback = function (d, args) {
+        return mock2changed = true;
+    };
+    dobj.SetValue(Mock2Property, "Default");
+    ok(!mock2changed, "SetValue to the same value as default should not trigger property changed.");
 });
 test("Inherited", function () {
     var root = new Fayde.FrameworkElement();
@@ -104,6 +110,15 @@ test("Styles", function () {
     s1.Property = Fayde.UIElement.TagProperty;
     s1.Value = "TagValue";
     visualTreeStyle.Setters.Add(s1);
+    var s2 = new Fayde.Setter();
+    s2.Property = Fayde.FrameworkElement.MaxWidthProperty;
+    s2.Value = Number.POSITIVE_INFINITY;
+    visualTreeStyle.Setters.Add(s2);
+    var maxwidthchanged = false;
+    var oldCallback = Fayde.FrameworkElement.MaxWidthProperty.ChangedCallback;
+    Fayde.FrameworkElement.MaxWidthProperty.ChangedCallback = function () {
+        return maxwidthchanged = true;
+    };
     Fayde.Providers.ImplicitStyleBroker.Set(child, Fayde.Providers.StyleMask.VisualTree, [
         visualTreeStyle, 
         null, 
@@ -111,9 +126,12 @@ test("Styles", function () {
     ]);
     val = child.GetValue(Fayde.UIElement.TagProperty);
     strictEqual(val, "TagValue", "Child Tag should be \"TagValue\" after setting implicit style.");
+    ok(!maxwidthchanged, "MaxWidth Property was setting to same as default value and should not trigger property changed.");
     Fayde.Providers.ImplicitStyleBroker.Clear(child, Fayde.Providers.StyleMask.VisualTree);
     val = child.GetValue(Fayde.UIElement.TagProperty);
     strictEqual(val, undefined, "Child Tag should be undefined after clearing implicit style.");
+    ok(!maxwidthchanged, "MaxWidth Property was setting to same as default value and should not trigger property changed.");
+    Fayde.FrameworkElement.MaxWidthProperty.ChangedCallback = oldCallback;
     Fayde.Providers.ImplicitStyleBroker.Set(child, Fayde.Providers.StyleMask.VisualTree, [
         visualTreeStyle, 
         null, 
@@ -123,22 +141,34 @@ test("Styles", function () {
     strictEqual(val, Fayde.Visibility.Visible, "Child Visibility should default to Visible.");
     //Test local style
     var localStyle = new Fayde.Style();
-    var s2 = new Fayde.Setter();
-    s2.Property = Fayde.UIElement.TagProperty;
-    s2.Value = "Overridden Value";
-    localStyle.Setters.Add(s2);
     var s3 = new Fayde.Setter();
-    s3.Property = Fayde.UIElement.VisibilityProperty;
-    s3.Value = "Collapsed";
+    s3.Property = Fayde.UIElement.TagProperty;
+    s3.Value = "Overridden Value";
     localStyle.Setters.Add(s3);
+    var s4 = new Fayde.Setter();
+    s4.Property = Fayde.UIElement.VisibilityProperty;
+    s4.Value = "Collapsed";
+    localStyle.Setters.Add(s4);
+    var s5 = new Fayde.Setter();
+    s5.Property = Fayde.FrameworkElement.MaxHeightProperty;
+    s5.Value = Number.POSITIVE_INFINITY;
+    localStyle.Setters.Add(s5);
+    var maxheightchanged = false;
+    oldCallback = Fayde.FrameworkElement.MaxHeightProperty.ChangedCallback;
+    Fayde.FrameworkElement.MaxHeightProperty.ChangedCallback = function () {
+        return maxheightchanged = true;
+    };
     child.Style = localStyle;
     val = child.GetValue(Fayde.UIElement.VisibilityProperty);
     strictEqual(val, Fayde.Visibility.Collapsed, "Child Visibility should have changed to default by local style.");
     val = child.GetValue(Fayde.UIElement.TagProperty);
     strictEqual(val, "Overridden Value", "Child Tag property should be overriden by a new local style over the implicit style.");
+    ok(!maxheightchanged, "MaxHeight Property was setting to same as default value and should not trigger property changed.");
     child.Style = new Fayde.Style();
     val = child.GetValue(Fayde.UIElement.VisibilityProperty);
     strictEqual(val, Fayde.Visibility.Visible, "After a new style is applied without Visibility property, Visibility revert to default value.");
+    ok(!maxheightchanged, "MaxHeight Property was setting to same as default value and should not trigger property changed.");
+    Fayde.FrameworkElement.MaxHeightProperty.ChangedCallback = oldCallback;
 });
 test("DataContext", function () {
     var root = new Fayde.FrameworkElement();

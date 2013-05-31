@@ -5,7 +5,11 @@ module Fayde.Providers {
     export class ActualSizeStore extends PropertyStore {
         static Instance: ActualSizeStore;
 
-        GetValue(storage: IPropertyStorage): number { return storage.Local; }
+        GetValue(storage: IPropertyStorage): number {
+            if (storage.Local !== undefined)
+                return storage.Local;
+            return 0.0;
+        }
         GetValuePrecedence(storage: IPropertyStorage): PropertyPrecedence { return PropertyPrecedence.LocalValue; }
 
         SetLocalValue(storage: Providers.IPropertyStorage, newValue: number) {

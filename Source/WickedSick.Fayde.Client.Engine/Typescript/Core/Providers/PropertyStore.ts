@@ -89,42 +89,73 @@ module Fayde.Providers {
             if (!isValidOut.IsValid)
                 return;
 
-            var oldValue = storage.Local;
+                
+            var precDiff = storage.Precedence - PropertyPrecedence.LocalValue;
+            if (!propd.AlwaysChange && precDiff < 0) {
+                storage.Local = newValue;
+                return;
+            }
+
+            var oldValue = undefined;
+            if (precDiff > 0)
+                oldValue = this.GetValue(storage);
+            else
+                oldValue = storage.Local;
             storage.Local = newValue;
             if (!propd.AlwaysChange && oldValue === newValue)
                 return;
             this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldValue, newValue);
         }
         SetLocalStyleValue(storage: IPropertyStorage, newValue: any) {
-            var oldValue = storage.LocalStyleValue;
+            var precDiff = storage.Precedence - PropertyPrecedence.LocalStyle;
+            if (precDiff < 0) {
+                storage.LocalStyleValue = newValue;
+                return;
+            }
+
+            var oldValue = undefined;
+            if (precDiff > 0)
+                oldValue = this.GetValue(storage);
+            else
+                oldValue = storage.LocalStyleValue;
             storage.LocalStyleValue = newValue;
-            if (oldValue === newValue || storage.Precedence < PropertyPrecedence.LocalStyle)
+            if (oldValue === newValue)
                 return;
             this.OnPropertyChanged(storage, PropertyPrecedence.LocalStyle, oldValue, newValue);
         }
         SetImplicitStyle(storage: IPropertyStorage, newValue: any) {
-            var oldValue = storage.ImplicitStyleValue;
+            var precDiff = storage.Precedence - PropertyPrecedence.ImplicitStyle;
+            if (precDiff < 0) {
+                storage.ImplicitStyleValue = newValue;
+                return;
+            }
+
+            var oldValue = undefined;
+            if (precDiff > 0)
+                oldValue = this.GetValue(storage);
+            else
+                oldValue = storage.ImplicitStyleValue;
             storage.ImplicitStyleValue = newValue;
-            if (oldValue === newValue || storage.Precedence < PropertyPrecedence.ImplicitStyle)
+            if (oldValue === newValue)
                 return;
             this.OnPropertyChanged(storage, PropertyPrecedence.ImplicitStyle, oldValue, newValue);
         }
 
-        ClearValue(storage: Providers.IPropertyStorage, notifyListeners?: bool) {
-            notifyListeners = notifyListeners !== false;
-
+        ClearValue(storage: Providers.IPropertyStorage) {
             var oldLocal = storage.Local;
             if (oldLocal === undefined)
                 return;
-
             storage.Local = undefined;
             this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldLocal, undefined);
         }
 
         OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any) {
+            var propd = storage.Property;
             if (newValue === undefined) {
                 effectivePrecedence = this.GetValuePrecedence(storage);
                 newValue = this.GetValue(storage);
+                if (!propd.AlwaysChange && oldValue === newValue)
+                    return;
             }
 
             if (!storage.Property.IsCustom) {
@@ -138,7 +169,6 @@ module Fayde.Providers {
             }
 
             storage.Precedence = effectivePrecedence;
-            var propd = storage.Property;
             var args = {
                 Property: propd,
                 OldValue: oldValue,
