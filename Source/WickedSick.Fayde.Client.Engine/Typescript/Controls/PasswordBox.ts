@@ -16,8 +16,6 @@ module Fayde.Controls {
         MaxLength; number;
         PasswordChar: string;
         Password: string;
-        SelectionForeground: Media.Brush;
-        SelectionBackground: Media.Brush;
         
         private static DEFAULT_SELECTION_FOREGROUND = Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 1.0));
         get SelectionForeground(): Media.Brush {
