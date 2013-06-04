@@ -64,7 +64,7 @@ module Fayde.Media.Animation {
             if (prevStorage)
                 storage.StopValue = prevStorage.StopValue;
             else
-                storage.StopValue = targetObj.ReadLocalValue(targetProp);
+                storage.StopValue = targetObj.ReadLocalValueInternal(targetProp);
 
             return (<IAnimStorageHidden>animation)._Storage = storage;
         }
@@ -85,8 +85,8 @@ module Fayde.Media.Animation {
             var tp = storage.TargetProp;
             if (!to || !tp)
                 return;
-            Detach(to, tp, storage);
-            to.SetStoreValue(tp, storage.StopValue);
+            if (!Detach(to, tp, storage))
+                to.SetStoreValue(tp, storage.StopValue);
         }
 
         private static Attach(dobj: DependencyObject, propd: DependencyProperty, animStorage: IAnimationStorage): IAnimationStorage {
@@ -104,33 +104,30 @@ module Fayde.Media.Animation {
             list.push(animStorage);
             return attached;
         }
-        private static Detach(dobj: DependencyObject, propd: DependencyProperty, animStorage: IAnimationStorage) {
+        private static Detach(dobj: DependencyObject, propd: DependencyProperty, animStorage: IAnimationStorage): bool {
             var storage = Providers.GetStorage(dobj, propd);
 
             var list = storage.Animation;
             if (!list)
-                return;
+                return false;
 
             var len = list.length;
             if (len < 1)
-                return;
+                return false;
 
-            var i;
-            var cur: Media.Animation.IAnimationStorage;
-            for (i = len - 1; i >= 0; i--) {
-                cur = list[i];
-                if (cur === animStorage)
-                    break;
-            }
+            var i = list.lastIndexOf(animStorage);
             if (i === (len - 1)) {
                 list.pop();
-                if (len > 1)
+                if (len > 1) {
                     Enable(list[len - 2]);
+                    return true;
+                }
             } else {
                 list.splice(i, 1);
                 if (i > 0)
                     list[i - 1].StopValue = animStorage.StopValue;
             }
+            return false;
         }
         private static Enable(storage: IAnimationStorage) {
             storage.IsDisabled = false;
