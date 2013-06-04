@@ -6,6 +6,7 @@ module Fayde {
         GetValue(propd: DependencyProperty): any {
             return undefined;
         }
+        toString(): string { return "DeferredValueExpression"; }
     }
     Nullstone.RegisterType(DeferredValueExpression, "DeferredValueExpression");
 }

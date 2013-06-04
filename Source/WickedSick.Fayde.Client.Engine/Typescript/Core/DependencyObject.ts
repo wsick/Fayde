@@ -136,13 +136,16 @@ module Fayde {
                 throw new ArgumentException("No property specified.");
             var expr = this._Expressions[propd._ID]
             if (expr)
-                return expr;
+                return expr.GetValue(propd);
                 
-            var storage = Providers.GetStorage(this, propd);
-            var val = storage.Local;
+            var val = this.ReadLocalValueInternal(propd);
             if (val === undefined)
                 return UnsetValue;
             return val;
+        }
+        ReadLocalValueInternal(propd: DependencyProperty): any {
+            var storage = Providers.GetStorage(this, propd);
+            return storage.Local;
         }
 
         private _AddExpression(propd: DependencyProperty, expr: Expression) {
