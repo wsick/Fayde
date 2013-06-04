@@ -212,6 +212,7 @@ namespace WickedSick.Thea.ViewModels
             //RefreshThisVisual(allVisuals);
             RefreshHitTestVisuals(allVisuals);
             PerformanceViewModel.Update();
+            UpdateSelectedVisual();
         }
 
         private void RefreshTree()

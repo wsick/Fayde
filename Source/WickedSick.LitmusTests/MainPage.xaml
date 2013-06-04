@@ -15,6 +15,19 @@
     <!--<tests:ResourceTest />-->
     <!--<tests:ImageTest />-->
     <!--<tests:ScrollBarTest />-->
+    <ListBox x:Name="MyListBox" Width="200" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <ListBoxItem Content="Text 1" />
+        <ListBoxItem Content="Text 2" />
+        <ListBoxItem Content="Text 3" />
+        <ListBoxItem Content="Text 4" />
+        <ListBoxItem Content="Text 5" />
+        <ListBoxItem Content="Text 6" />
+        <ListBoxItem Content="Text 7" />
+        <ListBoxItem Content="Text 8" />
+        <ListBoxItem Content="Text 9" />
+        <ListBoxItem Content="Text 10" />
+    </ListBox>
+    <!--
     <ComboBox HorizontalAlignment="Center" VerticalAlignment="Center">
         <ComboBoxItem Content="Test 1" />
         <ComboBoxItem Content="Test 2" />
@@ -25,4 +38,5 @@
         <ComboBoxItem Content="Test 7" />
         <ComboBoxItem Content="Test 8" />
     </ComboBox>
+    -->
 </UserControl>

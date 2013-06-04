@@ -194,6 +194,12 @@ module Fayde {
         }
 
         private static _StringifyReplacer(key: any, value: any): any {
+            if (value instanceof Media.SolidColorBrush) {
+                var color = (<Media.SolidColorBrush>value).Color;
+                return {
+                    Color: color.toString(),
+                };
+            }
             if (value instanceof XamlNode || value instanceof XamlObject)
                 return undefined;
             if (value instanceof DependencyProperty) {
