@@ -24,7 +24,6 @@ module Fayde.Data {
         promotedValues: any[];
         explicitType: bool;
         type: Function;
-        objRes: any[];
     }
 
     var lookupNamespaces: any[];
@@ -69,7 +68,6 @@ module Fayde.Data {
                 }
             }
 
-            data.objRes.push(data.res);
             data.lu = newLu;
         }
         data.expressionFound = false;
@@ -117,8 +115,6 @@ module Fayde.Data {
 
         if (value instanceof DependencyObject) {
             data.lu = <DependencyObject>value;
-            data.objRes.push(data.res);
-            data.objRes.push(data.i);
         } else {
             data.lu = null;
             return false;
@@ -212,7 +208,6 @@ module Fayde.Data {
         private _Path: string;
         private _ExpandedPath: string;
         private _Propd: DependencyProperty = null;
-        private _ObjRes: any[] = null;
         constructor(path?: string, expandedPath?: string) {
             this._Path = path;
             this._ExpandedPath = expandedPath;
@@ -229,22 +224,13 @@ module Fayde.Data {
         }
 
         TryResolveDependencyProperty(refobj: IOutValue, promotedValues: any[]): DependencyProperty {
-            var or = this._ObjRes;
-            if (!or)
-                return this._Propd = PropertyPath.ResolvePropertyPath(refobj, this, promotedValues);
-
-            var val = refobj.Value;
-            var len = or.length;
-            var key: any;
-            for (var i = 0; i < len; i++) {
-                key = or[i];
-                if (typeof key === "number")
-                    val = val[key];
-                else
-                    val = val.GetValue(key);
-            }
-            refobj.Value = val;
-            return this._Propd;
+            if (this._Propd)
+                return this._Propd;
+            var ov = refobj.Value;
+            var propd = PropertyPath.ResolvePropertyPath(refobj, this, promotedValues);
+            if (ov === refobj.Value)
+                this._Propd = propd;
+            return propd;
         }
 
         get Path(): string { return !this._Propd ? this._Path : "(0)"; }
@@ -281,7 +267,6 @@ module Fayde.Data {
                 promotedValues: promotedValues,
                 explicitType: false,
                 type: null,
-                objRes: []
             };
 
             var success;
@@ -294,7 +279,7 @@ module Fayde.Data {
                 } else if (c === ')') {
                     data.parenOpen = false;
                 } else if (c === '\'') {//Ticks only legal in expanded path
-                    if (propertyPath.ExpandedPath == null)
+                    if (!propertyPath.ExpandedPath)
                         Warn("The ' character is not legal in property paths.");
                     else
                         data.tickOpen = !data.tickOpen;
@@ -311,7 +296,6 @@ module Fayde.Data {
                 }
             }
             refobj.Value = data.lu;
-            propertyPath._ObjRes = data.objRes;
             return data.res;
         }
 

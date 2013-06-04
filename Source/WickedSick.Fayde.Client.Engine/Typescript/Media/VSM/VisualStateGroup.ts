@@ -58,14 +58,14 @@ module Fayde.Media.VSM {
         StartNewThenStopOld(element: FrameworkElement, newStoryboards: Animation.Storyboard[]) {
             //var that = this;
             //AnimationDebug(function () { return "StartNewThenStopOld (" + element.__DebugToString() + " - " + that.Name + ")"; });
-            var i;
-            var storyboard;
+            var i: number;
+            var storyboard: Animation.Storyboard;
             var res = element.Resources;
             for (i = 0; i < newStoryboards.length; i++) {
                 storyboard = newStoryboards[i];
                 if (storyboard == null)
                     continue;
-                res.Set(storyboard._ID, storyboard);
+                res.Set((<any>storyboard)._ID, storyboard);
                 try {
                     storyboard.Begin();
                 } catch (err) {
