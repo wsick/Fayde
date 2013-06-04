@@ -313,8 +313,6 @@ module Fayde {
                 if (value instanceof StaticResourceExpression) {
                     this._SRExpressions.push(value);
                     (<DependencyObject>xobj).SetValueInternal(propd, new DeferredValueExpression());
-                } else if (value instanceof Expression) {
-                    (<DependencyObject>xobj).SetValueInternal(propd, value);
                 } else {
                     (<DependencyObject>xobj).SetValueInternal(propd, value);
                 }
