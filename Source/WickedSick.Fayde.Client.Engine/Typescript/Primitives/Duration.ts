@@ -34,6 +34,8 @@ class Duration implements ICloneable {
     get IsForever(): bool { return this._Type === DurationType.Forever; }
     get IsAutomatic(): bool { return this._Type === DurationType.Automatic; }
 
+    get IsZero(): bool { return this._Type === DurationType.TimeSpan && this._TimeSpan.Ticks === 0; }
+
     static Automatic: Duration = (function () { var d = new Duration(); (<any>d)._Type = DurationType.Automatic; return d; })();
     static Forever: Duration = (function () { var d = new Duration(); (<any>d)._Type = DurationType.Forever; return d; })();
 }

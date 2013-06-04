@@ -2,6 +2,7 @@
 /// CODE
 /// <reference path="../../Engine/App.ts" />
 /// <reference path="../../Data/PropertyPath.ts" />
+/// <reference path="../../Runtime/Debug.ts" />
 
 module Fayde.Media.Animation {
     /// http://msdn.microsoft.com/en-us/library/cc189019(v=vs.95).aspx
@@ -37,6 +38,9 @@ module Fayde.Media.Animation {
         }
 
         Begin() {
+            if (Animation.Debug && window.console) {
+                console.log("ANIMATION:Begin:" + this.__DebugString());
+            }
             this.Reset();
             var error = new BError();
             var promotedValues: any[] = [];
@@ -61,6 +65,9 @@ module Fayde.Media.Animation {
             }
         }
         Stop() {
+            if (Animation.Debug && window.console) {
+                console.log("ANIMATION:Stop:" + this.__DebugString());
+            }
             super.Stop();
             App.Current.UnregisterStoryboard(this);
             var enumerator = this.Children.GetEnumerator();
@@ -153,6 +160,29 @@ module Fayde.Media.Animation {
             if (!fullTicks)
                 return Duration.Automatic;
             return new Duration(TimeSpan.FromTicks(fullTicks));
+        }
+
+        private __DebugString(): string {
+            var anims = [];
+            var cur = "";
+
+            var enumerator = this.Children.GetEnumerator();
+            var animation: Timeline;
+            while (enumerator.MoveNext()) {
+                animation = enumerator.Current;
+                cur = "";
+                cur += "(";
+                cur += (<any>animation).constructor._TypeName;
+                cur += ":";
+                cur += Storyboard.GetTargetName(animation);
+                cur += ":";
+                var path = Storyboard.GetTargetProperty(animation);
+                cur += path ? path.Path : "";
+                cur += ")";
+                anims.push(cur);
+            }
+            
+            return "[" + anims.join(",") + "]";
         }
     }
     Nullstone.RegisterType(Storyboard, "Storyboard");

@@ -189,9 +189,9 @@ module Fayde.Controls {
             }
         }
         GetVisualStateNamesToActivate(): string[] {
-            var commonState = this.GetVisualStateCommon();
             var focusedState = this.GetVisualStateFocus();
-            return [commonState, focusedState];
+            var commonState = this.GetVisualStateCommon();
+            return [focusedState, commonState];
         }
         GetVisualStateCommon() {
             if (!this.IsEnabled) {

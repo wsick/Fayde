@@ -4,6 +4,7 @@
 /// <reference path="../../Controls/UserControl.ts" />
 /// <reference path="VisualState.ts" />
 /// <reference path="VisualStateGroup.ts" />
+/// <reference path="../../Runtime/Debug.ts" />
 
 module Fayde.Media.VSM {
     export interface IStateData {
@@ -58,9 +59,13 @@ module Fayde.Media.VSM {
             if (lastState === state)
                 return true;
 
+            if (VSM.Debug && window.console) {
+                console.log("VSM:GoToState:[" + (<any>control)._ID + "]" + (lastState ? lastState.Name : "()") + "-->" + state.Name);
+            }
+
             var transition = useTransitions ? _GetTransition(element, group, lastState, state) : null;
-            var storyboard;
-            if (transition == null || (transition.GeneratedDuration.IsZero() && ((storyboard = transition.Storyboard) == null || storyboard.Duration.IsZero()))) {
+            var storyboard: Animation.Storyboard;
+            if (transition == null || (transition.GeneratedDuration.IsZero && ((storyboard = transition.Storyboard) == null || storyboard.Duration.IsZero))) {
                 if (transition != null && storyboard != null) {
                     group.StartNewThenStopOld(element, [storyboard, state.Storyboard]);
                 } else {

@@ -515,6 +515,10 @@
     <Content Include="Typescript\Media\PlaneProjection.js">
       <DependentUpon>PlaneProjection.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Runtime\Debug.ts" />
+    <Content Include="Typescript\Runtime\Debug.js">
+      <DependentUpon>Debug.ts</DependentUpon>
+    </Content>
     <Content Include="UnitTestList.txt" />
     <Content Include="Tests\XamlNodeTests.js">
       <DependentUpon>XamlNodeTests.ts</DependentUpon>
