@@ -16,25 +16,22 @@ module Fayde.Media.VSM {
         static VisualStateGroupsProperty: DependencyProperty = DependencyProperty.RegisterAttachedCore("VisualStateGroups", () => VisualStateGroupCollection, VisualStateManager);
         static GetVisualStateGroups(d: DependencyObject): VisualStateGroupCollection { return d.GetValue(VisualStateGroupsProperty); }
         static SetVisualStateGroups(d: DependencyObject, value: VisualStateGroupCollection) { d.SetValue(VisualStateGroupsProperty, value); }
-        private static _GetVisualStateGroupsInternal(d: DependencyObject): VisualStateGroupCollection {
-            var groups = this.GetVisualStateGroups(d);
-            if (!groups) {
-                groups = new VisualStateGroupCollection();
-                VisualStateManager.SetVisualStateGroups(d, groups);
-            }
-            return groups;
-        }
-
+        
         static CustomVisualStateManagerProperty: DependencyProperty = DependencyProperty.RegisterAttachedCore("CustomVisualStateManager", () => VisualStateManager, VisualStateManager);
         static GetCustomVisualStateManager(d: DependencyObject): VisualStateManager { return d.GetValue(CustomVisualStateManagerProperty); }
         static SetCustomVisualStateManager(d: DependencyObject, value: VisualStateManager) { d.SetValue(CustomVisualStateManagerProperty, value); }
 
         static GoToState(control: Controls.Control, stateName: string, useTransitions: bool): bool {
+            if (!control)
+                throw new ArgumentException("control");
+            if (!stateName)
+                throw new ArgumentException("stateName");
+
             var root = _GetTemplateRoot(control);
             if (!root)
                 return false;
 
-            var groups = _GetVisualStateGroupsInternal(root);
+            var groups = GetVisualStateGroups(root);
             if (!groups)
                 return false;
 
@@ -111,7 +108,7 @@ module Fayde.Media.VSM {
         private static DestroyStoryboards(control: Controls.Control, root: FrameworkElement) {
             if (!root)
                 return false;
-            var groups = _GetVisualStateGroupsInternal(root);
+            var groups = GetVisualStateGroups(root);
             if (!groups)
                 return false;
             var enumerator = groups.GetEnumerator();

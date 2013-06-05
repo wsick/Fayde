@@ -233,8 +233,8 @@ module Fayde.Data {
             return propd;
         }
 
-        get Path(): string { return !this._Propd ? this._Path : "(0)"; }
-        get ExpandedPath(): string { return !this._Propd ? this._ExpandedPath : "(0)"; }
+        get Path(): string { return this._Path; }
+        get ExpandedPath(): string { return this._ExpandedPath; }
         get ParsePath(): string {
             if (this._Propd)
                 return "(0)";

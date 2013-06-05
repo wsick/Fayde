@@ -125,7 +125,7 @@ module Fayde.Media.Animation {
             } else {
                 list.splice(i, 1);
                 if (i > 0)
-                    list[i - 1].StopValue = animStorage.StopValue;
+                    list[i].StopValue = animStorage.StopValue;
             }
             return false;
         }
