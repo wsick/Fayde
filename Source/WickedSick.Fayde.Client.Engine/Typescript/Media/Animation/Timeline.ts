@@ -75,7 +75,7 @@ module Fayde.Media.Animation {
             var fill = this.FillBehavior;
             switch (fill) {
                 case FillBehavior.HoldEnd:
-                    this.Disable();
+                    this.HoldEnd();
                     break;
                 case FillBehavior.Stop:
                     this.Stop();
@@ -94,7 +94,7 @@ module Fayde.Media.Animation {
         }
         UpdateInternal(clockData: IClockData) { }
 
-        Disable() { }
+        HoldEnd() { }
 
         private CreateClockData(nowTime: number): IClockData {
             if (this._IsFirstUpdate) {

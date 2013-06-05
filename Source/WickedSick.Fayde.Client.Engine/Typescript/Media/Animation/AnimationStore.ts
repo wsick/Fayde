@@ -6,52 +6,18 @@
 module Fayde.Media.Animation {
     export interface IAnimationStorage {
         Animation: AnimationBase;
-        TargetObj: DependencyObject;
-        TargetProp: DependencyProperty;
+        PropStorage: Providers.IPropertyStorage;
         IsDisabled: bool;
         BaseValue: any;
         CurrentValue: any;
         StopValue: any;
     }
 
-    export interface IAnimStorageHidden {
-        _Storage: IAnimationStorage;
-    }
-
     export class AnimationStore {
-        static Clone(oldanims: IAnimationStorage[], newTarget: DependencyObject): IAnimationStorage[] {
-            if (!oldanims)
-                return undefined;
-
-            var newanims = oldanims.slice(0);
-            var len = newanims.length;
-            var newanim: IAnimationStorage;
-            var wasDisabled: bool;
-            for (var i = 0; i < len; i++) {
-                newanim = newanims[i];
-                wasDisabled = newanim.IsDisabled;
-                newanim.IsDisabled = true;
-                newanim.TargetObj = newTarget;
-                newanim.IsDisabled = wasDisabled;
-            }
-
-            return newanims;
-        }
-        static AttachAnimation(animation: AnimationBase, targetObj: DependencyObject, targetProp: DependencyProperty): IAnimationStorage {
-            var storage: IAnimationStorage = {
-                Animation: animation,
-                TargetObj: targetObj,
-                TargetProp: targetProp,
-                IsDisabled: false,
-                BaseValue: undefined,
-                CurrentValue: undefined,
-                StopValue: undefined,
-            };
-            var prevStorage = AnimationStore.Attach(targetObj, targetProp, storage);
-
-            var baseValue = targetObj.GetValue(targetProp);
+        static Create(target: DependencyObject, propd: DependencyProperty): IAnimationStorage {
+            var baseValue = target.GetValue(propd);
             if (baseValue === undefined) {
-                var targetType = targetProp.GetTargetType();
+                var targetType = propd.GetTargetType();
                 if (targetType === Number)
                     baseValue = 0;
                 else if (targetType === String)
@@ -59,53 +25,51 @@ module Fayde.Media.Animation {
                 else
                     baseValue = new (<any>targetType)();
             }
-            storage.BaseValue = baseValue;
-
-            if (prevStorage)
-                storage.StopValue = prevStorage.StopValue;
-            else
-                storage.StopValue = targetObj.ReadLocalValueInternal(targetProp);
-
-            return (<IAnimStorageHidden>animation)._Storage = storage;
+            return {
+                Animation: undefined,
+                PropStorage: Providers.GetStorage(target, propd),
+                IsDisabled: false,
+                BaseValue: baseValue,
+                CurrentValue: undefined,
+                StopValue: undefined,
+            };
         }
-        static UpdateCurrentValueAndApply(storage: IAnimationStorage, clockData: IClockData) {
-            if (storage.IsDisabled || !storage.TargetObj)
-                return;
-            var oldValue = storage.CurrentValue;
-            storage.CurrentValue = storage.Animation.GetCurrentValue(storage.BaseValue, storage.StopValue !== undefined ? storage.StopValue : storage.BaseValue, clockData);
-            if (oldValue === storage.CurrentValue)
-                return;
-            ApplyCurrentValue(storage);
-        }
-        static Disable(storage: IAnimationStorage) {
-            storage.IsDisabled = true;
-        }
-        static Stop(storage: IAnimationStorage) {
-            var to = storage.TargetObj;
-            var tp = storage.TargetProp;
-            if (!to || !tp)
-                return;
-            if (!Detach(to, tp, storage))
-                to.SetStoreValue(tp, storage.StopValue);
-        }
-
-        private static Attach(dobj: DependencyObject, propd: DependencyProperty, animStorage: IAnimationStorage): IAnimationStorage {
-            var storage = Providers.GetStorage(dobj, propd);
-
-            var list = storage.Animation;
-            if (!list) {
-                storage.Animation = list = [animStorage];
+        static Clone(oldanims: IAnimationStorage[], newTarget: DependencyObject): IAnimationStorage[] {
+            if (!oldanims)
                 return undefined;
-            }
 
-            var attached = list[list.length - 1];
-            if (attached)
-                attached.IsDisabled = true;
-            list.push(animStorage);
-            return attached;
+            var len = oldanims.length;
+            var newanims = [];
+            var oldanim: IAnimationStorage;
+            for (var i = 0; i < len; i++) {
+                oldanim = oldanims[i];
+                newanims.push({
+                    Animation: oldanim.Animation,
+                    PropStorage: Providers.GetStorage(newTarget, oldanim.PropStorage.Property),
+                    IsDisabled: oldanim.IsDisabled,
+                    BaseValue: oldanim.BaseValue,
+                    CurrentValue: undefined,
+                    StopValue: oldanim.StopValue,
+                });
+            }
+            return newanims;
         }
-        private static Detach(dobj: DependencyObject, propd: DependencyProperty, animStorage: IAnimationStorage): bool {
-            var storage = Providers.GetStorage(dobj, propd);
+        static Attach(animStorage: IAnimationStorage) {
+            var storage = animStorage.PropStorage;
+            var list = storage.Animation;
+            if (!list)
+                storage.Animation = list = [];
+            var prevStorage = list[list.length - 1];
+            list.push(animStorage);
+            if (prevStorage) {
+                animStorage.StopValue = prevStorage.StopValue;
+                prevStorage.IsDisabled = true;
+            } else {
+                animStorage.StopValue = storage.Local;
+            }
+        }
+        static Detach(animStorage: IAnimationStorage): bool {
+            var storage = animStorage.PropStorage;
 
             var list = storage.Animation;
             if (!list)
@@ -119,7 +83,9 @@ module Fayde.Media.Animation {
             if (i === (len - 1)) {
                 list.pop();
                 if (len > 1) {
-                    Enable(list[len - 2]);
+                    var last = list[len - 2];
+                    last.IsDisabled = false;
+                    ApplyCurrent(last);
                     return true;
                 }
             } else {
@@ -129,14 +95,13 @@ module Fayde.Media.Animation {
             }
             return false;
         }
-        private static Enable(storage: IAnimationStorage) {
-            storage.IsDisabled = false;
-            ApplyCurrentValue(storage);
+        static ApplyCurrent(animStorage: IAnimationStorage) {
+            var storage = animStorage.PropStorage;
+            storage.Property.Store.SetLocalValue(storage, animStorage.CurrentValue);
         }
-        private static ApplyCurrentValue(storage: IAnimationStorage) {
-            if (storage.CurrentValue === undefined) return;
-            //AnimationDebug(function () { return "ApplyCurrentValue: [" + that._TargetObj.constructor._TypeName + "." + that._TargetProp.Name + "] --> " + that._CurrentValue.toString(); });
-            storage.TargetObj.SetStoreValue(storage.TargetProp, storage.CurrentValue);
+        static ApplyStop(animStorage: IAnimationStorage) {
+            var storage = animStorage.PropStorage;
+            storage.Property.Store.SetLocalValue(storage, animStorage.StopValue);
         }
     }
 }

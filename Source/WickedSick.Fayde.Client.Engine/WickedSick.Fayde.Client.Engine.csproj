@@ -69,6 +69,7 @@
     <Content Include="Benchmarks\Matrix\Matrix3D.js" />
     <Content Include="Benchmarks\Matrix\test.html" />
     <Content Include="Benchmarks\refequals.html" />
+    <Content Include="Docs\AnimNotes.txt" />
     <Content Include="Docs\DebugServices.txt" />
     <Content Include="Docs\Links.txt" />
     <Content Include="Docs\LayoutDep.txt" />
@@ -500,11 +501,11 @@
     <Content Include="Typescript\Core\Providers\PropertyStore.js">
       <DependentUpon>PropertyStore.ts</DependentUpon>
     </Content>
-    <TypeScriptCompile Include="Typescript\Media\Animation\AnimationStore.ts" />
     <TypeScriptCompile Include="Typescript\Engine\DebugInterop.ts" />
     <Content Include="Typescript\Engine\DebugInterop.js">
       <DependentUpon>DebugInterop.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\AnimationStore.ts" />
     <Content Include="Typescript\Media\Animation\AnimationStore.js">
       <DependentUpon>AnimationStore.ts</DependentUpon>
     </Content>

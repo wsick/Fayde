@@ -44,11 +44,14 @@ module Fayde.Media.Animation {
             this.Reset();
             var error = new BError();
             var promotedValues: any[] = [];
-            if (this._HookupAnimations(promotedValues, error)) {
-                App.Current.RegisterStoryboard(this);
-            } else {
-                error.ThrowException();
+            var enumerator = this.Children.GetEnumerator();
+            var animation: AnimationBase;
+            while (enumerator.MoveNext()) {
+                animation = enumerator.Current;
+                if (!animation._Hookup(promotedValues, error))
+                    error.ThrowException();
             }
+            App.Current.RegisterStoryboard(this);
         }
         Pause() {
             super.Pause();
@@ -74,51 +77,6 @@ module Fayde.Media.Animation {
             while (enumerator.MoveNext()) {
                 (<Timeline>enumerator.Current).Stop();
             }
-        }
-
-        private _HookupAnimations(promotedValues: any[], error: BError): bool {
-            var enumerator = this.Children.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                if (!this._HookupAnimation((<AnimationBase>enumerator.Current), null, null, promotedValues, error))
-                    return false;
-            }
-            return true;
-        }
-        private _HookupAnimation(animation: AnimationBase, targetObject: DependencyObject, targetPropertyPath: Data.PropertyPath, promotedValues: any[], error: BError): bool {
-            animation.Reset();
-            var localTargetObject: DependencyObject = null;
-            var localTargetPropertyPath: Data.PropertyPath = null;
-            if (animation.HasManualTarget) {
-                localTargetObject = animation.ManualTarget;
-            } else {
-                var name = Storyboard.GetTargetName(animation);
-                if (name) {
-                    var n = animation.XamlNode.FindName(name);
-                    localTargetObject = <DependencyObject>n.XObject;
-                }
-            }
-            localTargetPropertyPath = Storyboard.GetTargetProperty(animation);
-
-            if (localTargetObject != null)
-                targetObject = localTargetObject;
-            if (localTargetPropertyPath != null)
-                targetPropertyPath = localTargetPropertyPath;
-
-            var refobj = { Value: targetObject };
-            var targetProperty = targetPropertyPath.TryResolveDependencyProperty(refobj, promotedValues);
-            if (!targetProperty) {
-                error.Number = BError.XamlParse;
-                error.Message = "Could not resolve property for storyboard. [" + localTargetPropertyPath.Path.toString() + "]";
-                return false;
-            }
-            if (!animation.Resolve(refobj.Value, targetProperty)) {
-                error.Number = BError.InvalidOperation;
-                error.Message = "Storyboard value could not be converted to the correct type";
-                return false;
-            }
-            //AnimationDebug(function () { return "Hookup (" + Storyboard.GetTargetName(animation) + "." + targetPropertyPath.Path + ")"; });
-            AnimationStore.AttachAnimation(animation, refobj.Value, targetProperty);
-            return true;
         }
 
         private UpdateInternal(clockData: IClockData) {
