@@ -44,7 +44,7 @@ module Fayde.Providers {
                 OwnerNode: dobj.XamlNode,
                 Property: propd,
                 Precedence: PropertyPrecedence.DefaultValue,
-                Animation: undefined,
+                Animations: undefined,
                 Local: undefined,
                 LocalStyleValue: undefined,
                 ImplicitStyleValue: undefined,

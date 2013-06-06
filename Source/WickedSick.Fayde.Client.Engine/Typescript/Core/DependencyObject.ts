@@ -126,7 +126,7 @@ module Fayde {
             this._RemoveExpression(propd);
             
             var storage = Providers.GetStorage(this, propd);
-            var anims = storage.Animation;
+            var anims = storage.Animations;
             if (anims && anims.length > 0)
                 return;
             propd.Store.ClearValue(storage);

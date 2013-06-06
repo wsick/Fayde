@@ -3,7 +3,6 @@
 /// <reference path="AnimationStore.ts" />
 
 module Fayde.Media.Animation {
-
     export class AnimationBase extends Timeline {
         private _AnimStorage: IAnimationStorage;
         private _IsHolding: bool = false;

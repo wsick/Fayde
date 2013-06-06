@@ -31,7 +31,7 @@ module Fayde.Providers {
         OwnerNode: DONode;
         Property: DependencyProperty;
         Precedence: PropertyPrecedence;
-        Animation: Media.Animation.IAnimationStorage[];
+        Animations: Media.Animation.IAnimationStorage[];
         Local: any;
         LocalStyleValue: any;
         ImplicitStyleValue: any;
@@ -203,7 +203,7 @@ module Fayde.Providers {
                 OwnerNode: dobj.XamlNode,
                 Property: propd,
                 Precedence: PropertyPrecedence.DefaultValue,
-                Animation: undefined,
+                Animations: undefined,
                 Local: undefined,
                 LocalStyleValue: undefined,
                 ImplicitStyleValue: undefined,
@@ -216,7 +216,13 @@ module Fayde.Providers {
             //newStorage.ImplicitStyleValue = undefined;
             //newStorage.LocalStyleValue = undefined;
             newStorage.Local = Fayde.Clone(sourceStorage.Local);
-            newStorage.Animation = Media.Animation.AnimationStore.Clone(sourceStorage.Animation, dobj);
+            var anims = newStorage.Animations = sourceStorage.Animations;
+            if (anims) {
+                for (var i = 0; i < anims.length; i++) {
+                    anims[i].PropStorage = newStorage;
+                }
+            }
+            //TODO: Copy over property listeners?
             return newStorage;
         }
     }

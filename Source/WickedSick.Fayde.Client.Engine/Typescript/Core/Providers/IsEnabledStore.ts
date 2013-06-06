@@ -38,7 +38,7 @@ module Fayde.Providers {
                 Property: propd,
                 Precedence: PropertyPrecedence.DefaultValue,
                 InheritedValue: true,
-                Animation: undefined,
+                Animations: undefined,
                 Local: undefined,
                 LocalStyleValue: undefined,
                 ImplicitStyleValue: undefined,

@@ -34,31 +34,11 @@ module Fayde.Media.Animation {
                 StopValue: undefined,
             };
         }
-        static Clone(oldanims: IAnimationStorage[], newTarget: DependencyObject): IAnimationStorage[] {
-            if (!oldanims)
-                return undefined;
-
-            var len = oldanims.length;
-            var newanims = [];
-            var oldanim: IAnimationStorage;
-            for (var i = 0; i < len; i++) {
-                oldanim = oldanims[i];
-                newanims.push({
-                    Animation: oldanim.Animation,
-                    PropStorage: Providers.GetStorage(newTarget, oldanim.PropStorage.Property),
-                    IsDisabled: oldanim.IsDisabled,
-                    BaseValue: oldanim.BaseValue,
-                    CurrentValue: undefined,
-                    StopValue: oldanim.StopValue,
-                });
-            }
-            return newanims;
-        }
         static Attach(animStorage: IAnimationStorage) {
             var storage = animStorage.PropStorage;
-            var list = storage.Animation;
+            var list = storage.Animations;
             if (!list)
-                storage.Animation = list = [];
+                storage.Animations = list = [];
             var prevStorage = list[list.length - 1];
             list.push(animStorage);
             if (prevStorage) {
@@ -71,7 +51,7 @@ module Fayde.Media.Animation {
         static Detach(animStorage: IAnimationStorage): bool {
             var storage = animStorage.PropStorage;
 
-            var list = storage.Animation;
+            var list = storage.Animations;
             if (!list)
                 return false;
 
@@ -84,23 +64,34 @@ module Fayde.Media.Animation {
                 list.pop();
                 if (len > 1) {
                     var last = list[len - 2];
-                    last.IsDisabled = false;
-                    ApplyCurrent(last);
-                    return true;
+                    if (last.IsDisabled) {
+                        last.IsDisabled = false;
+                        ApplyCurrent(last);
+                        return true;
+                    }
                 }
             } else {
                 list.splice(i, 1);
-                if (i > 0)
-                    list[i].StopValue = animStorage.StopValue;
+                list[i].StopValue = animStorage.StopValue;
             }
             return false;
         }
         static ApplyCurrent(animStorage: IAnimationStorage) {
+            var cv = animStorage.CurrentValue;
+            if (cv === undefined)
+                return;
             var storage = animStorage.PropStorage;
+            if (Animation.Debug && window.console) {
+                console.log("ANIMATION:ApplyCurrent:" + storage.OwnerNode.Name + "->" + storage.Property.Name + "=" + cv);
+            }
             storage.Property.Store.SetLocalValue(storage, animStorage.CurrentValue);
         }
         static ApplyStop(animStorage: IAnimationStorage) {
             var storage = animStorage.PropStorage;
+            var sv = animStorage.StopValue;
+            if (Animation.Debug && window.console) {
+                console.log("ANIMATION:ApplyStop:" + storage.OwnerNode.Name + "->" + storage.Property.Name + "=" + (sv != null ? sv.toString() : ""));
+            }
             storage.Property.Store.SetLocalValue(storage, animStorage.StopValue);
         }
     }
