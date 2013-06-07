@@ -37,7 +37,7 @@ class Surface {
     TestRenderContext: Fayde.RenderContext = new Fayde.RenderContext(Surface.TestCanvas.getContext("2d"));
 
     private _App: App;
-    _TopLevel: Fayde.UIElement;
+    _RootLayer: Fayde.UIElement;
     private _Layers: Fayde.UINode[] = [];
     private _UpDirty: Fayde.LayoutUpdater[] = [];
     private _DownDirty: Fayde.LayoutUpdater[] = [];
@@ -149,8 +149,8 @@ class Surface {
         this._KeyInterop.RegisterEvents();
     }
     Attach(uie: Fayde.UIElement) {
-        if (this._TopLevel)
-            this.DetachLayer(this._TopLevel);
+        if (this._RootLayer)
+            this.DetachLayer(this._RootLayer);
 
         if (!uie) {
             this._Invalidate();
@@ -159,12 +159,15 @@ class Surface {
 
         if (!(uie instanceof Fayde.UIElement))
             throw new Exception("Unsupported top level element.");
-        this._TopLevel = uie;
+        this._RootLayer = uie;
         this.AttachLayer(uie);
     }
     AttachLayer(layer: Fayde.UIElement) {
         var node = layer.XamlNode;
-        this._Layers.unshift(node);
+        if (this._RootLayer === layer)
+            this._Layers.unshift(node);
+        else
+            this._Layers.push(node);
         node.IsTopLevel = true;
         node.SetSurface(this);
         var lu = node.LayoutUpdater;
@@ -523,7 +526,7 @@ class Surface {
         this._CurrentPos = pos;
         if (this._EmittingMouseEvent)
             return false;
-        if (this._TopLevel == null)
+        if (this._RootLayer == null)
             return false;
         
         var newInputList: Fayde.UINode[] = [];

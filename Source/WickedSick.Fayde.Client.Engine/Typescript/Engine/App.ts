@@ -44,7 +44,7 @@ class App implements Fayde.IResourcable {
         this.DebugInterop = new Fayde.DebugInterop(this);
     }
     get RootVisual(): Fayde.UIElement {
-        return this.MainSurface._TopLevel;
+        return this.MainSurface._RootLayer;
     }
 
     LoadResources(json: any) {
