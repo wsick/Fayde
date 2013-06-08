@@ -107,6 +107,6 @@ module Fayde.Documents {
         TextElement.FontWeightProperty,
         TextElement.ForegroundProperty,
         TextElement.TextDecorationsProperty,
-        TextElement.LanguageProperty,
+        TextElement.LanguageProperty
     ];
 }

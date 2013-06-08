@@ -80,7 +80,7 @@ module Fayde {
         InheritableOwner.LanguageProperty,
         InheritableOwner.FlowDirectionProperty,
         InheritableOwner.UseLayoutRoundingProperty,
-        InheritableOwner.TextDecorationsProperty,
+        InheritableOwner.TextDecorationsProperty
     ];
     Nullstone.RegisterType(InheritableOwner, "InheritableOwner");
 }

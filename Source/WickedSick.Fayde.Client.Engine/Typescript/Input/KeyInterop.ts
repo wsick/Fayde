@@ -149,7 +149,7 @@ module Fayde.Input {
             super(surface);
         }
         CreateArgsPress(e): Fayde.Input.KeyEventArgs {
-            if (!e.char)
+            if (!e["char"])
                 return;
 
             var modifiers = {
@@ -163,7 +163,7 @@ module Fayde.Input {
             if (unshifted)
                 keyCode = unshifted;
 
-            var args = new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], e.char);
+            var args = new Fayde.Input.KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], e["char"]);
             if (args.Key === Key.Unknown && e.key) {
                 args.Char = e.key;
                 var code = args.Char.toUpperCase().charCodeAt(0);
@@ -173,7 +173,7 @@ module Fayde.Input {
             return args;
         }
         CreateArgsDown(e): Fayde.Input.KeyEventArgs {
-            if (e.char && e.keyCode !== 8)
+            if (e["char"] && e.keyCode !== 8)
                 return;
             var modifiers = {
                 Shift: e.shiftKey,

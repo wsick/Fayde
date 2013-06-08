@@ -239,6 +239,6 @@ module Fayde.Controls {
         Control.FontStretchProperty,
         Control.FontStyleProperty,
         Control.FontWeightProperty,
-        Control.ForegroundProperty,
+        Control.ForegroundProperty
     ];
 }

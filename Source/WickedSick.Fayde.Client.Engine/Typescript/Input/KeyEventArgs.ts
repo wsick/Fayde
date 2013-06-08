@@ -183,14 +183,14 @@ module Fayde.Input {
         PlatformKeyCode: number;
         Key: Key;
         Char: string;
-        constructor(modifiers: IModifiersOn, keyCode: number, key: Key, char?: string) {
+        constructor(modifiers: IModifiersOn, keyCode: number, key: Key, c?: string) {
             super();
             this.Modifiers = modifiers;
             this.PlatformKeyCode = keyCode;
             this.Key = key;
             if (this.Key == null)
                 this.Key = Key.Unknown;
-            this.Char = char;
+            this.Char = c;
         }
     }
     Nullstone.RegisterType(KeyEventArgs, "KeyEventArgs");
