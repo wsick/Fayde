@@ -117,9 +117,9 @@
     //#endregion
 
     namespace.VisualStateGroup = Nullstone.FinishCreate(VisualStateGroup);
-})(Nullstone.Namespace("Fayde.Media.VisualStateManager"));
+})(Nullstone.Namespace("Fayde.Media.VSM"));
 
 (function (namespace) {
     var VisualStateGroupCollection = Nullstone.Create("VisualStateGroupCollection", Fayde.InternalCollection);
     namespace.VisualStateGroupCollection = Nullstone.FinishCreate(VisualStateGroupCollection);
-})(Nullstone.Namespace("Fayde.Media.VisualStateManager"));
+})(Nullstone.Namespace("Fayde.Media.VSM"));

@@ -39,6 +39,18 @@
             + (seconds * TimeSpan._TicksPerSecond) + (milliseconds * TimeSpan._TicksPerMillisecond);
     };
 
+    TimeSpan.FromTicks = function (ticks) {
+        var ts = new TimeSpan();
+        ts._Ticks = ticks;
+        return ts;
+    };
+    TimeSpan.FromArgs = function (days, hours, minutes, seconds, milliseconds) {
+        var ts = new TimeSpan();
+        ts._Ticks = (days * TimeSpan._TicksPerDay) + (hours * TimeSpan._TicksPerHour) + (minutes * TimeSpan._TicksPerMinute)
+            + (seconds * TimeSpan._TicksPerSecond) + (milliseconds * TimeSpan._TicksPerMillisecond);
+        return ts;
+    };
+
     //#region Properties
 
     TimeSpan.Instance.GetDays = function () {

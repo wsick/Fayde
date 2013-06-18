@@ -74,9 +74,9 @@ namespace WickedSick.Server.XamlParser.Elements.Data
                     yield return string.Format("FallbackValue: {0}", FallbackValue);
             }
             if (StringFormat != null)
-            {
                 yield return string.Format("StringFormat: \"{0}\"", StringFormat);
-            }
+            if (ElementName != null)
+                yield return string.Format("ElementName: \"{0}\"", ElementName);
         }
     }
 }

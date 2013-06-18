@@ -3,7 +3,7 @@ using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements.Media.VSM
 {
-    [Element("Fayde.Media.VisualStateManager")]
+    [Element("Fayde.Media.VSM")]
     public class VisualTransition : DependencyObject
     {
         public static readonly PropertyDescription StoryboardProperty = PropertyDescription.Register("Storyboard", typeof(Storyboard), typeof(VisualTransition), true);

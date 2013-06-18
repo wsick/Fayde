@@ -29,9 +29,9 @@ namespace WickedSick.Server.XamlParser.Elements.Types
         {
             var typeName = ElementAttribute.GetFullNullstoneType(GetType(), outputMods);
             if (_ticks > 0)
-                return string.Format("new {0}({1})", typeName, _ticks);
+                return string.Format("{0}.FromTicks({1})", typeName, _ticks);
             else
-                return string.Format("new {0}({1}, {2}, {3}, {4}, {5})", typeName, _days, _hours, _minutes, _seconds, _milliseconds);
+                return string.Format("{0}.FromArgs({1}, {2}, {3}, {4}, {5})", typeName, _days, _hours, _minutes, _seconds, _milliseconds);
         }
     }
 }

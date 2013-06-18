@@ -205,10 +205,10 @@ namespace WickedSick.Server.XamlParser.Elements
             IDictionary<PropertyDescription, object> properties = new Dictionary<PropertyDescription, object>();
             foreach (PropertyDescription pd in _dependencyValues.Keys)
             {
+                if (pd.IsNotSerialized)
+                    continue;
                 if (!pd.IsContent || _dependencyValues[pd] is string)
-                {
                     properties.Add(pd, _dependencyValues[pd]);
-                }
             }
             return properties;
         }
@@ -231,7 +231,7 @@ namespace WickedSick.Server.XamlParser.Elements
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("{");
-            sb.AppendFormat("Type:{0}", GetTypeName(outputMods));
+            sb.AppendFormat("ParseType:{0}", GetTypeName(outputMods));
 
             if (!string.IsNullOrWhiteSpace(Name))
             {
@@ -277,9 +277,15 @@ namespace WickedSick.Server.XamlParser.Elements
                     sb.Append("Content:");
                 sb.Append(content.ToJson(0, outputMods));
             }
+
+            OnToJsonEnd(sb, outputMods);
+
             sb.AppendLine();
             sb.Append("}");
             return sb.ToString();
+        }
+        protected virtual void OnToJsonEnd(StringBuilder sb, IJsonOutputModifiers outputMods)
+        {
         }
 
         public virtual string GetTypeName(IJsonOutputModifiers outputMods)

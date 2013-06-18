@@ -29,7 +29,7 @@
     //#endregion
 
     namespace.VisualTransition = Nullstone.FinishCreate(VisualTransition);
-})(Nullstone.Namespace("Fayde.Media.VisualStateManager"));
+})(Nullstone.Namespace("Fayde.Media.VSM"));
 
 (function (namespace) {
     var VisualTransitionCollection = Nullstone.Create("VisualTransitionCollection", Fayde.DependencyObjectCollection);
@@ -39,4 +39,4 @@
     };
 
     namespace.VisualTransitionCollection = Nullstone.FinishCreate(VisualTransitionCollection);
-})(Nullstone.Namespace("Fayde.Media.VisualStateManager"));
+})(Nullstone.Namespace("Fayde.Media.VSM"));

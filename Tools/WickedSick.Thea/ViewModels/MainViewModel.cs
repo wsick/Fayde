@@ -7,6 +7,7 @@ using WatiN.Core;
 using WickedSick.MVVM;
 using WickedSick.MVVM.DialogEx;
 using WickedSick.Thea.Helpers;
+using WickedSick.Thea.Models;
 
 namespace WickedSick.Thea.ViewModels
 {
@@ -43,6 +44,17 @@ namespace WickedSick.Thea.ViewModels
             }
         }
 
+        private ObservableCollection<DependencyPropertyCache> _DependencyProperties = new ObservableCollection<DependencyPropertyCache>();
+        public ObservableCollection<DependencyPropertyCache> DependencyProperties
+        {
+            get { return _DependencyProperties; }
+            set
+            {
+                _DependencyProperties = value;
+                OnPropertyChanged("DependencyProperties");
+            }
+        }
+
         private VisualViewModel _SelectedVisual;
         public VisualViewModel SelectedVisual
         {
@@ -51,6 +63,17 @@ namespace WickedSick.Thea.ViewModels
             {
                 _SelectedVisual = value;
                 OnPropertyChanged("SelectedVisual");
+            }
+        }
+
+        private PerformanceViewModel _PerformanceViewModel = new PerformanceViewModel();
+        public PerformanceViewModel PerformanceViewModel
+        {
+            get { return _PerformanceViewModel; }
+            set
+            {
+                _PerformanceViewModel = value;
+                OnPropertyChanged("PerformanceViewModel");
             }
         }
 
@@ -145,7 +168,10 @@ namespace WickedSick.Thea.ViewModels
         {
             AttachedBrowser = browser;
             _Interop = new FaydeInterop(AttachedBrowser);
-            MergeTree(_Interop.GetVisualTree());
+            PerformanceViewModel.JsContext = _Interop;
+            RefreshDPs();
+            RefreshTree();
+            PerformanceViewModel.Update();
             //_Interop.PopulateProperties(RootLayers[0]);
             StartTimer();
         }
@@ -177,23 +203,29 @@ namespace WickedSick.Thea.ViewModels
 
         private void _Timer_Tick(object sender, EventArgs e)
         {
+            RefreshDPs();
             RefreshTree();
-
             var allVisuals = RootLayers
                 .SelectMany(l => l.AllChildren)
                 .Concat(RootLayers)
                 .ToList();
-
             //RefreshThisVisual(allVisuals);
             RefreshHitTestVisuals(allVisuals);
+            PerformanceViewModel.Update();
+            UpdateSelectedVisual();
         }
 
         private void RefreshTree()
         {
-            if (_Interop.IsCacheInvalidated)
-                MergeTree(_Interop.GetVisualTree());
-        }
+            if (!_Interop.IsAlive)
+                RootLayers.Clear();
+            if (!_Interop.IsCacheInvalidated)
+                return;
 
+            _Interop.GetVisualTree().ToList()
+                .MergeInto(RootLayers, (v1, v2) => v1.ID == v2.ID, vvm => vvm.VisualChildren);
+
+        }
         private void RefreshThisVisual(List<VisualViewModel> allVisuals)
         {
             var sid = _Interop.EvalAgainstStackFrame("this._ID");
@@ -202,11 +234,10 @@ namespace WickedSick.Thea.ViewModels
 
             foreach (var v in allVisuals)
                 v.IsThisOnStackFrame = false;
-            var thisVisual = allVisuals.FirstOrDefault(vvm => vvm.ID == sid);
+            var thisVisual = allVisuals.FirstOrDefault(vvm => vvm.ID.ToString() == sid);
             if (thisVisual != null)
                 thisVisual.IsThisOnStackFrame = true;
         }
-
         private void RefreshHitTestVisuals(List<VisualViewModel> allVisuals)
         {
             var hitTested = _Interop.GetVisualIDsInHitTest().ToList();
@@ -219,14 +250,11 @@ namespace WickedSick.Thea.ViewModels
             foreach (var v in allVisuals.Where(vvm => hitTested.Any(s => vvm.ID == s)))
                 v.IsInHitTest = true;
         }
-
-        private void MergeTree(IEnumerable<VisualViewModel> allVisuals)
+        private void RefreshDPs()
         {
-            RootLayers.Clear();
-            foreach (var v in allVisuals)
-            {
-                RootLayers.Add(v);
-            }
+            if (DependencyProperties.Count > 0)
+                return;
+            DependencyProperties = new ObservableCollection<DependencyPropertyCache>(_Interop.GetDependencyProperties());
         }
 
         #endregion
@@ -244,8 +272,27 @@ namespace WickedSick.Thea.ViewModels
         {
             base.OnPropertyChanged(propertyName);
             if (propertyName == "SelectedVisual")
+                UpdateSelectedVisual();
+        }
+
+        protected void UpdateSelectedVisual()
+        {
+            if (SelectedVisual == null)
+                return;
+            try
             {
-                _Interop.PopulateProperties(SelectedVisual);
+                SelectedVisual.PropertyStorages = new ObservableCollection<PropertyStorageWrapper>(_Interop.GetStorages(SelectedVisual.ID));
+                SelectedVisual.LayoutMetrics = _Interop.GetLayoutMetrics(SelectedVisual.ID);
+                foreach (var storage in SelectedVisual.PropertyStorages)
+                {
+                    int? propID = storage.DynamicObject.PropertyID;
+                    if (propID != null)
+                        storage.DependencyProperty = DependencyProperties.FirstOrDefault(dp => dp.ID == propID.ToString());
+                }
+            }
+            catch (Exception)
+            {
+
             }
         }
     }

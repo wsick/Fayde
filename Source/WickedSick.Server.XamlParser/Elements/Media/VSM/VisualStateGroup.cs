@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Media.VSM
 {
-    [Element("Fayde.Media.VisualStateManager")]
+    [Element("Fayde.Media.VSM")]
     public class VisualStateGroup : DependencyObject
     {
         public static readonly PropertyDescription VisualStates = PropertyDescription.Register("VisualStates", typeof(DependencyObjectCollection<VisualState>), typeof(VisualStateGroup), true);

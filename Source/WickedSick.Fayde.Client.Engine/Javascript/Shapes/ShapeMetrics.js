@@ -30,22 +30,6 @@ var Fayde;
             if (!isLayoutClipEmpty)
                 rect.intersection(dest, this.LayoutClipBounds);
         };
-        ShapeMetrics.prototype._IntersectBoundsWithClipPath = function (dest, fe, xform) {
-            var isClipEmpty = rect.isEmpty(this.ClipBounds);
-            var isLayoutClipEmpty = rect.isEmpty(this.LayoutClipBounds);
-
-            if ((!isClipEmpty || !isLayoutClipEmpty) && !fe._GetRenderVisible()) {
-                rect.clear(dest);
-                return;
-            }
-
-            rect.copyGrowTransform(dest, this.Extents, this.EffectPadding, xform);
-
-            if (!isClipEmpty)
-                rect.intersection(dest, this.ClipBounds);
-            if (!isLayoutClipEmpty)
-                rect.intersection(dest, this.LayoutClipBounds);
-        };
         ShapeMetrics.prototype.UpdateStretch = function () {
             rect.clear(this.Extents);
             rect.clear(this.ExtentsWithChildren);

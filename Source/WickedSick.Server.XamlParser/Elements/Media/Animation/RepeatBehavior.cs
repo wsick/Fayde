@@ -24,7 +24,7 @@ namespace WickedSick.Server.XamlParser.Elements.Media.Animation
                 return string.Format("{0}.FromRepeatDuration({1})", typeName, TimeSpan.ToJson(0, outputMods));
             else if (Type == RepeatBehaviorType.IterationCount)
                 return string.Format("{0}.FromIterationCount({1})", typeName, Count);
-            return string.Format("{0}.FromForever()", typeName);
+            return string.Format("{0}.Forever", typeName);
         }
     }
 }

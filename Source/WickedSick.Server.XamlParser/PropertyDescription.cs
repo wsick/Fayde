@@ -7,9 +7,9 @@ namespace WickedSick.Server.XamlParser
     {
         private static Dictionary<Type, PropertyDescription> _ContentProperty = new Dictionary<Type, PropertyDescription>();
 
-        public static PropertyDescription Register(string name, Type type, Type ownerType, bool isContent = false)
+        public static PropertyDescription Register(string name, Type type, Type ownerType, bool isContent = false, bool isNotSerialized = false)
         {
-            var desc = new PropertyDescription(name, type, isContent);
+            var desc = new PropertyDescription(name, type, isContent, isNotSerialized);
             AttributeDescriptionHelper.Register(desc, ownerType);
             if (isContent)
             {
@@ -37,15 +37,17 @@ namespace WickedSick.Server.XamlParser
             return null;
         }
 
-        private PropertyDescription(string name, Type type, bool isContent)
+        private PropertyDescription(string name, Type type, bool isContent, bool isNotSerialized)
         {
             Name = name;
             Type = type;
             IsContent = isContent;
+            IsNotSerialized = isNotSerialized;
         }
 
         public string Name { get; private set; }
         public Type Type { get; private set; }
         public bool IsContent { get; private set; }
+        public bool IsNotSerialized { get; private set; }
     }
 }

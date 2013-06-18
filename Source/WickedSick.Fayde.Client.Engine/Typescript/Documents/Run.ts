@@ -1,0 +1,20 @@
+/// <reference path="Inline.ts" />
+/// CODE
+
+module Fayde.Documents {
+    export class Run extends Inline implements Providers.IIsPropertyInheritable {
+        static FlowDirectionProperty: DependencyProperty = InheritableOwner.FlowDirectionProperty.ExtendTo(Run);
+        static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, Run);
+        FlowDirection: FlowDirection;
+        Text: string;
+
+        private _SerializeText(): string { return this.Text; }
+
+        private IsInheritable(propd: DependencyProperty): bool {
+            if (propd === Run.FlowDirectionProperty)
+                return true;
+            return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);
+        }
+    }
+    Nullstone.RegisterType(Run, "Run");
+}

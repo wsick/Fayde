@@ -11,7 +11,7 @@
     Nullstone.Property(ItemsPresenter, "StackPanelFallbackTemplate", {
         get: function () {
             if (this._SPFT == null)
-                this._SPFT = new namespace.ItemsPanelTemplate({ Type: namespace.StackPanel });
+                this._SPFT = new namespace.ItemsPanelTemplate({ ParseType: namespace.StackPanel });
             return this._SPFT;
         }
     });
@@ -19,7 +19,7 @@
     Nullstone.Property(ItemsPresenter, "VirtualizingStackPanelFallbackTemplate", {
         get: function () {
             if (this._VSPFT == null)
-                this._VSPFT = new namespace.ItemsPanelTemplate({ Type: namespace.VirtualizingStackPanel });
+                this._VSPFT = new namespace.ItemsPanelTemplate({ ParseType: namespace.VirtualizingStackPanel });
             return this._VSPFT;
         }
     });

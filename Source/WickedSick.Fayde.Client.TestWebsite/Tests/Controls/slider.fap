@@ -1,0 +1,17 @@
+﻿<FaydeApplication
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde"
+    Debug="true"
+    ScriptResolution="/Fayde/">
+    <FaydeApplication.UriMappings>
+    </FaydeApplication.UriMappings>
+    <Grid x:Name="LayoutRoot">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Slider x:Name="TheSlider" Value="50" Minimum="0" Maximum="100" Width="250" />
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Value: " />
+                <TextBlock Text="{Binding ElementName=TheSlider, Path=Value}" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</FaydeApplication>

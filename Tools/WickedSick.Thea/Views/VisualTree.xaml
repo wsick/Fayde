@@ -27,7 +27,7 @@
                             <TextBlock Text="{Binding ID}" />
                             <TextBlock FontWeight="{Binding IsThisOnStackFrame, Converter={StaticResource boolFontWeightConverter}}" 
                                        Foreground="{Binding IsInHitTest, Converter={StaticResource boolSolidColorBrushConverter}}"
-                                       Margin="5,0,0,0" Text="{Binding Type}" />
+                                       Margin="5,0,0,0" Text="{Binding TypeName}" />
                             <TextBlock FontWeight="{Binding IsThisOnStackFrame, Converter={StaticResource boolFontWeightConverter}}" 
                                        Foreground="{Binding IsInHitTest, Converter={StaticResource boolSolidColorBrushConverter}}"
                                        Margin="5,0,0,0" Text="{Binding Name, StringFormat=[{0}], TargetNullValue=''}" />

@@ -68,16 +68,19 @@
     <Content Include="Benchmarks\Matrix\glMatrix-min.js" />
     <Content Include="Benchmarks\Matrix\Matrix3D.js" />
     <Content Include="Benchmarks\Matrix\test.html" />
-    <None Include="Fayde.Generic.js.old" />
     <Content Include="Benchmarks\refequals.html" />
+    <Content Include="Docs\AnimNotes.txt" />
     <Content Include="Docs\DebugServices.txt" />
     <Content Include="Docs\Links.txt" />
     <Content Include="Docs\LayoutDep.txt" />
     <Content Include="Docs\Notes.txt" />
     <Content Include="Docs\Plugins.txt" />
+    <Content Include="Docs\XamlNotes.txt" />
     <Content Include="Fayde.Generic.js" />
-    <Content Include="Fayde.js" />
-    <Content Include="gl-matrix.js" />
+    <Content Include="Fayde.js">
+      <DependentUpon>Fayde.ts</DependentUpon>
+    </Content>
+    <Content Include="Fayde.ts" />
     <Content Include="Global.asax" />
     <Content Include="Javascript\Controls\CanvasMetrics.js" />
     <Content Include="Javascript\Controls\GridMetrics.js" />
@@ -89,15 +92,12 @@
     <Content Include="Javascript\Core\UpdateMetrics.js" />
     <Content Include="Javascript\Core\Xformer.js" />
     <Content Include="Javascript\Engine\XamlResolver.js" />
-    <TypeScriptCompile Include="Javascript\Primitives.ts" />
-    <Content Include="Javascript\Primitives.js">
-      <DependentUpon>Primitives.ts</DependentUpon>
+    <Content Include="Fayde.d.ts">
+      <DependentUpon>Fayde.ts</DependentUpon>
     </Content>
+    <Content Include="Javascript\Primitives.js" />
     <Content Include="Javascript\Runtime\IEnumerable.js" />
     <Content Include="Javascript\Shapes\ShapeMetrics.js" />
-    <Content Include="Tests\DependencyObjectTests.js" />
-    <Content Include="Tests\FaydeAsserts.js" />
-    <Content Include="Tests\NullstoneTests.js" />
     <Content Include="Javascript\Collections\INotifyCollectionChanged.js" />
     <Content Include="Javascript\Collections\NotifyCollectionChangedEventArgs.js" />
     <Content Include="Javascript\Collections\ObservableCollection.js" />
@@ -399,8 +399,6 @@
     <Content Include="Javascript\Text\TextLayoutAttributes.js" />
     <Content Include="Javascript\Media\VSM\VisualStateManager.js" />
     <Content Include="Javascript\Core\VisualTreeHelper.js" />
-    <Content Include="jquery-1.7.js" />
-    <Content Include="jsTestDriverAsserts.js" />
     <Content Include="Silo\brush-transform.html" />
     <Content Include="Silo\lineargradient-pattern.html" />
     <Content Include="Silo\matrix-multiplypoint.html" />
@@ -414,7 +412,9 @@
     <Content Include="Styles\AllControls.xml" />
     <Content Include="Styles\CheckBox.xml" />
     <Content Include="Styles\ContentPresenter.xml" />
-    <Content Include="Styles\Cosmopolitan.CoreStyles.xml" />
+    <Content Include="Styles\Cosmopolitan.CoreStyles.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Styles\HyperlinkButton.xml" />
     <Content Include="Styles\RadioButton.xml" />
     <Content Include="Styles\RepeatButton.xml" />
@@ -433,12 +433,1009 @@
     <Content Include="Styles\Thumb.xml">
       <SubType>Designer</SubType>
     </Content>
-    <None Include="jsTestDriver.conf" />
     <Content Include="Silo\heightTest.htm" />
     <Content Include="Docs\Tips.txt" />
+    <TypeScriptCompile Include="Tests\ItemsControlTests.ts" />
+    <Content Include="Tests\ItemsControlTests.js">
+      <DependentUpon>ItemsControlTests.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Tests\PrimitivesTests.ts" />
+    <Content Include="Tests\PrimitivesTests.js">
+      <DependentUpon>PrimitivesTests.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Tests\ProviderTests.ts" />
+    <Content Include="Tests\ProviderTests.js">
+      <DependentUpon>ProviderTests.ts</DependentUpon>
+    </Content>
+    <Content Include="Tests\qunit-1.10.0.d.ts" />
     <Content Include="Tests\qunit-1.11.0.css" />
     <Content Include="Tests\qunit-1.11.0.js" />
     <Content Include="Tests\tests.html" />
+    <TypeScriptCompile Include="Typescript\Core\XamlObject.ts" />
+    <TypeScriptCompile Include="Typescript\Core\XamlNode.ts" />
+    <TypeScriptCompile Include="Typescript\Core\NameScope.ts" />
+    <TypeScriptCompile Include="Typescript\Core\DependencyObject.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\TextBlock.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\Popup.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Image.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Control.ts" />
+    <TypeScriptCompile Include="Tests\XamlNodeTests.ts" />
+    <TypeScriptCompile Include="Tests\TransformTests.ts" />
+    <TypeScriptCompile Include="Tests\TimelineTests.ts" />
+    <Content Include="Tests\TimelineTests.js">
+      <DependentUpon>TimelineTests.ts</DependentUpon>
+    </Content>
+    <Content Include="Tests\TransformTests.js">
+      <DependentUpon>TransformTests.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Matrix3D.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Providers\PropertyStore.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Providers\InheritedStore.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Providers\DataContextStore.ts" />
+    <TypeScriptCompile Include="Typescript\Core\InheritableOwner.ts" />
+    <Content Include="Typescript\Core\InheritableOwner.js">
+      <DependentUpon>InheritableOwner.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\Providers\ActualSizeStore.ts" />
+    <Content Include="Typescript\Core\Providers\ActualSizeStore.js">
+      <DependentUpon>ActualSizeStore.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\Providers\DataContextStore.js">
+      <DependentUpon>DataContextStore.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\Providers\ImplicitStyleBroker.ts" />
+    <Content Include="Typescript\Core\Providers\ImplicitStyleBroker.js">
+      <DependentUpon>ImplicitStyleBroker.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\Providers\InheritedStore.js">
+      <DependentUpon>InheritedStore.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\Providers\IsEnabledStore.ts" />
+    <Content Include="Typescript\Core\Providers\IsEnabledStore.js">
+      <DependentUpon>IsEnabledStore.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\Providers\LocalStyleBroker.ts" />
+    <Content Include="Typescript\Core\Providers\LocalStyleBroker.js">
+      <DependentUpon>LocalStyleBroker.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\Providers\PropertyStore.js">
+      <DependentUpon>PropertyStore.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Engine\DebugInterop.ts" />
+    <Content Include="Typescript\Engine\DebugInterop.js">
+      <DependentUpon>DebugInterop.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\AnimationStore.ts" />
+    <Content Include="Typescript\Media\Animation\AnimationStore.js">
+      <DependentUpon>AnimationStore.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Matrix3D.js">
+      <DependentUpon>Matrix3D.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\PlaneProjection.ts" />
+    <Content Include="Typescript\Media\PlaneProjection.js">
+      <DependentUpon>PlaneProjection.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Runtime\Debug.ts" />
+    <Content Include="Typescript\Runtime\Debug.js">
+      <DependentUpon>Debug.ts</DependentUpon>
+    </Content>
+    <Content Include="UnitTestList.txt" />
+    <Content Include="Tests\XamlNodeTests.js">
+      <DependentUpon>XamlNodeTests.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ContentControl.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Canvas.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Border.ts" />
+    <TypeScriptCompile Include="Typescript\Collections\INotifyCollectionChanged.ts" />
+    <Content Include="Typescript\Collections\INotifyCollectionChanged.js">
+      <DependentUpon>INotifyCollectionChanged.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\INotifyPropertyChanged.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ToolTip.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ComboBox.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\CheckBox.ts" />
+    <TypeScriptCompile Include="Typescript\Collections\NotifyCollectionChangedEventArgs.ts" />
+    <Content Include="Typescript\Collections\NotifyCollectionChangedEventArgs.js">
+      <DependentUpon>NotifyCollectionChangedEventArgs.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Collections\ObservableCollection.ts" />
+    <Content Include="Typescript\Collections\ObservableCollection.js">
+      <DependentUpon>ObservableCollection.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\CheckBox.js">
+      <DependentUpon>CheckBox.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\ComboBox.js">
+      <DependentUpon>ComboBox.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ListBoxItem.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ComboBoxItem.ts" />
+    <Content Include="Typescript\Controls\ComboBoxItem.js">
+      <DependentUpon>ComboBoxItem.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ItemCollection.ts" />
+    <Content Include="Typescript\Controls\ItemCollection.js">
+      <DependentUpon>ItemCollection.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\ListBoxItem.js">
+      <DependentUpon>ListBoxItem.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\Selector.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\RangeBase.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\DragEventArgs.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\PasswordBox.ts" />
+    <Content Include="Typescript\Controls\PasswordBox.js">
+      <DependentUpon>PasswordBox.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\Primitives\DragEventArgs.js">
+      <DependentUpon>DragEventArgs.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\ItemsChangedEventArgs.ts" />
+    <Content Include="Typescript\Controls\Primitives\ItemsChangedEventArgs.js">
+      <DependentUpon>ItemsChangedEventArgs.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\Primitives\RangeBase.js">
+      <DependentUpon>RangeBase.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\ScrollBar.ts" />
+    <Content Include="Typescript\Controls\Primitives\ScrollBar.js">
+      <DependentUpon>ScrollBar.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\ScrollEventArgs.ts" />
+    <Content Include="Typescript\Controls\Primitives\ScrollEventArgs.js">
+      <DependentUpon>ScrollEventArgs.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\SelectionChangedEventArgs.ts" />
+    <Content Include="Typescript\Controls\Primitives\SelectionChangedEventArgs.js">
+      <DependentUpon>SelectionChangedEventArgs.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\Primitives\Selector.js">
+      <DependentUpon>Selector.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\Thumb.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\SelectorSelection.ts" />
+    <Content Include="Typescript\Controls\Primitives\SelectorSelection.js">
+      <DependentUpon>SelectorSelection.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\Primitives\Thumb.js">
+      <DependentUpon>Thumb.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\RadioButton.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ProgressBar.ts" />
+    <Content Include="Typescript\Controls\ProgressBar.js">
+      <DependentUpon>ProgressBar.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\RadioButton.js">
+      <DependentUpon>RadioButton.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Slider.ts" />
+    <Content Include="Typescript\Controls\Slider.js">
+      <DependentUpon>Slider.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\ToolTip.js">
+      <DependentUpon>ToolTip.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ToolTipService.ts" />
+    <Content Include="Typescript\Controls\ToolTipService.js">
+      <DependentUpon>ToolTipService.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\FrameworkTemplate.ts" />
+    <Content Include="Typescript\Core\FrameworkTemplate.js">
+      <DependentUpon>FrameworkTemplate.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\INotifyPropertyChanged.js">
+      <DependentUpon>INotifyPropertyChanged.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\Border.js">
+      <DependentUpon>Border.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Button.ts" />
+    <Content Include="Typescript\Controls\Button.js">
+      <DependentUpon>Button.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\Canvas.js">
+      <DependentUpon>Canvas.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ColumnDefinition.ts" />
+    <Content Include="Typescript\Controls\ColumnDefinition.js">
+      <DependentUpon>ColumnDefinition.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\ContentControl.js">
+      <DependentUpon>ContentControl.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ContentPresenter.ts" />
+    <Content Include="Typescript\Controls\ContentPresenter.js">
+      <DependentUpon>ContentPresenter.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\Control.js">
+      <DependentUpon>Control.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ControlTemplate.ts" />
+    <Content Include="Typescript\Controls\ControlTemplate.js">
+      <DependentUpon>ControlTemplate.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\GridLength.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Grid.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Enums.ts" />
+    <Content Include="Typescript\Controls\Enums.js">
+      <DependentUpon>Enums.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Frame.ts" />
+    <Content Include="Typescript\Controls\Frame.js">
+      <DependentUpon>Frame.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\Grid.js">
+      <DependentUpon>Grid.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\GridLength.js">
+      <DependentUpon>GridLength.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\HyperlinkButton.ts" />
+    <Content Include="Typescript\Controls\HyperlinkButton.js">
+      <DependentUpon>HyperlinkButton.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\Image.js">
+      <DependentUpon>Image.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\MediaElement.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ItemContainerGenerator.ts" />
+    <Content Include="Typescript\Controls\ItemContainerGenerator.js">
+      <DependentUpon>ItemContainerGenerator.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ItemsControl.ts" />
+    <Content Include="Typescript\Controls\ItemsControl.js">
+      <DependentUpon>ItemsControl.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ItemsPresenter.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ItemsPanelTemplate.ts" />
+    <Content Include="Typescript\Controls\ItemsPanelTemplate.js">
+      <DependentUpon>ItemsPanelTemplate.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\ItemsPresenter.js">
+      <DependentUpon>ItemsPresenter.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ListBox.ts" />
+    <Content Include="Typescript\Controls\ListBox.js">
+      <DependentUpon>ListBox.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\MediaElement.js">
+      <DependentUpon>MediaElement.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Panel.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Page.ts" />
+    <Content Include="Typescript\Controls\Page.js">
+      <DependentUpon>Page.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\Panel.js">
+      <DependentUpon>Panel.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\IScrollInfo.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\ButtonBase.ts" />
+    <Content Include="Typescript\Controls\Primitives\ButtonBase.js">
+      <DependentUpon>ButtonBase.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\Primitives\IScrollInfo.js">
+      <DependentUpon>IScrollInfo.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\Primitives\Popup.js">
+      <DependentUpon>Popup.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\StackPanel.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ScrollViewer.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ScrollContentPresenter.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\ScrollData.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\RepeatButton.ts" />
+    <Content Include="Typescript\Controls\Primitives\RepeatButton.js">
+      <DependentUpon>RepeatButton.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\Primitives\ScrollData.js">
+      <DependentUpon>ScrollData.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\RichTextBox.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\ToggleButton.ts" />
+    <Content Include="Typescript\Controls\Primitives\ToggleButton.js">
+      <DependentUpon>ToggleButton.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\RichTextBox.js">
+      <DependentUpon>RichTextBox.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\RowDefinition.ts" />
+    <Content Include="Typescript\Controls\RowDefinition.js">
+      <DependentUpon>RowDefinition.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\ScrollContentPresenter.js">
+      <DependentUpon>ScrollContentPresenter.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\ScrollViewer.js">
+      <DependentUpon>ScrollViewer.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\StackPanel.js">
+      <DependentUpon>StackPanel.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\TextBlock.js">
+      <DependentUpon>TextBlock.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\UserControl.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\TextBox.ts" />
+    <Content Include="Typescript\Controls\TextBox.js">
+      <DependentUpon>TextBox.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\TextBoxView.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\TextBoxBase.ts" />
+    <Content Include="Typescript\Controls\TextBoxBase.js">
+      <DependentUpon>TextBoxBase.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\TextBoxView.js">
+      <DependentUpon>TextBoxView.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Controls\UserControl.js">
+      <DependentUpon>UserControl.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\DataTemplate.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Clone.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\VirtualizingPanel.ts" />
+    <Content Include="Typescript\Controls\VirtualizingPanel.js">
+      <DependentUpon>VirtualizingPanel.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\VirtualizingStackPanel.ts" />
+    <Content Include="Typescript\Controls\VirtualizingStackPanel.js">
+      <DependentUpon>VirtualizingStackPanel.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\Clone.js">
+      <DependentUpon>Clone.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\DataTemplate.js">
+      <DependentUpon>DataTemplate.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\DeferredValueExpression.ts" />
+    <Content Include="Typescript\Core\DeferredValueExpression.js">
+      <DependentUpon>DeferredValueExpression.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\DependencyObject.js">
+      <DependentUpon>DependencyObject.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\DependencyProperty.ts" />
+    <Content Include="Typescript\Core\DependencyProperty.js">
+      <DependentUpon>DependencyProperty.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\Expression.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Enums.ts" />
+    <Content Include="Typescript\Core\Enums.js">
+      <DependentUpon>Enums.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\Expression.js">
+      <DependentUpon>Expression.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\FrameworkElement.ts" />
+    <Content Include="Typescript\Core\FrameworkElement.js">
+      <DependentUpon>FrameworkElement.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\Style.ts" />
+    <TypeScriptCompile Include="Typescript\Core\ResourceDictionary.ts" />
+    <TypeScriptCompile Include="Typescript\Core\LayoutInformation.ts" />
+    <Content Include="Typescript\Core\LayoutInformation.js">
+      <DependentUpon>LayoutInformation.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\LayoutUpdater.ts" />
+    <Content Include="Typescript\Core\LayoutUpdater.js">
+      <DependentUpon>LayoutUpdater.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\ResourceDictionary.js">
+      <DependentUpon>ResourceDictionary.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\Setter.ts" />
+    <TypeScriptCompile Include="Typescript\Core\RoutedEventArgs.ts" />
+    <TypeScriptCompile Include="Typescript\Core\RoutedEvent.ts" />
+    <TypeScriptCompile Include="Typescript\Core\ResourceTarget.ts" />
+    <Content Include="Typescript\Core\ResourceTarget.js">
+      <DependentUpon>ResourceTarget.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\RoutedEvent.js">
+      <DependentUpon>RoutedEvent.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\RoutedEventArgs.js">
+      <DependentUpon>RoutedEventArgs.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\RoutedPropertyChangedEventArgs.ts" />
+    <Content Include="Typescript\Core\RoutedPropertyChangedEventArgs.js">
+      <DependentUpon>RoutedPropertyChangedEventArgs.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\Setter.js">
+      <DependentUpon>Setter.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\SizeChangedEventArgs.ts" />
+    <Content Include="Typescript\Core\SizeChangedEventArgs.js">
+      <DependentUpon>SizeChangedEventArgs.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\StaticResourceExpression.ts" />
+    <Content Include="Typescript\Core\StaticResourceExpression.js">
+      <DependentUpon>StaticResourceExpression.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\Style.js">
+      <DependentUpon>Style.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\Walkers.ts" />
+    <TypeScriptCompile Include="Typescript\Core\TypeConverter.ts" />
+    <TypeScriptCompile Include="Typescript\Core\TemplateBindingExpression.ts" />
+    <Content Include="Typescript\Core\TemplateBindingExpression.js">
+      <DependentUpon>TemplateBindingExpression.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\Triggers.ts" />
+    <Content Include="Typescript\Core\Triggers.js">
+      <DependentUpon>Triggers.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\TypeConverter.js">
+      <DependentUpon>TypeConverter.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\VisualTreeHelper.ts" />
+    <Content Include="Typescript\Core\VisualTreeHelper.js">
+      <DependentUpon>VisualTreeHelper.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\Walkers.js">
+      <DependentUpon>Walkers.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Runtime\Enumerable.ts" />
+    <TypeScriptCompile Include="Typescript\Core\XamlObjectCollection.ts" />
+    <Content Include="Typescript\Core\XamlObjectCollection.js">
+      <DependentUpon>XamlObjectCollection.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Runtime\Enum.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\Color.ts" />
+    <TypeScriptCompile Include="Typescript\Media\MediaParser.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Geometry.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Brush.ts" />
+    <TypeScriptCompile Include="Typescript\Engine\App.ts" />
+    <TypeScriptCompile Include="Typescript\Data\PropertyPath.ts" />
+    <TypeScriptCompile Include="Typescript\Data\BindingExpression.ts" />
+    <TypeScriptCompile Include="Typescript\Data\BindingBase.ts" />
+    <TypeScriptCompile Include="Typescript\Data\Binding.ts" />
+    <Content Include="Typescript\Data\Binding.js">
+      <DependentUpon>Binding.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Data\BindingBase.js">
+      <DependentUpon>BindingBase.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Data\BindingExpression.js">
+      <DependentUpon>BindingExpression.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Data\ICollectionView.ts" />
+    <TypeScriptCompile Include="Typescript\Data\CollectionViewSource.ts" />
+    <Content Include="Typescript\Data\CollectionViewSource.js">
+      <DependentUpon>CollectionViewSource.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Data\ICollectionView.js">
+      <DependentUpon>ICollectionView.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Data\PropertyPath.js">
+      <DependentUpon>PropertyPath.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Data\RelativeSource.ts" />
+    <TypeScriptCompile Include="Typescript\Data\PropertyPathWalker.ts" />
+    <TypeScriptCompile Include="Typescript\Data\PropertyPathParser.ts" />
+    <Content Include="Typescript\Data\PropertyPathParser.js">
+      <DependentUpon>PropertyPathParser.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Data\PropertyPathWalker.js">
+      <DependentUpon>PropertyPathWalker.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Data\RelativeSource.js">
+      <DependentUpon>RelativeSource.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Documents\Run.ts" />
+    <TypeScriptCompile Include="Typescript\Documents\LineBreak.ts" />
+    <Content Include="Typescript\Documents\LineBreak.js">
+      <DependentUpon>LineBreak.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Documents\Run.js">
+      <DependentUpon>Run.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Documents\Underline.ts" />
+    <Content Include="Typescript\Documents\Underline.js">
+      <DependentUpon>Underline.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Engine\App.js">
+      <DependentUpon>App.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Engine\Surface.ts" />
+    <TypeScriptCompile Include="Typescript\Engine\Dirty.ts" />
+    <TypeScriptCompile Include="Typescript\Engine\ClockTimer.ts" />
+    <Content Include="Typescript\Engine\ClockTimer.js">
+      <DependentUpon>ClockTimer.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Engine\Dirty.js">
+      <DependentUpon>Dirty.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Engine\RenderContext.ts" />
+    <Content Include="Typescript\Engine\RenderContext.js">
+      <DependentUpon>RenderContext.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Engine\Surface.js">
+      <DependentUpon>Surface.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Input\KeyEventArgs.ts" />
+    <TypeScriptCompile Include="Typescript\Input\Keyboard.ts" />
+    <TypeScriptCompile Include="Typescript\Engine\XamlResolver.ts" />
+    <Content Include="Typescript\Engine\XamlResolver.js">
+      <DependentUpon>XamlResolver.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Input\Keyboard.js">
+      <DependentUpon>Keyboard.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Input\KeyboardNavigation.ts" />
+    <Content Include="Typescript\Input\KeyboardNavigation.js">
+      <DependentUpon>KeyboardNavigation.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Input\KeyEventArgs.js">
+      <DependentUpon>KeyEventArgs.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Input\MouseEventArgs.ts" />
+    <Content Include="Typescript\Input\MouseEventArgs.js">
+      <DependentUpon>MouseEventArgs.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Markup\JsonParser.ts" />
+    <TypeScriptCompile Include="Typescript\Markup\BindingMarkup.ts" />
+    <Content Include="Typescript\Markup\BindingMarkup.js">
+      <DependentUpon>BindingMarkup.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Markup\JsonParser.js">
+      <DependentUpon>JsonParser.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Markup\Markup.ts" />
+    <Content Include="Typescript\Markup\Markup.js">
+      <DependentUpon>Markup.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Markup\StaticResourceMarkup.ts" />
+    <Content Include="Typescript\Markup\StaticResourceMarkup.js">
+      <DependentUpon>StaticResourceMarkup.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Markup\TemplateBindingMarkup.ts" />
+    <Content Include="Typescript\Markup\TemplateBindingMarkup.js">
+      <DependentUpon>TemplateBindingMarkup.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\Timeline.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\Enums.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\AnimationBase.ts" />
+    <Content Include="Typescript\Media\Animation\AnimationBase.js">
+      <DependentUpon>AnimationBase.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\AnimationUsingKeyFrames.ts" />
+    <Content Include="Typescript\Media\Animation\AnimationUsingKeyFrames.js">
+      <DependentUpon>AnimationUsingKeyFrames.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\ColorKeyFrame.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\ColorAnimation.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\BeginStoryboard.ts" />
+    <Content Include="Typescript\Media\Animation\BeginStoryboard.js">
+      <DependentUpon>BeginStoryboard.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Animation\ColorAnimation.js">
+      <DependentUpon>ColorAnimation.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\ColorAnimationUsingKeyFrames.ts" />
+    <Content Include="Typescript\Media\Animation\ColorAnimationUsingKeyFrames.js">
+      <DependentUpon>ColorAnimationUsingKeyFrames.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Animation\ColorKeyFrame.js">
+      <DependentUpon>ColorKeyFrame.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\EasingFunctionBase.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\Curves.ts" />
+    <Content Include="Typescript\Media\Animation\Curves.js">
+      <DependentUpon>Curves.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\DoubleAnimation.ts" />
+    <Content Include="Typescript\Media\Animation\DoubleAnimation.js">
+      <DependentUpon>DoubleAnimation.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\DoubleAnimationUsingKeyFrames.ts" />
+    <Content Include="Typescript\Media\Animation\DoubleAnimationUsingKeyFrames.js">
+      <DependentUpon>DoubleAnimationUsingKeyFrames.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\DoubleKeyFrame.ts" />
+    <Content Include="Typescript\Media\Animation\DoubleKeyFrame.js">
+      <DependentUpon>DoubleKeyFrame.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Animation\EasingFunctionBase.js">
+      <DependentUpon>EasingFunctionBase.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\EasingFunctions.ts" />
+    <Content Include="Typescript\Media\Animation\EasingFunctions.js">
+      <DependentUpon>EasingFunctions.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Animation\Enums.js">
+      <DependentUpon>Enums.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\RepeatBehavior.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\KeyFrame.ts" />
+    <Content Include="Typescript\Media\Animation\KeyFrame.js">
+      <DependentUpon>KeyFrame.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\KeySpline.ts" />
+    <Content Include="Typescript\Media\Animation\KeySpline.js">
+      <DependentUpon>KeySpline.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\ObjectKeyFrame.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\ObjectAnimationUsingKeyFrames.ts" />
+    <Content Include="Typescript\Media\Animation\ObjectAnimationUsingKeyFrames.js">
+      <DependentUpon>ObjectAnimationUsingKeyFrames.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Animation\ObjectKeyFrame.js">
+      <DependentUpon>ObjectKeyFrame.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\PointAnimation.ts" />
+    <Content Include="Typescript\Media\Animation\PointAnimation.js">
+      <DependentUpon>PointAnimation.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\PointAnimationUsingKeyFrames.ts" />
+    <Content Include="Typescript\Media\Animation\PointAnimationUsingKeyFrames.js">
+      <DependentUpon>PointAnimationUsingKeyFrames.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\PointKeyFrame.ts" />
+    <Content Include="Typescript\Media\Animation\PointKeyFrame.js">
+      <DependentUpon>PointKeyFrame.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Animation\RepeatBehavior.js">
+      <DependentUpon>RepeatBehavior.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Animation\Storyboard.ts" />
+    <Content Include="Typescript\Media\Animation\Storyboard.js">
+      <DependentUpon>Storyboard.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Animation\Timeline.js">
+      <DependentUpon>Timeline.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Brush.js">
+      <DependentUpon>Brush.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Effects\Effect.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Effects\DropShadowEffect.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Effects\BlurEffect.ts" />
+    <Content Include="Typescript\Media\Effects\BlurEffect.js">
+      <DependentUpon>BlurEffect.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Effects\DropShadowEffect.js">
+      <DependentUpon>DropShadowEffect.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Effects\Effect.js">
+      <DependentUpon>Effect.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\GeneralTransform.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Enums.ts" />
+    <TypeScriptCompile Include="Typescript\Media\EllipseGeometry.ts" />
+    <Content Include="Typescript\Media\EllipseGeometry.js">
+      <DependentUpon>EllipseGeometry.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Enums.js">
+      <DependentUpon>Enums.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\GeneralTransform.js">
+      <DependentUpon>GeneralTransform.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Geometry.js">
+      <DependentUpon>Geometry.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Matrix.ts" />
+    <TypeScriptCompile Include="Typescript\Media\GradientBrush.ts" />
+    <TypeScriptCompile Include="Typescript\Media\GeometryGroup.ts" />
+    <Content Include="Typescript\Media\GeometryGroup.js">
+      <DependentUpon>GeometryGroup.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\GradientBrush.js">
+      <DependentUpon>GradientBrush.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\GradientStop.ts" />
+    <TypeScriptCompile Include="Typescript\Media\GradientMetrics.ts" />
+    <Content Include="Typescript\Media\GradientMetrics.js">
+      <DependentUpon>GradientMetrics.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\GradientStop.js">
+      <DependentUpon>GradientStop.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\LinearGradientBrush.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Imaging\BitmapImage.ts" />
+    <Content Include="Typescript\Media\Imaging\BitmapImage.js">
+      <DependentUpon>BitmapImage.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Imaging\BitmapSource.ts" />
+    <Content Include="Typescript\Media\Imaging\BitmapSource.js">
+      <DependentUpon>BitmapSource.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Imaging\ImageBrush.ts" />
+    <Content Include="Typescript\Media\Imaging\ImageBrush.js">
+      <DependentUpon>ImageBrush.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Imaging\ImageSource.ts" />
+    <Content Include="Typescript\Media\Imaging\ImageSource.js">
+      <DependentUpon>ImageSource.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\LinearGradientBrush.js">
+      <DependentUpon>LinearGradientBrush.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\LineGeometry.ts" />
+    <Content Include="Typescript\Media\LineGeometry.js">
+      <DependentUpon>LineGeometry.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Matrix.js">
+      <DependentUpon>Matrix.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Matrix3DProjection.ts" />
+    <Content Include="Typescript\Media\Matrix3DProjection.js">
+      <DependentUpon>Matrix3DProjection.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\MediaParser.js">
+      <DependentUpon>MediaParser.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\SolidColorBrush.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Projection.ts" />
+    <TypeScriptCompile Include="Typescript\Media\PathGeometry.ts" />
+    <TypeScriptCompile Include="Typescript\Media\PathFigure.ts" />
+    <Content Include="Typescript\Media\PathFigure.js">
+      <DependentUpon>PathFigure.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\PathGeometry.js">
+      <DependentUpon>PathGeometry.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\PathSegment.ts" />
+    <Content Include="Typescript\Media\PathSegment.js">
+      <DependentUpon>PathSegment.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\PathSegments.ts" />
+    <Content Include="Typescript\Media\PathSegments.js">
+      <DependentUpon>PathSegments.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Projection.js">
+      <DependentUpon>Projection.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\RadialGradientBrush.ts" />
+    <Content Include="Typescript\Media\RadialGradientBrush.js">
+      <DependentUpon>RadialGradientBrush.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\RectangleGeometry.ts" />
+    <Content Include="Typescript\Media\RectangleGeometry.js">
+      <DependentUpon>RectangleGeometry.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\SolidColorBrush.js">
+      <DependentUpon>SolidColorBrush.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Primitives\Clip.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Transform.ts" />
+    <TypeScriptCompile Include="Typescript\Media\TileBrush.ts" />
+    <TypeScriptCompile Include="Typescript\Media\TextOptions.ts" />
+    <Content Include="Typescript\Media\TextOptions.js">
+      <DependentUpon>TextOptions.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\TileBrush.js">
+      <DependentUpon>TileBrush.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Media\Transform.js">
+      <DependentUpon>Transform.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Navigation\NavService.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Transforms.ts" />
+    <Content Include="Typescript\Media\Transforms.js">
+      <DependentUpon>Transforms.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\VSM\VisualState.ts" />
+    <Content Include="Typescript\Media\VSM\VisualState.js">
+      <DependentUpon>VisualState.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\VSM\VisualStateGroup.ts" />
+    <Content Include="Typescript\Media\VSM\VisualStateGroup.js">
+      <DependentUpon>VisualStateGroup.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\VSM\VisualStateManager.ts" />
+    <Content Include="Typescript\Media\VSM\VisualStateManager.js">
+      <DependentUpon>VisualStateManager.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\VSM\VisualTransition.ts" />
+    <Content Include="Typescript\Media\VSM\VisualTransition.js">
+      <DependentUpon>VisualTransition.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Input\ICommand.ts" />
+    <Content Include="Typescript\Input\ICommand.js">
+      <DependentUpon>ICommand.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Navigation\NavService.js">
+      <DependentUpon>NavService.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Primitives\Clip.js">
+      <DependentUpon>Clip.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Primitives\Color.js">
+      <DependentUpon>Color.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Primitives\Thickness.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\CornerRadius.ts" />
+    <Content Include="Typescript\Primitives\CornerRadius.js">
+      <DependentUpon>CornerRadius.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Primitives\Point.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\Duration.ts" />
+    <Content Include="Typescript\Primitives\Duration.js">
+      <DependentUpon>Duration.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Primitives\KeyTime.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\Font.ts" />
+    <Content Include="Typescript\Primitives\Font.js">
+      <DependentUpon>Font.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Primitives\FontFamily.ts" />
+    <Content Include="Typescript\Primitives\FontFamily.js">
+      <DependentUpon>FontFamily.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Primitives\KeyTime.js">
+      <DependentUpon>KeyTime.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Primitives\Point.js">
+      <DependentUpon>Point.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Primitives\rect.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\RawMatrix.ts" />
+    <Content Include="Typescript\Primitives\RawMatrix.js">
+      <DependentUpon>RawMatrix.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Primitives\rect.js">
+      <DependentUpon>rect.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Primitives\size.ts" />
+    <Content Include="Typescript\Primitives\size.js">
+      <DependentUpon>size.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Primitives\Thickness.js">
+      <DependentUpon>Thickness.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Primitives\TimeSpan.ts" />
+    <Content Include="Typescript\Primitives\TimeSpan.js">
+      <DependentUpon>TimeSpan.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Primitives\Uri.ts" />
+    <Content Include="Typescript\Primitives\Uri.js">
+      <DependentUpon>Uri.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Runtime\AjaxJsonRequest.ts" />
+    <Content Include="Typescript\Runtime\AjaxJsonRequest.js">
+      <DependentUpon>AjaxJsonRequest.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Runtime\Enum.js">
+      <DependentUpon>Enum.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Runtime\Enumerable.js">
+      <DependentUpon>Enumerable.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\NameScope.js">
+      <DependentUpon>NameScope.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Core\UIElement.ts" />
+    <Content Include="Typescript\Core\UIElement.js">
+      <DependentUpon>UIElement.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\XamlNode.js">
+      <DependentUpon>XamlNode.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Core\XamlObject.js">
+      <DependentUpon>XamlObject.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Engine\Exceptions.ts" />
+    <TypeScriptCompile Include="Typescript\Data\BindingExpressionBase.ts" />
+    <Content Include="Typescript\Data\BindingExpressionBase.js">
+      <DependentUpon>BindingExpressionBase.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Data\Enums.ts" />
+    <Content Include="Typescript\Data\Enums.js">
+      <DependentUpon>Enums.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Documents\TextElement.ts" />
+    <TypeScriptCompile Include="Typescript\Documents\Span.ts" />
+    <TypeScriptCompile Include="Typescript\Documents\Paragraph.ts" />
+    <TypeScriptCompile Include="Typescript\Documents\Block.ts" />
+    <Content Include="Typescript\Documents\Block.js">
+      <DependentUpon>Block.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Documents\Inline.ts" />
+    <Content Include="Typescript\Documents\Inline.js">
+      <DependentUpon>Inline.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Documents\Paragraph.js">
+      <DependentUpon>Paragraph.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Documents\Section.ts" />
+    <Content Include="Typescript\Documents\Section.js">
+      <DependentUpon>Section.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Documents\Span.js">
+      <DependentUpon>Span.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Documents\TextElement.js">
+      <DependentUpon>TextElement.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Engine\Exceptions.js">
+      <DependentUpon>Exceptions.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Runtime\BError.ts" />
+    <Content Include="Typescript\Runtime\BError.js">
+      <DependentUpon>BError.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Runtime\Nullstone.ts" />
+    <TypeScriptCompile Include="Typescript\Input\KeyInterop.ts" />
+    <Content Include="Typescript\Input\KeyInterop.js">
+      <DependentUpon>KeyInterop.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Runtime\EventArgs.ts" />
+    <Content Include="Typescript\Runtime\EventArgs.js">
+      <DependentUpon>EventArgs.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Runtime\MulticastEvent.ts" />
+    <Content Include="Typescript\Runtime\MulticastEvent.js">
+      <DependentUpon>MulticastEvent.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Runtime\Nullstone.js">
+      <DependentUpon>Nullstone.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Shapes\PointCollection.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\DoubleCollection.ts" />
+    <TypeScriptCompile Include="Typescript\Runtime\PropertyInfo.ts" />
+    <Content Include="Typescript\Runtime\PropertyInfo.js">
+      <DependentUpon>PropertyInfo.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Runtime\StringEx.ts" />
+    <Content Include="Typescript\Runtime\StringEx.js">
+      <DependentUpon>StringEx.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Shapes\DoubleCollection.js">
+      <DependentUpon>DoubleCollection.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Shapes\Enums.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\Ellipse.ts" />
+    <Content Include="Typescript\Shapes\Ellipse.js">
+      <DependentUpon>Ellipse.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Shapes\Enums.js">
+      <DependentUpon>Enums.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Shapes\Line.ts" />
+    <Content Include="Typescript\Shapes\Line.js">
+      <DependentUpon>Line.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Shapes\Path.ts" />
+    <Content Include="Typescript\Shapes\Path.js">
+      <DependentUpon>Path.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Shapes\PointCollection.js">
+      <DependentUpon>PointCollection.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Shapes\Shape.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\RawPath.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\Polygon.ts" />
+    <Content Include="Typescript\Shapes\Polygon.js">
+      <DependentUpon>Polygon.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Shapes\Polyline.ts" />
+    <Content Include="Typescript\Shapes\Polyline.js">
+      <DependentUpon>Polyline.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Shapes\RawPath.js">
+      <DependentUpon>RawPath.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Shapes\Rectangle.ts" />
+    <Content Include="Typescript\Shapes\Rectangle.js">
+      <DependentUpon>Rectangle.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Shapes\Shape.js">
+      <DependentUpon>Shape.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Text\TextLayout.ts" />
+    <TypeScriptCompile Include="Typescript\Text\TextAttributes.ts" />
+    <TypeScriptCompile Include="Typescript\Text\History.ts" />
+    <Content Include="Typescript\Text\History.js">
+      <DependentUpon>History.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Text\TextAttributes.js">
+      <DependentUpon>TextAttributes.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Text\TextLayout.js">
+      <DependentUpon>TextLayout.ts</DependentUpon>
+    </Content>
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -449,7 +1446,6 @@
       <DependentUpon>Web.config</DependentUpon>
     </Content>
     <Content Include="xaml.aspx" />
-    <TypeScriptCompile Include="Fayde.d.ts" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">
@@ -467,8 +1463,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Fayde.order" />
-    <None Include="PackageAssemblies.bat" />
+    <Content Include="Fayde.tsorder">
+      <DependentUpon>Fayde.ts</DependentUpon>
+    </Content>
+    <None Include="build.bat" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WickedSick.Server.Framework.Fayde\WickedSick.Server.Framework.Fayde.csproj">
@@ -482,7 +1480,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Docs\Rules\" />
-    <Folder Include="Typescript\" />
+    <Folder Include="Typescript\MVVM\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -500,19 +1498,24 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptSourceMap> --sourcemap</TypeScriptSourceMap>
+  </PropertyGroup>
+  <Target Name="BeforeBuild">
+  </Target>
   <PropertyGroup>
-    <PreBuildEvent>"$(ProjectDir)PackageAssemblies.bat" "$(ProjectDir)"</PreBuildEvent>
+    <PostBuildEvent>cd "$(ProjectDir)"
+xcopy /s /y Fayde.js ..\jsbin\
+xcopy /s /y Fayde.tsorder ..\jsbin\
+xcopy /s /y Fayde.Generic.js ..\jsbin\</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>xcopy /s /y "$(ProjectDir)Fayde.js" "$(SolutionDir)..\JsBin\"
-xcopy /s /y "$(ProjectDir)Fayde.order" "$(SolutionDir)..\JsBin\"
-xcopy /s /y "$(ProjectDir)Fayde.Generic.js" "$(SolutionDir)..\JsBin\"</PostBuildEvent>
+    <PreBuildEvent>cd "$(ProjectDir)"
+build.bat "$(ProjectDir)"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
+  -->
   <Target Name="AfterBuild">
   </Target>
-  -->
 </Project>

@@ -1,0 +1,1 @@
+ClosureService.exe in:"Source\WickedSick.Fayde.Client.Engine\Fayde.js" out:"Fayde-min.js"

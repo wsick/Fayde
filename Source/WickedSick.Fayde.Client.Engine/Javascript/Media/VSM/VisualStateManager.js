@@ -258,4 +258,4 @@
     };
 
     namespace.VisualStateManager = Nullstone.FinishCreate(VisualStateManager);
-})(Nullstone.Namespace("Fayde.Media.VisualStateManager"));
+})(Nullstone.Namespace("Fayde.Media.VSM"));

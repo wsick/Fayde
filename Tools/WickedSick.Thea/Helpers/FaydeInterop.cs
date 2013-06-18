@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Json;
 using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 using WatiN.Core;
+using WatiN.Core.Exceptions;
 using WickedSick.Thea.Models;
 using WickedSick.Thea.ViewModels;
 using WickedSick.Thea.VisualStudioInterop;
@@ -12,60 +16,72 @@ namespace WickedSick.Thea.Helpers
 {
     public class FaydeInterop : IJavascriptContext
     {
-        private static readonly string INITIALIZATION_SCRIPT = "(function() { var fi = new FaydeInterop(App.Instance); return fi._ID; })();";
-
         private Browser _Browser;
-        private int? _ID = null;
         private VisualStudioInstance _VSI;
-
-        public int? ID { get { return _ID; } }
 
         public FaydeInterop(Browser browser)
         {
             _Browser = browser;
-            InitializeFaydeInteropJs();
-            int id;
-            if (int.TryParse(_Browser.Eval(INITIALIZATION_SCRIPT), out id))
-                _ID = id;
+            InvalidateCache();
         }
 
         public bool IsCacheInvalidated
         {
             get
             {
-                return Eval(string.Format("FaydeInterop.Reg[{0}]._InvalidatedCache", this._ID)) == "true";
+                IsAlive = VerifyInterop();
+                return IsAlive && Eval("App.Current.DebugInterop.IsCacheInvalidated") == "true";
+            }
+        }
+        public bool IsAlive { get; protected set; }
+
+        public void InvalidateCache()
+        {
+            try
+            {
+                Execute("if (window.App && App.Current.DebugInterop) App.Current.DebugInterop.InvalidateCache();");
+            }
+            catch (Exception)
+            {
             }
         }
 
-
         public IEnumerable<VisualViewModel> GetVisualTree()
         {
-            RunFunc("GenerateCache");
+            IsAlive = VerifyInterop();
+            if (!IsAlive)
+                return Enumerable.Empty<VisualViewModel>();
 
-            var indexStack = new Stack<int>();
-            var tuple = GetVisual(indexStack);
-            GetVisualTreeChildren(tuple, indexStack);
-            return tuple.Item1.VisualChildren;
+            var json = RunFunc("GetCache");
+            var cache = ParseJson<DebugInteropCache>(json);
+            if (cache == null)
+                return Enumerable.Empty<VisualViewModel>();
+            return cache.Children.Select(CreateVisualViewModel);
         }
-
-        public void PopulateProperties(VisualViewModel vvm)
+        protected VisualViewModel CreateVisualViewModel(DebugInteropCache cache)
         {
-            var formattedArr = RunFunc("GetProperties", GetJsCodeToGetVisual(vvm));
-            var props = ParseDependencyValueArray(formattedArr)
-                .OrderBy(dv => dv.OwnerTypeName)
-                .ThenBy(dv => dv.Name)
-                .ToList();
-            vvm.Properties.Clear();
-            foreach (var p in props)
-                vvm.Properties.Add(p);
+            var vvm = new VisualViewModel
+            {
+                ID = cache.ID,
+                Name = cache.Name,
+                TypeName = cache.TypeName,
+            };
+            if (string.IsNullOrWhiteSpace(vvm.Name))
+                vvm.Name = null;
+            if (cache.Children != null)
+                vvm.VisualChildren = new ObservableCollection<VisualViewModel>(cache.Children.Select(CreateVisualViewModel));
+            return vvm;
         }
 
-        public IEnumerable<string> GetVisualIDsInHitTest()
+        public IEnumerable<int> GetVisualIDsInHitTest()
         {
-            var formattedArr = RunFunc("GetVisualIDsInHitTest");
-            return ParseStringArray(formattedArr);
-        }
+            IsAlive = VerifyInterop();
+            if (!IsAlive)
+                return Enumerable.Empty<int>();
 
+            var json = RunFunc("GetVisualIDsInHitTest");
+            return DeserializeList<int>(json);
+        }
 
         public void AttachToVisualStudio(VisualStudioInstance instance)
         {
@@ -73,77 +89,54 @@ namespace WickedSick.Thea.Helpers
             _VSI.Attach();
         }
 
-        
-        private void GetVisualTreeChildren(Tuple<VisualViewModel, int> rootTuple, Stack<int> indexStack)
+        public IEnumerable<DependencyPropertyCache> GetDependencyProperties()
         {
-            for (int i = 0; i < rootTuple.Item2; i++)
-            {
-                indexStack.Push(i);
-                var tuple = GetVisual(indexStack);
-                rootTuple.Item1.VisualChildren.Add(tuple.Item1);
-                GetVisualTreeChildren(tuple, indexStack);
-                indexStack.Pop();
-            }
+            IsAlive = VerifyInterop();
+            if (!IsAlive)
+                return Enumerable.Empty<DependencyPropertyCache>();
+
+            var json = RunFunc("GetDPCache");
+            return ParseJson<List<DependencyPropertyCache>>(json) 
+                ?? Enumerable.Empty<DependencyPropertyCache>();
         }
 
-        private Tuple<VisualViewModel, int> GetVisual(IEnumerable<int> indices)
+        public IEnumerable<PropertyStorageWrapper> GetStorages(int id)
         {
-            var indexPath = string.Join("", indices.Reverse().Select(i => string.Format(".Children[{0}]", i)));
-            string js = string.Format("FaydeInterop.Reg[{0}]._Cache{1}.Serialized", this._ID, indexPath);
-            var tuple = DeserializeVisual(_Browser.Eval(js));
-            tuple.Item1.IndexPath = indexPath;
-            RefreshIsThisOnStackFrame(tuple.Item1);
-            return tuple;
+            IsAlive = VerifyInterop();
+            if (!IsAlive)
+                return Enumerable.Empty<PropertyStorageWrapper>();
+
+            var json = RunFunc("GetStorages", id.ToString());
+            return DeserializeList(json)
+                .Select(d => new PropertyStorageWrapper { DynamicObject = d, })
+                .ToList();
         }
 
-        private static Tuple<VisualViewModel, int> DeserializeVisual(string formatted)
+        public LayoutMetrics GetLayoutMetrics(int id)
         {
-            var tokens = formatted.Split(new[] { "~|~" }, StringSplitOptions.None);
-            var childCount = int.Parse(tokens[3]);
-            var vvm = new VisualViewModel
-            {
-                Type = tokens[0],
-                Name = tokens[1],
-                ID = tokens[2],
-            };
-            if (string.IsNullOrWhiteSpace(vvm.Name))
-                vvm.Name = null;
-            return Tuple.Create(vvm, childCount);
-        }
+            IsAlive = VerifyInterop();
+            if (!IsAlive)
+                return null;
 
-        private static IEnumerable<DependencyValue> ParseDependencyValueArray(string s)
-        {
-            var js = new JavaScriptSerializer();
-            dynamic obj = js.Deserialize(s, typeof(object));
-            for (int i = 0; i < obj.Length; i++)
-			{
-                var ownerTypeName = obj[i]["OwnerType"].ToString();
-                var name = obj[i]["Name"].ToString();
-                var value = (obj[i]["Value"] ?? string.Empty).ToString();
-                yield return new DependencyValue
-                {
-                    OwnerTypeName = ownerTypeName,
-                    Name = name,
-                    Value = value,
-                };
-			}
+            var json = RunFunc("GetLayoutMetrics", id.ToString());
+            //JsonConvert.DeserializeObject<JsLayoutMetrics>(json);
+            //dynamic des = JsonConvert.DeserializeObject<dynamic>(json);
+            return LayoutMetrics.FromJson(json);
         }
-
-        private static IEnumerable<string> ParseStringArray(string s)
-        {
-            var js = new JavaScriptSerializer();
-            dynamic obj = js.Deserialize(s, typeof(object));
-            for (int i = 0; i < obj.Length; i++)
-            {
-                object o = obj[i];
-                if (o != null)
-                    yield return o.ToString();
-            }
-        }
-
 
         #region Execution Wrapper
 
+        protected bool VerifyInterop()
+        {
+            try
+            {
+                return !string.IsNullOrWhiteSpace(Eval("App.Current.DebugInterop"));
+            }
+            catch (JavaScriptException)
+            {
+                return false;
+            }
+        }
         public void Execute(string script)
         {
             if (_VSI != null && _VSI.IsDebugging)
@@ -160,7 +153,6 @@ namespace WickedSick.Thea.Helpers
             }
             _Browser.RunScript(script);
         }
-
         public string Eval(string expression)
         {
             if (_VSI != null && _VSI.IsDebugging)
@@ -175,7 +167,6 @@ namespace WickedSick.Thea.Helpers
             }
             return _Browser.Eval(expression);
         }
-
         public string EvalAgainstStackFrame(string expression)
         {
             if (_VSI != null && _VSI.IsDebugging)
@@ -195,28 +186,12 @@ namespace WickedSick.Thea.Helpers
 
         #region Fayde Interop Js Wrapper
 
-        private void InitializeFaydeInteropJs()
-        {
-            var jsStream = this.GetType().Assembly.GetManifestResourceStream("WickedSick.Thea.Helpers.FaydeInterop.js");
-            using (var sr = new StreamReader(jsStream))
-            {
-                var js = sr.ReadToEnd();
-                Execute(js);
-            }
-        }
-
-        private string GetJsCodeToGetVisual(VisualViewModel vvm)
-        {
-            return vvm.ResolveVisualWithJavascript((int)this._ID);
-        }
-
         private string RunFunc(string functionName, string args = null)
         {
-            return Eval(string.Format("FaydeInterop.Reg[{0}].{1}({2})", this._ID, functionName, args));
+            return Eval(string.Format("App.Current.DebugInterop.{0}({1})", functionName, args));
         }
 
         #endregion
-
 
         private void RefreshIsThisOnStackFrame(VisualViewModel vvm)
         {
@@ -226,8 +201,46 @@ namespace WickedSick.Thea.Helpers
             var obj = _VSI.GetExpression("this._ID") as string;
             if (obj == null)
                 return;
-            if (obj == vvm.ID)
+            if (obj == vvm.ID.ToString())
                 vvm.IsThisOnStackFrame = true;
+        }
+
+        private static T ParseJson<T>(string json) where T : class
+        {
+            var serializer = new DataContractJsonSerializer(typeof(T));
+            try
+            {
+                using (var ms = new MemoryStream(System.Text.UTF8Encoding.UTF8.GetBytes(json)))
+                {
+                    return serializer.ReadObject(ms) as T;
+                }
+            }
+            catch (Exception)
+            {
+                return default(T);
+            }
+        }
+
+        private static List<dynamic> DeserializeList(string json)
+        {
+            dynamic result = JsonConvert.DeserializeObject<dynamic>(json) ?? Enumerable.Empty<dynamic>();
+            var list = new List<dynamic>();
+            foreach (dynamic d in result)
+            {
+                list.Add(d);
+            }
+            return list;
+        }
+
+        private static List<T> DeserializeList<T>(string json)
+        {
+            dynamic result = JsonConvert.DeserializeObject<dynamic>(json) ?? Enumerable.Empty<dynamic>();
+            var list = new List<T>();
+            foreach (dynamic d in result)
+            {
+                list.Add((T)d.Value);
+            }
+            return list;
         }
     }
 }

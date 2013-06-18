@@ -65,7 +65,7 @@ namespace WickedSick.Server.Framework.Fayde
             {
                 foreach (var include in includes)
                 {
-                    Writer.WriteLine(string.Format("\t\t<script src=\"{0}Javascript/{1}\" type=\"text/javascript\"></script>", scriptResolution, include));
+                    Writer.WriteLine(string.Format("\t\t<script src=\"{0}{1}\" type=\"text/javascript\"></script>", scriptResolution, include));
                 }
             }
             else
@@ -101,7 +101,7 @@ namespace WickedSick.Server.Framework.Fayde
 
         public void WriteBodyStart()
         {
-            Writer.WriteLine("\t<body onload=\"Fayde.Initialize()\" onmousedown=\"return false;\" style=\"margin: 0;\">");
+            Writer.WriteLine("\t<body onload=\"Fayde.Run()\" onmousedown=\"return false;\" style=\"margin: 0;\">");
         }
         public void WriteBodyEnd()
         {

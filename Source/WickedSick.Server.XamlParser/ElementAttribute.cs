@@ -66,7 +66,7 @@ namespace WickedSick.Server.XamlParser
                 basicTypeName = elAttr.NullstoneName;
             var full = string.Format("{0}.{1}", elAttr.NullstoneNamespace, basicTypeName);
 
-            return string.Format("var {0} = {1};", basicTypeName, full);
+            return string.Format("var {0} = {1}; if (!{0}) throw new UnknownTypeException(\"{1}\");", basicTypeName, full);
         }
         
         private static ElementAttribute GetElementAttribute(Type type)

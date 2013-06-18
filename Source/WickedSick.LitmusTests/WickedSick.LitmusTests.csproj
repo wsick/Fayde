@@ -83,6 +83,9 @@
     <Compile Include="Tests\BrushTest.xaml.cs">
       <DependentUpon>BrushTest.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tests\ContentPresenterTest.xaml.cs">
+      <DependentUpon>ContentPresenterTest.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tests\ImageBrushTest.xaml.cs">
       <DependentUpon>ImageBrushTest.xaml</DependentUpon>
     </Compile>
@@ -100,8 +103,17 @@
     <Compile Include="Tests\Layout.xaml.cs">
       <DependentUpon>Layout.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tests\MapTest.xaml.cs">
+      <DependentUpon>MapTest.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tests\RectangleTest.xaml.cs">
       <DependentUpon>RectangleTest.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Tests\ResourceTest.xaml.cs">
+      <DependentUpon>ResourceTest.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Tests\ScrollBarTest.xaml.cs">
+      <DependentUpon>ScrollBarTest.xaml</DependentUpon>
     </Compile>
     <Compile Include="Tests\ScrollViewerTest.xaml.cs">
       <DependentUpon>ScrollViewerTest.xaml</DependentUpon>
@@ -120,6 +132,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Tests\BrushTest.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Tests\ContentPresenterTest.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -143,7 +159,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Tests\MapTest.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Tests\RectangleTest.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Tests\ResourceTest.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Tests\ScrollBarTest.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

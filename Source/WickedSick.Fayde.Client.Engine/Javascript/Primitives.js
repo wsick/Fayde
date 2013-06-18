@@ -57,7 +57,7 @@ var rect = (function () {
     };
     rect.intersection = function intersection(rect1, rect2) {
         var x = Math.max(rect1.X, rect2.X);
-        var y = Math.max(rect2.Y, rect2.Y);
+        var y = Math.max(rect1.Y, rect2.Y);
         rect1.Width = Math.max(0, Math.min(rect1.X + rect1.Width, rect2.X + rect2.Width) - x);
         rect1.Height = Math.max(0, Math.min(rect1.Y + rect1.Height, rect2.Y + rect2.Height) - y);
         rect1.X = x;
@@ -237,7 +237,12 @@ var rect = (function () {
         if((cm1 | cm2 | cm3 | cm4) !== 0) {
             if((cm1 & cm2 & cm3 & cm4) === 0) {
                 rect.clear(dest);
-            }
+                //TODO: Implement
+                //var r1 = Matrix3D._ClipToBounds(p1, p2, p3, cm1 | cm2 | cm3);
+                //var r2 = Matrix3D._ClipToBounds(p1, p3, p4, cm1 | cm3 | cm4);
+                //if (!r1.IsEmpty()) rect.union(dest, r1);
+                //if (!r2.IsEmpty()) rect.union(dest, r2);
+                            }
         } else {
             var p1w = 1.0 / p1[3];
             var p2w = 1.0 / p2[3];
@@ -430,3 +435,4 @@ var size = (function () {
     };
     return size;
 })();
+//@ sourceMappingURL=Primitives.js.map

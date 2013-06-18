@@ -1,0 +1,22 @@
+﻿Storyboard
+	Begin
+		- Reset Timeline
+		- Register to receive clock updates
+		- Hookup child animations
+		- Attach child animations
+	Pause
+		- Pause children
+	Resume
+		- Resume children
+	Stop
+		- Unregister to stop receiving clock updates
+		- Stop children
+
+Animation
+	Hookup
+		- Resolve target object/property combination
+		- Find storage currently attached to target object/property
+		- Disable current storage
+		- Push new storage on top of storage stack
+		- Figure out base value
+		- Figure out stop value (current local value or previous storage stop value)

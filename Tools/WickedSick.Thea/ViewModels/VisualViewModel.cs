@@ -10,8 +10,7 @@ namespace WickedSick.Thea.ViewModels
     {
         #region Properties
 
-        public string IndexPath { get; set; }
-        public string ID { get; set; }
+        public int ID { get; set; }
 
         private bool _IsThisOnStackFrame;
         public bool IsThisOnStackFrame
@@ -35,14 +34,14 @@ namespace WickedSick.Thea.ViewModels
             }
         }
 
-        private string _Type;
-        public string Type
+        private string _TypeName;
+        public string TypeName
         {
-            get { return _Type; }
+            get { return _TypeName; }
             set
             {
-                _Type = value;
-                OnPropertyChanged("Type");
+                _TypeName = value;
+                OnPropertyChanged("TypeName");
             }
         }
 
@@ -68,14 +67,25 @@ namespace WickedSick.Thea.ViewModels
             }
         }
 
-        private ObservableCollection<DependencyValue> _Properties = new ObservableCollection<DependencyValue>();
-        public ObservableCollection<DependencyValue> Properties
+        private ObservableCollection<PropertyStorageWrapper> _PropertyStorages;
+        public ObservableCollection<PropertyStorageWrapper> PropertyStorages
         {
-            get { return _Properties; }
+            get { return _PropertyStorages; }
             set
             {
-                _Properties = value;
-                OnPropertyChanged("Properties");
+                _PropertyStorages = value;
+                OnPropertyChanged("PropertyStorages");
+            }
+        }
+
+        private LayoutMetrics _LayoutMetrics;
+        public LayoutMetrics LayoutMetrics
+        {
+            get { return _LayoutMetrics; }
+            set
+            {
+                _LayoutMetrics = value;
+                OnPropertyChanged("LayoutMetrics");
             }
         }
 
@@ -89,11 +99,6 @@ namespace WickedSick.Thea.ViewModels
                     return Enumerable.Empty<VisualViewModel>();
                 return VisualChildren.Concat(VisualChildren.SelectMany(vc => vc.AllChildren));
             }
-        }
-
-        public string ResolveVisualWithJavascript(int faydeInteropId)
-        {
-            return string.Format("FaydeInterop.Reg[{0}]._Cache{1}.Visual", faydeInteropId, IndexPath);
         }
     }
 }

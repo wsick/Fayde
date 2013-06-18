@@ -16,6 +16,10 @@ namespace JsSingularity
             //  IncludeSubdirectories
             //  IncludesFile
             //  BaseIncludePath
+            //  TsIncludeFormat
+            //      ?f||{0} --> Use Full Path
+            //      ?s||{0} --> Use Relative Path (Use \ instead of /)
+            //      {0}     --> Use Relative Path (Use /)
             var cmdLine = ParseCommandLine(args).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             var combiner = new Combiner
@@ -26,6 +30,9 @@ namespace JsSingularity
                 IncludesFilePath = cmdLine.Value("IncludesFile"),
                 BaseIncludesPath = cmdLine.Value("BaseIncludesPath"),
                 IsDebug = cmdLine.Value("Debug").EqualsIgnoreCase("true"),
+                IsInTSMode = cmdLine.Value("ts").EqualsIgnoreCase("true"),
+                TsIncludeFile = cmdLine.Value("TsIncludeFile"),
+                TsIncludeFormat = cmdLine.Value("TsIncludeFormat"),
             };
 #if TESTING
             combiner.DeployPath = System.IO.Directory.GetCurrentDirectory();
