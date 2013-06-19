@@ -4,8 +4,8 @@
 
 module Fayde.Data {
     export interface IValueConverter {
-        Convert(value: any, targetType: Function, parameter: any, culture: any): any;
-        ConvertBack(value: any, targetType: Function, parameter: any, culture: any): any;
+        Convert(value: any, targetType: IType, parameter: any, culture: any): any;
+        ConvertBack(value: any, targetType: IType, parameter: any, culture: any): any;
     }
 
     export class Binding extends BindingBase {

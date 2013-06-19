@@ -27,7 +27,7 @@ module Fayde.Media {
             this._OverridePath = path;
         }
 
-        private _Build(): Shapes.RawPath {
+        _Build(): Shapes.RawPath {
             if (this._OverridePath)
                 return this._OverridePath;
 
@@ -43,7 +43,7 @@ module Fayde.Media {
             return p;
         }
 
-        private PathFigureChanged(newPathFigure: PathFigure) {
+        PathFigureChanged(newPathFigure: PathFigure) {
             this._OverridePath = null; //Any change in PathFigures invalidates a path override
             this._InvalidateGeometry();
         }

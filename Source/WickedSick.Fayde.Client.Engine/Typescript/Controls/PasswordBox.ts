@@ -36,8 +36,6 @@ module Fayde.Controls {
 
         PasswordChangedEvent: RoutedEvent = new RoutedEvent();
 
-        private _Buffer: string; //Defined in TextBoxBase
-        
         constructor() {
             super(TextBoxEmitChangedType.TEXT, PasswordBox.PasswordProperty);
             this.DefaultStyleKey = (<any>this).constructor;
@@ -54,14 +52,14 @@ module Fayde.Controls {
             return result;
         }
 
-        private CursorDown(cursor: number, isPage: bool): number { return this._Buffer.length; }
-        private CursorUp(cursor: number, isPage: bool): number { return 0; }
-        private CursorNextWord(cursor: number): number { return this._Buffer.length; }
-        private CursorPrevWord(cursor: number): number { return 0; }
-        private CursorLineBegin(cursor: number): number { return 0; }
-        private CursorLineEnd(cursor: number): number { return this._Buffer.length; }
+        CursorDown(cursor: number, isPage: bool): number { return this._Buffer.length; }
+        CursorUp(cursor: number, isPage: bool): number { return 0; }
+        CursorNextWord(cursor: number): number { return this._Buffer.length; }
+        CursorPrevWord(cursor: number): number { return 0; }
+        CursorLineBegin(cursor: number): number { return 0; }
+        CursorLineEnd(cursor: number): number { return this._Buffer.length; }
         
-        private _EmitTextChanged() {
+        _EmitTextChanged() {
             this.PasswordChangedEvent.RaiseAsync(this, EventArgs.Empty);
         }
 

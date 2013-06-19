@@ -10,8 +10,8 @@ module Fayde.Media {
     export class Projection extends DependencyObject {
         private _ProjectionMatrix: Matrix3D = null;
         
-        private _ObjectWidth: number = 1.0;
-        private _ObjectHeight: number = 1.0;
+        _ObjectWidth: number = 1.0;
+        _ObjectHeight: number = 1.0;
         SetObjectSize(size: ISize) {
             var w = Math.max(size.Width, 1.0);
             var h = Math.max(size.Height, 1.0);
@@ -33,7 +33,7 @@ module Fayde.Media {
         CreateProjectionMatrix(): Matrix3D { return null; }
 
         private _Listeners: IProjectionChangedListener[] = [];
-        Listen(func: (source: Transform) => void ): IProjectionChangedListener {
+        Listen(func: (source: Projection) => void ): IProjectionChangedListener {
             var listeners = this._Listeners;
             var listener = {
                 Callback: func,

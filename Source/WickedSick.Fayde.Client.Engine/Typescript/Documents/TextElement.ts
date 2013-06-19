@@ -13,12 +13,12 @@ module Fayde.Documents {
             this.InheritedWalkProperty = inheritedWalkProperty;
         }
         InheritedWalkProperty: string;
-        GetInheritedEnumerator(): IEnumerator {
+        GetInheritedEnumerator(): IEnumerator<DONode> {
             if (!this.InheritedWalkProperty)
                 return ArrayEx.EmptyEnumerator;
-            var coll: XamlObjectCollection = this.XObject[this.InheritedWalkProperty];
+            var coll: XamlObjectCollection<DependencyObject> = this.XObject[this.InheritedWalkProperty];
             if (coll)
-                return coll.GetNodeEnumerator();
+                return coll.GetNodeEnumerator<DONode>();
         }
     }
     Nullstone.RegisterType(TextElementNode, "TextElementNode");
@@ -44,7 +44,7 @@ module Fayde.Documents {
         Language: string;
         TextDecorations: TextDecorations;
 
-        private IsInheritable(propd: DependencyProperty): bool {
+        IsInheritable(propd: DependencyProperty): bool {
             return TextElementInheritedProps.indexOf(propd) > -1;
         }
 
@@ -55,7 +55,7 @@ module Fayde.Documents {
             this._UpdateFont(true);
         }
 
-        _SerializeText(): string { return undefined; };
+        _SerializeText(): string { return undefined; }
         private _UpdateFont(force?: bool) {
             var f = this._Font;
             f.Family = this.FontFamily;
@@ -93,7 +93,7 @@ module Fayde.Documents {
             return true;
         }
 
-        private FontChanged(args: IDependencyPropertyChangedEventArgs) {
+        FontChanged(args: IDependencyPropertyChangedEventArgs) {
             this._UpdateFont(false);
         }
     }
@@ -108,5 +108,5 @@ module Fayde.Documents {
         TextElement.ForegroundProperty,
         TextElement.TextDecorationsProperty,
         TextElement.LanguageProperty
-    ];
+    ]
 }

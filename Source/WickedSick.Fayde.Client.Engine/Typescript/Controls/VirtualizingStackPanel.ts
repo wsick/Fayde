@@ -106,7 +106,8 @@ module Fayde.Controls {
             var isVertical = this.Orientation === Orientation.Vertical;
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.MoveNext()) {
-                var childNode = <UINode>enumerator.Current;
+                var child = enumerator.Current;
+                var childNode = child.XamlNode;
                 var childRenderSize = childNode.LayoutUpdater.RenderSize;
                 if (uin === childNode) {
                     if (isVertical) {
@@ -178,13 +179,13 @@ module Fayde.Controls {
         static OrientationProperty: DependencyProperty = DependencyProperty.Register("Orientation", () => new Enum(Orientation), VirtualizingStackPanel, Orientation.Vertical, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.InvalidateMeasure());
         Orientation: Orientation;
         static IsVirtualizingProperty: DependencyProperty = DependencyProperty.RegisterAttached("IsVirtualizing", () => new Boolean, VirtualizingStackPanel, false);
-        static GetIsVirtualizing(d: DependencyObject): bool { return d.GetValue(IsVirtualizingProperty); }
-        static SetIsVirtualizing(d: DependencyObject, value: bool) { d.SetValue(IsVirtualizingProperty, value); }
+        static GetIsVirtualizing(d: DependencyObject): bool { return d.GetValue(VirtualizingStackPanel.IsVirtualizingProperty); }
+        static SetIsVirtualizing(d: DependencyObject, value: bool) { d.SetValue(VirtualizingStackPanel.IsVirtualizingProperty, value); }
         static VirtualizationModeProperty: DependencyProperty = DependencyProperty.RegisterAttached("VirtualizationMode", () => new Enum(VirtualizationMode), VirtualizingStackPanel, VirtualizationMode.Recycling);
-        static GetVirtualizationMode(d: DependencyObject): VirtualizationMode { return d.GetValue(VirtualizationModeProperty); }
-        static SetVirtualizationMode(d: DependencyObject, value: VirtualizationMode) { d.SetValue(VirtualizationModeProperty, value); }
+        static GetVirtualizationMode(d: DependencyObject): VirtualizationMode { return d.GetValue(VirtualizingStackPanel.VirtualizationModeProperty); }
+        static SetVirtualizationMode(d: DependencyObject, value: VirtualizationMode) { d.SetValue(VirtualizingStackPanel.VirtualizationModeProperty, value); }
 
-        private _MeasureOverride(availableSize: size, error: BError): size {
+        _MeasureOverride(availableSize: size, error: BError): size {
             var owner = ItemsControl.GetItemsOwner(this);
             var measured = new size();
             var invalidate = false;
@@ -302,7 +303,7 @@ module Fayde.Controls {
 
             return measured;
         }
-        private _ArrangeOverride(finalSize: size, error: BError): size {
+        _ArrangeOverride(finalSize: size, error: BError): size {
             var arranged = size.copyTo(finalSize);
             var isHorizontal = this.Orientation === Orientation.Horizontal;
             if (!isHorizontal)
@@ -312,7 +313,7 @@ module Fayde.Controls {
 
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.MoveNext()) {
-                var child = <UIElement>enumerator.Current;
+                var child = enumerator.Current;
                 var childNode = child.XamlNode;
                 var childLu = childNode.LayoutUpdater;
                 var s = childLu.DesiredSize;

@@ -8,9 +8,9 @@ module Fayde.Documents {
         FlowDirection: FlowDirection;
         Text: string;
 
-        private _SerializeText(): string { return this.Text; }
+        _SerializeText(): string { return this.Text; }
 
-        private IsInheritable(propd: DependencyProperty): bool {
+        IsInheritable(propd: DependencyProperty): bool {
             if (propd === Run.FlowDirectionProperty)
                 return true;
             return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);

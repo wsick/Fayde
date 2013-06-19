@@ -404,7 +404,7 @@ module Fayde.Shapes {
             //end point
             var ex = cx + (r * Math.cos(ea));
             var ey = cy + (r * Math.sin(ea));
-            return _CalculateArcPointsRange(cx, cy, sx, sy, ex, ey, r, cc);
+            return RawPath._CalculateArcPointsRange(cx, cy, sx, sy, ex, ey, r, cc);
         }
         private static _CalculateArcToRange(sx: number, sy: number, cpx: number, cpy: number, ex: number, ey: number, r: number): IPointRange {
             NotImplemented("RawPath._CalculateArcToRange");
@@ -440,12 +440,12 @@ module Fayde.Shapes {
 
             var cc = true;
 
-            var r = _CalculateArcPointsRange(cx, cy, sx, sy, ex, ey, r, cc);
+            var rng = RawPath._CalculateArcPointsRange(cx, cy, sx, sy, ex, ey, r, cc);
             return {
-                xMin: Math.min(sx, r.xMin),
-                xMax: Math.max(sx, r.xMax),
-                yMin: Math.min(sy, r.yMin),
-                yMax: Math.max(sy, r.yMax)
+                xMin: Math.min(sx, rng.xMin),
+                xMax: Math.max(sx, rng.xMax),
+                yMin: Math.min(sy, rng.yMin),
+                yMax: Math.max(sy, rng.yMax)
             };
         }
         private static _CalculateArcPointsRange(cx: number, cy: number, sx: number, sy: number, ex: number, ey: number, r: number, cc: bool): IPointRange {
@@ -455,25 +455,25 @@ module Fayde.Shapes {
             var yMax = Math.max(sy, ey);
 
             var xLeft = cx - r;
-            if (_ArcContainsPoint(sx, sy, ex, ey, xLeft, cy, cc)) {
+            if (RawPath._ArcContainsPoint(sx, sy, ex, ey, xLeft, cy, cc)) {
                 //arc contains left edge of circle
                 xMin = Math.min(xMin, xLeft);
             }
 
             var xRight = cx + r;
-            if (_ArcContainsPoint(sx, sy, ex, ey, xRight, cy, cc)) {
+            if (RawPath._ArcContainsPoint(sx, sy, ex, ey, xRight, cy, cc)) {
                 //arc contains right edge of circle
                 xMax = Math.max(xMax, xRight);
             }
 
             var yTop = cy - r;
-            if (_ArcContainsPoint(sx, sy, ex, ey, cx, yTop, cc)) {
+            if (RawPath._ArcContainsPoint(sx, sy, ex, ey, cx, yTop, cc)) {
                 //arc contains top edge of circle
                 yMin = Math.min(yMin, yTop);
             }
 
             var yBottom = cy + r;
-            if (_ArcContainsPoint(sx, sy, ex, ey, cx, yBottom, cc)) {
+            if (RawPath._ArcContainsPoint(sx, sy, ex, ey, cx, yBottom, cc)) {
                 //arc contains bottom edge of circle
                 yMax = Math.max(yMax, yBottom);
             }

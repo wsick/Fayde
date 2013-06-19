@@ -6,8 +6,8 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 
 module Fayde {
-    export class XamlObjectCollection extends XamlObject implements IEnumerable {
-        private _ht: XamlObject[] = [];
+    export class XamlObjectCollection<T extends XamlObject> extends XamlObject implements IEnumerable<T> {
+        _ht: Array<T> = [];
         
         AttachTo(xobj: XamlObject) {
             var error = new BError();
@@ -17,14 +17,14 @@ module Fayde {
         
         get Count() { return this._ht.length; }
 
-        GetRange(startIndex: number, endIndex: number): XamlObject[] {
+        GetRange(startIndex: number, endIndex: number): T[] {
             return this._ht.slice(startIndex, endIndex);
         }
 
-        GetValueAt(index: number): XamlObject {
+        GetValueAt(index: number): T {
             return this._ht[index];
         }
-        SetValueAt(index: number, value: XamlObject): bool {
+        SetValueAt(index: number, value: T): bool {
             if (!this.CanAdd(value))
                 return false;
 
@@ -43,11 +43,11 @@ module Fayde {
             }
             return false;
         }
-        Add(value: XamlObject): number {
+        Add(value: T): number {
             var rv = this.Insert(this._ht.length, value);
             return rv ? this._ht.length - 1 : -1;
         }
-        Insert(index: number, value: XamlObject): bool {
+        Insert(index: number, value: T): bool {
             if (!this.CanAdd(value))
                 return false;
             if (index < 0)
@@ -66,7 +66,7 @@ module Fayde {
                 throw new Exception(error.Message);
             return false;
         }
-        Remove(value: XamlObject): bool {
+        Remove(value: T): bool {
             var index = this.IndexOf(value);
             if (index === -1)
                 return false;
@@ -92,35 +92,36 @@ module Fayde {
             this._RaiseCleared();
             return true;
         }
-        IndexOf(value: XamlObject): number {
+        IndexOf(value: T): number {
             return this._ht.indexOf(value);
         }
-        Contains(value: XamlObject): bool { return this.IndexOf(value) > -1; }
-        CanAdd (value: XamlObject): bool { return true; }
-        AddingToCollection(value: XamlObject, error: BError): bool {
+        Contains(value: T): bool { return this.IndexOf(value) > -1; }
+        CanAdd (value: T): bool { return true; }
+        AddingToCollection(value: T, error: BError): bool {
             if (value instanceof XamlObject)
                 return value.XamlNode.AttachTo(this.XamlNode, error);
         }
-        RemovedFromCollection(value: XamlObject, isValueSafe: bool) {
+        RemovedFromCollection(value: T, isValueSafe: bool) {
             if (value instanceof XamlObject)
                 value.XamlNode.Detach();
         }
 
-        GetEnumerator(reverse?: bool): IEnumerator {
+        GetEnumerator(reverse?: bool): IEnumerator<T> {
             return ArrayEx.GetEnumerator(this._ht, reverse);
         }
-        GetNodeEnumerator(reverse?: bool): IEnumerator {
-            return ArrayEx.GetNodeEnumerator(this._ht, reverse);
+        GetNodeEnumerator<U extends XamlNode>(reverse?: bool): IEnumerator<U> {
+            return ArrayEx.GetNodeEnumerator<T, U>(this._ht, reverse);
         }
 
-        _RaiseItemAdded(value: XamlObject, index: number) { }
-        _RaiseItemRemoved(value: XamlObject, index: number) { }
-        _RaiseItemReplaced(removed: XamlObject, added: XamlObject, index: number) { }
-        //_RaiseClearing(arr: XamlObject[]) { }
+        _RaiseItemAdded(value: T, index: number) { }
+        _RaiseItemRemoved(value: T, index: number) { }
+        _RaiseItemReplaced(removed: T, added: T, index: number) { }
+        //_RaiseClearing(arr: T[]) { }
         _RaiseCleared() { }
 
-        CloneCore(source: XamlObjectCollection) {
-            var enumerator = ArrayEx.GetEnumerator(this._ht);
+        CloneCore(source: XamlObject) {
+            var coll = <XamlObjectCollection<T>><any>source;
+            var enumerator = ArrayEx.GetEnumerator(coll._ht);
             while (enumerator.MoveNext()) {
                 this.Add(Fayde.Clone(enumerator.Current));
             }

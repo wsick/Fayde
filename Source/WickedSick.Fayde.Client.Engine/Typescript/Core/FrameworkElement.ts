@@ -9,10 +9,10 @@
 
 module Fayde {
     export class FENode extends UINode implements Providers.IStyleHolder, Providers.IImplicitStyleHolder {
-        private _LocalStyle: Style;
-        private _ImplicitStyles: Style[];
-        private _StyleMask: number;
-        private _Surface: Surface;
+        _LocalStyle: Style;
+        _ImplicitStyles: Style[];
+        _StyleMask: number;
+        _Surface: Surface;
 
         XObject: FrameworkElement;
         constructor(xobj: FrameworkElement) {
@@ -20,7 +20,6 @@ module Fayde {
         }
         SubtreeNode: XamlNode;
         SetSubtreeNode(subtreeNode: XamlNode, error: BError): bool {
-            var error = new BError();
             if (this.SubtreeNode) {
                 this.SubtreeNode.Detach();
                 this.SubtreeNode = null;
@@ -49,7 +48,7 @@ module Fayde {
             }
             var enumerator = this.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {
-                (<UINode>enumerator.Current).SetIsLoaded(newIsLoaded);
+                enumerator.Current.SetIsLoaded(newIsLoaded);
             }
             if (newIsLoaded) {
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
@@ -127,9 +126,9 @@ module Fayde {
                 error.ThrowException();
         }
 
-        GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
+        GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator<FENode> {
             if (this.SubtreeNode)
-                return ArrayEx.GetEnumerator([this.SubtreeNode]);
+                return ArrayEx.GetEnumerator([<FENode>this.SubtreeNode]);
             return ArrayEx.EmptyEnumerator;
         }
 
@@ -184,7 +183,7 @@ module Fayde {
         static VerticalAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalAlignment", () => new Enum(VerticalAlignment), FrameworkElement, VerticalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
         static WidthProperty: DependencyProperty = DependencyProperty.Register("Width", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._WidthChanged(args));
         
-        private IsInheritable(propd: DependencyProperty): bool {
+        IsInheritable(propd: DependencyProperty): bool {
             if (propd === FrameworkElement.FlowDirectionProperty)
                 return true;
             if (propd === FrameworkElement.LanguageProperty)
@@ -221,7 +220,7 @@ module Fayde {
 
         UpdateLayout() { this.XamlNode.UpdateLayout(); }
 
-        private _MeasureOverride(availableSize: size, error: BError): size {
+        _MeasureOverride(availableSize: size, error: BError): size {
             var desired = new size();
 
             availableSize = size.copyTo(availableSize);
@@ -238,7 +237,7 @@ module Fayde {
             size.min(desired, availableSize);
             return desired;
         }
-        private _ArrangeOverride(finalSize: size, error: BError): size {
+        _ArrangeOverride(finalSize: size, error: BError): size {
             var arranged = size.copyTo(finalSize);
 
             var enumerator = this.XamlNode.GetVisualTreeEnumerator();

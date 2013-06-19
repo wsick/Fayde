@@ -43,8 +43,6 @@ module Fayde.Media {
         RotationY: number;
         RotationZ: number;
 
-        private _ObjectWidth; //Defined in Projection
-        private _ObjectHeight; //Defined in Projection
         GetDistanceFromXYPlane(): number {
             var w = Math.max(this._ObjectWidth, 1.0);
             var h = Math.max(this._ObjectHeight, 1.0);

@@ -1,14 +1,15 @@
 /// <reference path="Nullstone.ts" />
 /// CODE
+/// <reference path="../Core/XamlObject.ts" />
 
 module Fayde {
-    export interface IEnumerable {
-        GetEnumerator(reverse?: bool): IEnumerator;
+    export interface IEnumerable<T> {
+        GetEnumerator(reverse?: bool): IEnumerator<T>;
     }
     export var IEnumerable_ = Nullstone.RegisterInterface("IEnumerable");
 
-    export interface IEnumerator {
-        Current: any;
+    export interface IEnumerator<T> {
+        Current: T;
         MoveNext(): bool;
     }
     export var IEnumerator_ = Nullstone.RegisterInterface("IEnumerator");
@@ -18,10 +19,10 @@ module Fayde {
             MoveNext: function () { return false; },
             Current: undefined
         };
-        static AsEnumerable(arr: any[]): IEnumerable {
-            return <IEnumerable><any>arr;
+        static AsEnumerable<T>(arr: T[]): IEnumerable<T> {
+            return <IEnumerable<T>><any>arr;
         }
-        static GetEnumerator(arr: any[], isReverse?: bool): IEnumerator {
+        static GetEnumerator<T>(arr: T[], isReverse?: bool): IEnumerator<T> {
             var len = arr.length;
             var e = { MoveNext: undefined, Current: undefined };
             var index;
@@ -50,7 +51,7 @@ module Fayde {
             }
             return e;
         }
-        static GetNodeEnumerator(arr: XamlObject[], isReverse?: bool): IEnumerator {
+        static GetNodeEnumerator<T extends XamlObject, U extends XamlNode>(arr: T[], isReverse?: bool): IEnumerator<U> {
             var len = arr.length;
             var e = { MoveNext: undefined, Current: undefined };
             var index;
@@ -79,7 +80,8 @@ module Fayde {
             }
             return e;
         }
-        static RemoveIfContains(arr: any[], item: any): bool {
+
+        static RemoveIfContains<T>(arr: T[], item: T): bool {
             var index = arr.indexOf(item);
             if (index < 0)
                 return false;
@@ -87,9 +89,9 @@ module Fayde {
             return true;
         }
 
-        static Except(arr1: any[], arr2: any[]): any[] {
-            var cur: any;
-            var rarr: any[] = [];
+        static Except<T>(arr1: T[], arr2: T[]): T[] {
+            var cur: T;
+            var rarr: T[] = [];
             for (var i = 0; i < arr1.length; i++) {
                 cur = arr1[i];
                 if (arr2.indexOf(cur) < 0)
@@ -98,7 +100,7 @@ module Fayde {
             return rarr;
         }
 
-        static Fill(arr: any[], index: number, count: number, fill: any) {
+        static Fill<T>(arr: T[], index: number, count: number, fill: T) {
             for (var i = index; i < index + count; i++) {
                 arr.splice(i, 0, fill);
             }
@@ -107,8 +109,8 @@ module Fayde {
 }
 
 Object.defineProperty(Array.prototype, "GetEnumerator", {
-    value: function (isReverse?: bool): Fayde.IEnumerator {
-        return Fayde.ArrayEx.GetEnumerator(this, isReverse);
+    value: function <T>(isReverse?: bool): Fayde.IEnumerator<T> {
+        return Fayde.ArrayEx.GetEnumerator<T>(this, isReverse);
     },
     enumerable: false
 });

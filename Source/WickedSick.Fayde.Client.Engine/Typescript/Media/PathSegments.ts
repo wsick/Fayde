@@ -15,7 +15,7 @@ module Fayde.Media {
         Size: size;
         SweepDirection: Shapes.SweepDirection;
 
-        private _Append(path: Shapes.RawPath) {
+        _Append(path: Shapes.RawPath) {
             var size = this.Size;
             var width = size ? size.Width : 0.0;
             var height = size ? size.Height : 0.0;
@@ -37,7 +37,7 @@ module Fayde.Media {
         Point2: Point;
         Point3: Point;
 
-        private _Append(path: Shapes.RawPath) {
+        _Append(path: Shapes.RawPath) {
 	        var p1 = this.Point1;
 	        var p2 = this.Point2;
 	        var p3 = this.Point3;
@@ -58,7 +58,7 @@ module Fayde.Media {
         static PointProperty: DependencyProperty = DependencyProperty.Register("Point", () => Point, LineSegment);
         Point: Point;
 
-        private _Append(path: Shapes.RawPath) {
+        _Append(path: Shapes.RawPath) {
             var p = this.Point;
             var x = p ? p.X : 0.0;
             var y = p ? p.Y : 0.0;
@@ -71,7 +71,7 @@ module Fayde.Media {
         static Annotations = { ContentProperty: "Points" }
         Points: Shapes.PointCollection;
 
-        private _Append(path: Shapes.RawPath) {
+        _Append(path: Shapes.RawPath) {
             var points = this.Points;
             if (!points || (points.Count % 3) !== 0)
                 return;
@@ -112,7 +112,7 @@ module Fayde.Media {
         static Annotations = { ContentProperty: "Points" }
         Points: Shapes.PointCollection;
 
-        private _Append(path: Shapes.RawPath) {
+        _Append(path: Shapes.RawPath) {
             var points = this.Points;
             if (!points || (points.Count % 2) !== 0)
                 return;
@@ -154,7 +154,7 @@ module Fayde.Media {
         Point1: Point;
         Point2: Point;
 
-        private _Append(path: Shapes.RawPath) {
+        _Append(path: Shapes.RawPath) {
             var p1 = this.Point1;
             var p2 = this.Point2;
 

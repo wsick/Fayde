@@ -25,7 +25,7 @@ module Fayde.Media {
             });
         }
 
-        private CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any {
+        CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any {
             var spread = this.SpreadMethod;
             switch (spread) {
                 case GradientSpreadMethod.Pad:
@@ -49,7 +49,7 @@ module Fayde.Media {
             return mat3.createScale(bounds.Width, bounds.Height);
         }
 
-        private GradientStopsChanged(newGradientStops: GradientStopCollection) { this.InvalidateBrush(); }
+        GradientStopsChanged(newGradientStops: GradientStopCollection) { this.InvalidateBrush(); }
     }
     Nullstone.RegisterType(GradientBrush, "GradientBrush");
 }

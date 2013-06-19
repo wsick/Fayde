@@ -2,6 +2,7 @@
 /// CODE
 /// <reference path="size.ts" />
 /// <reference path="RawMatrix.ts" />
+/// <reference path="Point.ts" />
 
 var RectOverlap = {
     Out: 0,
@@ -215,7 +216,7 @@ class rect implements ICloneable {
         if (-clip[2] + clip[3] < 0) mask |= (1 << 5);
 
         return mask;
-    };
+    }
     static transform4(dest: rect, projection: number[]): rect {
         if (!projection)
             return dest;
@@ -246,10 +247,10 @@ class rect implements ICloneable {
         p4[0] *= vsr;
         p4[1] *= vsr;
 
-        var cm1 = clipmask(p1);
-        var cm2 = clipmask(p2);
-        var cm3 = clipmask(p3);
-        var cm4 = clipmask(p4);
+        var cm1 = rect.clipmask(p1);
+        var cm2 = rect.clipmask(p2);
+        var cm3 = rect.clipmask(p3);
+        var cm4 = rect.clipmask(p4);
 
         if ((cm1 | cm2 | cm3 | cm4) !== 0) {
             if ((cm1 & cm2 & cm3 & cm4) === 0) {

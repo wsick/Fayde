@@ -11,7 +11,7 @@ module Fayde.Media {
         RadiusX: number;
         RadiusY: number;
 
-        private _Build(): Shapes.RawPath {
+        _Build(): Shapes.RawPath {
             var irect = this.Rect;
             if (!irect)
                 return;

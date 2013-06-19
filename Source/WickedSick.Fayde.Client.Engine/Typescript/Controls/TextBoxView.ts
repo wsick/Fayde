@@ -179,7 +179,7 @@ module Fayde.Controls.Internal {
             this.Layout(size.createInfinite());
             return this._Layout.ActualExtents;
         }
-        private _MeasureOverride(availableSize: size, error: BError) {
+        _MeasureOverride(availableSize: size, error: BError) {
             this.Layout(availableSize);
             var desired = size.copyTo(this._Layout.ActualExtents);
             if (!isFinite(availableSize.Width))
@@ -187,7 +187,7 @@ module Fayde.Controls.Internal {
             size.min(desired, availableSize);
             return desired;
         }
-        private _ArrangeOverride(finalSize: size, error: BError) {
+        _ArrangeOverride(finalSize: size, error: BError) {
             this.Layout(finalSize);
             var arranged = size.copyTo(this._Layout.ActualExtents);
             size.max(arranged, finalSize);

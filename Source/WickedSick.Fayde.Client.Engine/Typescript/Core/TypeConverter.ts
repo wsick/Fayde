@@ -49,7 +49,7 @@ module Fayde {
         }
         static BrushConverter(str: string): Media.Brush {
             var scb = new Media.SolidColorBrush();
-            scb.Color = ColorConverter(str);
+            scb.Color = TypeConverters.ColorConverter(str);
             return scb;
         }
         static ColorConverter(str: string): Color {
@@ -89,7 +89,8 @@ module Fayde {
                     return val.Left;
                 return parseFloat(val.toString());
             } else if (typeof targetType === "function") {
-                if (val instanceof targetType)
+                var f = <Function>targetType;
+                if (val instanceof f)
                     return val;
                 var converter = TypeConverter._Converters[<any>targetType];
                 if (converter)

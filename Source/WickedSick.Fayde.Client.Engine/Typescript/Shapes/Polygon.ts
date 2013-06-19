@@ -3,10 +3,6 @@
 
 module Fayde.Shapes {
     export class Polygon extends Shape {
-        //private _Path: RawPath; //defined in Shape
-        private _ShapeFlags: ShapeFlags; //defined in Shape
-        private _Stroke: Media.Brush; //defined in Shape
-
         private static _PointsCoercer(d: DependencyObject, propd: DependencyProperty, value: any): any {
             if (typeof value === "string")
                 value = PointCollection.FromData(<string>value);
@@ -29,7 +25,7 @@ module Fayde.Shapes {
             this._InvalidateNaturalBounds();
         }
 
-        private _BuildPath(): Shapes.RawPath {
+        _BuildPath(): Shapes.RawPath {
             var points = this.Points;
             var count;
             if (!points || (count = points.Count) < 2) {
@@ -42,7 +38,7 @@ module Fayde.Shapes {
             var path = new RawPath();
             var enumerator = points.GetEnumerator();
             enumerator.MoveNext();
-            var p = <Point>enumerator.Current;
+            var p = enumerator.Current;
             if (count === 2) {
                 enumerator.MoveNext();
                 var p2 = enumerator.Current;

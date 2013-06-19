@@ -6,8 +6,6 @@
 /// <reference path="../Core/Clone.ts" />
 
 module Fayde.Data {
-    declare var Warn;
-
     interface IParseData {
         index: number;
         i: number;

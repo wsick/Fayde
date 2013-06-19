@@ -4,9 +4,6 @@
 
 module Fayde.Shapes {
     export class Path extends Shape {
-        private _ShapeFlags: ShapeFlags; //defined in Shape
-        private _Stroke: Media.Brush; //defined in Shape
-
         private static _DataCoercer(d: DependencyObject, propd: DependencyProperty, value: any): any {
             if (typeof value === "string")
                 return Media.ParseGeometry(value);
@@ -16,19 +13,19 @@ module Fayde.Shapes {
         static DataProperty: DependencyProperty = DependencyProperty.RegisterFull("Data", () => Media.Geometry, Path, undefined, (d, args) => (<Shape>d)._InvalidateNaturalBounds(), Path._DataCoercer);
         Data: Media.Geometry;
 
-        private _GetFillRule(): FillRule {
+        _GetFillRule(): FillRule {
             var geom = this.Data;
             if (!geom)
                 return super._GetFillRule();
             return (<Media.PathGeometry>geom).FillRule;
         }
-        private _DrawPath(ctx: RenderContext) {
+        _DrawPath(ctx: RenderContext) {
             var geom = this.Data;
             if (!geom)
                 return;
             geom.Draw(ctx);
         }
-        private _ComputeShapeBoundsImpl(logical: bool, matrix: number[]): rect {
+        _ComputeShapeBoundsImpl(logical: bool, matrix?: number[]): rect {
             var geom = this.Data;
             if (!geom) {
                 this._ShapeFlags = ShapeFlags.Empty;

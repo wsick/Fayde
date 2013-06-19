@@ -10,7 +10,7 @@ module Fayde.Controls {
     }
 
     export class ControlNode extends FENode {
-        private _Surface: Surface;
+        _Surface: Surface;
         XObject: Control;
         TemplateRoot: FrameworkElement;
         IsFocused: bool = false;
@@ -106,7 +106,7 @@ module Fayde.Controls {
         static VerticalContentAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalContentAlignment", () => new Enum(VerticalAlignment), Control, VerticalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
         static DefaultStyleKeyProperty: DependencyProperty = DependencyProperty.Register("DefaultStyleKey", () => Function, Control);
 
-        private IsInheritable(propd: DependencyProperty): bool {
+        IsInheritable(propd: DependencyProperty): bool {
             if (ControlInheritedProperties.indexOf(propd) > -1)
                 return true;
             return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);

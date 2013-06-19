@@ -17,7 +17,7 @@ module Fayde.Data {
         Next: IPropertyPathNode;
         Value: any;
         IsBroken: bool;
-        ValueType: Function;
+        ValueType: IType;
         SetSource(source: any);
         SetValue(value: any);
         Listen(listener: IPropertyPathNodeListener);
@@ -140,14 +140,14 @@ module Fayde.Data {
 
     class PropertyPathNode implements IPropertyPathNode {
         Next: IPropertyPathNode;
-        private _IsBroken: bool;
-        private _Source: any;
+        _IsBroken: bool;
+        _Source: any;
         private _Value: any;
         DependencyProperty: DependencyProperty;
         PropertyInfo: IPropertyInfo;
         Listener: any;
         private _NodeListener: IPropertyPathNodeListener;
-        ValueType: Function;
+        ValueType: IType;
 
         get IsBroken(): bool { return this._IsBroken; }
         get Source(): any { return this._Source; }
@@ -381,8 +381,8 @@ module Fayde.Data {
     }
     class IndexedPropertyPathNode extends PropertyPathNode {
         private _Index: number;
-        private _Source: any; //Defind in PropertyPathNode
-        private _IsBroken: bool; //Defind in PropertyPathNode
+        _Source: any; //Defind in PropertyPathNode
+        _IsBroken: bool; //Defind in PropertyPathNode
         PropertyInfo: IndexedPropertyInfo;
 
         constructor(index: any) {

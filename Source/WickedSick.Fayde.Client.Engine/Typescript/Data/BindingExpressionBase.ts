@@ -11,8 +11,6 @@
 /// <reference path="../Runtime/StringEx.ts" />
 
 module Fayde.Data {
-    declare var NotImplemented;
-
     export class BindingExpressionBase extends Fayde.Expression implements IPropertyPathWalkerListener {
         private _Binding: Data.Binding;
         Target: DependencyObject;

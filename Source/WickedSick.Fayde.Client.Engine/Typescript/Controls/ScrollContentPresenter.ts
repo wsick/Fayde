@@ -132,7 +132,7 @@ module Fayde.Controls {
             sv.InvalidateScrollInfo();
         }
 
-        private _MeasureOverride(availableSize: size, error: BError): size {
+        _MeasureOverride(availableSize: size, error: BError): size {
             var scrollOwner = this.ScrollOwner;
             var cr = this.XamlNode.ContentRoot;
             if (!scrollOwner || !cr)
@@ -154,7 +154,7 @@ module Fayde.Controls {
             desired.Height = Math.min(desired.Height, sd.ExtentHeight);
             return desired;
         }
-        private _ArrangeOverride(finalSize: size, error: BError): size {
+        _ArrangeOverride(finalSize: size, error: BError): size {
             var scrollOwner = this.ScrollOwner;
             var cr = this.XamlNode.ContentRoot;
             if (!scrollOwner || !cr)

@@ -11,22 +11,22 @@ module Fayde.Media {
         static Calculate(dir: ICoordinates, first: ICoordinates, last: ICoordinates, bounds: rect) {
             if (dir.y === 0) {
                 if (dir.x < 0)
-                    W(dir, first, last, bounds);
+                    GradientMetrics.W(dir, first, last, bounds);
                 else
-                    E(dir, first, last, bounds);
+                    GradientMetrics.E(dir, first, last, bounds);
             } else if (dir.x === 0) {
                 if (dir.y < 0)
-                    N(dir, first, last, bounds);
+                    GradientMetrics.N(dir, first, last, bounds);
                 else
-                    S(dir, first, last, bounds);
+                    GradientMetrics.S(dir, first, last, bounds);
             } else if (dir.x < 0 && dir.y < 0) { // e\s
-                NW(dir, first, last, bounds);
+                GradientMetrics.NW(dir, first, last, bounds);
             } else if (dir.x < 0 && dir.y > 0) { // e/s
-                SW(dir, first, last, bounds);
+                GradientMetrics.SW(dir, first, last, bounds);
             } else if (dir.x > 0 && dir.y < 0) { // s/e
-                NE(dir, first, last, bounds);
+                GradientMetrics.NE(dir, first, last, bounds);
             } else if (dir.x > 0 && dir.y > 0) { // s\e
-                SE(dir, first, last, bounds);
+                GradientMetrics.SE(dir, first, last, bounds);
             }
         }
 

@@ -22,7 +22,7 @@ module Fayde.Documents {
             });
         }
         
-        private InlinesChanged(newInline: Inline, isAdd: bool) {
+        InlinesChanged(newInline: Inline, isAdd: bool) {
             if (isAdd)
                 Providers.InheritedStore.PropagateInheritedOnAdd(this, newInline.XamlNode);
         }

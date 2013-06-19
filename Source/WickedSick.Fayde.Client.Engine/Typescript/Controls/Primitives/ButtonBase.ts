@@ -20,7 +20,7 @@ module Fayde.Controls.Primitives {
         private _IsMouseCaptured: bool = false;
         private _IsMouseLeftButtonDown: bool = false;
         private _IsSpaceKeyDown: bool = false;
-        private _MousePosition: Point = new Point();
+        _MousePosition: Point = new Point();
         private _SuspendStateChanges: bool = false;
 
         constructor() {

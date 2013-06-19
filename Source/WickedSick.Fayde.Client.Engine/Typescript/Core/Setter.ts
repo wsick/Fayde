@@ -4,7 +4,7 @@
 /// <reference path="TypeConverter.ts" />
 
 module Fayde {
-    export class SetterCollection extends XamlObjectCollection {
+    export class SetterCollection extends XamlObjectCollection<Setter> {
         private _IsSealed: bool = false;
 
         _Seal(targetType: Function) {
@@ -17,7 +17,7 @@ module Fayde {
             this._IsSealed = true;
         }
         
-        AddingToCollection(value: XamlObject, error: BError): bool {
+        AddingToCollection(value: Setter, error: BError): bool {
             if (!value || !this._ValidateSetter(<Setter>value, error))
                 return false;
             return super.AddingToCollection(value, error);

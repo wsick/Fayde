@@ -34,7 +34,7 @@ module Fayde.Controls {
         ColumnDefinitionsChanged(colDefinitions: ColumnDefinitionCollection);
     }
 
-    export class ColumnDefinitionCollection extends XamlObjectCollection implements IColumnDefinitionListener {
+    export class ColumnDefinitionCollection extends XamlObjectCollection<ColumnDefinition> implements IColumnDefinitionListener {
         private _Listener: IColumnDefinitionsListener;
         Listen(listener: IColumnDefinitionsListener) { this._Listener = listener; }
         Unlisten(listener: IColumnDefinitionsListener) { if (this._Listener === listener) this._Listener = null; }

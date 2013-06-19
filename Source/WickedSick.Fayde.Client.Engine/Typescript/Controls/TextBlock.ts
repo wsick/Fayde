@@ -7,8 +7,6 @@
 /// <reference path="../Text/TextLayout.ts" />
 
 module Fayde.Controls {
-    declare var NotImplemented;
-
     export class TextBlockNode extends FENode implements IBoundsComputable, Documents.IInlinesChangedListener {
         XObject: TextBlock;
         private _ActualWidth: number = 0.0;
@@ -24,11 +22,11 @@ module Fayde.Controls {
             this.LayoutUpdater.CanHitElement = true;
         }
 
-        GetInheritedEnumerator(): IEnumerator {
+        GetInheritedEnumerator(): IEnumerator<DONode> {
             var xobj = this.XObject;
             var inlines = xobj.Inlines;
             if (inlines)
-                return inlines.GetNodeEnumerator();
+                return <IEnumerator<DONode>>inlines.GetNodeEnumerator();
         }
 
         ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
@@ -199,7 +197,7 @@ module Fayde.Controls {
             return length;
         }
 
-        private _GetTextInternal(inlines: XamlObjectCollection) {
+        private _GetTextInternal(inlines: Documents.InlineCollection) {
             if (!inlines)
                 return "";
             var block = "";
@@ -245,7 +243,7 @@ module Fayde.Controls {
             this._SetsValue = true;
         }
 
-        private InlinesChanged(newInline: Documents.Inline, isAdd: bool) {
+        InlinesChanged(newInline: Documents.Inline, isAdd: bool) {
             if (!this._SetsValue)
                 return;
             
@@ -317,7 +315,7 @@ module Fayde.Controls {
             inlines.Listen(this.XamlNode);
         }
 
-        private _MeasureOverride(availableSize: size, error: BError): size {
+        _MeasureOverride(availableSize: size, error: BError): size {
             var constraint = size.copyTo(availableSize);
             var padding = this.Padding;
             if (padding) size.shrinkByThickness(constraint, padding);
@@ -325,7 +323,7 @@ module Fayde.Controls {
             if (padding) size.growByThickness(desired, padding);
             return desired;
         }
-        private _ArrangeOverride(finalSize: size, error: BError): size {
+        _ArrangeOverride(finalSize: size, error: BError): size {
             var constraint = size.copyTo(finalSize);
             var padding = this.Padding;
             if (padding) size.shrinkByThickness(constraint, padding);
@@ -333,7 +331,7 @@ module Fayde.Controls {
             return finalSize;
         }
 
-        private Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
+        Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
             ctx.Save();
             lu.RenderLayoutClip(ctx);
             var padding = this.Padding;
@@ -346,12 +344,12 @@ module Fayde.Controls {
             ctx.Restore();
         }
 
-        private ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater): size {
+        ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater): size {
             return this.XamlNode.ComputeActualSize(lu, this.Padding);
         }
 
         private _ForegroundListener: Media.IBrushChangedListener;
-        private FontChanged(args: IDependencyPropertyChangedEventArgs) {
+        FontChanged(args: IDependencyPropertyChangedEventArgs) {
             var node = this.XamlNode;
             if (args.Property === InheritableOwner.TextDecorationsProperty) {
                 node._InvalidateDirty();

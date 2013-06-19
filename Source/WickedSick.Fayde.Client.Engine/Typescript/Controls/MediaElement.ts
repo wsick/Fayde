@@ -19,11 +19,11 @@ module Fayde.Controls {
         XamlNode: MENode;
         CreateNode(): MENode { return new MENode(this); }
         
-        private _MeasureOverride(availableSize: size, error: BError): size {
+        _MeasureOverride(availableSize: size, error: BError): size {
             //NotImplemented
             return availableSize;
         }
-        private _ArrangeOverride(finalSize: size, error: BError): size {
+        _ArrangeOverride(finalSize: size, error: BError): size {
             //NotImplemented
             return finalSize;
         }

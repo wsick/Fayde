@@ -10,7 +10,7 @@ module Fayde.Media {
         RadiusX: number;
         RadiusY: number;
 
-        private _Build(): Shapes.RawPath {
+        _Build(): Shapes.RawPath {
             var rx = this.RadiusX;
             var ry = this.RadiusY;
             var center = this.Center;

@@ -33,7 +33,7 @@ module Fayde.Controls {
 
         static Annotations = { ContentProperty: Border.ChildProperty }
         
-        private _MeasureOverride(availableSize: size, error: BError): size {
+        _MeasureOverride(availableSize: size, error: BError): size {
             var padding = this.Padding;
             var borderThickness = this.BorderThickness;
             var border: Thickness = null;
@@ -58,7 +58,7 @@ module Fayde.Controls {
             size.min(desired, availableSize);
             return desired;
         }
-        private _ArrangeOverride(finalSize: size, error: BError): size {
+        _ArrangeOverride(finalSize: size, error: BError): size {
             var child = this.Child;
             if (child) {
                 var padding = this.Padding;

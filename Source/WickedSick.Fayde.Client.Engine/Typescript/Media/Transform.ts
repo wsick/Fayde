@@ -14,7 +14,7 @@ module Fayde.Media {
 
         constructor() {
             super();
-            (<IShareableHidden>this.XamlNode).IsShareable = true;
+            XamlNode.SetShareable(this.XamlNode);
         }
 
         get Value(): Matrix {

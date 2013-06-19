@@ -3,10 +3,6 @@
 
 module Fayde.Shapes {
     export class Polyline extends Shape {
-        private _Path: RawPath; //defined in Shape
-        private _ShapeFlags: ShapeFlags; //defined in Shape
-        private _Stroke: Media.Brush; //defined in Shape
-        
         private static _PointsCoercer(d: DependencyObject, propd: DependencyProperty, value: any): any {
             if (typeof value === "string")
                 value = PointCollection.FromData(<string>value);
@@ -29,7 +25,7 @@ module Fayde.Shapes {
             this._InvalidateNaturalBounds();
         }
 
-        private _BuildPath(): Shapes.RawPath {
+        _BuildPath(): Shapes.RawPath {
             var points = this.Points;
             var count;
             if (!points || (count = points.Count) < 2) {

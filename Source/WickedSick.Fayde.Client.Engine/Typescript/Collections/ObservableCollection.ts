@@ -4,10 +4,10 @@
 /// <reference path="NotifyCollectionChangedEventArgs.ts" />
 
 module Fayde.Collections {
-    export class ObservableCollection implements IEnumerable, INotifyCollectionChanged, INotifyPropertyChanged {
+    export class ObservableCollection implements IEnumerable<any>, INotifyCollectionChanged, INotifyPropertyChanged {
         private _ht: any[] = [];
         
-        GetEnumerator(): IEnumerator {
+        GetEnumerator(): IEnumerator<any> {
             return ArrayEx.GetEnumerator(this._ht);
         }
         CollectionChanged: MulticastEvent = new MulticastEvent();

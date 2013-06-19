@@ -11,7 +11,7 @@ module Fayde.Controls.Primitives {
 
         private _KeyboardCausingRepeat: bool = false;
         private _MouseCausingRepeat: bool = false;
-        private _MousePosition: Point = null;
+        _MousePosition: Point = null;
         private _IntervalID: number = null;
         private _NewInterval: number = null;
         private _ElementRoot: FrameworkElement = null;

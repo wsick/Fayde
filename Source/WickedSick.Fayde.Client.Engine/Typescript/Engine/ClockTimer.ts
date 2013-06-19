@@ -3,7 +3,7 @@
 
 module Fayde {
     export interface ITimerListener {
-        Tick(lastTime: number, nowTime: number);
+        OnTicked(lastTime: number, nowTime: number);
     }
 
     var requestAnimFrame = (function () {
@@ -46,7 +46,7 @@ module Fayde {
             if (len === 0)
                 return;
             for (var i = 0; i < len; i++) {
-                ls[i].Tick(lastTime, nowTime);
+                ls[i].OnTicked(lastTime, nowTime);
             }
             this._RequestAnimationTick();
         }

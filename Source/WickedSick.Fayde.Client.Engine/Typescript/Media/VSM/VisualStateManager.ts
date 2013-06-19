@@ -14,12 +14,12 @@ module Fayde.Media.VSM {
 
     export class VisualStateManager extends DependencyObject {
         static VisualStateGroupsProperty: DependencyProperty = DependencyProperty.RegisterAttachedCore("VisualStateGroups", () => VisualStateGroupCollection, VisualStateManager);
-        static GetVisualStateGroups(d: DependencyObject): VisualStateGroupCollection { return d.GetValue(VisualStateGroupsProperty); }
-        static SetVisualStateGroups(d: DependencyObject, value: VisualStateGroupCollection) { d.SetValue(VisualStateGroupsProperty, value); }
+        static GetVisualStateGroups(d: DependencyObject): VisualStateGroupCollection { return d.GetValue(VisualStateManager.VisualStateGroupsProperty); }
+        static SetVisualStateGroups(d: DependencyObject, value: VisualStateGroupCollection) { d.SetValue(VisualStateManager.VisualStateGroupsProperty, value); }
         
         static CustomVisualStateManagerProperty: DependencyProperty = DependencyProperty.RegisterAttachedCore("CustomVisualStateManager", () => VisualStateManager, VisualStateManager);
-        static GetCustomVisualStateManager(d: DependencyObject): VisualStateManager { return d.GetValue(CustomVisualStateManagerProperty); }
-        static SetCustomVisualStateManager(d: DependencyObject, value: VisualStateManager) { d.SetValue(CustomVisualStateManagerProperty, value); }
+        static GetCustomVisualStateManager(d: DependencyObject): VisualStateManager { return d.GetValue(VisualStateManager.CustomVisualStateManagerProperty); }
+        static SetCustomVisualStateManager(d: DependencyObject, value: VisualStateManager) { d.SetValue(VisualStateManager.CustomVisualStateManagerProperty, value); }
 
         static GoToState(control: Controls.Control, stateName: string, useTransitions: bool): bool {
             if (!control)
@@ -27,23 +27,23 @@ module Fayde.Media.VSM {
             if (!stateName)
                 throw new ArgumentException("stateName");
 
-            var root = _GetTemplateRoot(control);
+            var root = VisualStateManager._GetTemplateRoot(control);
             if (!root)
                 return false;
 
-            var groups = GetVisualStateGroups(root);
+            var groups = VisualStateManager.GetVisualStateGroups(root);
             if (!groups)
                 return false;
 
             var data: IStateData = { group: null, state: null };
-            if (!_TryGetState(groups, stateName, data))
+            if (!VisualStateManager._TryGetState(groups, stateName, data))
                 return false;
 
-            var customVsm = GetCustomVisualStateManager(root);
+            var customVsm = VisualStateManager.GetCustomVisualStateManager(root);
             if (customVsm) {
                 return customVsm.GoToStateCore(control, root, stateName, data.group, data.state, useTransitions);
             } else if (data.state != null) {
-                return GoToStateInternal(control, root, data.group, data.state, useTransitions);
+                return VisualStateManager.GoToStateInternal(control, root, data.group, data.state, useTransitions);
             }
 
             return false;
@@ -60,7 +60,7 @@ module Fayde.Media.VSM {
                 console.log("VSM:GoToState:[" + (<any>control)._ID + "]" + (lastState ? lastState.Name : "()") + "-->" + state.Name);
             }
 
-            var transition = useTransitions ? _GetTransition(element, group, lastState, state) : null;
+            var transition = useTransitions ? VisualStateManager._GetTransition(element, group, lastState, state) : null;
             var storyboard: Animation.Storyboard;
             if (transition == null || (transition.GeneratedDuration.IsZero && ((storyboard = transition.Storyboard) == null || storyboard.Duration.IsZero))) {
                 if (transition != null && storyboard != null) {
@@ -71,7 +71,7 @@ module Fayde.Media.VSM {
                 group.RaiseCurrentStateChanging(element, lastState, state, control);
                 group.RaiseCurrentStateChanged(element, lastState, state, control);
             } else {
-                var dynamicTransition = _GenerateDynamicTransitionAnimations(element, group, state, transition);
+                var dynamicTransition = VisualStateManager._GenerateDynamicTransitionAnimations(element, group, state, transition);
                 //LOOKS USELESS: dynamicTransition.IsTemplateItem = true;
 
                 transition.DynamicStoryboardCompleted = false;
@@ -105,10 +105,10 @@ module Fayde.Media.VSM {
             return true;
         }
 
-        private static DestroyStoryboards(control: Controls.Control, root: FrameworkElement) {
+        static DestroyStoryboards(control: Controls.Control, root: FrameworkElement) {
             if (!root)
                 return false;
-            var groups = GetVisualStateGroups(root);
+            var groups = VisualStateManager.GetVisualStateGroups(root);
             if (!groups)
                 return false;
             var enumerator = groups.GetEnumerator();

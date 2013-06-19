@@ -10,7 +10,7 @@ module Fayde.Documents {
     }
     Nullstone.RegisterType(Block, "Block");
     
-    export class BlockCollection extends XamlObjectCollection {
+    export class BlockCollection extends XamlObjectCollection<Block> {
         private _Listener: IBlocksChangedListener;
         Listen(listener: IBlocksChangedListener) { this._Listener = listener; }
         Unlisten(listener: IBlocksChangedListener) { if (this._Listener === listener) this._Listener = null; }

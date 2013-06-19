@@ -20,7 +20,7 @@ module Fayde.Media {
 
         constructor() {
             super();
-            (<IShareableHidden>this.XamlNode).IsShareable = true;
+            XamlNode.SetShareable(this.XamlNode);
         }
 
         SetupBrush(ctx: CanvasRenderingContext2D, bounds: rect) {

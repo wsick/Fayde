@@ -24,11 +24,11 @@ module Fayde.Media.Imaging {
             else
                 this.UriSourceChanged(args.OldValue, uri);
         }
-        private _OnErrored(e: Event) {
+        _OnErrored(e: Event) {
             super._OnErrored(e);
             this.ImageFailed.Raise(this, EventArgs.Empty);
         }
-        private _OnLoad(e: Event) {
+        _OnLoad(e: Event) {
             super._OnLoad(e);
             this.ImageOpened.Raise(this, EventArgs.Empty);
         }

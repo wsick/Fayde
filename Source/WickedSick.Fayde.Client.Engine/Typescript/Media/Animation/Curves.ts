@@ -24,7 +24,7 @@ module Fayde.Media.Animation {
         static QuadraticArrayYForX(arr: IQuadraticCurve[], x: number, count: number): number {
             for (var i = 0; i < count; i++) {
                 if (x < arr[i].c2.x)
-                    return QuadraticYForX(x, arr[i]);
+                    return Curves.QuadraticYForX(x, arr[i]);
             }
             return 0.0;
         }
@@ -37,11 +37,11 @@ module Fayde.Media.Animation {
         }
 
         static SubdivideCubicAtLevel(b: ICubicCurve[], lvl: number, src: ICubicCurve) {
-            RecursiveSubdivide(b, lvl, 1, 0, src);
+            Curves.RecursiveSubdivide(b, lvl, 1, 0, src);
         }
         static RecursiveSubdivide(b: ICubicCurve[], lvl: number, currentlvl: number, pos: number, src: ICubicCurve) {
             var data: ISubdiviedCubicCurve = { b1: null, b2: null };
-            SubdivideCubic(data, src);
+            Curves.SubdivideCubic(data, src);
             var b1 = data.b1;
             var b2 = data.b2;
 
@@ -89,7 +89,7 @@ module Fayde.Media.Animation {
         static ConvertCubicsToQuadratics(srcArray: ICubicCurve[], count: number): IQuadraticCurve[] {
             var destArray: IQuadraticCurve[] = [];
             for (var i = 0; i < count; i++) {
-                destArray.push(QuadraticFromCubic(srcArray[i]));
+                destArray.push(Curves.QuadraticFromCubic(srcArray[i]));
             }
             return destArray;
         }

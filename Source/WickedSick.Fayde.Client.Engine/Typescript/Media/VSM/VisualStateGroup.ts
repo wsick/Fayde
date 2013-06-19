@@ -108,7 +108,7 @@ module Fayde.Media.VSM {
     }
     Nullstone.RegisterType(VisualStateGroup, "VisualStateGroup");
 
-    export class VisualStateGroupCollection extends XamlObjectCollection {
+    export class VisualStateGroupCollection extends XamlObjectCollection<VisualStateGroup> {
     }
     Nullstone.RegisterType(VisualStateGroupCollection, "VisualStateGroupCollection");
 }

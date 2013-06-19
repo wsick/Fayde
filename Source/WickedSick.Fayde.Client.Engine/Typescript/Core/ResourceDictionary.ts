@@ -7,7 +7,7 @@ module Fayde {
         Resources: Fayde.ResourceDictionary;
     }
 
-    export class ResourceDictionaryCollection extends XamlObjectCollection {
+    export class ResourceDictionaryCollection extends XamlObjectCollection<ResourceDictionary> {
         AddingToCollection(value: ResourceDictionary, error: BError): bool {
             if (!super.AddingToCollection(value, error))
                 return false;
@@ -44,8 +44,7 @@ module Fayde {
     }
     Nullstone.RegisterType(ResourceDictionaryCollection, "ResourceDictionaryCollection");
 
-    export class ResourceDictionary extends XamlObjectCollection {
-        private _ht: any[] = []; //Defined in XamlObjectCollection
+    export class ResourceDictionary extends XamlObjectCollection<XamlObject> {
         private _KeyIndex: number[] = [];
 
         MergedDictionaries: ResourceDictionaryCollection;

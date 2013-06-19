@@ -49,7 +49,7 @@ module Fayde.Controls {
             node.LayoutUpdater.UpdateBounds();
         }
 
-        private _MeasureOverride(availableSize: size, error: BError): size {
+        _MeasureOverride(availableSize: size, error: BError): size {
             var desired: size;
             availableSize = size.copyTo(availableSize);
 
@@ -75,7 +75,7 @@ module Fayde.Controls {
             if (border) size.growByThickness(desired, border);
             return desired;
         }
-        private _ArrangeOverride(finalSize: size, error: BError): size {
+        _ArrangeOverride(finalSize: size, error: BError): size {
             var padding = this.Padding;
             var borderThickness = this.BorderThickness;
             var border: Thickness = null;

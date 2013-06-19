@@ -21,7 +21,7 @@ module Fayde {
         XObject: UIElement;
         LayoutUpdater: LayoutUpdater;
         IsTopLevel: bool = false;
-        private _Surface: Surface;
+        _Surface: Surface;
         IsMouseOver: bool = false;
 
         SetSurfaceFromVisualParent(): UINode {
@@ -53,7 +53,7 @@ module Fayde {
             return curNode;
         }
 
-        GetInheritedEnumerator(): IEnumerator {
+        GetInheritedEnumerator(): IEnumerator<DONode> {
             return this.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
         }
 
@@ -316,7 +316,7 @@ module Fayde {
         static UseLayoutRoundingProperty = InheritableOwner.UseLayoutRoundingProperty.ExtendTo(UIElement);
         static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", () => new Enum(Visibility), UIElement, Visibility.Visible, (d, args) => (<UIElement>d).XamlNode.InvalidateVisibility(args.NewValue));
         
-        private IsInheritable(propd: DependencyProperty): bool {
+        IsInheritable(propd: DependencyProperty): bool {
             return propd === UIElement.UseLayoutRoundingProperty;
         }
 

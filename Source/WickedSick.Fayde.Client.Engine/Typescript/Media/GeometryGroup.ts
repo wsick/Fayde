@@ -41,7 +41,7 @@ module Fayde.Media {
                 ctx.Restore();
         }
 
-        private GeometryChanged(newGeometry: Geometry) { this._InvalidateGeometry(); }
+        GeometryChanged(newGeometry: Geometry) { this._InvalidateGeometry(); }
     }
     Nullstone.RegisterType(GeometryGroup, "GeometryGroup");
 }

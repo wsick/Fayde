@@ -31,13 +31,13 @@ module Fayde.Media {
         GradientStopsChanged(newGradientStops: GradientStopCollection);
     }
 
-    export class GradientStopCollection extends XamlObjectCollection implements IGradientStopListener {
+    export class GradientStopCollection extends XamlObjectCollection<GradientStop> implements IGradientStopListener {
         private _Listener: IGradientStopsListener;
 
         Listen(listener: IGradientStopsListener) { this._Listener = listener; }
         Unlisten(listener: IGradientStopsListener) { if (this._Listener === listener) this._Listener = null; }
         
-        private AddingToCollection(value: GradientStop, error: BError): bool {
+        AddingToCollection(value: GradientStop, error: BError): bool {
             if (!super.AddingToCollection(value, error))
                 return false;
             value.Listen(this);
@@ -45,14 +45,14 @@ module Fayde.Media {
             if (listener) listener.GradientStopsChanged(this);
             return true;
         }
-        private RemovedFromCollection(value: GradientStop, isValueSafe: bool) {
+        RemovedFromCollection(value: GradientStop, isValueSafe: bool) {
             if (!super.RemovedFromCollection(value, isValueSafe))
                 return false;
             value.Unlisten(this);
             var listener = this._Listener;
             if (listener) listener.GradientStopsChanged(this);
         }
-        private GradientStopChanged(newGradientStop: GradientStop) {
+        GradientStopChanged(newGradientStop: GradientStop) {
             var listener = this._Listener;
             if (listener) listener.GradientStopsChanged(this);
         }

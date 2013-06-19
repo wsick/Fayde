@@ -37,7 +37,7 @@ module Fayde.Controls {
     export class TextBoxBase extends Control implements Text.ITextAttributesSource, Text.IBufferOwner {
         private _Undo: Text.ITextBoxUndoAction[] = [];
         private _Redo: Text.ITextBoxUndoAction[] = [];
-        private _Buffer: string = "";
+        _Buffer: string = "";
         private _Emit: TextBoxEmitChangedType = TextBoxEmitChangedType.NOTHING;
         private _NeedIMReset: bool = false;
         private _Selecting: bool = false;
@@ -335,7 +335,7 @@ module Fayde.Controls {
                 this._SettingValue = true;
             }
         }
-        private _EmitSelectionChanged() { }
+        _EmitSelectionChanged() { }
 
         _ResetIMContext() {
             if (this._NeedIMReset) {

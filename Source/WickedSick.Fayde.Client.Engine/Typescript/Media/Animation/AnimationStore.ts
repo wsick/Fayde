@@ -66,7 +66,7 @@ module Fayde.Media.Animation {
                     var last = list[len - 2];
                     if (last.IsDisabled) {
                         last.IsDisabled = false;
-                        ApplyCurrent(last);
+                        AnimationStore.ApplyCurrent(last);
                         return true;
                     }
                 }

@@ -69,12 +69,12 @@ module Fayde.Shapes {
         XamlNode: ShapeNode;
         CreateNode(): ShapeNode { return new ShapeNode(this); }
 
-        private _ShapeFlags: ShapeFlags = ShapeFlags.None;
+        _ShapeFlags: ShapeFlags = ShapeFlags.None;
         private _StretchXform: number[] = mat3.identity();
         private _NaturalBounds: rect = new rect();
-        private _Path: RawPath = null;
+        _Path: RawPath = null;
         private _Fill: Media.Brush = null;
-        private _Stroke: Media.Brush = null;
+        _Stroke: Media.Brush = null;
 
         static FillProperty: DependencyProperty = DependencyProperty.Register("Fill", () => Media.Brush, Shape, undefined, (d, args) => (<Shape>d)._FillChanged(args));
         //http://msdn.microsoft.com/en-us/library/system.windows.shapes.shape.stretch(v=vs.95).aspx
@@ -118,7 +118,7 @@ module Fayde.Shapes {
             ctx.Restore();
             return ret;
         }
-        private _MeasureOverride(availableSize: size, error: BError): size {
+        _MeasureOverride(availableSize: size, error: BError): size {
             var shapeBounds = this._GetNaturalBounds();
             if (!shapeBounds)
                 return new size();
@@ -172,7 +172,7 @@ module Fayde.Shapes {
             desired.Height = shapeBounds.Height * sy;
             return desired;
         }
-        private _ArrangeOverride(finalSize: size, error: BError): size {
+        _ArrangeOverride(finalSize: size, error: BError): size {
             var sx = 1.0;
             var sy = 1.0;
 
@@ -215,7 +215,7 @@ module Fayde.Shapes {
             arranged.Height = shapeBounds.Height * sy;
             return arranged;
         }
-        private Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
+        Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
             if (this._ShapeFlags & ShapeFlags.Empty)
                 return;
             var area = this.XamlNode.GetStretchExtents(this, lu);
@@ -236,7 +236,7 @@ module Fayde.Shapes {
             this._Path.DrawRenderCtx(ctx);
         }
         
-        private ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater) {
+        ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater) {
             var desired = baseComputer.call(lu);
 
             var node = this.XamlNode;
@@ -406,7 +406,7 @@ module Fayde.Shapes {
         _ComputeShapeBounds(logical: bool): rect {
             return this._ComputeShapeBoundsImpl(logical, null);
         }
-        _ComputeShapeBoundsImpl(logical: bool, matrix?): rect {
+        _ComputeShapeBoundsImpl(logical: bool, matrix?: any): rect {
             var thickness = (logical || !this._Stroke) ? 0.0 : this.StrokeThickness;
             
             this._Path = this._Path || this._BuildPath();
@@ -480,11 +480,11 @@ module Fayde.Shapes {
             this._InvalidateStretch();
         }
 
-        private _WidthChanged(args: IDependencyPropertyChangedEventArgs) {
+        _WidthChanged(args: IDependencyPropertyChangedEventArgs) {
             super._WidthChanged(args);
             this._InvalidateStretch();
         }
-        private _HeightChanged(args: IDependencyPropertyChangedEventArgs) {
+        _HeightChanged(args: IDependencyPropertyChangedEventArgs) {
             super._HeightChanged(args);
             this._InvalidateStretch();
         }

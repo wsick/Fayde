@@ -3,9 +3,6 @@
 
 module Fayde.Shapes {
     export class Line extends Shape {
-        private _Path: RawPath; //defined in Shape
-        private _ShapeFlags: ShapeFlags; //defined in Shape
-
         static X1Property: DependencyProperty = DependencyProperty.Register("X1", () => Number, Line, 0.0, (d, args) => (<Shape>d)._InvalidateNaturalBounds());
         static Y1Property: DependencyProperty = DependencyProperty.Register("Y1", () => Number, Line, 0.0, (d, args) => (<Shape>d)._InvalidateNaturalBounds());
         static X2Property: DependencyProperty = DependencyProperty.Register("X2", () => Number, Line, 0.0, (d, args) => (<Shape>d)._InvalidateNaturalBounds());
@@ -15,7 +12,7 @@ module Fayde.Shapes {
         X2: number;
         Y2: number;
 
-        private _BuildPath(): Shapes.RawPath {
+        _BuildPath(): Shapes.RawPath {
             this._ShapeFlags = ShapeFlags.Normal;
 
             var x1 = this.X1;
@@ -29,7 +26,7 @@ module Fayde.Shapes {
             return path;
         }
 
-        private _ComputeShapeBounds(logical: bool): rect {
+        _ComputeShapeBounds(logical: bool): rect {
             var shapeBounds = new rect();
 
             var thickness = 0;

@@ -34,10 +34,10 @@ module Fayde {
         }
     }
     Nullstone.RegisterType(DONode, "DONode");
-
+    
     export class DependencyObject extends XamlObject implements ICloneable, Providers.IPropertyStorageOwner {
         private _Expressions: Expression[] = [];
-        private _PropertyStorage: Providers.IPropertyStorage[] = [];
+        _PropertyStorage: Providers.IPropertyStorage[] = [];
 
         static DataContextProperty: DependencyProperty = DependencyProperty.Register("DataContext", () => Object, DependencyObject, undefined, (d, args) => (<DependencyObject>d).XamlNode._DataContextPropertyChanged(args));
         DataContext: any;
@@ -179,7 +179,7 @@ module Fayde {
             return e;
         }
 
-        private CloneCore(source: DependencyObject) {
+        CloneCore(source: DependencyObject) {
             var sarr = source._PropertyStorage;
             var darr = this._PropertyStorage = [];
             for (var id in sarr) {

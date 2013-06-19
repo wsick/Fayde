@@ -12,7 +12,7 @@ module Fayde.Documents {
     }
     Nullstone.RegisterType(Inline, "Inline");
 
-    export class InlineCollection extends XamlObjectCollection {
+    export class InlineCollection extends XamlObjectCollection<Inline> {
         private _Listener: IInlinesChangedListener;
         Listen(listener: IInlinesChangedListener) { this._Listener = listener; }
         Unlisten(listener: IInlinesChangedListener) { if (this._Listener === listener) this._Listener = null; }

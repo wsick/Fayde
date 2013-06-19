@@ -34,7 +34,7 @@ module Fayde.Controls {
         RowDefinitionsChanged(rowDefinitions: RowDefinitionCollection);
     }
 
-    export class RowDefinitionCollection extends XamlObjectCollection implements IRowDefinitionListener {
+    export class RowDefinitionCollection extends XamlObjectCollection<RowDefinition> implements IRowDefinitionListener {
         private _Listener: IRowDefinitionsListener;
         Listen(listener: IRowDefinitionsListener) { this._Listener = listener; }
         Unlisten(listener: IRowDefinitionsListener) { if (this._Listener === listener) this._Listener = null; }

@@ -4,7 +4,9 @@ interface IOutValue {
 interface ICloneable {
     Clone(): any;
 }
-interface IInterfaceDeclaration {
+interface IType {
+}
+interface IInterfaceDeclaration extends IType {
     Name: string;
 }
 class Nullstone {
@@ -25,7 +27,7 @@ class Nullstone {
             return val1.Equals(val2);
         return false;
     }
-    static DoesInheritFrom(t: Function, type: Function): bool {
+    static DoesInheritFrom(t: IType, type: Function): bool {
         var temp = t;
         while (temp && temp !== type) {
             temp = (<any>temp)._BaseClass;

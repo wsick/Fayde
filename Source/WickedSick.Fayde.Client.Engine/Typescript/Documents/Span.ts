@@ -21,12 +21,12 @@ module Fayde.Documents {
             });
         }
         
-        private InlinesChanged(newInline: Inline, isAdd: bool) {
+        InlinesChanged(newInline: Inline, isAdd: bool) {
             if (isAdd)
                 Providers.InheritedStore.PropagateInheritedOnAdd(this, newInline.XamlNode);
         }
 
-        private _SerializeText(): string {
+        _SerializeText(): string {
             var str = "";
             var enumerator = this.Inlines.GetEnumerator();
             while (enumerator.MoveNext()) {

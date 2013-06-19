@@ -68,8 +68,8 @@ module Fayde.Controls {
         }
         private get $Items(): IItemCollectionHidden { return this.Items; }
 
-        get ItemsSource(): IEnumerable { return this.GetValue(ItemsControl.ItemsSourceProperty); }
-        set ItemsSource(value: IEnumerable) {
+        get ItemsSource(): IEnumerable<any> { return this.GetValue(ItemsControl.ItemsSourceProperty); }
+        set ItemsSource(value: IEnumerable<any>) {
             if (!this._ItemsIsDataBound && this.Items.Count > 0)
                 throw new InvalidOperationException("Items collection must be empty before using ItemsSource");
             this.SetValue(ItemsControl.ItemsSourceProperty, value);
@@ -162,7 +162,7 @@ module Fayde.Controls {
                 this._ItemsIsDataBound = true;
                 this.$Items.ClearImpl();
 
-                var enumerator: IEnumerator;
+                var enumerator: IEnumerator<any>;
                 if (source instanceof Array) enumerator = ArrayEx.GetEnumerator(<any[]>source);
                 else if (source instanceof XamlObjectCollection) enumerator = (<XamlObjectCollection>source).GetEnumerator();
                 
@@ -307,7 +307,7 @@ module Fayde.Controls {
                     if (container instanceof FrameworkElement && !(item instanceof FrameworkElement))
                         container.DataContext = item;
 
-                    children.Insert(newIndex + i, container);
+                    children.Insert(newIndex + i, <UIElement>container);
                     icg.PrepareItemContainer(container);
                 }
             } finally {

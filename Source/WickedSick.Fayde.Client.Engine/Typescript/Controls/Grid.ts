@@ -192,7 +192,7 @@ module Fayde.Controls {
             });
         }
 
-        private _MeasureOverride(availableSize: size, error: BError): size {
+        _MeasureOverride(availableSize: size, error: BError): size {
             //LayoutDebug(function () { return "Grid Measure Pass: " + this.__DebugToString() + " [" + availableSize.toString() + "]"; });
             var totalSize = size.copyTo(availableSize);
             var cols = this.ColumnDefinitions;
@@ -216,7 +216,6 @@ module Fayde.Controls {
 
             var i: number = 0;
             var cell: ISegment = null;
-            var enumerator: IEnumerator;
             if (emptyRows) {
                 cell = createSegment(0.0, 0, Number.POSITIVE_INFINITY, GridUnitType.Star);
                 cell.Stars = 1.0;
@@ -224,7 +223,7 @@ module Fayde.Controls {
                 totalStars.Height += 1.0;
             } else {
                 i = 0;
-                enumerator = rows.GetEnumerator();
+                var enumerator = rows.GetEnumerator();
                 var rowdef: RowDefinition = null;
                 var height: GridLength = null;
                 while (enumerator.MoveNext()) {
@@ -257,11 +256,11 @@ module Fayde.Controls {
                 totalStars.Width += 1.0;
             } else {
                 i = 0;
-                enumerator = cols.GetEnumerator();
+                var enumerator2 = cols.GetEnumerator();
                 var coldef: ColumnDefinition = null;
                 var width: GridLength = null;
-                while (enumerator.MoveNext()) {
-                    coldef = enumerator.Current;
+                while (enumerator2.MoveNext()) {
+                    coldef = enumerator2.Current;
                     var width = coldef.Width;
                     if (!width) width = defaultGridLength;
                     coldef.SetValueInternal(ColumnDefinition.ActualWidthProperty, Number.POSITIVE_INFINITY);
@@ -326,9 +325,9 @@ module Fayde.Controls {
                     this._ExpandStarRows(totalSize);
                 }
 
-                enumerator = this.XamlNode.GetVisualTreeEnumerator();
-                while (enumerator.MoveNext()) {
-                    childNode = enumerator.Current;
+                var e4 = this.XamlNode.GetVisualTreeEnumerator();
+                while (e4.MoveNext()) {
+                    childNode = e4.Current;
                     child = childNode.XObject;
                     childLu = childNode.LayoutUpdater;
 
@@ -431,7 +430,7 @@ module Fayde.Controls {
             }
             return gridSize;
         }
-        private _ArrangeOverride(finalSize: size, error: BError): size {
+        _ArrangeOverride(finalSize: size, error: BError): size {
             //LayoutDebug(function () { return "Grid Arrange Pass: " + this.__DebugToString() + " [" + finalSize.toString() + "]"; });
             var cols = this.ColumnDefinitions;
             var rows = this.RowDefinitions;
@@ -459,22 +458,22 @@ module Fayde.Controls {
             var i: number = 0;
             var enumerator = cols.GetEnumerator();
             while (enumerator.MoveNext()) {
-                (<ColumnDefinition>enumerator.Current).SetValueInternal(ColumnDefinition.ActualWidthProperty, cm[i][i].OfferedSize);
+                enumerator.Current.SetValueInternal(ColumnDefinition.ActualWidthProperty, cm[i][i].OfferedSize);
                 i++;
             }
 
             i = 0;
-            enumerator = rows.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                (<RowDefinition>enumerator.Current).SetValueInternal(RowDefinition.ActualHeightProperty, rm[i][i].OfferedSize);
+            var enumerator2 = rows.GetEnumerator();
+            while (enumerator2.MoveNext()) {
+                enumerator2.Current.SetValueInternal(RowDefinition.ActualHeightProperty, rm[i][i].OfferedSize);
                 i++;
             }
 
-            enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            var enumerator3 = this.XamlNode.GetVisualTreeEnumerator();
             var childNode: UINode;
             var child: UIElement;
-            while (enumerator.MoveNext()) {
-                childNode = <UINode>enumerator.Current;
+            while (enumerator3.MoveNext()) {
+                childNode = enumerator3.Current;
                 child = childNode.XObject;
 
                 var col = Math.min(Grid.GetColumn(child), cm.length - 1);
@@ -502,7 +501,7 @@ module Fayde.Controls {
             return finalSize;
         }
 
-        private Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
+        Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
             var background = this.Background;
             var showGridLines = this.ShowGridLines;
             if (!background && !showGridLines)
@@ -519,14 +518,13 @@ module Fayde.Controls {
                 ctx.FillRect(background, area);
             if (showGridLines) {
                 var cctx = ctx.CanvasContext;
-                var enumerator: IEnumerator;
 
                 var cuml = -1;
                 var cols = this.ColumnDefinitions;
                 if (cols) {
-                    enumerator = cols.GetEnumerator();
+                    var enumerator = cols.GetEnumerator();
                     while (enumerator.MoveNext()) {
-                        cuml += (<ColumnDefinition>enumerator.Current).ActualWidth;
+                        cuml += enumerator.Current.ActualWidth;
                         cctx.beginPath();
                         ctx.SetLineDash([5]);
                         cctx.moveTo(cuml, 0);
@@ -537,9 +535,9 @@ module Fayde.Controls {
                 var rows = this.RowDefinitions;
                 if (rows) {
                     cuml = -1;
-                    enumerator = rows.GetEnumerator();
-                    while (enumerator.MoveNext()) {
-                        cuml += (<RowDefinition>enumerator.Current).ActualHeight;
+                    var enumerator2 = rows.GetEnumerator();
+                    while (enumerator2.MoveNext()) {
+                        cuml += enumerator2.Current.ActualHeight;
                         cctx.beginPath();
                         ctx.SetLineDash([5]);
                         cctx.moveTo(0, cuml);
@@ -740,10 +738,10 @@ module Fayde.Controls {
             lu.Invalidate();
             lu.InvalidateMeasure();
         }
-        private RowDefinitionsChanged(rowDefinitions: RowDefinitionCollection) {
+        RowDefinitionsChanged(rowDefinitions: RowDefinitionCollection) {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
         }
-        private ColumnDefinitionsChanged(colDefinitions: ColumnDefinitionCollection) {
+        ColumnDefinitionsChanged(colDefinitions: ColumnDefinitionCollection) {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
         }
     }

@@ -4,6 +4,7 @@
 /// CODE
 /// <reference path="../../Runtime/MulticastEvent.ts"/>
 /// <reference path="BitmapSource.ts"/>
+/// <reference path="BitmapImage.ts"/>
 
 module Fayde.Media.Imaging {
     export class ImageBrush extends TileBrush implements IImageChangedListener {
@@ -24,14 +25,14 @@ module Fayde.Media.Imaging {
             if (source && source.Image)
                 super.SetupBrush(ctx, bounds);
         }
-        private GetTileExtents(): rect {
+        GetTileExtents(): rect {
             var source = this.ImageSource;
             var r = new rect();
             r.Width = source.PixelWidth;
             r.Height = source.PixelHeight;
             return r;
         }
-        private DrawTile(canvasCtx: CanvasRenderingContext2D, bounds: rect) {
+        DrawTile(canvasCtx: CanvasRenderingContext2D, bounds: rect) {
             var source = this.ImageSource;
             canvasCtx.rect(0, 0, bounds.Width, bounds.Height);
             canvasCtx.fillStyle = canvasCtx.createPattern(source.Image, "no-repeat");
@@ -46,9 +47,9 @@ module Fayde.Media.Imaging {
                 newSrc.Listen(this);
             this.InvalidateBrush();
         }
-        private OnImageErrored(source: BitmapSource, e: Event) { this.ImageFailed.Raise(this, EventArgs.Empty); }
-        private OnImageLoaded(source: BitmapSource, e: Event) { this.ImageOpened.Raise(this, EventArgs.Empty); }
-        private ImageChanged(source: BitmapSource) { }
+        OnImageErrored(source: BitmapSource, e: Event) { this.ImageFailed.Raise(this, EventArgs.Empty); }
+        OnImageLoaded(source: BitmapSource, e: Event) { this.ImageOpened.Raise(this, EventArgs.Empty); }
+        ImageChanged(source: BitmapSource) { }
     }
     Nullstone.RegisterType(ImageBrush, "ImageBrush");
 }

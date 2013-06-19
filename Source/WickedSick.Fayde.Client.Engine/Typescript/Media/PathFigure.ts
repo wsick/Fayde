@@ -50,7 +50,7 @@ module Fayde.Media {
             return p;
         }
 
-        private PathSegmentChanged(newPathSegment: PathSegment) {
+        PathSegmentChanged(newPathSegment: PathSegment) {
             this._Path = null;
             var listener = this._Listener;
             if (listener) listener.PathFigureChanged(this);
@@ -72,7 +72,7 @@ module Fayde.Media {
     }
     Nullstone.RegisterType(PathFigure, "PathFigure");
 
-    export class PathFigureCollection extends XamlObjectCollection implements IPathFigureListener {
+    export class PathFigureCollection extends XamlObjectCollection<PathFigure> implements IPathFigureListener {
         private _Listener: IPathFigureListener;
 
         AddingToCollection(value: PathFigure, error: BError): bool {
@@ -93,7 +93,7 @@ module Fayde.Media {
         Listen(listener: IPathFigureListener) { this._Listener = listener; }
         Unlisten(listener: IPathFigureListener) { if (this._Listener === listener) this._Listener = null; }
         
-        private PathFigureChanged(newPathFigure: PathFigure) {
+        PathFigureChanged(newPathFigure: PathFigure) {
             var listener = this._Listener;
             if (listener) listener.PathFigureChanged(newPathFigure);
         }

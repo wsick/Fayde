@@ -69,7 +69,7 @@ module Fayde {
             var children: IDebugInteropCache[];
             while (enumerator.MoveNext()) {
                 cur = enumerator.Current;
-                var childItem = this.CreateDebugInteropCacheItem(<UINode>cur);
+                var childItem = this.CreateDebugInteropCacheItem(cur);
                 item.Children.push(childItem);
                 this.PopulateCacheChildren(childItem);
             }
@@ -114,7 +114,7 @@ module Fayde {
                     continue;
                 arr.push(value);
             }
-            arr = arr.map((s) => {
+            var arr2 = arr.map((s) => {
                 return {
                     PropertyID: s.Property._ID,
                     Precedence: s.Precedence,
@@ -124,7 +124,7 @@ module Fayde {
                     InheritedValue: (<any>s).InheritedValue,
                 };
             });
-            return JSON.stringify(arr, DebugInterop._StringifyReplacer);
+            return JSON.stringify(arr2, DebugInterop._StringifyReplacer);
         }
         GetLayoutMetrics(id: number): string {
             var c = this.GetById(id);

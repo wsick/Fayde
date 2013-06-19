@@ -2,11 +2,11 @@
 /// CODE
 
 class TimeSpan {
-    private static _TicksPerMillisecond = 1;
-    private static _TicksPerSecond = 1000;
-    private static _TicksPerMinute = TimeSpan._TicksPerSecond * 60;
-    private static _TicksPerHour = TimeSpan._TicksPerMinute * 60;
-    private static _TicksPerDay = TimeSpan._TicksPerHour * 24;
+    static _TicksPerMillisecond = 1;
+    static _TicksPerSecond = 1000;
+    static _TicksPerMinute = TimeSpan._TicksPerSecond * 60;
+    static _TicksPerHour = TimeSpan._TicksPerMinute * 60;
+    static _TicksPerDay = TimeSpan._TicksPerHour * 24;
 
     private _Ticks: number = 0;
 

@@ -8,12 +8,12 @@ module Fayde.Media.Animation {
     /// http://msdn.microsoft.com/en-us/library/cc189019(v=vs.95).aspx
     export class Storyboard extends Timeline {
         static TargetNameProperty: DependencyProperty = DependencyProperty.RegisterAttached("TargetName", () => String, Storyboard);
-        static GetTargetName(d: DependencyObject): string { return d.GetValue(TargetNameProperty); }
-        static SetTargetName(d: DependencyObject, value: string) { return d.SetValue(TargetNameProperty, value); }
+        static GetTargetName(d: DependencyObject): string { return d.GetValue(Storyboard.TargetNameProperty); }
+        static SetTargetName(d: DependencyObject, value: string) { return d.SetValue(Storyboard.TargetNameProperty, value); }
         
         static TargetPropertyProperty: DependencyProperty = DependencyProperty.RegisterAttached("TargetProperty", () => Data.PropertyPath, Storyboard);
-        static GetTargetProperty(d: DependencyObject): Data.PropertyPath { return d.GetValue(TargetPropertyProperty); }
-        static SetTargetProperty(d: DependencyObject, value: Data.PropertyPath) { return d.SetValue(TargetPropertyProperty, value); }
+        static GetTargetProperty(d: DependencyObject): Data.PropertyPath { return d.GetValue(Storyboard.TargetPropertyProperty); }
+        static SetTargetProperty(d: DependencyObject, value: Data.PropertyPath) { return d.SetValue(Storyboard.TargetPropertyProperty, value); }
 
         TargetName: string;
         TargetProperty: Data.PropertyPath;
@@ -45,9 +45,8 @@ module Fayde.Media.Animation {
             var error = new BError();
             var promotedValues: any[] = [];
             var enumerator = this.Children.GetEnumerator();
-            var animation: AnimationBase;
             while (enumerator.MoveNext()) {
-                animation = enumerator.Current;
+                var animation = <AnimationBase>enumerator.Current;
                 if (!animation._Hookup(promotedValues, error))
                     error.ThrowException();
             }
@@ -79,14 +78,14 @@ module Fayde.Media.Animation {
             }
         }
 
-        private UpdateInternal(clockData: IClockData) {
+        UpdateInternal(clockData: IClockData) {
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.MoveNext()) {
                 (<Timeline>enumerator.Current).Update(clockData.CurrentTime.Ticks);
             }
         }
 
-        private GetNaturalDurationCore(): Duration {
+        GetNaturalDurationCore(): Duration {
             var fullTicks = 0;
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.MoveNext()) {

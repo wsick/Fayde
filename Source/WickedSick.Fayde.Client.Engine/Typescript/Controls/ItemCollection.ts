@@ -30,19 +30,14 @@ module Fayde.Controls {
         ClearImpl();
     }
 
-    export class ItemCollection extends XamlObjectCollection implements IEnumerable, IItemCollection, IItemCollectionHidden {
-        private _ht: any[] = [];
-
-        GetEnumerator(): IEnumerator {
-            return ArrayEx.GetEnumerator(this._ht);
-        }
+    export class ItemCollection extends XamlObjectCollection<XamlObject> implements IItemCollection, IItemCollectionHidden {
         ItemsChanged: MulticastEvent = new MulticastEvent();
         PropertyChanged: MulticastEvent = new MulticastEvent();
         ToArray(): any[] { return this._ht.slice(0); }
 
         get Count(): number { return this._ht.length; }
 
-        private IsReadOnly: bool = false;
+        IsReadOnly: bool = false;
 
         GetValueAt(index: number): XamlObject {
             var ht = this._ht;
@@ -58,7 +53,7 @@ module Fayde.Controls {
             this.SetValueAtImpl(index, value);
             return true;
         }
-        private SetValueAtImpl(index: number, value: any) {
+        SetValueAtImpl(index: number, value: any) {
             var ht = this._ht;
             if (index < 0 || index >= ht.length)
                 throw new IndexOutOfRangeException(index);
@@ -73,7 +68,7 @@ module Fayde.Controls {
                 throw new ArgumentException("value");
             return this.AddImpl(value);
         }
-        private AddImpl(value: any): number {
+        AddImpl(value: any): number {
             var index = this._ht.push(value) - 1;
             this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Add(value, index));
             return index;
@@ -87,8 +82,9 @@ module Fayde.Controls {
             }
             this.AddRangeImpl(values);
         }
-        private AddRangeImpl(values: any[]) {
-            var index = this._ht.push(values) - 1;
+        AddRangeImpl(values: any[]) {
+            var index = this._ht.length;
+            this._ht = this._ht.concat(values);
             this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.AddRange(values, index));
         }
 
@@ -99,7 +95,7 @@ module Fayde.Controls {
             this.InsertImpl(index, value);
             return true;
         }
-        private InsertImpl(index: number, value: XamlObject) {
+        InsertImpl(index: number, value: XamlObject) {
             var ht = this._ht;
             if (index < 0 || index > ht.length)
                 throw new IndexOutOfRangeException(index);
@@ -122,7 +118,7 @@ module Fayde.Controls {
             this.RemoveImpl(value);
             return true;
         }
-        private RemoveImpl(value: XamlObject) {
+        RemoveImpl(value: XamlObject) {
             var index = this._ht.indexOf(value);
             if (index < 0)
                 return;
@@ -137,7 +133,7 @@ module Fayde.Controls {
             this.RemoveAtImpl(index);
             return true;
         }
-        private RemoveAtImpl(index: number) {
+        RemoveAtImpl(index: number) {
             var item = this._ht.splice(index, 1)[0];
             this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Remove(item, index));
         }
@@ -147,7 +143,7 @@ module Fayde.Controls {
             this.ClearImpl();
             return true;
         }
-        private ClearImpl() {
+        ClearImpl() {
             this._ht = [];
             this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Reset());
         }

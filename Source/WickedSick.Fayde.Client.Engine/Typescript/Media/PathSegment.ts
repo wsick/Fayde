@@ -20,7 +20,7 @@ module Fayde.Media {
     }
     Nullstone.RegisterType(PathSegment, "PathSegment");
 
-    export class PathSegmentCollection extends XamlObjectCollection implements IPathSegmentListener {
+    export class PathSegmentCollection extends XamlObjectCollection<PathSegment> implements IPathSegmentListener {
         private _Listener: IPathSegmentListener;
 
         AddingToCollection(value: PathSegment, error: BError): bool {
@@ -41,7 +41,7 @@ module Fayde.Media {
         Listen(listener: IPathSegmentListener) { this._Listener = listener; }
         Unlisten(listener: IPathSegmentListener) { if (this._Listener === listener) this._Listener = null; }
         
-        private PathSegmentChanged(newPathSegment: PathSegment) {
+        PathSegmentChanged(newPathSegment: PathSegment) {
             var listener = this._Listener;
             if (listener) listener.PathSegmentChanged(newPathSegment);
         }

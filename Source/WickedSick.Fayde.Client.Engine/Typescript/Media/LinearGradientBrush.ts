@@ -12,7 +12,7 @@ module Fayde.Media {
         StartPoint: Point;
         EndPoint: Point;
 
-        private _CreatePad(ctx: CanvasRenderingContext2D, bounds: rect) {
+        _CreatePad(ctx: CanvasRenderingContext2D, bounds: rect) {
             var data = this._GetPointData(bounds);
             var start = data.start;
             var end = data.end;
@@ -24,7 +24,7 @@ module Fayde.Media {
             }
             return grd;
         }
-        private _CreateRepeat(ctx: CanvasRenderingContext2D, bounds: rect) {
+        _CreateRepeat(ctx: CanvasRenderingContext2D, bounds: rect) {
             var data = this._GetPointData(bounds);
             var start = data.start;
             var end = data.end;
@@ -49,7 +49,7 @@ module Fayde.Media {
             }
             return grd;
         }
-        private _CreateReflect(ctx: CanvasRenderingContext2D, bounds: rect) {
+        _CreateReflect(ctx: CanvasRenderingContext2D, bounds: rect) {
             var data = this._GetPointData(bounds);
             var start = data.start;
             var end = data.end;

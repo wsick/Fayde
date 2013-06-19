@@ -21,11 +21,8 @@ module Fayde {
         Callback: (newIsAttached: bool) => void;
         Detach();
     }
-    export interface IShareableHidden {
-        IsShareable: bool;
-    }
 
-    export class XamlNode implements IShareableHidden {
+    export class XamlNode {
         XObject: XamlObject;
         ParentNode: XamlNode = null;
         Name: string = "";
@@ -247,8 +244,12 @@ module Fayde {
         }
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) { }
 
-        GetInheritedEnumerator(): IEnumerator { return undefined; }
-        GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator { return undefined; }
+        GetInheritedEnumerator(): IEnumerator<DONode> { return undefined; }
+        GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator<FENode> { return undefined; }
+
+        static SetShareable(xn: XamlNode) {
+            xn.IsShareable = true;
+        }
     }
     Nullstone.RegisterType(XamlNode, "XamlNode");
 }

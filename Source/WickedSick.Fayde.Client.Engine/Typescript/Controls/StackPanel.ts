@@ -11,7 +11,7 @@ module Fayde.Controls {
             lu.InvalidateMeasure();
             lu.InvalidateArrange();
         }
-        private _MeasureOverride(availableSize: size, error: BError): size {
+        _MeasureOverride(availableSize: size, error: BError): size {
             var childAvailable = size.createInfinite();
             var measured = new size();
 
@@ -55,7 +55,7 @@ module Fayde.Controls {
 
             return measured;
         }
-        private _ArrangeOverride(finalSize: size, error: BError): size {
+        _ArrangeOverride(finalSize: size, error: BError): size {
             var arranged = size.copyTo(finalSize);
             var isVertical = this.Orientation === Orientation.Vertical;
             if (isVertical)

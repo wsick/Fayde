@@ -164,7 +164,7 @@ module Fayde.Controls {
         ImageOpened: MulticastEvent = new MulticastEvent();
         ImageFailed: MulticastEvent = new MulticastEvent();
 
-        private _MeasureOverride(availableSize: size, error: BError): size {
+        _MeasureOverride(availableSize: size, error: BError): size {
             var desired = size.copyTo(availableSize);
             var shapeBounds = new rect();
             var source = this.Source;
@@ -213,7 +213,7 @@ module Fayde.Controls {
             desired.Height = shapeBounds.Height * sy;
             return desired;
         }
-        private _ArrangeOverride(finalSize: size, error: BError): size {
+        _ArrangeOverride(finalSize: size, error: BError): size {
             var arranged = size.copyTo(finalSize);
             var shapeBounds = new rect();
             var source = this.Source;
@@ -254,7 +254,7 @@ module Fayde.Controls {
             return arranged;
         }
 
-        private Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
+        Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
             // Just to get something working, we do all the matrix transforms for stretching.
             // Eventually, we can let the html5 canvas do all the dirty work.
 
@@ -279,7 +279,7 @@ module Fayde.Controls {
 
             source.Unlock();
         }
-        private ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater) {
+        ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater) {
             var result = baseComputer.call(lu);
 
             var vpNode = this.XamlNode.VisualParentNode;
@@ -313,9 +313,9 @@ module Fayde.Controls {
             lu.InvalidateMeasure();
         }
         
-        private OnImageErrored(source: Media.Imaging.BitmapSource, e: Event) { this.ImageFailed.Raise(this, EventArgs.Empty); }
-        private OnImageLoaded(source: Media.Imaging.BitmapSource, e: Event) { this.ImageOpened.Raise(this, EventArgs.Empty); }
-        private ImageChanged(source: Media.Imaging.BitmapSource) {
+        OnImageErrored(source: Media.Imaging.BitmapSource, e: Event) { this.ImageFailed.Raise(this, EventArgs.Empty); }
+        OnImageLoaded(source: Media.Imaging.BitmapSource, e: Event) { this.ImageOpened.Raise(this, EventArgs.Empty); }
+        ImageChanged(source: Media.Imaging.BitmapSource) {
             var lu = this.XamlNode.LayoutUpdater;
             lu.InvalidateMeasure();
             lu.Invalidate();

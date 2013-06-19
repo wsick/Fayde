@@ -10,7 +10,7 @@ module Fayde.Media {
         StartPoint: Point;
         EndPoint: Point;
 
-        private _Build(): Shapes.RawPath {
+        _Build(): Shapes.RawPath {
             var p1 = this.StartPoint;
             var p2 = this.EndPoint;
 

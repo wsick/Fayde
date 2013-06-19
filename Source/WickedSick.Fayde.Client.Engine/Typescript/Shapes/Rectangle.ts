@@ -2,13 +2,7 @@
 /// CODE
 
 module Fayde.Shapes {
-    declare var NotImplemented;
-
     export class Rectangle extends Shape {
-        private _Path: RawPath; //defined in Shape
-        private _ShapeFlags: ShapeFlags; //defined in Shape
-        private _Stroke: Media.Brush; //defined in Shape
-
         /* RadiusX/RadiusY Notes
         For the rectangle to have rounded corners, both the RadiusX and RadiusY properties must be nonzero.
         A value greater than or equal to zero and less than or equal to half the rectangle's width that describes the x-radius of the ellipse is used to round the corners of the rectangle. 
@@ -25,7 +19,7 @@ module Fayde.Shapes {
             this.Stretch = Media.Stretch.Fill;
         }
 
-        private _BuildPath(): Shapes.RawPath {
+        _BuildPath(): Shapes.RawPath {
             var stretch = this.Stretch;
             var t = this._Stroke != null ? this.StrokeThickness : 0.0;
             var irect = new rect();
@@ -72,7 +66,7 @@ module Fayde.Shapes {
             return path;
         }
 
-        private _ComputeShapeBounds(logical: bool): rect {
+        _ComputeShapeBounds(logical: bool): rect {
             var irect = new rect();
             irect.Width = this.ActualWidth;
             irect.Height = this.ActualHeight;
@@ -124,7 +118,7 @@ module Fayde.Shapes {
 
             return irect;
         }
-        private _ComputeShapeBoundsImpl(logical: bool, matrix?): rect {
+        _ComputeShapeBoundsImpl(logical: bool, matrix?): rect {
             var r = new rect();
             if (logical) {
                 r.Width = 1.0;
@@ -132,7 +126,7 @@ module Fayde.Shapes {
             }
             return r;
         }
-        private _ComputeStretchBounds(): rect { return this._ComputeShapeBounds(false); }
+        _ComputeStretchBounds(): rect { return this._ComputeShapeBounds(false); }
 
         private _RadiusChanged(args: IDependencyPropertyChangedEventArgs) {
             var lu = this.XamlNode.LayoutUpdater;

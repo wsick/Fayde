@@ -9,7 +9,7 @@ module Fayde.Media.Animation {
 
         Resolve(target: DependencyObject, propd: DependencyProperty) { return true; }
 
-        private HoldEnd() { this._IsHolding = true; }
+        HoldEnd() { this._IsHolding = true; }
         Stop() {
             var animStorage = this._AnimStorage;
             if (!animStorage)

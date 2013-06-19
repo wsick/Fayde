@@ -26,7 +26,7 @@ module Fayde {
             var subtreeNode = feNode.SubtreeNode;
             var subtree = subtreeNode.XObject;
             if (subtree instanceof XamlObjectCollection)
-                return <DependencyObject>(<XamlObjectCollection>subtree).GetValueAt(childIndex);
+                return <DependencyObject>(<XamlObjectCollection<DependencyObject>>subtree).GetValueAt(childIndex);
 
             if ((subtree instanceof UIElement) && childIndex === 0)
                 return <UIElement>subtree;
@@ -75,8 +75,8 @@ module Fayde {
                 return "[No top node.]";
 
             if (!func)
-                func = __DebugUIElement;
-            return __DebugTree(topNode, uin, 1, func);
+                func = VisualTreeHelper.__DebugUIElement;
+            return VisualTreeHelper.__DebugTree(topNode, uin, 1, func);
         }
         private static __DebugTree(curNode: UINode, matchNode: UINode, tabIndex: number, func: (uin: UINode, tabIndex: number) => string) {
             var str = "";
@@ -115,7 +115,7 @@ module Fayde {
             var childNode: UINode;
             while (enumerator.MoveNext()) {
                 childNode = enumerator.Current;
-                str += __DebugTree(childNode, matchNode, tabIndex + 1, func);
+                str += VisualTreeHelper.__DebugTree(childNode, matchNode, tabIndex + 1, func);
             }
 
             return str;
@@ -142,7 +142,7 @@ module Fayde {
             }
             str += ")";
 
-            var gridStr = __DebugGrid(uin, tabIndex);
+            var gridStr = VisualTreeHelper.__DebugGrid(uin, tabIndex);
             if (gridStr)
                 str += "\n" + gridStr;
             return str;
@@ -163,7 +163,7 @@ module Fayde {
                 tabs += "\t";
             }
 
-            var enumerator: IEnumerator;
+            var enumerator: IEnumerator<Controls.RowDefinition>;
             var str = "";
             if (rcount > 0) {
                 str += tabs;
@@ -178,14 +178,15 @@ module Fayde {
                     i++;
                 }
             }
+            var enumerator2: IEnumerator<Controls.ColumnDefinition>;
             if (ccount > 0) {
                 str += tabs;
                 str += "  Columns (" + ccount + "):\n";
-                enumerator = cds.GetEnumerator();
+                enumerator2 = cds.GetEnumerator();
                 var coldef: Controls.ColumnDefinition;
                 var i = 0;
-                while (enumerator.MoveNext()) {
-                    coldef = enumerator.Current;
+                while (enumerator2.MoveNext()) {
+                    coldef = enumerator2.Current;
                     str += tabs;
                     str += "\t[" + i + "] -> " + coldef.ActualWidth + "\n";
                     i++;
@@ -197,8 +198,8 @@ module Fayde {
             if (!uin)
                 return "";
             var lu = uin.LayoutUpdater;
-            var str = _SerializeDirt(lu.DirtyFlags);
-            str += _SerializeFlags(lu.Flags);
+            var str = VisualTreeHelper._SerializeDirt(lu.DirtyFlags);
+            str += VisualTreeHelper._SerializeFlags(lu.Flags);
             str += " (";
             str += lu.HiddenDesire.toString();
             str += " ";
@@ -208,7 +209,7 @@ module Fayde {
         }
 
         static __DebugLayout(ui: any): string {
-            return __Debug(ui, __DebugUIElementLayout);
+            return VisualTreeHelper.__Debug(ui, VisualTreeHelper.__DebugUIElementLayout);
         }
 
         private static _SerializeDirt(dirt: _Dirty): string {

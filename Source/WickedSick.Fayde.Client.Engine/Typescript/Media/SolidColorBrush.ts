@@ -19,7 +19,7 @@ module Fayde.Media {
             return scb;
         }
 
-        private CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any {
+        CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any {
             var color = this.Color;
             if (!color)
                 return "#000000";

@@ -2,7 +2,7 @@
 /// CODE
 
 module Fayde.Shapes {
-    export class DoubleCollection extends XamlObjectCollection {
+    export class DoubleCollection extends XamlObjectCollection<XamlObject> {
     }
     Nullstone.RegisterType(DoubleCollection, "DoubleCollection");
 }

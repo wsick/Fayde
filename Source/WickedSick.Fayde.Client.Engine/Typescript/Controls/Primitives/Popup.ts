@@ -5,9 +5,8 @@
 
 module Fayde.Controls.Primitives {
     export class PopupNode extends FENode implements IBoundsComputable, IPostComputeTransformable {
-        private _Surface: Surface; //Defined in FENode
         XObject: Popup;
-        GetInheritedEnumerator(): IEnumerator {
+        GetInheritedEnumerator(): IEnumerator<DONode> {
             var popup = (<Popup>this.XObject);
             if (!popup)
                 return ArrayEx.EmptyEnumerator;

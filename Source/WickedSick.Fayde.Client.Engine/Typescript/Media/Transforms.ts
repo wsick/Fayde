@@ -11,7 +11,7 @@ module Fayde.Media {
         CenterX: number;
         CenterY: number;
 
-        private _BuildValue(): number[] {
+        _BuildValue(): number[] {
             var cx = this.CenterX;
             var cy = this.CenterY;
             var angleRad = Math.PI / 180 * this.Angle;
@@ -37,7 +37,7 @@ module Fayde.Media {
         ScaleX: number;
         ScaleY: number;
 
-        private _BuildValue(): number[] {
+        _BuildValue(): number[] {
             var cx = this.CenterX;
             var cy = this.CenterY;
             var m = mat3.createScale(this.ScaleX, this.ScaleY);
@@ -62,7 +62,7 @@ module Fayde.Media {
         CenterX: number;
         CenterY: number;
 
-        private _BuildValue(): number[] {
+        _BuildValue(): number[] {
             var cx = this.CenterX;
             var cy = this.CenterY;
             var angleXRad = Math.PI / 180 * this.AngleX;
@@ -85,7 +85,7 @@ module Fayde.Media {
         X: number;
         Y: number;
 
-        private _BuildValue(): number[] {
+        _BuildValue(): number[] {
             return mat3.createTranslate(this.X, this.Y);
         }
     }
@@ -95,7 +95,7 @@ module Fayde.Media {
         Child: Transform;
     }
 
-    export class TransformCollection extends XamlObjectCollection {
+    export class TransformCollection extends XamlObjectCollection<Transform> {
         private _Relayer: () => void = function () { };
         private _ChildTransformListeners: ITransformChangedChildListener[] = [];
 
@@ -143,7 +143,7 @@ module Fayde.Media {
             });
         }
 
-        private _BuildValue(): number[] {
+        _BuildValue(): number[] {
             var enumerator = this.Children.GetEnumerator(true);
             var cur = mat3.identity();
             while (enumerator.MoveNext()) {

@@ -17,8 +17,8 @@ module Fayde.Media.Animation {
     }
 
     export class KeyFrame extends DependencyObject implements IKeyFrame {
-        private _ResolvedKeyTime: TimeSpan = null;
-        private _Resolved: bool = false;
+        _ResolvedKeyTime: TimeSpan = null;
+        _Resolved: bool = false;
         private _Listener: IKeyFrameListener;
 
         static KeyTimeProperty: DependencyProperty = DependencyProperty.Register("KeyTime", () => KeyTime, KeyFrame, undefined, (d, args) => (<KeyFrame>d).InvalidateKeyFrame());
@@ -57,7 +57,7 @@ module Fayde.Media.Animation {
         }
 
         /// http://msdn2.microsoft.com/en-us/library/ms742524.aspx (Bottom of page)
-        static ResolveKeyFrames(animation: AnimationBase, arr:KeyFrame[]): KeyFrame[] {
+        static ResolveKeyFrames(animation: AnimationBase, arr: KeyFrame[]): KeyFrame[] {
             var totalInterpolationTime: TimeSpan;
             var hasTimeSpanKeyFrame = false;
             var highestKeyTimeTimeSpan = new TimeSpan();
@@ -145,9 +145,8 @@ module Fayde.Media.Animation {
     }
     Nullstone.RegisterType(KeyFrame, "KeyFrame");
 
-    export class KeyFrameCollection extends XamlObjectCollection {
+    export class KeyFrameCollection extends XamlObjectCollection<KeyFrame> {
         private _Resolved: bool = false;
-        private _ht: KeyFrame[];//Defined in XamlObjectCollection
         private _SortedList: KeyFrame[] = [];
 
         GetKeyFrameForTime(t: TimeSpan, prevFrameRef: IOutValue): KeyFrame {
@@ -200,19 +199,19 @@ module Fayde.Media.Animation {
             return super.Clear();
         }
 
-        private AddingToCollection(value: KeyFrame, error: BError): bool {
+        AddingToCollection(value: KeyFrame, error: BError): bool {
             if (!super.AddingToCollection(value, error))
                 return false;
             this._Resolved = false;
             value.Listen(this);
             return true;
         }
-        private RemovedFromCollection(value: KeyFrame, isValueSafe: bool) {
+        RemovedFromCollection(value: KeyFrame, isValueSafe: bool) {
             super.RemovedFromCollection(value, isValueSafe);
             this._Resolved = false;
             value.Unlisten(this);
         }
-        private KeyFrameChanged(source: KeyFrame) {
+        KeyFrameChanged(source: KeyFrame) {
             this._Resolved = false;
         }
 

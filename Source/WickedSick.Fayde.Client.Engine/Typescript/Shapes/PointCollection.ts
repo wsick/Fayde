@@ -3,7 +3,7 @@
 /// <reference path="Shape.ts" />
 
 module Fayde.Shapes {
-    export class PointCollection implements IEnumerable {
+    export class PointCollection implements IEnumerable<Point> {
         private _ht: Point[] = [];
 
         Owner: Shape;
@@ -87,7 +87,7 @@ module Fayde.Shapes {
         }
         Contains(value: Point): bool { return this.IndexOf(value) > -1; }
 
-        GetEnumerator(reverse?: bool): IEnumerator { return ArrayEx.GetEnumerator(this._ht, reverse); }
+        GetEnumerator(reverse?: bool): IEnumerator<Point> { return ArrayEx.GetEnumerator(this._ht, reverse); }
     }
     Nullstone.RegisterType(PointCollection, "PointCollection");
 }

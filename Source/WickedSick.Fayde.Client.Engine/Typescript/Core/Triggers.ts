@@ -8,7 +8,7 @@ module Fayde {
     }
     Nullstone.RegisterType(TriggerAction, "TriggerAction");
     
-    export class TriggerActionCollection extends XamlObjectCollection {
+    export class TriggerActionCollection extends XamlObjectCollection<TriggerAction> {
     }
     Nullstone.RegisterType(TriggerActionCollection, "TriggerActionCollection");
 
@@ -75,8 +75,8 @@ module Fayde {
     }
     Nullstone.RegisterType(EventTrigger, "EventTrigger");
 
-    export class TriggerCollection extends XamlObjectCollection {
-        private get ParentXamlObject():XamlObject {
+    export class TriggerCollection extends XamlObjectCollection<TriggerBase> {
+        private get ParentXamlObject(): XamlObject {
             var parentNode = this.XamlNode.ParentNode;
             if (!parentNode)
                 return undefined;

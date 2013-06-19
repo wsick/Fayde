@@ -95,7 +95,7 @@ module Fayde.Media {
     }
     Nullstone.RegisterType(Geometry, "Geometry");
 
-    export class GeometryCollection extends XamlObjectCollection implements IGeometryListener {
+    export class GeometryCollection extends XamlObjectCollection<Geometry> implements IGeometryListener {
         private _Listener: IGeometryListener;
         Listen(listener: IGeometryListener) { this._Listener = listener; }
         Unlisten(listener: IGeometryListener) { if (this._Listener === listener) this._Listener = null; }
@@ -114,7 +114,7 @@ module Fayde.Media {
             var listener = this._Listener;
             if (listener) listener.GeometryChanged(value);
         }
-        private GeometryChanged(newGeometry: Geometry) {
+        GeometryChanged(newGeometry: Geometry) {
             var listener = this._Listener;
             if (listener) listener.GeometryChanged(newGeometry);
         }

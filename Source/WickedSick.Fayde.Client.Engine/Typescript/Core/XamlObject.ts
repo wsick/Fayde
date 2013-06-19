@@ -26,7 +26,7 @@ module Fayde {
         }
         CloneCore(source: XamlObject) { }
 
-        private IsInheritable(propd: DependencyProperty): bool { return false; }
+        IsInheritable(propd: DependencyProperty): bool { return false; }
     }
     Nullstone.RegisterType(XamlObject, "XamlObject");
 }

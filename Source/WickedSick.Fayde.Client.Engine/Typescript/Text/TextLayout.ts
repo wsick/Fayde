@@ -383,14 +383,13 @@ module Fayde.Text {
             if (maxWidth === 0.0)
                 maxWidth = Number.POSITIVE_INFINITY;
             if (this._MaxWidth === maxWidth)
-                return false;
+                return;
             if (!this._IsWrapped && (!isFinite(maxWidth) || maxWidth > this._ActualWidth)) {
                 this._MaxWidth = maxWidth;
-                return false;
+                return;
             }
             this._MaxWidth = maxWidth;
             this.ResetState();
-            return true;
         }
 
         get TextAlignment() { return this._Alignment; }
@@ -463,7 +462,6 @@ module Fayde.Text {
         set TextAttributes(attrs: ITextAttributes[]) {
             this._Attrs = attrs;
             this.ResetState();
-            return true;
         }
 
         get Text(): string { return this._Text; }
@@ -476,7 +474,6 @@ module Fayde.Text {
                 this._Length = 0;
             }
             this.ResetState();
-            return true;
         }
 
         GetSelectionCursor(offset: Point, pos: number): rect {

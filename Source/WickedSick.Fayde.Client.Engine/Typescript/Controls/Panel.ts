@@ -17,11 +17,11 @@ module Fayde.Controls {
     }
     class PanelChildrenNode extends XamlNode {
         ParentNode: PanelNode;
-        private _Nodes: UINode[] = [];
-        private _ZSorted: UINode[] = [];
+        private _Nodes: FENode[] = [];
+        private _ZSorted: FENode[] = [];
 
-        AddNode(uin: UINode) { this._Nodes.push(uin); }
-        RemoveNode(uin: UINode) {
+        AddNode(uin: FENode) { this._Nodes.push(uin); }
+        RemoveNode(uin: FENode) {
             var nodes = this._Nodes;
             var index = nodes.indexOf(uin);
             if (index > -1)
@@ -34,7 +34,7 @@ module Fayde.Controls {
             if (zs.length > 1)
                 zs.sort(zIndexComparer);
         }
-        GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
+        GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator<FENode> {
             switch (direction) {
                 default:
                 case VisualTreeDirection.Logical:
@@ -54,20 +54,20 @@ module Fayde.Controls {
     }
     Nullstone.RegisterType(PanelChildrenNode, "PanelChildrenNode");
 
-    class PanelChildrenCollection extends XamlObjectCollection {
+    class PanelChildrenCollection extends XamlObjectCollection<UIElement> {
         XamlNode: PanelChildrenNode;
         CreateNode(): PanelChildrenNode { return new PanelChildrenNode(this); }
         AddingToCollection(value: UIElement, error: BError): bool {
             var node = this.XamlNode;
             if (!node.ParentNode.AttachVisualChild(value, error))
                 return false;
-            node.AddNode(value.XamlNode);
+            node.AddNode((<FrameworkElement>value).XamlNode);
             return super.AddingToCollection(value, error);
         }
         RemovedFromCollection(value: UIElement, isValueSafe: bool) {
             var node = this.XamlNode;
             node.ParentNode.DetachVisualChild(value, null);
-            node.RemoveNode(value.XamlNode);
+            node.RemoveNode((<FrameworkElement>value).XamlNode);
             super.RemovedFromCollection(value, isValueSafe);
         }
     }
@@ -142,7 +142,7 @@ module Fayde.Controls {
             lu.ComputeSurfaceBounds();
         }
         
-        GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator {
+        GetVisualTreeEnumerator(direction?: VisualTreeDirection): IEnumerator<FENode> {
             return this.XObject.Children.XamlNode.GetVisualTreeEnumerator(direction);
         }
     }
@@ -166,17 +166,17 @@ module Fayde.Controls {
         static IsItemsHostProperty: DependencyProperty = DependencyProperty.Register("IsItemHost", () => { return Boolean; }, Panel, false);
         Background: Media.Brush;
         IsItemsHost: bool;
-        Children: XamlObjectCollection;
+        Children: XamlObjectCollection<UIElement>;
 
         private _BackgroundListener: Media.IBrushChangedListener;
 
         static Annotations = { ContentProperty: "Children" }
 
-        static GetZIndex(uie: UIElement): number { return uie.GetValue(ZIndexProperty); }
-        static SetZIndex(uie: UIElement, value: number) { uie.SetValue(ZIndexProperty, value); }
+        static GetZIndex(uie: UIElement): number { return uie.GetValue(Panel.ZIndexProperty); }
+        static SetZIndex(uie: UIElement, value: number) { uie.SetValue(Panel.ZIndexProperty, value); }
 
-        static GetZ(uie: UIElement): number { return uie.GetValue(ZProperty); }
-        static SetZ(uie: UIElement, value: number) { uie.SetValue(ZProperty, value); }
+        static GetZ(uie: UIElement): number { return uie.GetValue(Panel.ZProperty); }
+        static SetZ(uie: UIElement, value: number) { uie.SetValue(Panel.ZProperty, value); }
 
         private _BackgroundChanged(args: IDependencyPropertyChangedEventArgs) {
             var lu = this.XamlNode.LayoutUpdater;
@@ -193,11 +193,11 @@ module Fayde.Controls {
             lu.UpdateBounds();
             lu.Invalidate();
         }
-        private _MeasureOverride(availableSize: size, error: BError): size {
+        _MeasureOverride(availableSize: size, error: BError): size {
             //Abstract Method
             return new size();
         }
-        private Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
+        Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
             var background = this.Background;
             if (!background)
                 return;

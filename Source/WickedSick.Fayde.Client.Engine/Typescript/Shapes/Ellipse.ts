@@ -3,16 +3,12 @@
 
 module Fayde.Shapes {
     export class Ellipse extends Shape {
-        private _Path: RawPath; //defined in Shape
-        private _ShapeFlags: ShapeFlags; //defined in Shape
-        private _Stroke: Media.Brush; //defined in Shape
-
         constructor() {
             super();
             this.Stretch = Media.Stretch.Fill;
         }
 
-        private _BuildPath(): Shapes.RawPath {
+        _BuildPath(): Shapes.RawPath {
             var stretch = this.Stretch;
             var t = this._Stroke != null ? this.StrokeThickness : 0.0;
             var irect = new rect();
@@ -49,8 +45,8 @@ module Fayde.Shapes {
             return path;
         }
 
-        private _ComputeStretchBounds(): rect { return this._ComputeShapeBounds(false); }
-        private _ComputeShapeBounds(logical: bool): rect {
+        _ComputeStretchBounds(): rect { return this._ComputeShapeBounds(false); }
+        _ComputeShapeBounds(logical: bool): rect {
             var irect = new rect();
             irect.Width = this.ActualWidth;
             irect.Height = this.ActualHeight;
@@ -98,7 +94,7 @@ module Fayde.Shapes {
 
             return irect;
         }
-        private _ComputeShapeBoundsImpl(logical: bool, matrix): rect {
+        _ComputeShapeBoundsImpl(logical: bool, matrix?: any): rect {
             var r = new rect();
             if (logical) {
                 r.Width = 1.0;

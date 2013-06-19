@@ -21,7 +21,7 @@ interface ITimeline {
     Update(nowTime: number);
 }
 
-class App implements Fayde.IResourcable {
+class App implements Fayde.IResourcable, Fayde.ITimerListener {
     static Version: string = "0.9.4.0";
     static Current: App;
     MainSurface: Surface;
@@ -80,7 +80,7 @@ class App implements Fayde.IResourcable {
     private StartEngine() {
         this._ClockTimer.RegisterTimer(this);
     }
-    private Tick(lastTime: number, nowTime: number) {
+    OnTicked(lastTime: number, nowTime: number) {
         this.DebugInterop.NumFrames++;
         this.ProcessStoryboards(lastTime, nowTime);
         this.Update();

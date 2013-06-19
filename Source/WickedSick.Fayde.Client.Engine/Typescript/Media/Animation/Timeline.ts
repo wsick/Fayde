@@ -178,7 +178,7 @@ module Fayde.Media.Animation {
     }
     Nullstone.RegisterType(Timeline, "Timeline");
 
-    export class TimelineCollection extends XamlObjectCollection {
+    export class TimelineCollection extends XamlObjectCollection<Timeline> {
     }
     Nullstone.RegisterType(TimelineCollection, "TimelineCollection");
 }

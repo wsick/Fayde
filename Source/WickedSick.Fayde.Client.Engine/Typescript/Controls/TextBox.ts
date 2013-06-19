@@ -51,8 +51,6 @@ module Fayde.Controls {
         }
         set SelectionBackground(value: Media.Brush) { this.SetValue(TextBox.SelectionBackgroundProperty, value); }
 
-        private _Buffer: string; //Defined in TextBoxBase
-
         constructor() {
             super(TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION, TextBox.TextProperty);
             this.DefaultStyleKey = (<any>this).constructor;
@@ -79,30 +77,30 @@ module Fayde.Controls {
 
         get DisplayText(): string { return this.Text; }
 
-        private CursorDown(cursor: number, isPage: bool): number {
+        CursorDown(cursor: number, isPage: bool): number {
             //TODO:
             return cursor;
         }
-        private CursorUp(cursor: number, isPage: bool): number {
+        CursorUp(cursor: number, isPage: bool): number {
             //TODO:
             return cursor;
         }
-        private CursorNextWord(cursor: number): number {
+        CursorNextWord(cursor: number): number {
             //TODO:
             return cursor;
         }
-        private CursorPrevWord(cursor: number): number {
+        CursorPrevWord(cursor: number): number {
             //TODO:
             return cursor;
         }
-        private CursorLineBegin(cursor: number): number {
+        CursorLineBegin(cursor: number): number {
             var buffer = this._Buffer;
             var len = buffer.length;
             var r = buffer.lastIndexOf("\r", cursor);
             var n = buffer.lastIndexOf("\n", cursor);
             return Math.max(r, n, 0);
         }
-        private CursorLineEnd(cursor: number): number {
+        CursorLineEnd(cursor: number): number {
             var buffer = this._Buffer;
             var len = buffer.length;
             var r = buffer.indexOf("\r", cursor);
@@ -112,10 +110,10 @@ module Fayde.Controls {
             return Math.min(r, n);
         }
 
-        private _EmitTextChanged() {
+        _EmitTextChanged() {
             this.TextChanged.RaiseAsync(this, EventArgs.Empty);
         }
-        private _EmitSelectionChanged() {
+        _EmitSelectionChanged() {
             //TextDebug("TextBox.SelectionChanged [" + this.SelectionStart + " -- " + this.SelectionLength + "]");
             this.SelectionChanged.RaiseAsync(this, new EventArgs());
         }
