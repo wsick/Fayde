@@ -48,11 +48,13 @@ class rect implements ICloneable {
         dest.Width = 0;
         dest.Height = 0;
     }
-    static set (dest: rect, x: number, y: number, width: number, height: number) {
+    static set (dest: rect, x: number, y: number, width: number, height: number): rect {
+        if (!dest) dest = new rect();
         dest.X = x;
         dest.Y = y;
         dest.Width = width;
         dest.Height = height;
+        return dest;
     }
     static isEmpty(rect1: rect) {
         return rect1.Width <= 0

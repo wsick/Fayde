@@ -373,9 +373,7 @@ module Fayde.Text {
         }
         get RenderExtents(): rect {
             this.Layout();
-            var r = new rect();
-            rect.set(r, this._HorizontalAlignment(this._ActualWidth), 0.0, this._ActualWidth, this._ActualHeight);
-            return r;
+            return rect.set(new rect(), this._HorizontalAlignment(this._ActualWidth), 0.0, this._ActualWidth, this._ActualHeight);
         }
 
         get MaxWidth(): number { return this._MaxWidth; }
