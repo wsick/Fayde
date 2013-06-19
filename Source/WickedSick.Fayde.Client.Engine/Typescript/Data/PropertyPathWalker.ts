@@ -43,7 +43,7 @@ module Fayde.Data {
         private _Value: any;
         get Value(): any { return this._Value; }
 
-        get IsPathBroken(): bool {
+        get IsPathBroken(): boolean {
             var path = this.Path;
             if (this.IsDataContextBound && (!path || path.length < 1))
                 return false;

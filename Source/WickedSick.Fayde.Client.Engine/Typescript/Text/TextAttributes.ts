@@ -1,3 +1,4 @@
+/// <reference path="../Media/SolidColorBrush.ts" />
 /// CODE
 /// <reference path="../Core/Enums.ts" />
 /// <reference path="../Media/Brush.ts" />
@@ -29,14 +30,16 @@ module Fayde.Text {
             this._Source = source;
             this.Start = (start == null) ? 0 : start;
         }
+        private static DEFAULT_SELECTION_BACKGROUND = Media.SolidColorBrush.FromColor(Color.FromRgba(68, 68, 68, 1.0));
         GetBackground(selected: bool): Media.Brush {
             if (selected)
-                return this._Source.SelectionBackground;
-            return null;
+                return this._Source.SelectionBackground || TextLayoutAttributes.DEFAULT_SELECTION_BACKGROUND;
+            return undefined;
         }
+        private static DEFAULT_SELECTION_FOREGROUND = Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 1.0));
         GetForeground(selected: bool): Media.Brush {
             if (selected)
-                return this._Source.SelectionForeground;
+                return this._Source.SelectionForeground || TextLayoutAttributes.DEFAULT_SELECTION_FOREGROUND;
             return this._Source.Foreground;
         }
         get Font(): Font { return this._Source.Font; }

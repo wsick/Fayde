@@ -18,21 +18,17 @@ module Fayde.Media {
         }
 
         get Value(): Matrix {
-            var val = this._Value;
-            if (!val) {
-                var val = new Matrix();
-                val._Raw = this._BuildValue();
-                this._Value = val;
+            if (!this._Value) {
+                this._Value = new Matrix();
+                this._Value._Raw = this._BuildValue();
             }
-            return val;
+            return this._Value;
         }
         get Inverse(): Transform {
-            var inverse = this.Value.Inverse;
-            if (inverse == null)
+            if (this.Value.Inverse == null)
                 return;
-
             var mt = new MatrixTransform();
-            mt.Matrix = inverse;
+            mt.Matrix = this.Value.Inverse;
             return mt;
         }
 

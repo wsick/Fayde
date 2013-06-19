@@ -41,7 +41,7 @@ module Fayde.Controls {
 
     export class ItemsControl extends Control {
         private _ItemsIsDataBound: bool = false;
-        private _Items: IItemCollectionHidden = null;
+        private _Items: ItemCollection = null;
         private _DisplayMemberTemplate:DataTemplate = null;
 
         XamlNode: ItemsControlNode;
@@ -57,14 +57,13 @@ module Fayde.Controls {
         ItemTemplate: DataTemplate;
         
         get Items(): ItemCollection {
-            var items = <ItemCollection>this._Items;
-            if (!items) {
-                this._Items = items = new ItemCollection();
+            if (!this._Items) {
+                this._Items = new ItemCollection();
                 this._ItemsIsDataBound = true;
-                items.ItemsChanged.Subscribe(this.InvokeItemsChanged, this);
+                this._Items.ItemsChanged.Subscribe(this.InvokeItemsChanged, this);
                 //items.Clearing.Subscribe(this.OnItemsClearing, this);
             }
-            return items;
+            return this._Items;
         }
         private get $Items(): IItemCollectionHidden { return this.Items; }
 
@@ -76,9 +75,8 @@ module Fayde.Controls {
         }
         // <DataTemplate><Grid><TextBlock Text="{Binding @DisplayMemberPath}" /></Grid></DataTemplate>
         get $DisplayMemberTemplate(): DataTemplate {
-            var dmt = this._DisplayMemberTemplate;
-            if (!dmt) {
-                var json = {
+            if (!this._DisplayMemberTemplate) {
+                this._DisplayMemberTemplate = new DataTemplate({
                     ParseType: Grid,
                     Children: [
                         {
@@ -86,11 +84,10 @@ module Fayde.Controls {
                             Props: { Text: new Fayde.BindingMarkup({ Path: this.DisplayMemberPath }) }
                         }
                     ]
-                };
-                dmt = this._DisplayMemberTemplate = new DataTemplate(json);
+                });
                 //TODO: DataTemplate wants a res chain
             }
-            return dmt;
+            return this._DisplayMemberTemplate;
         }
 
         static Annotations = { ContentProperty: "Items" }
@@ -108,11 +105,9 @@ module Fayde.Controls {
         }
 
         get Panel(): Panel {
-            var p = this.XamlNode.ItemsPresenter;
-            var presenter = this.XamlNode.ItemsPresenter;
-            if (presenter)
-                return presenter.ElementRoot;
-            return undefined;
+            if (!this.XamlNode.ItemsPresenter)
+                return undefined;
+            return this.XamlNode.ItemsPresenter.ElementRoot;
         }
 
         static GetItemsOwner(uie: UIElement): ItemsControl {

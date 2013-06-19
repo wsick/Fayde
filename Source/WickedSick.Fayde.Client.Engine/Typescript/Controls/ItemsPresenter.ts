@@ -16,28 +16,17 @@ module Fayde.Controls {
             super(xobj);
         }
 
-        get ElementRoot(): Panel {
-            return this._ElementRoot;
-            if (!this._ElementRoot) {
-                var error = new BError();
-                this.ApplyTemplateWithError(error);
-                if (error.Message)
-                    error.ThrowException();
-            }
-            return this._ElementRoot;
-        }
+        get ElementRoot(): Panel { return this._ElementRoot; }
 
         get StackPanelFallbackTemplate(): ItemsPanelTemplate {
-            var spft = this._SPFT;
-            if (!spft)
-                this._SPFT = spft = new ItemsPanelTemplate({ ParseType: StackPanel });
-            return spft;
+            if (!this._SPFT)
+                this._SPFT = new ItemsPanelTemplate({ ParseType: StackPanel });
+            return this._SPFT;
         }
         get VirtualizingStackPanelFallbackTemplate(): ItemsPanelTemplate {
-            var vspft = this._VSPFT;
-            if (!vspft)
-                this._VSPFT = vspft = new ItemsPanelTemplate({ ParseType: VirtualizingStackPanel });
-            return vspft;
+            if (!this._VSPFT)
+                this._VSPFT = new ItemsPanelTemplate({ ParseType: VirtualizingStackPanel });
+            return this._VSPFT;
         }
 
         DoApplyTemplateWithError(error: BError): bool {

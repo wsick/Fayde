@@ -3,7 +3,7 @@
 /// <reference path="Enums.ts" />
 
 module Fayde.Controls {
-    export class TextBox extends TextBoxBase {
+    export class TextBox extends TextBoxBase implements Text.ITextAttributesSource {
         static AcceptsReturnProperty: DependencyProperty = DependencyProperty.Register("AcceptsReturn", () => Boolean, TextBox, false, (d, args) => (<TextBox>d).$AcceptsReturn = (args.NewValue === true));
         static CaretBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, TextBox);
         static MaxLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, TextBox, 0, (d, args) => (<TextBox>d).$MaxLength = args.NewValue, undefined, undefined, positiveIntValidator);
@@ -30,26 +30,11 @@ module Fayde.Controls {
         TextWrapping: TextWrapping;
         HorizontalScrollBarVisibility: ScrollBarVisibility;
         VerticalScrollBarVisibility: ScrollBarVisibility;
+        SelectionForeground: Media.Brush;
+        SelectionBackground: Media.Brush;
 
         SelectionChanged: MulticastEvent = new MulticastEvent();
         TextChanged: MulticastEvent = new MulticastEvent();
-
-        private static DEFAULT_SELECTION_FOREGROUND = Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 1.0));
-        get SelectionForeground(): Media.Brush {
-            var b = this.GetValue(TextBox.SelectionForegroundProperty);
-            if (b)
-                return b;
-            return TextBox.DEFAULT_SELECTION_FOREGROUND;
-        }
-        set SelectionForeground(value: Media.Brush) { this.SetValue(TextBox.SelectionForegroundProperty, value); }
-        private static DEFAULT_SELECTION_BACKGROUND = Media.SolidColorBrush.FromColor(Color.FromRgba(68, 68, 68, 1.0));
-        get SelectionBackground(): Media.Brush {
-            var b = this.GetValue(TextBox.SelectionBackgroundProperty);
-            if (b)
-                return b;
-            return TextBox.DEFAULT_SELECTION_BACKGROUND;
-        }
-        set SelectionBackground(value: Media.Brush) { this.SetValue(TextBox.SelectionBackgroundProperty, value); }
 
         constructor() {
             super(TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION, TextBox.TextProperty);

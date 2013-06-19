@@ -6,15 +6,14 @@
 module Fayde.Controls {
     export class VirtualizingPanel extends Panel {
         private _ICG: ItemContainerGenerator = null;
-        get ItemContainerGenerator(): ItemContainerGenerator {
-            if (!this._ICG) {
-                var icOwner = ItemsControl.GetItemsOwner(this);
-                if (!icOwner)
-                    throw new InvalidOperationException("VirtualizingPanels must be in the Template of an ItemsControl in order to generate items");
-                var icg = this._ICG = icOwner.ItemContainerGenerator;
-                icg.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
-            }
-            return this._ICG;
+        get ItemContainerGenerator(): ItemContainerGenerator { return this._ICG = this._ICG || this.CreateItemContainerGenerator(); }
+        private CreateItemContainerGenerator(): ItemContainerGenerator {
+            var icOwner = ItemsControl.GetItemsOwner(this);
+            if (!icOwner)
+                throw new InvalidOperationException("VirtualizingPanels must be in the Template of an ItemsControl in order to generate items");
+            var icg = icOwner.ItemContainerGenerator;
+            icg.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
+            return icg;
         }
 
         AddInternalChild(child) {

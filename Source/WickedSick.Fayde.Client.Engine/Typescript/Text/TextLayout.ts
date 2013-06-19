@@ -37,7 +37,6 @@ module Fayde.Text {
             var y0 = font._Ascender();
             ctx.Translate(x, y - y0);
 
-            var brush: Media.Brush;
             var fontHeight = font.GetActualHeight();
             var area = new rect();
             var ox = 0;
@@ -47,7 +46,9 @@ module Fayde.Text {
                 oy = origin.Y;
             }
             rect.set(area, ox, oy, this._Advance, fontHeight);
-            if (this._Selected && (brush = attrs.GetBackground(true))) {
+            
+            var brush = attrs.GetBackground(this._Selected);
+            if (brush) {
                 ctx.FillRect(brush, area); //selection background
             }
 

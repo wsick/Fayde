@@ -1,5 +1,6 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
+/// <reference path="../Primitives/RawMatrix.ts" />
 
 module Fayde.Media {
     export interface IMatrixChangedListener {
@@ -35,16 +36,15 @@ module Fayde.Media {
 
         get Inverse(): Matrix {
             var inverse = this._Inverse;
-            if (!inverse) {
-                var i = mat3.identity();
-                mat3.inverse(this._Raw, i);
-                if (!i)
-                    return;
-                inverse = new Matrix();
-                inverse._Raw = i;
-                this._Inverse = inverse;
+            if (!this._Inverse) {
+                this._Inverse = new Matrix();
+                this._Inverse._Raw = mat3.inverse(this._Raw, mat3.identity());
+                if (!this._Inverse._Raw) {
+                    this._Inverse = undefined;
+                    return undefined;
+                }
             }
-            return inverse;
+            return this._Inverse;
         }
 
         private _Listeners: IMatrixChangedListener[] = [];

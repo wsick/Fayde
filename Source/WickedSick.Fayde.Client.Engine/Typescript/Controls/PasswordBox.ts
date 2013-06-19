@@ -3,7 +3,7 @@
 /// <reference path="Enums.ts" />
 
 module Fayde.Controls {
-    export class PasswordBox extends TextBoxBase {
+    export class PasswordBox extends TextBoxBase implements Text.ITextAttributesSource {
         static BaselineOffsetProperty: DependencyProperty = DependencyProperty.Register("BaselineOffset", () => Number, PasswordBox);
         static CaretBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("CaretBrush", () => Media.Brush, PasswordBox);
         static MaxLengthProperty: DependencyProperty = DependencyProperty.RegisterFull("MaxLength", () => Number, PasswordBox, 0, (d, args) => (<PasswordBox>d).$MaxLength = args.NewValue, undefined, undefined, positiveIntValidator);
@@ -16,24 +16,9 @@ module Fayde.Controls {
         MaxLength; number;
         PasswordChar: string;
         Password: string;
+        SelectionForeground: Media.Brush;
+        SelectionBackground: Media.Brush;
         
-        private static DEFAULT_SELECTION_FOREGROUND = Media.SolidColorBrush.FromColor(Color.FromRgba(255, 255, 255, 1.0));
-        get SelectionForeground(): Media.Brush {
-            var b = this.GetValue(PasswordBox.SelectionForegroundProperty);
-            if (b)
-                return b;
-            return PasswordBox.DEFAULT_SELECTION_FOREGROUND;
-        }
-        set SelectionForeground(value: Media.Brush) { this.SetValue(PasswordBox.SelectionForegroundProperty, value); }
-        private static DEFAULT_SELECTION_BACKGROUND = Media.SolidColorBrush.FromColor(Color.FromRgba(68, 68, 68, 1.0));
-        get SelectionBackground(): Media.Brush {
-            var b = this.GetValue(PasswordBox.SelectionBackgroundProperty);
-            if (b)
-                return b;
-            return PasswordBox.DEFAULT_SELECTION_BACKGROUND;
-        }
-        set SelectionBackground(value: Media.Brush) { this.SetValue(PasswordBox.SelectionBackgroundProperty, value); }
-
         PasswordChangedEvent: RoutedEvent = new RoutedEvent();
 
         constructor() {

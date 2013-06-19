@@ -43,9 +43,7 @@ class App implements Fayde.IResourcable, Fayde.ITimerListener {
         this.Resources.XamlNode.NameScope = new Fayde.NameScope(true);
         this.DebugInterop = new Fayde.DebugInterop(this);
     }
-    get RootVisual(): Fayde.UIElement {
-        return this.MainSurface._RootLayer;
-    }
+    get RootVisual(): Fayde.UIElement { return this.MainSurface._RootLayer; }
 
     LoadResources(json: any) {
         Fayde.JsonParser.ParseResourceDictionary(this.Resources, json);

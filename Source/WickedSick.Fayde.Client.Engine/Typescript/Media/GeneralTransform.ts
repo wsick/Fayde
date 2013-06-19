@@ -23,16 +23,9 @@ module Fayde.Media {
             this._Raw = raw;
         }
 
-        get Inverse(): InternalTransform {
-            var it = new InternalTransform(mat4.create());
-            mat4.inverse(this._Raw, it._Raw);
-            return it;
-        }
-        get Value(): Matrix3D {
-            var m = new Matrix3D();
-            m._Raw = mat4.create(this._Raw);
-            return m;
-        }
+        get Inverse(): InternalTransform { return new InternalTransform(mat4.inverse(this._Raw, mat4.create())); }
+        get Value(): Matrix3D { return Matrix3D.FromRaw(this._Raw); }
+
         Transform(p: Point): Point {
             var pi = vec4.createFrom(p.X, p.Y, 0.0, 1.0);
             var po = vec4.create();
