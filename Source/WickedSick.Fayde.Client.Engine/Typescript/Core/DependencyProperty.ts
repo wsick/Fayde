@@ -144,11 +144,17 @@ class DependencyProperty {
         var ownerType = this.OwnerType;
         if (!ownerType || typeof ownerType !== "function")
             throw new InvalidOperationException("DependencyProperty does not have a valid OwnerType.");
-        var registeredDPs: DependencyProperty[] = (<any>ownerType)._RegisteredDPs;
-        if (!registeredDPs)
-            (<any>ownerType)._RegisteredDPs = registeredDPs = [];
+        var registeredDPs = (<any>ownerType)._RegisteredDPs;
+        if (!registeredDPs) {
+            var registeredDPs = {};
+            Object.defineProperty(ownerType, "_RegisteredDPs", {
+                value: registeredDPs,
+                enumerable: false,
+                writable: false
+            });
+        }
         if (registeredDPs[name] !== undefined)
-            throw new InvalidOperationException("Dependency Property is already registered. [" + (<any>ownerType)._TypeName + "." + name + "]");
+            throw new InvalidOperationException("Dependency Property is already registered. [" + name + "]");
         registeredDPs[name] = this;
         this._ID = DependencyProperty._LastID = DependencyProperty._LastID + 1;
         DependencyProperty._IDs[this._ID] = this;
@@ -163,9 +169,15 @@ class DependencyProperty {
         });
     }
     ExtendTo(type: any): DependencyProperty {
-        var registeredDPs: DependencyProperty[] = type._RegisteredDPs;
-        if (!registeredDPs)
-            type._RegisteredDPs = registeredDPs = [];
+        var registeredDPs = type._RegisteredDPs;
+        if (!registeredDPs) {
+            var registeredDPs = {};
+            Object.defineProperty(type, "_RegisteredDPs", {
+                value: registeredDPs,
+                enumerable: false,
+                writable: false
+            });
+        }
         registeredDPs[this.Name] = this;
 
         var propd = this;
