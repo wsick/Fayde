@@ -2,16 +2,7 @@
 /// <reference path="ViewModels/BracketViewModel.ts"/>
 
 module Fayde.Demos.MarchMadnessDemo {
-    var isLoaded = false;
-    var onAppLoaded;
-    Nullstone.ImportJsFiles(["ViewModels/BracketViewModel.js", "ViewModels/Match.js", "ViewModels/MatchColumn.js", "ViewModels/Team.js"],
-        (scripts: HTMLScriptElement[]) => {
-            isLoaded = true;
-            if (onAppLoaded) {
-                onAppLoaded();
-                delete onAppLoaded;
-            }
-        });
+    var reqtoken = Nullstone.ImportJsFiles(["ViewModels/BracketViewModel.js", "ViewModels/Match.js", "ViewModels/MatchColumn.js", "ViewModels/Team.js"]);
 
     export class Application extends App {
         constructor() {
@@ -19,11 +10,7 @@ module Fayde.Demos.MarchMadnessDemo {
             this.Loaded.Subscribe(this.OnLoaded, this);
         }
         OnLoaded(sender, e: EventArgs) {
-            if (isLoaded) {
-                this.Setup();
-            } else {
-                onAppLoaded = () => this.Setup();
-            }
+            reqtoken.DoOnComplete(() => this.Setup());
         }
         Setup() {
             var vm = new ViewModels.BracketViewModel();
@@ -31,5 +18,5 @@ module Fayde.Demos.MarchMadnessDemo {
             (<FrameworkElement>this.RootVisual).DataContext = vm;
         }
     }
-    Nullstone.RegisterType(Application, "Application", App);
+    Nullstone.RegisterType(Application, "Application");
 }

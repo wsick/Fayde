@@ -2,15 +2,7 @@
 /// <reference path="ViewModels/MainViewModel.ts"/>
 
 module Fayde.Demos.StackOverflow {
-    var isLoaded = false;
-    var onAppLoaded;
-    Nullstone.ImportJsFile("ViewModels/MainViewModel.js", function () {
-        isLoaded = true;
-        if (onAppLoaded) {
-            onAppLoaded();
-            delete onAppLoaded;
-        }
-    });
+    var reqtoken = Nullstone.ImportJsFile("ViewModels/MainViewModel.js");
 
     export class Application extends App {
         constructor() {
@@ -18,10 +10,7 @@ module Fayde.Demos.StackOverflow {
             this.Loaded.Subscribe(this.OnLoaded, this);
         }
         OnLoaded(sender, e: EventArgs) {
-            if (isLoaded)
-                this.Setup();
-            else
-                onAppLoaded = () => this.Setup();
+            reqtoken.DoOnComplete(() => this.Setup());
         }
         Setup() {
             var vm = new ViewModels.MainViewModel();
@@ -29,5 +18,5 @@ module Fayde.Demos.StackOverflow {
             (<FrameworkElement>this.RootVisual).DataContext = vm;
         }
     }
-    Nullstone.RegisterType(Application, "Application", App);
+    Nullstone.RegisterType(Application, "Application");
 }

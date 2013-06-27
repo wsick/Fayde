@@ -9,6 +9,19 @@ interface IType {
 interface IInterfaceDeclaration extends IType {
     Name: string;
 }
+
+interface IJsFileImportToken {
+    IsCompleted: boolean;
+    Script: HTMLScriptElement;
+    DoOnComplete(callback: (token: IJsFileImportToken) => void);
+}
+
+interface IJsFilesImportToken {
+    IsCompleted: boolean;
+    Scripts: HTMLScriptElement[];
+    DoOnComplete(callback: (token: IJsFilesImportToken) => void );
+}
+
 class Nullstone {
     static RegisterType(type: Function, name: string, interfaces?: IInterfaceDeclaration[]) {
         var t: any = type;
@@ -72,30 +85,77 @@ class Nullstone {
         return false;
     }
 
-    static ImportJsFile(url: string, onComplete: (script: HTMLScriptElement) => void ) {
+    static ImportJsFile(url: string, onComplete?: (token: IJsFileImportToken) => void ): IJsFileImportToken {
+        var token = {
+            IsCompleted: false,
+            Script: undefined,
+            OnComplete: onComplete || () => { },
+            DoOnComplete: function (callback: () => void ) {
+                this.OnComplete = callback || () => { };
+                if (!this.IsCompleted)
+                    return;
+                this.OnComplete();
+            }
+        };
+
         var scripts = document.getElementsByTagName("script");
         var script: HTMLScriptElement = null;
         for (var i = 0; i < scripts.length; i++) {
             script = <HTMLScriptElement>scripts[i];
             if (script.src === url) {
-                if (onComplete) onComplete(script);
+                token.IsCompleted = true;
+                token.Script = script;
+                token.OnComplete(token);
                 return;
             }
         }
 
         var script = <HTMLScriptElement>document.createElement("script");
+        token.Script = script;
         script.type = "text/javascript";
         script.src = url;
         script.onreadystatechange = function (e: Event) {
-            if (this.readyState === "completed") {
-                if (onComplete) onComplete(script);
-                return;
-            }
+            if (this.readyState === "completed")
+                token.OnComplete(token);
         };
-        script.onload = function () { if (onComplete) onComplete(script); };
+        script.onload = function () { token.OnComplete(token); };
 
         var head = <HTMLHeadElement>document.getElementsByTagName("head")[0];
         head.appendChild(script);
+
+        return token;
+    }
+    static ImportJsFiles(urls: string[], onComplete?: (token: IJsFilesImportToken) => void ): IJsFilesImportToken {
+        var token = {
+            IsCompleted: false,
+            Scripts: [],
+            OnComplete: onComplete || () => { },
+            DoOnComplete: function (callback: () => void ) {
+                this.OnComplete = callback || () => { };
+                if (!this.IsCompleted)
+                    return;
+                this.OnComplete();
+            }
+        };
+
+        var allsubtokens = [];
+        var len = urls.length;
+        
+        var check = function (t: IJsFileImportToken) {
+            allsubtokens.push(t);
+            if (allsubtokens.length === len) {
+                token.IsCompleted = true;
+                token.OnComplete(token);
+            }
+        }
+
+        for (var i = 0; i < len; i++) {
+            var subtoken = Nullstone.ImportJsFile(urls[i]);
+            token.Scripts.push(subtoken.Script);
+            subtoken.DoOnComplete(check);
+        }
+        
+        return token;
     }
 }
 

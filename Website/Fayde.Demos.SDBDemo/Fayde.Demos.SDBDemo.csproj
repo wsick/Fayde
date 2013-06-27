@@ -78,8 +78,8 @@
       <DependentUpon>root.fayde.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="scripts\Fayde.d.ts" />
-    <Content Include="scripts\Fayde.Generic.js" />
     <Content Include="scripts\Fayde.js" />
+    <Content Include="scripts\Fayde.Generic.js" />
     <Content Include="ViewModels\MainViewModel.js">
       <DependentUpon>MainViewModel.ts</DependentUpon>
     </Content>

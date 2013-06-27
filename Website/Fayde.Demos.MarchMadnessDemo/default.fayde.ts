@@ -13,5 +13,5 @@ module Fayde.Demos.MarchMadnessDemo {
             match.SelectedTeam = team;
         }
     }
-    Nullstone.RegisterType(Default, "Default", Fayde.Controls.Page);
+    Nullstone.RegisterType(Default, "Default");
 }

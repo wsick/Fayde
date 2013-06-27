@@ -33,9 +33,14 @@ module Fayde.Demos.StackOverflow.ViewModels {
         _HandleQuestionResponse(json) {
             this.Questions = json.items;
         }
+
+        private static ctor = (() => {
+            MVVM.NotifyProperties(MainViewModel, [
+                "Questions",
+                "PreviousPageCommand",
+                "NextPageCommand"
+            ]);
+        })();
     }
-    Nullstone.AutoNotifyProperty(MainViewModel, "Questions");
-    Nullstone.AutoNotifyProperty(MainViewModel, "PreviousPageCommand");
-    Nullstone.AutoNotifyProperty(MainViewModel, "NextPageCommand");
-    Nullstone.RegisterType(MainViewModel, "MainViewModel", MVVM.ViewModelBase);
+    Nullstone.RegisterType(MainViewModel, "MainViewModel");
 }

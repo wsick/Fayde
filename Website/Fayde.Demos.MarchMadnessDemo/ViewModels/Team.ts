@@ -4,8 +4,12 @@ module Fayde.Demos.MarchMadnessDemo.ViewModels {
     export class Team extends MVVM.ObservableObject {
         Seed: number;
         Name: string;
+        private static ctor = (() => {
+            MVVM.NotifyProperties(Team, [
+                "Seed",
+                "Name"
+            ]);
+        })();
     }
-    Nullstone.RegisterType(Team, "Team", MVVM.ObservableObject);
-    Nullstone.AutoNotifyProperty(Team, "Seed");
-    Nullstone.AutoNotifyProperty(Team, "Name");
+    Nullstone.RegisterType(Team, "Team");
 }

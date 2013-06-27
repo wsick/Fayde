@@ -67,7 +67,7 @@ module Fayde.Demos.MarchMadnessDemo.ViewModels {
             return round;
         }
 
-        private match_PropertyChanged(sender, e) {
+        private match_PropertyChanged(sender, e: Fayde.PropertyChangedEventArgs) {
             if (e.PropertyName === "SelectedTeam") {
                 this.AdvanceTeam(<Match>sender);
             }
@@ -107,9 +107,14 @@ module Fayde.Demos.MarchMadnessDemo.ViewModels {
             var reqMatchNumber = Math.ceil(position / 2.0);
             return this.AllMatches.filter((m) => m.MatchNumber == reqMatchNumber, this)[0];
         }
+
+        private static ctor = (() => {
+            MVVM.NotifyProperties(BracketViewModel, [
+                "MatchColumns"
+            ]);
+        })();
     }
-    Nullstone.RegisterType(BracketViewModel, "BracketViewModel", MVVM.ViewModelBase);
-    Nullstone.AutoNotifyProperty(BracketViewModel, "MatchColumns");
+    Nullstone.RegisterType(BracketViewModel, "BracketViewModel");
 
     class Enumerable {
         static Range(start: number, count: number): number[] {

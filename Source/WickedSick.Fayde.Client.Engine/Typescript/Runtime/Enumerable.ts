@@ -15,7 +15,7 @@ module Fayde {
     export var IEnumerator_ = Nullstone.RegisterInterface("IEnumerator");
 
     export class ArrayEx {
-        static EmptyEnumerator = {
+        static EmptyEnumerator: IEnumerator<any> = {
             MoveNext: function () { return false; },
             Current: undefined
         };

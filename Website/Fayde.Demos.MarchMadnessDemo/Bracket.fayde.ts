@@ -9,21 +9,21 @@ module Fayde.Demos.MarchMadnessDemo {
     }
 
     export class Bracket extends Fayde.Controls.UserControl {
-        static RoundNumberProperty = DependencyProperty.Register("RoundNumber", function () { return Number; }, Bracket, 1);
+        static RoundNumberProperty = DependencyProperty.Register("RoundNumber", () => Number, Bracket, 1);
         RoundNumber: number;
-        
-        static InitialMarginProperty = DependencyProperty.Register("InitialMargin", function () { return Number; }, Bracket, 2.0);
+
+        static InitialMarginProperty = DependencyProperty.Register("InitialMargin", () => Number, Bracket, 2.0);
         InitialMargin: number;
 
-        static BracketBorderThicknessProperty = DependencyProperty.Register("BracketBorderThickness", function () { return Number; }, Bracket, 1.0, function (d, args) { (<Bracket>d).BracketBorderThicknessChanged(args); });
-        private BracketBorderThicknessChanged(args: RoutedPropertyChangedEventArgs) {
+        static BracketBorderThicknessProperty = DependencyProperty.Register("BracketBorderThickness", () => Number, Bracket, 1.0, (d, args) => (<Bracket>d).BracketBorderThicknessChanged(args));
+        private BracketBorderThicknessChanged(args: DependencyPropertyChangedEventArgs) {
             this.UpdateBorder();
             this.Update();
         }
         BracketBorderThickness: number;
-        
-        static DirectionProperty = DependencyProperty.Register("Direction", function () { return new Enum(BracketDirection); }, Bracket, BracketDirection.Right, function (d, args) { (<Bracket>d).DirectionChanged(args); });
-        private DirectionChanged(args: RoutedPropertyChangedEventArgs) {
+
+        static DirectionProperty = DependencyProperty.Register("Direction", () => new Enum(BracketDirection), Bracket, BracketDirection.Right, (d, args) => (<Bracket>d).DirectionChanged(args));
+        private DirectionChanged(args: DependencyPropertyChangedEventArgs) {
             this.UpdateBorder();
         }
         Direction: BracketDirection;
@@ -34,8 +34,8 @@ module Fayde.Demos.MarchMadnessDemo {
 
         OnApplyTemplate() {
             super.OnApplyTemplate();
-            this.BracketBorder = this.FindName("BracketBorder");
-            this.LayoutInner = this.FindName("LayoutInner");
+            this.BracketBorder = <Fayde.Controls.Border>this.FindName("BracketBorder");
+            this.LayoutInner = <Fayde.Controls.Grid>this.FindName("LayoutInner");
             this._TemplateApplied = true;
             this.UpdateBorder();
             this.Update();
@@ -87,23 +87,15 @@ module Fayde.Demos.MarchMadnessDemo {
         }
 
         private _TextHeight: number = 0;
-        private Team_SizeChanged(sender, e: SizeChangedEventArgs)
-        {
+        private Team_SizeChanged(sender, e: SizeChangedEventArgs) {
             this._TextHeight = (<FrameworkElement>sender).ActualHeight;
             this.Update();
         }
-        private Team_MouseLeftButtonUp(sender, e: Input.MouseButtonEventArgs)
-        {
+        private Team_MouseLeftButtonUp(sender, e: Input.MouseButtonEventArgs) {
             var fe = <FrameworkElement>sender;
             var match = <ViewModels.Match>this.DataContext;
             match.SelectedTeam = <ViewModels.Team>fe.DataContext;
         }
     }
-    Nullstone.RegisterType(Bracket, "Bracket", Fayde.Controls.UserControl);
-    Nullstone.AutoProperties(Bracket, [
-        Bracket.RoundNumberProperty,
-        Bracket.InitialMarginProperty,
-        Bracket.BracketBorderThicknessProperty,
-        Bracket.DirectionProperty
-    ]);
+    Nullstone.RegisterType(Bracket, "Bracket");
 }

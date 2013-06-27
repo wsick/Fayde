@@ -8,7 +8,12 @@ module Fayde.Demos.SDB.ViewModels {
             this.$Request = new AjaxJsonRequest(result => this.Songs = result.CreateJson(), error => { });
             this.$Request.Get("Services/GetAllSongs.ashx", null);
         }
+
+        private static ctor = (() => {
+            MVVM.NotifyProperties(MainViewModel, [
+                "Songs"
+            ]);
+        })();
     }
-    Nullstone.AutoNotifyProperty(MainViewModel, "Songs");
-    Nullstone.RegisterType(MainViewModel, "MainViewModel", MVVM.ViewModelBase);
+    Nullstone.RegisterType(MainViewModel, "MainViewModel");
 }

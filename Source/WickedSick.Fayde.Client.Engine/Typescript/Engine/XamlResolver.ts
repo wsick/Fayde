@@ -1,5 +1,6 @@
 /// CODE
 /// <reference path="../Runtime/Nullstone.ts" />
+/// <reference path="../Runtime/AjaxJsonRequest.ts" />
 
 module Fayde {
     export class XamlResolver {
@@ -25,9 +26,9 @@ module Fayde {
             Nullstone.ImportJsFile(href + "?js=true&" + hash, (script) => this._HandleScriptSuccess(script));
         }
 
-        private _HandleScriptSuccess(script: HTMLScriptElement) {
+        private _HandleScriptSuccess(token: IJsFileImportToken) {
             this._IsScriptLoaded = true;
-            this._ScriptResult = script;
+            this._ScriptResult = token.Script;
             this._CheckIfLoaded();
         }
         private _HandleXamlSuccess(result: AjaxJsonResult) {

@@ -3,5 +3,5 @@
 module Fayde.Demos.MarchMadnessDemo {
     export class Team extends Fayde.Controls.Page {
     }
-    Nullstone.RegisterType(Team, "Team", Fayde.Controls.Page);
+    Nullstone.RegisterType(Team, "Team");
 }

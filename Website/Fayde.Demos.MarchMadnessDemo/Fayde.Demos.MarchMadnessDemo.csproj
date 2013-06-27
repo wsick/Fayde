@@ -91,8 +91,8 @@
     </Content>
     <TypeScriptCompile Include="scripts\Fayde.d.ts" />
     <Content Include="Global.asax" />
-    <Content Include="scripts\Fayde.Generic.js" />
     <Content Include="scripts\Fayde.js" />
+    <Content Include="scripts\Fayde.Generic.js" />
     <EmbeddedResource Include="Team.fayde.js">
       <DependentUpon>Team.fayde.ts</DependentUpon>
     </EmbeddedResource>

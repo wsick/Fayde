@@ -523,6 +523,18 @@
       <DependentUpon>PlaneProjection.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Runtime\Debug.ts" />
+    <TypeScriptCompile Include="Typescript\MVVM\ObservableObject.ts" />
+    <Content Include="Typescript\MVVM\ObservableObject.js">
+      <DependentUpon>ObservableObject.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\MVVM\RelayCommand.ts" />
+    <Content Include="Typescript\MVVM\RelayCommand.js">
+      <DependentUpon>RelayCommand.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\MVVM\ViewModelBase.ts" />
+    <Content Include="Typescript\MVVM\ViewModelBase.js">
+      <DependentUpon>ViewModelBase.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Runtime\Debug.js">
       <DependentUpon>Debug.ts</DependentUpon>
     </Content>
@@ -1482,7 +1494,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Docs\Rules\" />
-    <Folder Include="Typescript\MVVM\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
