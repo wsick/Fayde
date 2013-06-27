@@ -17,8 +17,8 @@ module Fayde.Media.Imaging {
         }
         static ImageSourceProperty: DependencyProperty = DependencyProperty.RegisterFull("ImageSource", () => ImageSource, ImageBrush, undefined, (d, args) => (<ImageBrush>d)._ImageSourceChanged(args), ImageBrush._SourceCoercer);
         ImageSource: ImageSource;
-        ImageFailed: MulticastEvent = new MulticastEvent();
-        ImageOpened: MulticastEvent = new MulticastEvent();
+        ImageFailed: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
+        ImageOpened: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
 
         SetupBrush(ctx: CanvasRenderingContext2D, bounds: rect) {
             var source = this.ImageSource;

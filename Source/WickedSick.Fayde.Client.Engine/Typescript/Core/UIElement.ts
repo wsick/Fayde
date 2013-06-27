@@ -174,7 +174,7 @@ module Fayde {
                     break;
                 case InputType.MouseWheel:
                     x.OnMouseWheel(<Input.MouseWheelEventArgs>args);
-                    x.MouseWheel.Raise(x, args);
+                    x.MouseWheel.Raise(x, <Input.MouseWheelEventArgs>args);
                     break;
                 default:
                     return false;
@@ -368,19 +368,19 @@ module Fayde {
                 error.ThrowException();
         }
 
-        LostFocus: RoutedEvent = new RoutedEvent();
-        GotFocus: RoutedEvent = new RoutedEvent();
-        LostMouseCapture: RoutedEvent = new RoutedEvent();
-        KeyDown: MulticastEvent = new MulticastEvent();
-        KeyUp: MulticastEvent = new MulticastEvent();
-        MouseLeftButtonUp: RoutedEvent = new RoutedEvent();
-        MouseRightButtonUp: RoutedEvent = new RoutedEvent();
-        MouseLeftButtonDown: RoutedEvent = new RoutedEvent();
-        MouseRightButtonDown: RoutedEvent = new RoutedEvent();
-        MouseLeave: RoutedEvent = new RoutedEvent();
-        MouseEnter: RoutedEvent = new RoutedEvent();
-        MouseMove: RoutedEvent = new RoutedEvent();
-        MouseWheel: RoutedEvent = new RoutedEvent();
+        LostFocus: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
+        GotFocus: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
+        LostMouseCapture: RoutedEvent<Input.MouseEventArgs> = new RoutedEvent<Input.MouseEventArgs>();
+        KeyDown: RoutedEvent<Input.KeyEventArgs> = new RoutedEvent<Input.KeyEventArgs>();
+        KeyUp: RoutedEvent<Input.KeyEventArgs> = new RoutedEvent<Input.KeyEventArgs>();
+        MouseLeftButtonUp: RoutedEvent<Input.MouseButtonEventArgs> = new RoutedEvent<Input.MouseButtonEventArgs>();
+        MouseRightButtonUp: RoutedEvent<Input.MouseButtonEventArgs> = new RoutedEvent<Input.MouseButtonEventArgs>();
+        MouseLeftButtonDown: RoutedEvent<Input.MouseButtonEventArgs> = new RoutedEvent<Input.MouseButtonEventArgs>();
+        MouseRightButtonDown: RoutedEvent<Input.MouseButtonEventArgs> = new RoutedEvent<Input.MouseButtonEventArgs>();
+        MouseLeave: RoutedEvent<Input.MouseEventArgs> = new RoutedEvent<Input.MouseEventArgs>();
+        MouseEnter: RoutedEvent<Input.MouseEventArgs> = new RoutedEvent<Input.MouseEventArgs>();
+        MouseMove: RoutedEvent<Input.MouseEventArgs> = new RoutedEvent<Input.MouseEventArgs>();
+        MouseWheel: RoutedEvent<Input.MouseWheelEventArgs> = new RoutedEvent<Input.MouseWheelEventArgs>();
         
         OnGotFocus(e: RoutedEventArgs) { }
         OnLostFocus(e: RoutedEventArgs) { }

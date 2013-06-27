@@ -15,8 +15,8 @@ module Fayde.Controls.Primitives {
         IsFocused: bool;
         Command: Input.ICommand;
         CommandParameter: any;
-        Click: RoutedEvent = new RoutedEvent();
-
+        Click: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
+            
         private _IsMouseCaptured: bool = false;
         private _IsMouseLeftButtonDown: bool = false;
         private _IsSpaceKeyDown: bool = false;

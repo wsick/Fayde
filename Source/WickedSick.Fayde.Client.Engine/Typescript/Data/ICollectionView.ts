@@ -4,7 +4,7 @@
 
 module Fayde.Data {
     export interface ICollectionView extends IEnumerable<any> {
-        CurrentChanged: MulticastEvent;
+        CurrentChanged: MulticastEvent<EventArgs>;
         CurrentItem: any;
         MoveCurrentTo(item: any): bool;
     }

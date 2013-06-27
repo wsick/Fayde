@@ -25,8 +25,8 @@ module Fayde.Media.VSM {
         private _Transitions: VisualTransition[] = null;
         Transitions: VisualTransition[];
         States: VisualStateCollection;
-        CurrentStateChanging: MulticastEvent = new MulticastEvent();
-        CurrentStateChanged: MulticastEvent = new MulticastEvent();
+        CurrentStateChanging: MulticastEvent<VisualStateChangedEventArgs> = new MulticastEvent<VisualStateChangedEventArgs>();
+        CurrentStateChanged: MulticastEvent<VisualStateChangedEventArgs> = new MulticastEvent<VisualStateChangedEventArgs>();
         CurrentState: VisualState = null;
 
         constructor() {

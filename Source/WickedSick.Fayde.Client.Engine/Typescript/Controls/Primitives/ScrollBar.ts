@@ -8,7 +8,7 @@ module Fayde.Controls.Primitives {
     export class ScrollBar extends RangeBase {
         private _DragValue: number = 0;
 
-        Scroll: RoutedEvent = new RoutedEvent();
+        Scroll: RoutedEvent<ScrollEventArgs> = new RoutedEvent<ScrollEventArgs>();
 
         static OrientationProperty: DependencyProperty = DependencyProperty.Register("Orientation", () => new Enum(Orientation), ScrollBar, Orientation.Horizontal, (d, args) => (<ScrollBar>d)._OnOrientationChanged());
         static ViewportSizeProperty: DependencyProperty = DependencyProperty.Register("ViewportSize", () => Number, ScrollBar, 0, (d, args) => (<ScrollBar>d)._UpdateTrackLayout((<ScrollBar>d)._GetTrackLength()));

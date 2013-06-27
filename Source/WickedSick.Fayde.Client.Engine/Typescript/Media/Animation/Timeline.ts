@@ -31,7 +31,7 @@ module Fayde.Media.Animation {
         SpeedRatio: number;
         FillBehavior: FillBehavior;
 
-        Completed: MulticastEvent = new MulticastEvent();
+        Completed: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
 
         private _IsPaused: bool = false;
         private _BeginPauseTime: number = 0;

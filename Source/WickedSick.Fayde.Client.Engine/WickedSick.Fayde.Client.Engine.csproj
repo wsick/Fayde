@@ -500,6 +500,10 @@
       <DependentUpon>PropertyStore.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Engine\DebugInterop.ts" />
+    <TypeScriptCompile Include="Typescript\Core\RoutedPropertyChangedEvent.ts" />
+    <Content Include="Typescript\Core\RoutedPropertyChangedEvent.js">
+      <DependentUpon>RoutedPropertyChangedEvent.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Engine\DebugInterop.js">
       <DependentUpon>DebugInterop.ts</DependentUpon>
     </Content>
@@ -834,10 +838,6 @@
     </Content>
     <Content Include="Typescript\Core\RoutedEventArgs.js">
       <DependentUpon>RoutedEventArgs.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="Typescript\Core\RoutedPropertyChangedEventArgs.ts" />
-    <Content Include="Typescript\Core\RoutedPropertyChangedEventArgs.js">
-      <DependentUpon>RoutedPropertyChangedEventArgs.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Core\Setter.js">
       <DependentUpon>Setter.ts</DependentUpon>

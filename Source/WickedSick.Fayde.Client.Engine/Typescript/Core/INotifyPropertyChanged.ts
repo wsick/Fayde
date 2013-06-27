@@ -14,7 +14,7 @@ module Fayde {
     Nullstone.RegisterType(PropertyChangedEventArgs, "PropertyChangedEventArgs");
 
     export interface INotifyPropertyChanged {
-        PropertyChanged: MulticastEvent;
+        PropertyChanged: MulticastEvent<PropertyChangedEventArgs>;
     }
     export var INotifyPropertyChanged_ = Nullstone.RegisterInterface("INotifyPropertyChanged");
 }

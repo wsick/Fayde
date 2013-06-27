@@ -26,7 +26,7 @@ class App implements Fayde.IResourcable, Fayde.ITimerListener {
     static Current: App;
     MainSurface: Surface;
     Resources: Fayde.ResourceDictionary;
-    Loaded: MulticastEvent = new MulticastEvent();
+    Loaded: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
     Address: Uri = null;
     NavService: Fayde.Navigation.NavService;
     DebugInterop: Fayde.DebugInterop;

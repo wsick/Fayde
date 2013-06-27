@@ -19,7 +19,7 @@ module Fayde.Controls {
         SelectionForeground: Media.Brush;
         SelectionBackground: Media.Brush;
         
-        PasswordChangedEvent: RoutedEvent = new RoutedEvent();
+        PasswordChangedEvent: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
 
         constructor() {
             super(TextBoxEmitChangedType.TEXT, PasswordBox.PasswordProperty);
@@ -45,7 +45,7 @@ module Fayde.Controls {
         CursorLineEnd(cursor: number): number { return this._Buffer.length; }
         
         _EmitTextChanged() {
-            this.PasswordChangedEvent.RaiseAsync(this, EventArgs.Empty);
+            this.PasswordChangedEvent.RaiseAsync(this, new RoutedEventArgs());
         }
 
         private _SelectionBackgroundListener: Media.IBrushChangedListener;

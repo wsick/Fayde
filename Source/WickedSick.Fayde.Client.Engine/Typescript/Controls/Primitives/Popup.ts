@@ -183,9 +183,9 @@ module Fayde.Controls.Primitives {
 
         static Annotations = { ContentProperty: Popup.ChildProperty }
 
-        Opened: MulticastEvent = new MulticastEvent();
-        Closed: MulticastEvent = new MulticastEvent();
-        ClickedOutside: MulticastEvent = new MulticastEvent();
+        Opened: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
+        Closed: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
+        ClickedOutside: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
 
         private _OnChildChanged(args: IDependencyPropertyChangedEventArgs) {
             var oldFE: FrameworkElement;

@@ -9,7 +9,7 @@ module Fayde.Navigation {
         App: App;
         Href: string;
         Hash: string;
-        LocationChanged: MulticastEvent = new MulticastEvent();
+        LocationChanged: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
 
         constructor(app: App) {
             this.App = app;

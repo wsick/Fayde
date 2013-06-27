@@ -161,8 +161,8 @@ module Fayde.Controls {
         Source: Media.Imaging.ImageSource;
         Stretch: Media.Stretch;
         
-        ImageOpened: MulticastEvent = new MulticastEvent();
-        ImageFailed: MulticastEvent = new MulticastEvent();
+        ImageOpened: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
+        ImageFailed: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
 
         _MeasureOverride(availableSize: size, error: BError): size {
             var desired = size.copyTo(availableSize);

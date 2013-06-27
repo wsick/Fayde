@@ -154,7 +154,7 @@ module Fayde.Controls {
             return undefined;
         }
 
-        IsEnabledChanged: MulticastEvent = new MulticastEvent();
+        IsEnabledChanged: MulticastEvent<DependencyPropertyChangedEventArgs> = new MulticastEvent<DependencyPropertyChangedEventArgs>();
         _IsEnabledChanged(args: IDependencyPropertyChangedEventArgs) {
             var lu = this.XamlNode.LayoutUpdater;
             lu.ShouldSkipHitTest = args.NewValue === false;
@@ -163,7 +163,7 @@ module Fayde.Controls {
             if (args.NewValue !== true)
                 this.XamlNode.IsMouseOver = false;
             this.UpdateVisualState();
-            this.IsEnabledChanged.RaiseAsync(this, EventArgs.Empty);
+            this.IsEnabledChanged.RaiseAsync(this, args);
         }
         OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs) { }
 

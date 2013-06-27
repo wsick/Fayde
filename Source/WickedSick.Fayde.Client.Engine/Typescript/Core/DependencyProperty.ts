@@ -10,6 +10,11 @@ interface IDependencyPropertyChangedEventArgs {
     OldValue: any;
     NewValue: any;
 }
+class DependencyPropertyChangedEventArgs extends EventArgs implements IDependencyPropertyChangedEventArgs {
+    Property: DependencyProperty;
+    OldValue: any;
+    NewValue: any;
+}
 interface IOutIsValid {
     IsValid: bool;
 }

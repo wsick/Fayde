@@ -56,7 +56,7 @@ module Fayde {
             }
         }
 
-        private _ParseEventName(target: XamlObject): RoutedEvent {
+        private _ParseEventName(target: XamlObject): RoutedEvent<RoutedEventArgs> {
             //Usually comes in "FrameworkElement.Loaded"
             var routedEventName = this.RoutedEvent;
             var tokens = routedEventName.split(".");
@@ -67,7 +67,7 @@ module Fayde {
             else
                 return undefined;
 
-            var evt: RoutedEvent = target[routedEventName];
+            var evt: RoutedEvent<RoutedEventArgs> = target[routedEventName];
             if (evt instanceof RoutedEvent)
                 return evt;
             return undefined;

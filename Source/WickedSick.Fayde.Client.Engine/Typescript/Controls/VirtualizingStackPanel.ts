@@ -174,7 +174,7 @@ module Fayde.Controls {
         }
 
 
-        CleanUpVirtualizedItemEvent: RoutedEvent = new RoutedEvent();
+        CleanUpVirtualizedItemEvent: RoutedEvent<CleanUpVirtualizedItemEventArgs> = new RoutedEvent<CleanUpVirtualizedItemEventArgs>();
 
         static OrientationProperty: DependencyProperty = DependencyProperty.Register("Orientation", () => new Enum(Orientation), VirtualizingStackPanel, Orientation.Vertical, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.InvalidateMeasure());
         Orientation: Orientation;

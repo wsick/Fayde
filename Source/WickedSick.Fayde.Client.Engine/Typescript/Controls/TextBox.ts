@@ -33,8 +33,9 @@ module Fayde.Controls {
         SelectionForeground: Media.Brush;
         SelectionBackground: Media.Brush;
 
-        SelectionChanged: MulticastEvent = new MulticastEvent();
-        TextChanged: MulticastEvent = new MulticastEvent();
+        SelectionChanged: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
+        //TextChanged: RoutedEvent<TextChangedEventArgs> = new RoutedEvent<TextChangedEventArgs>();
+        TextChanged: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
 
         constructor() {
             super(TextBoxEmitChangedType.TEXT | TextBoxEmitChangedType.SELECTION, TextBox.TextProperty);
@@ -96,11 +97,12 @@ module Fayde.Controls {
         }
 
         _EmitTextChanged() {
-            this.TextChanged.RaiseAsync(this, EventArgs.Empty);
+            //this.TextChanged.RaiseAsync(this, new TextChangedEventArgs());
+            this.TextChanged.RaiseAsync(this, new RoutedEventArgs());
         }
         _EmitSelectionChanged() {
             //TextDebug("TextBox.SelectionChanged [" + this.SelectionStart + " -- " + this.SelectionLength + "]");
-            this.SelectionChanged.RaiseAsync(this, new EventArgs());
+            this.SelectionChanged.RaiseAsync(this, new RoutedEventArgs());
         }
 
         private _IsReadOnlyChanged(args: IDependencyPropertyChangedEventArgs) {

@@ -3,9 +3,9 @@
 
 module Fayde.Controls.Primitives {
     export class ToggleButton extends ButtonBase {
-        Checked: RoutedEvent = new RoutedEvent();
-        Indeterminate: RoutedEvent = new RoutedEvent();
-        Unchecked: RoutedEvent = new RoutedEvent();
+        Checked: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
+        Indeterminate: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
+        Unchecked: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
 
         static IsCheckedProperty: DependencyProperty = DependencyProperty.RegisterCore("IsChecked", () => Boolean, ToggleButton, false, (d, args) => (<ToggleButton>d).OnIsCheckedChanged(args));
         static IsThreeStateProperty: DependencyProperty = DependencyProperty.RegisterCore("IsThreeState", () => Boolean, ToggleButton, false);

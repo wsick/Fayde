@@ -5,8 +5,8 @@
 
 module Fayde.Controls {
     export class ComboBox extends Primitives.Selector {
-        DropDownOpened: MulticastEvent = new MulticastEvent();
-        DropDownClosed: MulticastEvent = new MulticastEvent();
+        DropDownOpened: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
+        DropDownClosed: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
 
         static IsDropDownOpenProperty = DependencyProperty.Register("IsDropDownOpen", () => Boolean, ComboBox, false, (d, args) => (<ComboBox>d)._IsDropDownOpenChanged(args));
         static ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", () => Style, ComboBox, undefined, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));

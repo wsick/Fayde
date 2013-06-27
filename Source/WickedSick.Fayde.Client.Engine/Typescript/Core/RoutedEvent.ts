@@ -3,7 +3,7 @@
 /// <reference path="RoutedEventArgs.ts" />
 
 module Fayde {
-    export class RoutedEvent extends MulticastEvent {
+    export class RoutedEvent<T extends RoutedEventArgs> extends MulticastEvent<T> {
     }
     Nullstone.RegisterType(RoutedEvent, "RoutedEvent");
 }

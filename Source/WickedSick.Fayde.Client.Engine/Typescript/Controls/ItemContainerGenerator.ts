@@ -35,7 +35,7 @@ module Fayde.Controls {
         private _RealizedCount: number = 0;
         private _Items: any[] = [];
 
-        ItemsChanged: MulticastEvent = new MulticastEvent();
+        ItemsChanged: MulticastEvent<Primitives.ItemsChangedEventArgs> = new MulticastEvent<Primitives.ItemsChangedEventArgs>();
 
         constructor(public Owner: ItemsControl) { }
 

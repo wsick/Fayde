@@ -4,7 +4,7 @@
 
 module Fayde.Collections {
     export interface INotifyCollectionChanged {
-        CollectionChanged: MulticastEvent;
+        CollectionChanged: MulticastEvent<NotifyCollectionChangedEventArgs>;
     }
     export var INotifyCollectionChanged_ = Nullstone.RegisterInterface("INotifyCollectionChanged");
 }

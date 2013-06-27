@@ -3,7 +3,7 @@
 
 module Fayde.Controls {
     export interface IItemCollection {
-        ItemsChanged: MulticastEvent;
+        ItemsChanged: MulticastEvent<Collections.NotifyCollectionChangedEventArgs>;
         ToArray(): any[];
         
         GetValueAt(index: number): any;
@@ -31,8 +31,7 @@ module Fayde.Controls {
     }
 
     export class ItemCollection extends XamlObjectCollection<XamlObject> implements IItemCollection, IItemCollectionHidden {
-        ItemsChanged: MulticastEvent = new MulticastEvent();
-        PropertyChanged: MulticastEvent = new MulticastEvent();
+        ItemsChanged: MulticastEvent<Collections.NotifyCollectionChangedEventArgs> = new MulticastEvent<Collections.NotifyCollectionChangedEventArgs>();
         ToArray(): any[] { return this._ht.slice(0); }
 
         get Count(): number { return this._ht.length; }

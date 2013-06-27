@@ -2,7 +2,7 @@
 /// CODE
 
 module Fayde.Controls.Primitives {
-    export class SelectionChangedEventArgs extends EventArgs {
+    export class SelectionChangedEventArgs extends RoutedEventArgs {
         OldValues: any[];
         NewValues: any[];
         constructor(oldValues: any[], newValues: any[]) {

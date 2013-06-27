@@ -41,7 +41,7 @@ module Fayde {
             var res = xobj.Resources;
             if (!newIsLoaded) {
                 Providers.ImplicitStyleBroker.Clear(xobj, Providers.StyleMask.VisualTree);
-                xobj.Unloaded.Raise(xobj, EventArgs.Empty);
+                xobj.Unloaded.Raise(xobj, new RoutedEventArgs());
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
             } else {
                 Providers.ImplicitStyleBroker.Set(xobj, Providers.StyleMask.All);
@@ -52,7 +52,7 @@ module Fayde {
             }
             if (newIsLoaded) {
                 //TODO: Should we set is loaded on resources that are FrameworkElements?
-                xobj.Loaded.Raise(xobj, EventArgs.Empty);
+                xobj.Loaded.Raise(xobj, new RoutedEventArgs());
                 this.InvokeLoaded();
                 //LOOKS USELESS: 
                 //Providers.DataContextStore.EmitDataContextChanged(xobj);
@@ -206,10 +206,10 @@ module Fayde {
         VerticalAlignment: VerticalAlignment;
         Width: number;
 
-        SizeChanged: RoutedEvent = new RoutedEvent();
-        Loaded: RoutedEvent = new RoutedEvent();
-        Unloaded: RoutedEvent = new RoutedEvent();
-        LayoutUpdated: MulticastEvent = new MulticastEvent();
+        SizeChanged: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
+        Loaded: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
+        Unloaded: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
+        LayoutUpdated: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
 
         OnApplyTemplate() { }
         FindName(name: string): XamlObject {

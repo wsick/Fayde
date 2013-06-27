@@ -20,7 +20,7 @@ module Fayde.Controls.Primitives {
         SelectedValuePath: string;
         IsSelectionActive: bool;
 
-        SelectionChanged: MulticastEvent = new MulticastEvent();
+        SelectionChanged: RoutedEvent<SelectionChangedEventArgs> = new RoutedEvent<SelectionChangedEventArgs>();
         _Selection: SelectorSelection;
         private _SelectedItems: Collections.ObservableCollection = new Collections.ObservableCollection();
         private _Initializing: bool = false;
@@ -36,7 +36,6 @@ module Fayde.Controls.Primitives {
 
         constructor() {
             super();
-            this.SelectionChanged = new MulticastEvent();
             this._Selection = new SelectorSelection(this);
         }
 

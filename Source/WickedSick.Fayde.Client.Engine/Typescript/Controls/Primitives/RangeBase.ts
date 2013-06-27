@@ -1,6 +1,6 @@
 /// <reference path="../Control.ts" />
 /// CODE
-/// <reference path="../../Core/RoutedPropertyChangedEventArgs.ts" />
+/// <reference path="../../Core/RoutedPropertyChangedEvent.ts" />
 
 module Fayde.Controls.Primitives {
     export class RangeBase extends Controls.Control {
@@ -22,7 +22,7 @@ module Fayde.Controls.Primitives {
         LargeChange: number;
         Value: number;
 
-        ValueChanged: RoutedEvent = new RoutedEvent();
+        ValueChanged: RoutedPropertyChangedEvent<number> = new RoutedPropertyChangedEvent<number>();
 
         private _OnMinimumChanged(args: IDependencyPropertyChangedEventArgs) {
             if (!isValidDoubleValue(args.NewValue))
