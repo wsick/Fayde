@@ -4,10 +4,10 @@
 /// <reference path="NotifyCollectionChangedEventArgs.ts" />
 
 module Fayde.Collections {
-    export class ObservableCollection implements IEnumerable<any>, INotifyCollectionChanged, INotifyPropertyChanged {
-        private _ht: any[] = [];
+    export class ObservableCollection<T> implements IEnumerable<T>, INotifyCollectionChanged, INotifyPropertyChanged {
+        private _ht: T[] = [];
         
-        GetEnumerator(): IEnumerator<any> {
+        GetEnumerator(): IEnumerator<T> {
             return ArrayEx.GetEnumerator(this._ht);
         }
         CollectionChanged: MulticastEvent<NotifyCollectionChangedEventArgs> = new MulticastEvent<NotifyCollectionChangedEventArgs>();
@@ -15,13 +15,13 @@ module Fayde.Collections {
 
         get Count(): number { return this._ht.length; }
 
-        GetValueAt(index: number): any {
+        GetValueAt(index: number): T {
             var ht = this._ht;
             if (index < 0 || index >= ht.length)
                 throw new IndexOutOfRangeException(index);
             return ht[index];
         }
-        SetValueAt(index: number, value: any) {
+        SetValueAt(index: number, value: T) {
             var ht = this._ht;
             if (index < 0 || index >= ht.length)
                 throw new IndexOutOfRangeException(index);
@@ -29,12 +29,12 @@ module Fayde.Collections {
             ht[index] = value;
             this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Replace(value, oldValue, index));
         }
-        Add(value: any) {
+        Add(value: T) {
             var index = this._ht.push(value) - 1;
             this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Add(value, index));
             this._RaisePropertyChanged("Count");
         }
-        AddRange(values: any[]) {
+        AddRange(values: T[]) {
             var index = this._ht.length;
             var len = values.length;
             for (var i = 0; i < len; i++) {
@@ -43,7 +43,7 @@ module Fayde.Collections {
             this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.AddRange(values, index));
             this._RaisePropertyChanged("Count");
         }
-        Insert(value: any, index: number) {
+        Insert(value: T, index: number) {
             var ht = this._ht;
             if (index < 0 || index > ht.length)
                 throw new IndexOutOfRangeException(index);
@@ -54,13 +54,13 @@ module Fayde.Collections {
             this.CollectionChanged.Raise(this, NotifyCollectionChangedEventArgs.Add(value, index));
             this._RaisePropertyChanged("Count");
         }
-        IndexOf(value: any): number {
+        IndexOf(value: T): number {
             return this._ht.indexOf(value);
         }
-        Contains(value: any): bool {
+        Contains(value: T): bool {
             return this._ht.indexOf(value) > 0;
         }
-        Remove(value: any) {
+        Remove(value: T) {
             var index = this._ht.indexOf(value);
             if (index < 0)
                 return;

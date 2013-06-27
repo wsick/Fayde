@@ -72,7 +72,7 @@ module Fayde.Controls.Primitives {
             if (!this._IsUpdating) {
                 try {
                     this._IsUpdating = true;
-                    var si: Collections.ObservableCollection = this._Owner.SelectedItems;
+                    var si = this._Owner.SelectedItems;
                     si.Clear();
                     si.AddRange(this._SelectedItems);
                 } finally {

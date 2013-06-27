@@ -22,7 +22,7 @@ module Fayde.Controls.Primitives {
 
         SelectionChanged: RoutedEvent<SelectionChangedEventArgs> = new RoutedEvent<SelectionChangedEventArgs>();
         _Selection: SelectorSelection;
-        private _SelectedItems: Collections.ObservableCollection = new Collections.ObservableCollection();
+        private _SelectedItems: Collections.ObservableCollection<any> = new Collections.ObservableCollection<any>();
         private _Initializing: bool = false;
         _SelectedItemsIsInvalid: bool = false;
         $TemplateScrollViewer: ScrollViewer = null;
@@ -39,7 +39,7 @@ module Fayde.Controls.Primitives {
             this._Selection = new SelectorSelection(this);
         }
 
-        get SelectedItems(): Collections.ObservableCollection {
+        get SelectedItems(): Collections.ObservableCollection<any> {
             if (this._SelectedItemsIsInvalid)
                 this._Selection.RepopulateSelectedItems();
             return this._SelectedItems;
