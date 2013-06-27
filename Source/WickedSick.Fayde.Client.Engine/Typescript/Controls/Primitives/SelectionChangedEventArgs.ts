@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/EventArgs.ts" />
+/// <reference path="../../Core/RoutedEventArgs.ts" />
 /// CODE
 
 module Fayde.Controls.Primitives {

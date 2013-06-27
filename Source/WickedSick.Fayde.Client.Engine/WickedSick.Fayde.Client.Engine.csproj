@@ -471,6 +471,10 @@
     <TypeScriptCompile Include="Typescript\Core\Providers\InheritedStore.ts" />
     <TypeScriptCompile Include="Typescript\Core\Providers\DataContextStore.ts" />
     <TypeScriptCompile Include="Typescript\Core\InheritableOwner.ts" />
+    <TypeScriptCompile Include="Typescript\Core\DependencyPropertyChangedEventArgs.ts" />
+    <Content Include="Typescript\Core\DependencyPropertyChangedEventArgs.js">
+      <DependentUpon>DependencyPropertyChangedEventArgs.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\InheritableOwner.js">
       <DependentUpon>InheritableOwner.ts</DependentUpon>
     </Content>

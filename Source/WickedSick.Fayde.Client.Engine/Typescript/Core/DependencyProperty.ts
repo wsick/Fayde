@@ -1,20 +1,11 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="DependencyObject.ts" />
+/// <reference path="DependencyPropertyChangedEventArgs.ts" />
 /// <reference path="Providers/PropertyStore.ts" />
 /// <reference path="Providers/InheritedStore.ts" />
 /// <reference path="../Runtime/Enum.ts" />
 
-interface IDependencyPropertyChangedEventArgs {
-    Property: DependencyProperty;
-    OldValue: any;
-    NewValue: any;
-}
-class DependencyPropertyChangedEventArgs extends EventArgs implements IDependencyPropertyChangedEventArgs {
-    Property: DependencyProperty;
-    OldValue: any;
-    NewValue: any;
-}
 interface IOutIsValid {
     IsValid: bool;
 }
@@ -31,13 +22,13 @@ class DependencyProperty {
     IsCustom: bool = true;
     IsAttached: bool = false;
     IsInheritable: bool = false;
-    ChangedCallback: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void;
+    ChangedCallback: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void;
     AlwaysChange: bool = false;
     Store: Fayde.Providers.PropertyStore;
     private _Coercer: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any = null;
     private _Validator: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => bool = null;
 
-    static Register(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void) {
+    static Register(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -48,7 +39,7 @@ class DependencyProperty {
         propd.FinishRegister();
         return propd;
     }
-    static RegisterReadOnly(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void) {
+    static RegisterReadOnly(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -60,7 +51,7 @@ class DependencyProperty {
         propd.FinishRegister();
         return propd;
     }
-    static RegisterAttached(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void) {
+    static RegisterAttached(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -73,7 +64,7 @@ class DependencyProperty {
         return propd;
     }
     
-    static RegisterCore(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void) {
+    static RegisterCore(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -85,7 +76,7 @@ class DependencyProperty {
         propd.FinishRegister();
         return propd;
     }
-    static RegisterReadOnlyCore(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void) {
+    static RegisterReadOnlyCore(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -98,7 +89,7 @@ class DependencyProperty {
         propd.FinishRegister();
         return propd;
     }
-    static RegisterAttachedCore(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void ) {
+    static RegisterAttachedCore(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void ) {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -112,7 +103,7 @@ class DependencyProperty {
         return propd;
     }
     
-    static RegisterInheritable(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void) {
+    static RegisterInheritable(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
@@ -126,7 +117,7 @@ class DependencyProperty {
         return propd;
     }
 
-    static RegisterFull(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: IDependencyPropertyChangedEventArgs) => void, coercer?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any, alwaysChange?: bool, validator?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => bool, isCustom?: bool, isReadOnly?: bool, isAttached?: bool): DependencyProperty {
+    static RegisterFull(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void, coercer?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any, alwaysChange?: bool, validator?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => bool, isCustom?: bool, isReadOnly?: bool, isAttached?: bool): DependencyProperty {
         var propd = new DependencyProperty();
         propd.Name = name;
         propd.GetTargetType = getTargetType;
