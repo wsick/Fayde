@@ -26,12 +26,13 @@ module Fayde.Demos.StackOverflow.ViewModels {
             if (this.$Request != null)
                 return;
             this.$Request = new AjaxJsonRequest(
-                (json) => { this.$Request = null, this._HandleQuestionResponse(json); },
+                (result) => { this.$Request = null, this._HandleQuestionResponse(result); },
                 (error) => this.$Request = null);
             this.$Request.Get("so.ashx", "tagged=silverlight&sort=activity&page=" + pageNumber);
         }
-        _HandleQuestionResponse(json) {
-            this.Questions = json.items;
+        _HandleQuestionResponse(result: AjaxJsonResult) {
+            var json = result.CreateJson();
+            this.Questions =  json.items;
         }
 
         private static ctor = (() => {

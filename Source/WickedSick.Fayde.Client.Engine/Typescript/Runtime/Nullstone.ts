@@ -103,8 +103,8 @@ class Nullstone {
         for (var i = 0; i < scripts.length; i++) {
             script = <HTMLScriptElement>scripts[i];
             if (script.src === url) {
-                token.IsCompleted = true;
                 token.Script = script;
+                token.IsCompleted = true;
                 token.OnComplete(token);
                 return;
             }
@@ -115,10 +115,15 @@ class Nullstone {
         script.type = "text/javascript";
         script.src = url;
         script.onreadystatechange = function (e: Event) {
-            if (this.readyState === "completed")
+            if (this.readyState === "completed") {
+                token.IsCompleted = true;
                 token.OnComplete(token);
+            }
         };
-        script.onload = function () { token.OnComplete(token); };
+        script.onload = function () {
+            token.IsCompleted = true;
+            token.OnComplete(token);
+        };
 
         var head = <HTMLHeadElement>document.getElementsByTagName("head")[0];
         head.appendChild(script);

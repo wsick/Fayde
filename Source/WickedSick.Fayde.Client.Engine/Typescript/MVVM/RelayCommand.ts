@@ -5,8 +5,10 @@
 module Fayde.MVVM {
     export class RelayCommand implements Input.ICommand {
         constructor(execute?: (parameter: any) => void , canExecute?: (parameter: any) => bool) {
-            this.Execute = execute;
-            this.CanExecute = canExecute;
+            if (execute)
+                this.Execute = execute;
+            if (canExecute)
+                this.CanExecute = canExecute;
         }
 
         Execute(parameter: any) { }

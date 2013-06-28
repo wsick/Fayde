@@ -153,8 +153,11 @@ module Fayde.Controls.Primitives {
         OnClick() {
             var cmd = this.Command;
             var par = this.CommandParameter;
-            if (cmd != null && cmd.CanExecute(par))
-                cmd.Execute(par);
+            if (cmd != null) {
+                var canf = cmd.CanExecute;
+                if (canf == null || typeof canf !== "function" || canf(par))
+                    cmd.Execute(par);
+            }
 
             this.Click.Raise(this, new RoutedEventArgs());
         }
