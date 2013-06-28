@@ -155,7 +155,7 @@ module Fayde.Controls.Primitives {
             var par = this.CommandParameter;
             if (cmd != null) {
                 var canf = cmd.CanExecute;
-                if (canf == null || typeof canf !== "function" || canf(par))
+                if ((canf == null || typeof canf !== "function" || canf(par)) && (cmd.Execute && typeof cmd.Execute === "function"))
                     cmd.Execute(par);
             }
 
