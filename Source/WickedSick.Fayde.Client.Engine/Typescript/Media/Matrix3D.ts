@@ -67,15 +67,15 @@ module Fayde.Media {
         set M44(val: number) { this._Raw[15] = val; this._OnChanged(); }
 
         get Inverse(): Matrix3D {
-            if (!this._Inverse) {
-                this._Inverse = new Matrix3D();
-                this._Inverse._Raw = mat4.inverse(this._Raw, mat4.identity());
-                if (!this._Inverse._Raw) {
-                    this._Inverse = undefined;
+            var inverse = this._Inverse;
+            if (!inverse) {
+                inverse = new Matrix3D();
+                inverse._Raw = mat4.inverse(this._Raw, mat4.identity());
+                if (!inverse._Raw)
                     return undefined;
-                }
+                this._Inverse = inverse;
             }
-            return this._Inverse;
+            return inverse;
         }
 
         private _Listeners: IMatrix3DChangedListener[] = [];

@@ -19,14 +19,16 @@ module Fayde.Controls {
         get ElementRoot(): Panel { return this._ElementRoot; }
 
         get StackPanelFallbackTemplate(): ItemsPanelTemplate {
-            if (!this._SPFT)
-                this._SPFT = new ItemsPanelTemplate({ ParseType: StackPanel });
-            return this._SPFT;
+            var spft = this._SPFT;
+            if (!spft)
+                spft = this._SPFT = new ItemsPanelTemplate({ ParseType: StackPanel });
+            return spft;
         }
         get VirtualizingStackPanelFallbackTemplate(): ItemsPanelTemplate {
-            if (!this._VSPFT)
-                this._VSPFT = new ItemsPanelTemplate({ ParseType: VirtualizingStackPanel });
-            return this._VSPFT;
+            var vspft = this._VSPFT;
+            if (!vspft)
+                vspft = this._VSPFT = new ItemsPanelTemplate({ ParseType: VirtualizingStackPanel });
+            return vspft;
         }
 
         DoApplyTemplateWithError(error: BError): bool {

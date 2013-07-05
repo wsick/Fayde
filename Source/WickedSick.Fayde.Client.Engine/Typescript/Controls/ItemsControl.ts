@@ -57,13 +57,14 @@ module Fayde.Controls {
         ItemTemplate: DataTemplate;
         
         get Items(): ItemCollection {
-            if (!this._Items) {
-                this._Items = new ItemCollection();
+            var items = this._Items;
+            if (!items) {
+                this._Items = items = new ItemCollection();
                 this._ItemsIsDataBound = true;
-                this._Items.ItemsChanged.Subscribe(this.InvokeItemsChanged, this);
+                items.ItemsChanged.Subscribe(this.InvokeItemsChanged, this);
                 //items.Clearing.Subscribe(this.OnItemsClearing, this);
             }
-            return this._Items;
+            return items;
         }
         private get $Items(): IItemCollectionHidden { return this.Items; }
 

@@ -36,15 +36,14 @@ module Fayde.Media {
 
         get Inverse(): Matrix {
             var inverse = this._Inverse;
-            if (!this._Inverse) {
-                this._Inverse = new Matrix();
-                this._Inverse._Raw = mat3.inverse(this._Raw, mat3.identity());
-                if (!this._Inverse._Raw) {
-                    this._Inverse = undefined;
+            if (!inverse) {
+                inverse = new Matrix();
+                inverse._Raw = mat3.inverse(this._Raw, mat3.identity());
+                if (!inverse._Raw)
                     return undefined;
-                }
+                this._Inverse = inverse;
             }
-            return this._Inverse;
+            return inverse;
         }
 
         private _Listeners: IMatrixChangedListener[] = [];

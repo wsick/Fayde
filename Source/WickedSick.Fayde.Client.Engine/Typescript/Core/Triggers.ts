@@ -77,9 +77,10 @@ module Fayde {
 
     export class TriggerCollection extends XamlObjectCollection<TriggerBase> {
         private get ParentXamlObject(): XamlObject {
-            if (!this.XamlNode.ParentNode)
+            var parentNode = this.XamlNode.ParentNode;
+            if (!parentNode)
                 return undefined;
-            return this.XamlNode.ParentNode.XObject;
+            return parentNode.XObject;
         }
 
         AddingToCollection(value: TriggerBase, error: BError): bool {
