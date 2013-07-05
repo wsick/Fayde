@@ -68,7 +68,7 @@ declare module Fayde.Controls {
         private _Containers;
         private _RealizedCount;
         private _Items;
-        public ItemsChanged: MulticastEvent<Fayde.Controls.Primitives.ItemsChangedEventArgs>;
+        public ItemsChanged: MulticastEvent<Controls.Primitives.ItemsChangedEventArgs>;
         constructor(Owner: Controls.ItemsControl);
         public GenerateNext(isNewlyRealized: IOutValue): Fayde.DependencyObject;
         public GetItemContainerGeneratorForPanel(panel: Controls.Panel): IItemContainerGenerator;
@@ -897,7 +897,7 @@ declare module Fayde.Text {
 }
 declare module Fayde.Collections {
     interface INotifyCollectionChanged {
-        CollectionChanged: MulticastEvent<Fayde.Collections.NotifyCollectionChangedEventArgs>;
+        CollectionChanged: MulticastEvent<Collections.NotifyCollectionChangedEventArgs>;
     }
     var INotifyCollectionChanged_: IInterfaceDeclaration;
 }
@@ -2310,7 +2310,7 @@ declare module Fayde.Collections {
     class ObservableCollection<T> implements Fayde.IEnumerable<T>, Collections.INotifyCollectionChanged, Fayde.INotifyPropertyChanged {
         private _ht;
         public GetEnumerator(): Fayde.IEnumerator<T>;
-        public CollectionChanged: MulticastEvent<Fayde.Collections.NotifyCollectionChangedEventArgs>;
+        public CollectionChanged: MulticastEvent<Collections.NotifyCollectionChangedEventArgs>;
         public PropertyChanged: MulticastEvent<Fayde.PropertyChangedEventArgs>;
         public Count : number;
         public GetValueAt(index: number): T;
@@ -2439,7 +2439,7 @@ declare module Fayde {
         constructor(propertyName: string);
     }
     interface INotifyPropertyChanged {
-        PropertyChanged: MulticastEvent<Fayde.PropertyChangedEventArgs>;
+        PropertyChanged: MulticastEvent<PropertyChangedEventArgs>;
     }
     var INotifyPropertyChanged_: IInterfaceDeclaration;
 }
@@ -2465,7 +2465,7 @@ declare module Fayde {
     }
 }
 declare module Fayde {
-    class RoutedPropertyChangedEvent<T> extends Fayde.RoutedEvent<Fayde.RoutedPropertyChangedEventArgs<T>> {
+    class RoutedPropertyChangedEvent<T> extends Fayde.RoutedEvent<RoutedPropertyChangedEventArgs<T>> {
     }
     class RoutedPropertyChangedEventArgs<T> extends Fayde.RoutedEventArgs {
         public OldValue: T;
@@ -2825,7 +2825,7 @@ declare module Fayde.Media {
         private _TransformChanged(args);
         public Serialize(): string;
     }
-    class GeometryCollection extends Fayde.XamlObjectCollection<Fayde.Media.Geometry> implements IGeometryListener {
+    class GeometryCollection extends Fayde.XamlObjectCollection<Geometry> implements IGeometryListener {
         private _Listener;
         public Listen(listener: IGeometryListener): void;
         public Unlisten(listener: IGeometryListener): void;
@@ -2863,7 +2863,7 @@ declare module Fayde.Media {
     interface IGradientStopsListener {
         GradientStopsChanged(newGradientStops: GradientStopCollection);
     }
-    class GradientStopCollection extends Fayde.XamlObjectCollection<Fayde.Media.GradientStop> implements IGradientStopListener {
+    class GradientStopCollection extends Fayde.XamlObjectCollection<GradientStop> implements IGradientStopListener {
         private _Listener;
         public Listen(listener: IGradientStopsListener): void;
         public Unlisten(listener: IGradientStopsListener): void;
@@ -2906,7 +2906,7 @@ declare module Fayde.Media {
         public Unlisten(listener: IPathFigureListener): void;
         public MergeInto(rp: Fayde.Shapes.RawPath): void;
     }
-    class PathFigureCollection extends Fayde.XamlObjectCollection<Fayde.Media.PathFigure> implements IPathFigureListener {
+    class PathFigureCollection extends Fayde.XamlObjectCollection<PathFigure> implements IPathFigureListener {
         private _Listener;
         public AddingToCollection(value: PathFigure, error: BError): boolean;
         public RemovedFromCollection(value: PathFigure, isValueSafe: boolean): void;
@@ -2940,7 +2940,7 @@ declare module Fayde.Media {
         public Listen(listener: IPathSegmentListener): void;
         public Unlisten(listener: IPathSegmentListener): void;
     }
-    class PathSegmentCollection extends Fayde.XamlObjectCollection<Fayde.Media.PathSegment> implements IPathSegmentListener {
+    class PathSegmentCollection extends Fayde.XamlObjectCollection<PathSegment> implements IPathSegmentListener {
         private _Listener;
         public AddingToCollection(value: PathSegment, error: BError): boolean;
         public RemovedFromCollection(value: PathSegment, isValueSafe: boolean): void;
@@ -3110,7 +3110,7 @@ declare module Fayde.Media {
     interface ITransformChangedChildListener extends Media.ITransformChangedListener {
         Child: Media.Transform;
     }
-    class TransformCollection extends Fayde.XamlObjectCollection<Fayde.Media.Transform> {
+    class TransformCollection extends Fayde.XamlObjectCollection<Media.Transform> {
         private _Relayer;
         private _ChildTransformListeners;
         public AddingToCollection(value: Media.Transform, error: BError): boolean;
@@ -3210,7 +3210,7 @@ declare module Fayde.Media.Animation {
         static Comparer(kf1: KeyFrame, kf2: KeyFrame): number;
         static ResolveKeyFrames(animation: Animation.AnimationBase, arr: KeyFrame[]): KeyFrame[];
     }
-    class KeyFrameCollection extends Fayde.XamlObjectCollection<Fayde.Media.Animation.KeyFrame> {
+    class KeyFrameCollection extends Fayde.XamlObjectCollection<KeyFrame> {
         private _Resolved;
         private _SortedList;
         public GetKeyFrameForTime(t: TimeSpan, prevFrameRef: IOutValue): KeyFrame;
@@ -3311,7 +3311,7 @@ declare module Fayde.Media.Animation {
         public GetNaturalDuration(): Duration;
         public GetNaturalDurationCore(): Duration;
     }
-    class TimelineCollection extends Fayde.XamlObjectCollection<Fayde.Media.Animation.Timeline> {
+    class TimelineCollection extends Fayde.XamlObjectCollection<Timeline> {
     }
 }
 declare module Fayde.Media.Effects {
@@ -3347,7 +3347,7 @@ declare module Fayde.Media.VSM {
             ContentProperty: DependencyProperty;
         };
     }
-    class VisualStateCollection extends Fayde.XamlObjectCollection<Fayde.Media.VSM.VisualState> {
+    class VisualStateCollection extends Fayde.XamlObjectCollection<VisualState> {
     }
 }
 declare module Fayde.Media.VSM {
@@ -3365,8 +3365,8 @@ declare module Fayde.Media.VSM {
         private _Transitions;
         public Transitions: VSM.VisualTransition[];
         public States: VSM.VisualStateCollection;
-        public CurrentStateChanging: MulticastEvent<Fayde.Media.VSM.VisualStateChangedEventArgs>;
-        public CurrentStateChanged: MulticastEvent<Fayde.Media.VSM.VisualStateChangedEventArgs>;
+        public CurrentStateChanging: MulticastEvent<VisualStateChangedEventArgs>;
+        public CurrentStateChanged: MulticastEvent<VisualStateChangedEventArgs>;
         public CurrentState: VSM.VisualState;
         constructor();
         public GetState(stateName: string): VSM.VisualState;
@@ -3375,7 +3375,7 @@ declare module Fayde.Media.VSM {
         public RaiseCurrentStateChanging(element: Fayde.FrameworkElement, oldState: VSM.VisualState, newState: VSM.VisualState, control: Fayde.Controls.Control): void;
         public RaiseCurrentStateChanged(element: Fayde.FrameworkElement, oldState: VSM.VisualState, newState: VSM.VisualState, control: Fayde.Controls.Control): void;
     }
-    class VisualStateGroupCollection extends Fayde.XamlObjectCollection<Fayde.Media.VSM.VisualStateGroup> {
+    class VisualStateGroupCollection extends Fayde.XamlObjectCollection<VisualStateGroup> {
     }
 }
 declare module Fayde.Media.VSM {
@@ -3468,7 +3468,7 @@ declare module Fayde.Controls {
     interface IColumnDefinitionsListener {
         ColumnDefinitionsChanged(colDefinitions: ColumnDefinitionCollection);
     }
-    class ColumnDefinitionCollection extends Fayde.XamlObjectCollection<Fayde.Controls.ColumnDefinition> implements IColumnDefinitionListener {
+    class ColumnDefinitionCollection extends Fayde.XamlObjectCollection<ColumnDefinition> implements IColumnDefinitionListener {
         private _Listener;
         public Listen(listener: IColumnDefinitionsListener): void;
         public Unlisten(listener: IColumnDefinitionsListener): void;
@@ -3550,7 +3550,7 @@ declare module Fayde.Controls {
     interface IRowDefinitionsListener {
         RowDefinitionsChanged(rowDefinitions: RowDefinitionCollection);
     }
-    class RowDefinitionCollection extends Fayde.XamlObjectCollection<Fayde.Controls.RowDefinition> implements IRowDefinitionListener {
+    class RowDefinitionCollection extends Fayde.XamlObjectCollection<RowDefinition> implements IRowDefinitionListener {
         private _Listener;
         public Listen(listener: IRowDefinitionsListener): void;
         public Unlisten(listener: IRowDefinitionsListener): void;
@@ -3612,7 +3612,7 @@ declare module Fayde {
     interface IResourcable {
         Resources: ResourceDictionary;
     }
-    class ResourceDictionaryCollection extends Fayde.XamlObjectCollection<Fayde.ResourceDictionary> {
+    class ResourceDictionaryCollection extends Fayde.XamlObjectCollection<ResourceDictionary> {
         public AddingToCollection(value: ResourceDictionary, error: BError): boolean;
         private _AssertNoCycles(subtreeRoot, firstAncestorNode, error);
     }
@@ -3630,7 +3630,7 @@ declare module Fayde {
     }
 }
 declare module Fayde {
-    class SetterCollection extends Fayde.XamlObjectCollection<Fayde.Setter> {
+    class SetterCollection extends Fayde.XamlObjectCollection<Setter> {
         private _IsSealed;
         public _Seal(targetType: Function): void;
         public AddingToCollection(value: Setter, error: BError): boolean;
@@ -3650,7 +3650,7 @@ declare module Fayde {
     class TriggerAction extends Fayde.DependencyObject {
         public Fire(): void;
     }
-    class TriggerActionCollection extends Fayde.XamlObjectCollection<Fayde.TriggerAction> {
+    class TriggerActionCollection extends Fayde.XamlObjectCollection<TriggerAction> {
     }
     class TriggerBase extends Fayde.DependencyObject {
         public Attach(target: Fayde.XamlObject): void;
@@ -3670,7 +3670,7 @@ declare module Fayde {
         private _FireActions(sender, e);
         private _ParseEventName(target);
     }
-    class TriggerCollection extends Fayde.XamlObjectCollection<Fayde.TriggerBase> {
+    class TriggerCollection extends Fayde.XamlObjectCollection<TriggerBase> {
         private ParentXamlObject;
         public AddingToCollection(value: TriggerBase, error: BError): boolean;
         public RemovedFromCollection(value: TriggerBase, isValueSafe: boolean): void;
@@ -3801,7 +3801,7 @@ declare module Fayde.Documents {
     }
     class Block extends Documents.TextElement {
     }
-    class BlockCollection extends Fayde.XamlObjectCollection<Fayde.Documents.Block> {
+    class BlockCollection extends Fayde.XamlObjectCollection<Block> {
         private _Listener;
         public Listen(listener: IBlocksChangedListener): void;
         public Unlisten(listener: IBlocksChangedListener): void;
@@ -3816,7 +3816,7 @@ declare module Fayde.Documents {
     class Inline extends Documents.TextElement {
         public Autogen: boolean;
     }
-    class InlineCollection extends Fayde.XamlObjectCollection<Fayde.Documents.Inline> {
+    class InlineCollection extends Fayde.XamlObjectCollection<Inline> {
         private _Listener;
         public Listen(listener: IInlinesChangedListener): void;
         public Unlisten(listener: IInlinesChangedListener): void;
@@ -4320,7 +4320,7 @@ declare module Fayde {
         public _HasFocus(): boolean;
         public GetFocusedElement(): Fayde.UIElement;
         public UpdateLayout(): void;
-        public GetVisualTreeEnumerator(direction?: Fayde.VisualTreeDirection): Fayde.IEnumerator<Fayde.FENode>;
+        public GetVisualTreeEnumerator(direction?: Fayde.VisualTreeDirection): Fayde.IEnumerator<FENode>;
         public _SizeChanged(args: IDependencyPropertyChangedEventArgs): void;
         public _FlowDirectionChanged(args: IDependencyPropertyChangedEventArgs): void;
     }
@@ -5082,7 +5082,6 @@ declare module Fayde.Controls {
     class VirtualizingPanel extends Controls.Panel {
         private _ICG;
         public ItemContainerGenerator : Controls.ItemContainerGenerator;
-        private CreateItemContainerGenerator();
         public AddInternalChild(child): void;
         public InsertInternalChild(index: number, child): void;
         public RemoveInternalChildRange(index: number, range: number): void;
@@ -5138,7 +5137,7 @@ declare module Fayde.Controls {
         public MakeVisible(uie: Fayde.UIElement, rectangle: rect): rect;
         public SetHorizontalOffset(offset: number): void;
         public SetVerticalOffset(offset: number): void;
-        public CleanUpVirtualizedItemEvent: Fayde.RoutedEvent<Fayde.Controls.CleanUpVirtualizedItemEventArgs>;
+        public CleanUpVirtualizedItemEvent: Fayde.RoutedEvent<CleanUpVirtualizedItemEventArgs>;
         static OrientationProperty: DependencyProperty;
         public Orientation: Fayde.Orientation;
         static IsVirtualizingProperty: DependencyProperty;
@@ -5233,7 +5232,7 @@ declare module Fayde.Controls.Primitives {
 declare module Fayde.Controls.Primitives {
     class ScrollBar extends Primitives.RangeBase {
         private _DragValue;
-        public Scroll: Fayde.RoutedEvent<Fayde.Controls.Primitives.ScrollEventArgs>;
+        public Scroll: Fayde.RoutedEvent<Primitives.ScrollEventArgs>;
         static OrientationProperty: DependencyProperty;
         static ViewportSizeProperty: DependencyProperty;
         public Orientation: Fayde.Orientation;
@@ -5287,7 +5286,7 @@ declare module Fayde.Controls.Primitives {
         public SelectedValue: any;
         public SelectedValuePath: string;
         public IsSelectionActive: boolean;
-        public SelectionChanged: Fayde.RoutedEvent<Fayde.Controls.Primitives.SelectionChangedEventArgs>;
+        public SelectionChanged: Fayde.RoutedEvent<Primitives.SelectionChangedEventArgs>;
         public _Selection: Primitives.SelectorSelection;
         private _SelectedItems;
         private _Initializing;
@@ -5323,9 +5322,9 @@ declare module Fayde.Controls.Primitives {
     class Thumb extends Controls.Control {
         private _PreviousPosition;
         private _Origin;
-        public DragCompleted: Fayde.RoutedEvent<Fayde.Controls.Primitives.DragCompletedEventArgs>;
-        public DragDelta: Fayde.RoutedEvent<Fayde.Controls.Primitives.DragDeltaEventArgs>;
-        public DragStarted: Fayde.RoutedEvent<Fayde.Controls.Primitives.DragStartedEventArgs>;
+        public DragCompleted: Fayde.RoutedEvent<Primitives.DragCompletedEventArgs>;
+        public DragDelta: Fayde.RoutedEvent<Primitives.DragDeltaEventArgs>;
+        public DragStarted: Fayde.RoutedEvent<Primitives.DragStartedEventArgs>;
         static IsDraggingProperty: DependencyProperty;
         static IsFocusedProperty: DependencyProperty;
         public IsDragging: boolean;

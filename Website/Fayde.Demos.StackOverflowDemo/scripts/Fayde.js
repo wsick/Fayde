@@ -9763,16 +9763,15 @@ var Fayde;
             });
             Object.defineProperty(Matrix.prototype, "Inverse", {
                 get: function () {
-                    this.inverse = this._Inverse;;
-                    if (!this._Inverse) {
-                        this._Inverse = new Matrix();
-                        this._Inverse._Raw = mat3.inverse(this._Raw, mat3.identity());
-                        if (!this._Inverse._Raw) {
-                            this._Inverse = undefined;
+                    var inverse = this._Inverse;
+                    if (!inverse) {
+                        inverse = new Matrix();
+                        inverse._Raw = mat3.inverse(this._Raw, mat3.identity());
+                        if (!inverse._Raw)
                             return undefined;
-                        }
+                        this._Inverse = inverse;
                     }
-                    return this._Inverse;
+                    return inverse;
                 },
                 enumerable: true,
                 configurable: true
@@ -10001,15 +10000,15 @@ var Fayde;
             });
             Object.defineProperty(Matrix3D.prototype, "Inverse", {
                 get: function () {
-                    if (!this._Inverse) {
-                        this._Inverse = new Matrix3D();
-                        this._Inverse._Raw = mat4.inverse(this._Raw, mat4.identity());
-                        if (!this._Inverse._Raw) {
-                            this._Inverse = undefined;
+                    var inverse = this._Inverse;
+                    if (!inverse) {
+                        inverse = new Matrix3D();
+                        inverse._Raw = mat4.inverse(this._Raw, mat4.identity());
+                        if (!inverse._Raw)
                             return undefined;
-                        }
+                        this._Inverse = inverse;
                     }
-                    return this._Inverse;
+                    return inverse;
                 },
                 enumerable: true,
                 configurable: true
@@ -14354,21 +14353,23 @@ var Fayde;
             }
             Object.defineProperty(Transform.prototype, "Value", {
                 get: function () {
-                    if (!this._Value) {
-                        this._Value = new Media.Matrix();
-                        this._Value._Raw = this._BuildValue();
+                    var val = this._Value;
+                    if (!val) {
+                        this._Value = val = new Media.Matrix();
+                        val._Raw = this._BuildValue();
                     }
-                    return this._Value;
+                    return val;
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(Transform.prototype, "Inverse", {
                 get: function () {
-                    if (this.Value.Inverse == null)
+                    var inverse = this.Value.Inverse;
+                    if (!inverse)
                         return;
-                    this.mt = new MatrixTransform();;
-                    mt.Matrix = this.Value.Inverse;
+                    var mt = new MatrixTransform();
+                    mt.Matrix = inverse;
                     return mt;
                 },
                 enumerable: true,
@@ -16786,9 +16787,10 @@ var Fayde;
         }
         Object.defineProperty(TriggerCollection.prototype, "ParentXamlObject", {
             get: function () {
-                if (!this.XamlNode.ParentNode)
+                var parentNode = this.XamlNode.ParentNode;
+                if (!parentNode)
                     return undefined;
-                return this.XamlNode.ParentNode.XObject;
+                return parentNode.XObject;
             },
             enumerable: true,
             configurable: true
@@ -21223,12 +21225,13 @@ var Fayde;
 
             Object.defineProperty(ItemsControl.prototype, "Items", {
                 get: function () {
-                    if (!this._Items) {
-                        this._Items = new Controls.ItemCollection();
+                    var items = this._Items;
+                    if (!items) {
+                        this._Items = items = new Controls.ItemCollection();
                         this._ItemsIsDataBound = true;
-                        this._Items.ItemsChanged.Subscribe(this.InvokeItemsChanged, this);
+                        items.ItemsChanged.Subscribe(this.InvokeItemsChanged, this);
                     }
-                    return this._Items;
+                    return items;
                 },
                 enumerable: true,
                 configurable: true
@@ -21532,18 +21535,20 @@ var Fayde;
             });
             Object.defineProperty(ItemsPresenterNode.prototype, "StackPanelFallbackTemplate", {
                 get: function () {
-                    if (!this._SPFT)
-                        this._SPFT = new Controls.ItemsPanelTemplate({ ParseType: Controls.StackPanel });
-                    return this._SPFT;
+                    var spft = this._SPFT;
+                    if (!spft)
+                        spft = this._SPFT = new Controls.ItemsPanelTemplate({ ParseType: Controls.StackPanel });
+                    return spft;
                 },
                 enumerable: true,
                 configurable: true
             });
             Object.defineProperty(ItemsPresenterNode.prototype, "VirtualizingStackPanelFallbackTemplate", {
                 get: function () {
-                    if (!this._VSPFT)
-                        this._VSPFT = new Controls.ItemsPanelTemplate({ ParseType: Controls.VirtualizingStackPanel });
-                    return this._VSPFT;
+                    var vspft = this._VSPFT;
+                    if (!vspft)
+                        vspft = this._VSPFT = new Controls.ItemsPanelTemplate({ ParseType: Controls.VirtualizingStackPanel });
+                    return vspft;
                 },
                 enumerable: true,
                 configurable: true
@@ -24059,19 +24064,19 @@ var Fayde;
             }
             Object.defineProperty(VirtualizingPanel.prototype, "ItemContainerGenerator", {
                 get: function () {
-                    return this._ICG = this._ICG || this.CreateItemContainerGenerator();
+                    var icg = this._ICG;
+                    if (!icg) {
+                        var icOwner = Controls.ItemsControl.GetItemsOwner(this);
+                        if (!icOwner)
+                            throw new InvalidOperationException("VirtualizingPanels must be in the Template of an ItemsControl in order to generate items");
+                        var icg = this._ICG = icOwner.ItemContainerGenerator;
+                        icg.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
+                    }
+                    return icg;
                 },
                 enumerable: true,
                 configurable: true
             });
-            VirtualizingPanel.prototype.CreateItemContainerGenerator = function () {
-                var icOwner = Controls.ItemsControl.GetItemsOwner(this);
-                if (!icOwner)
-                    throw new InvalidOperationException("VirtualizingPanels must be in the Template of an ItemsControl in order to generate items");
-                var icg = icOwner.ItemContainerGenerator;
-                icg.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
-                return icg;
-            };
             VirtualizingPanel.prototype.AddInternalChild = function (child) {
                 this.Children.Add(child);
             };
