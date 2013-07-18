@@ -115,7 +115,9 @@
     <Content Include="ViewModels\Team.js">
       <DependentUpon>Team.ts</DependentUpon>
     </Content>
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="faydebin\WickedSick.Server.Framework.Fayde.dll" />
     <Content Include="faydebin\WickedSick.Server.XamlParser.dll" />
     <Compile Include="Bracket.fayde.cs">

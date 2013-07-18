@@ -1,46 +1,17 @@
 ﻿<%@ Page Title="Fayde | Getting Started | Silverlight & HTML5" Language="C#" MasterPageFile="~/default.Master" AutoEventWireup="true" CodeBehind="gettingstarted.aspx.cs" Inherits="Fayde.Website.gettingstarted" Theme="default" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+<style type="text/css">
+.nuget-badge code{-moz-border-radius:5px;-webkit-border-radius:5px;background-color:#202020;border:4px solid silver;border-radius:5px;box-shadow:2px 2px 3px #6e6e6e;color:#e2e2e2;display:block;font:1.5em 'andale mono','lucida console',monospace;line-height:1.5em;overflow:auto;padding:15px}
+</style>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="cphBody" runat="server">
-    <h2>Download</h2>
-    <ul>
-        <li>
-            <asp:HyperLink NavigateUrl="~/drops/Fayde-0.9.3.0.zip" Text="Fayde 0.9.3.0" runat="server" />
-            <ul>
-                <li>Migrated classes out of global "window" scope.</li>
-                <li>Fixed Border rendering.</li>
-                <li>Implemented VirtualizingStackPanel.</li>
-                <li>Migrated Canvas.ZIndex to Panel.ZIndex.</li>
-                <li>Introduced experimental toggle to switch between HTML and Canvas rendering.</li>
-                <li>Better support for TypeScript work.</li>
-                <li>Improved class instantiation performance.</li>
-            </ul>
-        </li>
-		<li>
-            <asp:HyperLink ID="HyperLink1" NavigateUrl="~/drops/Fayde-0.9.2.0.zip" Text="Fayde 0.9.2.0" runat="server" />
-            <ul>
-                <li>Added TypeScript definition.</li>
-            </ul>
-		</li>
-		<li><asp:HyperLink NavigateUrl="~/drops/Fayde.zip" Text="Fayde 0.9.0.0" runat="server" /></li>
-	</ul>
-    <h2>Hello World Example</h2>
-	<p>The zip file contains a Visual Studio 2012 solution that contains a project with a Hello World Example.</p>
-    <p><asp:HyperLink NavigateUrl="~/drops/HelloWorldExample.zip" Text="HelloWorldExample.zip" runat="server" /></p>
+    	<h2>Quick Start</h2>
 	<ol>
-		<li>Configure the web project to run in IIS or IIS Express. (Visual Studio Development Server will not work)</li>
-		<li>Set the startup page to default.fap:
-			<ol>
-				<li>Right-click on web project.</li>
-				<li>Click Properties.</li>
-				<li>Choose the "Web" tab.</li>
-				<li>Under Start Action, choose Specific Page radio button.</li>
-				<li>Click the "..." button to browse for a file.</li>
-				<li>Change the "Files of type" filter to include All Files.</li>
-				<li>Select "default.fap". Click OK</li>
-			</ol>
-		</li>
-		<li>Run the project.</li>
+		<li>Install <a href="http://www.microsoft.com/en-us/download/details.aspx?id=34790" target="_blank">TypeScript 0.9.0.1</a>.</li>
+		<li>Create a Web Application Project in Visual Studio. (NOT a Website)</li>
+		<li>&nbsp;<div class="nuget-badge"><p><code>PM> Install-Package Fayde</code></p></div></li>
+		<li>Open up Project properties. Click "Web" tab. Click "Create Virtual Directory".</li>
+		<li>Run!</li>
 	</ol>
     <h2>Contribute</h2>
     <p>How can I contribute?  Listed below is a set of roles that are needed for Fayde.  If any of these roles spark your interest, please email fayde.project@gmail.com.  If you see a role that isn't listed, feel free to email.</p>

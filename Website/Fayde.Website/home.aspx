@@ -8,6 +8,9 @@
         After setting a foundation, Fayde will seek to revolutionize the web application industry to support the passionate community of XAML developers.
     </p>
     <p>
-        This website will serve as a source of information and updates.  Please check out the demo and keep up-to-date with the project by viewing our features page.
+        Follow us on twitter: <a target="_blank" href="https://twitter.com/fayde_project">@fayde_project</a>.<br />
+        Keep up-to-date with the weekly update blog @ <a target="_blank" href="http://faydeupdate.blogspot.com/">http://faydeupdate.blogspot.com/</a>.<br />
+        I also post information about Fayde at my technical blog @ <a target="_blank" href="http://faydeproject.blogspot.com/">http://faydeproject.blogspot.com/</a>.<br />
+        Email us: <a href="mailto:fayde.project@gmail.com">fayde.project@gmail.com</a>
     </p>
 </asp:Content>
