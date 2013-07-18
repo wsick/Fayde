@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Fayde</id>
+        <version>0.9.5.6</version>
+        <authors>Bradley Sickes</authors>
+        <projectUrl>http://fayde.wsick.com</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Fayde is a cross platform, cross browser XAML engine.</description>
+        <tags>fayde xaml silverlight</tags>
+    </metadata>
+</package>

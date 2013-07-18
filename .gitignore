@@ -283,3 +283,4 @@ Website/Fayde.Demos.StackOverflowDemo/default.fap.js
 Website/Fayde.Demos.StackOverflowDemo/root.fayde.js
 Website/Fayde.Demos.StackOverflowDemo/ViewModels/MainViewModel.js
 Source/jsbin/Fayde.d.ts
+Packages/*.nupkg
