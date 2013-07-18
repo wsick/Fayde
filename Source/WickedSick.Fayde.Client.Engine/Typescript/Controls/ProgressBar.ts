@@ -52,7 +52,7 @@ module Fayde.Controls {
 
             if (!this._Track)
                 return;
-            if (this._Indicator)
+            if (!this._Indicator)
                 return;
 
             var parent = VisualTreeHelper.GetParent(this);
