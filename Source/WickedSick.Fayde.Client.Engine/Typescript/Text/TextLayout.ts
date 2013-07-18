@@ -314,22 +314,21 @@ module Fayde.Text {
             word.Length = text.length;
             return false;
         }
-        var tempText = text;
         while (true) {
-            var index = tempText.indexOf(" ", measuredIndex);
+            var index = text.indexOf(" ", measuredIndex);
             if (index === -1)
                 break;
             index += 1; //include " "
-            tempText = tempText.slice(measuredIndex, index);
-            var advance = Surface.MeasureWidth(tempText, word.Font);
+            measuredText = text.slice(measuredIndex, index);
+            var advance = Surface.MeasureWidth(measuredText, word.Font);
             if (isFinite(maxWidth) && (word.LineAdvance + advance) > maxWidth) {
                 return true;
             }
             measuredIndex = index;
-            measuredText = tempText;
             word.Advance += advance;
             word.LineAdvance += advance;
             word.Length += measuredText.length;
+            
         }
         return false;
     }
