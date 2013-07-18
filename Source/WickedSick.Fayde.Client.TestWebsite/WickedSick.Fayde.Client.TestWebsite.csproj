@@ -144,9 +144,6 @@
     <None Include="Views\SDK.fayde" />
     <None Include="Views\Toolkit.fayde" />
     <Content Include="Tests\tests.aspx" />
-    <Content Include="Views\Home.fayde.js">
-      <DependentUpon>Home.fayde</DependentUpon>
-    </Content>
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>

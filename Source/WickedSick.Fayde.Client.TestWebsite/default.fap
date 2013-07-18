@@ -198,6 +198,22 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="PageScrollViewerStyle" TargetType="ScrollViewer">
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0,1,0,1" />
+            <Setter Property="Padding" Value="58,0,58,0" />
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+            <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />
+        </Style>
+        <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FF119EDA"/>
+            <Setter Property="FontFamily" Value="Segoe UI Light, Lucida Sans Unicode, Verdana"/>
+            <Setter Property="FontSize" Value="21.333"/>
+            <Setter Property="TextOptions.TextHintingMode" Value="Animated" />
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="0,15,0,4"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+        </Style>
     </FaydeApplication.Resources>
     <Grid Margin="5">
         <Border Style="{StaticResource ContentBorderStyle}">

@@ -10,13 +10,6 @@
                 <Setter Property="FontSize" Value="12" />
                 <Setter Property="TextOptions.TextHintingMode" Value="Animated" />
             </Style>
-            <Style x:Key="PageScrollViewerStyle" TargetType="ScrollViewer">
-                <Setter Property="BorderBrush" Value="Transparent" />
-                <Setter Property="BorderThickness" Value="0,1,0,1" />
-                <Setter Property="Padding" Value="58,0,58,0" />
-                <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
-                <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />
-            </Style>
         </Grid.Resources>
         <ScrollViewer x:Name="PageScrollViewer" Style="{StaticResource PageScrollViewerStyle}">
             <StackPanel x:Name="ContentStackPanel">
