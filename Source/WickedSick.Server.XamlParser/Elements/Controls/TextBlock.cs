@@ -19,12 +19,12 @@ namespace WickedSick.Server.XamlParser.Elements.Controls
         public static readonly PropertyDescription ForegroundProperty = PropertyDescription.Register("Foreground", typeof(Brush), typeof(TextBlock));
         public static readonly PropertyDescription InlinesProperty = PropertyDescription.Register("Inlines", typeof(InlineCollection), typeof(TextBlock), true);
         //LineHeight
-        //LineStackingStrategy
+        public static readonly PropertyDescription LineStackingStrategyProperty = PropertyDescription.Register("LineStackingStrategy", typeof(LineStackingStrategy), typeof(TextBlock));
         public static readonly PropertyDescription PaddingProperty = PropertyDescription.Register("Padding", typeof(Thickness), typeof(TextBlock));
         public static readonly PropertyDescription TextProperty = PropertyDescription.Register("Text", typeof(string), typeof(TextBlock));
-        //TextAlignment
+        public static readonly PropertyDescription TextAlignmentProperty = PropertyDescription.Register("TextAlignment", typeof(TextAlignment), typeof(TextBlock));
         public static readonly PropertyDescription TextDecorationsProperty = PropertyDescription.Register("TextDecorations", typeof(TextDecorationCollection), typeof(TextBlock));
-        //TextWrapping
+        public static readonly PropertyDescription TextWrappingProperty = PropertyDescription.Register("TextWrapping", typeof(TextWrapping), typeof(TextBlock));
         public static readonly PropertyDescription TextWrappingProperty = PropertyDescription.Register("TextWrapping", typeof(TextWrapping), typeof(TextBlock));
     }
 }

@@ -77,6 +77,9 @@
     <Compile Include="Elements\Controls\Slider.cs" />
     <Compile Include="Elements\Core\Array.cs" />
     <Compile Include="Elements\Core\Boolean.cs" />
+    <Compile Include="Elements\Core\LineStackingStrategy.cs" />
+    <Compile Include="Elements\Core\TextAlignment.cs" />
+    <Compile Include="Elements\Core\TextWrapping.cs" />
     <Compile Include="Elements\Data\Binding.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -383,6 +386,9 @@
     <Compile Include="XmlnsDefinitionAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /s /y "$(TargetPath)" "$(SolutionDir)bin\"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
