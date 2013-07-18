@@ -25,6 +25,5 @@ namespace WickedSick.Server.XamlParser.Elements.Controls
         public static readonly PropertyDescription TextAlignmentProperty = PropertyDescription.Register("TextAlignment", typeof(TextAlignment), typeof(TextBlock));
         public static readonly PropertyDescription TextDecorationsProperty = PropertyDescription.Register("TextDecorations", typeof(TextDecorationCollection), typeof(TextBlock));
         public static readonly PropertyDescription TextWrappingProperty = PropertyDescription.Register("TextWrapping", typeof(TextWrapping), typeof(TextBlock));
-        public static readonly PropertyDescription TextWrappingProperty = PropertyDescription.Register("TextWrapping", typeof(TextWrapping), typeof(TextBlock));
     }
 }
