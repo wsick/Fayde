@@ -61,6 +61,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\AssemblyInfoMaster.cs">
+      <Link>AssemblyInfoMaster.cs</Link>
+    </Compile>
     <Compile Include="AttachedPropertyDescription.cs" />
     <Compile Include="Elements\Controls\ComboBox.cs" />
     <Compile Include="Elements\Controls\ComboBoxItem.cs" />

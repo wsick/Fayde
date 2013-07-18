@@ -43,6 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\AssemblyInfoMaster.cs">
+      <Link>AssemblyInfoMaster.cs</Link>
+    </Compile>
     <Compile Include="FapHttpHandler.cs" />
     <Compile Include="FapWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
