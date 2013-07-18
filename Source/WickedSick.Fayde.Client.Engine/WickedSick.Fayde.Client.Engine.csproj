@@ -1515,7 +1515,8 @@
     <PostBuildEvent>cd "$(ProjectDir)"
 xcopy /s /y Fayde.js ..\jsbin\
 xcopy /s /y Fayde.tsorder ..\jsbin\
-xcopy /s /y Fayde.Generic.js ..\jsbin\</PostBuildEvent>
+xcopy /s /y Fayde.Generic.js ..\jsbin\
+xcopy /s /y Fayde.d.ts ..\jsbin\</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>cd "$(ProjectDir)"
