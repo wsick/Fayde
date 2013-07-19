@@ -50,16 +50,16 @@ module Fayde.Controls {
             var max = this.Maximum;
             var val = this.Value;
 
-            if (!this._Track)
-                return;
-            if (!this._Indicator)
+            var indicator = this._Indicator;
+            if (!indicator)
                 return;
 
             var parent = VisualTreeHelper.GetParent(this);
             if (!parent)
                 return;
 
-            var margin = this._Indicator.Margin.Left + this._Indicator.Margin.Right;
+            var margin = indicator.Margin;
+            var outerWidth = (margin) ? margin.Left + margin.Right : 0.0;
             var padding: Thickness = null;
             if (parent instanceof Border)
                 padding = (<Border>parent).Padding;
@@ -67,13 +67,15 @@ module Fayde.Controls {
                 padding = (<Control>parent).Padding;
 
             if (padding) {
-                margin += padding.Left;
-                margin += padding.Right;
+                outerWidth += padding.Left;
+                outerWidth += padding.Right;
             }
-
-            var progress = this.IsIndeterminate || (max === min ? 1.0 : (val - min) / (max - min));
-            var fullWidth = Math.max(0, (<FrameworkElement>parent).ActualWidth - margin);
-            this._Indicator.Width = fullWidth * progress;
+            
+            var progress = 1.0;
+            if (!this.IsIndeterminate && max !== min)
+                progress = (val - min) / (max - min);
+            var fullWidth = Math.max(0, (<FrameworkElement>parent).ActualWidth - outerWidth);
+            indicator.Width = fullWidth * progress;
         }
 
         GetVisualStateNamesToActivate(): string[] {
