@@ -72,6 +72,12 @@ module Fayde {
         PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool;
     }
 
+    interface ISizeChangedData {
+        Element: FrameworkElement;
+        PreviousSize: size;
+        NewSize: size;
+    }
+
     var maxPassCount = 250;
     export class LayoutUpdater {
         static LayoutExceptionUpdater: LayoutUpdater = undefined;
@@ -667,7 +673,7 @@ module Fayde {
                 rect.intersection(dest, this.LayoutClip);
         }
 
-        private _UpdateActualSize() {
+        private _UpdateActualSize(): ISizeChangedData {
             var last = this.LastRenderSize;
             var fe = <FrameworkElement>this.Node.XObject;
             var s: size;
@@ -686,7 +692,11 @@ module Fayde {
             propd.Store.SetLocalValue(Providers.GetStorage(fe, propd), s.Height);
 
             this.LastRenderSize = undefined;
-            fe.SizeChanged.Raise(fe, new SizeChangedEventArgs(last, s));
+            return {
+                Element: fe,
+                PreviousSize: last,
+                NewSize: s
+            };
         }
         private _ComputeActualSize(): size {
             var node = this.Node;
@@ -828,9 +838,14 @@ module Fayde {
                             break;
                     }
                 } else if (flag === UIElementFlags.DirtySizeHint) {
+                    var changes = [];
                     while (lu = pass.SizeList.pop()) {
                         pass.Updated = true;
-                        lu._UpdateActualSize();
+                        changes.push(lu._UpdateActualSize());
+                    }
+                    var change: ISizeChangedData;
+                    while (change = changes.pop()) {
+                        change.Element.SizeChanged.Raise(change.Element, new SizeChangedEventArgs(change.PreviousSize, change.NewSize));
                     }
                     //LayoutDebug(function () { return "Completed _SizeList Update"; });
                 } else {

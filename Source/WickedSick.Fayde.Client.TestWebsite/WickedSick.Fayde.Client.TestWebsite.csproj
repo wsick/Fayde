@@ -135,6 +135,7 @@
     <Content Include="Tests\Controls\passwordbox.fap">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Tests\Controls\progressbar.fap" />
     <None Include="Tests\Shapes\rectangle-grid.fap">
       <SubType>Designer</SubType>
     </None>
