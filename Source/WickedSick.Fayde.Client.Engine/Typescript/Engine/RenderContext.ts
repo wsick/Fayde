@@ -103,13 +103,13 @@ module Fayde {
             strokeBrush.SetupBrush(cc, strokeRect);
             fillBrush.SetupBrush(cc, fillRect);
             cc.beginPath();
-            cc.rect(fillRect.X, fillRect.Y, fillRect.Width, fillRect.Height);
+            cc.rect(strokeRect.X, strokeRect.Y, strokeRect.Width, strokeRect.Height);
             cc.fillStyle = fillBrush.ToHtml5Object();
             cc.fill();
             cc.lineWidth = thickness;
             cc.strokeStyle = strokeBrush.ToHtml5Object();
             cc.stroke();
-            //DrawDebug("StrokeAndFillRect: [" + cc.strokeStyle.toString() + "] [" + cc.fillStyle.toString() + "] " + fillRect.toString());
+            //DrawDebug("StrokeAndFillRect: [" + cc.strokeStyle.toString() + "] [" + cc.fillStyle.toString() + "] " + strokeRect.toString());
         }
         Stroke(stroke: Media.Brush, thickness: number, region: rect) {
             var cc = this.CanvasContext;
