@@ -6251,6 +6251,10 @@ var Fayde;
         };
         LayoutUpdater.prototype.ComputeBounds = function () {
             var s = this.CoerceSize(size.fromRaw(this.ActualWidth, this.ActualHeight));
+            if (isNaN(s.Width))
+                s.Width = 0;
+            if (isNaN(s.Height))
+                s.Height = 0;
             rect.set(this.Extents, 0, 0, s.Width, s.Height);
             rect.copyTo(this.Extents, this.ExtentsWithChildren);
             var node = this.Node;
@@ -6303,7 +6307,11 @@ var Fayde;
             var propd = Fayde.FrameworkElement.ActualHeightProperty;
             propd.Store.SetLocalValue(Fayde.Providers.GetStorage(fe, propd), s.Height);
             this.LastRenderSize = undefined;
-            fe.SizeChanged.Raise(fe, new Fayde.SizeChangedEventArgs(last, s));
+            return {
+                Element: fe,
+                PreviousSize: last,
+                NewSize: s
+            };
         };
         LayoutUpdater.prototype._ComputeActualSize = function () {
             var node = this.Node;
@@ -6428,9 +6436,14 @@ var Fayde;
                             break;
                     }
                 } else if (flag === UIElementFlags.DirtySizeHint) {
+                    var changes = [];
                     while (lu = pass.SizeList.pop()) {
                         pass.Updated = true;
-                        lu._UpdateActualSize();
+                        changes.push(lu._UpdateActualSize());
+                    }
+                    var change;
+                    while (change = changes.pop()) {
+                        change.Element.SizeChanged.Raise(change.Element, new Fayde.SizeChangedEventArgs(change.PreviousSize, change.NewSize));
                     }
                 } else {
                     break;
@@ -8525,7 +8538,7 @@ var Fayde;
             strokeBrush.SetupBrush(cc, strokeRect);
             fillBrush.SetupBrush(cc, fillRect);
             cc.beginPath();
-            cc.rect(fillRect.X, fillRect.Y, fillRect.Width, fillRect.Height);
+            cc.rect(strokeRect.X, strokeRect.Y, strokeRect.Width, strokeRect.Height);
             cc.fillStyle = fillBrush.ToHtml5Object();
             cc.fill();
             cc.lineWidth = thickness;
@@ -10861,11 +10874,9 @@ var rect = (function () {
     };
     rect.union = function (dest, rect2) {
         if (rect.isEmpty(rect2))
-            return;
-        if (rect.isEmpty(dest)) {
-            rect.copyTo(rect2, dest);
-            return;
-        }
+            return dest;
+        if (rect.isEmpty(dest))
+            return rect.copyTo(rect2, dest);
         var x = Math.min(dest.X, rect2.X);
         var y = Math.min(dest.Y, rect2.Y);
         dest.Width = Math.max(dest.X + dest.Width, rect2.X + rect2.Width) - x;
@@ -10876,11 +10887,9 @@ var rect = (function () {
     };
     rect.unionLogical = function (dest, rect2) {
         if (rect.isEmptyLogical(rect2))
-            return;
-        if (rect.isEmptyLogical(dest)) {
-            rect.copyTo(rect2, dest);
-            return;
-        }
+            return dest;
+        if (rect.isEmptyLogical(dest))
+            return rect.copyTo(rect2, dest);
         var x = Math.min(dest.X, rect2.X);
         var y = Math.min(dest.Y, rect2.Y);
         dest.Width = Math.max(dest.X + dest.Width, rect2.X + rect2.Width) - x;
@@ -28412,25 +28421,27 @@ var Fayde;
                 var min = this.Minimum;
                 var max = this.Maximum;
                 var val = this.Value;
-                if (!this._Track)
-                    return;
-                if (this._Indicator)
+                var indicator = this._Indicator;
+                if (!indicator)
                     return;
                 var parent = Fayde.VisualTreeHelper.GetParent(this);
                 if (!parent)
                     return;
-                var margin = this._Indicator.Margin.Left + this._Indicator.Margin.Right;
+                var margin = indicator.Margin;
+                var outerWidth = (margin) ? margin.Left + margin.Right : 0.0;
                 var padding = null;
                 if (parent instanceof Controls.Border)
                     padding = (parent).Padding; else if (parent instanceof Controls.Control)
                     padding = (parent).Padding;
                 if (padding) {
-                    margin += padding.Left;
-                    margin += padding.Right;
+                    outerWidth += padding.Left;
+                    outerWidth += padding.Right;
                 }
-                var progress = this.IsIndeterminate || (max === min ? 1.0 : (val - min) / (max - min));
-                var fullWidth = Math.max(0, (parent).ActualWidth - margin);
-                this._Indicator.Width = fullWidth * progress;
+                var progress = 1.0;
+                if (!this.IsIndeterminate && max !== min)
+                    progress = (val - min) / (max - min);
+                var fullWidth = Math.max(0, (parent).ActualWidth - outerWidth);
+                indicator.Width = fullWidth * progress;
             };
             ProgressBar.prototype.GetVisualStateNamesToActivate = function () {
                 return this.IsIndeterminate ? ["Indeterminate"] : ["Determinate"];
