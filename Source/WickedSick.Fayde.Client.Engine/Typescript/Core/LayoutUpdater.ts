@@ -629,7 +629,11 @@ module Fayde {
         }
         ComputeBounds() {
             var s = this.CoerceSize(size.fromRaw(this.ActualWidth, this.ActualHeight));
-
+            if (isNaN(s.Width))
+                s.Width = 0;
+            if (isNaN(s.Height))
+                s.Height = 0;
+            
             rect.set(this.Extents, 0, 0, s.Width, s.Height);
             rect.copyTo(this.Extents, this.ExtentsWithChildren);
             
