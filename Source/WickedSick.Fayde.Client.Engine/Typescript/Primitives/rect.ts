@@ -90,11 +90,9 @@ class rect implements ICloneable {
     }
     static union(dest: rect, rect2: rect): rect {
         if (rect.isEmpty(rect2))
-            return;
-        if (rect.isEmpty(dest)) {
-            rect.copyTo(rect2, dest);
-            return;
-        }
+            return dest;
+        if (rect.isEmpty(dest))
+            return rect.copyTo(rect2, dest);
 
         var x = Math.min(dest.X, rect2.X);
         var y = Math.min(dest.Y, rect2.Y);
@@ -106,11 +104,9 @@ class rect implements ICloneable {
     }
     static unionLogical(dest: rect, rect2: rect): rect {
         if (rect.isEmptyLogical(rect2))
-            return;
-        if (rect.isEmptyLogical(dest)) {
-            rect.copyTo(rect2, dest);
-            return;
-        }
+            return dest;
+        if (rect.isEmptyLogical(dest))
+            return rect.copyTo(rect2, dest);
 
         var x = Math.min(dest.X, rect2.X);
         var y = Math.min(dest.Y, rect2.Y);
