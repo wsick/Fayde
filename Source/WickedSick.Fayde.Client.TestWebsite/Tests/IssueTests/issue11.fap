@@ -1,0 +1,11 @@
+﻿<FaydeApplication
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde"
+    Debug="true"
+    ScriptResolution="/Fayde/">
+    <FaydeApplication.Resources>
+    </FaydeApplication.Resources>
+    <Grid Background="Silver">
+        <TextBlock FontSize="40" Foreground="White" Text="Testing Foreground and FontSize" />
+    </Grid>
+</FaydeApplication>
