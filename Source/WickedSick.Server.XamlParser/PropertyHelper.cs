@@ -19,5 +19,19 @@ namespace WickedSick.Server.XamlParser
                 .ForEach(fi => fi.GetValue(null));
             _TypeRegistered.Add(type);
         }
+
+        public static void SetProperty(object obj, string propertyName, string value)
+        {
+            var propertyInfo = obj.GetType().GetProperty(propertyName);
+            if (propertyInfo != null)
+            {
+                var convertedValue = Convert.ChangeType(value, propertyInfo.PropertyType, null);
+                propertyInfo.SetValue(obj, convertedValue, null);
+            }
+            else
+            {
+                throw new MemberAccessException();
+            }
+        }
     }
 }
