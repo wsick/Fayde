@@ -84,7 +84,7 @@ module Fayde.Media.Effects {
             var depth = Math.min(Math.max(0, this.ShadowDepth), DropShadowEffect.MAX_SHADOW_DEPTH);
             var direction = this.Direction * Math.PI / 180.0;
             var offsetX = Math.cos(direction) * depth;
-            var offsetY = Math.sin(direction) * depth;
+            var offsetY = -Math.sin(direction) * depth;
 
             var canvasCtx = ctx.CanvasContext;
 
