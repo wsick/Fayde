@@ -23,7 +23,7 @@ module Fayde.Documents {
     }
     Nullstone.RegisterType(TextElementNode, "TextElementNode");
     
-    export class TextElement extends DependencyObject implements Text.ITextAttributesSource, IFontChangeable {
+    export class TextElement extends DependencyObject implements Text.ITextAttributesSource, IFontChangeable, Providers.IIsPropertyInheritable {
         XamlNode: TextElementNode;
         CreateNode(): TextElementNode { return new TextElementNode(this, null); }
         

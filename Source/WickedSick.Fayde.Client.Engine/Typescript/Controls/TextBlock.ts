@@ -366,6 +366,21 @@ module Fayde.Controls {
                 this.XamlNode._FontChanged(args);
             }
         }
+
+        IsInheritable(propd: DependencyProperty): bool {
+            if (TextBlockInheritedProps.indexOf(propd) > -1)
+                return true;
+            return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);
+        }
     }
     Nullstone.RegisterType(TextBlock, "TextBlock");
+
+    var TextBlockInheritedProps = [
+        TextBlock.FontFamilyProperty,
+        TextBlock.FontSizeProperty,
+        TextBlock.FontStretchProperty,
+        TextBlock.FontStyleProperty,
+        TextBlock.FontWeightProperty,
+        TextBlock.ForegroundProperty
+    ];
 }

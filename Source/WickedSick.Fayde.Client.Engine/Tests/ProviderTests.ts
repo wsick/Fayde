@@ -119,6 +119,15 @@ test("Inherited", () => {
     strictEqual(child2.FontSize, 90, "Child FontSize should inherit 90 from Root.");
     theBorder.Child = null;
     strictEqual(child2.FontSize, Font.DEFAULT_SIZE, "Child FontSize should clear inherited 90 from Root immediately after detaching.");
+
+
+
+    var tb1 = new Fayde.Controls.TextBlock();
+    tb1.FontSize = 40;
+    tb1.Text = "Hey Brad!";
+
+    var autogenRun = tb1.Inlines.GetValueAt(0);
+    strictEqual(autogenRun.FontSize, 40, "FontSize set on a TextBlock should propagate to child inlines.");
 });
 test("Styles", () => {
     var root = new Fayde.FrameworkElement();
