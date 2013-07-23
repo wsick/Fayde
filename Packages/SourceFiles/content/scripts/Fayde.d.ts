@@ -2584,7 +2584,7 @@ declare module Fayde.Documents {
         public InheritedWalkProperty: string;
         public GetInheritedEnumerator(): Fayde.IEnumerator<Fayde.DONode>;
     }
-    class TextElement extends Fayde.DependencyObject implements Fayde.Text.ITextAttributesSource, Fayde.IFontChangeable {
+    class TextElement extends Fayde.DependencyObject implements Fayde.Text.ITextAttributesSource, Fayde.IFontChangeable, Fayde.Providers.IIsPropertyInheritable {
         public XamlNode: TextElementNode;
         public CreateNode(): TextElementNode;
         static FontFamilyProperty: DependencyProperty;
@@ -4893,6 +4893,7 @@ declare module Fayde.Controls {
         public ComputeActualSize(baseComputer: () => size, lu: Fayde.LayoutUpdater): size;
         private _ForegroundListener;
         public FontChanged(args: IDependencyPropertyChangedEventArgs): void;
+        public IsInheritable(propd: DependencyProperty): boolean;
     }
 }
 declare module Fayde.Controls {

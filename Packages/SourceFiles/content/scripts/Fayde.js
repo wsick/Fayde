@@ -19124,7 +19124,7 @@ var Fayde;
                     var depth = Math.min(Math.max(0, this.ShadowDepth), DropShadowEffect.MAX_SHADOW_DEPTH);
                     var direction = this.Direction * Math.PI / 180.0;
                     var offsetX = Math.cos(direction) * depth;
-                    var offsetY = Math.sin(direction) * depth;
+                    var offsetY = -Math.sin(direction) * depth;
                     var canvasCtx = ctx.CanvasContext;
                     canvasCtx.shadowColor = "rgba(" + color.R + "," + color.G + "," + color.B + "," + opacity + ")";
                     canvasCtx.shadowBlur = radius;
@@ -22680,6 +22680,11 @@ var Fayde;
                     this.XamlNode._FontChanged(args);
                 }
             };
+            TextBlock.prototype.IsInheritable = function (propd) {
+                if (TextBlockInheritedProps.indexOf(propd) > -1)
+                    return true;
+                return (_super.prototype).IsInheritable.call(this, propd);
+            };
             TextBlock.PaddingProperty = DependencyProperty.RegisterCore("Padding", function () {
                 return Thickness;
             }, TextBlock, undefined, function (d, args) {
@@ -22728,6 +22733,14 @@ var Fayde;
         })(Fayde.FrameworkElement);
         Controls.TextBlock = TextBlock;
         Nullstone.RegisterType(TextBlock, "TextBlock");
+        var TextBlockInheritedProps = [
+            TextBlock.FontFamilyProperty,
+            TextBlock.FontSizeProperty,
+            TextBlock.FontStretchProperty,
+            TextBlock.FontStyleProperty,
+            TextBlock.FontWeightProperty,
+            TextBlock.ForegroundProperty
+        ];
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
