@@ -5,6 +5,8 @@ namespace WickedSick.Server.XamlParser.Elements
     public class DataTemplate : DependencyObject
     {
         public static readonly PropertyDescription ContentProperty = PropertyDescription.Register("Content", typeof(UIElement), typeof(DataTemplate), true);
+        public static readonly PropertyDescription DataTypeProperty = PropertyDescription.Register("DataType", typeof(object), typeof(DataTemplate));
+
         public UIElement Content
         {
             get { return this.GetValue("Content") as UIElement; }
