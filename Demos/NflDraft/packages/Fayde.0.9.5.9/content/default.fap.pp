@@ -1,0 +1,14 @@
+﻿<FaydeApplication
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde"
+    JsType="$rootnamespace$.Application"
+    ScriptResolution="scripts/">
+    <FaydeApplication.UriMappings>
+        <UriMapping Uri="" MappedUri="default.fayde" />
+    </FaydeApplication.UriMappings>
+    <FaydeApplication.Resources>
+    </FaydeApplication.Resources>
+    <Grid x:Name="LayoutRoot">
+        <Frame x:Name="ContentFrame" />
+    </Grid>
+</FaydeApplication>

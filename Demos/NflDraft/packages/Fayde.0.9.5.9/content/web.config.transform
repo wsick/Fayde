@@ -1,0 +1,16 @@
+﻿<configuration>
+    <system.webServer>
+        <handlers>
+            <add verb="*" path="*.fap" name="FapHandler" type="WickedSick.Server.Framework.Fayde.FapHttpHandler" resourceType="Unspecified" />
+        </handlers>
+        <staticContent>
+            <mimeMap fileExtension=".mp4" mimeType="video/mp4" />
+            <mimeMap fileExtension=".mpv" mimeType="video/mpv" />
+        </staticContent>
+        <defaultDocument>
+            <files>
+                <add value="default.fap" />
+            </files>
+        </defaultDocument>
+    </system.webServer>
+</configuration>
