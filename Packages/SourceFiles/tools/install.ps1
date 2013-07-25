@@ -10,7 +10,7 @@ Set-WebAppProjectProperty $project "StartPageUrl" "default.fap"
 Set-ProjectItemType $project "default.fap.ts" "TypeScriptCompile"
 
 $rootitem = Get-ProjectItem $project "default.fap"
-IF ($rootitem -ne $null) {
+IF ($rootitem) {
     $tsitem = Get-ProjectItem $project "default.fap.ts"
     Add-ProjectItemChild $project $rootitem $tsitem
 
@@ -22,7 +22,7 @@ IF ($rootitem -ne $null) {
 Set-ProjectItemType $project "default.fayde.ts" "TypeScriptCompile"
 
 $rootitem = Get-ProjectItem $project "default.fayde"
-IF ($rootitem -ne $null) {
+IF ($rootitem) {
     $tsitem = Get-ProjectItem $project "default.fayde.ts"
     Add-ProjectItemChild $project $rootitem $tsitem
 
