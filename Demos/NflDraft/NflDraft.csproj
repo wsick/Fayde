@@ -59,13 +59,11 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
-    <Reference Include="WickedSick.Server.Framework.Fayde, Version=0.9.5.9, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="WickedSick.Server.Framework.Fayde">
       <HintPath>packages\Fayde.0.9.5.9\lib\net\WickedSick.Server.Framework.Fayde.dll</HintPath>
     </Reference>
-    <Reference Include="WickedSick.Server.XamlParser, Version=0.9.5.9, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>F:\Development\Home\Fayde\Source\WickedSick.Server.XamlParser\bin\Release\WickedSick.Server.XamlParser.dll</HintPath>
+    <Reference Include="WickedSick.Server.XamlParser">
+      <HintPath>packages\Fayde.0.9.5.9\lib\net\WickedSick.Server.XamlParser.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using WickedSick.Server.XamlParser.Elements;
-using System.Reflection;
+using WickedSick.Server.XamlParser.Elements.Media;
 using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.TypeConverters
@@ -12,7 +8,10 @@ namespace WickedSick.Server.XamlParser.TypeConverters
     {
         public object Convert(string from)
         {
-            return Color.FromHex(from);
+            Color c = null;
+            if (!from.StartsWith("#"))
+                c = Colors.FindColor(from);
+            return c ?? Color.FromHex(from);
         }
 
         public Type ConversionType

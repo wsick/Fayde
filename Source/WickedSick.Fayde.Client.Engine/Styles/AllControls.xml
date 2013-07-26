@@ -1857,7 +1857,7 @@
                 <ControlTemplate TargetType="Slider">
                     <Grid x:Name="Root">
                         <Grid.Resources>
-                            <ControlTemplate x:Key="RepeatButtonTemplate">
+                            <ControlTemplate TargetType="RepeatButton" x:Key="RepeatButtonTemplate">
                                 <Grid x:Name="Root" Opacity="0" Background="Transparent" />
                             </ControlTemplate>
                         </Grid.Resources>
