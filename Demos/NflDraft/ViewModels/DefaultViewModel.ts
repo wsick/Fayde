@@ -9,9 +9,15 @@
 
 module NflDraft.ViewModels {
     export class DefaultViewModel extends Fayde.MVVM.ViewModelBase {
-        Rounds: Array<Models.Round>;
+        Rounds: Fayde.Collections.ObservableCollection<Models.Round>;
         Positions: Array<string>;
         PlayerStats: Array<Models.PlayerStats>;
+        //private _selectedPlayer: Models.PlayerStats;
+        //get SelectedPlayer(): Models.PlayerStats { return this._selectedPlayer; }
+        //set SelectedPlayer(value: Models.PlayerStats) {
+        //    this._selectedPlayer = value;
+        //    this.OnPropertyChanged("SelectedPlayer");
+        //}
         
         Load() {
             var _fantasyTeams: Array<Models.FantasyTeam> = new Array<Models.FantasyTeam>();
@@ -64,30 +70,30 @@ module NflDraft.ViewModels {
             }
 
             var overall = 1;
-            this.Rounds = new Array<Models.Round>();
+            this.Rounds = new Fayde.Collections.ObservableCollection<Models.Round>();
             var r1 = new Models.Round();
-            r1.DraftSpots = new Array<Models.DraftSpot>();
+            r1.DraftSpots = new Fayde.Collections.ObservableCollection<Models.DraftSpot>();
             r1.RoundNumber = 1;
             for (var i = 1; i <= 10; i++) {
                 var ds = new Models.DraftSpot();
                 ds.Overall = overall;
                 ds.Team = _fantasyTeams[i - 1];
-                r1.DraftSpots.push(ds);
+                r1.DraftSpots.Add(ds);
                 overall++;
             }
-            this.Rounds.push(r1);
+            this.Rounds.Add(r1);
 
             var r2 = new Models.Round();
-            r2.DraftSpots = new Array<Models.DraftSpot>();
+            r2.DraftSpots = new Fayde.Collections.ObservableCollection<Models.DraftSpot>();
             r2.RoundNumber = 2;
             for (var i = 10; i >= 1; i--) {
                 var ds = new Models.DraftSpot();
                 ds.Overall = overall;
                 ds.Team = _fantasyTeams[i - 1];
-                r2.DraftSpots.push(ds);
+                r2.DraftSpots.Add(ds);
                 overall++;
             }
-            this.Rounds.push(r2);
+            this.Rounds.Add(r2);
 
             this.Positions = new Array<string>();
             this.Positions.push("ALL", "QB", "RB", "WR", "RB/WR", "TE", "K", "DEF");

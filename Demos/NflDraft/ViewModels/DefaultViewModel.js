@@ -65,30 +65,30 @@ var NflDraft;
                 }
 
                 var overall = 1;
-                this.Rounds = new Array();
+                this.Rounds = new Fayde.Collections.ObservableCollection();
                 var r1 = new NflDraft.Models.Round();
-                r1.DraftSpots = new Array();
+                r1.DraftSpots = new Fayde.Collections.ObservableCollection();
                 r1.RoundNumber = 1;
                 for (var i = 1; i <= 10; i++) {
                     var ds = new NflDraft.Models.DraftSpot();
                     ds.Overall = overall;
                     ds.Team = _fantasyTeams[i - 1];
-                    r1.DraftSpots.push(ds);
+                    r1.DraftSpots.Add(ds);
                     overall++;
                 }
-                this.Rounds.push(r1);
+                this.Rounds.Add(r1);
 
                 var r2 = new NflDraft.Models.Round();
-                r2.DraftSpots = new Array();
+                r2.DraftSpots = new Fayde.Collections.ObservableCollection();
                 r2.RoundNumber = 2;
                 for (var i = 10; i >= 1; i--) {
                     var ds = new NflDraft.Models.DraftSpot();
                     ds.Overall = overall;
                     ds.Team = _fantasyTeams[i - 1];
-                    r2.DraftSpots.push(ds);
+                    r2.DraftSpots.Add(ds);
                     overall++;
                 }
-                this.Rounds.push(r2);
+                this.Rounds.Add(r2);
 
                 this.Positions = new Array();
                 this.Positions.push("ALL", "QB", "RB", "WR", "RB/WR", "TE", "K", "DEF");

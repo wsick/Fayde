@@ -3,6 +3,6 @@
 module NflDraft.Models {
     export class Round {
         RoundNumber: number;
-        DraftSpots: Array<DraftSpot>;
+        DraftSpots: Fayde.Collections.ObservableCollection<DraftSpot>;
     }
 }
