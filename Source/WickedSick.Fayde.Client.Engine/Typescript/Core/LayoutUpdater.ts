@@ -660,21 +660,23 @@ module Fayde {
             this.IntersectBoundsWithClipPath(this.SurfaceBounds, this.AbsoluteXform);
             rect.copyGrowTransform4(this.SurfaceBoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, this.AbsoluteProjection);
         }
-        IntersectBoundsWithClipPath(dest: rect, xform: number[]) {
+        IntersectBoundsWithClipPath(dest: rect, xform: number[]): rect {
             var isClipEmpty = rect.isEmpty(this.ClipBounds);
             var isLayoutClipEmpty = this.LayoutClip ? rect.isEmpty(this.LayoutClip) : true;
 
             if ((!isClipEmpty || !isLayoutClipEmpty) && !this.TotalIsRenderVisible) {
                 rect.clear(dest);
-                return;
+                return dest;
             }
 
-            rect.copyGrowTransform(dest, this.Extents, this.EffectPadding, xform);
+            rect.copyGrowTransform(dest, this.Extents, this.EffectPadding, null);
 
             if (!isClipEmpty)
                 rect.intersection(dest, this.ClipBounds);
             if (!isLayoutClipEmpty)
                 rect.intersection(dest, this.LayoutClip);
+
+            return rect.transform(dest, xform);
         }
 
         private _UpdateActualSize(): ISizeChangedData {
