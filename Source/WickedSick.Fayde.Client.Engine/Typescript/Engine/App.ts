@@ -1,5 +1,6 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
+/// <reference path="../Runtime/TimelineProfile.ts" />
 /// <reference path="Surface.ts" />
 /// <reference path="../Core/ResourceDictionary.ts" />
 /// <reference path="../Primitives/Uri.ts" />
@@ -11,6 +12,7 @@
 module Fayde {
     export function Run() { }
     export function Start(appType: Function, rjson: any, json: any, canvas: HTMLCanvasElement) {
+        TimelineProfile.TimelineStart = new Date().valueOf();
         var cur = App.Current = <App>new (<any>appType)();
         cur.LoadResources(rjson);
         cur.LoadInitial(canvas, json);
@@ -46,7 +48,9 @@ class App implements Fayde.IResourcable, Fayde.ITimerListener {
     get RootVisual(): Fayde.UIElement { return this.MainSurface._RootLayer; }
 
     LoadResources(json: any) {
+        TimelineProfile.Parse(true, "App.Resources");
         Fayde.JsonParser.ParseResourceDictionary(this.Resources, json);
+        TimelineProfile.Parse(false, "App.Resources");
     }
     LoadInitial(canvas: HTMLCanvasElement, json: any) {
         this.Address = new Uri(document.URL);
@@ -56,7 +60,9 @@ class App implements Fayde.IResourcable, Fayde.ITimerListener {
         //canProfile = profiles.initialParse;
         //profile("Initial Parse");
         var ns = new Fayde.NameScope(true);
+        TimelineProfile.Parse(true, "App");
         var element = Fayde.JsonParser.Parse(json, undefined, ns);
+        TimelineProfile.Parse(false, "App");
         //profileEnd();
         //canProfile = false;
 

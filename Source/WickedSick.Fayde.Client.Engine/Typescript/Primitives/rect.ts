@@ -310,15 +310,17 @@ class rect implements ICloneable {
         return dest;
     }
 
-    static copyGrowTransform(dest: rect, src: rect, thickness, xform) {
+    static copyGrowTransform(dest: rect, src: rect, thickness, xform: number[]) {
         rect.copyTo(src, dest);
         rect.growByThickness(dest, thickness);
-        rect.transform(dest, xform);
+        if (xform)
+            rect.transform(dest, xform);
     }
     static copyGrowTransform4(dest: rect, src: rect, thickness, projection) {
         rect.copyTo(src, dest);
         rect.growByThickness(dest, thickness);
-        rect.transform4(dest, projection);
+        if (projection)
+            rect.transform4(dest, projection);
     }
 
     static containsPoint(rect1: rect, p: Point): bool {
