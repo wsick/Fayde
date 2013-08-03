@@ -538,6 +538,10 @@
     <Content Include="Typescript\Runtime\Debug.js">
       <DependentUpon>Debug.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Runtime\TimelineProfile.ts" />
+    <Content Include="Typescript\Runtime\TimelineProfile.js">
+      <DependentUpon>TimelineProfile.ts</DependentUpon>
+    </Content>
     <Content Include="UnitTestList.txt" />
     <Content Include="Tests\XamlNodeTests.js">
       <DependentUpon>XamlNodeTests.ts</DependentUpon>

@@ -1,5 +1,6 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
+/// <reference path="../Runtime/TimelineProfile.ts" />
 /// <reference path="App.ts" />
 /// <reference path="RenderContext.ts" />
 /// <reference path="../Core/UIElement.ts" />
@@ -217,6 +218,7 @@ class Surface {
         return true;
     }
     _UpdateLayout(error: BError): bool {
+        TimelineProfile.LayoutPass(true);
         //var startTime;
         var maxPassCount = 250;
         var layers = this._Layers;
@@ -271,7 +273,8 @@ class Surface {
             if (error)
                 error.Message = "UpdateLayout has entered infinite loop and has been aborted.";
         }
-
+        
+        TimelineProfile.LayoutPass(false);
         return updatedLayout;
     }
     //Down --> RenderVisibility, HitTestVisibility, Transformation, Clip, ChildrenZIndices

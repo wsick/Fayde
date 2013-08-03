@@ -660,6 +660,27 @@ declare class IndexedPropertyInfo implements IPropertyInfo {
 declare class StringEx {
     static Format(format: string, ...items: any[]): string;
 }
+interface ITimelineEvent {
+    Type: string;
+    Name: string;
+    Time: number;
+}
+interface ITimelineGroup {
+    Type: string;
+    Data: string;
+    Start: number;
+    Length: number;
+}
+declare class TimelineProfile {
+    private static _Events;
+    static Groups: ITimelineGroup[];
+    static TimelineStart: number;
+    static IsNextLayoutPassProfiled: boolean;
+    static Parse(isStart: boolean, name: string): void;
+    static Navigate(isStart: boolean, name?: string): void;
+    static LayoutPass(isStart: boolean): void;
+    private static _FinishEvent(type, name?);
+}
 declare module Fayde.Shapes {
     enum PathEntryType {
         Move,
@@ -1155,7 +1176,7 @@ declare module Fayde {
         public ComputeBounds(): void;
         public ComputeGlobalBounds(): void;
         public ComputeSurfaceBounds(): void;
-        public IntersectBoundsWithClipPath(dest: rect, xform: number[]): void;
+        public IntersectBoundsWithClipPath(dest: rect, xform: number[]): rect;
         private _UpdateActualSize();
         private _ComputeActualSize();
         private _GetBrushSize();
@@ -2158,7 +2179,7 @@ declare class rect implements ICloneable {
     static round(dest: rect): rect;
     static roundOut(dest: rect): rect;
     static roundIn(dest: rect): rect;
-    static copyGrowTransform(dest: rect, src: rect, thickness, xform): void;
+    static copyGrowTransform(dest: rect, src: rect, thickness, xform: number[]): void;
     static copyGrowTransform4(dest: rect, src: rect, thickness, projection): void;
     static containsPoint(rect1: rect, p: Point): boolean;
     static containsPointXY(rect1: rect, x: number, y: number): boolean;

@@ -1,5 +1,6 @@
 /// <reference path="ContentControl.ts" />
 /// CODE
+/// <reference path="../Runtime/TimelineProfile.ts" />
 /// <reference path="Page.ts" />
 /// <reference path="../Primitives/Uri.ts" />
 /// <reference path="../Runtime/AjaxJsonRequest.ts" />
@@ -62,6 +63,7 @@ module Fayde.Controls {
         private _LoadContent(href: string, hash: string) {
             this.StopLoading();
 
+            TimelineProfile.Navigate(true, href + "#" + hash);
             var that = this;
             this._Resolver = new XamlResolver(
                 (xamlResult, scriptResult) => this._HandleSuccessfulResponse(xamlResult),
@@ -70,13 +72,17 @@ module Fayde.Controls {
             this._Resolver.Load(href, hash);
         }
         private _HandleSuccessfulResponse(ajaxJsonResult: AjaxJsonResult) {
+            TimelineProfile.Parse(true, "Page");
             var page = JsonParser.ParsePage(ajaxJsonResult.CreateJson());
+            TimelineProfile.Parse(false, "Page");
             if (page) {
                 document.title = page.Title;
                 //canProfile = profiles.frameUpdate;
                 this.Content = page;
             }
             this._Request = null;
+            TimelineProfile.Navigate(false);
+            TimelineProfile.IsNextLayoutPassProfiled = true;
         }
         private _HandleSuccessfulSubResponse(ajaxJsonResult: AjaxJsonResult) {
             var json = ajaxJsonResult.CreateJson();

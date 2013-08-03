@@ -3750,6 +3750,68 @@ var StringEx = (function () {
     return StringEx;
 })();
 
+var TimelineProfile = (function () {
+    function TimelineProfile() {
+    }
+    TimelineProfile.Parse = function (isStart, name) {
+        if (!isStart)
+            return TimelineProfile._FinishEvent("Parse", name);
+        TimelineProfile._Events.push({
+            Type: "Parse",
+            Name: name,
+            Time: new Date().valueOf()
+        });
+    };
+    TimelineProfile.Navigate = function (isStart, name) {
+        if (!isStart)
+            return TimelineProfile._FinishEvent("Navigate", name);
+        TimelineProfile._Events.push({
+            Type: "Navigate",
+            Name: name,
+            Time: new Date().valueOf()
+        });
+    };
+    TimelineProfile.LayoutPass = function (isStart) {
+        if (!TimelineProfile.IsNextLayoutPassProfiled)
+            return;
+        if (!isStart) {
+            TimelineProfile.IsNextLayoutPassProfiled = false;
+            return TimelineProfile._FinishEvent("LayoutPass");
+        }
+        TimelineProfile._Events.push({
+            Type: "LayoutPass",
+            Name: "",
+            Time: new Date().valueOf()
+        });
+    };
+    TimelineProfile._FinishEvent = function (type, name) {
+        var evts = TimelineProfile._Events;
+        var len = evts.length;
+        var evt;
+        for (var i = len - 1; i >= 0; i--) {
+            evt = evts[i];
+            if (evt.Type === type && (!name || evt.Name === name)) {
+                evts.splice(i, 1);
+                break;
+            }
+            evt = null;
+        }
+        if (!evt)
+            return;
+        TimelineProfile.Groups.push({
+            Type: evt.Type,
+            Data: evt.Name,
+            Start: evt.Time - TimelineProfile.TimelineStart,
+            Length: new Date().valueOf() - evt.Time
+        });
+    };
+    TimelineProfile._Events = [];
+    TimelineProfile.Groups = [];
+    TimelineProfile.TimelineStart = 0;
+    TimelineProfile.IsNextLayoutPassProfiled = true;
+    return TimelineProfile;
+})();
+
 var Fayde;
 (function (Fayde) {
     (function (Shapes) {
@@ -6283,13 +6345,14 @@ var Fayde;
             var isLayoutClipEmpty = this.LayoutClip ? rect.isEmpty(this.LayoutClip) : true;
             if ((!isClipEmpty || !isLayoutClipEmpty) && !this.TotalIsRenderVisible) {
                 rect.clear(dest);
-                return;
+                return dest;
             }
-            rect.copyGrowTransform(dest, this.Extents, this.EffectPadding, xform);
+            rect.copyGrowTransform(dest, this.Extents, this.EffectPadding, null);
             if (!isClipEmpty)
                 rect.intersection(dest, this.ClipBounds);
             if (!isLayoutClipEmpty)
                 rect.intersection(dest, this.LayoutClip);
+            return rect.transform(dest, xform);
         };
         LayoutUpdater.prototype._UpdateActualSize = function () {
             var last = this.LastRenderSize;
@@ -7989,6 +8052,7 @@ var Fayde;
     }
     Fayde.Run = Run;
     function Start(appType, rjson, json, canvas) {
+        TimelineProfile.TimelineStart = new Date().valueOf();
         var cur = App.Current = new (appType)();
         cur.LoadResources(rjson);
         cur.LoadInitial(canvas, json);
@@ -8019,14 +8083,18 @@ var App = (function () {
         configurable: true
     });
     App.prototype.LoadResources = function (json) {
+        TimelineProfile.Parse(true, "App.Resources");
         Fayde.JsonParser.ParseResourceDictionary(this.Resources, json);
+        TimelineProfile.Parse(false, "App.Resources");
     };
     App.prototype.LoadInitial = function (canvas, json) {
         this.Address = new Uri(document.URL);
         this.MainSurface.Register(canvas);
         this.NavService = new Fayde.Navigation.NavService(this);
         var ns = new Fayde.NameScope(true);
+        TimelineProfile.Parse(true, "App");
         var element = Fayde.JsonParser.Parse(json, undefined, ns);
+        TimelineProfile.Parse(false, "App");
         if (element instanceof Fayde.UIElement) {
             var uie = element;
             uie.XamlNode.NameScope = ns;
@@ -8799,6 +8867,7 @@ var Surface = (function () {
         return true;
     };
     Surface.prototype._UpdateLayout = function (error) {
+        TimelineProfile.LayoutPass(true);
         var maxPassCount = 250;
         var layers = this._Layers;
         if (!layers)
@@ -8837,6 +8906,7 @@ var Surface = (function () {
             if (error)
                 error.Message = "UpdateLayout has entered infinite loop and has been aborted.";
         }
+        TimelineProfile.LayoutPass(false);
         return updatedLayout;
     };
     Surface.prototype._ProcessDownDirtyElements = function () {
@@ -11077,12 +11147,14 @@ var rect = (function () {
     rect.copyGrowTransform = function (dest, src, thickness, xform) {
         rect.copyTo(src, dest);
         rect.growByThickness(dest, thickness);
-        rect.transform(dest, xform);
+        if (xform)
+            rect.transform(dest, xform);
     };
     rect.copyGrowTransform4 = function (dest, src, thickness, projection) {
         rect.copyTo(src, dest);
         rect.growByThickness(dest, thickness);
-        rect.transform4(dest, projection);
+        if (projection)
+            rect.transform4(dest, projection);
     };
     rect.containsPoint = function (rect1, p) {
         return rect1.X <= p.X && rect1.Y <= p.Y && (rect1.X + rect1.Width) >= p.X && (rect1.Y + rect1.Height) >= p.Y;
@@ -27119,6 +27191,7 @@ var Fayde;
             Frame.prototype._LoadContent = function (href, hash) {
                 var _this = this;
                 this.StopLoading();
+                TimelineProfile.Navigate(true, href + "#" + hash);
                 var that = this;
                 this._Resolver = new Fayde.XamlResolver(function (xamlResult, scriptResult) {
                     return _this._HandleSuccessfulResponse(xamlResult);
@@ -27130,12 +27203,16 @@ var Fayde;
                 this._Resolver.Load(href, hash);
             };
             Frame.prototype._HandleSuccessfulResponse = function (ajaxJsonResult) {
+                TimelineProfile.Parse(true, "Page");
                 var page = Fayde.JsonParser.ParsePage(ajaxJsonResult.CreateJson());
+                TimelineProfile.Parse(false, "Page");
                 if (page) {
                     document.title = page.Title;
                     this.Content = page;
                 }
                 this._Request = null;
+                TimelineProfile.Navigate(false);
+                TimelineProfile.IsNextLayoutPassProfiled = true;
             };
             Frame.prototype._HandleSuccessfulSubResponse = function (ajaxJsonResult) {
                 var json = ajaxJsonResult.CreateJson();
