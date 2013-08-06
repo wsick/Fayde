@@ -171,6 +171,15 @@ declare module Fayde {
     }
 }
 declare module Fayde {
+    class Theme {
+        public Name: string;
+        public Json: any;
+        private _ResourceDictionary;
+        constructor(name: string, json: any);
+        public ResourceDictionary : Fayde.ResourceDictionary;
+    }
+}
+declare module Fayde {
     class VisualTreeHelper {
         static GetParent(d: Fayde.DependencyObject): Fayde.DependencyObject;
         static GetRoot(d: Fayde.DependencyObject): Fayde.DependencyObject;
@@ -239,7 +248,6 @@ declare module Fayde.Providers {
         static Clear(fe: Fayde.FrameworkElement, mask: StyleMask): void;
         private static ApplyStyles(fe, mask, styles);
         private static GetImplicitStyles(fe, mask);
-        private static GetGenericXamlStyleFor(type);
     }
 }
 declare module Fayde.Providers {
@@ -1431,7 +1439,7 @@ declare module Fayde.Data {
 }
 declare module Fayde {
     function Run(): void;
-    function Start(appType: Function, rjson: any, json: any, canvas: HTMLCanvasElement): void;
+    function Start(appType: Function, theme: string, rjson: any, json: any, canvas: HTMLCanvasElement): void;
 }
 interface ITimeline {
     Update(nowTime: number);
@@ -1445,6 +1453,8 @@ declare class App implements Fayde.IResourcable, Fayde.ITimerListener {
     public Address: Uri;
     public NavService: Fayde.Navigation.NavService;
     public DebugInterop: Fayde.DebugInterop;
+    public Theme: string;
+    static Themes: Fayde.Theme[];
     private _IsRunning;
     private _Storyboards;
     private _ClockTimer;
@@ -1462,8 +1472,8 @@ declare class App implements Fayde.IResourcable, Fayde.ITimerListener {
     private Render();
     public RegisterStoryboard(storyboard: ITimeline): void;
     public UnregisterStoryboard(storyboard: ITimeline): void;
-    static GetGenericResourceDictionary(): Fayde.ResourceDictionary;
-    private static GetGenericResourceDictionaryImpl();
+    public CurrentTheme : Fayde.Theme;
+    public GetImplicitStyle(type: any): Fayde.Style;
     private __DebugLayers();
     private __GetById(id);
 }

@@ -427,6 +427,29 @@ var Fayde;
 
 var Fayde;
 (function (Fayde) {
+    var Theme = (function () {
+        function Theme(name, json) {
+            this.Name = name;
+            this.Json = json;
+        }
+        Object.defineProperty(Theme.prototype, "ResourceDictionary", {
+            get: function () {
+                if (!this._ResourceDictionary) {
+                    this._ResourceDictionary = new Fayde.ResourceDictionary();
+                    Fayde.JsonParser.ParseResourceDictionary(this._ResourceDictionary, this.Json);
+                }
+                return this._ResourceDictionary;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return Theme;
+    })();
+    Fayde.Theme = Theme;
+})(Fayde || (Fayde = {}));
+
+var Fayde;
+(function (Fayde) {
     var VisualTreeHelper = (function () {
         function VisualTreeHelper() {
         }
@@ -1067,7 +1090,7 @@ var Fayde;
                         if (!genericXamlStyle) {
                             var styleKey = fe.DefaultStyleKey;
                             if (styleKey)
-                                genericXamlStyle = ImplicitStyleBroker.GetGenericXamlStyleFor(styleKey);
+                                genericXamlStyle = App.Current.GetImplicitStyle(styleKey);
                         }
                     }
                 }
@@ -1108,11 +1131,6 @@ var Fayde;
                 styles[StyleIndex.ApplicationResources] = appResourcesStyle;
                 styles[StyleIndex.VisualTree] = visualTreeStyle;
                 return styles;
-            };
-            ImplicitStyleBroker.GetGenericXamlStyleFor = function (type) {
-                var rd = App.GetGenericResourceDictionary();
-                if (rd)
-                    return rd.Get(type);
             };
             return ImplicitStyleBroker;
         })();
@@ -8051,9 +8069,10 @@ var Fayde;
     function Run() {
     }
     Fayde.Run = Run;
-    function Start(appType, rjson, json, canvas) {
+    function Start(appType, theme, rjson, json, canvas) {
         TimelineProfile.TimelineStart = new Date().valueOf();
         var cur = App.Current = new (appType)();
+        cur.Theme = theme;
         cur.LoadResources(rjson);
         cur.LoadInitial(canvas, json);
     }
@@ -8064,6 +8083,7 @@ var App = (function () {
     function App() {
         this.Loaded = new MulticastEvent();
         this.Address = null;
+        this.Theme = "Default";
         this._IsRunning = false;
         this._Storyboards = [];
         this._ClockTimer = new Fayde.ClockTimer();
@@ -8147,14 +8167,30 @@ var App = (function () {
         if (index !== -1)
             sbs.splice(index, 1);
     };
-    App.GetGenericResourceDictionary = function () {
-        var rd = App._GenericResourceDictionary;
+    Object.defineProperty(App.prototype, "CurrentTheme", {
+        get: function () {
+            var themes = App.Themes;
+            var themeName = App.Current.Theme;
+            var theme = themes.filter(function (t) {
+                return t.Name == themeName;
+            })[0];
+            if (!theme) {
+                console.warn("Could not find theme: " + themeName);
+                theme = App.Themes[0];
+            }
+            return theme;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    App.prototype.GetImplicitStyle = function (type) {
+        var theme = this.CurrentTheme;
+        if (!theme)
+            return;
+        var rd = theme.ResourceDictionary;
         if (!rd)
-            App._GenericResourceDictionary = rd = App.GetGenericResourceDictionaryImpl();
-        return rd;
-    };
-    App.GetGenericResourceDictionaryImpl = function () {
-        return undefined;
+            return;
+        return rd.Get(type);
     };
     App.prototype.__DebugLayers = function () {
         return this.MainSurface.__DebugLayers();
@@ -8163,6 +8199,8 @@ var App = (function () {
         return this.MainSurface.__GetById(id);
     };
     App.Version = "0.9.4.0";
+
+    App.Themes = [];
 
     App._GenericResourceDictionary = null;
     return App;
