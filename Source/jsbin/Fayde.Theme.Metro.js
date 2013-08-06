@@ -1,6 +1,4 @@
-﻿/// <reference path="Fayde.js"/>
-
-App.GetGenericResourceDictionaryImpl = function () {
+﻿(function () {
     var ResourceDictionary = Fayde.ResourceDictionary; if (!ResourceDictionary) throw new UnknownTypeException("Fayde.ResourceDictionary");
     var SolidColorBrush = Fayde.Media.SolidColorBrush; if (!SolidColorBrush) throw new UnknownTypeException("Fayde.Media.SolidColorBrush");
     var StaticResourceMarkup = Fayde.StaticResourceMarkup; if (!StaticResourceMarkup) throw new UnknownTypeException("Fayde.StaticResourceMarkup");
@@ -552,7 +550,7 @@ App.GetGenericResourceDictionaryImpl = function () {
             Key: "FuzzBrush3", Value: {
                 ParseType: SolidColorBrush,
                 Props: {
-                    Color: Color.FromHex("Black")
+                    Color: Color.FromHex("#FF000000")
                 }
             }
         },
@@ -11423,7 +11421,5 @@ App.GetGenericResourceDictionaryImpl = function () {
             }
         }]
     };
-    var rd = new Fayde.ResourceDictionary();
-    Fayde.JsonParser.ParseResourceDictionary(rd, json);
-    return rd;
-};
+    App.Themes.push(new Fayde.Theme("Metro", json));
+})();

@@ -1,7 +1,6 @@
 ﻿<FaydeApplication
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde"
-    Debug="true"
     ScriptResolution="/Fayde/">
     <Grid ShowGridLines="true" Background="Yellow" Width="300" Height="300">
         <Grid.ColumnDefinitions>

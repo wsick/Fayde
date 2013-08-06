@@ -1,7 +1,6 @@
 ﻿<FaydeApplication
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde"
-    Debug="true"
     ScriptResolution="/Fayde/">
     <Grid>
         <ListBox x:Name="MyListBox" Width="200" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center">

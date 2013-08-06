@@ -13,7 +13,7 @@ namespace WickedSick.Server.Framework.Fayde
         Fayde.Run = function () {";
 
         private static readonly string END_INITIALIZATION_SCRIPT =
-@"          Fayde.Start(appType, rjson, json, document.getElementById(""canvas""));
+@"          Fayde.Start(appType, theme, rjson, json, document.getElementById(""canvas""));
         }
         </script>";
 
@@ -32,8 +32,6 @@ namespace WickedSick.Server.Framework.Fayde
         }
 
         protected StreamWriter Writer { get; set; }
-
-        public bool Debug { get; set; }
 
         public void WriteStart()
         {
@@ -59,20 +57,10 @@ namespace WickedSick.Server.Framework.Fayde
             Writer.WriteLine(string.Format("\t\t<title>{0}</title>", title));
         }
 
-        public void WriteScriptIncludes(string scriptResolution, IEnumerable<string> includes)
+        public void WriteScriptIncludes(string scriptResolution, string theme)
         {
-            if (Debug)
-            {
-                foreach (var include in includes)
-                {
-                    Writer.WriteLine(string.Format("\t\t<script src=\"{0}{1}\" type=\"text/javascript\"></script>", scriptResolution, include));
-                }
-            }
-            else
-            {
-                Writer.WriteLine(string.Format("\t\t<script src=\"{0}Fayde.js\" type=\"text/javascript\"></script>", scriptResolution));
-            }
-            Writer.WriteLine(string.Format("\t\t<script src=\"{0}Fayde.Generic.js\" type=\"text/javascript\"></script>", scriptResolution));
+            Writer.WriteLine(string.Format("\t\t<script src=\"{0}Fayde.js\" type=\"text/javascript\"></script>", scriptResolution));
+            Writer.WriteLine(string.Format("\t\t<script src=\"{0}Fayde.Theme.{1}.js\" type=\"text/javascript\"></script>", scriptResolution, theme));
         }
 
         public void WriteScriptInclude(string scriptPath)
@@ -93,6 +81,7 @@ namespace WickedSick.Server.Framework.Fayde
                 json = fap.Content.ToJson(0, outputMods);
 
             Writer.WriteLine(START_INITIALIZATION_SCRIPT);
+            Writer.WriteLine(string.Format("var theme = \"{0}\";", fap.Theme));
             Writer.WriteLine(string.Format("var appType = {0};", fap.GetTypeName(outputMods)));
             Writer.WriteLine(string.Format("var rjson = {0};", rjson));
             Writer.WriteLine(string.Format("var json = {0};", json));
