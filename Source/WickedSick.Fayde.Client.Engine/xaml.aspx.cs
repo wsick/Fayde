@@ -33,7 +33,7 @@ namespace WickedSick.Fayde.Client.Engine
             if (!outputMods.IsNamespaceIncluded)
                 typeDeclarations = outputMods.SerializeLocalDeclarations();
             var serializeTime = DateTime.Now - startTime;
-            tb2.Text = typeDeclarations + Environment.NewLine + json;
+            tb2.Text = typeDeclarations + Environment.NewLine + "var json = " + json + ";";
             lblParseTime.Text = string.Format("Parse Time: {0} ms", parseTime.TotalMilliseconds);
             lblSerializeTime.Text = string.Format("Serialize Time: {0} ms", serializeTime.TotalMilliseconds);
         }

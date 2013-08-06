@@ -36,12 +36,7 @@ namespace WickedSick.Server.Framework.Fayde
         {
             var result = CreateFap(context.Request);
             var fap = result.RootObject as FaydeApplication;
-            var includes = new List<string>();
-#if DEBUG
-            if (fap.Debug)
-                includes = CollectNewIncludes(FindOrderFile(context.Request, fap)).ToList();
-#endif
-            WriteFapFull(context, fap, includes);
+            WriteFapFull(context, fap);
             WriteDependencyHeader(context.Response, result);
         }
         protected void ProcessPageRequest(HttpContext context, string page, string js)
@@ -154,16 +149,14 @@ namespace WickedSick.Server.Framework.Fayde
             }
         }
 
-        private void WriteFapFull(HttpContext context, FaydeApplication fap, IEnumerable<string> includes)
+        private void WriteFapFull(HttpContext context, FaydeApplication fap)
         {
             using (var writer = new FapWriter(context.Response.OutputStream))
             {
-#if DEBUG
-                writer.Debug = fap.Debug;
-#endif
                 writer.WriteStart();
                 writer.WriteHeadStart();
-                writer.WriteScriptIncludes(fap.ScriptResolution, includes);
+                var theme = string.IsNullOrWhiteSpace(fap.Theme) ? "Default" : fap.Theme;
+                writer.WriteScriptIncludes(fap.ScriptResolution, theme);
 
                 var codeBehindPath = string.Format("{0}.js", context.Request.Path);
                 if (File.Exists(context.Server.MapPath(codeBehindPath)))

@@ -8,12 +8,14 @@
 /// <reference path="../Markup/JsonParser.ts" />
 /// <reference path="../Navigation/NavService.ts" />
 /// <reference path="DebugInterop.ts" />
+/// <reference path="../Core/Theme.ts" />
 
 module Fayde {
     export function Run() { }
-    export function Start(appType: Function, rjson: any, json: any, canvas: HTMLCanvasElement) {
+    export function Start(appType: Function, theme: string, rjson: any, json: any, canvas: HTMLCanvasElement) {
         TimelineProfile.TimelineStart = new Date().valueOf();
         var cur = App.Current = <App>new (<any>appType)();
+        cur.Theme = theme;
         cur.LoadResources(rjson);
         cur.LoadInitial(canvas, json);
     }
@@ -32,6 +34,8 @@ class App implements Fayde.IResourcable, Fayde.ITimerListener {
     Address: Uri = null;
     NavService: Fayde.Navigation.NavService;
     DebugInterop: Fayde.DebugInterop;
+    Theme: string = "Default";
+    static Themes: Fayde.Theme[] = [];
     private _IsRunning: bool = false;
     private _Storyboards: ITimeline[] = [];
     private _ClockTimer: Fayde.ClockTimer = new Fayde.ClockTimer();
@@ -138,13 +142,25 @@ class App implements Fayde.IResourcable, Fayde.ITimerListener {
             sbs.splice(index, 1);
     }
 
-    static GetGenericResourceDictionary(): Fayde.ResourceDictionary {
-        var rd = App._GenericResourceDictionary;
-        if (!rd)
-            App._GenericResourceDictionary = rd = App.GetGenericResourceDictionaryImpl();
-        return rd;
+    get CurrentTheme(): Fayde.Theme {
+        var themes = App.Themes;
+        var themeName = App.Current.Theme;
+        var theme = themes.filter(t => t.Name == themeName)[0];
+        if (!theme) {
+            console.warn("Could not find theme: " + themeName);
+            theme = App.Themes[0];
+        }
+        return theme;
     }
-    private static GetGenericResourceDictionaryImpl(): Fayde.ResourceDictionary { return undefined; }
+    GetImplicitStyle(type: any): Fayde.Style {
+        var theme = this.CurrentTheme;
+        if (!theme)
+            return;
+        var rd = theme.ResourceDictionary;
+        if (!rd)
+            return;
+        return <Fayde.Style><any>rd.Get(type);
+    }
 
     private __DebugLayers(): string {
         return this.MainSurface.__DebugLayers();

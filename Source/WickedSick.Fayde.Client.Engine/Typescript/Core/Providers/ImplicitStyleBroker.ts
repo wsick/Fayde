@@ -102,7 +102,7 @@ module Fayde.Providers {
             var newSetter = newWalker.Step();
             var oldProp: DependencyProperty;
             var newProp: DependencyProperty;
-            
+
             var storage: IPropertyStorage;
             var oldValue = undefined;
             var newValue = undefined;
@@ -116,12 +116,12 @@ module Fayde.Providers {
                     propd = newProp = newSetter.Property;
                     newValue = newSetter.ConvertedValue;
                 }
-                
+
                 storage = arr[propd._ID];
                 if (!storage)
                     storage = arr[propd._ID] = propd.Store.CreateStorage(fe, propd);
                 propd.Store.SetImplicitStyle(storage, newValue);
-                
+
                 if (oldProp)
                     oldSetter = oldWalker.Step();
                 if (newProp)
@@ -143,7 +143,7 @@ module Fayde.Providers {
                     if (!genericXamlStyle) {
                         var styleKey = fe.DefaultStyleKey;
                         if (styleKey)
-                            genericXamlStyle = ImplicitStyleBroker.GetGenericXamlStyleFor(styleKey);
+                            genericXamlStyle = App.Current.GetImplicitStyle(styleKey);
                     }
                 }
             }
@@ -193,11 +193,6 @@ module Fayde.Providers {
             styles[StyleIndex.ApplicationResources] = appResourcesStyle;
             styles[StyleIndex.VisualTree] = visualTreeStyle;
             return styles;
-        }
-        private static GetGenericXamlStyleFor(type: any): Style {
-            var rd = App.GetGenericResourceDictionary();
-            if (rd)
-                return <Style>rd.Get(type);
         }
     }
 }

@@ -74,10 +74,11 @@
     <Content Include="Docs\Notes.txt" />
     <Content Include="Docs\Plugins.txt" />
     <Content Include="Docs\XamlNotes.txt" />
-    <Content Include="Fayde.Generic.js" />
+    <Content Include="Fayde.Theme.Default.js" />
     <Content Include="Fayde.js">
       <DependentUpon>Fayde.ts</DependentUpon>
     </Content>
+    <Content Include="Fayde.Theme.Metro.js" />
     <Content Include="Fayde.ts" />
     <Content Include="Global.asax" />
     <Content Include="Javascript\Controls\CanvasMetrics.js" />
@@ -407,7 +408,9 @@
     <Content Include="Silo\image-load.html" />
     <Content Include="Silo\RawPath\quad-bezier-bounds.html" />
     <Content Include="Silo\UnitTestValidation.htm" />
-    <Content Include="Styles\AllControls.xml" />
+    <Content Include="Styles\AllControls.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Styles\CheckBox.xml" />
     <Content Include="Styles\ContentPresenter.xml" />
     <Content Include="Styles\Cosmopolitan.CoreStyles.xml">
@@ -512,6 +515,10 @@
       <DependentUpon>DebugInterop.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Media\Animation\AnimationStore.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Theme.ts" />
+    <Content Include="Typescript\Core\Theme.js">
+      <DependentUpon>Theme.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Media\Animation\AnimationStore.js">
       <DependentUpon>AnimationStore.ts</DependentUpon>
     </Content>
@@ -1519,7 +1526,7 @@
     <PostBuildEvent>cd "$(ProjectDir)"
 xcopy /s /y Fayde.js ..\jsbin\
 xcopy /s /y Fayde.tsorder ..\jsbin\
-xcopy /s /y Fayde.Generic.js ..\jsbin\
+xcopy /s /y Fayde.Theme.*.js ..\jsbin\
 xcopy /s /y Fayde.d.ts ..\jsbin\</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>

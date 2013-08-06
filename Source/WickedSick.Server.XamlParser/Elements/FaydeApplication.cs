@@ -19,14 +19,7 @@ namespace WickedSick.Server.XamlParser.Elements
         //public static readonly PropertyDescription DefaultPageUriProperty = PropertyDescription.Register("DefaultPageUri", typeof(string), typeof(FaydeApplication));
         public static readonly PropertyDescription WidthProperty = PropertyDescription.Register("Width", typeof(PageLength), typeof(FaydeApplication));
         public static readonly PropertyDescription HeightProperty = PropertyDescription.Register("Height", typeof(PageLength), typeof(FaydeApplication));
-
-        public static readonly PropertyDescription DebugProperty = PropertyDescription.Register("Debug", typeof(bool), typeof(FaydeApplication));
-        public bool Debug
-        {
-            get { return (bool?)GetValue("Debug") == true; }
-            set { SetValue("Debug", value); }
-        }
-
+        
         public static readonly PropertyDescription ResourcesProperty = PropertyDescription.Register("Resources", typeof(ResourceDictionary), typeof(FaydeApplication));
         public ResourceDictionary Resources
         {
@@ -60,6 +53,13 @@ namespace WickedSick.Server.XamlParser.Elements
         {
             get { return GetValue("JsType") as string; }
             set { SetValue("JsType", value); }
+        }
+
+        public static readonly PropertyDescription ThemeProperty = PropertyDescription.Register("Theme", typeof(string), typeof(FaydeApplication));
+        public string Theme
+        {
+            get { return GetValue("Theme") as string; }
+            set { SetValue("Theme", value); }
         }
 
         public override string GetTypeName(IJsonOutputModifiers outputMods)
