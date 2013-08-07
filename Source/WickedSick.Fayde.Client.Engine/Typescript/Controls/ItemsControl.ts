@@ -40,7 +40,7 @@ module Fayde.Controls {
     Nullstone.RegisterType(ItemsControlNode, "ItemsControlNode");
 
     export class ItemsControl extends Control {
-        private _ItemsIsDataBound: bool = false;
+        private _ItemsIsDataBound: boolean = false;
         private _Items: ItemCollection = null;
         private _DisplayMemberTemplate:DataTemplate = null;
 
@@ -229,7 +229,7 @@ module Fayde.Controls {
         }
         ClearContainerForItem(container: DependencyObject, item: any) { }
         GetContainerForItem(): DependencyObject { return new ContentPresenter(); }
-        IsItemItsOwnContainer(item: any): bool { return item instanceof FrameworkElement; }
+        IsItemItsOwnContainer(item: any): boolean { return item instanceof FrameworkElement; }
         OnItemsChanged(e: Collections.NotifyCollectionChangedEventArgs) { }
         InvokeItemsChanged(sender, e: Collections.NotifyCollectionChangedEventArgs) {
             /*

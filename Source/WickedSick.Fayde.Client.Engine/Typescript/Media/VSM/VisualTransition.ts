@@ -8,10 +8,10 @@ module Fayde.Media.VSM {
         To: string = null;
         Storyboard: Animation.Storyboard;
         GeneratedDuration: Duration;
-        DynamicStoryboardCompleted: bool = true;
-        ExplicitStoryboardCompleted: bool = true;
+        DynamicStoryboardCompleted: boolean = true;
+        ExplicitStoryboardCompleted: boolean = true;
         GeneratedEasingFunction: Animation.EasingFunctionBase;
-        get IsDefault(): bool { return this.From == null && this.To == null; }
+        get IsDefault(): boolean { return this.From == null && this.To == null; }
     }
     Nullstone.RegisterType(VisualTransition, "VisualTransition");
 }

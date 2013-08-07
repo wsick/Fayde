@@ -11,7 +11,7 @@ module Fayde.Controls {
         static IsDeepLinkedProperty: DependencyProperty = DependencyProperty.Register("IsDeepLinked", () => Boolean, Frame, true);
         static CurrentSourceProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("CurrentSource", () => Uri, Frame);
         static SourceProperty: DependencyProperty = DependencyProperty.Register("Source", () => Uri, Frame, undefined, (d, args) => (<Frame>d).SourcePropertyChanged(args));
-        IsDeepLinked: bool;
+        IsDeepLinked: boolean;
         CurrentSource: Uri;
         Source: Uri;
 

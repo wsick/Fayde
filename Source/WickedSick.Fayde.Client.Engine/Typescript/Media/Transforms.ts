@@ -99,7 +99,7 @@ module Fayde.Media {
         private _Relayer: () => void = function () { };
         private _ChildTransformListeners: ITransformChangedChildListener[] = [];
 
-        AddingToCollection(value: Transform, error: BError): bool {
+        AddingToCollection(value: Transform, error: BError): boolean {
             if (!super.AddingToCollection(value, error))
                 return false;
             var listener = <ITransformChangedChildListener>value.Listen(() => this._Relayer());
@@ -107,7 +107,7 @@ module Fayde.Media {
             this._ChildTransformListeners.push(listener);
             this._Relayer();
         }
-        RemovedFromCollection(value: Transform, isValueSafe: bool) {
+        RemovedFromCollection(value: Transform, isValueSafe: boolean) {
             if (!super.RemovedFromCollection(value, isValueSafe))
                 return false;
             var listeners = this._ChildTransformListeners;

@@ -16,9 +16,9 @@ class TimelineProfile {
     static Groups: ITimelineGroup[] = [];
     static TimelineStart: number = 0;
 
-    static IsNextLayoutPassProfiled: bool = true;
+    static IsNextLayoutPassProfiled: boolean = true;
 
-    static Parse(isStart: bool, name: string) {
+    static Parse(isStart: boolean, name: string) {
         if (!isStart)
             return TimelineProfile._FinishEvent("Parse", name);
         TimelineProfile._Events.push({
@@ -27,7 +27,7 @@ class TimelineProfile {
             Time: new Date().valueOf()
         });
     }
-    static Navigate(isStart: bool, name?: string) {
+    static Navigate(isStart: boolean, name?: string) {
         if (!isStart)
             return TimelineProfile._FinishEvent("Navigate", name);
         TimelineProfile._Events.push({
@@ -36,7 +36,7 @@ class TimelineProfile {
             Time: new Date().valueOf(),
         });
     }
-    static LayoutPass(isStart: bool) {
+    static LayoutPass(isStart: boolean) {
         if (!TimelineProfile.IsNextLayoutPassProfiled)
             return;
         if (!isStart) {

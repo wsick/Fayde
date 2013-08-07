@@ -21,7 +21,7 @@ module Fayde.Documents {
             });
         }
         
-        InlinesChanged(newInline: Inline, isAdd: bool) {
+        InlinesChanged(newInline: Inline, isAdd: boolean) {
             if (isAdd)
                 Providers.InheritedStore.PropagateInheritedOnAdd(this, newInline.XamlNode);
         }

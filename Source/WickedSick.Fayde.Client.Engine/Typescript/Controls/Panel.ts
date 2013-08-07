@@ -57,14 +57,14 @@ module Fayde.Controls {
     class PanelChildrenCollection extends XamlObjectCollection<UIElement> {
         XamlNode: PanelChildrenNode;
         CreateNode(): PanelChildrenNode { return new PanelChildrenNode(this); }
-        AddingToCollection(value: UIElement, error: BError): bool {
+        AddingToCollection(value: UIElement, error: BError): boolean {
             var node = this.XamlNode;
             if (!node.ParentNode.AttachVisualChild(value, error))
                 return false;
             node.AddNode((<FrameworkElement>value).XamlNode);
             return super.AddingToCollection(value, error);
         }
-        RemovedFromCollection(value: UIElement, isValueSafe: bool) {
+        RemovedFromCollection(value: UIElement, isValueSafe: boolean) {
             var node = this.XamlNode;
             node.ParentNode.DetachVisualChild(value, null);
             node.RemoveNode((<FrameworkElement>value).XamlNode);
@@ -87,13 +87,13 @@ module Fayde.Controls {
             var error = new BError();
             this.SetSubtreeNode(coll.XamlNode, error);
         }
-        AttachVisualChild(uie: UIElement, error: BError): bool {
+        AttachVisualChild(uie: UIElement, error: BError): boolean {
             this.OnVisualChildAttached(uie);
             uie.XamlNode.SetIsLoaded(this.IsLoaded);
             this._InvalidateChildrenZIndices();
             return true;
         }
-        DetachVisualChild(uie: UIElement, error: BError): bool {
+        DetachVisualChild(uie: UIElement, error: BError): boolean {
             this.OnVisualChildDetached(uie);
             uie.XamlNode.SetIsLoaded(false);
             this._InvalidateChildrenZIndices();
@@ -108,13 +108,13 @@ module Fayde.Controls {
             (<PanelChildrenCollection>this.XObject.Children).XamlNode.ResortByZIndex();
         }
 
-        OnIsAttachedChanged(newIsAttached: bool) {
+        OnIsAttachedChanged(newIsAttached: boolean) {
             this.SetSurfaceFromVisualParent();
             this.LayoutUpdater.OnIsAttachedChanged(newIsAttached, this.VisualParentNode);
             super.OnIsAttachedChanged(newIsAttached);
         }
 
-        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
+        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): boolean {
             return this.XObject.Background != null;
         }
 
@@ -165,7 +165,7 @@ module Fayde.Controls {
         static BackgroundProperty: DependencyProperty = DependencyProperty.Register("Background", () => { return Media.Brush; }, Panel, undefined, (d, args) => (<Panel>d)._BackgroundChanged(args));
         static IsItemsHostProperty: DependencyProperty = DependencyProperty.Register("IsItemHost", () => { return Boolean; }, Panel, false);
         Background: Media.Brush;
-        IsItemsHost: bool;
+        IsItemsHost: boolean;
         Children: XamlObjectCollection<UIElement>;
 
         private _BackgroundListener: Media.IBrushChangedListener;

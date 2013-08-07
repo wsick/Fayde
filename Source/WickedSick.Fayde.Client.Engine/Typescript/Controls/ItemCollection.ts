@@ -9,7 +9,7 @@ module Fayde.Controls {
         GetValueAt(index: number): any;
         GetRange(startIndex: number, endIndex: number): any[];
         SetValueAt(index: number, value: any);
-        Contains(value: any): bool;
+        Contains(value: any): boolean;
         IndexOf(value: any): number;
         Add(value: any);
         AddRange(values: any[]);
@@ -20,7 +20,7 @@ module Fayde.Controls {
     }
 
     export interface IItemCollectionHidden extends IItemCollection {
-        IsReadOnly: bool;
+        IsReadOnly: boolean;
         SetValueAtImpl(index: number, value: any);
         AddImpl(value: any);
         AddRangeImpl(values: any[]);
@@ -36,7 +36,7 @@ module Fayde.Controls {
 
         get Count(): number { return this._ht.length; }
 
-        IsReadOnly: bool = false;
+        IsReadOnly: boolean = false;
 
         GetValueAt(index: number): XamlObject {
             var ht = this._ht;
@@ -47,7 +47,7 @@ module Fayde.Controls {
 
         GetRange(startIndex: number, endIndex: number): XamlObject[] { return this._ht.slice(startIndex, endIndex); }
 
-        SetValueAt(index: number, value: XamlObject): bool {
+        SetValueAt(index: number, value: XamlObject): boolean {
             this._ValidateReadOnly();
             this.SetValueAtImpl(index, value);
             return true;
@@ -87,7 +87,7 @@ module Fayde.Controls {
             this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.AddRange(values, index));
         }
 
-        Insert(index: number, value: XamlObject): bool {
+        Insert(index: number, value: XamlObject): boolean {
             this._ValidateReadOnly();
             if (value == null)
                 throw new ArgumentException("value");
@@ -108,11 +108,11 @@ module Fayde.Controls {
         IndexOf(value: XamlObject): number {
             return this._ht.indexOf(value);
         }
-        Contains(value: XamlObject): bool {
+        Contains(value: XamlObject): boolean {
             return this._ht.indexOf(value) > -1;
         }
 
-        Remove(value: XamlObject): bool {
+        Remove(value: XamlObject): boolean {
             this._ValidateReadOnly();
             this.RemoveImpl(value);
             return true;
@@ -125,7 +125,7 @@ module Fayde.Controls {
             this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Remove(value, index));
         }
 
-        RemoveAt(index: number): bool {
+        RemoveAt(index: number): boolean {
             this._ValidateReadOnly();
             if (index < 0 || index >= this._ht.length)
                 throw new IndexOutOfRangeException(index);
@@ -137,7 +137,7 @@ module Fayde.Controls {
             this.ItemsChanged.Raise(this, Collections.NotifyCollectionChangedEventArgs.Remove(item, index));
         }
         
-        Clear():bool {
+        Clear():boolean {
             this._ValidateReadOnly();
             this.ClearImpl();
             return true;

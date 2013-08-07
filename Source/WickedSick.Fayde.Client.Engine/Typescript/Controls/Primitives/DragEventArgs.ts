@@ -5,8 +5,8 @@ module Fayde.Controls.Primitives {
     export class DragCompletedEventArgs extends RoutedEventArgs {
         HorizontalChange: number;
         VerticalChange: number;
-        Canceled: bool;
-        constructor(horizontal: number, vertical: number, canceled: bool) {
+        Canceled: boolean;
+        constructor(horizontal: number, vertical: number, canceled: boolean) {
             super();
             Object.defineProperty(this, "HorizontalChange", { value: horizontal, writable: false });
             Object.defineProperty(this, "VerticalChange", { value: vertical, writable: false });

@@ -5,7 +5,7 @@
 module Fayde.Media.Animation {
     export class AnimationBase extends Timeline {
         private _AnimStorage: IAnimationStorage;
-        private _IsHolding: bool = false;
+        private _IsHolding: boolean = false;
 
         Resolve(target: DependencyObject, propd: DependencyProperty) { return true; }
 
@@ -35,7 +35,7 @@ module Fayde.Media.Animation {
 
         GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): any { return undefined; }
 
-        _Hookup(promotedValues: any[], error: BError): bool {
+        _Hookup(promotedValues: any[], error: BError): boolean {
             this._IsHolding = false;
             this.Reset();
 

@@ -17,7 +17,7 @@ module Fayde.Media.Effects {
         EffectMapping: GeneralTransform;
 
         Padding(): Thickness { return new Thickness(); }
-        GetPadding(thickness: Thickness): bool { return false; }
+        GetPadding(thickness: Thickness): boolean { return false; }
         PreRender(ctx: RenderContext) {
             //Abstract Method
         }

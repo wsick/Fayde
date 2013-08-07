@@ -4,8 +4,8 @@
 
 module Fayde {
     export class XamlResolver {
-        private _IsXamlLoaded: bool = false;
-        private _IsScriptLoaded: bool = false;
+        private _IsXamlLoaded: boolean = false;
+        private _IsScriptLoaded: boolean = false;
         private _BaseHref: string = null;
         private _ScriptResult: HTMLScriptElement = null;
         private _XamlResult: AjaxJsonResult = null;
@@ -78,7 +78,7 @@ module Fayde {
         }
     }
 
-    function resolve(href: string, hash: string, index: number, isFullyResolved: (index: number) => bool, onSuccess: () => void , onSubSuccess: (xamlResult: AjaxJsonResult, scriptResult: HTMLScriptElement) => void , onFail: (error: string) => void ) {
+    function resolve(href: string, hash: string, index: number, isFullyResolved: (index: number) => boolean, onSuccess: () => void , onSubSuccess: (xamlResult: AjaxJsonResult, scriptResult: HTMLScriptElement) => void , onFail: (error: string) => void ) {
         var os = (function () {
             return function (xamlResult: AjaxJsonResult, scriptResult: HTMLScriptElement) {
                 if (onSubSuccess) onSubSuccess(xamlResult, scriptResult);

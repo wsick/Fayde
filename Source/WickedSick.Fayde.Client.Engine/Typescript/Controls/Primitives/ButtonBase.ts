@@ -11,17 +11,17 @@ module Fayde.Controls.Primitives {
         static CommandProperty: DependencyProperty = DependencyProperty.RegisterCore("Command", () => Input.ICommand_, ButtonBase, undefined, (d, args) => (<ButtonBase>d).OnCommandChanged(args));
         static CommandParameterProperty: DependencyProperty = DependencyProperty.RegisterCore("CommandParameter", () => Object, ButtonBase, undefined, (d, args) => (<ButtonBase>d).OnCommandParameterChanged(args));
         ClickMode: ClickMode;
-        IsPressed: bool;
-        IsFocused: bool;
+        IsPressed: boolean;
+        IsFocused: boolean;
         Command: Input.ICommand;
         CommandParameter: any;
         Click: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
             
-        private _IsMouseCaptured: bool = false;
-        private _IsMouseLeftButtonDown: bool = false;
-        private _IsSpaceKeyDown: bool = false;
+        private _IsMouseCaptured: boolean = false;
+        private _IsMouseLeftButtonDown: boolean = false;
+        private _IsSpaceKeyDown: boolean = false;
         _MousePosition: Point = new Point();
-        private _SuspendStateChanges: bool = false;
+        private _SuspendStateChanges: boolean = false;
 
         constructor() {
             super();
@@ -162,7 +162,7 @@ module Fayde.Controls.Primitives {
             this.Click.Raise(this, new RoutedEventArgs());
         }
 
-        UpdateVisualState(useTransitions?: bool) {
+        UpdateVisualState(useTransitions?: boolean) {
             if (this._SuspendStateChanges)
                 return;
             super.UpdateVisualState(useTransitions);
@@ -187,7 +187,7 @@ module Fayde.Controls.Primitives {
             this.ReleaseMouseCapture();
             this._IsMouseCaptured = false;
         }
-        private _IsValidMousePosition(): bool {
+        private _IsValidMousePosition(): boolean {
             var pos = this._MousePosition;
             return pos.X >= 0.0 && pos.X <= this.ActualWidth
                 && pos.Y >= 0.0 && pos.Y <= this.ActualHeight;

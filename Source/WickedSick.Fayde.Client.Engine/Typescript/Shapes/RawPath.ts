@@ -156,7 +156,7 @@ module Fayde.Shapes {
                 this.Close();
             }
         }
-        EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: bool, sweepDirectionFlag: Shapes.SweepDirection, ex: number, ey: number) {
+        EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Shapes.SweepDirection, ex: number, ey: number) {
             this._Path.push({
                 type: PathEntryType.EllipticalArc,
                 width: width,
@@ -168,7 +168,7 @@ module Fayde.Shapes {
                 ey: ey
             })
         }
-        Arc(x: number, y: number, r: number, sAngle: number, eAngle: number, aClockwise: bool) {
+        Arc(x: number, y: number, r: number, sAngle: number, eAngle: number, aClockwise: boolean) {
             this._Path.push({
                 type: PathEntryType.Arc,
                 x: x,
@@ -397,7 +397,7 @@ module Fayde.Shapes {
                 max: max
             };
         }
-        private static _CalculateArcRange(cx: number, cy: number, r: number, sa: number, ea: number, cc: bool): IPointRange {
+        private static _CalculateArcRange(cx: number, cy: number, r: number, sa: number, ea: number, cc: boolean): IPointRange {
             //start point
             var sx = cx + (r * Math.cos(sa));
             var sy = cy + (r * Math.sin(sa));
@@ -448,7 +448,7 @@ module Fayde.Shapes {
                 yMax: Math.max(sy, rng.yMax)
             };
         }
-        private static _CalculateArcPointsRange(cx: number, cy: number, sx: number, sy: number, ex: number, ey: number, r: number, cc: bool): IPointRange {
+        private static _CalculateArcPointsRange(cx: number, cy: number, sx: number, sy: number, ex: number, ey: number, r: number, cc: boolean): IPointRange {
             var xMin = Math.min(sx, ex);
             var xMax = Math.max(sx, ex);
             var yMin = Math.min(sy, ey);
@@ -485,7 +485,7 @@ module Fayde.Shapes {
                 yMax: yMax
             };
         }
-        private static _ArcContainsPoint(sx: number, sy: number, ex: number, ey: number, cpx: number, cpy: number, cc: bool): bool {
+        private static _ArcContainsPoint(sx: number, sy: number, ex: number, ey: number, cpx: number, cpy: number, cc: boolean): boolean {
             // var a = ex - sx;
             // var b = cpx - sx;
             // var c = ey - sy;

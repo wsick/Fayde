@@ -10,7 +10,7 @@ interface DoneCallbackObject {
 }
 
 interface LogCallbackObject {
-	result: bool;
+	result: boolean;
 	actual: Object;
 	expected: Object;
 	message: string;
@@ -40,11 +40,11 @@ interface TestStartCallbackObject {
 }
 
 interface Config {
-	altertitle: bool;
-	autostart: bool;
+	altertitle: boolean;
+	autostart: boolean;
 	current: Object;
-	reorder: bool;
-	requireExpects: bool;
+	reorder: boolean;
+	requireExpects: boolean;
 	urlConfig: Array;
 }
 

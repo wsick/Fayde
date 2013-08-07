@@ -5,7 +5,7 @@
 module Fayde.Input {
     export interface ICommand {
         Execute(parameter: any);
-        CanExecute(parameter: any): bool;
+        CanExecute(parameter: any): boolean;
         CanExecuteChanged: MulticastEvent<EventArgs>;
     }
     export var ICommand_ = Nullstone.RegisterInterface("ICommand");

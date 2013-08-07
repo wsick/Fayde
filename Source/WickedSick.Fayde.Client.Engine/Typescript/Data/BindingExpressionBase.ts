@@ -21,14 +21,14 @@ module Fayde.Data {
         private _DataContextPropertyMonitor: IDataContextMonitor;
         private _SourceAvailableMonitor: IIsAttachedMonitor;
 
-        private _IsBoundToAnyDataContext: bool;
+        private _IsBoundToAnyDataContext: boolean;
         private _TwoWayTextBox: Controls.TextBox = null;
 
         get Binding(): Data.Binding { return this._Binding; }
         get DataSource(): any { return this.PropertyPathWalker.Source; }
         //get DataContextSource(): FrameworkElement { return this._DataContextSource; }
 
-        private _Cached: bool = false;
+        private _Cached: boolean = false;
         private _CachedValue: any = undefined;
 
         constructor(binding: Data.Binding, target: DependencyObject, propd: DependencyProperty) {
@@ -128,7 +128,7 @@ module Fayde.Data {
                 this._UpdateSourceObject(value, false);
             }
         }
-        _UpdateSourceObject(value?: any, force?: bool) {
+        _UpdateSourceObject(value?: any, force?: boolean) {
             if (value === undefined)
                 value = this.Target.GetValue(this.Property);
             force = force === true;

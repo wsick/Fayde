@@ -19,7 +19,7 @@ module Fayde {
             super(xobj);
         }
         SubtreeNode: XamlNode;
-        SetSubtreeNode(subtreeNode: XamlNode, error: BError): bool {
+        SetSubtreeNode(subtreeNode: XamlNode, error: BError): boolean {
             if (this.SubtreeNode) {
                 this.SubtreeNode.Detach();
                 this.SubtreeNode = null;
@@ -30,13 +30,13 @@ module Fayde {
             return true;
         }
 
-        SetIsLoaded(value: bool) {
+        SetIsLoaded(value: boolean) {
             if (this.IsLoaded === value)
                 return;
             this.IsLoaded = value;
             this.OnIsLoadedChanged(value);
         }
-        OnIsLoadedChanged(newIsLoaded: bool) {
+        OnIsLoadedChanged(newIsLoaded: boolean) {
             var xobj = this.XObject;
             var res = xobj.Resources;
             if (!newIsLoaded) {
@@ -60,7 +60,7 @@ module Fayde {
         }
         InvokeLoaded() { }
 
-        AttachVisualChild(uie: UIElement, error: BError): bool {
+        AttachVisualChild(uie: UIElement, error: BError): boolean {
             this.OnVisualChildAttached(uie);
             if (!this.SetSubtreeNode(uie.XamlNode, error))
                 return false;
@@ -74,7 +74,7 @@ module Fayde {
             uie.XamlNode.SetIsLoaded(false);
         }
 
-        ApplyTemplateWithError(error: BError): bool {
+        ApplyTemplateWithError(error: BError): boolean {
             if (this.SubtreeNode)
                 return false;
             var result = this.DoApplyTemplateWithError(error);
@@ -82,15 +82,15 @@ module Fayde {
                 this.XObject.OnApplyTemplate();
             return result;
         }
-        DoApplyTemplateWithError(error: BError): bool { return false; }
-        FinishApplyTemplateWithError(uie: UIElement, error: BError): bool {
+        DoApplyTemplateWithError(error: BError): boolean { return false; }
+        FinishApplyTemplateWithError(uie: UIElement, error: BError): boolean {
             if (!uie || error.Message)
                 return false;
             this.AttachVisualChild(uie, error);
             return error.Message == null;
         }
         
-        _HasFocus(): bool {
+        _HasFocus(): boolean {
             var curNode = this._Surface.FocusedNode
             while (curNode) {
                 if (curNode === this)
@@ -183,7 +183,7 @@ module Fayde {
         static VerticalAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalAlignment", () => new Enum(VerticalAlignment), FrameworkElement, VerticalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
         static WidthProperty: DependencyProperty = DependencyProperty.Register("Width", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._WidthChanged(args));
         
-        IsInheritable(propd: DependencyProperty): bool {
+        IsInheritable(propd: DependencyProperty): boolean {
             if (propd === FrameworkElement.FlowDirectionProperty)
                 return true;
             if (propd === FrameworkElement.LanguageProperty)

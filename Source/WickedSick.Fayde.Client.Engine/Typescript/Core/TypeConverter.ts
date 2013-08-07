@@ -73,7 +73,7 @@ module Fayde {
         static Register(type: any, converter: (str: string) => any) {
             TypeConverter._Converters[type] = converter;
         }
-        static ConvertObject(propd: DependencyProperty, val: any, objectType: Function, doStringConversion: bool) {
+        static ConvertObject(propd: DependencyProperty, val: any, objectType: Function, doStringConversion: boolean) {
             if (val == null)
                 return val;
 

@@ -11,7 +11,7 @@ module Fayde.Controls {
         static PlacementTargetProperty: DependencyProperty = DependencyProperty.Register("PlacementTarget", () => UIElement, ToolTip);
         HorizontalOffset: Number;
         VerticalOffset: Number;
-        IsOpen: bool;
+        IsOpen: boolean;
         Placement: PlacementMode;
         PlacementTarget: UIElement;
     }

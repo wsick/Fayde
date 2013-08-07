@@ -23,9 +23,9 @@ module Fayde.Text {
 
     export class TextLayoutGlyphCluster {
         private _Text: string;
-        private _Selected: bool = false;
+        private _Selected: boolean = false;
         _Advance: number = 0;
-        constructor(text: string, font: Font, selected?: bool) {
+        constructor(text: string, font: Font, selected?: boolean) {
             this._Text = text;
             this._Selected = selected == true;
             this._Advance = Surface.MeasureWidth(text, font);
@@ -287,7 +287,7 @@ module Fayde.Text {
         }
         return availWidth;
     }
-    function validateAttributes(attributes: ITextAttributes[]): bool {
+    function validateAttributes(attributes: ITextAttributes[]): boolean {
         var len = attributes.length;
         var attr: ITextAttributes = attributes[0];
         if (!attr || attr.Start !== 0)
@@ -332,7 +332,7 @@ module Fayde.Text {
         }
         return false;
     }
-    function layoutWordNoWrap(word: ILayoutWord, text: string, maxWidth: number): bool {
+    function layoutWordNoWrap(word: ILayoutWord, text: string, maxWidth: number): boolean {
         var advance = Surface.MeasureWidth(text, word.Font);
         word.Advance = advance;
         word.LineAdvance += advance;
@@ -361,7 +361,7 @@ module Fayde.Text {
         private _ActualWidth: number = NaN;
         private _LineHeight: number = NaN;
         private _Lines: TextLayoutLine[] = [];
-        private _IsWrapped: bool = true;
+        private _IsWrapped: boolean = true;
         private _Length: number = 0;
 
 
@@ -397,7 +397,7 @@ module Fayde.Text {
             this._Alignment = align;
             this.ResetState();
         }
-        SetTextAlignment(align: TextAlignment): bool {
+        SetTextAlignment(align: TextAlignment): boolean {
             if (this._Alignment === align)
                 return false;
             this._Alignment = align;
@@ -407,7 +407,7 @@ module Fayde.Text {
 
         get TextTrimming(): Controls.TextTrimming { return this._Trimming; }
         set TextTrimming(value: Controls.TextTrimming) { this.SetTextTrimming(value); }
-        SetTextTrimming(value: Controls.TextTrimming): bool {
+        SetTextTrimming(value: Controls.TextTrimming): boolean {
             if (this._Trimming === value)
                 return false;
             this._Trimming = value;
@@ -419,7 +419,7 @@ module Fayde.Text {
         set TextWrapping(wrapping: Controls.TextWrapping) {
             this.SetTextWrapping(wrapping);
         }
-        SetTextWrapping(wrapping: Controls.TextWrapping): bool {
+        SetTextWrapping(wrapping: Controls.TextWrapping): boolean {
             switch (wrapping) {
                 case Fayde.Controls.TextWrapping.NoWrap:
                 case Fayde.Controls.TextWrapping.Wrap:
@@ -438,7 +438,7 @@ module Fayde.Text {
 
         get LineStackingStrategy(): LineStackingStrategy { return this._Strategy; }
         set LineStackingStategy(value) { this.SetLineStackingStategy(value); }
-        SetLineStackingStategy(strategy: LineStackingStrategy): bool {
+        SetLineStackingStategy(strategy: LineStackingStrategy): boolean {
             if (this._Strategy === strategy)
                 return false;
             this._Strategy = strategy;
@@ -448,7 +448,7 @@ module Fayde.Text {
 
         get LineHeight(): number { return this._LineHeight; }
         set LineHeight(value: number) { this.SetLineHeight(value); }
-        SetLineHeight(value: number): bool {
+        SetLineHeight(value: number): boolean {
             if (this._LineHeight === value)
                 return false;
             this._LineHeight = value;
@@ -636,7 +636,7 @@ module Fayde.Text {
                 word.BreakOps = [];
             else
                 word.BreakOps = null;
-            var layoutWordFunc: (word: ILayoutWord, text: string, maxWidth: number) => bool;
+            var layoutWordFunc: (word: ILayoutWord, text: string, maxWidth: number) => boolean;
             layoutWordFunc = this._Wrapping === Controls.TextWrapping.NoWrap ? layoutWordNoWrap : layoutWordWrap;
 
             var line = new TextLayoutLine(this, 0, 0);
@@ -841,7 +841,7 @@ module Fayde.Text {
         }
 
 
-        private _OverrideLineHeight(): bool {
+        private _OverrideLineHeight(): boolean {
             return this._Strategy === LineStackingStrategy.BlockLineHeight && this._LineHeight !== 0;
         }
         private _GetLineHeightOverride(): number {

@@ -13,7 +13,7 @@ module Fayde.Media.Animation {
     export interface IClockData {
         CurrentTime: TimeSpan;
         Progress: number;
-        Completed: bool;
+        Completed: boolean;
     }
 
     export class Timeline extends DependencyObject implements ITimeline {
@@ -24,7 +24,7 @@ module Fayde.Media.Animation {
         static RepeatBehaviorProperty: DependencyProperty = DependencyProperty.Register("RepeatBehavior", () => RepeatBehavior, Timeline);
         static SpeedRatioProperty: DependencyProperty = DependencyProperty.Register("SpeedRatio", () => Number, Timeline, 1.0);
         static FillBehaviorProperty: DependencyProperty = DependencyProperty.Register("FillBehavior", () => new Enum(FillBehavior), Timeline, FillBehavior.HoldEnd);
-        AutoReverse: bool;
+        AutoReverse: boolean;
         BeginTime: TimeSpan;
         Duration: Duration; //Treat undefined as Automatic
         RepeatBehavior: RepeatBehavior; //Treat undefined as IterationCount -> 1
@@ -33,17 +33,17 @@ module Fayde.Media.Animation {
 
         Completed: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
 
-        private _IsPaused: bool = false;
+        private _IsPaused: boolean = false;
         private _BeginPauseTime: number = 0;
         private _TicksPaused: number = 0;
-        private _IsFirstUpdate: bool = true;
-        private _HasBegun: bool = false;
+        private _IsFirstUpdate: boolean = true;
+        private _HasBegun: boolean = false;
         private _BeginTicks: number = undefined;
         private _InitialStep: number = undefined;
-        private _HasCompleted: bool = false;
+        private _HasCompleted: boolean = false;
 
         ManualTarget: DependencyObject = undefined;
-        get HasManualTarget(): bool { return this.ManualTarget !== undefined; }
+        get HasManualTarget(): boolean { return this.ManualTarget !== undefined; }
 
         Reset() {
             this._TicksPaused = 0;
@@ -156,7 +156,7 @@ module Fayde.Media.Animation {
                 Completed: completed
             };
         }
-        private IsAfterBeginTime(nowTime: number): bool {
+        private IsAfterBeginTime(nowTime: number): boolean {
             var beginTime = this.BeginTime;
             if (beginTime == null)
                 return true;

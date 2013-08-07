@@ -15,7 +15,7 @@ module Fayde.Controls.Primitives {
         Orientation: Orientation;
         ViewportSize: number;
 
-        get IsDragging(): bool {
+        get IsDragging(): boolean {
             if (this.$HorizontalThumb)
                 return this.$HorizontalThumb.IsDragging;
             if (this.$VerticalThumb)

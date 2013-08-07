@@ -46,7 +46,7 @@ module Fayde.Shapes {
         }
 
         _ComputeStretchBounds(): rect { return this._ComputeShapeBounds(false); }
-        _ComputeShapeBounds(logical: bool): rect {
+        _ComputeShapeBounds(logical: boolean): rect {
             var irect = new rect();
             irect.Width = this.ActualWidth;
             irect.Height = this.ActualHeight;
@@ -94,7 +94,7 @@ module Fayde.Shapes {
 
             return irect;
         }
-        _ComputeShapeBoundsImpl(logical: bool, matrix?: any): rect {
+        _ComputeShapeBoundsImpl(logical: boolean, matrix?: any): rect {
             var r = new rect();
             if (logical) {
                 r.Width = 1.0;

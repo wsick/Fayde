@@ -8,10 +8,10 @@ module Fayde.Controls.Primitives {
         private _Owner: Selector;
         private _SelectedItems: any[] = [];
         private _SelectedItem: any = null;
-        private _IsUpdating: bool = false;
+        private _IsUpdating: boolean = false;
         Mode: SelectionMode = SelectionMode.Single;
 
-        get IsUpdating(): bool { return this._IsUpdating; }
+        get IsUpdating(): boolean { return this._IsUpdating; }
 
         constructor(owner: Selector) {
             this._Owner = owner;
@@ -80,7 +80,7 @@ module Fayde.Controls.Primitives {
                 }
             }
         }
-        ClearSelection(ignoreSelectedValue?: bool) {
+        ClearSelection(ignoreSelectedValue?: boolean) {
             if (ignoreSelectedValue === undefined) ignoreSelectedValue = false;
             if (this._SelectedItems.length === 0) {
                 this.UpdateSelectorProperties(null, -1, ignoreSelectedValue ? this._Owner.SelectedValue : null);
@@ -101,7 +101,7 @@ module Fayde.Controls.Primitives {
                 this._IsUpdating = false;
             }
         }
-        Select(item: any, ignoreSelectedValue?: bool) {
+        Select(item: any, ignoreSelectedValue?: boolean) {
             if (ignoreSelectedValue === undefined) ignoreSelectedValue = false;
 
             var ownerItems = this._Owner.Items;

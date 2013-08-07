@@ -4,10 +4,10 @@
 
 module Fayde {
     export class NameScope {
-        IsRoot: bool = false;
+        IsRoot: boolean = false;
         private XNodes = {};
 
-        constructor(isRoot?: bool) {
+        constructor(isRoot?: boolean) {
             if (isRoot)
                 this.IsRoot = isRoot;
         }

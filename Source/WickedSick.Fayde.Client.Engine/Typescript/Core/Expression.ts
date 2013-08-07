@@ -4,8 +4,8 @@
 
 module Fayde {
     export class Expression {
-        IsUpdating: bool;
-        IsAttached: bool;
+        IsUpdating: boolean;
+        IsAttached: boolean;
         GetValue(propd: DependencyProperty): any { }
         OnAttached(dobj: DependencyObject) {
             this.IsAttached = true;

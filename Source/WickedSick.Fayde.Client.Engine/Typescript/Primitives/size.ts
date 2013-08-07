@@ -56,7 +56,7 @@ class size implements ICloneable, ISize {
         dest.Width = 0;
         dest.Height = 0;
     }
-    static isEqual(size1: size, size2: size): bool {
+    static isEqual(size1: size, size2: size): boolean {
         return size1.Width === size2.Width
             && size1.Height === size2.Height;
     }

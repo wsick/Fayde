@@ -68,9 +68,9 @@ module Fayde.Controls {
     }
 
     interface IGridStates {
-        HasAutoAuto: bool;
-        HasStarAuto: bool;
-        HasAutoStar: bool;
+        HasAutoAuto: boolean;
+        HasStarAuto: boolean;
+        HasAutoStar: boolean;
     }
 
     interface IGridChildPlacement {
@@ -89,9 +89,9 @@ module Fayde.Controls {
     }
     
     function walkGrid(grid: Grid, rowMatrix: ISegment[][], colMatrix: ISegment[][]): IGridStates {
-        var haa: bool = false;
-        var hsa: bool = false;
-        var has: bool = false;
+        var haa: boolean = false;
+        var hsa: boolean = false;
+        var has: boolean = false;
 
         var starCol = false;
         var starRow = false;
@@ -172,7 +172,7 @@ module Fayde.Controls {
         static SetRowSpan(d: DependencyObject, value: number) { d.SetValue(Grid.RowSpanProperty, value); }
 
         static ShowGridLinesProperty: DependencyProperty = DependencyProperty.Register("ShowGridLines", () => Boolean, Grid, false, (d, args) => (<Grid>d)._ShowGridLinesChanged(args));
-        ShowGridLines: bool;
+        ShowGridLines: boolean;
         ColumnDefinitions: ColumnDefinitionCollection;
         RowDefinitions: RowDefinitionCollection;
 
@@ -644,9 +644,9 @@ module Fayde.Controls {
                 matrix[c][c].OfferedSize = matrix[c][c].DesiredSize;
             }
         }
-        private _AssignSize(matrix: ISegment[][], start: number, end: number, size: number, unitType: GridUnitType, desiredSize: bool): number {
+        private _AssignSize(matrix: ISegment[][], start: number, end: number, size: number, unitType: GridUnitType, desiredSize: boolean): number {
             var count: number = 0;
-            var assigned: bool = false;
+            var assigned: boolean = false;
             var segmentSize: number = 0;
             var i: number = 0;
             var cur: ISegment = null;

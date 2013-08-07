@@ -16,7 +16,7 @@ module Fayde.Media.Animation {
             });
         }
 
-        Resolve(target: DependencyObject, propd: DependencyProperty): bool {
+        Resolve(target: DependencyObject, propd: DependencyProperty): boolean {
             var keyFrames = this.KeyFrames;
 
             var sortedList = KeyFrameCollection.ResolveKeyFrames(this, keyFrames);
@@ -32,7 +32,7 @@ module Fayde.Media.Animation {
         GetCurrentValue(defaultOriginValue: any, defaultDestinationValue: any, clockData: IClockData): any {
             var keyFrames = this.KeyFrames;
 
-            var prevFrameRef = { Value: null };
+            var prevFrameRef = { Value: <IKeyFrame>null };
             var currentKeyFrame: IKeyFrame = keyFrames.GetKeyFrameForTime(clockData.CurrentTime, prevFrameRef);
             var prevFrame: IKeyFrame = prevFrameRef.Value;
             if (!currentKeyFrame)

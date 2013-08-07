@@ -12,13 +12,13 @@ class CornerRadius implements ICloneable {
         this.BottomRight = bottomRight == null ? 0 : bottomRight;
         this.BottomLeft = bottomLeft == null ? 0 : bottomLeft;
     }
-    IsZero(): bool {
+    IsZero(): boolean {
         return this.TopLeft === 0
             && this.TopRight === 0
             && this.BottomRight === 0
             && this.BottomLeft === 0;
     }
-    Equals(other: CornerRadius): bool {
+    Equals(other: CornerRadius): boolean {
         return this.TopLeft === other.TopLeft
             && this.TopRight === other.TopRight
             && this.BottomRight === other.BottomRight

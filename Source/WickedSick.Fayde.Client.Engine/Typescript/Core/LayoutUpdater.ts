@@ -41,7 +41,7 @@ module Fayde {
         ArrangeList: LayoutUpdater[];
         SizeList: LayoutUpdater[];
         Count: number;
-        Updated: bool;
+        Updated: boolean;
     }
 
     export interface IMeasurable {
@@ -66,10 +66,10 @@ module Fayde {
         ComputeBounds(baseComputer: () => void , lu: LayoutUpdater);
     }
     export interface IPostComputeTransformable {
-        PostCompute(lu: LayoutUpdater, hasLocalProjection: bool);
+        PostCompute(lu: LayoutUpdater, hasLocalProjection: boolean);
     }
     export interface IPostInsideObject {
-        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool;
+        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): boolean;
     }
 
     interface ISizeChangedData {
@@ -108,9 +108,9 @@ module Fayde {
         CarrierProjection: number[] = null;
 
         TotalOpacity: number = 1.0;
-        TotalIsRenderVisible: bool = true;
-        TotalIsHitTestVisible: bool = true;
-        TotalRenderProjection: bool = false;
+        TotalIsRenderVisible: boolean = true;
+        TotalIsHitTestVisible: boolean = true;
+        TotalRenderProjection: boolean = false;
 
         Extents: rect = new rect();
         ExtentsWithChildren: rect = new rect();
@@ -123,25 +123,25 @@ module Fayde {
         EffectPadding: Thickness = new Thickness();
         ClipBounds: rect = new rect();
 
-        IsContainer: bool = false;
-        IsLayoutContainer: bool = false;
-        BreaksLayoutClipRender: bool = false;
+        IsContainer: boolean = false;
+        IsLayoutContainer: boolean = false;
+        BreaksLayoutClipRender: boolean = false;
 
-        CanHitElement: bool = false;
-        ShouldSkipHitTest: bool = false;
-        IsNeverInsideObject: bool = false;
+        CanHitElement: boolean = false;
+        ShouldSkipHitTest: boolean = false;
+        IsNeverInsideObject: boolean = false;
 
         Flags: Fayde.UIElementFlags = Fayde.UIElementFlags.RenderVisible | Fayde.UIElementFlags.HitTestVisible;
 
         DirtyFlags: _Dirty = 0;
-        InUpDirty: bool = false;
-        InDownDirty: bool = false;
+        InUpDirty: boolean = false;
+        InDownDirty: boolean = false;
         DirtyRegion: rect = new rect();
-        private _ForceInvalidateOfNewBounds: bool = false;
+        private _ForceInvalidateOfNewBounds: boolean = false;
 
         constructor(public Node: UINode) { }
 
-        OnIsAttachedChanged(newIsAttached: bool, visualParentNode: UINode) {
+        OnIsAttachedChanged(newIsAttached: boolean, visualParentNode: UINode) {
             this.UpdateTotalRenderVisibility();
             this.UpdateTotalHitTestVisibility();
             if (!newIsAttached) {
@@ -170,7 +170,7 @@ module Fayde {
             this.LayoutClip = undefined;
         }
 
-        SetContainerMode(isLayoutContainer: bool, isContainer?: bool) {
+        SetContainerMode(isLayoutContainer: boolean, isContainer?: boolean) {
             if (isLayoutContainer != null)
                 this.IsLayoutContainer = isLayoutContainer;
             if (isContainer != null)
@@ -179,7 +179,7 @@ module Fayde {
                 this.IsContainer = isLayoutContainer;
         }
 
-        HasMeasureArrangeHint(): bool {
+        HasMeasureArrangeHint(): boolean {
             return (this.Flags & (UIElementFlags.DirtyMeasureHint | UIElementFlags.DirtyArrangeHint)) > 0;
         }
         ProcessDown() {
@@ -269,7 +269,7 @@ module Fayde {
 
             return !(this.DirtyFlags & downDirtyFlag);
         }
-        ProcessUp(): bool {
+        ProcessUp(): boolean {
             var thisNode = this.Node;
             var visualParentNode = thisNode.VisualParentNode;
             var visualParentLu: Fayde.LayoutUpdater;
@@ -343,7 +343,7 @@ module Fayde {
             }
         }
 
-        FullInvalidate(invTransforms?: bool) {
+        FullInvalidate(invTransforms?: boolean) {
             this.Invalidate();
             if (invTransforms) {
                 this.UpdateTransform();
@@ -622,7 +622,7 @@ module Fayde {
                 this.Surface._AddDirtyElement(this, _Dirty.HitTestVisibility);
         }
         
-        UpdateBounds(forceRedraw?: bool) {
+        UpdateBounds(forceRedraw?: boolean) {
             if (this.Node.IsAttached)
                 this.Surface._AddDirtyElement(this, _Dirty.Bounds);
             this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
@@ -756,7 +756,7 @@ module Fayde {
             return s;
         }
 
-        private _HasFlag(flag: Fayde.UIElementFlags): bool { return (this.Flags & flag) === flag; }
+        private _HasFlag(flag: Fayde.UIElementFlags): boolean { return (this.Flags & flag) === flag; }
         private _ClearFlag(flag: Fayde.UIElementFlags) { this.Flags &= ~flag; }
         private _SetFlag(flag: Fayde.UIElementFlags) { this.Flags |= flag; }
         private _PropagateFlagUp(flag: Fayde.UIElementFlags) {
@@ -1248,7 +1248,7 @@ module Fayde {
             this._FindElementsInHostCoordinates(this.Surface.TestRenderContext, p, uinlist, false);
             return uinlist;
         }
-        private _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[], applyXform: bool) {
+        private _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[], applyXform: boolean) {
             if (this.ShouldSkipHitTest)
                 return;
             if (!this.TotalIsRenderVisible)
@@ -1321,7 +1321,7 @@ module Fayde {
 
             ctx.Restore();
         }
-        private _InsideObject(ctx: RenderContext, x: number, y: number): bool {
+        private _InsideObject(ctx: RenderContext, x: number, y: number): boolean {
             if (this.IsNeverInsideObject)
                 return false;
 
@@ -1340,7 +1340,7 @@ module Fayde {
                 return (<IPostInsideObject><any>this.Node).PostInsideObject(ctx, this, x, y);
             return true;
         }
-        private _InsideClip(ctx: RenderContext, x: number, y: number): bool {
+        private _InsideClip(ctx: RenderContext, x: number, y: number): boolean {
             var clip = this.Node.XObject.Clip;
             if (!clip)
                 return true;
@@ -1352,7 +1352,7 @@ module Fayde {
 
             return ctx.IsPointInClipPath(clip, x, y);
         }
-        private _InsideLayoutClip(ctx: RenderContext, x: number, y: number): bool {
+        private _InsideLayoutClip(ctx: RenderContext, x: number, y: number): boolean {
             var layoutClip = this.LayoutClip;
             if (!layoutClip)
                 return true;

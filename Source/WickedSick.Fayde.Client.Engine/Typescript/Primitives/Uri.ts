@@ -18,7 +18,7 @@ class Uri implements ICloneable {
         return new Uri(this._OriginalString);
     }
 
-    static IsNullOrEmpty(uri: Uri): bool {
+    static IsNullOrEmpty(uri: Uri): boolean {
         if (uri == null)
             return true;
         if (uri._OriginalString)

@@ -43,7 +43,7 @@ module Fayde.Controls {
             if (listener) listener.RowDefinitionsChanged(this);
         }
 
-        AddingToCollection(value: RowDefinition, error: BError): bool {
+        AddingToCollection(value: RowDefinition, error: BError): boolean {
             if (!super.AddingToCollection(value, error))
                 return false;
             value.Listen(this);
@@ -51,7 +51,7 @@ module Fayde.Controls {
             if (listener) listener.RowDefinitionsChanged(this);
             return true;
         }
-        RemovedFromCollection(value: RowDefinition, isValueSafe: bool) {
+        RemovedFromCollection(value: RowDefinition, isValueSafe: boolean) {
             super.RemovedFromCollection(value, isValueSafe);
             value.Unlisten(this);
             var listener = this._Listener;

@@ -121,7 +121,7 @@ module Fayde.Controls {
             this.LayoutUpdater.CanHitElement = true;
         }
 
-        PostInsideObject(ctx: RenderContext, lu:LayoutUpdater, x: number, y: number): bool {
+        PostInsideObject(ctx: RenderContext, lu:LayoutUpdater, x: number, y: number): boolean {
             var img = this.XObject;
             var source = img.Source;
             if (!source)

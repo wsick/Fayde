@@ -3,8 +3,8 @@
 
 module Fayde.Controls.Primitives {
     export class ScrollData {
-        CanHorizontallyScroll: bool = false;
-        CanVerticallyScroll: bool = false;
+        CanHorizontallyScroll: boolean = false;
+        CanVerticallyScroll: boolean = false;
         ScrollOwner: ScrollViewer = null;
         OffsetX: number = 0;
         OffsetY: number = 0;

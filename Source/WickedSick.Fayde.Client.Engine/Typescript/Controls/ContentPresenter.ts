@@ -16,7 +16,7 @@ module Fayde.Controls {
             super(xobj);
         }
 
-        DoApplyTemplateWithError(error: BError): bool {
+        DoApplyTemplateWithError(error: BError): boolean {
             if (this._ContentRoot)
                 return false;
                 
@@ -89,11 +89,11 @@ module Fayde.Controls {
     Nullstone.RegisterType(ContentPresenterNode, "ContentPresenterNode");
 
     export class ContentPresenter extends FrameworkElement {
-        XamlNode: ContentPresenterNode;
+        //XamlNode: ContentPresenterNode;
         CreateNode(): ContentPresenterNode { return new ContentPresenterNode(this); }
 
-        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d).XamlNode._ContentChanged(args));
-        static ContentTemplateProperty: DependencyProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentPresenter, undefined, (d, args) => (<ContentPresenter>d).XamlNode._ContentTemplateChanged());
+        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentPresenter, undefined, (d, args) => (<ContentPresenterNode>(<ContentPresenter>d).XamlNode)._ContentChanged(args));
+        static ContentTemplateProperty: DependencyProperty = DependencyProperty.Register("ContentTemplate", () => DataTemplate, ContentPresenter, undefined, (d, args) => (<ContentPresenterNode>(<ContentPresenter>d).XamlNode)._ContentTemplateChanged());
         Content: any;
         ContentTemplate: DataTemplate;
 

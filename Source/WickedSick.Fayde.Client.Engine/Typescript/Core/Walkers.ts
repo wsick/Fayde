@@ -15,7 +15,7 @@ module Fayde {
         SkipBranch();
     }
     export interface ITabNavigationWalker {
-        FocusChild(): bool;
+        FocusChild(): boolean;
     }
 
     function setterSort(setter1: Setter, setter2: Setter) {
@@ -146,24 +146,24 @@ module Fayde {
         }
         return Input.KeyboardNavigationMode.Local;
     }
-    function walkChildren(root: UINode, cur?: UINode, forwards?: bool) {
+    function walkChildren(root: UINode, cur?: UINode, forwards?: boolean) {
         var walker = new TabNavigationWalker(root, cur, forwards);
         return walker.FocusChild();
     }
     export class TabNavigationWalker implements ITabNavigationWalker {
         private _Root: UINode;
         private _Current: UINode;
-        private _Forwards: bool;
+        private _Forwards: boolean;
         private _TabSorted: UINode[];
 
-        constructor(root: UINode, cur: UINode, forwards: bool) {
+        constructor(root: UINode, cur: UINode, forwards: boolean) {
             this._Root = root;
             this._Current = cur;
             this._Forwards = forwards;
             this._TabSorted = [];
         }
         
-        FocusChild(): bool {
+        FocusChild(): boolean {
             var childNode: UINode;
             var childIsControl;
             var curIndex = -1;
@@ -224,7 +224,7 @@ module Fayde {
             return false;
         }
 
-        static Focus(uin: UINode, forwards?: bool): bool {
+        static Focus(uin: UINode, forwards?: boolean): boolean {
             var focused = false;
             var cur = uin;
             var root = uin;

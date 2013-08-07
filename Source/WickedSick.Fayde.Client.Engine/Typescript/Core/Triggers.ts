@@ -25,7 +25,7 @@ module Fayde {
         Actions: TriggerActionCollection;
         RoutedEvent: string;
         
-        private _IsAttached: bool = false;
+        private _IsAttached: boolean = false;
         
         static Annotations = { ContentProperty: EventTrigger.ActionsProperty }
 
@@ -83,14 +83,14 @@ module Fayde {
             return parentNode.XObject;
         }
 
-        AddingToCollection(value: TriggerBase, error: BError): bool {
+        AddingToCollection(value: TriggerBase, error: BError): boolean {
             if (!super.AddingToCollection(value, error))
                 return false;
             var parent = this.ParentXamlObject;
             if (parent) value.Attach(parent);
             return true;
         }
-        RemovedFromCollection(value: TriggerBase, isValueSafe: bool) {
+        RemovedFromCollection(value: TriggerBase, isValueSafe: boolean) {
             super.RemovedFromCollection(value, isValueSafe);
             var parent = this.ParentXamlObject;
             if (parent) value.Detach(parent);

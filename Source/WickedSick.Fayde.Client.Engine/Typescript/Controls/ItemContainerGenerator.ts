@@ -10,7 +10,7 @@ module Fayde.Controls {
         Offset: number;
     }
     export interface IGenerationState {
-        AllowStartAtRealizedItem: bool;
+        AllowStartAtRealizedItem: boolean;
         Position: IGeneratorPosition;
         Step: number;
         Dispose: () => void;
@@ -21,7 +21,7 @@ module Fayde.Controls {
         PrepareItemContainer(container: DependencyObject);
         Remove(position: IGeneratorPosition, count: number);
         RemoveAll();
-        StartAt(position: IGeneratorPosition, forward: bool, allowStartAtRealizedItem: bool): IGenerationState;
+        StartAt(position: IGeneratorPosition, forward: boolean, allowStartAtRealizedItem: boolean): IGenerationState;
     }
     export interface IRecyclingItemContainerGenerator {
         Recycle(position: IGeneratorPosition, count: number);
@@ -116,7 +116,7 @@ module Fayde.Controls {
             }
             this._RealizedCount = 0;
         }
-        StartAt(position: IGeneratorPosition, forward: bool, allowStartAtRealizedItem: bool): IGenerationState {
+        StartAt(position: IGeneratorPosition, forward: boolean, allowStartAtRealizedItem: boolean): IGenerationState {
             if (this._GenerationState)
                 throw new InvalidOperationException("Cannot call StartAt while a generation operation is in progress");
 
@@ -247,7 +247,7 @@ module Fayde.Controls {
             }
             return count;
         }
-        private _KillContainers(position: IGeneratorPosition, count: number, recycle: bool) {
+        private _KillContainers(position: IGeneratorPosition, count: number, recycle: boolean) {
             if (position.Offset !== 0)
                 throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
             var index = this.IndexFromGeneratorPosition(position);

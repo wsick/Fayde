@@ -89,7 +89,7 @@ class TimeSpan {
             return 0;
         return (this._Ticks > ts2._Ticks) ? 1 : -1;
     }
-    IsZero(): bool {
+    IsZero(): boolean {
         return this._Ticks === 0;
     }
 

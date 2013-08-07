@@ -6,7 +6,7 @@ module Fayde.Data {
     export interface ICollectionView extends IEnumerable<any> {
         CurrentChanged: MulticastEvent<EventArgs>;
         CurrentItem: any;
-        MoveCurrentTo(item: any): bool;
+        MoveCurrentTo(item: any): boolean;
     }
     export var ICollectionView_ = Nullstone.RegisterInterface("ICollectionView");
 }

@@ -9,20 +9,20 @@ module Fayde.Data {
     }
 
     export class Binding extends BindingBase {
-        private _BindsDirectlyToSource: bool = false;
+        private _BindsDirectlyToSource: boolean = false;
         private _Converter: IValueConverter;
         private _ConverterParameter: any;
         private _ConverterCulture: any;
         private _ElementName: string;
         private _Mode: BindingMode = BindingMode.OneWay;
-        private _NotifyOnValidationError: bool = false;
+        private _NotifyOnValidationError: boolean = false;
         private _RelativeSource: RelativeSource;
         private _Path: Data.PropertyPath;
         private _Source: any;
         private _UpdateSourceTrigger: UpdateSourceTrigger = UpdateSourceTrigger.Default;
-        private _ValidatesOnExceptions: bool = false;
-        private _ValidatesOnDataErrors: bool = false;
-        private _ValidatesOnNotifyDataErrors: bool = true;
+        private _ValidatesOnExceptions: boolean = false;
+        private _ValidatesOnDataErrors: boolean = false;
+        private _ValidatesOnNotifyDataErrors: boolean = true;
 
         constructor(path: string) {
             super();
@@ -30,8 +30,8 @@ module Fayde.Data {
             this._Path = new PropertyPath(path);
         }
 
-        get BindsDirectlyToSource(): bool { return this._BindsDirectlyToSource; }
-        set BindsDirectlyToSource(value: bool) {
+        get BindsDirectlyToSource(): boolean { return this._BindsDirectlyToSource; }
+        set BindsDirectlyToSource(value: boolean) {
             this.CheckSealed();
             this._BindsDirectlyToSource = value;
         }
@@ -66,8 +66,8 @@ module Fayde.Data {
             this._Mode = value;
         }
         
-        get NotifyOnValidationError(): bool { return this._NotifyOnValidationError; }
-        set NotifyOnValidationError(value: bool) {
+        get NotifyOnValidationError(): boolean { return this._NotifyOnValidationError; }
+        set NotifyOnValidationError(value: boolean) {
             this.CheckSealed();
             this._NotifyOnValidationError = value;
         }
@@ -96,20 +96,20 @@ module Fayde.Data {
             this._UpdateSourceTrigger = value;
         }
         
-        get ValidatesOnExceptions(): bool { return this._ValidatesOnExceptions; }
-        set ValidatesOnExceptions(value: bool) {
+        get ValidatesOnExceptions(): boolean { return this._ValidatesOnExceptions; }
+        set ValidatesOnExceptions(value: boolean) {
             this.CheckSealed();
             this._ValidatesOnExceptions = value;
         }
         
-        get ValidatesOnDataErrors(): bool { return this._ValidatesOnDataErrors; }
-        set ValidatesOnDataErrors(value: bool) {
+        get ValidatesOnDataErrors(): boolean { return this._ValidatesOnDataErrors; }
+        set ValidatesOnDataErrors(value: boolean) {
             this.CheckSealed();
             this._ValidatesOnDataErrors = value;
         }
         
-        get ValidatesOnNotifyDataErrors(): bool { return this._ValidatesOnNotifyDataErrors; }
-        set ValidatesOnNotifyDataErrors(value: bool) {
+        get ValidatesOnNotifyDataErrors(): boolean { return this._ValidatesOnNotifyDataErrors; }
+        set ValidatesOnNotifyDataErrors(value: boolean) {
             this.CheckSealed();
             this._ValidatesOnNotifyDataErrors = value;
         }

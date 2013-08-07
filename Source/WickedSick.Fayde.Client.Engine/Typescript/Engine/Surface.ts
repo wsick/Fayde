@@ -54,13 +54,13 @@ class Surface {
     private _FocusedNode: Fayde.UINode = null;
     get FocusedNode(): Fayde.UINode { return this._FocusedNode; }
     private _FocusChangedEvents: IFocusChangedEvents[] = [];
-    private _FirstUserInitiatedEvent: bool = false;
-    private _UserInitiatedEvent: bool = false;
+    private _FirstUserInitiatedEvent: boolean = false;
+    private _UserInitiatedEvent: boolean = false;
     private _Captured: Fayde.UINode = null;
     private _PendingCapture: Fayde.UINode = null;
-    private _PendingReleaseCapture: bool = false;
+    private _PendingReleaseCapture: boolean = false;
     private _CurrentPos: Point = null;
-    private _EmittingMouseEvent: bool = false;
+    private _EmittingMouseEvent: boolean = false;
     private _Cursor: string = Fayde.CursorType.Default;
     private _InvalidatedRect: rect;
     private _RenderContext: Fayde.RenderContext;
@@ -205,7 +205,7 @@ class Surface {
     }
 
     // UPDATE
-    ProcessDirtyElements(): bool {
+    ProcessDirtyElements(): boolean {
         var error = new BError();
         var dirty = this._UpdateLayout(error);
         if (error.Message)
@@ -217,7 +217,7 @@ class Surface {
             this._App.DebugInterop.LayoutUpdated();
         return true;
     }
-    _UpdateLayout(error: BError): bool {
+    _UpdateLayout(error: BError): boolean {
         TimelineProfile.LayoutPass(true);
         //var startTime;
         var maxPassCount = 250;
@@ -523,7 +523,7 @@ class Surface {
         this._HandleMouseEvent(InputType.MouseWheel, null, this._GetMousePosition(evt), delta);
         this._UpdateCursorFromInputList();
     }
-    private _HandleMouseEvent(type: InputType, button: number, pos: Point, delta?: number, emitLeave?: bool, emitEnter?: bool) {
+    private _HandleMouseEvent(type: InputType, button: number, pos: Point, delta?: number, emitLeave?: boolean, emitEnter?: boolean) {
         //var app = this._App;
         //app._NotifyDebugCoordinates(pos);
         this._CurrentPos = pos;
@@ -655,14 +655,14 @@ class Surface {
         //force "MouseEnter" on any new elements
         this._HandleMouseEvent(InputType.NoOp, null, this._CurrentPos, undefined, false, true);
     }
-    private _SetUserInitiatedEvent(val: bool) {
+    private _SetUserInitiatedEvent(val: boolean) {
         this._EmitFocusChangeEvents();
         this._FirstUserInitiatedEvent = this._FirstUserInitiatedEvent || val;
         this._UserInitiatedEvent = val;
     }
 
     // FOCUS
-    Focus(ctrlNode: Fayde.Controls.ControlNode, recurse?: bool): bool {
+    Focus(ctrlNode: Fayde.Controls.ControlNode, recurse?: boolean): boolean {
         recurse = recurse === undefined || recurse === true;
         if (!ctrlNode.IsAttached)
             return false;
@@ -772,10 +772,10 @@ class Surface {
         }
         return list;
     }
-    private static IsLeftButton(button: number): bool {
+    private static IsLeftButton(button: number): boolean {
         return button === 1;
     }
-    private static IsRightButton(button: number): bool {
+    private static IsRightButton(button: number): boolean {
         return button === 2;
     }
 

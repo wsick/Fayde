@@ -11,21 +11,21 @@ module Fayde.Media.Animation {
     }
     export interface IKeyFrame {
         _ResolvedKeyTime: TimeSpan;
-        _Resolved: bool;
+        _Resolved: boolean;
         Value: any;
         InterpolateValue(baseValue: any, keyFrameProgress: number): any;
     }
 
     export class KeyFrame extends DependencyObject implements IKeyFrame {
         _ResolvedKeyTime: TimeSpan = null;
-        _Resolved: bool = false;
+        _Resolved: boolean = false;
         private _Listener: IKeyFrameListener;
 
         static KeyTimeProperty: DependencyProperty = DependencyProperty.Register("KeyTime", () => KeyTime, KeyFrame, undefined, (d, args) => (<KeyFrame>d).InvalidateKeyFrame());
         KeyTime: KeyTime;
         Value: any;
 
-        CoerceKeyTime(dobj: DependencyObject, propd: DependencyProperty, value: any, coerced: IOutValue, error: BError): bool {
+        CoerceKeyTime(dobj: DependencyObject, propd: DependencyProperty, value: any, coerced: IOutValue, error: BError): boolean {
             if (!value)
                 coerced.Value = this.KeyTime;
             else
@@ -146,7 +146,7 @@ module Fayde.Media.Animation {
     Nullstone.RegisterType(KeyFrame, "KeyFrame");
 
     export class KeyFrameCollection extends XamlObjectCollection<KeyFrame> {
-        private _Resolved: bool = false;
+        private _Resolved: boolean = false;
         private _SortedList: KeyFrame[] = [];
 
         GetKeyFrameForTime(t: TimeSpan, prevFrameRef: IOutValue): KeyFrame {
@@ -193,20 +193,20 @@ module Fayde.Media.Animation {
             prevFrameRef.Value = previousKeyFrame;
             return currentKeyFrame;
         }
-        Clear(): bool {
+        Clear(): boolean {
             this._Resolved = false;
             this._SortedList = [];
             return super.Clear();
         }
 
-        AddingToCollection(value: KeyFrame, error: BError): bool {
+        AddingToCollection(value: KeyFrame, error: BError): boolean {
             if (!super.AddingToCollection(value, error))
                 return false;
             this._Resolved = false;
             value.Listen(this);
             return true;
         }
-        RemovedFromCollection(value: KeyFrame, isValueSafe: bool) {
+        RemovedFromCollection(value: KeyFrame, isValueSafe: boolean) {
             super.RemovedFromCollection(value, isValueSafe);
             this._Resolved = false;
             value.Unlisten(this);

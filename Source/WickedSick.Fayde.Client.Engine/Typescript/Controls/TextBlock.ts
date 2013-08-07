@@ -12,10 +12,10 @@ module Fayde.Controls {
         private _ActualWidth: number = 0.0;
         private _ActualHeight: number = 0.0;
         _Layout: Text.TextLayout = new Text.TextLayout();
-        private _WasSet: bool = true;
-        private _Dirty: bool = true;
+        private _WasSet: boolean = true;
+        private _Dirty: boolean = true;
         private _Font: Font = new Font();
-        private _SetsValue: bool = true;
+        private _SetsValue: boolean = true;
 
         constructor(xobj: TextBlock) {
             super(xobj);
@@ -124,7 +124,7 @@ module Fayde.Controls {
             this._Dirty = this._Layout.SetTextWrapping(args.NewValue);
             this._InvalidateDirty();
         }
-        _InvalidateDirty(setDirty?: bool) {
+        _InvalidateDirty(setDirty?: boolean) {
             if (setDirty) this._Dirty = true;
             var lu = this.LayoutUpdater;
             if (this._Dirty) {
@@ -135,7 +135,7 @@ module Fayde.Controls {
             lu.Invalidate();
         }
 
-        private _UpdateFont(force?: bool) {
+        private _UpdateFont(force?: boolean) {
             var f = this._Font;
             var xobj = this.XObject;
             f.Family = xobj.FontFamily;
@@ -145,7 +145,7 @@ module Fayde.Controls {
             f.Size = xobj.FontSize;
             return f.IsChanged || force;
         }
-        private _UpdateFonts(force?: bool): bool {
+        private _UpdateFonts(force?: boolean): boolean {
             if (!this._UpdateFont(force))
                 return false;
             var lu = this.LayoutUpdater;
@@ -243,7 +243,7 @@ module Fayde.Controls {
             this._SetsValue = true;
         }
 
-        InlinesChanged(newInline: Documents.Inline, isAdd: bool) {
+        InlinesChanged(newInline: Documents.Inline, isAdd: boolean) {
             if (!this._SetsValue)
                 return;
             
@@ -367,7 +367,7 @@ module Fayde.Controls {
             }
         }
 
-        IsInheritable(propd: DependencyProperty): bool {
+        IsInheritable(propd: DependencyProperty): boolean {
             if (TextBlockInheritedProps.indexOf(propd) > -1)
                 return true;
             return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);

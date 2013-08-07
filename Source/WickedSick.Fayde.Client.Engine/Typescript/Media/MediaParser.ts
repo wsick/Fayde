@@ -412,7 +412,7 @@ module Fayde.Media {
             var f = parseFloat(temp);
             return isNegative ? -f : f;
         }
-        private Match(matchStr: string): bool {
+        private Match(matchStr: string): boolean {
             var c1: string;
             var c2: string;
             for (var i = 0; i < matchStr.length && (this.index + i) < this.len; i++) {
@@ -441,7 +441,7 @@ module Fayde.Media {
                 this.index++;
             }
         }
-        private MorePointsAvailable(): bool {
+        private MorePointsAvailable(): boolean {
             var c;
             while (this.index < this.len && ((c = this.str.charAt(this.index)) === ',' || c === ' ')) {
                 this.index++;

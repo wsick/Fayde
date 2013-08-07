@@ -13,22 +13,22 @@ module Fayde.Controls.Primitives {
         static SelectedValueProperty = DependencyProperty.Register("SelectedValue", () => Object, Selector, undefined, (d, args) => (<Selector>d)._OnSelectedValueChanged(args));
         static SelectedValuePathProperty = DependencyProperty.Register("SelectedValuePath", () => String, Selector, "", (d, args) => (<Selector>d)._OnSelectedValuePathChanged(args));
         static IsSelectionActiveProperty = DependencyProperty.RegisterReadOnlyCore("IsSelectionActive", () => Boolean, Selector);
-        IsSynchronizedWithCurrentItem: bool;
+        IsSynchronizedWithCurrentItem: boolean;
         SelectedIndex: number;
         SelectedItem: any;
         SelectedValue: any;
         SelectedValuePath: string;
-        IsSelectionActive: bool;
+        IsSelectionActive: boolean;
 
         SelectionChanged: RoutedEvent<SelectionChangedEventArgs> = new RoutedEvent<SelectionChangedEventArgs>();
         _Selection: SelectorSelection;
         private _SelectedItems: Collections.ObservableCollection<any> = new Collections.ObservableCollection<any>();
-        private _Initializing: bool = false;
-        _SelectedItemsIsInvalid: bool = false;
+        private _Initializing: boolean = false;
+        _SelectedItemsIsInvalid: boolean = false;
         $TemplateScrollViewer: ScrollViewer = null;
         private _SelectedValueWalker: Data.PropertyPathWalker = null;
 
-        private get SynchronizeWithCurrentItem(): bool {
+        private get SynchronizeWithCurrentItem(): boolean {
             if (!Nullstone.ImplementsInterface(this.ItemsSource, Data.ICollectionView_))
                 return false;
             return this.IsSynchronizedWithCurrentItem !== false;
@@ -192,7 +192,7 @@ module Fayde.Controls.Primitives {
                 return item;
             return this._SelectedValueWalker.GetValue(item);
         }
-        private _SelectItemFromValue(selectedValue: any, ignoreSelectedValue?: bool) {
+        private _SelectItemFromValue(selectedValue: any, ignoreSelectedValue?: boolean) {
             if (selectedValue == null) {
                 this._Selection.ClearSelection(ignoreSelectedValue);
                 return;

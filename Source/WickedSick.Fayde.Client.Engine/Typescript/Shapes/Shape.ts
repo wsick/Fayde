@@ -15,7 +15,7 @@ module Fayde.Shapes {
             super(xobj);
         }
 
-        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
+        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): boolean {
             var shape = this.XObject;
             var extents = rect.copyTo(this.GetStretchExtents(shape, lu));
             rect.transform(extents, ctx.CurrentTransform);
@@ -61,7 +61,7 @@ module Fayde.Shapes {
         }
     }
 
-    function isSignificant(dx: number, x: number): bool {
+    function isSignificant(dx: number, x: number): boolean {
         return Math.abs(x) < 0.000019 && (Math.abs(dx) * x - x) > 1.0;
     }
 
@@ -100,7 +100,7 @@ module Fayde.Shapes {
         StrokeMiterLimit: number;
         StrokeStartLineCap: PenLineCap;
 
-        _InsideShape(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): bool {
+        _InsideShape(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): boolean {
             if (this._ShapeFlags & ShapeFlags.Empty)
                 return false;
             var ret = false;
@@ -403,10 +403,10 @@ module Fayde.Shapes {
                 this._NaturalBounds = this._ComputeShapeBoundsImpl(false);
             return this._NaturalBounds;
         }
-        _ComputeShapeBounds(logical: bool): rect {
+        _ComputeShapeBounds(logical: boolean): rect {
             return this._ComputeShapeBoundsImpl(logical, null);
         }
-        _ComputeShapeBoundsImpl(logical: bool, matrix?: any): rect {
+        _ComputeShapeBoundsImpl(logical: boolean, matrix?: any): rect {
             var thickness = (logical || !this._Stroke) ? 0.0 : this.StrokeThickness;
             
             this._Path = this._Path || this._BuildPath();
@@ -430,7 +430,7 @@ module Fayde.Shapes {
             this._StretchXform = mat3.identity();
             this._InvalidatePathCache();
         }
-        _InvalidatePathCache(free?: bool) {
+        _InvalidatePathCache(free?: boolean) {
             this._Path = null;
             if (!free)
                 this.XamlNode.LayoutUpdater.UpdateBounds(true);

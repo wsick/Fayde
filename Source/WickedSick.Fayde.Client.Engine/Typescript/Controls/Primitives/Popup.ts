@@ -18,7 +18,7 @@ module Fayde.Controls.Primitives {
 
         ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) { }
 
-        OnIsAttachedChanged(newIsAttached: bool) {
+        OnIsAttachedChanged(newIsAttached: boolean) {
             super.OnIsAttachedChanged(newIsAttached);
             if (!newIsAttached && this.XObject.IsOpen)
                 this.XObject.IsOpen = false;
@@ -26,8 +26,8 @@ module Fayde.Controls.Primitives {
 
         private _HorizontalOffset: number = 0;
         private _VerticalOffset: number = 0;
-        private _IsVisible: bool = false;
-        private _IsCatchingClick: bool = false;
+        private _IsVisible: boolean = false;
+        private _IsCatchingClick: boolean = false;
         private _Catcher: Canvas = null;
         private _VisualChild: FrameworkElement;
         
@@ -89,7 +89,7 @@ module Fayde.Controls.Primitives {
             this.XObject.ClickedOutside.Raise(this, EventArgs.Empty);
         }
         
-        PostCompute(lu: LayoutUpdater, hasLocalProjection: bool) {
+        PostCompute(lu: LayoutUpdater, hasLocalProjection: boolean) {
             var child = this.XObject.Child;
             if (!child)
                 return;
@@ -179,7 +179,7 @@ module Fayde.Controls.Primitives {
         Child: UIElement;
         HorizontalOffset: number;
         VerticalOffset: number;
-        IsOpen: bool;
+        IsOpen: boolean;
 
         static Annotations = { ContentProperty: Popup.ChildProperty }
 

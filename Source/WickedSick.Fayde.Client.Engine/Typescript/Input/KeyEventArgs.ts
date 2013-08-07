@@ -177,7 +177,7 @@ module Fayde.Input {
     }
     Nullstone.RegisterType(KeyboardEventArgs, "KeyboardEventArgs");
 
-    ///Modifers = { Shift: <bool>, Ctrl: <bool>, Alt: <bool> }
+    ///Modifers = { Shift: <boolean>, Ctrl: <boolean>, Alt: <boolean> }
     export class KeyEventArgs extends KeyboardEventArgs {
         Modifiers: IModifiersOn;
         PlatformKeyCode: number;

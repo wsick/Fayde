@@ -8,7 +8,7 @@ module Fayde {
     }
 
     export class ResourceDictionaryCollection extends XamlObjectCollection<ResourceDictionary> {
-        AddingToCollection(value: ResourceDictionary, error: BError): bool {
+        AddingToCollection(value: ResourceDictionary, error: BError): boolean {
             if (!super.AddingToCollection(value, error))
                 return false;
             return this._AssertNoCycles(value, value.XamlNode.ParentNode, error);
@@ -60,7 +60,7 @@ module Fayde {
             });
         }
 
-        ContainsKey(key: any): bool {
+        ContainsKey(key: any): boolean {
             return this._KeyIndex[key] !== undefined;
         }
         Get(key: any): XamlObject {
@@ -69,7 +69,7 @@ module Fayde {
                 return this._ht[index];
             return this._GetFromMerged(key);
         }
-        Set(key: any, value: XamlObject): bool {
+        Set(key: any, value: XamlObject): boolean {
             var index = this._KeyIndex[key];
             if (index === undefined && value === undefined)
                 return false;
@@ -94,7 +94,7 @@ module Fayde {
         Add(value: XamlObject): number {
             throw new InvalidOperationException("Cannot add to ResourceDictionary. Use Set instead.");
         }
-        Remove(value: XamlObject): bool {
+        Remove(value: XamlObject): boolean {
             throw new InvalidOperationException("Cannot remove from ResourceDictionary. Use Set instead.");
         }
         

@@ -19,7 +19,7 @@ module Fayde {
         Value: any;
     }
     
-    var WARN_ON_SET_READ_ONLY: bool = true;
+    var WARN_ON_SET_READ_ONLY: boolean = true;
     export class JsonParser {
 
         private _ResChain: Fayde.ResourceDictionary[] = [];
@@ -70,7 +70,7 @@ module Fayde {
             if (!json.ParseType)
                 return undefined;
             var page = new json.ParseType();
-            if (!page || !(page instanceof Controls.Page))
+            if (!page || !(page instanceof <any>Controls.Page))
                 return undefined;
             var parser = new JsonParser();
             var ns = page.XamlNode.NameScope = new Fayde.NameScope(true);
@@ -79,7 +79,7 @@ module Fayde {
             return page;
         }
 
-        CreateObject(json: any, namescope: NameScope, ignoreResolve?: bool): any {
+        CreateObject(json: any, namescope: NameScope, ignoreResolve?: boolean): any {
             var type = json.ParseType;
             if (!type) {
                 if (json instanceof FrameworkTemplate)
@@ -96,7 +96,7 @@ module Fayde {
             this.SetObject(json, xobj, namescope, ignoreResolve);
             return xobj;
         }
-        SetObject(json: any, xobj: XamlObject, namescope: NameScope, ignoreResolve?: bool): any {
+        SetObject(json: any, xobj: XamlObject, namescope: NameScope, ignoreResolve?: boolean): any {
             //Sets object properties; will return Children/Content object if exists
             var xnode: XamlNode;
             if (xobj)
@@ -203,7 +203,7 @@ module Fayde {
             return content;
         }
 
-        TrySetPropertyValue(xobj: XamlObject, propd: DependencyProperty, propValue: any, namescope: NameScope, isAttached: bool, ownerType: Function, propName: string) {
+        TrySetPropertyValue(xobj: XamlObject, propd: DependencyProperty, propValue: any, namescope: NameScope, isAttached: boolean, ownerType: Function, propName: string) {
             if (propValue instanceof Markup)
                 propValue = (<Markup>propValue).Transmute(xobj, propd, propName, this._TemplateBindingSource, this._ResChain.slice(0));
 
@@ -248,17 +248,17 @@ module Fayde {
             if (!((Array.isArray && Array.isArray(subJson)) || (<any>subJson).constructor === Array))
                 return false;
 
-            var coll: XamlObjectCollection;
+            var coll: XamlObjectCollection<any>;
             if (propd) {
                 var targetType = propd.GetTargetType();
                 if (!Nullstone.DoesInheritFrom(targetType, XamlObjectCollection))
                     return false;
-                coll = <XamlObjectCollection>new (<any>targetType)();
+                coll = <XamlObjectCollection<any>>new (<any>targetType)();
                 (<DependencyObject>xobj).SetValue(propd, coll);
             } else if (typeof propertyName === "string") {
                 coll = xobj[propertyName];
             } else if (xobj instanceof XamlObjectCollection) {
-                coll = <XamlObjectCollection>xobj;
+                coll = <XamlObjectCollection<any>>xobj;
             }
 
             if (!(coll instanceof XamlObjectCollection))

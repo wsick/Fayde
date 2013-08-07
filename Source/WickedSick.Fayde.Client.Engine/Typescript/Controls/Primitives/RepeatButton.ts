@@ -9,8 +9,8 @@ module Fayde.Controls.Primitives {
         Delay: number;
         Interval: number;
 
-        private _KeyboardCausingRepeat: bool = false;
-        private _MouseCausingRepeat: bool = false;
+        private _KeyboardCausingRepeat: boolean = false;
+        private _MouseCausingRepeat: boolean = false;
         _MousePosition: Point = null;
         private _IntervalID: number = null;
         private _NewInterval: number = null;

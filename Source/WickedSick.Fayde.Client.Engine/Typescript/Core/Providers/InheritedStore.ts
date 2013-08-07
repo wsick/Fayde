@@ -7,7 +7,7 @@ module Fayde.Providers {
     }
 
     export interface IIsPropertyInheritable {
-        IsInheritable(propd: DependencyProperty): bool;
+        IsInheritable(propd: DependencyProperty): boolean;
     }
 
     export class InheritedStore extends PropertyStore {
@@ -102,7 +102,7 @@ module Fayde.Providers {
                     this.Propagate(uin, propd, newValue);
             }
         }
-        private SetInheritedValue(don: DONode, propd: DependencyProperty, newValue: any): bool {
+        private SetInheritedValue(don: DONode, propd: DependencyProperty, newValue: any): boolean {
             /// Returns false if object doesn't understand this inheritable property
             var dobj = don.XObject;
             if (!(<IIsPropertyInheritable>dobj).IsInheritable(propd))

@@ -63,7 +63,7 @@ module Fayde.Controls {
         ExtentWidth: number;
         ExtentHeight: number;
 
-        $TemplatedParentHandlesScrolling: bool = false;
+        $TemplatedParentHandlesScrolling: boolean = false;
         $ScrollContentPresenter: ScrollContentPresenter;
         private $HorizontalScrollBar: Primitives.ScrollBar;
         private $VerticalScrollBar: Primitives.ScrollBar;
@@ -387,7 +387,7 @@ module Fayde.Controls {
     }
     Nullstone.RegisterType(ScrollViewer, "ScrollViewer");
 
-    function areNumbersClose(val1: number, val2: number): bool {
+    function areNumbersClose(val1: number, val2: number): boolean {
         if (val1 === val2)
             return true;
         var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516E-16;

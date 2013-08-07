@@ -21,10 +21,10 @@ class Thickness implements ICloneable {
         t.Bottom = this.Bottom + thickness2.Bottom;
         return t;
     }
-    IsEmpty(): bool {
+    IsEmpty(): boolean {
         return this.Left == 0 && this.Top == 0 && this.Right == 0 && this.Bottom == 0;
     }
-    IsBalanced(): bool {
+    IsBalanced(): boolean {
         return this.Left === this.Top
             && this.Left === this.Right
             && this.Left === this.Bottom;

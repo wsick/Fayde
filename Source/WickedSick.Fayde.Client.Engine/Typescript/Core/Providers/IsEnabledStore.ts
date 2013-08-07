@@ -3,12 +3,12 @@
 
 module Fayde.Providers {
     export interface IIsEnabledStorage extends IPropertyStorage {
-        InheritedValue: bool;
+        InheritedValue: boolean;
     }
 
     export class IsEnabledStore extends PropertyStore {
         static Instance: IsEnabledStore;
-        GetValue(storage: IIsEnabledStorage): bool {
+        GetValue(storage: IIsEnabledStorage): boolean {
             if (storage.InheritedValue === false)
                 return false;
             return super.GetValue(storage);
@@ -19,7 +19,7 @@ module Fayde.Providers {
             return super.GetValuePrecedence(storage);
         }
 
-        SetLocalValue(storage: IIsEnabledStorage, newValue: bool) {
+        SetLocalValue(storage: IIsEnabledStorage, newValue: boolean) {
             var oldValue = storage.Local;
             storage.Local = newValue;
             if (oldValue === newValue || storage.InheritedValue === false)
@@ -46,7 +46,7 @@ module Fayde.Providers {
             };
         }
         
-        EmitInheritedChanged(storage: IIsEnabledStorage, newInherited: bool) {
+        EmitInheritedChanged(storage: IIsEnabledStorage, newInherited: boolean) {
             var oldInherited = storage.InheritedValue;
             if (newInherited !== false) {
                 storage.Precedence = super.GetValuePrecedence(storage);
@@ -58,7 +58,7 @@ module Fayde.Providers {
                 return;
             this.OnPropertyChanged(storage, PropertyPrecedence.IsEnabled, oldInherited, newInherited);
         }
-        static EmitInheritedChanged(cn: Controls.ControlNode, value: bool) {
+        static EmitInheritedChanged(cn: Controls.ControlNode, value: boolean) {
             var propd = Controls.Control.IsEnabledProperty;
             var storage = <Providers.IIsEnabledStorage>Providers.GetStorage(cn.XObject, propd);
             (<Providers.IsEnabledStore>propd.Store).EmitInheritedChanged(storage, value);

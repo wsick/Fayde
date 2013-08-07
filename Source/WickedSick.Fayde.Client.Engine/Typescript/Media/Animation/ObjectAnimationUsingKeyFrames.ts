@@ -6,7 +6,7 @@ module Fayde.Media.Animation {
     export class ObjectAnimationUsingKeyFrames extends AnimationUsingKeyFrames {
         static Annotations = { ContentProperty: "KeyFrames" };
 
-        Resolve(target: DependencyObject, propd: DependencyProperty): bool {
+        Resolve(target: DependencyObject, propd: DependencyProperty): boolean {
             var enumerator = this.KeyFrames.GetEnumerator();
             while (enumerator.MoveNext()) {
                 var keyFrame = <ObjectKeyFrame>enumerator.Current;

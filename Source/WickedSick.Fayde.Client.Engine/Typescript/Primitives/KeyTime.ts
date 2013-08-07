@@ -3,11 +3,11 @@
 /// <reference path="TimeSpan.ts" />
 
 class KeyTime implements ICloneable {
-    private _IsPaced: bool = false;
-    private _IsUniform: bool = false;
+    private _IsPaced: boolean = false;
+    private _IsUniform: boolean = false;
     private _TimeSpan: TimeSpan = null;
     private _Percent: number = 0;
-    IsValid: bool = true;
+    IsValid: boolean = true;
 
     static CreateUniform(): KeyTime {
         var kt = new KeyTime();
@@ -29,11 +29,11 @@ class KeyTime implements ICloneable {
         return kt;
     }
 
-    get IsPaced(): bool { return this._IsPaced; }
-    get IsUniform(): bool { return this._IsUniform; }
-    get HasTimeSpan(): bool { return this._TimeSpan != null; }
+    get IsPaced(): boolean { return this._IsPaced; }
+    get IsUniform(): boolean { return this._IsUniform; }
+    get HasTimeSpan(): boolean { return this._TimeSpan != null; }
     get TimeSpan(): TimeSpan { return this._TimeSpan; }
-    get HasPercent(): bool { return this._Percent != null; }
+    get HasPercent(): boolean { return this._Percent != null; }
     get Percent(): number { return this._Percent; }
 }
 Nullstone.RegisterType(KeyTime, "KeyTime");

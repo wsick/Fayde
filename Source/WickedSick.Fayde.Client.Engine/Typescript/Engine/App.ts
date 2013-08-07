@@ -36,7 +36,7 @@ class App implements Fayde.IResourcable, Fayde.ITimerListener {
     DebugInterop: Fayde.DebugInterop;
     Theme: string = "Default";
     static Themes: Fayde.Theme[] = [];
-    private _IsRunning: bool = false;
+    private _IsRunning: boolean = false;
     private _Storyboards: ITimeline[] = [];
     private _ClockTimer: Fayde.ClockTimer = new Fayde.ClockTimer();
     private static _GenericResourceDictionary: Fayde.ResourceDictionary = null;

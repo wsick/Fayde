@@ -1,3 +1,6 @@
+/// <reference path="../Runtime/EventArgs.ts" />
+/// CODE
+/// <reference path="DependencyProperty.ts" />
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -11,4 +14,4 @@ var DependencyPropertyChangedEventArgs = (function (_super) {
     }
     return DependencyPropertyChangedEventArgs;
 })(EventArgs);
-//@ sourceMappingURL=DependencyPropertyChangedEventArgs.js.map
+//# sourceMappingURL=DependencyPropertyChangedEventArgs.js.map
