@@ -86,6 +86,7 @@
     <Compile Include="Models\FrameInfo.cs" />
     <Compile Include="Models\LayoutMetrics.cs" />
     <Compile Include="Models\PropertyStorageWrapper.cs" />
+    <Compile Include="Models\TimelineGroup.cs" />
     <Compile Include="Resources\BoolSolidColorBrushConverter.cs" />
     <Compile Include="Resources\BoolFontWeightConverter.cs" />
     <Compile Include="Resources\BoolVisibilityConverter.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="ViewModels\LoadViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\PerformanceViewModel.cs" />
+    <Compile Include="ViewModels\TimelineViewModel.cs" />
     <Compile Include="ViewModels\VisualViewModel.cs" />
     <Compile Include="Views\ChooseVisualStudioWindow.xaml.cs">
       <DependentUpon>ChooseVisualStudioWindow.xaml</DependentUpon>
