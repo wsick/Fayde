@@ -171,6 +171,15 @@ declare module Fayde {
     }
 }
 declare module Fayde {
+    class Theme {
+        public Name: string;
+        public Json: any;
+        private _ResourceDictionary;
+        constructor(name: string, json: any);
+        public ResourceDictionary : Fayde.ResourceDictionary;
+    }
+}
+declare module Fayde {
     class VisualTreeHelper {
         static GetParent(d: Fayde.DependencyObject): Fayde.DependencyObject;
         static GetRoot(d: Fayde.DependencyObject): Fayde.DependencyObject;
@@ -239,7 +248,6 @@ declare module Fayde.Providers {
         static Clear(fe: Fayde.FrameworkElement, mask: StyleMask): void;
         private static ApplyStyles(fe, mask, styles);
         private static GetImplicitStyles(fe, mask);
-        private static GetGenericXamlStyleFor(type);
     }
 }
 declare module Fayde.Providers {
@@ -659,6 +667,27 @@ declare class IndexedPropertyInfo implements IPropertyInfo {
 }
 declare class StringEx {
     static Format(format: string, ...items: any[]): string;
+}
+interface ITimelineEvent {
+    Type: string;
+    Name: string;
+    Time: number;
+}
+interface ITimelineGroup {
+    Type: string;
+    Data: string;
+    Start: number;
+    Length: number;
+}
+declare class TimelineProfile {
+    private static _Events;
+    static Groups: ITimelineGroup[];
+    static TimelineStart: number;
+    static IsNextLayoutPassProfiled: boolean;
+    static Parse(isStart: boolean, name: string): void;
+    static Navigate(isStart: boolean, name?: string): void;
+    static LayoutPass(isStart: boolean): void;
+    private static _FinishEvent(type, name?);
 }
 declare module Fayde.Shapes {
     enum PathEntryType {
@@ -1155,7 +1184,7 @@ declare module Fayde {
         public ComputeBounds(): void;
         public ComputeGlobalBounds(): void;
         public ComputeSurfaceBounds(): void;
-        public IntersectBoundsWithClipPath(dest: rect, xform: number[]): void;
+        public IntersectBoundsWithClipPath(dest: rect, xform: number[]): rect;
         private _UpdateActualSize();
         private _ComputeActualSize();
         private _GetBrushSize();
@@ -1410,7 +1439,7 @@ declare module Fayde.Data {
 }
 declare module Fayde {
     function Run(): void;
-    function Start(appType: Function, rjson: any, json: any, canvas: HTMLCanvasElement): void;
+    function Start(appType: Function, theme: string, rjson: any, json: any, canvas: HTMLCanvasElement): void;
 }
 interface ITimeline {
     Update(nowTime: number);
@@ -1424,6 +1453,8 @@ declare class App implements Fayde.IResourcable, Fayde.ITimerListener {
     public Address: Uri;
     public NavService: Fayde.Navigation.NavService;
     public DebugInterop: Fayde.DebugInterop;
+    public Theme: string;
+    static Themes: Fayde.Theme[];
     private _IsRunning;
     private _Storyboards;
     private _ClockTimer;
@@ -1441,8 +1472,8 @@ declare class App implements Fayde.IResourcable, Fayde.ITimerListener {
     private Render();
     public RegisterStoryboard(storyboard: ITimeline): void;
     public UnregisterStoryboard(storyboard: ITimeline): void;
-    static GetGenericResourceDictionary(): Fayde.ResourceDictionary;
-    private static GetGenericResourceDictionaryImpl();
+    public CurrentTheme : Fayde.Theme;
+    public GetImplicitStyle(type: any): Fayde.Style;
     private __DebugLayers();
     private __GetById(id);
 }
@@ -2158,7 +2189,7 @@ declare class rect implements ICloneable {
     static round(dest: rect): rect;
     static roundOut(dest: rect): rect;
     static roundIn(dest: rect): rect;
-    static copyGrowTransform(dest: rect, src: rect, thickness, xform): void;
+    static copyGrowTransform(dest: rect, src: rect, thickness, xform: number[]): void;
     static copyGrowTransform4(dest: rect, src: rect, thickness, projection): void;
     static containsPoint(rect1: rect, p: Point): boolean;
     static containsPointXY(rect1: rect, x: number, y: number): boolean;

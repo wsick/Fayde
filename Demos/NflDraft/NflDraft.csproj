@@ -29,6 +29,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -37,6 +38,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
@@ -57,11 +59,13 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
-    <Reference Include="WickedSick.Server.Framework.Fayde">
-      <HintPath>packages\Fayde.0.9.5.9\lib\net\WickedSick.Server.Framework.Fayde.dll</HintPath>
+    <Reference Include="WickedSick.Server.Framework.Fayde, Version=0.9.5.14, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>packages\Fayde.0.9.5.14\lib\net\WickedSick.Server.Framework.Fayde.dll</HintPath>
     </Reference>
-    <Reference Include="WickedSick.Server.XamlParser">
-      <HintPath>packages\Fayde.0.9.5.9\lib\net\WickedSick.Server.XamlParser.dll</HintPath>
+    <Reference Include="WickedSick.Server.XamlParser, Version=0.9.5.14, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>packages\Fayde.0.9.5.14\lib\net\WickedSick.Server.XamlParser.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -141,8 +145,9 @@
       <DependentUpon>Team.ts</DependentUpon>
     </Content>
     <Content Include="scripts\Fayde.d.ts" />
-    <Content Include="scripts\Fayde.Generic.js" />
     <Content Include="scripts\Fayde.js" />
+    <Content Include="scripts\Fayde.Theme.Default.js" />
+    <Content Include="scripts\Fayde.Theme.Metro.js" />
     <Content Include="ViewModels\DefaultViewModel.js">
       <DependentUpon>DefaultViewModel.ts</DependentUpon>
     </Content>
@@ -189,7 +194,7 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  <Import Project="packages\Fayde.0.9.5.9\build\Fayde.targets" Condition="Exists('packages\Fayde.0.9.5.9\build\Fayde.targets')" />
+  <Import Project="packages\Fayde.0.9.5.14\build\Fayde.targets" Condition="Exists('packages\Fayde.0.9.5.14\build\Fayde.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

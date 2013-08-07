@@ -12,6 +12,18 @@ var NflDraft;
             function DefaultViewModel() {
                 _super.apply(this, arguments);
             }
+            Object.defineProperty(DefaultViewModel.prototype, "SelectedPlayer", {
+                get: function () {
+                    return this._selectedPlayer;
+                },
+                set: function (value) {
+                    this._selectedPlayer = value;
+                    this.OnPropertyChanged("SelectedPlayer");
+                },
+                enumerable: true,
+                configurable: true
+            });
+
             DefaultViewModel.prototype.Load = function () {
                 var _fantasyTeams = new Array();
                 var ft = ["Team 1", "Team 2", "Team 3", "Team 4", "Team 5", "Team 6", "Team 7", "Team 8", "Team 9", "Team 10"];
@@ -66,29 +78,29 @@ var NflDraft;
 
                 var overall = 1;
                 this.Rounds = new Array();
-                var r1 = new NflDraft.Models.Round();
-                r1.DraftSpots = new Array();
-                r1.RoundNumber = 1;
-                for (var i = 1; i <= 10; i++) {
-                    var ds = new NflDraft.Models.DraftSpot();
-                    ds.Overall = overall;
-                    ds.Team = _fantasyTeams[i - 1];
-                    r1.DraftSpots.push(ds);
-                    overall++;
+                for (var i = 0; i < 4; i++) {
+                    var r = new NflDraft.Models.Round();
+                    r.RoundNumber = i + 1;
+                    r.DraftSpots = new Array();
+                    if (i % 2 == 0) {
+                        for (var j = 1; j <= 10; j++) {
+                            var ds = new NflDraft.Models.DraftSpot();
+                            ds.Overall = overall;
+                            ds.Team = _fantasyTeams[j - 1];
+                            r.DraftSpots.push(ds);
+                            overall++;
+                        }
+                    } else {
+                        for (var j = 10; j >= 1; j--) {
+                            var ds = new NflDraft.Models.DraftSpot();
+                            ds.Overall = overall;
+                            ds.Team = _fantasyTeams[j - 1];
+                            r.DraftSpots.push(ds);
+                            overall++;
+                        }
+                    }
+                    this.Rounds.push(r);
                 }
-                this.Rounds.push(r1);
-
-                var r2 = new NflDraft.Models.Round();
-                r2.DraftSpots = new Array();
-                r2.RoundNumber = 2;
-                for (var i = 10; i >= 1; i--) {
-                    var ds = new NflDraft.Models.DraftSpot();
-                    ds.Overall = overall;
-                    ds.Team = _fantasyTeams[i - 1];
-                    r2.DraftSpots.push(ds);
-                    overall++;
-                }
-                this.Rounds.push(r2);
 
                 this.Positions = new Array();
                 this.Positions.push("ALL", "QB", "RB", "WR", "RB/WR", "TE", "K", "DEF");
@@ -176,11 +188,9 @@ var NflDraft;
                     }
                     this.PlayerStats.push(playerStats);
                 }
-            };
 
-            DefaultViewModel.ctor = (function () {
-                Fayde.MVVM.NotifyProperties(DefaultViewModel, ["Rounds"]);
-            })();
+                this.SelectedPlayer = this.PlayerStats[0];
+            };
             return DefaultViewModel;
         })(Fayde.MVVM.ViewModelBase);
         ViewModels.DefaultViewModel = DefaultViewModel;

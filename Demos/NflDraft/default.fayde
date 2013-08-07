@@ -73,7 +73,7 @@
                 </Grid>
               </Border>
             </Border>
-            <ListBox ItemsSource="{Binding Rounds}" BorderThickness="1" BorderBrush="Black" Padding="0" Margin="5">
+            <ListBox ItemsSource="{Binding Rounds}" BorderThickness="1, 1, 1, 0" BorderBrush="Black" Padding="0" Margin="5">
               <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
                   <Setter Property="Padding" Value="0"/>
@@ -186,7 +186,7 @@
                   <DropShadowEffect BlurRadius="2" ShadowDepth="2" Color="{StaticResource DarkGray}"/>
                 </TextBlock.Effect>
               </TextBlock>
-              <TextBlock Grid.Row="2" Grid.Column="2" Margin="5, 2, 0, 0" FontSize="12" Foreground="White" Text="{Binding Player.Birthdate, StringFormat=MM/dd/yyyy}">
+              <TextBlock Grid.Row="2" Grid.Column="2" Margin="5, 2, 0, 0" FontSize="12" Foreground="White" Text="{Binding Player.Birthdate}">
                 <TextBlock.Effect>
                   <DropShadowEffect BlurRadius="2" ShadowDepth="2" Color="{StaticResource DarkGray}"/>
                 </TextBlock.Effect>
