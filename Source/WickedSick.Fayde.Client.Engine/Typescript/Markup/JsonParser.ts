@@ -221,7 +221,7 @@ module Fayde {
 
             if (!propd && isAttached) {
                 //There is no fallback if we can't find attached property
-                Warn("Could not find attached property: " + (<any>ownerType)._TypeName + "." + propName);
+                console.warn("Could not find attached property: " + (<any>ownerType)._TypeName + "." + propName);
                 return;
             }
 
@@ -229,16 +229,19 @@ module Fayde {
                 return;
 
             if (propd) {
-                this.SetValue(xobj, propd, propName, propValue);
+                if (propd.IsImmutable)
+                    console.warn("Couldn't set value that is immutable.");
+                else
+                    this.SetValue(xobj, propd, propName, propValue);
                 return;
             }
 
             if (WARN_ON_SET_READ_ONLY) {
                 var descriptor = Nullstone.GetPropertyDescriptor(xobj, propName);
                 if (!descriptor)
-                    Warn("Parser is setting a property that has not been defined yet: " + propName);
+                    console.warn("Parser is setting a property that has not been defined yet: " + propName);
                 else if (!descriptor.writable && !descriptor.set )
-                    Warn("Parser is trying to set a read-only property: " + propName);
+                    console.warn("Parser is trying to set a read-only property: " + propName);
             }
             xobj[propName] = propValue;
         }
@@ -250,11 +253,15 @@ module Fayde {
 
             var coll: XamlObjectCollection<any>;
             if (propd) {
-                var targetType = propd.GetTargetType();
-                if (!Nullstone.DoesInheritFrom(targetType, XamlObjectCollection))
-                    return false;
-                coll = <XamlObjectCollection<any>>new (<any>targetType)();
-                (<DependencyObject>xobj).SetValue(propd, coll);
+                if (propd.IsImmutable) {
+                    coll = <XamlObjectCollection<any>>xobj[propertyName];
+                } else {
+                    var targetType = propd.GetTargetType();
+                    if (!Nullstone.DoesInheritFrom(targetType, XamlObjectCollection))
+                        return false;
+                    coll = <XamlObjectCollection<any>>new (<any>targetType)();
+                    (<DependencyObject>xobj).SetValue(propd, coll);
+                }
             } else if (typeof propertyName === "string") {
                 coll = xobj[propertyName];
             } else if (xobj instanceof XamlObjectCollection) {
