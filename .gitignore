@@ -284,3 +284,4 @@ Website/Fayde.Demos.StackOverflowDemo/root.fayde.js
 Website/Fayde.Demos.StackOverflowDemo/ViewModels/MainViewModel.js
 Source/jsbin/Fayde.d.ts
 Packages/*.nupkg
+Source/WickedSick.Fayde.Client.Engine/Typescript/Core/Providers/ImmutableStore.js
