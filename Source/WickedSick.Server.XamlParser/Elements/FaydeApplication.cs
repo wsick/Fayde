@@ -6,10 +6,7 @@ namespace WickedSick.Server.XamlParser.Elements
     [Element("", "App")]
     public class FaydeApplication : DependencyObject
     {
-        public FaydeApplication()
-        {
-            Theme = "Metro";
-        }
+        public static readonly string DEFAULT_THEME = "Metro";
 
         public Parser Parser { get; internal set; }
 
