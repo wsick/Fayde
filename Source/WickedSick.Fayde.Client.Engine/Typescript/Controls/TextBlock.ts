@@ -279,7 +279,7 @@ module Fayde.Controls {
         static ForegroundProperty: DependencyProperty = InheritableOwner.ForegroundProperty.ExtendTo(TextBlock);
         static TextDecorationsProperty: DependencyProperty = InheritableOwner.TextDecorationsProperty.ExtendTo(TextBlock);
         static TextProperty: DependencyProperty = DependencyProperty.Register("Text", () => String, TextBlock, "", (d, args) => (<TextBlock>d).XamlNode._TextChanged(args));
-        //static InlinesProperty: DependencyProperty = DependencyProperty.RegisterCore("Inlines", () => Documents.InlineCollection, TextBlock, undefined, (d, args) => (<TextBlock>d).XamlNode._InlinesChanged(args));
+        static InlinesProperty = DependencyProperty.RegisterImmutable("Inlines", () => Documents.InlineCollection, TextBlock);
         static LineStackingStrategyProperty: DependencyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", () => new Enum(LineStackingStrategy), TextBlock, LineStackingStrategy.MaxHeight, (d, args) => (<TextBlock>d).XamlNode._LineStackingStrategyChanged(args));
         static LineHeightProperty: DependencyProperty = DependencyProperty.RegisterCore("LineHeight", () => Number, TextBlock, NaN, (d, args) => (<TextBlock>d).XamlNode._LineHeightChanged(args));
         static TextAlignmentProperty: DependencyProperty = DependencyProperty.RegisterCore("TextAlignment", () => new Enum(TextAlignment), TextBlock, TextAlignment.Left, (d, args) => (<TextBlock>d).XamlNode._TextAlignmentChanged(args));
@@ -306,12 +306,8 @@ module Fayde.Controls {
         constructor() {
             super();
 
-            var inlines = new Documents.InlineCollection();
+            var inlines = TextBlock.InlinesProperty.Initialize<Documents.InlineCollection>(this);
             inlines.AttachTo(this);
-            Object.defineProperty(this, "Inlines", {
-                value: inlines,
-                writable: false
-            });
             inlines.Listen(this.XamlNode);
         }
 

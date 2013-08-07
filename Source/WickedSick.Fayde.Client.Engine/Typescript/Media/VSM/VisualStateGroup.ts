@@ -20,6 +20,8 @@ module Fayde.Media.VSM {
     }
 
     export class VisualStateGroup extends DependencyObject {
+        static StatesProperty = DependencyProperty.RegisterImmutable("States", () => VisualStateCollection, VisualStateGroup);
+
         static Annotations = { ContentProperty: "States" };
         private _CurrentStoryboards: Animation.Storyboard[] = [];
         private _Transitions: VisualTransition[] = null;
@@ -31,10 +33,7 @@ module Fayde.Media.VSM {
 
         constructor() {
             super();
-            Object.defineProperty(this, "States", {
-                value: new VisualStateCollection(),
-                writable: false
-            });
+            VisualStateGroup.StatesProperty.Initialize<VisualStateCollection>(this);
             Object.defineProperty(this, "Transitions", {
                 get: function() {
                     if (!this._Transitions)

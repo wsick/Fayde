@@ -9,18 +9,15 @@ module Fayde.Media {
         private _OverridePath: Shapes.RawPath = null;
         static Annotations = { ContentProperty: "Figures" }
         static FillRuleProperty: DependencyProperty = DependencyProperty.Register("FillRule", () => new Enum(Shapes.FillRule), PathGeometry, Shapes.FillRule.EvenOdd, (d, args) => (<Geometry>d)._InvalidateGeometry());
+        static FiguresProperty = DependencyProperty.RegisterImmutable("Figures", () => PathFigureCollection, PathGeometry);
         FillRule: Shapes.FillRule;
         Figures: PathFigureCollection;
 
         constructor() {
             super();
-            var coll = new PathFigureCollection();
+            var coll = PathGeometry.FiguresProperty.Initialize<PathFigureCollection>(this);
             coll.AttachTo(this);
             coll.Listen(this);
-            Object.defineProperty(this, "Figures", {
-                value: coll,
-                writable: false
-            });
         }
 
         OverridePath(path: Shapes.RawPath) {

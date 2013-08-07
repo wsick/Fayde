@@ -4,11 +4,13 @@
 /// <reference path="DependencyPropertyChangedEventArgs.ts" />
 /// <reference path="Providers/PropertyStore.ts" />
 /// <reference path="Providers/InheritedStore.ts" />
+/// <reference path="Providers/ImmutableStore.ts" />
 /// <reference path="../Runtime/Enum.ts" />
 
 interface IOutIsValid {
     IsValid: boolean;
 }
+
 class DependencyProperty {
     private static _IDs: DependencyProperty[] = [];
     private static _LastID: number = 0;
@@ -22,6 +24,7 @@ class DependencyProperty {
     IsCustom: boolean = true;
     IsAttached: boolean = false;
     IsInheritable: boolean = false;
+    IsImmutable: boolean = false;
     ChangedCallback: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void;
     AlwaysChange: boolean = false;
     Store: Fayde.Providers.PropertyStore;
@@ -102,6 +105,18 @@ class DependencyProperty {
         propd.FinishRegister();
         return propd;
     }
+
+    static RegisterImmutable(name: string, getTargetType: () => IType, ownerType: any): ImmutableDependencyProperty {
+        var propd = new ImmutableDependencyProperty();
+        propd.Name = name;
+        propd.GetTargetType = getTargetType;
+        propd.OwnerType = ownerType;
+        propd.DefaultValue = undefined;
+        propd.IsImmutable = true;
+        propd.Store = Fayde.Providers.ImmutableStore.Instance;
+        propd.FinishRegister();
+        return propd;
+    }
     
     static RegisterInheritable(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void) {
         var propd = new DependencyProperty();
@@ -155,9 +170,14 @@ class DependencyProperty {
         this._ID = DependencyProperty._LastID = DependencyProperty._LastID + 1;
         DependencyProperty._IDs[this._ID] = this;
 
+        if (this.IsImmutable)
+            return;
+
         var propd = this;
         var getter = function () { return (<Fayde.DependencyObject>this).GetValue(propd); };
         var setter = function (value) { (<Fayde.DependencyObject>this).SetValue(propd, value); };
+        if (this.IsReadOnly)
+            setter = function (value) { throw new Exception("Property [" + propd.Name + "] is readonly."); };
         Object.defineProperty(ownerType.prototype, this.Name, {
             get: getter,
             set: setter,
@@ -217,3 +237,17 @@ class DependencyProperty {
     }
 }
 Nullstone.RegisterType(DependencyProperty, "DependencyProperty");
+
+class ImmutableDependencyProperty extends DependencyProperty {
+    IsImmutable: boolean = true;
+    Initialize<T>(dobj: Fayde.DependencyObject): T {
+        var storage = Fayde.Providers.GetStorage(dobj, this);
+        storage.Precedence = Fayde.Providers.PropertyPrecedence.LocalValue;
+        var obj: T = new (<any>this.GetTargetType())();
+        Object.defineProperty(dobj, this.Name, {
+            value: obj,
+            writable: false
+        });
+        return storage.Local = obj;
+    }
+}

@@ -489,6 +489,7 @@
       <DependentUpon>DataContextStore.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Core\Providers\ImplicitStyleBroker.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Providers\ImmutableStore.ts" />
     <Content Include="Typescript\Core\Providers\ImplicitStyleBroker.js">
       <DependentUpon>ImplicitStyleBroker.ts</DependentUpon>
     </Content>

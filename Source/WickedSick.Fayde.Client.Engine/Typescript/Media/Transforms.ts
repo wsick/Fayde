@@ -128,19 +128,16 @@ module Fayde.Media {
     Nullstone.RegisterType(TransformCollection, "TransformCollection");
 
     export class TransformGroup extends Transform {
+        static ChildrenProperty = DependencyProperty.RegisterImmutable("Children", () => TransformCollection, TransformGroup);
         Children: TransformCollection;
         
         private _TransformListener: ITransformChangedListener;
 
         constructor() {
             super();
-            var coll = new TransformCollection();
+            var coll = TransformGroup.ChildrenProperty.Initialize<TransformCollection>(this);
             coll.AttachTo(this);
             coll.RelayChanges(() => this._InvalidateValue());
-            Object.defineProperty(this, "Children", {
-                value: coll,
-                writable: false
-            });
         }
 
         _BuildValue(): number[] {

@@ -6,19 +6,17 @@ module Fayde.Documents {
         CreateNode(): TextElementNode {
             return new TextElementNode(this, "Inlines");
         }
+        
+        static InlinesProperty = DependencyProperty.RegisterImmutable("Inlines", () => InlineCollection, Span);
 
         static Annotations = { ContentProperty: "Inlines" }
 
         Inlines: InlineCollection;
         constructor() {
             super();
-            var coll = new InlineCollection();
+            var coll = Span.InlinesProperty.Initialize<InlineCollection>(this);
             coll.AttachTo(this);
             coll.Listen(this);
-            Object.defineProperty(this, "Inlines", {
-                value: coll,
-                writable: false
-            });
         }
         
         InlinesChanged(newInline: Inline, isAdd: boolean) {

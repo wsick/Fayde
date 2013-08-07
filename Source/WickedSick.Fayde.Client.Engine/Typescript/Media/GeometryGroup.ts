@@ -6,17 +6,14 @@
 module Fayde.Media {
     export class GeometryGroup extends Geometry implements IGeometryListener {
         static FillRulleProperty: DependencyProperty = DependencyProperty.Register("FillRule", () => new Enum(Shapes.FillRule), GeometryGroup, Shapes.FillRule.EvenOdd);
+        static ChildrenProperty = DependencyProperty.RegisterImmutable("Children", () => GeometryCollection, GeometryGroup);
         FillRule: Shapes.FillRule;
         Children: GeometryCollection;
         constructor() {
             super();
-            var coll = new GeometryCollection();
+            var coll = GeometryGroup.ChildrenProperty.Initialize<GeometryCollection>(this);
             coll.AttachTo(this);
             coll.Listen(this);
-            Object.defineProperty(this, "Children", {
-                value: coll,
-                writable: false
-            });
         }
 
         ComputePathBounds(thickness: number): rect {

@@ -5,15 +5,12 @@
 
 module Fayde.Media.Animation {
     export class AnimationUsingKeyFrames extends AnimationBase {
+        static KeyFramesProperty = DependencyProperty.RegisterImmutable("KeyFrames", () => KeyFrameCollection, AnimationUsingKeyFrames);
         KeyFrames: KeyFrameCollection;
         constructor() {
             super();
-            var coll = new KeyFrameCollection();
+            var coll = AnimationUsingKeyFrames.KeyFramesProperty.Initialize<KeyFrameCollection>(this);
             coll.AttachTo(this);
-            Object.defineProperty(this, "KeyFrames", {
-                value: coll,
-                writable: false
-            });
         }
 
         Resolve(target: DependencyObject, propd: DependencyProperty): boolean {
