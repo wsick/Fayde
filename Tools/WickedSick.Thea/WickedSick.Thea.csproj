@@ -90,6 +90,8 @@
     <Compile Include="Resources\BoolSolidColorBrushConverter.cs" />
     <Compile Include="Resources\BoolFontWeightConverter.cs" />
     <Compile Include="Resources\BoolVisibilityConverter.cs" />
+    <Compile Include="Resources\PillColorValueConverter.cs" />
+    <Compile Include="Resources\RelativeSizeValueConverter.cs" />
     <Compile Include="ViewModels\ChooseVisualStudioViewModel.cs" />
     <Compile Include="ViewModels\ExamineViewModel.cs" />
     <Compile Include="ViewModels\LoadViewModel.cs" />
@@ -108,6 +110,9 @@
     </Compile>
     <Compile Include="Views\PerformanceView.xaml.cs">
       <DependentUpon>PerformanceView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TimelineView.xaml.cs">
+      <DependentUpon>TimelineView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VisualTree.xaml.cs">
       <DependentUpon>VisualTree.xaml</DependentUpon>
@@ -145,6 +150,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\PerformanceView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\TimelineView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
