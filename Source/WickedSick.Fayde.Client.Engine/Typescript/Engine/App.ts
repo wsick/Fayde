@@ -143,9 +143,8 @@ class App implements Fayde.IResourcable, Fayde.ITimerListener {
     }
 
     get CurrentTheme(): Fayde.Theme {
-        var themes = App.Themes;
-        var themeName = App.Current.Theme;
-        var theme = themes.filter(t => t.Name == themeName)[0];
+        var themeName = this.Theme;
+        var theme = App.Themes.filter(t => t.Name == themeName)[0];
         if (!theme) {
             console.warn("Could not find theme: " + themeName);
             theme = App.Themes[0];

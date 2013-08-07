@@ -287,6 +287,7 @@ module Fayde {
                 cur = subJson[i];
                 key = cur.Key;
                 val = cur.Value;
+                if (!key) key = val.Name;
 
                 if (val.ParseType === Style) {
                     fobj = this.CreateObject(val, namescope, true);
