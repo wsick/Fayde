@@ -1,42 +1,42 @@
 declare module Fayde.Controls {
     enum TextWrapping {
-        NoWrap,
-        Wrap,
-        WrapWithOverflow,
+        NoWrap = 0,
+        Wrap = 1,
+        WrapWithOverflow = 2,
     }
     enum ScrollBarVisibility {
-        Disabled,
-        Auto,
-        Hidden,
-        Visible,
+        Disabled = 0,
+        Auto = 1,
+        Hidden = 2,
+        Visible = 3,
     }
     enum TextTrimming {
-        None,
+        None = 0,
     }
     enum ClickMode {
-        Release,
-        Press,
-        Hover,
+        Release = 0,
+        Press = 1,
+        Hover = 2,
     }
     enum PlacementMode {
-        Bottom,
-        Right,
-        Mouse,
-        Left,
-        Top,
+        Bottom = 0,
+        Right = 1,
+        Mouse = 2,
+        Left = 3,
+        Top = 4,
     }
     enum SelectionMode {
-        Single,
-        Multiple,
-        Extended,
+        Single = 0,
+        Multiple = 1,
+        Extended = 2,
     }
     enum MediaElementState {
-        Closed,
-        Opening,
-        Buffering,
-        Playing,
-        Paused,
-        Stopped,
+        Closed = 0,
+        Opening = 1,
+        Buffering = 4,
+        Playing = 5,
+        Paused = 6,
+        Stopped = 7,
     }
 }
 declare module Fayde.Controls {
@@ -110,12 +110,12 @@ declare module Fayde {
 }
 declare module Fayde {
     enum Orientation {
-        Horizontal,
-        Vertical,
+        Horizontal = 0,
+        Vertical = 1,
     }
     enum Visibility {
-        Visible,
-        Collapsed,
+        Visible = 0,
+        Collapsed = 1,
     }
     var CursorType: {
         Default: string;
@@ -128,46 +128,46 @@ declare module Fayde {
         SizeWE: string;
     };
     enum HorizontalAlignment {
-        Left,
-        Center,
-        Right,
-        Stretch,
+        Left = 0,
+        Center = 1,
+        Right = 2,
+        Stretch = 3,
     }
     enum VerticalAlignment {
-        Top,
-        Center,
-        Bottom,
-        Stretch,
+        Top = 0,
+        Center = 1,
+        Bottom = 2,
+        Stretch = 3,
     }
     enum FlowDirection {
-        LeftToRight,
-        RightToLeft,
+        LeftToRight = 0,
+        RightToLeft = 1,
     }
     enum FontWeight {
-        Thin,
-        ExtraLight,
-        Light,
-        Normal,
-        Medium,
-        SemiBold,
-        Bold,
-        ExtraBold,
-        Black,
-        ExtraBlack,
+        Thin = 100,
+        ExtraLight = 200,
+        Light = 300,
+        Normal = 400,
+        Medium = 500,
+        SemiBold = 600,
+        Bold = 700,
+        ExtraBold = 800,
+        Black = 900,
+        ExtraBlack = 950,
     }
     enum TextAlignment {
-        Left,
-        Center,
-        Right,
-        Justify,
+        Left = 0,
+        Center = 1,
+        Right = 2,
+        Justify = 3,
     }
     enum TextDecorations {
-        None,
-        Underline,
+        None = 0,
+        Underline = 1,
     }
     enum LineStackingStrategy {
-        MaxHeight,
-        BlockLineHeight,
+        MaxHeight = 0,
+        BlockLineHeight = 1,
     }
 }
 declare module Fayde {
@@ -226,13 +226,13 @@ declare module Fayde {
 }
 declare module Fayde.Providers {
     enum StyleIndex {
-        VisualTree,
-        ApplicationResources,
-        GenericXaml,
-        Count,
+        VisualTree = 0,
+        ApplicationResources = 1,
+        GenericXaml = 2,
+        Count = 3,
     }
     enum StyleMask {
-        None,
+        None = 0,
         VisualTree,
         ApplicationResources,
         GenericXaml,
@@ -263,16 +263,16 @@ declare module Fayde {
 }
 declare module Fayde.Providers {
     enum PropertyPrecedence {
-        IsEnabled,
-        LocalValue,
-        LocalStyle,
-        ImplicitStyle,
-        Inherited,
-        InheritedDataContext,
-        DefaultValue,
-        Lowest,
-        Highest,
-        Count,
+        IsEnabled = 0,
+        LocalValue = 1,
+        LocalStyle = 2,
+        ImplicitStyle = 3,
+        Inherited = 4,
+        InheritedDataContext = 5,
+        DefaultValue = 6,
+        Lowest = 6,
+        Highest = 0,
+        Count = 7,
     }
     interface IPropertyChangedListener {
         Property: DependencyProperty;
@@ -309,26 +309,26 @@ declare module Fayde.Providers {
 }
 declare module Fayde.Data {
     enum RelativeSourceMode {
-        TemplatedParent,
-        Self,
-        FindAncestor,
+        TemplatedParent = 1,
+        Self = 2,
+        FindAncestor = 3,
     }
     enum BindingMode {
-        TwoWay,
-        OneWay,
-        OneTime,
-        OneWayToSource,
+        TwoWay = 0,
+        OneWay = 1,
+        OneTime = 2,
+        OneWayToSource = 3,
     }
     enum UpdateSourceTrigger {
-        Default,
-        PropertyChanged,
-        Explicit,
+        Default = 0,
+        PropertyChanged = 1,
+        Explicit = 3,
     }
     enum _PropertyNodeType {
-        AttachedProperty,
-        Property,
-        Indexed,
-        None,
+        AttachedProperty = 0,
+        Property = 1,
+        Indexed = 2,
+        None = 3,
     }
 }
 declare module Fayde.Data {
@@ -338,10 +338,10 @@ declare module Fayde.Data {
         index: number;
     }
     enum PropertyNodeType {
-        None,
-        AttachedProperty,
-        Indexed,
-        Property,
+        None = 0,
+        AttachedProperty = 1,
+        Indexed = 2,
+        Property = 3,
     }
     class PropertyPathParser {
         public Path: string;
@@ -433,33 +433,33 @@ declare module Fayde {
 }
 declare module Fayde.Media {
     enum BrushMappingMode {
-        Absolute,
-        RelativeToBoundingBox,
+        Absolute = 0,
+        RelativeToBoundingBox = 1,
     }
     enum GradientSpreadMethod {
-        Pad,
-        Reflect,
-        Repeat,
+        Pad = 0,
+        Reflect = 1,
+        Repeat = 2,
     }
     enum Stretch {
-        None,
-        Fill,
-        Uniform,
-        UniformToFill,
+        None = 0,
+        Fill = 1,
+        Uniform = 2,
+        UniformToFill = 3,
     }
     enum AlignmentX {
-        Left,
-        Center,
-        Right,
+        Left = 0,
+        Center = 1,
+        Right = 2,
     }
     enum AlignmentY {
-        Top,
-        Center,
-        Bottom,
+        Top = 0,
+        Center = 1,
+        Bottom = 2,
     }
     enum TextHintingMode {
-        Fixed,
-        Animated,
+        Fixed = 0,
+        Animated = 1,
     }
 }
 declare module Fayde.Media {
@@ -533,13 +533,13 @@ declare module Fayde.Media.Animation {
 }
 declare module Fayde.Media.Animation {
     enum EasingMode {
-        EaseOut,
-        EaseIn,
-        EaseInOut,
+        EaseOut = 0,
+        EaseIn = 1,
+        EaseInOut = 2,
     }
     enum FillBehavior {
-        HoldEnd,
-        Stop,
+        HoldEnd = 0,
+        Stop = 1,
     }
 }
 declare module vec2 {
@@ -636,7 +636,7 @@ interface IJsFilesImportToken {
     DoOnComplete(callback: (token: IJsFilesImportToken) => void);
 }
 declare class Nullstone {
-    static RegisterType(type: Function, name: string, interfaces?: IInterfaceDeclaration[]): void;
+    static RegisterType(type: any, name: string, interfaces?: IInterfaceDeclaration[]): void;
     static Equals(val1: any, val2: any): boolean;
     static DoesInheritFrom(t: IType, type: Function): boolean;
     static GetPropertyDescriptor(obj: any, name: string): PropertyDescriptor;
@@ -691,41 +691,41 @@ declare class TimelineProfile {
 }
 declare module Fayde.Shapes {
     enum PathEntryType {
-        Move,
-        Line,
-        Rect,
-        Quadratic,
-        Bezier,
-        EllipticalArc,
-        Arc,
-        ArcTo,
-        Close,
+        Move = 0,
+        Line = 1,
+        Rect = 2,
+        Quadratic = 3,
+        Bezier = 4,
+        EllipticalArc = 5,
+        Arc = 6,
+        ArcTo = 7,
+        Close = 8,
     }
     enum ShapeFlags {
-        None,
-        Empty,
-        Normal,
-        Degenerate,
-        Radii,
+        None = 0,
+        Empty = 1,
+        Normal = 2,
+        Degenerate = 4,
+        Radii = 8,
     }
     enum PenLineCap {
-        Flat,
-        Square,
-        Round,
-        Triangle,
+        Flat = 0,
+        Square = 1,
+        Round = 2,
+        Triangle = 3,
     }
     enum PenLineJoin {
-        Miter,
-        Bevel,
-        Round,
+        Miter = 0,
+        Bevel = 1,
+        Round = 2,
     }
     enum FillRule {
-        EvenOdd,
-        NonZero,
+        EvenOdd = 0,
+        NonZero = 1,
     }
     enum SweepDirection {
-        Counterclockwise,
-        Clockwise,
+        Counterclockwise = 0,
+        Clockwise = 1,
     }
 }
 declare module Fayde.Shapes {
@@ -933,9 +933,9 @@ declare module Fayde.Collections {
 }
 declare module Fayde.Controls {
     enum GridUnitType {
-        Auto,
-        Pixel,
-        Star,
+        Auto = 0,
+        Pixel = 1,
+        Star = 2,
     }
     class GridLength implements ICloneable {
         public Value: number;
@@ -1007,29 +1007,35 @@ declare class DependencyProperty {
     public _ID: number;
     public Name: string;
     public GetTargetType: () => IType;
-    public OwnerType: Function;
+    public OwnerType: any;
     public DefaultValue: any;
     public IsReadOnly: boolean;
     public IsCustom: boolean;
     public IsAttached: boolean;
     public IsInheritable: boolean;
+    public IsImmutable: boolean;
     public ChangedCallback: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void;
     public AlwaysChange: boolean;
     public Store: Fayde.Providers.PropertyStore;
     private _Coercer;
     private _Validator;
-    static Register(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterReadOnly(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterAttached(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterCore(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterReadOnlyCore(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterAttachedCore(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterInheritable(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
-    static RegisterFull(name: string, getTargetType: () => IType, ownerType: Function, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void, coercer?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any, alwaysChange?: boolean, validator?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => boolean, isCustom?: boolean, isReadOnly?: boolean, isAttached?: boolean): DependencyProperty;
+    static Register(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterReadOnly(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterAttached(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterCore(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterReadOnlyCore(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterAttachedCore(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterImmutable(name: string, getTargetType: () => IType, ownerType: any): ImmutableDependencyProperty;
+    static RegisterInheritable(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void): DependencyProperty;
+    static RegisterFull(name: string, getTargetType: () => IType, ownerType: any, defaultValue?: any, changedCallback?: (dobj: Fayde.DependencyObject, args: DependencyPropertyChangedEventArgs) => void, coercer?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => any, alwaysChange?: boolean, validator?: (dobj: Fayde.DependencyObject, propd: DependencyProperty, value: any) => boolean, isCustom?: boolean, isReadOnly?: boolean, isAttached?: boolean): DependencyProperty;
     private FinishRegister();
     public ExtendTo(type: any): DependencyProperty;
     public ValidateSetValue(dobj: Fayde.DependencyObject, value: any, isValidOut: IOutIsValid);
-    static GetDependencyProperty(ownerType: Function, name: string, noError?: boolean): DependencyProperty;
+    static GetDependencyProperty(ownerType: any, name: string, noError?: boolean): DependencyProperty;
+}
+declare class ImmutableDependencyProperty extends DependencyProperty {
+    public IsImmutable: boolean;
+    public Initialize<T>(dobj: Fayde.DependencyObject): T;
 }
 declare module Fayde {
     class Expression {
@@ -1054,14 +1060,14 @@ declare module Fayde {
 }
 declare module Fayde {
     enum UIElementFlags {
-        None,
-        RenderVisible,
-        HitTestVisible,
-        TotalRenderVisible,
-        TotalHitTestVisible,
-        DirtyArrangeHint,
-        DirtyMeasureHint,
-        DirtySizeHint,
+        None = 0,
+        RenderVisible = 0x02,
+        HitTestVisible = 0x04,
+        TotalRenderVisible = 0x08,
+        TotalHitTestVisible = 0x10,
+        DirtyArrangeHint = 0x800,
+        DirtyMeasureHint = 0x1000,
+        DirtySizeHint = 0x2000,
     }
     interface ILayoutPass {
         MeasureList: LayoutUpdater[];
@@ -1252,10 +1258,10 @@ declare module Fayde {
 }
 declare module Fayde {
     enum VisualTreeDirection {
-        Logical,
-        LogicalReverse,
-        ZFoward,
-        ZReverse,
+        Logical = 0,
+        LogicalReverse = 1,
+        ZFoward = 2,
+        ZReverse = 3,
     }
     interface IDataContextMonitor {
         Callback: (newDataContext: any) => void;
@@ -1333,6 +1339,16 @@ declare module Fayde.Providers {
         public GetValuePrecedence(storage: IDataContextStorage): Providers.PropertyPrecedence;
         public EmitInheritedChanged(storage: IDataContextStorage, newInherited?: any): void;
         public CreateStorage(dobj: Fayde.DependencyObject, propd: DependencyProperty): IDataContextStorage;
+    }
+}
+declare module Fayde.Providers {
+    class ImmutableStore extends Providers.PropertyStore {
+        static Instance: ImmutableStore;
+        public GetValue(storage: Providers.IPropertyStorage): any;
+        public GetValuePrecedence(storage: Providers.IPropertyStorage): Providers.PropertyPrecedence;
+        public SetLocalValue(storage: Providers.IPropertyStorage, newValue: any): void;
+        public ClearValue(storage: Providers.IPropertyStorage): void;
+        public ListenToChanged(target: Fayde.DependencyObject, propd: DependencyProperty, func: (sender: any, args: IDependencyPropertyChangedEventArgs) => void, closure: any): Providers.IPropertyChangedListener;
     }
 }
 declare module Fayde.Providers {
@@ -1597,13 +1613,13 @@ interface IFocusChangedEvents {
     LostFocus: Fayde.UINode[];
 }
 declare enum InputType {
-    NoOp,
-    MouseUp,
-    MouseDown,
-    MouseLeave,
-    MouseEnter,
-    MouseMove,
-    MouseWheel,
+    NoOp = 0,
+    MouseUp = 1,
+    MouseDown = 2,
+    MouseLeave = 3,
+    MouseEnter = 4,
+    MouseMove = 5,
+    MouseWheel = 6,
 }
 interface ICommonElementIndices {
     Index1: number;
@@ -1706,20 +1722,20 @@ declare module Fayde.Input {
 }
 declare module Fayde.Input {
     enum KeyboardNavigationMode {
-        Continue,
-        Once,
-        Cycle,
-        None,
-        Contained,
-        Local,
+        Continue = 0,
+        Once = 1,
+        Cycle = 2,
+        None = 3,
+        Contained = 4,
+        Local = 5,
     }
     enum ModifierKeys {
-        None,
-        Alt,
-        Control,
-        Shift,
-        Windows,
-        Apple,
+        None = 0,
+        Alt = 1,
+        Control = 2,
+        Shift = 4,
+        Windows = 8,
+        Apple = 16,
     }
     interface IModifiersOn {
         Shift: boolean;
@@ -2045,9 +2061,9 @@ declare class CornerRadius implements ICloneable {
     public Clone(): CornerRadius;
 }
 declare enum DurationType {
-    Automatic,
-    Forever,
-    TimeSpan,
+    Automatic = 0,
+    Forever = 1,
+    TimeSpan = 2,
 }
 declare class Duration implements ICloneable {
     private _Type;
@@ -2320,10 +2336,10 @@ declare class MulticastEvent<T extends EventArgs> {
 }
 declare module Fayde.Collections {
     enum NotifyCollectionChangedAction {
-        Add,
-        Remove,
-        Replace,
-        Reset,
+        Add = 1,
+        Remove = 2,
+        Replace = 3,
+        Reset = 4,
     }
     class NotifyCollectionChangedEventArgs extends EventArgs {
         public Action: NotifyCollectionChangedAction;
@@ -2515,6 +2531,7 @@ declare module Fayde {
 declare module Fayde {
     class Style extends Fayde.DependencyObject {
         private _IsSealed;
+        static SettersProperty: ImmutableDependencyProperty;
         static BasedOnProperty: DependencyProperty;
         static TargetTypeProperty: DependencyProperty;
         public Setters: Fayde.SetterCollection;
@@ -2674,90 +2691,90 @@ declare module Fayde.Input {
 }
 declare module Fayde.Input {
     enum Key {
-        None,
-        Back,
-        Tab,
-        Enter,
-        Shift,
-        Ctrl,
-        Alt,
-        CapsLock,
-        Escape,
-        Space,
-        PageUp,
-        PageDown,
-        End,
-        Home,
-        Left,
-        Up,
-        Right,
-        Down,
-        Insert,
-        Delete,
-        D0,
-        D1,
-        D2,
-        D3,
-        D4,
-        D5,
-        D6,
-        D7,
-        D8,
-        D9,
-        A,
-        B,
-        C,
-        D,
-        E,
-        F,
-        G,
-        H,
-        I,
-        J,
-        K,
-        L,
-        M,
-        N,
-        O,
-        P,
-        Q,
-        R,
-        S,
-        T,
-        U,
-        V,
-        W,
-        X,
-        Y,
-        Z,
-        F1,
-        F2,
-        F3,
-        F4,
-        F5,
-        F6,
-        F7,
-        F8,
-        F9,
-        F10,
-        F11,
-        F12,
-        NumPad0,
-        NumPad1,
-        NumPad2,
-        NumPad3,
-        NumPad4,
-        NumPad5,
-        NumPad6,
-        NumPad7,
-        NumPad8,
-        NumPad9,
-        Multiply,
-        Add,
-        Subtract,
-        Decimal,
-        Divide,
-        Unknown,
+        None = 0,
+        Back = 1,
+        Tab = 2,
+        Enter = 3,
+        Shift = 4,
+        Ctrl = 5,
+        Alt = 6,
+        CapsLock = 7,
+        Escape = 8,
+        Space = 9,
+        PageUp = 10,
+        PageDown = 11,
+        End = 12,
+        Home = 13,
+        Left = 14,
+        Up = 15,
+        Right = 16,
+        Down = 17,
+        Insert = 18,
+        Delete = 19,
+        D0 = 20,
+        D1 = 21,
+        D2 = 22,
+        D3 = 23,
+        D4 = 24,
+        D5 = 25,
+        D6 = 26,
+        D7 = 27,
+        D8 = 28,
+        D9 = 29,
+        A = 30,
+        B = 31,
+        C = 32,
+        D = 33,
+        E = 34,
+        F = 35,
+        G = 36,
+        H = 37,
+        I = 38,
+        J = 39,
+        K = 40,
+        L = 41,
+        M = 42,
+        N = 43,
+        O = 44,
+        P = 45,
+        Q = 46,
+        R = 47,
+        S = 48,
+        T = 49,
+        U = 50,
+        V = 51,
+        W = 52,
+        X = 53,
+        Y = 54,
+        Z = 55,
+        F1 = 56,
+        F2 = 57,
+        F3 = 58,
+        F4 = 59,
+        F5 = 60,
+        F6 = 61,
+        F7 = 62,
+        F8 = 63,
+        F9 = 64,
+        F10 = 65,
+        F11 = 66,
+        F12 = 67,
+        NumPad0 = 68,
+        NumPad1 = 69,
+        NumPad2 = 70,
+        NumPad3 = 71,
+        NumPad4 = 72,
+        NumPad5 = 73,
+        NumPad6 = 74,
+        NumPad7 = 75,
+        NumPad8 = 76,
+        NumPad9 = 77,
+        Multiply = 78,
+        Add = 79,
+        Subtract = 80,
+        Decimal = 81,
+        Divide = 82,
+        Unknown = 255,
     }
     class KeyboardEventArgs extends Fayde.RoutedEventArgs {
     }
@@ -2869,6 +2886,7 @@ declare module Fayde.Media {
 declare module Fayde.Media {
     class GeometryGroup extends Media.Geometry implements Media.IGeometryListener {
         static FillRulleProperty: DependencyProperty;
+        static ChildrenProperty: ImmutableDependencyProperty;
         public FillRule: Fayde.Shapes.FillRule;
         public Children: Media.GeometryCollection;
         constructor();
@@ -2924,6 +2942,7 @@ declare module Fayde.Media {
         static IsClosedProperty: DependencyProperty;
         static StartPointProperty: DependencyProperty;
         static IsFilledProperty: DependencyProperty;
+        static SegmentsProperty: ImmutableDependencyProperty;
         public IsClosed: boolean;
         public Segments: Media.PathSegmentCollection;
         public StartPoint: Point;
@@ -2954,6 +2973,7 @@ declare module Fayde.Media {
             ContentProperty: string;
         };
         static FillRuleProperty: DependencyProperty;
+        static FiguresProperty: ImmutableDependencyProperty;
         public FillRule: Fayde.Shapes.FillRule;
         public Figures: Media.PathFigureCollection;
         constructor();
@@ -3150,6 +3170,7 @@ declare module Fayde.Media {
         public RelayChanges(func: () => void): void;
     }
     class TransformGroup extends Media.Transform {
+        static ChildrenProperty: ImmutableDependencyProperty;
         public Children: TransformCollection;
         private _TransformListener;
         constructor();
@@ -3390,6 +3411,7 @@ declare module Fayde.Media.VSM {
         constructor(oldState: VSM.VisualState, newState: VSM.VisualState, control: Fayde.Controls.Control);
     }
     class VisualStateGroup extends Fayde.DependencyObject {
+        static StatesProperty: ImmutableDependencyProperty;
         static Annotations: {
             ContentProperty: string;
         };
@@ -3617,15 +3639,15 @@ declare module Fayde.Controls.Primitives {
 }
 declare module Fayde.Controls.Primitives {
     enum ScrollEventType {
-        SmallDecrement,
-        SmallIncrement,
-        LargeDecrement,
-        LargeIncrement,
-        ThumbPosition,
-        ThumbTrack,
-        First,
-        Last,
-        EndScroll,
+        SmallDecrement = 0,
+        SmallIncrement = 1,
+        LargeDecrement = 2,
+        LargeIncrement = 3,
+        ThumbPosition = 4,
+        ThumbTrack = 5,
+        First = 6,
+        Last = 7,
+        EndScroll = 8,
     }
     class ScrollEventArgs extends Fayde.RoutedEventArgs {
         public ScrollEventType: ScrollEventType;
@@ -3863,6 +3885,7 @@ declare module Fayde.Documents {
 declare module Fayde.Documents {
     class Paragraph extends Documents.Block {
         public CreateNode(): Documents.TextElementNode;
+        static InlinesProperty: ImmutableDependencyProperty;
         static Annotations: {
             ContentProperty: string;
         };
@@ -3884,6 +3907,7 @@ declare module Fayde.Documents {
 declare module Fayde.Documents {
     class Section extends Documents.TextElement implements Documents.IBlocksChangedListener {
         public CreateNode(): Documents.TextElementNode;
+        static BlocksProperty: ImmutableDependencyProperty;
         static Annotations: {
             ContentProperty: string;
         };
@@ -3895,6 +3919,7 @@ declare module Fayde.Documents {
 declare module Fayde.Documents {
     class Span extends Documents.Inline implements Documents.IInlinesChangedListener {
         public CreateNode(): Documents.TextElementNode;
+        static InlinesProperty: ImmutableDependencyProperty;
         static Annotations: {
             ContentProperty: string;
         };
@@ -3942,6 +3967,7 @@ declare module Fayde.Media {
 }
 declare module Fayde.Media {
     class GradientBrush extends Media.Brush implements Media.IGradientStopsListener {
+        static GradientStopsProperty: ImmutableDependencyProperty;
         static MappingModeProperty: DependencyProperty;
         static SpreadMethodProperty: DependencyProperty;
         public GradientStops: Media.GradientStopCollection;
@@ -4059,6 +4085,7 @@ declare module Fayde.Media.Animation {
 }
 declare module Fayde.Media.Animation {
     class AnimationUsingKeyFrames extends Animation.AnimationBase {
+        static KeyFramesProperty: ImmutableDependencyProperty;
         public KeyFrames: Animation.KeyFrameCollection;
         constructor();
         public Resolve(target: Fayde.DependencyObject, propd: DependencyProperty): boolean;
@@ -4222,6 +4249,7 @@ declare module Fayde.Media.Animation {
         static TargetPropertyProperty: DependencyProperty;
         static GetTargetProperty(d: Fayde.DependencyObject): Fayde.Data.PropertyPath;
         static SetTargetProperty(d: Fayde.DependencyObject, value: Fayde.Data.PropertyPath): void;
+        static ChildrenProperty: ImmutableDependencyProperty;
         public TargetName: string;
         public TargetProperty: Fayde.Data.PropertyPath;
         public Children: Animation.TimelineCollection;
@@ -4377,6 +4405,7 @@ declare module Fayde {
         static StyleProperty: DependencyProperty;
         static VerticalAlignmentProperty: DependencyProperty;
         static WidthProperty: DependencyProperty;
+        static ResourcesProperty: ImmutableDependencyProperty;
         public IsInheritable(propd: DependencyProperty): boolean;
         public ActualHeight: number;
         public ActualWidth: number;
@@ -4542,7 +4571,6 @@ declare module Fayde.Controls {
         public _ContentTemplateChanged(): void;
     }
     class ContentPresenter extends Fayde.FrameworkElement {
-        public XamlNode: ContentPresenterNode;
         public CreateNode(): ContentPresenterNode;
         static ContentProperty: DependencyProperty;
         static ContentTemplateProperty: DependencyProperty;
@@ -4894,6 +4922,7 @@ declare module Fayde.Controls {
         static ForegroundProperty: DependencyProperty;
         static TextDecorationsProperty: DependencyProperty;
         static TextProperty: DependencyProperty;
+        static InlinesProperty: ImmutableDependencyProperty;
         static LineStackingStrategyProperty: DependencyProperty;
         static LineHeightProperty: DependencyProperty;
         static TextAlignmentProperty: DependencyProperty;
@@ -4929,16 +4958,16 @@ declare module Fayde.Controls {
 }
 declare module Fayde.Controls {
     enum TextBoxModelChangedType {
-        Nothing,
-        TextAlignment,
-        TextWrapping,
-        Selection,
-        Brush,
-        Font,
-        Text,
+        Nothing = 0,
+        TextAlignment = 1,
+        TextWrapping = 2,
+        Selection = 3,
+        Brush = 4,
+        Font = 5,
+        Text = 6,
     }
     enum TextBoxEmitChangedType {
-        NOTHING,
+        NOTHING = 0,
         SELECTION,
         TEXT,
     }
@@ -5125,8 +5154,8 @@ declare module Fayde.Controls {
 }
 declare module Fayde.Controls {
     enum VirtualizationMode {
-        Standard,
-        Recycling,
+        Standard = 0,
+        Recycling = 1,
     }
     interface ICancelable {
         Cancel: boolean;
@@ -5615,6 +5644,8 @@ declare module Fayde.Controls {
         static RowSpanProperty: DependencyProperty;
         static GetRowSpan(d: Fayde.DependencyObject): number;
         static SetRowSpan(d: Fayde.DependencyObject, value: number): void;
+        static ColumnDefinitionsProperty: ImmutableDependencyProperty;
+        static RowDefinitionsProperty: ImmutableDependencyProperty;
         static ShowGridLinesProperty: DependencyProperty;
         public ShowGridLines: boolean;
         public ColumnDefinitions: Controls.ColumnDefinitionCollection;

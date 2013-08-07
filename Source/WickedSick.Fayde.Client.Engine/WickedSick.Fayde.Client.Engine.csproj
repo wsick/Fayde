@@ -74,7 +74,7 @@
     <Content Include="Docs\Notes.txt" />
     <Content Include="Docs\Plugins.txt" />
     <Content Include="Docs\XamlNotes.txt" />
-    <Content Include="Fayde.Theme.Default.js" />
+    <Content Include="Fayde.Theme.Silverlight.js" />
     <Content Include="Fayde.js">
       <DependentUpon>Fayde.ts</DependentUpon>
     </Content>
