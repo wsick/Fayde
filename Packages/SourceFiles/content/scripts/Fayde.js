@@ -16197,7 +16197,7 @@ var Fayde;
             return ObservableObject;
         })();
         MVVM.ObservableObject = ObservableObject;
-        Nullstone.RegisterType(ObservableObject, "ObservableObject");
+        Nullstone.RegisterType(ObservableObject, "ObservableObject", [Fayde.INotifyPropertyChanged_]);
     })(Fayde.MVVM || (Fayde.MVVM = {}));
     var MVVM = Fayde.MVVM;
 })(Fayde || (Fayde = {}));
@@ -19561,6 +19561,7 @@ var Fayde;
                     this.ImageOpened.Raise(this, EventArgs.Empty);
                 };
                 ImageBrush.prototype.ImageChanged = function (source) {
+                    this.InvalidateBrush();
                 };
                 ImageBrush.ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", function () {
                     return Imaging.ImageSource;
@@ -27493,7 +27494,6 @@ var Fayde;
                 _super.call(this, xobj);
             }
             GridNode.prototype.ComputeBounds = function (baseComputer, lu) {
-                _super.prototype.ComputeBounds.call(this, baseComputer, lu);
                 if (this.XObject.ShowGridLines) {
                     rect.set(lu.Extents, 0, 0, lu.ActualWidth, lu.ActualHeight);
                     rect.union(lu.ExtentsWithChildren, lu.Extents);
@@ -27501,6 +27501,8 @@ var Fayde;
                     rect.union(lu.BoundsWithChildren, lu.Bounds);
                     lu.ComputeGlobalBounds();
                     lu.ComputeSurfaceBounds();
+                } else {
+                    _super.prototype.ComputeBounds.call(this, baseComputer, lu);
                 }
             };
             return GridNode;

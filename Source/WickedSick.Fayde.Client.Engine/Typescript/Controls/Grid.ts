@@ -10,7 +10,6 @@ module Fayde.Controls {
             super(xobj);
         }
         ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
-            super.ComputeBounds(baseComputer, lu);
             if (this.XObject.ShowGridLines) {
                 rect.set(lu.Extents, 0, 0, lu.ActualWidth, lu.ActualHeight);
                 rect.union(lu.ExtentsWithChildren, lu.Extents);
@@ -19,6 +18,8 @@ module Fayde.Controls {
 
                 lu.ComputeGlobalBounds();
                 lu.ComputeSurfaceBounds();
+            } else {
+                super.ComputeBounds(baseComputer, lu);
             }
         }
     }
