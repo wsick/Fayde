@@ -408,30 +408,10 @@
     <Content Include="Silo\image-load.html" />
     <Content Include="Silo\RawPath\quad-bezier-bounds.html" />
     <Content Include="Silo\UnitTestValidation.htm" />
-    <Content Include="Styles\AllControls.xml">
+    <Content Include="Themes\Silverlight.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Styles\CheckBox.xml" />
-    <Content Include="Styles\ContentPresenter.xml" />
-    <Content Include="Styles\Cosmopolitan.CoreStyles.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Styles\HyperlinkButton.xml" />
-    <Content Include="Styles\RadioButton.xml" />
-    <Content Include="Styles\RepeatButton.xml" />
-    <Content Include="Styles\ScrollBar.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Styles\ScrollViewer.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Styles\TextBox.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Styles\Button.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Styles\Thumb.xml">
+    <Content Include="Themes\Metro.xml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Silo\heightTest.htm" />

@@ -10,7 +10,7 @@ namespace WickedSick.Fayde.Client.Engine
         {
             base.OnInit(e);
 
-            var styleFiles = Directory.EnumerateFiles(Request.MapPath("Styles"), "*.xml");
+            var styleFiles = Directory.EnumerateFiles(Request.MapPath("Themes"), "*.xml");
             faydeFiles.DataSource = styleFiles;
             faydeFiles.DataBind();
         }
