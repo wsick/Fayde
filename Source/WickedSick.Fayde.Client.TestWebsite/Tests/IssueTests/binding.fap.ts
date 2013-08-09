@@ -12,8 +12,17 @@ module Tests.IssueTests {
     }
     Nullstone.RegisterType(Application, "Application");
 
+    export interface IItem {
+        Name: string;
+        Data: number;
+    }
+
     export class TestViewModel extends Fayde.MVVM.ViewModelBase {
-        AllItems: string[] = ["Item1", "Item2", "Item3"];
+        AllItems: IItem[] = [
+            { Name: "Item1", Data: 0 },
+            { Name: "Item2", Data: 1 },
+            { Name: "Item3", Data: 2 }
+        ];
         SelectedItem: string;
         private static ctor = (() => {
             Fayde.MVVM.NotifyProperties(TestViewModel, ["SelectedItem"]);

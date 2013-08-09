@@ -12,7 +12,16 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <ListBox ItemsSource="{Binding AllItems}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
         </ListBox>
-        <TextBlock Grid.Column="1" Text="{Binding SelectedItem}" />
+        <StackPanel Orientation="Horizontal" Grid.Column="1" DataContext="{Binding SelectedItem}">
+            <TextBlock Text="{Binding Data}" />
+            <TextBlock Text=". " />
+            <TextBlock Text="{Binding Name}" />
+        </StackPanel>
     </Grid>
 </FaydeApplication>

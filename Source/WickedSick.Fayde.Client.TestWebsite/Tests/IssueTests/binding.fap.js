@@ -26,7 +26,11 @@ var Tests;
             __extends(TestViewModel, _super);
             function TestViewModel() {
                 _super.apply(this, arguments);
-                this.AllItems = ["Item1", "Item2", "Item3"];
+                this.AllItems = [
+                    { Name: "Item1", Data: 0 },
+                    { Name: "Item2", Data: 1 },
+                    { Name: "Item3", Data: 2 }
+                ];
             }
             TestViewModel.ctor = (function () {
                 Fayde.MVVM.NotifyProperties(TestViewModel, ["SelectedItem"]);
