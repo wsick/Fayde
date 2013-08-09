@@ -399,6 +399,7 @@
     <Content Include="Javascript\Media\VSM\VisualStateManager.js" />
     <Content Include="Javascript\Core\VisualTreeHelper.js" />
     <Content Include="Silo\brush-transform.html" />
+    <Content Include="Silo\hittest.html" />
     <Content Include="Silo\lineargradient-pattern.html" />
     <Content Include="Silo\matrix-multiplypoint.html" />
     <Content Include="Silo\RawPath\arcto-bounds.html" />
