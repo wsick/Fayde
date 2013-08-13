@@ -79,7 +79,7 @@ module Fayde {
             if (value instanceof Expression)
                 expression = value;
             if (expression instanceof Data.BindingExpressionBase) {
-                var binding = (<Data.BindingExpressionBase>expression).Binding;
+                var binding = (<Data.BindingExpressionBase>expression).ParentBinding;
                 var path = binding.Path.Path;
                 if ((!path || path === ".") && binding.Mode === Data.BindingMode.TwoWay)
                     throw new ArgumentException("TwoWay bindings require a non-empty Path.");
@@ -103,7 +103,7 @@ module Fayde {
                 value = expression.GetValue(propd);
             } else if (existing) {
                 if (existing instanceof Data.BindingExpressionBase) {
-                    var binding = (<Data.BindingExpressionBase>existing).Binding;
+                    var binding = (<Data.BindingExpressionBase>existing).ParentBinding;
                     if (binding.Mode === Data.BindingMode.TwoWay) {
                         updateTwoWay = !existing.IsUpdating && !propd.IsCustom;
                     } else if (!existing.IsUpdating || binding.Mode === Data.BindingMode.OneTime) {

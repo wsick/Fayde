@@ -2,13 +2,24 @@
 
 QUnit.module("Binding Tests");
 
+test("Basic BindingExpression", () => {
+    var binding = new Fayde.Data.Binding("Value");
+    var data = { Value: 12 };
+    binding.Source = data;
+    var r = new Fayde.Shapes.Rectangle();
+    var expr = <Fayde.Data.BindingExpression>r.SetBinding(Fayde.Shapes.Shape.WidthProperty, binding);
+
+    strictEqual(expr.DataItem, data, "DataItem should be the source.");
+    strictEqual(expr.ParentBinding, binding, "ParentBinding on expression should be the same as specified binding.");
+});
+
 test("DataContext Source", () => {
     var binding = new Fayde.Data.Binding("Value");
 
     var vm = { Value: 23 };
 
     var r = new Fayde.Shapes.Rectangle();
-    r.SetBinding(Fayde.Shapes.Rectangle.WidthProperty, binding);
+    r.SetBinding(Fayde.Shapes.Shape.WidthProperty, binding);
     r.DataContext = vm;
 
     equal(r.Width, 23, "Target of binding with datacontext set should have value provided.");
@@ -62,7 +73,7 @@ test("UpdateSource", () => {
     binding.UpdateSourceTrigger = Fayde.Data.UpdateSourceTrigger.Explicit;
 
     var r = new Fayde.Shapes.Rectangle();
-    var expr = <Fayde.Data.BindingExpression>r.SetBinding(Fayde.Shapes.Rectangle.WidthProperty, binding);
+    var expr = <Fayde.Data.BindingExpression>r.SetBinding(Fayde.Shapes.Shape.WidthProperty, binding);
     r.Width = 100;
 
     equal(data.Value, 10, "Explicit Two-Way Binding should not update data until explicitly called.");
