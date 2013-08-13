@@ -11,4 +11,4 @@ var NflDraft;
     })(NflDraft.Models || (NflDraft.Models = {}));
     var Models = NflDraft.Models;
 })(NflDraft || (NflDraft = {}));
-//@ sourceMappingURL=FantasyTeam.js.map
+//# sourceMappingURL=FantasyTeam.js.map

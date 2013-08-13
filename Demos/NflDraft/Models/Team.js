@@ -4,13 +4,17 @@ var NflDraft;
         var Team = (function () {
             function Team() {
             }
-            Team.prototype.FullName = function () {
-                return this.Location + " " + this.Nickname;
-            };
+            Object.defineProperty(Team.prototype, "FullName", {
+                get: function () {
+                    return this.Location + " " + this.Nickname;
+                },
+                enumerable: true,
+                configurable: true
+            });
             return Team;
         })();
         Models.Team = Team;
     })(NflDraft.Models || (NflDraft.Models = {}));
     var Models = NflDraft.Models;
 })(NflDraft || (NflDraft = {}));
-//@ sourceMappingURL=Team.js.map
+//# sourceMappingURL=Team.js.map

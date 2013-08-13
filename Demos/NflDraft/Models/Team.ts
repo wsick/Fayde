@@ -6,7 +6,7 @@ module NflDraft.Models {
         ByeWeek: number;
         Logo: string;
 
-        FullName() {
+        get FullName() {
             return this.Location + " " + this.Nickname;
         }
     }

@@ -1,5 +1,6 @@
 var NflDraft;
 (function (NflDraft) {
+    /// <reference path="FantasyTeam.ts" />
     (function (Models) {
         var DraftSpot = (function () {
             function DraftSpot() {
@@ -10,4 +11,4 @@ var NflDraft;
     })(NflDraft.Models || (NflDraft.Models = {}));
     var Models = NflDraft.Models;
 })(NflDraft || (NflDraft = {}));
-//@ sourceMappingURL=DraftSpot.js.map
+//# sourceMappingURL=DraftSpot.js.map

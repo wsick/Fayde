@@ -6,6 +6,14 @@ var __extends = this.__extends || function (d, b) {
 };
 var NflDraft;
 (function (NflDraft) {
+    /// <reference path="../scripts/Fayde.d.ts" />
+    /// <reference path="../Models/Round.ts" />
+    /// <reference path="../Models/DraftSpot.ts" />
+    /// <reference path="../Models/FantasyTeam.ts" />
+    /// <reference path="../Models/Team.ts" />
+    /// <reference path="../Models/Stats.ts" />
+    /// <reference path="../Models/Player.ts" />
+    /// <reference path="../Models/PlayerStats.ts" />
     (function (ViewModels) {
         var DefaultViewModel = (function (_super) {
             __extends(DefaultViewModel, _super);
@@ -190,6 +198,7 @@ var NflDraft;
                 }
 
                 this.SelectedPlayer = this.PlayerStats[0];
+                //setInterval(Tick(), 1000);
             };
             return DefaultViewModel;
         })(Fayde.MVVM.ViewModelBase);
@@ -197,4 +206,4 @@ var NflDraft;
     })(NflDraft.ViewModels || (NflDraft.ViewModels = {}));
     var ViewModels = NflDraft.ViewModels;
 })(NflDraft || (NflDraft = {}));
-//@ sourceMappingURL=DefaultViewModel.js.map
+//# sourceMappingURL=DefaultViewModel.js.map

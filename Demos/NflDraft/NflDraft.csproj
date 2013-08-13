@@ -59,13 +59,13 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
-    <Reference Include="WickedSick.Server.Framework.Fayde, Version=0.9.5.14, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="WickedSick.Server.Framework.Fayde, Version=0.9.5.20, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>packages\Fayde.0.9.5.14\lib\net\WickedSick.Server.Framework.Fayde.dll</HintPath>
+      <HintPath>packages\Fayde.0.9.5.20\lib\net\WickedSick.Server.Framework.Fayde.dll</HintPath>
     </Reference>
-    <Reference Include="WickedSick.Server.XamlParser, Version=0.9.5.14, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="WickedSick.Server.XamlParser, Version=0.9.5.20, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>packages\Fayde.0.9.5.14\lib\net\WickedSick.Server.XamlParser.dll</HintPath>
+      <HintPath>packages\Fayde.0.9.5.20\lib\net\WickedSick.Server.XamlParser.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -85,6 +85,30 @@
     <TypeScriptCompile Include="Models\DraftSpot.ts" />
     <Content Include="Images\chat.png" />
     <Content Include="Images\footballfield2.png" />
+    <Content Include="Images\Player Headshots\aaron_rodgers.png" />
+    <Content Include="Images\Player Headshots\aj_green.png" />
+    <Content Include="Images\Player Headshots\andre_johnson.png" />
+    <Content Include="Images\Player Headshots\arian_foster.png" />
+    <Content Include="Images\Player Headshots\calvin_johnson.png" />
+    <Content Include="Images\Player Headshots\cam_newton.png" />
+    <Content Include="Images\Player Headshots\chris_johnson.png" />
+    <Content Include="Images\Player Headshots\darren_mcfadden.png" />
+    <Content Include="Images\Player Headshots\demarco_murray.png" />
+    <Content Include="Images\Player Headshots\drew_brees.png" />
+    <Content Include="Images\Player Headshots\greg_jennings.png" />
+    <Content Include="Images\Player Headshots\jamaal_charles.png" />
+    <Content Include="Images\Player Headshots\jimmy_graham.png" />
+    <Content Include="Images\Player Headshots\julio_jones.png" />
+    <Content Include="Images\Player Headshots\larry_fitzgerald.png" />
+    <Content Include="Images\Player Headshots\lesean_mccoy.png" />
+    <Content Include="Images\Player Headshots\matthew_stafford.png" />
+    <Content Include="Images\Player Headshots\matt_forte.png" />
+    <Content Include="Images\Player Headshots\mike_wallace.png" />
+    <Content Include="Images\Player Headshots\ray_rice.png" />
+    <Content Include="Images\Player Headshots\rob_gronkowski.png" />
+    <Content Include="Images\Player Headshots\roddy_white.png" />
+    <Content Include="Images\Player Headshots\tom_brady.png" />
+    <Content Include="Images\Player Headshots\wes_welker.png" />
     <Content Include="Images\Team Logos\ARI.png" />
     <Content Include="Images\Team Logos\ATL.png" />
     <Content Include="Images\Team Logos\BAL.png" />
@@ -146,8 +170,8 @@
     </Content>
     <Content Include="scripts\Fayde.d.ts" />
     <Content Include="scripts\Fayde.js" />
-    <Content Include="scripts\Fayde.Theme.Default.js" />
     <Content Include="scripts\Fayde.Theme.Metro.js" />
+    <Content Include="scripts\Fayde.Theme.Silverlight.js" />
     <Content Include="ViewModels\DefaultViewModel.js">
       <DependentUpon>DefaultViewModel.ts</DependentUpon>
     </Content>
@@ -161,7 +185,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="packages.config" />
-    <Content Include="default.fap" />
+    <Content Include="default.fap">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -194,7 +220,7 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  <Import Project="packages\Fayde.0.9.5.14\build\Fayde.targets" Condition="Exists('packages\Fayde.0.9.5.14\build\Fayde.targets')" />
+  <Import Project="packages\Fayde.0.9.5.20\build\Fayde.targets" Condition="Exists('packages\Fayde.0.9.5.20\build\Fayde.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

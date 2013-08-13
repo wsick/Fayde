@@ -1,3 +1,5 @@
+/// <reference path="scripts/Fayde.d.ts"/>
+/// <reference path="ViewModels/DefaultViewModel.ts"/>
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -30,4 +32,4 @@ var NflDraft;
     NflDraft.Default = Default;
     Nullstone.RegisterType(Default, "Default");
 })(NflDraft || (NflDraft = {}));
-//@ sourceMappingURL=default.fayde.js.map
+//# sourceMappingURL=default.fayde.js.map

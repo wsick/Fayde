@@ -15,12 +15,12 @@ module NflDraft.Models {
         Rating: number;
         RushingAttempts: number;
         RushingYards: number;
-        RushingAverage() { return this.RushingYards / this.RushingAttempts; }
+        get RushingAverage() { return this.RushingYards / this.RushingAttempts; }
         RushingTouchdowns: number;
         Targets: number;
         Receptions: number;
         ReceivingYards: number;
-        ReceivingAverage() { return this.ReceivingYards / this.Receptions; }
+        get ReceivingAverage() { return this.ReceivingYards / this.Receptions; }
         ReceivingTouchdowns: number;
     }
 }
