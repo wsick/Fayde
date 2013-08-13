@@ -2,7 +2,7 @@
 
 QUnit.module("Binding Tests");
 
-test("Basic BindingExpression", () => {
+test("BindingExpression with Source", () => {
     var binding = new Fayde.Data.Binding("Value");
     var data = { Value: 12 };
     binding.Source = data;
@@ -13,7 +13,7 @@ test("Basic BindingExpression", () => {
     strictEqual(expr.ParentBinding, binding, "ParentBinding on expression should be the same as specified binding.");
 });
 
-test("DataContext Source", () => {
+test("BindingExpression with DataContext", () => {
     var binding = new Fayde.Data.Binding("Value");
 
     var vm = { Value: 23 };
