@@ -82,8 +82,8 @@ module Fayde.Data {
         OnAttached(element: DependencyObject) {
             if (this.IsAttached)
                 return;
-            if (Fayde.Data.Debug)
-                BindingExpressionBase.Changes.push("[BINDING]OnAttached: [" + (<any>element).constructor._TypeName + "] {Path=" + this.Binding.Path.Path + "}");
+            if (Fayde.Data.Debug && window.console)
+                console.log("[BINDING] OnAttached: [" + (<any>element).constructor._TypeName + "] {Path=" + this.Binding.Path.Path + "}");
             
             super.OnAttached(element);
             
@@ -146,8 +146,8 @@ module Fayde.Data {
         OnDetached(element: DependencyObject) {
             if (!this.IsAttached)
                 return;
-            if (Fayde.Data.Debug)
-                BindingExpressionBase.Changes.push("[BINDING]OnDetached: [" + (<any>element).constructor._TypeName + "] {Path=" + this.Binding.Path.Path + "}");
+            if (Fayde.Data.Debug && window.console)
+                console.log("[BINDING] OnDetached: [" + (<any>element).constructor._TypeName + "] {Path=" + this.Binding.Path.Path + "}");
             
             super.OnDetached(element);
 
@@ -182,7 +182,7 @@ module Fayde.Data {
                 if (!this.IsUpdating && this.Binding.UpdateSourceTrigger === UpdateSourceTrigger.Default)
                     this._UpdateSourceObject(this.Target.GetValue(this.Property), false);
             } catch (err) {
-                console.warn("[BINDING]UpdateSource: " + err.toString());
+                console.warn("[BINDING] UpdateSource: " + err.toString());
             }
         }
         private _TextBoxLostFocus() {
@@ -226,7 +226,7 @@ module Fayde.Data {
                     if (value)
                         value = this._ConvertFromTargetToSource(value);
                 } catch (err) {
-                    console.warn("[BINDING]ConvertFromTargetToSource: " + err.toString());
+                    console.warn("[BINDING] ConvertFromTargetToSource: " + err.toString());
                     return;
                 }
 
@@ -252,8 +252,8 @@ module Fayde.Data {
             this._MaybeEmitError(dataError, exception);
         }
         OnDataContextChanged(newDataContext: any) {
-            if (Fayde.Data.Debug)
-                BindingExpressionBase.Changes.push("[BINDING] DataContextChanged: [" + (<any>this.Target)._ID + ":" + (<any>this.Target).constructor._TypeName + "] {Path=" + this.Binding.Path.Path + "}");
+            if (Fayde.Data.Debug && window.console)
+                console.log("[BINDING] DataContextChanged: [" + (<any>this.Target)._ID + ":" + (<any>this.Target).constructor._TypeName + "] {Path=" + this.Binding.Path.Path + "}");
 
             if (this._DataContext === newDataContext)
                 return;
@@ -387,8 +387,6 @@ module Fayde.Data {
             ///<param name="e" type="DataErrorsChangedEventArgs"></param>
             NotImplemented("BindingExpressionBase._NotifyErrorsChanged");
         }
-
-        static Changes: string[] = [];
     }
     Nullstone.RegisterType(BindingExpressionBase, "BindingExpressionBase");
 }
