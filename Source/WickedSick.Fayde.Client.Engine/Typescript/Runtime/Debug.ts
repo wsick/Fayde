@@ -10,5 +10,7 @@ module Fayde {
     }
     export module Data {
         export var Debug = false;
+        export var IsCounterEnabled = false;
+        export var DataContextCounter = 0;
     }
 }

@@ -59,8 +59,12 @@ test("TwoWay + OneWay Binding", () => {
     
     var si = { Test: "Hey" };
     lb.ItemsSource = Fayde.ArrayEx.AsEnumerable([si]);
+    Fayde.Data.IsCounterEnabled = true;
+    Fayde.Data.DataContextCounter = 0;
     lb.SelectedItem = si;
-
+    Fayde.Data.IsCounterEnabled = false;
+    ok(true, "[INFO] Number of BindingExpression DataContext Changes: " + Fayde.Data.DataContextCounter);
+    
     equal(tb.Text, "Hey", "TextBlock Text should match new selected item on ListBox.");
 });
 

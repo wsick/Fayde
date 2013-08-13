@@ -264,6 +264,8 @@ module Fayde.Data {
             if (!this._IsDataContextBound)
                 return;
 
+            if (Fayde.Data.IsCounterEnabled)
+                Fayde.Data.DataContextCounter++;
             try {
                 this.PropertyPathWalker.Update(newDataContext);
                 if (this.ParentBinding.Mode === BindingMode.OneTime)
