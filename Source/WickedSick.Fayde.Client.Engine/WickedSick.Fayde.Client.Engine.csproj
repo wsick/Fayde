@@ -409,6 +409,10 @@
     <Content Include="Silo\image-load.html" />
     <Content Include="Silo\RawPath\quad-bezier-bounds.html" />
     <Content Include="Silo\UnitTestValidation.htm" />
+    <TypeScriptCompile Include="Tests\BindingTests.ts" />
+    <Content Include="Tests\BindingTests.js">
+      <DependentUpon>BindingTests.ts</DependentUpon>
+    </Content>
     <Content Include="Themes\Silverlight.xml">
       <SubType>Designer</SubType>
     </Content>

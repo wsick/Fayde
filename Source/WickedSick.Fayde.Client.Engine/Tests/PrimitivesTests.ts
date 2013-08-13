@@ -1,6 +1,4 @@
 /// <reference path="qunit-1.10.0.d.ts" />
-/// <reference path="../Typescript/Primitives/size.ts" />
-/// <reference path="../Typescript/Primitives/rect.ts" />
 
 QUnit.module("Primitives Tests");
 

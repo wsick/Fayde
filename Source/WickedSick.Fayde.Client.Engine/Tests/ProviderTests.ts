@@ -1,7 +1,4 @@
 /// <reference path="qunit-1.10.0.d.ts" />
-/// <reference path="../Typescript/Controls/Control.ts" />
-/// <reference path="../Typescript/Core/DependencyObject.ts" />
-/// <reference path="../Typescript/Core/UIElement.ts" />
 
 QUnit.module("Provider Tests");
 

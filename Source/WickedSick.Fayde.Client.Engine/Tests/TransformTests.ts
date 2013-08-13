@@ -1,6 +1,4 @@
 /// <reference path="qunit-1.10.0.d.ts" />
-/// <reference path="../Typescript/Media/Transform.ts" />
-/// <reference path="../Typescript/Media/Transforms.ts" />
 
 QUnit.module("Transform Tests");
 

@@ -1,7 +1,4 @@
 /// <reference path="qunit-1.10.0.d.ts" />
-/// <reference path="../Typescript/Media/Animation/Timeline.ts" />
-/// <reference path="../Typescript/Media/Animation/Storyboard.ts" />
-/// <reference path="../Typescript/Media/Animation/DoubleAnimation.ts" />
 
 QUnit.module("Timeline Tests");
 
