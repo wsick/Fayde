@@ -27,22 +27,27 @@ test("TwoWay + OneWay Binding", () => {
             this.OnPropertyChanged("SelectedItem");
         }
     });
+
+    var sp = new Fayde.Controls.StackPanel();
+    sp.DataContext = vm;
     
     var binding = new Binding("SelectedItem"); //2-way
     binding.Mode = BindingMode.TwoWay;
     var lb = new Fayde.Controls.ListBox();
     lb.SetBinding(Fayde.Controls.Primitives.Selector.SelectedItemProperty, binding);
-    lb.DataContext = vm;
+    sp.Children.Add(lb);
 
     var binding2 = new Binding("SelectedItem");
     var binding3 = new Binding("Test");
     var tb = new Fayde.Controls.TextBlock();
     tb.SetBinding(Fayde.DependencyObject.DataContextProperty, binding2);
     tb.SetBinding(Fayde.Controls.TextBlock.TextProperty, binding3);
+    sp.Children.Add(tb);
 
     equal(tb.Text, "", "TextBlock Text binding should be broken upon initialization since there is not selected item.");
     
     var si = { Test: "Hey" };
+    lb.ItemsSource = Fayde.ArrayEx.AsEnumerable([si]);
     lb.SelectedItem = si;
 
     equal(tb.Text, "Hey", "TextBlock Text should match new selected item on ListBox.");
