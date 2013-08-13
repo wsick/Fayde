@@ -27,9 +27,10 @@ module Fayde.Providers {
             this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldValue, newValue);
         }
 
-        OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any) {
-            super.OnPropertyChanged(storage, effectivePrecedence, oldValue, newValue);
+        OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs {
+            var args = super.OnPropertyChanged(storage, effectivePrecedence, oldValue, newValue);
             storage.OwnerNode.OnIsEnabledChanged(oldValue, newValue);
+            return args;
         }
 
         CreateStorage(dobj: DependencyObject, propd: DependencyProperty): IIsEnabledStorage {

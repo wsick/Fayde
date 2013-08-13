@@ -12,45 +12,53 @@
 
 module Fayde.Data {
     export class BindingExpressionBase extends Fayde.Expression implements IPropertyPathWalkerListener {
-        private _Binding: Data.Binding;
+        //read-only properties
+        Binding: Data.Binding;
         Target: DependencyObject;
         Property: DependencyProperty;
+
         private PropertyPathWalker: PropertyPathWalker;
-        private _DataContextSourceNode: XamlNode;
         private _PropertyListener: Providers.IPropertyChangedListener;
-        private _DataContextPropertyMonitor: IDataContextMonitor;
         private _SourceAvailableMonitor: IIsAttachedMonitor;
 
-        private _IsBoundToAnyDataContext: boolean;
+        private _IsDataContextBound: boolean;
+        private _DataContext: any;
         private _TwoWayTextBox: Controls.TextBox = null;
 
-        get Binding(): Data.Binding { return this._Binding; }
         get DataSource(): any { return this.PropertyPathWalker.Source; }
-        //get DataContextSource(): FrameworkElement { return this._DataContextSource; }
 
         private _Cached: boolean = false;
         private _CachedValue: any = undefined;
 
         constructor(binding: Data.Binding, target: DependencyObject, propd: DependencyProperty) {
             super();
-            this._Binding = binding;
-            this.Target = target;
-            this.Property = propd;
+            this._Init(binding, target, propd);
+        }
 
-            if (this.Target instanceof Controls.TextBox && binding.Mode === BindingMode.TwoWay)
-                this._TwoWayTextBox = <Controls.TextBox>this.Target;
+        private _Init(binding: Data.Binding, target: DependencyObject, propd: DependencyProperty) {
+            Object.defineProperty(this, "Binding", {
+                value: binding,
+                writable: false
+            });
+            Object.defineProperty(this, "Target", {
+                value: target,
+                writable: false
+            });
+            Object.defineProperty(this, "Property", {
+                value: propd,
+                writable: false
+            });
 
-            this._IsBoundToAnyDataContext = !this.Binding.ElementName && !this.Binding.Source;
-            var isDcProp = propd === DependencyObject.DataContextProperty;
-            var isContentProp = propd === Controls.ContentPresenter.ContentProperty;
+            if (target instanceof Controls.TextBox && binding.Mode === BindingMode.TwoWay)
+                this._TwoWayTextBox = <Controls.TextBox>target;
 
-            var bindsToView = isDcProp || propd.GetTargetType() === <any>IEnumerable_ || propd.GetTargetType() === <any>Data.ICollectionView_;
-            var walker = this.PropertyPathWalker = new PropertyPathWalker(binding.Path.ParsePath, binding.BindsDirectlyToSource, bindsToView, this._IsBoundToAnyDataContext);
+            this._IsDataContextBound = !binding.ElementName && !binding.Source && !binding.RelativeSource;
+
+            var bindsToView = propd === DependencyObject.DataContextProperty || propd.GetTargetType() === <any>IEnumerable_ || propd.GetTargetType() === <any>Data.ICollectionView_;
+            var walker = this.PropertyPathWalker = new PropertyPathWalker(binding.Path.ParsePath, binding.BindsDirectlyToSource, bindsToView, this._IsDataContextBound);
             if (binding.Mode !== BindingMode.OneTime)
                 walker.Listen(this);
         }
-        IsBrokenChanged() { this.Refresh(); }
-        ValueChanged() { this.Refresh(); }
 
         GetValue(propd: DependencyProperty): any {
             if (this._Cached)
@@ -74,8 +82,33 @@ module Fayde.Data {
         OnAttached(element: DependencyObject) {
             if (this.IsAttached)
                 return;
+            if (Fayde.Data.Debug)
+                BindingExpressionBase.Changes.push("[BINDING]OnAttached: [" + (<any>element).constructor._TypeName + "] {Path=" + this.Binding.Path.Path + "}");
+            
             super.OnAttached(element);
-            this._CalculateDataSource();
+            
+            var source: any;
+            if (this.Binding.Source) {
+                source = this.Binding.Source;
+            } else if (this.Binding.ElementName != null) {
+                source = this._FindSourceByElementName();
+                this._SourceAvailableMonitor = this.Target.XamlNode.MonitorIsAttached((newIsAttached) => this._OnSourceAvailable());
+            } else if (this.Binding.RelativeSource) {
+                switch (this.Binding.RelativeSource.Mode) {
+                    case RelativeSourceMode.Self:
+                        source = this.Target;
+                        break;
+                    case RelativeSourceMode.TemplatedParent:
+                        source = this.Target.TemplateOwner;
+                        break;
+                    case RelativeSourceMode.FindAncestor:
+                        //TODO: Implement
+                        break;
+                }
+            } else {
+                source = this._DataContext;
+            }
+            this.PropertyPathWalker.Update(source);
 
             if (this._TwoWayTextBox)
                 this._TwoWayTextBox.LostFocus.Subscribe(this._TextBoxLostFocus, this);
@@ -84,27 +117,42 @@ module Fayde.Data {
                 this._PropertyListener = this.Property.Store.ListenToChanged(this.Target, this.Property, this._UpdateSourceCallback, this);
             }
         }
-        private _UpdateSourceCallback(sender, args: IDependencyPropertyChangedEventArgs) {
-            try {
-                if (!this.IsUpdating)
-                    this._TryUpdateSourceObject(this.Target.GetValue(this.Property));
-            } catch (err) {
-            //ignore
-            }
+        private _OnSourceAvailable() {
+            this._SourceAvailableMonitor.Detach();
+            var source = this._FindSourceByElementName();
+            if (source) this.PropertyPathWalker.Update(source);
+            this._Invalidate();
+            this.Target.SetValue(this.Property, this);
         }
+        private _FindSourceByElementName(): XamlObject {
+            var xobj: XamlObject = this.Target;
+            var sourceNode: XamlNode;
+            var name = this.Binding.ElementName;
+            var xnode: XamlNode = (xobj) ? xobj.XamlNode : null;
+            var parentNode: XamlNode;
+            while (xnode) {
+                sourceNode = xnode.FindName(name);
+                if (sourceNode)
+                    return sourceNode.XObject;
+                if (xnode.XObject.TemplateOwner)
+                    xobj = xnode.XObject.TemplateOwner;
+                else if ((parentNode = xnode.ParentNode) && Controls.ItemsControl.GetItemsOwner(<UIElement>parentNode.XObject))
+                    xnode = parentNode;
+                break;
+            }
+            return undefined;
+        }
+
         OnDetached(element: DependencyObject) {
             if (!this.IsAttached)
                 return;
-
+            if (Fayde.Data.Debug)
+                BindingExpressionBase.Changes.push("[BINDING]OnDetached: [" + (<any>element).constructor._TypeName + "] {Path=" + this.Binding.Path.Path + "}");
+            
             super.OnDetached(element);
+
             if (this._TwoWayTextBox)
                 this._TwoWayTextBox.LostFocus.Unsubscribe(this._TextBoxLostFocus, this);
-
-            if (this._IsBoundToAnyDataContext) {
-                var listener = this._DataContextPropertyMonitor;
-                if (listener) listener.Detach();
-                this.SetDataContextSource(null);
-            }
 
             /*
             if (this.Target && this.CurrentError != null) {
@@ -117,16 +165,28 @@ module Fayde.Data {
                 this._PropertyListener.Detach();
                 this._PropertyListener = null;
             }
-            this.PropertyPathWalker.Update(null);
-        }
 
+            this.PropertyPathWalker.Update(null);
+
+            this.Target = undefined;
+        }
+        
+        IsBrokenChanged() { this.Refresh(); }
+        ValueChanged() { this.Refresh(); }
+        _TryUpdateSourceObject(value: any) {
+            if (!this.IsUpdating && this.Binding.UpdateSourceTrigger === UpdateSourceTrigger.Default)
+                this._UpdateSourceObject(value, false);
+        }
+        private _UpdateSourceCallback(sender, args: IDependencyPropertyChangedEventArgs) {
+            try {
+                if (!this.IsUpdating && this.Binding.UpdateSourceTrigger === UpdateSourceTrigger.Default)
+                    this._UpdateSourceObject(this.Target.GetValue(this.Property), false);
+            } catch (err) {
+                console.warn("[BINDING]UpdateSource: " + err.toString());
+            }
+        }
         private _TextBoxLostFocus() {
             this._UpdateSourceObject();
-        }
-        _TryUpdateSourceObject(value: any) {
-            if (!this.IsUpdating && this.Binding.UpdateSourceTrigger === UpdateSourceTrigger.Default) {
-                this._UpdateSourceObject(value, false);
-            }
         }
         _UpdateSourceObject(value?: any, force?: boolean) {
             if (value === undefined)
@@ -150,14 +210,8 @@ module Fayde.Data {
                 if (this.PropertyPathWalker.IsPathBroken)
                     return;
 
-                if (binding.TargetNullValue) {
-                    try {
-                        if (binding.TargetNullValue === value)
-                            value = null;
-                    } catch (err) {
-                    //ignore
-                    }
-                }
+                if (binding.TargetNullValue && binding.TargetNullValue === value)
+                    value = null;
 
                 var converter = binding.Converter;
                 if (converter) {
@@ -172,6 +226,7 @@ module Fayde.Data {
                     if (value)
                         value = this._ConvertFromTargetToSource(value);
                 } catch (err) {
+                    console.warn("[BINDING]ConvertFromTargetToSource: " + err.toString());
                     return;
                 }
 
@@ -196,6 +251,99 @@ module Fayde.Data {
             }
             this._MaybeEmitError(dataError, exception);
         }
+        OnDataContextChanged(newDataContext: any) {
+            if (Fayde.Data.Debug)
+                BindingExpressionBase.Changes.push("[BINDING] DataContextChanged: [" + (<any>this.Target)._ID + ":" + (<any>this.Target).constructor._TypeName + "] {Path=" + this.Binding.Path.Path + "}");
+
+            if (this._DataContext === newDataContext)
+                return;
+            this._DataContext = newDataContext;
+            if (!this._IsDataContextBound)
+                return;
+
+            try {
+                this.PropertyPathWalker.Update(newDataContext);
+                if (this.Binding.Mode === BindingMode.OneTime)
+                    this.Refresh();
+            } catch (err) {
+                console.warn(err.message);
+            }
+        }
+
+        private _Invalidate() {
+            this._Cached = false;
+            this._CachedValue = undefined;
+        }
+        Refresh() {
+            var dataError: any;
+            var exception: Exception;
+
+            if (!this.IsAttached)
+                return;
+
+            //TODO: ERROR/VALIDATION
+            //var node = this.PropertyPathWalker.FinalNode;
+            //var source = node.Source;
+            //source = Nullstone.As(source, INotifyDataErrorInfo));
+            //this._AttachToNotifyError(source);
+
+            //source = Nullstone.As(node.Source, IDataErrorInfo);
+            //if (!this.Updating && this.Binding.ValidatesOnDataErrors && source && node.GetPropertyInfo())
+            //dataError = source[node.GetPropertyInfo().Name];
+
+            var oldUpdating = this.IsUpdating;
+            try {
+                this.IsUpdating = true;
+                this._Invalidate();
+                this.Target.SetValue(this.Property, this);
+            } catch (err) {
+                if (this.Binding.ValidatesOnExceptions) {
+                    exception = err;
+                    if (exception instanceof TargetInvocationException)
+                        exception = (<TargetInvocationException>exception).InnerException;
+                }
+            } finally {
+                this.IsUpdating = oldUpdating;
+            }
+            this._MaybeEmitError(dataError, exception);
+        }
+
+        private _ConvertFromTargetToSource(value: any): any {
+            NotImplemented("BindingExpressionBase._ConvertFromTargetToSource");
+            return value;
+        }
+        private _ConvertFromSourceToTarget(value: any): any {
+            NotImplemented("BindingExpressionBase._ConvertFromSourceToTarget");
+            return value;
+        }
+        private _ConvertToType(propd: DependencyProperty, value: any): any {
+            try {
+                var binding = this.Binding;
+                if (!this.PropertyPathWalker.IsPathBroken && binding.Converter) {
+                    value = binding.Converter.Convert(value, this.Property.GetTargetType(), binding.ConverterParameter, binding.ConverterCulture);
+                }
+                if (value === UnsetValue || this.PropertyPathWalker.IsPathBroken) {
+                    value = binding.FallbackValue;
+                    if (value === undefined)
+                        value = propd.DefaultValue;
+                } else if (value == null) {
+                    value = binding.TargetNullValue;
+                    if (value == null && this._IsDataContextBound && !binding.Path.Path)
+                        value = propd.DefaultValue;
+                } else {
+                    var format = binding.StringFormat;
+                    if (format) {
+                        if (format.indexOf("{0") < 0)
+                            format = "{0:" + format + "}";
+                        value = StringEx.Format(format, value);
+                    }
+                }
+            } catch (err) {
+                return TypeConverter.ConvertObject(propd, binding.FallbackValue, (<any>this.Target).constructor, true);
+            }
+            return value;
+        }
+        
         private _MaybeEmitError(message: string, exception: Exception) {
             /*
             var fe: FrameworkElement = this.TargetFE;
@@ -231,43 +379,6 @@ module Fayde.Data {
             }
             */
         }
-
-        private _ConvertFromTargetToSource(value: any): any {
-            NotImplemented("BindingExpressionBase._ConvertFromTargetToSource");
-            return value;
-        }
-        private _ConvertFromSourceToTarget(value: any): any {
-            NotImplemented("BindingExpressionBase._ConvertFromSourceToTarget");
-            return value;
-        }
-        private _ConvertToType(propd: DependencyProperty, value: any): any {
-            try {
-                var binding = this.Binding;
-                if (!this.PropertyPathWalker.IsPathBroken && binding.Converter) {
-                    value = binding.Converter.Convert(value, this.Property.GetTargetType(), binding.ConverterParameter, binding.ConverterCulture);
-                }
-                if (value === UnsetValue || this.PropertyPathWalker.IsPathBroken) {
-                    value = binding.FallbackValue;
-                    if (value === undefined)
-                        value = propd.DefaultValue;
-                } else if (value == null) {
-                    value = binding.TargetNullValue;
-                    if (value == null && this._IsBoundToAnyDataContext && !binding.Path.Path)
-                        value = propd.DefaultValue;
-                } else {
-                    var format = binding.StringFormat;
-                    if (format) {
-                        if (format.indexOf("{0") < 0)
-                            format = "{0:" + format + "}";
-                        value = StringEx.Format(format, value);
-                    }
-                }
-            } catch (err) {
-                return TypeConverter.ConvertObject(propd, binding.FallbackValue, (<any>this.Target).constructor, true);
-            }
-            return value;
-        }
-
         private _AttachToNotifyError(element) {
             ///<param name="element" type="INotifyDataErrorInfo"></param>
             NotImplemented("BindingExpressionBase._AttachToNotifyError");
@@ -277,108 +388,7 @@ module Fayde.Data {
             NotImplemented("BindingExpressionBase._NotifyErrorsChanged");
         }
 
-        private _CalculateDataSource() {
-            var source: any;
-            if (this.Binding.Source) {
-                this.PropertyPathWalker.Update(this.Binding.Source);
-            } else if (this.Binding.ElementName != null) {
-                source = this._FindSourceByElementName();
-                this._SourceAvailableMonitor = this.Target.XamlNode.MonitorIsAttached((newIsAttached) => this._OnSourceAvailable());
-                this.PropertyPathWalker.Update(source);
-            } else if (this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === RelativeSourceMode.Self) {
-                this.PropertyPathWalker.Update(this.Target);
-            } else {
-                if (this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === RelativeSourceMode.TemplatedParent) {
-                    this.PropertyPathWalker.Update(this.Target.TemplateOwner);
-                } else {
-                    this.SetDataContextSource(this.Target);
-                }
-            }
-        }
-        private _OnSourceAvailable() {
-            this._SourceAvailableMonitor.Detach();
-            var source = this._FindSourceByElementName();
-            if (source) this.PropertyPathWalker.Update(source);
-            this._Invalidate();
-            this.Target.SetValue(this.Property, this);
-        }
-        private _FindSourceByElementName(): XamlObject {
-            var xobj: XamlObject = this.Target;
-            var sourceNode: XamlNode;
-            var name = this.Binding.ElementName;
-            var xnode: XamlNode = (xobj) ? xobj.XamlNode : null;
-            var parentNode: XamlNode;
-            while (xnode) {
-                sourceNode = xnode.FindName(name);
-                if (sourceNode)
-                    return sourceNode.XObject;
-                if (xnode.XObject.TemplateOwner)
-                    xobj = xnode.XObject.TemplateOwner;
-                else if ((parentNode = xnode.ParentNode) && Controls.ItemsControl.GetItemsOwner(<UIElement>parentNode.XObject))
-                    xnode = parentNode;
-                break;
-            }
-            return undefined;
-        }
-        
-        SetDataContextSource(value: XamlObject) {
-            if (this._DataContextPropertyMonitor) {
-                this._DataContextPropertyMonitor.Detach();
-                this._DataContextPropertyMonitor = null;
-            }
-            var dcs = this._DataContextSourceNode = value.XamlNode;
-            if (dcs) {
-                this._DataContextPropertyMonitor = value.XamlNode.MonitorDataContext((newDataContext) => this._DataContextChanged(newDataContext));
-                this.PropertyPathWalker.Update(dcs ? dcs.DataContext : undefined);
-            }
-        }
-        private _DataContextChanged(newDataContext: any) {
-            try {
-                this.PropertyPathWalker.Update(newDataContext);
-                if (this.Binding.Mode === BindingMode.OneTime)
-                    this.Refresh();
-            } catch (err) {
-                Warn(err.message);
-            }
-        }
-
-        private _Invalidate() {
-            this._Cached = false;
-            this._CachedValue = undefined;
-        }
-        Refresh() {
-            var dataError;
-            var exception: Exception;
-
-            if (!this.IsAttached)
-                return;
-
-            //TODO: ERROR/VALIDATION
-            //var node = this.PropertyPathWalker.FinalNode;
-            //var source = node.Source;
-            //source = Nullstone.As(source, INotifyDataErrorInfo));
-            //this._AttachToNotifyError(source);
-
-            //source = Nullstone.As(node.Source, IDataErrorInfo);
-            //if (!this.Updating && this.Binding.ValidatesOnDataErrors && source && node.GetPropertyInfo())
-            //dataError = source[node.GetPropertyInfo().Name];
-
-            var oldUpdating = this.IsUpdating;
-            try {
-                this.IsUpdating = true;
-                this._Invalidate();
-                this.Target.SetValue(this.Property, this);
-            } catch (err) {
-                if (this.Binding.ValidatesOnExceptions) {
-                    exception = err;
-                    if (exception instanceof TargetInvocationException)
-                        exception = (<TargetInvocationException>exception).InnerException;
-                }
-            } finally {
-                this.IsUpdating = oldUpdating;
-            }
-            this._MaybeEmitError(dataError, exception);
-        }
+        static Changes: string[] = [];
     }
     Nullstone.RegisterType(BindingExpressionBase, "BindingExpressionBase");
 }

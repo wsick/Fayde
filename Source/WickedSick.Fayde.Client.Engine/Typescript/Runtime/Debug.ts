@@ -8,4 +8,7 @@ module Fayde {
             export var Debug = false;
         }
     }
+    export module Data {
+        export var Debug = false;
+    }
 }

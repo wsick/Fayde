@@ -33,10 +33,11 @@ module Fayde.Providers {
             return PropertyPrecedence.DefaultValue;
         }
 
-        OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any) {
-            super.OnPropertyChanged(storage, effectivePrecedence, oldValue, newValue);
+        OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs {
+            var args = super.OnPropertyChanged(storage, effectivePrecedence, oldValue, newValue);
             if (effectivePrecedence <= PropertyPrecedence.Inherited)
                 this.Propagate(storage.OwnerNode, storage.Property, newValue);
+            return args;
         }
 
         CreateStorage(dobj: DependencyObject, propd: DependencyProperty): IInheritedStorage {

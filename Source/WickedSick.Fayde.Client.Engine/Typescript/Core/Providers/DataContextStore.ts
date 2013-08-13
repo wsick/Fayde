@@ -43,6 +43,13 @@ module Fayde.Providers {
                 PropListeners: undefined,
             };
         }
+
+        OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs {
+            var args = super.OnPropertyChanged(storage, effectivePrecedence, oldValue, newValue);
+            if (args)
+                storage.OwnerNode._DataContextPropertyChanged(storage.Precedence < PropertyPrecedence.InheritedDataContext, args);
+            return args;
+        }
     }
     DataContextStore.Instance = new DataContextStore();
 }

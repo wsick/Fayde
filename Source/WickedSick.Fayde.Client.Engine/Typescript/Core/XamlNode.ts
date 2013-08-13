@@ -13,10 +13,6 @@ module Fayde {
         ZReverse = 3,
     }
 
-    export interface IDataContextMonitor {
-        Callback: (newDataContext: any) => void;
-        Detach();
-    }
     export interface IIsAttachedMonitor {
         Callback: (newIsAttached: boolean) => void;
         Detach();
@@ -31,7 +27,6 @@ module Fayde {
         private _OwnerNameScope: NameScope = null;
         private _LogicalChildren: XamlNode[] = [];
 
-        private _DCMonitors: IDataContextMonitor[] = null;
         private _IAMonitors: IIsAttachedMonitor[] = null;
 
         constructor(xobj: XamlObject) {
@@ -55,27 +50,6 @@ module Fayde {
                 childNode = childNodes[i];
                 childNode.DataContext = newDataContext;
             }
-
-            var monitors = this._DCMonitors;
-            if (!monitors) return;
-            len = monitors.length;
-            for (var i = 0; i < len; i++) {
-                monitors[i].Callback(newDataContext);
-            }
-        }
-        MonitorDataContext(func: (newDataContext: any) => void): IDataContextMonitor {
-            var monitors = this._DCMonitors;
-            if (!monitors) this._DCMonitors = monitors = [];
-            var monitor: IDataContextMonitor = {
-                Callback: func,
-                Detach: null
-            };
-            monitor.Detach = function () {
-                var index = monitors.indexOf(monitor);
-                if (index > -1) monitors.splice(index, 1);
-            };
-            this._DCMonitors.push(monitor);
-            return monitor;
         }
 
         private _IsEnabled: boolean = true;
