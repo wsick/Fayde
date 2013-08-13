@@ -1310,7 +1310,7 @@ else
                 }
                 storage.Precedence = effectivePrecedence;
                 if (!propd.AlwaysChange && oldValue === newValue)
-                    return;
+                    return undefined;
                 if (!storage.Property.IsCustom) {
                     if (oldValue instanceof Fayde.XamlObject)
                         (oldValue).XamlNode.Detach();
@@ -1335,6 +1335,7 @@ else
                         listeners[i].OnPropertyChanged(sender, args);
                     }
                 }
+                return args;
             };
             PropertyStore.prototype.ListenToChanged = function (target, propd, func, closure) {
                 var storage = GetStorage(target, propd);
@@ -3534,6 +3535,12 @@ var Fayde;
         var VSM = Media.VSM;
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
+    (function (Data) {
+        Data.Debug = false;
+        Data.IsCounterEnabled = false;
+        Data.DataContextCounter = 0;
+    })(Fayde.Data || (Fayde.Data = {}));
+    var Data = Fayde.Data;
 })(Fayde || (Fayde = {}));
 
 var Nullstone = (function () {
@@ -5882,9 +5889,13 @@ var Fayde;
         };
         Expression.prototype.OnAttached = function (dobj) {
             this.IsAttached = true;
+            this.OnDataContextChanged(dobj.DataContext);
         };
         Expression.prototype.OnDetached = function (dobj) {
             this.IsAttached = false;
+            this.OnDataContextChanged(undefined);
+        };
+        Expression.prototype.OnDataContextChanged = function (newDataContext) {
         };
         return Expression;
     })();
@@ -7215,7 +7226,6 @@ var Fayde;
             this.IsShareable = false;
             this._OwnerNameScope = null;
             this._LogicalChildren = [];
-            this._DCMonitors = null;
             this._IAMonitors = null;
             this._DataContext = undefined;
             this._IsEnabled = true;
@@ -7244,29 +7254,6 @@ var Fayde;
                 childNode = childNodes[i];
                 childNode.DataContext = newDataContext;
             }
-            var monitors = this._DCMonitors;
-            if (!monitors)
-                return;
-            len = monitors.length;
-            for (var i = 0; i < len; i++) {
-                monitors[i].Callback(newDataContext);
-            }
-        };
-        XamlNode.prototype.MonitorDataContext = function (func) {
-            var monitors = this._DCMonitors;
-            if (!monitors)
-                this._DCMonitors = monitors = [];
-            var monitor = {
-                Callback: func,
-                Detach: null
-            };
-            monitor.Detach = function () {
-                var index = monitors.indexOf(monitor);
-                if (index > -1)
-                    monitors.splice(index, 1);
-            };
-            this._DCMonitors.push(monitor);
-            return monitor;
         };
 
         Object.defineProperty(XamlNode.prototype, "IsEnabled", {
@@ -7563,6 +7550,12 @@ var Fayde;
                     PropListeners: undefined
                 };
             };
+            DataContextStore.prototype.OnPropertyChanged = function (storage, effectivePrecedence, oldValue, newValue) {
+                var args = _super.prototype.OnPropertyChanged.call(this, storage, effectivePrecedence, oldValue, newValue);
+                if (args)
+                    storage.OwnerNode._DataContextPropertyChanged(storage.Precedence < Providers.PropertyPrecedence.InheritedDataContext, args);
+                return args;
+            };
             return DataContextStore;
         })(Providers.PropertyStore);
         Providers.DataContextStore = DataContextStore;
@@ -7637,9 +7630,10 @@ var Fayde;
                 return Providers.PropertyPrecedence.DefaultValue;
             };
             InheritedStore.prototype.OnPropertyChanged = function (storage, effectivePrecedence, oldValue, newValue) {
-                _super.prototype.OnPropertyChanged.call(this, storage, effectivePrecedence, oldValue, newValue);
+                var args = _super.prototype.OnPropertyChanged.call(this, storage, effectivePrecedence, oldValue, newValue);
                 if (effectivePrecedence <= Providers.PropertyPrecedence.Inherited)
                     this.Propagate(storage.OwnerNode, storage.Property, newValue);
+                return args;
             };
             InheritedStore.prototype.CreateStorage = function (dobj, propd) {
                 return {
@@ -7753,8 +7747,9 @@ var Fayde;
                 this.OnPropertyChanged(storage, Providers.PropertyPrecedence.LocalValue, oldValue, newValue);
             };
             IsEnabledStore.prototype.OnPropertyChanged = function (storage, effectivePrecedence, oldValue, newValue) {
-                _super.prototype.OnPropertyChanged.call(this, storage, effectivePrecedence, oldValue, newValue);
+                var args = _super.prototype.OnPropertyChanged.call(this, storage, effectivePrecedence, oldValue, newValue);
                 storage.OwnerNode.OnIsEnabledChanged(oldValue, newValue);
+                return args;
             };
             IsEnabledStore.prototype.CreateStorage = function (dobj, propd) {
                 return {
@@ -7862,27 +7857,9 @@ var Fayde;
                 this._TwoWayTextBox = null;
                 this._Cached = false;
                 this._CachedValue = undefined;
-                this._Binding = binding;
-                this.Target = target;
-                this.Property = propd;
-                if (this.Target instanceof Fayde.Controls.TextBox && binding.Mode === Data.BindingMode.TwoWay)
-                    this._TwoWayTextBox = this.Target;
-                this._IsBoundToAnyDataContext = !this.Binding.ElementName && !this.Binding.Source;
-                var isDcProp = propd === Fayde.DependencyObject.DataContextProperty;
-                var isContentProp = propd === Fayde.Controls.ContentPresenter.ContentProperty;
-                var bindsToView = isDcProp || propd.GetTargetType() === Fayde.IEnumerable_ || propd.GetTargetType() === Fayde.Data.ICollectionView_;
-                var walker = this.PropertyPathWalker = new Data.PropertyPathWalker(binding.Path.ParsePath, binding.BindsDirectlyToSource, bindsToView, this._IsBoundToAnyDataContext);
-                if (binding.Mode !== Data.BindingMode.OneTime)
-                    walker.Listen(this);
+                this._Init(binding, target, propd);
             }
-            Object.defineProperty(BindingExpressionBase.prototype, "Binding", {
-                get: function () {
-                    return this._Binding;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(BindingExpressionBase.prototype, "DataSource", {
+            Object.defineProperty(BindingExpressionBase.prototype, "DataItem", {
                 get: function () {
                     return this.PropertyPathWalker.Source;
                 },
@@ -7890,11 +7867,26 @@ var Fayde;
                 configurable: true
             });
 
-            BindingExpressionBase.prototype.IsBrokenChanged = function () {
-                this.Refresh();
-            };
-            BindingExpressionBase.prototype.ValueChanged = function () {
-                this.Refresh();
+            BindingExpressionBase.prototype._Init = function (binding, target, propd) {
+                Object.defineProperty(this, "ParentBinding", {
+                    value: binding,
+                    writable: false
+                });
+                Object.defineProperty(this, "Target", {
+                    value: target,
+                    writable: false
+                });
+                Object.defineProperty(this, "Property", {
+                    value: propd,
+                    writable: false
+                });
+                if (target instanceof Fayde.Controls.TextBox && binding.Mode === Data.BindingMode.TwoWay)
+                    this._TwoWayTextBox = target;
+                this._IsDataContextBound = !binding.ElementName && !binding.Source && !binding.RelativeSource;
+                var bindsToView = propd === Fayde.DependencyObject.DataContextProperty || propd.GetTargetType() === Fayde.IEnumerable_ || propd.GetTargetType() === Fayde.Data.ICollectionView_;
+                var walker = this.PropertyPathWalker = new Data.PropertyPathWalker(binding.Path.ParsePath, binding.BindsDirectlyToSource, bindsToView, this._IsDataContextBound);
+                if (binding.Mode !== Data.BindingMode.OneTime)
+                    walker.Listen(this);
             };
             BindingExpressionBase.prototype.GetValue = function (propd) {
                 if (this._Cached)
@@ -7913,55 +7905,112 @@ var Fayde;
                 return this._CachedValue;
             };
             BindingExpressionBase.prototype.OnAttached = function (element) {
+                var _this = this;
                 if (this.IsAttached)
                     return;
+                if (Fayde.Data.Debug && window.console)
+                    console.log("[BINDING] OnAttached: [" + (element).constructor._TypeName + "] {Path=" + this.ParentBinding.Path.Path + "}");
                 _super.prototype.OnAttached.call(this, element);
-                this._CalculateDataSource();
+                var source;
+                if (this.ParentBinding.Source) {
+                    source = this.ParentBinding.Source;
+                } else if (this.ParentBinding.ElementName != null) {
+                    source = this._FindSourceByElementName();
+                    this._SourceAvailableMonitor = this.Target.XamlNode.MonitorIsAttached(function (newIsAttached) {
+                        return _this._OnSourceAvailable();
+                    });
+                } else if (this.ParentBinding.RelativeSource) {
+                    switch (this.ParentBinding.RelativeSource.Mode) {
+                        case Data.RelativeSourceMode.Self:
+                            source = this.Target;
+                            break;
+                        case Data.RelativeSourceMode.TemplatedParent:
+                            source = this.Target.TemplateOwner;
+                            break;
+                        case Data.RelativeSourceMode.FindAncestor:
+                            break;
+                    }
+                } else {
+                    source = this._DataContext;
+                }
+                this.PropertyPathWalker.Update(source);
                 if (this._TwoWayTextBox)
                     this._TwoWayTextBox.LostFocus.Subscribe(this._TextBoxLostFocus, this);
-                if (this.Binding.Mode === Data.BindingMode.TwoWay && this.Property.IsCustom) {
+                if (this.ParentBinding.Mode === Data.BindingMode.TwoWay && this.Property.IsCustom) {
                     this._PropertyListener = this.Property.Store.ListenToChanged(this.Target, this.Property, this._UpdateSourceCallback, this);
                 }
             };
-            BindingExpressionBase.prototype._UpdateSourceCallback = function (sender, args) {
-                try  {
-                    if (!this.IsUpdating)
-                        this._TryUpdateSourceObject(this.Target.GetValue(this.Property));
-                } catch (err) {
+            BindingExpressionBase.prototype._OnSourceAvailable = function () {
+                this._SourceAvailableMonitor.Detach();
+                var source = this._FindSourceByElementName();
+                if (source)
+                    this.PropertyPathWalker.Update(source);
+                this._Invalidate();
+                this.Target.SetValue(this.Property, this);
+            };
+            BindingExpressionBase.prototype._FindSourceByElementName = function () {
+                var xobj = this.Target;
+                var sourceNode;
+                var name = this.ParentBinding.ElementName;
+                var xnode = (xobj) ? xobj.XamlNode : null;
+                var parentNode;
+                while (xnode) {
+                    sourceNode = xnode.FindName(name);
+                    if (sourceNode)
+                        return sourceNode.XObject;
+                    if (xnode.XObject.TemplateOwner)
+                        xobj = xnode.XObject.TemplateOwner;
+else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItemsOwner(parentNode.XObject))
+                        xnode = parentNode;
+                    break;
                 }
+                return undefined;
             };
             BindingExpressionBase.prototype.OnDetached = function (element) {
                 if (!this.IsAttached)
                     return;
+                if (Fayde.Data.Debug && window.console)
+                    console.log("[BINDING] OnDetached: [" + (element).constructor._TypeName + "] {Path=" + this.ParentBinding.Path.Path + "}");
                 _super.prototype.OnDetached.call(this, element);
                 if (this._TwoWayTextBox)
                     this._TwoWayTextBox.LostFocus.Unsubscribe(this._TextBoxLostFocus, this);
-                if (this._IsBoundToAnyDataContext) {
-                    var listener = this._DataContextPropertyMonitor;
-                    if (listener)
-                        listener.Detach();
-                    this.SetDataContextSource(null);
-                }
 
                 if (this._PropertyListener) {
                     this._PropertyListener.Detach();
                     this._PropertyListener = null;
                 }
                 this.PropertyPathWalker.Update(null);
+                this.Target = undefined;
+            };
+            BindingExpressionBase.prototype.IsBrokenChanged = function () {
+                this.Refresh();
+            };
+            BindingExpressionBase.prototype.ValueChanged = function () {
+                this.Refresh();
+            };
+            BindingExpressionBase.prototype.UpdateSource = function () {
+                return this._UpdateSourceObject(undefined, true);
+            };
+            BindingExpressionBase.prototype._TryUpdateSourceObject = function (value) {
+                if (!this.IsUpdating && this.ParentBinding.UpdateSourceTrigger === Data.UpdateSourceTrigger.Default)
+                    this._UpdateSourceObject(value, false);
+            };
+            BindingExpressionBase.prototype._UpdateSourceCallback = function (sender, args) {
+                try  {
+                    if (!this.IsUpdating && this.ParentBinding.UpdateSourceTrigger === Data.UpdateSourceTrigger.Default)
+                        this._UpdateSourceObject(this.Target.GetValue(this.Property), false);
+                } catch (err) {
+                    console.warn("[BINDING] UpdateSource: " + err.toString());
+                }
             };
             BindingExpressionBase.prototype._TextBoxLostFocus = function () {
                 this._UpdateSourceObject();
-            };
-            BindingExpressionBase.prototype._TryUpdateSourceObject = function (value) {
-                if (!this.IsUpdating && this.Binding.UpdateSourceTrigger === Data.UpdateSourceTrigger.Default) {
-                    this._UpdateSourceObject(value, false);
-                }
             };
             BindingExpressionBase.prototype._UpdateSourceObject = function (value, force) {
                 if (value === undefined)
                     value = this.Target.GetValue(this.Property);
                 force = force === true;
-                var binding = this.Binding;
+                var binding = this.ParentBinding;
                 if (binding.Mode !== Data.BindingMode.TwoWay)
                     return;
                 var dataError;
@@ -7973,13 +8022,8 @@ var Fayde;
                         return;
                     if (this.PropertyPathWalker.IsPathBroken)
                         return;
-                    if (binding.TargetNullValue) {
-                        try  {
-                            if (binding.TargetNullValue === value)
-                                value = null;
-                        } catch (err) {
-                        }
-                    }
+                    if (binding.TargetNullValue && binding.TargetNullValue === value)
+                        value = null;
                     var converter = binding.Converter;
                     if (converter) {
                         value = converter.ConvertBack(value, node.ValueType, binding.ConverterParameter, binding.ConverterCulture);
@@ -7990,6 +8034,7 @@ var Fayde;
                         if (value)
                             value = this._ConvertFromTargetToSource(value);
                     } catch (err) {
+                        console.warn("[BINDING] ConvertFromTargetToSource: " + err.toString());
                         return;
                     }
                     if (!this._CachedValue && !value)
@@ -8008,117 +8053,22 @@ var Fayde;
                 }
                 this._MaybeEmitError(dataError, exception);
             };
-            BindingExpressionBase.prototype._MaybeEmitError = function (message, exception) {
-            };
-            BindingExpressionBase.prototype._ConvertFromTargetToSource = function (value) {
-                NotImplemented("BindingExpressionBase._ConvertFromTargetToSource");
-                return value;
-            };
-            BindingExpressionBase.prototype._ConvertFromSourceToTarget = function (value) {
-                NotImplemented("BindingExpressionBase._ConvertFromSourceToTarget");
-                return value;
-            };
-            BindingExpressionBase.prototype._ConvertToType = function (propd, value) {
-                try  {
-                    var binding = this.Binding;
-                    if (!this.PropertyPathWalker.IsPathBroken && binding.Converter) {
-                        value = binding.Converter.Convert(value, this.Property.GetTargetType(), binding.ConverterParameter, binding.ConverterCulture);
-                    }
-                    if (value === Fayde.UnsetValue || this.PropertyPathWalker.IsPathBroken) {
-                        value = binding.FallbackValue;
-                        if (value === undefined)
-                            value = propd.DefaultValue;
-                    } else if (value == null) {
-                        value = binding.TargetNullValue;
-                        if (value == null && this._IsBoundToAnyDataContext && !binding.Path.Path)
-                            value = propd.DefaultValue;
-                    } else {
-                        var format = binding.StringFormat;
-                        if (format) {
-                            if (format.indexOf("{0") < 0)
-                                format = "{0:" + format + "}";
-                            value = StringEx.Format(format, value);
-                        }
-                    }
-                } catch (err) {
-                    return Fayde.TypeConverter.ConvertObject(propd, binding.FallbackValue, (this.Target).constructor, true);
-                }
-                return value;
-            };
-            BindingExpressionBase.prototype._AttachToNotifyError = function (element) {
-                NotImplemented("BindingExpressionBase._AttachToNotifyError");
-            };
-            BindingExpressionBase.prototype._NotifyErrorsChanged = function (o, e) {
-                NotImplemented("BindingExpressionBase._NotifyErrorsChanged");
-            };
-            BindingExpressionBase.prototype._CalculateDataSource = function () {
-                var _this = this;
-                var source;
-                if (this.Binding.Source) {
-                    this.PropertyPathWalker.Update(this.Binding.Source);
-                } else if (this.Binding.ElementName != null) {
-                    source = this._FindSourceByElementName();
-                    this._SourceAvailableMonitor = this.Target.XamlNode.MonitorIsAttached(function (newIsAttached) {
-                        return _this._OnSourceAvailable();
-                    });
-                    this.PropertyPathWalker.Update(source);
-                } else if (this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === Data.RelativeSourceMode.Self) {
-                    this.PropertyPathWalker.Update(this.Target);
-                } else {
-                    if (this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === Data.RelativeSourceMode.TemplatedParent) {
-                        this.PropertyPathWalker.Update(this.Target.TemplateOwner);
-                    } else {
-                        this.SetDataContextSource(this.Target);
-                    }
-                }
-            };
-            BindingExpressionBase.prototype._OnSourceAvailable = function () {
-                this._SourceAvailableMonitor.Detach();
-                var source = this._FindSourceByElementName();
-                if (source)
-                    this.PropertyPathWalker.Update(source);
-                this._Invalidate();
-                this.Target.SetValue(this.Property, this);
-            };
-            BindingExpressionBase.prototype._FindSourceByElementName = function () {
-                var xobj = this.Target;
-                var sourceNode;
-                var name = this.Binding.ElementName;
-                var xnode = (xobj) ? xobj.XamlNode : null;
-                var parentNode;
-                while (xnode) {
-                    sourceNode = xnode.FindName(name);
-                    if (sourceNode)
-                        return sourceNode.XObject;
-                    if (xnode.XObject.TemplateOwner)
-                        xobj = xnode.XObject.TemplateOwner;
-else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItemsOwner(parentNode.XObject))
-                        xnode = parentNode;
-                    break;
-                }
-                return undefined;
-            };
-            BindingExpressionBase.prototype.SetDataContextSource = function (value) {
-                var _this = this;
-                if (this._DataContextPropertyMonitor) {
-                    this._DataContextPropertyMonitor.Detach();
-                    this._DataContextPropertyMonitor = null;
-                }
-                var dcs = this._DataContextSourceNode = value.XamlNode;
-                if (dcs) {
-                    this._DataContextPropertyMonitor = value.XamlNode.MonitorDataContext(function (newDataContext) {
-                        return _this._DataContextChanged(newDataContext);
-                    });
-                    this.PropertyPathWalker.Update(dcs ? dcs.DataContext : undefined);
-                }
-            };
-            BindingExpressionBase.prototype._DataContextChanged = function (newDataContext) {
+            BindingExpressionBase.prototype.OnDataContextChanged = function (newDataContext) {
+                if (Fayde.Data.Debug && window.console)
+                    console.log("[BINDING] DataContextChanged: [" + (this.Target)._ID + ":" + (this.Target).constructor._TypeName + "] {Path=" + this.ParentBinding.Path.Path + "}");
+                if (this._DataContext === newDataContext)
+                    return;
+                this._DataContext = newDataContext;
+                if (!this._IsDataContextBound)
+                    return;
+                if (Fayde.Data.IsCounterEnabled)
+                    Fayde.Data.DataContextCounter++;
                 try  {
                     this.PropertyPathWalker.Update(newDataContext);
-                    if (this.Binding.Mode === Data.BindingMode.OneTime)
+                    if (this.ParentBinding.Mode === Data.BindingMode.OneTime)
                         this.Refresh();
                 } catch (err) {
-                    Warn(err.message);
+                    console.warn(err.message);
                 }
             };
             BindingExpressionBase.prototype._Invalidate = function () {
@@ -8136,7 +8086,7 @@ else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItems
                     this._Invalidate();
                     this.Target.SetValue(this.Property, this);
                 } catch (err) {
-                    if (this.Binding.ValidatesOnExceptions) {
+                    if (this.ParentBinding.ValidatesOnExceptions) {
                         exception = err;
                         if (exception instanceof TargetInvocationException)
                             exception = (exception).InnerException;
@@ -8145,6 +8095,49 @@ else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItems
                     this.IsUpdating = oldUpdating;
                 }
                 this._MaybeEmitError(dataError, exception);
+            };
+            BindingExpressionBase.prototype._ConvertFromTargetToSource = function (value) {
+                NotImplemented("BindingExpressionBase._ConvertFromTargetToSource");
+                return value;
+            };
+            BindingExpressionBase.prototype._ConvertFromSourceToTarget = function (value) {
+                NotImplemented("BindingExpressionBase._ConvertFromSourceToTarget");
+                return value;
+            };
+            BindingExpressionBase.prototype._ConvertToType = function (propd, value) {
+                try  {
+                    var binding = this.ParentBinding;
+                    if (!this.PropertyPathWalker.IsPathBroken && binding.Converter) {
+                        value = binding.Converter.Convert(value, this.Property.GetTargetType(), binding.ConverterParameter, binding.ConverterCulture);
+                    }
+                    if (value === Fayde.UnsetValue || this.PropertyPathWalker.IsPathBroken) {
+                        value = binding.FallbackValue;
+                        if (value === undefined)
+                            value = propd.DefaultValue;
+                    } else if (value == null) {
+                        value = binding.TargetNullValue;
+                        if (value == null && this._IsDataContextBound && !binding.Path.Path)
+                            value = propd.DefaultValue;
+                    } else {
+                        var format = binding.StringFormat;
+                        if (format) {
+                            if (format.indexOf("{0") < 0)
+                                format = "{0:" + format + "}";
+                            value = StringEx.Format(format, value);
+                        }
+                    }
+                } catch (err) {
+                    return Fayde.TypeConverter.ConvertObject(propd, binding.FallbackValue, (this.Target).constructor, true);
+                }
+                return value;
+            };
+            BindingExpressionBase.prototype._MaybeEmitError = function (message, exception) {
+            };
+            BindingExpressionBase.prototype._AttachToNotifyError = function (element) {
+                NotImplemented("BindingExpressionBase._AttachToNotifyError");
+            };
+            BindingExpressionBase.prototype._NotifyErrorsChanged = function (o, e) {
+                NotImplemented("BindingExpressionBase._NotifyErrorsChanged");
             };
             return BindingExpressionBase;
         })(Fayde.Expression);
@@ -12189,8 +12182,19 @@ var Fayde;
             enumerable: true,
             configurable: true
         });
-        DONode.prototype._DataContextPropertyChanged = function (args) {
+        DONode.prototype._DataContextPropertyChanged = function (isLocalSet, args) {
             this.OnDataContextChanged(args.OldValue, args.NewValue);
+            var dcpid = DependencyObject.DataContextProperty._ID.toString();
+            var exprs = (this.XObject)._Expressions;
+            var expr;
+            for (var id in exprs) {
+                expr = exprs[id];
+                if (!expr)
+                    continue;
+                if (isLocalSet && id === dcpid)
+                    continue;
+                expr.OnDataContextChanged(args.NewValue);
+            }
         };
         return DONode;
     })(Fayde.XamlNode);
@@ -12224,7 +12228,7 @@ var Fayde;
             if (value instanceof Fayde.Expression)
                 expression = value;
             if (expression instanceof Fayde.Data.BindingExpressionBase) {
-                var binding = (expression).Binding;
+                var binding = (expression).ParentBinding;
                 var path = binding.Path.Path;
                 if ((!path || path === ".") && binding.Mode === Fayde.Data.BindingMode.TwoWay)
                     throw new ArgumentException("TwoWay bindings require a non-empty Path.");
@@ -12245,7 +12249,7 @@ var Fayde;
                 value = expression.GetValue(propd);
             } else if (existing) {
                 if (existing instanceof Fayde.Data.BindingExpressionBase) {
-                    var binding = (existing).Binding;
+                    var binding = (existing).ParentBinding;
                     if (binding.Mode === Fayde.Data.BindingMode.TwoWay) {
                         updateTwoWay = !existing.IsUpdating && !propd.IsCustom;
                     } else if (!existing.IsUpdating || binding.Mode === Fayde.Data.BindingMode.OneTime) {
@@ -12338,9 +12342,7 @@ var Fayde;
         };
         DependencyObject.DataContextProperty = DependencyProperty.Register("DataContext", function () {
             return Object;
-        }, DependencyObject, undefined, function (d, args) {
-            return (d).XamlNode._DataContextPropertyChanged(args);
-        });
+        }, DependencyObject);
         return DependencyObject;
     })(Fayde.XamlObject);
     Fayde.DependencyObject = DependencyObject;
@@ -12978,23 +12980,6 @@ var Fayde;
             function BindingExpression(binding, target, propd) {
                 _super.call(this, binding, target, propd);
             }
-            Object.defineProperty(BindingExpression.prototype, "ParentBinding", {
-                get: function () {
-                    return this.Binding;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(BindingExpression.prototype, "DataItem", {
-                get: function () {
-                    return this.DataSource;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            BindingExpression.prototype.UpdateSource = function () {
-                return this._UpdateSourceObject(undefined, true);
-            };
             return BindingExpression;
         })(Data.BindingExpressionBase);
         Data.BindingExpression = BindingExpression;

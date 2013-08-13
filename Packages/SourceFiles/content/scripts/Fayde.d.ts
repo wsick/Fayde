@@ -301,7 +301,7 @@ declare module Fayde.Providers {
         public SetLocalStyleValue(storage: IPropertyStorage, newValue: any): void;
         public SetImplicitStyle(storage: IPropertyStorage, newValue: any): void;
         public ClearValue(storage: IPropertyStorage): void;
-        public OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any): void;
+        public OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs;
         public ListenToChanged(target: Fayde.DependencyObject, propd: DependencyProperty, func: (sender: any, args: IDependencyPropertyChangedEventArgs) => void, closure: any): IPropertyChangedListener;
         public CreateStorage(dobj: Fayde.DependencyObject, propd: DependencyProperty): IPropertyStorage;
         public Clone(dobj: Fayde.DependencyObject, sourceStorage: IPropertyStorage): IPropertyStorage;
@@ -606,12 +606,19 @@ declare module Fayde {
         private _HandleStateChange();
     }
 }
-declare module Fayde.Media {
-    module Animation {
-        var Debug: boolean;
+declare module Fayde {
+    module Media {
+        module Animation {
+            var Debug: boolean;
+        }
+        module VSM {
+            var Debug: boolean;
+        }
     }
-    module VSM {
+    module Data {
         var Debug: boolean;
+        var IsCounterEnabled: boolean;
+        var DataContextCounter: number;
     }
 }
 interface IOutValue {
@@ -1044,6 +1051,7 @@ declare module Fayde {
         public GetValue(propd: DependencyProperty): any;
         public OnAttached(dobj: Fayde.DependencyObject): void;
         public OnDetached(dobj: Fayde.DependencyObject): void;
+        public OnDataContextChanged(newDataContext: any): void;
     }
 }
 declare module Fayde {
@@ -1263,10 +1271,6 @@ declare module Fayde {
         ZFoward = 2,
         ZReverse = 3,
     }
-    interface IDataContextMonitor {
-        Callback: (newDataContext: any) => void;
-        Detach();
-    }
     interface IIsAttachedMonitor {
         Callback: (newIsAttached: boolean) => void;
         Detach();
@@ -1279,13 +1283,11 @@ declare module Fayde {
         private IsShareable;
         private _OwnerNameScope;
         private _LogicalChildren;
-        private _DCMonitors;
         private _IAMonitors;
         constructor(xobj: Fayde.XamlObject);
         private _DataContext;
         public DataContext : any;
         public OnDataContextChanged(oldDataContext: any, newDataContext: any): void;
-        public MonitorDataContext(func: (newDataContext: any) => void): IDataContextMonitor;
         private _IsEnabled;
         public IsEnabled : boolean;
         public OnIsEnabledChanged(oldValue: boolean, newValue: boolean): void;
@@ -1339,6 +1341,7 @@ declare module Fayde.Providers {
         public GetValuePrecedence(storage: IDataContextStorage): Providers.PropertyPrecedence;
         public EmitInheritedChanged(storage: IDataContextStorage, newInherited?: any): void;
         public CreateStorage(dobj: Fayde.DependencyObject, propd: DependencyProperty): IDataContextStorage;
+        public OnPropertyChanged(storage: Providers.IPropertyStorage, effectivePrecedence: Providers.PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs;
     }
 }
 declare module Fayde.Providers {
@@ -1362,7 +1365,7 @@ declare module Fayde.Providers {
         static Instance: InheritedStore;
         public GetValue(storage: IInheritedStorage): any;
         public GetValuePrecedence(storage: IInheritedStorage): Providers.PropertyPrecedence;
-        public OnPropertyChanged(storage: Providers.IPropertyStorage, effectivePrecedence: Providers.PropertyPrecedence, oldValue: any, newValue: any): void;
+        public OnPropertyChanged(storage: Providers.IPropertyStorage, effectivePrecedence: Providers.PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs;
         public CreateStorage(dobj: Fayde.DependencyObject, propd: DependencyProperty): IInheritedStorage;
         static PropagateInheritedOnAdd(dobj: Fayde.DependencyObject, subtreeNode: Fayde.DONode): void;
         static ClearInheritedOnRemove(dobj: Fayde.DependencyObject, subtreeNode: Fayde.DONode): void;
@@ -1379,7 +1382,7 @@ declare module Fayde.Providers {
         public GetValue(storage: IIsEnabledStorage): boolean;
         public GetValuePrecedence(storage: IIsEnabledStorage): Providers.PropertyPrecedence;
         public SetLocalValue(storage: IIsEnabledStorage, newValue: boolean): void;
-        public OnPropertyChanged(storage: Providers.IPropertyStorage, effectivePrecedence: Providers.PropertyPrecedence, oldValue: any, newValue: any): void;
+        public OnPropertyChanged(storage: Providers.IPropertyStorage, effectivePrecedence: Providers.PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs;
         public CreateStorage(dobj: Fayde.DependencyObject, propd: DependencyProperty): IIsEnabledStorage;
         public EmitInheritedChanged(storage: IIsEnabledStorage, newInherited: boolean): void;
         static EmitInheritedChanged(cn: Fayde.Controls.ControlNode, value: boolean): void;
@@ -1400,43 +1403,41 @@ declare module Fayde.Data {
 }
 declare module Fayde.Data {
     class BindingExpressionBase extends Fayde.Expression implements Data.IPropertyPathWalkerListener {
-        private _Binding;
+        public ParentBinding: Data.Binding;
         public Target: Fayde.DependencyObject;
         public Property: DependencyProperty;
         private PropertyPathWalker;
-        private _DataContextSourceNode;
         private _PropertyListener;
-        private _DataContextPropertyMonitor;
         private _SourceAvailableMonitor;
-        private _IsBoundToAnyDataContext;
+        private _IsDataContextBound;
+        private _DataContext;
         private _TwoWayTextBox;
-        public Binding : Data.Binding;
-        public DataSource : any;
+        public DataItem : any;
         private _Cached;
         private _CachedValue;
         constructor(binding: Data.Binding, target: Fayde.DependencyObject, propd: DependencyProperty);
-        public IsBrokenChanged(): void;
-        public ValueChanged(): void;
+        private _Init(binding, target, propd);
         public GetValue(propd: DependencyProperty): any;
         public OnAttached(element: Fayde.DependencyObject): void;
-        private _UpdateSourceCallback(sender, args);
+        private _OnSourceAvailable();
+        private _FindSourceByElementName();
         public OnDetached(element: Fayde.DependencyObject): void;
-        private _TextBoxLostFocus();
+        public IsBrokenChanged(): void;
+        public ValueChanged(): void;
+        public UpdateSource(): void;
         public _TryUpdateSourceObject(value: any): void;
-        public _UpdateSourceObject(value?: any, force?: boolean): void;
-        private _MaybeEmitError(message, exception);
+        private _UpdateSourceCallback(sender, args);
+        private _TextBoxLostFocus();
+        private _UpdateSourceObject(value?, force?);
+        public OnDataContextChanged(newDataContext: any): void;
+        private _Invalidate();
+        public Refresh(): void;
         private _ConvertFromTargetToSource(value);
         private _ConvertFromSourceToTarget(value);
         private _ConvertToType(propd, value);
+        private _MaybeEmitError(message, exception);
         private _AttachToNotifyError(element);
         private _NotifyErrorsChanged(o, e);
-        private _CalculateDataSource();
-        private _OnSourceAvailable();
-        private _FindSourceByElementName();
-        public SetDataContextSource(value: Fayde.XamlObject): void;
-        private _DataContextChanged(newDataContext);
-        private _Invalidate();
-        public Refresh(): void;
     }
 }
 declare module Fayde.Data {
@@ -2418,7 +2419,7 @@ declare module Fayde {
         constructor(xobj: DependencyObject);
         public OnParentChanged(oldParentNode: Fayde.XamlNode, newParentNode: Fayde.XamlNode): void;
         public DataContext : any;
-        public _DataContextPropertyChanged(args: IDependencyPropertyChangedEventArgs): void;
+        public _DataContextPropertyChanged(isLocalSet: boolean, args: IDependencyPropertyChangedEventArgs): void;
     }
     class DependencyObject extends Fayde.XamlObject implements ICloneable, Fayde.Providers.IPropertyStorageOwner {
         private _Expressions;
@@ -2612,9 +2613,6 @@ declare module Fayde.Data {
 declare module Fayde.Data {
     class BindingExpression extends Data.BindingExpressionBase {
         constructor(binding: Data.Binding, target: Fayde.DependencyObject, propd: DependencyProperty);
-        public ParentBinding : Data.Binding;
-        public DataItem : any;
-        public UpdateSource(): void;
     }
 }
 declare module Fayde.Data {
