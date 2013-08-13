@@ -10,12 +10,12 @@ module Fayde.Controls {
             this.LayoutUpdater.BreaksLayoutClipRender = true;
         }
 
-        AttachVisualChild(uie: UIElement, error: BError): bool {
+        AttachVisualChild(uie: UIElement, error: BError): boolean {
             if (!super.AttachVisualChild(uie, error))
                 return false;
             this._UpdateIsLayoutContainerOnAdd(uie);
         }
-        DetachVisualChild(uie: UIElement, error: BError): bool {
+        DetachVisualChild(uie: UIElement, error: BError): boolean {
             if (!super.DetachVisualChild(uie, error))
                 return false;
             this._UpdateIsLayoutContainerOnRemove(uie);

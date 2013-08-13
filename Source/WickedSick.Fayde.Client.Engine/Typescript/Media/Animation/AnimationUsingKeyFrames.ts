@@ -5,18 +5,15 @@
 
 module Fayde.Media.Animation {
     export class AnimationUsingKeyFrames extends AnimationBase {
+        static KeyFramesProperty = DependencyProperty.RegisterImmutable("KeyFrames", () => KeyFrameCollection, AnimationUsingKeyFrames);
         KeyFrames: KeyFrameCollection;
         constructor() {
             super();
-            var coll = new KeyFrameCollection();
+            var coll = AnimationUsingKeyFrames.KeyFramesProperty.Initialize<KeyFrameCollection>(this);
             coll.AttachTo(this);
-            Object.defineProperty(this, "KeyFrames", {
-                value: coll,
-                writable: false
-            });
         }
 
-        Resolve(target: DependencyObject, propd: DependencyProperty): bool {
+        Resolve(target: DependencyObject, propd: DependencyProperty): boolean {
             var keyFrames = this.KeyFrames;
 
             var sortedList = KeyFrameCollection.ResolveKeyFrames(this, keyFrames);
@@ -32,7 +29,7 @@ module Fayde.Media.Animation {
         GetCurrentValue(defaultOriginValue: any, defaultDestinationValue: any, clockData: IClockData): any {
             var keyFrames = this.KeyFrames;
 
-            var prevFrameRef = { Value: null };
+            var prevFrameRef = { Value: <IKeyFrame>null };
             var currentKeyFrame: IKeyFrame = keyFrames.GetKeyFrameForTime(clockData.CurrentTime, prevFrameRef);
             var prevFrame: IKeyFrame = prevFrameRef.Value;
             if (!currentKeyFrame)

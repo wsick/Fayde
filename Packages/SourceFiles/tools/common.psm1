@@ -1,7 +1,6 @@
 ﻿function Set-ProjectItemType {
     param($project, $ProjectItemName, $ItemType)
-    $item = $project.ProjectItems | where { $_.Name -eq $ProjectItemName }
-    $item.Properties.Item("ItemType").Value = $ItemType
+    $project.ProjectItems | where { $_.Name -eq $ProjectItemName } | foreach { $_.Properties.Item("ItemType").Value = $ItemType }
 }
 
 function Get-ProjectItem {
@@ -11,12 +10,12 @@ function Get-ProjectItem {
 
 function Add-ProjectItemChild {
     param($project, $parentitem, $childitem)
-    IF ($parentItem -eq $False)
+    IF ($parentItem -eq $null)
     {
         Write-Host "Parent Item is null."
         return
     }
-    IF ($childItem -eq $False)
+    IF ($childItem -eq $null)
     {
         Write-Host "Child Item is null."
         return

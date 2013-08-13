@@ -34,9 +34,9 @@ class App implements Fayde.IResourcable, Fayde.ITimerListener {
     Address: Uri = null;
     NavService: Fayde.Navigation.NavService;
     DebugInterop: Fayde.DebugInterop;
-    Theme: string = "Default";
+    Theme: string = "Metro";
     static Themes: Fayde.Theme[] = [];
-    private _IsRunning: bool = false;
+    private _IsRunning: boolean = false;
     private _Storyboards: ITimeline[] = [];
     private _ClockTimer: Fayde.ClockTimer = new Fayde.ClockTimer();
     private static _GenericResourceDictionary: Fayde.ResourceDictionary = null;

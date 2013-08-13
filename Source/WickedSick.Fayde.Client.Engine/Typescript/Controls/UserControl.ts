@@ -3,7 +3,7 @@
 
 module Fayde.Controls {
     export class UCNode extends ControlNode {
-        _IsParsing: bool = false;
+        _IsParsing: boolean = false;
         XObject: UserControl;
         constructor(xobj: UserControl) {
             super(xobj);

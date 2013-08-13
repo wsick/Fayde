@@ -3,7 +3,7 @@
 
 module Fayde {
     export class RoutedEventArgs extends EventArgs {
-        Handled: bool = false;
+        Handled: boolean = false;
         Source: any = null;
         OriginalSource: any = null;
     }

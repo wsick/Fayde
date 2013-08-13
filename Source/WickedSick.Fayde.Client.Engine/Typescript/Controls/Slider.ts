@@ -10,8 +10,8 @@ module Fayde.Controls {
         static IsDirectionReversedProperty: DependencyProperty = DependencyProperty.RegisterCore("IsDirectionReversed", () => Boolean, Slider, false, (d, args) => (<Slider>d)._UpdateTrackLayout());
         static IsFocusedProperty: DependencyProperty = DependencyProperty.RegisterReadOnlyCore("IsFocused", () => Boolean, Slider, false, (d, args) => (<Slider>d).UpdateVisualState());
         static OrientationProperty: DependencyProperty = DependencyProperty.RegisterCore("Orientation", () => new Enum(Orientation), Slider, Orientation.Horizontal, (d, args) => (<Slider>d)._OnOrientationChanged());
-        IsDirectionReversed: bool;
-        IsFocused: bool;
+        IsDirectionReversed: boolean;
+        IsFocused: boolean;
         Orientation: Orientation;
 
         constructor() {

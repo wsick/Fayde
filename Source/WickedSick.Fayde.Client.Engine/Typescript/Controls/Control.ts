@@ -5,7 +5,7 @@
 
 module Fayde.Controls {
     export interface IIsEnabledListener {
-        Callback: (newIsEnabled: bool) => void;
+        Callback: (newIsEnabled: boolean) => void;
         Detach();
     }
 
@@ -13,7 +13,7 @@ module Fayde.Controls {
         _Surface: Surface;
         XObject: Control;
         TemplateRoot: FrameworkElement;
-        IsFocused: bool = false;
+        IsFocused: boolean = false;
 
         constructor(xobj: Control) {
             super(xobj);
@@ -26,7 +26,7 @@ module Fayde.Controls {
             return xobj.IsEnabled && xobj.IsTabStop && this.Focus();
         }
 
-        DoApplyTemplateWithError(error: BError): bool {
+        DoApplyTemplateWithError(error: BError): boolean {
             var xobj = this.XObject;
             var t = xobj.Template;
             var root: UIElement;
@@ -48,7 +48,7 @@ module Fayde.Controls {
         }
         GetDefaultVisualTree(): UIElement { return undefined; }
 
-        OnIsAttachedChanged(newIsAttached: bool) {
+        OnIsAttachedChanged(newIsAttached: boolean) {
             super.OnIsAttachedChanged(newIsAttached);
             if (!newIsAttached)
                 Media.VSM.VisualStateManager.DestroyStoryboards(this.XObject, this.TemplateRoot);
@@ -59,12 +59,12 @@ module Fayde.Controls {
             this.IsEnabled = newParentNode ? newParentNode.IsEnabled : true;
         }
         
-        get IsEnabled(): bool { return this.XObject.IsEnabled; }
-        set IsEnabled(value: bool) {
+        get IsEnabled(): boolean { return this.XObject.IsEnabled; }
+        set IsEnabled(value: boolean) {
             Providers.IsEnabledStore.EmitInheritedChanged(this, value);
             this.OnIsEnabledChanged(undefined, value);
         }
-        OnIsEnabledChanged(oldValue: bool, newValue: bool) {
+        OnIsEnabledChanged(oldValue: boolean, newValue: boolean) {
             if (!newValue) {
                 this.IsMouseOver = false;
                 var surface = this._Surface;
@@ -77,9 +77,9 @@ module Fayde.Controls {
             super.OnIsEnabledChanged(oldValue, newValue);
         }
 
-        Focus(recurse?: bool): bool { return this._Surface.Focus(this, recurse); }
+        Focus(recurse?: boolean): boolean { return this._Surface.Focus(this, recurse); }
 
-        CanCaptureMouse(): bool { return this.XObject.IsEnabled; }
+        CanCaptureMouse(): boolean { return this.XObject.IsEnabled; }
     }
     Nullstone.RegisterType(ControlNode, "ControlNode");
 
@@ -106,7 +106,7 @@ module Fayde.Controls {
         static VerticalContentAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalContentAlignment", () => new Enum(VerticalAlignment), Control, VerticalAlignment.Center, (d, args) => (<Control>d)._ContentAlignmentChanged(args));
         static DefaultStyleKeyProperty: DependencyProperty = DependencyProperty.Register("DefaultStyleKey", () => Function, Control);
 
-        IsInheritable(propd: DependencyProperty): bool {
+        IsInheritable(propd: DependencyProperty): boolean {
             if (ControlInheritedProperties.indexOf(propd) > -1)
                 return true;
             return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);
@@ -122,8 +122,8 @@ module Fayde.Controls {
         FontWeight: FontWeight;
         Foreground: Media.Brush;
         HorizontalContentAlignment: HorizontalAlignment;
-        IsEnabled: bool;
-        IsTabStop: bool;
+        IsEnabled: boolean;
+        IsTabStop: boolean;
         Padding: Thickness;
         TabIndex: number;
         TabNavigation: Input.KeyboardNavigationMode;
@@ -131,7 +131,7 @@ module Fayde.Controls {
         VerticalContentAlignment: VerticalAlignment;
         DefaultStyleKey: Function;
         
-        private _IsMouseOver: bool = false; //Defined in UIElement
+        private _IsMouseOver: boolean = false; //Defined in UIElement
         get IsFocused() { return this.XamlNode.IsFocused; }
 
         GetTemplateChild(childName: string): DependencyObject {
@@ -142,7 +142,7 @@ module Fayde.Controls {
             }
         }
 
-        ApplyTemplate(): bool {
+        ApplyTemplate(): boolean {
             var error = new BError();
             var result = this.XamlNode.ApplyTemplateWithError(error);
             if (error.Message)
@@ -181,7 +181,7 @@ module Fayde.Controls {
         OnMouseRightButtonUp(e: Input.MouseButtonEventArgs) { }
         OnMouseWheel(e: Input.MouseWheelEventArgs) { }
 
-        UpdateVisualState(useTransitions?: bool) {
+        UpdateVisualState(useTransitions?: boolean) {
             useTransitions = useTransitions !== false;
             var states = this.GetVisualStateNamesToActivate();
             for (var i = 0; i < states.length; i++) {

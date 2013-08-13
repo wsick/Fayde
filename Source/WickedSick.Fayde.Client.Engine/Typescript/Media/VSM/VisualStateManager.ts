@@ -21,7 +21,7 @@ module Fayde.Media.VSM {
         static GetCustomVisualStateManager(d: DependencyObject): VisualStateManager { return d.GetValue(VisualStateManager.CustomVisualStateManagerProperty); }
         static SetCustomVisualStateManager(d: DependencyObject, value: VisualStateManager) { d.SetValue(VisualStateManager.CustomVisualStateManagerProperty, value); }
 
-        static GoToState(control: Controls.Control, stateName: string, useTransitions: bool): bool {
+        static GoToState(control: Controls.Control, stateName: string, useTransitions: boolean): boolean {
             if (!control)
                 throw new ArgumentException("control");
             if (!stateName)
@@ -48,10 +48,10 @@ module Fayde.Media.VSM {
 
             return false;
         }
-        GoToStateCore(control: Controls.Control, element: FrameworkElement, stateName: string, group: VisualStateGroup, state: VisualState, useTransitions: bool): bool {
+        GoToStateCore(control: Controls.Control, element: FrameworkElement, stateName: string, group: VisualStateGroup, state: VisualState, useTransitions: boolean): boolean {
             return VisualStateManager.GoToStateInternal(control, element, group, state, useTransitions);
         }
-        private static GoToStateInternal(control: Controls.Control, element: FrameworkElement, group: VisualStateGroup, state: VisualState, useTransitions: bool): bool {
+        private static GoToStateInternal(control: Controls.Control, element: FrameworkElement, group: VisualStateGroup, state: VisualState, useTransitions: boolean): boolean {
             var lastState = group.CurrentState;
             if (lastState === state)
                 return true;
@@ -130,7 +130,7 @@ module Fayde.Media.VSM {
             }
             return (node) ? node.XObject : null;
         }
-        private static _TryGetState(groups: VisualStateGroupCollection, stateName: string, data: IStateData): bool {
+        private static _TryGetState(groups: VisualStateGroupCollection, stateName: string, data: IStateData): boolean {
             var enumerator = groups.GetEnumerator();
             while (enumerator.MoveNext()) {
                 data.group = enumerator.Current;

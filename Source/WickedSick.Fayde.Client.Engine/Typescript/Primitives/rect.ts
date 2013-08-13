@@ -72,7 +72,7 @@ class rect implements ICloneable {
         dest.Height = src.Height;
         return dest;
     }
-    static isEqual(rect1: rect, rect2: rect): bool {
+    static isEqual(rect1: rect, rect2: rect): boolean {
         return rect1.X === rect2.X
             && rect1.Y === rect2.Y
             && rect1.Width === rect2.Width
@@ -323,13 +323,13 @@ class rect implements ICloneable {
             rect.transform4(dest, projection);
     }
 
-    static containsPoint(rect1: rect, p: Point): bool {
+    static containsPoint(rect1: rect, p: Point): boolean {
         return rect1.X <= p.X
             && rect1.Y <= p.Y
             && (rect1.X + rect1.Width) >= p.X
             && (rect1.Y + rect1.Height) >= p.Y;
     }
-    static containsPointXY(rect1: rect, x: number, y: number): bool {
+    static containsPointXY(rect1: rect, x: number, y: number): boolean {
         return rect1.X <= x
             && rect1.Y <= y
             && (rect1.X + rect1.Width) >= x

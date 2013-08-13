@@ -37,8 +37,8 @@ module Fayde.Text {
         SelectionCursor: number;
         Start: number;
         Text: string;
-        IsGrowable: bool;
-        constructor(selectionAnchor: number, selectionCursor: number, start: number, inserted: string, isAtomic?: bool) {
+        IsGrowable: boolean;
+        constructor(selectionAnchor: number, selectionCursor: number, start: number, inserted: string, isAtomic?: boolean) {
             this.SelectionAnchor = selectionAnchor;
             this.SelectionCursor = selectionCursor;
             this.Start = start;

@@ -31,7 +31,7 @@ module Fayde.Controls {
             return vspft;
         }
 
-        DoApplyTemplateWithError(error: BError): bool {
+        DoApplyTemplateWithError(error: BError): boolean {
             if (this._ElementRoot)
                 return false;
 

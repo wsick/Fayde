@@ -12,11 +12,11 @@ module Fayde.Controls {
         Recycling = 1,
     }
     export interface ICancelable {
-        Cancel: bool;
+        Cancel: boolean;
     }
 
     export class CleanUpVirtualizedItemEventArgs extends RoutedEventArgs implements ICancelable {
-        Cancel: bool = false;
+        Cancel: boolean = false;
         UIElement: UIElement;
         Value: any;
         constructor(uiElement: UIElement, value: any) {
@@ -27,8 +27,8 @@ module Fayde.Controls {
     }
 
     export class VirtualizingStackPanel extends VirtualizingPanel implements Primitives.IScrollInfo, IMeasurableHidden, IArrangeableHidden {
-        private _CanHorizontallyScroll: bool = false;
-        private _CanVerticallyScroll: bool = false;
+        private _CanHorizontallyScroll: boolean = false;
+        private _CanVerticallyScroll: boolean = false;
         private _HorizontalOffset: number = 0;
         private _VerticalOffset: number = 0;
         private _ExtentWidth: number = 0;
@@ -38,9 +38,9 @@ module Fayde.Controls {
         
         ScrollOwner: ScrollViewer;
         get CanHorizontallyScroll() { return this._CanHorizontallyScroll; }
-        set CanHorizontallyScroll(value: bool) { this._CanHorizontallyScroll = value; this.XamlNode.LayoutUpdater.InvalidateMeasure(); }
+        set CanHorizontallyScroll(value: boolean) { this._CanHorizontallyScroll = value; this.XamlNode.LayoutUpdater.InvalidateMeasure(); }
         get CanVerticallyScroll() { return this._CanVerticallyScroll; }
-        set CanVerticallyScroll(value: bool) { this._CanVerticallyScroll = value; this.XamlNode.LayoutUpdater.InvalidateMeasure(); }
+        set CanVerticallyScroll(value: boolean) { this._CanVerticallyScroll = value; this.XamlNode.LayoutUpdater.InvalidateMeasure(); }
         get ExtentWidth() { return this._ExtentWidth; }
         get ExtentHeight() { return this._ExtentHeight; }
         get ViewportWidth() { return this._ViewportWidth; }
@@ -179,8 +179,8 @@ module Fayde.Controls {
         static OrientationProperty: DependencyProperty = DependencyProperty.Register("Orientation", () => new Enum(Orientation), VirtualizingStackPanel, Orientation.Vertical, (d, args) => (<UIElement>d).XamlNode.LayoutUpdater.InvalidateMeasure());
         Orientation: Orientation;
         static IsVirtualizingProperty: DependencyProperty = DependencyProperty.RegisterAttached("IsVirtualizing", () => new Boolean, VirtualizingStackPanel, false);
-        static GetIsVirtualizing(d: DependencyObject): bool { return d.GetValue(VirtualizingStackPanel.IsVirtualizingProperty); }
-        static SetIsVirtualizing(d: DependencyObject, value: bool) { d.SetValue(VirtualizingStackPanel.IsVirtualizingProperty, value); }
+        static GetIsVirtualizing(d: DependencyObject): boolean { return d.GetValue(VirtualizingStackPanel.IsVirtualizingProperty); }
+        static SetIsVirtualizing(d: DependencyObject, value: boolean) { d.SetValue(VirtualizingStackPanel.IsVirtualizingProperty, value); }
         static VirtualizationModeProperty: DependencyProperty = DependencyProperty.RegisterAttached("VirtualizationMode", () => new Enum(VirtualizationMode), VirtualizingStackPanel, VirtualizationMode.Recycling);
         static GetVirtualizationMode(d: DependencyObject): VirtualizationMode { return d.GetValue(VirtualizingStackPanel.VirtualizationModeProperty); }
         static SetVirtualizationMode(d: DependencyObject, value: VirtualizationMode) { d.SetValue(VirtualizingStackPanel.VirtualizationModeProperty, value); }
@@ -400,9 +400,9 @@ module Fayde.Controls {
             var owner = ItemsControl.GetItemsOwner(this);
             var orientation = this.Orientation;
 
-            var index;
-            var offset;
-            var viewable
+            var index: number;
+            var offset: number;
+            var viewable: number;
 
             switch (e.Action) {
                 case Collections.NotifyCollectionChangedAction.Add:

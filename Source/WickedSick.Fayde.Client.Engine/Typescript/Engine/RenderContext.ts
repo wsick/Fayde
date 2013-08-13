@@ -67,10 +67,10 @@ module Fayde {
             this.CanvasContext.clip();
         }
 
-        IsPointInPath(x: number, y: number): bool {
+        IsPointInPath(x: number, y: number): boolean {
             return this.CanvasContext.isPointInPath(x, y);
         }
-        IsPointInClipPath(clip: Media.Geometry, x: number, y: number): bool {
+        IsPointInClipPath(clip: Media.Geometry, x: number, y: number): boolean {
             clip.Draw(this);
             //DrawDebug("DrawClip (Geometry): " + clip.toString());
             return this.CanvasContext.isPointInPath(x, y);

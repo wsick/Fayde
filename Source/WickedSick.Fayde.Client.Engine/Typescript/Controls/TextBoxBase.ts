@@ -39,10 +39,10 @@ module Fayde.Controls {
         private _Redo: Text.ITextBoxUndoAction[] = [];
         _Buffer: string = "";
         private _Emit: TextBoxEmitChangedType = TextBoxEmitChangedType.NOTHING;
-        private _NeedIMReset: bool = false;
-        private _Selecting: bool = false;
-        private _Captured: bool = false;
-        private _SettingValue: bool = true;
+        private _NeedIMReset: boolean = false;
+        private _Selecting: boolean = false;
+        private _Captured: boolean = false;
+        private _SettingValue: boolean = true;
         private _SelectionCursor: number = 0;
         private _SelectionAnchor: number = 0;
 
@@ -57,11 +57,11 @@ module Fayde.Controls {
         
         $View: Internal.TextBoxView;
         $ContentElement: FrameworkElement;
-        $IsReadOnly: bool = false;
-        $IsFocused: bool = false;
-        $AcceptsReturn: bool = false;
+        $IsReadOnly: boolean = false;
+        $IsFocused: boolean = false;
+        $AcceptsReturn: boolean = false;
         $MaxLength: number = 0;
-        $HasOffset: bool = false;
+        $HasOffset: boolean = false;
 
         constructor(eventsMask: TextBoxEmitChangedType, textPropd: DependencyProperty) {
             super();
@@ -77,7 +77,7 @@ module Fayde.Controls {
         }
 
         get SelectionCursor(): number { return this._SelectionCursor; }
-        get HasSelectedText(): bool { return this._SelectionCursor !== this._SelectionAnchor; }
+        get HasSelectedText(): boolean { return this._SelectionCursor !== this._SelectionAnchor; }
         get CaretBrush(): Media.Brush { return undefined; }
         get TextAlignment(): TextAlignment { return undefined; }
         get TextWrapping(): TextWrapping { return undefined; }
@@ -255,7 +255,7 @@ module Fayde.Controls {
             }
             this._Batch--;
         }
-        private _SyncAndEmit(syncText?: bool) {
+        private _SyncAndEmit(syncText?: boolean) {
             if (syncText === undefined)
                 syncText = true;
 
@@ -295,7 +295,7 @@ module Fayde.Controls {
             this.SelectionLength = 0;
             this._BatchPop();
         }
-        Select(start: number, length: number): bool {
+        Select(start: number, length: number): boolean {
             if (start < 0)
                 throw new ArgumentException("start < 0");
             if (length < 0)
@@ -472,8 +472,8 @@ module Fayde.Controls {
             }
         }
 
-        CursorDown(cursor: number, isPage: bool): number { return cursor; }
-        CursorUp(cursor: number, isPage: bool): number { return cursor; }
+        CursorDown(cursor: number, isPage: boolean): number { return cursor; }
+        CursorUp(cursor: number, isPage: boolean): number { return cursor; }
         CursorNextWord(cursor: number): number { return cursor; }
         CursorPrevWord(cursor: number): number { return cursor; }
         CursorLineBegin(cursor: number): number { return cursor; }
@@ -621,7 +621,7 @@ module Fayde.Controls {
             this._SyncAndEmit();
         }
 
-        private _KeyDownBackSpace(modifiers: Input.IModifiersOn): bool {
+        private _KeyDownBackSpace(modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Shift || modifiers.Alt)
                 return false;
 
@@ -666,7 +666,7 @@ module Fayde.Controls {
 
             return true;
         }
-        private _KeyDownDelete(modifiers: Input.IModifiersOn): bool {
+        private _KeyDownDelete(modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Shift || modifiers.Alt)
                 return false;
 
@@ -711,7 +711,7 @@ module Fayde.Controls {
 
             return handled;
         }
-        private _KeyDownPageDown(modifiers: Input.IModifiersOn): bool {
+        private _KeyDownPageDown(modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Alt)
                 return false;
 
@@ -736,7 +736,7 @@ module Fayde.Controls {
 
             return true;
         }
-        private _KeyDownPageUp(modifiers: Input.IModifiersOn): bool {
+        private _KeyDownPageUp(modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Alt)
                 return false;
 
@@ -761,7 +761,7 @@ module Fayde.Controls {
 
             return true;
         }
-        private _KeyDownHome(modifiers: Input.IModifiersOn): bool {
+        private _KeyDownHome(modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Alt)
                 return false;
 
@@ -791,7 +791,7 @@ module Fayde.Controls {
 
             return handled;
         }
-        private _KeyDownEnd(modifiers: Input.IModifiersOn): bool {
+        private _KeyDownEnd(modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Alt)
                 return false;
 
@@ -821,7 +821,7 @@ module Fayde.Controls {
 
             return handled;
         }
-        private _KeyDownLeft(modifiers: Input.IModifiersOn): bool {
+        private _KeyDownLeft(modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Alt)
                 return false;
 
@@ -854,7 +854,7 @@ module Fayde.Controls {
 
             return handled;
         }
-        private _KeyDownRight(modifiers: Input.IModifiersOn): bool {
+        private _KeyDownRight(modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Alt)
                 return false;
 
@@ -887,7 +887,7 @@ module Fayde.Controls {
 
             return handled;
         }
-        private _KeyDownDown(modifiers: Input.IModifiersOn): bool {
+        private _KeyDownDown(modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Alt)
                 return false;
 
@@ -914,7 +914,7 @@ module Fayde.Controls {
 
             return handled;
         }
-        private _KeyDownUp(modifiers: Input.IModifiersOn): bool {
+        private _KeyDownUp(modifiers: Input.IModifiersOn): boolean {
             if (modifiers.Alt)
                 return false;
 
@@ -941,7 +941,7 @@ module Fayde.Controls {
 
             return handled;
         }
-        private _KeyDownChar(c: string): bool {
+        private _KeyDownChar(c: string): boolean {
             var anchor = this._SelectionAnchor;
             var cursor = this._SelectionCursor;
             var length = Math.abs(cursor - anchor);

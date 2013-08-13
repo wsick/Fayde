@@ -1,11 +1,11 @@
+/// <reference path="RoutedEvent.ts" />
+/// CODE
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-/// <reference path="RoutedEvent.ts" />
-/// CODE
 var Fayde;
 (function (Fayde) {
     var RoutedPropertyChangedEvent = (function (_super) {
@@ -30,4 +30,4 @@ var Fayde;
     Fayde.RoutedPropertyChangedEventArgs = RoutedPropertyChangedEventArgs;
     Nullstone.RegisterType(RoutedPropertyChangedEventArgs, "RoutedPropertyChangedEventArgs");
 })(Fayde || (Fayde = {}));
-//@ sourceMappingURL=RoutedPropertyChangedEvent.js.map
+//# sourceMappingURL=RoutedPropertyChangedEvent.js.map

@@ -8,20 +8,18 @@ module Fayde.Documents {
             return new TextElementNode(this, "Blocks");
         }
 
-        static Annotations = { ContentProperty: "Blocks" }
+        static BlocksProperty = DependencyProperty.RegisterImmutable("Blocks", () => BlockCollection, Section);
+
+        static Annotations = { ContentProperty: "Blocks" };
         
         Blocks: BlockCollection;
         constructor() {
             super();
-            var coll = new BlockCollection();
+            var coll = Section.BlocksProperty.Initialize<BlockCollection>(this);
             coll.AttachTo(this);
             coll.Listen(this);
-            Object.defineProperty(this, "Blocks", {
-                value: coll,
-                writable: false
-            });
         }
-        BlocksChanged(newBlock: Block, isAdd: bool) {
+        BlocksChanged(newBlock: Block, isAdd: boolean) {
             if (isAdd)
                 Providers.InheritedStore.PropagateInheritedOnAdd(this, newBlock.XamlNode);
         }

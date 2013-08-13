@@ -20,9 +20,9 @@ module Fayde {
     export class UINode extends DONode {
         XObject: UIElement;
         LayoutUpdater: LayoutUpdater;
-        IsTopLevel: bool = false;
+        IsTopLevel: boolean = false;
         _Surface: Surface;
-        IsMouseOver: bool = false;
+        IsMouseOver: boolean = false;
 
         SetSurfaceFromVisualParent(): UINode {
             if (this._Surface)
@@ -57,7 +57,7 @@ module Fayde {
             return this.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
         }
 
-        OnIsAttachedChanged(newIsAttached: bool) {
+        OnIsAttachedChanged(newIsAttached: boolean) {
             var vpNode: UINode = null;
             if (newIsAttached)
                 vpNode = this.SetSurfaceFromVisualParent();
@@ -65,8 +65,8 @@ module Fayde {
             super.OnIsAttachedChanged(newIsAttached);
         }
 
-        IsLoaded: bool = false;
-        SetIsLoaded(value: bool) { }
+        IsLoaded: boolean = false;
+        SetIsLoaded(value: boolean) { }
 
         OnVisualChildAttached(uie: UIElement) {
             var lu = this.LayoutUpdater;
@@ -101,7 +101,7 @@ module Fayde {
             }
         }
 
-        Focus(recurse?: bool): bool { return false; }
+        Focus(recurse?: boolean): boolean { return false; }
 
         _EmitFocusChange(type: string) {
             if (type === "got")
@@ -137,7 +137,7 @@ module Fayde {
             x.OnLostMouseCapture(e);
             x.LostMouseCapture.Raise(x, e);
         }
-        _EmitMouseEvent(type: InputType, isLeftButton: bool, isRightButton: bool, args: Input.MouseEventArgs): bool {
+        _EmitMouseEvent(type: InputType, isLeftButton: boolean, isRightButton: boolean, args: Input.MouseEventArgs): boolean {
             var x = this.XObject;
             switch (type) {
                 case InputType.MouseUp:
@@ -182,8 +182,8 @@ module Fayde {
             return args.Handled;
         }
         
-        CanCaptureMouse(): bool { return true; }
-        CaptureMouse(): bool {
+        CanCaptureMouse(): boolean { return true; }
+        CaptureMouse(): boolean {
             if (!this.IsAttached)
                 return false;
             this._Surface.SetMouseCapture(this);
@@ -316,7 +316,7 @@ module Fayde {
         static UseLayoutRoundingProperty = InheritableOwner.UseLayoutRoundingProperty.ExtendTo(UIElement);
         static VisibilityProperty = DependencyProperty.RegisterCore("Visibility", () => new Enum(Visibility), UIElement, Visibility.Visible, (d, args) => (<UIElement>d).XamlNode.InvalidateVisibility(args.NewValue));
         
-        IsInheritable(propd: DependencyProperty): bool {
+        IsInheritable(propd: DependencyProperty): boolean {
             return propd === UIElement.UseLayoutRoundingProperty;
         }
 
@@ -324,11 +324,11 @@ module Fayde {
         get DesiredSize(): size { return this.XamlNode.LayoutUpdater.DesiredSize; }
         get RenderSize(): size { return this.XamlNode.LayoutUpdater.RenderSize; }
 
-        //AllowDrop: bool;
+        //AllowDrop: boolean;
         //CacheMode;
         Clip: Media.Geometry;
         Effect: Media.Effects.Effect;
-        IsHitTestVisible: bool;
+        IsHitTestVisible: boolean;
         Cursor: string;
         OpacityMask: Media.Brush;
         Opacity: number;
@@ -337,14 +337,14 @@ module Fayde {
         RenderTransformOrigin: Point;
         Tag: any;
         Triggers: TriggerCollection;
-        UseLayoutRounding: bool;
+        UseLayoutRounding: boolean;
         Visibility: Visibility;
         
-        Focus(): bool { return this.XamlNode.Focus(); }
-        CaptureMouse():bool { return this.XamlNode.CaptureMouse(); }
+        Focus(): boolean { return this.XamlNode.Focus(); }
+        CaptureMouse():boolean { return this.XamlNode.CaptureMouse(); }
         ReleaseMouseCapture() { this.XamlNode.ReleaseMouseCapture(); }
 
-        IsAncestorOf(uie: UIElement): bool {
+        IsAncestorOf(uie: UIElement): boolean {
             if (!uie) return false;
             return this.XamlNode.IsAncestorOf(uie.XamlNode);
         }

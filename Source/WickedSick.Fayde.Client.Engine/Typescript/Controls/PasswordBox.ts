@@ -37,8 +37,8 @@ module Fayde.Controls {
             return result;
         }
 
-        CursorDown(cursor: number, isPage: bool): number { return this._Buffer.length; }
-        CursorUp(cursor: number, isPage: bool): number { return 0; }
+        CursorDown(cursor: number, isPage: boolean): number { return this._Buffer.length; }
+        CursorUp(cursor: number, isPage: boolean): number { return 0; }
         CursorNextWord(cursor: number): number { return this._Buffer.length; }
         CursorPrevWord(cursor: number): number { return 0; }
         CursorLineBegin(cursor: number): number { return 0; }
@@ -83,7 +83,7 @@ module Fayde.Controls {
     }
     Nullstone.RegisterType(PasswordBox, "PasswordBox");
     
-    function positiveIntValidator(dobj: DependencyObject, propd: DependencyProperty, value: any): bool {
+    function positiveIntValidator(dobj: DependencyObject, propd: DependencyProperty, value: any): boolean {
         if (typeof value !== 'number')
             return false;
         return value >= 0;

@@ -9,8 +9,8 @@ module Fayde.Controls.Primitives {
 
         static IsCheckedProperty: DependencyProperty = DependencyProperty.RegisterCore("IsChecked", () => Boolean, ToggleButton, false, (d, args) => (<ToggleButton>d).OnIsCheckedChanged(args));
         static IsThreeStateProperty: DependencyProperty = DependencyProperty.RegisterCore("IsThreeState", () => Boolean, ToggleButton, false);
-        IsChecked: bool;
-        IsThreeState: bool;
+        IsChecked: boolean;
+        IsThreeState: boolean;
 
         constructor() {
             super();
@@ -30,7 +30,7 @@ module Fayde.Controls.Primitives {
             this.OnToggle();
             super.OnClick();
         }
-        UpdateVisualState(useTransitions?: bool) {
+        UpdateVisualState(useTransitions?: boolean) {
             useTransitions = useTransitions !== false;
             super.UpdateVisualState(useTransitions);
 

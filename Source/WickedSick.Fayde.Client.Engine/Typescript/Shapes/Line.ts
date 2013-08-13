@@ -26,7 +26,7 @@ module Fayde.Shapes {
             return path;
         }
 
-        _ComputeShapeBounds(logical: bool): rect {
+        _ComputeShapeBounds(logical: boolean): rect {
             var shapeBounds = new rect();
 
             var thickness = 0;

@@ -22,7 +22,7 @@ module Fayde.Providers {
         SetLocalStyleValue(storage: IPropertyStorage, newValue: any) { }
         SetImplicitStyle(storage: IPropertyStorage, newValue: any) { }
 
-        ClearValue(storage: Providers.IPropertyStorage, notifyListeners?: bool) { }
+        ClearValue(storage: Providers.IPropertyStorage, notifyListeners?: boolean) { }
     }
     ActualSizeStore.Instance = new ActualSizeStore();
 }

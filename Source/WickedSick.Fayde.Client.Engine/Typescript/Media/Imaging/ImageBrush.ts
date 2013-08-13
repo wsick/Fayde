@@ -49,7 +49,9 @@ module Fayde.Media.Imaging {
         }
         OnImageErrored(source: BitmapSource, e: Event) { this.ImageFailed.Raise(this, EventArgs.Empty); }
         OnImageLoaded(source: BitmapSource, e: Event) { this.ImageOpened.Raise(this, EventArgs.Empty); }
-        ImageChanged(source: BitmapSource) { }
+        ImageChanged(source: BitmapSource) {
+            this.InvalidateBrush();
+        }
     }
     Nullstone.RegisterType(ImageBrush, "ImageBrush");
 }

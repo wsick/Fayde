@@ -143,7 +143,7 @@ module Fayde.Providers {
             this.OnPropertyChanged(storage, PropertyPrecedence.LocalValue, oldLocal, undefined);
         }
 
-        OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any) {
+        OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs {
             var propd = storage.Property;
             if (newValue === undefined) {
                 effectivePrecedence = this.GetValuePrecedence(storage);
@@ -152,7 +152,7 @@ module Fayde.Providers {
             
             storage.Precedence = effectivePrecedence;
             if (!propd.AlwaysChange && oldValue === newValue)
-                return;
+                return undefined;
 
             if (!storage.Property.IsCustom) {
                 if (oldValue instanceof XamlObject)
@@ -179,6 +179,7 @@ module Fayde.Providers {
                     listeners[i].OnPropertyChanged(sender, args);
                 }
             }
+            return args;
         }
         ListenToChanged(target: DependencyObject, propd: DependencyProperty, func: (sender, args: IDependencyPropertyChangedEventArgs) => void , closure: any): Providers.IPropertyChangedListener {
             var storage = GetStorage(target, propd);

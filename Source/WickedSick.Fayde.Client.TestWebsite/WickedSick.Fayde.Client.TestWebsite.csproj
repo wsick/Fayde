@@ -89,6 +89,8 @@
     <Content Include="default8.fap">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Tests\IssueTests\binding.fap.js" />
+    <Content Include="Tests\IssueTests\binding.fap.ts" />
     <Content Include="Tests\Media\image-stretch.fap">
       <SubType>Designer</SubType>
     </Content>
@@ -137,6 +139,9 @@
     </Content>
     <Content Include="Tests\Controls\progressbar.fap" />
     <Content Include="Tests\IssueTests\issue11.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Tests\IssueTests\binding.fap">
       <SubType>Designer</SubType>
     </Content>
     <None Include="Tests\Shapes\rectangle-grid.fap">

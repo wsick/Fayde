@@ -13,8 +13,8 @@ module Fayde.Controls.Primitives {
 
         static IsDraggingProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("IsDragging", () => Boolean, Thumb, false, (d, args) => (<Thumb>d).OnDraggingChanged(args));
         static IsFocusedProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("IsFocused", () => Boolean, Thumb);
-        IsDragging: bool;
-        IsFocused: bool;
+        IsDragging: boolean;
+        IsFocused: boolean;
 
         constructor() {
             super();
@@ -38,7 +38,7 @@ module Fayde.Controls.Primitives {
             super.OnLostFocus(e);
             this._FocusChanged(this.XamlNode._HasFocus());
         }
-        private _FocusChanged(hasFocus: bool) {
+        private _FocusChanged(hasFocus: boolean) {
             this.SetStoreValue(Thumb.IsFocusedProperty, hasFocus);
             this.UpdateVisualState();
         }
@@ -100,7 +100,7 @@ module Fayde.Controls.Primitives {
         private _RaiseDragDelta(x: number, y: number) {
             this.DragDelta.Raise(this, new DragDeltaEventArgs(x, y));
         }
-        private _RaiseDragCompleted(canceled: bool) {
+        private _RaiseDragCompleted(canceled: boolean) {
             this.DragCompleted.Raise(this, new DragCompletedEventArgs(this._PreviousPosition.X - this._Origin.X, this._PreviousPosition.Y - this._Origin.Y, canceled));
         }
 

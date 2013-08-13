@@ -28,8 +28,8 @@ module Fayde.Controls.Primitives {
         SetHorizontalOffset(offset: number);
         SetVerticalOffset(offset: number);
 
-        CanHorizontallyScroll: bool;
-        CanVerticallyScroll: bool;
+        CanHorizontallyScroll: boolean;
+        CanVerticallyScroll: boolean;
         ExtentHeight: number;
         ExtentWidth: number;
         HorizontalOffset: number;

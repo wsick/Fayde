@@ -4,15 +4,18 @@
 
 module Fayde {
     export class Expression {
-        IsUpdating: bool;
-        IsAttached: bool;
+        IsUpdating: boolean;
+        IsAttached: boolean;
         GetValue(propd: DependencyProperty): any { }
         OnAttached(dobj: DependencyObject) {
             this.IsAttached = true;
+            this.OnDataContextChanged(dobj.DataContext);
         }
         OnDetached(dobj: DependencyObject) {
             this.IsAttached = false;
+            this.OnDataContextChanged(undefined);
         }
+        OnDataContextChanged(newDataContext: any) { }
     }
     Nullstone.RegisterType(Expression, "Expression");
 }

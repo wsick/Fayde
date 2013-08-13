@@ -8,21 +8,19 @@ module Fayde.Documents {
             return new TextElementNode(this, "Inlines");
         }
 
+        static InlinesProperty = DependencyProperty.RegisterImmutable("Inlines", () => InlineCollection, Paragraph);
+
         static Annotations = { ContentProperty: "Inlines" }
 
         Inlines: InlineCollection;
         constructor() {
             super();
-            var coll = new InlineCollection();
+            var coll = Paragraph.InlinesProperty.Initialize<InlineCollection>(this);
             coll.AttachTo(this);
             coll.Listen(this);
-            Object.defineProperty(this, "Inlines", {
-                value: coll,
-                writable: false
-            });
         }
         
-        InlinesChanged(newInline: Inline, isAdd: bool) {
+        InlinesChanged(newInline: Inline, isAdd: boolean) {
             if (isAdd)
                 Providers.InheritedStore.PropagateInheritedOnAdd(this, newInline.XamlNode);
         }

@@ -16,7 +16,7 @@ module Fayde.Data {
     export interface IPropertyPathNode {
         Next: IPropertyPathNode;
         Value: any;
-        IsBroken: bool;
+        IsBroken: boolean;
         ValueType: IType;
         SetSource(source: any);
         SetValue(value: any);
@@ -24,7 +24,7 @@ module Fayde.Data {
         Unlisten(listener: IPropertyPathNodeListener);
     }
     export interface ICollectionViewNode extends IPropertyPathNode {
-        BindToView: bool;
+        BindToView: boolean;
     }
     export interface IPropertyPathNodeListener {
         IsBrokenChanged(node: IPropertyPathNode);
@@ -33,7 +33,7 @@ module Fayde.Data {
 
     export class PropertyPathWalker implements IPropertyPathNodeListener {
         Path: string;
-        IsDataContextBound: bool;
+        IsDataContextBound: boolean;
         Source: any;
         ValueInternal: any;
         Node: IPropertyPathNode;
@@ -57,7 +57,7 @@ module Fayde.Data {
             return false;
         }
 
-        constructor(path: string, bindDirectlyToSource?: bool, bindsToView?: bool, isDataContextBound?: bool) {
+        constructor(path: string, bindDirectlyToSource?: boolean, bindsToView?: boolean, isDataContextBound?: boolean) {
             bindDirectlyToSource = bindDirectlyToSource !== false;
             bindsToView = bindsToView === true;
             this.IsDataContextBound = isDataContextBound === true;
@@ -83,7 +83,7 @@ module Fayde.Data {
                 var parser = new PropertyPathParser(path);
                 while ((type = parser.Step(data)) !== PropertyNodeType.None) {
                     var isViewProperty = false;
-                    //bool isViewProperty = CollectionViewProperties.Any (prop => prop.Name == propertyName);
+                    //boolean isViewProperty = CollectionViewProperties.Any (prop => prop.Name == propertyName);
                     //          static readonly PropertyInfo[] CollectionViewProperties = typeof (ICollectionView).GetProperties ();
                     var node = createCollectionViewNode(bindDirectlyToSource, isViewProperty);
                     lastCVNode = node;
@@ -140,7 +140,7 @@ module Fayde.Data {
 
     class PropertyPathNode implements IPropertyPathNode {
         Next: IPropertyPathNode;
-        _IsBroken: bool;
+        _IsBroken: boolean;
         _Source: any;
         private _Value: any;
         DependencyProperty: DependencyProperty;
@@ -149,7 +149,7 @@ module Fayde.Data {
         private _NodeListener: IPropertyPathNodeListener;
         ValueType: IType;
 
-        get IsBroken(): bool { return this._IsBroken; }
+        get IsBroken(): boolean { return this._IsBroken; }
         get Source(): any { return this._Source; }
         get Value(): any { return this._Value; }
 
@@ -180,7 +180,7 @@ module Fayde.Data {
             }
         }
 
-        UpdateValueAndIsBroken(newValue: any, isBroken: bool) {
+        UpdateValueAndIsBroken(newValue: any, isBroken: boolean) {
             var emitBrokenChanged = this._IsBroken !== isBroken;
             var emitValueChanged = !Nullstone.Equals(this.Value, newValue);
 
@@ -195,7 +195,7 @@ module Fayde.Data {
                 if (listener) listener.IsBrokenChanged(this);
             }
         }
-        _CheckIsBroken(): bool {
+        _CheckIsBroken(): boolean {
             return !this.Source || (!this.PropertyInfo && !this.DependencyProperty);
         }
     }
@@ -289,16 +289,16 @@ module Fayde.Data {
         }
     }
 
-    function createCollectionViewNode(bindsDirectlyToSource: bool, bindsToView: bool): ICollectionViewNode {
+    function createCollectionViewNode(bindsDirectlyToSource: boolean, bindsToView: boolean): ICollectionViewNode {
         return new CollectionViewNode(bindsDirectlyToSource, bindsToView);
     }
     class CollectionViewNode extends PropertyPathNode implements ICollectionViewNode {
-        BindsDirectlyToSource: bool;
-        BindToView: bool;
+        BindsDirectlyToSource: boolean;
+        BindToView: boolean;
         private _ViewPropertyListener: Providers.IPropertyChangedListener;
         private _View: ICollectionView;
 
-        constructor(bindsDirectlyToSource: bool, bindToView: bool) {
+        constructor(bindsDirectlyToSource: boolean, bindToView: boolean) {
             super();
             this.BindsDirectlyToSource = bindsDirectlyToSource === true;
             this.BindToView = bindToView === true;
@@ -350,7 +350,7 @@ module Fayde.Data {
                 }
             }
         }
-        _CheckIsBroken(): bool { return this.Source == null; }
+        _CheckIsBroken(): boolean { return this.Source == null; }
 
         ConnectViewHandlers(source: CollectionViewSource, view: ICollectionView) {
             if (source instanceof CollectionViewSource) {
@@ -363,7 +363,7 @@ module Fayde.Data {
             }
 
         }
-        DisconnectViewHandlers(onlyView?: bool) {
+        DisconnectViewHandlers(onlyView?: boolean) {
             if (!onlyView)
                 onlyView = false;
             if (this._ViewPropertyListener && !onlyView) {
@@ -382,7 +382,7 @@ module Fayde.Data {
     class IndexedPropertyPathNode extends PropertyPathNode {
         private _Index: number;
         _Source: any; //Defind in PropertyPathNode
-        _IsBroken: bool; //Defind in PropertyPathNode
+        _IsBroken: boolean; //Defind in PropertyPathNode
         PropertyInfo: IndexedPropertyInfo;
 
         constructor(index: any) {
@@ -421,7 +421,7 @@ module Fayde.Data {
                 this.PropertyInfo.SetValue(this.Source, this._Index, value);
         }
 
-        _CheckIsBroken(): bool {
+        _CheckIsBroken(): boolean {
             return this._IsBroken || super._CheckIsBroken();
         }
 

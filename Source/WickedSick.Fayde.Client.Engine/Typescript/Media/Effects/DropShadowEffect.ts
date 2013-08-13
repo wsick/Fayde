@@ -39,7 +39,7 @@ module Fayde.Media.Effects {
                 right < 1.0 ? 1.0 : Math.ceil(right),
                 bottom < 1.0 ? 1.0 : Math.ceil(bottom));
         }
-        GetPadding(thickness: Thickness): bool {
+        GetPadding(thickness: Thickness): boolean {
             var radius = Math.min(this.BlurRadius, DropShadowEffect.MAX_BLUR_RADIUS);
             var depth = Math.min(Math.max(0, this.ShadowDepth), DropShadowEffect.MAX_SHADOW_DEPTH);
             var direction = this.Direction * Math.PI / 180.0;

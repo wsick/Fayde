@@ -11,7 +11,7 @@ module Fayde.Media {
         Inverse: GeneralTransform;
         Transform(p: Point): Point { return p; }
         TransformBounds(r: rect): rect { return r; }
-        TryTransform(inPoint: Point, outPoint: Point): bool { return false; }
+        TryTransform(inPoint: Point, outPoint: Point): boolean { return false; }
     }
     Nullstone.RegisterType(GeneralTransform, "GeneralTransform");
 

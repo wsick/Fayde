@@ -13,12 +13,8 @@ module Fayde {
         ZReverse = 3,
     }
 
-    export interface IDataContextMonitor {
-        Callback: (newDataContext: any) => void;
-        Detach();
-    }
     export interface IIsAttachedMonitor {
-        Callback: (newIsAttached: bool) => void;
+        Callback: (newIsAttached: boolean) => void;
         Detach();
     }
 
@@ -27,11 +23,10 @@ module Fayde {
         ParentNode: XamlNode = null;
         Name: string = "";
         NameScope: NameScope = null;
-        private IsShareable: bool = false;
+        private IsShareable: boolean = false;
         private _OwnerNameScope: NameScope = null;
         private _LogicalChildren: XamlNode[] = [];
 
-        private _DCMonitors: IDataContextMonitor[] = null;
         private _IAMonitors: IIsAttachedMonitor[] = null;
 
         constructor(xobj: XamlObject) {
@@ -55,32 +50,11 @@ module Fayde {
                 childNode = childNodes[i];
                 childNode.DataContext = newDataContext;
             }
-
-            var monitors = this._DCMonitors;
-            if (!monitors) return;
-            len = monitors.length;
-            for (var i = 0; i < len; i++) {
-                monitors[i].Callback(newDataContext);
-            }
-        }
-        MonitorDataContext(func: (newDataContext: any) => void): IDataContextMonitor {
-            var monitors = this._DCMonitors;
-            if (!monitors) this._DCMonitors = monitors = [];
-            var monitor: IDataContextMonitor = {
-                Callback: func,
-                Detach: null
-            };
-            monitor.Detach = function () {
-                var index = monitors.indexOf(monitor);
-                if (index > -1) monitors.splice(index, 1);
-            };
-            this._DCMonitors.push(monitor);
-            return monitor;
         }
 
-        private _IsEnabled: bool = true;
-        get IsEnabled(): bool { return this._IsEnabled; }
-        set IsEnabled(value: bool) {
+        private _IsEnabled: boolean = true;
+        get IsEnabled(): boolean { return this._IsEnabled; }
+        set IsEnabled(value: boolean) {
             value = value !== false;
             var old = this._IsEnabled;
             if (old === value)
@@ -88,7 +62,7 @@ module Fayde {
             this._IsEnabled = value;
             this.OnIsEnabledChanged(old, value);
         }
-        OnIsEnabledChanged(oldValue: bool, newValue: bool) {
+        OnIsEnabledChanged(oldValue: boolean, newValue: boolean) {
             var childNodes = this._LogicalChildren;
             var len = childNodes.length;
             var childNode: XamlNode = null;
@@ -127,14 +101,14 @@ module Fayde {
             return undefined;
         }
 
-        IsAttached: bool = false;
-        SetIsAttached(value: bool) {
+        IsAttached: boolean = false;
+        SetIsAttached(value: boolean) {
             if (this.IsAttached === value)
                 return;
             this.IsAttached = value;
             this.OnIsAttachedChanged(value);
         }
-        OnIsAttachedChanged(newIsAttached: bool) {
+        OnIsAttachedChanged(newIsAttached: boolean) {
             var childNodes = this._LogicalChildren;
             var len = childNodes.length;
             var childNode: XamlNode = null;
@@ -150,7 +124,7 @@ module Fayde {
                 monitors[i].Callback(newIsAttached);
             }
         }
-        MonitorIsAttached(func: (newIsAttached: bool) => void ): IIsAttachedMonitor {
+        MonitorIsAttached(func: (newIsAttached: boolean) => void ): IIsAttachedMonitor {
             var monitors = this._IAMonitors;
             if (!monitors) this._IAMonitors = monitors = [];
             var monitor: IIsAttachedMonitor = {
@@ -165,7 +139,7 @@ module Fayde {
             return monitor;
         }
 
-        AttachTo(parentNode: XamlNode, error: BError): bool {
+        AttachTo(parentNode: XamlNode, error: BError): boolean {
             if (this.ParentNode && this.IsShareable)
                 return true;
             var data = {

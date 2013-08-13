@@ -4,11 +4,11 @@
 
 module Fayde.Documents {
     export interface IInlinesChangedListener {
-        InlinesChanged(newInline: Inline, isAdd: bool);
+        InlinesChanged(newInline: Inline, isAdd: boolean);
     }
 
     export class Inline extends TextElement {
-        Autogen: bool = false;
+        Autogen: boolean = false;
     }
     Nullstone.RegisterType(Inline, "Inline");
 
@@ -17,14 +17,14 @@ module Fayde.Documents {
         Listen(listener: IInlinesChangedListener) { this._Listener = listener; }
         Unlisten(listener: IInlinesChangedListener) { if (this._Listener === listener) this._Listener = null; }
 
-        AddingToCollection(value: Inline, error: BError): bool {
+        AddingToCollection(value: Inline, error: BError): boolean {
             if (!super.AddingToCollection(value, error))
                 return false;
             var listener = this._Listener;
             if (listener) listener.InlinesChanged(value, true);
             return true;
         }
-        RemovedFromCollection(value: Inline, isValueSafe: bool) {
+        RemovedFromCollection(value: Inline, isValueSafe: boolean) {
             super.RemovedFromCollection(value, isValueSafe);
             var listener = this._Listener;
             if (listener) listener.InlinesChanged(value, false);

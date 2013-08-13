@@ -1,5 +1,4 @@
 /// <reference path="qunit-1.10.0.d.ts" />
-/// <reference path="../Typescript/Controls/ItemContainerGenerator.ts" />
 
 QUnit.module("ItemsControl Tests");
 

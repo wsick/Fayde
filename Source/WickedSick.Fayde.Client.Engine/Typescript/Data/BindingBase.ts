@@ -2,7 +2,7 @@
 
 module Fayde.Data {
     export class BindingBase {
-        private _IsSealed: bool = false;
+        private _IsSealed: boolean = false;
 
         private _StringFormat: string = undefined;
         private _FallbackValue: any = undefined;

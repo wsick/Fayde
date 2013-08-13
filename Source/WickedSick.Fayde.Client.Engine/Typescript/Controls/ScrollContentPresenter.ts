@@ -11,21 +11,21 @@
 module Fayde.Controls {
     export class ScrollContentPresenter extends ContentPresenter implements Primitives.IScrollInfo, IMeasurableHidden, IArrangeableHidden {
         private _ScrollData: Primitives.ScrollData = new Primitives.ScrollData();
-        private _IsClipPropertySet: bool = false;
+        private _IsClipPropertySet: boolean = false;
         private _ClippingRectangle: Media.RectangleGeometry = null;
 
         get ScrollOwner(): ScrollViewer { return this._ScrollData.ScrollOwner; }
         set ScrollOwner(value: ScrollViewer) { this._ScrollData.ScrollOwner = value; }
-        get CanHorizontallyScroll(): bool { return this._ScrollData.CanHorizontallyScroll;; }
-        set CanHorizontallyScroll(value: bool) {
+        get CanHorizontallyScroll(): boolean { return this._ScrollData.CanHorizontallyScroll;; }
+        set CanHorizontallyScroll(value: boolean) {
             var sd = this._ScrollData;
             if (sd.CanHorizontallyScroll !== value) {
                 sd.CanHorizontallyScroll = value;
                 this.XamlNode.LayoutUpdater.InvalidateMeasure();
             }
         }
-        get CanVerticallyScroll(): bool { return this._ScrollData.CanVerticallyScroll; }
-        set CanVerticallyScroll(value: bool) {
+        get CanVerticallyScroll(): boolean { return this._ScrollData.CanVerticallyScroll; }
+        set CanVerticallyScroll(value: boolean) {
             var sd = this._ScrollData;
             if (sd.CanVerticallyScroll !== value) {
                 sd.CanVerticallyScroll = value;
@@ -134,7 +134,7 @@ module Fayde.Controls {
 
         _MeasureOverride(availableSize: size, error: BError): size {
             var scrollOwner = this.ScrollOwner;
-            var cr = this.XamlNode.ContentRoot;
+            var cr = (<ContentPresenterNode>this.XamlNode).ContentRoot;
             if (!scrollOwner || !cr)
                 return (<IMeasurableHidden>super)._MeasureOverride.call(this, availableSize, error);
 
@@ -156,7 +156,7 @@ module Fayde.Controls {
         }
         _ArrangeOverride(finalSize: size, error: BError): size {
             var scrollOwner = this.ScrollOwner;
-            var cr = this.XamlNode.ContentRoot;
+            var cr = (<ContentPresenterNode>this.XamlNode).ContentRoot;
             if (!scrollOwner || !cr)
                 return (<IArrangeableHidden>super)._ArrangeOverride.call(this, finalSize, error);
 
@@ -192,7 +192,7 @@ module Fayde.Controls {
                 changed = true;
             if (changed) this.ScrollOwner.InvalidateScrollInfo();
         }
-        private _ClampOffsets(): bool {
+        private _ClampOffsets(): boolean {
             var changed = false;
             
             var sd = this._ScrollData;
@@ -274,19 +274,19 @@ module Fayde.Controls {
             return Math.max(0, offset);
         throw new ArgumentException("Offset is not a number.");
     }
-    function areNumbersClose(val1: number, val2: number): bool {
+    function areNumbersClose(val1: number, val2: number): boolean {
         if (val1 === val2)
             return true;
         var num1 = (Math.abs(val1) + Math.abs(val2) + 10) * 1.11022302462516E-16;
         var num2 = val1 - val2;
         return -num1 < num2 && num1 > num2;
     }
-    function isNumberLessThan(val1: number, val2: number): bool {
+    function isNumberLessThan(val1: number, val2: number): boolean {
         if (val1 >= val2)
             return false;
         return !areNumbersClose(val1, val2);
     }
-    function isNumberGreaterThan(val1: number, val2: number): bool {
+    function isNumberGreaterThan(val1: number, val2: number): boolean {
         if (val1 <= val2)
             return false;
         return !areNumbersClose(val1, val2);

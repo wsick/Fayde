@@ -4,13 +4,13 @@
 
 module Fayde {
     export interface IEnumerable<T> {
-        GetEnumerator(reverse?: bool): IEnumerator<T>;
+        GetEnumerator(reverse?: boolean): IEnumerator<T>;
     }
     export var IEnumerable_ = Nullstone.RegisterInterface("IEnumerable");
 
     export interface IEnumerator<T> {
         Current: T;
-        MoveNext(): bool;
+        MoveNext(): boolean;
     }
     export var IEnumerator_ = Nullstone.RegisterInterface("IEnumerator");
 
@@ -22,7 +22,7 @@ module Fayde {
         static AsEnumerable<T>(arr: T[]): IEnumerable<T> {
             return <IEnumerable<T>><any>arr;
         }
-        static GetEnumerator<T>(arr: T[], isReverse?: bool): IEnumerator<T> {
+        static GetEnumerator<T>(arr: T[], isReverse?: boolean): IEnumerator<T> {
             var len = arr.length;
             var e = { MoveNext: undefined, Current: undefined };
             var index;
@@ -51,7 +51,7 @@ module Fayde {
             }
             return e;
         }
-        static GetNodeEnumerator<T extends XamlObject, U extends XamlNode>(arr: T[], isReverse?: bool): IEnumerator<U> {
+        static GetNodeEnumerator<T extends XamlObject, U extends XamlNode>(arr: T[], isReverse?: boolean): IEnumerator<U> {
             var len = arr.length;
             var e = { MoveNext: undefined, Current: undefined };
             var index;
@@ -81,7 +81,7 @@ module Fayde {
             return e;
         }
 
-        static RemoveIfContains<T>(arr: T[], item: T): bool {
+        static RemoveIfContains<T>(arr: T[], item: T): boolean {
             var index = arr.indexOf(item);
             if (index < 0)
                 return false;
@@ -109,7 +109,7 @@ module Fayde {
 }
 
 Object.defineProperty(Array.prototype, "GetEnumerator", {
-    value: function <T>(isReverse?: bool): Fayde.IEnumerator<T> {
+    value: function <T>(isReverse?: boolean): Fayde.IEnumerator<T> {
         return Fayde.ArrayEx.GetEnumerator<T>(this, isReverse);
     },
     enumerable: false

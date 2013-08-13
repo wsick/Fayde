@@ -50,7 +50,7 @@ module Fayde.Media {
                 return rect.copyTo(r);
             return rect.transform(rect.copyTo(r), v._Raw);
         }
-        TryTransform(inPoint: Point, outPoint: Point): bool {
+        TryTransform(inPoint: Point, outPoint: Point): boolean {
             return false;
         }
 

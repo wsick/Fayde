@@ -16,7 +16,7 @@ class Point implements ICloneable, IPoint {
     toString(): string {
         return "X=" + this.X.toString() + ";Y=" + this.Y.toString();
     }
-    Equals(other: Point): bool {
+    Equals(other: Point): boolean {
         return this.X === other.X && this.Y === other.Y;
     }
 

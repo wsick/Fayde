@@ -22,7 +22,7 @@ module Fayde.Shapes {
         }
 
         GetValueAt(index: number): Point { return this._ht[index]; }
-        SetValueAt(index: number, value: Point): bool {
+        SetValueAt(index: number, value: Point): boolean {
             if (index < 0 || index >= this._ht.length)
                 return false;
             var removed = this._ht[index];
@@ -85,9 +85,9 @@ module Fayde.Shapes {
             }
             return -1;
         }
-        Contains(value: Point): bool { return this.IndexOf(value) > -1; }
+        Contains(value: Point): boolean { return this.IndexOf(value) > -1; }
 
-        GetEnumerator(reverse?: bool): IEnumerator<Point> { return ArrayEx.GetEnumerator(this._ht, reverse); }
+        GetEnumerator(reverse?: boolean): IEnumerator<Point> { return ArrayEx.GetEnumerator(this._ht, reverse); }
     }
     Nullstone.RegisterType(PointCollection, "PointCollection");
 }

@@ -15,7 +15,7 @@ module Fayde.Controls {
         ParentSelectorChanged: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
 
         static IsSelectedProperty: DependencyProperty = DependencyProperty.RegisterCore("IsSelected", () => Boolean, ListBoxItem, null, (d, args) => (<ListBoxItem>d).OnIsSelectedChanged(args));
-        IsSelected: bool;
+        IsSelected: boolean;
 
         constructor() {
             super();

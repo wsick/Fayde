@@ -63,7 +63,7 @@ module Fayde.Controls {
             }
         }
 
-        private _NavigateByPage(forward: bool) {
+        private _NavigateByPage(forward: boolean) {
             var tsv = this.$TemplateScrollViewer;
             var newFocusedIndex = -1;
             var item = (this._FocusedIndex !== -1) ? this.Items.GetValueAt(this._FocusedIndex) : null;
@@ -152,7 +152,7 @@ module Fayde.Controls {
                 ? ihro.X <= lbiro.Y && rect.getBottom(ihro) >= rect.getBottom(lbiro)
                 : ihro.X <= lbiro.X && rect.getRight(ihro) >= rect.getRight(lbiro);
         }
-        private _GetFirstItemOnCurrentPage(startingIndex: number, forward: bool): number {
+        private _GetFirstItemOnCurrentPage(startingIndex: number, forward: boolean): number {
             var delta = forward ? 1 : -1;
             var fiocp = -1;
             var probeIndex = startingIndex;
@@ -263,7 +263,7 @@ module Fayde.Controls {
             if (handled)
                 args.Handled = true;
         }
-        private _GetIsVerticalOrientation(): bool {
+        private _GetIsVerticalOrientation(): boolean {
             var p = this.Panel;
             if (p instanceof StackPanel)
                 return (<StackPanel>p).Orientation === Orientation.Vertical;
@@ -272,7 +272,7 @@ module Fayde.Controls {
             return true;
         }
 
-        IsItemItsOwnContainer(item: any): bool {
+        IsItemItsOwnContainer(item: any): boolean {
             return item instanceof ListBoxItem;
         }
         GetContainerForItem(): DependencyObject {

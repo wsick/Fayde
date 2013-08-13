@@ -10,7 +10,6 @@ module Fayde.Controls {
             super(xobj);
         }
         ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
-            super.ComputeBounds(baseComputer, lu);
             if (this.XObject.ShowGridLines) {
                 rect.set(lu.Extents, 0, 0, lu.ActualWidth, lu.ActualHeight);
                 rect.union(lu.ExtentsWithChildren, lu.Extents);
@@ -19,6 +18,8 @@ module Fayde.Controls {
 
                 lu.ComputeGlobalBounds();
                 lu.ComputeSurfaceBounds();
+            } else {
+                super.ComputeBounds(baseComputer, lu);
             }
         }
     }
@@ -68,9 +69,9 @@ module Fayde.Controls {
     }
 
     interface IGridStates {
-        HasAutoAuto: bool;
-        HasStarAuto: bool;
-        HasAutoStar: bool;
+        HasAutoAuto: boolean;
+        HasStarAuto: boolean;
+        HasAutoStar: boolean;
     }
 
     interface IGridChildPlacement {
@@ -89,9 +90,9 @@ module Fayde.Controls {
     }
     
     function walkGrid(grid: Grid, rowMatrix: ISegment[][], colMatrix: ISegment[][]): IGridStates {
-        var haa: bool = false;
-        var hsa: bool = false;
-        var has: bool = false;
+        var haa: boolean = false;
+        var hsa: boolean = false;
+        var has: boolean = false;
 
         var starCol = false;
         var starRow = false;
@@ -171,25 +172,17 @@ module Fayde.Controls {
         static GetRowSpan(d: DependencyObject): number { return d.GetValue(Grid.RowSpanProperty); }
         static SetRowSpan(d: DependencyObject, value: number) { d.SetValue(Grid.RowSpanProperty, value); }
 
+        static ColumnDefinitionsProperty = DependencyProperty.RegisterImmutable("ColumnDefinitions", () => ColumnDefinitionCollection, Grid);
+        static RowDefinitionsProperty = DependencyProperty.RegisterImmutable("RowDefinitions", () => RowDefinitionCollection, Grid);
         static ShowGridLinesProperty: DependencyProperty = DependencyProperty.Register("ShowGridLines", () => Boolean, Grid, false, (d, args) => (<Grid>d)._ShowGridLinesChanged(args));
-        ShowGridLines: bool;
+        ShowGridLines: boolean;
         ColumnDefinitions: ColumnDefinitionCollection;
         RowDefinitions: RowDefinitionCollection;
 
         constructor() {
             super();
-            var cds = new ColumnDefinitionCollection();
-            cds.Listen(this);
-            Object.defineProperty(this, "ColumnDefinitions", {
-                value: cds,
-                writable: false
-            });
-            var rds = new RowDefinitionCollection();
-            rds.Listen(this);
-            Object.defineProperty(this, "RowDefinitions", {
-                value: rds,
-                writable: false
-            });
+            <ColumnDefinitionCollection>Grid.ColumnDefinitionsProperty.Initialize(this).Listen(this);
+            <RowDefinitionCollection>Grid.RowDefinitionsProperty.Initialize(this).Listen(this);
         }
 
         _MeasureOverride(availableSize: size, error: BError): size {
@@ -644,9 +637,9 @@ module Fayde.Controls {
                 matrix[c][c].OfferedSize = matrix[c][c].DesiredSize;
             }
         }
-        private _AssignSize(matrix: ISegment[][], start: number, end: number, size: number, unitType: GridUnitType, desiredSize: bool): number {
+        private _AssignSize(matrix: ISegment[][], start: number, end: number, size: number, unitType: GridUnitType, desiredSize: boolean): number {
             var count: number = 0;
-            var assigned: bool = false;
+            var assigned: boolean = false;
             var segmentSize: number = 0;
             var i: number = 0;
             var cur: ISegment = null;

@@ -7,7 +7,7 @@ module Fayde.Providers {
     }
 
     export interface IIsPropertyInheritable {
-        IsInheritable(propd: DependencyProperty): bool;
+        IsInheritable(propd: DependencyProperty): boolean;
     }
 
     export class InheritedStore extends PropertyStore {
@@ -33,10 +33,11 @@ module Fayde.Providers {
             return PropertyPrecedence.DefaultValue;
         }
 
-        OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any) {
-            super.OnPropertyChanged(storage, effectivePrecedence, oldValue, newValue);
+        OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs {
+            var args = super.OnPropertyChanged(storage, effectivePrecedence, oldValue, newValue);
             if (effectivePrecedence <= PropertyPrecedence.Inherited)
                 this.Propagate(storage.OwnerNode, storage.Property, newValue);
+            return args;
         }
 
         CreateStorage(dobj: DependencyObject, propd: DependencyProperty): IInheritedStorage {
@@ -102,7 +103,7 @@ module Fayde.Providers {
                     this.Propagate(uin, propd, newValue);
             }
         }
-        private SetInheritedValue(don: DONode, propd: DependencyProperty, newValue: any): bool {
+        private SetInheritedValue(don: DONode, propd: DependencyProperty, newValue: any): boolean {
             /// Returns false if object doesn't understand this inheritable property
             var dobj = don.XObject;
             if (!(<IIsPropertyInheritable>dobj).IsInheritable(propd))

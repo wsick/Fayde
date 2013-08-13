@@ -24,7 +24,7 @@ module Fayde {
         GetValueAt(index: number): T {
             return this._ht[index];
         }
-        SetValueAt(index: number, value: T): bool {
+        SetValueAt(index: number, value: T): boolean {
             if (!this.CanAdd(value))
                 return false;
 
@@ -47,7 +47,7 @@ module Fayde {
             var rv = this.Insert(this._ht.length, value);
             return rv ? this._ht.length - 1 : -1;
         }
-        Insert(index: number, value: T): bool {
+        Insert(index: number, value: T): boolean {
             if (!this.CanAdd(value))
                 return false;
             if (index < 0)
@@ -66,13 +66,13 @@ module Fayde {
                 throw new Exception(error.Message);
             return false;
         }
-        Remove(value: T): bool {
+        Remove(value: T): boolean {
             var index = this.IndexOf(value);
             if (index === -1)
                 return false;
             return this.RemoveAt(index);
         }
-        RemoveAt(index: number): bool {
+        RemoveAt(index: number): boolean {
             if (index < 0 || index >= this._ht.length)
                 return false;
             var value = this._ht[index];
@@ -81,7 +81,7 @@ module Fayde {
             this._RaiseItemRemoved(value, index);
             return true;
         }
-        Clear(): bool {
+        Clear(): boolean {
             var old = this._ht;
             //LOOKS USELESS: this._RaiseClearing(old);
             this._ht = [];
@@ -95,22 +95,22 @@ module Fayde {
         IndexOf(value: T): number {
             return this._ht.indexOf(value);
         }
-        Contains(value: T): bool { return this.IndexOf(value) > -1; }
-        CanAdd (value: T): bool { return true; }
-        AddingToCollection(value: T, error: BError): bool {
+        Contains(value: T): boolean { return this.IndexOf(value) > -1; }
+        CanAdd (value: T): boolean { return true; }
+        AddingToCollection(value: T, error: BError): boolean {
             if (value instanceof XamlObject)
                 return value.XamlNode.AttachTo(this.XamlNode, error);
         }
-        RemovedFromCollection(value: T, isValueSafe: bool) {
+        RemovedFromCollection(value: T, isValueSafe: boolean) {
             if (value instanceof XamlObject)
                 value.XamlNode.Detach();
         }
 
-        GetEnumerator(reverse?: bool): IEnumerator<T> {
-            return ArrayEx.GetEnumerator(this._ht, reverse);
+        GetEnumerator(reverse?: boolean): IEnumerator<T> {
+            return Fayde.ArrayEx.GetEnumerator(this._ht, reverse);
         }
-        GetNodeEnumerator<U extends XamlNode>(reverse?: bool): IEnumerator<U> {
-            return ArrayEx.GetNodeEnumerator<T, U>(this._ht, reverse);
+        GetNodeEnumerator<U extends XamlNode>(reverse?: boolean): IEnumerator<U> {
+            return Fayde.ArrayEx.GetNodeEnumerator<T, U>(this._ht, reverse);
         }
 
         _RaiseItemAdded(value: T, index: number) { }

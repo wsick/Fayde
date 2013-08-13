@@ -6,7 +6,7 @@ module Fayde.Media.Animation {
     export class RepeatBehavior {
         private _Duration: Duration = null;
         private _Count: number = null;
-        IsForever: bool = false;
+        IsForever: boolean = false;
 
         static FromRepeatDuration(duration: Duration): RepeatBehavior {
             var rb = new RepeatBehavior();
@@ -19,10 +19,10 @@ module Fayde.Media.Animation {
             return rb;
         }
 
-        get HasCount(): bool { return this._Count != null; }
+        get HasCount(): boolean { return this._Count != null; }
         get Count(): number { return this._Count; }
 
-        get HasDuration(): bool { return this._Duration != null; }
+        get HasDuration(): boolean { return this._Duration != null; }
         get Duration(): Duration { return this._Duration; }
 
         Clone(): RepeatBehavior {

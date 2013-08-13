@@ -44,7 +44,7 @@ module Fayde.Documents {
         Language: string;
         TextDecorations: TextDecorations;
 
-        IsInheritable(propd: DependencyProperty): bool {
+        IsInheritable(propd: DependencyProperty): boolean {
             return TextElementInheritedProps.indexOf(propd) > -1;
         }
 
@@ -56,7 +56,7 @@ module Fayde.Documents {
         }
 
         _SerializeText(): string { return undefined; }
-        private _UpdateFont(force?: bool) {
+        private _UpdateFont(force?: boolean) {
             var f = this._Font;
             f.Family = this.FontFamily;
             f.Stretch = this.FontStretch;
@@ -72,10 +72,10 @@ module Fayde.Documents {
         get SelectionForeground(): Media.Brush { return this.Foreground; }
         get Font(): Font { return this._Font; }
         get Direction(): FlowDirection { return FlowDirection.LeftToRight; }
-        get IsUnderlined(): bool { return (this.TextDecorations & TextDecorations.Underline) > 0; }
+        get IsUnderlined(): boolean { return (this.TextDecorations & TextDecorations.Underline) > 0; }
         Start: number;
 
-        Equals(te: TextElement): bool {
+        Equals(te: TextElement): boolean {
             if (this.FontFamily !== te.FontFamily)
                 return false;
             if (this.FontSize !== te.FontSize)

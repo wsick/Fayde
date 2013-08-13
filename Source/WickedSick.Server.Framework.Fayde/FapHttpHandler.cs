@@ -155,7 +155,7 @@ namespace WickedSick.Server.Framework.Fayde
             {
                 writer.WriteStart();
                 writer.WriteHeadStart();
-                var theme = string.IsNullOrWhiteSpace(fap.Theme) ? "Default" : fap.Theme;
+                var theme = string.IsNullOrWhiteSpace(fap.Theme) ? FaydeApplication.DEFAULT_THEME : fap.Theme;
                 writer.WriteScriptIncludes(fap.ScriptResolution, theme);
 
                 var codeBehindPath = string.Format("{0}.js", context.Request.Path);

@@ -23,13 +23,13 @@ interface IJsFilesImportToken {
 }
 
 class Nullstone {
-    static RegisterType(type: Function, name: string, interfaces?: IInterfaceDeclaration[]) {
+    static RegisterType(type: any, name: string, interfaces?: IInterfaceDeclaration[]) {
         var t: any = type;
         t._TypeName = name;
         t._BaseClass = Object.getPrototypeOf(type.prototype).constructor;
         t._Interfaces = interfaces;
     }
-    static Equals(val1: any, val2: any): bool {
+    static Equals(val1: any, val2: any): boolean {
         if (val1 == null && val2 == null)
             return true;
         if (val1 == null || val2 == null)
@@ -40,7 +40,7 @@ class Nullstone {
             return val1.Equals(val2);
         return false;
     }
-    static DoesInheritFrom(t: IType, type: Function): bool {
+    static DoesInheritFrom(t: IType, type: Function): boolean {
         var temp = t;
         while (temp && temp !== type) {
             temp = (<any>temp)._BaseClass;
@@ -56,7 +56,7 @@ class Nullstone {
             return propDesc;
         return Object.getOwnPropertyDescriptor(obj, name);
     }
-    static HasProperty(obj: any, name: string): bool {
+    static HasProperty(obj: any, name: string): boolean {
         if (!obj)
             return false;
         if (obj.hasOwnProperty(name))
@@ -68,7 +68,7 @@ class Nullstone {
     static RegisterInterface(name: string): IInterfaceDeclaration {
         return { Name: name };
     }
-    static ImplementsInterface(obj: any, i: IInterfaceDeclaration): bool {
+    static ImplementsInterface(obj: any, i: IInterfaceDeclaration): boolean {
         if (!obj)
             return false;
         var curType: any = obj.constructor;

@@ -25,7 +25,7 @@ module Fayde.Shapes {
                 return;
             geom.Draw(ctx);
         }
-        _ComputeShapeBoundsImpl(logical: bool, matrix?: number[]): rect {
+        _ComputeShapeBoundsImpl(logical: boolean, matrix?: number[]): rect {
             var geom = this.Data;
             if (!geom) {
                 this._ShapeFlags = ShapeFlags.Empty;

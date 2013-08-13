@@ -5,7 +5,7 @@
 
 module Fayde {
     export class SetterCollection extends XamlObjectCollection<Setter> {
-        private _IsSealed: bool = false;
+        private _IsSealed: boolean = false;
 
         _Seal(targetType: Function) {
             if (this._IsSealed)
@@ -17,7 +17,7 @@ module Fayde {
             this._IsSealed = true;
         }
         
-        AddingToCollection(value: Setter, error: BError): bool {
+        AddingToCollection(value: Setter, error: BError): boolean {
             if (!value || !this._ValidateSetter(<Setter>value, error))
                 return false;
             return super.AddingToCollection(value, error);
@@ -45,7 +45,7 @@ module Fayde {
     Nullstone.RegisterType(SetterCollection, "SetterCollection");
 
     export class Setter extends DependencyObject {
-        private _IsSealed: bool = false;
+        private _IsSealed: boolean = false;
         static PropertyProperty: DependencyProperty = DependencyProperty.Register("Property", () => DependencyProperty, Setter);
         static ValueProperty: DependencyProperty = DependencyProperty.Register("Value", () => Object, Setter);
         Property: DependencyProperty;

@@ -22,9 +22,9 @@ module Fayde.Input {
     }
 
     export interface IModifiersOn {
-        Shift: bool;
-        Ctrl: bool;
-        Alt: bool;
+        Shift: boolean;
+        Ctrl: boolean;
+        Alt: boolean;
     }
 
     export class Keyboard {

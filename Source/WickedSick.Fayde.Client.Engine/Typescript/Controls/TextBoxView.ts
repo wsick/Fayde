@@ -28,13 +28,13 @@ module Fayde.Controls.Internal {
 
         private _Cursor: rect = new rect();
         private _Layout: Text.TextLayout = new Text.TextLayout();
-        private _SelectionChanged: bool = false;
-        private _HadSelectedText: bool = false;
-        private _CursorVisible: bool = false;
-        private _EnableCursor: bool = true;
+        private _SelectionChanged: boolean = false;
+        private _HadSelectedText: boolean = false;
+        private _CursorVisible: boolean = false;
+        private _EnableCursor: boolean = true;
         private _BlinkTimeout: number = 0;
         private _TextBox: TextBoxBase = null;
-        private _Dirty: bool = false;
+        private _Dirty: boolean = false;
 
         SetTextBox(textBox: TextBoxBase) {
             if (this._TextBox === textBox)
@@ -67,7 +67,7 @@ module Fayde.Controls.Internal {
             lu.Invalidate();
             this._Dirty = true;
         }
-        SetEnableCursor(value: bool) {
+        SetEnableCursor(value: boolean) {
             if (this._EnableCursor === value)
                 return;
             this._EnableCursor = value;
@@ -104,7 +104,7 @@ module Fayde.Controls.Internal {
             }
         }
         _GetCursorBlinkTimeout() { return CURSOR_BLINK_TIMEOUT_DEFAULT; }
-        _ResetCursorBlink(delay: bool) {
+        _ResetCursorBlink(delay: boolean) {
             if (this._TextBox.$IsFocused && !this._TextBox.HasSelectedText) {
                 if (this._EnableCursor) {
                     if (delay)
@@ -148,7 +148,7 @@ module Fayde.Controls.Internal {
             this._CursorVisible = false;
             this._InvalidateCursor();
         }
-        private _UpdateCursor(invalidate: bool) {
+        private _UpdateCursor(invalidate: boolean) {
             var cur = this._TextBox.SelectionCursor;
             var current = this._Cursor;
 

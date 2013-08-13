@@ -15,7 +15,7 @@ module Fayde.Controls {
             this.Value = value == null ? 0 : value;
             this.Type = unitType == null ? GridUnitType.Auto : unitType;
         }
-        static Equals(gl1: GridLength, gl2: GridLength): bool {
+        static Equals(gl1: GridLength, gl2: GridLength): boolean {
             return Math.abs(gl1.Value - gl2.Value) < 0.001 && gl1.Type == gl2.Type;
         }
         Clone(): GridLength {

@@ -5,7 +5,7 @@ copy ($PWD.Path + "\..\Source\bin\WickedSick.Server.XamlParser.dll") $bindestdir
 $scriptsdestdir = $PWD.Path + "\SourceFiles\content\scripts"
 copy ($PWD.Path + "\..\Source\jsbin\Fayde.d.ts") $scriptsdestdir
 copy ($PWD.Path + "\..\Source\jsbin\Fayde.js") $scriptsdestdir
-copy ($PWD.Path + "\..\Source\jsbin\Fayde.Theme.Default.js") $scriptsdestdir
+copy ($PWD.Path + "\..\Source\jsbin\Fayde.Theme.Silverlight.js") $scriptsdestdir
 copy ($PWD.Path + "\..\Source\jsbin\Fayde.Theme.Metro.js") $scriptsdestdir
 
 $fp = $bindestdir + "\WickedSick.Server.Framework.Fayde.dll"

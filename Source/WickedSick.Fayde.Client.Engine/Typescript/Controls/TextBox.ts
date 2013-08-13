@@ -18,10 +18,10 @@ module Fayde.Controls {
         static TextWrappingProperty: DependencyProperty = DependencyProperty.Register("TextWrapping", () => new Enum(TextWrapping), TextBox, TextWrapping.NoWrap, (d, args) => (<TextBox>d)._TextWrappingChanged(args));
         static HorizontalScrollBarVisibilityProperty: DependencyProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", () => new Enum(ScrollBarVisibility), TextBox, ScrollBarVisibility.Hidden, (d, args) => (<TextBox>d)._HorizontalScrollBarVisibilityChanged(args));
         static VerticalScrollBarVisibilityProperty: DependencyProperty = DependencyProperty.Register("VerticalScrollBarVisibility", () => new Enum(ScrollBarVisibility), TextBox, ScrollBarVisibility.Hidden, (d, args) => (<TextBox>d)._VerticalScrollBarVisibilityChanged(args));
-        AcceptsReturn: bool;
+        AcceptsReturn: boolean;
         CaretBrush: Media.Brush;
         MaxLength: number;
-        IsReadOnly: bool;
+        IsReadOnly: boolean;
         BaselineOffset: number;
         SelectionLength: number;
         SelectionStart: number;
@@ -63,11 +63,11 @@ module Fayde.Controls {
 
         get DisplayText(): string { return this.Text; }
 
-        CursorDown(cursor: number, isPage: bool): number {
+        CursorDown(cursor: number, isPage: boolean): number {
             //TODO:
             return cursor;
         }
-        CursorUp(cursor: number, isPage: bool): number {
+        CursorUp(cursor: number, isPage: boolean): number {
             //TODO:
             return cursor;
         }
@@ -222,7 +222,7 @@ module Fayde.Controls {
     }
     Nullstone.RegisterType(TextBox, "TextBox");
 
-    function positiveIntValidator(dobj: DependencyObject, propd: DependencyProperty, value: any): bool {
+    function positiveIntValidator(dobj: DependencyObject, propd: DependencyProperty, value: any): boolean {
         if (typeof value !== 'number')
             return false;
         return value >= 0;

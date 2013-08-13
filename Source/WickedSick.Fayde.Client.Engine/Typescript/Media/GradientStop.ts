@@ -37,7 +37,7 @@ module Fayde.Media {
         Listen(listener: IGradientStopsListener) { this._Listener = listener; }
         Unlisten(listener: IGradientStopsListener) { if (this._Listener === listener) this._Listener = null; }
         
-        AddingToCollection(value: GradientStop, error: BError): bool {
+        AddingToCollection(value: GradientStop, error: BError): boolean {
             if (!super.AddingToCollection(value, error))
                 return false;
             value.Listen(this);
@@ -45,7 +45,7 @@ module Fayde.Media {
             if (listener) listener.GradientStopsChanged(this);
             return true;
         }
-        RemovedFromCollection(value: GradientStop, isValueSafe: bool) {
+        RemovedFromCollection(value: GradientStop, isValueSafe: boolean) {
             if (!super.RemovedFromCollection(value, isValueSafe))
                 return false;
             value.Unlisten(this);

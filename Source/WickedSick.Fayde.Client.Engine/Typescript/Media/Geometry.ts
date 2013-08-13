@@ -100,7 +100,7 @@ module Fayde.Media {
         Listen(listener: IGeometryListener) { this._Listener = listener; }
         Unlisten(listener: IGeometryListener) { if (this._Listener === listener) this._Listener = null; }
 
-        AddingToCollection(value: Geometry, error: BError): bool {
+        AddingToCollection(value: Geometry, error: BError): boolean {
             if (!super.AddingToCollection(value, error))
                 return false;
             value.Listen(this);
@@ -108,7 +108,7 @@ module Fayde.Media {
             if (listener) listener.GeometryChanged(value);
             return true;
         }
-        RemovedFromCollection(value: Geometry, isValueSafe: bool) {
+        RemovedFromCollection(value: Geometry, isValueSafe: boolean) {
             super.RemovedFromCollection(value, isValueSafe);
             value.Unlisten(this);
             var listener = this._Listener;

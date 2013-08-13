@@ -11,16 +11,16 @@ module Fayde.Data {
         i: number;
         end: number;
         path: string;
-        parenOpen: bool;
-        tickOpen: bool;
+        parenOpen: boolean;
+        tickOpen: boolean;
         prop: string;
         res: DependencyProperty;
-        cloned: bool;
-        expressionFound: bool;
+        cloned: boolean;
+        expressionFound: boolean;
         lu: DependencyObject;
-        collection: XamlObjectCollection;
+        collection: XamlObjectCollection<any>;
         promotedValues: any[];
-        explicitType: bool;
+        explicitType: boolean;
         type: Function;
     }
 
@@ -45,7 +45,7 @@ module Fayde.Data {
         return eval(name);
     }
 
-    function handlePeriod(data: IParseData): bool {
+    function handlePeriod(data: IParseData): boolean {
         if (data.tickOpen)
             return true;
         if (data.res != null) {
@@ -72,7 +72,7 @@ module Fayde.Data {
         data.prop = data.path.substr(data.index);
         return true;
     }
-    function handleLeftBracket (data: IParseData): bool {
+    function handleLeftBracket (data: IParseData): boolean {
         if (data.index >= data.end)
             return;
 
@@ -102,13 +102,13 @@ module Fayde.Data {
         }
 
         if (value instanceof XamlObjectCollection) {
-            data.collection = <XamlObjectCollection>value;
+            data.collection = <XamlObjectCollection<any>>value;
         } else {
             data.collection = null;
             return false;
         }
 
-        if ((value = (<XamlObjectCollection>data.collection).GetValueAt(data.i)) == null)
+        if ((value = (<XamlObjectCollection<any>>data.collection).GetValueAt(data.i)) == null)
             return false;
 
         if (value instanceof DependencyObject) {
@@ -120,7 +120,7 @@ module Fayde.Data {
 
         return true;
     }
-    function handleDefault(data: IParseData): bool {
+    function handleDefault(data: IParseData): boolean {
         var explicitType = false;
         data.expressionFound = true;
         var start = data.index - 1;

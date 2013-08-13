@@ -57,7 +57,7 @@ module Fayde.Collections {
         IndexOf(value: T): number {
             return this._ht.indexOf(value);
         }
-        Contains(value: T): bool {
+        Contains(value: T): boolean {
             return this._ht.indexOf(value) > 0;
         }
         Remove(value: T) {

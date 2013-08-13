@@ -7,7 +7,7 @@ module Fayde.Media.Animation {
     export interface IAnimationStorage {
         Animation: AnimationBase;
         PropStorage: Providers.IPropertyStorage;
-        IsDisabled: bool;
+        IsDisabled: boolean;
         BaseValue: any;
         CurrentValue: any;
         StopValue: any;
@@ -48,7 +48,7 @@ module Fayde.Media.Animation {
                 animStorage.StopValue = storage.Local;
             }
         }
-        static Detach(animStorage: IAnimationStorage): bool {
+        static Detach(animStorage: IAnimationStorage): boolean {
             var storage = animStorage.PropStorage;
 
             var list = storage.Animations;

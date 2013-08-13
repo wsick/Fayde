@@ -1,5 +1,4 @@
 /// <reference path="qunit-1.10.0.d.ts" />
-/// <reference path="../Typescript/Core/XamlObject.ts" />
 
 //Test registering/unregistering names
 //Test find namescope

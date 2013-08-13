@@ -309,7 +309,7 @@ module mat4 {
         dest[15] = mat[15];
         return dest;
     }
-    export function equal(a: number[], b: number[]): bool {
+    export function equal(a: number[], b: number[]): boolean {
         return a === b || (
             Math.abs(a[0] - b[0]) < FLOAT_EPSILON &&
             Math.abs(a[1] - b[1]) < FLOAT_EPSILON &&

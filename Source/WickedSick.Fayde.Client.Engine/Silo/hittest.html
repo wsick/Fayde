@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script type="text/javascript">
+        var message;
+        var coordinates;
+        function load() {
+            message = document.getElementById("message");
+            coordinates = document.getElementById("coordinates");
+            var canvas1 = document.getElementById('canvas1');
+            var ctx1 = canvas1.getContext('2d');
+
+            canvas1.onmousemove = function (e) {
+                var x = e.offsetX;
+                var y = e.offsetY;
+                renderandcheck(ctx1, x, y);
+                coordinates.innerText = "x:" + x + ";y:" + y;
+            };
+            renderandcheck(ctx1, 0, 0);
+        }
+        function renderandcheck(ctx, x, y) {
+            ctx.clearRect(0, 0, 300, 300)
+            ctx.beginPath();
+            ctx.moveTo(50, 0);
+            ctx.lineTo(100, 100);
+            ctx.lineTo(0, 100);
+            ctx.closePath();
+            ctx.fillStyle = "#ff0000";
+            ctx.fill();
+            ctx.lineWidth = 10;
+            
+            ctx.strokeStyle = "#000000";
+            ctx.stroke();
+
+            if (ctx.isPointInPath(x, y)) {
+                message.innerText = "YES";
+                message.style.color = "black";
+            } else {
+                message.innerText = "NO";
+                message.style.color = "red";
+            }
+        }
+    </script>
+</head>
+<body onload="load();">
+    <canvas id="canvas1" width="300" height="300">
+
+    </canvas>
+    <div id="message">
+
+    </div>
+    <div id="coordinates">
+
+    </div>
+</body>
+</html>

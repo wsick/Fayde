@@ -9,7 +9,7 @@ module Fayde.Media {
         static RotationAngleProperty: DependencyProperty = DependencyProperty.Register("RotationAngle", () => Number, ArcSegment, 0.0);
         static SizeProperty: DependencyProperty = DependencyProperty.Register("Size", () => size, ArcSegment);
         static SweepDirectionProperty: DependencyProperty = DependencyProperty.Register("SweepDirection", () => new Enum(Shapes.SweepDirection), ArcSegment, Shapes.SweepDirection.Counterclockwise);
-        IsLargeArc: bool;
+        IsLargeArc: boolean;
         Point: Point;
         RotationAngle: number;
         Size: size;

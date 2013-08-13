@@ -28,9 +28,22 @@ module Fayde {
             (<Providers.DataContextStore>propd.Store).EmitInheritedChanged(storage, value);
             this.OnDataContextChanged(undefined, value);
         }
-        
-        _DataContextPropertyChanged(args: IDependencyPropertyChangedEventArgs) {
+        _DataContextPropertyChanged(isLocalSet: boolean, args: IDependencyPropertyChangedEventArgs) {
             this.OnDataContextChanged(args.OldValue, args.NewValue);
+
+            var dcpid = DependencyObject.DataContextProperty._ID.toString();
+
+            var exprs = <Expression[]>(<any>this.XObject)._Expressions;
+            var expr: Expression;
+            for (var id in exprs) {
+                expr = exprs[id];
+                if (!expr)
+                    continue;
+                //If DataContext was set local, we don't want to loop back on a DataContext BindingExpression
+                if (isLocalSet && id === dcpid)
+                    continue;
+                expr.OnDataContextChanged(args.NewValue);
+            }
         }
     }
     Nullstone.RegisterType(DONode, "DONode");
@@ -39,7 +52,7 @@ module Fayde {
         private _Expressions: Expression[] = [];
         _PropertyStorage: Providers.IPropertyStorage[] = [];
 
-        static DataContextProperty: DependencyProperty = DependencyProperty.Register("DataContext", () => Object, DependencyObject, undefined, (d, args) => (<DependencyObject>d).XamlNode._DataContextPropertyChanged(args));
+        static DataContextProperty: DependencyProperty = DependencyProperty.Register("DataContext", () => Object, DependencyObject);
         DataContext: any;
 
         constructor() {
@@ -66,7 +79,7 @@ module Fayde {
             if (value instanceof Expression)
                 expression = value;
             if (expression instanceof Data.BindingExpressionBase) {
-                var binding = (<Data.BindingExpressionBase>expression).Binding;
+                var binding = (<Data.BindingExpressionBase>expression).ParentBinding;
                 var path = binding.Path.Path;
                 if ((!path || path === ".") && binding.Mode === Data.BindingMode.TwoWay)
                     throw new ArgumentException("TwoWay bindings require a non-empty Path.");
@@ -90,7 +103,7 @@ module Fayde {
                 value = expression.GetValue(propd);
             } else if (existing) {
                 if (existing instanceof Data.BindingExpressionBase) {
-                    var binding = (<Data.BindingExpressionBase>existing).Binding;
+                    var binding = (<Data.BindingExpressionBase>existing).ParentBinding;
                     if (binding.Mode === Data.BindingMode.TwoWay) {
                         updateTwoWay = !existing.IsUpdating && !propd.IsCustom;
                     } else if (!existing.IsUpdating || binding.Mode === Data.BindingMode.OneTime) {

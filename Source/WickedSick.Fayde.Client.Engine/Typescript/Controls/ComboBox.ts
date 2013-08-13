@@ -12,7 +12,7 @@ module Fayde.Controls {
         static ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", () => Style, ComboBox, undefined, (d, args) => (<ListBox>d).OnItemContainerStyleChanged(args));
         static MaxDropDownHeightProperty = DependencyProperty.Register("MaxDropDownHeight", () => Number, ComboBox, Number.POSITIVE_INFINITY, (d, args) => (<ComboBox>d)._MaxDropDownHeightChanged(args));
         static IsSelectionActiveProperty = Primitives.Selector.IsSelectionActiveProperty;
-        IsDropDownOpen: bool;
+        IsDropDownOpen: boolean;
         ItemContainerStyle: Style;
         MaxDropDownHeight: number;
 
@@ -112,7 +112,7 @@ module Fayde.Controls {
                     container.Style = newStyle;
             }
         }
-        IsItemItsOwnContainer(item: any): bool {
+        IsItemItsOwnContainer(item: any): boolean {
             return item instanceof ComboBoxItem;
         }
         GetContainerForItem(): DependencyObject {

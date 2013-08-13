@@ -15,23 +15,20 @@ module Fayde.Media {
         static IsClosedProperty: DependencyProperty = DependencyProperty.RegisterCore("IsClosed", () => Boolean, PathFigure, false, (d, args) => (<PathFigure>d).InvalidatePathFigure());
         static StartPointProperty: DependencyProperty = DependencyProperty.RegisterCore("StartPoint", () => Point, PathFigure, undefined, (d, args) => (<PathFigure>d).InvalidatePathFigure());
         static IsFilledProperty: DependencyProperty = DependencyProperty.RegisterCore("IsFilled", () => Boolean, PathFigure, true, (d, args) => (<PathFigure>d).InvalidatePathFigure());
-        IsClosed: bool;
+        static SegmentsProperty = DependencyProperty.RegisterImmutable("Segments", () => PathSegmentCollection, PathFigure);
+        IsClosed: boolean;
         Segments: PathSegmentCollection;
         StartPoint: Point;
-        IsFilled: bool;
+        IsFilled: boolean;
 
         private _Path: Shapes.RawPath = null;
         private _Listener: IPathFigureListener;
 
         constructor() {
             super();
-            var coll = new PathSegmentCollection();
+            var coll = PathFigure.SegmentsProperty.Initialize<PathSegmentCollection>(this);
             coll.AttachTo(this);
             coll.Listen(this);
-            Object.defineProperty(this, "Segments", {
-                value: coll,
-                writable: false
-            });
         }
 
         private _Build(): Shapes.RawPath {
@@ -75,7 +72,7 @@ module Fayde.Media {
     export class PathFigureCollection extends XamlObjectCollection<PathFigure> implements IPathFigureListener {
         private _Listener: IPathFigureListener;
 
-        AddingToCollection(value: PathFigure, error: BError): bool {
+        AddingToCollection(value: PathFigure, error: BError): boolean {
             if (!super.AddingToCollection(value, error))
                 return false;
             value.Listen(this);
@@ -83,7 +80,7 @@ module Fayde.Media {
             if (listener) listener.PathFigureChanged(value);
             return true;
         }
-        RemovedFromCollection(value: PathFigure, isValueSafe: bool) {
+        RemovedFromCollection(value: PathFigure, isValueSafe: boolean) {
             super.RemovedFromCollection(value, isValueSafe);
             value.Unlisten(this);
             var listener = this._Listener;
