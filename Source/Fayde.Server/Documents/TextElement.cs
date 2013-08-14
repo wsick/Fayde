@@ -1,5 +1,6 @@
 ﻿using Fayde.Core;
 using Fayde.Media;
+using Fayde.Primitives;
 using Fayde.Xaml.Metadata;
 
 namespace Fayde.Documents

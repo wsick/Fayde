@@ -1,5 +1,7 @@
-﻿using Fayde.Xaml.Metadata;
-using Fayde.Core;
+﻿using Fayde.Core;
+using Fayde.Media.Animation;
+using Fayde.Primitives;
+using Fayde.Xaml.Metadata;
 
 namespace Fayde.Media.VSM
 {

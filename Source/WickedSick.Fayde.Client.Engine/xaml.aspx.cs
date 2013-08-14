@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using WickedSick.Server.XamlParser;
+using Fayde.Xaml;
 
 namespace WickedSick.Fayde.Client.Engine
 {
@@ -23,7 +23,7 @@ namespace WickedSick.Fayde.Client.Engine
         protected void submit_Click(object sender, EventArgs e)
         {
             var startTime = DateTime.Now;
-            var parser = new Parser(GetType().Assembly);
+            var parser = new XamlParser(GetType().Assembly);
             var result = parser.ParseXml(tb1.Text);
             var parseTime = DateTime.Now - startTime;
             startTime = DateTime.Now;

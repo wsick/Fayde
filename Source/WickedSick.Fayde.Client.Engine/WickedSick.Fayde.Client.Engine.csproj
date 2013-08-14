@@ -1480,17 +1480,13 @@
     <None Include="build.bat" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WickedSick.Server.Framework.Fayde\WickedSick.Server.Framework.Fayde.csproj">
-      <Project>{40645861-EE77-480A-B389-0F2857DA682D}</Project>
-      <Name>WickedSick.Server.Framework.Fayde</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WickedSick.Server.XamlParser\WickedSick.Server.XamlParser.csproj">
-      <Project>{8853F726-F37C-47C6-B153-33F1000E748E}</Project>
-      <Name>WickedSick.Server.XamlParser</Name>
-    </ProjectReference>
+    <Folder Include="Docs\Rules\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Docs\Rules\" />
+    <ProjectReference Include="..\Fayde.Server\Fayde.Server.csproj">
+      <Project>{674c2ef2-d791-4543-9af9-4da3ca750b26}</Project>
+      <Name>Fayde.Server</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -1,4 +1,5 @@
 ﻿using Fayde.Core;
+using Fayde.Primitives;
 using Fayde.Xaml.Metadata;
 
 namespace Fayde.Media.Animation
