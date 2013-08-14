@@ -1,0 +1,16 @@
+﻿using Fayde.Core;
+using Fayde.Xaml.Metadata;
+
+namespace Fayde.Controls.Primitives
+{
+    public class ButtonBase : ContentControl
+    {
+        public static readonly PropertyDescription ClickModeProperty = PropertyDescription.Register("ClickMode", typeof(ClickMode), typeof(ButtonBase));
+        public static readonly PropertyDescription IsPressedProperty = PropertyDescription.Register("IsPressed", typeof(Boolean), typeof(ButtonBase));
+        public static readonly PropertyDescription IsFocusedProperty = PropertyDescription.Register("IsFocused", typeof(Boolean), typeof(ButtonBase));
+        public static readonly PropertyDescription CommandProperty = PropertyDescription.Register("Command", typeof(ICommand), typeof(ButtonBase));
+        public static readonly PropertyDescription CommandParameterProperty = PropertyDescription.Register("CommandParameter", typeof(object), typeof(ButtonBase));
+
+        public static readonly EventDescription ClickEvent = EventDescription.Register("Click", typeof(ButtonBase));
+    }
+}
