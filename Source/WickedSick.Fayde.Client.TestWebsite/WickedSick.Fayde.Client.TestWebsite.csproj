@@ -144,6 +144,9 @@
     <Content Include="Tests\IssueTests\binding.fap">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Tests\IssueTests\dropshadowblur.fap">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Tests\Shapes\rectangle-grid.fap">
       <SubType>Designer</SubType>
     </None>
