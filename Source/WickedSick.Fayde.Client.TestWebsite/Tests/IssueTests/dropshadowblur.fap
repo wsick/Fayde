@@ -4,11 +4,21 @@
     ScriptResolution="/Fayde/">
     <FaydeApplication.Resources>
     </FaydeApplication.Resources>
-    <Grid>
-        <Rectangle Width="200" Height="200" Fill="Green">
-            <Rectangle.Effect>
+    <StackPanel>
+        <Border Width="200" Height="100" Background="Green" Margin="20">
+            <Border.Effect>
                 <DropShadowEffect BlurRadius="20" ShadowDepth="20" Color="Black" />
-            </Rectangle.Effect>
-        </Rectangle>
-    </Grid>
+            </Border.Effect>
+        </Border>
+        <Border Width="200" Height="100" Background="Blue"  Margin="20">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="20" Color="Black" />
+            </Border.Effect>
+        </Border>
+        <Border Width="200" Height="100" Background="Red"  Margin="20">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="0" ShadowDepth="20" Color="Black" />
+            </Border.Effect>
+        </Border>
+    </StackPanel>
 </FaydeApplication>
