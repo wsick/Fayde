@@ -9,11 +9,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.Fayde.Client.Engine", "WickedSick.Fayde.Client.Engine\WickedSick.Fayde.Client.Engine.csproj", "{8734C581-3114-488D-8A53-7BC942232787}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Client", "Fayde.Client\Fayde.Client.csproj", "{8734C581-3114-488D-8A53-7BC942232787}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.LitmusTests", "WickedSick.LitmusTests\WickedSick.LitmusTests.csproj", "{8EBC2ED0-1EDD-4204-BD21-1F5EF6B6494F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.Fayde.Client.TestWebsite", "WickedSick.Fayde.Client.TestWebsite\WickedSick.Fayde.Client.TestWebsite.csproj", "{60F879A6-6EBA-495F-8AF9-B46ED7DA8863}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.TestSite", "Fayde.TestSite\Fayde.TestSite.csproj", "{60F879A6-6EBA-495F-8AF9-B46ED7DA8863}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Server", "Fayde.Server\Fayde.Server.csproj", "{674C2EF2-D791-4543-9AF9-4DA3CA750B26}"
 EndProject
