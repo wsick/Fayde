@@ -1,6 +1,5 @@
 ﻿using Fayde.Core;
 using Fayde.Xaml.Metadata;
-using WickedSick.Server.XamlParser.Elements.Controls;
 
 namespace Fayde.Controls
 {

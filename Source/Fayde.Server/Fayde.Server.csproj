@@ -227,7 +227,6 @@
     <Compile Include="Shapes\Polyline.cs" />
     <Compile Include="Shapes\Rectangle.cs" />
     <Compile Include="Shapes\Shape.cs" />
-    <Compile Include="TypeConverters\BoolConverter.cs" />
     <Compile Include="TypeConverters\BooleanConverter.cs" />
     <Compile Include="TypeConverters\BrushConverter.cs" />
     <Compile Include="TypeConverters\ColorConverter.cs" />

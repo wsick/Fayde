@@ -15,15 +15,18 @@ namespace Fayde.Core
 
         public override string ToJson(int tabIndent, IJsonOutputModifiers outputMods)
         {
+            if (string.IsNullOrWhiteSpace(Key) && string.IsNullOrWhiteSpace(Name))
+                return Content;
+
             var sb = new StringBuilder();
             sb.AppendLine("{");
             sb.AppendLine("ParseType: Number,");
-            if (!string.IsNullOrWhiteSpace(Key))
-            {
-                sb.Append("Key: \"");
+            sb.Append("Key: \"");
+            if (string.IsNullOrWhiteSpace(Key))
+                sb.Append(Name);
+            else
                 sb.Append(Key);
-                sb.AppendLine("\",");
-            }
+            sb.AppendLine("\",");
             sb.Append("Value: ");
             sb.AppendLine(Content);
             sb.Append("}");

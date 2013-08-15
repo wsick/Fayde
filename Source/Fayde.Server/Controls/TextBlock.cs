@@ -4,7 +4,7 @@ using Fayde.Media;
 using Fayde.Primitives;
 using Fayde.Xaml.Metadata;
 
-namespace WickedSick.Server.XamlParser.Elements.Controls
+namespace Fayde.Controls
 {
     public class TextBlock : FrameworkElement
     {
