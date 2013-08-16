@@ -99,6 +99,10 @@
     <Content Include="Tests\BindingTests.js">
       <DependentUpon>BindingTests.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Tests\XamlLoadTests.ts" />
+    <Content Include="Tests\XamlLoadTests.js">
+      <DependentUpon>XamlLoadTests.ts</DependentUpon>
+    </Content>
     <Content Include="Themes\Silverlight.xml">
       <SubType>Designer</SubType>
     </Content>
@@ -220,6 +224,18 @@
     <TypeScriptCompile Include="Typescript\Runtime\TimelineProfile.ts" />
     <Content Include="Typescript\Runtime\TimelineProfile.js">
       <DependentUpon>TimelineProfile.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Runtime\TypeManagement.ts" />
+    <TypeScriptCompile Include="Typescript\Xaml\XamlLoader.ts" />
+    <TypeScriptCompile Include="Typescript\Xaml\TypeResolver.ts" />
+    <Content Include="Typescript\Runtime\TypeManagement.js">
+      <DependentUpon>TypeManagement.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Xaml\TypeResolver.js">
+      <DependentUpon>TypeResolver.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Xaml\XamlLoader.js">
+      <DependentUpon>XamlLoader.ts</DependentUpon>
     </Content>
     <Content Include="UnitTestList.txt" />
     <Content Include="Tests\XamlNodeTests.js">

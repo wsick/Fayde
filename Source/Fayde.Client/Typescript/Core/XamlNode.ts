@@ -19,6 +19,8 @@ module Fayde {
     }
 
     export class XamlNode {
+        static $Type = Fayde.Register(XamlNode).Namespace("Fayde", Fayde.XMLNS).Name("XamlNode");
+
         XObject: XamlObject;
         ParentNode: XamlNode = null;
         Name: string = "";
@@ -225,5 +227,7 @@ module Fayde {
             xn.IsShareable = true;
         }
     }
-    Nullstone.RegisterType(XamlNode, "XamlNode");
+    Fayde.Register(XamlNode)
+        .Namespace("Fayde", Fayde.XMLNS)
+        .Name("XamlNode");
 }

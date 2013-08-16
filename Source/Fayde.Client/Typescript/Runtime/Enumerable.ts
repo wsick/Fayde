@@ -1,4 +1,4 @@
-/// <reference path="Nullstone.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 /// CODE
 /// <reference path="../Core/XamlObject.ts" />
 
@@ -6,13 +6,13 @@ module Fayde {
     export interface IEnumerable<T> {
         GetEnumerator(reverse?: boolean): IEnumerator<T>;
     }
-    export var IEnumerable_ = Nullstone.RegisterInterface("IEnumerable");
+    export var IEnumerable_ = Fayde.RegisterInterface("IEnumerable");
 
     export interface IEnumerator<T> {
         Current: T;
         MoveNext(): boolean;
     }
-    export var IEnumerator_ = Nullstone.RegisterInterface("IEnumerator");
+    export var IEnumerator_ = Fayde.RegisterInterface("IEnumerator");
 
     export class ArrayEx {
         static EmptyEnumerator: IEnumerator<any> = {

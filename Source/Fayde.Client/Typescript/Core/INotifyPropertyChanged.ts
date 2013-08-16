@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 /// <reference path="../Runtime/EventArgs.ts" />
 /// CODE
 /// <reference path="../Runtime/MulticastEvent.ts" />
@@ -11,10 +11,11 @@ module Fayde {
             Object.defineProperty(this, "PropertyName", { value: propertyName, writable: false });
         }
     }
-    Nullstone.RegisterType(PropertyChangedEventArgs, "PropertyChangedEventArgs");
+    Fayde.Register(PropertyChangedEventArgs)
+        .Name("PropertyChangedEventArgs");
 
     export interface INotifyPropertyChanged {
         PropertyChanged: MulticastEvent<PropertyChangedEventArgs>;
     }
-    export var INotifyPropertyChanged_ = Nullstone.RegisterInterface("INotifyPropertyChanged");
+    export var INotifyPropertyChanged_ = Fayde.RegisterInterface("INotifyPropertyChanged");
 }

@@ -1,13 +1,11 @@
+/// <reference path="TypeManagement.ts" />
+/// CODE
+
 interface IOutValue {
     Value: any;
 }
 interface ICloneable {
     Clone(): any;
-}
-interface IType {
-}
-interface IInterfaceDeclaration extends IType {
-    Name: string;
 }
 
 interface IJsFileImportToken {
@@ -23,11 +21,12 @@ interface IJsFilesImportToken {
 }
 
 class Nullstone {
-    static RegisterType(type: any, name: string, interfaces?: IInterfaceDeclaration[]) {
+    static RegisterType(type: any, name: string, interfaces?: IInterfaceDeclaration[]): ITypeRegistration {
         var t: any = type;
         t._TypeName = name;
         t._BaseClass = Object.getPrototypeOf(type.prototype).constructor;
         t._Interfaces = interfaces;
+        return t;
     }
     static Equals(val1: any, val2: any): boolean {
         if (val1 == null && val2 == null)
@@ -40,7 +39,7 @@ class Nullstone {
             return val1.Equals(val2);
         return false;
     }
-    static DoesInheritFrom(t: IType, type: Function): boolean {
+    static DoesInheritFrom(t: IType, type: any): boolean {
         var temp = t;
         while (temp && temp !== type) {
             temp = (<any>temp)._BaseClass;
@@ -65,9 +64,6 @@ class Nullstone {
         return type.prototype.hasOwnProperty(name);
     }
 
-    static RegisterInterface(name: string): IInterfaceDeclaration {
-        return { Name: name };
-    }
     static ImplementsInterface(obj: any, i: IInterfaceDeclaration): boolean {
         if (!obj)
             return false;

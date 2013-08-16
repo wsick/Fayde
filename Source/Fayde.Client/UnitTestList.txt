@@ -2,6 +2,7 @@
 Tests\PrimitivesTests.ts
 Tests\XamlNodeTests.ts
 Tests\ProviderTests.ts
+Tests\XamlLoadTests.ts
 Tests\TransformTests.ts
 Tests\TimelineTests.ts
 Tests\ItemsControlTests.ts

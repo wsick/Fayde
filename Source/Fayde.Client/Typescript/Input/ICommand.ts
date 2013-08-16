@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 /// CODE
 /// <reference path="../Runtime/MulticastEvent.ts" />
 
@@ -8,5 +8,5 @@ module Fayde.Input {
         CanExecute(parameter: any): boolean;
         CanExecuteChanged: MulticastEvent<EventArgs>;
     }
-    export var ICommand_ = Nullstone.RegisterInterface("ICommand");
+    export var ICommand_ = Fayde.RegisterInterface("ICommand");
 }

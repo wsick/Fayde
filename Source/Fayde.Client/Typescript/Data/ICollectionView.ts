@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 /// CODE
 /// <reference path="../Runtime/MulticastEvent.ts" />
 
@@ -8,5 +8,5 @@ module Fayde.Data {
         CurrentItem: any;
         MoveCurrentTo(item: any): boolean;
     }
-    export var ICollectionView_ = Nullstone.RegisterInterface("ICollectionView");
+    export var ICollectionView_ = Fayde.RegisterInterface("ICollectionView");
 }

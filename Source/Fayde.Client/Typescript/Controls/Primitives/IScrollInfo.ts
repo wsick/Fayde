@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/Nullstone.ts" />
+/// <reference path="../../Runtime/TypeManagement.ts" />
 /// CODE
 /// <reference path="../../Primitives/rect.ts" />
 /// <reference path="../../Core/UIElement.ts" />
@@ -37,5 +37,5 @@ module Fayde.Controls.Primitives {
         ViewportHeight: number;
         ViewportWidth: number;
     }
-    export var IScrollInfo_ = Nullstone.RegisterInterface("IScrollInfo");
+    export var IScrollInfo_ = Fayde.RegisterInterface("IScrollInfo");
 }
