@@ -1,5 +1,5 @@
 /// CODE
-/// <reference path="TypeResolver.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 
 module Fayde.Xaml {
     var parser = new DOMParser();
@@ -26,6 +26,8 @@ module Fayde.Xaml {
         };
         if (ctx.Document.childNodes.length > 1)
             throw new XamlParseException("There must be 1 root node.");
+        if (!ctx.Document.firstChild.isDefaultNamespace(Fayde.XMLNS))
+            throw new XamlParseException("Invalid default namespace in XAML document.");
         return <XamlObject>createObject(ctx.Document.firstChild, ctx);
     }
 
@@ -73,6 +75,10 @@ module Fayde.Xaml {
         var attr: Attr;
         for (var i = 0; i < len; i++) {
             attr = attrs[i];
+            if (attr.name === "xmlns")
+                continue;
+            if (attr.prefix === "xmlns")
+                continue;
             if (attr.namespaceURI === Fayde.XMLNSX)
                 continue;
             childProcessor.ProcessAttribute(attr);
@@ -87,7 +93,7 @@ module Fayde.Xaml {
             childProcessor.ProcessNode(child);
         }
 
-        ctx.ObjectStack.pop();
+        return ctx.ObjectStack.pop();
     }
 
     function createPrimitive(type: Function, node: Node, ctx: IXamlLoadContext): any {
@@ -120,6 +126,9 @@ module Fayde.Xaml {
     }
 
     function createAttributeObject(propd: DependencyProperty, value: string, ctx: IXamlLoadContext): any {
+        var targetType = propd.GetTargetType();
+        if (targetType === String)
+            return value;
         NotImplemented("createAttributeObject");
     }
 
@@ -129,16 +138,13 @@ module Fayde.Xaml {
         ProcessNode(node: Node);
     }
     function createXamlChildProcessor(owner: any, ownerType: Function, ctx: IXamlLoadContext): IXamlChildProcessor {
-        var hasSetContent = false;
-        var propertiesSet = [];
-
         var dobj: DependencyObject;
         var contentPropd: DependencyProperty;
         var contentCollection: XamlObjectCollection<any>;
         if (owner instanceof DependencyObject) {
             dobj = owner;
             contentPropd = TypeResolver.GetAnnotation(ownerType, "ContentProperty");
-            if (contentPropd) {
+            if (contentPropd instanceof DependencyProperty) {
                 if (contentPropd.IsImmutable) {
                     contentCollection = dobj[contentPropd.Name];
                 } else {
@@ -149,7 +155,14 @@ module Fayde.Xaml {
                     }
                 }
             }
-                
+        }
+        
+        var hasSetContent = false;
+        var propertiesSet = [];
+        function ensurePropertyNotSet(propertyName: string) {
+            if (propertiesSet.indexOf(propertyName) > -1)
+                throw new XamlParseException("Cannot set a property in XAML more than once.");
+            propertiesSet.push(propertyName);
         }
 
         return {
@@ -159,21 +172,25 @@ module Fayde.Xaml {
                 var propertyName: string;
                 if (tokens.length > 1) { // <Tag [ns:]Type.Property="...">
                     var typeRes = TypeResolver.Resolve(attr.namespaceURI, tokens[0]);
-                    propd = DependencyProperty.GetDependencyProperty(typeRes.Type, (propertyName = tokens[1]), true);
+                    propertyName = tokens[1];
+                    propd = DependencyProperty.GetDependencyProperty(typeRes.Type, propertyName, true);
                     if (!propd)
                         throw new XamlParseException("Could not find attached property '" + attr.namespaceURI + ":" + attr.localName + "'");
                     if (!dobj)
                         throw new XamlParseException("Cannot set an attached property on an object that is not a DependencyObject.");
-                    dobj.SetValue(propd, createAttributeObject(propd, attr.textContent, ctx));
                 } else { // <[Tag] Property="...">
+                    propertyName = attr.localName
                     if (dobj)
-                        propd = DependencyProperty.GetDependencyProperty(ownerType, (propertyName = attr.localName), true);
-                    if (propd) {
-                        dobj.SetValue(propd, createAttributeObject(propd, attr.textContent, ctx));
-                    } else { //Normal Property
-                        //TODO: Add checks for read-only, etc.
-                        owner[propertyName] = attr.textContent;
-                    }
+                        propd = DependencyProperty.GetDependencyProperty(ownerType, propertyName, true);
+                }
+
+                ensurePropertyNotSet(propertyName);
+
+                if (propd) {
+                    dobj.SetValue(propd, createAttributeObject(propd, attr.textContent, ctx));
+                } else {
+                    //TODO: Add checks for read-only, etc.
+                    owner[propertyName] = attr.textContent;
                 }
             },
             ProcessNode: function (node: Node) {
@@ -182,16 +199,21 @@ module Fayde.Xaml {
                 var propertyName: string;
                 if (tokens.length > 1) { // <[ns:]Type.Property /> (DP or Attached DP)
                     var typeRes = TypeResolver.Resolve(node.namespaceURI, tokens[0]);
-                    propd = DependencyProperty.GetDependencyProperty(typeRes.Type, (propertyName = tokens[1]), true);
+                    propertyName = tokens[1];
+                    propd = DependencyProperty.GetDependencyProperty(typeRes.Type, propertyName, true);
                     if (!propd)
                         throw new XamlParseException("Could not find property '" + node.namespaceURI + ":" + node.localName + "'");
-                    dobj.SetValue(propd, createObject(node.firstChild, ctx)); //TODO: Check for existence of 1 child node
+                    ensurePropertyNotSet(propertyName);
+                    if (node.childNodes.length !== 1)
+                        throw new XamlParseException("Missing inner value for property.");
+                    dobj.SetValue(propd, createObject(node.firstChild, ctx));
                 } else { //<[ns:]Type> (Content)
                     if (!contentPropd)
                         throw new XamlParseException("Attempting to set content on an object that does not have a Content Property.");
                     if (contentCollection) {
                         contentCollection.Add(createObject(node, ctx));
                     } else {
+                        ensurePropertyNotSet(propertyName);
                         if (hasSetContent)
                             throw new XamlParseException("Content has already been set.");
                         hasSetContent = true;

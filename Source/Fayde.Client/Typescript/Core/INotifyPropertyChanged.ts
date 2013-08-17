@@ -11,8 +11,9 @@ module Fayde {
             Object.defineProperty(this, "PropertyName", { value: propertyName, writable: false });
         }
     }
-    Fayde.Register(PropertyChangedEventArgs)
-        .Name("PropertyChangedEventArgs");
+    Fayde.Declare(PropertyChangedEventArgs)
+        .Name("PropertyChangedEventArgs")
+        .Register();
 
     export interface INotifyPropertyChanged {
         PropertyChanged: MulticastEvent<PropertyChangedEventArgs>;

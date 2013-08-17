@@ -68,8 +68,14 @@ module Fayde.Media {
     Nullstone.RegisterType(LineSegment, "LineSegment");
 
     export class PolyBezierSegment extends PathSegment {
-        static Annotations = { ContentProperty: "Points" }
+        static PointsProperty = DependencyProperty.RegisterImmutable("Points", () => Shapes.PointCollection, PolyBezierSegment);
+        static Annotations = { ContentProperty: PolyBezierSegment.PointsProperty }
         Points: Shapes.PointCollection;
+
+        constructor() {
+            super();
+            PolyBezierSegment.PointsProperty.Initialize<Shapes.PointCollection>(this);
+        }
 
         _Append(path: Shapes.RawPath) {
             var points = this.Points;
@@ -93,8 +99,14 @@ module Fayde.Media {
     Nullstone.RegisterType(PolyBezierSegment, "PolyBezierSegment");
 
     export class PolyLineSegment extends PathSegment {
-        static Annotations = { ContentProperty: "Points" }
+        static PointsProperty = DependencyProperty.RegisterImmutable("Points", () => Shapes.PointCollection, PolyLineSegment);
+        static Annotations = { ContentProperty: PolyLineSegment.PointsProperty }
         Points: Shapes.PointCollection;
+
+        constructor() {
+            super();
+            PolyLineSegment.PointsProperty.Initialize<Shapes.PointCollection>(this);
+        }
 
         _Append(path: Shapes.RawPath) {
             var p: Point;
@@ -109,8 +121,14 @@ module Fayde.Media {
     Nullstone.RegisterType(PolyLineSegment, "PolyLineSegment");
 
     export class PolyQuadraticBezierSegment extends PathSegment {
-        static Annotations = { ContentProperty: "Points" }
+        static PointsProperty = DependencyProperty.RegisterImmutable("Points", () => Shapes.PointCollection, PolyQuadraticBezierSegment);
+        static Annotations = { ContentProperty: PolyQuadraticBezierSegment.PointsProperty }
         Points: Shapes.PointCollection;
+
+        constructor() {
+            super();
+            PolyQuadraticBezierSegment.PointsProperty.Initialize<Shapes.PointCollection>(this);
+        }
 
         _Append(path: Shapes.RawPath) {
             var points = this.Points;

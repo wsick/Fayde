@@ -1,4 +1,5 @@
 /// <reference path="../Engine/Dirty.ts" />
+/// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="UIElement.ts" />
 /// <reference path="../Primitives/RawMatrix.ts" />

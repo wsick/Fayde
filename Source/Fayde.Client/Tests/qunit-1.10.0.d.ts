@@ -101,8 +101,8 @@ declare var notStrictEqual: (actual: any, expected: any, message: string) => any
 declare var ok: (state: any, message: string) => any;
 declare var strictEqual: (actual: any, expected: any, message: string) => any;
 // ** I Can't make overload here! :(
-//declare var throws: (block: () => void, expected: Object,  message: string) => any;
-declare var throws: (block: () => void, message: string) => any;
+declare var throws: (block: () => void, expected: Object,  message: string) => any;
+//declare var throws: (block: () => void, message: string) => any;
 
 /* ASYNC CONTROL */
 declare var start: (decrement?: number) => any;

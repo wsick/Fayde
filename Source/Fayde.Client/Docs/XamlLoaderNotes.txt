@@ -1,0 +1,39 @@
+﻿Primitives
+	-> String
+	-> Number
+	-> Date
+	-> Boolean
+	-> RegExp
+	-> x:Null
+	-> Array
+XamlObject
+	-> UIElement
+	-> ResourceDictionary
+	-> Style
+	-> Brush
+	-> Transform
+	-> Matrix
+	-> Projection
+	-> ...
+Custom
+	-> View Models
+	-> Data Sources
+	-> Value Converters
+
+
+Attribute Syntax
+	-> Property="..."				Property or Dependency Property
+	-> [ns:]Type.Property="..."		Attached Dependency Property
+Inner Tag Syntax
+	-> <[ns:]OwnerType.Property />	Property or Dependency Property
+	-> <[ns:]AnyType />				Content Property
+	-> <[ns:]AnyType.Property />	Attached Dependency Property
+
+	
+Next:
+ResourceDictionary
+MarkupExpressionParsing
+	StaticResource
+	RelativeSource
+	Binding
+	TemplateBinding

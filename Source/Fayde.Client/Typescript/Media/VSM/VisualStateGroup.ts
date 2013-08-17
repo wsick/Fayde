@@ -22,7 +22,7 @@ module Fayde.Media.VSM {
     export class VisualStateGroup extends DependencyObject {
         static StatesProperty = DependencyProperty.RegisterImmutable("States", () => VisualStateCollection, VisualStateGroup);
 
-        static Annotations = { ContentProperty: "States" };
+        static Annotations = { ContentProperty: VisualStateGroup.StatesProperty };
         private _CurrentStoryboards: Animation.Storyboard[] = [];
         private _Transitions: VisualTransition[] = null;
         Transitions: VisualTransition[];

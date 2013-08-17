@@ -9,7 +9,7 @@ module Fayde.Documents {
         
         static InlinesProperty = DependencyProperty.RegisterImmutable("Inlines", () => InlineCollection, Span);
 
-        static Annotations = { ContentProperty: "Inlines" }
+        static Annotations = { ContentProperty: Span.InlinesProperty }
 
         Inlines: InlineCollection;
         constructor() {

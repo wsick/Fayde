@@ -22,7 +22,7 @@ module Fayde.Media.Animation {
 
         Children: TimelineCollection;
 
-        static Annotations = { ContentProperty: "Children" }
+        static Annotations = { ContentProperty: Storyboard.ChildrenProperty }
 
         constructor() {
             super();

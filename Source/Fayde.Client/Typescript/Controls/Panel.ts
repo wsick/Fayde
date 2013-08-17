@@ -78,14 +78,6 @@ module Fayde.Controls {
         constructor(xobj: Panel) {
             super(xobj);
             this.LayoutUpdater.SetContainerMode(true, true);
-
-            var coll = new PanelChildrenCollection();
-            Object.defineProperty(xobj, "Children", {
-                value: coll,
-                writable: false
-            });
-            var error = new BError();
-            this.SetSubtreeNode(coll.XamlNode, error);
         }
         AttachVisualChild(uie: UIElement, error: BError): boolean {
             this.OnVisualChildAttached(uie);
@@ -164,13 +156,21 @@ module Fayde.Controls {
         
         static BackgroundProperty: DependencyProperty = DependencyProperty.Register("Background", () => { return Media.Brush; }, Panel, undefined, (d, args) => (<Panel>d)._BackgroundChanged(args));
         static IsItemsHostProperty: DependencyProperty = DependencyProperty.Register("IsItemHost", () => { return Boolean; }, Panel, false);
+        static ChildrenProperty = DependencyProperty.RegisterImmutable("Children", () => PanelChildrenCollection, Panel);
         Background: Media.Brush;
         IsItemsHost: boolean;
         Children: XamlObjectCollection<UIElement>;
 
         private _BackgroundListener: Media.IBrushChangedListener;
 
-        static Annotations = { ContentProperty: "Children" }
+        static Annotations = { ContentProperty: Panel.ChildrenProperty }
+
+        constructor() {
+            super();
+            var coll = Panel.ChildrenProperty.Initialize<PanelChildrenCollection>(this);
+            var error = new BError();
+            this.XamlNode.SetSubtreeNode(coll.XamlNode, error);
+        }
 
         static GetZIndex(uie: UIElement): number { return uie.GetValue(Panel.ZIndexProperty); }
         static SetZIndex(uie: UIElement, value: number) { uie.SetValue(Panel.ZIndexProperty, value); }

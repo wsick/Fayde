@@ -48,10 +48,10 @@ module Fayde.Controls {
         CreateNode(): ItemsControlNode { return new ItemsControlNode(this); }
 
         static DisplayMemberPathProperty = DependencyProperty.Register("DisplayMemberPath", () => String, ItemsControl, null, (d, args) => (<ItemsControl>d).OnDisplayMemberPathChanged(args));
-        //static ItemsProperty = DependencyProperty.RegisterCore("Items", () => ItemCollection, ItemsControl);
         static ItemsPanelProperty = DependencyProperty.RegisterCore("ItemsPanel", () => ItemsPanelTemplate, ItemsControl);
         static ItemsSourceProperty = DependencyProperty.Register("ItemsSource", () => IEnumerable_, ItemsControl, null, (d, args) => (<ItemsControl>d).OnItemsSourceChanged(args));
         static ItemTemplateProperty = DependencyProperty.RegisterCore("ItemTemplate", () => DataTemplate, ItemsControl, undefined, (d, args) => (<ItemsControl>d).OnItemTemplateChanged(args));
+        static ItemsProperty = DependencyProperty.RegisterImmutable("Items", () => ItemCollection, ItemsControl);
         DisplayMemberPath: string;
         ItemsPanel: ItemsPanelTemplate;
         ItemTemplate: DataTemplate;
@@ -63,6 +63,9 @@ module Fayde.Controls {
                 this._ItemsIsDataBound = true;
                 items.ItemsChanged.Subscribe(this.InvokeItemsChanged, this);
                 //items.Clearing.Subscribe(this.OnItemsClearing, this);
+                var storage = Providers.GetStorage(this, ItemsControl.ItemsProperty);
+                storage.Precedence = Fayde.Providers.PropertyPrecedence.LocalValue;
+                storage.Local = items;
             }
             return items;
         }
@@ -91,7 +94,7 @@ module Fayde.Controls {
             return this._DisplayMemberTemplate;
         }
 
-        static Annotations = { ContentProperty: "Items" }
+        static Annotations = { ContentProperty: ItemsControl.ItemsProperty }
 
         ItemContainerGenerator: ItemContainerGenerator;
         constructor() {

@@ -1,5 +1,6 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 /// <reference path="Providers/InheritedStore.ts" />
+/// <reference path="../Primitives/Font.ts" />
 /// CODE
 /// <reference path="DependencyProperty.ts" />
 

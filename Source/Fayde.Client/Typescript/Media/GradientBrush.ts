@@ -13,7 +13,7 @@ module Fayde.Media {
         MappingMode: BrushMappingMode;
         SpreadMethod: GradientSpreadMethod;
 
-        static Annotations = { ContentProperty: "GradientStops" }
+        static Annotations = { ContentProperty: GradientBrush.GradientStopsProperty }
 
         constructor() {
             super();

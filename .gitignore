@@ -281,3 +281,5 @@ Source/Fayde.Client/Fayde.d.ts
 Source/Fayde.Client/Fayde.js
 Source/Fayde.Client/Fayde.ts
 Source/Fayde.Client/Fayde.tsorder
+Source/Fayde.Client/Typescript/Xaml/XamlLoader.js
+Source/Fayde.Client/Tests/XamlLoadTests.js

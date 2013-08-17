@@ -10,7 +10,7 @@ module Fayde.Documents {
 
         static BlocksProperty = DependencyProperty.RegisterImmutable("Blocks", () => BlockCollection, Section);
 
-        static Annotations = { ContentProperty: "Blocks" };
+        static Annotations = { ContentProperty: Section.BlocksProperty };
         
         Blocks: BlockCollection;
         constructor() {

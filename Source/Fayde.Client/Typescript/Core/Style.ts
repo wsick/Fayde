@@ -13,7 +13,7 @@ module Fayde {
         BasedOn: Style;
         TargetType: Function;
 
-        static Annotations = { ContentProperty: "Setters" }
+        static Annotations = { ContentProperty: Style.SettersProperty }
 
         constructor() {
             super();

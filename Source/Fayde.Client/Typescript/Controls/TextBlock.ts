@@ -301,7 +301,7 @@ module Fayde.Controls {
         TextTrimming: TextTrimming;
         TextWrapping: TextWrapping;
 
-        static Annotations = { ContentProperty: "Inlines" }
+        static Annotations = { ContentProperty: TextBlock.InlinesProperty }
 
         constructor() {
             super();
@@ -369,7 +369,10 @@ module Fayde.Controls {
             return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);
         }
     }
-    Nullstone.RegisterType(TextBlock, "TextBlock");
+    Fayde.Declare(TextBlock)
+        .Namespace("Fayde.Controls", Fayde.XMLNS)
+        .Name("TextBlock")
+        .Register();
 
     var TextBlockInheritedProps = [
         TextBlock.FontFamilyProperty,
