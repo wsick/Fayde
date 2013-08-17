@@ -158,7 +158,7 @@ module Fayde {
     export class FrameworkElement extends UIElement implements IResourcable, IMeasurableHidden, IArrangeableHidden, Providers.IIsPropertyInheritable {
         DefaultStyleKey: any;
         XamlNode: FENode;
-        Resources: ResourceDictionary;
+        Resources: Fayde.ResourceDictionary;
         constructor() {
             super();
             var rd = FrameworkElement.ResourcesProperty.Initialize<ResourceDictionary>(this);

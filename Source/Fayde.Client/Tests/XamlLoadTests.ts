@@ -50,3 +50,23 @@ test("Resource Dictionary", () => {
     strictEqual(thickness.Right, 3, "Thickness.Right must equal 3 and not \"3\"");
     strictEqual(thickness.Bottom, 4, "Thickness.Bottom must equal 4 and not \"4\"");
 });
+
+test("Style", () => {
+    var xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        + "<StackPanel.Resources>"
+        + "<Style x:Key=\"SomeStyle\" TargetType=\"Button\">"
+        + "<Setter Property=\"Margin\" Value=\"1\" />"
+        + "</Style>"
+        + "</StackPanel.Resources>"
+        + "</StackPanel>";
+    var root = <Fayde.Controls.StackPanel>Fayde.Xaml.Load(xaml);
+
+    var resources = root.Resources;
+    var style = <Fayde.Style>resources.Get("SomeStyle");
+    strictEqual(style.TargetType, Fayde.Controls.Button, "TargetType on Style should be set to Button.");
+    var setters = style.Setters;
+    strictEqual(setters.Count, 1, "There should be 1 setter in the Style.");
+    var setter = setters.GetValueAt(0);
+    strictEqual(setter.Property, Fayde.FrameworkElement.MarginProperty, "Setter Property should be Margin property.");
+    ok(Thickness.Equals(setter.Value, new Thickness(1, 1, 1, 1)), "Setter Value should be a Thickness (1, 1, 1, 1).");
+});

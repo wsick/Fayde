@@ -57,45 +57,9 @@ module Fayde {
             xarr[name] = t;
         }
     }
-    
     export function RegisterInterface(name: string): IInterfaceDeclaration {
         return { Name: name };
     }
-
-    export function Declare(type: Function): ITypeRegistration {
-        var itr = extendType(type);
-        itr._BaseClass = <Function>Object.getPrototypeOf(type.prototype).constructor;
-        return itr;
-    }
-
-    function extendType(type: Function): ITypeRegistration {
-        var t = <ITypeRegistration>type;
-        Object.defineProperty(t, "_Interfaces", { value: [], writable: false });
-        t.Namespace = function (jsNamespace: string, xmlNamespace?: string): ITypeRegistration {
-            Object.defineProperty(t, "_JsNamespace", { value: jsNamespace, writable: false });
-            Object.defineProperty(t, "_XmlNamespace", { value: xmlNamespace, writable: false });
-            return t;
-        };
-        t.Name = function (typeName: string): ITypeRegistration {
-            Object.defineProperty(t, "_TypeName", { value: typeName, writable: false });
-            return t;
-        };
-        t.Interface = function (inter: IInterfaceDeclaration): ITypeRegistration {
-            t._Interfaces.push(inter);
-            return t;
-        };
-        t.Register = function () {
-            var jarr = jsNamespaces[t._JsNamespace];
-            if (!jarr) jarr = jsNamespaces[t._JsNamespace] = [];
-            jarr[t._TypeName] = t;
-
-            var xarr = xmlNamespaces[t._XmlNamespace];
-            if (!xarr) xarr = xmlNamespaces[t._XmlNamespace] = [];
-            xarr[t._TypeName] = t;
-        };
-        return t;
-    }
-
 
 
     var PRIMITIVE_MAPPINGS = [];
@@ -123,7 +87,7 @@ module Fayde {
             var annotation: any;
             if (anns && (annotation = anns[name]))
                 return annotation;
-            return this.GetAnnotationMember(t._BaseClass, name);
+            return TypeResolver.GetAnnotation(t._BaseClass, name);
         },
         Resolve: function (xmlns: string, xmlname: string): ITypeResolution {
             if (xmlns === Fayde.XMLNSX) {
