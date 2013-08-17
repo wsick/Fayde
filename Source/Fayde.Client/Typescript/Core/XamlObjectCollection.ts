@@ -100,6 +100,7 @@ module Fayde {
         AddingToCollection(value: T, error: BError): boolean {
             if (value instanceof XamlObject)
                 return value.XamlNode.AttachTo(this.XamlNode, error);
+            return true;
         }
         RemovedFromCollection(value: T, isValueSafe: boolean) {
             if (value instanceof XamlObject)

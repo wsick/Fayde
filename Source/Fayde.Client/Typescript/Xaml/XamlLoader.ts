@@ -132,6 +132,30 @@ module Fayde.Xaml {
         NotImplemented("createAttributeObject");
     }
 
+    function getNodeKey(node: Node): string {
+        var attrs = node.attributes;
+        var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Key");
+        if (keyn)
+            return keyn.value;
+        var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Name");
+        if (keyn)
+            return keyn.value;
+        return "";
+    }
+    function createObjectInResources(node: Node, rd: ResourceDictionary, ctx: IXamlLoadContext) {
+        var cur = createObject(node, ctx);
+        var key = getNodeKey(node);
+        if (key) {
+            rd.Set(key, cur);
+        } else {
+            if (!(cur instanceof Style))
+                throw new XamlParseException("An object in a ResourceDictionary must have x:Key.");
+            var targetType = cur.TargetType;
+            if (!targetType)
+                throw new XamlParseException("A Style in a ResourceDictionary must have x:Key or TargetType.");
+            rd.Set(targetType, cur);
+        }
+    }
 
     interface IXamlChildProcessor {
         ProcessAttribute(attr: Attr);
@@ -156,7 +180,7 @@ module Fayde.Xaml {
                 }
             }
         }
-        
+
         var hasSetContent = false;
         var propertiesSet = [];
         function ensurePropertyNotSet(propertyName: string) {
@@ -206,7 +230,14 @@ module Fayde.Xaml {
                     ensurePropertyNotSet(propertyName);
                     if (node.childNodes.length !== 1)
                         throw new XamlParseException("Missing inner value for property.");
-                    dobj.SetValue(propd, createObject(node.firstChild, ctx));
+                    if (propd.IsImmutable) {
+                        var val = dobj.GetValue(propd);
+                        if (!(val instanceof XamlObjectCollection))
+                            throw new XamlParseException("Cannot set immutable property.");
+                        this.ProcessPropertyCollection(node, <XamlObjectCollection>val);
+                    } else {
+                        dobj.SetValue(propd, createObject(node.firstChild, ctx));
+                    }
                 } else { //<[ns:]Type> (Content)
                     if (!contentPropd)
                         throw new XamlParseException("Attempting to set content on an object that does not have a Content Property.");
@@ -220,6 +251,22 @@ module Fayde.Xaml {
                         dobj.SetValue(contentPropd, createObject(node, ctx));
                     }
                 }
+            },
+            ProcessPropertyCollection: function (propertyNode: Node, coll: XamlObjectCollection<any>) {
+                ctx.ObjectStack.push(coll);
+                var children = propertyNode.childNodes;
+                var len = children.length;
+                if (coll instanceof ResourceDictionary) {
+                    var rd = <ResourceDictionary>coll;
+                    for (var i = 0; i < len; i++) {
+                        createObjectInResources(children[i], rd, ctx);
+                    }
+                } else {
+                    for (var i = 0; i < len; i++) {
+                        coll.Add(createObject(children[i], ctx));
+                    }
+                }
+                ctx.ObjectStack.pop();
             }
         };
     }

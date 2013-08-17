@@ -48,7 +48,7 @@ module Fayde {
     	XmlNamespace: Fayde.XMLNS
     });
 
-    export class ResourceDictionary extends XamlObjectCollection<XamlObject> {
+    export class ResourceDictionary extends XamlObjectCollection<any> {
         private _KeyIndex: number[] = [];
 
         MergedDictionaries: ResourceDictionaryCollection;
@@ -67,13 +67,13 @@ module Fayde {
         ContainsKey(key: any): boolean {
             return this._KeyIndex[key] !== undefined;
         }
-        Get(key: any): XamlObject {
+        Get(key: any): any {
             var index = this._KeyIndex[key];
             if (index > -1)
                 return this._ht[index];
             return this._GetFromMerged(key);
         }
-        Set(key: any, value: XamlObject): boolean {
+        Set(key: any, value: any): boolean {
             var index = this._KeyIndex[key];
             if (index === undefined && value === undefined)
                 return false;
@@ -95,14 +95,14 @@ module Fayde {
             return true;
         }
 
-        Add(value: XamlObject): number {
+        Add(value: any): number {
             throw new InvalidOperationException("Cannot add to ResourceDictionary. Use Set instead.");
         }
-        Remove(value: XamlObject): boolean {
+        Remove(value: any): boolean {
             throw new InvalidOperationException("Cannot remove from ResourceDictionary. Use Set instead.");
         }
         
-        private _GetFromMerged(key: any): XamlObject {
+        private _GetFromMerged(key: any): any {
             var merged = this.MergedDictionaries;
 
             if (!merged)

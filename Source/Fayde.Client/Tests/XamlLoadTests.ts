@@ -36,5 +36,17 @@ test("Panel with Children", () => {
 });
 
 test("Resource Dictionary", () => {
-    //var root = <Fayde.Controls.StackPanel>Fayde.Xaml.Load("<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\"><Border /><TextBlock /></StackPanel>");
+    var xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        + "<StackPanel.Resources>"
+        + "<x:Thickness x:Key=\"SomeThickness\" Left=\"1\" Top=\"2\" Right=\"3\" Bottom=\"4\" />"
+        + "</StackPanel.Resources>"
+        + "</StackPanel>";
+    var root = <Fayde.Controls.StackPanel>Fayde.Xaml.Load(xaml);
+    var resources = root.Resources;
+    ok(resources.ContainsKey("SomeThickness"), "Resources should contain a resource with a key 'SomeThickness'");
+    var thickness = <Thickness>resources.Get("SomeThickness");
+    strictEqual(thickness.Left, 1, "Thickness.Left must equal 1 and not \"1\"");
+    strictEqual(thickness.Top, 1, "Thickness.Top must equal 2 and not \"2\"");
+    strictEqual(thickness.Right, 1, "Thickness.Right must equal 3 and not \"3\"");
+    strictEqual(thickness.Bottom, 1, "Thickness.Bottom must equal 4 and not \"4\"");
 });
