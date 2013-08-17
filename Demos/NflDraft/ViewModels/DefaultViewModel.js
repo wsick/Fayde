@@ -20,6 +20,18 @@ var NflDraft;
             function DefaultViewModel() {
                 _super.apply(this, arguments);
             }
+            Object.defineProperty(DefaultViewModel.prototype, "Countdown", {
+                get: function () {
+                    return this._countdown;
+                },
+                set: function (value) {
+                    this._countdown = value;
+                    this.OnPropertyChanged("Countdown");
+                },
+                enumerable: true,
+                configurable: true
+            });
+
             Object.defineProperty(DefaultViewModel.prototype, "SelectedPlayer", {
                 get: function () {
                     return this._selectedPlayer;
@@ -33,6 +45,7 @@ var NflDraft;
             });
 
             DefaultViewModel.prototype.Load = function () {
+                var _this = this;
                 var _fantasyTeams = new Array();
                 var ft = ["Team 1", "Team 2", "Team 3", "Team 4", "Team 5", "Team 6", "Team 7", "Team 8", "Team 9", "Team 10"];
                 for (var i = 0; i < ft.length; i++) {
@@ -198,7 +211,19 @@ var NflDraft;
                 }
 
                 this.SelectedPlayer = this.PlayerStats[0];
-                //setInterval(Tick(), 1000);
+                this.Countdown = 90;
+                setInterval(function () {
+                    return _this.DoWork();
+                }, 1000);
+            };
+
+            DefaultViewModel.prototype.DoWork = function () {
+                var current = this.Countdown;
+                if (current == 0)
+                    current = 90;
+else
+                    current = current - 1;
+                this.Countdown = current;
             };
             return DefaultViewModel;
         })(Fayde.MVVM.ViewModelBase);

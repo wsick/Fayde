@@ -90,7 +90,6 @@
     <Compile Include="Resources\BoolSolidColorBrushConverter.cs" />
     <Compile Include="Resources\BoolFontWeightConverter.cs" />
     <Compile Include="Resources\BoolVisibilityConverter.cs" />
-    <Compile Include="Resources\PillColorValueConverter.cs" />
     <Compile Include="Resources\RelativeSizeValueConverter.cs" />
     <Compile Include="ViewModels\ChooseVisualStudioViewModel.cs" />
     <Compile Include="ViewModels\ExamineViewModel.cs" />
