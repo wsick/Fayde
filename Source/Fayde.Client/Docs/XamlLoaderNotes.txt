@@ -1,11 +1,11 @@
 ﻿Primitives
-	-> String
-	-> Number
-	-> Date
-	-> Boolean
-	-> RegExp
+	-> x:String
+	-> x:Number
+	-> x:Date
+	-> x:Boolean
+	-> x:RegExp
 	-> x:Null
-	-> Array
+	-> x:Array
 XamlObject
 	-> UIElement
 	-> ResourceDictionary

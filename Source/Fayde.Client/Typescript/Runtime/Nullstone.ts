@@ -28,6 +28,7 @@ class Nullstone {
         t._Interfaces = interfaces;
         return t;
     }
+
     static Equals(val1: any, val2: any): boolean {
         if (val1 == null && val2 == null)
             return true;

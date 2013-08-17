@@ -34,3 +34,7 @@ test("Panel with Children", () => {
     strictEqual((<any>child1).constructor, Fayde.Controls.Border, "First child should be a Border.");
     strictEqual((<any>child2).constructor, Fayde.Controls.TextBlock, "Second child should be a TextBlock.");
 });
+
+test("Resource Dictionary", () => {
+    //var root = <Fayde.Controls.StackPanel>Fayde.Xaml.Load("<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\"><Border /><TextBlock /></StackPanel>");
+});

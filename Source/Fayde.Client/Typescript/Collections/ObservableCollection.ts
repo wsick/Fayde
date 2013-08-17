@@ -84,5 +84,10 @@ module Fayde.Collections {
             this.PropertyChanged.Raise(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-    Nullstone.RegisterType(ObservableCollection, "ObservableCollection", [IEnumerable_, INotifyCollectionChanged_, INotifyPropertyChanged_]);
+    Fayde.RegisterType(ObservableCollection, {
+        Namespace: "Fayde.Collections",
+        XmlNamespace: Fayde.XMLNS,
+        Name: "ObservableCollection",
+        Interfaces: [IEnumerable_, INotifyCollectionChanged_, INotifyPropertyChanged_]
+    });
 }
