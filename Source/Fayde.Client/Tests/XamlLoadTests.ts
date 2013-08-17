@@ -46,7 +46,7 @@ test("Resource Dictionary", () => {
     ok(resources.ContainsKey("SomeThickness"), "Resources should contain a resource with a key 'SomeThickness'");
     var thickness = <Thickness>resources.Get("SomeThickness");
     strictEqual(thickness.Left, 1, "Thickness.Left must equal 1 and not \"1\"");
-    strictEqual(thickness.Top, 1, "Thickness.Top must equal 2 and not \"2\"");
-    strictEqual(thickness.Right, 1, "Thickness.Right must equal 3 and not \"3\"");
-    strictEqual(thickness.Bottom, 1, "Thickness.Bottom must equal 4 and not \"4\"");
+    strictEqual(thickness.Top, 2, "Thickness.Top must equal 2 and not \"2\"");
+    strictEqual(thickness.Right, 3, "Thickness.Right must equal 3 and not \"3\"");
+    strictEqual(thickness.Bottom, 4, "Thickness.Bottom must equal 4 and not \"4\"");
 });
