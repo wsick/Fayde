@@ -225,8 +225,5 @@ module Fayde {
             xn.IsShareable = true;
         }
     }
-    Fayde.Declare(XamlNode)
-        .Namespace("Fayde", Fayde.XMLNS)
-        .Name("XamlNode")
-        .Register();
+    Nullstone.RegisterType(XamlNode, "XamlNode");
 }

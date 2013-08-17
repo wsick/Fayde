@@ -369,10 +369,7 @@ module Fayde.Controls {
             return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);
         }
     }
-    Fayde.Declare(TextBlock)
-        .Namespace("Fayde.Controls", Fayde.XMLNS)
-        .Name("TextBlock")
-        .Register();
+    Nullstone.RegisterType(TextBlock, "TextBlock");
 
     var TextBlockInheritedProps = [
         TextBlock.FontFamilyProperty,

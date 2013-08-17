@@ -238,8 +238,5 @@ module Fayde.Controls {
                 ctx.Fill(backgroundBrush, innerExtents);
         }
     }
-    Fayde.Declare(Border)
-        .Namespace("Fayde.Controls", Fayde.XMLNS)
-        .Name("Border")
-        .Register();
+    Nullstone.RegisterType(Border, "Border");
 }
