@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace WickedSick.Fayde.Client.TestWebsite.Tests {
+namespace Fayde.TestSite.Tests {
     
     
     public partial class tests {

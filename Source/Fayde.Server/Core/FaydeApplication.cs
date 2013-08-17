@@ -5,7 +5,7 @@ using Fayde.Xaml.Metadata;
 
 namespace Fayde.Core
 {
-    [Element("", "App")]
+    [Element("Fayde", "Application")]
     public class FaydeApplication : DependencyObject
     {
         public static readonly string DEFAULT_THEME = "Metro";

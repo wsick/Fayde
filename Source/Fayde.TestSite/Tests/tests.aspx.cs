@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Web.UI;
 
-namespace WickedSick.Fayde.Client.TestWebsite.Tests
+namespace Fayde.TestSite.Tests
 {
     public partial class tests : System.Web.UI.Page
     {

@@ -11421,5 +11421,5 @@
             }
         }]
     };
-    App.Themes.push(new Fayde.Theme("Metro", json));
+    Fayde.Application.Themes.push(new Fayde.Theme("Metro", json));
 })();

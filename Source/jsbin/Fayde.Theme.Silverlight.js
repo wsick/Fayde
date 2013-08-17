@@ -11532,5 +11532,5 @@
             }
         }]
     };
-    App.Themes.push(new Fayde.Theme("Default", json));
+    Application.Themes.push(new Fayde.Theme("Default", json));
 })();
