@@ -157,5 +157,9 @@ module Fayde.Controls.Primitives {
             }
         }
     }
-    Nullstone.RegisterType(RepeatButton, "RepeatButton");
+    Fayde.RegisterType(RepeatButton, {
+    	Name: "RepeatButton",
+    	Namespace: "Fayde.Controls.Primitives",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

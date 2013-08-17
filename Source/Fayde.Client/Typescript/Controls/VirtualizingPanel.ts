@@ -41,5 +41,9 @@ module Fayde.Controls {
             }
         }
     }
-    Nullstone.RegisterType(VirtualizingPanel, "VirtualizingPanel");
+    Fayde.RegisterType(VirtualizingPanel, {
+    	Name: "VirtualizingPanel",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

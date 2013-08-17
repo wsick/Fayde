@@ -127,5 +127,9 @@ module Fayde {
             }
         }
     }
-    Nullstone.RegisterType(XamlObjectCollection, "XamlObjectCollection", [IEnumerable_]);
+    Fayde.RegisterType(XamlObjectCollection, {
+        Name: "XamlObjectCollection",
+        Namespace: "Fayde",
+        Interfaces: [IEnumerable_]
+    });
 }

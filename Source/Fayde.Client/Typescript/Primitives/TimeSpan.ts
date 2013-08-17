@@ -97,4 +97,8 @@ class TimeSpan {
         return this._Ticks * TimeSpan._TicksPerMillisecond;
     }
 }
-Nullstone.RegisterType(TimeSpan, "TimeSpan");
+Fayde.RegisterType(TimeSpan, {
+	Name: "TimeSpan",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});

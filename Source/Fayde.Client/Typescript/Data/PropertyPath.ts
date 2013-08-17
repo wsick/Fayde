@@ -301,5 +301,9 @@ module Fayde.Data {
             return new PropertyPath(this._Path, this._ExpandedPath);
         }
     }
-    Nullstone.RegisterType(PropertyPath, "PropertyPath");
+    Fayde.RegisterType(PropertyPath, {
+    	Name: "PropertyPath",
+    	Namespace: "Fayde.Data",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

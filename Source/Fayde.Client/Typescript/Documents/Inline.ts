@@ -10,7 +10,11 @@ module Fayde.Documents {
     export class Inline extends TextElement {
         Autogen: boolean = false;
     }
-    Nullstone.RegisterType(Inline, "Inline");
+    Fayde.RegisterType(Inline, {
+    	Name: "Inline",
+    	Namespace: "Fayde.Documents",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class InlineCollection extends XamlObjectCollection<Inline> {
         private _Listener: IInlinesChangedListener;
@@ -30,5 +34,9 @@ module Fayde.Documents {
             if (listener) listener.InlinesChanged(value, false);
         }
     }
-    Nullstone.RegisterType(InlineCollection, "InlineCollection");
+    Fayde.RegisterType(InlineCollection, {
+    	Name: "InlineCollection",
+    	Namespace: "Fayde.Documents",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

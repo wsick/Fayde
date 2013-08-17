@@ -89,5 +89,9 @@ module Fayde.Shapes {
 
         GetEnumerator(reverse?: boolean): IEnumerator<Point> { return ArrayEx.GetEnumerator(this._ht, reverse); }
     }
-    Nullstone.RegisterType(PointCollection, "PointCollection");
+    Fayde.RegisterType(PointCollection, {
+    	Name: "PointCollection",
+    	Namespace: "Fayde.Shapes",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

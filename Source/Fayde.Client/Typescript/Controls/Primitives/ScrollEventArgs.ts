@@ -23,5 +23,9 @@ module Fayde.Controls.Primitives {
             Object.defineProperty(this, "Value", { value: value, writable: false });
         }
     }
-    Nullstone.RegisterType(ScrollEventArgs, "ScrollEventArgs");
+    Fayde.RegisterType(ScrollEventArgs, {
+    	Name: "ScrollEventArgs",
+    	Namespace: "Fayde.Controls.Primitives",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

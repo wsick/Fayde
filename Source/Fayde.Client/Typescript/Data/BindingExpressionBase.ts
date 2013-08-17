@@ -207,7 +207,7 @@ module Fayde.Data {
             try {
             // If the user calls BindingExpresion.UpdateSource (), we must update regardless of focus state.
             // Otherwise we only update if the textbox is unfocused.
-                if (!force && this._TwoWayTextBox && App.Current.MainSurface.FocusedNode === this.Target.XamlNode)
+                if (!force && this._TwoWayTextBox && Application.Current.MainSurface.FocusedNode === this.Target.XamlNode)
                     return;
 
                 if (this.PropertyPathWalker.IsPathBroken)
@@ -393,5 +393,8 @@ module Fayde.Data {
             NotImplemented("BindingExpressionBase._NotifyErrorsChanged");
         }
     }
-    Nullstone.RegisterType(BindingExpressionBase, "BindingExpressionBase");
+    Fayde.RegisterType(BindingExpressionBase, {
+    	Name: "BindingExpressionBase",
+    	Namespace: "Fayde.Data"
+    });
 }

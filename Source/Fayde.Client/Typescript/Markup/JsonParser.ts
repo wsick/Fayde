@@ -341,7 +341,6 @@ module Fayde {
             return this.GetAnnotationMember(t._BaseClass, member);
         }
     }
-    Nullstone.RegisterType(JsonParser, "JsonParser");
     
     function isArray(o) {
         if (Array.isArray)

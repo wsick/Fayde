@@ -7,5 +7,8 @@ module Fayde.Data {
             super(binding, target, propd);
         }
     }
-    Nullstone.RegisterType(BindingExpression, "BindingExpression");
+    Fayde.RegisterType(BindingExpression, {
+    	Name: "BindingExpression",
+    	Namespace: "Fayde.Data"
+    });
 }

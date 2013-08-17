@@ -23,7 +23,10 @@ module Fayde.Controls {
             }
         }
     }
-    Nullstone.RegisterType(GridNode, "GridNode");
+    Fayde.RegisterType(GridNode, {
+    	Name: "GridNode",
+    	Namespace: "Fayde.Controls"
+    });
 
     export interface ISegment {
         DesiredSize: number;
@@ -738,5 +741,9 @@ module Fayde.Controls {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
         }
     }
-    Nullstone.RegisterType(Grid, "Grid");
+    Fayde.RegisterType(Grid, {
+    	Name: "Grid",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

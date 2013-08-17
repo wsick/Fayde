@@ -15,4 +15,8 @@ class Clip {
         this.Height = rounded.Height;
     }
 }
-Nullstone.RegisterType(Clip, "Clip");
+Fayde.RegisterType(Clip, {
+	Name: "Clip",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});

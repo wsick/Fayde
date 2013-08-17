@@ -13,42 +13,66 @@ class Exception {
         return this.Message;
     }
 }
-Nullstone.RegisterType(Exception, "Exception");
+Fayde.RegisterType(Exception, {
+	Name: "Exception",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});
 
 class ArgumentException extends Exception {
     constructor(message: string) {
         super(message);
     }
 }
-Nullstone.RegisterType(ArgumentException, "ArgumentException");
+Fayde.RegisterType(ArgumentException, {
+	Name: "ArgumentException",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});
 
 class InvalidOperationException extends Exception {
     constructor(message: string) {
         super(message);
     }
 }
-Nullstone.RegisterType(InvalidOperationException, "InvalidOperationException");
+Fayde.RegisterType(InvalidOperationException, {
+	Name: "InvalidOperationException",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});
 
 class XamlParseException extends Exception {
     constructor(message: string) {
         super(message);
     }
 }
-Nullstone.RegisterType(XamlParseException, "XamlParseException");
+Fayde.RegisterType(XamlParseException, {
+	Name: "XamlParseException",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});
 
 class NotSupportedException extends Exception {
     constructor(message: string) {
         super(message);
     }
 }
-Nullstone.RegisterType(NotSupportedException, "NotSupportedException");
+Fayde.RegisterType(NotSupportedException, {
+	Name: "NotSupportedException",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});
 
 class IndexOutOfRangeException extends Exception {
     constructor(index: number) {
         super(index.toString());
     }
 }
-Nullstone.RegisterType(IndexOutOfRangeException, "IndexOutOfRangeException");
+Fayde.RegisterType(IndexOutOfRangeException, {
+	Name: "IndexOutOfRangeException",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});
 
 class AttachException extends Exception {
     Data: any;
@@ -57,7 +81,11 @@ class AttachException extends Exception {
         this.Data = data;
     }
 }
-Nullstone.RegisterType(AttachException, "AttachException");
+Fayde.RegisterType(AttachException, {
+	Name: "AttachException",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});
 
 class InvalidJsonException extends Exception {
     JsonText: string;
@@ -68,7 +96,11 @@ class InvalidJsonException extends Exception {
         this.InnerException = innerException;
     }
 }
-Nullstone.RegisterType(InvalidJsonException, "InvalidJsonException");
+Fayde.RegisterType(InvalidJsonException, {
+	Name: "InvalidJsonException",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});
 
 class TargetInvocationException extends Exception {
     InnerException: Exception;
@@ -77,7 +109,11 @@ class TargetInvocationException extends Exception {
         this.InnerException = innerException;
     }
 }
-Nullstone.RegisterType(TargetInvocationException, "TargetInvocationException");
+Fayde.RegisterType(TargetInvocationException, {
+	Name: "TargetInvocationException",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});
 
 class UnknownTypeException extends Exception {
     FullTypeName: string;
@@ -86,4 +122,8 @@ class UnknownTypeException extends Exception {
         this.FullTypeName = fullTypeName;
     }
 }
-Nullstone.RegisterType(UnknownTypeException, "UnknownTypeException");
+Fayde.RegisterType(UnknownTypeException, {
+	Name: "UnknownTypeException",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});

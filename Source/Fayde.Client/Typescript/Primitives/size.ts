@@ -116,4 +116,8 @@ class size implements ICloneable, ISize {
         return dest;
     }
 }
-Nullstone.RegisterType(size, "size");
+Fayde.RegisterType(size, {
+	Name: "size",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});

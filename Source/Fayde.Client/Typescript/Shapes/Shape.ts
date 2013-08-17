@@ -489,5 +489,9 @@ module Fayde.Shapes {
             this._InvalidateStretch();
         }
     }
-    Nullstone.RegisterType(Shape, "Shape");
+    Fayde.RegisterType(Shape, {
+    	Name: "Shape",
+    	Namespace: "Fayde.Shapes",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

@@ -27,7 +27,11 @@ module Fayde.Media {
             path.EllipticalArc(width, height, this.RotationAngle, this.IsLargeArc, this.SweepDirection, ex, ey);
         }
     }
-    Nullstone.RegisterType(ArcSegment, "ArcSegment");
+    Fayde.RegisterType(ArcSegment, {
+    	Name: "ArcSegment",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class BezierSegment extends PathSegment {
         static Point1Property: DependencyProperty = DependencyProperty.Register("Point1", () => Point, BezierSegment);
@@ -52,7 +56,11 @@ module Fayde.Media {
 	        path.Bezier(x1, y1, x2, y2, x3, y3);
         }
     }
-    Nullstone.RegisterType(BezierSegment, "BezierSegment");
+    Fayde.RegisterType(BezierSegment, {
+    	Name: "BezierSegment",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class LineSegment extends PathSegment {
         static PointProperty: DependencyProperty = DependencyProperty.Register("Point", () => Point, LineSegment);
@@ -65,7 +73,11 @@ module Fayde.Media {
             path.Line(x, y);
         }
     }
-    Nullstone.RegisterType(LineSegment, "LineSegment");
+    Fayde.RegisterType(LineSegment, {
+    	Name: "LineSegment",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class PolyBezierSegment extends PathSegment {
         static PointsProperty = DependencyProperty.RegisterImmutable("Points", () => Shapes.PointCollection, PolyBezierSegment);
@@ -96,7 +108,11 @@ module Fayde.Media {
             }
         }
     }
-    Nullstone.RegisterType(PolyBezierSegment, "PolyBezierSegment");
+    Fayde.RegisterType(PolyBezierSegment, {
+    	Name: "PolyBezierSegment",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class PolyLineSegment extends PathSegment {
         static PointsProperty = DependencyProperty.RegisterImmutable("Points", () => Shapes.PointCollection, PolyLineSegment);
@@ -118,7 +134,11 @@ module Fayde.Media {
             NotImplemented("PolyLineSegment._Append");
         }
     }
-    Nullstone.RegisterType(PolyLineSegment, "PolyLineSegment");
+    Fayde.RegisterType(PolyLineSegment, {
+    	Name: "PolyLineSegment",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class PolyQuadraticBezierSegment extends PathSegment {
         static PointsProperty = DependencyProperty.RegisterImmutable("Points", () => Shapes.PointCollection, PolyQuadraticBezierSegment);
@@ -164,7 +184,11 @@ module Fayde.Media {
             }
         }
     }
-    Nullstone.RegisterType(PolyQuadraticBezierSegment, "PolyQuadraticBezierSegment");
+    Fayde.RegisterType(PolyQuadraticBezierSegment, {
+    	Name: "PolyQuadraticBezierSegment",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class QuadraticBezierSegment extends PathSegment {
         static Point1Property: DependencyProperty = DependencyProperty.Register("Point1", () => Point, QuadraticBezierSegment);
@@ -184,5 +208,9 @@ module Fayde.Media {
             path.Quadratic(x1, y1, x2, y2);
         }
     }
-    Nullstone.RegisterType(QuadraticBezierSegment, "QuadraticBezierSegment");
+    Fayde.RegisterType(QuadraticBezierSegment, {
+    	Name: "QuadraticBezierSegment",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

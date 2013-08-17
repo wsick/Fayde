@@ -18,6 +18,10 @@ module Fayde.Media.Animation {
         private _ByCached: number = null;
         private _EasingCached: EasingFunctionBase = undefined;
 
+        constructor(){
+            super();
+        }
+
         GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): number {
             var start = 0.0;
             if (this._FromCached != null)
@@ -53,5 +57,9 @@ module Fayde.Media.Animation {
             this._EasingCached = args.NewValue;
         }
     }
-    Nullstone.RegisterType(DoubleAnimation, "DoubleAnimation");
+    Fayde.RegisterType(DoubleAnimation, {
+    	Name: "DoubleAnimation",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

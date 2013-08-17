@@ -306,5 +306,9 @@ module Fayde.Controls {
             this._FocusedIndex = -1;
         }
     }
-    Nullstone.RegisterType(ListBox, "ListBox");
+    Fayde.RegisterType(ListBox, {
+    	Name: "ListBox",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

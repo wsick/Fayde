@@ -236,7 +236,10 @@ class DependencyProperty {
         return propd;
     }
 }
-Nullstone.RegisterType(DependencyProperty, "DependencyProperty");
+Fayde.RegisterType(DependencyProperty, {
+	Name: "DependencyProperty",
+	Namespace: "Fayde"
+});
 
 class ImmutableDependencyProperty extends DependencyProperty {
     IsImmutable: boolean = true;

@@ -71,5 +71,9 @@ module Fayde.Media {
 
         toString(): string { return mat3.str(this._Raw); }
     }
-    Nullstone.RegisterType(Matrix, "Matrix");
+    Fayde.RegisterType(Matrix, {
+    	Name: "Matrix",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

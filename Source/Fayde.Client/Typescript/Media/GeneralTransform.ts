@@ -13,7 +13,11 @@ module Fayde.Media {
         TransformBounds(r: rect): rect { return r; }
         TryTransform(inPoint: Point, outPoint: Point): boolean { return false; }
     }
-    Nullstone.RegisterType(GeneralTransform, "GeneralTransform");
+    Fayde.RegisterType(GeneralTransform, {
+    	Name: "GeneralTransform",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class InternalTransform extends GeneralTransform {
         private _Raw: number[];
@@ -48,5 +52,9 @@ module Fayde.Media {
             return projection
         }
     }
-    Nullstone.RegisterType(InternalTransform, "InternalTransform");
+    Fayde.RegisterType(InternalTransform, {
+    	Name: "InternalTransform",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

@@ -22,5 +22,9 @@ module Fayde.Media.Animation {
             return super.Resolve(target, propd);
         }
     }
-    Nullstone.RegisterType(ObjectAnimationUsingKeyFrames, "ObjectAnimationUsingKeyFrames");
+    Fayde.RegisterType(ObjectAnimationUsingKeyFrames, {
+    	Name: "ObjectAnimationUsingKeyFrames",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

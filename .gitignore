@@ -284,3 +284,4 @@ Source/Fayde.Client/Fayde.tsorder
 Source/Fayde.Client/Typescript/Xaml/XamlLoader.js
 Source/Fayde.Client/Tests/XamlLoadTests.js
 Source/Fayde.Client/Typescript/Runtime/TypeManagement.js
+Source/Fayde.Client/Typescript/Engine/Application.js

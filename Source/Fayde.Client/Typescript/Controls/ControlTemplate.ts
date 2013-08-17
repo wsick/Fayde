@@ -31,5 +31,9 @@ module Fayde.Controls {
             return uie;
         }
     }
-    Nullstone.RegisterType(ControlTemplate, "ControlTemplate");
+    Fayde.RegisterType(ControlTemplate, {
+    	Name: "ControlTemplate",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

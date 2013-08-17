@@ -188,6 +188,7 @@
     <Content Include="Typescript\Core\RoutedPropertyChangedEvent.js">
       <DependentUpon>RoutedPropertyChangedEvent.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Engine\Application.ts" />
     <Content Include="Typescript\Engine\DebugInterop.js">
       <DependentUpon>DebugInterop.ts</DependentUpon>
     </Content>
@@ -595,7 +596,6 @@
     <TypeScriptCompile Include="Typescript\Media\MediaParser.ts" />
     <TypeScriptCompile Include="Typescript\Media\Geometry.ts" />
     <TypeScriptCompile Include="Typescript\Media\Brush.ts" />
-    <TypeScriptCompile Include="Typescript\Engine\App.ts" />
     <TypeScriptCompile Include="Typescript\Data\PropertyPath.ts" />
     <TypeScriptCompile Include="Typescript\Data\BindingExpression.ts" />
     <TypeScriptCompile Include="Typescript\Data\BindingBase.ts" />
@@ -643,9 +643,6 @@
     <TypeScriptCompile Include="Typescript\Documents\Underline.ts" />
     <Content Include="Typescript\Documents\Underline.js">
       <DependentUpon>Underline.ts</DependentUpon>
-    </Content>
-    <Content Include="Typescript\Engine\App.js">
-      <DependentUpon>App.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Engine\Surface.ts" />
     <TypeScriptCompile Include="Typescript\Engine\Dirty.ts" />

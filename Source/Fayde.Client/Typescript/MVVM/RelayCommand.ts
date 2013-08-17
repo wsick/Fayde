@@ -15,5 +15,9 @@ module Fayde.MVVM {
         CanExecute(parameter: any): boolean { return true; }
         CanExecuteChanged: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
     }
-    Nullstone.RegisterType(RelayCommand, "RelayCommand");
+    Fayde.RegisterType(RelayCommand, {
+    	Name: "RelayCommand",
+    	Namespace: "Fayde.MVVM",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

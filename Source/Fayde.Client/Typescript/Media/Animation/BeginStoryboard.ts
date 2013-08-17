@@ -14,5 +14,9 @@ module Fayde.Media.Animation {
             if (sb) sb.Begin();
         }
     }
-    Nullstone.RegisterType(BeginStoryboard, "BeginStoryboard");
+    Fayde.RegisterType(BeginStoryboard, {
+    	Name: "BeginStoryboard",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

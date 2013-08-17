@@ -135,5 +135,9 @@ module Fayde.Shapes {
             lu.Invalidate();
         }
     }
-    Nullstone.RegisterType(Rectangle, "Rectangle");
+    Fayde.RegisterType(Rectangle, {
+    	Name: "Rectangle",
+    	Namespace: "Fayde.Shapes",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

@@ -59,7 +59,10 @@ module Fayde.Controls {
             return true;
         }
     }
-    Nullstone.RegisterType(ItemsPresenterNode, "ItemsPresenterNode");
+    Fayde.RegisterType(ItemsPresenterNode, {
+    	Name: "ItemsPresenterNode",
+    	Namespace: "Fayde.Controls"
+    });
 
     export class ItemsPresenter extends FrameworkElement {
         TemplateOwner: ItemsControl;
@@ -68,5 +71,9 @@ module Fayde.Controls {
 
         get ElementRoot(): Panel { return this.XamlNode.ElementRoot; }
     }
-    Nullstone.RegisterType(ItemsPresenter, "ItemsPresenter");
+    Fayde.RegisterType(ItemsPresenter, {
+    	Name: "ItemsPresenter",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

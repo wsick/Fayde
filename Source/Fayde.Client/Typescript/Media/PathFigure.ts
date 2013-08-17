@@ -67,7 +67,11 @@ module Fayde.Media {
             Shapes.RawPath.Merge(rp, this._Path);
         }
     }
-    Nullstone.RegisterType(PathFigure, "PathFigure");
+    Fayde.RegisterType(PathFigure, {
+    	Name: "PathFigure",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class PathFigureCollection extends XamlObjectCollection<PathFigure> implements IPathFigureListener {
         private _Listener: IPathFigureListener;
@@ -95,5 +99,9 @@ module Fayde.Media {
             if (listener) listener.PathFigureChanged(newPathFigure);
         }
     }
-    Nullstone.RegisterType(PathFigureCollection, "PathFigureCollection");
+    Fayde.RegisterType(PathFigureCollection, {
+    	Name: "PathFigureCollection",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

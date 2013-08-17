@@ -29,5 +29,9 @@ module Fayde.Media.Effects {
             if (listener) listener.EffectChanged(this);
         }
     }
-    Nullstone.RegisterType(Effect, "Effect");
+    Fayde.RegisterType(Effect, {
+    	Name: "Effect",
+    	Namespace: "Fayde.Media.Effects",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

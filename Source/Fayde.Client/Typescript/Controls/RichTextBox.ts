@@ -5,11 +5,18 @@
 module Fayde.Controls {
     export class _RichTextBoxView {
     }
-    Nullstone.RegisterType(_RichTextBoxView, "_RichTextBoxView");
+    Fayde.RegisterType(_RichTextBoxView, {
+    	Name: "_RichTextBoxView",
+    	Namespace: "Fayde.Controls"
+    });
 
     export class RichTextBox extends Control {
         HorizontalScrollBarVisibility: ScrollBarVisibility;
         TextWrapping: TextWrapping;
     }
-    Nullstone.RegisterType(RichTextBox, "RichTextBox");
+    Fayde.RegisterType(RichTextBox, {
+    	Name: "RichTextBox",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

@@ -16,5 +16,9 @@ module Fayde.Documents {
             return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);
         }
     }
-    Nullstone.RegisterType(Run, "Run");
+    Fayde.RegisterType(Run, {
+    	Name: "Run",
+    	Namespace: "Fayde.Documents",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

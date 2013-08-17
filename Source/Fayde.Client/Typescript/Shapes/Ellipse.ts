@@ -103,5 +103,9 @@ module Fayde.Shapes {
             return r;
         }
     }
-    Nullstone.RegisterType(Ellipse, "Ellipse");
+    Fayde.RegisterType(Ellipse, {
+    	Name: "Ellipse",
+    	Namespace: "Fayde.Shapes",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

@@ -8,5 +8,8 @@ module Fayde {
         }
         toString(): string { return "DeferredValueExpression"; }
     }
-    Nullstone.RegisterType(DeferredValueExpression, "DeferredValueExpression");
+    Fayde.RegisterType(DeferredValueExpression, {
+    	Name: "DeferredValueExpression",
+    	Namespace: "Fayde"
+    });
 }

@@ -91,5 +91,9 @@ module Fayde.Controls {
             }
         }
     }
-    Nullstone.RegisterType(RadioButton, "RadioButton");
+    Fayde.RegisterType(RadioButton, {
+    	Name: "RadioButton",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

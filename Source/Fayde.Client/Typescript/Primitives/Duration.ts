@@ -39,4 +39,8 @@ class Duration implements ICloneable {
     static Automatic: Duration = (function () { var d = new Duration(); (<any>d)._Type = DurationType.Automatic; return d; })();
     static Forever: Duration = (function () { var d = new Duration(); (<any>d)._Type = DurationType.Forever; return d; })();
 }
-Nullstone.RegisterType(Duration, "Duration");
+Fayde.RegisterType(Duration, {
+	Name: "Duration",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});

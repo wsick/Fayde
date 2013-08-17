@@ -81,7 +81,11 @@ module Fayde.Controls {
             this.XamlNode.LayoutUpdater.Invalidate();
         }
     }
-    Nullstone.RegisterType(PasswordBox, "PasswordBox");
+    Fayde.RegisterType(PasswordBox, {
+    	Name: "PasswordBox",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
     
     function positiveIntValidator(dobj: DependencyObject, propd: DependencyProperty, value: any): boolean {
         if (typeof value !== 'number')

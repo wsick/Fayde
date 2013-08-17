@@ -166,7 +166,10 @@ module Fayde.Controls.Primitives {
             this._Surface.AttachLayer(child);
         }
     }
-    Nullstone.RegisterType(PopupNode, "PopupNode");
+    Fayde.RegisterType(PopupNode, {
+    	Name: "PopupNode",
+    	Namespace: "Fayde.Controls.Primitives"
+    });
 
     export class Popup extends FrameworkElement {
         XamlNode: PopupNode;
@@ -204,5 +207,9 @@ module Fayde.Controls.Primitives {
             }
         }
     }
-    Nullstone.RegisterType(Popup, "Popup");
+    Fayde.RegisterType(Popup, {
+    	Name: "Popup",
+    	Namespace: "Fayde.Controls.Primitives",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

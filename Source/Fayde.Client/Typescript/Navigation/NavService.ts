@@ -1,17 +1,17 @@
 /// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
-/// <reference path="../Engine/App.ts" />
+/// <reference path="../Engine/Application.ts" />
 /// <reference path="../Runtime/MulticastEvent.ts" />
 /// <reference path="../Runtime/EventArgs.ts" />
 
 module Fayde.Navigation {
     export class NavService {
-        App: App;
+        App: Application;
         Href: string;
         Hash: string;
         LocationChanged: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
 
-        constructor(app: App) {
+        constructor(app: Application) {
             this.App = app;
             this.Href = window.location.href;
             this.Hash = window.location.hash;
@@ -31,5 +31,9 @@ module Fayde.Navigation {
             this.LocationChanged.Raise(this, EventArgs.Empty);
         }
     }
-    Nullstone.RegisterType(NavService, "NavService");
+    Fayde.RegisterType(NavService, {
+    	Name: "NavService",
+    	Namespace: "Fayde.Navigation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

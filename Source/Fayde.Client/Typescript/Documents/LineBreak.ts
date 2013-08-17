@@ -4,5 +4,9 @@
 module Fayde.Documents {
     export class LineBreak extends Inline {
     }
-    Nullstone.RegisterType(LineBreak, "LineBreak");
+    Fayde.RegisterType(LineBreak, {
+    	Name: "LineBreak",
+    	Namespace: "Fayde.Documents",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

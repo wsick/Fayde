@@ -8,5 +8,9 @@ module Fayde.Controls {
             this.DefaultStyleKey = (<any>this).constructor;
         }
     }
-    Nullstone.RegisterType(CheckBox, "CheckBox");
+    Fayde.RegisterType(CheckBox, {
+    	Name: "CheckBox",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

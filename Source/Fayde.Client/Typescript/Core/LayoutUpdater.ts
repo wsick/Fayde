@@ -1370,5 +1370,8 @@ module Fayde {
                 ctx.ClipRect(composite);
         }
     }
-    Nullstone.RegisterType(LayoutUpdater, "LayoutUpdater");
+    Fayde.RegisterType(LayoutUpdater, {
+    	Name: "LayoutUpdater",
+    	Namespace: "Fayde"
+    });
 }

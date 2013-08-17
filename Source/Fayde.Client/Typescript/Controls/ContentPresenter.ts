@@ -86,7 +86,10 @@ module Fayde.Controls {
             this.LayoutUpdater.InvalidateMeasure();
         }
     }
-    Nullstone.RegisterType(ContentPresenterNode, "ContentPresenterNode");
+    Fayde.RegisterType(ContentPresenterNode, {
+    	Name: "ContentPresenterNode",
+    	Namespace: "Fayde.Controls"
+    });
 
     export class ContentPresenter extends FrameworkElement {
         //XamlNode: ContentPresenterNode;
@@ -99,5 +102,9 @@ module Fayde.Controls {
 
         static Annotations = { ContentProperty: ContentPresenter.ContentProperty }
     }
-    Nullstone.RegisterType(ContentPresenter, "ContentPresenter");
+    Fayde.RegisterType(ContentPresenter, {
+    	Name: "ContentPresenter",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

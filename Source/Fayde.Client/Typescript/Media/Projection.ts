@@ -55,5 +55,9 @@ module Fayde.Media {
             }
         }
     }
-    Nullstone.RegisterType(Projection, "Projection");
+    Fayde.RegisterType(Projection, {
+    	Name: "Projection",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

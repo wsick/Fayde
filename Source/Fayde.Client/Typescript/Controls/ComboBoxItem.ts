@@ -15,5 +15,9 @@ module Fayde.Controls {
                 (<ComboBox>this.ParentSelector).IsDropDownOpen = false;
         }
     }
-    Nullstone.RegisterType(ComboBoxItem, "ComboBoxItem");
+    Fayde.RegisterType(ComboBoxItem, {
+    	Name: "ComboBoxItem",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

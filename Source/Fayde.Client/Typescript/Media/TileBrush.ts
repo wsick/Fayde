@@ -89,5 +89,9 @@ module Fayde.Media {
         GetTileExtents(): rect { return undefined; }
         DrawTile(canvasCtx: CanvasRenderingContext2D, bounds: rect) { }
     }
-    Nullstone.RegisterType(TileBrush, "TileBrush");
+    Fayde.RegisterType(TileBrush, {
+    	Name: "TileBrush",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

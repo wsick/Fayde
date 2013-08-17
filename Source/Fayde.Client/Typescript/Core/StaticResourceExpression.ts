@@ -55,7 +55,7 @@ module Fayde {
                 curNode = curNode.ParentNode;
             }
 
-            return App.Current.Resources.Get(key);
+            return Application.Current.Resources.Get(key);
         }
         Resolve(parser: JsonParser) {
             var isAttached = false;
@@ -69,5 +69,9 @@ module Fayde {
             parser.TrySetPropertyValue(this._Target, propd, value, null, isAttached, ownerType, this._PropertyName);
         }
     }
-    Nullstone.RegisterType(StaticResourceExpression, "StaticResourceExpression");
+    Fayde.RegisterType(StaticResourceExpression, {
+    	Name: "StaticResourceExpression",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

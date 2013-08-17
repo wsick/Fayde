@@ -42,7 +42,11 @@ module Fayde {
             return true;
         }
     }
-    Nullstone.RegisterType(ResourceDictionaryCollection, "ResourceDictionaryCollection");
+    Fayde.RegisterType(ResourceDictionaryCollection, {
+    	Name: "ResourceDictionaryCollection",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class ResourceDictionary extends XamlObjectCollection<XamlObject> {
         private _KeyIndex: number[] = [];
@@ -114,5 +118,9 @@ module Fayde {
             return undefined;
         }
     }
-    Nullstone.RegisterType(ResourceDictionary, "ResourceDictionary");
+    Fayde.RegisterType(ResourceDictionary, {
+    	Name: "ResourceDictionary",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

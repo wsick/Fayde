@@ -22,5 +22,8 @@ module Fayde {
             return JsonParser.Parse(this._Json, this._TemplateBindingSource, this._Namescope, this._ResChain);
         }
     }
-    Nullstone.RegisterType(ResourceTarget, "ResourceTarget");
+    Fayde.RegisterType(ResourceTarget, {
+    	Name: "ResourceTarget",
+    	Namespace: "Fayde"
+    });
 }

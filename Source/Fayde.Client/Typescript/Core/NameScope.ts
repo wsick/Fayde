@@ -34,5 +34,8 @@ module Fayde {
             }
         }
     }
-    Nullstone.RegisterType(NameScope, "NameScope");
+    Fayde.RegisterType(NameScope, {
+    	Name: "NameScope",
+    	Namespace: "Fayde"
+    });
 }

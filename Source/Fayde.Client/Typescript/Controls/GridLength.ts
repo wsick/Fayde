@@ -22,5 +22,9 @@ module Fayde.Controls {
             return new Controls.GridLength(this.Value, this.Type);
         }
     }
-    Nullstone.RegisterType(GridLength, "GridLength");
+    Fayde.RegisterType(GridLength, {
+    	Name: "GridLength",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

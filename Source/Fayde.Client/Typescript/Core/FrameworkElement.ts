@@ -150,7 +150,10 @@ module Fayde {
             this._SizeChanged(args);
         }
     }
-    Nullstone.RegisterType(FENode, "FENode");
+    Fayde.RegisterType(FENode, {
+    	Name: "FENode",
+    	Namespace: "Fayde"
+    });
 
     export class FrameworkElement extends UIElement implements IResourcable, IMeasurableHidden, IArrangeableHidden, Providers.IIsPropertyInheritable {
         DefaultStyleKey: any;
@@ -263,7 +266,11 @@ module Fayde {
             this.XamlNode._SizeChanged(args);
         }
     }
-    Nullstone.RegisterType(FrameworkElement, "FrameworkElement");
+    Fayde.RegisterType(FrameworkElement, {
+    	Name: "FrameworkElement",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     FrameworkElement.ActualWidthProperty.Store = Providers.ActualSizeStore.Instance;
     FrameworkElement.ActualHeightProperty.Store = Providers.ActualSizeStore.Instance;

@@ -7,6 +7,10 @@ module Fayde.Media.Animation {
         private _AnimStorage: IAnimationStorage;
         private _IsHolding: boolean = false;
 
+        constructor() {
+            super();
+        }
+
         Resolve(target: DependencyObject, propd: DependencyProperty) { return true; }
 
         HoldEnd() { this._IsHolding = true; }
@@ -71,5 +75,9 @@ module Fayde.Media.Animation {
             return true;
         }
     }
-    Nullstone.RegisterType(AnimationBase, "AnimationBase");
+    Fayde.RegisterType(AnimationBase, {
+    	Name: "AnimationBase",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

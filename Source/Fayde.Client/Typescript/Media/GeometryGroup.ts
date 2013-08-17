@@ -40,5 +40,9 @@ module Fayde.Media {
 
         GeometryChanged(newGeometry: Geometry) { this._InvalidateGeometry(); }
     }
-    Nullstone.RegisterType(GeometryGroup, "GeometryGroup");
+    Fayde.RegisterType(GeometryGroup, {
+    	Name: "GeometryGroup",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

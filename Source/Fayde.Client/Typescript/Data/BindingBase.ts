@@ -33,5 +33,9 @@ module Fayde.Data {
 
         Seal() { this._IsSealed = true; }
     }
-    Nullstone.RegisterType(BindingBase, "BindingBase");
+    Fayde.RegisterType(BindingBase, {
+    	Name: "BindingBase",
+    	Namespace: "Fayde.Data",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

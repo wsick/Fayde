@@ -55,5 +55,9 @@ module Fayde.Input {
             return (Keyboard.Modifiers & ModifierKeys.Shift) === ModifierKeys.Shift;
         }
     }
-    Nullstone.RegisterType(Keyboard, "Keyboard");
+    Fayde.RegisterType(Keyboard, {
+    	Name: "Keyboard",
+    	Namespace: "Fayde.Input",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

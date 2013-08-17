@@ -5,4 +5,7 @@ class Enum implements IType {
     constructor(public Object: any) {
     }
 }
-Nullstone.RegisterType(Enum, "Enum");
+Fayde.RegisterType(Enum, {
+	Name: "Enum",
+	Namespace: "Fayde"
+});

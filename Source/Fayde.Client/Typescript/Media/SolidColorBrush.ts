@@ -26,5 +26,9 @@ module Fayde.Media {
             return color.toString();
         }
     }
-    Nullstone.RegisterType(SolidColorBrush, "SolidColorBrush");
+    Fayde.RegisterType(SolidColorBrush, {
+    	Name: "SolidColorBrush",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

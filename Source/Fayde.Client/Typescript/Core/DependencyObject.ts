@@ -46,7 +46,10 @@ module Fayde {
             }
         }
     }
-    Nullstone.RegisterType(DONode, "DONode");
+    Fayde.RegisterType(DONode, {
+    	Name: "DONode",
+    	Namespace: "Fayde"
+    });
     
     export class DependencyObject extends XamlObject implements ICloneable, Providers.IPropertyStorageOwner {
         private _Expressions: Expression[] = [];
@@ -201,7 +204,11 @@ module Fayde {
             }
         }
     }
-    Nullstone.RegisterType(DependencyObject, "DependencyObject");
+    Fayde.RegisterType(DependencyObject, {
+    	Name: "DependencyObject",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     DependencyObject.DataContextProperty.Store = Fayde.Providers.DataContextStore.Instance;
 }

@@ -79,5 +79,9 @@ module Fayde.Media {
             return "LinearGradientBrush(" + this.StartPoint.toString() + " --> " + this.EndPoint.toString() + " [" + ser.toString() + "])";
         }
     }
-    Nullstone.RegisterType(LinearGradientBrush, "LinearGradientBrush");
+    Fayde.RegisterType(LinearGradientBrush, {
+    	Name: "LinearGradientBrush",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

@@ -116,5 +116,9 @@ module Fayde.Controls.Primitives {
             }
         }
     }
-    Nullstone.RegisterType(Thumb, "Thumb");
+    Fayde.RegisterType(Thumb, {
+    	Name: "Thumb",
+    	Namespace: "Fayde.Controls.Primitives",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

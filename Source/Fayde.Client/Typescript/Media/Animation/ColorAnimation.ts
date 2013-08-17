@@ -19,6 +19,10 @@ module Fayde.Media.Animation {
         private _ByCached: Color = null;
         private _EasingCached: EasingFunctionBase = undefined;
 
+        constructor(){
+            super();
+        }
+
         GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): Color {
             var start = new Color();
             if (this._FromCached)
@@ -54,5 +58,9 @@ module Fayde.Media.Animation {
             this._EasingCached = args.NewValue;
         }
     }
-    Nullstone.RegisterType(ColorAnimation, "ColorAnimation");
+    Fayde.RegisterType(ColorAnimation, {
+    	Name: "ColorAnimation",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

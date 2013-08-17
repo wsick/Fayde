@@ -115,5 +115,9 @@ module Fayde.Data {
         }
 
     }
-    Nullstone.RegisterType(Binding, "Binding");
+    Fayde.RegisterType(Binding, {
+    	Name: "Binding",
+    	Namespace: "Fayde.Data",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

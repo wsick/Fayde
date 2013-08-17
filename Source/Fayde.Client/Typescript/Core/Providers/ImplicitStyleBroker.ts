@@ -143,13 +143,13 @@ module Fayde.Providers {
                     if (!genericXamlStyle) {
                         var styleKey = fe.DefaultStyleKey;
                         if (styleKey)
-                            genericXamlStyle = App.Current.GetImplicitStyle(styleKey);
+                            genericXamlStyle = Application.Current.GetImplicitStyle(styleKey);
                     }
                 }
             }
 
             var appResourcesStyle: Style = undefined;
-            var rd = App.Current.Resources;
+            var rd = Application.Current.Resources;
             if ((mask & StyleMask.ApplicationResources) != 0) {
                 appResourcesStyle = <Style>rd.Get(feType);
                 if (!appResourcesStyle)

@@ -264,7 +264,10 @@ module Fayde.Controls {
             lu.Invalidate();
         }
     }
-    Nullstone.RegisterType(TextBlockNode, "TextBlockNode");
+    Fayde.RegisterType(TextBlockNode, {
+    	Name: "TextBlockNode",
+    	Namespace: "Fayde.Controls"
+    });
 
     export class TextBlock extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable, IFontChangeable {
         XamlNode: TextBlockNode;
@@ -369,7 +372,11 @@ module Fayde.Controls {
             return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);
         }
     }
-    Nullstone.RegisterType(TextBlock, "TextBlock");
+    Fayde.RegisterType(TextBlock, {
+    	Name: "TextBlock",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     var TextBlockInheritedProps = [
         TextBlock.FontFamilyProperty,

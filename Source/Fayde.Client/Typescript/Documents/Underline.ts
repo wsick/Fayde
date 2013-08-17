@@ -4,5 +4,9 @@
 module Fayde.Documents {
     export class Underline extends Span {
     }
-    Nullstone.RegisterType(Underline, "Underline");
+    Fayde.RegisterType(Underline, {
+    	Name: "Underline",
+    	Namespace: "Fayde.Documents",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

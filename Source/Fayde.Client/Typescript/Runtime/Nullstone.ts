@@ -21,14 +21,6 @@ interface IJsFilesImportToken {
 }
 
 class Nullstone {
-    static RegisterType(type: any, name: string, interfaces?: IInterfaceDeclaration[]): ITypeRegistration {
-        var t: any = type;
-        t._TypeName = name;
-        t._BaseClass = Object.getPrototypeOf(type.prototype).constructor;
-        t._Interfaces = interfaces;
-        return t;
-    }
-
     static Equals(val1: any, val2: any): boolean {
         if (val1 == null && val2 == null)
             return true;

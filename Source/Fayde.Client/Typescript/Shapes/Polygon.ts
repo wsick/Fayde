@@ -59,7 +59,11 @@ module Fayde.Shapes {
             this.XamlNode.LayoutUpdater.Invalidate();
         }
     }
-    Nullstone.RegisterType(Polygon, "Polygon");
+    Fayde.RegisterType(Polygon, {
+    	Name: "Polygon",
+    	Namespace: "Fayde.Shapes",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     function extendLine(p1: Point, p2: Point, thickness: number) {
         var t5 = thickness * 5.0;

@@ -988,5 +988,8 @@ module Fayde.Controls {
             return true;
         }
     }
-    Nullstone.RegisterType(TextBoxBase, "TextBoxBase");
+    Fayde.RegisterType(TextBoxBase, {
+    	Name: "TextBoxBase",
+    	Namespace: "Fayde.Controls"
+    });
 }

@@ -52,7 +52,10 @@ module Fayde.Controls {
             }
         }
     }
-    Nullstone.RegisterType(PanelChildrenNode, "PanelChildrenNode");
+    Fayde.RegisterType(PanelChildrenNode, {
+    	Name: "PanelChildrenNode",
+    	Namespace: "Fayde.Controls"
+    });
 
     class PanelChildrenCollection extends XamlObjectCollection<UIElement> {
         XamlNode: PanelChildrenNode;
@@ -71,7 +74,10 @@ module Fayde.Controls {
             super.RemovedFromCollection(value, isValueSafe);
         }
     }
-    Nullstone.RegisterType(PanelChildrenCollection, "PanelChildrenCollection");
+    Fayde.RegisterType(PanelChildrenCollection, {
+    	Name: "PanelChildrenCollection",
+    	Namespace: "Fayde.Controls"
+    });
 
     export class PanelNode extends FENode implements IBoundsComputable, IPostInsideObject {
         XObject: Panel;
@@ -138,7 +144,10 @@ module Fayde.Controls {
             return this.XObject.Children.XamlNode.GetVisualTreeEnumerator(direction);
         }
     }
-    Nullstone.RegisterType(PanelNode, "PanelNode");
+    Fayde.RegisterType(PanelNode, {
+    	Name: "PanelNode",
+    	Namespace: "Fayde.Controls"
+    });
 
     function zIndexPropertyChanged(dobj: DependencyObject, args) {
         var xn = dobj.XamlNode;
@@ -213,5 +222,9 @@ module Fayde.Controls {
             ctx.Restore();
         }
     }
-    Nullstone.RegisterType(Panel, "Panel");
+    Fayde.RegisterType(Panel, {
+    	Name: "Panel",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

@@ -21,14 +21,22 @@ module Fayde.Input {
             return p;
         }
     }
-    Nullstone.RegisterType(MouseEventArgs, "MouseEventArgs");
+    Fayde.RegisterType(MouseEventArgs, {
+    	Name: "MouseEventArgs",
+    	Namespace: "Fayde.Input",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class MouseButtonEventArgs extends MouseEventArgs {
         constructor(absolutePos: Point) {
             super(absolutePos);
         }
     }
-    Nullstone.RegisterType(MouseButtonEventArgs, "MouseButtonEventArgs");
+    Fayde.RegisterType(MouseButtonEventArgs, {
+    	Name: "MouseButtonEventArgs",
+    	Namespace: "Fayde.Input",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class MouseWheelEventArgs extends MouseEventArgs {
         Delta: number;
@@ -37,5 +45,9 @@ module Fayde.Input {
             Object.defineProperty(this, "Delta", { value: delta, writable: false });
         }
     }
-    Nullstone.RegisterType(MouseWheelEventArgs, "MouseWheelEventArgs");
+    Fayde.RegisterType(MouseWheelEventArgs, {
+    	Name: "MouseWheelEventArgs",
+    	Namespace: "Fayde.Input",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

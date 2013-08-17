@@ -5,5 +5,9 @@ module Fayde.Media.Animation {
     export class ColorAnimationUsingKeyFrames extends AnimationUsingKeyFrames {
         static Annotations = { ContentProperty: AnimationUsingKeyFrames.KeyFramesProperty };
     }
-    Nullstone.RegisterType(ColorAnimationUsingKeyFrames, "ColorAnimationUsingKeyFrames");
+    Fayde.RegisterType(ColorAnimationUsingKeyFrames, {
+    	Name: "ColorAnimationUsingKeyFrames",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

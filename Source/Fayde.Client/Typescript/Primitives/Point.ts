@@ -37,4 +37,8 @@ class Point implements ICloneable, IPoint {
         return new Point(x, y);
     }
 }
-Nullstone.RegisterType(Point, "Point");
+Fayde.RegisterType(Point, {
+	Name: "Point",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});

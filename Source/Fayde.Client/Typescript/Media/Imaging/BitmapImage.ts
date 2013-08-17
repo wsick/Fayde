@@ -33,5 +33,9 @@ module Fayde.Media.Imaging {
             this.ImageOpened.Raise(this, EventArgs.Empty);
         }
     }
-    Nullstone.RegisterType(BitmapImage, "BitmapImage");
+    Fayde.RegisterType(BitmapImage, {
+    	Name: "BitmapImage",
+    	Namespace: "Fayde.Media.Imaging",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

@@ -26,4 +26,8 @@ class Uri implements ICloneable {
         return true;
     }
 }
-Nullstone.RegisterType(Uri, "Uri");
+Fayde.RegisterType(Uri, {
+	Name: "Uri",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});

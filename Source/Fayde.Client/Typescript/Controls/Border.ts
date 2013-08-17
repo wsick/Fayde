@@ -9,7 +9,10 @@ module Fayde.Controls {
             this.LayoutUpdater.SetContainerMode(true);
         }
     }
-    Nullstone.RegisterType(BorderNode, "BorderNode");
+    Fayde.RegisterType(BorderNode, {
+    	Name: "BorderNode",
+    	Namespace: "Fayde.Controls"
+    });
 
     export class Border extends FrameworkElement {
         XamlNode: BorderNode;
@@ -238,5 +241,9 @@ module Fayde.Controls {
                 ctx.Fill(backgroundBrush, innerExtents);
         }
     }
-    Nullstone.RegisterType(Border, "Border");
+    Fayde.RegisterType(Border, {
+    	Name: "Border",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

@@ -31,4 +31,7 @@ class BError {
         throw ex;
     }
 }
-Nullstone.RegisterType(BError, "BError");
+Fayde.RegisterType(BError, {
+	Name: "BError",
+	Namespace: "Fayde"
+});

@@ -89,5 +89,9 @@ module Fayde {
             return true;
         }
     }
-    Nullstone.RegisterType(Style, "Style");
+    Fayde.RegisterType(Style, {
+    	Name: "Style",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

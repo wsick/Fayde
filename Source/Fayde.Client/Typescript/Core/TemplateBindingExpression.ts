@@ -94,5 +94,9 @@ module Fayde {
             }
         }
     }
-    Nullstone.RegisterType(TemplateBindingExpression, "TemplateBindingExpression");
+    Fayde.RegisterType(TemplateBindingExpression, {
+    	Name: "TemplateBindingExpression",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

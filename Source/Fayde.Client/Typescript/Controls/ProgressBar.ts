@@ -82,5 +82,9 @@ module Fayde.Controls {
             return this.IsIndeterminate ? ["Indeterminate"] : ["Determinate"];
         }
     }
-    Nullstone.RegisterType(ProgressBar, "ProgressBar");
+    Fayde.RegisterType(ProgressBar, {
+    	Name: "ProgressBar",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

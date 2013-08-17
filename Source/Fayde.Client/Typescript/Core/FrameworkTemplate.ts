@@ -5,5 +5,8 @@ module Fayde {
     export class FrameworkTemplate {
         ResChain: ResourceDictionary[] = null;
     }
-    Nullstone.RegisterType(FrameworkTemplate, "FrameworkTemplate");
+    Fayde.RegisterType(FrameworkTemplate, {
+    	Name: "FrameworkTemplate",
+    	Namespace: "Fayde"
+    });
 }

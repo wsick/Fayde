@@ -267,7 +267,12 @@ module Fayde.Controls {
             return r;
         }
     }
-    Nullstone.RegisterType(ScrollContentPresenter, "ScrollContentPresenter", [Primitives.IScrollInfo_]);
+    Fayde.RegisterType(ScrollContentPresenter, {
+        Name: "ScrollContentPresenter",
+        Namespace: "Fayde.Controls",
+        XmlNamespace: Fayde.XMLNS,
+        Interfaces: [Primitives.IScrollInfo_]
+    });
     
     function validateInputOffset(offset: number) {
         if (!isNaN(offset))

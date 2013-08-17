@@ -54,5 +54,4 @@ module Fayde {
             requestAnimFrame(() => this._DoTick());
         }
     }
-    Nullstone.RegisterType(ClockTimer, "ClockTimer");
 }

@@ -10,7 +10,11 @@ module Fayde.Media.Animation {
             return (t * t * t) - (t * a * Math.sin(t * Math.PI));
         }
     }
-    Nullstone.RegisterType(BackEase, "BackEase");
+    Fayde.RegisterType(BackEase, {
+    	Name: "BackEase",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class BounceEase extends EasingFunctionBase {
         static BouncesProperty:DependencyProperty = DependencyProperty.Register("Bounces", () => Number, BounceEase, 3);
@@ -42,21 +46,33 @@ module Fayde.Media.Animation {
             return -val;
         }
     }
-    Nullstone.RegisterType(BounceEase, "BounceEase");
+    Fayde.RegisterType(BounceEase, {
+    	Name: "BounceEase",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class CircleEase extends EasingFunctionBase {
         EaseInCore(t: number): number {
             return 1 - Math.sqrt(1 - (t * t));
         }
     }
-    Nullstone.RegisterType(CircleEase, "CircleEase");
+    Fayde.RegisterType(CircleEase, {
+    	Name: "CircleEase",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class CubicEase extends EasingFunctionBase {
         EaseInCore(t: number): number {
             return t * t * t;
         }
     }
-    Nullstone.RegisterType(CubicEase, "CubicEase");
+    Fayde.RegisterType(CubicEase, {
+    	Name: "CubicEase",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class ElasticEase extends EasingFunctionBase {
         static OscillationsProperty: DependencyProperty = DependencyProperty.Register("Oscillations", () => Number, ElasticEase);
@@ -70,7 +86,11 @@ module Fayde.Media.Animation {
             return t * -Math.pow(2.0, this.Springiness * t) * Math.sin(((t - offset) * Math.PI * 2) / period);
         }
     }
-    Nullstone.RegisterType(ElasticEase, "ElasticEase");
+    Fayde.RegisterType(ElasticEase, {
+    	Name: "ElasticEase",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class ExponentialEase extends EasingFunctionBase {
         static ExponentProperty: DependencyProperty = DependencyProperty.Register("Exponent", () => Number, ExponentialEase);
@@ -80,7 +100,11 @@ module Fayde.Media.Animation {
             return (Math.exp(e * t) - 1) / (Math.exp(e) - 1);
         }
     }
-    Nullstone.RegisterType(ExponentialEase, "ExponentialEase");
+    Fayde.RegisterType(ExponentialEase, {
+    	Name: "ExponentialEase",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class PowerEase extends EasingFunctionBase {
         static PowerProperty: DependencyProperty = DependencyProperty.Register("Power", () => Number, PowerEase);
@@ -89,33 +113,53 @@ module Fayde.Media.Animation {
             return Math.pow(t, this.Power);
         }
     }
-    Nullstone.RegisterType(PowerEase, "PowerEase");
+    Fayde.RegisterType(PowerEase, {
+    	Name: "PowerEase",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class QuadraticEase extends EasingFunctionBase {
         EaseInCore(t: number): number {
             return t * t;
         }
     }
-    Nullstone.RegisterType(QuadraticEase, "QuadraticEase");
+    Fayde.RegisterType(QuadraticEase, {
+    	Name: "QuadraticEase",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class QuarticEase extends EasingFunctionBase {
         EaseInCore(t: number): number {
             return t * t * t * t;
         }
     }
-    Nullstone.RegisterType(QuarticEase, "QuarticEase");
+    Fayde.RegisterType(QuarticEase, {
+    	Name: "QuarticEase",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class QuinticEase extends EasingFunctionBase {
         EaseInCore(t: number): number {
             return t * t * t * t * t;
         }
     }
-    Nullstone.RegisterType(QuinticEase, "QuinticEase");
+    Fayde.RegisterType(QuinticEase, {
+    	Name: "QuinticEase",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class SineEase extends EasingFunctionBase {
         EaseInCore(t: number): number {
             return 1 - (Math.sin(1 - t) * (Math.PI / 2));
         }
     }
-    Nullstone.RegisterType(SineEase, "SineEase");
+    Fayde.RegisterType(SineEase, {
+    	Name: "SineEase",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

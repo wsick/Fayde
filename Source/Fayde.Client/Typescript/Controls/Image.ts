@@ -142,7 +142,10 @@ module Fayde.Controls {
             return rect.containsPoint(irect, np);
         }
     }
-    Nullstone.RegisterType(ImageNode, "ImageNode");
+    Fayde.RegisterType(ImageNode, {
+    	Name: "ImageNode",
+    	Namespace: "Fayde.Controls"
+    });
 
     export class Image extends FrameworkElement implements IActualSizeComputable, IMeasurableHidden, IArrangeableHidden, IRenderable, Media.Imaging.IImageChangedListener {
         XamlNode: ImageNode;
@@ -321,5 +324,9 @@ module Fayde.Controls {
             lu.Invalidate();
         }
     }
-    Nullstone.RegisterType(Image, "Image");
+    Fayde.RegisterType(Image, {
+    	Name: "Image",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

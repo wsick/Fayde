@@ -42,7 +42,11 @@ module Fayde {
             return true;
         }
     }
-    Nullstone.RegisterType(SetterCollection, "SetterCollection");
+    Fayde.RegisterType(SetterCollection, {
+    	Name: "SetterCollection",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class Setter extends DependencyObject {
         private _IsSealed: boolean = false;
@@ -71,5 +75,9 @@ module Fayde {
             this._IsSealed = true;
         }
     }
-    Nullstone.RegisterType(Setter, "Setter");
+    Fayde.RegisterType(Setter, {
+    	Name: "Setter",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

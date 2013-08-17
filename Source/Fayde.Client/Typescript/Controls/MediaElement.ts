@@ -13,7 +13,10 @@ module Fayde.Controls {
             return false;
         }
     }
-    Nullstone.RegisterType(MENode, "MENode");
+    Fayde.RegisterType(MENode, {
+    	Name: "MENode",
+    	Namespace: "Fayde.Controls"
+    });
 
     export class MediaElement extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden {
         XamlNode: MENode;
@@ -28,5 +31,9 @@ module Fayde.Controls {
             return finalSize;
         }
     }
-    Nullstone.RegisterType(MediaElement, "MediaElement");
+    Fayde.RegisterType(MediaElement, {
+    	Name: "MediaElement",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

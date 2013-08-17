@@ -9,5 +9,4 @@ module Fayde {
             //Abstract Method
         }
     }
-    Nullstone.RegisterType(Markup, "Markup");
 }

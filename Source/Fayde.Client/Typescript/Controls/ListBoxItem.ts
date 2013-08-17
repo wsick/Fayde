@@ -85,5 +85,9 @@ module Fayde.Controls {
             this.UpdateVisualState();
         }
     }
-    Nullstone.RegisterType(ListBoxItem, "ListBoxItem");
+    Fayde.RegisterType(ListBoxItem, {
+    	Name: "ListBoxItem",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

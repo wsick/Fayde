@@ -5,5 +5,9 @@
 module Fayde {
     export class RoutedEvent<T extends RoutedEventArgs> extends MulticastEvent<T> {
     }
-    Nullstone.RegisterType(RoutedEvent, "RoutedEvent");
+    Fayde.RegisterType(RoutedEvent, {
+    	Name: "RoutedEvent",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

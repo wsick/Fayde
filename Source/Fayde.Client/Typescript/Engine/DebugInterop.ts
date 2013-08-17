@@ -1,4 +1,4 @@
-/// <reference path="App.ts" />
+/// <reference path="Application.ts" />
 /// CODE
 
 module Fayde {
@@ -17,10 +17,10 @@ module Fayde {
         private _DPCache: DependencyProperty[];
         LastFrameTime: Date;
         NumFrames: number = 0;
-        App: App;
+        App: Application;
         Surface: Surface;
         
-        constructor(app: App) {
+        constructor(app: Application) {
             this.App = app;
             this.Surface = app.MainSurface;
             this.RegisterHitTestDebugService();

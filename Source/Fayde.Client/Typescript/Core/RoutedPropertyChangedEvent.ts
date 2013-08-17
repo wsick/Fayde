@@ -4,7 +4,11 @@
 module Fayde {
     export class RoutedPropertyChangedEvent<T> extends RoutedEvent<RoutedPropertyChangedEventArgs<T>> {
     }
-    Nullstone.RegisterType(RoutedPropertyChangedEvent, "RoutedPropertyChangedEvent");
+    Fayde.RegisterType(RoutedPropertyChangedEvent, {
+    	Name: "RoutedPropertyChangedEvent",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class RoutedPropertyChangedEventArgs<T> extends RoutedEventArgs {
         OldValue: T;
@@ -15,5 +19,9 @@ module Fayde {
             Object.defineProperty(this, "NewValue", { value: newValue, writable: false });
         }
     }
-    Nullstone.RegisterType(RoutedPropertyChangedEventArgs, "RoutedPropertyChangedEventArgs");
+    Fayde.RegisterType(RoutedPropertyChangedEventArgs, {
+    	Name: "RoutedPropertyChangedEventArgs",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

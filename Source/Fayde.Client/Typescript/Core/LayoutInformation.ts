@@ -21,5 +21,9 @@ module Fayde {
             return uie.XamlNode.LayoutUpdater.LayoutSlot;
         }
     }
-    Nullstone.RegisterType(LayoutInformation, "LayoutInformation");
+    Fayde.RegisterType(LayoutInformation, {
+    	Name: "LayoutInformation",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

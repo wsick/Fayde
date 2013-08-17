@@ -10,5 +10,9 @@ module Fayde.Media.Imaging {
         Unlock() { }
         get Image(): HTMLImageElement { return undefined; }
     }
-    Nullstone.RegisterType(ImageSource, "ImageSource");
+    Fayde.RegisterType(ImageSource, {
+    	Name: "ImageSource",
+    	Namespace: "Fayde.Media.Imaging",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

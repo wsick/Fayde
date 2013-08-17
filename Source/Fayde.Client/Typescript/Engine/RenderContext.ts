@@ -182,5 +182,4 @@ module Fayde {
             //TransformDebug("Translate", ct);
         }
     }
-    Nullstone.RegisterType(RenderContext, "RenderContext");
 }

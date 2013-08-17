@@ -16,7 +16,11 @@ var Fayde;
         return RoutedPropertyChangedEvent;
     })(Fayde.RoutedEvent);
     Fayde.RoutedPropertyChangedEvent = RoutedPropertyChangedEvent;
-    Nullstone.RegisterType(RoutedPropertyChangedEvent, "RoutedPropertyChangedEvent");
+    Fayde.RegisterType(RoutedPropertyChangedEvent, {
+        Name: "RoutedPropertyChangedEvent",
+        Namespace: "Fayde",
+        XmlNamespace: Fayde.XMLNS
+    });
 
     var RoutedPropertyChangedEventArgs = (function (_super) {
         __extends(RoutedPropertyChangedEventArgs, _super);
@@ -28,6 +32,10 @@ var Fayde;
         return RoutedPropertyChangedEventArgs;
     })(Fayde.RoutedEventArgs);
     Fayde.RoutedPropertyChangedEventArgs = RoutedPropertyChangedEventArgs;
-    Nullstone.RegisterType(RoutedPropertyChangedEventArgs, "RoutedPropertyChangedEventArgs");
+    Fayde.RegisterType(RoutedPropertyChangedEventArgs, {
+        Name: "RoutedPropertyChangedEventArgs",
+        Namespace: "Fayde",
+        XmlNamespace: Fayde.XMLNS
+    });
 })(Fayde || (Fayde = {}));
 //# sourceMappingURL=RoutedPropertyChangedEvent.js.map

@@ -79,7 +79,7 @@ test("Storyboard Update", () => {
     a1.Completed.Subscribe(() => a1completed = true, a1);
     a2.Completed.Subscribe(() => a2completed = true, a2);
 
-    App.Current = new App();
+    Fayde.Application.Current = new Fayde.Application();
     storyboard.Begin();
     storyboard.Update(0);
     strictEqual(b1.Height, 1.0, "Animation #1 hit its begin time setting the Height to 1.0.");

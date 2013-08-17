@@ -35,5 +35,9 @@ module Fayde.Media.Animation {
 
         static Forever: RepeatBehavior = (function () { var rb = new RepeatBehavior(); rb.IsForever = true; return rb; })();
     }
-    Nullstone.RegisterType(RepeatBehavior, "RepeatBehavior");
+    Fayde.RegisterType(RepeatBehavior, {
+    	Name: "RepeatBehavior",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

@@ -38,5 +38,9 @@ module Fayde.Shapes {
             return geom.GetBounds(thickness);
         }
     }
-    Nullstone.RegisterType(Path, "Path");
+    Fayde.RegisterType(Path, {
+    	Name: "Path",
+    	Namespace: "Fayde.Shapes",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

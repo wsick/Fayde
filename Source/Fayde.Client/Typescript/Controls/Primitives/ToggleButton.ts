@@ -69,5 +69,9 @@ module Fayde.Controls.Primitives {
             }
         }
     }
-    Nullstone.RegisterType(ToggleButton, "ToggleButton");
+    Fayde.RegisterType(ToggleButton, {
+    	Name: "ToggleButton",
+    	Namespace: "Fayde.Controls.Primitives",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

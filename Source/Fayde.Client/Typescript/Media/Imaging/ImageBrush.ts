@@ -53,5 +53,9 @@ module Fayde.Media.Imaging {
             this.InvalidateBrush();
         }
     }
-    Nullstone.RegisterType(ImageBrush, "ImageBrush");
+    Fayde.RegisterType(ImageBrush, {
+    	Name: "ImageBrush",
+    	Namespace: "Fayde.Media.Imaging",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

@@ -20,7 +20,10 @@ module Fayde.Controls.Internal {
             super(xobj);
         }
     }
-    Nullstone.RegisterType(TextBoxViewNode, "TextBoxViewNode");
+    Fayde.RegisterType(TextBoxViewNode, {
+    	Name: "TextBoxViewNode",
+    	Namespace: "Fayde.Controls"
+    });
 
     export class TextBoxView extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable, ITextModelListener {
         XamlNode: TextBoxViewNode;
@@ -295,5 +298,8 @@ module Fayde.Controls.Internal {
             lu.Invalidate();
         }
     }
-    Nullstone.RegisterType(TextBoxView, "TextBoxView");
+    Fayde.RegisterType(TextBoxView, {
+    	Name: "TextBoxView",
+    	Namespace: "Fayde.Controls"
+    });
 }

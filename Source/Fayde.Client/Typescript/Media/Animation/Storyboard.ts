@@ -1,6 +1,6 @@
 /// <reference path="Timeline.ts" />
 /// CODE
-/// <reference path="../../Engine/App.ts" />
+/// <reference path="../../Engine/Application.ts" />
 /// <reference path="../../Data/PropertyPath.ts" />
 /// <reference path="../../Runtime/Debug.ts" />
 
@@ -48,7 +48,7 @@ module Fayde.Media.Animation {
                 if (!animation._Hookup(promotedValues, error))
                     error.ThrowException();
             }
-            App.Current.RegisterStoryboard(this);
+            Application.Current.RegisterStoryboard(this);
         }
         Pause() {
             super.Pause();
@@ -69,7 +69,7 @@ module Fayde.Media.Animation {
                 console.log("ANIMATION:Stop:" + this.__DebugString());
             }
             super.Stop();
-            App.Current.UnregisterStoryboard(this);
+            Application.Current.UnregisterStoryboard(this);
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.MoveNext()) {
                 (<Timeline>enumerator.Current).Stop();
@@ -140,5 +140,9 @@ module Fayde.Media.Animation {
             return "[" + anims.join(",") + "]";
         }
     }
-    Nullstone.RegisterType(Storyboard, "Storyboard");
+    Fayde.RegisterType(Storyboard, {
+    	Name: "Storyboard",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

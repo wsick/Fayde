@@ -83,7 +83,11 @@ module Fayde.Media {
             return undefined;
         }
     }
-    Nullstone.RegisterType(Transform, "Transform");
+    Fayde.RegisterType(Transform, {
+    	Name: "Transform",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class MatrixTransform extends Transform {
         static MatrixProperty: DependencyProperty = DependencyProperty.RegisterFull("Matrix", () => Matrix, MatrixTransform, undefined, (d, args) => (<MatrixTransform>d)._MatrixChanged(args));
@@ -108,5 +112,9 @@ module Fayde.Media {
             this._InvalidateValue();
         }
     }
-    Nullstone.RegisterType(MatrixTransform, "MatrixTransform");
+    Fayde.RegisterType(MatrixTransform, {
+    	Name: "MatrixTransform",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

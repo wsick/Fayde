@@ -132,4 +132,8 @@ class Font {
         return result;
     }
 }
-Nullstone.RegisterType(Font, "Font");
+Fayde.RegisterType(Font, {
+	Name: "Font",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});

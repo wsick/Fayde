@@ -4,5 +4,9 @@
 module Fayde.MVVM {
     export class ViewModelBase extends ObservableObject {
     }
-    Nullstone.RegisterType(ViewModelBase, "ViewModelBase");
+    Fayde.RegisterType(ViewModelBase, {
+    	Name: "ViewModelBase",
+    	Namespace: "Fayde.MVVM",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

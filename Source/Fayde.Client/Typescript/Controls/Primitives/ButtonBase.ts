@@ -215,5 +215,9 @@ module Fayde.Controls.Primitives {
                 this.IsEnabled = cmd.CanExecute(args.NewValue);
         }
     }
-    Nullstone.RegisterType(ButtonBase, "ButtonBase");
+    Fayde.RegisterType(ButtonBase, {
+    	Name: "ButtonBase",
+    	Namespace: "Fayde.Controls.Primitives",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

@@ -23,5 +23,9 @@ module Fayde.Controls {
             return panel;
         }
     }
-    Nullstone.RegisterType(ItemsPanelTemplate, "ItemsPanelTemplate");
+    Fayde.RegisterType(ItemsPanelTemplate, {
+    	Name: "ItemsPanelTemplate",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

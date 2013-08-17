@@ -293,7 +293,10 @@ module Fayde {
             return this.LayoutUpdater.TransformToVisual(uin);
         }
     }
-    Nullstone.RegisterType(UINode, "UINode");
+    Fayde.RegisterType(UINode, {
+    	Name: "UINode",
+    	Namespace: "Fayde"
+    });
 
     export class UIElement extends DependencyObject implements Providers.IIsPropertyInheritable {
         XamlNode: UINode;
@@ -447,5 +450,9 @@ module Fayde {
                 newTriggers.AttachTarget(this);
         }
     }
-    Nullstone.RegisterType(UIElement, "UIElement");
+    Fayde.RegisterType(UIElement, {
+    	Name: "UIElement",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

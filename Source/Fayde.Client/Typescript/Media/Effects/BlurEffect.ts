@@ -6,5 +6,9 @@ module Fayde.Media.Effects {
         static RadiusProperty: DependencyProperty = DependencyProperty.Register("Radius", () => Number, BlurEffect, undefined, (d, args) => (<Media.Effects.Effect>d)._EffectChanged(args));
         Radius: number;
     }
-    Nullstone.RegisterType(BlurEffect, "BlurEffect");
+    Fayde.RegisterType(BlurEffect, {
+    	Name: "BlurEffect",
+    	Namespace: "Fayde.Media.Effects",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

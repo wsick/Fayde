@@ -19,6 +19,10 @@ module Fayde.Media.Animation {
         private _ByCached: Point = null;
         private _EasingCached: EasingFunctionBase = undefined;
 
+        constructor() {
+            super();
+        }
+
         GetCurrentValue(defaultOriginalValue: any, defaultDestinationValue: any, clockData: IClockData): Point {
             var start = new Point();
             if (this._FromCached != null)
@@ -54,5 +58,9 @@ module Fayde.Media.Animation {
             this._EasingCached = args.NewValue;
         }
     }
-    Nullstone.RegisterType(PointAnimation, "PointAnimation");
+    Fayde.RegisterType(PointAnimation, {
+    	Name: "PointAnimation",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

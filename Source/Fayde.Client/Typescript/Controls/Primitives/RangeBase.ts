@@ -128,7 +128,11 @@ module Fayde.Controls.Primitives {
         }
         OnValueChanged(oldVal: number, newVal: number) { }
     }
-    Nullstone.RegisterType(RangeBase, "RangeBase");
+    Fayde.RegisterType(RangeBase, {
+    	Name: "RangeBase",
+    	Namespace: "Fayde.Controls.Primitives",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     function areNumbersClose(val1: number, val2: number): boolean {
         if (val1 === val2)

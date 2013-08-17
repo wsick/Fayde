@@ -28,5 +28,9 @@ module Fayde {
 
         IsInheritable(propd: DependencyProperty): boolean { return false; }
     }
-    Nullstone.RegisterType(XamlObject, "XamlObject");
+    Fayde.RegisterType(XamlObject, {
+    	Name: "XamlObject",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

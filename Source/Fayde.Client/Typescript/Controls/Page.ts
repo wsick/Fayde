@@ -5,6 +5,14 @@ module Fayde.Controls {
     export class Page extends UserControl {
         static TitleProperty: DependencyProperty = DependencyProperty.Register("Title", () => String, Page);
         Title: string;
+
+        constructor() {
+            super();
+        }
     }
-    Nullstone.RegisterType(Page, "Page");
+    Fayde.RegisterType(Page, {
+    	Name: "Page",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

@@ -4,4 +4,8 @@
 class EventArgs {
     static Empty: EventArgs = new EventArgs();
 }
-Nullstone.RegisterType(EventArgs, "EventArgs");
+Fayde.RegisterType(EventArgs, {
+	Name: "EventArgs",
+	Namespace: "Fayde",
+	XmlNamespace: Fayde.XMLNS
+});

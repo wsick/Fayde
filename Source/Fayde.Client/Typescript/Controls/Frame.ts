@@ -49,7 +49,7 @@ module Fayde.Controls {
             }
         }
         private _FrameLoaded(sender, e: RoutedEventArgs) {
-            this._NavService = App.Current.NavService;
+            this._NavService = Application.Current.NavService;
             if (this.IsDeepLinked) {
                 this._NavService.LocationChanged.Subscribe(this._HandleDeepLink, this);
                 this._HandleDeepLink();
@@ -101,5 +101,9 @@ module Fayde.Controls {
             //TODO: Show default content uri in Content when in design mode
         }
     }
-    Nullstone.RegisterType(Frame, "Frame");
+    Fayde.RegisterType(Frame, {
+    	Name: "Frame",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

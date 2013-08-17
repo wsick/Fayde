@@ -152,5 +152,9 @@ module Fayde.Controls {
                 throw new InvalidOperationException("The collection is readonly.");
         }
     }
-    Nullstone.RegisterType(ItemCollection, "ItemCollection");
+    Fayde.RegisterType(ItemCollection, {
+    	Name: "ItemCollection",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

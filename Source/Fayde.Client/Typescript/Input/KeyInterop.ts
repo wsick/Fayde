@@ -131,7 +131,11 @@ module Fayde.Input {
             return new KeyInterop(surface);
         }
     }
-    Nullstone.RegisterType(KeyInterop, "KeyInterop");
+    Fayde.RegisterType(KeyInterop, {
+    	Name: "KeyInterop",
+    	Namespace: "Fayde.Input",
+    	XmlNamespace: Fayde.XMLNS
+    });
     
     var udkie = [];
     udkie[41] = 48;
@@ -183,7 +187,11 @@ module Fayde.Input {
             return new Fayde.Input.KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode]);
         }
     }
-    Nullstone.RegisterType(IEKeyInterop, "IEKeyInterop");
+    Fayde.RegisterType(IEKeyInterop, {
+    	Name: "IEKeyInterop",
+    	Namespace: "Fayde.Input",
+    	XmlNamespace: Fayde.XMLNS
+    });
     
     var sknet = [];
     sknet[8] = Key.Back;
@@ -243,5 +251,9 @@ module Fayde.Input {
             return new Fayde.Input.KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode]);
         }
     }
-    Nullstone.RegisterType(NetscapeKeyInterop, "NetscapeKeyInterop");
+    Fayde.RegisterType(NetscapeKeyInterop, {
+    	Name: "NetscapeKeyInterop",
+    	Namespace: "Fayde.Input",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

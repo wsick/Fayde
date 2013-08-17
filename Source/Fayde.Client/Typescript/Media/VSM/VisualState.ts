@@ -9,9 +9,17 @@ module Fayde.Media.VSM {
         Storyboard: Animation.Storyboard;
         static Annotations = { ContentProperty: VisualState.StoryboardProperty };
     }
-    Nullstone.RegisterType(VisualState, "VisualState");
+    Fayde.RegisterType(VisualState, {
+    	Name: "VisualState",
+    	Namespace: "Fayde.Media.VSM",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class VisualStateCollection extends XamlObjectCollection<VisualState> {
     }
-    Nullstone.RegisterType(VisualStateCollection, "VisualStateCollection");
+    Fayde.RegisterType(VisualStateCollection, {
+    	Name: "VisualStateCollection",
+    	Namespace: "Fayde.Media.VSM",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

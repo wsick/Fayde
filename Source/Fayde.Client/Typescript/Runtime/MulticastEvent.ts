@@ -40,4 +40,7 @@ class MulticastEvent<T extends EventArgs> {
         window.setTimeout(() => this.Raise(sender, args), 1);
     }
 }
-Nullstone.RegisterType(MulticastEvent, "MulticastEvent");
+Fayde.RegisterType(MulticastEvent, {
+	Name: "MulticastEvent",
+	Namespace: "Fayde"
+});

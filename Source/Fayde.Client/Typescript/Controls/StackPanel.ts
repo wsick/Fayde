@@ -108,5 +108,9 @@ module Fayde.Controls {
             return arranged;
         }
     }
-    Nullstone.RegisterType(StackPanel, "StackPanel");
+    Fayde.RegisterType(StackPanel, {
+    	Name: "StackPanel",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

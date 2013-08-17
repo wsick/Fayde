@@ -6,18 +6,30 @@ module Fayde {
     export class TriggerAction extends DependencyObject {
         Fire() { }
     }
-    Nullstone.RegisterType(TriggerAction, "TriggerAction");
+    Fayde.RegisterType(TriggerAction, {
+    	Name: "TriggerAction",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
     
     export class TriggerActionCollection extends XamlObjectCollection<TriggerAction> {
     }
-    Nullstone.RegisterType(TriggerActionCollection, "TriggerActionCollection");
+    Fayde.RegisterType(TriggerActionCollection, {
+    	Name: "TriggerActionCollection",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     
     export class TriggerBase extends DependencyObject {
         Attach(target: XamlObject) { }
         Detach(target: XamlObject) { }
     }
-    Nullstone.RegisterType(TriggerBase, "TriggerBase");
+    Fayde.RegisterType(TriggerBase, {
+    	Name: "TriggerBase",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
     
     export class EventTrigger extends TriggerBase {
         static ActionsProperty: DependencyProperty = DependencyProperty.Register("Actions", () => TriggerActionCollection, EventTrigger);
@@ -73,7 +85,11 @@ module Fayde {
             return undefined;
         }
     }
-    Nullstone.RegisterType(EventTrigger, "EventTrigger");
+    Fayde.RegisterType(EventTrigger, {
+    	Name: "EventTrigger",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export class TriggerCollection extends XamlObjectCollection<TriggerBase> {
         private get ParentXamlObject(): XamlObject {
@@ -109,5 +125,9 @@ module Fayde {
             }
         }
     }
-    Nullstone.RegisterType(TriggerCollection, "TriggerCollection");
+    Fayde.RegisterType(TriggerCollection, {
+    	Name: "TriggerCollection",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

@@ -24,5 +24,9 @@ module Fayde {
             return uie;
         }
     }
-    Nullstone.RegisterType(DataTemplate, "DataTemplate");
+    Fayde.RegisterType(DataTemplate, {
+    	Name: "DataTemplate",
+    	Namespace: "Fayde",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

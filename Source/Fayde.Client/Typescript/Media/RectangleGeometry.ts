@@ -24,5 +24,9 @@ module Fayde.Media {
             return p;
         }
     }
-    Nullstone.RegisterType(RectangleGeometry, "RectangleGeometry");
+    Fayde.RegisterType(RectangleGeometry, {
+    	Name: "RectangleGeometry",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

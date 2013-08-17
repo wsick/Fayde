@@ -36,5 +36,4 @@ module Fayde {
             return b;
         }
     }
-    Nullstone.RegisterType(BindingMarkup, "BindingMarkup");
 }

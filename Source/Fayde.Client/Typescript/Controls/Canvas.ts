@@ -67,7 +67,10 @@ module Fayde.Controls {
             }
         }
     }
-    Nullstone.RegisterType(CanvasNode, "CanvasNode");
+    Fayde.RegisterType(CanvasNode, {
+    	Name: "CanvasNode",
+    	Namespace: "Fayde.Controls"
+    });
 
     function invalidateTopLeft(d: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
         if (!(d instanceof UIElement))
@@ -135,5 +138,9 @@ module Fayde.Controls {
             return finalSize;
         }
     }
-    Nullstone.RegisterType(Canvas, "Canvas");
+    Fayde.RegisterType(Canvas, {
+    	Name: "Canvas",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

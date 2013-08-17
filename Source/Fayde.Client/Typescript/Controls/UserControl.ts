@@ -21,7 +21,10 @@ module Fayde.Controls {
             }
         }
     }
-    Nullstone.RegisterType(UCNode, "UCNode");
+    Fayde.RegisterType(UCNode, {
+    	Name: "UCNode",
+    	Namespace: "Fayde.Controls"
+    });
 
     export class UserControl extends Control implements IMeasurableHidden, IArrangeableHidden {
         XamlNode: UCNode;
@@ -102,5 +105,9 @@ module Fayde.Controls {
             return finalSize;
         }
     }
-    Nullstone.RegisterType(UserControl, "UserControl");
+    Fayde.RegisterType(UserControl, {
+    	Name: "UserControl",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

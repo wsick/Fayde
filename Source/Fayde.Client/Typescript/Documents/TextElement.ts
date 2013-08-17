@@ -21,7 +21,10 @@ module Fayde.Documents {
                 return coll.GetNodeEnumerator<DONode>();
         }
     }
-    Nullstone.RegisterType(TextElementNode, "TextElementNode");
+    Fayde.RegisterType(TextElementNode, {
+    	Name: "TextElementNode",
+    	Namespace: "Fayde.Documents"
+    });
     
     export class TextElement extends DependencyObject implements Text.ITextAttributesSource, IFontChangeable, Providers.IIsPropertyInheritable {
         XamlNode: TextElementNode;
@@ -97,7 +100,11 @@ module Fayde.Documents {
             this._UpdateFont(false);
         }
     }
-    Nullstone.RegisterType(TextElement, "TextElement");
+    Fayde.RegisterType(TextElement, {
+    	Name: "TextElement",
+    	Namespace: "Fayde.Documents",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     var TextElementInheritedProps = [
         TextElement.FontFamilyProperty,

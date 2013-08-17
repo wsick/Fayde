@@ -20,5 +20,9 @@ module Fayde.Media {
             return p;
         }
     }
-    Nullstone.RegisterType(LineGeometry, "LineGeometry");
+    Fayde.RegisterType(LineGeometry, {
+    	Name: "LineGeometry",
+    	Namespace: "Fayde.Media",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

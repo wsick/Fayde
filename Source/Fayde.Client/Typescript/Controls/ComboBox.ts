@@ -356,10 +356,14 @@ module Fayde.Controls {
             var child: FrameworkElement;
             if (this.$Popup && (child = <FrameworkElement>this.$Popup.Child) && child instanceof FrameworkElement) {
                 if (height === Number.POSITIVE_INFINITY)
-                    height = App.Current.MainSurface.Extents.Height / 2.0;
+                    height = Application.Current.MainSurface.Extents.Height / 2.0;
                 child.MaxHeight = height;
             }
         }
     }
-    Nullstone.RegisterType(ComboBox, "ComboBox");
+    Fayde.RegisterType(ComboBox, {
+    	Name: "ComboBox",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

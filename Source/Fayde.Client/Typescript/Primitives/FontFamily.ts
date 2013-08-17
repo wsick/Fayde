@@ -10,4 +10,8 @@ class FontFamily implements ICloneable {
         return new FontFamily(this.FamilyNames);
     }
 }
-Nullstone.RegisterType(FontFamily, "FontFamily");
+Fayde.RegisterType(FontFamily, {
+	Name: "FontFamily",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});

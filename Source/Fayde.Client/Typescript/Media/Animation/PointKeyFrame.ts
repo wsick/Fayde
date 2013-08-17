@@ -9,7 +9,11 @@ module Fayde.Media.Animation {
         static ValueProperty: DependencyProperty = DependencyProperty.Register("Value", () => Point, PointKeyFrame);
         Value: Point;
     }
-    Nullstone.RegisterType(PointKeyFrame, "PointKeyFrame");
+    Fayde.RegisterType(PointKeyFrame, {
+    	Name: "PointKeyFrame",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
     
     export class DiscretePointKeyFrame extends PointKeyFrame {
         InterpolateValue(baseValue: Point, keyFrameProgress: number): Point {
@@ -18,7 +22,11 @@ module Fayde.Media.Animation {
             return baseValue;
         }
     }
-    Nullstone.RegisterType(DiscretePointKeyFrame, "DiscretePointKeyFrame");
+    Fayde.RegisterType(DiscretePointKeyFrame, {
+    	Name: "DiscretePointKeyFrame",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
     
     export class EasingPointKeyFrame extends PointKeyFrame {
         static EasingFunctionProperty: DependencyProperty = DependencyProperty.Register("EasingFunction", () => EasingFunctionBase, EasingPointKeyFrame);
@@ -38,14 +46,22 @@ module Fayde.Media.Animation {
             return Point.LERP(start, end, keyFrameProgress);
         }
     }
-    Nullstone.RegisterType(EasingPointKeyFrame, "EasingPointKeyFrame");
+    Fayde.RegisterType(EasingPointKeyFrame, {
+    	Name: "EasingPointKeyFrame",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
     
     export class LinearPointKeyFrame extends PointKeyFrame {
         InterpolateValue(baseValue: Point, keyFrameProgress: number): Point {
             return Point.LERP(baseValue, this.Value, keyFrameProgress);
         }
     }
-    Nullstone.RegisterType(LinearPointKeyFrame, "LinearPointKeyFrame");
+    Fayde.RegisterType(LinearPointKeyFrame, {
+    	Name: "LinearPointKeyFrame",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
     
     export class SplinePointKeyFrame extends PointKeyFrame {
         static KeySplineProperty: DependencyProperty = DependencyProperty.Register("KeySpline", () => KeySpline, SplinePointKeyFrame);
@@ -74,5 +90,9 @@ module Fayde.Media.Animation {
             return Point.LERP(start, end, splineProgress);
         }
     }
-    Nullstone.RegisterType(SplinePointKeyFrame, "SplinePointKeyFrame");
+    Fayde.RegisterType(SplinePointKeyFrame, {
+    	Name: "SplinePointKeyFrame",
+    	Namespace: "Fayde.Media.Animation",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

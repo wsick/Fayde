@@ -8,7 +8,11 @@ module Fayde.Documents {
 
     export class Block extends TextElement {
     }
-    Nullstone.RegisterType(Block, "Block");
+    Fayde.RegisterType(Block, {
+    	Name: "Block",
+    	Namespace: "Fayde.Documents",
+    	XmlNamespace: Fayde.XMLNS
+    });
     
     export class BlockCollection extends XamlObjectCollection<Block> {
         private _Listener: IBlocksChangedListener;
@@ -28,5 +32,9 @@ module Fayde.Documents {
             if (listener) listener.BlocksChanged(value, false);
         }
     }
-    Nullstone.RegisterType(BlockCollection, "BlockCollection");
+    Fayde.RegisterType(BlockCollection, {
+    	Name: "BlockCollection",
+    	Namespace: "Fayde.Documents",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

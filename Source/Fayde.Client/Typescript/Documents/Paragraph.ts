@@ -25,5 +25,9 @@ module Fayde.Documents {
                 Providers.InheritedStore.PropagateInheritedOnAdd(this, newInline.XamlNode);
         }
     }
-    Nullstone.RegisterType(Paragraph, "Paragraph");
+    Fayde.RegisterType(Paragraph, {
+    	Name: "Paragraph",
+    	Namespace: "Fayde.Documents",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

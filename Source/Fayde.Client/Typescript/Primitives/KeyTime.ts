@@ -36,4 +36,8 @@ class KeyTime implements ICloneable {
     get HasPercent(): boolean { return this._Percent != null; }
     get Percent(): number { return this._Percent; }
 }
-Nullstone.RegisterType(KeyTime, "KeyTime");
+Fayde.RegisterType(KeyTime, {
+	Name: "KeyTime",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});

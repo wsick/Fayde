@@ -52,5 +52,9 @@ module Fayde.Shapes {
             return shapeBounds;
         }
     }
-    Nullstone.RegisterType(Line, "Line");
+    Fayde.RegisterType(Line, {
+    	Name: "Line",
+    	Namespace: "Fayde.Shapes",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

@@ -8,5 +8,9 @@ module Fayde.Controls {
         static ToolTipProperty: DependencyProperty = DependencyProperty.RegisterAttached("ToolTip", () => DependencyObject, ToolTipService);
         static PlacementTargetProperty: DependencyProperty = DependencyProperty.RegisterAttached("PlacementTarget", () => UIElement, ToolTipService);
     }
-    Nullstone.RegisterType(ToolTipService, "ToolTipService");
+    Fayde.RegisterType(ToolTipService, {
+    	Name: "ToolTipService",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

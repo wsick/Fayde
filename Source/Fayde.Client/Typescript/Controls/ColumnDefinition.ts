@@ -28,7 +28,11 @@ module Fayde.Controls {
             if (listener) listener.ColumnDefinitionChanged(this);
         }
     }
-    Nullstone.RegisterType(ColumnDefinition, "ColumnDefinition");
+    Fayde.RegisterType(ColumnDefinition, {
+    	Name: "ColumnDefinition",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
     
     export interface IColumnDefinitionsListener {
         ColumnDefinitionsChanged(colDefinitions: ColumnDefinitionCollection);
@@ -58,5 +62,9 @@ module Fayde.Controls {
             if (listener) listener.ColumnDefinitionsChanged(this);
         }
     }
-    Nullstone.RegisterType(ColumnDefinitionCollection, "ColumnDefinitionCollection");
+    Fayde.RegisterType(ColumnDefinitionCollection, {
+    	Name: "ColumnDefinitionCollection",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

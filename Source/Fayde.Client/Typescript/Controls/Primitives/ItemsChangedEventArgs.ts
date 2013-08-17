@@ -19,5 +19,9 @@ module Fayde.Controls.Primitives {
             Object.defineProperty(this, "Position", { value: position, writable: false });
         }
     }
-    Nullstone.RegisterType(ItemsChangedEventArgs, "ItemsChangedEventArgs");
+    Fayde.RegisterType(ItemsChangedEventArgs, {
+    	Name: "ItemsChangedEventArgs",
+    	Namespace: "Fayde.Controls.Primitives",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

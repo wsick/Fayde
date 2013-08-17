@@ -52,5 +52,9 @@ module Fayde.Controls {
             }
         }
     }
-    Nullstone.RegisterType(HyperlinkButton, "HyperlinkButton");
+    Fayde.RegisterType(HyperlinkButton, {
+    	Name: "HyperlinkButton",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }

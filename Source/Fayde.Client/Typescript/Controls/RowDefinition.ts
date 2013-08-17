@@ -28,7 +28,11 @@ module Fayde.Controls {
             if (listener) listener.RowDefinitionChanged(this);
         }
     }
-    Nullstone.RegisterType(RowDefinition, "RowDefinition");
+    Fayde.RegisterType(RowDefinition, {
+    	Name: "RowDefinition",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
     export interface IRowDefinitionsListener {
         RowDefinitionsChanged(rowDefinitions: RowDefinitionCollection);
@@ -58,5 +62,9 @@ module Fayde.Controls {
             if (listener) listener.RowDefinitionsChanged(this);
         }
     }
-    Nullstone.RegisterType(RowDefinitionCollection, "RowDefinitionCollection");
+    Fayde.RegisterType(RowDefinitionCollection, {
+    	Name: "RowDefinitionCollection",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 }
