@@ -117,6 +117,10 @@ module Fayde {
 
     var converters: any = [];
     export function ConvertStringToType(val: string, type: Function): any {
+        if (type instanceof Enum) {
+            var enumo = (<Enum><any>type).Object;
+            return enumo[val];
+        }
         var converter: (val: string) => any = (<any>converters)[type];
         if (!converter)
             return val;

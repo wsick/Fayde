@@ -60,15 +60,9 @@ module Fayde {
             var propd = this.Property;
             var val = this.Value;
 
-            if (typeof propd.GetTargetType() === "string") {
-                //if (val === undefined)
-                //throw new ArgumentException("Empty value in setter.");
-                if (typeof val !== "string")
-                    throw new XamlParseException("Setter value does not match property type.");
-            }
-
+            var propTargetType = <Function>propd.GetTargetType();
             try {
-                this.ConvertedValue = TypeConverter.ConvertObject(propd, val, targetType, true);
+                this.ConvertedValue = Fayde.ConvertStringToType(val, propTargetType);
             } catch (err) {
                 throw new XamlParseException(err.message);
             }
