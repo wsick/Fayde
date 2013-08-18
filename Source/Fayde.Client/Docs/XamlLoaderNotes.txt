@@ -44,3 +44,5 @@ TypeConverters:
 	Font
 	FontFamily
 	Uri
+
+Remap TypeConversion to/from bindings
