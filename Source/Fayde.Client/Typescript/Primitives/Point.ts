@@ -43,10 +43,10 @@ Fayde.RegisterType(Point, {
 	XmlNamespace: Fayde.XMLNSX
 });
 
-Fayde.RegisterTypeConverter(Point, (val: string): Point => {
+Fayde.RegisterTypeConverter(Point, (val: any): Point => {
     if (!val)
         return new Point();
-    var tokens = val.split(",");
+    var tokens = val.toString().split(",");
     if (tokens.length === 2) {
         var x = parseFloat(tokens[0]);
         var y = parseFloat(tokens[1]);

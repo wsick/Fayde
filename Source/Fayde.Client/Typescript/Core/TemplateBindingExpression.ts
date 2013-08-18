@@ -25,7 +25,8 @@ module Fayde {
             var value;
             if (source)
                 value = source.GetValue(this.SourceProperty);
-            value = TypeConverter.ConvertObject(this.TargetProperty, value, (<any>target).constructor, true);
+            //NOTE: Do we need to handle string conversion?
+            value = Fayde.ConvertAnyToType(value, <Function>this.TargetProperty.GetTargetType());
             return value;
         }
         OnAttached(dobj: DependencyObject) {

@@ -344,7 +344,8 @@ module Fayde.Data {
                     }
                 }
             } catch (err) {
-                return TypeConverter.ConvertObject(propd, binding.FallbackValue, (<any>this.Target).constructor, true);
+                //NOTE: Do we need to handle string conversion?
+                return Fayde.ConvertAnyToType(binding.FallbackValue, <Function>propd.GetTargetType());
             }
             return value;
         }

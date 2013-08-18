@@ -55,10 +55,12 @@ Fayde.RegisterType(Thickness, {
 	XmlNamespace: Fayde.XMLNSX
 });
 
-Fayde.RegisterTypeConverter(Thickness, (val: string): Thickness => {
+Fayde.RegisterTypeConverter(Thickness, (val: any): Thickness => {
     if (!val)
         return new Thickness();
-    var tokens = val.split(",");
+    if (typeof val === "number")
+        return new Thickness(val, val, val, val);
+    var tokens = val.toString().split(",");
     var left, top, right, bottom;
     if (tokens.length === 1) {
         left = top = right = bottom = parseFloat(tokens[0]);

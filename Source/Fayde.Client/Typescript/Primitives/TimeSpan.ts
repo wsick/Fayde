@@ -103,7 +103,10 @@ Fayde.RegisterType(TimeSpan, {
 	XmlNamespace: Fayde.XMLNSX
 });
 
-Fayde.RegisterTypeConverter(TimeSpan, (val: string): TimeSpan => {
+Fayde.RegisterTypeConverter(TimeSpan, (val: any): TimeSpan => {
+    if (typeof val === "number")
+        return TimeSpan.FromTicks(ticks);
+    val = val.toString();
     var ticks = parseFloat(val);
     if (!isNaN(ticks))
         return TimeSpan.FromTicks(ticks);

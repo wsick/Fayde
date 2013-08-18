@@ -48,7 +48,7 @@ module Fayde.Media.Animation {
             var d = parseInt(val.substr(0, val.length - 1));
             return RepeatBehavior.FromIterationCount(d);
         }
-        var duration = new Duration(Fayde.ConvertStringToType(val, TimeSpan));
+        var duration = new Duration(Fayde.ConvertAnyToType(val, TimeSpan));
         return RepeatBehavior.FromRepeatDuration(duration);
     });
 }

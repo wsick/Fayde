@@ -31,3 +31,8 @@ Fayde.RegisterType(Uri, {
 	Namespace: "window",
 	XmlNamespace: Fayde.XMLNSX
 });
+Fayde.RegisterTypeConverter(Uri, (val: any): any => {
+    if (!val)
+        throw new XamlParseException("Invalid empty URI.");
+    return new Uri(val.toString());
+});

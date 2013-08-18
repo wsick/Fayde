@@ -116,17 +116,40 @@ module Fayde {
     }
 
     var converters: any = [];
-    export function ConvertStringToType(val: string, type: Function): any {
+    converters[String] = function (val: any): String {
+        if (val == null) return "";
+        return val.toString();
+    }
+    converters[Number] = function (val: any): Number {
+        if (!val) return 0;
+        if (typeof val === "number")
+            return val;
+        return parseFloat(val.toString());
+    }
+    converters[Date] = function (val: any): Date {
+        if (val == null)
+            return new Date(0);
+        return new Date(val.toString());
+    }
+    converters[RegExp] = function (val: any): RegExp {
+        if (val instanceof RegExp)
+            return val;
+        if (val = null)
+            throw new XamlParseException("Cannot specify an empty RegExp.");
+        val = val.toString();
+        return new RegExp(val);
+    }
+    export function ConvertAnyToType(val: any, type: Function): any {
+        var converter: (val: any) => any = (<any>converters)[type];
+        if (converter)
+            return converter(val);
         if (type instanceof Enum) {
             var enumo = (<Enum><any>type).Object;
             return enumo[val];
         }
-        var converter: (val: string) => any = (<any>converters)[type];
-        if (!converter)
-            return val;
-        return converter(val);
+        return val;
     }
-    export function RegisterTypeConverter(type: Function, converter: (val: string) => any) {
+    export function RegisterTypeConverter(type: Function, converter: (val: any) => any) {
         converters[type] = converter;
     }
 }

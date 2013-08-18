@@ -24,7 +24,6 @@ module Fayde {
         }
 
         private _ValidateSetter(setter: Setter, error: BError) {
-
             if (setter.Property === undefined) {
                 error.Message = "Cannot have a null PropertyProperty value";
                 return false;
@@ -62,7 +61,7 @@ module Fayde {
 
             var propTargetType = <Function>propd.GetTargetType();
             try {
-                this.ConvertedValue = Fayde.ConvertStringToType(val, propTargetType);
+                this.ConvertedValue = Fayde.ConvertAnyToType(val, propTargetType);
             } catch (err) {
                 throw new XamlParseException(err.message);
             }

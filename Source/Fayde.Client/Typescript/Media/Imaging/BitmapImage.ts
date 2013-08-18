@@ -41,7 +41,7 @@ module Fayde.Media.Imaging {
 
     Fayde.RegisterTypeConverter(ImageSource, (val: string): ImageSource => {
         var bi = new BitmapImage();
-        bi.UriSource = Fayde.ConvertStringToType(val, Uri);
+        bi.UriSource = Fayde.ConvertAnyToType(val, Uri);
         return bi;
     });
 }

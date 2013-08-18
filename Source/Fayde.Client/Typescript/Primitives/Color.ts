@@ -234,9 +234,10 @@ Fayde.RegisterType(Color, {
 	XmlNamespace: Fayde.XMLNSX
 });
 
-Fayde.RegisterTypeConverter(Color, (val: string): Color => {
+Fayde.RegisterTypeConverter(Color, (val: any): Color => {
     if (!val)
         return new Color();
+    val = val.toString();
     if (val[0] !== "#") {
         var color = Color.KnownColors[val];
         if (!color)

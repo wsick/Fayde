@@ -8,8 +8,10 @@ Fayde.RegisterType(Length, {
     Namespace: "window",
     XmlNamespace: Fayde.XMLNSX
 });
-Fayde.RegisterTypeConverter(Length, (val: string): number => {
-    if (!val || val.toLowerCase() === "auto")
+Fayde.RegisterTypeConverter(Length, (val: any): number => {
+    if (!val || val.toString().toLowerCase() === "auto")
         return Number.NaN;
-    return parseFloat(val);
+    if (typeof val === "number")
+        return val;
+    return parseFloat(val.toString());
 });

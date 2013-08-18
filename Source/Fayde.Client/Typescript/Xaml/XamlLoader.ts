@@ -33,7 +33,6 @@ module Fayde.Xaml {
     }
 
 
-
     function createObject(node: Node, ctx: IXamlLoadContext): any {
         var resolution = TypeResolver.Resolve(node.namespaceURI, node.localName);
         if (resolution === undefined)
@@ -41,7 +40,7 @@ module Fayde.Xaml {
         if (resolution.IsPrimitive)
             return createPrimitive(resolution.Type, node, ctx);
         if (resolution.IsSystem)
-            return Fayde.ConvertStringToType(node.textContent, resolution.Type);
+            return Fayde.ConvertAnyToType(node.textContent, resolution.Type);
 
         var val = new (<any>resolution.Type)();
 
@@ -98,7 +97,6 @@ module Fayde.Xaml {
 
         return ctx.ObjectStack.pop();
     }
-
     function createPrimitive(type: Function, node: Node, ctx: IXamlLoadContext): any {
         if (type === null)
             return null;
@@ -128,32 +126,6 @@ module Fayde.Xaml {
         return undefined;
     }
 
-
-    function getNodeKey(node: Node): string {
-        var attrs = node.attributes;
-        var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Key");
-        if (keyn)
-            return keyn.value;
-        var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Name");
-        if (keyn)
-            return keyn.value;
-        return "";
-    }
-    function createObjectInResources(node: Node, rd: ResourceDictionary, ctx: IXamlLoadContext) {
-        var cur = createObject(node, ctx);
-        var key = getNodeKey(node);
-        if (key) {
-            rd.Set(key, cur);
-        } else {
-            if (!(cur instanceof Style))
-                throw new XamlParseException("An object in a ResourceDictionary must have x:Key.");
-            var targetType = cur.TargetType;
-            if (!targetType)
-                throw new XamlParseException("A Style in a ResourceDictionary must have x:Key or TargetType.");
-            rd.Set(targetType, cur);
-        }
-    }
-
     interface IXamlChildProcessor {
         ProcessAttribute(attr: Attr);
         ProcessNode(node: Node);
@@ -178,10 +150,41 @@ module Fayde.Xaml {
             }
         }
 
-        function createAttributeObject(attr: Attr, propd: DependencyProperty): any {
+        function createObjectInResources(node: Node, rd: ResourceDictionary) {
+            var cur = createObject(node, ctx);
+            var key = getNodeKey(node);
+            if (key) {
+                rd.Set(key, cur);
+            } else {
+                if (!(cur instanceof Style))
+                    throw new XamlParseException("An object in a ResourceDictionary must have x:Key.");
+                var targetType = cur.TargetType;
+                if (!targetType)
+                    throw new XamlParseException("A Style in a ResourceDictionary must have x:Key or TargetType.");
+                rd.Set(targetType, cur);
+            }
+        }
+        function getNodeKey(node: Node): string {
+            var attrs = node.attributes;
+            var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Key");
+            if (keyn)
+                return keyn.value;
+            var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Name");
+            if (keyn)
+                return keyn.value;
+            return "";
+        }
+        function createAttributeObject(attr: Attr, dobj: DependencyObject, propd: DependencyProperty): any {
             var value = attr.textContent;
             if (value[0] === "{") {
-                var result = MarkupExpressionParser.Parse(value, ctx.ResourceChain, ctx.TemplateBindingSource);
+                var parseCtx: IMarkupParseContext = {
+                    Owner: dobj,
+                    Property: propd,
+                    Resolver: attr,
+                    ResourceChain: ctx.ResourceChain,
+                    TemplateBindingSource: ctx.TemplateBindingSource
+                };
+                var result = MarkupExpressionParser.Parse(value, parseCtx);
                 if (result !== undefined)
                     return result;
             }
@@ -198,7 +201,7 @@ module Fayde.Xaml {
             var targetType = <Function>propd.GetTargetType();
             if (targetType === String)
                 return value;
-            return Fayde.ConvertStringToType(value, targetType);
+            return Fayde.ConvertAnyToType(value, targetType);
         }
         function findOwnerStyle(): Style {
             var s = ctx.ObjectStack;
@@ -251,7 +254,7 @@ module Fayde.Xaml {
                 ensurePropertyNotSet(propertyName);
 
                 if (propd) {
-                    dobj.SetValue(propd, createAttributeObject(attr, propd));
+                    dobj.SetValue(propd, createAttributeObject(attr, dobj, propd));
                 } else {
                     //TODO: Add checks for read-only, etc.
                     owner[propertyName] = attr.textContent;
@@ -299,7 +302,7 @@ module Fayde.Xaml {
                 if (coll instanceof ResourceDictionary) {
                     var rd = <ResourceDictionary>coll;
                     for (var i = 0; i < len; i++) {
-                        createObjectInResources(children[i], rd, ctx);
+                        createObjectInResources(children[i], rd);
                     }
                 } else {
                     for (var i = 0; i < len; i++) {

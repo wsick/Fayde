@@ -34,7 +34,7 @@ module Fayde.Media {
 
     Fayde.RegisterTypeConverter(Brush, (val: string): Brush => {
         var scb = new SolidColorBrush();
-        scb.Color = Fayde.ConvertStringToType(val, Color);
+        scb.Color = Fayde.ConvertAnyToType(val, Color);
         return scb;
     });
 }
