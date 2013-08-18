@@ -63,10 +63,11 @@ test("Style", () => {
 
     var resources = root.Resources;
     var style = <Fayde.Style>resources.Get("SomeStyle");
+    style.Seal();
     strictEqual(style.TargetType, Fayde.Controls.Button, "TargetType on Style should be set to Button.");
     var setters = style.Setters;
     strictEqual(setters.Count, 1, "There should be 1 setter in the Style.");
     var setter = setters.GetValueAt(0);
     strictEqual(setter.Property, Fayde.FrameworkElement.MarginProperty, "Setter Property should be Margin property.");
-    ok(Thickness.Equals(setter.Value, new Thickness(1, 1, 1, 1)), "Setter Value should be a Thickness (1, 1, 1, 1).");
+    ok(Thickness.Equals(setter.ConvertedValue, new Thickness(1, 1, 1, 1)), "Setter Value should be a Thickness (1, 1, 1, 1).");
 });

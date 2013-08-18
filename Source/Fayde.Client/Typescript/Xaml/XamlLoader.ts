@@ -23,7 +23,7 @@ module Fayde.Xaml {
             ResourceChain: [],
             NameScope: new NameScope(),
             ObjectStack: [],
-            TemplateBindingSource: null
+            TemplateBindingSource: null,
         };
         if (ctx.Document.childNodes.length > 1)
             throw new XamlParseException("There must be 1 root node.");
@@ -128,17 +128,6 @@ module Fayde.Xaml {
         return undefined;
     }
 
-    function createAttributeObject(propd: DependencyProperty, value: string, ctx: IXamlLoadContext): any {
-        if (value[0] === "{") {
-            var result = MarkupExpressionParser.Parse(value, ctx.ResourceChain, ctx.TemplateBindingSource);
-            if (result !== undefined)
-                return result;
-        }
-        var targetType = <Function>propd.GetTargetType();
-        if (targetType === String)
-            return value;
-        return Fayde.ConvertStringToType(value, targetType);
-    }
 
     function getNodeKey(node: Node): string {
         var attrs = node.attributes;
@@ -180,13 +169,56 @@ module Fayde.Xaml {
                 if (contentPropd.IsImmutable) {
                     contentCollection = dobj[contentPropd.Name];
                 } else {
-                    var targetType = contentPropd.GetTargetType();
-                    if (Nullstone.DoesInheritFrom(targetType, XamlObjectCollection)) {
-                        contentCollection = <XamlObjectCollection<any>>new (<any>targetType)();
+                    var contentTargetType = contentPropd.GetTargetType();
+                    if (Nullstone.DoesInheritFrom(contentTargetType, XamlObjectCollection)) {
+                        contentCollection = <XamlObjectCollection<any>>new (<any>contentTargetType)();
                         dobj.SetValue(contentPropd, contentCollection);
                     }
                 }
             }
+        }
+
+        function createAttributeObject(attr: Attr, propd: DependencyProperty): any {
+            var value = attr.textContent;
+            if (value[0] === "{") {
+                var result = MarkupExpressionParser.Parse(value, ctx.ResourceChain, ctx.TemplateBindingSource);
+                if (result !== undefined)
+                    return result;
+            }
+
+            if (propd === Fayde.Style.TargetTypeProperty) {
+                var resolution = TypeResolver.ResolveFullyQualifiedName(value, attr);
+                if (resolution === undefined)
+                    throw new XamlParseException("Could not resolve type '" + value + "'");
+                return resolution.Type;
+            } else if (propd === Fayde.Setter.PropertyProperty) {
+                var ownerStyle = findOwnerStyle();
+                return resolveDependencyProperty(value, ownerStyle.TargetType, attr);
+            }
+            var targetType = <Function>propd.GetTargetType();
+            if (targetType === String)
+                return value;
+            return Fayde.ConvertStringToType(value, targetType);
+        }
+        function findOwnerStyle(): Style {
+            var s = ctx.ObjectStack;
+            var len = s.length;
+            var cur: any;
+            for (var i = len - 1; i >= 0; i--) {
+                cur = s[i];
+                if (cur instanceof Style)
+                    return cur;
+            }
+            return undefined;
+        }
+        function resolveDependencyProperty(val: string, targetType: Function, resolver: INamespacePrefixResolver): DependencyProperty {
+            var tokens = val.split(".");
+            if (tokens.length === 1)
+                return DependencyProperty.GetDependencyProperty(targetType, val);
+            var resolution = TypeResolver.ResolveFullyQualifiedName(tokens[0], resolver);
+            if (resolution === undefined)
+                throw new XamlParseException("Could not resolve DependencyProperty type '" + val + "'");
+            return DependencyProperty.GetDependencyProperty(resolution.Type, tokens[1]);
         }
 
         var hasSetContent = false;
@@ -219,7 +251,7 @@ module Fayde.Xaml {
                 ensurePropertyNotSet(propertyName);
 
                 if (propd) {
-                    dobj.SetValue(propd, createAttributeObject(propd, attr.textContent, ctx));
+                    dobj.SetValue(propd, createAttributeObject(attr, propd));
                 } else {
                     //TODO: Add checks for read-only, etc.
                     owner[propertyName] = attr.textContent;

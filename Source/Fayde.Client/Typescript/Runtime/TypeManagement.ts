@@ -63,9 +63,13 @@ module Fayde {
         IsSystem: boolean;
         Type: Function;
     }
+    export interface INamespacePrefixResolver {
+        lookupNamespaceURI(prefix: string): string;
+    }
     export interface ITypeResolver {
         GetAnnotation(type: Function, name: string): any;
         Resolve(xmlns: string, xmlname: string): ITypeResolution;
+        ResolveFullyQualifiedName(xmlname: string, resolver: INamespacePrefixResolver): ITypeResolution;
     }
     export var TypeResolver: ITypeResolver = {
         GetAnnotation: function (type: Function, name: string): any {
@@ -98,6 +102,16 @@ module Fayde {
                     return { IsSystem: isSystem, IsPrimitive: false, Type: t };
             }
             return undefined;
+        },
+        ResolveFullyQualifiedName: function (xmlname: string, resolver: INamespacePrefixResolver): ITypeResolution {
+            var ns = Fayde.XMLNS;
+            var typeName = xmlname;
+            var tokens = xmlname.split(":");
+            if (tokens.length === 2) {
+                ns = resolver.lookupNamespaceURI(tokens[0]);
+                typeName = tokens[1];
+            }
+            return TypeResolver.Resolve(ns, typeName);
         }
     }
 
