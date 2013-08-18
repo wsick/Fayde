@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 /// CODE
 
 class CornerRadius implements ICloneable {

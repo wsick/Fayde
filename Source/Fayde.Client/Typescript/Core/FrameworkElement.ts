@@ -2,6 +2,7 @@
 /// CODE
 /// <reference path="../Runtime/Enumerable.ts" />
 /// <reference path="../Primitives/size.ts" />
+/// <reference path="../Primitives/Length.ts" />
 /// <reference path="ResourceDictionary.ts" />
 /// <reference path="Providers/ActualSizeStore.ts" />
 /// <reference path="Providers/LocalStyleBroker.ts" />
@@ -170,7 +171,7 @@ module Fayde {
         static ActualWidthProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("ActualWidth", () => Number, FrameworkElement);
         static CursorProperty: DependencyProperty = DependencyProperty.RegisterFull("Cursor", () => new Enum(CursorType), FrameworkElement, CursorType.Default);
         static FlowDirectionProperty: DependencyProperty = InheritableOwner.FlowDirectionProperty.ExtendTo(FrameworkElement);
-        static HeightProperty: DependencyProperty = DependencyProperty.Register("Height", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._HeightChanged(args));
+        static HeightProperty: DependencyProperty = DependencyProperty.Register("Height", () => Length, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._HeightChanged(args));
         static HorizontalAlignmentProperty: DependencyProperty = DependencyProperty.Register("HorizontalAlignment", () => new Enum(HorizontalAlignment), FrameworkElement, HorizontalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
         static LanguageProperty: DependencyProperty = InheritableOwner.LanguageProperty.ExtendTo(FrameworkElement);
         static MarginProperty: DependencyProperty = DependencyProperty.RegisterCore("Margin", () => Thickness, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
@@ -180,7 +181,7 @@ module Fayde {
         static MinWidthProperty: DependencyProperty = DependencyProperty.Register("MinWidth", () => Number, FrameworkElement, 0.0, (d, args) => (<FrameworkElement>d).XamlNode._SizeChanged(args));
         static StyleProperty: DependencyProperty = DependencyProperty.Register("Style", () => Style, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d)._StyleChanged(args));
         static VerticalAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalAlignment", () => new Enum(VerticalAlignment), FrameworkElement, VerticalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
-        static WidthProperty: DependencyProperty = DependencyProperty.Register("Width", () => Number, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._WidthChanged(args));
+        static WidthProperty: DependencyProperty = DependencyProperty.Register("Width", () => Length, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._WidthChanged(args));
         static ResourcesProperty = DependencyProperty.RegisterImmutable("Resources", () => ResourceDictionary, FrameworkElement);
         
         IsInheritable(propd: DependencyProperty): boolean {

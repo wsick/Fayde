@@ -62,7 +62,7 @@ module Fayde.Media {
             this.len = str.length;
         }
 
-        ParseGeometryImpl():Geometry {
+        ParseGeometryImpl(): Geometry {
             var cp = new Point();
             var cp1: Point, cp2: Point, cp3: Point;
             var start = new Point();
