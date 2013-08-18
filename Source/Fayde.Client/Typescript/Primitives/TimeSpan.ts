@@ -102,3 +102,36 @@ Fayde.RegisterType(TimeSpan, {
 	Namespace: "window",
 	XmlNamespace: Fayde.XMLNSX
 });
+
+Fayde.RegisterTypeConverter(TimeSpan, (val: string): TimeSpan => {
+    var ticks = parseFloat(val);
+    if (!isNaN(ticks))
+        return TimeSpan.FromTicks(ticks);
+
+    var days = 0;
+    var hours: number;
+    var minutes: number;
+    var seconds: number;
+    var milliseconds = 0;
+
+    var tokens = val.split(":");
+    if (tokens.length !== 3)
+        throw new XamlParseException("An invalid value for TimeSpan has been provided.");
+
+    var daysplit = tokens[0].split(".");
+    if (daysplit.length === 2) {
+        days = parseInt(daysplit[0]);
+        hours = parseInt(daysplit[1]);
+    } else if (daysplit.length === 1) {
+        hours = parseInt(daysplit[0]);
+    }
+
+    minutes = parseInt(tokens[1]);
+
+    seconds = parseFloat(tokens[2]);
+    milliseconds = seconds % 1;
+    seconds = seconds - milliseconds;
+    milliseconds *= 1000.0;
+
+    return TimeSpan.FromArgs(days, hours, minutes, seconds, milliseconds);
+});

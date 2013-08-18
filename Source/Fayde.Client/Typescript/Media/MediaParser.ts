@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/TypeManagement.ts" />
 /// CODE
 /// <reference path="Geometry.ts" />
 /// <reference path="PathGeometry.ts" />
@@ -454,4 +455,6 @@ module Fayde.Media {
             return code >= 48 && code <= 57;
         }
     }
+
+    Fayde.RegisterTypeConverter(Geometry, ParseGeometry);
 }

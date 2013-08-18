@@ -1,19 +1,9 @@
+/// CODE
+
 interface IInterfaceDeclaration extends IType {
     Name: string;
 }
 interface IType {
-}
-interface ITypeRegistration extends Function, IType {
-    _JsNamespace: string;
-    _XmlNamespace: string;
-    _TypeName: string;
-    _BaseClass: Function;
-    _Interfaces: IInterfaceDeclaration[];
-
-    Namespace(jsNamespace: string, xmlNamespace?: string): ITypeRegistration;
-    Name(name: string): ITypeRegistration;
-    Interface(inter: IInterfaceDeclaration): ITypeRegistration;
-    Register();
 }
 
 module Fayde {
@@ -60,8 +50,6 @@ module Fayde {
     export function RegisterInterface(name: string): IInterfaceDeclaration {
         return { Name: name };
     }
-
-
     var PRIMITIVE_MAPPINGS = [];
     PRIMITIVE_MAPPINGS["String"] = String;
     PRIMITIVE_MAPPINGS["Number"] = Number;
@@ -72,6 +60,7 @@ module Fayde {
 
     export interface ITypeResolution {
         IsPrimitive: boolean;
+        IsSystem: boolean;
         Type: Function;
     }
     export interface ITypeResolver {
@@ -82,7 +71,7 @@ module Fayde {
         GetAnnotation: function (type: Function, name: string): any {
             if (!type)
                 return;
-            var t = <ITypeRegistration>type;
+            var t = <any>type;
             var anns = (<any>t).Annotations;
             var annotation: any;
             if (anns && (annotation = anns[name]))
@@ -90,22 +79,36 @@ module Fayde {
             return TypeResolver.GetAnnotation(t._BaseClass, name);
         },
         Resolve: function (xmlns: string, xmlname: string): ITypeResolution {
+            var isSystem = false;
             if (xmlns === Fayde.XMLNSX) {
                 var mapping = PRIMITIVE_MAPPINGS[xmlname];
                 if (mapping !== undefined) {
                     return {
                         Type: mapping,
-                        IsPrimitive: true
+                        IsPrimitive: true,
+                        IsSystem: false
                     };
                 }
+                isSystem = true;
             }
             var xarr = xmlNamespaces[xmlns];
             if (xarr) {
                 var t = xarr[xmlname];
                 if (t)
-                    return { IsPrimitive: false, Type: t };
+                    return { IsSystem: isSystem, IsPrimitive: false, Type: t };
             }
             return undefined;
         }
+    }
+
+    var converters: any = [];
+    export function ConvertStringToType(val: string, type: Function): any {
+        var converter: (val: string) => any = (<any>converters)[type];
+        if (!converter)
+            return val;
+        return converter(val);
+    }
+    export function RegisterTypeConverter(type: Function, converter: (val: string) => any) {
+        converters[type] = converter;
     }
 }

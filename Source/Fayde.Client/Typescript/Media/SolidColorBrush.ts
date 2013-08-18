@@ -31,4 +31,10 @@ module Fayde.Media {
     	Namespace: "Fayde.Media",
     	XmlNamespace: Fayde.XMLNS
     });
+
+    Fayde.RegisterTypeConverter(Brush, (val: string): Brush => {
+        var scb = new SolidColorBrush();
+        scb.Color = Fayde.ConvertStringToType(val, Color);
+        return scb;
+    });
 }

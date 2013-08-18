@@ -44,3 +44,11 @@ Fayde.RegisterType(Duration, {
 	Namespace: "window",
 	XmlNamespace: Fayde.XMLNSX
 });
+Fayde.RegisterTypeConverter(Duration, (val: string): Duration => {
+    if (!val || val.toLowerCase() === "automatic")
+        return Duration.Automatic;
+    if (val.toLowerCase() === "forever")
+        return Duration.Forever;
+    var ts = Fayde.ConvertStringToType(val, TimeSpan);
+    return new Duration(ts);
+});

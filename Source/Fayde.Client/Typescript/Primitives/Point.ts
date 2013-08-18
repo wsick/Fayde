@@ -42,3 +42,15 @@ Fayde.RegisterType(Point, {
 	Namespace: "window",
 	XmlNamespace: Fayde.XMLNSX
 });
+
+Fayde.RegisterTypeConverter(Point, (val: string): Point => {
+    if (!val)
+        return new Point();
+    var tokens = val.split(",");
+    if (tokens.length === 2) {
+        var x = parseFloat(tokens[0]);
+        var y = parseFloat(tokens[1]);
+        return new Point(x, y);
+    }
+    throw new XamlParseException("Cannot parse Point value '" + val + "'");
+});

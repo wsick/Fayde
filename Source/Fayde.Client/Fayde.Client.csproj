@@ -101,6 +101,10 @@
       <DependentUpon>BindingTests.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Tests\XamlLoadTests.ts" />
+    <TypeScriptCompile Include="Tests\TypeConverterTests.ts" />
+    <Content Include="Tests\TypeConverterTests.js">
+      <DependentUpon>TypeConverterTests.ts</DependentUpon>
+    </Content>
     <Content Include="Tests\XamlLoadTests.js">
       <DependentUpon>XamlLoadTests.ts</DependentUpon>
     </Content>
@@ -220,6 +224,10 @@
     <Content Include="Typescript\MVVM\ViewModelBase.js">
       <DependentUpon>ViewModelBase.ts</DependentUpon>
     </Content>
+    <Content Include="Typescript\Primitives\Length.js">
+      <DependentUpon>Length.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Primitives\Length.ts" />
     <Content Include="Typescript\Runtime\Debug.js">
       <DependentUpon>Debug.ts</DependentUpon>
     </Content>
@@ -231,6 +239,10 @@
     <TypeScriptCompile Include="Typescript\Xaml\XamlLoader.ts" />
     <Content Include="Typescript\Runtime\TypeManagement.js">
       <DependentUpon>TypeManagement.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Xaml\MarkupExpressionParser.ts" />
+    <Content Include="Typescript\Xaml\MarkupExpressionParser.js">
+      <DependentUpon>MarkupExpressionParser.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Xaml\XamlLoader.js">
       <DependentUpon>XamlLoader.ts</DependentUpon>

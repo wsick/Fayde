@@ -233,3 +233,15 @@ Fayde.RegisterType(Color, {
 	Namespace: "window",
 	XmlNamespace: Fayde.XMLNSX
 });
+
+Fayde.RegisterTypeConverter(Color, (val: string): Color => {
+    if (!val)
+        return new Color();
+    if (val[0] !== "#") {
+        var color = Color.KnownColors[val];
+        if (!color)
+            throw new NotSupportedException("Unknown Color: " + val);
+        return color;
+    }
+    return Color.FromHex(val);
+});

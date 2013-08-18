@@ -37,3 +37,21 @@ Fayde.RegisterType(CornerRadius, {
 	Namespace: "window",
 	XmlNamespace: Fayde.XMLNSX
 });
+
+Fayde.RegisterTypeConverter(CornerRadius, (val: string): CornerRadius => {
+    if (!val)
+        return new CornerRadius();
+    var tokens = val.split(",");
+    var topLeft, topRight, bottomRight, bottomLeft;
+    if (tokens.length === 1) {
+        topLeft = topRight = bottomRight = bottomLeft = parseFloat(tokens[0]);
+    } else if (tokens.length === 4) {
+        topLeft = parseFloat(tokens[0]);
+        topRight = parseFloat(tokens[1]);
+        bottomLeft = parseFloat(tokens[2]);
+        bottomRight = parseFloat(tokens[3]);
+    } else {
+        throw new XamlParseException("Cannot parse CornerRadius value '" + val + "'");
+    }
+    return new CornerRadius(topLeft, topRight, bottomRight, bottomLeft);
+});

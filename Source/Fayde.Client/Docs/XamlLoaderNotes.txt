@@ -32,8 +32,15 @@ Inner Tag Syntax
 	
 Next:
 ResourceDictionary
+Style (TargetType)
+Setter (Property, Value)
 MarkupExpressionParsing
 	StaticResource
 	RelativeSource
 	Binding
 	TemplateBinding
+
+TypeConverters:
+	Font
+	FontFamily
+	Uri

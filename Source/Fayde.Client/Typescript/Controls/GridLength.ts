@@ -27,4 +27,17 @@ module Fayde.Controls {
     	Namespace: "Fayde.Controls",
     	XmlNamespace: Fayde.XMLNS
     });
+
+    Fayde.RegisterTypeConverter(GridLength, (val: string): GridLength => {
+        if (!val || val.toLowerCase() === "auto")
+            return new GridLength();
+        var type = GridUnitType.Pixel;
+        if (val[val.length - 1] === "*") {
+            val = val.substr(0, val.length - 1);
+            type = GridUnitType.Star;
+        }
+        var v = parseFloat(val);
+        if (isNaN(v)) v = 1;
+        return new GridLength(v, type);
+    });
 }

@@ -1,5 +1,6 @@
 /// CODE
 /// <reference path="../Runtime/TypeManagement.ts" />
+/// <reference path="MarkupExpressionParser.ts" />
 
 module Fayde.Xaml {
     var parser = new DOMParser();
@@ -39,6 +40,8 @@ module Fayde.Xaml {
             throw new XamlParseException("Could not resolve type '" + node.namespaceURI + ":" + node.localName + "'");
         if (resolution.IsPrimitive)
             return createPrimitive(resolution.Type, node, ctx);
+        if (resolution.IsSystem)
+            return Fayde.ConvertStringToType(node.textContent, resolution.Type);
 
         var val = new (<any>resolution.Type)();
 
@@ -126,10 +129,15 @@ module Fayde.Xaml {
     }
 
     function createAttributeObject(propd: DependencyProperty, value: string, ctx: IXamlLoadContext): any {
-        var targetType = propd.GetTargetType();
+        if (value[0] === "{") {
+            var result = MarkupExpressionParser.Parse(value, ctx.ResourceChain, ctx.TemplateBindingSource);
+            if (result !== undefined)
+                return result;
+        }
+        var targetType = <Function>propd.GetTargetType();
         if (targetType === String)
             return value;
-        NotImplemented("createAttributeObject");
+        return Fayde.ConvertStringToType(value, targetType);
     }
 
     function getNodeKey(node: Node): string {

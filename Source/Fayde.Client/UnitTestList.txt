@@ -1,5 +1,6 @@
 ﻿Fayde.d.ts
 Tests\PrimitivesTests.ts
+Tests\TypeConverterTests.ts
 Tests\XamlNodeTests.ts
 Tests\ProviderTests.ts
 Tests\XamlLoadTests.ts

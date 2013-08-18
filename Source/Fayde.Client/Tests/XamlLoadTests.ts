@@ -38,7 +38,7 @@ test("Panel with Children", () => {
 test("Resource Dictionary", () => {
     var xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
         + "<StackPanel.Resources>"
-        + "<x:Thickness x:Key=\"SomeThickness\" Left=\"1\" Top=\"2\" Right=\"3\" Bottom=\"4\" />"
+        + "<x:Thickness x:Key=\"SomeThickness\">1,2,3,4</x:Thickness>"
         + "</StackPanel.Resources>"
         + "</StackPanel>";
     var root = <Fayde.Controls.StackPanel>Fayde.Xaml.Load(xaml);

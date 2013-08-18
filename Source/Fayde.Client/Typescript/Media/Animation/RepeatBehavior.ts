@@ -40,4 +40,15 @@ module Fayde.Media.Animation {
     	Namespace: "Fayde.Media.Animation",
     	XmlNamespace: Fayde.XMLNS
     });
+
+    Fayde.RegisterTypeConverter(RepeatBehavior, (val: string): RepeatBehavior => {
+        if (!val || val.toLowerCase() === "forever")
+            return RepeatBehavior.Forever;
+        if (val[val.length - 1] === "x") {
+            var d = parseInt(val.substr(0, val.length - 1));
+            return RepeatBehavior.FromIterationCount(d);
+        }
+        var duration = new Duration(Fayde.ConvertStringToType(val, TimeSpan));
+        return RepeatBehavior.FromRepeatDuration(duration);
+    });
 }

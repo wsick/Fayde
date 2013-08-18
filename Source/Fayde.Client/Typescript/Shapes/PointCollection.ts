@@ -94,4 +94,10 @@ module Fayde.Shapes {
     	Namespace: "Fayde.Shapes",
     	XmlNamespace: Fayde.XMLNS
     });
+
+    Fayde.RegisterTypeConverter(PointCollection, (val: string): PointCollection=> {
+        var pc = new PointCollection();
+        pc.AddRange(Fayde.Media.ParseShapePoints(val));
+        return pc;
+    });
 }

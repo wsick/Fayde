@@ -41,3 +41,9 @@ Fayde.RegisterType(KeyTime, {
 	Namespace: "window",
 	XmlNamespace: Fayde.XMLNSX
 });
+Fayde.RegisterTypeConverter(KeyTime, (val: string): KeyTime => {
+    if (!val || val.toLowerCase() === "uniform")
+        return KeyTime.CreateUniform();
+    var ts = Fayde.ConvertStringToType(val, TimeSpan);
+    return KeyTime.CreateTimeSpan(ts);
+});

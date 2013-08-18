@@ -54,3 +54,24 @@ Fayde.RegisterType(Thickness, {
 	Namespace: "window",
 	XmlNamespace: Fayde.XMLNSX
 });
+
+Fayde.RegisterTypeConverter(Thickness, (val: string): Thickness => {
+    if (!val)
+        return new Thickness();
+    var tokens = val.split(",");
+    var left, top, right, bottom;
+    if (tokens.length === 1) {
+        left = top = right = bottom = parseFloat(tokens[0]);
+    } else if (tokens.length === 2) {
+        left = right = parseFloat(tokens[0]);
+        top = bottom = parseFloat(tokens[1]);
+    } else if (tokens.length === 4) {
+        left = parseFloat(tokens[0]);
+        top = parseFloat(tokens[1]);
+        right = parseFloat(tokens[2]);
+        bottom = parseFloat(tokens[3]);
+    } else {
+        throw new XamlParseException("Cannot parse Thickness value '" + val + "'");
+    }
+    return new Thickness(left, top, right, bottom);
+});
