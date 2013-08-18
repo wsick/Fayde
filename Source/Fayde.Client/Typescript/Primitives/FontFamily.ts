@@ -15,3 +15,7 @@ Fayde.RegisterType(FontFamily, {
 	Namespace: "window",
 	XmlNamespace: Fayde.XMLNSX
 });
+Fayde.RegisterTypeConverter(FontFamily, (val: any): any => {
+    if (!val) return new FontFamily(Font.DEFAULT_FAMILY);
+    return new FontFamily(val.toString());
+});
