@@ -251,6 +251,9 @@
     <Content Include="Typescript\Xaml\TemplateBinding.js">
       <DependentUpon>TemplateBinding.ts</DependentUpon>
     </Content>
+    <Content Include="Typescript\Xaml\XamlLoader.js">
+      <DependentUpon>XamlLoader.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Xaml\XamlLoader.ts" />
     <Content Include="UnitTestList.txt" />
     <Content Include="Tests\XamlNodeTests.js">
