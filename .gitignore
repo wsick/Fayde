@@ -288,3 +288,6 @@ Source/Fayde.Client/Typescript/Engine/Application.js
 Source/Fayde.Client/Typescript/Xaml/MarkupExpressionParser.js
 Source/Fayde.Client/Typescript/Primitives/Length.js
 Source/Fayde.Client/Tests/TypeConverterTests.js
+Source/Fayde.Client/Typescript/Runtime/AjaxRequest.js
+Source/Fayde.Client/Typescript/Xaml/StaticResource.js
+Source/Fayde.Client/Typescript/Xaml/TemplateBinding.js
