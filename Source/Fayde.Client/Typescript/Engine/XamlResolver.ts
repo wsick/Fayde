@@ -1,6 +1,6 @@
 /// CODE
 /// <reference path="../Runtime/Nullstone.ts" />
-/// <reference path="../Runtime/AjaxJsonRequest.ts" />
+/// <reference path="../Runtime/AjaxRequest.ts" />
 
 module Fayde {
     export class XamlResolver {
@@ -8,20 +8,20 @@ module Fayde {
         private _IsScriptLoaded: boolean = false;
         private _BaseHref: string = null;
         private _ScriptResult: HTMLScriptElement = null;
-        private _XamlResult: AjaxJsonResult = null;
+        private _XamlResult: IAjaxResult = null;
 
-        constructor(public OnSuccess: (xamlResult: AjaxJsonResult, scriptResult: HTMLScriptElement) => void , public OnSubSuccess, public OnError: (error: string) => void ) {
+        constructor(public OnSuccess: (xamlResult: IAjaxResult, scriptResult: HTMLScriptElement) => void , public OnSubSuccess, public OnError: (error: string) => void ) {
         }
 
         Load(href: string, hash: string) {
             this._BaseHref = href;
-            var xamlRequest = new AjaxJsonRequest((result) => this._HandleXamlSuccess(result), (error) => this._HandleXamlFailed(error));
+            var xamlRequest = new AjaxRequest((result) => this._HandleXamlSuccess(result), (error) => this._HandleXamlFailed(error));
             xamlRequest.Get(href, "p=" + hash);
             Nullstone.ImportJsFile(href + "?js=true&p=" + hash, (script) => this._HandleScriptSuccess(script));
         }
         LoadGeneric(href: string, hash: string) {
             this._BaseHref = href;
-            var xamlRequest = new AjaxJsonRequest((result) => this._HandleXamlSuccess(result), (error) => this._HandleXamlFailed(error));
+            var xamlRequest = new AjaxRequest((result) => this._HandleXamlSuccess(result), (error) => this._HandleXamlFailed(error));
             xamlRequest.Get(href, hash);
             Nullstone.ImportJsFile(href + "?js=true&" + hash, (script) => this._HandleScriptSuccess(script));
         }
@@ -31,7 +31,7 @@ module Fayde {
             this._ScriptResult = token.Script;
             this._CheckIfLoaded();
         }
-        private _HandleXamlSuccess(result: AjaxJsonResult) {
+        private _HandleXamlSuccess(result: IAjaxResult) {
             this._IsXamlLoaded = true;
             this._XamlResult = result;
             this._CheckIfLoaded();
@@ -78,9 +78,9 @@ module Fayde {
         }
     }
 
-    function resolve(href: string, hash: string, index: number, isFullyResolved: (index: number) => boolean, onSuccess: () => void , onSubSuccess: (xamlResult: AjaxJsonResult, scriptResult: HTMLScriptElement) => void , onFail: (error: string) => void ) {
+    function resolve(href: string, hash: string, index: number, isFullyResolved: (index: number) => boolean, onSuccess: () => void , onSubSuccess: (xamlResult: IAjaxResult, scriptResult: HTMLScriptElement) => void , onFail: (error: string) => void ) {
         var os = (function () {
-            return function (xamlResult: AjaxJsonResult, scriptResult: HTMLScriptElement) {
+            return function (xamlResult: IAjaxResult, scriptResult: HTMLScriptElement) {
                 if (onSubSuccess) onSubSuccess(xamlResult, scriptResult);
                 if (isFullyResolved(index))
                     onSuccess();

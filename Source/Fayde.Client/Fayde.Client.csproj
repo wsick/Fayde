@@ -193,14 +193,13 @@
       <DependentUpon>RoutedPropertyChangedEvent.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Engine\Application.ts" />
+    <Content Include="Typescript\Engine\Application.js">
+      <DependentUpon>Application.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Engine\DebugInterop.js">
       <DependentUpon>DebugInterop.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Media\Animation\AnimationStore.ts" />
-    <TypeScriptCompile Include="Typescript\Core\Theme.ts" />
-    <Content Include="Typescript\Core\Theme.js">
-      <DependentUpon>Theme.ts</DependentUpon>
-    </Content>
     <Content Include="Typescript\Media\Animation\AnimationStore.js">
       <DependentUpon>AnimationStore.ts</DependentUpon>
     </Content>
@@ -228,6 +227,7 @@
       <DependentUpon>Length.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Primitives\Length.ts" />
+    <TypeScriptCompile Include="Typescript\Runtime\AjaxRequest.ts" />
     <Content Include="Typescript\Runtime\Debug.js">
       <DependentUpon>Debug.ts</DependentUpon>
     </Content>
@@ -236,7 +236,6 @@
       <DependentUpon>TimelineProfile.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Runtime\TypeManagement.ts" />
-    <TypeScriptCompile Include="Typescript\Xaml\XamlLoader.ts" />
     <Content Include="Typescript\Runtime\TypeManagement.js">
       <DependentUpon>TypeManagement.ts</DependentUpon>
     </Content>
@@ -244,9 +243,15 @@
     <Content Include="Typescript\Xaml\MarkupExpressionParser.js">
       <DependentUpon>MarkupExpressionParser.ts</DependentUpon>
     </Content>
-    <Content Include="Typescript\Xaml\XamlLoader.js">
-      <DependentUpon>XamlLoader.ts</DependentUpon>
+    <TypeScriptCompile Include="Typescript\Xaml\StaticResource.ts" />
+    <TypeScriptCompile Include="Typescript\Xaml\TemplateBinding.ts" />
+    <Content Include="Typescript\Xaml\StaticResource.js">
+      <DependentUpon>StaticResource.ts</DependentUpon>
     </Content>
+    <Content Include="Typescript\Xaml\TemplateBinding.js">
+      <DependentUpon>TemplateBinding.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Xaml\XamlLoader.ts" />
     <Content Include="UnitTestList.txt" />
     <Content Include="Tests\XamlNodeTests.js">
       <DependentUpon>XamlNodeTests.ts</DependentUpon>
@@ -346,10 +351,6 @@
     <TypeScriptCompile Include="Typescript\Controls\ToolTipService.ts" />
     <Content Include="Typescript\Controls\ToolTipService.js">
       <DependentUpon>ToolTipService.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="Typescript\Core\FrameworkTemplate.ts" />
-    <Content Include="Typescript\Core\FrameworkTemplate.js">
-      <DependentUpon>FrameworkTemplate.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Core\INotifyPropertyChanged.js">
       <DependentUpon>INotifyPropertyChanged.ts</DependentUpon>
@@ -610,13 +611,9 @@
     <TypeScriptCompile Include="Typescript\Media\Brush.ts" />
     <TypeScriptCompile Include="Typescript\Data\PropertyPath.ts" />
     <TypeScriptCompile Include="Typescript\Data\BindingExpression.ts" />
-    <TypeScriptCompile Include="Typescript\Data\BindingBase.ts" />
     <TypeScriptCompile Include="Typescript\Data\Binding.ts" />
     <Content Include="Typescript\Data\Binding.js">
       <DependentUpon>Binding.ts</DependentUpon>
-    </Content>
-    <Content Include="Typescript\Data\BindingBase.js">
-      <DependentUpon>BindingBase.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Data\BindingExpression.js">
       <DependentUpon>BindingExpression.ts</DependentUpon>
@@ -691,26 +688,6 @@
     <TypeScriptCompile Include="Typescript\Input\MouseEventArgs.ts" />
     <Content Include="Typescript\Input\MouseEventArgs.js">
       <DependentUpon>MouseEventArgs.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="Typescript\Markup\JsonParser.ts" />
-    <TypeScriptCompile Include="Typescript\Markup\BindingMarkup.ts" />
-    <Content Include="Typescript\Markup\BindingMarkup.js">
-      <DependentUpon>BindingMarkup.ts</DependentUpon>
-    </Content>
-    <Content Include="Typescript\Markup\JsonParser.js">
-      <DependentUpon>JsonParser.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="Typescript\Markup\Markup.ts" />
-    <Content Include="Typescript\Markup\Markup.js">
-      <DependentUpon>Markup.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="Typescript\Markup\StaticResourceMarkup.ts" />
-    <Content Include="Typescript\Markup\StaticResourceMarkup.js">
-      <DependentUpon>StaticResourceMarkup.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="Typescript\Markup\TemplateBindingMarkup.ts" />
-    <Content Include="Typescript\Markup\TemplateBindingMarkup.js">
-      <DependentUpon>TemplateBindingMarkup.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Media\Animation\Timeline.ts" />
     <TypeScriptCompile Include="Typescript\Media\Animation\Enums.ts" />
@@ -1011,10 +988,6 @@
     <TypeScriptCompile Include="Typescript\Primitives\Uri.ts" />
     <Content Include="Typescript\Primitives\Uri.js">
       <DependentUpon>Uri.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="Typescript\Runtime\AjaxJsonRequest.ts" />
-    <Content Include="Typescript\Runtime\AjaxJsonRequest.js">
-      <DependentUpon>AjaxJsonRequest.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Runtime\Enum.js">
       <DependentUpon>Enum.ts</DependentUpon>

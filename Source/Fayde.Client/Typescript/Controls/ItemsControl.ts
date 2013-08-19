@@ -80,19 +80,9 @@ module Fayde.Controls {
                 throw new InvalidOperationException("Items collection must be empty before using ItemsSource");
             this.SetValue(ItemsControl.ItemsSourceProperty, value);
         }
-        // <DataTemplate><Grid><TextBlock Text="{Binding @DisplayMemberPath}" /></Grid></DataTemplate>
         get $DisplayMemberTemplate(): DataTemplate {
             if (!this._DisplayMemberTemplate) {
-                this._DisplayMemberTemplate = new DataTemplate({
-                    ParseType: Grid,
-                    Children: [
-                        {
-                            ParseType: TextBlock,
-                            Props: { Text: new Fayde.BindingMarkup({ Path: this.DisplayMemberPath }) }
-                        }
-                    ]
-                });
-                //TODO: DataTemplate wants a res chain
+                this._DisplayMemberTemplate = new DataTemplate("<DataTemplate><Grid><TextBlock Text=\"{Binding " + this.DisplayMemberPath + "}\" /></Grid></DataTemplate>");
             }
             return this._DisplayMemberTemplate;
         }

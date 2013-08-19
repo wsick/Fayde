@@ -3,7 +3,6 @@
 /// <reference path="NameScope.ts" />
 /// <reference path="DependencyObject.ts" />
 /// <reference path="ResourceDictionary.ts" />
-/// <reference path="../Markup/JsonParser.ts" />
 
 module Fayde {
     export class ResourceTarget extends XamlObject {
@@ -19,7 +18,9 @@ module Fayde {
             this._ResChain = resChain;
         }
         CreateResource(): XamlObject {
-            return JsonParser.Parse(this._Json, this._TemplateBindingSource, this._Namescope, this._ResChain);
+            // KILL ME
+            //return JsonParser.Parse(this._Json, this._TemplateBindingSource, this._Namescope, this._ResChain);
+            return undefined;
         }
     }
     Fayde.RegisterType(ResourceTarget, {

@@ -10,16 +10,6 @@ module Fayde.Controls {
             this.LayoutUpdater.BreaksLayoutClipRender = true;
             this.LayoutUpdater.SetContainerMode(true);
         }
-        GetDefaultTemplate(): UIElement {
-            var xobj = this.XObject;
-            var type = (<any>xobj).constructor;
-            var json = type.__TemplateJson;
-            if (json) {
-                this._IsParsing = true;
-                return JsonParser.ParseUserControl(json, this);
-                this._IsParsing = false;
-            }
-        }
     }
     Fayde.RegisterType(UCNode, {
     	Name: "UCNode",

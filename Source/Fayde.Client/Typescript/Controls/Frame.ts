@@ -3,7 +3,6 @@
 /// <reference path="../Runtime/TimelineProfile.ts" />
 /// <reference path="Page.ts" />
 /// <reference path="../Primitives/Uri.ts" />
-/// <reference path="../Runtime/AjaxJsonRequest.ts" />
 /// <reference path="../Engine/XamlResolver.ts" />
 
 module Fayde.Controls {
@@ -15,7 +14,7 @@ module Fayde.Controls {
         CurrentSource: Uri;
         Source: Uri;
 
-        private _Request: AjaxJsonRequest;
+        private _Request: AjaxRequest;
         private _Resolver: XamlResolver;
         private _NavService: Navigation.NavService;
 
@@ -31,7 +30,7 @@ module Fayde.Controls {
         }
 
         Navigate(uri: Uri) {
-            this._Request = new AjaxJsonRequest(
+            this._Request = new AjaxRequest(
                 (result) => this._HandleSuccessfulResponse(result),
                 (error) => this._HandleErrorResponse(error));
             this._Request.Get(uri.toString());
@@ -71,9 +70,9 @@ module Fayde.Controls {
                 (error) => this._HandleErrorResponse(error));
             this._Resolver.Load(href, hash);
         }
-        private _HandleSuccessfulResponse(ajaxJsonResult: AjaxJsonResult) {
+        private _HandleSuccessfulResponse(ajaxResult: IAjaxResult) {
             TimelineProfile.Parse(true, "Page");
-            var page = JsonParser.ParsePage(ajaxJsonResult.CreateJson());
+            var page = <Page>Xaml.Load(ajaxResult.GetData());
             TimelineProfile.Parse(false, "Page");
             if (page) {
                 document.title = page.Title;
@@ -84,8 +83,8 @@ module Fayde.Controls {
             TimelineProfile.Navigate(false);
             TimelineProfile.IsNextLayoutPassProfiled = true;
         }
-        private _HandleSuccessfulSubResponse(ajaxJsonResult: AjaxJsonResult) {
-            var json = ajaxJsonResult.CreateJson();
+        private _HandleSuccessfulSubResponse(ajaxResult: IAjaxResult) {
+            var json = ajaxResult.CreateJson();
             var jsType = json.ParseType;
             jsType.__TemplateJson = json;
         }

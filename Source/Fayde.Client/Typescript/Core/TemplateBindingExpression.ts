@@ -10,13 +10,11 @@ module Fayde {
         private _Listener: Providers.IPropertyChangedListener;
         SourceProperty: DependencyProperty;
         TargetProperty: DependencyProperty;
-        TargetPropertyName: string;
         private _SetsParent: boolean = false;
-        constructor(sourcePropd: DependencyProperty, targetPropd: DependencyProperty, targetPropName: string) {
+        constructor(sourcePropd: DependencyProperty, targetPropd: DependencyProperty) {
             super();
             this.SourceProperty = sourcePropd;
             this.TargetProperty = targetPropd;
-            this.TargetPropertyName = targetPropName;
         }
 
         GetValue(propd: DependencyProperty) {

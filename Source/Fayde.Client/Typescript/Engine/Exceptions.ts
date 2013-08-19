@@ -52,6 +52,17 @@ Fayde.RegisterType(XamlParseException, {
 	XmlNamespace: Fayde.XMLNSX
 });
 
+class XamlMarkupParseException extends Exception {
+    constructor(message: string) {
+        super(message);
+    }
+}
+Fayde.RegisterType(XamlMarkupParseException, {
+	Name: "XamlMarkupParseException",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});
+
 class NotSupportedException extends Exception {
     constructor(message: string) {
         super(message);

@@ -1,83 +1,53 @@
-/// <reference path="../Runtime/Nullstone.ts" />
+/// <reference path="../Core/DependencyObject.ts" />
 /// CODE
+/// <reference path="../Xaml/XamlLoader.ts" />
 /// <reference path="../Runtime/TimelineProfile.ts" />
 /// <reference path="Surface.ts" />
 /// <reference path="../Core/ResourceDictionary.ts" />
 /// <reference path="../Primitives/Uri.ts" />
 /// <reference path="ClockTimer.ts" />
-/// <reference path="../Markup/JsonParser.ts" />
 /// <reference path="../Navigation/NavService.ts" />
 /// <reference path="DebugInterop.ts" />
-/// <reference path="../Core/Theme.ts" />
 
 interface ITimeline {
     Update(nowTime: number);
 }
 
 module Fayde {
-    export class Application implements Fayde.IResourcable, Fayde.ITimerListener {
-        static Version: string = "0.9.4.0";
+    export class Application extends DependencyObject implements IResourcable, ITimerListener {
+        static Version: string = "0.9.6.0";
         static Current: Application;
         MainSurface: Surface;
-        Resources: Fayde.ResourceDictionary;
         Loaded: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
         Address: Uri = null;
-        NavService: Fayde.Navigation.NavService;
-        DebugInterop: Fayde.DebugInterop;
+        NavService: Navigation.NavService;
+        DebugInterop: DebugInterop;
         Theme: string = "Metro";
-        static Themes: Fayde.Theme[] = [];
+        static Themes: Xaml.Theme[] = [];
         private _IsRunning: boolean = false;
         private _Storyboards: ITimeline[] = [];
-        private _ClockTimer: Fayde.ClockTimer = new Fayde.ClockTimer();
-        private static _GenericResourceDictionary: Fayde.ResourceDictionary = null;
+        private _ClockTimer: ClockTimer = new ClockTimer();
+
+        static ResourcesProperty = DependencyProperty.RegisterImmutable("Resources", () => ResourceDictionary, Application);
+        Resources: ResourceDictionary;
+
         constructor() {
+            super();
+            this.XamlNode.NameScope = new NameScope(true);
+            var rd = Application.ResourcesProperty.Initialize<ResourceDictionary>(this);
             this.MainSurface = new Surface(this);
-            Object.defineProperty(this, "Resources", {
-                value: new Fayde.ResourceDictionary(),
-                writable: false
-            });
-            this.Resources.XamlNode.NameScope = new Fayde.NameScope(true);
-            this.DebugInterop = new Fayde.DebugInterop(this);
-        }
-        get RootVisual(): Fayde.UIElement { return this.MainSurface._RootLayer; }
-
-        LoadResources(json: any) {
-            TimelineProfile.Parse(true, "App.Resources");
-            Fayde.JsonParser.ParseResourceDictionary(this.Resources, json);
-            TimelineProfile.Parse(false, "App.Resources");
-        }
-        LoadInitial(canvas: HTMLCanvasElement, json: any) {
+            this.DebugInterop = new DebugInterop(this);
             this.Address = new Uri(document.URL);
-            this.MainSurface.Register(canvas);
-            this.NavService = new Fayde.Navigation.NavService(this);
-
-            //canProfile = profiles.initialParse;
-            //profile("Initial Parse");
-            var ns = new Fayde.NameScope(true);
-            TimelineProfile.Parse(true, "App");
-            var element = Fayde.JsonParser.Parse(json, undefined, ns);
-            TimelineProfile.Parse(false, "App");
-            //profileEnd();
-            //canProfile = false;
-
-            if (element instanceof Fayde.UIElement) {
-                var uie = <Fayde.UIElement>element;
-                uie.XamlNode.NameScope = ns;
-                this.MainSurface.Attach(uie);
-            }
-
-            //canProfile = profiles.initialUpdate;
-
-            this.StartEngine();
-            this.EmitLoaded();
+            this.NavService = new Navigation.NavService(this);
         }
-        private EmitLoaded() {
+
+        get RootVisual(): UIElement { return this.MainSurface._RootLayer; }
+
+        Start() {
+            this._ClockTimer.RegisterTimer(this);
             this.Loaded.RaiseAsync(this, EventArgs.Empty);
         }
 
-        private StartEngine() {
-            this._ClockTimer.RegisterTimer(this);
-        }
         OnTicked(lastTime: number, nowTime: number) {
             this.DebugInterop.NumFrames++;
             this.ProcessStoryboards(lastTime, nowTime);
@@ -132,7 +102,7 @@ module Fayde {
                 sbs.splice(index, 1);
         }
 
-        get CurrentTheme(): Fayde.Theme {
+        get CurrentTheme(): Xaml.Theme {
             var themeName = this.Theme;
             var theme = Application.Themes.filter(t => t.Name == themeName)[0];
             if (!theme) {
@@ -141,20 +111,20 @@ module Fayde {
             }
             return theme;
         }
-        GetImplicitStyle(type: any): Fayde.Style {
+        GetImplicitStyle(type: any): Style {
             var theme = this.CurrentTheme;
             if (!theme)
                 return;
             var rd = theme.ResourceDictionary;
             if (!rd)
                 return;
-            return <Fayde.Style><any>rd.Get(type);
+            return <Style><any>rd.Get(type);
         }
 
         private __DebugLayers(): string {
             return this.MainSurface.__DebugLayers();
         }
-        private __GetById(id: number): Fayde.UIElement {
+        private __GetById(id: number): UIElement {
             return this.MainSurface.__GetById(id);
         }
     }
@@ -165,11 +135,13 @@ module Fayde {
     });
 
     export function Run() { }
-    export function Start(appType: Function, theme: string, rjson: any, json: any, canvas: HTMLCanvasElement) {
+    export function Start(xaml: string, canvas: HTMLCanvasElement) {
         TimelineProfile.TimelineStart = new Date().valueOf();
-        var cur = Application.Current = <Application>new (<any>appType)();
-        cur.Theme = theme;
-        cur.LoadResources(rjson);
-        cur.LoadInitial(canvas, json);
+        TimelineProfile.Parse(true, "App");
+        Xaml.LoadApplication(xaml, canvas, (app: Application) => {
+            TimelineProfile.Parse(false, "App");
+            Application.Current = app;
+            Application.Current.Start();
+        });
     }
 }

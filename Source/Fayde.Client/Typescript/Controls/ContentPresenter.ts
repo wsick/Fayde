@@ -3,7 +3,6 @@
 /// <reference path="../Core/TemplateBindingExpression.ts" />
 /// <reference path="ContentControl.ts" />
 /// <reference path="Grid.ts" />
-/// <reference path="../Markup/BindingMarkup.ts" />
 /// <reference path="../Core/DataTemplate.ts" />
 
 module Fayde.Controls {
@@ -24,11 +23,11 @@ module Fayde.Controls {
             if (xobj.TemplateOwner instanceof ContentControl) {
                 if (xobj.ReadLocalValue(ContentPresenter.ContentProperty) === UnsetValue) {
                     xobj.SetValue(ContentPresenter.ContentProperty,
-                        new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty, "Content"));
+                        new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
                 }
                 if (xobj.ReadLocalValue(ContentPresenter.ContentTemplateProperty) === UnsetValue) {
                     xobj.SetValue(ContentPresenter.ContentTemplateProperty,
-                        new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty, "ContentTemplate"));
+                        new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
                 }
             }
 
@@ -53,17 +52,8 @@ module Fayde.Controls {
             this._ContentRoot = null;
         }
         
-        // <DataTemplate><Grid><TextBlock Text="{Binding}" /></Grid></DataTemplate>
         get FallbackTemplate(): DataTemplate {
-            return new DataTemplate({
-                ParseType: Grid,
-                Children: [
-                    {
-                        ParseType: TextBlock,
-                        Props: { Text: new BindingMarkup({}) }
-                    }
-                ]
-            });
+            return new DataTemplate("<DataTemplate><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>");
         }
 
         _ContentChanged(args: IDependencyPropertyChangedEventArgs) {

@@ -1,7 +1,6 @@
 /// <reference path="Control.ts" />
 /// CODE
 /// <reference path="Grid.ts" />
-/// <reference path="../Markup/BindingMarkup.ts" />
 
 module Fayde.Controls {
     export class ContentControlNode extends ControlNode {
@@ -19,9 +18,9 @@ module Fayde.Controls {
             var presenter = new ContentPresenter();
             presenter.TemplateOwner = this.XObject;
             presenter.SetValue(ContentPresenter.ContentProperty,
-                new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty, "Content"));
+                new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
             presenter.SetValue(ContentPresenter.ContentTemplateProperty,
-                new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty, "ContentTemplate"));
+                new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
             return presenter;
         }
     }

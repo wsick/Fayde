@@ -5,6 +5,42 @@
 module Fayde.Xaml {
     var parser = new DOMParser();
 
+    export class FrameworkTemplate {
+        ResourceChain: ResourceDictionary[] = [];
+        constructor() {
+        }
+        Load(xaml: string, bindingSource: DependencyObject): XamlObject {
+            var ctx: IXamlLoadContext = {
+                Document: parser.parseFromString(xaml, "text/xml"),
+                ResourceChain: this.ResourceChain,
+                NameScope: new NameScope(true),
+                ObjectStack: [],
+                TemplateBindingSource: bindingSource,
+            };
+            validateDocument(ctx.Document);
+            var xobj = <XamlObject>createObject(ctx.Document.firstChild, ctx);
+            xobj.XamlNode.NameScope = ctx.NameScope;
+            return xobj;
+        }
+    }
+
+    export class Theme {
+        Name: string;
+        private _ResourceDictionary: ResourceDictionary;
+        constructor(name: string) {
+            this.Name = name;
+        }
+
+        get ResourceDictionary(): ResourceDictionary {
+            if (!this._ResourceDictionary) {
+                this._ResourceDictionary = new ResourceDictionary();
+                //JsonParser.ParseResourceDictionary(this._ResourceDictionary, this.Json);
+            }
+            return this._ResourceDictionary;
+
+        }
+    }
+
     interface IOutValue {
         Value: any
     }
@@ -14,25 +50,48 @@ module Fayde.Xaml {
         ResourceChain: ResourceDictionary[];
         NameScope: NameScope;
         ObjectStack: any[];
-        TemplateBindingSource: DependencyObject; //TODO: Allow injection
+        TemplateBindingSource: DependencyObject;
     }
-
     export function Load(xaml: string): XamlObject {
         var ctx: IXamlLoadContext = {
             Document: parser.parseFromString(xaml, "text/xml"),
             ResourceChain: [],
-            NameScope: new NameScope(),
+            NameScope: new NameScope(true),
             ObjectStack: [],
             TemplateBindingSource: null,
         };
-        if (ctx.Document.childNodes.length > 1)
-            throw new XamlParseException("There must be 1 root node.");
-        if (!ctx.Document.firstChild.isDefaultNamespace(Fayde.XMLNS))
-            throw new XamlParseException("Invalid default namespace in XAML document.");
+        validateDocument(ctx.Document);
         return <XamlObject>createObject(ctx.Document.firstChild, ctx);
     }
+    export function LoadApplication(xaml: string, canvas: HTMLCanvasElement, onLoaded: (app: Application) => void) {
+        ResolveXamlDependencies(xaml, (doc: Document) => {
+            var ctx: IXamlLoadContext = {
+                Document: doc,
+                ResourceChain: [],
+                NameScope: null,
+                ObjectStack: [],
+                TemplateBindingSource: null,
+            };
+            validateDocument(ctx.Document);
 
+            var node = ctx.Document.firstChild;
+            var resolution = TypeResolver.Resolve(node.namespaceURI, node.localName);
+            if (resolution === undefined)
+                throw new XamlParseException("Could not resolve type '" + node.namespaceURI + ":" + node.localName + "'");
 
+            var app = new (<any>resolution.Type)();
+            if (!(app instanceof Application))
+                throw new XamlParseException("Root Element must be an Application.");
+
+            app.MainSurface.Register(canvas);
+
+            ctx.NameScope = app.XamlNode.NameScope;
+            ctx.ObjectStack.push(app);
+            var childProcessor = createXamlChildProcessor(app, resolution.Type, ctx);
+            childProcessor.Process(node);
+            onLoaded(ctx.ObjectStack.pop());
+        });
+    }
     function createObject(node: Node, ctx: IXamlLoadContext): any {
         var resolution = TypeResolver.Resolve(node.namespaceURI, node.localName);
         if (resolution === undefined)
@@ -43,57 +102,25 @@ module Fayde.Xaml {
             return Fayde.ConvertAnyToType(node.textContent, resolution.Type);
 
         var val = new (<any>resolution.Type)();
-
-        if (val instanceof FrameworkTemplate) {
-            (<FrameworkTemplate>val).ResChain = ctx.ResourceChain.slice(0);
-        }
-
         ctx.ObjectStack.push(val);
 
-        var dobj: DependencyObject;
-
-        var attrs = node.attributes;
+        if (val instanceof FrameworkTemplate)
+            (<FrameworkTemplate>val).ResourceChain = ctx.ResourceChain.slice(0);
         if (val instanceof XamlObject) {
             var xobj = <XamlObject>val;
             var xnode = xobj.XamlNode;
 
-            var nameAttr = attrs.getNamedItemNS(Fayde.XMLNSX, "Name");
+            var nameAttr = node.attributes.getNamedItemNS(Fayde.XMLNSX, "Name");
             if (nameAttr) {
                 var name = nameAttr.value;
                 ctx.NameScope.RegisterName(name, xnode);
                 xnode.Name = name;
             }
-
             xobj.TemplateOwner = ctx.TemplateBindingSource;
-
-            if (xobj instanceof DependencyObject)
-                dobj = <DependencyObject>xobj;
         }
 
         var childProcessor = createXamlChildProcessor(val, resolution.Type, ctx);
-
-        //Handle attributes
-        var len = attrs.length;
-        var attr: Attr;
-        for (var i = 0; i < len; i++) {
-            attr = attrs[i];
-            if (attr.name === "xmlns")
-                continue;
-            if (attr.prefix === "xmlns")
-                continue;
-            if (attr.namespaceURI === Fayde.XMLNSX)
-                continue;
-            childProcessor.ProcessAttribute(attr);
-        }
-
-        //Handle child nodes
-        var children = node.childNodes;
-        var child: Node;
-        len = children.length;
-        for (var i = 0; i < len; i++) {
-            child = children[i];
-            childProcessor.ProcessNode(child);
-        }
+        childProcessor.Process(node);
 
         return ctx.ObjectStack.pop();
     }
@@ -127,8 +154,7 @@ module Fayde.Xaml {
     }
 
     interface IXamlChildProcessor {
-        ProcessAttribute(attr: Attr);
-        ProcessNode(node: Node);
+        Process(node: Node);
     }
     function createXamlChildProcessor(owner: any, ownerType: Function, ctx: IXamlLoadContext): IXamlChildProcessor {
         var dobj: DependencyObject;
@@ -223,6 +249,21 @@ module Fayde.Xaml {
                 throw new XamlParseException("Could not resolve DependencyProperty type '" + val + "'");
             return DependencyProperty.GetDependencyProperty(resolution.Type, tokens[1]);
         }
+        function getResourcesChildNode(node: Node): Node {
+            if (!dobj)
+                return undefined;
+            
+            var uri = node.namespaceURI;
+            var expectedname = node.localName + ".Resources";
+
+            var child = node.firstChild;
+            while (child) {
+                if (child.namespaceURI === uri && child.localName === expectedname)
+                    return child;
+                child = child.nextSibling;
+            }
+            return undefined;
+        }
 
         var hasSetContent = false;
         var propertiesSet = [];
@@ -233,6 +274,44 @@ module Fayde.Xaml {
         }
 
         return {
+            Process: function (node: Node) {
+                //Handle Resources first
+                var resNode = getResourcesChildNode(node);
+                var rd: ResourceDictionary;
+                if (resNode) {
+                    rd = <ResourceDictionary>(<any>dobj).Resources;
+                    if (rd) {
+                        this.ProcessPropertyCollection(resNode, rd);
+                        ctx.ResourceChain.push(rd);
+                    }
+                }
+
+                var attrs = node.attributes;
+                //Handle attributes
+                var len = attrs.length;
+                var attr: Attr;
+                for (var i = 0; i < len; i++) {
+                    attr = attrs[i];
+                    if (attr.name === "xmlns")
+                        continue;
+                    if (attr.prefix === "xmlns")
+                        continue;
+                    if (attr.namespaceURI === Fayde.XMLNSX)
+                        continue;
+                    this.ProcessAttribute(attr);
+                }
+
+                //Handle child nodes
+                var child = node.firstChild;
+                while (child) {
+                    if (child !== resNode) //Skip Resources node
+                        this.ProcessNode(child);
+                    child = child.nextSibling;
+                }
+
+                if (rd)
+                    ctx.ResourceChain.pop();
+            },
             ProcessAttribute: function (attr: Attr) {
                 var tokens = attr.localName.split(".");
                 var propd: DependencyProperty;
@@ -312,5 +391,45 @@ module Fayde.Xaml {
                 ctx.ObjectStack.pop();
             }
         };
+    }
+
+    /// VALIDATION
+    function validateDocument(doc: Document) {
+        if (doc.childNodes.length > 1)
+            throw new XamlParseException("There must be 1 root node.");
+        if (!doc.firstChild.isDefaultNamespace(Fayde.XMLNS))
+            throw new XamlParseException("Invalid default namespace in XAML document.");
+    }
+
+    /// DEPENDENCIES
+    export function ResolveXamlDependencies(xaml: string, onComplete: (doc: Document) => void) {
+        var doc = parser.parseFromString(xaml, "text/xml");
+        validateDocument(doc);
+        var deps = collectDependencies(doc.firstChild);
+        //TODO: Finish
+        onComplete(doc);
+    }
+    interface IXamlDependency {
+        NamespaceUri: string;
+        Name: string;
+    }
+    function collectDependencies(curNode: Node): IXamlDependency[] {
+        var deps: IXamlDependency[] = [];
+
+        var next: Node;
+        var attrs: NamedNodeMap;
+        while (curNode) {
+            if (curNode.namespaceURI !== Fayde.XMLNS || curNode.namespaceURI !== Fayde.XMLNSX)
+                deps.push({ NamespaceUri: curNode.namespaceURI, Name: curNode.localName });
+
+            attrs = curNode.attributes;
+            //TODO: Finish finding needed dependencies in attributes
+
+            next = curNode.nextSibling;
+            if (!next) next = curNode.parentNode.nextSibling;
+            curNode = next;
+        }
+
+        return deps;
     }
 }

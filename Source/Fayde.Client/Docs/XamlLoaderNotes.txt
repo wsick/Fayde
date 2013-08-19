@@ -31,8 +31,25 @@ Inner Tag Syntax
 
 	
 Next:
+Events
 MarkupExpressionParsing
+	x:Null
+		{x:Null}
+	x:Type
+		{x:Type [Type]}
+	x:Static
+		{x:Static [Text]}
 	StaticResource
+		{StaticResource [ResourceKey]}
 	RelativeSource
+		{RelativeSource ...}
 	Binding
+		{Binding ...}
 	TemplateBinding
+		{TemplateBinding [TargetProperty]}
+
+Handle JsonParser.Parse
+Theme -> ResourceDictionary
+Finish resolve dependencies
+Kill ResourceTarget
+Rebuild StaticResource

@@ -1,14 +1,13 @@
-/// <reference path="../Core/FrameworkTemplate.ts" />
+/// <reference path="../Xaml/XamlLoader.ts" />
 /// CODE
-/// <reference path="../Markup/JsonParser.ts" />
 /// <reference path="../Core/UIElement.ts" />
 
 module Fayde.Controls {
-    export class ControlTemplate extends FrameworkTemplate {
-        private _TempJson: any;
+    export class ControlTemplate extends Xaml.FrameworkTemplate {
+        private _Xaml: string;
         TargetType: Function;
 
-        constructor(targetType: Function, json: any) {
+        constructor(targetType: Function, xaml:string) {
             super();
             if (!targetType)
                 throw new XamlParseException("ControlTemplate must have a TargetType.");
@@ -16,18 +15,16 @@ module Fayde.Controls {
                 value: targetType,
                 writable: false
             });
-            this._TempJson = json;
+            this._Xaml = xaml;
         }
 
         GetVisualTree(templateBindingSource: DependencyObject): UIElement {
-            var json = this._TempJson;
-            if (!json)
+            var xaml = this._Xaml;
+            if (!xaml)
                 throw new XamlParseException("ControlTemplate has no definition.");
-            var ns = new NameScope(true);
-            var uie = <UIElement>JsonParser.Parse(json, templateBindingSource, ns, this.ResChain);
+            var uie = <UIElement>this.Load(this._Xaml, templateBindingSource);
             if (!(uie instanceof UIElement))
                 throw new XamlParseException("ControlTemplate root visual is not a UIElement.");
-            uie.XamlNode.NameScope = ns;
             return uie;
         }
     }

@@ -1,7 +1,6 @@
 /// <reference path="Expression.ts" />
 /// CODE
 /// <reference path="ResourceDictionary.ts" />
-/// <reference path="../Markup/JsonParser.ts" />
 /// <reference path="ResourceTarget.ts" />
 
 module Fayde {
@@ -9,14 +8,12 @@ module Fayde {
         private _Key: any;
         private _Target: XamlObject;
         private _Property: DependencyProperty;
-        private _PropertyName: string;
         private _ResChain: ResourceDictionary[];
-        constructor(key, target: XamlObject, propd: DependencyProperty, propName: string, templateBindingSource: XamlObject, resChain: ResourceDictionary[]) {
+        constructor(key, target: XamlObject, propd: DependencyProperty, resChain: ResourceDictionary[]) {
             super();
             this._Key = key;
             this._Target = target;
             this._Property = propd;
-            this._PropertyName = propName;
             this._ResChain = resChain;
         }
 
@@ -66,7 +63,7 @@ module Fayde {
                 ownerType = propd.OwnerType;
             }
             var value = this.GetValue(propd);
-            parser.TrySetPropertyValue(this._Target, propd, value, null, isAttached, ownerType, this._PropertyName);
+            parser.TrySetPropertyValue(this._Target, propd, value, null, isAttached, ownerType, propd.Name);
         }
     }
     Fayde.RegisterType(StaticResourceExpression, {

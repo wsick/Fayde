@@ -21,13 +21,13 @@ module Fayde.Controls {
         get StackPanelFallbackTemplate(): ItemsPanelTemplate {
             var spft = this._SPFT;
             if (!spft)
-                spft = this._SPFT = new ItemsPanelTemplate({ ParseType: StackPanel });
+                spft = this._SPFT = new ItemsPanelTemplate("<StackPanel />");
             return spft;
         }
         get VirtualizingStackPanelFallbackTemplate(): ItemsPanelTemplate {
             var vspft = this._VSPFT;
             if (!vspft)
-                vspft = this._VSPFT = new ItemsPanelTemplate({ ParseType: VirtualizingStackPanel });
+                vspft = this._VSPFT = new ItemsPanelTemplate("<VirtualizingStackPanel  />");
             return vspft;
         }
 

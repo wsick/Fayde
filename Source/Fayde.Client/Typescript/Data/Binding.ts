@@ -1,6 +1,7 @@
-/// <reference path="BindingBase.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 /// CODE
 /// <reference path="RelativeSource.ts" />
+/// <reference path="../Xaml/MarkupExpressionParser.ts" />
 
 module Fayde.Data {
     export interface IValueConverter {
@@ -8,7 +9,13 @@ module Fayde.Data {
         ConvertBack(value: any, targetType: IType, parameter: any, culture: any): any;
     }
 
-    export class Binding extends BindingBase {
+    export class Binding implements Xaml.IMarkup {
+        private _IsSealed: boolean = false;
+        
+        private _StringFormat: string = undefined;
+        private _FallbackValue: any = undefined;
+        private _TargetNullValue: any = undefined;
+
         private _BindsDirectlyToSource: boolean = false;
         private _Converter: IValueConverter;
         private _ConverterParameter: any;
@@ -24,10 +31,16 @@ module Fayde.Data {
         private _ValidatesOnDataErrors: boolean = false;
         private _ValidatesOnNotifyDataErrors: boolean = true;
 
-        constructor(path: string) {
-            super();
+        constructor(path?: string) {
             if (!path) path = "";
             this._Path = new PropertyPath(path);
+        }
+
+        Parse(value: string) {
+            //TODO: Implement
+        }
+        Transmute(ctx: Xaml.IMarkupParseContext): Expression {
+            return new Data.BindingExpression(this, ctx.Owner, ctx.Property);
         }
 
         get BindsDirectlyToSource(): boolean { return this._BindsDirectlyToSource; }
@@ -113,6 +126,31 @@ module Fayde.Data {
             this.CheckSealed();
             this._ValidatesOnNotifyDataErrors = value;
         }
+
+        get StringFormat(): string { return this._StringFormat; }
+        set StringFormat(value: string) {
+            this.CheckSealed();
+            this._StringFormat = value;
+        }
+
+        get FallbackValue(): any { return this._FallbackValue; }
+        set FallbackValue(value: any) {
+            this.CheckSealed();
+            this._FallbackValue = value;
+        }
+
+        get TargetNullValue():any { return this._TargetNullValue; }
+        set TargetNullValue(value: any) {
+            this.CheckSealed();
+            this._TargetNullValue = value;
+        }
+
+        private CheckSealed() {
+            if (this._IsSealed)
+                throw new InvalidOperationException("The Binding cannot be changed after it has been used.");
+        }
+
+        Seal() { this._IsSealed = true; }
 
     }
     Fayde.RegisterType(Binding, {
