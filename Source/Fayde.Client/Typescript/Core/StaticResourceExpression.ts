@@ -54,6 +54,7 @@ module Fayde {
 
             return Application.Current.Resources.Get(key);
         }
+        /*
         Resolve(parser: JsonParser) {
             var isAttached = false;
             var ownerType: Function;
@@ -65,6 +66,7 @@ module Fayde {
             var value = this.GetValue(propd);
             parser.TrySetPropertyValue(this._Target, propd, value, null, isAttached, ownerType, propd.Name);
         }
+        */
     }
     Fayde.RegisterType(StaticResourceExpression, {
     	Name: "StaticResourceExpression",

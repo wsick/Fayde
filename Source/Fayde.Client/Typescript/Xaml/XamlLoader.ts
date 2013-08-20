@@ -1,3 +1,4 @@
+/// <reference path="../Core/XamlObject.ts" />
 /// CODE
 /// <reference path="../Runtime/TypeManagement.ts" />
 /// <reference path="MarkupExpressionParser.ts" />
@@ -5,24 +6,31 @@
 module Fayde.Xaml {
     var parser = new DOMParser();
 
-    export class FrameworkTemplate {
-        ResourceChain: ResourceDictionary[] = [];
+    export class FrameworkTemplate extends Fayde.XamlObject {
+        private ResourceChain: ResourceDictionary[] = [];
+        private TemplateNode: Node;
         constructor() {
+            super();
         }
-        Load(xaml: string, bindingSource: DependencyObject): XamlObject {
+        GetVisualTree(bindingSource: DependencyObject): UIElement {
             var ctx: IXamlLoadContext = {
-                Document: parser.parseFromString(xaml, "text/xml"),
+                Document: this.TemplateNode.ownerDocument,
                 ResourceChain: this.ResourceChain,
                 NameScope: new NameScope(true),
                 ObjectStack: [],
                 TemplateBindingSource: bindingSource,
             };
-            validateDocument(ctx.Document);
-            var xobj = <XamlObject>createObject(ctx.Document.firstChild, ctx);
-            xobj.XamlNode.NameScope = ctx.NameScope;
-            return xobj;
+            var uie = <UIElement>createObject(this.TemplateNode.firstChild, ctx);
+            if (!(uie instanceof UIElement))
+                throw new XamlParseException("Template root visual is not a UIElement.");
+            uie.XamlNode.NameScope = ctx.NameScope;
+            return uie;
         }
     }
+    Fayde.RegisterType(FrameworkTemplate, {
+        Name: "FrameworkTemplate",
+        Namespace: "Fayde.Xaml"
+    });
 
     export class Theme {
         Name: string;
@@ -102,10 +110,12 @@ module Fayde.Xaml {
             return Fayde.ConvertAnyToType(node.textContent, resolution.Type);
 
         var val = new (<any>resolution.Type)();
-        ctx.ObjectStack.push(val);
 
         if (val instanceof FrameworkTemplate)
-            (<FrameworkTemplate>val).ResourceChain = ctx.ResourceChain.slice(0);
+            return createTemplate(<FrameworkTemplate>val, node, ctx);
+        
+        ctx.ObjectStack.push(val);
+
         if (val instanceof XamlObject) {
             var xobj = <XamlObject>val;
             var xnode = xobj.XamlNode;
@@ -151,6 +161,26 @@ module Fayde.Xaml {
             return arr;
         }
         return undefined;
+    }
+    function createTemplate(ft: FrameworkTemplate, node: Node, ctx: IXamlLoadContext): FrameworkTemplate {
+        Object.defineProperty(ft, "ResourceChain", { value: ctx.ResourceChain.slice(0), writable: false });
+        //Clone Node?
+        Object.defineProperty(ft, "TemplateNode", { value: node, writable: false });
+        if (ft instanceof Controls.ControlTemplate) {
+            var targetTypeNode = node.attributes.getNamedItemNS(Fayde.XMLNS, "TargetType");
+            if (!targetTypeNode)
+                targetTypeNode = node.attributes.getNamedItem("TargetType");
+            if (!targetTypeNode)
+                throw new XamlParseException("ControlTemplate must have a TargetType.");
+            var ctres = TypeResolver.ResolveFullyQualifiedName(targetTypeNode.value, targetTypeNode);
+            if (!ctres)
+                throw new XamlParseException("Could not find ControlTemplate.TargetType '" + targetTypeNode.value + "'.");
+            Object.defineProperty(ft, "TargetType", {
+                value: ctres.Type,
+                writable: false
+            });
+        }
+        return ft;
     }
 
     interface IXamlChildProcessor {

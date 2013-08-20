@@ -82,7 +82,7 @@ module Fayde.Controls {
         }
         get $DisplayMemberTemplate(): DataTemplate {
             if (!this._DisplayMemberTemplate) {
-                this._DisplayMemberTemplate = new DataTemplate("<DataTemplate><Grid><TextBlock Text=\"{Binding " + this.DisplayMemberPath + "}\" /></Grid></DataTemplate>");
+                this._DisplayMemberTemplate = <DataTemplate>Xaml.Load("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding " + this.DisplayMemberPath + "}\" /></Grid></DataTemplate>");
             }
             return this._DisplayMemberTemplate;
         }

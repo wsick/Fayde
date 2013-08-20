@@ -21,13 +21,13 @@ module Fayde.Controls {
         get StackPanelFallbackTemplate(): ItemsPanelTemplate {
             var spft = this._SPFT;
             if (!spft)
-                spft = this._SPFT = new ItemsPanelTemplate("<StackPanel />");
+                spft = this._SPFT = <ItemsPanelTemplate>Xaml.Load("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><StackPanel /></ItemsPanelTemplate>");
             return spft;
         }
         get VirtualizingStackPanelFallbackTemplate(): ItemsPanelTemplate {
             var vspft = this._VSPFT;
             if (!vspft)
-                vspft = this._VSPFT = new ItemsPanelTemplate("<VirtualizingStackPanel  />");
+                vspft = this._VSPFT = <ItemsPanelTemplate>Xaml.Load("<ItemsPanelTemplate xmlns=\"" + Fayde.XMLNS + "\"><VirtualizingStackPanel /></ItemsPanelTemplate>");
             return vspft;
         }
 

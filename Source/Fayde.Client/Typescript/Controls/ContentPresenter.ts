@@ -53,7 +53,7 @@ module Fayde.Controls {
         }
         
         get FallbackTemplate(): DataTemplate {
-            return new DataTemplate("<DataTemplate><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>");
+            return <DataTemplate>Xaml.Load("<DataTemplate xmlns=\"" + Fayde.XMLNS + "\"><Grid><TextBlock Text=\"{Binding}\" /></Grid></DataTemplate>");
         }
 
         _ContentChanged(args: IDependencyPropertyChangedEventArgs) {

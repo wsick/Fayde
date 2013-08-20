@@ -4,27 +4,14 @@
 
 module Fayde.Controls {
     export class ControlTemplate extends Xaml.FrameworkTemplate {
-        private _Xaml: string;
         TargetType: Function;
 
-        constructor(targetType: Function, xaml:string) {
+        constructor() {
             super();
-            if (!targetType)
-                throw new XamlParseException("ControlTemplate must have a TargetType.");
-            Object.defineProperty(this, "TargetType", {
-                value: targetType,
-                writable: false
-            });
-            this._Xaml = xaml;
         }
 
-        GetVisualTree(templateBindingSource: DependencyObject): UIElement {
-            var xaml = this._Xaml;
-            if (!xaml)
-                throw new XamlParseException("ControlTemplate has no definition.");
-            var uie = <UIElement>this.Load(this._Xaml, templateBindingSource);
-            if (!(uie instanceof UIElement))
-                throw new XamlParseException("ControlTemplate root visual is not a UIElement.");
+        GetVisualTree(bindingSource: DependencyObject): UIElement {
+            var uie = <UIElement>super.GetVisualTree(bindingSource);
             return uie;
         }
     }

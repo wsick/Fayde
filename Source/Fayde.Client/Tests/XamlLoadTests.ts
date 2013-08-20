@@ -3,7 +3,12 @@
 QUnit.module("Xaml Load Tests");
 
 test("Valid XAML Document", () => {
-    throws(() => { var root = <Fayde.Controls.Border>Fayde.Xaml.Load("<Border />"); }, XamlParseException, "An error should let us know that there is no valid default namespace.");
+    try {
+        var root = <Fayde.Controls.Border>Fayde.Xaml.Load("<Border />");
+        ok(false, "An error should let us know that there is no valid default namespace.");
+    } catch (err) {
+        ok(err instanceof XamlParseException, "An error should let us know that there is no valid default namespace.");
+    }
 });
 
 test("Basic Load", () => {
@@ -70,4 +75,21 @@ test("Style", () => {
     var setter = setters.GetValueAt(0);
     strictEqual(setter.Property, Fayde.FrameworkElement.MarginProperty, "Setter Property should be Margin property.");
     ok(Thickness.Equals(setter.ConvertedValue, new Thickness(1, 1, 1, 1)), "Setter Value should be a Thickness (1, 1, 1, 1).");
+});
+
+test("DataTemplate", () => {
+    var xaml = "<DataTemplate xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        + "<Grid></Grid>"
+        + "</DataTemplate>";
+
+    var dt: Fayde.DataTemplate;
+    try {
+        dt = <Fayde.DataTemplate>Fayde.Xaml.Load(xaml);
+    } catch (err) {
+        ok(false, "Loading a datatemplate should not error. " + err.toString());
+    }
+    strictEqual((<any>dt).constructor, Fayde.DataTemplate, "Resulting object should be a DataTemplate.");
+
+    var visual = dt.GetVisualTree(null);
+    strictEqual((<any>visual).constructor, Fayde.Controls.Grid, "Root visual from created visual tree should be a Grid.");
 });

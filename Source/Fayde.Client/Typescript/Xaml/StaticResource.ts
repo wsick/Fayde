@@ -14,7 +14,7 @@ module Fayde.Xaml {
             this.ResourceKey = value;
         }
         Transmute(ctx: Xaml.IMarkupParseContext): Expression {
-            return new StaticResourceExpression(this.ResourceKey, ctx.Owner, ctx.Property, ctx.TemplateBindingSource, ctx.ResourceChain);
+            return new StaticResourceExpression(this.ResourceKey, ctx.Owner, ctx.Property, ctx.ResourceChain);
         }
     }
     Fayde.RegisterType(StaticResource, {

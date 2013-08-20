@@ -4,17 +4,12 @@
 
 module Fayde.Controls {
     export class ItemsPanelTemplate extends Xaml.FrameworkTemplate {
-        private _Xaml: string;
-        constructor(xaml: string) {
+        constructor() {
             super();
-            this._Xaml = xaml;
         }
 
-        GetVisualTree(templateBindingSource: DependencyObject): Panel {
-            var xaml = this._Xaml;
-            if (!xaml)
-                throw new XamlParseException("ItemsPanelTemplate has no definition.");
-            var panel = <Panel>this.Load(xaml, templateBindingSource);
+        GetVisualTree(bindingSource: DependencyObject): Panel {
+            var panel = <Panel>super.GetVisualTree(bindingSource);
             if (!(panel instanceof Panel))
                 throw new XamlParseException("The root element of an ItemsPanelTemplate must be a Panel subclass.");
             return panel;
