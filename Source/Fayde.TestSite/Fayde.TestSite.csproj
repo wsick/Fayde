@@ -64,6 +64,7 @@
   <ItemGroup>
     <Content Include="ClientBin\WickedSick.LitmusTests.xap" />
     <Content Include="default.fap.js" />
+    <Content Include="default.html" />
     <Content Include="Global.asax" />
     <Content Include="Images\github.png" />
     <Content Include="Images\header_overlay.png" />

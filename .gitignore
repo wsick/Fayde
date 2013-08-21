@@ -291,3 +291,4 @@ Source/Fayde.Client/Tests/TypeConverterTests.js
 Source/Fayde.Client/Typescript/Runtime/AjaxRequest.js
 Source/Fayde.Client/Typescript/Xaml/StaticResource.js
 Source/Fayde.Client/Typescript/Xaml/TemplateBinding.js
+Source/Fayde.Client/Typescript/Xaml/Sources.js

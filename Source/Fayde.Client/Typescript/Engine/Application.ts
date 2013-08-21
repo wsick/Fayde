@@ -8,6 +8,8 @@
 /// <reference path="ClockTimer.ts" />
 /// <reference path="../Navigation/NavService.ts" />
 /// <reference path="DebugInterop.ts" />
+/// <reference path="../Core/XamlObjectCollection.ts" />
+/// <reference path="../Xaml/Sources.ts" />
 
 interface ITimeline {
     Update(nowTime: number);
@@ -30,6 +32,8 @@ module Fayde {
 
         static ResourcesProperty = DependencyProperty.RegisterImmutable("Resources", () => ResourceDictionary, Application);
         Resources: ResourceDictionary;
+        static SourcesProperty = DependencyProperty.RegisterImmutable("Sources", () => XamlObjectCollection, Application);
+        Sources: XamlObjectCollection<Xaml.Source>;
 
         constructor() {
             super();
@@ -39,6 +43,7 @@ module Fayde {
             this.DebugInterop = new DebugInterop(this);
             this.Address = new Uri(document.URL);
             this.NavService = new Navigation.NavService(this);
+            Application.SourcesProperty.Initialize<XamlObjectCollection<Xaml.Source>>(this);
         }
 
         get RootVisual(): UIElement { return this.MainSurface._RootLayer; }
@@ -47,7 +52,6 @@ module Fayde {
             this._ClockTimer.RegisterTimer(this);
             this.Loaded.RaiseAsync(this, EventArgs.Empty);
         }
-
         OnTicked(lastTime: number, nowTime: number) {
             this.DebugInterop.NumFrames++;
             this.ProcessStoryboards(lastTime, nowTime);
@@ -129,19 +133,21 @@ module Fayde {
         }
     }
     Fayde.RegisterType(Application, {
-    	Name: "Application",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
+        Name: "Application",
+        Namespace: "Fayde",
+        XmlNamespace: Fayde.XMLNS
     });
 
-    export function Run() { }
-    export function Start(xaml: string, canvas: HTMLCanvasElement) {
-        TimelineProfile.TimelineStart = new Date().valueOf();
-        TimelineProfile.Parse(true, "App");
-        Xaml.LoadApplication(xaml, canvas, (app: Application) => {
-            TimelineProfile.Parse(false, "App");
-            Application.Current = app;
-            Application.Current.Start();
-        });
+    export function Start(fapUrl: string, canvasId: string) {
+        var canvas = <HTMLCanvasElement><any>document.getElementById(canvasId);
+        var request = new AjaxRequest(
+            (result) => {
+                Xaml.LoadApplication(result.GetData(), canvas);
+            },
+            (error) => {
+                alert("An error occurred retrieving the application.");
+                console.log("An error occurred retrieving the application. " + error);
+            });
+        request.Get(fapUrl);
     }
 }

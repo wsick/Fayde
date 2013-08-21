@@ -72,3 +72,4 @@ class TimelineProfile {
         });
     }
 }
+TimelineProfile.TimelineStart = new Date().valueOf();

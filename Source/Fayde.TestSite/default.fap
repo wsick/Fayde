@@ -1,14 +1,10 @@
-﻿<FaydeApplication
+﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
-    xmlns:x="http://schemas.wsick.com/fayde"
-    JsType="TestWebsite.Application"
-    Theme="Metro"
-    ScriptResolution="/Fayde/">
-    <FaydeApplication.UriMappings>
-        <UriMapping Uri="" MappedUri="/Views/home.fayde" />
-        <UriMapping Uri="/{pageName}" MappedUri="/Views/{pageName}.fayde" />
-    </FaydeApplication.UriMappings>
-    <FaydeApplication.Resources>
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    Theme="Fayde.Metro.theme">
+    <Application.Sources>
+    </Application.Sources>
+    <Application.Resources>
         <Style x:Key="LogoIcon" TargetType="ContentControl">
             <Setter Property="Height" Value="45" />
             <Setter Property="Width" Value="280" />
@@ -214,7 +210,7 @@
             <Setter Property="Margin" Value="0,15,0,4"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
         </Style>
-    </FaydeApplication.Resources>
+    </Application.Resources>
     <Grid Margin="5">
         <Border Style="{StaticResource ContentBorderStyle}">
             <Grid x:Name="LayoutRoot">
@@ -248,4 +244,4 @@
             </Grid>
         </Border>
     </Grid>
-</FaydeApplication>
+</Application>

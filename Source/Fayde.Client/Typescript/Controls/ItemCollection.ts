@@ -30,7 +30,7 @@ module Fayde.Controls {
         ClearImpl();
     }
 
-    export class ItemCollection extends XamlObjectCollection<XamlObject> implements IItemCollection, IItemCollectionHidden {
+    export class ItemCollection extends XamlObjectCollection<any> implements IItemCollection, IItemCollectionHidden {
         ItemsChanged: MulticastEvent<Collections.NotifyCollectionChangedEventArgs> = new MulticastEvent<Collections.NotifyCollectionChangedEventArgs>();
         ToArray(): any[] { return this._ht.slice(0); }
 

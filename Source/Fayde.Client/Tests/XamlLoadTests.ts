@@ -40,7 +40,7 @@ test("Panel with Children", () => {
     strictEqual((<any>child2).constructor, Fayde.Controls.TextBlock, "Second child should be a TextBlock.");
 });
 
-test("Resource Dictionary", () => {
+test("FrameworkElement Resources", () => {
     var xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
         + "<StackPanel.Resources>"
         + "<x:Thickness x:Key=\"SomeThickness\">1,2,3,4</x:Thickness>"
@@ -75,6 +75,11 @@ test("Style", () => {
     var setter = setters.GetValueAt(0);
     strictEqual(setter.Property, Fayde.FrameworkElement.MarginProperty, "Setter Property should be Margin property.");
     ok(Thickness.Equals(setter.ConvertedValue, new Thickness(1, 1, 1, 1)), "Setter Value should be a Thickness (1, 1, 1, 1).");
+});
+
+test("Theme", () => {
+    var xaml = "";
+    
 });
 
 test("DataTemplate", () => {

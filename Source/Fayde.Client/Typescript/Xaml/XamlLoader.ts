@@ -8,19 +8,19 @@ module Fayde.Xaml {
 
     export class FrameworkTemplate extends Fayde.XamlObject {
         private ResourceChain: ResourceDictionary[] = [];
-        private TemplateNode: Node;
+        private TemplateElement: Element;
         constructor() {
             super();
         }
         GetVisualTree(bindingSource: DependencyObject): UIElement {
             var ctx: IXamlLoadContext = {
-                Document: this.TemplateNode.ownerDocument,
+                Document: this.TemplateElement.ownerDocument,
                 ResourceChain: this.ResourceChain,
                 NameScope: new NameScope(true),
                 ObjectStack: [],
                 TemplateBindingSource: bindingSource,
             };
-            var uie = <UIElement>createObject(this.TemplateNode.firstChild, ctx);
+            var uie = <UIElement>createObject(this.TemplateElement.firstElementChild, ctx);
             if (!(uie instanceof UIElement))
                 throw new XamlParseException("Template root visual is not a UIElement.");
             uie.XamlNode.NameScope = ctx.NameScope;
@@ -69,58 +69,29 @@ module Fayde.Xaml {
             TemplateBindingSource: null,
         };
         validateDocument(ctx.Document);
-        return <XamlObject>createObject(ctx.Document.firstChild, ctx);
+        return <XamlObject>createObject(ctx.Document.documentElement, ctx);
     }
-    export function LoadApplication(xaml: string, canvas: HTMLCanvasElement, onLoaded: (app: Application) => void) {
-        ResolveXamlDependencies(xaml, (doc: Document) => {
-            var ctx: IXamlLoadContext = {
-                Document: doc,
-                ResourceChain: [],
-                NameScope: null,
-                ObjectStack: [],
-                TemplateBindingSource: null,
-            };
-            validateDocument(ctx.Document);
-
-            var node = ctx.Document.firstChild;
-            var resolution = TypeResolver.Resolve(node.namespaceURI, node.localName);
-            if (resolution === undefined)
-                throw new XamlParseException("Could not resolve type '" + node.namespaceURI + ":" + node.localName + "'");
-
-            var app = new (<any>resolution.Type)();
-            if (!(app instanceof Application))
-                throw new XamlParseException("Root Element must be an Application.");
-
-            app.MainSurface.Register(canvas);
-
-            ctx.NameScope = app.XamlNode.NameScope;
-            ctx.ObjectStack.push(app);
-            var childProcessor = createXamlChildProcessor(app, resolution.Type, ctx);
-            childProcessor.Process(node);
-            onLoaded(ctx.ObjectStack.pop());
-        });
-    }
-    function createObject(node: Node, ctx: IXamlLoadContext): any {
-        var resolution = TypeResolver.Resolve(node.namespaceURI, node.localName);
+    function createObject(el: Element, ctx: IXamlLoadContext): any {
+        var resolution = TypeResolver.Resolve(el.namespaceURI, el.localName);
         if (resolution === undefined)
-            throw new XamlParseException("Could not resolve type '" + node.namespaceURI + ":" + node.localName + "'");
+            throw new XamlParseException("Could not resolve type '" + el.namespaceURI + ":" + el.localName + "'");
         if (resolution.IsPrimitive)
-            return createPrimitive(resolution.Type, node, ctx);
+            return createPrimitive(resolution.Type, el, ctx);
         if (resolution.IsSystem)
-            return Fayde.ConvertAnyToType(node.textContent, resolution.Type);
+            return Fayde.ConvertAnyToType(el.textContent, resolution.Type);
 
         var val = new (<any>resolution.Type)();
 
         if (val instanceof FrameworkTemplate)
-            return createTemplate(<FrameworkTemplate>val, node, ctx);
-        
+            return createTemplate(<FrameworkTemplate>val, el, ctx);
+
         ctx.ObjectStack.push(val);
 
         if (val instanceof XamlObject) {
             var xobj = <XamlObject>val;
             var xnode = xobj.XamlNode;
 
-            var nameAttr = node.attributes.getNamedItemNS(Fayde.XMLNSX, "Name");
+            var nameAttr = el.attributes.getNamedItemNS(Fayde.XMLNSX, "Name");
             if (nameAttr) {
                 var name = nameAttr.value;
                 ctx.NameScope.RegisterName(name, xnode);
@@ -130,46 +101,46 @@ module Fayde.Xaml {
         }
 
         var childProcessor = createXamlChildProcessor(val, resolution.Type, ctx);
-        childProcessor.Process(node);
+        childProcessor.Process(el);
 
         return ctx.ObjectStack.pop();
     }
-    function createPrimitive(type: Function, node: Node, ctx: IXamlLoadContext): any {
+    function createPrimitive(type: Function, el: Element, ctx: IXamlLoadContext): any {
         if (type === null)
             return null;
         if (type === Number)
-            return parseFloat(node.textContent);
+            return parseFloat(el.textContent);
         if (type === String)
-            return node.textContent;
+            return el.textContent;
         if (type === Boolean) {
-            var c = node.textContent.toUpperCase();
+            var c = el.textContent.toUpperCase();
             return c === "TRUE" ? true : (c === "FALSE" ? false : null);
         }
         if (type === Date)
-            return new Date(node.textContent);
+            return new Date(el.textContent);
         if (type === RegExp)
-            return new RegExp(node.textContent);
+            return new RegExp(el.textContent);
         if (type === Array) {
             var arr = [];
             ctx.ObjectStack.push(arr);
-            var children = node.childNodes;
-            var len = children.length;
-            for (var i = 0; i < len; i++) {
-                arr.push(createObject(children[i], ctx));
+            var childEl = el.firstElementChild;
+            while (childEl) {
+                arr.push(createObject(childEl, ctx));
+                childEl = childEl.nextElementSibling;
             }
             ctx.ObjectStack.pop();
             return arr;
         }
         return undefined;
     }
-    function createTemplate(ft: FrameworkTemplate, node: Node, ctx: IXamlLoadContext): FrameworkTemplate {
+    function createTemplate(ft: FrameworkTemplate, el: Element, ctx: IXamlLoadContext): FrameworkTemplate {
         Object.defineProperty(ft, "ResourceChain", { value: ctx.ResourceChain.slice(0), writable: false });
         //Clone Node?
-        Object.defineProperty(ft, "TemplateNode", { value: node, writable: false });
+        Object.defineProperty(ft, "TemplateElement", { value: el, writable: false });
         if (ft instanceof Controls.ControlTemplate) {
-            var targetTypeNode = node.attributes.getNamedItemNS(Fayde.XMLNS, "TargetType");
+            var targetTypeNode = el.attributes.getNamedItemNS(Fayde.XMLNS, "TargetType");
             if (!targetTypeNode)
-                targetTypeNode = node.attributes.getNamedItem("TargetType");
+                targetTypeNode = el.attributes.getNamedItem("TargetType");
             if (!targetTypeNode)
                 throw new XamlParseException("ControlTemplate must have a TargetType.");
             var ctres = TypeResolver.ResolveFullyQualifiedName(targetTypeNode.value, targetTypeNode);
@@ -184,9 +155,10 @@ module Fayde.Xaml {
     }
 
     interface IXamlChildProcessor {
-        Process(node: Node);
+        Process(el: Element);
     }
     function createXamlChildProcessor(owner: any, ownerType: Function, ctx: IXamlLoadContext): IXamlChildProcessor {
+        var app: Application;
         var dobj: DependencyObject;
         var contentPropd: DependencyProperty;
         var contentCollection: XamlObjectCollection<any>;
@@ -203,12 +175,14 @@ module Fayde.Xaml {
                         dobj.SetValue(contentPropd, contentCollection);
                     }
                 }
+            } else if (dobj instanceof Application) {
+                app = <Application>dobj;
             }
         }
 
-        function createObjectInResources(node: Node, rd: ResourceDictionary) {
-            var cur = createObject(node, ctx);
-            var key = getNodeKey(node);
+        function createObjectInResources(el: Element, rd: ResourceDictionary) {
+            var cur = createObject(el, ctx);
+            var key = getElementKey(el);
             if (key) {
                 rd.Set(key, cur);
             } else {
@@ -220,8 +194,8 @@ module Fayde.Xaml {
                 rd.Set(targetType, cur);
             }
         }
-        function getNodeKey(node: Node): string {
-            var attrs = node.attributes;
+        function getElementKey(el: Element): string {
+            var attrs = el.attributes;
             var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Key");
             if (keyn)
                 return keyn.value;
@@ -279,18 +253,20 @@ module Fayde.Xaml {
                 throw new XamlParseException("Could not resolve DependencyProperty type '" + val + "'");
             return DependencyProperty.GetDependencyProperty(resolution.Type, tokens[1]);
         }
-        function getResourcesChildNode(node: Node): Node {
+        function getResourcesChildElement(el: Element): Element {
             if (!dobj)
                 return undefined;
-            
-            var uri = node.namespaceURI;
-            var expectedname = node.localName + ".Resources";
 
-            var child = node.firstChild;
+            var parentNsUri = el.namespaceURI;
+            var expectedname = el.localName + ".Resources";
+
+            var child = el.firstElementChild;
+            var nsUri: string;
             while (child) {
-                if (child.namespaceURI === uri && child.localName === expectedname)
+                nsUri = child.namespaceURI || Fayde.XMLNS;
+                if (nsUri === parentNsUri && child.localName === expectedname)
                     return child;
-                child = child.nextSibling;
+                child = child.nextElementSibling;
             }
             return undefined;
         }
@@ -304,39 +280,41 @@ module Fayde.Xaml {
         }
 
         return {
-            Process: function (node: Node) {
+            Process: function (el: Element) {
                 //Handle Resources first
-                var resNode = getResourcesChildNode(node);
+                var resElement = getResourcesChildElement(el);
                 var rd: ResourceDictionary;
-                if (resNode) {
+                if (resElement) {
                     rd = <ResourceDictionary>(<any>dobj).Resources;
                     if (rd) {
-                        this.ProcessPropertyCollection(resNode, rd);
+                        this.ProcessPropertyCollection(resElement, rd);
                         ctx.ResourceChain.push(rd);
                     }
                 }
 
-                var attrs = node.attributes;
+                var attrs = el.attributes;
                 //Handle attributes
                 var len = attrs.length;
                 var attr: Attr;
                 for (var i = 0; i < len; i++) {
                     attr = attrs[i];
+                    //ignore namespace declarations
                     if (attr.name === "xmlns")
                         continue;
                     if (attr.prefix === "xmlns")
                         continue;
+                    //ignore x:[Property] declarations, they will be handled specifically
                     if (attr.namespaceURI === Fayde.XMLNSX)
                         continue;
                     this.ProcessAttribute(attr);
                 }
 
                 //Handle child nodes
-                var child = node.firstChild;
+                var child = el.firstElementChild;
                 while (child) {
-                    if (child !== resNode) //Skip Resources node
-                        this.ProcessNode(child);
-                    child = child.nextSibling;
+                    if (child !== resElement) //Skip Resources element
+                        this.ProcessElement(child);
+                    child = child.nextElementSibling;
                 }
 
                 if (rd)
@@ -347,11 +325,12 @@ module Fayde.Xaml {
                 var propd: DependencyProperty;
                 var propertyName: string;
                 if (tokens.length > 1) { // <Tag [ns:]Type.Property="...">
-                    var typeRes = TypeResolver.Resolve(attr.namespaceURI, tokens[0]);
+                    var nsUri = attr.namespaceURI || Fayde.XMLNS;
+                    var typeRes = TypeResolver.Resolve(nsUri, tokens[0]);
                     propertyName = tokens[1];
                     propd = DependencyProperty.GetDependencyProperty(typeRes.Type, propertyName, true);
                     if (!propd)
-                        throw new XamlParseException("Could not find attached property '" + attr.namespaceURI + ":" + attr.localName + "'");
+                        throw new XamlParseException("Could not find attached property '" + nsUri + ":" + attr.localName + "'");
                     if (!dobj)
                         throw new XamlParseException("Cannot set an attached property on an object that is not a DependencyObject.");
                 } else { // <[Tag] Property="...">
@@ -369,53 +348,62 @@ module Fayde.Xaml {
                     owner[propertyName] = attr.textContent;
                 }
             },
-            ProcessNode: function (node: Node) {
-                var tokens = node.localName.split(".");
+            ProcessElement: function (el: Element) {
+                var tokens = el.localName.split(".");
                 var propd: DependencyProperty;
                 var propertyName: string;
                 if (tokens.length > 1) { // <[ns:]Type.Property /> (DP or Attached DP)
-                    var typeRes = TypeResolver.Resolve(node.namespaceURI, tokens[0]);
+                    var nsUri = el.namespaceURI || Fayde.XMLNS;
+                    var typeRes = TypeResolver.Resolve(nsUri, tokens[0]);
+                    if (!typeRes)
+                        throw new XamlParseException("Could not resolve type '" + nsUri + ":" + tokens[0] + "'");
                     propertyName = tokens[1];
                     propd = DependencyProperty.GetDependencyProperty(typeRes.Type, propertyName, true);
                     if (!propd)
-                        throw new XamlParseException("Could not find property '" + node.namespaceURI + ":" + node.localName + "'");
+                        throw new XamlParseException("Could not find property '" + nsUri + ":" + el.localName + "'");
                     ensurePropertyNotSet(propertyName);
-                    if (node.childNodes.length !== 1)
-                        throw new XamlParseException("Missing inner value for property.");
                     if (propd.IsImmutable) {
                         var val = dobj.GetValue(propd);
                         if (!(val instanceof XamlObjectCollection))
                             throw new XamlParseException("Cannot set immutable property.");
-                        this.ProcessPropertyCollection(node, <XamlObjectCollection>val);
+                        this.ProcessPropertyCollection(el, <XamlObjectCollection>val);
                     } else {
-                        dobj.SetValue(propd, createObject(node.firstChild, ctx));
+                        dobj.SetValue(propd, createObject(el.firstElementChild, ctx));
                     }
                 } else { //<[ns:]Type> (Content)
-                    if (!contentPropd)
-                        throw new XamlParseException("Attempting to set content on an object that does not have a Content Property.");
-                    if (contentCollection) {
-                        contentCollection.Add(createObject(node, ctx));
-                    } else {
-                        ensurePropertyNotSet(propertyName);
+                    if (!contentPropd) {
+                        if (!app)
+                            throw new XamlParseException("Attempting to set content on an object that does not have a Content Property.");
                         if (hasSetContent)
                             throw new XamlParseException("Content has already been set.");
                         hasSetContent = true;
-                        dobj.SetValue(contentPropd, createObject(node, ctx));
+                        app.MainSurface.Attach(createObject(el, ctx));
+                    } else {
+                        if (contentCollection) {
+                            contentCollection.Add(createObject(el, ctx));
+                        } else {
+                            ensurePropertyNotSet(propertyName);
+                            if (hasSetContent)
+                                throw new XamlParseException("Content has already been set.");
+                            hasSetContent = true;
+                            dobj.SetValue(contentPropd, createObject(el, ctx));
+                        }
                     }
                 }
             },
-            ProcessPropertyCollection: function (propertyNode: Node, coll: XamlObjectCollection<any>) {
+            ProcessPropertyCollection: function (propertyEl: Element, coll: XamlObjectCollection<any>) {
                 ctx.ObjectStack.push(coll);
-                var children = propertyNode.childNodes;
-                var len = children.length;
+                var curEl = propertyEl.firstElementChild;
                 if (coll instanceof ResourceDictionary) {
                     var rd = <ResourceDictionary>coll;
-                    for (var i = 0; i < len; i++) {
-                        createObjectInResources(children[i], rd);
+                    while (curEl) {
+                        createObjectInResources(curEl, rd);
+                        curEl = curEl.nextElementSibling;
                     }
                 } else {
-                    for (var i = 0; i < len; i++) {
-                        coll.Add(createObject(children[i], ctx));
+                    while (curEl) {
+                        coll.Add(createObject(curEl, ctx));
+                        curEl = curEl.nextElementSibling;
                     }
                 }
                 ctx.ObjectStack.pop();
@@ -425,41 +413,115 @@ module Fayde.Xaml {
 
     /// VALIDATION
     function validateDocument(doc: Document) {
-        if (doc.childNodes.length > 1)
-            throw new XamlParseException("There must be 1 root node.");
-        if (!doc.firstChild.isDefaultNamespace(Fayde.XMLNS))
+        var docEl = doc.documentElement;
+        //if (docEl.childElementCount  !== 1)
+            //throw new XamlParseException("There must be 1 root element.");
+        if (!docEl.isDefaultNamespace(Fayde.XMLNS))
             throw new XamlParseException("Invalid default namespace in XAML document.");
     }
 
-    /// DEPENDENCIES
-    export function ResolveXamlDependencies(xaml: string, onComplete: (doc: Document) => void) {
-        var doc = parser.parseFromString(xaml, "text/xml");
-        validateDocument(doc);
-        var deps = collectDependencies(doc.firstChild);
-        //TODO: Finish
-        onComplete(doc);
+
+    /// APPLICATION
+    export function LoadApplication(xaml: string, canvas: HTMLCanvasElement) {
+        TimelineProfile.Parse(true, "App");
+        var appLoader = createAppLoader(xaml, canvas);
+        appLoader.Load();
+    }
+    interface IAppLoader {
+        Load(): void;
     }
     interface IXamlDependency {
         NamespaceUri: string;
         Name: string;
     }
-    function collectDependencies(curNode: Node): IXamlDependency[] {
-        var deps: IXamlDependency[] = [];
+    function createAppLoader(xaml: string, canvas: HTMLCanvasElement): IAppLoader {
+        var appSources = new XamlObjectCollection<Namespace>();
+        var ctx: IXamlLoadContext = {
+            Document: parser.parseFromString(xaml, "text/xml"),
+            ResourceChain: [],
+            NameScope: null,
+            ObjectStack: [],
+            TemplateBindingSource: null,
+        };
+        validateDocument(ctx.Document);
 
-        var next: Node;
-        var attrs: NamedNodeMap;
-        while (curNode) {
-            if (curNode.namespaceURI !== Fayde.XMLNS || curNode.namespaceURI !== Fayde.XMLNSX)
-                deps.push({ NamespaceUri: curNode.namespaceURI, Name: curNode.localName });
+        function registerSources() {
+            var appNode = ctx.Document.firstChild;
+            var appNsUri = appNode.namespaceURI;
+            var sourceNodeName = appNode.localName + ".Sources";
 
-            attrs = curNode.attributes;
-            //TODO: Finish finding needed dependencies in attributes
+            var nsUri: string;
+            var curElement = ctx.Document.documentElement;
+            while (curElement) {
+                nsUri = curElement.namespaceURI || Fayde.XMLNS;
+                if (nsUri === appNsUri && curElement.localName === sourceNodeName)
+                    break;
+                curElement = curElement.nextElementSibling;
+            }
+            if (!curElement)
+                return;
 
-            next = curNode.nextSibling;
-            if (!next) next = curNode.parentNode.nextSibling;
-            curNode = next;
+            curElement = curElement.firstElementChild;
+            var nsSource: Namespace;
+            while (curElement) {
+                nsSource = createObject(curElement, ctx);
+                nsSource.RegisterSource();
+                appSources.Add(nsSource);
+                curElement = curElement.nextElementSibling;
+            }
+        }
+        function collectDependencies() {
+            var deps: IXamlDependency[] = [];
+
+            var next: Element;
+            var attrs: NamedNodeMap;
+            var curElement = ctx.Document.documentElement;
+            var nsUri: string;
+            while (curElement) {
+                nsUri = curElement.namespaceURI;
+                if (nsUri !== null && nsUri !== Fayde.XMLNS && nsUri !== Fayde.XMLNSX)
+                    deps.push({ NamespaceUri: curElement.namespaceURI, Name: curElement.localName });
+
+                attrs = curElement.attributes;
+                //TODO: Finish finding needed dependencies in attributes
+
+                next = curElement.nextElementSibling;
+                if (!next) next = (<Element>curElement.parentNode).nextElementSibling;
+                curElement = next;
+            }
+
+            return deps;
+        }
+        function finishLoad() {
+            var el = ctx.Document.documentElement;
+            var nsUri = el.namespaceURI || Fayde.XMLNS;
+            var resolution = TypeResolver.Resolve(nsUri, el.localName);
+            if (resolution === undefined)
+                throw new XamlParseException("Could not resolve application type '" + nsUri + ":" + el.localName + "'");
+
+            var app = new (<any>resolution.Type)();
+            Application.Current = app;
+            if (!(app instanceof Application))
+                throw new XamlParseException("Root Element must be an Application.");
+
+            app.Sources._ht = appSources._ht;
+            app.MainSurface.Register(canvas);
+
+            ctx.NameScope = app.XamlNode.NameScope;
+            ctx.ObjectStack.push(app);
+            var childProcessor = createXamlChildProcessor(app, resolution.Type, ctx);
+            childProcessor.Process(el);
+            ctx.ObjectStack.pop();
+            TimelineProfile.Parse(false, "App");
+            Application.Current.Start();
         }
 
-        return deps;
+        return {
+            Load: function () {
+                registerSources();
+                collectDependencies();
+                Runtime.LoadBatchAsync(appSources.ToArray(), () => finishLoad());
+            }
+        };
     }
 }

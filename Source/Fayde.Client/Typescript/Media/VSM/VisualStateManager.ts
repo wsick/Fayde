@@ -206,4 +206,9 @@ module Fayde.Media.VSM {
             return dynamic;
         }
     }
+    Fayde.RegisterType(VisualStateManager, {
+        Name: "VisualStateManager",
+        Namespace: "Fayde.Media.VSM",
+        XmlNamespace: Fayde.XMLNS
+    });
 }

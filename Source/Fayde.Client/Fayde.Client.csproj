@@ -170,6 +170,9 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Core\Providers\ImplicitStyleBroker.ts" />
     <TypeScriptCompile Include="Typescript\Core\Providers\ImmutableStore.ts" />
+    <Content Include="Typescript\Core\Providers\ImmutableStore.js">
+      <DependentUpon>ImmutableStore.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Core\Providers\ImplicitStyleBroker.js">
       <DependentUpon>ImplicitStyleBroker.ts</DependentUpon>
     </Content>
@@ -228,6 +231,13 @@
     </Content>
     <Content Include="Typescript\Primitives\Length.ts" />
     <TypeScriptCompile Include="Typescript\Runtime\AjaxRequest.ts" />
+    <Content Include="Typescript\Runtime\AjaxRequest.js">
+      <DependentUpon>AjaxRequest.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Runtime\BatchLoad.ts" />
+    <Content Include="Typescript\Runtime\BatchLoad.js">
+      <DependentUpon>BatchLoad.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Runtime\Debug.js">
       <DependentUpon>Debug.ts</DependentUpon>
     </Content>
@@ -243,8 +253,18 @@
     <Content Include="Typescript\Xaml\MarkupExpressionParser.js">
       <DependentUpon>MarkupExpressionParser.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Typescript\Xaml\Sources.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="Typescript\Xaml\StaticResource.ts" />
     <TypeScriptCompile Include="Typescript\Xaml\TemplateBinding.ts" />
+    <TypeScriptCompile Include="Typescript\Xaml\Resources.ts" />
+    <Content Include="Typescript\Xaml\Resources.js">
+      <DependentUpon>Resources.ts</DependentUpon>
+    </Content>
+    <Content Include="Typescript\Xaml\Sources.js">
+      <DependentUpon>Sources.ts</DependentUpon>
+    </Content>
     <Content Include="Typescript\Xaml\StaticResource.js">
       <DependentUpon>StaticResource.ts</DependentUpon>
     </Content>

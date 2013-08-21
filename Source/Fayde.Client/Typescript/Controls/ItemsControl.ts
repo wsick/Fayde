@@ -51,9 +51,9 @@ module Fayde.Controls {
         CreateNode(): ItemsControlNode { return new ItemsControlNode(this); }
 
         static DisplayMemberPathProperty = DependencyProperty.Register("DisplayMemberPath", () => String, ItemsControl, null, (d, args) => (<ItemsControl>d).OnDisplayMemberPathChanged(args));
-        static ItemsPanelProperty = DependencyProperty.RegisterCore("ItemsPanel", () => ItemsPanelTemplate, ItemsControl);
+        static ItemsPanelProperty = DependencyProperty.Register("ItemsPanel", () => ItemsPanelTemplate, ItemsControl);
         static ItemsSourceProperty = DependencyProperty.Register("ItemsSource", () => IEnumerable_, ItemsControl, null, (d, args) => (<ItemsControl>d).OnItemsSourceChanged(args));
-        static ItemTemplateProperty = DependencyProperty.RegisterCore("ItemTemplate", () => DataTemplate, ItemsControl, undefined, (d, args) => (<ItemsControl>d).OnItemTemplateChanged(args));
+        static ItemTemplateProperty = DependencyProperty.Register("ItemTemplate", () => DataTemplate, ItemsControl, undefined, (d, args) => (<ItemsControl>d).OnItemTemplateChanged(args));
         static ItemsProperty = DependencyProperty.RegisterImmutable("Items", () => ItemCollection, ItemsControl);
         DisplayMemberPath: string;
         ItemsPanel: ItemsPanelTemplate;

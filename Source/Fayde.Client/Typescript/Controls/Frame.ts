@@ -60,6 +60,7 @@ module Fayde.Controls {
             this._LoadContent(this._NavService.Href, this._NavService.Hash);
         }
         private _LoadContent(href: string, hash: string) {
+            return;
             this.StopLoading();
 
             TimelineProfile.Navigate(true, href + "#" + hash);
