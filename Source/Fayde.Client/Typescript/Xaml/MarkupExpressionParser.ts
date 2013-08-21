@@ -22,20 +22,22 @@ module Fayde.Xaml {
                 return null;
             var result = EXPRESSION_REGEX.exec(value);
             var typeres: ITypeResolution;
-            if (result[0] === "x:Type") {
-                typeres = TypeResolver.ResolveFullyQualifiedName(result[1], ctx.Resolver);
+            var r1 = result[1];
+            var r2 = result[2];
+            if (r1 === "x:Type") {
+                typeres = TypeResolver.ResolveFullyQualifiedName(r2, ctx.Resolver);
                 if (!typeres)
-                    throw new XamlMarkupParseException("Could not resolve type '" + result[1] + "'");
-            } else if (result[0] === "x:Static") {
+                    throw new XamlMarkupParseException("Could not resolve type '" + r2 + "'");
+            } else if (r1 === "x:Static") {
                 throw new NotSupportedException("{x:Static ...} is not currently supported.");
             }
-            typeres = TypeResolver.ResolveFullyQualifiedName(result[0], ctx.Resolver);
+            typeres = TypeResolver.ResolveFullyQualifiedName(r1, ctx.Resolver);
             if (!typeres)
-                throw new XamlMarkupParseException("Could not resolve type '" + result[0] + "'");
+                throw new XamlMarkupParseException("Could not resolve type '" + r1 + "'");
             var markup = <IMarkup>(new (<any>typeres.Type)());
             if (!markup.Transmute || !markup.Parse)
                 throw new XamlMarkupParseException("Could not create expression from markup '" + value + "'");
-            markup.Parse(result[1]);
+            markup.Parse(r2);
             return markup.Transmute(ctx);
         }
     }
