@@ -20,10 +20,18 @@ module Fayde.Xaml {
         static Parse(value: string, ctx: IMarkupParseContext): any {
             if (value && value.toLowerCase() === "{x:null}")
                 return null;
+            if (value[value.length - 1] !== "}")
+                return undefined;
             var result = EXPRESSION_REGEX.exec(value);
             var typeres: ITypeResolution;
-            var r1 = result[1];
-            var r2 = result[2];
+            var r1 = "";
+            var r2 = "";
+            if (result) {
+                r1 = result[1];
+                r2 = result[2];
+            } else {
+                r1 = value.substr(1, value.length - 2);
+            }
             if (r1 === "x:Type") {
                 typeres = TypeResolver.ResolveFullyQualifiedName(r2, ctx.Resolver);
                 if (!typeres)

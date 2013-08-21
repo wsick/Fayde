@@ -14,7 +14,9 @@ module Fayde.Xaml {
             this.Property = value;
         }
         Transmute(ctx: Xaml.IMarkupParseContext): Expression {
-            var propd = DependencyProperty.GetDependencyProperty((<any>ctx.Owner).constructor, this.Property);
+            if (!ctx.TemplateBindingSource)
+                throw new XamlParseException("{TemplateBinding} can only be used within a ControlTemplate.");
+            var propd = DependencyProperty.GetDependencyProperty((<any>ctx.TemplateBindingSource).constructor, this.Property);
             return new TemplateBindingExpression(propd, ctx.Property);
         }
     }

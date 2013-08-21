@@ -52,6 +52,8 @@ module Fayde {
         var ns = reg.Namespace;
         var xn = reg.XmlNamespace;
 
+        e.IsEnum = true;
+
         var jarr = jsNamespaces[ns];
         if (!jarr) jarr = jsNamespaces[ns] = [];
         jarr[name] = e;
@@ -76,6 +78,7 @@ module Fayde {
     export interface ITypeResolution {
         IsPrimitive: boolean;
         IsSystem: boolean;
+        IsEnum: boolean;
         Type: Function;
     }
     export interface INamespacePrefixResolver {
@@ -105,7 +108,8 @@ module Fayde {
                     return {
                         Type: mapping,
                         IsPrimitive: true,
-                        IsSystem: false
+                        IsSystem: false,
+                        IsEnum: false
                     };
                 }
                 isSystem = true;
@@ -114,7 +118,7 @@ module Fayde {
             if (xarr) {
                 var t = xarr[xmlname];
                 if (t)
-                    return { IsSystem: isSystem, IsPrimitive: false, Type: t };
+                    return { IsSystem: isSystem, IsPrimitive: false, IsEnum: t.IsEnum === true, Type: t };
             }
             return undefined;
         },

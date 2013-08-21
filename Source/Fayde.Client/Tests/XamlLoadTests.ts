@@ -158,3 +158,18 @@ test("ItemsPanelTemplate", () => {
     var visual = ipt.GetVisualTree(null);
     strictEqual((<any>visual).constructor, Fayde.Controls.Grid, "Root visual from created visual tree should be a Grid.");
 });
+
+test("VisualStateManager", () => {
+    var xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        + "<VisualStateManager.VisualStateGroups>"
+        + "<VisualStateGroup x:Name=\"CommonStates\">"
+        + "<VisualState x:Name=\"Normal\" />"
+        + "</VisualStateGroup>"
+        + "</VisualStateManager.VisualStateGroups>"
+        + "</Grid>";
+
+    var root = <Fayde.Controls.Grid>Fayde.Xaml.Load(xaml);
+    var groups = Fayde.Media.VSM.VisualStateManager.GetVisualStateGroups(root);
+    strictEqual((<any>groups).constructor, Fayde.Media.VSM.VisualStateGroupCollection, "VisualStateGroups on Grid should be a VisualStateGroupCollection.");
+    strictEqual(groups.Count, 1, "There should be 1 VisualStateGroup in collection.");
+});

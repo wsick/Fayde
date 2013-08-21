@@ -79,6 +79,8 @@ module Fayde.Xaml {
             return createPrimitive(resolution.Type, el, ctx);
         if (resolution.IsSystem)
             return Fayde.ConvertAnyToType(el.textContent, resolution.Type);
+        if (resolution.IsEnum)
+            return 0;
 
         var val = new (<any>resolution.Type)();
 
@@ -362,12 +364,22 @@ module Fayde.Xaml {
                     if (!propd)
                         throw new XamlParseException("Could not find property '" + nsUri + ":" + el.localName + "'");
                     ensurePropertyNotSet(propertyName);
+                    var val: any;
                     if (propd.IsImmutable) {
-                        var val = dobj.GetValue(propd);
+                        val = dobj.GetValue(propd);
                         if (!(val instanceof XamlObjectCollection))
                             throw new XamlParseException("Cannot set immutable property.");
                         this.ProcessPropertyCollection(el, <XamlObjectCollection>val);
                     } else {
+                        if (propd.IsAttached) {
+                            var propTargetType = propd.GetTargetType();
+                            if (Nullstone.DoesInheritFrom(propTargetType, XamlObjectCollection)) {
+                                val = new (<any>propTargetType)();
+                                dobj.SetValue(propd, val);
+                                this.ProcessPropertyCollection(el, val);
+                                return;
+                            }
+                        }
                         dobj.SetValue(propd, createObject(el.firstElementChild, ctx));
                     }
                 } else { //<[ns:]Type> (Content)
