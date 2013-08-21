@@ -127,6 +127,10 @@ module Fayde {
                 this.Add(Fayde.Clone(enumerator.Current));
             }
         }
+
+        ToArray(): T[] {
+            return this._ht.slice(0);
+        }
     }
     Fayde.RegisterType(XamlObjectCollection, {
         Name: "XamlObjectCollection",
