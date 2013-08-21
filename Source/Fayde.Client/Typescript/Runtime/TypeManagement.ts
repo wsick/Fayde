@@ -47,6 +47,21 @@ module Fayde {
             xarr[name] = t;
         }
     }
+    export function RegisterEnum(e: any, reg: any) {
+        var name = reg.Name;
+        var ns = reg.Namespace;
+        var xn = reg.XmlNamespace;
+
+        var jarr = jsNamespaces[ns];
+        if (!jarr) jarr = jsNamespaces[ns] = [];
+        jarr[name] = e;
+
+        if (xn) {
+            var xarr = xmlNamespaces[xn];
+            if (!xarr) xarr = xmlNamespaces[xn] = [];
+            xarr[name] = e;
+        }
+    }
     export function RegisterInterface(name: string): IInterfaceDeclaration {
         return { Name: name };
     }
