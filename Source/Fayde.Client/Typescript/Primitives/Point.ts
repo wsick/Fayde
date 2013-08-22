@@ -52,5 +52,5 @@ Fayde.RegisterTypeConverter(Point, (val: any): Point => {
         var y = parseFloat(tokens[1]);
         return new Point(x, y);
     }
-    throw new XamlParseException("Cannot parse Point value '" + val + "'");
+    throw new Exception("Cannot parse Point value '" + val + "'");
 });

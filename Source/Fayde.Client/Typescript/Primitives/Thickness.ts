@@ -73,7 +73,7 @@ Fayde.RegisterTypeConverter(Thickness, (val: any): Thickness => {
         right = parseFloat(tokens[2]);
         bottom = parseFloat(tokens[3]);
     } else {
-        throw new XamlParseException("Cannot parse Thickness value '" + val + "'");
+        throw new Exception("Cannot parse Thickness value '" + val + "'");
     }
     return new Thickness(left, top, right, bottom);
 });

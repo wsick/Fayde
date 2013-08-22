@@ -105,21 +105,26 @@ Fayde.RegisterType(TimeSpan, {
 
 Fayde.RegisterTypeConverter(TimeSpan, (val: any): TimeSpan => {
     if (typeof val === "number")
-        return TimeSpan.FromTicks(ticks);
+        return TimeSpan.FromTicks(val);
     val = val.toString();
-    var ticks = parseFloat(val);
-    if (!isNaN(ticks))
-        return TimeSpan.FromTicks(ticks);
 
+    var tokens = val.split(":");
+    if (tokens.length === 1) {
+        var ticks = parseFloat(val);
+        if (!isNaN(ticks))
+            return TimeSpan.FromTicks(ticks);
+        throw new Exception("Invalid TimeSpan format '" + val + "'.");
+    }
+
+    if (tokens.length !== 3)
+        throw new Exception("Invalid TimeSpan format '" + val + "'.");
+
+    /// [days.]hours:minutes:seconds[.fractionalSeconds]
     var days = 0;
     var hours: number;
     var minutes: number;
     var seconds: number;
     var milliseconds = 0;
-
-    var tokens = val.split(":");
-    if (tokens.length !== 3)
-        throw new XamlParseException("An invalid value for TimeSpan has been provided.");
 
     var daysplit = tokens[0].split(".");
     if (daysplit.length === 2) {

@@ -50,10 +50,10 @@ Fayde.RegisterTypeConverter(CornerRadius, (val: any): CornerRadius => {
     } else if (tokens.length === 4) {
         topLeft = parseFloat(tokens[0]);
         topRight = parseFloat(tokens[1]);
-        bottomLeft = parseFloat(tokens[2]);
-        bottomRight = parseFloat(tokens[3]);
+        bottomRight = parseFloat(tokens[2]);
+        bottomLeft = parseFloat(tokens[3]);
     } else {
-        throw new XamlParseException("Cannot parse CornerRadius value '" + val + "'");
+        throw new Exception("Cannot parse CornerRadius value '" + val + "'");
     }
     return new CornerRadius(topLeft, topRight, bottomRight, bottomLeft);
 });
