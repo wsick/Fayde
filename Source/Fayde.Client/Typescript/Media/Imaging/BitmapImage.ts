@@ -39,7 +39,7 @@ module Fayde.Media.Imaging {
     	XmlNamespace: Fayde.XMLNS
     });
 
-    Fayde.RegisterTypeConverter(ImageSource, (val: string): ImageSource => {
+    Fayde.RegisterTypeConverter(ImageSource, (val: any): ImageSource => {
         var bi = new BitmapImage();
         bi.UriSource = Fayde.ConvertAnyToType(val, Uri);
         return bi;

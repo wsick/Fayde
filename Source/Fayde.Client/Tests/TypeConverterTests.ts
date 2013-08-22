@@ -162,3 +162,15 @@ test("Brush", () => {
     scb = <Fayde.Media.SolidColorBrush>Fayde.ConvertAnyToType("#808080", Fayde.Media.Brush);
     ok(scb.Color.Equals(Color.FromRgba(128, 128, 128, 1.0)), "Hex");
 });
+
+test("FontFamily", () => {
+    var ff = <FontFamily>Fayde.ConvertAnyToType("Segoe UI", FontFamily);
+    equal(ff.FamilyNames, "Segoe UI", "Normal");
+});
+
+test("ImageSource", () => {
+    var bi = <Fayde.Media.Imaging.BitmapImage>Fayde.ConvertAnyToType("http://domain/rawr.jpg", Fayde.Media.Imaging.ImageSource);
+    var us = bi.UriSource;
+    ok(us != null, "UriSource exists");
+    strictEqual(us.toString(), "http://domain/rawr.jpg", "Uri");
+});
