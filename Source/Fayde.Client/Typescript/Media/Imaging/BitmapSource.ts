@@ -48,7 +48,7 @@ module Fayde.Media.Imaging {
         Unlisten(listener: IImageChangedListener) { if (this._Listener === listener) this._Listener = null; }
 
         _OnErrored(e: Event) {
-            Info("Failed to load: " + this._Image.src.toString());
+            console.info("Failed to load: " + this._Image.src.toString());
             var listener = this._Listener;
             if (listener)
                 listener.OnImageErrored(this, e);
