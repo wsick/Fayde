@@ -12,6 +12,7 @@ test("Color", () => {
     strictEqual(c, Color.KnownColors.White, "Known Color");
 
     c = <Color>Fayde.ConvertAnyToType("#0066CC", Color);
+    strictEqual(c.A, 1.0, "RGB (a)");
     strictEqual(c.R, 0, "RGB (R)");
     strictEqual(c.G, 102, "RGB (G)");
     strictEqual(c.B, 204, "RGB (B)");
@@ -133,4 +134,31 @@ test("GridLength", () => {
     gl = <Fayde.Controls.GridLength>Fayde.ConvertAnyToType("25", GridLength);
     strictEqual(gl.Type, GridUnitType.Pixel, "Pixel GridLength Type");
     strictEqual(gl.Value, 25, "Pixel GridLength Value");
+});
+
+test("KeyTime", () => {
+    var kt = <KeyTime>Fayde.ConvertAnyToType("Uniform", KeyTime);
+    ok(kt.IsUniform, "Uniform");
+
+    kt = <KeyTime>Fayde.ConvertAnyToType("02:03:04", KeyTime);
+    strictEqual(kt.TimeSpan.CompareTo(TimeSpan.FromArgs(0, 2, 3, 4, 0)), 0, "TimeSpan");
+});
+
+test("Duration", () => {
+    var d = <Duration>Fayde.ConvertAnyToType("Automatic", Duration);
+    strictEqual(d, Duration.Automatic, "Automatic");
+
+    var d = <Duration>Fayde.ConvertAnyToType("Forever", Duration);
+    strictEqual(d, Duration.Forever, "Forever");
+
+    d = <Duration>Fayde.ConvertAnyToType("02:03:04", Duration);
+    strictEqual(d.TimeSpan.CompareTo(TimeSpan.FromArgs(0, 2, 3, 4, 0)), 0, "TimeSpan");
+});
+
+test("Brush", () => {
+    var scb = <Fayde.Media.SolidColorBrush>Fayde.ConvertAnyToType("White", Fayde.Media.Brush);
+    ok(scb.Color.Equals(Color.KnownColors.White), "Known Color");
+
+    scb = <Fayde.Media.SolidColorBrush>Fayde.ConvertAnyToType("#808080", Fayde.Media.Brush);
+    ok(scb.Color.Equals(Color.FromRgba(128, 128, 128, 1.0)), "Hex");
 });
