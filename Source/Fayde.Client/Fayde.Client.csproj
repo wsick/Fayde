@@ -102,6 +102,7 @@
     </Content>
     <TypeScriptCompile Include="Tests\XamlLoadTests.ts" />
     <TypeScriptCompile Include="Tests\TypeConverterTests.ts" />
+    <TypeScriptCompile Include="Tests\MarkupExpressionTests.ts" />
     <Content Include="Tests\TypeConverterTests.js">
       <DependentUpon>TypeConverterTests.ts</DependentUpon>
     </Content>

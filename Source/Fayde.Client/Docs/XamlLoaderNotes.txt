@@ -48,6 +48,20 @@ MarkupExpressionParsing
 	TemplateBinding
 		{TemplateBinding [TargetProperty]}
 
+Binding
+	Path
+	Mode
+	Converter
+	ConverterCulture
+	ConverterParameter
+	ElementName
+	RelativeSource
+	Source
+	UpdateSourceTrigger
+	FallbackValue
+	StringFormat
+	TargetNullValue
+
 Handle JsonParser.Parse
 Theme -> ResourceDictionary
 Finish resolve dependencies

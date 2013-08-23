@@ -2,6 +2,7 @@
 Tests\PrimitivesTests.ts
 Tests\TypeConverterTests.ts
 Tests\XamlNodeTests.ts
+Tests\MarkupExpressionTests.ts
 Tests\ProviderTests.ts
 Tests\XamlLoadTests.ts
 Tests\TransformTests.ts

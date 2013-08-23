@@ -36,6 +36,7 @@ module Fayde.Xaml {
                 typeres = TypeResolver.ResolveFullyQualifiedName(r2, ctx.Resolver);
                 if (!typeres)
                     throw new XamlMarkupParseException("Could not resolve type '" + r2 + "'");
+                return typeres.Type;
             } else if (r1 === "x:Static") {
                 throw new NotSupportedException("{x:Static ...} is not currently supported.");
             }
