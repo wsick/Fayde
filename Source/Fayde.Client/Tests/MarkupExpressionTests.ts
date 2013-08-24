@@ -19,7 +19,29 @@ test("x:Static", () => {
 });
 
 test("TemplateBinding", () => {
-    ok(true, "Not Implemented yet");
+    var xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        + "<Grid.Resources>"
+        + "<Style x:Key=\"SomeStyle\" TargetType=\"Button\">"
+        + "<Setter Property=\"Template\">"
+        + "<Setter.Value>"
+        + "<ControlTemplate TargetType=\"Button\">"
+        + "<Border Margin=\"{TemplateBinding Padding}\" />"
+        + "</ControlTemplate>"
+        + "</Setter.Value>"
+        + "</Setter>"
+        + "</Style>"
+        + "</Grid.Resources>"
+        + "</Grid>";
+    var grid = <Fayde.Controls.Grid>Fayde.Xaml.Load(xaml);
+    var style = <Fayde.Style>grid.Resources.Get("SomeStyle");
+    style.Seal();
+    var setter = style.Setters.GetValueAt(0);
+    var template = <Fayde.Controls.ControlTemplate>setter.ConvertedValue;
+    var button = new Fayde.Controls.Button();
+    var border = <Fayde.Controls.Border>template.GetVisualTree(button);
+
+    button.Padding = new Thickness(1, 2, 3, 4);
+    ok(Thickness.Equals(border.Margin, button.Padding), "After");
 });
 
 test("Binding", () => {

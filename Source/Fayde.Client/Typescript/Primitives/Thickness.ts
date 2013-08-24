@@ -60,6 +60,10 @@ Fayde.RegisterTypeConverter(Thickness, (val: any): Thickness => {
         return new Thickness();
     if (typeof val === "number")
         return new Thickness(val, val, val, val);
+    if (val instanceof Thickness) {
+        var t = <Thickness>val;
+        return new Thickness(t.Left, t.Top, t.Right, t.Bottom);
+    }
     var tokens = val.toString().split(",");
     var left, top, right, bottom;
     if (tokens.length === 1) {

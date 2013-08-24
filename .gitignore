@@ -295,3 +295,4 @@ Source/Fayde.Client/Typescript/Xaml/Sources.js
 Source/Fayde.Client/Typescript/Runtime/TimelineProfile.js
 Source/Fayde.Client/Typescript/Runtime/BatchLoad.js
 Source/Fayde.Client/Typescript/Xaml/Resources.js
+Source/Fayde.Client/Tests/MarkupExpressionTests.js
