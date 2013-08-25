@@ -10,9 +10,6 @@ module Fayde.Xaml {
             this.ResourceKey = resourceKey;
         }
 
-        Parse(value: string) {
-            this.ResourceKey = value;
-        }
         Transmute(ctx: Xaml.IMarkupParseContext): Expression {
             return new StaticResourceExpression(this.ResourceKey, ctx.Owner, ctx.Property, ctx.ResourceChain);
         }

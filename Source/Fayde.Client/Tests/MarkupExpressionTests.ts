@@ -44,12 +44,30 @@ test("TemplateBinding", () => {
     ok(Thickness.Equals(border.Margin, button.Padding), "After");
 });
 
-test("Binding", () => {
-    ok(true, "Not Implemented yet");
+test("StaticResource", () => {
+    var xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        + "<Grid.Resources>"
+        + "<x:Thickness x:Key=\"TestThickness\">1,2,3,4</x:Thickness>"
+        + "</Grid.Resources>"
+        + "<Border Margin=\"{StaticResource TestThickness}\" />"
+        + "</Grid>";
+    var grid = <Fayde.Controls.Grid>Fayde.Xaml.Load(xaml);
+    var border = <Fayde.Controls.Border>grid.Children.GetValueAt(0);
+    ok(Thickness.Equals(border.Margin, new Thickness(1, 2, 3, 4)), "Value");
 });
 
-test("StaticResource", () => {
-    ok(true, "Not Implemented yet");
+test("Binding", () => {
+    var xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        + "<Border Margin=\"{Binding TestPath}\" />"
+        + "</Grid>";
+    var grid = <Fayde.Controls.Grid>Fayde.Xaml.Load(xaml);
+    var border = <Fayde.Controls.Border>grid.Children.GetValueAt(0);
+    var expr = border.GetBindingExpression(Fayde.FrameworkElement.MarginProperty);
+    ok(expr instanceof Fayde.Data.BindingExpression, "Type");
+    var binding = expr.ParentBinding;
+    strictEqual(binding.Path.Path, "TestPath", "Path");
+
+
 });
 
 test("RelativeSource", () => {

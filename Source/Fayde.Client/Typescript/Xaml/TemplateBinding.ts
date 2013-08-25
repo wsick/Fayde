@@ -10,9 +10,6 @@ module Fayde.Xaml {
             this.Property = property;
         }
 
-        Parse(value: string) {
-            this.Property = value;
-        }
         Transmute(ctx: Xaml.IMarkupParseContext): Expression {
             if (!ctx.TemplateBindingSource)
                 throw new XamlParseException("{TemplateBinding} can only be used within a ControlTemplate.");

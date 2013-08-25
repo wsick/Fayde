@@ -11,7 +11,6 @@ module Fayde.Xaml {
         Resolver: INamespacePrefixResolver;
     }
     export interface IMarkup {
-        Parse(value: string);
         Transmute(ctx: IMarkupParseContext): Expression;
     }
 
@@ -32,22 +31,44 @@ module Fayde.Xaml {
             } else {
                 r1 = value.substr(1, value.length - 2);
             }
-            if (r1 === "x:Type") {
-                typeres = TypeResolver.ResolveFullyQualifiedName(r2, ctx.Resolver);
-                if (!typeres)
-                    throw new XamlMarkupParseException("Could not resolve type '" + r2 + "'");
-                return typeres.Type;
-            } else if (r1 === "x:Static") {
-                throw new NotSupportedException("{x:Static ...} is not currently supported.");
+            switch (r1) {
+                case "x:Type":
+                    return parseXType(r2, ctx);
+                case "x:Static":
+                    return parseStatic(r2, ctx);
+                case "Binding":
+                    return parseBinding(r2, ctx);
+                case "StaticResource":
+                    return parseStaticResource(r2, ctx);
+                case "TemplateBinding":
+                    return parseTemplateBinding(r2, ctx);
+                default:
+                    return undefined;
             }
-            typeres = TypeResolver.ResolveFullyQualifiedName(r1, ctx.Resolver);
-            if (!typeres)
-                throw new XamlMarkupParseException("Could not resolve type '" + r1 + "'");
-            var markup = <IMarkup>(new (<any>typeres.Type)());
-            if (!markup.Transmute || !markup.Parse)
-                throw new XamlMarkupParseException("Could not create expression from markup '" + value + "'");
-            markup.Parse(r2);
-            return markup.Transmute(ctx);
         }
+    }
+
+    function parseXType(val: string, ctx: IMarkupParseContext): any {
+        var typeres = TypeResolver.ResolveFullyQualifiedName(val, ctx.Resolver);
+        if (!typeres)
+            throw new XamlMarkupParseException("Could not resolve type '" + val + "'");
+        return typeres.Type;
+    }
+    function parseStatic(val: string, ctx: IMarkupParseContext): any {
+        throw new NotSupportedException("{x:Static ...} is not currently supported.");
+    }
+    function parseBinding(val: string, ctx: IMarkupParseContext): any {
+        throw new NotSupportedException("{Binding ...} is not currently supported.");
+    }
+    function parseStaticResource(val: string, ctx: IMarkupParseContext): any {
+        var sr = new StaticResource(val);
+        return sr.Transmute(ctx);
+    }
+    function parseTemplateBinding(val: string, ctx: IMarkupParseContext): any {
+        var tb = new TemplateBinding(val);
+        return tb.Transmute(ctx);
+    }
+    function parseRelativeSource(val: string, ctx: IMarkupParseContext): any {
+        throw new NotSupportedException("{RelativeSource} is not currently supported.");
     }
 }

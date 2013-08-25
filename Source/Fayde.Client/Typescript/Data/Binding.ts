@@ -36,13 +36,6 @@ module Fayde.Data {
             this._Path = new PropertyPath(path);
         }
 
-        Parse(value: string) {
-            //TODO: Implement
-        }
-        Transmute(ctx: Xaml.IMarkupParseContext): Expression {
-            return new Data.BindingExpression(this, ctx.Owner, ctx.Property);
-        }
-
         get BindsDirectlyToSource(): boolean { return this._BindsDirectlyToSource; }
         set BindsDirectlyToSource(value: boolean) {
             this.CheckSealed();
@@ -151,7 +144,10 @@ module Fayde.Data {
         }
 
         Seal() { this._IsSealed = true; }
-
+        
+        Transmute(ctx: Xaml.IMarkupParseContext): Expression {
+            return new Data.BindingExpression(this, ctx.Owner, ctx.Property);
+        }
     }
     Fayde.RegisterType(Binding, {
     	Name: "Binding",
