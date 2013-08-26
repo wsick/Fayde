@@ -103,6 +103,9 @@
     <TypeScriptCompile Include="Tests\XamlLoadTests.ts" />
     <TypeScriptCompile Include="Tests\TypeConverterTests.ts" />
     <TypeScriptCompile Include="Tests\MarkupExpressionTests.ts" />
+    <Content Include="Tests\MarkupExpressionTests.js">
+      <DependentUpon>MarkupExpressionTests.ts</DependentUpon>
+    </Content>
     <Content Include="Tests\TypeConverterTests.js">
       <DependentUpon>TypeConverterTests.ts</DependentUpon>
     </Content>

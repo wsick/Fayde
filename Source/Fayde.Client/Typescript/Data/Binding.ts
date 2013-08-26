@@ -8,6 +8,7 @@ module Fayde.Data {
         Convert(value: any, targetType: IType, parameter: any, culture: any): any;
         ConvertBack(value: any, targetType: IType, parameter: any, culture: any): any;
     }
+    export var IValueConverter_ = Fayde.RegisterInterface("IValueConverter");
 
     export class Binding implements Xaml.IMarkup {
         private _IsSealed: boolean = false;

@@ -29,9 +29,7 @@ Inner Tag Syntax
 	-> <[ns:]AnyType />				Content Property
 	-> <[ns:]AnyType.Property />	Attached Dependency Property
 
-	
-Next:
-Events
+
 MarkupExpressionParsing
 	x:Null
 		{x:Null}
@@ -48,19 +46,9 @@ MarkupExpressionParsing
 	TemplateBinding
 		{TemplateBinding [TargetProperty]}
 
-Binding
-	Path
-	Mode
-	Converter
-	ConverterCulture
-	ConverterParameter
-	ElementName
-	RelativeSource
-	Source
-	UpdateSourceTrigger
-	FallbackValue
-	StringFormat
-	TargetNullValue
+	
+Next:
+Events
 
 Handle JsonParser.Parse
 Theme -> ResourceDictionary
