@@ -87,11 +87,11 @@ test("Binding", () => {
     strictEqual(binding.Path.Path, "TestPath", "Explict Path");
 
     xaml = "<ComboBox xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" xmlns:res=\"http://schemas.test.com\""
-        + "SelectedItem=\"{Binding TestPath, Mode=TwoWay, UpdateSourceTrigger=Explicit, Converter={StaticResource testConverter}}\">"
+        + " SelectedItem=\"{Binding TestPath, Mode=TwoWay, UpdateSourceTrigger=Explicit, Converter={StaticResource testConverter}}\">"
         + "<ComboBox.Resources>"
         + "<res:TestConverter x:Key=\"testConverter\" />"
         + "</ComboBox.Resources>"
-        + "<ComboBox />";
+        + "</ComboBox>";
     var combobox = <Fayde.Controls.ComboBox>Fayde.Xaml.Load(xaml);
     expr = combobox.GetBindingExpression(Fayde.Controls.Primitives.Selector.SelectedItemProperty);
     binding = expr.ParentBinding;
