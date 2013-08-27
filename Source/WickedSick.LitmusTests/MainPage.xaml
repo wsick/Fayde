@@ -9,6 +9,8 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Themes/Cosmopolitan/CoreStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <Color x:Key="TestColor" A="255" R="255" G="255" B="255" />
+            <SolidColorBrush x:Key="TestBrush" Color="{StaticResource TestColor}" />
         </ResourceDictionary>
     </UserControl.Resources>
     <!--<tests:MapTest />-->

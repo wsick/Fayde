@@ -260,7 +260,6 @@
     <TypeScriptCompile Include="Typescript\Xaml\Sources.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="Typescript\Xaml\StaticResource.ts" />
     <TypeScriptCompile Include="Typescript\Xaml\TemplateBinding.ts" />
     <TypeScriptCompile Include="Typescript\Xaml\Resources.ts" />
     <Content Include="Typescript\Xaml\Resources.js">
@@ -268,9 +267,6 @@
     </Content>
     <Content Include="Typescript\Xaml\Sources.js">
       <DependentUpon>Sources.ts</DependentUpon>
-    </Content>
-    <Content Include="Typescript\Xaml\StaticResource.js">
-      <DependentUpon>StaticResource.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Xaml\TemplateBinding.js">
       <DependentUpon>TemplateBinding.ts</DependentUpon>
@@ -582,10 +578,6 @@
     <TypeScriptCompile Include="Typescript\Core\Setter.ts" />
     <TypeScriptCompile Include="Typescript\Core\RoutedEventArgs.ts" />
     <TypeScriptCompile Include="Typescript\Core\RoutedEvent.ts" />
-    <TypeScriptCompile Include="Typescript\Core\ResourceTarget.ts" />
-    <Content Include="Typescript\Core\ResourceTarget.js">
-      <DependentUpon>ResourceTarget.ts</DependentUpon>
-    </Content>
     <Content Include="Typescript\Core\RoutedEvent.js">
       <DependentUpon>RoutedEvent.ts</DependentUpon>
     </Content>
@@ -598,10 +590,6 @@
     <TypeScriptCompile Include="Typescript\Core\SizeChangedEventArgs.ts" />
     <Content Include="Typescript\Core\SizeChangedEventArgs.js">
       <DependentUpon>SizeChangedEventArgs.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="Typescript\Core\StaticResourceExpression.ts" />
-    <Content Include="Typescript\Core\StaticResourceExpression.js">
-      <DependentUpon>StaticResourceExpression.ts</DependentUpon>
     </Content>
     <Content Include="Typescript\Core\Style.js">
       <DependentUpon>Style.ts</DependentUpon>

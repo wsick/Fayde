@@ -214,7 +214,8 @@ module Fayde.Xaml {
                     Property: propd,
                     Resolver: attr,
                     ResourceChain: ctx.ResourceChain,
-                    TemplateBindingSource: ctx.TemplateBindingSource
+                    TemplateBindingSource: ctx.TemplateBindingSource,
+                    ObjectStack: ctx.ObjectStack
                 };
                 var result = MarkupExpressionParser.Parse(value, parseCtx);
                 if (result !== undefined)

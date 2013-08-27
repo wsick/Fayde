@@ -48,12 +48,7 @@ MarkupExpressionParsing
 
 	
 Next:
-Events
-
-Handle JsonParser.Parse
 Theme -> ResourceDictionary
 Finish resolve dependencies
-Kill ResourceTarget
-Rebuild StaticResource
 
 Unit Test Media Parser, Point Collection

@@ -9,6 +9,7 @@ module Fayde.Xaml {
         ResourceChain: ResourceDictionary[];
         TemplateBindingSource: DependencyObject;
         Resolver: INamespacePrefixResolver;
+        ObjectStack: any[];
     }
     export interface IMarkup {
         Transmute(ctx: IMarkupParseContext): Expression;
@@ -167,9 +168,32 @@ module Fayde.Xaml {
         rv.objVal = MarkupExpressionParser.Parse(rv.strVal, ctx);
         return rv;
     }
-    function parseStaticResource(val: string, ctx: IMarkupParseContext): any {
-        var sr = new StaticResource(val);
-        return sr.Transmute(ctx);
+    function parseStaticResource(key: string, ctx: IMarkupParseContext): any {
+        var o: any;
+
+        var rc = ctx.ResourceChain;
+        var len = rc.length;
+        for (var i = len - 1; i >= 0; i--) {
+            o = rc[i].Get(key);
+            if (o !== undefined)
+                return o;
+        }
+
+        var objs = ctx.ObjectStack;
+        len = objs.length;
+        var cur: any;
+        for (var i = len - 1; i >= 0; i--) {
+            cur = objs[i];
+            if (cur instanceof FrameworkElement) {
+                o = (<FrameworkElement>cur).Resources.Get(key);
+            } else if (cur instanceof Application) {
+                o = (<Application>cur).Resources.Get(key);
+            }
+            if (o !== undefined)
+                return o;
+        }
+
+        throw new XamlParseException("Could not resolve StaticResource: '" + key + "'.");
     }
     function parseTemplateBinding(val: string, ctx: IMarkupParseContext): any {
         var tb = new TemplateBinding(val);
