@@ -47,6 +47,8 @@ module Fayde.Xaml {
                     return parseStaticResource(r2, ctx);
                 case "TemplateBinding":
                     return parseTemplateBinding(r2, ctx);
+                case "RelativeSource":
+                    return parseRelativeSource(r2, ctx);
                 default:
                     return undefined;
             }

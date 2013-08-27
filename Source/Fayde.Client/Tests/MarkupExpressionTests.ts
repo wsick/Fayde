@@ -99,8 +99,11 @@ test("Binding", () => {
     strictEqual(binding.Mode, Fayde.Data.BindingMode.TwoWay, "Mode");
     strictEqual(binding.UpdateSourceTrigger, Fayde.Data.UpdateSourceTrigger.Explicit, "UpdateSourceTrigger");
     ok(binding.Converter instanceof TestConverter, "Converter");
-});
 
-test("RelativeSource", () => {
-    ok(true, "Not Implemented yet");
+    xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" Margin=\"{Binding RelativeSource={RelativeSource TemplatedParent}}\" />";
+    grid = <Fayde.Controls.Grid>Fayde.Xaml.Load(xaml);
+    expr = grid.GetBindingExpression(Fayde.FrameworkElement.MarginProperty);
+    binding = expr.ParentBinding;
+    var rs = binding.RelativeSource;
+    strictEqual(rs.Mode, Fayde.Data.RelativeSourceMode.TemplatedParent, "Mode");
 });
