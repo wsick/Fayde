@@ -2,6 +2,21 @@
 
 QUnit.module("Markup Expression Tests");
 
+class TestConverter implements Fayde.Data.IValueConverter {
+    Convert(value: any, targetType: IType, parameter: any, culture: any): any {
+        return value;
+    }
+    ConvertBack(value: any, targetType: IType, parameter: any, culture: any): any {
+        return value;
+    }
+}
+Fayde.RegisterType(TestConverter, {
+    Name: "TestConverter",
+    Namespace: "window",
+    XmlNamespace: "http://schemas.test.com",
+    Interfaces: [Fayde.Data.IValueConverter_]
+});
+
 test("x:Null", () => {
     var xaml = "<Border xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" Tag=\"{x:Null}\"></Border>";
     var border = <Fayde.Controls.Border>Fayde.Xaml.Load(xaml);
@@ -15,7 +30,9 @@ test("x:Type", () => {
 });
 
 test("x:Static", () => {
-    ok(true, "Not Implemented yet");
+    var xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" Tag=\"{x:Static new TestConverter()}\"></Grid>";
+    var grid = <Fayde.Controls.Grid>Fayde.Xaml.Load(xaml);
+    ok(grid.Tag instanceof TestConverter, "x:Static");
 });
 
 test("TemplateBinding", () => {
@@ -55,22 +72,6 @@ test("StaticResource", () => {
     var border = <Fayde.Controls.Border>grid.Children.GetValueAt(0);
     ok(Thickness.Equals(border.Margin, new Thickness(1, 2, 3, 4)), "Value");
 });
-
-class TestConverter implements Fayde.Data.IValueConverter {
-    Convert(value: any, targetType: IType, parameter: any, culture: any): any {
-        return value;
-    }
-    ConvertBack(value: any, targetType: IType, parameter: any, culture: any): any {
-        return value;
-    }
-}
-Fayde.RegisterType(TestConverter, {
-    Name: "TestConverter",
-    Namespace: "window",
-    XmlNamespace: "http://schemas.test.com",
-    Interfaces: [Fayde.Data.IValueConverter_]
-});
-
 
 test("Binding", () => {
     var xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" Margin=\"{Binding TestPath}\" />";
