@@ -56,6 +56,22 @@ test("StaticResource", () => {
     ok(Thickness.Equals(border.Margin, new Thickness(1, 2, 3, 4)), "Value");
 });
 
+class TestConverter implements Fayde.Data.IValueConverter {
+    Convert(value: any, targetType: IType, parameter: any, culture: any): any {
+        return value;
+    }
+    ConvertBack(value: any, targetType: IType, parameter: any, culture: any): any {
+        return value;
+    }
+}
+Fayde.RegisterType(TestConverter, {
+    Name: "TestConverter",
+    Namespace: "window",
+    XmlNamespace: "http://schemas.test.com",
+    Interfaces: [Fayde.Data.IValueConverter_]
+});
+
+
 test("Binding", () => {
     var xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" Margin=\"{Binding TestPath}\" />";
     var grid = <Fayde.Controls.Grid>Fayde.Xaml.Load(xaml);
@@ -70,12 +86,19 @@ test("Binding", () => {
     binding = expr.ParentBinding;
     strictEqual(binding.Path.Path, "TestPath", "Explict Path");
 
-    xaml = "<ComboBox xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" SelectedItem=\"{Binding TestPath, Mode=TwoWay}\" />";
+    xaml = "<ComboBox xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" xmlns:res=\"http://schemas.test.com\""
+        + "SelectedItem=\"{Binding TestPath, Mode=TwoWay, UpdateSourceTrigger=Explicit, Converter={StaticResource testConverter}}\">"
+        + "<ComboBox.Resources>"
+        + "<res:TestConverter x:Key=\"testConverter\" />"
+        + "</ComboBox.Resources>"
+        + "<ComboBox />";
     var combobox = <Fayde.Controls.ComboBox>Fayde.Xaml.Load(xaml);
     expr = combobox.GetBindingExpression(Fayde.Controls.Primitives.Selector.SelectedItemProperty);
     binding = expr.ParentBinding;
     strictEqual(binding.Path.Path, "TestPath", "Implicit Path");
     strictEqual(binding.Mode, Fayde.Data.BindingMode.TwoWay, "Mode");
+    strictEqual(binding.UpdateSourceTrigger, Fayde.Data.UpdateSourceTrigger.Explicit, "UpdateSourceTrigger");
+    ok(binding.Converter instanceof TestConverter, "Converter");
 });
 
 test("RelativeSource", () => {

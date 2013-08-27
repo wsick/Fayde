@@ -102,6 +102,8 @@ module Fayde.Xaml {
                     remaining = iev.remaining;
                     strVal = iev.strVal;
                     curVal = iev.objVal;
+                    if (curVal instanceof Expression)
+                        curVal = (<Expression>curVal).GetValue(ctx.Property);
                 } else {
                     commai = remaining.indexOf(",");
                     if (commai === -1) {
@@ -145,8 +147,10 @@ module Fayde.Xaml {
                 squigglyCount++;
             } else if (c === "}") {
                 squigglyCount--;
-                if (squigglyCount === 0)
+                if (squigglyCount === 0) {
+                    i++;
                     break;
+                }
             }
         }
         if (inQuote)
@@ -262,10 +266,9 @@ module Fayde.Xaml {
     };
 
     bindingPropertyFuncs["Converter"] = function (binding: Data.Binding, key: string, oVal: any, strVal: string) {
-        var vc = oVal;
         if (!Nullstone.ImplementsInterface(oVal, Data.IValueConverter_))
-            throw new Exception("Binding Converter must be implement IValueConverter.");
-        binding.Converter = vc;
+            throw new Exception("Binding Converter must implement IValueConverter.");
+        binding.Converter = oVal;
     };
 
     bindingPropertyFuncs["ConverterCulture"] = function (binding: Data.Binding, key: string, oVal: any, strVal: string) {
