@@ -325,6 +325,7 @@ module Fayde.Xaml {
             ProcessAttribute: function (attr: Attr) {
                 var tokens = attr.localName.split(".");
                 var propd: DependencyProperty;
+                var event: MulticastEvent<any>;
                 var propertyName: string;
                 if (tokens.length > 1) { // <Tag [ns:]Type.Property="...">
                     var nsUri = attr.namespaceURI || Fayde.XMLNS;
@@ -339,12 +340,23 @@ module Fayde.Xaml {
                     propertyName = attr.localName
                     if (dobj)
                         propd = DependencyProperty.GetDependencyProperty(ownerType, propertyName, true);
+                    if (!propd) {
+                        event = <MulticastEvent>owner[propertyName];
+                        if (!(event instanceof MulticastEvent))
+                            event = undefined;
+                    }
                 }
 
                 ensurePropertyNotSet(propertyName);
 
                 if (propd) {
                     dobj.SetValue(propd, createAttributeObject(attr, dobj, propd));
+                } else if (event) {
+                    var rootobj = ctx.ObjectStack[0];
+                    var callback = rootobj[attr.value];
+                    if (!callback)
+                        throw new XamlParseException("Cannot find method for event subscription '" + attr.value + "'.");
+                    event.Subscribe(callback, rootobj);
                 } else {
                     //TODO: Add checks for read-only, etc.
                     owner[propertyName] = attr.textContent;

@@ -173,3 +173,27 @@ test("VisualStateManager", () => {
     strictEqual((<any>groups).constructor, Fayde.Media.VSM.VisualStateGroupCollection, "VisualStateGroups on Grid should be a VisualStateGroupCollection.");
     strictEqual(groups.Count, 1, "There should be 1 VisualStateGroup in collection.");
 });
+
+class TestControl extends Fayde.Controls.ContentControl {
+    CallbackFired: boolean = false;
+    TestCallback(sender: any, e: EventArgs) {
+        this.CallbackFired = true;
+    }
+}
+Fayde.RegisterType(TestControl, {
+    Name: "TestControl",
+    Namespace: "window",
+    XmlNamespace: "http://schemas.test.com/"
+});
+
+test("Events", () => {
+    var xaml = "<test:TestControl xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" xmlns:test=\"http://schemas.test.com/\">"
+        + "<test:TestControl.Content>"
+        + "<Button Click=\"TestCallback\" />"
+        + "</test:TestControl.Content>"
+        + "</test:TestControl>";
+    var tc = <TestControl>Fayde.Xaml.Load(xaml);
+    var button = <Fayde.Controls.Button>tc.Content;
+    button.Click.Raise(button, new Fayde.RoutedEventArgs());
+    ok(tc.CallbackFired, "Raise");
+});
