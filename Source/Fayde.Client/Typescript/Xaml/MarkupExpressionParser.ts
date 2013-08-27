@@ -78,7 +78,7 @@ module Fayde.Xaml {
             if (inKey) {
                 commai = remaining.indexOf(",");
                 equali = remaining.indexOf("=");
-                if (equali === -1 || commai < equali) {
+                if (equali === -1 || (commai !== -1 && commai < equali)) {
                     var path: string;
                     if (commai !== -1) {
                         path = remaining.substr(0, commai);
@@ -90,7 +90,7 @@ module Fayde.Xaml {
                     bindingPropertyFuncs["Path"](binding, "Path", undefined, path);
                     inKey = true;
                 } else {
-                    curKey = remaining.substr(0, equali);
+                    curKey = remaining.substr(0, equali).trim();
                     remaining = remaining.substr(equali + 1);
                     inKey = false;
                 }

@@ -57,17 +57,25 @@ test("StaticResource", () => {
 });
 
 test("Binding", () => {
-    var xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
-        + "<Border Margin=\"{Binding TestPath}\" />"
-        + "</Grid>";
+    var xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" Margin=\"{Binding TestPath}\" />";
     var grid = <Fayde.Controls.Grid>Fayde.Xaml.Load(xaml);
-    var border = <Fayde.Controls.Border>grid.Children.GetValueAt(0);
-    var expr = border.GetBindingExpression(Fayde.FrameworkElement.MarginProperty);
+    var expr = grid.GetBindingExpression(Fayde.FrameworkElement.MarginProperty);
     ok(expr instanceof Fayde.Data.BindingExpression, "Type");
     var binding = expr.ParentBinding;
-    strictEqual(binding.Path.Path, "TestPath", "Path");
+    strictEqual(binding.Path.Path, "TestPath", "Implict Path");
 
+    xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" Margin=\"{Binding Path=TestPath}\" />";
+    grid = <Fayde.Controls.Grid>Fayde.Xaml.Load(xaml);
+    expr = grid.GetBindingExpression(Fayde.FrameworkElement.MarginProperty);
+    binding = expr.ParentBinding;
+    strictEqual(binding.Path.Path, "TestPath", "Explict Path");
 
+    xaml = "<ComboBox xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" SelectedItem=\"{Binding TestPath, Mode=TwoWay}\" />";
+    var combobox = <Fayde.Controls.ComboBox>Fayde.Xaml.Load(xaml);
+    expr = combobox.GetBindingExpression(Fayde.Controls.Primitives.Selector.SelectedItemProperty);
+    binding = expr.ParentBinding;
+    strictEqual(binding.Path.Path, "TestPath", "Implicit Path");
+    strictEqual(binding.Mode, Fayde.Data.BindingMode.TwoWay, "Mode");
 });
 
 test("RelativeSource", () => {
