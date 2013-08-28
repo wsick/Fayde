@@ -231,7 +231,7 @@ class Color implements ICloneable {
 Fayde.RegisterType(Color, {
 	Name: "Color",
 	Namespace: "window",
-	XmlNamespace: Fayde.XMLNSX
+	XmlNamespace: Fayde.XMLNS
 });
 
 Fayde.RegisterTypeConverter(Color, (val: any): Color => {

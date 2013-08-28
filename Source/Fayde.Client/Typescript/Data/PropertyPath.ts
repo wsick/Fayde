@@ -306,4 +306,11 @@ module Fayde.Data {
     	Namespace: "Fayde.Data",
     	XmlNamespace: Fayde.XMLNS
     });
+    Fayde.RegisterTypeConverter(PropertyPath, (val: any): any => {
+        if (!val)
+            return new PropertyPath();
+        if (val instanceof PropertyPath)
+            return val;
+        return new PropertyPath(val.toString());
+    });
 }

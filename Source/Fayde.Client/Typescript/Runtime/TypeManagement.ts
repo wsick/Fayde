@@ -113,6 +113,13 @@ module Fayde {
                     };
                 }
                 isSystem = true;
+            } else if (xmlns === Fayde.XMLNS && xmlname === "Double") {
+                return {
+                    Type: Number,
+                    IsPrimitive: true,
+                    IsSystem: false,
+                    IsEnum: false
+                };
             }
             var xarr = xmlNamespaces[xmlns];
             if (xarr) {
