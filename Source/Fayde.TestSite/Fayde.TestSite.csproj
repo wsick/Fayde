@@ -90,6 +90,7 @@
     <Content Include="default8.fap">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Tests\Controls\border.html" />
     <Content Include="Tests\IssueTests\binding.fap.js" />
     <Content Include="Tests\IssueTests\binding.fap.ts" />
     <Content Include="Tests\Media\image-stretch.fap">

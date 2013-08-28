@@ -129,8 +129,38 @@ module Fayde {
         XmlNamespace: Fayde.XMLNS
     });
 
-    export function Start(fapUrl: string, canvasId: string) {
-        var canvas = <HTMLCanvasElement><any>document.getElementById(canvasId);
+    var isReady = false;
+    function doOnReady(onReady: () => void) {
+        // Mozilla, Opera and webkit nightlies currently support this event
+        if (document.addEventListener) {
+            // Use the handy event callback
+            document.addEventListener("DOMContentLoaded", function () {
+                (<any>document).removeEventListener("DOMContentLoaded", arguments.callee, false);
+                onReady();
+            }, false);
+
+            // If IE event model is used
+        } else if (document.attachEvent) {
+            // ensure firing before onload,
+            // maybe late but safe also for iframes
+            document.attachEvent("onreadystatechange", function () {
+                if (document.readyState === "complete") {
+                    (<any>document).detachEvent("onreadystatechange", arguments.callee);
+                    onReady();
+                }
+            });
+        }
+
+        window.onload = onReady;
+    }
+    doOnReady(() => {
+        if (isReady) return;
+        isReady = true;
+        var url = document.body.getAttribute("faydeapp");
+        var canvas = document.getElementsByTagName("canvas")[0];
+        if (!canvas)
+            document.body.appendChild(canvas = document.createElement("canvas"));
+
         var request = new AjaxRequest(
             (result) => {
                 Xaml.LoadApplication(result.GetData(), canvas);
@@ -139,6 +169,6 @@ module Fayde {
                 alert("An error occurred retrieving the application.");
                 console.log("An error occurred retrieving the application. " + error);
             });
-        request.Get(fapUrl);
-    }
+        request.Get(url);
+    });
 }

@@ -85,44 +85,12 @@ module Fayde {
             this._Ctx = this._Canvas.getContext("2d");
             this._RenderContext = new Fayde.RenderContext(this._Ctx);
 
-            if (!width) {
-                width = 100;
-                widthType = "Percentage";
-            } else if (!widthType) {
-                widthType = "Percentage";
-            }
-            if (!height) {
-                height = 100;
-                heightType = "Percentage";
-            } else if (!heightType) {
-                heightType = "Percentage";
-            }
-
-            this._InitializeCanvas(canvas, width, widthType, height, heightType);
+            this._ResizeCanvas();
+            document.body.onresize = (e) => this._HandleResize(window.event ? <any>window.event : e);
+            window.onresize = (e) => this._HandleResize(window.event ? <any>window.event : e);
+            
             this._CalculateOffset();
             this._RegisterEvents();
-        }
-        private _InitializeCanvas(canvas: HTMLCanvasElement, width, widthType, height, heightType) {
-            var resizesWithWindow = false;
-
-            if (widthType === "Percentage") {
-                resizesWithWindow = true;
-                this._PercentageWidth = width;
-            } else {
-                canvas.width = width;
-            }
-
-            if (heightType === "Percentage") {
-                resizesWithWindow = true;
-                this._PercentageHeight = height;
-            } else {
-                canvas.height = height;
-            }
-
-            if (resizesWithWindow) {
-                this._ResizeCanvas();
-                window.onresize = (e) => this._HandleResize(window.event ? <any>window.event : e);
-            }
         }
         private _CalculateOffset() {
             var left = 0;
@@ -421,12 +389,9 @@ module Fayde {
             resizeTimeout = null;
         }
         private _ResizeCanvas() {
-            var width = this._PercentageWidth;
-            var height = this._PercentageHeight;
-            if (width != null)
-                this._Canvas.width = window.innerWidth * width / 100.0;
-            if (height != null)
-                this._Canvas.height = window.innerHeight * height / 100.0;
+            var canvas = this._Canvas;
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
 
         // CURSOR
