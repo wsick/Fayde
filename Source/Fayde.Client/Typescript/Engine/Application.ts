@@ -24,8 +24,6 @@ module Fayde {
         Address: Uri = null;
         NavService: Navigation.NavService;
         DebugInterop: DebugInterop;
-        Theme: string = "Metro";
-        static Themes: Xaml.Theme[] = [];
         private _IsRunning: boolean = false;
         private _Storyboards: ITimeline[] = [];
         private _ClockTimer: ClockTimer = new ClockTimer();
@@ -34,6 +32,8 @@ module Fayde {
         Resources: ResourceDictionary;
         static SourcesProperty = DependencyProperty.RegisterImmutable("Sources", () => XamlObjectCollection, Application);
         Sources: XamlObjectCollection<Xaml.Source>;
+
+        Theme: Theme;
 
         constructor() {
             super();
@@ -106,22 +106,13 @@ module Fayde {
                 sbs.splice(index, 1);
         }
 
-        get CurrentTheme(): Xaml.Theme {
-            var themeName = this.Theme;
-            var theme = Application.Themes.filter(t => t.Name == themeName)[0];
-            if (!theme) {
-                console.warn("Could not find theme: " + themeName);
-                theme = Application.Themes[0];
-            }
-            return theme;
-        }
         GetImplicitStyle(type: any): Style {
-            var theme = this.CurrentTheme;
+            var theme = this.Theme;
             if (!theme)
-                return;
-            var rd = theme.ResourceDictionary;
+                return undefined;
+            var rd = theme.Resources;
             if (!rd)
-                return;
+                return undefined;
             return <Style><any>rd.Get(type);
         }
 

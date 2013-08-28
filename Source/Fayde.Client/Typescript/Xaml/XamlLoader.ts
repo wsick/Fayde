@@ -2,6 +2,7 @@
 /// CODE
 /// <reference path="../Runtime/TypeManagement.ts" />
 /// <reference path="MarkupExpressionParser.ts" />
+/// <reference path="../Core/Theme.ts" />
 
 module Fayde.Xaml {
     var parser = new DOMParser();
@@ -32,22 +33,29 @@ module Fayde.Xaml {
         Namespace: "Fayde.Xaml"
     });
 
-    export class Theme {
-        Name: string;
-        private _ResourceDictionary: ResourceDictionary;
-        constructor(name: string) {
-            this.Name = name;
+    class ThemeLoader implements Runtime.ILoadAsyncable {
+        Url: string;
+        private _Xaml: string;
+        constructor(url: string) {
+            this.Url = url;
         }
-
-        get ResourceDictionary(): ResourceDictionary {
-            if (!this._ResourceDictionary) {
-                this._ResourceDictionary = new ResourceDictionary();
-                //JsonParser.ParseResourceDictionary(this._ResourceDictionary, this.Json);
-            }
-            return this._ResourceDictionary;
-
+        CreateTheme(): Theme {
+            return <Theme>Xaml.Load(this._Xaml);
+        }
+        LoadAsync(onLoaded: (state: any) => void) {
+            var request = new AjaxRequest(
+                (result: IAjaxResult) => {
+                    this._Xaml = result.GetData();
+                    onLoaded(this);
+                },
+                (error: string) => {
+                    console.warn("Could not load Theme: " + error);
+                    onLoaded(this);
+                });
+            request.Get(this.Url);
         }
     }
+
 
     interface IOutValue {
         Value: any
@@ -461,6 +469,7 @@ module Fayde.Xaml {
     }
     function createAppLoader(xaml: string, canvas: HTMLCanvasElement): IAppLoader {
         var appSources = new XamlObjectCollection<Namespace>();
+        var themeUrl: string;
         var ctx: IXamlLoadContext = {
             Document: parser.parseFromString(xaml, "text/xml"),
             ResourceChain: [],
@@ -471,12 +480,14 @@ module Fayde.Xaml {
         validateDocument(ctx.Document);
 
         function registerSources() {
-            var appNode = ctx.Document.firstChild;
-            var appNsUri = appNode.namespaceURI;
-            var sourceNodeName = appNode.localName + ".Sources";
+            var appEl = ctx.Document.documentElement;
+            var appNsUri = appEl.namespaceURI;
+            themeUrl = appEl.getAttributeNS(appNsUri, "Theme")
+            if (!themeUrl) themeUrl = appEl.getAttribute("Theme");
+            var sourceNodeName = appEl.localName + ".Sources";
 
             var nsUri: string;
-            var curElement = ctx.Document.documentElement;
+            var curElement = appEl;
             while (curElement) {
                 nsUri = curElement.namespaceURI || Fayde.XMLNS;
                 if (nsUri === appNsUri && curElement.localName === sourceNodeName)
@@ -517,7 +528,7 @@ module Fayde.Xaml {
 
             return deps;
         }
-        function finishLoad() {
+        function finishLoad(theme: Theme) {
             var el = ctx.Document.documentElement;
             var nsUri = el.namespaceURI || Fayde.XMLNS;
             var resolution = TypeResolver.Resolve(nsUri, el.localName);
@@ -525,6 +536,7 @@ module Fayde.Xaml {
                 throw new XamlParseException("Could not resolve application type '" + nsUri + ":" + el.localName + "'");
 
             var app = new (<any>resolution.Type)();
+            Object.defineProperty(app, "Theme", { value: theme, writable: false });
             Application.Current = app;
             if (!(app instanceof Application))
                 throw new XamlParseException("Root Element must be an Application.");
@@ -545,7 +557,10 @@ module Fayde.Xaml {
             Load: function () {
                 registerSources();
                 collectDependencies();
-                Runtime.LoadBatchAsync(appSources.ToArray(), () => finishLoad());
+                var loaders: Fayde.Runtime.ILoadAsyncable[] = appSources.ToArray();
+                var themeLoader = new ThemeLoader(themeUrl);
+                loaders.push(themeLoader);
+                Runtime.LoadBatchAsync(loaders, () => finishLoad(themeLoader.CreateTheme()));
             }
         };
     }

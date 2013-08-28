@@ -200,6 +200,7 @@
       <DependentUpon>RoutedPropertyChangedEvent.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="Typescript\Engine\Application.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Theme.ts" />
     <Content Include="Typescript\Engine\Application.js">
       <DependentUpon>Application.ts</DependentUpon>
     </Content>
