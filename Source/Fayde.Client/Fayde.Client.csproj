@@ -75,11 +75,9 @@
     <Content Include="Docs\Plugins.txt" />
     <Content Include="Docs\XamlLoaderNotes.txt" />
     <Content Include="Docs\XamlNotes.txt" />
-    <Content Include="Fayde.Theme.Silverlight.js" />
     <Content Include="Fayde.js">
       <DependentUpon>Fayde.ts</DependentUpon>
     </Content>
-    <Content Include="Fayde.Theme.Metro.js" />
     <Content Include="Fayde.ts" />
     <Content Include="Global.asax" />
     <Content Include="Fayde.d.ts">
@@ -112,10 +110,10 @@
     <Content Include="Tests\XamlLoadTests.js">
       <DependentUpon>XamlLoadTests.ts</DependentUpon>
     </Content>
-    <Content Include="Themes\Silverlight.xml">
+    <Content Include="Theme.Silverlight.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Themes\Metro.xml">
+    <Content Include="Theme.Metro.xml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Silo\heightTest.htm" />
@@ -686,10 +684,6 @@
     </Content>
     <TypeScriptCompile Include="Typescript\Input\KeyEventArgs.ts" />
     <TypeScriptCompile Include="Typescript\Input\Keyboard.ts" />
-    <TypeScriptCompile Include="Typescript\Engine\XamlResolver.ts" />
-    <Content Include="Typescript\Engine\XamlResolver.js">
-      <DependentUpon>XamlResolver.ts</DependentUpon>
-    </Content>
     <Content Include="Typescript\Input\Keyboard.js">
       <DependentUpon>Keyboard.ts</DependentUpon>
     </Content>
@@ -1202,8 +1196,8 @@
     <PostBuildEvent>cd "$(ProjectDir)"
 xcopy /s /y Fayde.js ..\jsbin\
 xcopy /s /y Fayde.tsorder ..\jsbin\
-xcopy /s /y Fayde.Theme.*.js ..\jsbin\
-xcopy /s /y Fayde.d.ts ..\jsbin\</PostBuildEvent>
+xcopy /s /y Fayde.d.ts ..\jsbin\
+xcopy /s /y Theme.*.xml ..\jsbin\</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>cd "$(ProjectDir)"

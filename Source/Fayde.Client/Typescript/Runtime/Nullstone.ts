@@ -8,18 +8,6 @@ interface ICloneable {
     Clone(): any;
 }
 
-interface IJsFileImportToken {
-    IsCompleted: boolean;
-    Script: HTMLScriptElement;
-    DoOnComplete(callback: (token: IJsFileImportToken) => void);
-}
-
-interface IJsFilesImportToken {
-    IsCompleted: boolean;
-    Scripts: HTMLScriptElement[];
-    DoOnComplete(callback: (token: IJsFilesImportToken) => void );
-}
-
 class Nullstone {
     static Equals(val1: any, val2: any): boolean {
         if (val1 == null && val2 == null)
@@ -56,7 +44,6 @@ class Nullstone {
         var type = obj.constructor;
         return type.prototype.hasOwnProperty(name);
     }
-
     static ImplementsInterface(obj: any, i: IInterfaceDeclaration): boolean {
         if (!obj)
             return false;
@@ -72,84 +59,6 @@ class Nullstone {
                 return true;
         } while (curType = curType._BaseClass);
         return false;
-    }
-
-    static ImportJsFile(url: string, onComplete?: (token: IJsFileImportToken) => void ): IJsFileImportToken {
-        var token = {
-            IsCompleted: false,
-            Script: undefined,
-            OnComplete: onComplete || () => { },
-            DoOnComplete: function (callback: () => void ) {
-                this.OnComplete = callback || () => { };
-                if (!this.IsCompleted)
-                    return;
-                this.OnComplete();
-            }
-        };
-
-        var scripts = document.getElementsByTagName("script");
-        var script: HTMLScriptElement = null;
-        for (var i = 0; i < scripts.length; i++) {
-            script = <HTMLScriptElement>scripts[i];
-            if (script.src === url) {
-                token.Script = script;
-                token.IsCompleted = true;
-                token.OnComplete(token);
-                return;
-            }
-        }
-
-        var script = <HTMLScriptElement>document.createElement("script");
-        token.Script = script;
-        script.type = "text/javascript";
-        script.src = url;
-        script.onreadystatechange = function (e: Event) {
-            if (this.readyState === "completed") {
-                token.IsCompleted = true;
-                token.OnComplete(token);
-            }
-        };
-        script.onload = function () {
-            token.IsCompleted = true;
-            token.OnComplete(token);
-        };
-
-        var head = <HTMLHeadElement>document.getElementsByTagName("head")[0];
-        head.appendChild(script);
-
-        return token;
-    }
-    static ImportJsFiles(urls: string[], onComplete?: (token: IJsFilesImportToken) => void ): IJsFilesImportToken {
-        var token = {
-            IsCompleted: false,
-            Scripts: [],
-            OnComplete: onComplete || () => { },
-            DoOnComplete: function (callback: () => void ) {
-                this.OnComplete = callback || () => { };
-                if (!this.IsCompleted)
-                    return;
-                this.OnComplete();
-            }
-        };
-
-        var allsubtokens = [];
-        var len = urls.length;
-        
-        var check = function (t: IJsFileImportToken) {
-            allsubtokens.push(t);
-            if (allsubtokens.length === len) {
-                token.IsCompleted = true;
-                token.OnComplete(token);
-            }
-        }
-
-        for (var i = 0; i < len; i++) {
-            var subtoken = Nullstone.ImportJsFile(urls[i]);
-            token.Scripts.push(subtoken.Script);
-            subtoken.DoOnComplete(check);
-        }
-        
-        return token;
     }
 }
 

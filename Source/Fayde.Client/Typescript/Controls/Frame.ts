@@ -3,7 +3,6 @@
 /// <reference path="../Runtime/TimelineProfile.ts" />
 /// <reference path="Page.ts" />
 /// <reference path="../Primitives/Uri.ts" />
-/// <reference path="../Engine/XamlResolver.ts" />
 
 module Fayde.Controls {
     export class Frame extends ContentControl {
@@ -15,7 +14,6 @@ module Fayde.Controls {
         Source: Uri;
 
         private _Request: AjaxRequest;
-        private _Resolver: XamlResolver;
         private _NavService: Navigation.NavService;
 
         //Navigated = new MulticastEvent();
@@ -64,12 +62,13 @@ module Fayde.Controls {
             this.StopLoading();
 
             TimelineProfile.Navigate(true, href + "#" + hash);
-            var that = this;
+            /*
             this._Resolver = new XamlResolver(
                 (xamlResult, scriptResult) => this._HandleSuccessfulResponse(xamlResult),
                 (xamlResult, scriptResult) => this._HandleSuccessfulSubResponse(xamlResult),
                 (error) => this._HandleErrorResponse(error));
             this._Resolver.Load(href, hash);
+            */
         }
         private _HandleSuccessfulResponse(ajaxResult: IAjaxResult) {
             TimelineProfile.Parse(true, "Page");
@@ -90,7 +89,7 @@ module Fayde.Controls {
             jsType.__TemplateJson = json;
         }
         private _HandleErrorResponse(error: string) {
-            this._Resolver = null;
+            //this._Resolver = null;
         }
 
         private SourcePropertyChanged(args: IDependencyPropertyChangedEventArgs) {
