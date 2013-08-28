@@ -75,6 +75,10 @@ module Fayde {
     PRIMITIVE_MAPPINGS["Array"] = Array;
     PRIMITIVE_MAPPINGS["Null"] = null;
 
+    var ALIASES = [];
+    ALIASES["Boolean"] = Boolean;
+    ALIASES["Double"] = Number;
+
     export interface ITypeResolution {
         IsPrimitive: boolean;
         IsSystem: boolean;
@@ -113,13 +117,16 @@ module Fayde {
                     };
                 }
                 isSystem = true;
-            } else if (xmlns === Fayde.XMLNS && xmlname === "Double") {
-                return {
-                    Type: Number,
-                    IsPrimitive: true,
-                    IsSystem: false,
-                    IsEnum: false
-                };
+            } else if (xmlns === Fayde.XMLNS) {
+                var alias = ALIASES[xmlname];
+                if (alias !== undefined) {
+                    return {
+                        Type: alias,
+                        IsPrimitive: true,
+                        IsSystem: false,
+                        IsEnum: false
+                    };
+                }
             }
             var xarr = xmlNamespaces[xmlns];
             if (xarr) {
