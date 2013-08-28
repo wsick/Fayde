@@ -23,7 +23,7 @@ namespace Fayde.TestSite.Tests
         protected IEnumerable<object> FindTests()
         {
             var localDir = new DirectoryInfo(Server.MapPath("~/Tests/"));
-            var files = localDir.GetFiles("*.fap", SearchOption.AllDirectories);
+            var files = localDir.GetFiles("*.html", SearchOption.AllDirectories);
             var root = Server.MapPath("~");
             return files.Select(fi => new
                 {

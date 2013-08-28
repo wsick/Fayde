@@ -87,7 +87,10 @@ module Fayde.Xaml {
         }
 
         var childProcessor = createXamlChildProcessor(val, resolution.Type, ctx);
-        childProcessor.Process(el);
+        if (val instanceof XamlObjectCollection)
+            childProcessor.ProcessPropertyCollection(el, val);
+        else
+            childProcessor.Process(el);
 
         return ctx.ObjectStack.pop();
     }
@@ -406,10 +409,12 @@ module Fayde.Xaml {
                 var curEl = propertyEl.firstElementChild;
                 if (coll instanceof ResourceDictionary) {
                     var rd = <ResourceDictionary>coll;
+                    ctx.ResourceChain.push(rd);
                     while (curEl) {
                         createObjectInResources(curEl, rd);
                         curEl = curEl.nextElementSibling;
                     }
+                    ctx.ResourceChain.pop();
                 } else {
                     while (curEl) {
                         coll.Add(createObject(curEl, ctx));
@@ -554,18 +559,8 @@ module Fayde.Xaml {
         }
 
         Create() {
-            var rd = new ResourceDictionary();
+            var rd = <ResourceDictionary>Load(this._Xaml);
             Object.defineProperty(this, "Resources", { value: rd, writable: false });
-            var ctx: IXamlLoadContext = {
-                Document: parser.parseFromString(this._Xaml, "text/xml"),
-                ResourceChain: [rd],
-                NameScope: new NameScope(true),
-                ObjectStack: [rd],
-                TemplateBindingSource: null,
-            };
-            validateDocument(ctx.Document);
-            var childProcessor = createXamlChildProcessor(rd, ResourceDictionary, ctx);
-            childProcessor.ProcessPropertyCollection(ctx.Document.documentElement, rd);
         }
 
         LoadAsync(onLoaded: (state: any) => void) {

@@ -157,6 +157,8 @@ module Fayde {
         if (isReady) return;
         isReady = true;
         var url = document.body.getAttribute("faydeapp");
+        if (!url)
+            return;
         var canvas = document.getElementsByTagName("canvas")[0];
         if (!canvas)
             document.body.appendChild(canvas = document.createElement("canvas"));
