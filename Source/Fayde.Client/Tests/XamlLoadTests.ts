@@ -24,6 +24,31 @@ test("Basic attribute", () => {
     strictEqual(root.Text, "Testing!", "TextBlock should have Text property set to 'Testing!'.");
 });
 
+test("Simple tag", () => {
+    var xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        + "<StackPanel.Background>"
+        + "<SolidColorBrush>"
+        + "<SolidColorBrush.Color>"
+        + "<Color>#AABBCC</Color>"
+        + "</SolidColorBrush.Color>"
+        + "</SolidColorBrush>"
+        + "</StackPanel.Background>"
+        + "</StackPanel>";
+    var sp = <Fayde.Controls.StackPanel>Fayde.Xaml.Load(xaml);
+    var bg = <Fayde.Media.SolidColorBrush>sp.Background;
+    strictEqual(bg.Color.ToHexStringNoAlpha(), "#aabbcc", "Color");
+});
+
+test("Enum tag", () => {
+    var xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        + "<StackPanel.Orientation>"
+        + "<Orientation>Horizontal</Orientation>"
+        + "</StackPanel.Orientation>"
+        + "</StackPanel>";
+    var sp = <Fayde.Controls.StackPanel>Fayde.Xaml.Load(xaml);
+    strictEqual(sp.Orientation, Fayde.Orientation.Horizontal, "Orientation");
+});
+
 test("Border with Child", () => {
     var root = <Fayde.Controls.Border>Fayde.Xaml.Load("<Border xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\"><TextBlock Text=\"Hey!\" /></Border>");
     var child = <Fayde.Controls.TextBlock>root.Child;
@@ -78,13 +103,13 @@ test("Style", () => {
 });
 
 QUnit.asyncTest("Theme", 1, () => {
-    var theme = new Fayde.Xaml.Theme("../Themes/Metro.xml");
+    var theme = new Fayde.Xaml.Theme("../Theme.Metro.xml");
     theme.LoadAsync((state: any) => {
         try {
             theme.Create();
             ok(true, "Create Theme");
         } catch (err) {
-            ok(false, "Create Theme");
+            ok(false, "Create Theme: " + err.toString());
         }
         start();
     });

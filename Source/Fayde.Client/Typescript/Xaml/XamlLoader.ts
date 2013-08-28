@@ -61,10 +61,16 @@ module Fayde.Xaml {
             throw new XamlParseException("Could not resolve type '" + el.namespaceURI + ":" + el.localName + "'");
         if (resolution.IsPrimitive)
             return createPrimitive(resolution.Type, el, ctx);
+        if (resolution.IsSimple)
+            return createSimple(resolution.Type, el, ctx);
         if (resolution.IsSystem)
             return Fayde.ConvertAnyToType(el.textContent, resolution.Type);
-        if (resolution.IsEnum)
+        if (resolution.IsEnum) {
+            var val = resolution.Type[el.textContent.trim()];
+            if (val != null)
+                return val;
             return 0;
+        }
 
         var val = new (<any>resolution.Type)();
 
@@ -121,6 +127,12 @@ module Fayde.Xaml {
             return arr;
         }
         return undefined;
+    }
+    function createSimple(type: Function, el: Element, ctx: IXamlLoadContext): any {
+        var text = el.textContent.trim();
+        if (text)
+            return Fayde.ConvertAnyToType(text, type);
+        return new (<any>type)();
     }
     function createTemplate(ft: FrameworkTemplate, el: Element, ctx: IXamlLoadContext): FrameworkTemplate {
         Object.defineProperty(ft, "ResourceChain", { value: ctx.ResourceChain.slice(0), writable: false });

@@ -79,9 +79,14 @@ module Fayde {
     ALIASES["Boolean"] = Boolean;
     ALIASES["Double"] = Number;
 
+    var SIMPLES = [];
+    SIMPLES["Color"] = true;
+    SIMPLES["FontFamily"] = true;
+
     export interface ITypeResolution {
         IsPrimitive: boolean;
         IsSystem: boolean;
+        IsSimple: boolean;
         IsEnum: boolean;
         Type: Function;
     }
@@ -106,6 +111,7 @@ module Fayde {
         },
         Resolve: function (xmlns: string, xmlname: string): ITypeResolution {
             var isSystem = false;
+            var isSimple = false;
             if (xmlns === Fayde.XMLNSX) {
                 var mapping = PRIMITIVE_MAPPINGS[xmlname];
                 if (mapping !== undefined) {
@@ -113,6 +119,7 @@ module Fayde {
                         Type: mapping,
                         IsPrimitive: true,
                         IsSystem: false,
+                        IsSimple: false,
                         IsEnum: false
                     };
                 }
@@ -124,15 +131,17 @@ module Fayde {
                         Type: alias,
                         IsPrimitive: true,
                         IsSystem: false,
+                        IsSimple: false,
                         IsEnum: false
                     };
                 }
+                isSimple = SIMPLES[xmlname] === true;
             }
             var xarr = xmlNamespaces[xmlns];
             if (xarr) {
                 var t = xarr[xmlname];
                 if (t)
-                    return { IsSystem: isSystem, IsPrimitive: false, IsEnum: t.IsEnum === true, Type: t };
+                    return { IsSystem: isSystem, IsPrimitive: false, IsSimple: isSimple, IsEnum: t.IsEnum === true, Type: t };
             }
             return undefined;
         },
