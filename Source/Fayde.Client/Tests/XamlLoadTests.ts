@@ -77,9 +77,17 @@ test("Style", () => {
     ok(Thickness.Equals(setter.ConvertedValue, new Thickness(1, 1, 1, 1)), "Setter Value should be a Thickness (1, 1, 1, 1).");
 });
 
-test("Theme", () => {
-    var xaml = "";
-    
+QUnit.asyncTest("Theme", 1, () => {
+    var theme = new Fayde.Xaml.Theme("../Themes/Metro.xml");
+    theme.LoadAsync((state: any) => {
+        try {
+            theme.Create();
+            ok(true, "Create Theme");
+        } catch (err) {
+            ok(false, "Create Theme");
+        }
+        start();
+    });
 });
 
 test("DataTemplate", () => {

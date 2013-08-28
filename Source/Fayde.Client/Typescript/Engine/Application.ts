@@ -33,7 +33,7 @@ module Fayde {
         static SourcesProperty = DependencyProperty.RegisterImmutable("Sources", () => XamlObjectCollection, Application);
         Sources: XamlObjectCollection<Xaml.Source>;
 
-        Theme: Theme;
+        Theme: Xaml.Theme;
 
         constructor() {
             super();

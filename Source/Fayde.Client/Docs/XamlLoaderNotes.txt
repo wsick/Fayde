@@ -48,7 +48,4 @@ MarkupExpressionParsing
 
 	
 Next:
-Theme -> ResourceDictionary
-Finish resolve dependencies
-
 Unit Test Media Parser, Point Collection

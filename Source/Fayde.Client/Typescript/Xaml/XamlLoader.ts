@@ -2,7 +2,6 @@
 /// CODE
 /// <reference path="../Runtime/TypeManagement.ts" />
 /// <reference path="MarkupExpressionParser.ts" />
-/// <reference path="../Core/Theme.ts" />
 
 module Fayde.Xaml {
     var parser = new DOMParser();
@@ -32,29 +31,6 @@ module Fayde.Xaml {
         Name: "FrameworkTemplate",
         Namespace: "Fayde.Xaml"
     });
-
-    class ThemeLoader implements Runtime.ILoadAsyncable {
-        Url: string;
-        private _Xaml: string;
-        constructor(url: string) {
-            this.Url = url;
-        }
-        CreateTheme(): Theme {
-            return <Theme>Xaml.Load(this._Xaml);
-        }
-        LoadAsync(onLoaded: (state: any) => void) {
-            var request = new AjaxRequest(
-                (result: IAjaxResult) => {
-                    this._Xaml = result.GetData();
-                    onLoaded(this);
-                },
-                (error: string) => {
-                    console.warn("Could not load Theme: " + error);
-                    onLoaded(this);
-                });
-            request.Get(this.Url);
-        }
-    }
 
 
     interface IOutValue {
@@ -165,7 +141,8 @@ module Fayde.Xaml {
     }
 
     interface IXamlChildProcessor {
-        Process(el: Element);
+        Process(el: Element): void;
+        ProcessPropertyCollection(propertyEl: Element, coll: XamlObjectCollection<any>): void;
     }
     function createXamlChildProcessor(owner: any, ownerType: Function, ctx: IXamlLoadContext): IXamlChildProcessor {
         var app: Application;
@@ -291,7 +268,7 @@ module Fayde.Xaml {
         }
 
         return {
-            Process: function (el: Element) {
+            Process: function (el: Element): void {
                 //Handle Resources first
                 var resElement = getResourcesChildElement(el);
                 var rd: ResourceDictionary;
@@ -424,7 +401,7 @@ module Fayde.Xaml {
                     }
                 }
             },
-            ProcessPropertyCollection: function (propertyEl: Element, coll: XamlObjectCollection<any>) {
+            ProcessPropertyCollection: function (propertyEl: Element, coll: XamlObjectCollection<any>): void {
                 ctx.ObjectStack.push(coll);
                 var curEl = propertyEl.firstElementChild;
                 if (coll instanceof ResourceDictionary) {
@@ -469,7 +446,7 @@ module Fayde.Xaml {
     }
     function createAppLoader(xaml: string, canvas: HTMLCanvasElement): IAppLoader {
         var appSources = new XamlObjectCollection<Namespace>();
-        var themeUrl: string;
+        var theme: Theme;
         var ctx: IXamlLoadContext = {
             Document: parser.parseFromString(xaml, "text/xml"),
             ResourceChain: [],
@@ -482,8 +459,9 @@ module Fayde.Xaml {
         function registerSources() {
             var appEl = ctx.Document.documentElement;
             var appNsUri = appEl.namespaceURI;
-            themeUrl = appEl.getAttributeNS(appNsUri, "Theme")
+            var themeUrl = appEl.getAttributeNS(appNsUri, "Theme")
             if (!themeUrl) themeUrl = appEl.getAttribute("Theme");
+            theme = new Theme(themeUrl);
             var sourceNodeName = appEl.localName + ".Sources";
 
             var nsUri: string;
@@ -528,7 +506,7 @@ module Fayde.Xaml {
 
             return deps;
         }
-        function finishLoad(theme: Theme) {
+        function finishLoad() {
             var el = ctx.Document.documentElement;
             var nsUri = el.namespaceURI || Fayde.XMLNS;
             var resolution = TypeResolver.Resolve(nsUri, el.localName);
@@ -536,6 +514,7 @@ module Fayde.Xaml {
                 throw new XamlParseException("Could not resolve application type '" + nsUri + ":" + el.localName + "'");
 
             var app = new (<any>resolution.Type)();
+            theme.Create();
             Object.defineProperty(app, "Theme", { value: theme, writable: false });
             Application.Current = app;
             if (!(app instanceof Application))
@@ -558,10 +537,48 @@ module Fayde.Xaml {
                 registerSources();
                 collectDependencies();
                 var loaders: Fayde.Runtime.ILoadAsyncable[] = appSources.ToArray();
-                var themeLoader = new ThemeLoader(themeUrl);
-                loaders.push(themeLoader);
-                Runtime.LoadBatchAsync(loaders, () => finishLoad(themeLoader.CreateTheme()));
+                loaders.push(theme);
+                Runtime.LoadBatchAsync(loaders, () => finishLoad());
             }
         };
+    }
+
+
+    /// THEME
+    export class Theme implements Runtime.ILoadAsyncable {
+        Resources: ResourceDictionary;
+        Url: string;
+        private _Xaml: string;
+        constructor(url: string) {
+            this.Url = url;
+        }
+
+        Create() {
+            var rd = new ResourceDictionary();
+            Object.defineProperty(this, "Resources", { value: rd, writable: false });
+            var ctx: IXamlLoadContext = {
+                Document: parser.parseFromString(this._Xaml, "text/xml"),
+                ResourceChain: [rd],
+                NameScope: new NameScope(true),
+                ObjectStack: [rd],
+                TemplateBindingSource: null,
+            };
+            validateDocument(ctx.Document);
+            var childProcessor = createXamlChildProcessor(rd, ResourceDictionary, ctx);
+            childProcessor.ProcessPropertyCollection(ctx.Document.documentElement, rd);
+        }
+
+        LoadAsync(onLoaded: (state: any) => void) {
+            var request = new AjaxRequest(
+                (result: IAjaxResult) => {
+                    this._Xaml = result.GetData();
+                    onLoaded(this);
+                },
+                (error: string) => {
+                    console.warn("Could not load Theme: " + error);
+                    onLoaded(this);
+                });
+            request.Get(this.Url);
+        }
     }
 }
