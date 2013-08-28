@@ -59,7 +59,7 @@ module Fayde.Xaml {
 
         RegisterSource(namespace: string) {
             if (this.Source)
-                this._Resource = Xaml.RegisterResource(this.Source.toString(), namespace, this.Name);
+                this._Resource = Xaml.RegisterResource(ResourceType.Script, this.Source.toString(), namespace, this.Name);
         }
 
         LoadAsync(onLoaded: (state: any) => void) {
@@ -87,7 +87,8 @@ module Fayde.Xaml {
         }
 
         RegisterSource(namespace: string) {
-            super.RegisterSource(namespace);
+            if (this.Source)
+                (<any>this)._Resource = Xaml.RegisterResource(ResourceType.Xaml, this.Source.toString(), namespace, this.Name);
             var enumerator = this.CodeSources.GetEnumerator();
             while (enumerator.MoveNext()) {
                 enumerator.Current.RegisterSource(namespace);

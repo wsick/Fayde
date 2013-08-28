@@ -31,7 +31,7 @@ module Fayde {
         static ResourcesProperty = DependencyProperty.RegisterImmutable("Resources", () => ResourceDictionary, Application);
         Resources: ResourceDictionary;
         static SourcesProperty = DependencyProperty.RegisterImmutable("Sources", () => XamlObjectCollection, Application);
-        Sources: XamlObjectCollection<Xaml.Source>;
+        Sources: XamlObjectCollection<Xaml.Namespace>;
 
         Theme: Xaml.Theme;
 
@@ -43,7 +43,7 @@ module Fayde {
             this.DebugInterop = new DebugInterop(this);
             this.Address = new Uri(document.URL);
             this.NavService = new Navigation.NavService(this);
-            Application.SourcesProperty.Initialize<XamlObjectCollection<Xaml.Source>>(this);
+            Application.SourcesProperty.Initialize<XamlObjectCollection<Xaml.Namespace>>(this);
         }
 
         get RootVisual(): UIElement { return this.MainSurface._RootLayer; }

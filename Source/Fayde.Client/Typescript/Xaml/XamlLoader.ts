@@ -470,7 +470,7 @@ module Fayde.Xaml {
             var sourceNodeName = appEl.localName + ".Sources";
 
             var nsUri: string;
-            var curElement = appEl;
+            var curElement = appEl.firstElementChild;
             while (curElement) {
                 nsUri = curElement.namespaceURI || Fayde.XMLNS;
                 if (nsUri === appNsUri && curElement.localName === sourceNodeName)
