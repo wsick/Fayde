@@ -1,11 +1,8 @@
-﻿<FaydeApplication
+﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
-    xmlns:x="http://schemas.wsick.com/fayde"
-    JsType="Tests.IssueTests.Application"
-    Theme="Metro"
-    ScriptResolution="/Fayde/">
-    <FaydeApplication.Resources>
-    </FaydeApplication.Resources>
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    x:Type="Tests.IssueTests.Application"
+    Theme="/Fayde/Theme.Metro.xml">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
@@ -24,4 +21,4 @@
             <TextBlock Text="{Binding Name}" />
         </StackPanel>
     </Grid>
-</FaydeApplication>
+</Application>

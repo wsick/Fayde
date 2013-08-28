@@ -90,7 +90,6 @@
     <Content Include="default8.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Tests\Controls\border.html" />
     <Content Include="Tests\IssueTests\binding.fap.js" />
     <Content Include="Tests\IssueTests\binding.fap.ts" />
     <Content Include="Tests\Media\image-stretch.fap">
@@ -149,6 +148,7 @@
     <Content Include="Tests\IssueTests\dropshadowblur.fap">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Tests\test.aspx" />
     <Content Include="xamlload.html" />
     <None Include="Tests\Shapes\rectangle-grid.fap">
       <SubType>Designer</SubType>
@@ -170,6 +170,13 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests\test.aspx.cs">
+      <DependentUpon>test.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Tests\test.aspx.designer.cs">
+      <DependentUpon>test.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Tests\tests.aspx.cs">
       <DependentUpon>tests.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

@@ -1,12 +1,10 @@
-﻿<FaydeApplication
+﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
-    xmlns:x="http://schemas.wsick.com/fayde"
-    ScriptResolution="/Fayde/">
-    <FaydeApplication.UriMappings>
-    </FaydeApplication.UriMappings>
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    Theme="/Fayde/Theme.Metro.xml">
     <Grid x:Name="LayoutRoot">
         <Button Content="Button Test"
                 HorizontalAlignment="Center" VerticalAlignment="Center"
                 Margin="10" Padding="10" />
     </Grid>
-</FaydeApplication>
+</Application>

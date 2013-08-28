@@ -1,11 +1,9 @@
-﻿<FaydeApplication
+﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
-    xmlns:x="http://schemas.wsick.com/fayde"
-    ScriptResolution="/Fayde/">
-    <FaydeApplication.Resources>
-    </FaydeApplication.Resources>
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    Theme="/Fayde/Theme.Metro.xml">
     <StackPanel>
-        <MediaElement Source="../../Media/test_movie.mp4" />
-        <MediaElement Source="../../Media/test_movie.mp4" />
+        <MediaElement Source="../Media/test_movie.mp4" />
+        <MediaElement Source="../Media/test_movie.mp4" />
     </StackPanel>
-</FaydeApplication>
+</Application>

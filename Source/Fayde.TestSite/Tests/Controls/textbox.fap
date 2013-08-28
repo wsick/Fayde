@@ -1,10 +1,8 @@
-﻿<FaydeApplication
+﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
-    xmlns:x="http://schemas.wsick.com/fayde"
-    ScriptResolution="/Fayde/">
-    <FaydeApplication.UriMappings>
-    </FaydeApplication.UriMappings>
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    Theme="/Fayde/Theme.Metro.xml">
     <Grid x:Name="LayoutRoot">
         <TextBox Margin="5" Text="Enter Text here!" />
     </Grid>
-</FaydeApplication>
+</Application>

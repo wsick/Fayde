@@ -1,10 +1,10 @@
-﻿<FaydeApplication
+﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
-    xmlns:x="http://schemas.wsick.com/fayde"
-    ScriptResolution="/Fayde/">
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    Theme="/Fayde/Theme.Metro.xml">
     <StackPanel>
         <TextBlock Text="Line 1" />
         <TextBlock Text="Line 2 - Centered" HorizontalAlignment="Center" />
         <TextBlock Text="Line 3 - Right Aligned" HorizontalAlignment="Right" />
     </StackPanel>
-</FaydeApplication>
+</Application>

@@ -1,10 +1,8 @@
-﻿<FaydeApplication
+﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
-    xmlns:x="http://schemas.wsick.com/fayde"
-    ScriptResolution="/Fayde/">
-    <FaydeApplication.UriMappings>
-    </FaydeApplication.UriMappings>
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    Theme="/Fayde/Theme.Metro.xml">
     <Grid x:Name="LayoutRoot">
         <TextBlock Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" Text="This is a test! Some more text. Let's make sure this wraps." TextWrapping="Wrap" Width="100" />
     </Grid>
-</FaydeApplication>
+</Application>

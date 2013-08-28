@@ -1,9 +1,7 @@
-﻿<FaydeApplication
+﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
-    xmlns:x="http://schemas.wsick.com/fayde"
-    ScriptResolution="/Fayde/">
-    <FaydeApplication.Resources>
-    </FaydeApplication.Resources>
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    Theme="/Fayde/Theme.Metro.xml">
     <Grid Background="AntiqueWhite">
         <Grid.RowDefinitions>
             <RowDefinition />
@@ -30,4 +28,4 @@
                  FillRule="NonZero" Stretch="None">
         </Polygon>
     </Grid>
-</FaydeApplication>
+</Application>

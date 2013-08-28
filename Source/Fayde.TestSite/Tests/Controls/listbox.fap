@@ -1,7 +1,7 @@
-﻿<FaydeApplication
+﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
-    xmlns:x="http://schemas.wsick.com/fayde"
-    ScriptResolution="/Fayde/">
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    Theme="/Fayde/Theme.Metro.xml">
     <Grid>
         <ListBox x:Name="MyListBox" Width="200" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center">
             <ListBoxItem Content="Text 1" />
@@ -16,4 +16,4 @@
             <ListBoxItem Content="Text 10" />
         </ListBox>
     </Grid>
-</FaydeApplication>
+</Application>

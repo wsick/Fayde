@@ -1,9 +1,7 @@
-﻿<FaydeApplication
+﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
-    xmlns:x="http://schemas.wsick.com/fayde"
-    ScriptResolution="/Fayde/">
-    <FaydeApplication.Resources>
-    </FaydeApplication.Resources>
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    Theme="/Fayde/Theme.Metro.xml">
     <Grid ShowGridLines="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -45,4 +43,4 @@
               Fill="#FF333333"
               Grid.Column="2" Grid.Row="3" />
     </Grid>
-</FaydeApplication>
+</Application>
