@@ -66,6 +66,12 @@ test("Panel with Children", () => {
     strictEqual((<any>child2).constructor, Fayde.Controls.TextBlock, "Second child should be a TextBlock.");
 });
 
+test("ContentControl", () => {
+    var xaml = "<CheckBox xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">Hey</CheckBox>";
+    var checkbox = <Fayde.Controls.CheckBox>Fayde.Xaml.Load(xaml);
+    strictEqual(checkbox.Content, "Hey", "Text Content");
+});
+
 test("FrameworkElement Resources", () => {
     var xaml = "<StackPanel xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
         + "<StackPanel.Resources>"

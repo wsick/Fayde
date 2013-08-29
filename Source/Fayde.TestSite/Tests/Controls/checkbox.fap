@@ -3,6 +3,6 @@
     xmlns:x="http://schemas.wsick.com/fayde/x"
     Theme="/Fayde/Theme.Metro.xml">
     <Grid x:Name="LayoutRoot">
-        <CheckBox Content="Heyo"></CheckBox>
+        <CheckBox>Heyo</CheckBox>
     </Grid>
 </Application>
