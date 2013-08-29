@@ -38,7 +38,7 @@ namespace WickedSick.Thea.ViewModels
                 return null;
             if (!JsContext.IsAlive)
                 return null;
-            var info = JsContext.Eval("App.Current.DebugInterop.GetResetPerfInfo()");
+            var info = JsContext.Eval("Fayde.Application.Current.DebugInterop.GetResetPerfInfo()");
             var tokens = info.Split(';');
 
             int numFrames = 0;
