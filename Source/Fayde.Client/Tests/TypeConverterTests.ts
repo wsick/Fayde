@@ -12,6 +12,9 @@ test("Enums", () => {
 });
 
 test("Color", () => {
+    strictEqual(<Color>Fayde.ConvertAnyToType(undefined, Color), undefined, "undefined");
+    strictEqual(<Color>Fayde.ConvertAnyToType(null, Color), undefined, "null");
+
     var c = <Color>Fayde.ConvertAnyToType("White", Color);
     strictEqual(c, Color.KnownColors.White, "Known Color");
 
@@ -160,6 +163,9 @@ test("Duration", () => {
 });
 
 test("Brush", () => {
+    strictEqual(<Fayde.Media.SolidColorBrush>Fayde.ConvertAnyToType(undefined, Fayde.Media.SolidColorBrush), undefined, "undefined");
+    strictEqual(<Fayde.Media.SolidColorBrush>Fayde.ConvertAnyToType(null, Fayde.Media.SolidColorBrush), undefined, "null");
+
     var scb = <Fayde.Media.SolidColorBrush>Fayde.ConvertAnyToType("White", Fayde.Media.Brush);
     ok(scb.Color.Equals(Color.KnownColors.White), "Known Color");
 

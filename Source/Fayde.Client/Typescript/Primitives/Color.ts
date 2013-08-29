@@ -236,7 +236,7 @@ Fayde.RegisterType(Color, {
 
 Fayde.RegisterTypeConverter(Color, (val: any): Color => {
     if (!val)
-        return new Color();
+        return undefined;
     val = val.toString();
     if (val[0] !== "#") {
         var color = Color.KnownColors[val];

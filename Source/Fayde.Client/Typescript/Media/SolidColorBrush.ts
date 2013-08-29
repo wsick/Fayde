@@ -32,11 +32,16 @@ module Fayde.Media {
     	XmlNamespace: Fayde.XMLNS
     });
 
-    Fayde.RegisterTypeConverter(Brush, (val: any): Brush => {
+    function brushConverter(val: any): Brush {
+        if (!val)
+            return undefined;
         if (val instanceof Brush)
             return val;
         var scb = new SolidColorBrush();
         scb.Color = Fayde.ConvertAnyToType(val, Color);
         return scb;
-    });
+    }
+
+    Fayde.RegisterTypeConverter(Brush, brushConverter);
+    Fayde.RegisterTypeConverter(SolidColorBrush, brushConverter);
 }
