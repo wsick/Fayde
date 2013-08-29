@@ -30,7 +30,7 @@ namespace WickedSick.Thea.Helpers
             get
             {
                 IsAlive = VerifyInterop();
-                return IsAlive && Eval("App.Current.DebugInterop.IsCacheInvalidated") == "true";
+                return IsAlive && Eval("Fayde.Application.Current.DebugInterop.IsCacheInvalidated") == "true";
             }
         }
         public bool IsAlive { get; protected set; }
@@ -39,7 +39,7 @@ namespace WickedSick.Thea.Helpers
         {
             try
             {
-                Execute("if (window.App && App.Current.DebugInterop) App.Current.DebugInterop.InvalidateCache();");
+                Execute("if (window.Fayde.Application && Fayde.Application.DebugInterop) Fayde.Application.Current.DebugInterop.InvalidateCache();");
             }
             catch (Exception)
             {
@@ -130,7 +130,7 @@ namespace WickedSick.Thea.Helpers
         {
             try
             {
-                return !string.IsNullOrWhiteSpace(Eval("App.Current.DebugInterop"));
+                return !string.IsNullOrWhiteSpace(Eval("Fayde.Application.Current.DebugInterop"));
             }
             catch (JavaScriptException)
             {
@@ -188,7 +188,7 @@ namespace WickedSick.Thea.Helpers
 
         private string RunFunc(string functionName, string args = null)
         {
-            return Eval(string.Format("App.Current.DebugInterop.{0}({1})", functionName, args));
+            return Eval(string.Format("Fayde.Application.Current.DebugInterop.{0}({1})", functionName, args));
         }
 
         #endregion
