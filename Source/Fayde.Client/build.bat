@@ -8,8 +8,10 @@ REM %progpath% "%BD%." -DeployPath:"%BD%Fayde.js" -ScriptsFolder:"%BD%Javascript
 REM tsc --sourcemap -t ES5 @Fayde.tsorder
 tsc --removeComments -d --sourcemap -t ES5 "%BD%Fayde.ts"
 tsc --sourcemap -t ES5 @UnitTestList.txt
-EXIT
+GOTO FINAL
 
 :NOSINGULARITY
 PRINT 'Could not find Js Singularity'
 EXIT 1
+
+:FINAL

@@ -7,6 +7,10 @@ test("Primitives", () => {
     strictEqual(Fayde.ConvertAnyToType("1.2", Number), 1.2, "Decimal conversion");
 });
 
+test("Enums", () => {
+    strictEqual(Fayde.ConvertAnyToType("Top", <any>(new Enum(Fayde.VerticalAlignment))), Fayde.VerticalAlignment.Top, "String to Enum");
+});
+
 test("Color", () => {
     var c = <Color>Fayde.ConvertAnyToType("White", Color);
     strictEqual(c, Color.KnownColors.White, "Known Color");

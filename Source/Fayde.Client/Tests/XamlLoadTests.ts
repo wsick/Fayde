@@ -19,9 +19,10 @@ test("Basic Load", () => {
 });
 
 test("Basic attribute", () => {
-    var root = <Fayde.Controls.TextBlock>Fayde.Xaml.Load("<TextBlock xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" Text=\"Testing!\" />");
+    var root = <Fayde.Controls.TextBlock>Fayde.Xaml.Load("<TextBlock xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" Text=\"Testing!\" HorizontalAlignment=\"Right\" />");
 
     strictEqual(root.Text, "Testing!", "TextBlock should have Text property set to 'Testing!'.");
+    strictEqual(root.HorizontalAlignment, Fayde.HorizontalAlignment.Right, "Enum Attribute");
 });
 
 test("Simple tag", () => {
@@ -100,6 +101,28 @@ test("Style", () => {
     var setter = setters.GetValueAt(0);
     strictEqual(setter.Property, Fayde.FrameworkElement.MarginProperty, "Setter Property should be Margin property.");
     ok(Thickness.Equals(setter.ConvertedValue, new Thickness(1, 1, 1, 1)), "Setter Value should be a Thickness (1, 1, 1, 1).");
+});
+
+test("Setter+Template Binding", () => {
+    var xaml = "<CheckBox xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        + "<CheckBox.Style>"
+        + "<Style TargetType=\"CheckBox\">"
+        + "<Setter Property=\"HorizontalContentAlignment\" Value=\"Right\" />"
+        + "<Setter Property=\"Template\">"
+        + "<Setter.Value>"
+        + "<ControlTemplate TargetType=\"CheckBox\">"
+        + "<ContentPresenter HorizontalAlignment=\"{TemplateBinding HorizontalContentAlignment}\" />"
+        + "</ControlTemplate>"
+        + "</Setter.Value>"
+        + "</Setter>"
+        + "</Style>"
+        + "</CheckBox.Style>"
+        + "</CheckBox>";
+
+    var checkbox = <Fayde.Controls.CheckBox>Fayde.Xaml.Load(xaml);
+    checkbox.ApplyTemplate();
+    var cp = <Fayde.Controls.ContentPresenter>Fayde.VisualTreeHelper.GetChild(checkbox, 0);
+    strictEqual(cp.HorizontalAlignment, Fayde.HorizontalAlignment.Right, "HorizontalAlignment");
 });
 
 QUnit.asyncTest("Theme", 1, () => {

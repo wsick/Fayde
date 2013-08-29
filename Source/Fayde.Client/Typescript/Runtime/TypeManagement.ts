@@ -186,6 +186,10 @@ module Fayde {
         if (converter)
             return converter(val);
         if (type instanceof Enum) {
+            if (!val) //Handles 0, "", null, undefined
+                return 0;
+            if (typeof val === "number")
+                return val;
             var enumo = (<Enum><any>type).Object;
             return enumo[val];
         }
