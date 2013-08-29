@@ -166,6 +166,8 @@ module Fayde {
         if (!val) return 0;
         if (typeof val === "number")
             return val;
+        if (val instanceof Thickness)
+            return (<Thickness>val).Left;
         return parseFloat(val.toString());
     }
     converters[Date] = function (val: any): Date {

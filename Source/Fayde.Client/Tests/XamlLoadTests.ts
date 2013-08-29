@@ -123,6 +123,26 @@ test("Setter+Template Binding", () => {
     checkbox.ApplyTemplate();
     var cp = <Fayde.Controls.ContentPresenter>Fayde.VisualTreeHelper.GetChild(checkbox, 0);
     strictEqual(cp.HorizontalAlignment, Fayde.HorizontalAlignment.Right, "HorizontalAlignment");
+
+    
+    xaml = "<CheckBox xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        + "<CheckBox.Style>"
+        + "<Style TargetType=\"CheckBox\">"
+        + "<Setter Property=\"BorderThickness\" Value=\"1\" />"
+        + "<Setter Property=\"Template\">"
+        + "<Setter.Value>"
+        + "<ControlTemplate TargetType=\"CheckBox\">"
+        + "<Rectangle StrokeThickness=\"{TemplateBinding BorderThickness}\" />"
+        + "</ControlTemplate>"
+        + "</Setter.Value>"
+        + "</Setter>"
+        + "</Style>"
+        + "</CheckBox.Style>"
+        + "</CheckBox>";
+    checkbox = <Fayde.Controls.CheckBox>Fayde.Xaml.Load(xaml);
+    checkbox.ApplyTemplate();
+    var r = <Fayde.Shapes.Rectangle>Fayde.VisualTreeHelper.GetChild(checkbox, 0);
+    strictEqual(r.StrokeThickness, 1, "StrokeThickness");
 });
 
 QUnit.asyncTest("Theme", 1, () => {
