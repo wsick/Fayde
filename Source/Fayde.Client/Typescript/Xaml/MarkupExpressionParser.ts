@@ -3,6 +3,17 @@
 /// <reference path="../Core/Expression.ts" />
 
 module Fayde.Xaml {
+    export interface ITransmuteContext {
+        TemplateBindingSource: DependencyObject;
+        Owner: DependencyObject;
+        Property: DependencyProperty;
+    }
+    export class Markup {
+        Transmute(ctx: ITransmuteContext): Expression {
+            return undefined;
+        }
+    }
+    
     export interface IMarkupParseContext {
         Owner: DependencyObject;
         Property: DependencyProperty;
@@ -11,15 +22,11 @@ module Fayde.Xaml {
         Resolver: INamespacePrefixResolver;
         ObjectStack: any[];
     }
-    export interface IMarkup {
-        Transmute(ctx: IMarkupParseContext): Expression;
-    }
     interface IInnerExpressionValue {
         strVal: string;
         objVal: string;
         remaining: string;
     }
-
     var EXPRESSION_REGEX = /\{([^\s]*)\s(.*)\}/;
     export class MarkupExpressionParser {
         static Parse(value: string, ctx: IMarkupParseContext): any {

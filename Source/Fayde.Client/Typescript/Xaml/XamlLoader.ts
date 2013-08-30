@@ -282,6 +282,18 @@ module Fayde.Xaml {
             propertiesSet.push(propertyName);
         }
 
+        function createObjectPossibleMarkup(el: Element, ctx: IXamlLoadContext, propd: DependencyProperty): any {
+            var val = createObject(el, ctx);
+            if (val instanceof Markup) {
+                return (<Markup>val).Transmute({
+                    TemplateBindingSource: ctx.TemplateBindingSource,
+                    Owner: owner,
+                    Property: propd
+                });
+            }
+            return val;
+        }
+
         return {
             Process: function (el: Element): void {
                 //Handle Resources first
@@ -399,7 +411,7 @@ module Fayde.Xaml {
                                 return;
                             }
                         }
-                        dobj.SetValue(propd, createObject(el.firstElementChild, ctx));
+                        dobj.SetValue(propd, createObjectPossibleMarkup(el.firstElementChild, ctx, propd));
                     }
                 } else { //<[ns:]Type> (Content)
                     if (!contentPropd) {
@@ -417,7 +429,7 @@ module Fayde.Xaml {
                             if (hasSetContent)
                                 throw new XamlParseException("Content has already been set.");
                             hasSetContent = true;
-                            dobj.SetValue(contentPropd, createObject(el, ctx));
+                            dobj.SetValue(contentPropd, createObjectPossibleMarkup(el, ctx, contentPropd));
                         }
                     }
                 }
