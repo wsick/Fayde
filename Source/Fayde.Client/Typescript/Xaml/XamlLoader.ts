@@ -320,7 +320,7 @@ module Fayde.Xaml {
                     child = child.nextElementSibling;
                 }
 
-                if (!hasSetContent && contentPropd) {
+                if (!hasSetContent && !el.firstElementChild && contentPropd) {
                     var text = el.textContent;
                     if (text && (text = text.trim()))
                         dobj.SetValue(contentPropd, text);
