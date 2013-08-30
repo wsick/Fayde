@@ -99,7 +99,7 @@ module Fayde.Xaml {
                 }
             } else {
                 var strVal: string;
-                var curVal: any = null;
+                var curVal: any = undefined;
                 if (remaining[0] === "{") {
                     var iev = parseInnerExpression(remaining, ctx);
                     remaining = iev.remaining;
@@ -242,10 +242,13 @@ module Fayde.Xaml {
     bindingPropertyFuncs["ConverterParameter"] =
     bindingPropertyFuncs["Source"] =
     bindingPropertyFuncs["StringFormat"] = function (binding: Data.Binding, key: string, oVal: any, strVal: string) {
-        if (oVal !== undefined)
+        if (oVal !== undefined) {
             binding[key] = oVal;
-        else
-            binding[key] = strVal;
+            return;
+        }
+        if (strVal[0] === "'" && strVal[strVal.length - 1] === "'")
+            strVal = strVal.substr(1, strVal.length - 2);
+        binding[key] = strVal;
     };
 
     bindingPropertyFuncs["BindsDirectlyToSource"] =
