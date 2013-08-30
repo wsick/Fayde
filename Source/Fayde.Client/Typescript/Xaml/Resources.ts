@@ -13,20 +13,32 @@ module Fayde.Xaml {
     }
     class XamlResource implements IResource {
         Url: string;
+        private _IsLoaded: boolean = false;
         private _Xaml: string = null;
         private _Document: Document;
+        private _Error: string = null;
+        get Document(): Document { return this._Document; }
+        get IsLoaded(): boolean { return this._IsLoaded; }
+        get Error(): string { return this._Error; }
         constructor(url: string) {
             Object.defineProperty(this, "Url", { value: url, writable: false });
         }
-        LoadAsync(onLoaded: (resource: IResource) => void) {
+        LoadAsync(onLoaded: (resource: XamlResource) => void) {
+            if (this._IsLoaded && this._Document) {
+                onLoaded(this);
+                return;
+            }
             var request = new AjaxRequest(
                 (result) => {
                     this._Xaml = result.GetData();
                     var parser = new DOMParser();
                     this._Document = parser.parseFromString(this._Xaml, "text/xml");
+                    this._IsLoaded = true;
                     onLoaded(this);
                 }, (error) => {
+                    this._IsLoaded = true;
                     console.warn("Could not load xaml resource: " + error.toString());
+                    this._Error = error;
                     onLoaded(this);
                 });
             request.Get(this.Url);
@@ -36,10 +48,16 @@ module Fayde.Xaml {
         Url: string;
         private _IsLoaded: boolean = false;
         private _Script: HTMLScriptElement = null;
+        private _Error: string;
+        get IsLoaded(): boolean { return this._IsLoaded; }
         constructor(url: string) {
             Object.defineProperty(this, "Url", { value: url, writable: false });
         }
-        LoadAsync(onLoaded: (resource: IResource) => void) {
+        LoadAsync(onLoaded: (resource: ScriptResource) => void) {
+            if (this._IsLoaded && this._Script) {
+                onLoaded(this);
+                return;
+            }
             var script = this._Script = <HTMLScriptElement>document.createElement("script");
             script.type = "text/javascript";
             script.src = this.Url;
@@ -52,6 +70,11 @@ module Fayde.Xaml {
             script.onload = () => {
                 if (this._IsLoaded)
                     return;
+                this._IsLoaded = true;
+                onLoaded(this);
+            };
+            script.onerror = (error) => {
+                this._Error = "Could not load script file.";
                 this._IsLoaded = true;
                 onLoaded(this);
             };
@@ -118,5 +141,39 @@ module Fayde.Xaml {
         if (!res)
             res = names[entireNamespaceName] = new ScriptResource(url);
         return res;
+    }
+
+
+    export class PageResolver {
+        private _Url: string;
+        private _Xaml: XamlResource;
+        private _Script: ScriptResource;
+        private _OnSuccess: (xaml: Document) => void;
+        private _OnError: (error: string) => void;
+
+        static Resolve(url: string, onSuccess: (xaml: Document) => void, onError: (error: string) => void): PageResolver {
+            var resolver = new PageResolver();
+            resolver._OnSuccess = onSuccess;
+            resolver._OnError = onError;
+            resolver._Url = url;
+            resolver._Xaml = new XamlResource(url);
+            resolver._Script = new ScriptResource(url + ".js");
+            resolver._Xaml.LoadAsync((xr) => resolver._TryFinish());
+            resolver._Script.LoadAsync((sr) => resolver._TryFinish());
+            return resolver;
+        }
+
+        Stop() {
+            //Nothing for now
+        }
+
+        private _TryFinish() {
+            if (!this._Xaml.IsLoaded || !this._Script.IsLoaded)
+                return;
+            if (this._Xaml.Error)
+                this._OnError(this._Xaml.Error);
+            else
+                this._OnSuccess(this._Xaml.Document);
+        }
     }
 }

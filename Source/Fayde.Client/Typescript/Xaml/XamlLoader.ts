@@ -55,6 +55,17 @@ module Fayde.Xaml {
         validateDocument(ctx.Document);
         return <XamlObject>createObject(ctx.Document.documentElement, ctx);
     }
+    export function LoadDocument(doc: Document): XamlObject {
+        var ctx: IXamlLoadContext = {
+            Document: doc,
+            ResourceChain: [],
+            NameScope: new NameScope(true),
+            ObjectStack: [],
+            TemplateBindingSource: null,
+        };
+        validateDocument(ctx.Document);
+        return <XamlObject>createObject(ctx.Document.documentElement, ctx);
+    }
     function createObject(el: Element, ctx: IXamlLoadContext): any {
         var resolution = TypeResolver.Resolve(el.namespaceURI, el.localName);
         if (resolution === undefined)
@@ -296,6 +307,7 @@ module Fayde.Xaml {
                 }
 
                 var attrs = el.attributes;
+                
                 //Handle attributes
                 var len = attrs.length;
                 var attr: Attr;
@@ -473,7 +485,7 @@ module Fayde.Xaml {
         var ctx: IXamlLoadContext = {
             Document: parser.parseFromString(xaml, "text/xml"),
             ResourceChain: [],
-            NameScope: null,
+            NameScope: new NameScope(true),
             ObjectStack: [],
             TemplateBindingSource: null,
         };
@@ -546,10 +558,10 @@ module Fayde.Xaml {
             app.Sources._ht = appSources._ht;
             app.MainSurface.Register(canvas);
 
-            ctx.NameScope = app.XamlNode.NameScope;
             ctx.ObjectStack.push(app);
             var childProcessor = createXamlChildProcessor(app, resolution.Type, ctx);
             childProcessor.Process(el);
+            app.RootVisual.XamlNode.NameScope = ctx.NameScope;
             ctx.ObjectStack.pop();
             TimelineProfile.Parse(false, "App");
             Application.Current.Start();

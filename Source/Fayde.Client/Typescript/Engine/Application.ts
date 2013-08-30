@@ -6,7 +6,6 @@
 /// <reference path="../Core/ResourceDictionary.ts" />
 /// <reference path="../Primitives/Uri.ts" />
 /// <reference path="ClockTimer.ts" />
-/// <reference path="../Navigation/NavService.ts" />
 /// <reference path="DebugInterop.ts" />
 /// <reference path="../Core/XamlObjectCollection.ts" />
 /// <reference path="../Xaml/Sources.ts" />
@@ -22,7 +21,6 @@ module Fayde {
         MainSurface: Surface;
         Loaded: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
         Address: Uri = null;
-        NavService: Navigation.NavService;
         DebugInterop: DebugInterop;
         private _IsRunning: boolean = false;
         private _Storyboards: ITimeline[] = [];
@@ -42,7 +40,6 @@ module Fayde {
             this.MainSurface = new Surface(this);
             this.DebugInterop = new DebugInterop(this);
             this.Address = new Uri(document.URL);
-            this.NavService = new Navigation.NavService(this);
             Application.SourcesProperty.Initialize<XamlObjectCollection<Xaml.Namespace>>(this);
         }
 

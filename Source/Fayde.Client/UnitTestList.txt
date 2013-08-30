@@ -9,3 +9,4 @@ Tests\TransformTests.ts
 Tests\TimelineTests.ts
 Tests\ItemsControlTests.ts
 Tests\BindingTests.ts
+Tests\UriMapperTests.ts

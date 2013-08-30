@@ -150,6 +150,8 @@ module Fayde.Media {
     export class TransformGroup extends Transform {
         static ChildrenProperty = DependencyProperty.RegisterImmutable("Children", () => TransformCollection, TransformGroup);
         Children: TransformCollection;
+
+        static Annotations = { ContentProperty: TransformGroup.ChildrenProperty };
         
         private _TransformListener: ITransformChangedListener;
 

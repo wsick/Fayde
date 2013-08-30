@@ -107,6 +107,10 @@
     <Content Include="Tests\TypeConverterTests.js">
       <DependentUpon>TypeConverterTests.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Tests\UriMapperTests.ts" />
+    <Content Include="Tests\UriMapperTests.js">
+      <DependentUpon>UriMapperTests.ts</DependentUpon>
+    </Content>
     <Content Include="Tests\XamlLoadTests.js">
       <DependentUpon>XamlLoadTests.ts</DependentUpon>
     </Content>
@@ -167,6 +171,12 @@
     <TypeScriptCompile Include="Typescript\Engine\Application.ts" />
     <TypeScriptCompile Include="Typescript\Media\Animation\AnimationStore.ts" />
     <TypeScriptCompile Include="Typescript\Media\PlaneProjection.ts" />
+    <TypeScriptCompile Include="Typescript\Navigation\UriMapper.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="Typescript\Navigation\UriMapping.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="Typescript\Runtime\Debug.ts" />
     <TypeScriptCompile Include="Typescript\MVVM\ObservableObject.ts" />
     <TypeScriptCompile Include="Typescript\MVVM\RelayCommand.ts" />
@@ -182,6 +192,7 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="Typescript\Xaml\TemplateBinding.ts" />
     <TypeScriptCompile Include="Typescript\Xaml\Resources.ts" />
+    <TypeScriptCompile Include="Typescript\Navigation\NavigationService.ts" />
     <Content Include="Typescript\Xaml\XamlLoader.ts" />
     <Content Include="UnitTestList.txt" />
     <Content Include="Tests\XamlNodeTests.js">
@@ -346,7 +357,6 @@
     <TypeScriptCompile Include="Typescript\Media\Transform.ts" />
     <TypeScriptCompile Include="Typescript\Media\TileBrush.ts" />
     <TypeScriptCompile Include="Typescript\Media\TextOptions.ts" />
-    <TypeScriptCompile Include="Typescript\Navigation\NavService.ts" />
     <TypeScriptCompile Include="Typescript\Media\Transforms.ts" />
     <TypeScriptCompile Include="Typescript\Media\VSM\VisualState.ts" />
     <TypeScriptCompile Include="Typescript\Media\VSM\VisualStateGroup.ts" />

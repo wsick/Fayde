@@ -1,20 +1,32 @@
 /// <reference path="ContentControl.ts" />
 /// CODE
+/// <reference path="../Navigation/NavigationService.ts" />
+/// <reference path="../Navigation/UriMapper.ts" />
 /// <reference path="../Runtime/TimelineProfile.ts" />
 /// <reference path="Page.ts" />
 /// <reference path="../Primitives/Uri.ts" />
 
 module Fayde.Controls {
+    var ERROR_PAGE_XAML = "<Page xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\"><TextBlock Text=\"An error occurred navigating.\" /></Page>";
+    var ERROR_PAGE: Page = undefined;
+    function getErrorPage(): Page {
+        if (!ERROR_PAGE)
+            ERROR_PAGE = <Fayde.Controls.Page>Fayde.Xaml.Load(ERROR_PAGE_XAML);
+        return ERROR_PAGE;
+    }
+
     export class Frame extends ContentControl {
         static IsDeepLinkedProperty: DependencyProperty = DependencyProperty.Register("IsDeepLinked", () => Boolean, Frame, true);
         static CurrentSourceProperty: DependencyProperty = DependencyProperty.RegisterReadOnly("CurrentSource", () => Uri, Frame);
         static SourceProperty: DependencyProperty = DependencyProperty.Register("Source", () => Uri, Frame, undefined, (d, args) => (<Frame>d).SourcePropertyChanged(args));
+        static UriMapperProperty = DependencyProperty.Register("UriMapper", () => Navigation.UriMapper, Frame);
         IsDeepLinked: boolean;
         CurrentSource: Uri;
         Source: Uri;
+        UriMapper: Navigation.UriMapper;
 
-        private _Request: AjaxRequest;
-        private _NavService: Navigation.NavService;
+        private _NavService: Navigation.NavigationService = new Navigation.NavigationService();
+        private _PageResolver: any;
 
         //Navigated = new MulticastEvent();
         //Navigating = new MulticastEvent();
@@ -28,10 +40,7 @@ module Fayde.Controls {
         }
 
         Navigate(uri: Uri) {
-            this._Request = new AjaxRequest(
-                (result) => this._HandleSuccessfulResponse(result),
-                (error) => this._HandleErrorResponse(error));
-            this._Request.Get(uri.toString());
+            this._LoadContent(uri);
         }
         GoForward() {
             //TODO: Implement
@@ -40,56 +49,53 @@ module Fayde.Controls {
             //TODO: Implement
         }
         StopLoading() {
-            if (this._Request) {
-                this._Request.Cancel();
-                this._Request = null;
+            if (this._PageResolver) {
+                this._PageResolver.Stop();
+                this._PageResolver = null;
             }
         }
         private _FrameLoaded(sender, e: RoutedEventArgs) {
-            this._NavService = Application.Current.NavService;
             if (this.IsDeepLinked) {
                 this._NavService.LocationChanged.Subscribe(this._HandleDeepLink, this);
                 this._HandleDeepLink();
             }
         }
         private _HandleDeepLink() {
-            var source = this._NavService.Href + "#" + this._NavService.Hash;
-            this.SetValueInternal(Frame.CurrentSourceProperty, source);
-            this._LoadContent(this._NavService.Href, this._NavService.Hash);
+            this._LoadContent(new Uri(this._NavService.Href + "#" + this._NavService.Hash));
         }
-        private _LoadContent(href: string, hash: string) {
-            return;
+
+        private _LoadContent(source: Uri) {
+            this.SetValueInternal(Frame.CurrentSourceProperty, source);
             this.StopLoading();
 
-            TimelineProfile.Navigate(true, href + "#" + hash);
-            /*
-            this._Resolver = new XamlResolver(
-                (xamlResult, scriptResult) => this._HandleSuccessfulResponse(xamlResult),
-                (xamlResult, scriptResult) => this._HandleSuccessfulSubResponse(xamlResult),
-                (error) => this._HandleErrorResponse(error));
-            this._Resolver.Load(href, hash);
-            */
+            var fragment = source.Fragment;
+            TimelineProfile.Navigate(true, fragment);
+
+            var targetUri = new Uri(fragment, UriKind.Relative);
+            if (this.UriMapper)
+                targetUri = this.UriMapper.MapUri(targetUri);
+            var target = targetUri.toString();
+            if (!target)
+                throw new InvalidOperationException("Cannot resolve empty url.");
+            this._PageResolver = Xaml.PageResolver.Resolve(target, (xaml) => this._HandleSuccess(xaml), (error) => this._HandleError(error));
         }
-        private _HandleSuccessfulResponse(ajaxResult: IAjaxResult) {
+        private _HandleSuccess(xaml: Document) {
+            this._PageResolver = null;
             TimelineProfile.Parse(true, "Page");
-            var page = <Page>Xaml.Load(ajaxResult.GetData());
+            var page = <Page>Xaml.LoadDocument(xaml);
             TimelineProfile.Parse(false, "Page");
-            if (page) {
-                document.title = page.Title;
-                //canProfile = profiles.frameUpdate;
-                this.Content = page;
-            }
-            this._Request = null;
+            this.Content = page;
+            document.title = page.Title;
             TimelineProfile.Navigate(false);
             TimelineProfile.IsNextLayoutPassProfiled = true;
         }
-        private _HandleSuccessfulSubResponse(ajaxResult: IAjaxResult) {
-            var json = ajaxResult.CreateJson();
-            var jsType = json.ParseType;
-            jsType.__TemplateJson = json;
-        }
-        private _HandleErrorResponse(error: string) {
-            //this._Resolver = null;
+        private _HandleError(error: string) {
+            this._PageResolver = null;
+            document.title = "Error";
+            var page = getErrorPage();
+            page.DataContext = error;
+            this.Content = page;
+            TimelineProfile.Navigate(false);
         }
 
         private SourcePropertyChanged(args: IDependencyPropertyChangedEventArgs) {

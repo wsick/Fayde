@@ -193,6 +193,10 @@ module Fayde.Xaml {
                 return o;
         }
 
+        o = Application.Current.Resources.Get(key);
+        if (o !== undefined)
+            return o;
+
         throw new XamlParseException("Could not resolve StaticResource: '" + key + "'.");
     }
     function parseTemplateBinding(val: string, ctx: IMarkupParseContext): any {
