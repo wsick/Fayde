@@ -1,6 +1,6 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
-/// CODE
 /// <reference path="Geometry.ts" />
+/// CODE
 /// <reference path="PathGeometry.ts" />
 /// <reference path="../Shapes/PointCollection.ts" />
 

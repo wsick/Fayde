@@ -196,3 +196,12 @@ test("PointCollection", () => {
     ok(Point.Equals(new Point(4, 4), coll.GetValueAt(3)), "P4");
     ok(Point.Equals(new Point(5, 5), coll.GetValueAt(4)), "P5");
 });
+
+test("Geometry", () => {
+    var str = "M1,1 L2,2 Z";
+    var geom = <Fayde.Media.PathGeometry>Fayde.ConvertAnyToType(str, Fayde.Media.Geometry);
+
+    ok(geom instanceof Fayde.Media.PathGeometry, "PathGeometry");
+    var rawpath = geom._Build();
+    strictEqual(rawpath.Serialize(), str, "Serialize");
+});

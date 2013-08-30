@@ -504,7 +504,7 @@ module Fayde.Shapes {
         }
 
         static Merge(path1: RawPath, path2: RawPath) {
-            path1._Path = path1._Path.concat(path2._Path);
+            path1._Path.push.apply(path1._Path, path2._Path);
             path1._EndX += path2._EndX;
             path1._EndY += path2._EndY;
         }
@@ -519,21 +519,21 @@ module Fayde.Shapes {
                 var p: any = backing[i];
                 switch (p.type) {
                     case PathEntryType.Move:
-                        s += "M" + p.x.toString() + " " + p.y.toString();
+                        s += "M" + p.x.toString() + "," + p.y.toString();
                         break;
                     case PathEntryType.Line:
-                        s += "L" + p.x.toString() + " " + p.y.toString();
+                        s += "L" + p.x.toString() + "," + p.y.toString();
                         break;
                     case PathEntryType.Rect:
                         break;
                     case PathEntryType.Quadratic:
-                        s += "Q" + p.cpx.toString() + " " + p.cpy.toString() + ", " + p.x.toString() + " " + p.y.toString();
+                        s += "Q" + p.cpx.toString() + "," + p.cpy.toString() + " " + p.x.toString() + "," + p.y.toString();
                         break;
                     case PathEntryType.Bezier:
-                        s += "C" + p.cp1x.toString() + " " + p.cp1y.toString() + ", " + p.cp2x.toString() + " " + p.cp2y.toString() + ", " + p.x.toString() + " " + p.y.toString();
+                        s += "C" + p.cp1x.toString() + "," + p.cp1y.toString() + " " + p.cp2x.toString() + "," + p.cp2y.toString() + " " + p.x.toString() + "," + p.y.toString();
                         break;
                     case PathEntryType.EllipticalArc:
-                        s += "A" + p.width.toString() + " " + p.height.toString() + " " + p.rotationAngle.toString() + " " + p.isLargeArcFlag.toString() + " " + p.sweepDirectionFlag.toString() + " " + p.ex.toString() + " " + p.ey.toString();
+                        s += "A" + p.width.toString() + "," + p.height.toString() + " " + p.rotationAngle.toString() + " " + p.isLargeArcFlag.toString() + " " + p.sweepDirectionFlag.toString() + " " + p.ex.toString() + "," + p.ey.toString();
                         break;
                     case PathEntryType.ArcTo:
                         break;
