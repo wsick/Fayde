@@ -4,14 +4,13 @@
 /// <reference path="../Core/TemplateBindingExpression.ts" />
 
 module Fayde.Xaml {
-    export class TemplateBinding extends Markup {
+    export class TemplateBinding implements IMarkup {
         Property: string;
         constructor(property?: string) {
-            super();
             this.Property = property;
         }
 
-        Transmute(ctx: Xaml.ITransmuteContext): Expression {
+        Transmute(ctx: Xaml.IMarkupParseContext): Expression {
             if (!ctx.TemplateBindingSource)
                 throw new XamlParseException("{TemplateBinding} can only be used within a ControlTemplate.");
             var propd = DependencyProperty.GetDependencyProperty((<any>ctx.TemplateBindingSource).constructor, this.Property);

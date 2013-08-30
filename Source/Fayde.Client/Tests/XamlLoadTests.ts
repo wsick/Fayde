@@ -279,16 +279,3 @@ test("Events", () => {
     button.Click.Raise(button, new Fayde.RoutedEventArgs());
     ok(tc.CallbackFired, "Raise");
 });
-
-test("Binding as XML tag", () => {
-    var xaml = "<Grid xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
-        + "<Grid.Tag>"
-        + "<Binding Path=\"TestPath\" StringFormat=\"Test: {0}\" />"
-        + "</Grid.Tag>"
-        + "</Grid>";
-    var grid = <Fayde.Controls.Grid>Fayde.Xaml.Load(xaml);
-    var expr = <Fayde.Data.BindingExpression>grid.GetBindingExpression(Fayde.UIElement.TagProperty);
-    var binding = expr.ParentBinding;
-    strictEqual(binding.Path, "TestPath", "Path");
-    strictEqual(binding.StringFormat, "Test: {0}", "StringFormat");
-});

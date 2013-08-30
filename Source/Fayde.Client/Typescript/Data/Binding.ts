@@ -10,7 +10,7 @@ module Fayde.Data {
     }
     export var IValueConverter_ = Fayde.RegisterInterface("IValueConverter");
 
-    export class Binding extends Xaml.Markup {
+    export class Binding implements Xaml.IMarkup {
         private _IsSealed: boolean = false;
         
         private _StringFormat: string = undefined;
@@ -33,7 +33,6 @@ module Fayde.Data {
         private _ValidatesOnNotifyDataErrors: boolean = true;
 
         constructor(path?: string) {
-            super();
             if (!path) path = "";
             this._Path = new PropertyPath(path);
         }
@@ -147,7 +146,7 @@ module Fayde.Data {
 
         Seal() { this._IsSealed = true; }
         
-        Transmute(ctx: Xaml.ITransmuteContext): Expression {
+        Transmute(ctx: Xaml.IMarkupParseContext): Expression {
             return new Data.BindingExpression(this, ctx.Owner, ctx.Property);
         }
     }
