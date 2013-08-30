@@ -90,8 +90,8 @@
     <Content Include="default8.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Tests\IssueTests\binding.fap.js" />
-    <Content Include="Tests\IssueTests\binding.fap.ts" />
+    <TypeScriptCompile Include="Tests\IssueTests\TestViewModel.ts" />
+    <Content Include="Tests\IssueTests\TestViewModel.js" />
     <Content Include="Tests\Media\image-stretch.fap">
       <SubType>Designer</SubType>
     </Content>

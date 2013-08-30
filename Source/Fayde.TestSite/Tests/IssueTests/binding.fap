@@ -1,9 +1,17 @@
 ﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
-    x:Type="Tests.IssueTests.Application"
+    xmlns:local="folder:Tests/IssueTests"
     Theme="/Fayde/Theme.Metro.xml">
+    <Application.Sources>
+        <Namespace Name="folder:Tests/IssueTests">
+            <Source Name="TestViewModel" Source="IssueTests/TestViewModel.js" />
+        </Namespace>
+    </Application.Sources>
     <Grid>
+        <Grid.DataContext>
+            <local:TestViewModel />
+        </Grid.DataContext>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
             <ColumnDefinition />

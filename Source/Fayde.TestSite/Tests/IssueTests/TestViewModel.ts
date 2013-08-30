@@ -1,17 +1,6 @@
-﻿/// <reference path="../../../jsbin/Fayde.d.ts" />
+/// <reference path="../../../jsbin/Fayde.d.ts" />
 
 module Tests.IssueTests {
-    export class Application extends App {
-        constructor() {
-            super();
-            this.Loaded.Subscribe(this.OnLoaded, this);
-        }
-        OnLoaded(sender, e: EventArgs) {
-            this.RootVisual.DataContext = new TestViewModel();
-        }
-    }
-    Nullstone.RegisterType(Application, "Application");
-
     export interface IItem {
         Name: string;
         Data: number;
@@ -28,4 +17,9 @@ module Tests.IssueTests {
             Fayde.MVVM.NotifyProperties(TestViewModel, ["SelectedItem"]);
         })();
     }
+    Fayde.RegisterType(TestViewModel, {
+        Name: "TestViewModel",
+        Namespace: "Tests.IssueTests",
+        XmlNamespace: "folder:Tests/IssueTests"
+    });
 }
