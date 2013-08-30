@@ -18,7 +18,11 @@ var NflDraft;
         var DefaultViewModel = (function (_super) {
             __extends(DefaultViewModel, _super);
             function DefaultViewModel() {
-                _super.apply(this, arguments);
+                _super.call(this);
+                this.Rounds = [];
+                this.Positions = [];
+                this.PlayerStats = [];
+                this.Load();
             }
             Object.defineProperty(DefaultViewModel.prototype, "SelectedPlayer", {
                 get: function () {
@@ -33,13 +37,13 @@ var NflDraft;
             });
 
             DefaultViewModel.prototype.Load = function () {
-                var _fantasyTeams = new Array();
+                var _fantasyTeams = [];
                 var ft = ["Team 1", "Team 2", "Team 3", "Team 4", "Team 5", "Team 6", "Team 7", "Team 8", "Team 9", "Team 10"];
                 for (var i = 0; i < ft.length; i++) {
                     _fantasyTeams.push(new NflDraft.Models.FantasyTeam(ft[i]));
                 }
 
-                var _teams = new Array();
+                var _teams = [];
                 var t = [
                     { "Abbreviation": "NO", "Logo": "Images/Team Logos/NO.png", "Location": "New Orleans", "Nickname": "Saints", "ByeWeek": 6 },
                     { "Abbreviation": "DET", "Logo": "Images/Team Logos/DET.png", "Location": "Detroit", "Nickname": "Lions", "ByeWeek": 5 },
@@ -85,7 +89,6 @@ var NflDraft;
                 }
 
                 var overall = 1;
-                this.Rounds = new Array();
                 for (var i = 0; i < 4; i++) {
                     var r = new NflDraft.Models.Round();
                     r.RoundNumber = i + 1;
@@ -110,7 +113,6 @@ var NflDraft;
                     this.Rounds.push(r);
                 }
 
-                this.Positions = new Array();
                 this.Positions.push("ALL", "QB", "RB", "WR", "RB/WR", "TE", "K", "DEF");
 
                 var p = [
@@ -152,7 +154,6 @@ var NflDraft;
                     _players.push(player);
                 }
 
-                this.PlayerStats = new Array();
                 var ps = [
                     { "Player": 0, "Projected": { "Team": 8, "GamesPlayed": 16, "RushingAttempts": 351, "RushingYards": 1424, "RushingTouchdowns": 15, "Fumbles": 3, "FumblesLost": 2 }, "ADP": 1.8 },
                     { "Player": 1, "ADP": 1.91 },
@@ -203,6 +204,11 @@ var NflDraft;
             return DefaultViewModel;
         })(Fayde.MVVM.ViewModelBase);
         ViewModels.DefaultViewModel = DefaultViewModel;
+        Fayde.RegisterType(DefaultViewModel, {
+            Name: "DefaultViewModel",
+            Namespace: "NflDraft.ViewModels",
+            XmlNamespace: "folder:ViewModels"
+        });
     })(NflDraft.ViewModels || (NflDraft.ViewModels = {}));
     var ViewModels = NflDraft.ViewModels;
 })(NflDraft || (NflDraft = {}));

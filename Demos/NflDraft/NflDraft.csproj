@@ -59,30 +59,11 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
-    <Reference Include="WickedSick.Server.Framework.Fayde, Version=0.9.5.20, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>packages\Fayde.0.9.5.20\lib\net\WickedSick.Server.Framework.Fayde.dll</HintPath>
-    </Reference>
-    <Reference Include="WickedSick.Server.XamlParser, Version=0.9.5.20, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>packages\Fayde.0.9.5.20\lib\net\WickedSick.Server.XamlParser.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="default.fap.js">
-      <DependentUpon>default.fap.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="default.fap.ts">
-      <DependentUpon>default.fap</DependentUpon>
-    </TypeScriptCompile>
-    <Content Include="default.fayde.js">
-      <DependentUpon>default.fayde.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="default.fayde.ts">
-      <DependentUpon>default.fayde</DependentUpon>
-    </TypeScriptCompile>
     <TypeScriptCompile Include="Models\Round.ts" />
     <TypeScriptCompile Include="Models\DraftSpot.ts" />
+    <Content Include="default.html" />
     <Content Include="Images\chat.png" />
     <Content Include="Images\footballfield2.png" />
     <Content Include="Images\Player Headshots\aaron_rodgers.png" />
@@ -181,9 +162,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="default.fayde">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="packages.config" />
     <Content Include="default.fap">
       <SubType>Designer</SubType>

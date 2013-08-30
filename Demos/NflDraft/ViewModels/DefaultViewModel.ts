@@ -9,24 +9,29 @@
 
 module NflDraft.ViewModels {
     export class DefaultViewModel extends Fayde.MVVM.ViewModelBase {
-        Rounds: Array<Models.Round>;
-        Positions: Array<string>;
-        PlayerStats: Array<Models.PlayerStats>;
+        Rounds: Models.Round[] = [];
+        Positions: string[] = [];
+        PlayerStats: Models.PlayerStats[] = [];
         private _selectedPlayer: Models.PlayerStats;
         get SelectedPlayer(): Models.PlayerStats { return this._selectedPlayer; }
         set SelectedPlayer(value: Models.PlayerStats) {
             this._selectedPlayer = value;
             this.OnPropertyChanged("SelectedPlayer");
         }
-        
+
+        constructor() {
+            super();
+            this.Load();
+        }
+
         Load() {
-            var _fantasyTeams: Array<Models.FantasyTeam> = new Array<Models.FantasyTeam>();
+            var _fantasyTeams: Models.FantasyTeam[] = [];
             var ft = ["Team 1", "Team 2", "Team 3", "Team 4", "Team 5", "Team 6", "Team 7", "Team 8", "Team 9", "Team 10"];
             for (var i = 0; i < ft.length; i++) {
                 _fantasyTeams.push(new Models.FantasyTeam(ft[i]));
             }
 
-            var _teams: Array<Models.Team> = new Array<Models.Team>();
+            var _teams: Models.Team[] = [];
             var t = [{ "Abbreviation": "NO", "Logo": "Images/Team Logos/NO.png", "Location": "New Orleans", "Nickname": "Saints", "ByeWeek": 6 },
                 { "Abbreviation": "DET", "Logo": "Images/Team Logos/DET.png", "Location": "Detroit", "Nickname": "Lions", "ByeWeek": 5 },
                 { "Abbreviation": "TEN", "Logo": "Images/Team Logos/TEN.png", "Location": "Tennessee", "Nickname": "Titans", "ByeWeek": 11 },
@@ -70,7 +75,6 @@ module NflDraft.ViewModels {
             }
 
             var overall = 1;
-            this.Rounds = new Array<Models.Round>();
             for (var i = 0; i < 4; i++) {
                 var r = new Models.Round();
                 r.RoundNumber = i + 1;
@@ -83,8 +87,7 @@ module NflDraft.ViewModels {
                         r.DraftSpots.push(ds);
                         overall++;
                     }
-                }
-                else {
+                } else {
                     for (var j = 10; j >= 1; j--) {
                         var ds = new Models.DraftSpot();
                         ds.Overall = overall;
@@ -96,7 +99,6 @@ module NflDraft.ViewModels {
                 this.Rounds.push(r);
             }
 
-            this.Positions = new Array<string>();
             this.Positions.push("ALL", "QB", "RB", "WR", "RB/WR", "TE", "K", "DEF");
 
             var p = [{ "Name": "Arian Foster", "Team": _teams[8], "Headshot": "Images/Player Headshots/arian_foster.png", "Positions": "RB", "Birthdate": new Date("1986-08-24"), "Height": "6'11\"", "Weight": "228" },
@@ -136,7 +138,6 @@ module NflDraft.ViewModels {
                 _players.push(player);
             }
 
-            this.PlayerStats = new Array<Models.PlayerStats>();
             var ps = [{ "Player": 0, "Projected": { "Team": 8, "GamesPlayed": 16, "RushingAttempts": 351, "RushingYards": 1424, "RushingTouchdowns": 15, "Fumbles": 3, "FumblesLost": 2 }, "ADP": 1.8 },
                 { "Player": 1, "ADP": 1.91 },
                 { "Player": 2, "ADP": 3.25 },
@@ -176,7 +177,7 @@ module NflDraft.ViewModels {
                     projected.FumblesLost = ps[i]["Projected"]["FumblesLost"];
                     playerStats.Projected = projected;
                 }
-                this.PlayerStats.push(playerStats);  
+                this.PlayerStats.push(playerStats);
             }
 
             this.SelectedPlayer = this.PlayerStats[0];
@@ -189,4 +190,9 @@ module NflDraft.ViewModels {
         //    Fayde.MVVM.NotifyProperties(DefaultViewModel, ["Rounds"]);
         //})();
     }
+    Fayde.RegisterType(DefaultViewModel, {
+        Name: "DefaultViewModel",
+        Namespace: "NflDraft.ViewModels",
+        XmlNamespace: "folder:ViewModels"
+    });
 }
