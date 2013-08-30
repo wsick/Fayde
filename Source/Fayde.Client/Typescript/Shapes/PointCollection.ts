@@ -39,7 +39,7 @@ module Fayde.Shapes {
             if (owner) owner._InvalidateNaturalBounds();
         }
         AddRange(points: Point[]) {
-            this._ht.concat(points);
+            this._ht.push.apply(this._ht, points);
             var owner = this.Owner;
             if (owner) owner._InvalidateNaturalBounds();
         }
@@ -95,7 +95,7 @@ module Fayde.Shapes {
     	XmlNamespace: Fayde.XMLNS
     });
 
-    Fayde.RegisterTypeConverter(PointCollection, (val: string): PointCollection=> {
+    Fayde.RegisterTypeConverter(PointCollection, (val: string): PointCollection => {
         var pc = new PointCollection();
         pc.AddRange(Fayde.Media.ParseShapePoints(val));
         return pc;

@@ -184,3 +184,15 @@ test("ImageSource", () => {
     ok(us != null, "UriSource exists");
     strictEqual(us.toString(), "http://domain/rawr.jpg", "Uri");
 });
+
+test("PointCollection", () => {
+    var str = "1,1 2,2 3,3 4,4 5,5";
+    var coll = <Fayde.Shapes.PointCollection>Fayde.ConvertAnyToType(str, Fayde.Shapes.PointCollection);
+
+    strictEqual(coll.Count, 5, "Count");
+    ok(Point.Equals(new Point(1, 1), coll.GetValueAt(0)), "P1");
+    ok(Point.Equals(new Point(2, 2), coll.GetValueAt(1)), "P2");
+    ok(Point.Equals(new Point(3, 3), coll.GetValueAt(2)), "P3");
+    ok(Point.Equals(new Point(4, 4), coll.GetValueAt(3)), "P4");
+    ok(Point.Equals(new Point(5, 5), coll.GetValueAt(4)), "P5");
+});
