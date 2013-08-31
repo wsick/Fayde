@@ -11,7 +11,7 @@
             <Border.Effect>
                 <DropShadowEffect />
             </Border.Effect>
-            <TextBlock Text="{Binding Start, StringFormat='{}{0} ms'}" HorizontalAlignment="Center" />
+            <TextBlock Text="{Binding Length, StringFormat='{}{0} ms'}" HorizontalAlignment="Center" />
         </Border>
     </Grid>
 </UserControl>
