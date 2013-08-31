@@ -77,6 +77,17 @@ namespace WickedSick.Thea.ViewModels
             }
         }
 
+        private TimelineViewModel _TimelineViewModel = new TimelineViewModel();
+        public TimelineViewModel TimelineViewModel
+        {
+            get { return _TimelineViewModel; }
+            set
+            {
+                _TimelineViewModel = value;
+                OnPropertyChanged("TimelineViewModel");
+            }
+        }
+
         #endregion
 
         #region Load
@@ -169,9 +180,11 @@ namespace WickedSick.Thea.ViewModels
             AttachedBrowser = browser;
             _Interop = new FaydeInterop(AttachedBrowser);
             PerformanceViewModel.JsContext = _Interop;
+            TimelineViewModel.JsContext = _Interop;
             RefreshDPs();
             RefreshTree();
             PerformanceViewModel.Update();
+            TimelineViewModel.Update();
             //_Interop.PopulateProperties(RootLayers[0]);
             StartTimer();
         }
@@ -212,6 +225,7 @@ namespace WickedSick.Thea.ViewModels
             //RefreshThisVisual(allVisuals);
             RefreshHitTestVisuals(allVisuals);
             PerformanceViewModel.Update();
+            TimelineViewModel.Update();
             UpdateSelectedVisual();
         }
 

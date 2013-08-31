@@ -110,6 +110,9 @@
                         </ListView.View>
                     </ListView>
                 </TabItem>
+                <TabItem Header="Timeline">
+                    <views:TimelineView DataContext="{Binding TimelineViewModel}" />
+                </TabItem>
             </TabControl>
         </Grid>
     </Grid>

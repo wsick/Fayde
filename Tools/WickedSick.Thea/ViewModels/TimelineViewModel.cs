@@ -1,16 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Windows.Data;
+using Newtonsoft.Json;
+using WickedSick.Thea.Helpers;
 using WickedSick.Thea.Models;
 
 namespace WickedSick.Thea.ViewModels
 {
     public class TimelineViewModel : MVVM.ViewModelBase
     {
+        public IJavascriptContext JsContext { get; set; }
+
         public ObservableCollection<TimelineGroup> Items { get; private set; }
         public CollectionView SortedItems { get; private set; }
         public TimelineGroup LastItem { get { return (TimelineGroup)SortedItems.GetItemAt(Items.Count - 1); } }
@@ -33,6 +35,26 @@ namespace WickedSick.Thea.ViewModels
         void Items_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             OnPropertyChanged("LastItem");
+        }
+
+        public void Update()
+        {
+            var grps = GetTimelineGroups().ToList();
+            if (grps.Count != Items.Count)
+            {
+                Items.Clear();
+                grps.ForEach(Items.Add);
+            }
+        }
+
+        protected IEnumerable<TimelineGroup> GetTimelineGroups()
+        {
+            if (JsContext == null)
+                return Enumerable.Empty<TimelineGroup>();
+            if (!JsContext.IsAlive)
+                return Enumerable.Empty<TimelineGroup>();
+            var json = JsContext.Eval("JSON.stringify(TimelineProfile.Groups)");
+            return JsonConvert.DeserializeObject<List<TimelineGroup>>(json);
         }
     }
 }
