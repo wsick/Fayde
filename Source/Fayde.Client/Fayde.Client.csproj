@@ -436,9 +436,7 @@
     </Content>
     <None Include="build.bat" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Docs\Rules\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Fayde.Server\Fayde.Server.csproj">
       <Project>{674c2ef2-d791-4543-9af9-4da3ca750b26}</Project>
