@@ -17,6 +17,17 @@ namespace WickedSick.Thea.ViewModels
         public CollectionView SortedItems { get; private set; }
         public TimelineGroup LastItem { get { return (TimelineGroup)SortedItems.GetItemAt(Items.Count - 1); } }
 
+        private int _TotalLength;
+        public int TotalLength
+        {
+            get { return _TotalLength; }
+            set
+            {
+                _TotalLength = value;
+                OnPropertyChanged("TotalLength");
+            }
+        }
+
         public TimelineViewModel()
         {
             Items = new ObservableCollection<TimelineGroup>();
@@ -44,6 +55,7 @@ namespace WickedSick.Thea.ViewModels
             {
                 Items.Clear();
                 grps.ForEach(Items.Add);
+                TotalLength = Items.Max(tg => tg.Start + tg.Length);
             }
         }
 

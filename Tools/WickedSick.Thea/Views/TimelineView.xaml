@@ -5,11 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:WickedSick.Thea.ViewModels"
              xmlns:r="clr-namespace:WickedSick.Thea.Resources"
+             xmlns:controls="clr-namespace:WickedSick.Thea.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="800">
-    <UserControl.Resources>
-        <r:RelativeSizeValueConverter x:Key="RelativeSizeValueConverter"/>
-    </UserControl.Resources>
     <UserControl.DataContext>
         <vm:TimelineViewModel/>
     </UserControl.DataContext>
@@ -35,23 +33,7 @@
                     </DataGridTemplateColumn.HeaderStyle>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Border CornerRadius="5" BorderBrush="Black" BorderThickness="1" Background="Silver" Opacity=".7">
-                                <Border.Width>
-                                    <MultiBinding Converter="{StaticResource RelativeSizeValueConverter}">
-                                        <Binding Path="Length"/>
-                                        <Binding Path="Start"/>
-                                        <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="ActualWidth"/>
-                                    </MultiBinding>
-                                </Border.Width>
-                                <Border.Effect>
-                                    <DropShadowEffect/>
-                                </Border.Effect>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Length}"/>
-                                    <TextBlock Text="{Binding Start}"/>
-                                    <TextBlock Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualWidth}"/>
-                                </StackPanel>
-                            </Border>
+                            <controls:Pill Start="{Binding Start}" Length="{Binding Length}" TotalLength="{Binding RelativeSource={RelativeSource AncestorType=DataGrid}, Path=DataContext.TotalLength}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

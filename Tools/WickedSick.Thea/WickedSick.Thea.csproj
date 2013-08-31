@@ -77,6 +77,9 @@
     <Compile Include="Controls\PerformanceTicker.xaml.cs">
       <DependentUpon>PerformanceTicker.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Pill.xaml.cs">
+      <DependentUpon>Pill.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Helpers\FaydeInterop.cs" />
     <Compile Include="Helpers\IJavascriptContext.cs" />
     <Compile Include="IEnumerableEx.cs" />
@@ -91,7 +94,6 @@
     <Compile Include="Resources\BoolFontWeightConverter.cs" />
     <Compile Include="Resources\BoolVisibilityConverter.cs" />
     <Compile Include="Resources\PillColorValueConverter.cs" />
-    <Compile Include="Resources\RelativeSizeValueConverter.cs" />
     <Compile Include="ViewModels\ChooseVisualStudioViewModel.cs" />
     <Compile Include="ViewModels\ExamineViewModel.cs" />
     <Compile Include="ViewModels\LoadViewModel.cs" />
@@ -122,6 +124,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\PerformanceTicker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\Pill.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
