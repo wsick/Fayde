@@ -45,7 +45,3 @@ MarkupExpressionParsing
 		{Binding ...}
 	TemplateBinding
 		{TemplateBinding [TargetProperty]}
-
-	
-Next:
-Frame Navigation
