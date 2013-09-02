@@ -2,6 +2,7 @@
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
     xmlns:models="folder:Models"
+    xmlns:res="folder:Resources"
     xmlns:viewmodels="folder:ViewModels"
     Theme="scripts/Theme.Silverlight.xml">
     <Application.Sources>
@@ -13,6 +14,9 @@
             <Source Name="Round" Source="Models/Round.js" />
             <Source Name="Stats" Source="Models/Stats.js" />
             <Source Name="Team" Source="Models/Team.js" />
+        </Namespace>
+        <Namespace Name="folder:Resources">
+            <Source Name="AgeValueConverter" Source="Resources/AgeValueConverter.js" />
         </Namespace>
         <Namespace Name="folder:ViewModels">
             <Source Name="Team" Source="ViewModels/DefaultViewModel.js" />
@@ -44,6 +48,7 @@
             <GradientStop Color="Transparent" Offset=".8"/>
             <GradientStop Color="{StaticResource DarkGray}" Offset="1"/>
         </LinearGradientBrush>
+        <res:AgeValueConverter x:Key="ageValueConverter" />
     </Application.Resources>
     <Grid x:Name="LayoutRoot" Background="{StaticResource DarkGrayBrush}">
         <Grid.DataContext>
@@ -212,7 +217,7 @@
                                     <DropShadowEffect BlurRadius="2" ShadowDepth="2" Color="{StaticResource DarkGray}"/>
                                 </TextBlock.Effect>
                             </TextBlock>
-                            <TextBlock Grid.Row="3" Grid.Column="2" Margin="5, 2, 0, 0" FontSize="12" Foreground="White" Text="{Binding Player.Birthdate}">
+                            <TextBlock Grid.Row="3" Grid.Column="2" Margin="5, 2, 0, 0" FontSize="12" Foreground="White" Text="{Binding Player.Birthdate, Converter={StaticResource ageValueConverter}}">
                                 <TextBlock.Effect>
                                     <DropShadowEffect BlurRadius="2" ShadowDepth="2" Color="{StaticResource DarkGray}"/>
                                 </TextBlock.Effect>

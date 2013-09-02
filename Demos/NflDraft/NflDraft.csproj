@@ -149,6 +149,7 @@
     <Content Include="Models\Team.js">
       <DependentUpon>Team.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Resources\AgeValueConverter.ts" />
     <Content Include="scripts\Fayde.d.ts" />
     <Content Include="scripts\Fayde.js" />
     <Content Include="scripts\Fayde.Theme.Metro.js" />
