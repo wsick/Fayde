@@ -345,6 +345,7 @@ module Fayde.Data {
                 }
             } catch (err) {
                 //NOTE: Do we need to handle string conversion?
+                console.warn("[BINDING] " + err.toString());
                 return Fayde.ConvertAnyToType(binding.FallbackValue, <Function>propd.GetTargetType());
             }
             return value;
