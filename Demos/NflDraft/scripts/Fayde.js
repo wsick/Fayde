@@ -3810,7 +3810,7 @@ var Fayde;
                 return false;
             };
             RawPath.Merge = function (path1, path2) {
-                path1._Path = path1._Path.concat(path2._Path);
+                path1._Path.push.apply(path1._Path, path2._Path);
                 path1._EndX += path2._EndX;
                 path1._EndY += path2._EndY;
             };
@@ -3824,21 +3824,21 @@ var Fayde;
                     var p = backing[i];
                     switch (p.type) {
                         case Shapes.PathEntryType.Move:
-                            s += "M" + p.x.toString() + " " + p.y.toString();
+                            s += "M" + p.x.toString() + "," + p.y.toString();
                             break;
                         case Shapes.PathEntryType.Line:
-                            s += "L" + p.x.toString() + " " + p.y.toString();
+                            s += "L" + p.x.toString() + "," + p.y.toString();
                             break;
                         case Shapes.PathEntryType.Rect:
                             break;
                         case Shapes.PathEntryType.Quadratic:
-                            s += "Q" + p.cpx.toString() + " " + p.cpy.toString() + ", " + p.x.toString() + " " + p.y.toString();
+                            s += "Q" + p.cpx.toString() + "," + p.cpy.toString() + " " + p.x.toString() + "," + p.y.toString();
                             break;
                         case Shapes.PathEntryType.Bezier:
-                            s += "C" + p.cp1x.toString() + " " + p.cp1y.toString() + ", " + p.cp2x.toString() + " " + p.cp2y.toString() + ", " + p.x.toString() + " " + p.y.toString();
+                            s += "C" + p.cp1x.toString() + "," + p.cp1y.toString() + " " + p.cp2x.toString() + "," + p.cp2y.toString() + " " + p.x.toString() + "," + p.y.toString();
                             break;
                         case Shapes.PathEntryType.EllipticalArc:
-                            s += "A" + p.width.toString() + " " + p.height.toString() + " " + p.rotationAngle.toString() + " " + p.isLargeArcFlag.toString() + " " + p.sweepDirectionFlag.toString() + " " + p.ex.toString() + " " + p.ey.toString();
+                            s += "A" + p.width.toString() + "," + p.height.toString() + " " + p.rotationAngle.toString() + " " + p.isLargeArcFlag.toString() + " " + p.sweepDirectionFlag.toString() + " " + p.ex.toString() + "," + p.ey.toString();
                             break;
                         case Shapes.PathEntryType.ArcTo:
                             break;
@@ -4955,6 +4955,9 @@ else
                 if (o !== undefined)
                     return o;
             }
+            o = Fayde.Application.Current.Resources.Get(key);
+            if (o !== undefined)
+                return o;
             throw new XamlParseException("Could not resolve StaticResource: '" + key + "'.");
         }
         function parseTemplateBinding(val, ctx) {
@@ -5764,381 +5767,38 @@ var Fayde;
 
 var Fayde;
 (function (Fayde) {
-    (function (Media) {
-        function ParseGeometry(val) {
-            return (new MediaParser(val)).ParseGeometryImpl();
-        }
-        Media.ParseGeometry = ParseGeometry;
-        function ParseShapePoints(val) {
-            return (new MediaParser(val)).ParseShapePoints();
-        }
-        Media.ParseShapePoints = ParseShapePoints;
-        var MediaParser = (function () {
-            function MediaParser(str) {
-                this.index = 0;
-                this.str = str;
-                this.len = str.length;
+    (function (Navigation) {
+        var NavigationService = (function () {
+            function NavigationService() {
+                var _this = this;
+                this.LocationChanged = new MulticastEvent();
+                this.Href = window.location.href;
+                this.Hash = window.location.hash;
+                if (this.Hash) {
+                    this.Hash = this.Hash.substr(1);
+                    this.Href = this.Href.substring(0, this.Href.indexOf('#'));
+                }
+                window.onhashchange = function () {
+                    return _this._HandleFragmentChange();
+                };
             }
-            MediaParser.prototype.ParseGeometryImpl = function () {
-                var cp = new Point();
-                var cp1, cp2, cp3;
-                var start = new Point();
-                var fillRule = Fayde.Shapes.FillRule.EvenOdd;
-                var cbz = false;
-                var qbz = false;
-                var cbzp = new Point();
-                var qbzp = new Point();
-                var path = new Fayde.Shapes.RawPath();
-                while (this.index < this.len) {
-                    var c;
-                    while (this.index < this.len && (c = this.str.charAt(this.index)) === ' ') {
-                        this.index++;
-                    }
-                    this.index++;
-                    var relative = false;
-                    switch (c) {
-                        case 'f':
-                        case 'F':
-                            c = this.str.charAt(this.index);
-                            if (c === '0')
-                                fillRule = Fayde.Shapes.FillRule.EvenOdd;
-else if (c === '1')
-                                fillRule = Fayde.Shapes.FillRule.NonZero;
-else
-                                return null;
-                            this.index++;
-                            c = this.str.charAt(this.index);
-                            break;
-                        case 'm':
-                            relative = true;
-                        case 'M':
-                            cp1 = this.ParsePoint();
-                            if (cp1 == null)
-                                break;
-                            if (relative) {
-                                cp1.X += cp.X;
-                                cp1.Y += cp.Y;
-                            }
-                            path.Move(cp1.X, cp1.Y);
-                            start.X = cp.X = cp1.X;
-                            start.Y = cp.Y = cp1.Y;
-                            this.Advance();
-                            while (this.MorePointsAvailable()) {
-                                if ((cp1 = this.ParsePoint()) == null)
-                                    break;
-                                if (relative) {
-                                    cp1.X += cp.X;
-                                    cp1.Y += cp.Y;
-                                }
-                                path.Line(cp1.X, cp1.Y);
-                            }
-                            cp.X = cp1.X;
-                            cp.Y = cp1.Y;
-                            cbz = qbz = false;
-                            break;
-                        case 'l':
-                            relative = true;
-                        case 'L':
-                            while (this.MorePointsAvailable()) {
-                                if ((cp1 = this.ParsePoint()) == null)
-                                    break;
-                                if (relative) {
-                                    cp1.X += cp.X;
-                                    cp1.Y += cp.Y;
-                                }
-                                path.Line(cp1.X, cp1.Y);
-                                cp.X = cp1.X;
-                                cp.Y = cp1.Y;
-                                this.Advance();
-                            }
-                            cbz = qbz = false;
-                            break;
-                        case 'h':
-                            relative = true;
-                        case 'H':
-                            var x = this.ParseDouble();
-                            if (x == null)
-                                break;
-                            if (relative)
-                                x += cp.X;
-                            cp = new Point(x, cp.Y);
-                            path.Line(cp.X, cp.Y);
-                            cbz = qbz = false;
-                            break;
-                        case 'v':
-                            relative = true;
-                        case 'V':
-                            var y = this.ParseDouble();
-                            if (y == null)
-                                break;
-                            if (relative)
-                                y += cp.Y;
-                            cp = new Point(cp.X, y);
-                            path.Line(cp.X, cp.Y);
-                            cbz = qbz = false;
-                            break;
-                        case 'c':
-                            relative = true;
-                        case 'C':
-                            while (this.MorePointsAvailable()) {
-                                if ((cp1 = this.ParsePoint()) == null)
-                                    break;
-                                if (relative) {
-                                    cp1.X += cp.X;
-                                    cp1.Y += cp.Y;
-                                }
-                                this.Advance();
-                                if ((cp2 = this.ParsePoint()) == null)
-                                    break;
-                                if (relative) {
-                                    cp2.X += cp.X;
-                                    cp2.Y += cp.Y;
-                                }
-                                this.Advance();
-                                if ((cp3 = this.ParsePoint()) == null)
-                                    break;
-                                if (relative) {
-                                    cp3.X += cp.X;
-                                    cp3.Y += cp.Y;
-                                }
-                                this.Advance();
-                                path.Bezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
-                                cp1.X = cp3.X;
-                                cp1.Y = cp3.Y;
-                            }
-                            cp.X = cp3.X;
-                            cp.Y = cp3.Y;
-                            cbz = true;
-                            cbzp.X = cp2.X;
-                            cbzp.Y = cp2.Y;
-                            qbz = false;
-                            break;
-                        case 's':
-                            relative = true;
-                        case 'S':
-                            while (this.MorePointsAvailable()) {
-                                if ((cp2 = this.ParsePoint()) == null)
-                                    break;
-                                if (relative) {
-                                    cp2.X += cp.X;
-                                    cp2.Y += cp.Y;
-                                }
-                                this.Advance();
-                                if ((cp3 = this.ParsePoint()) == null)
-                                    break;
-                                if (relative) {
-                                    cp3.X += cp.X;
-                                    cp3.Y += cp.Y;
-                                }
-                                if (cbz) {
-                                    cp1.X = 2 * cp.X - cbzp.X;
-                                    cp1.Y = 2 * cp.Y - cbzp.Y;
-                                } else
-                                    cp1 = cp;
-                                path.Bezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
-                                cbz = true;
-                                cbzp.X = cp2.X;
-                                cbzp.Y = cp2.Y;
-                                cp.X = cp3.X;
-                                cp.Y = cp3.Y;
-                                this.Advance();
-                            }
-                            qbz = false;
-                            break;
-                        case 'q':
-                            relative = true;
-                        case 'Q':
-                            while (this.MorePointsAvailable()) {
-                                if ((cp1 = this.ParsePoint()) == null)
-                                    break;
-                                if (relative) {
-                                    cp1.X += cp.X;
-                                    cp1.Y += cp.Y;
-                                }
-                                this.Advance();
-                                if ((cp2 = this.ParsePoint()) == null)
-                                    break;
-                                if (relative) {
-                                    cp2.X += cp.X;
-                                    cp2.Y += cp.Y;
-                                }
-                                this.Advance();
-                                path.Quadratic(cp1.X, cp1.Y, cp2.X, cp2.Y);
-                                cp.X = cp2.X;
-                                cp.Y = cp2.Y;
-                            }
-                            qbz = true;
-                            qbzp.X = cp1.X;
-                            qbzp.Y = cp1.Y;
-                            cbz = false;
-                            break;
-                        case 't':
-                            relative = true;
-                        case 'T':
-                            while (this.MorePointsAvailable()) {
-                                if ((cp2 = this.ParsePoint()) == null)
-                                    break;
-                                if (relative) {
-                                    cp2.X += cp.X;
-                                    cp2.Y += cp.Y;
-                                }
-                                if (qbz) {
-                                    cp1.X = 2 * cp.X - qbzp.X;
-                                    cp1.Y = 2 * cp.Y - qbzp.Y;
-                                } else
-                                    cp1 = cp;
-                                path.Quadratic(cp1.X, cp1.Y, cp2.X, cp2.Y);
-                                qbz = true;
-                                qbzp.X = cp1.X;
-                                qbzp.Y = cp1.Y;
-                                cp.X = cp2.X;
-                                cp.Y = cp2.Y;
-                                this.Advance();
-                            }
-                            cbz = false;
-                            break;
-                        case 'a':
-                            relative = true;
-                        case 'A':
-                            while (this.MorePointsAvailable()) {
-                                if ((cp1 = this.ParsePoint()) == null)
-                                    break;
-                                var angle = this.ParseDouble();
-                                var is_large = this.ParseDouble() !== 0;
-                                var sweep = Fayde.Shapes.SweepDirection.Counterclockwise;
-                                if (this.ParseDouble() !== 0)
-                                    sweep = Fayde.Shapes.SweepDirection.Clockwise;
-                                if ((cp2 = this.ParsePoint()) == null)
-                                    break;
-                                if (relative) {
-                                    cp2.X += cp.X;
-                                    cp2.Y += cp.Y;
-                                }
-                                path.EllipticalArc(cp1.X, cp1.Y, angle, is_large, sweep, cp2.X, cp2.Y);
-                                cp.X = cp2.X;
-                                cp.Y = cp2.Y;
-                                this.Advance();
-                            }
-                            cbz = qbz = false;
-                            break;
-                        case 'z':
-                        case 'Z':
-                            path.Close();
-                            cp.X = start.X;
-                            cp.Y = start.Y;
-                            cbz = qbz = false;
-                            break;
-                        default:
-                            break;
-                    }
+            NavigationService.prototype._HandleFragmentChange = function () {
+                this.Hash = window.location.hash;
+                if (this.Hash) {
+                    this.Hash = this.Hash.substr(1);
                 }
-                var pg = new Media.PathGeometry();
-                pg.OverridePath(path);
-                pg.FillRule = fillRule;
-                return pg;
+                this.LocationChanged.Raise(this, EventArgs.Empty);
             };
-            MediaParser.prototype.ParseShapePoints = function () {
-                var points = [];
-                var p;
-                while (this.MorePointsAvailable() && (p = this.ParsePoint()) != null) {
-                    points.push(p);
-                }
-                return points;
-            };
-            MediaParser.prototype.ParsePoint = function () {
-                var x = this.ParseDouble();
-                if (x == null)
-                    return null;
-                var c;
-                while (this.index < this.len && ((c = this.str.charAt(this.index)) === ' ' || c === ',')) {
-                    this.index++;
-                }
-                if (this.index >= this.len)
-                    return null;
-                var y = this.ParseDouble();
-                if (y == null)
-                    return null;
-                return new Point(x, y);
-            };
-            MediaParser.prototype.ParseDouble = function () {
-                this.Advance();
-                var isNegative = false;
-                if (this.Match('-')) {
-                    isNegative = true;
-                    this.index++;
-                } else if (this.Match('+')) {
-                    this.index++;
-                }
-                if (this.Match('Infinity')) {
-                    this.index += 8;
-                    return isNegative ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
-                }
-                if (this.Match('NaN'))
-                    return NaN;
-                var temp = '';
-                while (this.index < this.len) {
-                    var code = this.str.charCodeAt(this.index);
-                    var c = String.fromCharCode(code);
-                    if (code >= 48 && code <= 57)
-                        temp += c;
-else if (code === 46)
-                        temp += c;
-else if (c === 'E' || c === 'e')
-                        temp += c;
-else
-                        break;
-                    this.index++;
-                }
-                if (temp.length === 0)
-                    return null;
-                var f = parseFloat(temp);
-                return isNegative ? -f : f;
-            };
-            MediaParser.prototype.Match = function (matchStr) {
-                var c1;
-                var c2;
-                for (var i = 0; i < matchStr.length && (this.index + i) < this.len; i++) {
-                    c1 = matchStr.charAt(i);
-                    c2 = this.str.charAt(this.index + i);
-                    if (c1 !== c2)
-                        return false;
-                }
-                return true;
-            };
-            MediaParser.prototype.Advance = function () {
-                var code;
-                var c;
-                while (this.index < this.len) {
-                    code = this.str.charCodeAt(this.index);
-                    if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122) || (code >= 48 && code <= 57))
-                        break;
-                    c = String.fromCharCode(code);
-                    if (c === '.')
-                        break;
-                    if (c === '-')
-                        break;
-                    if (c === '+')
-                        break;
-                    this.index++;
-                }
-            };
-            MediaParser.prototype.MorePointsAvailable = function () {
-                var c;
-                while (this.index < this.len && ((c = this.str.charAt(this.index)) === ',' || c === ' ')) {
-                    this.index++;
-                }
-                if (this.index >= this.len)
-                    return false;
-                if (c === '.' || c === '-' || c === '+')
-                    return true;
-                var code = this.str.charCodeAt(this.index);
-                return code >= 48 && code <= 57;
-            };
-            return MediaParser;
+            return NavigationService;
         })();
-        Fayde.RegisterTypeConverter(Media.Geometry, ParseGeometry);
-    })(Fayde.Media || (Fayde.Media = {}));
-    var Media = Fayde.Media;
+        Navigation.NavigationService = NavigationService;
+        Fayde.RegisterType(NavigationService, {
+            Name: "NavigationService",
+            Namespace: "Fayde.Navigation",
+            XmlNamespace: Fayde.XMLNS
+        });
+    })(Fayde.Navigation || (Fayde.Navigation = {}));
+    var Navigation = Fayde.Navigation;
 })(Fayde || (Fayde = {}));
 
 var Color = (function () {
@@ -7099,18 +6759,49 @@ var Fayde;
 
         var XamlResource = (function () {
             function XamlResource(url) {
+                this._IsLoaded = false;
                 this._Xaml = null;
+                this._Error = null;
                 Object.defineProperty(this, "Url", { value: url, writable: false });
             }
+            Object.defineProperty(XamlResource.prototype, "Document", {
+                get: function () {
+                    return this._Document;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(XamlResource.prototype, "IsLoaded", {
+                get: function () {
+                    return this._IsLoaded;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(XamlResource.prototype, "Error", {
+                get: function () {
+                    return this._Error;
+                },
+                enumerable: true,
+                configurable: true
+            });
+
             XamlResource.prototype.LoadAsync = function (onLoaded) {
                 var _this = this;
+                if (this._IsLoaded && this._Document) {
+                    onLoaded(this);
+                    return;
+                }
                 var request = new Fayde.AjaxRequest(function (result) {
                     _this._Xaml = result.GetData();
                     var parser = new DOMParser();
                     _this._Document = parser.parseFromString(_this._Xaml, "text/xml");
+                    _this._IsLoaded = true;
                     onLoaded(_this);
                 }, function (error) {
+                    _this._IsLoaded = true;
                     console.warn("Could not load xaml resource: " + error.toString());
+                    _this._Error = error;
                     onLoaded(_this);
                 });
                 request.Get(this.Url);
@@ -7123,8 +6814,20 @@ var Fayde;
                 this._Script = null;
                 Object.defineProperty(this, "Url", { value: url, writable: false });
             }
+            Object.defineProperty(ScriptResource.prototype, "IsLoaded", {
+                get: function () {
+                    return this._IsLoaded;
+                },
+                enumerable: true,
+                configurable: true
+            });
+
             ScriptResource.prototype.LoadAsync = function (onLoaded) {
                 var _this = this;
+                if (this._IsLoaded && this._Script) {
+                    onLoaded(this);
+                    return;
+                }
                 var script = this._Script = document.createElement("script");
                 script.type = "text/javascript";
                 script.src = this.Url;
@@ -7137,6 +6840,11 @@ var Fayde;
                 script.onload = function () {
                     if (_this._IsLoaded)
                         return;
+                    _this._IsLoaded = true;
+                    onLoaded(_this);
+                };
+                script.onerror = function (error) {
+                    _this._Error = "Could not load script file.";
                     _this._IsLoaded = true;
                     onLoaded(_this);
                 };
@@ -7203,6 +6911,55 @@ var Fayde;
             return res;
         }
         Xaml.RegisterRootResource = RegisterRootResource;
+        var rdresources = [];
+        function RegisterResourceDictionary(source) {
+            var url = source.toString();
+            if (!url)
+                return null;
+            var r = rdresources[url];
+            if (!r)
+                rdresources[url] = r = new XamlResource(url);
+            return r;
+        }
+        Xaml.RegisterResourceDictionary = RegisterResourceDictionary;
+        function MapResourceDictionary(source) {
+            var url;
+            if (!source || !(url = source.toString()))
+                return null;
+            return rdresources[url];
+        }
+        Xaml.MapResourceDictionary = MapResourceDictionary;
+        var PageResolver = (function () {
+            function PageResolver() {
+            }
+            PageResolver.Resolve = function (url, onSuccess, onError) {
+                var resolver = new PageResolver();
+                resolver._OnSuccess = onSuccess;
+                resolver._OnError = onError;
+                resolver._Url = url;
+                resolver._Xaml = new XamlResource(url);
+                resolver._Script = new ScriptResource(url + ".js");
+                resolver._Xaml.LoadAsync(function (xr) {
+                    return resolver._TryFinish();
+                });
+                resolver._Script.LoadAsync(function (sr) {
+                    return resolver._TryFinish();
+                });
+                return resolver;
+            };
+            PageResolver.prototype.Stop = function () {
+            };
+            PageResolver.prototype._TryFinish = function () {
+                if (!this._Xaml.IsLoaded || !this._Script.IsLoaded)
+                    return;
+                if (this._Xaml.Error)
+                    this._OnError(this._Xaml.Error);
+else
+                    this._OnSuccess(this._Xaml.Document);
+            };
+            return PageResolver;
+        })();
+        Xaml.PageResolver = PageResolver;
     })(Fayde.Xaml || (Fayde.Xaml = {}));
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
@@ -9879,6 +9636,7 @@ else if ((parentNode = xnode.ParentNode) && Fayde.Controls.ItemsControl.GetItems
                         }
                     }
                 } catch (err) {
+                    console.warn("[BINDING] " + err.toString());
                     return Fayde.ConvertAnyToType(binding.FallbackValue, propd.GetTargetType());
                 }
                 return value;
@@ -11499,44 +11257,6 @@ var Fayde;
     var MVVM = Fayde.MVVM;
 })(Fayde || (Fayde = {}));
 
-var Fayde;
-(function (Fayde) {
-    (function (Navigation) {
-        var NavService = (function () {
-            function NavService(app) {
-                var _this = this;
-                this.LocationChanged = new MulticastEvent();
-                this.App = app;
-                this.Href = window.location.href;
-                this.Hash = window.location.hash;
-                if (this.Hash) {
-                    this.Hash = this.Hash.substr(1);
-                    this.Href = this.Href.substring(0, this.Href.indexOf('#'));
-                }
-                window.onhashchange = function () {
-                    return _this._HandleFragmentChange();
-                };
-            }
-            NavService.prototype._HandleFragmentChange = function () {
-                this.App.Address = new Uri(document.URL);
-                this.Hash = window.location.hash;
-                if (this.Hash) {
-                    this.Hash = this.Hash.substr(1);
-                }
-                this.LocationChanged.Raise(this, EventArgs.Empty);
-            };
-            return NavService;
-        })();
-        Navigation.NavService = NavService;
-        Fayde.RegisterType(NavService, {
-            Name: "NavService",
-            Namespace: "Fayde.Navigation",
-            XmlNamespace: Fayde.XMLNS
-        });
-    })(Fayde.Navigation || (Fayde.Navigation = {}));
-    var Navigation = Fayde.Navigation;
-})(Fayde || (Fayde = {}));
-
 var Clip = (function () {
     function Clip(r) {
         var rounded = rect.roundOut(rect.copyTo(r));
@@ -12171,18 +11891,46 @@ Fayde.RegisterType(size, {
     XmlNamespace: Fayde.XMLNSX
 });
 
+var UriKind;
+(function (UriKind) {
+    UriKind[UriKind["Absolute"] = 0] = "Absolute";
+    UriKind[UriKind["Relative"] = 1] = "Relative";
+    UriKind[UriKind["RelativeOrAbsolute"] = 2] = "RelativeOrAbsolute";
+})(UriKind || (UriKind = {}));
+Fayde.RegisterEnum(UriKind, {
+    Name: "UriKind",
+    Namespace: "window",
+    XmlNamespace: Fayde.XMLNS
+});
 var Uri = (function () {
-    function Uri(originalString) {
+    function Uri(originalString, kind) {
         this._OriginalString = originalString;
+        if (kind == null)
+            kind = UriKind.RelativeOrAbsolute;
+        this._Kind = kind;
     }
-    Uri.prototype.GetFragment = function () {
-        return "";
-    };
+    Object.defineProperty(Uri.prototype, "OriginalString", {
+        get: function () {
+            return this._OriginalString;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Uri.prototype, "Fragment", {
+        get: function () {
+            var index = this._OriginalString.indexOf("#");
+            if (index > -1)
+                return this._OriginalString.substr(index + 1);
+            return "";
+        },
+        enumerable: true,
+        configurable: true
+    });
     Uri.prototype.toString = function () {
         return this._OriginalString;
     };
     Uri.prototype.Clone = function () {
-        return new Uri(this._OriginalString);
+        return new Uri(this._OriginalString, this._Kind);
     };
     Uri.IsNullOrEmpty = function (uri) {
         if (uri == null)
@@ -12190,6 +11938,13 @@ var Uri = (function () {
         if (uri._OriginalString)
             return false;
         return true;
+    };
+    Uri.Equals = function (uri1, uri2) {
+        if (uri1 == null && uri2 == null)
+            return true;
+        if (uri1 == null || uri2 == null)
+            return false;
+        return uri1.toString() === uri2.toString();
     };
     return Uri;
 })();
@@ -12199,8 +11954,8 @@ Fayde.RegisterType(Uri, {
     XmlNamespace: Fayde.XMLNSX
 });
 Fayde.RegisterTypeConverter(Uri, function (val) {
-    if (!val)
-        throw new XamlParseException("Invalid empty URI.");
+    if (val == null)
+        val = "";
     return new Uri(val.toString());
 });
 
@@ -12369,7 +12124,7 @@ var Fayde;
                     owner._InvalidateNaturalBounds();
             };
             PointCollection.prototype.AddRange = function (points) {
-                this._ht.concat(points);
+                this._ht.push.apply(this._ht, points);
                 var owner = this.Owner;
                 if (owner)
                     owner._InvalidateNaturalBounds();
@@ -12483,6 +12238,18 @@ var Fayde;
             return createObject(ctx.Document.documentElement, ctx);
         }
         Xaml.Load = Load;
+        function LoadDocument(doc) {
+            var ctx = {
+                Document: doc,
+                ResourceChain: [],
+                NameScope: new Fayde.NameScope(true),
+                ObjectStack: [],
+                TemplateBindingSource: null
+            };
+            validateDocument(ctx.Document);
+            return createObject(ctx.Document.documentElement, ctx);
+        }
+        Xaml.LoadDocument = LoadDocument;
         function createObject(el, ctx) {
             var resolution = Fayde.TypeResolver.Resolve(el.namespaceURI, el.localName);
             if (resolution === undefined)
@@ -12515,10 +12282,15 @@ var Fayde;
                 xobj.TemplateOwner = ctx.TemplateBindingSource;
             }
             var childProcessor = createXamlChildProcessor(val, resolution.Type, ctx);
-            if (val instanceof Fayde.XamlObjectCollection)
-                childProcessor.ProcessPropertyCollection(el, val);
-else
+            if (val instanceof Fayde.XamlObjectCollection) {
+                childProcessor.ProcessCollection(el, val);
+            } else if (val instanceof Fayde.ResourceDictionary) {
+                ctx.ResourceChain.push(val);
+                processResourceDictionary(el, val, ctx);
+                ctx.ResourceChain.pop();
+            } else {
                 childProcessor.Process(el);
+            }
             return ctx.ObjectStack.pop();
         }
         function createPrimitive(type, el, ctx) {
@@ -12574,6 +12346,67 @@ else
             }
             return ft;
         }
+        function processResourceDictionary(el, rd, ctx) {
+            ctx.ObjectStack.push(rd);
+            var subEl = el.firstElementChild;
+            var rdEl;
+            var curEl = subEl;
+            if (subEl && subEl.namespaceURI === Fayde.XMLNS && subEl.localName === "ResourceDictionary") {
+                rdEl = subEl;
+                curEl = subEl.firstElementChild;
+            } else if (el && el.namespaceURI === Fayde.XMLNS && el.localName === "ResourceDictionary") {
+                rdEl = el;
+            }
+            var childProcessor = createXamlChildProcessor(rd, Fayde.ResourceDictionary, ctx);
+            if (rdEl) {
+                var attrs = rdEl.attributes;
+                var len = attrs.length;
+                var attr;
+                for (var i = 0; i < len; i++) {
+                    attr = attrs[i];
+                    if (attr.name === "xmlns")
+                        continue;
+                    if (attr.prefix === "xmlns")
+                        continue;
+                    if (attr.namespaceURI === Fayde.XMLNSX)
+                        continue;
+                    childProcessor.ProcessAttribute(attr);
+                }
+            }
+            while (curEl) {
+                if (curEl.localName.indexOf(".") > -1)
+                    childProcessor.ProcessElement(curEl);
+else
+                    createObjectInResources(curEl, rd, ctx);
+                curEl = curEl.nextElementSibling;
+            }
+            loadResourceDictionary(rd);
+            ctx.ObjectStack.pop();
+        }
+        function createObjectInResources(el, rd, ctx) {
+            var cur = createObject(el, ctx);
+            var key = getElementKey(el);
+            if (key) {
+                rd.Set(key, cur);
+            } else {
+                if (!(cur instanceof Fayde.Style))
+                    throw new XamlParseException("An object in a ResourceDictionary must have x:Key.");
+                var targetType = cur.TargetType;
+                if (!targetType)
+                    throw new XamlParseException("A Style in a ResourceDictionary must have x:Key or TargetType.");
+                rd.Set(targetType, cur);
+            }
+        }
+        function getElementKey(el) {
+            var attrs = el.attributes;
+            var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Key");
+            if (keyn)
+                return keyn.value;
+            var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Name");
+            if (keyn)
+                return keyn.value;
+            return "";
+        }
 
         function createXamlChildProcessor(owner, ownerType, ctx) {
             var app;
@@ -12596,30 +12429,6 @@ else
                 } else if (dobj instanceof Fayde.Application) {
                     app = dobj;
                 }
-            }
-            function createObjectInResources(el, rd) {
-                var cur = createObject(el, ctx);
-                var key = getElementKey(el);
-                if (key) {
-                    rd.Set(key, cur);
-                } else {
-                    if (!(cur instanceof Fayde.Style))
-                        throw new XamlParseException("An object in a ResourceDictionary must have x:Key.");
-                    var targetType = cur.TargetType;
-                    if (!targetType)
-                        throw new XamlParseException("A Style in a ResourceDictionary must have x:Key or TargetType.");
-                    rd.Set(targetType, cur);
-                }
-            }
-            function getElementKey(el) {
-                var attrs = el.attributes;
-                var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Key");
-                if (keyn)
-                    return keyn.value;
-                var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Name");
-                if (keyn)
-                    return keyn.value;
-                return "";
             }
             function createAttributeObject(attr, dobj, propd) {
                 var value = attr.textContent;
@@ -12699,8 +12508,8 @@ else
                     if (resElement) {
                         rd = (dobj).Resources;
                         if (rd) {
-                            this.ProcessPropertyCollection(resElement, rd);
                             ctx.ResourceChain.push(rd);
+                            processResourceDictionary(resElement, rd, ctx);
                         }
                     }
                     var attrs = el.attributes;
@@ -12786,14 +12595,14 @@ else
                             val = dobj.GetValue(propd);
                             if (!(val instanceof Fayde.XamlObjectCollection))
                                 throw new XamlParseException("Cannot set immutable property.");
-                            this.ProcessPropertyCollection(el, val);
+                            this.ProcessCollection(el, val);
                         } else {
                             if (propd.IsAttached) {
                                 var propTargetType = propd.GetTargetType();
                                 if (Nullstone.DoesInheritFrom(propTargetType, Fayde.XamlObjectCollection)) {
                                     val = new (propTargetType)();
                                     dobj.SetValue(propd, val);
-                                    this.ProcessPropertyCollection(el, val);
+                                    this.ProcessCollection(el, val);
                                     return;
                                 }
                             }
@@ -12820,22 +12629,12 @@ else
                         }
                     }
                 },
-                ProcessPropertyCollection: function (propertyEl, coll) {
+                ProcessCollection: function (propertyEl, coll) {
                     ctx.ObjectStack.push(coll);
                     var curEl = propertyEl.firstElementChild;
-                    if (coll instanceof Fayde.ResourceDictionary) {
-                        var rd = coll;
-                        ctx.ResourceChain.push(rd);
-                        while (curEl) {
-                            createObjectInResources(curEl, rd);
-                            curEl = curEl.nextElementSibling;
-                        }
-                        ctx.ResourceChain.pop();
-                    } else {
-                        while (curEl) {
-                            coll.Add(createObject(curEl, ctx));
-                            curEl = curEl.nextElementSibling;
-                        }
+                    while (curEl) {
+                        coll.Add(createObject(curEl, ctx));
+                        curEl = curEl.nextElementSibling;
                     }
                     ctx.ObjectStack.pop();
                 }
@@ -12855,11 +12654,12 @@ else
 
         function createAppLoader(xaml, canvas) {
             var appSources = new Fayde.XamlObjectCollection();
+            var rdResources = [];
             var theme;
             var ctx = {
                 Document: parser.parseFromString(xaml, "text/xml"),
                 ResourceChain: [],
-                NameScope: null,
+                NameScope: new Fayde.NameScope(true),
                 ObjectStack: [],
                 TemplateBindingSource: null
             };
@@ -12888,6 +12688,41 @@ else
                     nsSource = createObject(curElement, ctx);
                     nsSource.RegisterSource();
                     appSources.Add(nsSource);
+                    curElement = curElement.nextElementSibling;
+                }
+            }
+            function preloadResourceDictionaries() {
+                var appEl = ctx.Document.documentElement;
+                var appNsUri = appEl.namespaceURI;
+                var resourcesNodeName = appEl.localName + ".Resources";
+                var nsUri;
+                var curElement = appEl.firstElementChild;
+                while (curElement) {
+                    nsUri = curElement.namespaceURI || Fayde.XMLNS;
+                    if (nsUri === appNsUri && curElement.localName === resourcesNodeName)
+                        break;
+                    curElement = curElement.nextElementSibling;
+                }
+                if (curElement)
+                    parseResources(curElement);
+            }
+            function parseResources(resel) {
+                var curElement = resel.firstElementChild;
+                var src;
+                var childEl;
+                while (curElement) {
+                    if (curElement.localName === "ResourceDictionary") {
+                        if (src = curElement.getAttribute("Source"))
+                            rdResources.push(Fayde.Xaml.RegisterResourceDictionary(new Uri(src)));
+                        childEl = curElement.firstElementChild;
+                        while (childEl) {
+                            if (childEl.localName === "ResourceDictionary.MergedDictionaries") {
+                                parseResources(childEl);
+                                break;
+                            }
+                            childEl = childEl.nextElementSibling;
+                        }
+                    }
                     curElement = curElement.nextElementSibling;
                 }
             }
@@ -12923,10 +12758,10 @@ else
                     throw new XamlParseException("Root Element must be an Application.");
                 app.Sources._ht = appSources._ht;
                 app.MainSurface.Register(canvas);
-                ctx.NameScope = app.XamlNode.NameScope;
                 ctx.ObjectStack.push(app);
                 var childProcessor = createXamlChildProcessor(app, resolution.Type, ctx);
                 childProcessor.Process(el);
+                app.RootVisual.XamlNode.NameScope = ctx.NameScope;
                 ctx.ObjectStack.pop();
                 TimelineProfile.Parse(false, "App");
                 Fayde.Application.Current.Start();
@@ -12934,8 +12769,10 @@ else
             return {
                 Load: function () {
                     registerSources();
+                    preloadResourceDictionaries();
                     collectDependencies();
                     var loaders = appSources.ToArray();
+                    loaders.push.apply(loaders, rdResources);
                     loaders.push(theme);
                     Fayde.Runtime.LoadBatchAsync(loaders, function () {
                         return finishLoad();
@@ -12965,6 +12802,26 @@ else
             return Theme;
         })();
         Xaml.Theme = Theme;
+        function loadResourceDictionary(rd) {
+            if ((rd)._IsSourceLoaded)
+                return;
+            var resource = Fayde.Xaml.MapResourceDictionary(rd.Source);
+            if (!resource)
+                return;
+            var doc = resource.Document;
+            if (!doc)
+                return;
+            var ctx = {
+                Document: doc,
+                ResourceChain: [rd],
+                NameScope: new Fayde.NameScope(true),
+                ObjectStack: [rd],
+                TemplateBindingSource: null
+            };
+            validateDocument(ctx.Document);
+            (rd)._IsSourceLoaded = true;
+            processResourceDictionary(ctx.Document.documentElement, rd, ctx);
+        }
     })(Fayde.Xaml || (Fayde.Xaml = {}));
     var Xaml = Fayde.Xaml;
 })(Fayde || (Fayde = {}));
@@ -13510,6 +13367,16 @@ var Fayde;
         function ResourceDictionaryCollection() {
             _super.apply(this, arguments);
         }
+        ResourceDictionaryCollection.prototype.Get = function (key) {
+            var enumerator = this.GetEnumerator();
+            var cur;
+            while (enumerator.MoveNext()) {
+                cur = enumerator.Current.Get(key);
+                if (cur !== undefined)
+                    return cur;
+            }
+            return undefined;
+        };
         ResourceDictionaryCollection.prototype.AddingToCollection = function (value, error) {
             if (!_super.prototype.AddingToCollection.call(this, value, error))
                 return false;
@@ -13523,7 +13390,7 @@ var Fayde;
                     var cycleFound = false;
                     if (rd === subtreeRoot)
                         cycleFound = true;
-else if (rd.Source === subtreeRoot.Source)
+else if (rd.Source && Uri.Equals(rd.Source, subtreeRoot.Source))
                         cycleFound = true;
                     if (cycleFound) {
                         error.Message = "Cycle found in resource dictionaries.";
@@ -13552,68 +13419,87 @@ else if (rd.Source === subtreeRoot.Source)
         __extends(ResourceDictionary, _super);
         function ResourceDictionary() {
             _super.call(this);
-            this._KeyIndex = [];
-            this.Source = "";
-            var rdc = new ResourceDictionaryCollection();
+            this._Keys = [];
+            this._Values = [];
+            this._IsSourceLoaded = false;
+            var rdc = ResourceDictionary.MergedDictionariesProperty.Initialize(this);
             rdc.AttachTo(this);
-            Object.defineProperty(this, "MergedDictionaries", {
-                value: rdc,
-                writable: false
-            });
         }
-        ResourceDictionary.prototype.ContainsKey = function (key) {
-            return this._KeyIndex[key] !== undefined;
+        Object.defineProperty(ResourceDictionary.prototype, "Count", {
+            get: function () {
+                return this._Values.length;
+            },
+            enumerable: true,
+            configurable: true
+        });
+
+        ResourceDictionary.prototype.AttachTo = function (xobj) {
+            var error = new BError();
+            if (!this.XamlNode.AttachTo(xobj.XamlNode, error))
+                error.ThrowException();
+        };
+        ResourceDictionary.prototype.Contains = function (key) {
+            return this._Keys.indexOf(key) > -1;
         };
         ResourceDictionary.prototype.Get = function (key) {
-            var index = this._KeyIndex[key];
+            var index = this._Keys.indexOf(key);
             if (index > -1)
-                return this._ht[index];
-            return this._GetFromMerged(key);
+                return this._Values[index];
+            return this.MergedDictionaries.Get(key);
         };
         ResourceDictionary.prototype.Set = function (key, value) {
-            var index = this._KeyIndex[key];
-            if (index === undefined && value === undefined)
+            if (key === undefined)
                 return false;
-            if (value === undefined) {
-                this._KeyIndex[key] = undefined;
-                return this.RemoveAt(index);
+            if (value === undefined)
+                return this.Remove(key);
+            var index = this._Keys.indexOf(key);
+            var error = new BError();
+            if (value instanceof Fayde.XamlObject && !(value).XamlNode.AttachTo(this.XamlNode, error)) {
+                if (error.Message)
+                    throw new Exception(error.Message);
+                return false;
             }
-            if (index === undefined) {
-                index = this._ht.length;
-                this._KeyIndex[key] = index;
-                return this.Insert(index, value);
+            if (index < 0) {
+                this._Keys.push(key);
+                this._Values.push(value);
+            } else {
+                var oldValue = this._Values[index];
+                this._Keys[index] = key;
+                this._Values[index] = value;
+                if (oldValue instanceof Fayde.XamlObject)
+                    (oldValue).XamlNode.Detach();
             }
-            var oldValue = this.GetValueAt[index];
-            this._ht[index] = value;
-            this._RaiseItemReplaced(oldValue, value, index);
             return true;
         };
-        ResourceDictionary.prototype.Add = function (value) {
-            throw new InvalidOperationException("Cannot add to ResourceDictionary. Use Set instead.");
+        ResourceDictionary.prototype.Remove = function (key) {
+            var index = this._Keys.indexOf(key);
+            if (index < 0)
+                return false;
+            this._Keys.splice(index, 1);
+            var oldvalue = this._Values.splice(index, 1)[0];
+            if (oldvalue instanceof Fayde.XamlObject)
+                (oldvalue).XamlNode.Detach();
         };
-        ResourceDictionary.prototype.Remove = function (value) {
-            throw new InvalidOperationException("Cannot remove from ResourceDictionary. Use Set instead.");
+        ResourceDictionary.prototype.GetEnumerator = function (reverse) {
+            return Fayde.ArrayEx.GetEnumerator(this._Values, reverse);
         };
-        ResourceDictionary.prototype._GetFromMerged = function (key) {
-            var merged = this.MergedDictionaries;
-            if (!merged)
-                return undefined;
-            var enumerator = merged.GetEnumerator();
-            var cur;
-            while (enumerator.MoveNext()) {
-                cur = (enumerator.Current).Get(key);
-                if (cur !== undefined)
-                    return cur;
-            }
-            return undefined;
+        ResourceDictionary.prototype.GetNodeEnumerator = function (reverse) {
+            return Fayde.ArrayEx.GetNodeEnumerator(this._Values, reverse);
         };
+        ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterImmutable("MergedDictionaries", function () {
+            return ResourceDictionaryCollection;
+        }, ResourceDictionary);
+        ResourceDictionary.SourceProperty = DependencyProperty.Register("Source", function () {
+            return Uri;
+        }, ResourceDictionary);
         return ResourceDictionary;
-    })(Fayde.XamlObjectCollection);
+    })(Fayde.DependencyObject);
     Fayde.ResourceDictionary = ResourceDictionary;
     Fayde.RegisterType(ResourceDictionary, {
         Name: "ResourceDictionary",
         Namespace: "Fayde",
-        XmlNamespace: Fayde.XMLNS
+        XmlNamespace: Fayde.XMLNS,
+        Interfaces: [Fayde.IEnumerable_]
     });
 })(Fayde || (Fayde = {}));
 
@@ -14231,7 +14117,6 @@ var Fayde;
             this.MainSurface = new Fayde.Surface(this);
             this.DebugInterop = new Fayde.DebugInterop(this);
             this.Address = new Uri(document.URL);
-            this.NavService = new Fayde.Navigation.NavService(this);
             Application.SourcesProperty.Initialize(this);
         }
         Object.defineProperty(Application.prototype, "RootVisual", {
@@ -15478,6 +15363,385 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Media) {
+        function ParseGeometry(val) {
+            return (new MediaParser(val)).ParseGeometryImpl();
+        }
+        Media.ParseGeometry = ParseGeometry;
+        function ParseShapePoints(val) {
+            return (new MediaParser(val)).ParseShapePoints();
+        }
+        Media.ParseShapePoints = ParseShapePoints;
+        var MediaParser = (function () {
+            function MediaParser(str) {
+                this.index = 0;
+                this.str = str;
+                this.len = str.length;
+            }
+            MediaParser.prototype.ParseGeometryImpl = function () {
+                var cp = new Point();
+                var cp1, cp2, cp3;
+                var start = new Point();
+                var fillRule = Fayde.Shapes.FillRule.EvenOdd;
+                var cbz = false;
+                var qbz = false;
+                var cbzp = new Point();
+                var qbzp = new Point();
+                var path = new Fayde.Shapes.RawPath();
+                while (this.index < this.len) {
+                    var c;
+                    while (this.index < this.len && (c = this.str.charAt(this.index)) === ' ') {
+                        this.index++;
+                    }
+                    this.index++;
+                    var relative = false;
+                    switch (c) {
+                        case 'f':
+                        case 'F':
+                            c = this.str.charAt(this.index);
+                            if (c === '0')
+                                fillRule = Fayde.Shapes.FillRule.EvenOdd;
+else if (c === '1')
+                                fillRule = Fayde.Shapes.FillRule.NonZero;
+else
+                                return null;
+                            this.index++;
+                            c = this.str.charAt(this.index);
+                            break;
+                        case 'm':
+                            relative = true;
+                        case 'M':
+                            cp1 = this.ParsePoint();
+                            if (cp1 == null)
+                                break;
+                            if (relative) {
+                                cp1.X += cp.X;
+                                cp1.Y += cp.Y;
+                            }
+                            path.Move(cp1.X, cp1.Y);
+                            start.X = cp.X = cp1.X;
+                            start.Y = cp.Y = cp1.Y;
+                            this.Advance();
+                            while (this.MorePointsAvailable()) {
+                                if ((cp1 = this.ParsePoint()) == null)
+                                    break;
+                                if (relative) {
+                                    cp1.X += cp.X;
+                                    cp1.Y += cp.Y;
+                                }
+                                path.Line(cp1.X, cp1.Y);
+                            }
+                            cp.X = cp1.X;
+                            cp.Y = cp1.Y;
+                            cbz = qbz = false;
+                            break;
+                        case 'l':
+                            relative = true;
+                        case 'L':
+                            while (this.MorePointsAvailable()) {
+                                if ((cp1 = this.ParsePoint()) == null)
+                                    break;
+                                if (relative) {
+                                    cp1.X += cp.X;
+                                    cp1.Y += cp.Y;
+                                }
+                                path.Line(cp1.X, cp1.Y);
+                                cp.X = cp1.X;
+                                cp.Y = cp1.Y;
+                                this.Advance();
+                            }
+                            cbz = qbz = false;
+                            break;
+                        case 'h':
+                            relative = true;
+                        case 'H':
+                            var x = this.ParseDouble();
+                            if (x == null)
+                                break;
+                            if (relative)
+                                x += cp.X;
+                            cp = new Point(x, cp.Y);
+                            path.Line(cp.X, cp.Y);
+                            cbz = qbz = false;
+                            break;
+                        case 'v':
+                            relative = true;
+                        case 'V':
+                            var y = this.ParseDouble();
+                            if (y == null)
+                                break;
+                            if (relative)
+                                y += cp.Y;
+                            cp = new Point(cp.X, y);
+                            path.Line(cp.X, cp.Y);
+                            cbz = qbz = false;
+                            break;
+                        case 'c':
+                            relative = true;
+                        case 'C':
+                            while (this.MorePointsAvailable()) {
+                                if ((cp1 = this.ParsePoint()) == null)
+                                    break;
+                                if (relative) {
+                                    cp1.X += cp.X;
+                                    cp1.Y += cp.Y;
+                                }
+                                this.Advance();
+                                if ((cp2 = this.ParsePoint()) == null)
+                                    break;
+                                if (relative) {
+                                    cp2.X += cp.X;
+                                    cp2.Y += cp.Y;
+                                }
+                                this.Advance();
+                                if ((cp3 = this.ParsePoint()) == null)
+                                    break;
+                                if (relative) {
+                                    cp3.X += cp.X;
+                                    cp3.Y += cp.Y;
+                                }
+                                this.Advance();
+                                path.Bezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
+                                cp1.X = cp3.X;
+                                cp1.Y = cp3.Y;
+                            }
+                            cp.X = cp3.X;
+                            cp.Y = cp3.Y;
+                            cbz = true;
+                            cbzp.X = cp2.X;
+                            cbzp.Y = cp2.Y;
+                            qbz = false;
+                            break;
+                        case 's':
+                            relative = true;
+                        case 'S':
+                            while (this.MorePointsAvailable()) {
+                                if ((cp2 = this.ParsePoint()) == null)
+                                    break;
+                                if (relative) {
+                                    cp2.X += cp.X;
+                                    cp2.Y += cp.Y;
+                                }
+                                this.Advance();
+                                if ((cp3 = this.ParsePoint()) == null)
+                                    break;
+                                if (relative) {
+                                    cp3.X += cp.X;
+                                    cp3.Y += cp.Y;
+                                }
+                                if (cbz) {
+                                    cp1.X = 2 * cp.X - cbzp.X;
+                                    cp1.Y = 2 * cp.Y - cbzp.Y;
+                                } else
+                                    cp1 = cp;
+                                path.Bezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
+                                cbz = true;
+                                cbzp.X = cp2.X;
+                                cbzp.Y = cp2.Y;
+                                cp.X = cp3.X;
+                                cp.Y = cp3.Y;
+                                this.Advance();
+                            }
+                            qbz = false;
+                            break;
+                        case 'q':
+                            relative = true;
+                        case 'Q':
+                            while (this.MorePointsAvailable()) {
+                                if ((cp1 = this.ParsePoint()) == null)
+                                    break;
+                                if (relative) {
+                                    cp1.X += cp.X;
+                                    cp1.Y += cp.Y;
+                                }
+                                this.Advance();
+                                if ((cp2 = this.ParsePoint()) == null)
+                                    break;
+                                if (relative) {
+                                    cp2.X += cp.X;
+                                    cp2.Y += cp.Y;
+                                }
+                                this.Advance();
+                                path.Quadratic(cp1.X, cp1.Y, cp2.X, cp2.Y);
+                                cp.X = cp2.X;
+                                cp.Y = cp2.Y;
+                            }
+                            qbz = true;
+                            qbzp.X = cp1.X;
+                            qbzp.Y = cp1.Y;
+                            cbz = false;
+                            break;
+                        case 't':
+                            relative = true;
+                        case 'T':
+                            while (this.MorePointsAvailable()) {
+                                if ((cp2 = this.ParsePoint()) == null)
+                                    break;
+                                if (relative) {
+                                    cp2.X += cp.X;
+                                    cp2.Y += cp.Y;
+                                }
+                                if (qbz) {
+                                    cp1.X = 2 * cp.X - qbzp.X;
+                                    cp1.Y = 2 * cp.Y - qbzp.Y;
+                                } else
+                                    cp1 = cp;
+                                path.Quadratic(cp1.X, cp1.Y, cp2.X, cp2.Y);
+                                qbz = true;
+                                qbzp.X = cp1.X;
+                                qbzp.Y = cp1.Y;
+                                cp.X = cp2.X;
+                                cp.Y = cp2.Y;
+                                this.Advance();
+                            }
+                            cbz = false;
+                            break;
+                        case 'a':
+                            relative = true;
+                        case 'A':
+                            while (this.MorePointsAvailable()) {
+                                if ((cp1 = this.ParsePoint()) == null)
+                                    break;
+                                var angle = this.ParseDouble();
+                                var is_large = this.ParseDouble() !== 0;
+                                var sweep = Fayde.Shapes.SweepDirection.Counterclockwise;
+                                if (this.ParseDouble() !== 0)
+                                    sweep = Fayde.Shapes.SweepDirection.Clockwise;
+                                if ((cp2 = this.ParsePoint()) == null)
+                                    break;
+                                if (relative) {
+                                    cp2.X += cp.X;
+                                    cp2.Y += cp.Y;
+                                }
+                                path.EllipticalArc(cp1.X, cp1.Y, angle, is_large, sweep, cp2.X, cp2.Y);
+                                cp.X = cp2.X;
+                                cp.Y = cp2.Y;
+                                this.Advance();
+                            }
+                            cbz = qbz = false;
+                            break;
+                        case 'z':
+                        case 'Z':
+                            path.Close();
+                            cp.X = start.X;
+                            cp.Y = start.Y;
+                            cbz = qbz = false;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                var pg = new Media.PathGeometry();
+                pg.OverridePath(path);
+                pg.FillRule = fillRule;
+                return pg;
+            };
+            MediaParser.prototype.ParseShapePoints = function () {
+                var points = [];
+                var p;
+                while (this.MorePointsAvailable() && (p = this.ParsePoint()) != null) {
+                    points.push(p);
+                }
+                return points;
+            };
+            MediaParser.prototype.ParsePoint = function () {
+                var x = this.ParseDouble();
+                if (x == null)
+                    return null;
+                var c;
+                while (this.index < this.len && ((c = this.str.charAt(this.index)) === ' ' || c === ',')) {
+                    this.index++;
+                }
+                if (this.index >= this.len)
+                    return null;
+                var y = this.ParseDouble();
+                if (y == null)
+                    return null;
+                return new Point(x, y);
+            };
+            MediaParser.prototype.ParseDouble = function () {
+                this.Advance();
+                var isNegative = false;
+                if (this.Match('-')) {
+                    isNegative = true;
+                    this.index++;
+                } else if (this.Match('+')) {
+                    this.index++;
+                }
+                if (this.Match('Infinity')) {
+                    this.index += 8;
+                    return isNegative ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
+                }
+                if (this.Match('NaN'))
+                    return NaN;
+                var temp = '';
+                while (this.index < this.len) {
+                    var code = this.str.charCodeAt(this.index);
+                    var c = String.fromCharCode(code);
+                    if (code >= 48 && code <= 57)
+                        temp += c;
+else if (code === 46)
+                        temp += c;
+else if (c === 'E' || c === 'e')
+                        temp += c;
+else
+                        break;
+                    this.index++;
+                }
+                if (temp.length === 0)
+                    return null;
+                var f = parseFloat(temp);
+                return isNegative ? -f : f;
+            };
+            MediaParser.prototype.Match = function (matchStr) {
+                var c1;
+                var c2;
+                for (var i = 0; i < matchStr.length && (this.index + i) < this.len; i++) {
+                    c1 = matchStr.charAt(i);
+                    c2 = this.str.charAt(this.index + i);
+                    if (c1 !== c2)
+                        return false;
+                }
+                return true;
+            };
+            MediaParser.prototype.Advance = function () {
+                var code;
+                var c;
+                while (this.index < this.len) {
+                    code = this.str.charCodeAt(this.index);
+                    if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122) || (code >= 48 && code <= 57))
+                        break;
+                    c = String.fromCharCode(code);
+                    if (c === '.')
+                        break;
+                    if (c === '-')
+                        break;
+                    if (c === '+')
+                        break;
+                    this.index++;
+                }
+            };
+            MediaParser.prototype.MorePointsAvailable = function () {
+                var c;
+                while (this.index < this.len && ((c = this.str.charAt(this.index)) === ',' || c === ' ')) {
+                    this.index++;
+                }
+                if (this.index >= this.len)
+                    return false;
+                if (c === '.' || c === '-' || c === '+')
+                    return true;
+                var code = this.str.charCodeAt(this.index);
+                return code >= 48 && code <= 57;
+            };
+            return MediaParser;
+        })();
+        Fayde.RegisterTypeConverter(Media.Geometry, ParseGeometry);
+    })(Fayde.Media || (Fayde.Media = {}));
+    var Media = Fayde.Media;
+})(Fayde || (Fayde = {}));
+
+var Fayde;
+(function (Fayde) {
+    (function (Media) {
         var PathFigure = (function (_super) {
             __extends(PathFigure, _super);
             function PathFigure() {
@@ -16449,6 +16713,8 @@ var Fayde;
             TransformGroup.ChildrenProperty = DependencyProperty.RegisterImmutable("Children", function () {
                 return TransformCollection;
             }, TransformGroup);
+
+            TransformGroup.Annotations = { ContentProperty: TransformGroup.ChildrenProperty };
             return TransformGroup;
         })(Media.Transform);
         Media.TransformGroup = TransformGroup;
@@ -17922,6 +18188,143 @@ var Fayde;
         });
     })(Fayde.MVVM || (Fayde.MVVM = {}));
     var MVVM = Fayde.MVVM;
+})(Fayde || (Fayde = {}));
+
+var Fayde;
+(function (Fayde) {
+    (function (Navigation) {
+        var UriMapper = (function (_super) {
+            __extends(UriMapper, _super);
+            function UriMapper() {
+                _super.call(this);
+                UriMapper.UriMappingsProperty.Initialize(this);
+            }
+            UriMapper.prototype.MapUri = function (uri) {
+                var enumerator = this.UriMappings.GetEnumerator();
+                var mapped;
+                while (enumerator.MoveNext()) {
+                    mapped = enumerator.Current.MapUri(uri);
+                    if (mapped)
+                        return mapped;
+                }
+                return uri;
+            };
+            UriMapper.UriMappingsProperty = DependencyProperty.RegisterImmutable("UriMappings", function () {
+                return Fayde.XamlObjectCollection;
+            }, UriMapper);
+
+            UriMapper.Annotations = { ContentProperty: UriMapper.UriMappingsProperty };
+            return UriMapper;
+        })(Fayde.DependencyObject);
+        Navigation.UriMapper = UriMapper;
+        Fayde.RegisterType(UriMapper, {
+            Name: "UriMapper",
+            Namespace: "Fayde.Navigation",
+            XmlNamespace: Fayde.XMLNS
+        });
+    })(Fayde.Navigation || (Fayde.Navigation = {}));
+    var Navigation = Fayde.Navigation;
+})(Fayde || (Fayde = {}));
+
+var Fayde;
+(function (Fayde) {
+    (function (Navigation) {
+        var UriMapping = (function (_super) {
+            __extends(UriMapping, _super);
+            function UriMapping() {
+                _super.apply(this, arguments);
+            }
+            UriMapping.prototype.MapUri = function (uri) {
+                var matcher = createUriMatcher(this.Uri.toString(), this.MappedUri.toString(), uri.toString());
+                var result = matcher.Match();
+                if (!result)
+                    return undefined;
+                return new Uri(result);
+            };
+            UriMapping.MappedUriProperty = DependencyProperty.Register("MappedUri", function () {
+                return Uri;
+            }, UriMapping);
+            UriMapping.UriProperty = DependencyProperty.Register("Uri", function () {
+                return Uri;
+            }, UriMapping);
+            return UriMapping;
+        })(Fayde.DependencyObject);
+        Navigation.UriMapping = UriMapping;
+        Fayde.RegisterType(UriMapping, {
+            Name: "UriMapping",
+            Namespace: "Fayde.Navigation",
+            XmlNamespace: Fayde.XMLNS
+        });
+
+        function createUriMatcher(matchTemplate, outputTemplate, actual) {
+            var i = 0;
+            var j = 0;
+            function collectTokenInfo() {
+                var tokenInfo = {
+                    Identifier: null,
+                    Terminator: null,
+                    Value: null
+                };
+                var index = matchTemplate.indexOf('}', i);
+                if (index < 0)
+                    throw new InvalidOperationException("Invalid Uri format. '{' needs a closing '}'.");
+                var len = index - i + 1;
+                tokenInfo.Identifier = matchTemplate.substr(i + 1, len - 2);
+                if (!tokenInfo.Identifier)
+                    throw new InvalidOperationException("Invalid Uri format. '{}' must contain an identifier.");
+                i += len;
+                tokenInfo.Terminator = (i + 1) < matchTemplate.length ? matchTemplate[i] : '\0';
+                return tokenInfo;
+            }
+            function findTokenValue(tokenInfo) {
+                if (tokenInfo.Terminator === '\0') {
+                    tokenInfo.Value = actual.substr(j);
+                    if (tokenInfo.Value)
+                        j += tokenInfo.Value.length;
+                    return tokenInfo;
+                }
+                tokenInfo.Value = "";
+                while (j < actual.length) {
+                    if (actual[j] == tokenInfo.Terminator)
+                        return;
+                    tokenInfo.Value += actual[j];
+                    j++;
+                }
+            }
+            function buildMappedUri(tokens) {
+                var cur = outputTemplate;
+                var len = tokens.length;
+                var token;
+                for (var a = 0; a < len; a++) {
+                    token = tokens[a];
+                    cur = cur.replace("{" + token.Identifier + "}", token.Value);
+                }
+                return cur;
+            }
+            return {
+                Match: function () {
+                    var tokens = [];
+                    if (matchTemplate.length === 0) {
+                        if (actual.length === 0)
+                            return buildMappedUri(tokens);
+                        return null;
+                    }
+                    while (i < matchTemplate.length && j < actual.length) {
+                        if (matchTemplate[i] === "{") {
+                            tokens.push(findTokenValue(collectTokenInfo()));
+                            continue;
+                        }
+                        if (matchTemplate[i] !== actual[i])
+                            return null;
+                        i++;
+                        j++;
+                    }
+                    return buildMappedUri(tokens);
+                }
+            };
+        }
+    })(Fayde.Navigation || (Fayde.Navigation = {}));
+    var Navigation = Fayde.Navigation;
 })(Fayde || (Fayde = {}));
 
 var Fayde;
@@ -29171,66 +29574,77 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
+        var ERROR_PAGE_XAML = "<Page xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\"><TextBlock Text=\"An error occurred navigating.\" /></Page>";
+        var ERROR_PAGE = undefined;
+        function getErrorPage() {
+            if (!ERROR_PAGE)
+                ERROR_PAGE = Fayde.Xaml.Load(ERROR_PAGE_XAML);
+            return ERROR_PAGE;
+        }
         var Frame = (function (_super) {
             __extends(Frame, _super);
             function Frame() {
                 _super.call(this);
+                this._NavService = new Fayde.Navigation.NavigationService();
                 this.Loaded.Subscribe(this._FrameLoaded, this);
             }
             Frame.prototype.Navigate = function (uri) {
-                var _this = this;
-                this._Request = new Fayde.AjaxRequest(function (result) {
-                    return _this._HandleSuccessfulResponse(result);
-                }, function (error) {
-                    return _this._HandleErrorResponse(error);
-                });
-                this._Request.Get(uri.toString());
+                this._LoadContent(uri);
             };
             Frame.prototype.GoForward = function () {
             };
             Frame.prototype.GoBackward = function () {
             };
             Frame.prototype.StopLoading = function () {
-                if (this._Request) {
-                    this._Request.Cancel();
-                    this._Request = null;
+                if (this._PageResolver) {
+                    this._PageResolver.Stop();
+                    this._PageResolver = null;
                 }
             };
             Frame.prototype._FrameLoaded = function (sender, e) {
-                this._NavService = Fayde.Application.Current.NavService;
                 if (this.IsDeepLinked) {
                     this._NavService.LocationChanged.Subscribe(this._HandleDeepLink, this);
                     this._HandleDeepLink();
                 }
             };
             Frame.prototype._HandleDeepLink = function () {
-                var source = this._NavService.Href + "#" + this._NavService.Hash;
+                this._LoadContent(new Uri(this._NavService.Href + "#" + this._NavService.Hash));
+            };
+            Frame.prototype._LoadContent = function (source) {
+                var _this = this;
                 this.SetValueInternal(Frame.CurrentSourceProperty, source);
-                this._LoadContent(this._NavService.Href, this._NavService.Hash);
-            };
-            Frame.prototype._LoadContent = function (href, hash) {
-                return;
                 this.StopLoading();
-                TimelineProfile.Navigate(true, href + "#" + hash);
+                var fragment = source.Fragment;
+                TimelineProfile.Navigate(true, fragment);
+                var targetUri = new Uri(fragment, UriKind.Relative);
+                if (this.UriMapper)
+                    targetUri = this.UriMapper.MapUri(targetUri);
+                var target = targetUri.toString();
+                if (!target)
+                    throw new InvalidOperationException("Cannot resolve empty url.");
+                this._PageResolver = Fayde.Xaml.PageResolver.Resolve(target, function (xaml) {
+                    return _this._HandleSuccess(xaml);
+                }, function (error) {
+                    return _this._HandleError(error);
+                });
             };
-            Frame.prototype._HandleSuccessfulResponse = function (ajaxResult) {
+            Frame.prototype._HandleSuccess = function (xaml) {
+                this._PageResolver = null;
                 TimelineProfile.Parse(true, "Page");
-                var page = Fayde.Xaml.Load(ajaxResult.GetData());
+                var page = Fayde.Xaml.LoadDocument(xaml);
                 TimelineProfile.Parse(false, "Page");
-                if (page) {
-                    document.title = page.Title;
-                    this.Content = page;
-                }
-                this._Request = null;
+                this.Content = page;
+                document.title = page.Title;
                 TimelineProfile.Navigate(false);
                 TimelineProfile.IsNextLayoutPassProfiled = true;
             };
-            Frame.prototype._HandleSuccessfulSubResponse = function (ajaxResult) {
-                var json = ajaxResult.CreateJson();
-                var jsType = json.ParseType;
-                jsType.__TemplateJson = json;
-            };
-            Frame.prototype._HandleErrorResponse = function (error) {
+            Frame.prototype._HandleError = function (error) {
+                this._PageResolver = null;
+                document.title = "Error";
+                var page = getErrorPage();
+                page.DataContext = error;
+                this.Content = page;
+                TimelineProfile.Navigate(false);
             };
             Frame.prototype.SourcePropertyChanged = function (args) {
                 if (true)
@@ -29247,6 +29661,9 @@ var Fayde;
             }, Frame, undefined, function (d, args) {
                 return (d).SourcePropertyChanged(args);
             });
+            Frame.UriMapperProperty = DependencyProperty.Register("UriMapper", function () {
+                return Fayde.Navigation.UriMapper;
+            }, Frame);
             return Frame;
         })(Controls.ContentControl);
         Controls.Frame = Frame;

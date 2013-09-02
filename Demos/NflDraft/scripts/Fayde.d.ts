@@ -340,26 +340,6 @@ declare enum _Dirty {
     DownDirtyState,
     UpDirtyState,
 }
-declare module Fayde {
-    class XamlResolver {
-        public OnSuccess: (xamlResult: Fayde.IAjaxResult, scriptResult: HTMLScriptElement) => void;
-        public OnSubSuccess;
-        public OnError: (error: string) => void;
-        private _IsXamlLoaded;
-        private _IsScriptLoaded;
-        private _BaseHref;
-        private _ScriptResult;
-        private _XamlResult;
-        constructor(OnSuccess: (xamlResult: Fayde.IAjaxResult, scriptResult: HTMLScriptElement) => void, OnSubSuccess, OnError: (error: string) => void);
-        public Load(href: string, hash: string): void;
-        public LoadGeneric(href: string, hash: string): void;
-        private _HandleScriptSuccess(token);
-        private _HandleXamlSuccess(result);
-        private _HandleXamlFailed(error);
-        private _CheckIfLoaded();
-        public ResolveDependencies(onResolve: () => void, onFail: (error: string) => void): void;
-    }
-}
 declare module Fayde.Media {
     enum BrushMappingMode {
         Absolute = 0,
@@ -606,6 +586,7 @@ declare module Fayde {
     interface ITypeResolution {
         IsPrimitive: boolean;
         IsSystem: boolean;
+        IsSimple: boolean;
         IsEnum: boolean;
         Type: Function;
     }
@@ -1102,9 +1083,14 @@ declare module Fayde.Input {
     }
     var ICommand_: IInterfaceDeclaration;
 }
-declare module Fayde.Media {
-    function ParseGeometry(val: string): Geometry;
-    function ParseShapePoints(val: string): Point[];
+declare module Fayde.Navigation {
+    class NavigationService {
+        public Href: string;
+        public Hash: string;
+        public LocationChanged: MulticastEvent<EventArgs>;
+        constructor();
+        private _HandleFragmentChange();
+    }
 }
 declare class Color implements ICloneable {
     private static __NoAlphaRegex;
@@ -1398,35 +1384,42 @@ interface IOutValue {
 interface ICloneable {
     Clone(): any;
 }
-interface IJsFileImportToken {
-    IsCompleted: boolean;
-    Script: HTMLScriptElement;
-    DoOnComplete(callback: (token: IJsFileImportToken) => void);
-}
-interface IJsFilesImportToken {
-    IsCompleted: boolean;
-    Scripts: HTMLScriptElement[];
-    DoOnComplete(callback: (token: IJsFilesImportToken) => void);
-}
 declare class Nullstone {
     static Equals(val1: any, val2: any): boolean;
     static DoesInheritFrom(t: IType, type: any): boolean;
     static GetPropertyDescriptor(obj: any, name: string): PropertyDescriptor;
     static HasProperty(obj: any, name: string): boolean;
     static ImplementsInterface(obj: any, i: IInterfaceDeclaration): boolean;
-    static ImportJsFile(url: string, onComplete?: (token: IJsFileImportToken) => void): IJsFileImportToken;
-    static ImportJsFiles(urls: string[], onComplete?: (token: IJsFilesImportToken) => void): IJsFilesImportToken;
 }
 declare function NotImplemented(str: string): void;
 declare function Warn(str: string): void;
 declare module Fayde.Xaml {
+    enum ResourceType {
+        Script,
+        Xaml,
+    }
     interface IResource extends Fayde.Runtime.ILoadAsyncable {
         Url: string;
         LoadAsync(onLoaded: (resource: IResource) => void);
     }
-    function MapResource(namespaceURI: string, localName: string): IResource;
-    function RegisterResource(url: string, namespaceURI: string, localName: string): IResource;
+    interface IXamlResource extends IResource {
+        Document: Document;
+    }
+    function MapResource(type: ResourceType, namespaceURI: string, localName: string): IResource;
+    function RegisterResource(type: ResourceType, url: string, namespaceURI: string, localName: string): IResource;
     function RegisterRootResource(url: string, namespaceURI: string): IResource;
+    function RegisterResourceDictionary(source: Uri): IXamlResource;
+    function MapResourceDictionary(source: Uri): IXamlResource;
+    class PageResolver {
+        private _Url;
+        private _Xaml;
+        private _Script;
+        private _OnSuccess;
+        private _OnError;
+        static Resolve(url: string, onSuccess: (xaml: Document) => void, onError: (error: string) => void): PageResolver;
+        public Stop(): void;
+        private _TryFinish();
+    }
 }
 declare module Fayde.Xaml {
     class TemplateBinding implements Xaml.IMarkup {
@@ -2158,16 +2151,6 @@ declare module Fayde.MVVM {
         public CanExecuteChanged: MulticastEvent<EventArgs>;
     }
 }
-declare module Fayde.Navigation {
-    class NavService {
-        public App: Fayde.Application;
-        public Href: string;
-        public Hash: string;
-        public LocationChanged: MulticastEvent<EventArgs>;
-        constructor(app: Fayde.Application);
-        private _HandleFragmentChange();
-    }
-}
 declare class Clip {
     public X: number;
     public Y: number;
@@ -2301,13 +2284,21 @@ declare class size implements ICloneable, ISize {
     static min(dest: size, other: size): size;
     static max(dest: size, other: size): size;
 }
+declare enum UriKind {
+    Absolute = 0,
+    Relative = 1,
+    RelativeOrAbsolute = 2,
+}
 declare class Uri implements ICloneable {
     private _OriginalString;
-    constructor(originalString: string);
-    public GetFragment(): string;
+    private _Kind;
+    constructor(originalString: string, kind?: UriKind);
+    public OriginalString : string;
+    public Fragment : string;
     public toString(): string;
     public Clone(): Uri;
     static IsNullOrEmpty(uri: Uri): boolean;
+    static Equals(uri1: Uri, uri2: Uri): boolean;
 }
 declare class BError {
     static Argument: number;
@@ -2369,6 +2360,7 @@ declare module Fayde.Xaml {
         public GetVisualTree(bindingSource: Fayde.DependencyObject): Fayde.UIElement;
     }
     function Load(xaml: string): Fayde.XamlObject;
+    function LoadDocument(doc: Document): Fayde.XamlObject;
     function LoadApplication(xaml: string, canvas: HTMLCanvasElement): void;
     class Theme implements Fayde.Runtime.ILoadAsyncable {
         public Resources: Fayde.ResourceDictionary;
@@ -2518,20 +2510,27 @@ declare module Fayde {
         Resources: ResourceDictionary;
     }
     class ResourceDictionaryCollection extends Fayde.XamlObjectCollection<ResourceDictionary> {
+        public Get(key: any): any;
         public AddingToCollection(value: ResourceDictionary, error: BError): boolean;
         private _AssertNoCycles(subtreeRoot, firstAncestorNode, error);
     }
-    class ResourceDictionary extends Fayde.XamlObjectCollection<any> {
-        private _KeyIndex;
+    class ResourceDictionary extends Fayde.DependencyObject implements Fayde.IEnumerable<any> {
+        private _Keys;
+        private _Values;
+        private _IsSourceLoaded;
+        static MergedDictionariesProperty: ImmutableDependencyProperty;
+        static SourceProperty: DependencyProperty;
         public MergedDictionaries: ResourceDictionaryCollection;
-        public Source: string;
+        public Source: Uri;
+        public Count : number;
         constructor();
-        public ContainsKey(key: any): boolean;
+        public AttachTo(xobj: Fayde.XamlObject): void;
+        public Contains(key: any): boolean;
         public Get(key: any): any;
         public Set(key: any, value: any): boolean;
-        public Add(value: any): number;
-        public Remove(value: any): boolean;
-        private _GetFromMerged(key);
+        public Remove(key: any): boolean;
+        public GetEnumerator(reverse?: boolean): Fayde.IEnumerator<any>;
+        public GetNodeEnumerator<U extends Fayde.XamlNode>(reverse?: boolean): Fayde.IEnumerator<U>;
     }
 }
 declare module Fayde {
@@ -2692,7 +2691,6 @@ declare module Fayde {
         public MainSurface: Fayde.Surface;
         public Loaded: MulticastEvent<EventArgs>;
         public Address: Uri;
-        public NavService: Fayde.Navigation.NavService;
         public DebugInterop: Fayde.DebugInterop;
         private _IsRunning;
         private _Storyboards;
@@ -2700,7 +2698,7 @@ declare module Fayde {
         static ResourcesProperty: ImmutableDependencyProperty;
         public Resources: Fayde.ResourceDictionary;
         static SourcesProperty: ImmutableDependencyProperty;
-        public Sources: Fayde.XamlObjectCollection<Fayde.Xaml.Source>;
+        public Sources: Fayde.XamlObjectCollection<Fayde.Xaml.Namespace>;
         public Theme: Fayde.Xaml.Theme;
         constructor();
         public RootVisual : Fayde.UIElement;
@@ -3003,6 +3001,10 @@ declare module Fayde.Media {
     }
 }
 declare module Fayde.Media {
+    function ParseGeometry(val: string): Geometry;
+    function ParseShapePoints(val: string): Point[];
+}
+declare module Fayde.Media {
     interface IPathFigureListener {
         PathFigureChanged(newPathFigure: PathFigure);
     }
@@ -3249,6 +3251,9 @@ declare module Fayde.Media {
     class TransformGroup extends Media.Transform {
         static ChildrenProperty: ImmutableDependencyProperty;
         public Children: TransformCollection;
+        static Annotations: {
+            ContentProperty: ImmutableDependencyProperty;
+        };
         private _TransformListener;
         constructor();
         public _BuildValue(): number[];
@@ -3562,6 +3567,26 @@ declare module Fayde.MVVM {
 }
 declare module Fayde.MVVM {
     class ViewModelBase extends MVVM.ObservableObject {
+    }
+}
+declare module Fayde.Navigation {
+    class UriMapper extends Fayde.DependencyObject {
+        static UriMappingsProperty: ImmutableDependencyProperty;
+        public UriMappings: Fayde.XamlObjectCollection<Navigation.UriMapping>;
+        static Annotations: {
+            ContentProperty: ImmutableDependencyProperty;
+        };
+        constructor();
+        public MapUri(uri: Uri): Uri;
+    }
+}
+declare module Fayde.Navigation {
+    class UriMapping extends Fayde.DependencyObject {
+        static MappedUriProperty: DependencyProperty;
+        static UriProperty: DependencyProperty;
+        public MappedUri: Uri;
+        public Uri: Uri;
+        public MapUri(uri: Uri): Uri;
     }
 }
 declare module Fayde.Xaml {
@@ -5616,12 +5641,13 @@ declare module Fayde.Controls {
         static IsDeepLinkedProperty: DependencyProperty;
         static CurrentSourceProperty: DependencyProperty;
         static SourceProperty: DependencyProperty;
+        static UriMapperProperty: DependencyProperty;
         public IsDeepLinked: boolean;
         public CurrentSource: Uri;
         public Source: Uri;
-        private _Request;
-        private _Resolver;
+        public UriMapper: Fayde.Navigation.UriMapper;
         private _NavService;
+        private _PageResolver;
         constructor();
         public Navigate(uri: Uri): void;
         public GoForward(): void;
@@ -5629,10 +5655,9 @@ declare module Fayde.Controls {
         public StopLoading(): void;
         private _FrameLoaded(sender, e);
         private _HandleDeepLink();
-        private _LoadContent(href, hash);
-        private _HandleSuccessfulResponse(ajaxResult);
-        private _HandleSuccessfulSubResponse(ajaxResult);
-        private _HandleErrorResponse(error);
+        private _LoadContent(source);
+        private _HandleSuccess(xaml);
+        private _HandleError(error);
         private SourcePropertyChanged(args);
     }
 }
