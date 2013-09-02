@@ -91,6 +91,7 @@
       <SubType>Designer</SubType>
     </Content>
     <TypeScriptCompile Include="Tests\IssueTests\TestViewModel.ts" />
+    <Content Include="TestResourceDictionary.xml" />
     <Content Include="Tests\IssueTests\TestViewModel.js" />
     <Content Include="Tests\Media\image-stretch.fap">
       <SubType>Designer</SubType>
