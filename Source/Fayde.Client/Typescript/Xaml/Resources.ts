@@ -11,7 +11,10 @@ module Fayde.Xaml {
         Url: string;
         LoadAsync(onLoaded: (resource: IResource) => void);
     }
-    class XamlResource implements IResource {
+    export interface IXamlResource extends IResource {
+        Document: Document;
+    }
+    class XamlResource implements IXamlResource {
         Url: string;
         private _IsLoaded: boolean = false;
         private _Xaml: string = null;
@@ -143,6 +146,22 @@ module Fayde.Xaml {
         return res;
     }
 
+    var rdresources: IXamlResource[] = [];
+    export function RegisterResourceDictionary(source: Uri): IXamlResource {
+        var url = source.toString();
+        if (!url)
+            return null;
+        var r = rdresources[url];
+        if (r)
+            return r;
+        return new XamlResource(url);
+    }
+    export function MapResourceDictionary(source: Uri): IXamlResource {
+        var url: string;
+        if (!source || !(url = source.toString()))
+            return null;
+        return rdresources[url];
+    }
 
     export class PageResolver {
         private _Url: string;
@@ -176,4 +195,5 @@ module Fayde.Xaml {
                 this._OnSuccess(this._Xaml.Document);
         }
     }
+
 }
