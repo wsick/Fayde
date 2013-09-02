@@ -1,3 +1,4 @@
+/// <reference path="DependencyObject.ts" />
 /// <reference path="XamlObjectCollection.ts" />
 /// CODE
 
@@ -8,6 +9,16 @@ module Fayde {
     }
 
     export class ResourceDictionaryCollection extends XamlObjectCollection<ResourceDictionary> {
+        Get(key: any): any {
+            var enumerator = this.GetEnumerator();
+            var cur: any;
+            while (enumerator.MoveNext()) {
+                cur = enumerator.Current.Get(key);
+                if (cur !== undefined)
+                    return cur;
+            }
+            return undefined;
+        }
         AddingToCollection(value: ResourceDictionary, error: BError): boolean {
             if (!super.AddingToCollection(value, error))
                 return false;
@@ -21,7 +32,7 @@ module Fayde {
                     var cycleFound = false;
                     if (rd === subtreeRoot)
                         cycleFound = true;
-                    else if (rd.Source === subtreeRoot.Source)
+                    else if (rd.Source && Uri.Equals(rd.Source, subtreeRoot.Source))
                         cycleFound = true;
 
                     if (cycleFound) {
@@ -43,84 +54,91 @@ module Fayde {
         }
     }
     Fayde.RegisterType(ResourceDictionaryCollection, {
-    	Name: "ResourceDictionaryCollection",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
+        Name: "ResourceDictionaryCollection",
+        Namespace: "Fayde",
+        XmlNamespace: Fayde.XMLNS
     });
 
-    export class ResourceDictionary extends XamlObjectCollection<any> {
-        private _KeyIndex: number[] = [];
+    export class ResourceDictionary extends DependencyObject implements IEnumerable<any> {
+        private _Keys: any[] = [];
+        private _Values: any[] = [];
+
+        private _IsSourceLoaded: boolean = false;
+
+        static MergedDictionariesProperty = DependencyProperty.RegisterImmutable("MergedDictionaries", () => ResourceDictionaryCollection, ResourceDictionary);
+        static SourceProperty = DependencyProperty.Register("Source", () => Uri, ResourceDictionary);
 
         MergedDictionaries: ResourceDictionaryCollection;
-        Source: string = "";
+        Source: Uri;
+
+        get Count(): number { return this._Values.length; }
 
         constructor() {
             super();
-            var rdc = new ResourceDictionaryCollection();
+            var rdc = ResourceDictionary.MergedDictionariesProperty.Initialize<ResourceDictionaryCollection>(this);
             rdc.AttachTo(this);
-            Object.defineProperty(this, "MergedDictionaries", {
-                value: rdc,
-                writable: false
-            });
         }
 
-        ContainsKey(key: any): boolean {
-            return this._KeyIndex[key] !== undefined;
+        AttachTo(xobj: XamlObject) {
+            var error = new BError();
+            if (!this.XamlNode.AttachTo(xobj.XamlNode, error))
+                error.ThrowException();
         }
+
+        Contains(key: any): boolean { return this._Keys.indexOf(key) > -1; }
         Get(key: any): any {
-            var index = this._KeyIndex[key];
+            var index = this._Keys.indexOf(key);
             if (index > -1)
-                return this._ht[index];
-            return this._GetFromMerged(key);
+                return this._Values[index];
+            return this.MergedDictionaries.Get(key);
         }
         Set(key: any, value: any): boolean {
-            var index = this._KeyIndex[key];
-            if (index === undefined && value === undefined)
+            if (key === undefined)
                 return false;
+            if (value === undefined)
+                return this.Remove(key);
 
-            if (value === undefined) {
-                this._KeyIndex[key] = undefined;
-                return this.RemoveAt(index);
+            var index = this._Keys.indexOf(key);
+            var error = new BError();
+            if (value instanceof XamlObject && !(<XamlObject>value).XamlNode.AttachTo(this.XamlNode, error)) {
+                if (error.Message)
+                    throw new Exception(error.Message);
+                return false;
             }
 
-            if (index === undefined) {
-                index = this._ht.length;
-                this._KeyIndex[key] = index;
-                return this.Insert(index, value);
+            if (index < 0) {
+                this._Keys.push(key);
+                this._Values.push(value);
+            } else {
+                var oldValue = this._Values[index];
+                this._Keys[index] = key;
+                this._Values[index] = value;
+                if (oldValue instanceof XamlObject)
+                    (<XamlObject>oldValue).XamlNode.Detach();
             }
-
-            var oldValue = this.GetValueAt[index];
-            this._ht[index] = value;
-            this._RaiseItemReplaced(oldValue, value, index);
             return true;
         }
-
-        Add(value: any): number {
-            throw new InvalidOperationException("Cannot add to ResourceDictionary. Use Set instead.");
+        Remove(key: any): boolean {
+            var index = this._Keys.indexOf(key);
+            if (index < 0)
+                return false;
+            this._Keys.splice(index, 1);
+            var oldvalue = this._Values.splice(index, 1)[0];
+            if (oldvalue instanceof XamlObject)
+                (<XamlObject>oldvalue).XamlNode.Detach();
         }
-        Remove(value: any): boolean {
-            throw new InvalidOperationException("Cannot remove from ResourceDictionary. Use Set instead.");
+
+        GetEnumerator(reverse?: boolean): IEnumerator<any> {
+            return Fayde.ArrayEx.GetEnumerator(this._Values, reverse);
         }
-        
-        private _GetFromMerged(key: any): any {
-            var merged = this.MergedDictionaries;
-
-            if (!merged)
-                return undefined;
-
-            var enumerator = merged.GetEnumerator();
-            var cur;
-            while (enumerator.MoveNext()) {
-                cur = (<ResourceDictionary>enumerator.Current).Get(key);
-                if (cur !== undefined)
-                    return cur;
-            }
-            return undefined;
+        GetNodeEnumerator<U extends XamlNode>(reverse?: boolean): IEnumerator<U> {
+            return Fayde.ArrayEx.GetNodeEnumerator<any, U>(this._Values, reverse);
         }
     }
     Fayde.RegisterType(ResourceDictionary, {
-    	Name: "ResourceDictionary",
-    	Namespace: "Fayde",
-    	XmlNamespace: Fayde.XMLNS
+        Name: "ResourceDictionary",
+        Namespace: "Fayde",
+        XmlNamespace: Fayde.XMLNS,
+        Interfaces: [IEnumerable_]
     });
 }

@@ -104,10 +104,15 @@ module Fayde.Xaml {
         }
 
         var childProcessor = createXamlChildProcessor(val, resolution.Type, ctx);
-        if (val instanceof XamlObjectCollection)
-            childProcessor.ProcessPropertyCollection(el, val);
-        else
+        if (val instanceof XamlObjectCollection) {
+            childProcessor.ProcessCollection(el, val);
+        } else if (val instanceof ResourceDictionary) {
+            ctx.ResourceChain.push(val);
+            processResourceDictionary(el, val, ctx);
+            ctx.ResourceChain.pop();
+        } else {
             childProcessor.Process(el);
+        }
 
         return ctx.ObjectStack.pop();
     }
@@ -165,10 +170,78 @@ module Fayde.Xaml {
         }
         return ft;
     }
+    function processResourceDictionary(el: Element, rd: ResourceDictionary, ctx: IXamlLoadContext) {
+        ctx.ObjectStack.push(rd);
+
+        var subEl = el.firstElementChild;
+        var rdEl: Element;
+        var curEl = subEl;
+        if (subEl && subEl.namespaceURI === Fayde.XMLNS && subEl.localName === "ResourceDictionary") {
+            rdEl = subEl;
+            curEl = subEl.firstElementChild;
+        } else if (el && el.namespaceURI === Fayde.XMLNS && el.localName === "ResourceDictionary") {
+            rdEl = el;
+        }
+
+        var childProcessor = createXamlChildProcessor(rd, ResourceDictionary, ctx);
+        if (rdEl) {
+            var attrs = rdEl.attributes;
+            var len = attrs.length;
+            var attr: Attr;
+            for (var i = 0; i < len; i++) {
+                attr = attrs[i];
+                //ignore namespace declarations
+                if (attr.name === "xmlns")
+                    continue;
+                if (attr.prefix === "xmlns")
+                    continue;
+                //ignore x:[Property] declarations, they will be handled specifically
+                if (attr.namespaceURI === Fayde.XMLNSX)
+                    continue;
+                childProcessor.ProcessAttribute(attr);
+            }
+        }
+
+        while (curEl) {
+            if (curEl.localName.indexOf(".") > -1)
+                childProcessor.ProcessElement(curEl);
+            else
+                createObjectInResources(curEl, rd, ctx);
+            curEl = curEl.nextElementSibling;
+        }
+        loadResourceDictionary(rd);
+        ctx.ObjectStack.pop();
+    }
+    function createObjectInResources(el: Element, rd: ResourceDictionary, ctx: IXamlLoadContext) {
+        var cur = createObject(el, ctx);
+        var key = getElementKey(el);
+        if (key) {
+            rd.Set(key, cur);
+        } else {
+            if (!(cur instanceof Style))
+                throw new XamlParseException("An object in a ResourceDictionary must have x:Key.");
+            var targetType = cur.TargetType;
+            if (!targetType)
+                throw new XamlParseException("A Style in a ResourceDictionary must have x:Key or TargetType.");
+            rd.Set(targetType, cur);
+        }
+    }
+    function getElementKey(el: Element): string {
+        var attrs = el.attributes;
+        var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Key");
+        if (keyn)
+            return keyn.value;
+        var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Name");
+        if (keyn)
+            return keyn.value;
+        return "";
+    }
 
     interface IXamlChildProcessor {
         Process(el: Element): void;
-        ProcessPropertyCollection(propertyEl: Element, coll: XamlObjectCollection<any>): void;
+        ProcessElement(el: Element): void; 
+        ProcessAttribute(attr: Attr): void;
+        ProcessCollection(propertyEl: Element, coll: XamlObjectCollection<any>): void;
     }
     function createXamlChildProcessor(owner: any, ownerType: Function, ctx: IXamlLoadContext): IXamlChildProcessor {
         var app: Application;
@@ -193,30 +266,6 @@ module Fayde.Xaml {
             }
         }
 
-        function createObjectInResources(el: Element, rd: ResourceDictionary) {
-            var cur = createObject(el, ctx);
-            var key = getElementKey(el);
-            if (key) {
-                rd.Set(key, cur);
-            } else {
-                if (!(cur instanceof Style))
-                    throw new XamlParseException("An object in a ResourceDictionary must have x:Key.");
-                var targetType = cur.TargetType;
-                if (!targetType)
-                    throw new XamlParseException("A Style in a ResourceDictionary must have x:Key or TargetType.");
-                rd.Set(targetType, cur);
-            }
-        }
-        function getElementKey(el: Element): string {
-            var attrs = el.attributes;
-            var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Key");
-            if (keyn)
-                return keyn.value;
-            var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Name");
-            if (keyn)
-                return keyn.value;
-            return "";
-        }
         function createAttributeObject(attr: Attr, dobj: DependencyObject, propd: DependencyProperty): any {
             var value = attr.textContent;
             if (value[0] === "{") {
@@ -301,13 +350,13 @@ module Fayde.Xaml {
                 if (resElement) {
                     rd = <ResourceDictionary>(<any>dobj).Resources;
                     if (rd) {
-                        this.ProcessPropertyCollection(resElement, rd);
                         ctx.ResourceChain.push(rd);
+                        processResourceDictionary(resElement, rd, ctx);
                     }
                 }
 
                 var attrs = el.attributes;
-                
+
                 //Handle attributes
                 var len = attrs.length;
                 var attr: Attr;
@@ -400,14 +449,14 @@ module Fayde.Xaml {
                         val = dobj.GetValue(propd);
                         if (!(val instanceof XamlObjectCollection))
                             throw new XamlParseException("Cannot set immutable property.");
-                        this.ProcessPropertyCollection(el, <XamlObjectCollection>val);
+                        this.ProcessCollection(el, val);
                     } else {
                         if (propd.IsAttached) {
                             var propTargetType = propd.GetTargetType();
                             if (Nullstone.DoesInheritFrom(propTargetType, XamlObjectCollection)) {
                                 val = new (<any>propTargetType)();
                                 dobj.SetValue(propd, val);
-                                this.ProcessPropertyCollection(el, val);
+                                this.ProcessCollection(el, val);
                                 return;
                             }
                         }
@@ -434,22 +483,12 @@ module Fayde.Xaml {
                     }
                 }
             },
-            ProcessPropertyCollection: function (propertyEl: Element, coll: XamlObjectCollection<any>): void {
+            ProcessCollection: function (propertyEl: Element, coll: XamlObjectCollection<any>): void {
                 ctx.ObjectStack.push(coll);
                 var curEl = propertyEl.firstElementChild;
-                if (coll instanceof ResourceDictionary) {
-                    var rd = <ResourceDictionary>coll;
-                    ctx.ResourceChain.push(rd);
-                    while (curEl) {
-                        createObjectInResources(curEl, rd);
-                        curEl = curEl.nextElementSibling;
-                    }
-                    ctx.ResourceChain.pop();
-                } else {
-                    while (curEl) {
-                        coll.Add(createObject(curEl, ctx));
-                        curEl = curEl.nextElementSibling;
-                    }
+                while (curEl) {
+                    coll.Add(createObject(curEl, ctx));
+                    curEl = curEl.nextElementSibling;
                 }
                 ctx.ObjectStack.pop();
             }
@@ -460,7 +499,7 @@ module Fayde.Xaml {
     function validateDocument(doc: Document) {
         var docEl = doc.documentElement;
         //if (docEl.childElementCount  !== 1)
-            //throw new XamlParseException("There must be 1 root element.");
+        //throw new XamlParseException("There must be 1 root element.");
         if (!docEl.isDefaultNamespace(Fayde.XMLNS))
             throw new XamlParseException("Invalid default namespace in XAML document.");
     }
@@ -481,6 +520,7 @@ module Fayde.Xaml {
     }
     function createAppLoader(xaml: string, canvas: HTMLCanvasElement): IAppLoader {
         var appSources = new XamlObjectCollection<Namespace>();
+        var rdResources: IXamlResource[] = [];
         var theme: Theme;
         var ctx: IXamlLoadContext = {
             Document: parser.parseFromString(xaml, "text/xml"),
@@ -516,6 +556,42 @@ module Fayde.Xaml {
                 nsSource = createObject(curElement, ctx);
                 nsSource.RegisterSource();
                 appSources.Add(nsSource);
+                curElement = curElement.nextElementSibling;
+            }
+        }
+        function preloadResourceDictionaries() {
+            var appEl = ctx.Document.documentElement;
+            var appNsUri = appEl.namespaceURI;
+            var resourcesNodeName = appEl.localName + ".Resources";
+
+            var nsUri: string;
+            var curElement = appEl.firstElementChild;
+            while (curElement) {
+                nsUri = curElement.namespaceURI || Fayde.XMLNS;
+                if (nsUri === appNsUri && curElement.localName === resourcesNodeName)
+                    break;
+                curElement = curElement.nextElementSibling;
+            }
+            if (curElement)
+                parseResources(curElement);
+        }
+        function parseResources(resel: Element) {
+            var curElement = resel.firstElementChild;
+            var src: string;
+            var childEl: Element;
+            while (curElement) {
+                if (curElement.localName === "ResourceDictionary") {
+                    if (src = curElement.getAttribute("Source"))
+                        rdResources.push(Xaml.RegisterResourceDictionary(new Uri(src)));
+                    childEl = curElement.firstElementChild;
+                    while (childEl) {
+                        if (childEl.localName === "ResourceDictionary.MergedDictionaries") {
+                            parseResources(childEl);
+                            break;
+                        }
+                        childEl = childEl.nextElementSibling;
+                    }
+                }
                 curElement = curElement.nextElementSibling;
             }
         }
@@ -570,8 +646,10 @@ module Fayde.Xaml {
         return {
             Load: function () {
                 registerSources();
+                preloadResourceDictionaries();
                 collectDependencies();
                 var loaders: Fayde.Runtime.ILoadAsyncable[] = appSources.ToArray();
+                loaders.push.apply(loaders, rdResources);
                 loaders.push(theme);
                 Runtime.LoadBatchAsync(loaders, () => finishLoad());
             }
@@ -605,5 +683,29 @@ module Fayde.Xaml {
                 });
             request.Get(this.Url);
         }
+    }
+
+
+    /// RESOURCE DICTIONARY
+    function loadResourceDictionary(rd: ResourceDictionary) {
+        if ((<any>rd)._IsSourceLoaded)
+            return;
+        var resource = Xaml.MapResourceDictionary(rd.Source);
+        if (!resource)
+            return;
+        var doc = resource.Document;
+        if (!doc)
+            return;
+
+        var ctx: IXamlLoadContext = {
+            Document: doc,
+            ResourceChain: [rd],
+            NameScope: new NameScope(true),
+            ObjectStack: [rd],
+            TemplateBindingSource: null,
+        };
+        validateDocument(ctx.Document);
+        (<any>rd)._IsSourceLoaded = true;
+        processResourceDictionary(ctx.Document.documentElement, rd, ctx);
     }
 }

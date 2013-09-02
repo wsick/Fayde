@@ -80,7 +80,7 @@ test("FrameworkElement Resources", () => {
         + "</StackPanel>";
     var root = <Fayde.Controls.StackPanel>Fayde.Xaml.Load(xaml);
     var resources = root.Resources;
-    ok(resources.ContainsKey("SomeThickness"), "Resources should contain a resource with a key 'SomeThickness'");
+    ok(resources.Contains("SomeThickness"), "Resources should contain a resource with a key 'SomeThickness'");
     var thickness = <Thickness>resources.Get("SomeThickness");
     strictEqual(thickness.Left, 1, "Thickness.Left must equal 1 and not \"1\".");
     strictEqual(thickness.Top, 2, "Thickness.Top must equal 2 and not \"2\".");
