@@ -152,9 +152,9 @@ module Fayde.Xaml {
         if (!url)
             return null;
         var r = rdresources[url];
-        if (r)
-            return r;
-        return new XamlResource(url);
+        if (!r)
+            rdresources[url] = r = new XamlResource(url);
+        return r;
     }
     export function MapResourceDictionary(source: Uri): IXamlResource {
         var url: string;
