@@ -43,6 +43,13 @@ class Uri implements ICloneable {
             return false;
         return true;
     }
+    static Equals(uri1: Uri, uri2: Uri): boolean {
+        if (uri1 == null && uri2 == null)
+            return true;
+        if (uri1 == null || uri2 == null)
+            return false;
+        return uri1.toString() === uri2.toString();
+    }
 }
 Fayde.RegisterType(Uri, {
 	Name: "Uri",
