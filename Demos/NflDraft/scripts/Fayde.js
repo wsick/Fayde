@@ -23637,6 +23637,8 @@ var Fayde;
                         enumerator = Fayde.ArrayEx.GetEnumerator(source);
 else if (source instanceof Fayde.XamlObjectCollection)
                         enumerator = (source).GetEnumerator();
+else if (Nullstone.ImplementsInterface(source, Fayde.IEnumerable_))
+                        enumerator = (source).GetEnumerator();
                     if (enumerator) {
                         var items = this.$Items;
                         while (enumerator.MoveNext()) {

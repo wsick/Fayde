@@ -157,6 +157,7 @@ module Fayde.Controls {
                 var enumerator: IEnumerator<any>;
                 if (source instanceof Array) enumerator = ArrayEx.GetEnumerator(<any[]>source);
                 else if (source instanceof XamlObjectCollection) enumerator = (<XamlObjectCollection>source).GetEnumerator();
+                else if (Nullstone.ImplementsInterface(source, IEnumerable_)) enumerator = (<IEnumerable>source).GetEnumerator();
                 
                 if (enumerator) {
                     var items = this.$Items;
