@@ -19,7 +19,7 @@ var NflDraft;
             __extends(DefaultViewModel, _super);
             function DefaultViewModel() {
                 _super.call(this);
-                this.Rounds = [];
+                this.Rounds = new Fayde.Collections.ObservableCollection();
                 this.Positions = [];
                 this.PlayerStats = [];
                 this.Load();
@@ -110,7 +110,7 @@ var NflDraft;
                             overall++;
                         }
                     }
-                    this.Rounds.push(r);
+                    this.Rounds.Add(r);
                 }
 
                 this.Positions.push("ALL", "QB", "RB", "WR", "RB/WR", "TE", "K", "DEF");

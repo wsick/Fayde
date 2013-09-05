@@ -6,6 +6,8 @@ var NflDraft;
             function AgeValueConverter() {
             }
             AgeValueConverter.prototype.Convert = function (value, targetType, parameter, culture) {
+                if (value === undefined)
+                    return null;
                 var today = new Date();
                 var age = today.getFullYear() - value.getFullYear();
                 if (today.getMonth() < value.getMonth())

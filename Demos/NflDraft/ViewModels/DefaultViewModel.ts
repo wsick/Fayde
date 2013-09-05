@@ -9,7 +9,7 @@
 
 module NflDraft.ViewModels {
     export class DefaultViewModel extends Fayde.MVVM.ViewModelBase {
-        Rounds: Models.Round[] = [];
+        Rounds: Fayde.Collections.ObservableCollection<Models.Round> = new Fayde.Collections.ObservableCollection<Models.Round>();
         Positions: string[] = [];
         PlayerStats: Models.PlayerStats[] = [];
         private _selectedPlayer: Models.PlayerStats;
@@ -96,7 +96,7 @@ module NflDraft.ViewModels {
                         overall++;
                     }
                 }
-                this.Rounds.push(r);
+                this.Rounds.Add(r);
             }
 
             this.Positions.push("ALL", "QB", "RB", "WR", "RB/WR", "TE", "K", "DEF");
