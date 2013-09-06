@@ -3,6 +3,7 @@
 module NflDraft.Resources {
     export class AgeValueConverter implements Fayde.Data.IValueConverter {
         Convert(value: any, targetType: IType, parameter: any, culture: any): any {
+            if (value === undefined) return null;
             var today = new Date();
             var age = today.getFullYear() - value.getFullYear();
             if (today.getMonth() < value.getMonth())
