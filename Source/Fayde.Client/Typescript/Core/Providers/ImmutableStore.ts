@@ -24,6 +24,23 @@ module Fayde.Providers {
                 Detach: function () { }
             };
         }
+        Clone(dobj: DependencyObject, sourceStorage: IPropertyStorage): IPropertyStorage {
+            if (sourceStorage.Local instanceof XamlObjectCollection) {
+                var newStorage = Providers.GetStorage(dobj, sourceStorage.Property);
+                var newColl = <XamlObjectCollection<any>>newStorage.Local;
+                newColl.CloneCore(<XamlObjectCollection<any>>sourceStorage.Local);
+                var anims = newStorage.Animations = sourceStorage.Animations;
+                if (anims) {
+                    for (var i = 0; i < anims.length; i++) {
+                        anims[i].PropStorage = newStorage;
+                    }
+                }
+                return newStorage;
+            } else {
+                console.warn("Cloning Immutable improperly");
+                return super.Clone(dobj, sourceStorage);
+            }
+        }
     }
     ImmutableStore.Instance = new ImmutableStore();
 }

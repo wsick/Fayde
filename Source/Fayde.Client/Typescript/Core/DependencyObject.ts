@@ -197,7 +197,9 @@ module Fayde {
 
         CloneCore(source: DependencyObject) {
             var sarr = source._PropertyStorage;
-            var darr = this._PropertyStorage = [];
+            var darr = this._PropertyStorage;
+            if (!darr)
+                darr = this._PropertyStorage = [];
             for (var id in sarr) {
                 var storage: Providers.IPropertyStorage = sarr[id];
                 darr[id] = storage.Property.Store.Clone(this, storage);
