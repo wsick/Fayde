@@ -120,9 +120,8 @@ module Fayde {
         //_RaiseClearing(arr: T[]) { }
         _RaiseCleared() { }
 
-        CloneCore(source: XamlObject) {
-            var coll = <XamlObjectCollection<T>><any>source;
-            var enumerator = ArrayEx.GetEnumerator(coll._ht);
+        CloneCore(source: XamlObjectCollection<T>) {
+            var enumerator = ArrayEx.GetEnumerator(source._ht);
             while (enumerator.MoveNext()) {
                 this.Add(Fayde.Clone(enumerator.Current));
             }
