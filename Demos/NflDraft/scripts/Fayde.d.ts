@@ -983,6 +983,7 @@ declare module Fayde.Providers {
         public SetLocalValue(storage: Providers.IPropertyStorage, newValue: any): void;
         public ClearValue(storage: Providers.IPropertyStorage): void;
         public ListenToChanged(target: Fayde.DependencyObject, propd: DependencyProperty, func: (sender: any, args: IDependencyPropertyChangedEventArgs) => void, closure: any): Providers.IPropertyChangedListener;
+        public Clone(dobj: Fayde.DependencyObject, sourceStorage: Providers.IPropertyStorage): Providers.IPropertyStorage;
     }
 }
 declare module Fayde.Providers {
@@ -1806,7 +1807,7 @@ declare module Fayde {
         public _RaiseItemRemoved(value: T, index: number): void;
         public _RaiseItemReplaced(removed: T, added: T, index: number): void;
         public _RaiseCleared(): void;
-        public CloneCore(source: Fayde.XamlObject): void;
+        public CloneCore(source: XamlObjectCollection<T>): void;
         public ToArray(): T[];
     }
 }
@@ -2514,16 +2515,14 @@ declare module Fayde {
         public AddingToCollection(value: ResourceDictionary, error: BError): boolean;
         private _AssertNoCycles(subtreeRoot, firstAncestorNode, error);
     }
-    class ResourceDictionary extends Fayde.DependencyObject implements Fayde.IEnumerable<any> {
+    class ResourceDictionary extends Fayde.XamlObject implements Fayde.IEnumerable<any> {
         private _Keys;
         private _Values;
         private _IsSourceLoaded;
-        static MergedDictionariesProperty: ImmutableDependencyProperty;
-        static SourceProperty: DependencyProperty;
-        public MergedDictionaries: ResourceDictionaryCollection;
+        private _MergedDictionaries;
+        public MergedDictionaries : ResourceDictionaryCollection;
         public Source: Uri;
         public Count : number;
-        constructor();
         public AttachTo(xobj: Fayde.XamlObject): void;
         public Contains(key: any): boolean;
         public Get(key: any): any;

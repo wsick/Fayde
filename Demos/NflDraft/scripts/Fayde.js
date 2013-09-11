@@ -990,23 +990,28 @@ var Fayde;
             ImplicitStyleBroker.GetImplicitStyles = function (fe, mask) {
                 var feType = (fe).constructor;
                 var feTypeName = (feType)._TypeName;
+                var app = Fayde.Application.Current;
                 var genericXamlStyle = undefined;
-                if ((mask & StyleMask.GenericXaml) != 0) {
-                    if (fe instanceof Fayde.Controls.Control) {
-                        genericXamlStyle = (fe).GetDefaultStyle();
-                        if (!genericXamlStyle) {
-                            var styleKey = fe.DefaultStyleKey;
-                            if (styleKey)
-                                genericXamlStyle = Fayde.Application.Current.GetImplicitStyle(styleKey);
+                if (app) {
+                    if ((mask & StyleMask.GenericXaml) != 0) {
+                        if (fe instanceof Fayde.Controls.Control) {
+                            genericXamlStyle = (fe).GetDefaultStyle();
+                            if (!genericXamlStyle) {
+                                var styleKey = fe.DefaultStyleKey;
+                                if (styleKey)
+                                    genericXamlStyle = app.GetImplicitStyle(styleKey);
+                            }
                         }
                     }
                 }
-                var appResourcesStyle = undefined;
-                var rd = Fayde.Application.Current.Resources;
-                if ((mask & StyleMask.ApplicationResources) != 0) {
-                    appResourcesStyle = rd.Get(feType);
-                    if (!appResourcesStyle)
-                        appResourcesStyle = rd.Get(feTypeName);
+                if (false) {
+                    var appResourcesStyle = undefined;
+                    var rd = app.Resources;
+                    if ((mask & StyleMask.ApplicationResources) != 0) {
+                        appResourcesStyle = rd.Get(feType);
+                        if (!appResourcesStyle)
+                            appResourcesStyle = rd.Get(feTypeName);
+                    }
                 }
                 var visualTreeStyle = undefined;
                 if ((mask & StyleMask.VisualTree) != 0) {
@@ -5323,6 +5328,23 @@ var Fayde;
                     }
                 };
             };
+            ImmutableStore.prototype.Clone = function (dobj, sourceStorage) {
+                if (sourceStorage.Local instanceof Fayde.XamlObjectCollection) {
+                    var newStorage = Fayde.Providers.GetStorage(dobj, sourceStorage.Property);
+                    var newColl = newStorage.Local;
+                    newColl.CloneCore(sourceStorage.Local);
+                    var anims = newStorage.Animations = sourceStorage.Animations;
+                    if (anims) {
+                        for (var i = 0; i < anims.length; i++) {
+                            anims[i].PropStorage = newStorage;
+                        }
+                    }
+                    return newStorage;
+                } else {
+                    console.warn("Cloning Immutable improperly");
+                    return _super.prototype.Clone.call(this, dobj, sourceStorage);
+                }
+            };
             return ImmutableStore;
         })(Providers.PropertyStore);
         Providers.ImmutableStore = ImmutableStore;
@@ -9337,8 +9359,7 @@ var Fayde;
         XamlObjectCollection.prototype._RaiseCleared = function () {
         };
         XamlObjectCollection.prototype.CloneCore = function (source) {
-            var coll = source;
-            var enumerator = Fayde.ArrayEx.GetEnumerator(coll._ht);
+            var enumerator = Fayde.ArrayEx.GetEnumerator(source._ht);
             while (enumerator.MoveNext()) {
                 this.Add(Fayde.Clone(enumerator.Current));
             }
@@ -12346,67 +12367,6 @@ var Fayde;
             }
             return ft;
         }
-        function processResourceDictionary(el, rd, ctx) {
-            ctx.ObjectStack.push(rd);
-            var subEl = el.firstElementChild;
-            var rdEl;
-            var curEl = subEl;
-            if (subEl && subEl.namespaceURI === Fayde.XMLNS && subEl.localName === "ResourceDictionary") {
-                rdEl = subEl;
-                curEl = subEl.firstElementChild;
-            } else if (el && el.namespaceURI === Fayde.XMLNS && el.localName === "ResourceDictionary") {
-                rdEl = el;
-            }
-            var childProcessor = createXamlChildProcessor(rd, Fayde.ResourceDictionary, ctx);
-            if (rdEl) {
-                var attrs = rdEl.attributes;
-                var len = attrs.length;
-                var attr;
-                for (var i = 0; i < len; i++) {
-                    attr = attrs[i];
-                    if (attr.name === "xmlns")
-                        continue;
-                    if (attr.prefix === "xmlns")
-                        continue;
-                    if (attr.namespaceURI === Fayde.XMLNSX)
-                        continue;
-                    childProcessor.ProcessAttribute(attr);
-                }
-            }
-            while (curEl) {
-                if (curEl.localName.indexOf(".") > -1)
-                    childProcessor.ProcessElement(curEl);
-else
-                    createObjectInResources(curEl, rd, ctx);
-                curEl = curEl.nextElementSibling;
-            }
-            loadResourceDictionary(rd);
-            ctx.ObjectStack.pop();
-        }
-        function createObjectInResources(el, rd, ctx) {
-            var cur = createObject(el, ctx);
-            var key = getElementKey(el);
-            if (key) {
-                rd.Set(key, cur);
-            } else {
-                if (!(cur instanceof Fayde.Style))
-                    throw new XamlParseException("An object in a ResourceDictionary must have x:Key.");
-                var targetType = cur.TargetType;
-                if (!targetType)
-                    throw new XamlParseException("A Style in a ResourceDictionary must have x:Key or TargetType.");
-                rd.Set(targetType, cur);
-            }
-        }
-        function getElementKey(el) {
-            var attrs = el.attributes;
-            var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Key");
-            if (keyn)
-                return keyn.value;
-            var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Name");
-            if (keyn)
-                return keyn.value;
-            return "";
-        }
 
         function createXamlChildProcessor(owner, ownerType, ctx) {
             var app;
@@ -12802,6 +12762,47 @@ else
             return Theme;
         })();
         Xaml.Theme = Theme;
+        function processResourceDictionary(el, rd, ctx) {
+            ctx.ObjectStack.push(rd);
+            var subEl = el.firstElementChild;
+            var rdEl;
+            var curEl = subEl;
+            if (subEl && subEl.namespaceURI === Fayde.XMLNS && subEl.localName === "ResourceDictionary") {
+                rdEl = subEl;
+                curEl = subEl.firstElementChild;
+            } else if (el && el.namespaceURI === Fayde.XMLNS && el.localName === "ResourceDictionary") {
+                rdEl = el;
+            }
+            var srcAttr = rdEl ? rdEl.getAttribute("Source") : undefined;
+            if (srcAttr) {
+                rd.Source = new Uri(srcAttr);
+                loadResourceDictionary(rd);
+            } else {
+                var localName;
+                while (curEl) {
+                    localName = curEl.localName;
+                    if (localName.indexOf(".") < 0) {
+                        createObjectInResources(curEl, rd, ctx);
+                    } else if (localName === "ResourceDictionary.MergedDictionaries") {
+                        processMergedDictionaries(curEl, rd, ctx);
+                    }
+                    curEl = curEl.nextElementSibling;
+                }
+            }
+            ctx.ObjectStack.pop();
+        }
+        function processMergedDictionaries(mdEl, rd, ctx) {
+            var curEl = mdEl.firstElementChild;
+            var rd;
+            var rdc = rd.MergedDictionaries;
+            while (curEl) {
+                if (curEl.localName === "ResourceDictionary") {
+                    rdc.Add(rd = new Fayde.ResourceDictionary());
+                    processResourceDictionary(curEl, rd, ctx);
+                }
+                curEl = curEl.nextElementSibling;
+            }
+        }
         function loadResourceDictionary(rd) {
             if ((rd)._IsSourceLoaded)
                 return;
@@ -12821,6 +12822,30 @@ else
             validateDocument(ctx.Document);
             (rd)._IsSourceLoaded = true;
             processResourceDictionary(ctx.Document.documentElement, rd, ctx);
+        }
+        function createObjectInResources(el, rd, ctx) {
+            var cur = createObject(el, ctx);
+            var key = getElementKey(el);
+            if (key) {
+                rd.Set(key, cur);
+            } else {
+                if (!(cur instanceof Fayde.Style))
+                    throw new XamlParseException("An object in a ResourceDictionary must have x:Key.");
+                var targetType = cur.TargetType;
+                if (!targetType)
+                    throw new XamlParseException("A Style in a ResourceDictionary must have x:Key or TargetType.");
+                rd.Set(targetType, cur);
+            }
+        }
+        function getElementKey(el) {
+            var attrs = el.attributes;
+            var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Key");
+            if (keyn)
+                return keyn.value;
+            var keyn = attrs.getNamedItemNS(Fayde.XMLNSX, "Name");
+            if (keyn)
+                return keyn.value;
+            return "";
         }
     })(Fayde.Xaml || (Fayde.Xaml = {}));
     var Xaml = Fayde.Xaml;
@@ -13195,7 +13220,9 @@ var Fayde;
         };
         DependencyObject.prototype.CloneCore = function (source) {
             var sarr = source._PropertyStorage;
-            var darr = this._PropertyStorage = [];
+            var darr = this._PropertyStorage;
+            if (!darr)
+                darr = this._PropertyStorage = [];
             for (var id in sarr) {
                 var storage = sarr[id];
                 darr[id] = storage.Property.Store.Clone(this, storage);
@@ -13418,13 +13445,24 @@ else if (rd.Source && Uri.Equals(rd.Source, subtreeRoot.Source))
     var ResourceDictionary = (function (_super) {
         __extends(ResourceDictionary, _super);
         function ResourceDictionary() {
-            _super.call(this);
+            _super.apply(this, arguments);
             this._Keys = [];
             this._Values = [];
             this._IsSourceLoaded = false;
-            var rdc = ResourceDictionary.MergedDictionariesProperty.Initialize(this);
-            rdc.AttachTo(this);
         }
+        Object.defineProperty(ResourceDictionary.prototype, "MergedDictionaries", {
+            get: function () {
+                var md = this._MergedDictionaries;
+                if (!md) {
+                    md = this._MergedDictionaries = new ResourceDictionaryCollection();
+                    md.AttachTo(this);
+                }
+                return md;
+            },
+            enumerable: true,
+            configurable: true
+        });
+
         Object.defineProperty(ResourceDictionary.prototype, "Count", {
             get: function () {
                 return this._Values.length;
@@ -13432,7 +13470,6 @@ else if (rd.Source && Uri.Equals(rd.Source, subtreeRoot.Source))
             enumerable: true,
             configurable: true
         });
-
         ResourceDictionary.prototype.AttachTo = function (xobj) {
             var error = new BError();
             if (!this.XamlNode.AttachTo(xobj.XamlNode, error))
@@ -13486,14 +13523,8 @@ else if (rd.Source && Uri.Equals(rd.Source, subtreeRoot.Source))
         ResourceDictionary.prototype.GetNodeEnumerator = function (reverse) {
             return Fayde.ArrayEx.GetNodeEnumerator(this._Values, reverse);
         };
-        ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterImmutable("MergedDictionaries", function () {
-            return ResourceDictionaryCollection;
-        }, ResourceDictionary);
-        ResourceDictionary.SourceProperty = DependencyProperty.Register("Source", function () {
-            return Uri;
-        }, ResourceDictionary);
         return ResourceDictionary;
-    })(Fayde.DependencyObject);
+    })(Fayde.XamlObject);
     Fayde.ResourceDictionary = ResourceDictionary;
     Fayde.RegisterType(ResourceDictionary, {
         Name: "ResourceDictionary",
