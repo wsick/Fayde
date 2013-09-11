@@ -136,26 +136,32 @@ module Fayde.Providers {
             var feType = (<any>fe).constructor;
             var feTypeName = (<any>feType)._TypeName;
 
+            var app = Application.Current;
+
             var genericXamlStyle: Style = undefined;
-            if ((mask & StyleMask.GenericXaml) != 0) {
-                if (fe instanceof Controls.Control) {
-                    genericXamlStyle = (<Controls.Control>fe).GetDefaultStyle();
-                    if (!genericXamlStyle) {
-                        var styleKey = fe.DefaultStyleKey;
-                        if (styleKey)
-                            genericXamlStyle = Application.Current.GetImplicitStyle(styleKey);
+            if (app) {
+                if ((mask & StyleMask.GenericXaml) != 0) {
+                    if (fe instanceof Controls.Control) {
+                        genericXamlStyle = (<Controls.Control>fe).GetDefaultStyle();
+                        if (!genericXamlStyle) {
+                            var styleKey = fe.DefaultStyleKey;
+                            if (styleKey)
+                                genericXamlStyle = app.GetImplicitStyle(styleKey);
+                        }
                     }
                 }
             }
 
-            var appResourcesStyle: Style = undefined;
-            var rd = Application.Current.Resources;
-            if ((mask & StyleMask.ApplicationResources) != 0) {
-                appResourcesStyle = <Style>rd.Get(feType);
-                if (!appResourcesStyle)
-                    appResourcesStyle = <Style>rd.Get(feTypeName);
-                //if (appResourcesStyle)
-                //appResourcesStyle._ResChain = [rd];
+            if (false) {
+                var appResourcesStyle: Style = undefined;
+                var rd = app.Resources;
+                if ((mask & StyleMask.ApplicationResources) != 0) {
+                    appResourcesStyle = <Style>rd.Get(feType);
+                    if (!appResourcesStyle)
+                        appResourcesStyle = <Style>rd.Get(feTypeName);
+                    //if (appResourcesStyle)
+                    //appResourcesStyle._ResChain = [rd];
+                }
             }
 
 

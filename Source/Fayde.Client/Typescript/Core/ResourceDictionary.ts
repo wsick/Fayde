@@ -59,25 +59,24 @@ module Fayde {
         XmlNamespace: Fayde.XMLNS
     });
 
-    export class ResourceDictionary extends DependencyObject implements IEnumerable<any> {
+    export class ResourceDictionary extends XamlObject implements IEnumerable<any> {
         private _Keys: any[] = [];
         private _Values: any[] = [];
 
         private _IsSourceLoaded: boolean = false;
 
-        static MergedDictionariesProperty = DependencyProperty.RegisterImmutable("MergedDictionaries", () => ResourceDictionaryCollection, ResourceDictionary);
-        static SourceProperty = DependencyProperty.Register("Source", () => Uri, ResourceDictionary);
-
-        MergedDictionaries: ResourceDictionaryCollection;
+        private _MergedDictionaries: ResourceDictionaryCollection;
+        get MergedDictionaries(): ResourceDictionaryCollection {
+            var md = this._MergedDictionaries;
+            if (!md) {
+                md = this._MergedDictionaries = new ResourceDictionaryCollection();
+                md.AttachTo(this);
+            }
+            return md;
+        }
         Source: Uri;
 
         get Count(): number { return this._Values.length; }
-
-        constructor() {
-            super();
-            var rdc = ResourceDictionary.MergedDictionariesProperty.Initialize<ResourceDictionaryCollection>(this);
-            rdc.AttachTo(this);
-        }
 
         AttachTo(xobj: XamlObject) {
             var error = new BError();
