@@ -1,0 +1,102 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    Theme="/Fayde/Theme.Metro.xml">
+    <Grid x:Name="LayoutRoot" Background="Green" ShowGridLines="True">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="500"></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Border BorderBrush="Navy" Background="White" BorderThickness="1" CornerRadius="5" Margin="0,0,50,50" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+            <Border BorderBrush="Red" Background="Orange" BorderThickness="8" CornerRadius="15" Margin="5, 10, 15, 20">
+                <Border BorderBrush="Black" Background="White" BorderThickness="3" CornerRadius="5, 5, 20, 20" Margin="20">
+                    <TextBlock Margin="10">
+                        <TextBlock.Inlines>
+                            <Run Text="Welcome to Fayde!"></Run>
+                        </TextBlock.Inlines>
+                    </TextBlock>
+                </Border>
+            </Border>
+        </Border>
+        <Border Grid.Column="1" Width="100" Height="100" BorderBrush="Black" BorderThickness="2"/>
+        <Border Grid.Column="2" BorderBrush="Navy" Background="White" BorderThickness="2" CornerRadius="4" Margin="20, 10, 20, 10">
+            <Border BorderBrush="Navy" Background="Silver" BorderThickness="2" CornerRadius="4" Margin="20, 10, 20, 10">
+                <TextBlock Margin="10">
+                    <TextBlock.Inlines>
+                        <Run FontWeight="Bold" FontSize="14" Text="Hi! I am a TextBlock. " />
+                        <Run FontStyle="Italic" Foreground="Red" Text="This is red italic text. " />
+                        <LineBreak />
+                        <Underline Foreground="Blue">
+                            <Run Text="How about adding some blue?" />
+                        </Underline>
+                    </TextBlock.Inlines>
+                </TextBlock>
+            </Border>
+        </Border>
+        <Border Grid.Row="1" Grid.Column="1" BorderBrush="Navy" Background="White" BorderThickness="1" CornerRadius="5">
+            <Border BorderBrush="Red" Background="Orange" BorderThickness="8" CornerRadius="15" Margin="5, 10, 15, 20" Opacity=".3">
+                <Border BorderBrush="Black" Background="White" BorderThickness="3" CornerRadius="5, 5, 20, 20" Margin="20">
+                    <Image Margin="10" Source="Images/testing.jpg" Opacity=".5"/>
+                </Border>
+            </Border>
+        </Border>
+        <Grid Grid.Row="1" Width="800" Grid.Column="2" Background="Silver" ShowGridLines="True">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="500"></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <Border BorderBrush="Navy" Background="White" BorderThickness="2" CornerRadius="4" Margin="20, 10, 20, 10">
+                <Border BorderBrush="Navy" Background="Silver" BorderThickness="2" CornerRadius="4" Margin="20, 10, 20, 10">
+                    <TextBlock Margin="10">
+                        <TextBlock.Inlines>
+                            <Run FontWeight="Bold" FontSize="14" Text="Hi! I am a TextBlock. " />
+                            <Run FontStyle="Italic" Foreground="Red" Text="This is red italic text. " />
+                            <LineBreak />
+                            <Underline Foreground="Blue">
+                                <Run Text="How about adding some blue?" />
+                            </Underline>
+                        </TextBlock.Inlines>
+                    </TextBlock>
+                </Border>
+            </Border>
+        </Grid>
+        <Image Grid.Row="2" Grid.Column="1" Source="Images/tile-test.png"/>
+        <StackPanel Grid.Row="2" Grid.Column="2" Margin="5" Background="AntiqueWhite" Orientation="Horizontal">
+            <Border BorderBrush="Black" Background="White" BorderThickness="3" CornerRadius="5, 5, 20, 20" Margin="10">
+                <TextBlock Margin="10">
+                    <TextBlock.Inlines>
+                        <Run FontWeight="Bold" FontSize="14" Text="Hi! I am a TextBlock. " />
+                        <Run FontStyle="Italic" Foreground="Red" Text="This is red italic text. " />
+                        <LineBreak />
+                        <Underline Foreground="Blue">
+                            <Run Text="How about adding some blue?" />
+                        </Underline>
+                    </TextBlock.Inlines>
+                </TextBlock>
+            </Border>
+            <Border BorderBrush="Black" Background="White" BorderThickness="3" CornerRadius="5, 5, 20, 20" Margin="10">
+                <TextBlock Margin="10">
+                    <TextBlock.Inlines>
+                        <Run FontWeight="Bold" FontSize="14" Text="Hi! I am a TextBlock. " />
+                        <Run FontStyle="Italic" Foreground="Red" Text="This is red italic text. " />
+                        <LineBreak />
+                        <Underline Foreground="Blue">
+                            <Run Text="How about adding some blue?" />
+                        </Underline>
+                    </TextBlock.Inlines>
+                </TextBlock>
+            </Border>
+        </StackPanel>
+    </Grid>
+</Application>

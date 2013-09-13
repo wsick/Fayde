@@ -39,7 +39,7 @@ namespace WickedSick.Thea.Helpers
         {
             try
             {
-                Execute("if (window.Fayde.Application && Fayde.Application.DebugInterop) Fayde.Application.Current.DebugInterop.InvalidateCache();");
+                Execute("if (window.Fayde.Application && Fayde.Application.Current.DebugInterop) Fayde.Application.Current.DebugInterop.InvalidateCache();");
             }
             catch (Exception)
             {

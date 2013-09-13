@@ -59,30 +59,11 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
-    <Reference Include="WickedSick.Server.Framework.Fayde, Version=0.9.5.20, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>packages\Fayde.0.9.5.20\lib\net\WickedSick.Server.Framework.Fayde.dll</HintPath>
-    </Reference>
-    <Reference Include="WickedSick.Server.XamlParser, Version=0.9.5.20, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>packages\Fayde.0.9.5.20\lib\net\WickedSick.Server.XamlParser.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="default.fap.js">
-      <DependentUpon>default.fap.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="default.fap.ts">
-      <DependentUpon>default.fap</DependentUpon>
-    </TypeScriptCompile>
-    <Content Include="Views\default.fayde.js">
-      <DependentUpon>default.fayde.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="Views\default.fayde.ts">
-      <DependentUpon>default.fayde</DependentUpon>
-    </TypeScriptCompile>
     <TypeScriptCompile Include="Models\Round.ts" />
     <TypeScriptCompile Include="Models\DraftSpot.ts" />
+    <Content Include="default.html" />
     <Content Include="Images\chat.png" />
     <Content Include="Images\footballfield2.png" />
     <Content Include="Images\Player Headshots\aaron_rodgers.png" />
@@ -168,10 +149,11 @@
     <Content Include="Models\Team.js">
       <DependentUpon>Team.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Resources\AgeValueConverter.ts" />
     <Content Include="scripts\Fayde.d.ts" />
     <Content Include="scripts\Fayde.js" />
-    <Content Include="scripts\Fayde.Theme.Metro.js" />
-    <Content Include="scripts\Fayde.Theme.Silverlight.js" />
+    <Content Include="scripts\Theme.Metro.xml" />
+    <Content Include="scripts\Theme.Silverlight.xml" />
     <Content Include="ViewModels\DefaultViewModel.js">
       <DependentUpon>DefaultViewModel.ts</DependentUpon>
     </Content>
@@ -181,9 +163,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\default.fayde">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="packages.config" />
     <Content Include="default.fap">
       <SubType>Designer</SubType>
@@ -195,6 +174,7 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

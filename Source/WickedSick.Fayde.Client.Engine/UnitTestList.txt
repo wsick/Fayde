@@ -1,8 +1,0 @@
-﻿Fayde.d.ts
-Tests\PrimitivesTests.ts
-Tests\XamlNodeTests.ts
-Tests\ProviderTests.ts
-Tests\TransformTests.ts
-Tests\TimelineTests.ts
-Tests\ItemsControlTests.ts
-Tests\BindingTests.ts

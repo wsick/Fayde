@@ -1,0 +1,12 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    Theme="/Fayde/Theme.Metro.xml">
+    <Border BorderBrush="Navy" Background="White" BorderThickness="1" CornerRadius="5" Margin="0,0,50,100">
+        <Border BorderBrush="Red" Background="Orange" BorderThickness="8" CornerRadius="15" Margin="5, 10, 15, 20">
+            <Border BorderBrush="Black" Background="White" BorderThickness="3" CornerRadius="5, 5, 20, 20" Margin="20">
+                <Image Margin="10" Source="Images/testing.jpg"/>
+            </Border>
+        </Border>
+    </Border>
+</Application>

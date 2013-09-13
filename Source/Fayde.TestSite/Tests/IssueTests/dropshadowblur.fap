@@ -1,0 +1,22 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    Theme="/Fayde/Theme.Metro.xml">
+    <StackPanel>
+        <Border Width="200" Height="100" Background="Green" Margin="20">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="20" ShadowDepth="20" Color="Black" />
+            </Border.Effect>
+        </Border>
+        <Border Width="200" Height="100" Background="Blue"  Margin="20">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="20" Color="Black" />
+            </Border.Effect>
+        </Border>
+        <Border Width="200" Height="100" Background="Red"  Margin="20">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="0" ShadowDepth="20" Color="Black" />
+            </Border.Effect>
+        </Border>
+    </StackPanel>
+</Application>

@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="/Fayde/Fayde.js"></script>
+    <script type="text/javascript">
+        function loadXaml() {
+            var ta = document.getElementById("ta");
+            var divLoadMsg = document.getElementById("divLoadMsg");
+            var start = new Date().getTime();
+            try{
+                var obj = Fayde.Xaml.Load(ta.value);
+            } catch (err) {
+                divLoadMsg.innerText = err.toString();
+                return;
+            }
+            var end = new Date().getTime();
+            divLoadMsg.innerText = "Load Time: " + (end - start).toString() + "ms";
+        }
+    </script>
+</head>
+<body>
+    Xaml: <br />
+    <textarea id="ta" rows="50" cols="200"></textarea>
+    <br />
+    <input type="button" value="Load" onclick="loadXaml()" />
+    <br />
+    <div id="divLoadMsg"></div>
+</body>
+</html>

@@ -1,0 +1,473 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8734C581-3114-488D-8A53-7BC942232787}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Fayde.Client</RootNamespace>
+    <AssemblyName>Fayde.Client</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>4.0</OldToolsVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\..\Tools\ThirdParty\log4net\4.0\release\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Benchmarks\Bitwise\test.html" />
+    <Content Include="Benchmarks\LinkedList\LinkedList.js" />
+    <Content Include="Benchmarks\LinkedList\test.html" />
+    <Content Include="Benchmarks\Matrix\CanvasMatrix.js" />
+    <Content Include="Benchmarks\Matrix\glMatrix-min.js" />
+    <Content Include="Benchmarks\Matrix\Matrix3D.js" />
+    <Content Include="Benchmarks\Matrix\test.html" />
+    <Content Include="Benchmarks\refequals.html" />
+    <Content Include="Docs\AnimNotes.txt" />
+    <Content Include="Docs\DebugServices.txt" />
+    <Content Include="Docs\Links.txt" />
+    <Content Include="Docs\LayoutDep.txt" />
+    <Content Include="Docs\Notes.txt" />
+    <Content Include="Docs\Plugins.txt" />
+    <Content Include="Docs\XamlLoaderNotes.txt" />
+    <Content Include="Docs\XamlNotes.txt" />
+    <Content Include="Fayde.js">
+      <DependentUpon>Fayde.ts</DependentUpon>
+    </Content>
+    <Content Include="Fayde.ts" />
+    <Content Include="Global.asax" />
+    <Content Include="Fayde.d.ts">
+      <DependentUpon>Fayde.ts</DependentUpon>
+    </Content>
+    <Content Include="Silo\brush-transform.html" />
+    <Content Include="Silo\hittest.html" />
+    <Content Include="Silo\lineargradient-pattern.html" />
+    <Content Include="Silo\matrix-multiplypoint.html" />
+    <Content Include="Silo\RawPath\arcto-bounds.html" />
+    <Content Include="Silo\RawPath\arc-bounds.html" />
+    <Content Include="Silo\RawPath\cubic-bezier-bounds.html" />
+    <Content Include="Silo\silo1.html" />
+    <Content Include="Silo\image-load.html" />
+    <Content Include="Silo\RawPath\quad-bezier-bounds.html" />
+    <Content Include="Silo\UnitTestValidation.htm" />
+    <TypeScriptCompile Include="Tests\BindingTests.ts" />
+    <Content Include="Tests\BindingTests.js">
+      <DependentUpon>BindingTests.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Tests\XamlLoadTests.ts" />
+    <TypeScriptCompile Include="Tests\TypeConverterTests.ts" />
+    <TypeScriptCompile Include="Tests\MarkupExpressionTests.ts" />
+    <Content Include="Tests\MarkupExpressionTests.js">
+      <DependentUpon>MarkupExpressionTests.ts</DependentUpon>
+    </Content>
+    <Content Include="Tests\TypeConverterTests.js">
+      <DependentUpon>TypeConverterTests.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Tests\UriMapperTests.ts" />
+    <Content Include="Tests\UriMapperTests.js">
+      <DependentUpon>UriMapperTests.ts</DependentUpon>
+    </Content>
+    <Content Include="Tests\XamlLoadTests.js">
+      <DependentUpon>XamlLoadTests.ts</DependentUpon>
+    </Content>
+    <Content Include="Theme.Silverlight.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Theme.Metro.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Silo\heightTest.htm" />
+    <Content Include="Docs\Tips.txt" />
+    <TypeScriptCompile Include="Tests\ItemsControlTests.ts" />
+    <Content Include="Tests\ItemsControlTests.js">
+      <DependentUpon>ItemsControlTests.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Tests\PrimitivesTests.ts" />
+    <Content Include="Tests\PrimitivesTests.js">
+      <DependentUpon>PrimitivesTests.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Tests\ProviderTests.ts" />
+    <Content Include="Tests\ProviderTests.js">
+      <DependentUpon>ProviderTests.ts</DependentUpon>
+    </Content>
+    <Content Include="Tests\qunit-1.10.0.d.ts" />
+    <Content Include="Tests\qunit-1.11.0.css" />
+    <Content Include="Tests\qunit-1.11.0.js" />
+    <Content Include="Tests\tests.html" />
+    <TypeScriptCompile Include="Typescript\Core\XamlObject.ts" />
+    <TypeScriptCompile Include="Typescript\Core\XamlNode.ts" />
+    <TypeScriptCompile Include="Typescript\Core\NameScope.ts" />
+    <TypeScriptCompile Include="Typescript\Core\DependencyObject.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\TextBlock.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\Popup.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Image.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Control.ts" />
+    <TypeScriptCompile Include="Tests\XamlNodeTests.ts" />
+    <TypeScriptCompile Include="Tests\TransformTests.ts" />
+    <TypeScriptCompile Include="Tests\TimelineTests.ts" />
+    <Content Include="Tests\TimelineTests.js">
+      <DependentUpon>TimelineTests.ts</DependentUpon>
+    </Content>
+    <Content Include="Tests\TransformTests.js">
+      <DependentUpon>TransformTests.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Media\Matrix3D.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Providers\PropertyStore.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Providers\InheritedStore.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Providers\DataContextStore.ts" />
+    <TypeScriptCompile Include="Typescript\Core\InheritableOwner.ts" />
+    <TypeScriptCompile Include="Typescript\Core\DependencyPropertyChangedEventArgs.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Providers\ActualSizeStore.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Providers\ImplicitStyleBroker.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Providers\ImmutableStore.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Providers\IsEnabledStore.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Providers\LocalStyleBroker.ts" />
+    <TypeScriptCompile Include="Typescript\Engine\DebugInterop.ts" />
+    <TypeScriptCompile Include="Typescript\Core\RoutedPropertyChangedEvent.ts" />
+    <TypeScriptCompile Include="Typescript\Engine\Application.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\AnimationStore.ts" />
+    <TypeScriptCompile Include="Typescript\Media\PlaneProjection.ts" />
+    <TypeScriptCompile Include="Typescript\Navigation\UriMapper.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="Typescript\Navigation\UriMapping.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="Typescript\Runtime\Debug.ts" />
+    <TypeScriptCompile Include="Typescript\MVVM\ObservableObject.ts" />
+    <TypeScriptCompile Include="Typescript\MVVM\RelayCommand.ts" />
+    <TypeScriptCompile Include="Typescript\MVVM\ViewModelBase.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\Length.ts" />
+    <TypeScriptCompile Include="Typescript\Runtime\AjaxRequest.ts" />
+    <TypeScriptCompile Include="Typescript\Runtime\BatchLoad.ts" />
+    <TypeScriptCompile Include="Typescript\Runtime\TimelineProfile.ts" />
+    <TypeScriptCompile Include="Typescript\Runtime\TypeManagement.ts" />
+    <TypeScriptCompile Include="Typescript\Xaml\MarkupExpressionParser.ts" />
+    <TypeScriptCompile Include="Typescript\Xaml\Sources.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="Typescript\Xaml\TemplateBinding.ts" />
+    <TypeScriptCompile Include="Typescript\Xaml\Resources.ts" />
+    <TypeScriptCompile Include="Typescript\Navigation\NavigationService.ts" />
+    <Content Include="Typescript\Xaml\XamlLoader.ts" />
+    <Content Include="UnitTestList.txt" />
+    <Content Include="Tests\XamlNodeTests.js">
+      <DependentUpon>XamlNodeTests.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Typescript\Controls\ContentControl.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Canvas.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Border.ts" />
+    <TypeScriptCompile Include="Typescript\Collections\INotifyCollectionChanged.ts" />
+    <TypeScriptCompile Include="Typescript\Core\INotifyPropertyChanged.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ToolTip.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ComboBox.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\CheckBox.ts" />
+    <TypeScriptCompile Include="Typescript\Collections\NotifyCollectionChangedEventArgs.ts" />
+    <TypeScriptCompile Include="Typescript\Collections\ObservableCollection.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ListBoxItem.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ComboBoxItem.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ItemCollection.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\Selector.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\RangeBase.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\DragEventArgs.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\PasswordBox.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\ItemsChangedEventArgs.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\ScrollBar.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\ScrollEventArgs.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\SelectionChangedEventArgs.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\Thumb.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\SelectorSelection.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\RadioButton.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ProgressBar.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Slider.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ToolTipService.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Button.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ColumnDefinition.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ContentPresenter.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ControlTemplate.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\GridLength.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Grid.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Enums.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Frame.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\HyperlinkButton.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\MediaElement.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ItemContainerGenerator.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ItemsControl.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ItemsPresenter.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ItemsPanelTemplate.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ListBox.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Panel.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Page.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\IScrollInfo.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\ButtonBase.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\StackPanel.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ScrollViewer.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\ScrollContentPresenter.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\ScrollData.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\RepeatButton.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\RichTextBox.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\Primitives\ToggleButton.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\RowDefinition.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\UserControl.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\TextBox.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\TextBoxView.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\TextBoxBase.ts" />
+    <TypeScriptCompile Include="Typescript\Core\DataTemplate.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Clone.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\VirtualizingPanel.ts" />
+    <TypeScriptCompile Include="Typescript\Controls\VirtualizingStackPanel.ts" />
+    <TypeScriptCompile Include="Typescript\Core\DeferredValueExpression.ts" />
+    <TypeScriptCompile Include="Typescript\Core\DependencyProperty.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Expression.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Enums.ts" />
+    <TypeScriptCompile Include="Typescript\Core\FrameworkElement.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Style.ts" />
+    <TypeScriptCompile Include="Typescript\Core\ResourceDictionary.ts" />
+    <TypeScriptCompile Include="Typescript\Core\LayoutInformation.ts" />
+    <TypeScriptCompile Include="Typescript\Core\LayoutUpdater.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Setter.ts" />
+    <TypeScriptCompile Include="Typescript\Core\RoutedEventArgs.ts" />
+    <TypeScriptCompile Include="Typescript\Core\RoutedEvent.ts" />
+    <TypeScriptCompile Include="Typescript\Core\SizeChangedEventArgs.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Walkers.ts" />
+    <TypeScriptCompile Include="Typescript\Core\TypeConverter.ts" />
+    <TypeScriptCompile Include="Typescript\Core\TemplateBindingExpression.ts" />
+    <TypeScriptCompile Include="Typescript\Core\Triggers.ts" />
+    <TypeScriptCompile Include="Typescript\Core\VisualTreeHelper.ts" />
+    <TypeScriptCompile Include="Typescript\Runtime\Enumerable.ts" />
+    <TypeScriptCompile Include="Typescript\Core\XamlObjectCollection.ts" />
+    <TypeScriptCompile Include="Typescript\Runtime\Enum.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\Color.ts" />
+    <TypeScriptCompile Include="Typescript\Media\MediaParser.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Geometry.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Brush.ts" />
+    <TypeScriptCompile Include="Typescript\Data\PropertyPath.ts" />
+    <TypeScriptCompile Include="Typescript\Data\BindingExpression.ts" />
+    <TypeScriptCompile Include="Typescript\Data\Binding.ts" />
+    <TypeScriptCompile Include="Typescript\Data\ICollectionView.ts" />
+    <TypeScriptCompile Include="Typescript\Data\CollectionViewSource.ts" />
+    <TypeScriptCompile Include="Typescript\Data\RelativeSource.ts" />
+    <TypeScriptCompile Include="Typescript\Data\PropertyPathWalker.ts" />
+    <TypeScriptCompile Include="Typescript\Data\PropertyPathParser.ts" />
+    <TypeScriptCompile Include="Typescript\Documents\Run.ts" />
+    <TypeScriptCompile Include="Typescript\Documents\LineBreak.ts" />
+    <TypeScriptCompile Include="Typescript\Documents\Underline.ts" />
+    <TypeScriptCompile Include="Typescript\Engine\Surface.ts" />
+    <TypeScriptCompile Include="Typescript\Engine\Dirty.ts" />
+    <TypeScriptCompile Include="Typescript\Engine\ClockTimer.ts" />
+    <TypeScriptCompile Include="Typescript\Engine\RenderContext.ts" />
+    <TypeScriptCompile Include="Typescript\Input\KeyEventArgs.ts" />
+    <TypeScriptCompile Include="Typescript\Input\Keyboard.ts" />
+    <TypeScriptCompile Include="Typescript\Input\KeyboardNavigation.ts" />
+    <TypeScriptCompile Include="Typescript\Input\MouseEventArgs.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\Timeline.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\Enums.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\AnimationBase.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\AnimationUsingKeyFrames.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\ColorKeyFrame.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\ColorAnimation.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\BeginStoryboard.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\ColorAnimationUsingKeyFrames.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\EasingFunctionBase.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\Curves.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\DoubleAnimation.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\DoubleAnimationUsingKeyFrames.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\DoubleKeyFrame.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\EasingFunctions.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\RepeatBehavior.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\KeyFrame.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\KeySpline.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\ObjectKeyFrame.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\ObjectAnimationUsingKeyFrames.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\PointAnimation.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\PointAnimationUsingKeyFrames.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\PointKeyFrame.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Animation\Storyboard.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Effects\Effect.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Effects\DropShadowEffect.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Effects\BlurEffect.ts" />
+    <TypeScriptCompile Include="Typescript\Media\GeneralTransform.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Enums.ts" />
+    <TypeScriptCompile Include="Typescript\Media\EllipseGeometry.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Matrix.ts" />
+    <TypeScriptCompile Include="Typescript\Media\GradientBrush.ts" />
+    <TypeScriptCompile Include="Typescript\Media\GeometryGroup.ts" />
+    <TypeScriptCompile Include="Typescript\Media\GradientStop.ts" />
+    <TypeScriptCompile Include="Typescript\Media\GradientMetrics.ts" />
+    <TypeScriptCompile Include="Typescript\Media\LinearGradientBrush.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Imaging\BitmapImage.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Imaging\BitmapSource.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Imaging\ImageBrush.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Imaging\ImageSource.ts" />
+    <TypeScriptCompile Include="Typescript\Media\LineGeometry.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Matrix3DProjection.ts" />
+    <TypeScriptCompile Include="Typescript\Media\SolidColorBrush.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Projection.ts" />
+    <TypeScriptCompile Include="Typescript\Media\PathGeometry.ts" />
+    <TypeScriptCompile Include="Typescript\Media\PathFigure.ts" />
+    <TypeScriptCompile Include="Typescript\Media\PathSegment.ts" />
+    <TypeScriptCompile Include="Typescript\Media\PathSegments.ts" />
+    <TypeScriptCompile Include="Typescript\Media\RadialGradientBrush.ts" />
+    <TypeScriptCompile Include="Typescript\Media\RectangleGeometry.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\Clip.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Transform.ts" />
+    <TypeScriptCompile Include="Typescript\Media\TileBrush.ts" />
+    <TypeScriptCompile Include="Typescript\Media\TextOptions.ts" />
+    <TypeScriptCompile Include="Typescript\Media\Transforms.ts" />
+    <TypeScriptCompile Include="Typescript\Media\VSM\VisualState.ts" />
+    <TypeScriptCompile Include="Typescript\Media\VSM\VisualStateGroup.ts" />
+    <TypeScriptCompile Include="Typescript\Media\VSM\VisualStateManager.ts" />
+    <TypeScriptCompile Include="Typescript\Media\VSM\VisualTransition.ts" />
+    <TypeScriptCompile Include="Typescript\Input\ICommand.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\Thickness.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\CornerRadius.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\Point.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\Duration.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\KeyTime.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\Font.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\FontFamily.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\rect.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\RawMatrix.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\size.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\TimeSpan.ts" />
+    <TypeScriptCompile Include="Typescript\Primitives\Uri.ts" />
+    <TypeScriptCompile Include="Typescript\Core\UIElement.ts" />
+    <TypeScriptCompile Include="Typescript\Engine\Exceptions.ts" />
+    <TypeScriptCompile Include="Typescript\Data\BindingExpressionBase.ts" />
+    <TypeScriptCompile Include="Typescript\Data\Enums.ts" />
+    <TypeScriptCompile Include="Typescript\Documents\TextElement.ts" />
+    <TypeScriptCompile Include="Typescript\Documents\Span.ts" />
+    <TypeScriptCompile Include="Typescript\Documents\Paragraph.ts" />
+    <TypeScriptCompile Include="Typescript\Documents\Block.ts" />
+    <TypeScriptCompile Include="Typescript\Documents\Inline.ts" />
+    <TypeScriptCompile Include="Typescript\Documents\Section.ts" />
+    <TypeScriptCompile Include="Typescript\Runtime\BError.ts" />
+    <TypeScriptCompile Include="Typescript\Runtime\Nullstone.ts" />
+    <TypeScriptCompile Include="Typescript\Input\KeyInterop.ts" />
+    <TypeScriptCompile Include="Typescript\Runtime\EventArgs.ts" />
+    <TypeScriptCompile Include="Typescript\Runtime\MulticastEvent.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\PointCollection.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\DoubleCollection.ts" />
+    <TypeScriptCompile Include="Typescript\Runtime\PropertyInfo.ts" />
+    <TypeScriptCompile Include="Typescript\Runtime\StringEx.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\Enums.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\Ellipse.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\Line.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\Path.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\Shape.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\RawPath.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\Polygon.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\Polyline.ts" />
+    <TypeScriptCompile Include="Typescript\Shapes\Rectangle.ts" />
+    <TypeScriptCompile Include="Typescript\Text\TextLayout.ts" />
+    <TypeScriptCompile Include="Typescript\Text\TextAttributes.ts" />
+    <TypeScriptCompile Include="Typescript\Text\History.ts" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="xaml.aspx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="xaml.aspx.cs">
+      <DependentUpon>xaml.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="xaml.aspx.designer.cs">
+      <DependentUpon>xaml.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Fayde.tsorder">
+      <DependentUpon>Fayde.ts</DependentUpon>
+    </Content>
+    <None Include="build.bat" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Fayde.Server\Fayde.Server.csproj">
+      <Project>{674c2ef2-d791-4543-9af9-4da3ca750b26}</Project>
+      <Name>Fayde.Server</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <SaveServerSettingsInUserFile>True</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <PropertyGroup>
+    <PostBuildEvent>cd "$(ProjectDir)"
+xcopy /s /y Fayde.js ..\jsbin\
+xcopy /s /y Fayde.tsorder ..\jsbin\
+xcopy /s /y Fayde.d.ts ..\jsbin\
+xcopy /s /y Theme.*.xml ..\jsbin\</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>cd "$(ProjectDir)"
+build.bat "$(ProjectDir)"</PreBuildEvent>
+  </PropertyGroup>
+</Project>
