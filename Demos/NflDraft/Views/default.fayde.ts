@@ -1,5 +1,5 @@
-/// <reference path="scripts/Fayde.d.ts"/>
-/// <reference path="ViewModels/DefaultViewModel.ts"/>
+/// <reference path="../scripts/Fayde.d.ts"/>
+/// <reference path="../ViewModels/DefaultViewModel.ts"/>
 
 module NflDraft {
     var token = Nullstone.ImportJsFiles(["ViewModels/DefaultViewModel.js", "Models/FantasyTeam.js", "Models/Round.js", "Models/DraftSpot.js", "Models/Team.js", "Models/Player.js", "Models/Stats.js", "Models/PlayerStats.js"]);

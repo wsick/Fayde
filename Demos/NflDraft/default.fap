@@ -5,7 +5,7 @@
     Theme="Silverlight"
     ScriptResolution="scripts/">
     <FaydeApplication.UriMappings>
-        <UriMapping Uri="" MappedUri="default.fayde" />
+        <UriMapping Uri="" MappedUri="Views/default.fayde" />
     </FaydeApplication.UriMappings>
     <FaydeApplication.Resources>
     </FaydeApplication.Resources>

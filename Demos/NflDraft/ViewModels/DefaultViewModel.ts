@@ -12,13 +12,23 @@ module NflDraft.ViewModels {
         Rounds: Array<Models.Round>;
         Positions: Array<string>;
         PlayerStats: Array<Models.PlayerStats>;
+        private _countdown: number;
+        get Countdown(): number {
+            return this._countdown;
+        }
+        set Countdown(value: number) {
+            this._countdown = value;
+            this.OnPropertyChanged("Countdown");
+        }
         private _selectedPlayer: Models.PlayerStats;
-        get SelectedPlayer(): Models.PlayerStats { return this._selectedPlayer; }
+        get SelectedPlayer(): Models.PlayerStats {
+            return this._selectedPlayer;
+        }
         set SelectedPlayer(value: Models.PlayerStats) {
             this._selectedPlayer = value;
             this.OnPropertyChanged("SelectedPlayer");
         }
-        
+
         Load() {
             var _fantasyTeams: Array<Models.FantasyTeam> = new Array<Models.FantasyTeam>();
             var ft = ["Team 1", "Team 2", "Team 3", "Team 4", "Team 5", "Team 6", "Team 7", "Team 8", "Team 9", "Team 10"];
@@ -176,17 +186,19 @@ module NflDraft.ViewModels {
                     projected.FumblesLost = ps[i]["Projected"]["FumblesLost"];
                     playerStats.Projected = projected;
                 }
-                this.PlayerStats.push(playerStats);  
+                this.PlayerStats.push(playerStats);
             }
 
             this.SelectedPlayer = this.PlayerStats[0];
-            //setInterval(Tick(), 1000);
+            this.Countdown = 90;
+            setInterval(() => this.DoWork(), 1000);
         }
 
-        //Tick() {
-        //}
-        //private static ctor = (() => {
-        //    Fayde.MVVM.NotifyProperties(DefaultViewModel, ["Rounds"]);
-        //})();
+        DoWork() {
+            var current = this.Countdown;
+            if (current == 0) current = 90;
+            else current = current - 1;
+            this.Countdown = current;
+        }
     }
 }

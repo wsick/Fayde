@@ -75,10 +75,10 @@
     <TypeScriptCompile Include="default.fap.ts">
       <DependentUpon>default.fap</DependentUpon>
     </TypeScriptCompile>
-    <Content Include="default.fayde.js">
+    <Content Include="Views\default.fayde.js">
       <DependentUpon>default.fayde.ts</DependentUpon>
     </Content>
-    <TypeScriptCompile Include="default.fayde.ts">
+    <TypeScriptCompile Include="Views\default.fayde.ts">
       <DependentUpon>default.fayde</DependentUpon>
     </TypeScriptCompile>
     <TypeScriptCompile Include="Models\Round.ts" />
@@ -181,7 +181,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="default.fayde">
+    <Content Include="Views\default.fayde">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="packages.config" />
