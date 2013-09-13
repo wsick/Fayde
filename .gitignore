@@ -38,3 +38,11 @@ Source/Fayde.Client/Fayde.tsorder
 Source/Fayde.Client/Tests/XamlLoadTests.js
 Source/Fayde.Client/Tests/TypeConverterTests.js
 Source/Fayde.Client/Tests/MarkupExpressionTests.js
+Demos/NflDraft/ViewModels/DefaultViewModel.js
+Demos/NflDraft/Models/DraftSpot.js
+Demos/NflDraft/Models/FantasyTeam.js
+Demos/NflDraft/Models/Player.js
+Demos/NflDraft/Models/PlayerStats.js
+Demos/NflDraft/Models/Round.js
+Demos/NflDraft/Models/Stats.js
+Demos/NflDraft/Models/Team.js
