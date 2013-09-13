@@ -122,33 +122,12 @@
     <Content Include="Images\Team Logos\TB.png" />
     <Content Include="Images\Team Logos\TEN.png" />
     <Content Include="Images\Team Logos\WAS.png" />
-    <Content Include="Models\DraftSpot.js">
-      <DependentUpon>DraftSpot.ts</DependentUpon>
-    </Content>
     <TypeScriptCompile Include="Models\FantasyTeam.ts" />
-    <Content Include="Models\FantasyTeam.js">
-      <DependentUpon>FantasyTeam.ts</DependentUpon>
-    </Content>
     <TypeScriptCompile Include="Models\Player.ts" />
-    <Content Include="Models\Player.js">
-      <DependentUpon>Player.ts</DependentUpon>
-    </Content>
     <TypeScriptCompile Include="Models\PlayerStats.ts" />
-    <Content Include="Models\PlayerStats.js">
-      <DependentUpon>PlayerStats.ts</DependentUpon>
-    </Content>
-    <Content Include="Models\Round.js">
-      <DependentUpon>Round.ts</DependentUpon>
-    </Content>
     <TypeScriptCompile Include="ViewModels\DefaultViewModel.ts" />
     <TypeScriptCompile Include="Models\Team.ts" />
     <TypeScriptCompile Include="Models\Stats.ts" />
-    <Content Include="Models\Stats.js">
-      <DependentUpon>Stats.ts</DependentUpon>
-    </Content>
-    <Content Include="Models\Team.js">
-      <DependentUpon>Team.ts</DependentUpon>
-    </Content>
     <TypeScriptCompile Include="Resources\AgeValueConverter.ts" />
     <Content Include="scripts\Fayde.d.ts" />
     <Content Include="scripts\Fayde.js" />
