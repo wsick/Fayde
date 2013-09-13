@@ -462,7 +462,6 @@
   <PropertyGroup>
     <PostBuildEvent>cd "$(ProjectDir)"
 xcopy /s /y Fayde.js ..\jsbin\
-xcopy /s /y Fayde.tsorder ..\jsbin\
 xcopy /s /y Fayde.d.ts ..\jsbin\
 xcopy /s /y Theme.*.xml ..\jsbin\</PostBuildEvent>
   </PropertyGroup>

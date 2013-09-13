@@ -6,10 +6,12 @@
         <staticContent>
             <mimeMap fileExtension=".mp4" mimeType="video/mp4" />
             <mimeMap fileExtension=".mpv" mimeType="video/mpv" />
+            <mimeMap fileExtension=".fap" mimeType="text/xml" />
+            <mimeMap fileExtension=".fayde" mimeType="text/xml" />
         </staticContent>
         <defaultDocument>
             <files>
-                <add value="default.fap" />
+                <add value="default.html" />
             </files>
         </defaultDocument>
     </system.webServer>
