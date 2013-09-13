@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.TestSite", "Fayde.Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Server", "Fayde.Server\Fayde.Server.csproj", "{674C2EF2-D791-4543-9AF9-4DA3CA750B26}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Controls.Toolkit", "Fayde.Controls.Toolkit\Fayde.Controls.Toolkit.csproj", "{1A04C0BD-2869-426F-9A4B-B4A335B315E6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{674C2EF2-D791-4543-9AF9-4DA3CA750B26}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{674C2EF2-D791-4543-9AF9-4DA3CA750B26}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{674C2EF2-D791-4543-9AF9-4DA3CA750B26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A04C0BD-2869-426F-9A4B-B4A335B315E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A04C0BD-2869-426F-9A4B-B4A335B315E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A04C0BD-2869-426F-9A4B-B4A335B315E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A04C0BD-2869-426F-9A4B-B4A335B315E6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
