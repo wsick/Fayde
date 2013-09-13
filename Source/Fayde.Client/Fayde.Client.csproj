@@ -193,6 +193,7 @@
     <TypeScriptCompile Include="Typescript\Xaml\TemplateBinding.ts" />
     <TypeScriptCompile Include="Typescript\Xaml\Resources.ts" />
     <TypeScriptCompile Include="Typescript\Navigation\NavigationService.ts" />
+    <TypeScriptCompile Include="Typescript\Input\InteractionHelper.ts" />
     <Content Include="Typescript\Xaml\XamlLoader.ts" />
     <Content Include="UnitTestList.txt" />
     <Content Include="Tests\XamlNodeTests.js">
