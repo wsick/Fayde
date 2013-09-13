@@ -139,10 +139,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="packages.config" />
     <Content Include="default.fap">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -176,7 +176,7 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  <Import Project="packages\Fayde.0.9.5.20\build\Fayde.targets" Condition="Exists('packages\Fayde.0.9.5.20\build\Fayde.targets')" />
+  <Import Project="packages\Fayde.0.9.6.0\build\Fayde.targets" Condition="Exists('packages\Fayde.0.9.6.0\build\Fayde.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
