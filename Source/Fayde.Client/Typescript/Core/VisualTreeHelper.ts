@@ -11,6 +11,16 @@ module Fayde {
             if (parentNode)
                 return parentNode.XObject;
         }
+        static GetParentOfType<T extends DependencyObject>(d: DependencyObject, type: any): T {
+            if (!(d instanceof FrameworkElement))
+                throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
+            var curNode = (<UIElement>d).XamlNode;
+            while ((curNode = curNode.VisualParentNode)) {
+                if (curNode instanceof type)
+                    return curNode.XObject;
+            }
+            return undefined;
+        }
         static GetRoot(d: DependencyObject): DependencyObject {
             if (!(d instanceof FrameworkElement))
                 throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
