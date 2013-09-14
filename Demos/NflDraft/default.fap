@@ -17,6 +17,7 @@
     </Namespace>
     <Namespace Name="folder:Resources">
       <Source Name="AgeValueConverter" Source="Resources/AgeValueConverter.js" />
+      <Source Name="TimeValueConverter" Source="Resources/TimeValueConverter.js" />
     </Namespace>
     <Namespace Name="folder:ViewModels">
       <Source Name="Team" Source="ViewModels/DefaultViewModel.js" />
@@ -49,6 +50,7 @@
       <GradientStop Color="{StaticResource DarkGray}" Offset="1"/>
     </LinearGradientBrush>
     <res:AgeValueConverter x:Key="ageValueConverter" />
+    <res:TimeValueConverter x:Key="timeValueConverter" />
   </Application.Resources>
   <Grid x:Name="LayoutRoot" Background="{StaticResource DarkGrayBrush}">
     <Grid.DataContext>
@@ -63,7 +65,7 @@
       <Border Margin="5" BorderBrush="Black" BorderThickness="1" CornerRadius="5">
         <Border Background="{StaticResource GrayGradient}" BorderBrush="{StaticResource MediumGrayBrush}" BorderThickness="1, 1, 0, 0" CornerRadius="5">
           <StackPanel Orientation="Vertical">
-            <TextBlock Foreground="White" FontSize="40" FontWeight="Bold" TextAlignment="Center" Text="01:15">
+            <TextBlock Foreground="White" FontSize="40" FontWeight="Bold" TextAlignment="Center" Text="{Binding Countdown, Converter={StaticResource timeValueConverter}}">
               <TextBlock.Effect>
                 <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="3"/>
               </TextBlock.Effect>

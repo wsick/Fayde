@@ -189,13 +189,13 @@ module NflDraft.ViewModels {
             }
 
             this.SelectedPlayer = this.PlayerStats[0];
-            this.Countdown = 90;
+            this.Countdown = 15;
             setInterval(() => this.DoWork(), 1000);
         }
 
         DoWork() {
             var current = this.Countdown;
-            if (current == 0) current = 90;
+            if (current == 0) current = 15;
             else current = current - 1;
             this.Countdown = current;
         }
