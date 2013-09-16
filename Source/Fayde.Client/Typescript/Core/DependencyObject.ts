@@ -156,7 +156,7 @@ module Fayde {
                 
             var val = this.ReadLocalValueInternal(propd);
             if (val === undefined)
-                return UnsetValue;
+                return DependencyProperty.UnsetValue;
             return val;
         }
         ReadLocalValueInternal(propd: DependencyProperty): any {

@@ -21,11 +21,11 @@ module Fayde.Controls {
                 
             var xobj = this.XObject;
             if (xobj.TemplateOwner instanceof ContentControl) {
-                if (xobj.ReadLocalValue(ContentPresenter.ContentProperty) === UnsetValue) {
+                if (xobj.ReadLocalValue(ContentPresenter.ContentProperty) === DependencyProperty.UnsetValue) {
                     xobj.SetValue(ContentPresenter.ContentProperty,
                         new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
                 }
-                if (xobj.ReadLocalValue(ContentPresenter.ContentTemplateProperty) === UnsetValue) {
+                if (xobj.ReadLocalValue(ContentPresenter.ContentTemplateProperty) === DependencyProperty.UnsetValue) {
                     xobj.SetValue(ContentPresenter.ContentTemplateProperty,
                         new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
                 }

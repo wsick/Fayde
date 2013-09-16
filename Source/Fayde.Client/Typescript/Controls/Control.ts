@@ -196,7 +196,7 @@ module Fayde.Controls {
             var commonState = this.GetVisualStateCommon();
             return [focusedState, commonState];
         }
-        GetVisualStateCommon() {
+        GetVisualStateCommon(): string {
             if (!this.IsEnabled) {
                 return "Disabled";
             } else if (this.IsMouseOver) {
@@ -205,7 +205,7 @@ module Fayde.Controls {
                 return "Normal";
             }
         }
-        GetVisualStateFocus() {
+        GetVisualStateFocus(): string {
             if (this.IsFocused && this.IsEnabled)
                 return "Focused";
             else

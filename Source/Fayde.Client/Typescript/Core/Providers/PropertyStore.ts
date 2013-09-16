@@ -2,10 +2,6 @@
 /// <reference path="../DependencyObject.ts" />
 /// <reference path="../../Media/Animation/AnimationStore.ts" />
 
-module Fayde {
-    export var UnsetValue = {};
-}
-
 module Fayde.Providers {
     export enum PropertyPrecedence {
         IsEnabled = 0,
@@ -72,7 +68,7 @@ module Fayde.Providers {
         }
 
         SetLocalValue(storage: Providers.IPropertyStorage, newValue: any) {
-            if (newValue === undefined || newValue === UnsetValue) {
+            if (newValue === undefined || newValue === DependencyProperty.UnsetValue) {
                 this.ClearValue(storage);
                 return;
             }

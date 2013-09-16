@@ -11,7 +11,7 @@ test("Basic", () => {
     var val;
 
     val = dobj.ReadLocalValue(Mock1Property);
-    ok(val === Fayde.UnsetValue, "ReadLocalValue (Mock1) should return UnsetValue since value has not been set.");
+    ok(val === DependencyProperty.UnsetValue, "ReadLocalValue (Mock1) should return UnsetValue since value has not been set.");
 
     dobj.SetValue(Mock1Property, "Modified");
     val = dobj.GetValue(Mock1Property);

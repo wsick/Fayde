@@ -12,6 +12,8 @@ interface IOutIsValid {
 }
 
 class DependencyProperty {
+    static UnsetValue = {};
+
     private static _IDs: DependencyProperty[] = [];
     private static _LastID: number = 0;
 
