@@ -57,6 +57,16 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Calendar.ts" />
+    <TypeScriptCompile Include="CalendarDateChangedEventArgs.ts" />
+    <TypeScriptCompile Include="CalendarModeChangedEventArgs.ts" />
+    <TypeScriptCompile Include="DatePicker.ts" />
+    <TypeScriptCompile Include="Enums.ts" />
+    <TypeScriptCompile Include="Internal\CalendarDateRange.ts" />
+    <TypeScriptCompile Include="Internal\DateTimeHelper.ts" />
+    <TypeScriptCompile Include="Primitives\CalendarButton.ts" />
+    <TypeScriptCompile Include="Primitives\CalendarDayButton.ts" />
+    <TypeScriptCompile Include="Primitives\CalendarItem.ts" />
     <TypeScriptCompile Include="TabControl.ts" />
     <TypeScriptCompile Include="TabItem.ts" />
     <TypeScriptCompile Include="Primitives\TabPanel.ts" />
