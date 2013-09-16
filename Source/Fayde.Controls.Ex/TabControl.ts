@@ -1,8 +1,8 @@
 /// <reference path="../jsbin/Fayde.d.ts" />
 /// <reference path="TabItem.ts" />
-/// <reference path="TabPanel.ts" />
+/// <reference path="Primitives/TabPanel.ts" />
 
-module Fayde.Controls.Toolkit {
+module Fayde.Controls {
     export enum Dock {
         Left,
         Top,
@@ -11,7 +11,7 @@ module Fayde.Controls.Toolkit {
     }
     Fayde.RegisterEnum(Dock, {
         Name: "Dock",
-        Namespace: "Fayde.Controls.Toolkit",
+        Namespace: "Fayde.Controls",
         XmlNamespace: Fayde.XMLNS
     });
 
@@ -57,6 +57,11 @@ module Fayde.Controls.Toolkit {
 
         private _UpdateIndex = true;
         private _DesiredIndex: number = 0;
+
+        constructor() {
+            super();
+            this.DefaultStyleKey = (<any>this).constructor;
+        }
 
         OnApplyTemplate() {
             super.OnApplyTemplate();
@@ -455,7 +460,7 @@ module Fayde.Controls.Toolkit {
     }
     Fayde.RegisterType(TabControl, {
         Name: "TabControl",
-        Namespace: "Fayde.Controls.Toolkit",
+        Namespace: "Fayde.Controls",
         XmlNamespace: Fayde.XMLNS
     });
 }

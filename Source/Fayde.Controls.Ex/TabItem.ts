@@ -1,6 +1,6 @@
 /// <reference path="../jsbin/Fayde.d.ts" />
 
-module Fayde.Controls.Toolkit {
+module Fayde.Controls {
     export class TabItem extends ContentControl {
         static HasHeaderProperty = DependencyProperty.Register("HasHeader", () => Boolean, TabItem, false);
         static HeaderProperty = DependencyProperty.Register("Header", () => Object, TabItem, null, (d, args) => (<TabItem>d)._OnHeaderChanged(args));
@@ -267,7 +267,7 @@ module Fayde.Controls.Toolkit {
     }
     Fayde.RegisterType(TabItem, {
         Name: "TabItem",
-        Namespace: "Fayde.Controls.Toolkit",
+        Namespace: "Fayde.Controls",
         XmlNamespace: Fayde.XMLNS
     });
 }

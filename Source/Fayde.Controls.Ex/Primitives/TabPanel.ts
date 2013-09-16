@@ -1,6 +1,6 @@
-/// <reference path="../jsbin/Fayde.d.ts" />
+/// <reference path="../../jsbin/Fayde.d.ts" />
 
-module Fayde.Controls.Toolkit.Primitives {
+module Fayde.Controls.Primitives {
     export class TabPanel extends Panel {
         private _NumberOfRows: number = 1;
         private _RowHeight: number;
@@ -293,7 +293,7 @@ module Fayde.Controls.Toolkit.Primitives {
     }
     Fayde.RegisterType(TabPanel, {
         Name: "TabPanel",
-        Namespace: "Fayde.Controls.Toolkit.Primitives",
+        Namespace: "Fayde.Controls.Primitives",
         XmlNamespace: Fayde.XMLNS
     });
 
