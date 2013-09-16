@@ -85,6 +85,17 @@ Fayde.RegisterType(IndexOutOfRangeException, {
 	XmlNamespace: Fayde.XMLNSX
 });
 
+class ArgumentOutOfRangeException extends Exception {
+    constructor(msg: string) {
+        super(msg);
+    }
+}
+Fayde.RegisterType(ArgumentOutOfRangeException, {
+	Name: "ArgumentOutOfRangeException",
+	Namespace: "window",
+	XmlNamespace: Fayde.XMLNSX
+});
+
 class AttachException extends Exception {
     Data: any;
     constructor(message: string, data: any) {
