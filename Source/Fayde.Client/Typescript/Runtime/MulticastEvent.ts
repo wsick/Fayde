@@ -28,7 +28,7 @@ class MulticastEvent<T extends EventArgs> {
         }
     }
     Raise(sender: any, args: T) {
-        var listeners = this._Listeners;
+        var listeners = this._Listeners.slice(0);
         var len = listeners.length;
         var listener: IEventListener<T> = null;
         for (var i = 0; i < len; i++) {
