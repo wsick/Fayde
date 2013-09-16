@@ -123,3 +123,49 @@ test("rect", () => {
     rect.union(r1, r2);
     ok(rect.isEqual(r1, r3), "Union of 25,25,50,50 and 50,50,50,50 should be 25,25,75,75");
 });
+
+test("DateTime", () => {
+    var d: DateTime;
+
+    d = new DateTime();
+    strictEqual(d.Ticks, 0, "ctor1");
+    
+    d = new DateTime(1000);
+    strictEqual(d.Ticks, 1000, "ctor2 ticks");
+    
+    d = new DateTime(1000, DateTimeKind.Local);
+    strictEqual(d.Ticks, 1000, "ctor3 ticks");
+    strictEqual(d.Kind, DateTimeKind.Local, "ctor3 kind");
+
+    d = new DateTime(2000, 1, 2);
+    strictEqual(d.Year, 2000, "ctor4 year");
+    strictEqual(d.Month, 1, "ctor4 month");
+    strictEqual(d.Day, 2, "ctor4 day");
+
+    d = new DateTime(2000, 1, 2, 5, 30, 45);
+    strictEqual(d.Year, 2000, "ctor5 year");
+    strictEqual(d.Month, 1, "ctor5 month");
+    strictEqual(d.Day, 2, "ctor5 day");
+    strictEqual(d.Hour, 5, "ctor5 hour");
+    strictEqual(d.Minute, 30, "ctor5 minute");
+    strictEqual(d.Second, 45, "ctor5 second");
+
+    d = new DateTime(2000, 1, 2, 5, 30, 45, 500);
+    strictEqual(d.Year, 2000, "ctor6 year");
+    strictEqual(d.Month, 1, "ctor6 month");
+    strictEqual(d.Day, 2, "ctor6 day");
+    strictEqual(d.Hour, 5, "ctor6 hour");
+    strictEqual(d.Minute, 30, "ctor6 minute");
+    strictEqual(d.Second, 45, "ctor6 second");
+    strictEqual(d.Millisecond, 500, "ctor6 millisecond");
+
+    d = new DateTime(2000, 1, 2, 5, 30, 45, 500, DateTimeKind.Utc);
+    strictEqual(d.Year, 2000, "ctor7 year");
+    strictEqual(d.Month, 1, "ctor7 month");
+    strictEqual(d.Day, 2, "ctor7 day");
+    strictEqual(d.Hour, 5, "ctor7 hour");
+    strictEqual(d.Minute, 30, "ctor7 minute");
+    strictEqual(d.Second, 45, "ctor7 second");
+    strictEqual(d.Millisecond, 500, "ctor7 millisecond");
+    strictEqual(d.Kind, DateTimeKind.Utc, "ctor7 kind");
+});
