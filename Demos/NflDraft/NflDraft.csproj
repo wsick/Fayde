@@ -130,6 +130,7 @@
     <TypeScriptCompile Include="Models\Stats.ts" />
     <TypeScriptCompile Include="Resources\AgeValueConverter.ts" />
     <TypeScriptCompile Include="Resources\TimeValueConverter.ts" />
+    <Content Include="Resources\DateValueConverter.ts" />
     <Content Include="scripts\Fayde.d.ts" />
     <Content Include="scripts\Fayde.js" />
     <Content Include="scripts\Theme.Metro.xml" />
