@@ -66,16 +66,13 @@ module Fayde.Data {
 
             this._Cached = true;
             if (this.PropertyPathWalker.IsPathBroken) {
+                console.warn("[BINDING] Path Broken --> Path='" + this.PropertyPathWalker.Path + "'");
                 this._CachedValue = null;
             } else {
                 this._CachedValue = this.PropertyPathWalker.ValueInternal;
             }
 
-            try {
-                this._CachedValue = this._ConvertToType(propd, this._CachedValue);
-            } catch (err) {
-                this._CachedValue = propd.DefaultValue;
-            }
+            this._CachedValue = this._ConvertToType(propd, this._CachedValue);
             return this._CachedValue;
         }
 
@@ -271,7 +268,7 @@ module Fayde.Data {
                 if (this.ParentBinding.Mode === BindingMode.OneTime)
                     this.Refresh();
             } catch (err) {
-                console.warn(err.message);
+                console.warn("[BINDING] DataContextChanged Error: " + err.message);
             }
         }
 
@@ -345,7 +342,7 @@ module Fayde.Data {
                 }
             } catch (err) {
                 //NOTE: Do we need to handle string conversion?
-                console.warn("[BINDING] " + err.toString());
+                console.warn("[BINDING]" + err.toString());
                 return Fayde.ConvertAnyToType(binding.FallbackValue, <Function>propd.GetTargetType());
             }
             return value;
