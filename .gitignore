@@ -46,3 +46,16 @@ Demos/NflDraft/Models/PlayerStats.js
 Demos/NflDraft/Models/Round.js
 Demos/NflDraft/Models/Stats.js
 Demos/NflDraft/Models/Team.js
+Source/Fayde.Controls.Data/DataGrid.js
+Source/Fayde.Controls.Data/DataGridColumn.ts
+Source/Fayde.Controls.Data/DataGridDisplayData.js
+Source/Fayde.Controls.Data/DataGridRow.js
+Source/Fayde.Controls.Data/DataGridRowGroupHeader.js
+Source/Fayde.Controls.Data/Internal/DataGridDisplayData.js
+Source/Fayde.Controls.Data/Primitives/DataGridCellsPresenter.js
+Source/Fayde.Controls.Data/Primitives/DataGridColumnHeader.js
+Source/Fayde.Controls.Data/Primitives/DataGridColumnHeadersPresenter.js
+Source/Fayde.Controls.Data/Primitives/DataGridDetailsPresenter.js
+Source/Fayde.Controls.Data/Primitives/DataGridFrozenGrid.js
+Source/Fayde.Controls.Data/Primitives/DataGridRowHeader.js
+Source/Fayde.Controls.Data/Primitives/DataGridRowsPresenter.js
