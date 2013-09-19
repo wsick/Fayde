@@ -299,7 +299,6 @@
     <TypeScriptCompile Include="Typescript\Documents\LineBreak.ts" />
     <TypeScriptCompile Include="Typescript\Documents\Underline.ts" />
     <TypeScriptCompile Include="Typescript\Engine\Surface.ts" />
-    <TypeScriptCompile Include="Typescript\Engine\Dirty.ts" />
     <TypeScriptCompile Include="Typescript\Engine\ClockTimer.ts" />
     <TypeScriptCompile Include="Typescript\Engine\RenderContext.ts" />
     <TypeScriptCompile Include="Typescript\Input\KeyEventArgs.ts" />

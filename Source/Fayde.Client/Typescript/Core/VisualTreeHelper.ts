@@ -208,7 +208,7 @@ module Fayde {
             if (!uin)
                 return "";
             var lu = uin.LayoutUpdater;
-            var str = VisualTreeHelper._SerializeDirt(lu.DirtyFlags);
+            var str = (<any>lu)._SerializeDirt();
             str += VisualTreeHelper._SerializeFlags(lu.Flags);
             str += " (";
             str += lu.HiddenDesire.toString();
@@ -222,67 +222,6 @@ module Fayde {
             return VisualTreeHelper.__Debug(ui, VisualTreeHelper.__DebugUIElementLayout);
         }
 
-        private static _SerializeDirt(dirt: _Dirty): string {
-            var curdirt = dirt;
-            
-            var down = "";
-            if (curdirt & _Dirty.ChildrenZIndices) {
-                curdirt &= ~_Dirty.ChildrenZIndices;
-                down += "ZI+";
-            }
-            if (curdirt & _Dirty.Arrange) {
-                curdirt &= ~_Dirty.Arrange;
-                down += "A+";
-            }
-            if (curdirt & _Dirty.Measure) {
-                curdirt &= ~_Dirty.Measure;
-                down += "M+";
-            }
-            if (curdirt & _Dirty.HitTestVisibility) {
-                curdirt &= ~_Dirty.HitTestVisibility;
-                down += "HTV+";
-            }
-            if (curdirt & _Dirty.RenderVisibility) {
-                curdirt &= ~_Dirty.RenderVisibility;
-                down += "RV+";
-            }
-            if (curdirt & _Dirty.LocalClip) {
-                curdirt &= ~_Dirty.LocalClip;
-                down += "LC+";
-            }
-            if (curdirt & _Dirty.Clip) {
-                curdirt &= ~_Dirty.Clip;
-                down += "C+";
-            }
-            if (curdirt & _Dirty.LocalProjection) {
-                curdirt &= ~_Dirty.LocalProjection;
-                down += "LP+";
-            }
-            if (curdirt & _Dirty.LocalTransform) {
-                curdirt &= ~_Dirty.LocalTransform;
-                down += "LT+";
-            }
-            if (curdirt & _Dirty.Transform) {
-                curdirt &= ~_Dirty.Transform;
-                down += "T+";
-            }
-            if (down)
-                down = down.substr(0, down.length - 1);
-            
-            var up = "";
-            if (curdirt & _Dirty.Invalidate) {
-                curdirt &= ~_Dirty.Invalidate;
-                up += "I+";
-            }
-            if (curdirt & _Dirty.Bounds) {
-                curdirt &= ~_Dirty.Bounds;
-                up += "B+";
-            }
-            if (up)
-                up = up.substr(0, up.length - 1);
-
-            return "[" + down + ":" + up + "]";
-        }
         private static _SerializeFlags(flags: UIElementFlags): string {
             var str = "";
             if (flags & UIElementFlags.DirtySizeHint) {

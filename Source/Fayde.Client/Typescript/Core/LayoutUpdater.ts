@@ -1,4 +1,3 @@
-/// <reference path="../Engine/Dirty.ts" />
 /// <reference path="../Runtime/Nullstone.ts" />
 /// CODE
 /// <reference path="UIElement.ts" />
@@ -12,17 +11,28 @@
 /// <reference path="../Media/RectangleGeometry.ts" />
 
 module Fayde {
-    var dirtyEnum = _Dirty;
-    var localTransformFlag = _Dirty.LocalTransform;
-    var localProjectionFlag = _Dirty.LocalProjection;
-    var transformFlag = _Dirty.Transform;
-    var rvFlag = _Dirty.RenderVisibility;
-    var htvFlag = _Dirty.HitTestVisibility;
-    var localClipFlag = _Dirty.LocalClip;
-    var layoutClipFlag = _Dirty.LayoutClip;
-    var clipFlag = _Dirty.Clip;
-    var downDirtyFlag = _Dirty.DownDirtyState
-    var upDirtyFlag = _Dirty.UpDirtyState;
+    enum _Dirty {
+        Transform = 1 << 0,
+        LocalTransform = 1 << 1,
+        LocalProjection = 1 << 2,
+        Clip = 1 << 3,
+        LocalClip = 1 << 4,
+        LayoutClip = 1 << 5,
+        RenderVisibility = 1 << 6,
+        HitTestVisibility = 1 << 7,
+        Measure = 1 << 8,
+        Arrange = 1 << 9,
+        ChildrenZIndices = 1 << 10,
+        Bounds = 1 << 20,
+        NewBounds = 1 << 21,
+        Invalidate = 1 << 22,
+        InUpDirtyList = 1 << 30,
+        InDownDirtyList = 1 << 31,
+
+        DownDirtyState = Transform | LocalTransform | LocalProjection
+        | Clip | LocalClip | LayoutClip | RenderVisibility | HitTestVisibility | ChildrenZIndices,
+        UpDirtyState = Bounds | Invalidate,
+    }
 
     export enum UIElementFlags {
         None = 0,
@@ -134,7 +144,7 @@ module Fayde {
 
         Flags: Fayde.UIElementFlags = Fayde.UIElementFlags.RenderVisible | Fayde.UIElementFlags.HitTestVisible;
 
-        DirtyFlags: _Dirty = 0;
+        private DirtyFlags: _Dirty = 0;
         InUpDirty: boolean = false;
         InDownDirty: boolean = false;
         DirtyRegion: rect = new rect();
@@ -196,8 +206,8 @@ module Fayde {
             DirtyDebug.Level++;
             DirtyDebug("[" + uie.__DebugToString() + "]" + uie.__DebugDownDirtyFlags());
             */
-            if (this.DirtyFlags & rvFlag) {
-                this.DirtyFlags &= ~rvFlag;
+            if (this.DirtyFlags & _Dirty.RenderVisibility) {
+                this.DirtyFlags &= ~_Dirty.RenderVisibility;
 
                 var ovisible = this.TotalIsRenderVisible;
 
@@ -214,22 +224,22 @@ module Fayde {
                     this._CacheInvalidateHint();
 
                 if (ovisible !== this.TotalIsRenderVisible)
-                    this.Surface._AddDirtyElement(this, dirtyEnum.NewBounds);
+                    this._AddDirtyElement(_Dirty.NewBounds);
 
-                this._PropagateDirtyFlagToChildren(rvFlag);
+                this._PropagateDirtyFlagToChildren(_Dirty.RenderVisibility);
             }
 
-            if (this.DirtyFlags & htvFlag) {
-                this.DirtyFlags &= ~htvFlag;
+            if (this.DirtyFlags & _Dirty.HitTestVisibility) {
+                this.DirtyFlags &= ~_Dirty.HitTestVisibility;
                 //uie._ComputeTotalHitTestVisibility();
                 this.UpdateHitTestVisibility(visualParentLu);
-                this._PropagateDirtyFlagToChildren(htvFlag);
+                this._PropagateDirtyFlagToChildren(_Dirty.HitTestVisibility);
             }
 
-            var isLT = this.DirtyFlags & localTransformFlag;
-            var isLP = this.DirtyFlags & localProjectionFlag;
-            var isT = isLT || isLP || this.DirtyFlags & transformFlag;
-            this.DirtyFlags &= ~(localTransformFlag | localProjectionFlag | transformFlag);
+            var isLT = this.DirtyFlags & _Dirty.LocalTransform;
+            var isLP = this.DirtyFlags & _Dirty.LocalProjection;
+            var isT = isLT || isLP || this.DirtyFlags & _Dirty.Transform;
+            this.DirtyFlags &= ~(_Dirty.LocalTransform | _Dirty.LocalProjection | _Dirty.Transform);
 
             if (isLT) {
                 //DirtyDebug("ComputeLocalTransform: [" + uie.__DebugToString() + "]");
@@ -246,29 +256,29 @@ module Fayde {
                 //DirtyDebug("--> " + xformer.AbsoluteProjection._Elements.slice(0, 8).toString());
                 if (visualParentLu)
                     visualParentLu.UpdateBounds();
-                this._PropagateDirtyFlagToChildren(dirtyEnum.Transform);
+                this._PropagateDirtyFlagToChildren(_Dirty.Transform);
             }
 
-            var isLocalClip = this.DirtyFlags & localClipFlag;
-            var isLayoutClip = this.DirtyFlags & layoutClipFlag;
-            var isClip = isLocalClip || this.DirtyFlags & clipFlag;
-            this.DirtyFlags &= ~(localClipFlag | layoutClipFlag | clipFlag);
+            var isLocalClip = this.DirtyFlags & _Dirty.LocalClip;
+            var isLayoutClip = this.DirtyFlags & _Dirty.LayoutClip;
+            var isClip = isLocalClip || this.DirtyFlags & _Dirty.Clip;
+            this.DirtyFlags &= ~(_Dirty.LocalClip | _Dirty.LayoutClip | _Dirty.Clip);
             
             if (isLayoutClip) {
                 this.ComputeLayoutClip(visualParentLu);
-                this._PropagateDirtyFlagToChildren(dirtyEnum.LayoutClip);
+                this._PropagateDirtyFlagToChildren(_Dirty.LayoutClip);
             }
             //if (isClip)
-                //this._PropagateDirtyFlagToChildren(dirtyEnum.Clip);
-
-            if (this.DirtyFlags & dirtyEnum.ChildrenZIndices) {
-                this.DirtyFlags &= ~dirtyEnum.ChildrenZIndices;
+                //this._PropagateDirtyFlagToChildren(_Dirty.Clip);
+            
+            if (this.DirtyFlags & _Dirty.ChildrenZIndices) {
+                this.DirtyFlags &= ~_Dirty.ChildrenZIndices;
                 thisNode._ResortChildrenByZIndex();
             }
 
             //DirtyDebug.Level--;
 
-            return !(this.DirtyFlags & downDirtyFlag);
+            return !(this.DirtyFlags & _Dirty.DownDirtyState);
         }
         ProcessUp(): boolean {
             var thisNode = this.Node;
@@ -280,8 +290,8 @@ module Fayde {
             //i++;
             //DirtyDebug("Up Dirty Loop #" + i.toString() + " --> " + surface._UpDirty.__DebugToString());
             var invalidateSubtreePaint = false;
-            if (this.DirtyFlags & dirtyEnum.Bounds) {
-                this.DirtyFlags &= ~dirtyEnum.Bounds;
+            if (this.DirtyFlags & _Dirty.Bounds) {
+                this.DirtyFlags &= ~_Dirty.Bounds;
 
                 var oextents = rect.copyTo(this.ExtentsWithChildren);
                 var oglobalbounds = rect.copyTo(this.GlobalBoundsWithChildren);
@@ -304,19 +314,19 @@ module Fayde {
                 this._ForceInvalidateOfNewBounds = false;
             }
 
-            if (this.DirtyFlags & dirtyEnum.NewBounds) {
+            if (this.DirtyFlags & _Dirty.NewBounds) {
                 if (visualParentLu)
                     visualParentLu.Invalidate(this.SurfaceBoundsWithChildren);
                 else if (thisNode.IsTopLevel)
                     invalidateSubtreePaint = true;
-                this.DirtyFlags &= ~dirtyEnum.NewBounds;
+                this.DirtyFlags &= ~_Dirty.NewBounds;
             }
             if (invalidateSubtreePaint)
                 this.Invalidate(this.SurfaceBoundsWithChildren);
 
 
-            if (this.DirtyFlags & dirtyEnum.Invalidate) {
-                this.DirtyFlags &= ~dirtyEnum.Invalidate;
+            if (this.DirtyFlags & _Dirty.Invalidate) {
+                this.DirtyFlags &= ~_Dirty.Invalidate;
                 var dirty = this.DirtyRegion;
                 if (visualParentLu) {
                     visualParentLu.Invalidate(dirty);
@@ -334,13 +344,26 @@ module Fayde {
                 }
                 rect.clear(dirty);
             }
-            return !(this.DirtyFlags & upDirtyFlag);
+            return !(this.DirtyFlags & _Dirty.UpDirtyState);
         }
         private _PropagateDirtyFlagToChildren(dirt: _Dirty) {
             var enumerator = this.Node.GetVisualTreeEnumerator();
-            var s = this.Surface;
             while (enumerator.MoveNext()) {
-                s._AddDirtyElement((<UINode>enumerator.Current).LayoutUpdater, dirt);
+                (<UINode>enumerator.Current).LayoutUpdater._AddDirtyElement(dirt);
+            }
+        }
+        private _AddDirtyElement(dirt: _Dirty) {
+            if (this.Node.VisualParentNode == null && !this.Node.IsTopLevel)
+                return;
+            this.DirtyFlags |= dirt;
+            var s = this.Surface;
+            if (dirt & _Dirty.DownDirtyState && !this.InDownDirty) {
+                (<any>s)._DownDirty.push(this);
+                this.InDownDirty = true;
+            }
+            if (dirt & _Dirty.UpDirtyState && !this.InUpDirty) {
+                (<any>s)._UpDirty.push(this);
+                this.InUpDirty = true;
             }
         }
 
@@ -359,7 +382,7 @@ module Fayde {
                 return;
 
             if (this.Node.IsAttached) {
-                this.Surface._AddDirtyElement(this, _Dirty.Invalidate);
+                this._AddDirtyElement(_Dirty.Invalidate);
                 this.InvalidateBitmapCache();
                 if (false) {
                     //TODO: Render Intermediate not implemented
@@ -392,7 +415,7 @@ module Fayde {
 
         UpdateClip() {
             if (this.Node.IsAttached)
-                this.Surface._AddDirtyElement(this, localClipFlag);
+                this._AddDirtyElement(_Dirty.LocalClip);
         }
         SetLayoutClip(layoutClip: rect) {
             var old = this.LayoutClip;
@@ -402,7 +425,7 @@ module Fayde {
             if (old && layoutClip && rect.isEqual(old, layoutClip))
                 return;
             if (this.Node.IsAttached)
-                this.Surface._AddDirtyElement(this, layoutClipFlag);
+                this._AddDirtyElement(_Dirty.LayoutClip);
         }
         ComputeLayoutClip(vpLu: LayoutUpdater) {
             if (this.BreaksLayoutClipRender) { //Canvas or UserControl
@@ -425,7 +448,7 @@ module Fayde {
 
         UpdateTransform() {
             if (this.Node.IsAttached)
-                this.Surface._AddDirtyElement(this, _Dirty.LocalTransform);
+                this._AddDirtyElement(_Dirty.LocalTransform);
         }
         ComputeLocalTransform(uie: UIElement) {
             var transform = uie.RenderTransform;
@@ -517,7 +540,7 @@ module Fayde {
                     this.InvalidateSubtreePaint();
 
                 if (uin.IsAttached)
-                    this.Surface._AddDirtyElement(this, _Dirty.NewBounds);
+                    this._AddDirtyElement(_Dirty.NewBounds);
             }
 
             // render = local
@@ -534,7 +557,7 @@ module Fayde {
         }
         UpdateProjection() {
             if (this.Node.IsAttached)
-                this.Surface._AddDirtyElement(this, _Dirty.LocalProjection);
+                this._AddDirtyElement(_Dirty.LocalProjection);
         }
         TransformPoint(p: Point) {
             var inverse: number[] = mat4.inverse(this.AbsoluteProjection, mat4.create());
@@ -608,7 +631,7 @@ module Fayde {
         }
         UpdateTotalRenderVisibility() {
             if (this.Node.IsAttached)
-                this.Surface._AddDirtyElement(this, _Dirty.RenderVisibility);
+                this._AddDirtyElement(_Dirty.RenderVisibility);
         }
         UpdateHitTestVisibility(vpLu: Fayde.LayoutUpdater) {
             var uie = this.Node.XObject;
@@ -620,12 +643,12 @@ module Fayde {
         }
         UpdateTotalHitTestVisibility() {
             if (this.Node.IsAttached)
-                this.Surface._AddDirtyElement(this, _Dirty.HitTestVisibility);
+                this._AddDirtyElement(_Dirty.HitTestVisibility);
         }
         
         UpdateBounds(forceRedraw?: boolean) {
             if (this.Node.IsAttached)
-                this.Surface._AddDirtyElement(this, _Dirty.Bounds);
+                this._AddDirtyElement(_Dirty.Bounds);
             this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
         }
         ComputeBounds() {
@@ -1368,6 +1391,68 @@ module Fayde {
             var composite = this.CompositeLayoutClip;
             if (composite)
                 ctx.ClipRect(composite);
+        }
+
+        private _SerializeDirt(): string {
+            var curdirt = this.DirtyFlags;
+            
+            var down = "";
+            if (curdirt & _Dirty.ChildrenZIndices) {
+                curdirt &= ~_Dirty.ChildrenZIndices;
+                down += "ZI+";
+            }
+            if (curdirt & _Dirty.Arrange) {
+                curdirt &= ~_Dirty.Arrange;
+                down += "A+";
+            }
+            if (curdirt & _Dirty.Measure) {
+                curdirt &= ~_Dirty.Measure;
+                down += "M+";
+            }
+            if (curdirt & _Dirty.HitTestVisibility) {
+                curdirt &= ~_Dirty.HitTestVisibility;
+                down += "HTV+";
+            }
+            if (curdirt & _Dirty.RenderVisibility) {
+                curdirt &= ~_Dirty.RenderVisibility;
+                down += "RV+";
+            }
+            if (curdirt & _Dirty.LocalClip) {
+                curdirt &= ~_Dirty.LocalClip;
+                down += "LC+";
+            }
+            if (curdirt & _Dirty.Clip) {
+                curdirt &= ~_Dirty.Clip;
+                down += "C+";
+            }
+            if (curdirt & _Dirty.LocalProjection) {
+                curdirt &= ~_Dirty.LocalProjection;
+                down += "LP+";
+            }
+            if (curdirt & _Dirty.LocalTransform) {
+                curdirt &= ~_Dirty.LocalTransform;
+                down += "LT+";
+            }
+            if (curdirt & _Dirty.Transform) {
+                curdirt &= ~_Dirty.Transform;
+                down += "T+";
+            }
+            if (down)
+                down = down.substr(0, down.length - 1);
+            
+            var up = "";
+            if (curdirt & _Dirty.Invalidate) {
+                curdirt &= ~_Dirty.Invalidate;
+                up += "I+";
+            }
+            if (curdirt & _Dirty.Bounds) {
+                curdirt &= ~_Dirty.Bounds;
+                up += "B+";
+            }
+            if (up)
+                up = up.substr(0, up.length - 1);
+
+            return "[" + down + ":" + up + "]";
         }
     }
     Fayde.RegisterType(LayoutUpdater, {

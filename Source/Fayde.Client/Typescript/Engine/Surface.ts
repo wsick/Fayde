@@ -4,7 +4,6 @@
 /// <reference path="Application.ts" />
 /// <reference path="RenderContext.ts" />
 /// <reference path="../Core/UIElement.ts" />
-/// <reference path="Dirty.ts" />
 /// <reference path="../Input/KeyInterop.ts" />
 /// <reference path="../Input/Keyboard.ts" />
 /// <reference path="../Core/Walkers.ts" />
@@ -315,20 +314,6 @@ module Fayde {
         }
 
         // DIRTY
-        _AddDirtyElement(lu: Fayde.LayoutUpdater, dirt: _Dirty) {
-            if (lu.Node.VisualParentNode == null && !lu.Node.IsTopLevel)
-                return;
-
-            lu.DirtyFlags |= dirt;
-            if (dirt & _Dirty.DownDirtyState && !lu.InDownDirty) {
-                this._DownDirty.push(lu);
-                lu.InDownDirty = true;
-            }
-            if (dirt & _Dirty.UpDirtyState && !lu.InUpDirty) {
-                this._UpDirty.push(lu);
-                lu.InUpDirty = true;
-            }
-        }
         private _RemoveDirtyElement(lu: Fayde.LayoutUpdater) {
             lu.InUpDirty = false;
             lu.InDownDirty = false;

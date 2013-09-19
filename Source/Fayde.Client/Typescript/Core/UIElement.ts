@@ -218,14 +218,14 @@ module Fayde {
         }
         InvalidateEffect(oldEffect: Media.Effects.Effect, newEffect: Media.Effects.Effect) {
             var lu = this.LayoutUpdater;
-            var changed = (newEffect) ? newEffect.GetPadding(lu.EffectPadding) : false;
             this.InvalidateParent(lu.SurfaceBoundsWithChildren);
+            var changed = (newEffect) ? newEffect.GetPadding(lu.EffectPadding) : false;
             if (changed)
                 lu.UpdateBounds();
             lu.ComputeComposite();
 
             if (oldEffect !== newEffect && this.IsAttached)
-                this._Surface._AddDirtyElement(this.LayoutUpdater, _Dirty.Transform);
+                lu.UpdateTransform();
         }
         InvalidateOpacity() {
             var lu = this.LayoutUpdater;
