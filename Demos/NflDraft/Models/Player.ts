@@ -11,6 +11,6 @@ module NflDraft.Models {
         Birthdate: Date;
         Height: string;
         Weight: string;
-        Stats: { [index: number]: Stats; };
+        Stats: Array<Models.Stats>;
     }
 }

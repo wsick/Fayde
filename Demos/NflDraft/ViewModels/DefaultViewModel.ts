@@ -162,10 +162,12 @@ module NflDraft.ViewModels {
                     projected.FumblesLost = fp[i]["Projected"]["FumblesLost"];
                     fantasyPlayer.Projected = projected;
                 }
+                fantasyPlayer.Stats = new Array<Models.Stats>();
                 if (fp[i]["Stats"]) {
                     for (var j = 0; j < fp[i]["Stats"].length; j++) {
                         var hash = fp[i]["Stats"][j];
                         var s = new Models.Stats();
+                        s.Year = hash["Year"];
                         s.Team = hash["Team"];
                         s.GamesPlayed = hash["GamesPlayed"];
                         s.RushingAttempts = hash["RushingAttempts"];
@@ -176,14 +178,12 @@ module NflDraft.ViewModels {
                         s.Receptions = hash["Receptions"];
                         s.ReceivingYards = hash["ReceivingYards"];
                         s.ReceivingTouchdowns = hash["ReceivingTouchdowns"];
-                        fantasyPlayer.Stats = new Array<Models.Stats>();
-                        fantasyPlayer.Stats[hash["Year"]] = s;
+                        fantasyPlayer.Stats.push(s);
                     }
                 }
                 this.FantasyPlayers.Add(fantasyPlayer);
             }
 
-            this.SelectedPlayer = this.FantasyPlayers.GetValueAt(0);
             this.Countdown = 15;
             setInterval(() => this.DoWork(), 1000);
         }

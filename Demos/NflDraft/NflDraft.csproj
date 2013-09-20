@@ -131,6 +131,7 @@
     <TypeScriptCompile Include="Resources\TimeValueConverter.ts" />
     <TypeScriptCompile Include="Models\FantasyPlayer.ts" />
     <TypeScriptCompile Include="Models\DraftSelection.ts" />
+    <TypeScriptCompile Include="Resources\DoubleValueConverter.ts" />
     <Content Include="Resources\DateValueConverter.ts" />
     <Content Include="scripts\Fayde.d.ts" />
     <Content Include="scripts\Fayde.js" />

@@ -19,6 +19,7 @@
     <Namespace Name="folder:Resources">
       <Source Name="AgeValueConverter" Source="Resources/AgeValueConverter.js" />
       <Source Name="DateValueConverter" Source="Resources/DateValueConverter.js" />
+      <Source Name="DoubleValueConverter" Source="Resources/DoubleValueConverter.js" />
       <Source Name="TimeValueConverter" Source="Resources/TimeValueConverter.js" />
     </Namespace>
     <Namespace Name="folder:ViewModels">
@@ -53,6 +54,7 @@
     </LinearGradientBrush>
     <res:AgeValueConverter x:Key="ageValueConverter" />
     <res:DateValueConverter x:Key="dateValueConverter" />
+    <res:DoubleValueConverter x:Key="doubleValueConverter" />
     <res:TimeValueConverter x:Key="timeValueConverter" />
   </Application.Resources>
   <Grid x:Name="LayoutRoot" Background="{StaticResource DarkGrayBrush}">
@@ -269,64 +271,64 @@
                   <ColumnDefinition Width="30"/>
                   <ColumnDefinition Width="60"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="G" TextAlignment="Right" FontWeight="Bold" Foreground="{StaticResource DarkGrayBrush}">
+                <TextBlock Grid.Column="0" Text="G" TextAlignment="Right" FontWeight="Bold" Foreground="White">
                   <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="#AAAAAA"/>
+                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="{StaticResource DarkGray}"/>
                   </TextBlock.Effect>
                 </TextBlock>
-                <TextBlock Grid.Column="1" Text="Att" TextAlignment="Right" FontWeight="Bold" Foreground="{StaticResource DarkGrayBrush}">
+                <TextBlock Grid.Column="1" Text="Att" TextAlignment="Right" FontWeight="Bold" Foreground="White">
                   <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="#AAAAAA"/>
+                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="{StaticResource DarkGray}"/>
                   </TextBlock.Effect>
                 </TextBlock>
-                <TextBlock Grid.Column="2" Text="Yds" TextAlignment="Right" FontWeight="Bold" Foreground="{StaticResource DarkGrayBrush}">
+                <TextBlock Grid.Column="2" Text="Yds" TextAlignment="Right" FontWeight="Bold" Foreground="White">
                   <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="#AAAAAA"/>
+                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="{StaticResource DarkGray}"/>
                   </TextBlock.Effect>
                 </TextBlock>
-                <TextBlock Grid.Column="3" Text="Avg" TextAlignment="Right" FontWeight="Bold" Foreground="{StaticResource DarkGrayBrush}">
+                <TextBlock Grid.Column="3" Text="Avg" TextAlignment="Right" FontWeight="Bold" Foreground="White">
                   <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="#AAAAAA"/>
+                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="{StaticResource DarkGray}"/>
                   </TextBlock.Effect>
                 </TextBlock>
-                <TextBlock Grid.Column="4" Text="TD" TextAlignment="Right" FontWeight="Bold" Foreground="{StaticResource DarkGrayBrush}">
+                <TextBlock Grid.Column="4" Text="TD" TextAlignment="Right" FontWeight="Bold" Foreground="White">
                   <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="#AAAAAA"/>
+                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="{StaticResource DarkGray}"/>
                   </TextBlock.Effect>
                 </TextBlock>
-                <TextBlock Grid.Column="5" Text="Lost" TextAlignment="Right" FontWeight="Bold" Foreground="{StaticResource DarkGrayBrush}">
+                <TextBlock Grid.Column="5" Text="Lost" TextAlignment="Right" FontWeight="Bold" Foreground="White">
                   <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="#AAAAAA"/>
+                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="{StaticResource DarkGray}"/>
                   </TextBlock.Effect>
                 </TextBlock>
-                <TextBlock Grid.Column="6" Text="Rec" TextAlignment="Right" FontWeight="Bold" Foreground="{StaticResource DarkGrayBrush}">
+                <TextBlock Grid.Column="6" Text="Rec" TextAlignment="Right" FontWeight="Bold" Foreground="White">
                   <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="#AAAAAA"/>
+                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="{StaticResource DarkGray}"/>
                   </TextBlock.Effect>
                 </TextBlock>
-                <TextBlock Grid.Column="7" Text="Tgts" TextAlignment="Right" FontWeight="Bold" Foreground="{StaticResource DarkGrayBrush}">
+                <TextBlock Grid.Column="7" Text="Tgts" TextAlignment="Right" FontWeight="Bold" Foreground="White">
                   <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="#AAAAAA"/>
+                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="{StaticResource DarkGray}"/>
                   </TextBlock.Effect>
                 </TextBlock>
-                <TextBlock Grid.Column="8" Text="Yds" TextAlignment="Right" FontWeight="Bold" Foreground="{StaticResource DarkGrayBrush}">
+                <TextBlock Grid.Column="8" Text="Yds" TextAlignment="Right" FontWeight="Bold" Foreground="White">
                   <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="#AAAAAA"/>
+                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="{StaticResource DarkGray}"/>
                   </TextBlock.Effect>
                 </TextBlock>
-                <TextBlock Grid.Column="9" Text="Avg" TextAlignment="Right" FontWeight="Bold" Foreground="{StaticResource DarkGrayBrush}">
+                <TextBlock Grid.Column="9" Text="Avg" TextAlignment="Right" FontWeight="Bold" Foreground="White">
                   <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="#AAAAAA"/>
+                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="{StaticResource DarkGray}"/>
                   </TextBlock.Effect>
                 </TextBlock>
-                <TextBlock Grid.Column="10" Text="TD" TextAlignment="Right" FontWeight="Bold" Foreground="{StaticResource DarkGrayBrush}">
+                <TextBlock Grid.Column="10" Text="TD" TextAlignment="Right" FontWeight="Bold" Foreground="White">
                   <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="#AAAAAA}"/>
+                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="{StaticResource DarkGray}"/>
                   </TextBlock.Effect>
                 </TextBlock>
-                <TextBlock Grid.Column="11" Text="Pts" TextAlignment="Right" FontWeight="Bold" Foreground="{StaticResource DarkGrayBrush}">
+                <TextBlock Grid.Column="11" Text="Pts" TextAlignment="Right" FontWeight="Bold" Foreground="White">
                   <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="#AAAAAA"/>
+                    <DropShadowEffect BlurRadius="1" ShadowDepth="1" Color="{StaticResource DarkGray}"/>
                   </TextBlock.Effect>
                 </TextBlock>
               </Grid>
@@ -340,62 +342,62 @@
                 <ListBox.ItemTemplate>
                   <DataTemplate>
                     <StackPanel Orientation="Horizontal">
-                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="30" FontSize="12" Foreground="White" Text="{Binding Value.GamesPlayed}">
+                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="30" FontSize="12" Foreground="White" Text="{Binding GamesPlayed}">
                         <TextBlock.Effect>
                           <DropShadowEffect BlurRadius="2" ShadowDepth="2" Color="{StaticResource DarkGray}"/>
                         </TextBlock.Effect>
                       </TextBlock>
-                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="40" FontSize="12" Foreground="White" Text="{Binding Value.RushingAttempts}">
+                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="40" FontSize="12" Foreground="White" Text="{Binding RushingAttempts}">
                         <TextBlock.Effect>
                           <DropShadowEffect BlurRadius="2" ShadowDepth="2" Color="{StaticResource DarkGray}"/>
                         </TextBlock.Effect>
                       </TextBlock>
-                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="50" FontSize="12" Foreground="White" Text="{Binding Value.RushingYards}">
+                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="50" FontSize="12" Foreground="White" Text="{Binding RushingYards}">
                         <TextBlock.Effect>
                           <DropShadowEffect BlurRadius="2" ShadowDepth="2" Color="{StaticResource DarkGray}"/>
                         </TextBlock.Effect>
                       </TextBlock>
-                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="50" FontSize="12" Foreground="White" Text="{Binding Value.RushingAverage, StringFormat=\{0:n2\}}">
+                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="50" FontSize="12" Foreground="White" Text="{Binding RushingAverage, Converter={StaticResource doubleValueConverter}}">
                         <TextBlock.Effect>
                           <DropShadowEffect BlurRadius="2" ShadowDepth="2" Color="{StaticResource DarkGray}"/>
                         </TextBlock.Effect>
                       </TextBlock>
-                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="30" FontSize="12" Foreground="White" Text="{Binding Value.RushingTouchdowns}">
+                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="30" FontSize="12" Foreground="White" Text="{Binding RushingTouchdowns}">
                         <TextBlock.Effect>
                           <DropShadowEffect BlurRadius="2" ShadowDepth="2" Color="{StaticResource DarkGray}"/>
                         </TextBlock.Effect>
                       </TextBlock>
-                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="30" FontSize="12" Foreground="White" Text="{Binding Value.FumblesLost}">
+                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="30" FontSize="12" Foreground="White" Text="{Binding FumblesLost}">
                         <TextBlock.Effect>
                           <DropShadowEffect BlurRadius="2" ShadowDepth="2" Color="{StaticResource DarkGray}"/>
                         </TextBlock.Effect>
                       </TextBlock>
-                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="40" FontSize="12" Foreground="White" Text="{Binding Value.Receptions}">
+                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="40" FontSize="12" Foreground="White" Text="{Binding Receptions}">
                         <TextBlock.Effect>
                           <DropShadowEffect BlurRadius="2" ShadowDepth="2" Color="{StaticResource DarkGray}"/>
                         </TextBlock.Effect>
                       </TextBlock>
-                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="40" FontSize="12" Foreground="White" Text="{Binding Value.Targets}">
+                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="40" FontSize="12" Foreground="White" Text="{Binding Targets}">
                         <TextBlock.Effect>
                           <DropShadowEffect BlurRadius="2" ShadowDepth="2" Color="{StaticResource DarkGray}"/>
                         </TextBlock.Effect>
                       </TextBlock>
-                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="50" FontSize="12" Foreground="White" Text="{Binding Value.ReceivingYards}">
+                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="50" FontSize="12" Foreground="White" Text="{Binding ReceivingYards}">
                         <TextBlock.Effect>
                           <DropShadowEffect BlurRadius="2" ShadowDepth="2" Color="{StaticResource DarkGray}"/>
                         </TextBlock.Effect>
                       </TextBlock>
-                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="50" FontSize="12" Foreground="White" Text="{Binding Value.ReceivingAverage, StringFormat=\{0:n2\}}">
+                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="50" FontSize="12" Foreground="White" Text="{Binding ReceivingAverage, Converter={StaticResource doubleValueConverter}}">
                         <TextBlock.Effect>
                           <DropShadowEffect BlurRadius="2" ShadowDepth="2" Color="{StaticResource DarkGray}"/>
                         </TextBlock.Effect>
                       </TextBlock>
-                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="30" FontSize="12" Foreground="White" Text="{Binding Value.ReceivingTouchdowns}">
+                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="30" FontSize="12" Foreground="White" Text="{Binding ReceivingTouchdowns}">
                         <TextBlock.Effect>
                           <DropShadowEffect BlurRadius="2" ShadowDepth="2" Color="{StaticResource DarkGray}"/>
                         </TextBlock.Effect>
                       </TextBlock>
-                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="60" FontSize="12" Foreground="White" Text="{Binding Value.FantasyPoints, StringFormat=\{0:n2\}}">
+                      <TextBlock Grid.Row="5" TextAlignment="Right" Grid.Column="1" Width="60" FontSize="12" Foreground="White" Text="{Binding FantasyPoints, Converter={StaticResource doubleValueConverter}}">
                         <TextBlock.Effect>
                           <DropShadowEffect BlurRadius="2" ShadowDepth="2" Color="{StaticResource DarkGray}"/>
                         </TextBlock.Effect>

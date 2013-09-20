@@ -8,7 +8,7 @@ module NflDraft.Models {
         Projected: Stats;
         get LastSeason() {
             if (this.Stats != undefined)
-                return this.Stats[2012];
+                return this.Stats.filter((stat: Models.Stats) => { return stat.Year === 2012; });
             else {
                 return null;
             }

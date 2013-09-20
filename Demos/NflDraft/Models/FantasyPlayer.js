@@ -17,7 +17,9 @@ var NflDraft;
             Object.defineProperty(FantasyPlayer.prototype, "LastSeason", {
                 get: function () {
                     if (this.Stats != undefined)
-                        return this.Stats[2012];
+                        return this.Stats.filter(function (stat) {
+                            return stat.Year === 2012;
+                        });
 else {
                         return null;
                     }
