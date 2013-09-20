@@ -34,7 +34,7 @@ module Fayde.Media.Imaging {
         }
         DrawTile(canvasCtx: CanvasRenderingContext2D, bounds: rect) {
             var source = this.ImageSource;
-            canvasCtx.rect(0, 0, bounds.Width, bounds.Height);
+            canvasCtx.rect(0, 0, source.PixelWidth, source.PixelHeight);
             canvasCtx.fillStyle = canvasCtx.createPattern(source.Image, "no-repeat");
             canvasCtx.fill();
         }
