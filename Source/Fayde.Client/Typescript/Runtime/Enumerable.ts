@@ -108,6 +108,10 @@ module Fayde {
     }
 }
 
+interface Array<T> {
+    GetEnumerator(reverse?: boolean): Fayde.IEnumerator<T>;
+}
+
 Object.defineProperty(Array.prototype, "GetEnumerator", {
     value: function <T>(isReverse?: boolean): Fayde.IEnumerator<T> {
         return Fayde.ArrayEx.GetEnumerator<T>(this, isReverse);
