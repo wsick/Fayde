@@ -195,6 +195,7 @@
     <TypeScriptCompile Include="Typescript\Navigation\NavigationService.ts" />
     <TypeScriptCompile Include="Typescript\Input\InteractionHelper.ts" />
     <TypeScriptCompile Include="Typescript\Primitives\DateTime.ts" />
+    <Content Include="Typescript\Runtime\EnumerableEx.ts" />
     <Content Include="Typescript\Xaml\XamlLoader.ts" />
     <Content Include="UnitTestList.txt" />
     <Content Include="Tests\XamlNodeTests.js">

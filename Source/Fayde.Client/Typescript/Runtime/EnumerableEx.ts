@@ -105,7 +105,7 @@ module Fayde {
             }
         }
     }
-    
+
     Object.defineProperty(Array.prototype, "Aggregate", { value: Enumerable.prototype.Aggregate, enumerable: false });
     Object.defineProperty(Array.prototype, "Where", { value: Enumerable.prototype.Where, enumerable: false });
     Object.defineProperty(Array.prototype, "Select", { value: Enumerable.prototype.Select, enumerable: false });
