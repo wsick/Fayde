@@ -124,12 +124,13 @@
     <Content Include="Images\Team Logos\WAS.png" />
     <TypeScriptCompile Include="Models\FantasyTeam.ts" />
     <TypeScriptCompile Include="Models\Player.ts" />
-    <TypeScriptCompile Include="Models\PlayerStats.ts" />
     <TypeScriptCompile Include="ViewModels\DefaultViewModel.ts" />
     <TypeScriptCompile Include="Models\Team.ts" />
     <TypeScriptCompile Include="Models\Stats.ts" />
     <TypeScriptCompile Include="Resources\AgeValueConverter.ts" />
     <TypeScriptCompile Include="Resources\TimeValueConverter.ts" />
+    <TypeScriptCompile Include="Models\FantasyPlayer.ts" />
+    <TypeScriptCompile Include="Models\DraftSelection.ts" />
     <Content Include="Resources\DateValueConverter.ts" />
     <Content Include="scripts\Fayde.d.ts" />
     <Content Include="scripts\Fayde.js" />
