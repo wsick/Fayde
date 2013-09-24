@@ -1,0 +1,34 @@
+﻿<Application
+    xmlns="http://schemas.wsick.com/fayde"
+    xmlns:x="http://schemas.wsick.com/fayde/x"
+    xmlns:local="folder:Tests/IssueTests"
+    Theme="/Fayde/Theme.Silverlight.xml">
+    <Application.Sources>
+        <Namespace Name="folder:Tests/IssueTests">
+            <Source Name="DoubleListBoxViewModel" Source="IssueTests/DoubleListBoxViewModel.js" />
+        </Namespace>
+    </Application.Sources>
+    <Grid>
+        <Grid.DataContext>
+            <local:DoubleListBoxViewModel />
+        </Grid.DataContext>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <ListBox ItemsSource="{Binding AllItems}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <ListBox ItemsSource="{Binding SubItems}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Grid.Column="1" Content="Remove First Item" Margin="10,0,0,0" Command="{Binding RemoveFirstItemCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" />
+    </Grid>
+</Application>
