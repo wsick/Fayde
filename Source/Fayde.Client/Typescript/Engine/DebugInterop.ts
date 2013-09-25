@@ -19,7 +19,7 @@ module Fayde {
         NumFrames: number = 0;
         App: Application;
         Surface: Surface;
-        
+
         constructor(app: Application) {
             this.App = app;
             this.Surface = app.MainSurface;
@@ -39,7 +39,8 @@ module Fayde {
         GetCache(): string {
             if (!this._Cache)
                 this.GenerateCache();
-            return JSON.stringify(this._Cache, DebugInterop._StringifyReplacer);
+            var visited = [];
+            return JSON.stringify(this._Cache, (key, value) => DebugInterop._StringifyReplacer(key, value, visited));
         }
         private GenerateCache() {
             this._Cache = {
@@ -90,8 +91,9 @@ module Fayde {
         GetDPCache(): string {
             if (!this._DPCache)
                 this.GenerateDPCache();
-
-            return JSON.stringify(this._DPCache, DebugInterop._StringifyReplacer);
+            
+            var visited = [];
+            return JSON.stringify(this._DPCache, (key, value) => DebugInterop._StringifyReplacer(key, value, visited));
         }
         private GenerateDPCache() {
             var dpCache = [];
@@ -124,7 +126,8 @@ module Fayde {
                     InheritedValue: (<any>s).InheritedValue,
                 };
             });
-            return JSON.stringify(arr2, DebugInterop._StringifyReplacer);
+            var visited = [];
+            return JSON.stringify(arr2, (key, value) => DebugInterop._StringifyReplacer(key, value, visited));
         }
         GetLayoutMetrics(id: number): string {
             var c = this.GetById(id);
@@ -193,7 +196,7 @@ module Fayde {
             return JSON.stringify(mapped);
         }
 
-        private static _StringifyReplacer(key: any, value: any): any {
+        private static _StringifyReplacer(key: any, value: any, visited?: any[]): any {
             if (value instanceof Media.SolidColorBrush) {
                 var color = (<Media.SolidColorBrush>value).Color;
                 return {
@@ -222,6 +225,13 @@ module Fayde {
                     IsReadOnly: propd.IsReadOnly === true,
                     IsAttached: propd.IsAttached === true,
                 };
+            }
+            if (value == null)
+                return value;
+            if (visited && value instanceof Object) {
+                if (visited.indexOf(value) > -1)
+                    return undefined;
+                visited.push(value);
             }
             return value;
         }
