@@ -34,7 +34,7 @@ module Fayde {
         UpDirtyState = Bounds | Invalidate,
     }
 
-    export enum UIElementFlags {
+    enum UIElementFlags {
         None = 0,
 
         RenderVisible = 0x02,
@@ -142,7 +142,7 @@ module Fayde {
         ShouldSkipHitTest: boolean = false;
         IsNeverInsideObject: boolean = false;
 
-        Flags: Fayde.UIElementFlags = Fayde.UIElementFlags.RenderVisible | Fayde.UIElementFlags.HitTestVisible;
+        private Flags: UIElementFlags = UIElementFlags.RenderVisible | UIElementFlags.HitTestVisible;
 
         private DirtyFlags: _Dirty = 0;
         InUpDirty: boolean = false;
@@ -411,6 +411,19 @@ module Fayde {
         }
         InvalidateSubtreePaint() {
             this.Invalidate(this.SurfaceBoundsWithChildren);
+        }
+        InvalidateVisibility(newVisibility: Visibility) {
+            if (newVisibility === Visibility.Visible)
+                this.Flags |= UIElementFlags.RenderVisible;
+            else
+                this.Flags &= ~UIElementFlags.RenderVisible;
+        }
+        InvalidateHitTestVisibility(newHitTestVisibility: boolean) {
+            if (newHitTestVisibility)
+                this.Flags |= UIElementFlags.HitTestVisible;
+            else
+                this.Flags &= ~UIElementFlags.HitTestVisible;
+
         }
 
         UpdateClip() {
@@ -780,10 +793,8 @@ module Fayde {
             return s;
         }
 
-        private _HasFlag(flag: Fayde.UIElementFlags): boolean { return (this.Flags & flag) === flag; }
-        private _ClearFlag(flag: Fayde.UIElementFlags) { this.Flags &= ~flag; }
-        private _SetFlag(flag: Fayde.UIElementFlags) { this.Flags |= flag; }
-        private _PropagateFlagUp(flag: Fayde.UIElementFlags) {
+        private _HasFlag(flag: UIElementFlags): boolean { return (this.Flags & flag) === flag; }
+        private _PropagateFlagUp(flag: UIElementFlags) {
             this.Flags |= flag;
             var node = this.Node;
             var lu: Fayde.LayoutUpdater;
@@ -831,7 +842,7 @@ module Fayde {
                             measureWalker.SkipBranch();
                             continue;
                         }
-                        lu._ClearFlag(flag);
+                        lu.Flags &= ~flag;
                         switch (flag) {
                             case UIElementFlags.DirtyMeasureHint:
                                 if (lu.DirtyFlags & _Dirty.Measure)
@@ -1393,6 +1404,16 @@ module Fayde {
                 ctx.ClipRect(composite);
         }
 
+        private _DebugLayout() {
+            var str = this._SerializeDirt();
+            str += this._SerializeFlags();
+            str += " (";
+            str += this.HiddenDesire.toString();
+            str += " ";
+            str += this.RenderSize.toString();
+            str += ")";
+            return str;
+        }
         private _SerializeDirt(): string {
             var curdirt = this.DirtyFlags;
             
@@ -1453,6 +1474,43 @@ module Fayde {
                 up = up.substr(0, up.length - 1);
 
             return "[" + down + ":" + up + "]";
+        }
+        private _SerializeFlags(): string {
+            var flags = this.Flags;
+            var str = "";
+            if (flags & UIElementFlags.DirtySizeHint) {
+                flags &= ~UIElementFlags.DirtySizeHint;
+                str += "S+";
+            }
+            if (flags & UIElementFlags.DirtyMeasureHint) {
+                flags &= ~UIElementFlags.DirtyMeasureHint;
+                str += "M+";
+            }
+            if (flags & UIElementFlags.DirtyArrangeHint) {
+                flags &= ~UIElementFlags.DirtyArrangeHint;
+                str += "A+";
+            }
+            if (flags & UIElementFlags.TotalHitTestVisible) {
+                flags &= ~UIElementFlags.TotalHitTestVisible;
+                str += "THT+";
+            }
+            if (flags & UIElementFlags.TotalRenderVisible) {
+                flags &= ~UIElementFlags.TotalRenderVisible;
+                str += "TRV+";
+            }
+            if (flags & UIElementFlags.HitTestVisible) {
+                flags &= ~UIElementFlags.HitTestVisible;
+                str += "HT+";
+            }
+            if (flags & UIElementFlags.RenderVisible) {
+                flags &= ~UIElementFlags.RenderVisible;
+                str += "RV+";
+            }
+
+            if (str)
+                str = str.substring(0, str.length - 1);
+
+            return "[" + str + "]";
         }
     }
     Fayde.RegisterType(LayoutUpdater, {

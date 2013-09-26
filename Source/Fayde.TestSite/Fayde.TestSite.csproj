@@ -92,6 +92,8 @@
     </Content>
     <TypeScriptCompile Include="Tests\IssueTests\TestViewModel.ts" />
     <Content Include="TestResourceDictionary.xml" />
+    <TypeScriptCompile Include="Tests\IssueTests\DoubleListBoxViewModel.ts" />
+    <Content Include="Tests\IssueTests\DoubleListBoxViewModel.js" />
     <Content Include="Tests\IssueTests\TestViewModel.js" />
     <Content Include="Tests\Media\image-stretch.fap">
       <SubType>Designer</SubType>
@@ -151,6 +153,9 @@
     </Content>
     <Content Include="Tests\test.aspx" />
     <Content Include="xamlload.html" />
+    <Content Include="Tests\IssueTests\double-listbox.fap">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Tests\Shapes\rectangle-grid.fap">
       <SubType>Designer</SubType>
     </None>

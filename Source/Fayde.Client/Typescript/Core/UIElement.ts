@@ -234,12 +234,7 @@ module Fayde {
         }
         InvalidateVisibility(newVisibility: Visibility) {
             var lu = this.LayoutUpdater;
-
-            if (newVisibility === Visibility.Visible)
-                lu.Flags |= UIElementFlags.RenderVisible;
-            else
-                lu.Flags &= ~UIElementFlags.RenderVisible;
-
+            lu.InvalidateVisibility(newVisibility);
             lu.UpdateTotalRenderVisibility();
             this.InvalidateParent(lu.SurfaceBoundsWithChildren);
 
@@ -434,11 +429,7 @@ module Fayde {
         }
         private _IsHitTestVisibleChanged(args: IDependencyPropertyChangedEventArgs) {
             var lu = this.XamlNode.LayoutUpdater;
-            if (args.NewValue === true) {
-                lu.Flags |= UIElementFlags.HitTestVisible;
-            } else {
-                lu.Flags &= ~UIElementFlags.HitTestVisible;
-            }
+            lu.InvalidateHitTestVisibility(args.NewValue === true);
             lu.UpdateTotalHitTestVisibility();
         }
         private _TriggersChanged(args: IDependencyPropertyChangedEventArgs) {

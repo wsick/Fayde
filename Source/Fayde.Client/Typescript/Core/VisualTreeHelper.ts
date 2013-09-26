@@ -207,56 +207,11 @@ module Fayde {
         private static __DebugUIElementLayout(uin: UINode, tabIndex: number): string {
             if (!uin)
                 return "";
-            var lu = uin.LayoutUpdater;
-            var str = (<any>lu)._SerializeDirt();
-            str += VisualTreeHelper._SerializeFlags(lu.Flags);
-            str += " (";
-            str += lu.HiddenDesire.toString();
-            str += " ";
-            str += lu.RenderSize.toString();
-            str += ")";
-            return str;
+            return (<any>uin.LayoutUpdater)._DebugLayout();
         }
 
         static __DebugLayout(ui: any): string {
             return VisualTreeHelper.__Debug(ui, VisualTreeHelper.__DebugUIElementLayout);
-        }
-
-        private static _SerializeFlags(flags: UIElementFlags): string {
-            var str = "";
-            if (flags & UIElementFlags.DirtySizeHint) {
-                flags &= ~UIElementFlags.DirtySizeHint;
-                str += "S+";
-            }
-            if (flags & UIElementFlags.DirtyMeasureHint) {
-                flags &= ~UIElementFlags.DirtyMeasureHint;
-                str += "M+";
-            }
-            if (flags & UIElementFlags.DirtyArrangeHint) {
-                flags &= ~UIElementFlags.DirtyArrangeHint;
-                str += "A+";
-            }
-            if (flags & UIElementFlags.TotalHitTestVisible) {
-                flags &= ~UIElementFlags.TotalHitTestVisible;
-                str += "THT+";
-            }
-            if (flags & UIElementFlags.TotalRenderVisible) {
-                flags &= ~UIElementFlags.TotalRenderVisible;
-                str += "TRV+";
-            }
-            if (flags & UIElementFlags.HitTestVisible) {
-                flags &= ~UIElementFlags.HitTestVisible;
-                str += "HT+";
-            }
-            if (flags & UIElementFlags.RenderVisible) {
-                flags &= ~UIElementFlags.RenderVisible;
-                str += "RV+";
-            }
-
-            if (str)
-                str = str.substring(0, str.length - 1);
-
-            return "[" + str + "]";
         }
 
         private static __GetById(id: number): UIElement {
