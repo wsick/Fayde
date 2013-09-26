@@ -47,8 +47,7 @@
       <GradientStop Color="Transparent" Offset="1"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="SilverGradient" StartPoint=".5, 0" EndPoint=".5, 1">
-      <GradientStop Color="#77D4D4D4" Offset="0"/>
-      <GradientStop Color="#20D4D4D4" Offset=".4"/>
+      <GradientStop Color="#44D4D4D4" Offset="0"/>
       <GradientStop Color="Transparent" Offset="1"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="FadedGradient" StartPoint="0, 0" EndPoint="1, 0">
@@ -586,7 +585,7 @@
             </TextBlock.Effect>
           </TextBlock>
         </Border>
-        <ListBox Grid.Row="1" ItemsSource="{Binding DraftSelections}" Margin="1, 0, 1, 1" Background="{StaticResource MediumGrayBrush}" BorderThickness="0" Padding="0">
+        <ListBox Grid.Row="1" ItemsSource="{Binding DraftSelections}" Margin="1, 0, 1, 1" Background="{StaticResource MediumGrayBrush}" BorderThickness="0" Padding="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
           <ListBox.ItemContainerStyle>
             <Style TargetType="ListBoxItem">
               <Setter Property="Padding" Value="0"/>

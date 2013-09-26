@@ -190,7 +190,7 @@ module NflDraft.ViewModels {
                 this.FantasyPlayers.Add(fantasyPlayer);
             }
 
-            this.Countdown = 15;
+            this.Countdown = 1;
             setInterval(() => this.DoWork(), 1000);
         }
 
@@ -207,7 +207,7 @@ module NflDraft.ViewModels {
                     this.Rounds.GetValueAt(0).DraftSpots.RemoveAt(0);
                     if (this.Rounds.GetValueAt(0).DraftSpots.Count == 0)
                         this.Rounds.RemoveAt(0);
-                    current = 15;
+                    current = 1;
                 }
             }
             else current = current - 1;
