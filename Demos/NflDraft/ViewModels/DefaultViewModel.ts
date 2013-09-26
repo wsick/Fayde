@@ -11,6 +11,7 @@
 module NflDraft.ViewModels {
     export class DefaultViewModel extends Fayde.MVVM.ViewModelBase {
         Rounds: Fayde.Collections.ObservableCollection<Models.Round> = new Fayde.Collections.ObservableCollection<Models.Round>();
+        DraftSelections: Fayde.Collections.ObservableCollection<Models.DraftSelection> = new Fayde.Collections.ObservableCollection<Models.DraftSelection>();
         Positions: string[] = [];
         FantasyPlayers: Fayde.Collections.ObservableCollection<Models.FantasyPlayer> = new Fayde.Collections.ObservableCollection<Models.FantasyPlayer>();
         private _countdown: number;
@@ -111,9 +112,11 @@ module NflDraft.ViewModels {
             this.Positions.push("ALL", "QB", "RB", "WR", "RB/WR", "TE", "K", "DEF");
 
             var fp = [{
-                "Name": "Arian Foster", "Team": _teams[8], "Headshot": "Images/Player Headshots/arian_foster.png", "Positions": "RB", "Birthdate": new Date("1986-08-24"), "Height": "6'11\"", "Weight": "228",
-                "Projected": { "Team": 8, "GamesPlayed": 16, "RushingAttempts": 351, "RushingYards": 1424, "RushingTouchdowns": 15, "Fumbles": 3, "FumblesLost": 2 }, "ADP": 1.8,
-                "Stats": [{ "Year": 2009, "Team": _teams[8], "GamesPlayed": 6, "RushingAttempts": 54, "RushingYards": 257, "RushingTouchdowns": 3, "FumblesLost": 1, "Targets": 9, "Receptions": 8, "ReceivingYards": 93, "ReceivingTouchdowns": 0 },
+                "Name": "Arian Foster", "Team": _teams[8], "Headshot": "Images/Player Headshots/arian_foster.png", "Positions": "RB", "Birthdate": new Date("1986-08-24"), "Height": "6'11\"", "Weight": "228", "ADP": 1.8,
+                "Projected":
+                    { "Year": 2013, "Team": _teams[8], "GamesPlayed": 16, "RushingAttempts": 351, "RushingYards": 1424, "RushingTouchdowns": 15, "FumblesLost": 2, "Targets": 58, "Receptions": 40, "ReceivingYards": 240, "ReceivingTouchdowns": 2 },
+                "Stats":
+                   [{ "Year": 2009, "Team": _teams[8], "GamesPlayed": 6, "RushingAttempts": 54, "RushingYards": 257, "RushingTouchdowns": 3, "FumblesLost": 1, "Targets": 9, "Receptions": 8, "ReceivingYards": 93, "ReceivingTouchdowns": 0 },
                     { "Year": 2010, "Team": _teams[8], "GamesPlayed": 16, "RushingAttempts": 327, "RushingYards": 1616, "RushingTouchdowns": 16, "FumblesLost": 2, "Targets": 84, "Receptions": 66, "ReceivingYards": 604, "ReceivingTouchdowns": 2 },
                     { "Year": 2011, "Team": _teams[8], "GamesPlayed": 13, "RushingAttempts": 278, "RushingYards": 1224, "RushingTouchdowns": 10, "FumblesLost": 3, "Targets": 71, "Receptions": 53, "ReceivingYards": 617, "ReceivingTouchdowns": 2 },
                     { "Year": 2012, "Team": _teams[8], "GamesPlayed": 16, "RushingAttempts": 351, "RushingYards": 1424, "RushingTouchdowns": 15, "FumblesLost": 2, "Targets": 58, "Receptions": 40, "ReceivingYards": 240, "ReceivingTouchdowns": 2 }]
@@ -158,8 +161,11 @@ module NflDraft.ViewModels {
                     projected.RushingAttempts = fp[i]["Projected"]["RushingAttempts"];
                     projected.RushingYards = fp[i]["Projected"]["RushingYards"];
                     projected.RushingTouchdowns = fp[i]["Projected"]["RushingTouchdowns"];
-                    projected.Fumbles = fp[i]["Projected"]["Fumbles"];
                     projected.FumblesLost = fp[i]["Projected"]["FumblesLost"];
+                    projected.Targets = fp[i]["Projected"]["Targets"];
+                    projected.Receptions = fp[i]["Projected"]["Receptions"];
+                    projected.ReceivingYards = fp[i]["Projected"]["ReceivingYards"];
+                    projected.ReceivingTouchdowns = fp[i]["Projected"]["ReceivingTouchdowns"];
                     fantasyPlayer.Projected = projected;
                 }
                 fantasyPlayer.Stats = new Array<Models.Stats>();
@@ -191,11 +197,18 @@ module NflDraft.ViewModels {
         DoWork() {
             var current = this.Countdown;
             if (current == 0) {
-                var ds = this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0);
-                this.Rounds.GetValueAt(0).DraftSpots.RemoveAt(0);
-                if (this.Rounds.GetValueAt(0).DraftSpots.Count == 0)
-                    this.Rounds.RemoveAt(0);
-                current = 15;
+                if (this.Rounds.Count > 0 && this.FantasyPlayers.Count > 0) {
+                    var spot = this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0);
+                    var ds = new Models.DraftSelection();
+                    ds.DraftSpot = spot;
+                    ds.FantasyPlayer = this.FantasyPlayers.GetValueAt(0);
+                    this.FantasyPlayers.RemoveAt(0);
+                    this.DraftSelections.Add(ds);
+                    this.Rounds.GetValueAt(0).DraftSpots.RemoveAt(0);
+                    if (this.Rounds.GetValueAt(0).DraftSpots.Count == 0)
+                        this.Rounds.RemoveAt(0);
+                    current = 15;
+                }
             }
             else current = current - 1;
             this.Countdown = current;
