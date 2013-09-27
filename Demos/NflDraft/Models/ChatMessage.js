@@ -1,19 +1,12 @@
 var NflDraft;
 (function (NflDraft) {
     (function (Models) {
-        var Team = (function () {
-            function Team() {
+        var ChatMessage = (function () {
+            function ChatMessage() {
             }
-            Object.defineProperty(Team.prototype, "FullName", {
-                get: function () {
-                    return this.Location + " " + this.Nickname;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            return Team;
+            return ChatMessage;
         })();
-        Models.Team = Team;
+        Models.ChatMessage = ChatMessage;
     })(NflDraft.Models || (NflDraft.Models = {}));
     var Models = NflDraft.Models;
 })(NflDraft || (NflDraft = {}));
