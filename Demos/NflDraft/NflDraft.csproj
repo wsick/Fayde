@@ -65,6 +65,7 @@
     <TypeScriptCompile Include="Models\DraftSpot.ts" />
     <Content Include="default.html" />
     <Content Include="Images\chat.png" />
+    <Content Include="Images\fayde.gif" />
     <Content Include="Images\footballfield2.png" />
     <Content Include="Images\Player Headshots\aaron_rodgers.png" />
     <Content Include="Images\Player Headshots\aj_green.png" />
