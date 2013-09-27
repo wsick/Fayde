@@ -15,6 +15,7 @@
       <Source Name="Round" Source="Models/Round.js" />
       <Source Name="Stats" Source="Models/Stats.js" />
       <Source Name="Team" Source="Models/Team.js" />
+      <Source Name="ChatMessage" Source="Models/ChatMessage.js" />
     </Namespace>
     <Namespace Name="folder:Resources">
       <Source Name="AgeValueConverter" Source="Resources/AgeValueConverter.js" />
@@ -108,7 +109,7 @@
                 </Grid>
               </Border>
             </Border>
-            <ListBox x:Name="RoundsListBox" ItemsSource="{Binding Rounds}" BorderThickness="1, 1, 1, 0" BorderBrush="Black" Padding="0" Margin="5">
+            <ListBox x:Name="RoundsListBox" ItemsSource="{Binding Rounds}" BorderThickness="1, 1, 1, 0" BorderBrush="Black" Padding="0" Margin="5" Background="{StaticResource DarkGrayBrush}">
               <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
                   <Setter Property="Padding" Value="0"/>
@@ -118,7 +119,7 @@
               <ListBox.ItemTemplate>
                 <DataTemplate>
                   <StackPanel>
-                    <Border Background="{StaticResource BlueGradient}" BorderBrush="Black" BorderThickness="0, 0, 0, 1">
+                    <Border Background="{StaticResource BlueGradient}" BorderBrush="Black" BorderThickness="0, 1, 0, 1" Margin="0, -1, 0, 0">
                       <TextBlock TextAlignment="Center" Foreground="White" Padding="1" Text="{Binding RoundNumber, StringFormat='ROUND {0}'}">
                         <TextBlock.Effect>
                           <DropShadowEffect Color="Navy" BlurRadius="1" ShadowDepth="1"/>
@@ -585,34 +586,31 @@
             </TextBlock.Effect>
           </TextBlock>
         </Border>
-        <ListBox Grid.Row="1" ItemsSource="{Binding DraftSelections}" Margin="1, 0, 1, 1" Background="{StaticResource MediumGrayBrush}" BorderThickness="0" Padding="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <ListBox Grid.Row="1" ItemsSource="{Binding DraftSelections}" SelectedItem="{Binding SelectedPlayer}" Margin="1, 0, 1, 1" Background="{StaticResource MediumGrayBrush}" BorderThickness="0" Padding="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
           <ListBox.ItemContainerStyle>
             <Style TargetType="ListBoxItem">
               <Setter Property="Padding" Value="0"/>
-              <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             </Style>
           </ListBox.ItemContainerStyle>
           <ListBox.ItemTemplate>
             <DataTemplate>
-              <Border Background="{StaticResource SilverGradient}" Margin="0">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Foreground="White" FontSize="12" Margin="2, 0, 0, 0" Padding="2" Text="{Binding DraftSpot.Overall, StringFormat='{0})'}">
-                      <TextBlock.Effect>
-                        <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
-                      </TextBlock.Effect>
-                    </TextBlock>
-                    <TextBlock Foreground="White" FontSize="12" Padding="2" Text="{Binding DraftSpot.Team.Name}">
-                      <TextBlock.Effect>
-                        <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
-                      </TextBlock.Effect>
-                    </TextBlock>
-                    <TextBlock Foreground="White" FontSize="12" Padding="2" Text="{Binding FantasyPlayer.Name}">
-                      <TextBlock.Effect>
-                        <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
-                      </TextBlock.Effect>
-                    </TextBlock>
-                  </StackPanel>
-              </Border>
+              <StackPanel Orientation="Horizontal">
+                  <TextBlock Foreground="White" FontSize="12" Margin="2, 0, 0, 0" Padding="2" Text="{Binding DraftSpot.Overall, StringFormat='{0})'}">
+                    <TextBlock.Effect>
+                      <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
+                    </TextBlock.Effect>
+                  </TextBlock>
+                  <TextBlock Foreground="White" FontSize="12" Padding="2" Text="{Binding FantasyPlayer.Name}">
+                    <TextBlock.Effect>
+                      <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
+                    </TextBlock.Effect>
+                  </TextBlock>
+                  <TextBlock Foreground="White" FontSize="12" Padding="2" Text="{Binding DraftSpot.Team.Name, StringFormat=' ({0})'}">
+                    <TextBlock.Effect>
+                      <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
+                    </TextBlock.Effect>
+                  </TextBlock>
+                </StackPanel>
             </DataTemplate>
           </ListBox.ItemTemplate>
         </ListBox>
@@ -640,19 +638,39 @@
         </Grid.RowDefinitions>
         <Border Margin="1" Background="{StaticResource GrayGradient}" BorderBrush="{StaticResource MediumGrayBrush}" BorderThickness="1, 1, 0, 0">
           <StackPanel Orientation="Horizontal">
-            <TextBlock Margin="30, 0, 0, 0" Foreground="White" FontWeight="Bold" Padding="3" Text="Chat (7)">
+            <TextBlock Margin="30, 0, 0, 0" Foreground="White" FontWeight="Bold" Padding="3" Text="{Binding ChatMessages.Count, StringFormat='Chat ({0})'}">
               <TextBlock.Effect>
                 <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="1"/>
               </TextBlock.Effect>
             </TextBlock>
           </StackPanel>
         </Border>
-        <ListBox Grid.Row="1" Margin="1, 0, 1, 1" Background="{StaticResource MediumGrayBrush}" BorderThickness="0">
-
+        <ListBox Grid.Row="1" ItemsSource="{Binding ChatMessages}" Margin="1, 0, 1, 1" Background="{StaticResource MediumGrayBrush}" BorderThickness="0">
+          <ListBox.ItemContainerStyle>
+            <Style TargetType="ListBoxItem">
+              <Setter Property="Padding" Value="0"/>
+            </Style>
+          </ListBox.ItemContainerStyle>
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Foreground="White" FontSize="12" Margin="2, 0, 0, 0" Padding="2" Text="{Binding FantasyTeam.Name, StringFormat='{0} - '}">
+                  <TextBlock.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
+                  </TextBlock.Effect>
+                </TextBlock>
+                <TextBlock Foreground="White" FontSize="12" Padding="2" Text="{Binding Message}">
+                  <TextBlock.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="1"></DropShadowEffect>
+                  </TextBlock.Effect>
+                </TextBlock>
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
         </ListBox>
         <Image HorizontalAlignment="Left" Margin="-4, -8, 5, -10" Width="36" Height="36" Source="Images/chat.png"/>
       </Grid>
-      <TextBox Grid.Row="4" Margin="5, 0, 5, 5" Background="{StaticResource MediumGrayBrush}" BorderBrush="Black"></TextBox>
+      <TextBox Grid.Row="4" Margin="5, 0, 5, 5" TextBlock.Foreground="White" Background="{StaticResource MediumGrayBrush}" BorderBrush="Black"></TextBox>
     </Grid>
   </Grid>
 </Application>
