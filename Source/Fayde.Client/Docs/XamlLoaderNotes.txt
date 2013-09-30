@@ -45,3 +45,5 @@ MarkupExpressionParsing
 		{Binding ...}
 	TemplateBinding
 		{TemplateBinding [TargetProperty]}
+	EventToCommand
+		{EventCommand [EventName]}

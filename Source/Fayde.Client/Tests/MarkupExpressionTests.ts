@@ -108,3 +108,19 @@ test("Binding", () => {
     var rs = binding.RelativeSource;
     strictEqual(rs.Mode, Fayde.Data.RelativeSourceMode.TemplatedParent, "Mode");
 });
+
+test("EventCommand", () => {
+    var xaml = "<UserControl xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        + "<Button Click=\"{EventCommand TestMethod}\" />"
+        + "</UserControl > ";
+    var uc = <Fayde.Controls.UserControl>Fayde.Xaml.Load(xaml);
+    var methodcalled = false;
+    uc.DataContext = {
+        TestMethod: function (e: Fayde.RoutedEventArgs) {
+            methodcalled = true;
+        }
+    };
+    var button = <Fayde.Controls.Button>uc.Content;
+    button.OnClick();
+    ok(methodcalled, "EventCommand method should be called on DataContext.");
+});

@@ -50,6 +50,8 @@ module Fayde.Xaml {
                     return parseTemplateBinding(r2, ctx);
                 case "RelativeSource":
                     return parseRelativeSource(r2, ctx);
+                case "EventCommand":
+                    return parseEventCommand(r2, ctx);
                 default:
                     return undefined;
             }
@@ -237,7 +239,9 @@ module Fayde.Xaml {
         }
         return rs;
     }
-
+    function parseEventCommand(val: string, ctx: IMarkupParseContext): any {
+        return new EventCommand(val);
+    }
 
     var bindingPropertyFuncs: { (binding: Data.Binding, key: string, oVal: any, strVal: string): void }[] = [];
     bindingPropertyFuncs["FallbackValue"] =

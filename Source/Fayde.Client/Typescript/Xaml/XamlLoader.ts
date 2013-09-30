@@ -215,6 +215,8 @@ module Fayde.Xaml {
                 if (result !== undefined)
                     return result;
             }
+            if (!propd)
+                return value;
 
             if (propd === Fayde.Style.TargetTypeProperty) {
                 var resolution = TypeResolver.ResolveFullyQualifiedName(value, attr);
@@ -354,11 +356,16 @@ module Fayde.Xaml {
                 if (propd) {
                     dobj.SetValue(propd, createAttributeObject(attr, dobj, propd));
                 } else if (event) {
-                    var rootobj = ctx.ObjectStack[0];
-                    var callback = rootobj[attr.value];
-                    if (!callback)
-                        throw new XamlParseException("Cannot find method for event subscription '" + attr.value + "'.");
-                    event.Subscribe(callback, rootobj);
+                    var val = createAttributeObject(attr, dobj, null);
+                    if (val instanceof EventCommand) {
+                        (<EventCommand>val).Attach(owner, propertyName);
+                    } else {
+                        var rootobj = ctx.ObjectStack[0];
+                        var callback = rootobj[val];
+                        if (!callback)
+                            throw new XamlParseException("Cannot find method for event subscription '" + val + "'.");
+                        event.Subscribe(callback, rootobj);
+                    }
                 } else {
                     //TODO: Add checks for read-only, etc.
                     owner[propertyName] = attr.textContent;
