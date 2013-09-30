@@ -1,6 +1,11 @@
 /// <reference path="XamlObject.ts" />
 
 module Fayde {
+    export interface IEventCommandParameter<T extends EventArgs> {
+        sender: any;
+        args: T;
+    }
+
     export class EventCommand {
         private _PathWalker: Data.PropertyPathWalker = null;
         private _Target: XamlObject = null;
@@ -26,7 +31,7 @@ module Fayde {
         private _Callback(sender: any, e: EventArgs) {
             var dc = this._Target.XamlNode.DataContext;
             var method = <Function>this._PathWalker.GetValue(dc);
-            method.call(dc, { Sender: sender, EventArgs: e });
+            method.call(dc, { sender: sender, args: e });
         }
     }
 }

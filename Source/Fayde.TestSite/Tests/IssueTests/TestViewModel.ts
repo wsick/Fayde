@@ -13,6 +13,10 @@ module Tests.IssueTests {
             { Name: "Item3", Data: 2 }
         ];
         SelectedItem: string;
+        TestMethod(parameter: Fayde.IEventCommandParameter<EventArgs>) {
+            var sender = parameter.sender;
+            alert("TestMethod called. [" + sender.constructor._TypeName + "]");
+        }
         private static ctor = (() => {
             Fayde.MVVM.NotifyProperties(TestViewModel, ["SelectedItem"]);
         })();
