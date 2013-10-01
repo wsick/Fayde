@@ -109,18 +109,49 @@ test("Binding", () => {
     strictEqual(rs.Mode, Fayde.Data.RelativeSourceMode.TemplatedParent, "Mode");
 });
 
-test("EventCommand", () => {
-    var xaml = "<UserControl xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
-        + "<Button Click=\"{EventCommand TestMethod}\" />"
-        + "</UserControl > ";
-    var uc = <Fayde.Controls.UserControl>Fayde.Xaml.Load(xaml);
+test("EventBinding", () => {
     var methodcalled = false;
-    uc.DataContext = {
-        TestMethod: function (e: Fayde.RoutedEventArgs) {
+    var vm = {
+        TestMethod: function (parameter: any) {
             methodcalled = true;
         }
     };
+
+    var xaml = "<UserControl xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        + "<Button Click=\"{EventBinding Command={Binding TestMethod}}\" />"
+        + "</UserControl > ";
+    var uc = <Fayde.Controls.UserControl>Fayde.Xaml.Load(xaml);
+    uc.DataContext = vm;
     var button = <Fayde.Controls.Button>uc.Content;
     button.OnClick();
-    ok(methodcalled, "EventCommand method should be called on DataContext.");
+    ok(methodcalled, "Command.");
+
+
+    xaml = "<UserControl xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        + "<Button x:Name=\"MyButton\" Click=\"{EventBinding Command={Binding TestMethod}, CommandParameter={Binding ElementName=MyButton}}\" />"
+        + "</UserControl > ";
+    methodcalled = false;
+    vm = {
+        TestMethod: function (parameter: any) {
+            if (!(parameter instanceof Fayde.Controls.Button))
+                throw new Exception("CommandParameter was not transmitted properly.");
+            methodcalled = true;
+        }
+    };
+    var uc = <Fayde.Controls.UserControl>Fayde.Xaml.Load(xaml);
+    uc.DataContext = vm;
+    var button = <Fayde.Controls.Button>uc.Content;
+    button.OnClick();
+    ok(methodcalled, "Command, CommandParameter.");
+
+    
+    xaml = "<UserControl xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
+        + "<Button x:Name=\"MyButton\" Click=\"{EventBinding TestMethod, CommandParameter={Binding ElementName=MyButton}}\" />"
+        + "</UserControl > ";
+    methodcalled = false;
+    var uc = <Fayde.Controls.UserControl>Fayde.Xaml.Load(xaml);
+    uc.DataContext = vm;
+    var button = <Fayde.Controls.Button>uc.Content;
+    button.OnClick();
+    ok(methodcalled, "Implicit Command, CommandParameter.");
 });

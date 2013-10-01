@@ -14,6 +14,7 @@ module Fayde.Xaml {
     export interface IMarkup {
         Transmute(ctx: IMarkupParseContext): Expression;
     }
+    export var IMarkup_ = Fayde.RegisterInterface("IMarkup");
     interface IInnerExpressionValue {
         strVal: string;
         objVal: string;
@@ -50,8 +51,8 @@ module Fayde.Xaml {
                     return parseTemplateBinding(r2, ctx);
                 case "RelativeSource":
                     return parseRelativeSource(r2, ctx);
-                case "EventCommand":
-                    return parseEventCommand(r2, ctx);
+                case "EventBinding":
+                    return parseEventBinding(r2, ctx);
                 default:
                     return undefined;
             }
@@ -105,10 +106,10 @@ module Fayde.Xaml {
                 if (remaining[0] === "{") {
                     var iev = parseInnerExpression(remaining, ctx);
                     remaining = iev.remaining;
+                    if (remaining[0] === ",")
+                        remaining = remaining.substr(1);
                     strVal = iev.strVal;
                     curVal = iev.objVal;
-                    if (curVal instanceof Expression)
-                        curVal = (<Expression>curVal).GetValue(ctx.Property);
                 } else {
                     commai = remaining.indexOf(",");
                     if (commai === -1) {
@@ -126,8 +127,7 @@ module Fayde.Xaml {
                 inKey = true;
             }
         }
-
-        return binding.Transmute(ctx);
+        return binding;
     }
     function parseInnerExpression(val: string, ctx: IMarkupParseContext): IInnerExpressionValue {
         var len = val.length;
@@ -202,8 +202,7 @@ module Fayde.Xaml {
         throw new XamlParseException("Could not resolve StaticResource: '" + key + "'.");
     }
     function parseTemplateBinding(val: string, ctx: IMarkupParseContext): any {
-        var tb = new TemplateBinding(val);
-        return tb.Transmute(ctx);
+        return new TemplateBinding(val);
     }
     function parseRelativeSource(val: string, ctx: IMarkupParseContext): any {
         var tokens = val.split(",");
@@ -239,8 +238,65 @@ module Fayde.Xaml {
         }
         return rs;
     }
-    function parseEventCommand(val: string, ctx: IMarkupParseContext): any {
-        return new EventCommand(val);
+    function parseEventBinding(val: string, ctx: IMarkupParseContext): any {
+        var eb = new EventBinding();
+        
+        var inKey = true;
+        var inQuote = false;
+        var inDoubleQuote = false;
+        var remaining = val;
+        var commai: number;
+        var equali: number;
+        var squigglyi: number;
+        var curKey = "Command";
+        while (remaining) {
+            if (inKey) {
+                commai = remaining.indexOf(",");
+                equali = remaining.indexOf("=");
+                if (equali === -1 || (commai !== -1 && commai < equali)) {
+                    var path: string;
+                    if (commai !== -1) {
+                        path = remaining.substr(0, commai);
+                        remaining = remaining.substr(path.length + 1);
+                    } else {
+                        path = remaining;
+                        remaining = "";
+                    }
+                    eventBindingPropertyFuncs["Command"](eb, "Command", undefined, path);
+                    inKey = true;
+                } else {
+                    curKey = remaining.substr(0, equali).trim();
+                    remaining = remaining.substr(equali + 1);
+                    inKey = false;
+                }
+            } else {
+                var strVal: string;
+                var curVal: any = undefined;
+                if (remaining[0] === "{") {
+                    var iev = parseInnerExpression(remaining, ctx);
+                    remaining = iev.remaining;
+                    if (remaining[0] === ",")
+                        remaining = remaining.substr(1);
+                    strVal = iev.strVal;
+                    curVal = iev.objVal;
+                } else {
+                    commai = remaining.indexOf(",");
+                    if (commai === -1) {
+                        strVal = remaining;
+                        remaining = "";
+                    } else {
+                        strVal = remaining.substr(0, commai);
+                        remaining = remaining.substr(commai + 1);
+                    }
+                }
+                var propFunc = eventBindingPropertyFuncs[curKey];
+                if (!propFunc)
+                    throw new Exception("Unknown property in EventBinding '" + curKey + "'.");
+                propFunc(eb, curKey, curVal, strVal);
+                inKey = true;
+            }
+        }
+        return eb;
     }
 
     var bindingPropertyFuncs: { (binding: Data.Binding, key: string, oVal: any, strVal: string): void }[] = [];
@@ -311,5 +367,23 @@ module Fayde.Xaml {
     bindingPropertyFuncs["ConverterCulture"] = function (binding: Data.Binding, key: string, oVal: any, strVal: string) {
         throw new NotSupportedException("ConverterCulture");
     };
-    return bindingPropertyFuncs;
+
+    var eventBindingPropertyFuncs: { (binding: EventBinding, key: string, oVal: any, strVal: string): void }[] = [];
+    eventBindingPropertyFuncs["Command"] = function (binding: EventBinding, key: string, oVal: any, strVal: string) {
+        if (!oVal || typeof oVal === "string")
+            binding.CommandBinding = new Data.Binding(strVal);
+        else if (oVal instanceof Data.Binding)
+            binding.CommandBinding = oVal;
+    };
+    eventBindingPropertyFuncs["CommandParameter"] = function (binding: EventBinding, key: string, oVal: any, strVal: string) {
+        if (!oVal || typeof oVal === "string")
+            binding.CommandParameterBinding = new Data.Binding(strVal);
+        else if (oVal instanceof Data.Binding)
+            binding.CommandParameterBinding = oVal;
+    };
+    eventBindingPropertyFuncs["Filter"] = function (binding: EventBinding, key: string, oVal: any, strVal: string) {
+        if (!Nullstone.ImplementsInterface(oVal, Fayde.IEventFilter_))
+            throw new Exception("EventBinding Filter must implement IEventFilter.");
+        binding.Filter = oVal;
+    };
 }

@@ -53,7 +53,9 @@ module Fayde.Xaml {
             TemplateBindingSource: null,
         };
         validateDocument(ctx.Document);
-        return <XamlObject>createObject(ctx.Document.documentElement, ctx);
+        var xo = <XamlObject>createObject(ctx.Document.documentElement, ctx);
+        xo.XamlNode.NameScope = ctx.NameScope;
+        return xo;
     }
     export function LoadDocument(doc: Document): XamlObject {
         var ctx: IXamlLoadContext = {
@@ -64,7 +66,9 @@ module Fayde.Xaml {
             TemplateBindingSource: null,
         };
         validateDocument(ctx.Document);
-        return <XamlObject>createObject(ctx.Document.documentElement, ctx);
+        var xo = <XamlObject>createObject(ctx.Document.documentElement, ctx);
+        xo.XamlNode.NameScope = ctx.NameScope;
+        return xo;
     }
     function createObject(el: Element, ctx: IXamlLoadContext): any {
         var resolution = TypeResolver.Resolve(el.namespaceURI, el.localName);
@@ -212,8 +216,11 @@ module Fayde.Xaml {
                     ObjectStack: ctx.ObjectStack
                 };
                 var result = MarkupExpressionParser.Parse(value, parseCtx);
-                if (result !== undefined)
+                if (result !== undefined) {
+                    if ((result instanceof TemplateBinding) || (result instanceof Data.Binding) || (result instanceof EventBinding))
+                        return (<Xaml.IMarkup>result).Transmute(parseCtx);
                     return result;
+                }
             }
             if (!propd)
                 return value;
@@ -357,11 +364,13 @@ module Fayde.Xaml {
                     dobj.SetValue(propd, createAttributeObject(attr, dobj, propd));
                 } else if (event) {
                     var val = createAttributeObject(attr, dobj, null);
-                    if (val instanceof EventCommand) {
-                        (<EventCommand>val).Attach(owner, propertyName);
+                    if (val instanceof EventBindingExpression) {
+                        var ebe = <EventBindingExpression>val;
+                        ebe.Init(event, propertyName);
+                        ebe.OnAttached(owner);
                     } else {
                         var rootobj = ctx.ObjectStack[0];
-                        var callback = rootobj[val];
+                        var callback = rootobj[attr.value];
                         if (!callback)
                             throw new XamlParseException("Cannot find method for event subscription '" + val + "'.");
                         event.Subscribe(callback, rootobj);

@@ -156,7 +156,7 @@
     <Content Include="Tests\IssueTests\double-listbox.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Tests\IssueTests\eventcommand.fap">
+    <Content Include="Tests\IssueTests\eventbinding.fap">
       <SubType>Designer</SubType>
     </Content>
     <None Include="Tests\Shapes\rectangle-grid.fap">

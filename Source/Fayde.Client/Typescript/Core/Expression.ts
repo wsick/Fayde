@@ -7,11 +7,11 @@ module Fayde {
         IsUpdating: boolean;
         IsAttached: boolean;
         GetValue(propd: DependencyProperty): any { }
-        OnAttached(dobj: DependencyObject) {
+        OnAttached(target: XamlObject) {
             this.IsAttached = true;
-            this.OnDataContextChanged(dobj.DataContext);
+            this.OnDataContextChanged(target.XamlNode.DataContext);
         }
-        OnDetached(dobj: DependencyObject) {
+        OnDetached(target: XamlObject) {
             this.IsAttached = false;
             this.OnDataContextChanged(undefined);
         }

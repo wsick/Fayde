@@ -195,7 +195,8 @@
     <TypeScriptCompile Include="Typescript\Navigation\NavigationService.ts" />
     <TypeScriptCompile Include="Typescript\Input\InteractionHelper.ts" />
     <TypeScriptCompile Include="Typescript\Primitives\DateTime.ts" />
-    <TypeScriptCompile Include="Typescript\Core\EventCommand.ts" />
+    <TypeScriptCompile Include="Typescript\Core\EventBinding.ts" />
+    <TypeScriptCompile Include="Typescript\Core\EventBindingExpression.ts" />
     <Content Include="Typescript\Runtime\EnumerableEx.ts" />
     <Content Include="Typescript\Xaml\XamlLoader.ts" />
     <Content Include="UnitTestList.txt" />

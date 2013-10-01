@@ -19,8 +19,10 @@ var Tests;
                 ];
             }
             TestViewModel.prototype.TestMethod = function (parameter) {
-                var sender = parameter.sender;
-                alert("TestMethod called. [" + sender.constructor._TypeName + "]");
+                if (parameter.sender)
+                    alert("TestMethod called. [" + parameter.sender.constructor._TypeName + "]");
+else if (parameter)
+                    alert("TestMethod called. [" + parameter.Name + "]");
             };
             TestViewModel.ctor = (function () {
                 Fayde.MVVM.NotifyProperties(TestViewModel, ["SelectedItem"]);

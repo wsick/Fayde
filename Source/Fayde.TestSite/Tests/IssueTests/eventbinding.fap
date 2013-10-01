@@ -8,10 +8,11 @@
             <Source Name="TestViewModel" Source="IssueTests/TestViewModel.js" />
         </Namespace>
     </Application.Sources>
-    <Grid>
-        <Grid.DataContext>
+    <StackPanel x:Name="RootStackPanel">
+        <StackPanel.DataContext>
             <local:TestViewModel />
-        </Grid.DataContext>
-        <Button Content="Click Me" Click="{EventCommand TestMethod}" />
-    </Grid>
+        </StackPanel.DataContext>
+        <Button Content="Click Me" Click="{EventBinding TestMethod}" />
+        <Button Content="Click Me (with Command Parameter)" Click="{EventBinding TestMethod, CommandParameter={Binding ElementName=RootStackPanel}}" />
+    </StackPanel>
 </Application>
