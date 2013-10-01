@@ -5,12 +5,10 @@
 module Fayde.Data {
     export class RelativeSource {
         Mode: RelativeSourceMode = RelativeSourceMode.TemplatedParent;
-        AncestorLevel: number;
-        AncestorType: Function;
+        AncestorLevel: number = 1;
+        AncestorType: Function = null;
         constructor(mode?: RelativeSourceMode) {
             if (mode) this.Mode = mode;
-            this.AncestorLevel = 1;
-            this.AncestorType = null;
         }
     }
     Fayde.RegisterType(RelativeSource, {

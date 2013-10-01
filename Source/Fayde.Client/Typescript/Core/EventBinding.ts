@@ -10,11 +10,11 @@ module Fayde {
     export var IEventFilter_ = Fayde.RegisterInterface("IEventFilter");
 
     export class EventBinding implements Xaml.IMarkup {
-        CommandBinding: Data.Binding;
-        CommandParameterBinding: Data.Binding;
-        Filter: IEventFilter;
+        CommandBinding: Data.Binding = null;
+        CommandParameterBinding: Data.Binding = null;
+        Filter: IEventFilter = null;
 
-        Transmute(ctx: Xaml.IMarkupParseContext): Expression {
+        Transmute(ctx: Xaml.ITransmuteContext): Expression {
             return new EventBindingExpression(this);
         }
     }

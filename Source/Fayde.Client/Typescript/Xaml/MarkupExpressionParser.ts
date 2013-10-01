@@ -11,8 +11,14 @@ module Fayde.Xaml {
         Resolver: INamespacePrefixResolver;
         ObjectStack: any[];
     }
+    export interface ITransmuteContext {
+        Owner: DependencyObject;
+        Property: DependencyProperty;
+        TemplateBindingSource: DependencyObject;
+        ObjectStack: any[];
+    }
     export interface IMarkup {
-        Transmute(ctx: IMarkupParseContext): Expression;
+        Transmute(ctx: ITransmuteContext): Expression;
     }
     export var IMarkup_ = Fayde.RegisterInterface("IMarkup");
     interface IInnerExpressionValue {

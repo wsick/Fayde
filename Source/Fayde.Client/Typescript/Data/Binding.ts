@@ -146,7 +146,7 @@ module Fayde.Data {
 
         Seal() { this._IsSealed = true; }
         
-        Transmute(ctx: Xaml.IMarkupParseContext): Expression {
+        Transmute(ctx: Xaml.ITransmuteContext): Expression {
             return new Data.BindingExpression(this, ctx.Owner, ctx.Property);
         }
     }
