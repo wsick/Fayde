@@ -1,5 +1,10 @@
 
 module Fayde {
+    export module Layout {
+        export var Debug = false;
+        export var DebugIndent = 0;
+    }
+
     export module Media {
         export module Animation {
             export var Debug = false;

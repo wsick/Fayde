@@ -863,16 +863,20 @@ module Fayde {
                 }
 
                 if (flag === UIElementFlags.DirtyMeasureHint) {
-                    //LayoutDebug(function () { return "Starting _MeasureList Update: " + pass.MeasureList.length; });
+                    if (Fayde.Layout.Debug)
+                        console.log("[MEASURE PASS] " + pass.MeasureList.length);
                     while (lu = pass.MeasureList.shift()) {
-                        //LayoutDebug(function () { return "Measure [" + uie.__DebugToString() + "]"; });
+                        if (Fayde.Layout.Debug)
+                            console.log("[DOMEASURE] " + lu._DebugToString());
                         lu._DoMeasureWithError(error);
                         pass.Updated = true;
                     }
                 } else if (flag === UIElementFlags.DirtyArrangeHint) {
-                    //LayoutDebug(function () { return "Starting _ArrangeList Update: " + pass.ArrangeList.length; });
+                    if (Fayde.Layout.Debug)
+                        console.log("[ARRANGE PASS] " + pass.ArrangeList.length);
                     while (lu = pass.ArrangeList.shift()) {
-                        //LayoutDebug(function () { return "Arrange [" + uie.__DebugToString() + "]"; });
+                        if (Fayde.Layout.Debug)
+                            console.log("[DOARRANGE] " + lu._DebugToString());
                         lu._DoArrangeWithError(error);
                         pass.Updated = true;
                         if (layout._HasFlag(UIElementFlags.DirtyMeasureHint))
@@ -943,6 +947,9 @@ module Fayde {
             if (!shouldMeasure)
                 return;
 
+            if (Fayde.Layout.Debug)
+                console.log(new Array(Fayde.Layout.DebugIndent).join("\t") + "[MEASURING] " + this._DebugToString());
+
             this.PreviousConstraint = availableSize;
 
             this.InvalidateArrange();
@@ -954,11 +961,13 @@ module Fayde {
                 size.shrinkByThickness(s, margin);
             this.CoerceSize(s);
 
+            Fayde.Layout.DebugIndent++;
             if ((<any>fe).MeasureOverride) {
                 s = (<IMeasurable><any>fe).MeasureOverride(s);
             } else {
                 s = (<IMeasurableHidden>fe)._MeasureOverride(s, error);
             }
+            Fayde.Layout.DebugIndent--;
 
             if (error.Message)
                 return;
@@ -1055,6 +1064,9 @@ module Fayde {
             if (!shouldArrange)
                 return;
 
+            if (Fayde.Layout.Debug)
+                console.log(new Array(Fayde.Layout.DebugIndent).join("\t") + "[ARRANGING] " + this._DebugToString());
+
             var measure = this.PreviousConstraint;
             if (this.IsContainer && !measure) {
                 this._Measure(size.fromRect(finalRect), error);
@@ -1090,12 +1102,14 @@ module Fayde {
 
             this.LayoutSlot = finalRect;
 
+            Fayde.Layout.DebugIndent++;
             var response: size;
             if ((<any>fe).ArrangeOverride) {
                 response = (<IArrangeable><any>fe).ArrangeOverride(offer);
             } else {
                 response = (<IArrangeableHidden>fe)._ArrangeOverride(offer, error);
             }
+            Fayde.Layout.DebugIndent--;
 
             if (horiz === HorizontalAlignment.Stretch)
                 response.Width = Math.max(response.Width, framework.Width);
@@ -1511,6 +1525,16 @@ module Fayde {
                 str = str.substring(0, str.length - 1);
 
             return "[" + str + "]";
+        }
+
+        private _DebugToString(): string {
+            var xobj = this.Node.XObject;
+            var ctor = (<any>xobj).constructor;
+            var o = {
+                "ID": (<any>xobj)._ID,
+                "Type": ctor._TypeName
+            };
+            return JSON.stringify(o);
         }
     }
     Fayde.RegisterType(LayoutUpdater, {
