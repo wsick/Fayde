@@ -2,6 +2,12 @@
 /// CODE
 
 module Fayde {
+    export interface IEventBindingArgs<T extends EventArgs> {
+        sender: any;
+        args: T;
+        parameter: any;
+    }
+
     export class EventBindingExpression extends Expression {
         IsUpdating: boolean = false;
         IsAttached: boolean = false;
@@ -13,7 +19,7 @@ module Fayde {
         private _Target: XamlObject = null;
         private _Event: MulticastEvent<EventArgs> = null;
         private _EventName: string = null;
-
+        
         constructor(eventBinding: EventBinding) {
             super();
             this._EventBinding = eventBinding;
@@ -63,25 +69,26 @@ module Fayde {
                 return;
             }
 
+            var cargs = {
+                sender: sender,
+                args: e,
+                parameter: null
+            };
+
             var cpb = this._EventBinding.CommandParameterBinding;
-            var cpar: any = null;
             if (cpb) {
                 var cpw = this._CommandParameterWalker;
                 var cpsource = findSource(target, cpb);
-                cpar = cpw.GetValue(cpsource);
-            } else {
-                cpar = {
-                    sender: sender,
-                    args: e
-                };
+                cargs.parameter = cpw.GetValue(cpsource);
             }
 
+
             if (typeof etarget === "function") {
-                (<Function>etarget)(cpar);
+                (<Function>etarget)(cargs);
             } else if (Nullstone.DoesInheritFrom(etarget, Fayde.Input.ICommand_)) {
                 var ecmd = <Fayde.Input.ICommand>etarget;
-                if (ecmd.CanExecute(cpar))
-                    ecmd.Execute(cpar);
+                if (ecmd.CanExecute(cargs))
+                    ecmd.Execute(cargs);
             } else {
                 console.warn("[EVENTBINDING]: Could not find command target for event '" + this._EventName + "'.");
                 return;
