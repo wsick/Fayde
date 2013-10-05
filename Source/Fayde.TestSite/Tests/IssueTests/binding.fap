@@ -16,7 +16,7 @@
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <ListBox ItemsSource="{Binding AllItems}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+        <ListBox SelectedValue="{Binding SelectedItem, Mode=TwoWay}" ItemsSource="{Binding AllItems}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Name}" />

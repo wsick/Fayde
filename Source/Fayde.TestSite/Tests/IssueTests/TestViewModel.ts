@@ -12,7 +12,11 @@ module Tests.IssueTests {
             { Name: "Item2", Data: 1 },
             { Name: "Item3", Data: 2 }
         ];
-        SelectedItem: string;
+        SelectedItem: IItem;
+        constructor() {
+            super();
+            this.SelectedItem = this.AllItems[0];
+        }
         TestMethod(parameter: any) {
             if (parameter.sender)
                 alert("TestMethod called. [" + parameter.sender.constructor._TypeName + "]");

@@ -11,12 +11,13 @@ var Tests;
         var TestViewModel = (function (_super) {
             __extends(TestViewModel, _super);
             function TestViewModel() {
-                _super.apply(this, arguments);
+                _super.call(this);
                 this.AllItems = [
                     { Name: "Item1", Data: 0 },
                     { Name: "Item2", Data: 1 },
                     { Name: "Item3", Data: 2 }
                 ];
+                this.SelectedItem = this.AllItems[0];
             }
             TestViewModel.prototype.TestMethod = function (parameter) {
                 if (parameter.sender)
