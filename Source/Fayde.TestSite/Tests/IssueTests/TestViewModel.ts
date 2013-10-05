@@ -17,11 +17,11 @@ module Tests.IssueTests {
             super();
             this.SelectedItem = this.AllItems[0];
         }
-        TestMethod(parameter: any) {
-            if (parameter.sender)
-                alert("TestMethod called. [" + parameter.sender.constructor._TypeName + "]");
-            else if (parameter)
-                alert("TestMethod called. [" + parameter.Name + "]");
+        TestMethod(e: Fayde.IEventBindingArgs<EventArgs>) {
+            if (e.sender)
+                alert("TestMethod called. [" + e.sender.constructor._TypeName + "]");
+            else if (e.parameter)
+                alert("TestMethod called. [" + e.parameter.Name + "]");
         }
         private static ctor = (() => {
             Fayde.MVVM.NotifyProperties(TestViewModel, ["SelectedItem"]);

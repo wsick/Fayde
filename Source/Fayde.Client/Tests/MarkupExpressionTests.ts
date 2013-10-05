@@ -112,7 +112,7 @@ test("Binding", () => {
 test("EventBinding", () => {
     var methodcalled = false;
     var vm = {
-        TestMethod: function (parameter: any) {
+        TestMethod: function (e: Fayde.IEventBindingArgs<EventArgs>) {
             methodcalled = true;
         }
     };
@@ -132,8 +132,8 @@ test("EventBinding", () => {
         + "</UserControl > ";
     methodcalled = false;
     vm = {
-        TestMethod: function (parameter: any) {
-            if (!(parameter instanceof Fayde.Controls.Button))
+        TestMethod: function (e: Fayde.IEventBindingArgs<EventArgs>) {
+            if (!(e.parameter instanceof Fayde.Controls.Button))
                 throw new Exception("CommandParameter was not transmitted properly.");
             methodcalled = true;
         }
