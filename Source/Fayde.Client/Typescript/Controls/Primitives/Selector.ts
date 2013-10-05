@@ -70,9 +70,9 @@ module Fayde.Controls.Primitives {
 
             if (args.NewValue == null)
                 this._Selection.ClearSelection();
-            else if (this.Items.IndexOf(args.NewValue) != -1)
+            else if (this.Items.IndexOf(args.NewValue) !== -1)
                 this._Selection.Select(args.NewValue);
-            else if (this.Items.IndexOf(args.OldValue) != -1)
+            else if (this.Items.IndexOf(args.OldValue) !== -1)
                 this._Selection.Select(args.OldValue);
             else
                 this._Selection.ClearSelection();
