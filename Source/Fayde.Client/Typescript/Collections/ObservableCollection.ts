@@ -58,7 +58,7 @@ module Fayde.Collections {
             return this._ht.indexOf(value);
         }
         Contains(value: T): boolean {
-            return this._ht.indexOf(value) > 0;
+            return this._ht.indexOf(value) > -1;
         }
         Remove(value: T) {
             var index = this._ht.indexOf(value);
