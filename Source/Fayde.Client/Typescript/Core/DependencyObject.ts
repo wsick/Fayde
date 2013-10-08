@@ -50,7 +50,7 @@ module Fayde {
     	Name: "DONode",
     	Namespace: "Fayde"
     });
-    
+
     export class DependencyObject extends XamlObject implements ICloneable, Providers.IPropertyStorageOwner {
         private _Expressions: Expression[] = [];
         _PropertyStorage: Providers.IPropertyStorage[] = [];
@@ -116,7 +116,7 @@ module Fayde {
                     this._RemoveExpression(propd);
                 }
             }
-            
+
             var storage = Providers.GetStorage(this, propd);
             try {
                 propd.Store.SetLocalValue(storage, value);
@@ -129,6 +129,14 @@ module Fayde {
                 if (updateTwoWay)
                     (<Data.BindingExpressionBase>existing)._TryUpdateSourceObject(value);
             }
+        }
+        SetCurrentValue(propd: DependencyProperty, value: any) {
+            var storage = Providers.GetStorage(this, propd);
+            propd.Store.SetLocalValue(storage, value);
+
+            var expr = <Data.BindingExpressionBase>this._Expressions[propd._ID];
+            if (expr instanceof Data.BindingExpressionBase)
+                expr._TryUpdateSourceObject(value);
         }
         SetStoreValue(propd: DependencyProperty, value: any) {
             var storage = Providers.GetStorage(this, propd);
