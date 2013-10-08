@@ -122,6 +122,7 @@ module Fayde.Media {
             listener.Child = value;
             this._ChildTransformListeners.push(listener);
             this._Relayer();
+            return true;
         }
         RemovedFromCollection(value: Transform, isValueSafe: boolean) {
             if (!super.RemovedFromCollection(value, isValueSafe))
