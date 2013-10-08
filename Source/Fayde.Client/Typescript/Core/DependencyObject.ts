@@ -125,6 +125,7 @@ module Fayde {
             } catch (err) {
                 if (!addingExpression)
                     throw err;
+                console.warn("Error setting value: " + err.toString());
                 propd.Store.SetLocalValue(storage, propd.DefaultValue);
                 if (updateTwoWay)
                     (<Data.BindingExpressionBase>existing)._TryUpdateSourceObject(value);
