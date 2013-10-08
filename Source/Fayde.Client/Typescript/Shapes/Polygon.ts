@@ -15,6 +15,11 @@ module Fayde.Shapes {
         FillRule: FillRule;
         Points: PointCollection;
 
+        constructor() {
+            super();
+            this.Points = new PointCollection();
+        }
+
         private _PointsChanged(args: IDependencyPropertyChangedEventArgs) {
             var oldColl = args.OldValue;
             var newColl = args.NewValue;
