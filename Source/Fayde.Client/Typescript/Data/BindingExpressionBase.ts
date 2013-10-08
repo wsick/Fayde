@@ -66,7 +66,8 @@ module Fayde.Data {
 
             this._Cached = true;
             if (this.PropertyPathWalker.IsPathBroken) {
-                console.warn("[BINDING] Path Broken --> Path='" + this.PropertyPathWalker.Path + "'");
+                if (this.Target && this.Target.XamlNode.IsAttached)
+                    console.warn("[BINDING] Path Broken --> Path='" + this.PropertyPathWalker.Path + "'");
                 this._CachedValue = null;
             } else {
                 this._CachedValue = this.PropertyPathWalker.ValueInternal;
