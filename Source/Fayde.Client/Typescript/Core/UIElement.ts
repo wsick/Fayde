@@ -299,6 +299,12 @@ module Fayde {
         private _EffectListener: Media.Effects.IEffectListener = null;
         CreateNode(): UINode { return new UINode(this); }
 
+        get VisualParent() {
+            var vpNode = this.XamlNode.VisualParentNode;
+            if (vpNode) return vpNode.XObject;
+            return undefined;
+        }
+
         static AllowDropProperty: DependencyProperty;
         static CacheModeProperty: DependencyProperty;
         static ClipProperty = DependencyProperty.RegisterCore("Clip", () => Media.Geometry, UIElement, undefined, (d, args) => (<UIElement>d)._ClipChanged(args));
