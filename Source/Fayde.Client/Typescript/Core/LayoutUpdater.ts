@@ -530,7 +530,7 @@ module Fayde {
             if (false) {
                 //TODO: Render To Intermediate not implemented
             } else {
-                mat3.multiply(this.AbsoluteXform, this.RenderXform, this.AbsoluteXform); //abs = render * abs
+                mat3.multiply(this.RenderXform, this.AbsoluteXform, this.AbsoluteXform); //abs = abs * render
             }
 
             if (projection) {
