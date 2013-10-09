@@ -14,7 +14,8 @@ module Fayde.Media {
         _BuildValue(): number[] {
             var cx = this.CenterX;
             var cy = this.CenterY;
-            var angleRad = Math.PI / 180 * this.Angle;
+            var angle = 360 - this.Angle; //Rotation matrix rotates counter-clockwise; Silverlight rotates clockwise
+            var angleRad = Math.PI / 180 * angle;
             var m = mat3.createRotate(angleRad);
             if (cx === 0 && cy === 0)
                 return m;
