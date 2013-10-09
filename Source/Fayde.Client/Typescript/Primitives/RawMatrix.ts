@@ -100,6 +100,7 @@ module mat3 {
         return dest;
     }
     export function multiply(mat: number[], mat2: number[], dest?: number[]): number[] {
+        // dest = mat2 * mat
         if (!dest) { dest = mat; }
 
         // Cache the matrix values (makes for huge speed increases!)

@@ -1253,7 +1253,7 @@ module Fayde {
 
             ctx.Save();
 
-            ctx.TransformMatrix(this.RenderXform);
+            ctx.PreTransformMatrix(this.RenderXform);
             ctx.CanvasContext.globalAlpha = this.TotalOpacity;
 
             var uie = this.Node.XObject;
