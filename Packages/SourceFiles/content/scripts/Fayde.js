@@ -17200,7 +17200,8 @@ var Fayde;
             RotateTransform.prototype._BuildValue = function () {
                 var cx = this.CenterX;
                 var cy = this.CenterY;
-                var angleRad = Math.PI / 180 * this.Angle;
+                var angle = 360 - this.Angle;
+                var angleRad = Math.PI / 180 * angle;
                 var m = mat3.createRotate(angleRad);
                 if (cx === 0 && cy === 0)
                     return m;
