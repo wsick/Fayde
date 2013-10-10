@@ -5,6 +5,7 @@
 /// <reference path="RenderContext.ts" />
 /// <reference path="../Core/UIElement.ts" />
 /// <reference path="../Input/KeyInterop.ts" />
+/// <reference path="../Input/MouseInterop.ts" />
 /// <reference path="../Input/Keyboard.ts" />
 /// <reference path="../Core/Walkers.ts" />
 /// <reference path="../Input/MouseEventArgs.ts" />
@@ -434,9 +435,16 @@ module Fayde {
             var pos = this._GetMousePosition(evt);
 
             this._SetUserInitiatedEvent(true);
-            this._HandleMouseEvent(InputType.MouseDown, button, pos);
+            var handled = this._HandleMouseEvent(InputType.MouseDown, button, pos);
             this._UpdateCursorFromInputList();
             this._SetUserInitiatedEvent(false);
+
+            if (handled) {
+                if (evt.stopPropagation)
+                    evt.stopPropagation();
+                evt.cancelBubble = true;
+                return false;
+            }
         }
         private _HandleButtonRelease(evt) {
             Fayde.Input.Keyboard.RefreshModifiers(evt);
@@ -474,7 +482,7 @@ module Fayde {
             this._HandleMouseEvent(InputType.MouseWheel, null, this._GetMousePosition(evt), delta);
             this._UpdateCursorFromInputList();
         }
-        private _HandleMouseEvent(type: InputType, button: number, pos: Point, delta?: number, emitLeave?: boolean, emitEnter?: boolean) {
+        private _HandleMouseEvent(type: InputType, button: number, pos: Point, delta?: number, emitLeave?: boolean, emitEnter?: boolean): boolean {
             //var app = this._App;
             //app._NotifyDebugCoordinates(pos);
             this._CurrentPos = pos;
@@ -500,8 +508,9 @@ module Fayde {
             if (emitEnter === undefined || emitEnter === true)
                 this._EmitMouseList(InputType.MouseEnter, button, pos, delta, newInputList, indices.Index2);
 
+            var handled = false;
             if (type !== InputType.NoOp)
-                this._EmitMouseList(type, button, pos, delta, this._Captured ? this._CapturedInputList : newInputList);
+                handled = this._EmitMouseList(type, button, pos, delta, this._Captured ? this._CapturedInputList : newInputList);
             this._InputList = newInputList;
 
             if (this.HitTestCallback)
@@ -512,6 +521,7 @@ module Fayde {
             if (this._PendingReleaseCapture || (this._Captured && !this._Captured.CanCaptureMouse()))
                 this._PerformReleaseCapture();
             this._EmittingMouseEvent = false;
+            return handled;
         }
         private _GetMousePosition(evt): Point {
             return new Point(
@@ -532,7 +542,7 @@ module Fayde {
             }
         }
 
-        private _EmitMouseList(type: InputType, button: number, pos: Point, delta: number, list: Fayde.UINode[], endIndex?: number) {
+        private _EmitMouseList(type: InputType, button: number, pos: Point, delta: number, list: Fayde.UINode[], endIndex?: number): boolean {
             var handled = false;
             if (endIndex === 0)
                 return handled;
@@ -542,8 +552,8 @@ module Fayde {
             var node = list[0];
             if (node && args instanceof Fayde.RoutedEventArgs)
                 args.Source = node.XObject;
-            var isL = Surface.IsLeftButton(button);
-            var isR = Surface.IsRightButton(button);
+            var isL = Input.MouseInterop.IsLeftButton(button);
+            var isR = Input.MouseInterop.IsRightButton(button);
             for (var i = 0; i < endIndex; i++) {
                 node = list[i];
                 if (type === InputType.MouseLeave)
@@ -722,12 +732,6 @@ module Fayde {
                 source = source.VisualParentNode;
             }
             return list;
-        }
-        private static IsLeftButton(button: number): boolean {
-            return button === 1;
-        }
-        private static IsRightButton(button: number): boolean {
-            return button === 2;
         }
 
         static MeasureWidth(text: string, font: Font): number {
