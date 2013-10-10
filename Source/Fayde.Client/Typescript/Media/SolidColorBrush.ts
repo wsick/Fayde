@@ -7,10 +7,10 @@ module Fayde.Media {
         static ColorProperty: DependencyProperty = DependencyProperty.Register("Color", () => Color, SolidColorBrush, undefined, (d, args) => (<Brush>d).InvalidateBrush());
         Color: Color;
 
-        constructor() {
+        constructor(...args: any[]) {
             super();
-            if (arguments.length === 1 && arguments[0] instanceof Color)
-                this.Color = arguments[0];
+            if (args && args.length === 1 && args[0] instanceof Color)
+                this.Color = args[0];
         }
 
         static FromColor(color: Color): SolidColorBrush {
