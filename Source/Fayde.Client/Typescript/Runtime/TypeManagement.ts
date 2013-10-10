@@ -13,6 +13,13 @@ module Fayde {
     var jsNamespaces: any[][] = [];
     var xmlNamespaces: any[][] = [];
 
+    export class Interface implements IInterfaceDeclaration {
+        Name: string;
+        constructor(name: string) {
+            Object.defineProperty(this, "Name", { value: name, writable: false });
+        }
+    }
+
     export function RegisterType(type: Function, reg: any) {
         var t = <any>type;
 
@@ -65,7 +72,7 @@ module Fayde {
         }
     }
     export function RegisterInterface(name: string): IInterfaceDeclaration {
-        return { Name: name };
+        return new Interface(name);
     }
     var PRIMITIVE_MAPPINGS = [];
     PRIMITIVE_MAPPINGS["String"] = String;

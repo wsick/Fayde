@@ -2425,6 +2425,24 @@
         </Setter>
     </Style>
 
+    <!--HeaderedItemsControl Style-->
+    <Style TargetType="HeaderedItemsControl" x:Key="DefaultHeaderedItemsControlStyle">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="HeaderedItemsControl">
+                    <Grid x:Name="Root">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <ContentControl x:Name="HeaderContent" Content="{TemplateBinding Header}" ContentTemplate="{TemplateBinding HeaderTemplate}" />
+                        <ItemsPresenter x:Name="Items" Grid.Row="1" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- Implicit Styles -->
     <!-- When defining your own styles, set "based on" the same way to keep control theming -->
     <Style TargetType="ContentPresenter">
@@ -2465,4 +2483,5 @@
     <Style TargetType="Slider" BasedOn="{StaticResource DefaultSliderStyle}" />
     <Style TargetType="ToggleButton" BasedOn="{StaticResource DefaultToggleButtonStyle}" />
     <Style TargetType="ToolTip" BasedOn="{StaticResource DefaultToolTipStyle}" />
+    <Style TargetType="HeaderedItemsControl" BasedOn="{StaticResource DefaultHeaderedItemsControlStyle}" />
 </ResourceDictionary>

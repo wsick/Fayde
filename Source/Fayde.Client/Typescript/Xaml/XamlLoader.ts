@@ -172,6 +172,25 @@ module Fayde.Xaml {
                 writable: false
             });
         }
+
+        var childProcessor = createXamlChildProcessor(ft, (<any>ft).constructor, ctx);
+        //Handle attributes
+        var attrs = el.attributes;
+        var len = attrs.length;
+        var attr: Attr;
+        for (var i = 0; i < len; i++) {
+            attr = attrs[i];
+            //ignore namespace declarations
+            if (attr.name === "xmlns")
+                continue;
+            if (attr.prefix === "xmlns")
+                continue;
+            //ignore x:[Property] declarations, they will be handled specifically
+            if (attr.namespaceURI === Fayde.XMLNSX)
+                continue;
+            childProcessor.ProcessAttribute(attr);
+        }
+
         return ft;
     }
 
@@ -217,7 +236,22 @@ module Fayde.Xaml {
                 };
                 var result = MarkupExpressionParser.Parse(value, parseCtx);
                 if (result !== undefined) {
-                    if ((result instanceof TemplateBinding) || (result instanceof Data.Binding) || (result instanceof EventBinding))
+                    if (!propd) {
+                        if (result instanceof EventBinding)
+                            return (<Xaml.IMarkup>result).Transmute(parseCtx);
+                        return result;
+                    }
+                    if (result) {
+                        var tt = propd.GetTargetType();
+                        if (tt instanceof Interface && Nullstone.ImplementsInterface(result, <Interface>tt)) {
+                            return result;
+                        } else if (tt instanceof Enum) {
+                        } else if (tt === Object) {
+                        } else if (result instanceof <Function>tt) {
+                            return result;
+                        }
+                    }
+                    if ((result instanceof TemplateBinding) || (result instanceof Data.Binding))
                         return (<Xaml.IMarkup>result).Transmute(parseCtx);
                     return result;
                 }
@@ -377,7 +411,7 @@ module Fayde.Xaml {
                     }
                 } else {
                     //TODO: Add checks for read-only, etc.
-                    owner[propertyName] = attr.textContent;
+                    owner[propertyName] = createAttributeObject(attr, dobj, null);
                 }
             },
             ProcessElement: function (el: Element) {

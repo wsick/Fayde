@@ -181,6 +181,25 @@ test("DataTemplate", () => {
     strictEqual((<any>visual).constructor, Fayde.Controls.Grid, "Root visual from created visual tree should be a Grid.");
 });
 
+test("HierarchicalDataTemplate", () => {
+    var xaml = "<HierarchicalDataTemplate xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\" ItemsSource=\"{Binding SomePath}\">"
+        + "<Grid></Grid>"
+        + "</HierarchicalDataTemplate>";
+
+    var hdt: Fayde.HierarchicalDataTemplate;
+    try {
+        hdt = <Fayde.HierarchicalDataTemplate>Fayde.Xaml.Load(xaml);
+    } catch (err) {
+        ok(false, "Loading a HierarchicalDataTemplate should not error. " + err.toString());
+    }
+    strictEqual((<any>hdt).constructor, Fayde.HierarchicalDataTemplate, "Resulting object should be a HierarchicalDataTemplate.");
+
+    ok(hdt.ItemsSource instanceof Fayde.Data.Binding, "HierarchicalDataTemplate.ItemsSource should be set to a Binding.");
+    
+    var visual = hdt.GetVisualTree(null);
+    strictEqual((<any>visual).constructor, Fayde.Controls.Grid, "Root visual from created visual tree should be a Grid.");
+});
+
 test("ControlTemplate", () => {
     var xaml = "<ControlTemplate xmlns=\"http://schemas.wsick.com/fayde\" xmlns:x=\"http://schemas.wsick.com/fayde/x\">"
         + "<Grid></Grid>"
