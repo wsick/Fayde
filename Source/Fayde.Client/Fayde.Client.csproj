@@ -199,6 +199,7 @@
     <TypeScriptCompile Include="Typescript\Core\EventBindingExpression.ts" />
     <TypeScriptCompile Include="Typescript\Controls\HeaderedItemsControl.ts" />
     <TypeScriptCompile Include="Typescript\Core\HierarchicalDataTemplate.ts" />
+    <TypeScriptCompile Include="Typescript\Input\MouseInterop.ts" />
     <Content Include="Typescript\Runtime\EnumerableEx.ts" />
     <Content Include="Typescript\Xaml\XamlLoader.ts" />
     <Content Include="UnitTestList.txt" />
