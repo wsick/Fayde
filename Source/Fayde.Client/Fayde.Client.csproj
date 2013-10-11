@@ -200,6 +200,7 @@
     <TypeScriptCompile Include="Typescript\Controls\HeaderedItemsControl.ts" />
     <TypeScriptCompile Include="Typescript\Core\HierarchicalDataTemplate.ts" />
     <TypeScriptCompile Include="Typescript\Input\MouseInterop.ts" />
+    <TypeScriptCompile Include="Typescript\Core\RoutedPropertyChangingEvent.ts" />
     <Content Include="Typescript\Runtime\EnumerableEx.ts" />
     <TypeScriptCompile Include="Typescript\Xaml\Library.ts" />
     <Content Include="Typescript\Xaml\XamlLoader.ts" />
