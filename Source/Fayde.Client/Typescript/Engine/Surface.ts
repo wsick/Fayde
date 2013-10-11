@@ -110,6 +110,7 @@ module Fayde {
             canvas.addEventListener("mouseup", (e) => this._HandleButtonRelease(window.event ? <any>window.event : e));
             canvas.addEventListener("mouseout", (e) => this._HandleOut(window.event ? <any>window.event : e));
             canvas.addEventListener("mousemove", (e) => this._HandleMove(window.event ? <any>window.event : e));
+            canvas.addEventListener("contextmenu", (e) => this._HandleContextMenu(window.event ? <any>window.event : e));
 
             //IE9, Chrome, Safari, Opera
             canvas.addEventListener("mousewheel", (e) => this._HandleWheel(window.event ? <any>window.event : e));
@@ -439,9 +440,13 @@ module Fayde {
             this._UpdateCursorFromInputList();
             this._SetUserInitiatedEvent(false);
 
-            if (handled) {
+            Input.MouseInterop.DisableBrowserContextMenu();
+        }
+        private _HandleContextMenu(evt) {
+            if (Input.MouseInterop.IsBrowserContextMenuDisabled) {
                 if (evt.stopPropagation)
                     evt.stopPropagation();
+                evt.preventDefault();
                 evt.cancelBubble = true;
                 return false;
             }

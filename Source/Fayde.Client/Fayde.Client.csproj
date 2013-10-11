@@ -201,6 +201,7 @@
     <TypeScriptCompile Include="Typescript\Core\HierarchicalDataTemplate.ts" />
     <TypeScriptCompile Include="Typescript\Input\MouseInterop.ts" />
     <Content Include="Typescript\Runtime\EnumerableEx.ts" />
+    <TypeScriptCompile Include="Typescript\Xaml\Library.ts" />
     <Content Include="Typescript\Xaml\XamlLoader.ts" />
     <Content Include="UnitTestList.txt" />
     <Content Include="Tests\XamlNodeTests.js">

@@ -93,6 +93,8 @@
     <TypeScriptCompile Include="Tests\IssueTests\TestViewModel.ts" />
     <Content Include="TestResourceDictionary.xml" />
     <TypeScriptCompile Include="Tests\IssueTests\DoubleListBoxViewModel.ts" />
+    <Content Include="Tests\App\Fayde.Controls.Input\source.js" />
+    <Content Include="Tests\App\Fayde.Controls.Input\generic.xml" />
     <Content Include="Tests\IssueTests\DoubleListBoxViewModel.js" />
     <Content Include="Tests\IssueTests\TestViewModel.js" />
     <Content Include="Tests\Media\image-stretch.fap">
@@ -157,6 +159,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Tests\IssueTests\eventbinding.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Tests\App\library.fap">
       <SubType>Designer</SubType>
     </Content>
     <None Include="Tests\Shapes\rectangle-grid.fap">

@@ -75,7 +75,8 @@ module Fayde.Controls.Primitives {
             var root = this._VisualChild;
             if (!root)
                 return;
-            var surfaceExtents = this._Surface.Extents;
+            var surface = this._Surface || Fayde.Application.Current.MainSurface;
+            var surfaceExtents = surface.Extents;
             root.Width = surfaceExtents.Width;
             root.Height = surfaceExtents.Height;
 
@@ -154,7 +155,8 @@ module Fayde.Controls.Primitives {
                 return;
             this._IsVisible = false;
             this.LayoutUpdater.ShouldSkipHitTest = true;
-            this._Surface.DetachLayer(child);
+            var surface = this._Surface || Fayde.Application.Current.MainSurface;
+            surface.DetachLayer(child);
         }
         _Show() {
             this._UpdateCatcher();
@@ -163,7 +165,8 @@ module Fayde.Controls.Primitives {
                 return;
             this._IsVisible = true;
             this.LayoutUpdater.ShouldSkipHitTest = false;
-            this._Surface.AttachLayer(child);
+            var surface = this._Surface || Fayde.Application.Current.MainSurface;
+            surface.AttachLayer(child);
         }
     }
     Fayde.RegisterType(PopupNode, {

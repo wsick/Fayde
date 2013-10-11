@@ -30,6 +30,8 @@ module Fayde {
         Resources: ResourceDictionary;
         static SourcesProperty = DependencyProperty.RegisterImmutable("Sources", () => XamlObjectCollection, Application);
         Sources: XamlObjectCollection<Xaml.Namespace>;
+        static LibrariesProperty = DependencyProperty.RegisterImmutable("Libraries", () => XamlObjectCollection, Application);
+        Libraries: XamlObjectCollection<Xaml.Library>;
 
         Theme: Xaml.Theme;
 
@@ -41,6 +43,7 @@ module Fayde {
             this.DebugInterop = new DebugInterop(this);
             this.Address = new Uri(document.URL);
             Application.SourcesProperty.Initialize<XamlObjectCollection<Xaml.Namespace>>(this);
+            Application.LibrariesProperty.Initialize<XamlObjectCollection<Xaml.Library>>(this);
         }
 
         get RootVisual(): UIElement { return this.MainSurface._RootLayer; }
@@ -105,12 +108,18 @@ module Fayde {
 
         GetImplicitStyle(type: any): Style {
             var theme = this.Theme;
-            if (!theme)
-                return undefined;
-            var rd = theme.Resources;
-            if (!rd)
-                return undefined;
-            return <Style><any>rd.Get(type);
+            var rd: ResourceDictionary;
+            var style: Style;
+            if (theme && (rd = theme.Resources) && (style = <Style>rd.Get(type)) && (style instanceof Style))
+                return style;
+
+            var enumerator = this.Libraries.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                style = enumerator.Current.GetImplicitStyle(type);
+                if (style)
+                    return style;
+            }
+            return undefined;
         }
 
         private __DebugLayers(): string {
