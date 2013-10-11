@@ -2644,6 +2644,21 @@ declare module Fayde {
     }
 }
 declare module Fayde {
+    class RoutedPropertyChangingEvent<T> extends Fayde.RoutedEvent<RoutedPropertyChangingEventArgs<T>> {
+    }
+    class RoutedPropertyChangingEventArgs<T> extends Fayde.RoutedEventArgs {
+        public Property: DependencyProperty;
+        public OldValue: T;
+        public NewValue: T;
+        private _IsCancelable;
+        public IsCancellable : boolean;
+        private _Cancel;
+        public Cancel : boolean;
+        public InCoercion: boolean;
+        constructor(propd: DependencyProperty, oldValue: T, newValue: T, isCancelable: boolean);
+    }
+}
+declare module Fayde {
     class SetterCollection extends Fayde.XamlObjectCollection<Setter> {
         private _IsSealed;
         public _Seal(targetType: Function): void;

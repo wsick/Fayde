@@ -62,9 +62,15 @@
     <Content Include="awaiting-generic.xml">
       <SubType>Designer</SubType>
     </Content>
+    <TypeScriptCompile Include="UpDownParseErrorEventArgs.ts" />
+    <TypeScriptCompile Include="UpDownParsingEventArgs.ts" />
+    <TypeScriptCompile Include="SpinEventArgs.ts" />
+    <TypeScriptCompile Include="Enums.ts" />
     <Content Include="generic.xml">
       <SubType>Designer</SubType>
     </Content>
+    <TypeScriptCompile Include="Spinner.ts" />
+    <TypeScriptCompile Include="UpDownBase.ts" />
     <TypeScriptCompile Include="ContextMenuService.ts" />
     <Content Include="Fayde.Controls.Input.js" />
     <Content Include="Fayde.d.ts" />
