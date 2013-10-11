@@ -2786,6 +2786,8 @@ declare module Fayde {
         public Resources: Fayde.ResourceDictionary;
         static SourcesProperty: ImmutableDependencyProperty;
         public Sources: Fayde.XamlObjectCollection<Fayde.Xaml.Namespace>;
+        static LibrariesProperty: ImmutableDependencyProperty;
+        public Libraries: Fayde.XamlObjectCollection<Fayde.Xaml.Library>;
         public Theme: Fayde.Xaml.Theme;
         constructor();
         public RootVisual : Fayde.UIElement;
@@ -3674,6 +3676,19 @@ declare module Fayde.Navigation {
         public MappedUri: Uri;
         public Uri: Uri;
         public MapUri(uri: Uri): Uri;
+    }
+}
+declare module Fayde.Xaml {
+    class Library extends Fayde.DependencyObject implements Fayde.Runtime.ILoadAsyncable {
+        static PackageProperty: DependencyProperty;
+        public Package: Uri;
+        private _Script;
+        private _GenericXaml;
+        private _ResourceDictionary;
+        public Register(): void;
+        public GetImplicitStyle(type: any): Fayde.Style;
+        public LoadAsync(onLoaded: (state: any) => void): void;
+        private _OnLoaded(onLoaded);
     }
 }
 declare module Fayde.Xaml {

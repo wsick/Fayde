@@ -33,4 +33,8 @@ module Fayde.Controls.Input.Primitives {
             return control.ReadLocalValue(propd) === DependencyProperty.UnsetValue;
         }
     }
+    Fayde.RegisterType(MenuBase, {
+        Name: "MenuBase",
+        Namespace: "Fayde.Controls.Input.Primitives"
+    });
 }

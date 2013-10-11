@@ -59,6 +59,12 @@
     <TypeScriptCompile Include="Primitives\MenuBase.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="awaiting-generic.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="generic.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <TypeScriptCompile Include="ContextMenuService.ts" />
     <Content Include="Fayde.Controls.Input.js" />
     <Content Include="Fayde.d.ts" />
