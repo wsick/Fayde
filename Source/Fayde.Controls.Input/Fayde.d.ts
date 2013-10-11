@@ -319,6 +319,12 @@ declare module Fayde.Data {
 declare module Fayde.Input.InteractionHelper {
     function GetLogicalKey(flowDirection: Fayde.FlowDirection, key: Input.Key): Input.Key;
 }
+declare module Fayde.Input {
+    class MouseInterop {
+        static IsLeftButton(button: number): boolean;
+        static IsRightButton(button: number): boolean;
+    }
+}
 declare module Fayde.Media {
     enum BrushMappingMode {
         Absolute = 0,
@@ -2084,8 +2090,6 @@ declare module Fayde {
         private _EmitFocusChangeEvents();
         private _EmitFocusList(type, list);
         private static _ElementPathToRoot(source);
-        private static IsLeftButton(button);
-        private static IsRightButton(button);
         static MeasureWidth(text: string, font: Font): number;
         public __DebugLayers(): string;
         public __GetById(id: number): Fayde.UIElement;

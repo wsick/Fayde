@@ -59,6 +59,7 @@
     <TypeScriptCompile Include="Primitives\MenuBase.ts" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="ContextMenuService.ts" />
     <Content Include="Fayde.Controls.Input.js" />
     <Content Include="Fayde.d.ts" />
     <TypeScriptCompile Include="Separator.ts" />
