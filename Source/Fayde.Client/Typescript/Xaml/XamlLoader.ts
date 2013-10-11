@@ -2,6 +2,7 @@
 /// CODE
 /// <reference path="../Runtime/TypeManagement.ts" />
 /// <reference path="MarkupExpressionParser.ts" />
+/// <reference path="Library.ts" />
 
 module Fayde.Xaml {
     var parser = new DOMParser();
@@ -503,7 +504,8 @@ module Fayde.Xaml {
         Name: string;
     }
     function createAppLoader(xaml: string, canvas: HTMLCanvasElement): IAppLoader {
-        var appSources = new XamlObjectCollection<Namespace>();
+        var appSources: Namespace[] = [];
+        var appLibraries: Library[] = [];
         var rdResources: IXamlResource[] = [];
         var theme: Theme;
         var ctx: IXamlLoadContext = {
@@ -514,23 +516,28 @@ module Fayde.Xaml {
             TemplateBindingSource: null,
         };
         validateDocument(ctx.Document);
+        var appEl = ctx.Document.documentElement;
+        var appNsUri = appEl.namespaceURI;
 
+        function preloadLibraries() {
+            var curEl = getElementNS(appEl, appNsUri, appEl.localName + ".Libraries");
+            if (!curEl)
+                return;
+            curEl = curEl.firstElementChild;
+            var library: Library;
+            while (curEl) {
+                library = createObject(curEl, ctx);
+                library.Register();
+                appLibraries.push(library);
+                curEl = curEl.nextElementSibling;
+            }
+        }
         function registerSources() {
-            var appEl = ctx.Document.documentElement;
-            var appNsUri = appEl.namespaceURI;
             var themeUrl = appEl.getAttributeNS(appNsUri, "Theme")
             if (!themeUrl) themeUrl = appEl.getAttribute("Theme");
             theme = new Theme(themeUrl);
-            var sourceNodeName = appEl.localName + ".Sources";
-
-            var nsUri: string;
-            var curElement = appEl.firstElementChild;
-            while (curElement) {
-                nsUri = curElement.namespaceURI || Fayde.XMLNS;
-                if (nsUri === appNsUri && curElement.localName === sourceNodeName)
-                    break;
-                curElement = curElement.nextElementSibling;
-            }
+            
+            var curElement = getElementNS(appEl, appNsUri, appEl.localName + ".Sources");
             if (!curElement)
                 return;
 
@@ -539,23 +546,12 @@ module Fayde.Xaml {
             while (curElement) {
                 nsSource = createObject(curElement, ctx);
                 nsSource.RegisterSource();
-                appSources.Add(nsSource);
+                appSources.push(nsSource);
                 curElement = curElement.nextElementSibling;
             }
         }
         function preloadResourceDictionaries() {
-            var appEl = ctx.Document.documentElement;
-            var appNsUri = appEl.namespaceURI;
-            var resourcesNodeName = appEl.localName + ".Resources";
-
-            var nsUri: string;
-            var curElement = appEl.firstElementChild;
-            while (curElement) {
-                nsUri = curElement.namespaceURI || Fayde.XMLNS;
-                if (nsUri === appNsUri && curElement.localName === resourcesNodeName)
-                    break;
-                curElement = curElement.nextElementSibling;
-            }
+            var curElement = getElementNS(appEl, appNsUri, appEl.localName + ".Resources");
             if (curElement)
                 parseResources(curElement);
         }
@@ -615,12 +611,15 @@ module Fayde.Xaml {
             if (!(app instanceof Application))
                 throw new XamlParseException("Root Element must be an Application.");
 
-            app.Sources._ht = appSources._ht;
+            app.Sources._ht = appSources;
+            app.Libraries._ht = appLibraries;
             app.MainSurface.Register(canvas);
 
             ctx.ObjectStack.push(app);
             var childProcessor = createXamlChildProcessor(app, resolution.Type, ctx);
             childProcessor.Process(el);
+            app.Sources._ht = appSources;
+            app.Libraries._ht = appLibraries;
             app.RootVisual.XamlNode.NameScope = ctx.NameScope;
             ctx.ObjectStack.pop();
             TimelineProfile.Parse(false, "App");
@@ -629,10 +628,12 @@ module Fayde.Xaml {
 
         return {
             Load: function () {
+                preloadLibraries();
                 registerSources();
                 preloadResourceDictionaries();
                 collectDependencies();
-                var loaders: Fayde.Runtime.ILoadAsyncable[] = appSources.ToArray();
+                var loaders: Fayde.Runtime.ILoadAsyncable[] = appSources.slice(0);
+                loaders.push.apply(loaders, appLibraries);
                 loaders.push.apply(loaders, rdResources);
                 loaders.push(theme);
                 Runtime.LoadBatchAsync(loaders, () => finishLoad());
@@ -759,5 +760,19 @@ module Fayde.Xaml {
         if (keyn)
             return keyn.value;
         return "";
+    }
+
+
+    /// XML UTILITIES
+    function getElementNS(parentEl: Element, namespaceURI: string, localName: string): Element {
+        var nsUri: string;
+        var curElement = parentEl.firstElementChild;
+        while (curElement) {
+            nsUri = curElement.namespaceURI || Fayde.XMLNS;
+            if (nsUri === namespaceURI && curElement.localName === localName)
+                return curElement;
+            curElement = curElement.nextElementSibling;
+        }
+        return null;
     }
 }
