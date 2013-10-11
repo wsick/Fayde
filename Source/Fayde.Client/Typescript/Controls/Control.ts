@@ -77,7 +77,10 @@ module Fayde.Controls {
             super.OnIsEnabledChanged(oldValue, newValue);
         }
 
-        Focus(recurse?: boolean): boolean { return this._Surface.Focus(this, recurse); }
+        Focus(recurse?: boolean): boolean {
+            var surface = this._Surface || Fayde.Application.Current.MainSurface;
+            return surface.Focus(this, recurse);
+        }
 
         CanCaptureMouse(): boolean { return this.XObject.IsEnabled; }
     }
