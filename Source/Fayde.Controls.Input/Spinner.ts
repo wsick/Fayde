@@ -7,7 +7,7 @@ module Fayde.Controls.Input {
     export class Spinner extends Control {
         static ValidSpinDirectionProperty = DependencyProperty.Register("ValidSpinDirection", () => new Enum(ValidSpinDirections), Spinner, ValidSpinDirections.Increase, (d, args) => (<Spinner>d).OnValidSpinDirectionChanged(args));
         ValidSpinDirection: ValidSpinDirections;
-        private OnValidSpinDirectionChanged(args: IDependencyPropertyChangedEventArgs) {
+        OnValidSpinDirectionChanged(args: IDependencyPropertyChangedEventArgs) {
             this.UpdateVisualState(true);
         }
 

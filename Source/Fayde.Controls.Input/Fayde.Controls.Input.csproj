@@ -62,10 +62,12 @@
     <Content Include="awaiting-generic.xml">
       <SubType>Designer</SubType>
     </Content>
+    <TypeScriptCompile Include="InteractionHelper.ts" />
     <TypeScriptCompile Include="UpDownParseErrorEventArgs.ts" />
     <TypeScriptCompile Include="UpDownParsingEventArgs.ts" />
     <TypeScriptCompile Include="SpinEventArgs.ts" />
     <TypeScriptCompile Include="Enums.ts" />
+    <TypeScriptCompile Include="ButtonSpinner.ts" />
     <Content Include="generic.xml">
       <SubType>Designer</SubType>
     </Content>

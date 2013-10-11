@@ -4833,9 +4833,9 @@ declare module Fayde.Controls {
         public OnMouseRightButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnMouseWheel(e: Fayde.Input.MouseWheelEventArgs): void;
         public UpdateVisualState(useTransitions?: boolean): void;
-        public GetVisualStateNamesToActivate(): string[];
-        public GetVisualStateCommon(): string;
-        public GetVisualStateFocus(): string;
+        public GetVisualStateNamesToActivate(useTransitions?: boolean): string[];
+        public GetVisualStateCommon(useTransitions?: boolean): string;
+        public GetVisualStateFocus(useTransitions?: boolean): string;
         private _TemplateChanged(args);
         private _PaddingChanged(args);
         private _BorderThicknessChanged(args);
@@ -6168,7 +6168,7 @@ declare module Fayde.Controls.Primitives {
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         public OnClick(): void;
         public UpdateVisualState(useTransitions?: boolean): void;
-        public GetVisualStateCommon(): string;
+        public GetVisualStateCommon(useTransitions?: boolean): string;
         private _CaptureMouseInternal();
         private _ReleaseMouseCaptureInternal();
         private _IsValidMousePosition();
