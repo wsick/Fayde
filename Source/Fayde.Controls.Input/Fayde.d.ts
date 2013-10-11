@@ -323,6 +323,8 @@ declare module Fayde.Input {
     class MouseInterop {
         static IsLeftButton(button: number): boolean;
         static IsRightButton(button: number): boolean;
+        static DisableBrowserContextMenu(): void;
+        static IsBrowserContextMenuDisabled : boolean;
     }
 }
 declare module Fayde.Media {
@@ -2068,6 +2070,7 @@ declare module Fayde {
         public _HandleKeyDown(args: Fayde.Input.KeyEventArgs): void;
         private _EmitKeyDown(list, args, endIndex?);
         private _HandleButtonPress(evt);
+        private _HandleContextMenu(evt);
         private _HandleButtonRelease(evt);
         private _HandleOut(evt);
         private _HandleMove(evt);
@@ -3680,8 +3683,8 @@ declare module Fayde.Navigation {
 }
 declare module Fayde.Xaml {
     class Library extends Fayde.DependencyObject implements Fayde.Runtime.ILoadAsyncable {
-        static PackageProperty: DependencyProperty;
-        public Package: Uri;
+        static PackageUriProperty: DependencyProperty;
+        public PackageUri: Uri;
         private _Script;
         private _GenericXaml;
         private _ResourceDictionary;
