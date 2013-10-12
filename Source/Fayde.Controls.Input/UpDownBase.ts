@@ -7,7 +7,7 @@ module Fayde.Controls.Input {
     export class UpDownBase<T> extends Control {
         private _IgnoreValueChange: boolean = false;
         private _TextBox: TextBox = null;
-        private _Spinner: Spinner = null;
+        _Spinner: Spinner = null;
         private _Text: string = "";
 
         static SpinnerStyleProperty = DependencyProperty.Register("SpinnerStyle", () => Style, UpDownBase, undefined, (d, args) => (<UpDownBase>d).OnSpinnerStyleChanged(args.OldValue, args.NewValue));
@@ -167,7 +167,7 @@ module Fayde.Controls.Input {
             if (this._TextBox)
                 this._TextBox.SelectAll();
         }
-        private SetTextBoxText() {
+        SetTextBoxText() {
             if (!this._TextBox)
                 return;
             this._Text = this.FormatValue() || "";
