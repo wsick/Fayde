@@ -165,6 +165,14 @@ module Fayde {
     }
 
     var converters: any = [];
+    converters[Boolean] = function (val: any): boolean {
+        if (val == null)
+            return null;
+        if (typeof val === "boolean")
+            return val;
+        var c = val.toString().toUpperCase();
+        return c === "TRUE" ? true : (c === "FALSE" ? false : null);
+    }
     converters[String] = function (val: any): String {
         if (val == null) return "";
         return val.toString();

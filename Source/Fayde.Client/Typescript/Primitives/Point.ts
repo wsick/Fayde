@@ -46,6 +46,8 @@ Fayde.RegisterType(Point, {
 Fayde.RegisterTypeConverter(Point, (val: any): Point => {
     if (!val)
         return new Point();
+    if (val instanceof Point)
+        return <Point>val;
     var tokens = val.toString().split(",");
     if (tokens.length === 2) {
         var x = parseFloat(tokens[0]);

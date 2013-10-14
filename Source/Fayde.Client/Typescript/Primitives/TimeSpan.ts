@@ -104,6 +104,8 @@ Fayde.RegisterType(TimeSpan, {
 });
 
 Fayde.RegisterTypeConverter(TimeSpan, (val: any): TimeSpan => {
+    if (val instanceof TimeSpan)
+        return <TimeSpan>val;
     if (typeof val === "number")
         return TimeSpan.FromTicks(val);
     val = val.toString();
