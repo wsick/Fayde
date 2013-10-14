@@ -3628,13 +3628,13 @@ declare module Fayde.Media.VSM {
     }
     class VisualStateGroup extends Fayde.DependencyObject {
         static StatesProperty: ImmutableDependencyProperty;
+        public States: VSM.VisualStateCollection;
+        static TransitionsProperty: ImmutableDependencyProperty;
+        public Transitions: Fayde.XamlObjectCollection<VSM.VisualTransition>;
         static Annotations: {
             ContentProperty: ImmutableDependencyProperty;
         };
         private _CurrentStoryboards;
-        private _Transitions;
-        public Transitions: VSM.VisualTransition[];
-        public States: VSM.VisualStateCollection;
         public CurrentStateChanging: MulticastEvent<VisualStateChangedEventArgs>;
         public CurrentStateChanged: MulticastEvent<VisualStateChangedEventArgs>;
         public CurrentState: VSM.VisualState;

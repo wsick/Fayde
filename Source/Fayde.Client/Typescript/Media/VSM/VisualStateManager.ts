@@ -155,33 +155,30 @@ module Fayde.Media.VSM {
             var defaultTransition = null;
             var bestScore = -1;
 
-            var transitions = group.Transitions;
-            if (transitions) {
-                var enumerator = ArrayEx.GetEnumerator(transitions);
-                var transition: VisualTransition;
-                while (enumerator.MoveNext()) {
-                    transition = enumerator.Current;
-                    if (!defaultTransition && transition.IsDefault) {
-                        defaultTransition = transition;
-                        continue;
-                    }
-                    var score = -1;
-                    var transFromState = group.GetState(transition.From);
-                    var transToState = group.GetState(transition.To);
-                    if (from === transFromState)
-                        score += 1;
-                    else if (transFromState != null)
-                        continue;
+            var enumerator = group.Transitions.GetEnumerator();
+            var transition: VisualTransition;
+            while (enumerator.MoveNext()) {
+                transition = enumerator.Current;
+                if (!defaultTransition && transition.IsDefault) {
+                    defaultTransition = transition;
+                    continue;
+                }
+                var score = -1;
+                var transFromState = group.GetState(transition.From);
+                var transToState = group.GetState(transition.To);
+                if (from === transFromState)
+                    score += 1;
+                else if (transFromState != null)
+                    continue;
 
-                    if (to === transToState)
-                        score += 2;
-                    else if (transToState != null)
-                        continue;
+                if (to === transToState)
+                    score += 2;
+                else if (transToState != null)
+                    continue;
 
-                    if (score > bestScore) {
-                        bestScore = score;
-                        best = transition;
-                    }
+                if (score > bestScore) {
+                    bestScore = score;
+                    best = transition;
                 }
             }
             if (best != null)
