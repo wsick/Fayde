@@ -217,6 +217,7 @@ module Fayde.Controls.Input {
     }
     Fayde.RegisterType(UpDownBase, {
         Name: "UpDownBase",
-        Namespace: "Fayde.Controls.Input"
+        Namespace: "Fayde.Controls.Input",
+        XmlNamespace: "http://schemas.wsick.com/fayde/input"
     });
 }
