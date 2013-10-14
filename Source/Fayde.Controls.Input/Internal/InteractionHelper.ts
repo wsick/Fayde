@@ -1,6 +1,6 @@
-/// <reference path="Fayde.d.ts" />
+/// <reference path="../Fayde.d.ts" />
 
-module Fayde.Controls.Input {
+module Fayde.Controls.Input.Internal {
     var SequentialClickThresholdInMilliseconds = 500.0;
     var SequentialClickThresholdInPixelsSquared = 9.0;
 

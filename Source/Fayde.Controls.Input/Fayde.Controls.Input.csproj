@@ -62,13 +62,16 @@
     <Content Include="awaiting-generic.xml">
       <SubType>Designer</SubType>
     </Content>
+    <TypeScriptCompile Include="Internal\ObservableObjectCollection.ts" />
     <TypeScriptCompile Include="NumericUpDown.ts" />
-    <TypeScriptCompile Include="InteractionHelper.ts" />
+    <TypeScriptCompile Include="Internal\InteractionHelper.ts" />
     <TypeScriptCompile Include="UpDownParseErrorEventArgs.ts" />
     <TypeScriptCompile Include="UpDownParsingEventArgs.ts" />
     <TypeScriptCompile Include="SpinEventArgs.ts" />
     <TypeScriptCompile Include="Enums.ts" />
     <TypeScriptCompile Include="ButtonSpinner.ts" />
+    <TypeScriptCompile Include="DomainUpDown.ts" />
+    <TypeScriptCompile Include="Internal\BindingSourceEvaluator.ts" />
     <Content Include="generic.xml">
       <SubType>Designer</SubType>
     </Content>

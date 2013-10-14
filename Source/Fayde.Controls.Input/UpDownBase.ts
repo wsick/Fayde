@@ -6,7 +6,7 @@
 module Fayde.Controls.Input {
     export class UpDownBase<T> extends Control {
         private _IgnoreValueChange: boolean = false;
-        private _TextBox: TextBox = null;
+        _TextBox: TextBox = null;
         _Spinner: Spinner = null;
         private _Text: string = "";
 
@@ -163,7 +163,7 @@ module Fayde.Controls.Input {
         ParseValue(text: string): T { return; }
         FormatValue(): string { return ""; }
 
-        private SelectAllText() {
+        SelectAllText() {
             if (this._TextBox)
                 this._TextBox.SelectAll();
         }

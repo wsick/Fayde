@@ -12,7 +12,7 @@ module Fayde.Controls.Input {
         private _RequestedVal: number = 0.0;
         private _RequestedInc: number = 1.0;
 
-        private _Interaction: InteractionHelper;
+        private _Interaction: Internal.InteractionHelper;
 
         static MinimumProperty = DependencyProperty.Register("Minimum", () => Number, NumericUpDown, 0.0, (d, args) => (<NumericUpDown>d)._OnMinimumChanged(args));
         Minimum: number;
@@ -105,7 +105,7 @@ module Fayde.Controls.Input {
         constructor() {
             super();
             this.DefaultStyleKey = (<any>this).constructor;
-            this._Interaction = new InteractionHelper(this);
+            this._Interaction = new Internal.InteractionHelper(this);
         }
 
         OnApplyTemplate() {

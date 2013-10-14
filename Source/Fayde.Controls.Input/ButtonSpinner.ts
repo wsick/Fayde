@@ -1,7 +1,7 @@
 /// <reference path="Fayde.d.ts" />
 /// <reference path="Spinner.ts" />
 /// CODE
-/// <reference path="InteractionHelper.ts" />
+/// <reference path="Internal/InteractionHelper.ts" />
 
 module Fayde.Controls.Input {
     export class ButtonSpinner extends Spinner {
@@ -9,7 +9,7 @@ module Fayde.Controls.Input {
 
         private _IncreaseButton: Controls.Primitives.ButtonBase;
         private _DecreaseButton: Controls.Primitives.ButtonBase;
-        private _Interaction: InteractionHelper;
+        private _Interaction: Internal.InteractionHelper;
 
         static ContentProperty = DependencyProperty.Register("Content", () => Object, ButtonSpinner, undefined, (d, args) => (<ButtonSpinner>d).OnContentChanged(args.OldValue, args.NewValue));
         Content: any;
@@ -23,7 +23,7 @@ module Fayde.Controls.Input {
         constructor() {
             super();
             this.DefaultStyleKey = (<any>this).constructor;
-            this._Interaction = new InteractionHelper(this);
+            this._Interaction = new Internal.InteractionHelper(this);
         }
 
         OnApplyTemplate() {

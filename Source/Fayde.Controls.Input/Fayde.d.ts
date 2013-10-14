@@ -1434,6 +1434,23 @@ declare module Fayde {
     }
 }
 declare module Fayde {
+    class Enumerable<T> implements Fayde.IEnumerable<T>, Fayde.IEnumerator<T> {
+        public GetEnumerator(): Fayde.IEnumerator<T>;
+        public Current: T;
+        public MoveNext(): boolean;
+        public Aggregate<TAccumulate>(seed: TAccumulate, func: (u: TAccumulate, t: T) => TAccumulate): TAccumulate;
+        public Where(filter: (t: T) => boolean): Fayde.IEnumerable<T>;
+        public Select<TOut>(projection: (t: T) => TOut): Fayde.IEnumerable<TOut>;
+        public All(filter: (t: T) => boolean): boolean;
+        public Any(filter: (t: T) => boolean): boolean;
+        public Average(func: (t: T) => number): number;
+        static Count<S>(enumerable: Fayde.IEnumerable<S>): number;
+        static Contains<S>(enumerable: Fayde.IEnumerable<S>, item: S): boolean;
+        static FirstOrDefault<S>(enumerable: Fayde.IEnumerable<S>, filter?: (item: S) => boolean): S;
+        static ElementAt<S>(enumerable: Fayde.IEnumerable<S>, index: number): S;
+        static ElementAtOrDefault<S>(enumerable: Fayde.IEnumerable<S>, index: number): S;
+        static Where<S>(enumerable: Fayde.IEnumerable<S>, filter: (item: S) => boolean): Fayde.IEnumerable<S>;
+    }
 }
 interface IOutValue {
     Value: any;
@@ -4833,9 +4850,9 @@ declare module Fayde.Controls {
         public OnMouseRightButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnMouseWheel(e: Fayde.Input.MouseWheelEventArgs): void;
         public UpdateVisualState(useTransitions?: boolean): void;
-        public GetVisualStateNamesToActivate(useTransitions?: boolean): string[];
-        public GetVisualStateCommon(useTransitions?: boolean): string;
-        public GetVisualStateFocus(useTransitions?: boolean): string;
+        public GetVisualStateNamesToActivate(): string[];
+        public GetVisualStateCommon(): string;
+        public GetVisualStateFocus(): string;
         private _TemplateChanged(args);
         private _PaddingChanged(args);
         private _BorderThicknessChanged(args);
@@ -6168,7 +6185,7 @@ declare module Fayde.Controls.Primitives {
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         public OnClick(): void;
         public UpdateVisualState(useTransitions?: boolean): void;
-        public GetVisualStateCommon(useTransitions?: boolean): string;
+        public GetVisualStateCommon(): string;
         private _CaptureMouseInternal();
         private _ReleaseMouseCaptureInternal();
         private _IsValidMousePosition();

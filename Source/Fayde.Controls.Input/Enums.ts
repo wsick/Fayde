@@ -21,4 +21,14 @@ module Fayde.Controls.Input {
         Namespace: "Fayde.Controls.Input",
         XmlNamespace: "http://schemas.wsick.com/fayde/input"
     });
+
+    export enum InvalidInputAction {
+        UseFallbackItem,
+        TextBoxCannotLoseFocus
+    }
+    Fayde.RegisterEnum(InvalidInputAction, {
+        Name: "InvalidInputAction",
+        Namespace: "Fayde.Controls.Input",
+        XmlNamespace: "http://schemas.wsick.com/fayde/input"
+    });
 }
