@@ -755,12 +755,6 @@ else
                     return (d).OnSpinnerStyleChanged(args.OldValue, args.NewValue);
                 });
 
-                UpDownBase.ValueProperty = DependencyProperty.Register("Value", function () {
-                    return Object;
-                }, UpDownBase, undefined, function (d, args) {
-                    return (d)._OnValueChanged(args);
-                });
-
                 UpDownBase.IsEditableProperty = DependencyProperty.Register("IsEditable", function () {
                     return Boolean;
                 }, UpDownBase, undefined, function (d, args) {
@@ -960,20 +954,20 @@ var Fayde;
                     var num = this.Value;
                     if (this._RequestedVal !== num) {
                         if (this._RequestedVal >= minimum && this._RequestedVal <= maximum) {
-                            this.SetValue(Input.UpDownBase.ValueProperty, this._RequestedVal);
+                            this.Value = this._RequestedVal;
                         } else if (this._RequestedVal < minimum && num !== minimum) {
-                            this.SetValue(Input.UpDownBase.ValueProperty, minimum);
+                            this.Value = minimum;
                         } else {
                             if (this._RequestedVal <= maximum || num === maximum)
                                 return;
-                            this.SetValue(Input.UpDownBase.ValueProperty, maximum);
+                            this.Value = maximum;
                         }
                     } else if (num < minimum) {
-                        this.SetValue(Input.UpDownBase.ValueProperty, minimum);
+                        this.Value = minimum;
                     } else {
                         if (num <= maximum)
                             return;
-                        this.SetValue(Input.UpDownBase.ValueProperty, maximum);
+                        this.Value = maximum;
                     }
                 };
 
@@ -1004,6 +998,12 @@ var Fayde;
                     --this._LevelsFromRootCall;
                     throw new ArgumentException("Invalid decimal places value.");
                 };
+                NumericUpDown.ValueProperty = DependencyProperty.Register("Value", function () {
+                    return Number;
+                }, NumericUpDown, 0.0, function (d, args) {
+                    return (d)._OnValueChanged(args);
+                });
+
                 NumericUpDown.MinimumProperty = DependencyProperty.Register("Minimum", function () {
                     return Number;
                 }, NumericUpDown, 0.0, function (d, args) {
@@ -1061,7 +1061,7 @@ var Fayde;
                         this.IsReadOnly = false;
                         this.IsPressed = false;
                         this.LastClickTime = 0;
-                        this.LastClickPosition = null;
+                        this.LastClickPosition = new Point();
                         this.ClickCount = 0;
                         this.Control = control;
                         this.Control.Loaded.Subscribe(this.OnLoaded, this);
@@ -1864,6 +1864,12 @@ else if (this.IsCyclic)
                     var num = Fayde.Enumerable.Count(this.GetActualItems());
                     return value === -1 && num === 0 || value >= 0 && value < num;
                 };
+                DomainUpDown.ValueProperty = DependencyProperty.Register("Value", function () {
+                    return Object;
+                }, DomainUpDown, null, function (d, args) {
+                    return (d)._OnValueChanged(args);
+                });
+
                 DomainUpDown.CurrentIndexProperty = DependencyProperty.Register("CurrentIndex", function () {
                     return Number;
                 }, DomainUpDown, -1, function (d, args) {

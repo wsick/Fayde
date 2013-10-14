@@ -12,6 +12,8 @@ module Fayde.Controls.Input {
         private _CurrentIndexDuringInit: number = null;
         private _CurrentIndexNestLevel: number = 0;
         private _Interaction: Internal.InteractionHelper;
+        
+        static ValueProperty = DependencyProperty.Register("Value", () => Object, DomainUpDown, null, (d, args) => (<DomainUpDown>d)._OnValueChanged(args));
 
         static CurrentIndexProperty = DependencyProperty.Register("CurrentIndex", () => Number, DomainUpDown, -1, (d, args) => (<DomainUpDown>d)._OnCurrentIndexChanged(args));
         CurrentIndex: number;

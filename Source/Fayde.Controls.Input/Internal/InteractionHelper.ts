@@ -11,7 +11,7 @@ module Fayde.Controls.Input.Internal {
         IsReadOnly: boolean = false;
         IsPressed: boolean = false;
         LastClickTime: number = 0;
-        LastClickPosition: Point = null;
+        LastClickPosition: Point = new Point();
         ClickCount: number = 0;
 
         constructor(control: Control) {

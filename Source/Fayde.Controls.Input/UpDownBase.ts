@@ -14,9 +14,8 @@ module Fayde.Controls.Input {
         SpinnerStyle: Style;
         private OnSpinnerStyleChanged(oldStyle: Style, newStyle: Style) { }
 
-        static ValueProperty = DependencyProperty.Register("Value", () => Object, UpDownBase, undefined, (d, args) => (<UpDownBase<T>>d)._OnValueChanged(args));
         Value: T;
-        private _OnValueChanged(args: IDependencyPropertyChangedEventArgs) {
+        _OnValueChanged(args: IDependencyPropertyChangedEventArgs) {
             if (this._IgnoreValueChange)
                 return;
             var oldValue: T = args.OldValue;

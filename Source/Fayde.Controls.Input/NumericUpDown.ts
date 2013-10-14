@@ -14,6 +14,8 @@ module Fayde.Controls.Input {
 
         private _Interaction: Internal.InteractionHelper;
 
+        static ValueProperty = DependencyProperty.Register("Value", () => Number, NumericUpDown, 0.0, (d, args) => (<NumericUpDown>d)._OnValueChanged(args));
+
         static MinimumProperty = DependencyProperty.Register("Minimum", () => Number, NumericUpDown, 0.0, (d, args) => (<NumericUpDown>d)._OnMinimumChanged(args));
         Minimum: number;
         private _OnMinimumChanged(args: IDependencyPropertyChangedEventArgs) {
@@ -185,20 +187,20 @@ module Fayde.Controls.Input {
             var num = this.Value;
             if (this._RequestedVal !== num) {
                 if (this._RequestedVal >= minimum && this._RequestedVal <= maximum) {
-                    this.SetValue(UpDownBase.ValueProperty, this._RequestedVal);
+                    this.Value = this._RequestedVal;
                 } else if (this._RequestedVal < minimum && num !== minimum) {
-                    this.SetValue(UpDownBase.ValueProperty, minimum);
+                    this.Value = minimum;
                 } else {
                     if (this._RequestedVal <= maximum || num === maximum)
                         return;
-                    this.SetValue(UpDownBase.ValueProperty, maximum);
+                    this.Value = maximum;
                 }
             } else if (num < minimum) {
-                this.SetValue(UpDownBase.ValueProperty, minimum);
+                this.Value = minimum;
             } else {
                 if (num <= maximum)
                     return;
-                this.SetValue(UpDownBase.ValueProperty, maximum);
+                this.Value = maximum;
             }
         }
 
