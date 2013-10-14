@@ -225,6 +225,9 @@ module Fayde.Xaml {
         }
 
         function createAttributeObject(attr: Attr, dobj: DependencyObject, propd: DependencyProperty): any {
+            var tt: IType;
+            if (propd)
+                tt = propd.GetTargetType();
             var value = attr.textContent;
             if (value[0] === "{") {
                 var parseCtx: IMarkupParseContext = {
@@ -243,7 +246,6 @@ module Fayde.Xaml {
                         return result;
                     }
                     if (result) {
-                        var tt = propd.GetTargetType();
                         if (tt instanceof Interface && Nullstone.ImplementsInterface(result, <Interface>tt)) {
                             return result;
                         } else if (tt instanceof Enum) {
@@ -254,7 +256,9 @@ module Fayde.Xaml {
                     }
                     if ((result instanceof TemplateBinding) || (result instanceof Data.Binding))
                         return (<Xaml.IMarkup>result).Transmute(parseCtx);
+                    result = Fayde.ConvertAnyToType(result, <Function>tt);
                     return result;
+
                 }
             }
             if (!propd)
@@ -269,10 +273,9 @@ module Fayde.Xaml {
                 var ownerStyle = findOwnerStyle();
                 return resolveDependencyProperty(value, ownerStyle.TargetType, attr);
             }
-            var targetType = <Function>propd.GetTargetType();
-            if (targetType === String)
+            if (tt === String)
                 return value;
-            return Fayde.ConvertAnyToType(value, targetType);
+            return Fayde.ConvertAnyToType(value, <Function>tt);
         }
         function findOwnerStyle(): Style {
             var s = ctx.ObjectStack;
@@ -395,10 +398,10 @@ module Fayde.Xaml {
 
                 ensurePropertyNotSet(propertyName);
 
+                var val = createAttributeObject(attr, dobj, propd);
                 if (propd) {
-                    dobj.SetValue(propd, createAttributeObject(attr, dobj, propd));
+                    dobj.SetValue(propd, val);
                 } else if (event) {
-                    var val = createAttributeObject(attr, dobj, null);
                     if (val instanceof EventBindingExpression) {
                         var ebe = <EventBindingExpression>val;
                         ebe.Init(event, propertyName);
@@ -412,7 +415,7 @@ module Fayde.Xaml {
                     }
                 } else {
                     //TODO: Add checks for read-only, etc.
-                    owner[propertyName] = createAttributeObject(attr, dobj, null);
+                    owner[propertyName] = val;
                 }
             },
             ProcessElement: function (el: Element) {
