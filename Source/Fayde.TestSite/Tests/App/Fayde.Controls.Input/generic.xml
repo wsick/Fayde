@@ -2,7 +2,7 @@
 <ResourceDictionary 
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
-    xmlns:input="http://schemas.wsick.com/fayde/input">
+    xmlns:input="http://schemas.wsick.com/fayde/controls/input">
     <!--  input:ContextMenu  -->
     <Style TargetType="input:ContextMenu">
         <Setter Property="Background" Value="#FFF5F5F5" />

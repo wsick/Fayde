@@ -1,3 +1,13 @@
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        (function (Input) {
+            Input.XMLNS = "http://schemas.wsick.com/fayde/controls/input";
+        })(Controls.Input || (Controls.Input = {}));
+        var Input = Controls.Input;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -7,137 +17,9 @@ var __extends = this.__extends || function (d, b) {
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
-        /// <reference path="Fayde.d.ts" />
-        /// <reference path="Primitives/MenuBase.ts" />
-        (function (Input) {
-            var MenuItem = (function (_super) {
-                __extends(MenuItem, _super);
-                function MenuItem() {
-                    _super.call(this);
-                    this.Click = new Fayde.RoutedEvent();
-                    this.DefaultStyleKey = (this).constructor;
-                    this.UpdateIsEnabled();
-                }
-                MenuItem.prototype.OnCommandChanged = function (args) {
-                    var oldcmd = args.OldValue;
-                    if (Nullstone.ImplementsInterface(oldcmd, Fayde.Input.ICommand_))
-                        oldcmd.CanExecuteChanged.Unsubscribe(this._CanExecuteChanged, this);
-                    var newcmd = args.NewValue;
-                    if (Nullstone.ImplementsInterface(newcmd, Fayde.Input.ICommand_))
-                        newcmd.CanExecuteChanged.Subscribe(this._CanExecuteChanged, this);
-                    this.UpdateIsEnabled();
-                };
-                MenuItem.prototype._CanExecuteChanged = function (sender, e) {
-                    this.UpdateIsEnabled();
-                };
-
-                MenuItem.prototype.OnCommandParameterChanged = function (args) {
-                    this.UpdateIsEnabled();
-                };
-
-                MenuItem.prototype.OnApplyTemplate = function () {
-                    _super.prototype.OnApplyTemplate.call(this);
-                    this.UpdateVisualState(false);
-                };
-
-                MenuItem.prototype.UpdateIsEnabled = function () {
-                    this.IsEnabled = this.Command == null || this.Command.CanExecute(this.CommandParameter);
-                    this.UpdateVisualState(true);
-                };
-
-                MenuItem.prototype.OnGotFocus = function (e) {
-                    _super.prototype.OnGotFocus.call(this, e);
-                    this.UpdateVisualState(true);
-                };
-                MenuItem.prototype.OnLostFocus = function (e) {
-                    _super.prototype.OnLostFocus.call(this, e);
-                    this.UpdateVisualState(true);
-                };
-
-                MenuItem.prototype.OnMouseEnter = function (e) {
-                    _super.prototype.OnMouseEnter.call(this, e);
-                    this.Focus();
-                    this.UpdateVisualState(true);
-                };
-                MenuItem.prototype.OnMouseLeave = function (e) {
-                    _super.prototype.OnMouseLeave.call(this, e);
-                    if (this.ParentMenuBase != null)
-                        this.ParentMenuBase.Focus();
-                    this.UpdateVisualState(true);
-                };
-                MenuItem.prototype.OnMouseLeftButtonDown = function (e) {
-                    if (!e.Handled) {
-                        this.OnClick();
-                        e.Handled = true;
-                    }
-                    _super.prototype.OnMouseLeftButtonDown.call(this, e);
-                };
-                MenuItem.prototype.OnMouseRightButtonDown = function (e) {
-                    if (!e.Handled) {
-                        this.OnClick();
-                        e.Handled = true;
-                    }
-                    _super.prototype.OnMouseRightButtonDown.call(this, e);
-                };
-                MenuItem.prototype.OnKeyDown = function (e) {
-                    if (!e.Handled && Fayde.Input.Key.Enter === e.Key) {
-                        this.OnClick();
-                        e.Handled = true;
-                    }
-                    _super.prototype.OnKeyDown.call(this, e);
-                };
-
-                MenuItem.prototype.OnClick = function () {
-                    var contextMenu = this.ParentMenuBase;
-                    if (contextMenu instanceof Input.ContextMenu)
-                        contextMenu.ChildMenuItemClicked();
-                    this.Click.Raise(this, new Fayde.RoutedEventArgs());
-                    if (this.Command == null || !this.Command.CanExecute(this.CommandParameter))
-                        return;
-                    this.Command.Execute(this.CommandParameter);
-                };
-
-                MenuItem.prototype.GetVisualStateCommon = function () {
-                    if (!this.IsEnabled) {
-                        return "Disabled";
-                    } else {
-                        return "Normal";
-                    }
-                };
-                MenuItem.CommandProperty = DependencyProperty.Register("Command", function () {
-                    return Fayde.Input.ICommand_;
-                }, MenuItem, undefined, function (d, args) {
-                    return (d).OnCommandChanged(args);
-                });
-
-                MenuItem.CommandParameterProperty = DependencyProperty.Register("CommandParameter", function () {
-                    return Object;
-                }, MenuItem, undefined, function (d, args) {
-                    return (d).OnCommandParameterChanged(args);
-                });
-
-                MenuItem.IconProperty = DependencyProperty.Register("Icon", function () {
-                    return Object;
-                }, MenuItem);
-                return MenuItem;
-            })(Fayde.Controls.HeaderedItemsControl);
-            Input.MenuItem = MenuItem;
-            Fayde.RegisterType(MenuItem, {
-                Name: "MenuItem",
-                Namespace: "Fayde.Controls.Input",
-                XmlNamespace: "http://schemas.wsick.com/fayde/input"
-            });
-        })(Controls.Input || (Controls.Input = {}));
-        var Input = Controls.Input;
-    })(Fayde.Controls || (Fayde.Controls = {}));
-    var Controls = Fayde.Controls;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Controls) {
         (function (Input) {
             /// <reference path="../Fayde.d.ts" />
-            /// <reference path="../MenuItem.ts" />
+            /// <reference path="../_.ts" />
             (function (Primitives) {
                 var MenuBase = (function (_super) {
                     __extends(MenuBase, _super);
@@ -182,7 +64,7 @@ var Fayde;
                 Primitives.MenuBase = MenuBase;
                 Fayde.RegisterType(MenuBase, {
                     Name: "MenuBase",
-                    Namespace: "Fayde.Controls.Input.Primitives"
+                    Namespace: Controls.Input.XMLNS
                 });
             })(Input.Primitives || (Input.Primitives = {}));
             var Primitives = Input.Primitives;
@@ -421,7 +303,7 @@ else
             Fayde.RegisterType(ContextMenu, {
                 Name: "ContextMenu",
                 Namespace: "Fayde.Controls.Input",
-                XmlNamespace: "http://schemas.wsick.com/fayde/input"
+                XmlNamespace: Controls.Input.XMLNS
             });
         })(Controls.Input || (Controls.Input = {}));
         var Input = Controls.Input;
@@ -484,61 +366,7 @@ var Fayde;
 (function (Fayde) {
     (function (Controls) {
         /// <reference path="Fayde.d.ts" />
-        /// CODE
-        (function (Input) {
-            var UpDownParsingEventArgs = (function (_super) {
-                __extends(UpDownParsingEventArgs, _super);
-                function UpDownParsingEventArgs(text) {
-                    _super.call(this);
-                    this.Value = null;
-                    this.Handled = false;
-                    Object.defineProperty(this, "Text", { value: text, writable: false });
-                }
-                return UpDownParsingEventArgs;
-            })(Fayde.RoutedEventArgs);
-            Input.UpDownParsingEventArgs = UpDownParsingEventArgs;
-            Fayde.RegisterType(UpDownParsingEventArgs, {
-                Name: "UpDownParsingEventArgs",
-                Namespace: "Fayde.Controls.Input"
-            });
-        })(Controls.Input || (Controls.Input = {}));
-        var Input = Controls.Input;
-    })(Fayde.Controls || (Fayde.Controls = {}));
-    var Controls = Fayde.Controls;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Controls) {
-        /// <reference path="Fayde.d.ts" />
-        /// CODE
-        (function (Input) {
-            var UpDownParseErrorEventArgs = (function (_super) {
-                __extends(UpDownParseErrorEventArgs, _super);
-                function UpDownParseErrorEventArgs(text, error) {
-                    _super.call(this);
-                    this.Handled = false;
-                    Object.defineProperty(this, "Text", { value: text, writable: false });
-                    Object.defineProperty(this, "Error", { value: error, writable: false });
-                }
-                return UpDownParseErrorEventArgs;
-            })(Fayde.RoutedEventArgs);
-            Input.UpDownParseErrorEventArgs = UpDownParseErrorEventArgs;
-            Fayde.RegisterType(UpDownParseErrorEventArgs, {
-                Name: "UpDownParseErrorEventArgs",
-                Namespace: "Fayde.Controls.Input"
-            });
-        })(Controls.Input || (Controls.Input = {}));
-        var Input = Controls.Input;
-    })(Fayde.Controls || (Fayde.Controls = {}));
-    var Controls = Fayde.Controls;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Controls) {
-        /// <reference path="Fayde.d.ts" />
-        /// CODE
-        /// <reference path="UpDownParsingEventArgs.ts" />
-        /// <reference path="UpDownParseErrorEventArgs.ts" />
+        /// <reference path="_.ts" />
         (function (Input) {
             var UpDownBase = (function (_super) {
                 __extends(UpDownBase, _super);
@@ -766,7 +594,7 @@ else
             Fayde.RegisterType(UpDownBase, {
                 Name: "UpDownBase",
                 Namespace: "Fayde.Controls.Input",
-                XmlNamespace: "http://schemas.wsick.com/fayde/input"
+                XmlNamespace: Controls.Input.XMLNS
             });
         })(Controls.Input || (Controls.Input = {}));
         var Input = Controls.Input;
@@ -1033,7 +861,7 @@ var Fayde;
             Fayde.RegisterType(NumericUpDown, {
                 Name: "NumericUpDown",
                 Namespace: "Fayde.Controls.Input",
-                XmlNamespace: "http://schemas.wsick.com/fayde/input"
+                XmlNamespace: Controls.Input.XMLNS
             });
 
             function isValidDoubleValue(value, outValue) {
@@ -1211,39 +1039,22 @@ var Fayde;
 (function (Fayde) {
     (function (Controls) {
         /// <reference path="Fayde.d.ts" />
+        /// <reference path="_.ts" />
         (function (Input) {
-            (function (ValidSpinDirections) {
-                ValidSpinDirections[ValidSpinDirections["None"] = 0] = "None";
-                ValidSpinDirections[ValidSpinDirections["Increase"] = 1] = "Increase";
-                ValidSpinDirections[ValidSpinDirections["Decrease"] = 2] = "Decrease";
-            })(Input.ValidSpinDirections || (Input.ValidSpinDirections = {}));
-            var ValidSpinDirections = Input.ValidSpinDirections;
-            Fayde.RegisterEnum(ValidSpinDirections, {
-                Name: "ValidSpinDirections",
-                Namespace: "Fayde.Controls.Input",
-                XmlNamespace: "http://schemas.wsick.com/fayde/input"
-            });
-
-            (function (SpinDirection) {
-                SpinDirection[SpinDirection["Increase"] = 0] = "Increase";
-                SpinDirection[SpinDirection["Decrease"] = 1] = "Decrease";
-            })(Input.SpinDirection || (Input.SpinDirection = {}));
-            var SpinDirection = Input.SpinDirection;
-            Fayde.RegisterEnum(SpinDirection, {
-                Name: "SpinDirection",
-                Namespace: "Fayde.Controls.Input",
-                XmlNamespace: "http://schemas.wsick.com/fayde/input"
-            });
-
-            (function (InvalidInputAction) {
-                InvalidInputAction[InvalidInputAction["UseFallbackItem"] = 0] = "UseFallbackItem";
-                InvalidInputAction[InvalidInputAction["TextBoxCannotLoseFocus"] = 1] = "TextBoxCannotLoseFocus";
-            })(Input.InvalidInputAction || (Input.InvalidInputAction = {}));
-            var InvalidInputAction = Input.InvalidInputAction;
-            Fayde.RegisterEnum(InvalidInputAction, {
-                Name: "InvalidInputAction",
-                Namespace: "Fayde.Controls.Input",
-                XmlNamespace: "http://schemas.wsick.com/fayde/input"
+            var UpDownParseErrorEventArgs = (function (_super) {
+                __extends(UpDownParseErrorEventArgs, _super);
+                function UpDownParseErrorEventArgs(text, error) {
+                    _super.call(this);
+                    this.Handled = false;
+                    Object.defineProperty(this, "Text", { value: text, writable: false });
+                    Object.defineProperty(this, "Error", { value: error, writable: false });
+                }
+                return UpDownParseErrorEventArgs;
+            })(Fayde.RoutedEventArgs);
+            Input.UpDownParseErrorEventArgs = UpDownParseErrorEventArgs;
+            Fayde.RegisterType(UpDownParseErrorEventArgs, {
+                Name: "UpDownParseErrorEventArgs",
+                Namespace: Controls.Input.XMLNS
             });
         })(Controls.Input || (Controls.Input = {}));
         var Input = Controls.Input;
@@ -1254,8 +1065,33 @@ var Fayde;
 (function (Fayde) {
     (function (Controls) {
         /// <reference path="Fayde.d.ts" />
-        /// CODE
-        /// <reference path="Enums.ts" />
+        /// <reference path="_.ts" />
+        (function (Input) {
+            var UpDownParsingEventArgs = (function (_super) {
+                __extends(UpDownParsingEventArgs, _super);
+                function UpDownParsingEventArgs(text) {
+                    _super.call(this);
+                    this.Value = null;
+                    this.Handled = false;
+                    Object.defineProperty(this, "Text", { value: text, writable: false });
+                }
+                return UpDownParsingEventArgs;
+            })(Fayde.RoutedEventArgs);
+            Input.UpDownParsingEventArgs = UpDownParsingEventArgs;
+            Fayde.RegisterType(UpDownParsingEventArgs, {
+                Name: "UpDownParsingEventArgs",
+                Namespace: Controls.Input.XMLNS
+            });
+        })(Controls.Input || (Controls.Input = {}));
+        var Input = Controls.Input;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        /// <reference path="Fayde.d.ts" />
+        /// <reference path="_.ts" />
         (function (Input) {
             var SpinEventArgs = (function (_super) {
                 __extends(SpinEventArgs, _super);
@@ -1279,9 +1115,51 @@ var Fayde;
 (function (Fayde) {
     (function (Controls) {
         /// <reference path="Fayde.d.ts" />
-        /// CODE
-        /// <reference path="Enums.ts" />
-        /// <reference path="SpinEventArgs.ts" />
+        /// <reference path="_.ts" />
+        (function (Input) {
+            (function (ValidSpinDirections) {
+                ValidSpinDirections[ValidSpinDirections["None"] = 0] = "None";
+                ValidSpinDirections[ValidSpinDirections["Increase"] = 1] = "Increase";
+                ValidSpinDirections[ValidSpinDirections["Decrease"] = 2] = "Decrease";
+            })(Input.ValidSpinDirections || (Input.ValidSpinDirections = {}));
+            var ValidSpinDirections = Input.ValidSpinDirections;
+            Fayde.RegisterEnum(ValidSpinDirections, {
+                Name: "ValidSpinDirections",
+                Namespace: "Fayde.Controls.Input",
+                XmlNamespace: Controls.Input.XMLNS
+            });
+
+            (function (SpinDirection) {
+                SpinDirection[SpinDirection["Increase"] = 0] = "Increase";
+                SpinDirection[SpinDirection["Decrease"] = 1] = "Decrease";
+            })(Input.SpinDirection || (Input.SpinDirection = {}));
+            var SpinDirection = Input.SpinDirection;
+            Fayde.RegisterEnum(SpinDirection, {
+                Name: "SpinDirection",
+                Namespace: "Fayde.Controls.Input",
+                XmlNamespace: Controls.Input.XMLNS
+            });
+
+            (function (InvalidInputAction) {
+                InvalidInputAction[InvalidInputAction["UseFallbackItem"] = 0] = "UseFallbackItem";
+                InvalidInputAction[InvalidInputAction["TextBoxCannotLoseFocus"] = 1] = "TextBoxCannotLoseFocus";
+            })(Input.InvalidInputAction || (Input.InvalidInputAction = {}));
+            var InvalidInputAction = Input.InvalidInputAction;
+            Fayde.RegisterEnum(InvalidInputAction, {
+                Name: "InvalidInputAction",
+                Namespace: "Fayde.Controls.Input",
+                XmlNamespace: Controls.Input.XMLNS
+            });
+        })(Controls.Input || (Controls.Input = {}));
+        var Input = Controls.Input;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        /// <reference path="Fayde.d.ts" />
+        /// <reference path="_.ts" />
         (function (Input) {
             var Spinner = (function (_super) {
                 __extends(Spinner, _super);
@@ -1318,7 +1196,7 @@ var Fayde;
             Fayde.RegisterType(Spinner, {
                 Name: "Spinner",
                 Namespace: "Fayde.Controls.Input",
-                XmlNamespace: "http://schemas.wsick.com/fayde/input"
+                XmlNamespace: Controls.Input.XMLNS
             });
         })(Controls.Input || (Controls.Input = {}));
         var Input = Controls.Input;
@@ -1330,8 +1208,6 @@ var Fayde;
     (function (Controls) {
         /// <reference path="Fayde.d.ts" />
         /// <reference path="Spinner.ts" />
-        /// CODE
-        /// <reference path="Internal/InteractionHelper.ts" />
         (function (Input) {
             var ButtonSpinner = (function (_super) {
                 __extends(ButtonSpinner, _super);
@@ -1453,7 +1329,7 @@ else
             Fayde.RegisterType(ButtonSpinner, {
                 Name: "ButtonSpinner",
                 Namespace: "Fayde.Controls.Input",
-                XmlNamespace: "http://schemas.wsick.com/fayde/input"
+                XmlNamespace: Controls.Input.XMLNS
             });
         })(Controls.Input || (Controls.Input = {}));
         var Input = Controls.Input;
@@ -1464,7 +1340,6 @@ var Fayde;
 (function (Fayde) {
     (function (Controls) {
         /// <reference path="UpDownBase.ts" />
-        /// <reference path="Enums.ts" />
         (function (Input) {
             var DomainUpDown = (function (_super) {
                 __extends(DomainUpDown, _super);
@@ -1905,7 +1780,7 @@ else if (this.IsCyclic)
             Fayde.RegisterType(DomainUpDown, {
                 Name: "DomainUpDown",
                 Namespace: "Fayde.Controls.Input",
-                XmlNamespace: "http://schemas.wsick.com/fayde/input"
+                XmlNamespace: Controls.Input.XMLNS
             });
 
             function getIndexOf(sequence, item) {
@@ -1990,6 +1865,7 @@ var Fayde;
 (function (Fayde) {
     (function (Controls) {
         /// <reference path="Fayde.d.ts" />
+        /// <reference path="_.ts" />
         (function (Input) {
             var ContextMenuService = (function () {
                 function ContextMenuService() {
@@ -2020,7 +1896,7 @@ var Fayde;
             Fayde.RegisterType(ContextMenuService, {
                 Name: "ContextMenuService",
                 Namespace: "Fayde.Controls.Input",
-                XmlNamespace: "http://schemas.wsick.com/fayde/input"
+                XmlNamespace: Controls.Input.XMLNS
             });
         })(Controls.Input || (Controls.Input = {}));
         var Input = Controls.Input;
@@ -2030,6 +1906,8 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Controls) {
+        /// <reference path="Fayde.d.ts" />
+        /// <reference path="_.ts" />
         (function (Input) {
             var Separator = (function (_super) {
                 __extends(Separator, _super);
@@ -2043,7 +1921,135 @@ var Fayde;
             Fayde.RegisterType(Separator, {
                 Name: "Separator",
                 Namespace: "Fayde.Controls.Input",
-                XmlNamespace: "http://schemas.wsick.com/fayde/input"
+                XmlNamespace: Controls.Input.XMLNS
+            });
+        })(Controls.Input || (Controls.Input = {}));
+        var Input = Controls.Input;
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Controls) {
+        /// <reference path="Fayde.d.ts" />
+        /// <reference path="Primitives/MenuBase.ts" />
+        (function (Input) {
+            var MenuItem = (function (_super) {
+                __extends(MenuItem, _super);
+                function MenuItem() {
+                    _super.call(this);
+                    this.Click = new Fayde.RoutedEvent();
+                    this.DefaultStyleKey = (this).constructor;
+                    this.UpdateIsEnabled();
+                }
+                MenuItem.prototype.OnCommandChanged = function (args) {
+                    var oldcmd = args.OldValue;
+                    if (Nullstone.ImplementsInterface(oldcmd, Fayde.Input.ICommand_))
+                        oldcmd.CanExecuteChanged.Unsubscribe(this._CanExecuteChanged, this);
+                    var newcmd = args.NewValue;
+                    if (Nullstone.ImplementsInterface(newcmd, Fayde.Input.ICommand_))
+                        newcmd.CanExecuteChanged.Subscribe(this._CanExecuteChanged, this);
+                    this.UpdateIsEnabled();
+                };
+                MenuItem.prototype._CanExecuteChanged = function (sender, e) {
+                    this.UpdateIsEnabled();
+                };
+
+                MenuItem.prototype.OnCommandParameterChanged = function (args) {
+                    this.UpdateIsEnabled();
+                };
+
+                MenuItem.prototype.OnApplyTemplate = function () {
+                    _super.prototype.OnApplyTemplate.call(this);
+                    this.UpdateVisualState(false);
+                };
+
+                MenuItem.prototype.UpdateIsEnabled = function () {
+                    this.IsEnabled = this.Command == null || this.Command.CanExecute(this.CommandParameter);
+                    this.UpdateVisualState(true);
+                };
+
+                MenuItem.prototype.OnGotFocus = function (e) {
+                    _super.prototype.OnGotFocus.call(this, e);
+                    this.UpdateVisualState(true);
+                };
+                MenuItem.prototype.OnLostFocus = function (e) {
+                    _super.prototype.OnLostFocus.call(this, e);
+                    this.UpdateVisualState(true);
+                };
+
+                MenuItem.prototype.OnMouseEnter = function (e) {
+                    _super.prototype.OnMouseEnter.call(this, e);
+                    this.Focus();
+                    this.UpdateVisualState(true);
+                };
+                MenuItem.prototype.OnMouseLeave = function (e) {
+                    _super.prototype.OnMouseLeave.call(this, e);
+                    if (this.ParentMenuBase != null)
+                        this.ParentMenuBase.Focus();
+                    this.UpdateVisualState(true);
+                };
+                MenuItem.prototype.OnMouseLeftButtonDown = function (e) {
+                    if (!e.Handled) {
+                        this.OnClick();
+                        e.Handled = true;
+                    }
+                    _super.prototype.OnMouseLeftButtonDown.call(this, e);
+                };
+                MenuItem.prototype.OnMouseRightButtonDown = function (e) {
+                    if (!e.Handled) {
+                        this.OnClick();
+                        e.Handled = true;
+                    }
+                    _super.prototype.OnMouseRightButtonDown.call(this, e);
+                };
+                MenuItem.prototype.OnKeyDown = function (e) {
+                    if (!e.Handled && Fayde.Input.Key.Enter === e.Key) {
+                        this.OnClick();
+                        e.Handled = true;
+                    }
+                    _super.prototype.OnKeyDown.call(this, e);
+                };
+
+                MenuItem.prototype.OnClick = function () {
+                    var contextMenu = this.ParentMenuBase;
+                    if (contextMenu instanceof Input.ContextMenu)
+                        contextMenu.ChildMenuItemClicked();
+                    this.Click.Raise(this, new Fayde.RoutedEventArgs());
+                    if (this.Command == null || !this.Command.CanExecute(this.CommandParameter))
+                        return;
+                    this.Command.Execute(this.CommandParameter);
+                };
+
+                MenuItem.prototype.GetVisualStateCommon = function () {
+                    if (!this.IsEnabled) {
+                        return "Disabled";
+                    } else {
+                        return "Normal";
+                    }
+                };
+                MenuItem.CommandProperty = DependencyProperty.Register("Command", function () {
+                    return Fayde.Input.ICommand_;
+                }, MenuItem, undefined, function (d, args) {
+                    return (d).OnCommandChanged(args);
+                });
+
+                MenuItem.CommandParameterProperty = DependencyProperty.Register("CommandParameter", function () {
+                    return Object;
+                }, MenuItem, undefined, function (d, args) {
+                    return (d).OnCommandParameterChanged(args);
+                });
+
+                MenuItem.IconProperty = DependencyProperty.Register("Icon", function () {
+                    return Object;
+                }, MenuItem);
+                return MenuItem;
+            })(Fayde.Controls.HeaderedItemsControl);
+            Input.MenuItem = MenuItem;
+            Fayde.RegisterType(MenuItem, {
+                Name: "MenuItem",
+                Namespace: "Fayde.Controls.Input",
+                XmlNamespace: Controls.Input.XMLNS
             });
         })(Controls.Input || (Controls.Input = {}));
         var Input = Controls.Input;

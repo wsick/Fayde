@@ -1,3 +1,6 @@
+/// <reference path="Fayde.d.ts" />
+/// <reference path="_.ts" />
+
 module Fayde.Controls.Input {
     export class Separator extends Control {
         constructor() {
@@ -8,6 +11,6 @@ module Fayde.Controls.Input {
     Fayde.RegisterType(Separator, {
         Name: "Separator",
         Namespace: "Fayde.Controls.Input",
-        XmlNamespace: "http://schemas.wsick.com/fayde/input"
+        XmlNamespace: Input.XMLNS
     });
 }

@@ -1,7 +1,7 @@
 ﻿<Application
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
-    xmlns:i="http://schemas.wsick.com/fayde/input"
+    xmlns:i="http://schemas.wsick.com/fayde/controls/input"
     Theme="/Fayde/Theme.Metro.xml">
     <Application.Libraries>
         <Library PackageUri="App/Fayde.Controls.Input" />
@@ -15,5 +15,6 @@
                 <i:MenuItem Header="Test 3" />
             </i:ContextMenu>
         </i:ContextMenuService.ContextMenu>
+        <i:NumericUpDown />
     </Grid>
 </Application>

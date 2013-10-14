@@ -1,4 +1,5 @@
 /// <reference path="Fayde.d.ts" />
+/// <reference path="_.ts" />
 
 module Fayde.Controls.Input {
     export enum ValidSpinDirections {
@@ -9,7 +10,7 @@ module Fayde.Controls.Input {
     Fayde.RegisterEnum(ValidSpinDirections, {
         Name: "ValidSpinDirections",
         Namespace: "Fayde.Controls.Input",
-        XmlNamespace: "http://schemas.wsick.com/fayde/input"
+        XmlNamespace: Input.XMLNS
     });
 
     export enum SpinDirection {
@@ -19,7 +20,7 @@ module Fayde.Controls.Input {
     Fayde.RegisterEnum(SpinDirection, {
         Name: "SpinDirection",
         Namespace: "Fayde.Controls.Input",
-        XmlNamespace: "http://schemas.wsick.com/fayde/input"
+        XmlNamespace: Input.XMLNS
     });
 
     export enum InvalidInputAction {
@@ -29,6 +30,6 @@ module Fayde.Controls.Input {
     Fayde.RegisterEnum(InvalidInputAction, {
         Name: "InvalidInputAction",
         Namespace: "Fayde.Controls.Input",
-        XmlNamespace: "http://schemas.wsick.com/fayde/input"
+        XmlNamespace: Input.XMLNS
     });
 }

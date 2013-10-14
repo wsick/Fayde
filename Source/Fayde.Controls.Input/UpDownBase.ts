@@ -1,7 +1,5 @@
 /// <reference path="Fayde.d.ts" />
-/// CODE
-/// <reference path="UpDownParsingEventArgs.ts" />
-/// <reference path="UpDownParseErrorEventArgs.ts" />
+/// <reference path="_.ts" />
 
 module Fayde.Controls.Input {
     export class UpDownBase<T> extends Control {
@@ -217,6 +215,6 @@ module Fayde.Controls.Input {
     Fayde.RegisterType(UpDownBase, {
         Name: "UpDownBase",
         Namespace: "Fayde.Controls.Input",
-        XmlNamespace: "http://schemas.wsick.com/fayde/input"
+        XmlNamespace: Input.XMLNS
     });
 }

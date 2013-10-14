@@ -235,7 +235,7 @@ module Fayde.Controls.Input {
     Fayde.RegisterType(NumericUpDown, {
         Name: "NumericUpDown",
         Namespace: "Fayde.Controls.Input",
-        XmlNamespace: "http://schemas.wsick.com/fayde/input"
+        XmlNamespace: Input.XMLNS
     });
 
     function isValidDoubleValue(value: any, outValue: IOutValue): boolean {

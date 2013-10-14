@@ -1,5 +1,4 @@
 /// <reference path="UpDownBase.ts" />
-/// <reference path="Enums.ts" />
 
 module Fayde.Controls.Input {
     export class DomainUpDown extends UpDownBase<any> {
@@ -397,7 +396,7 @@ module Fayde.Controls.Input {
     Fayde.RegisterType(DomainUpDown, {
         Name: "DomainUpDown",
         Namespace: "Fayde.Controls.Input",
-        XmlNamespace: "http://schemas.wsick.com/fayde/input"
+        XmlNamespace: Input.XMLNS
     });
 
     function getIndexOf(sequence: Fayde.IEnumerable<any>, item: any): number {
@@ -410,6 +409,4 @@ module Fayde.Controls.Input {
         }
         return -1;
     }
-
-    
 }

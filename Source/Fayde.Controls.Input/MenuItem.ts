@@ -105,6 +105,6 @@ module Fayde.Controls.Input {
     Fayde.RegisterType(MenuItem, {
         Name: "MenuItem",
         Namespace: "Fayde.Controls.Input",
-        XmlNamespace: "http://schemas.wsick.com/fayde/input"
+        XmlNamespace: Input.XMLNS
     });
 }

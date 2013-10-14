@@ -62,6 +62,7 @@
     <Content Include="awaiting-generic.xml">
       <SubType>Designer</SubType>
     </Content>
+    <TypeScriptCompile Include="_.ts" />
     <TypeScriptCompile Include="Internal\ObservableObjectCollection.ts" />
     <TypeScriptCompile Include="NumericUpDown.ts" />
     <TypeScriptCompile Include="Internal\InteractionHelper.ts" />

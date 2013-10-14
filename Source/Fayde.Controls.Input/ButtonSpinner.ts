@@ -1,7 +1,5 @@
 /// <reference path="Fayde.d.ts" />
 /// <reference path="Spinner.ts" />
-/// CODE
-/// <reference path="Internal/InteractionHelper.ts" />
 
 module Fayde.Controls.Input {
     export class ButtonSpinner extends Spinner {
@@ -121,6 +119,6 @@ module Fayde.Controls.Input {
     Fayde.RegisterType(ButtonSpinner, {
         Name: "ButtonSpinner",
         Namespace: "Fayde.Controls.Input",
-        XmlNamespace: "http://schemas.wsick.com/fayde/input"
+        XmlNamespace: Input.XMLNS
     });
 }

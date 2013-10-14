@@ -213,6 +213,6 @@ module Fayde.Controls.Input {
     Fayde.RegisterType(ContextMenu, {
         Name: "ContextMenu",
         Namespace: "Fayde.Controls.Input",
-        XmlNamespace: "http://schemas.wsick.com/fayde/input"
+        XmlNamespace: Input.XMLNS
     });
 }

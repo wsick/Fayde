@@ -1,5 +1,5 @@
 /// <reference path="../Fayde.d.ts" />
-/// <reference path="../MenuItem.ts" />
+/// <reference path="../_.ts" />
 
 module Fayde.Controls.Input.Primitives {
     export class MenuBase extends Fayde.Controls.ItemsControl {
@@ -35,6 +35,6 @@ module Fayde.Controls.Input.Primitives {
     }
     Fayde.RegisterType(MenuBase, {
         Name: "MenuBase",
-        Namespace: "Fayde.Controls.Input.Primitives"
+        Namespace: Input.XMLNS
     });
 }

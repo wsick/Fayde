@@ -1,6 +1,5 @@
 /// <reference path="Fayde.d.ts" />
-/// CODE
-/// <reference path="Enums.ts" />
+/// <reference path="_.ts" />
 
 module Fayde.Controls.Input {
     export class SpinEventArgs extends RoutedEventArgs {

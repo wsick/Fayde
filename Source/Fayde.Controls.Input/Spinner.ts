@@ -1,7 +1,5 @@
 /// <reference path="Fayde.d.ts" />
-/// CODE
-/// <reference path="Enums.ts" />
-/// <reference path="SpinEventArgs.ts" />
+/// <reference path="_.ts" />
 
 module Fayde.Controls.Input {
     export class Spinner extends Control {
@@ -30,6 +28,6 @@ module Fayde.Controls.Input {
     Fayde.RegisterType(Spinner, {
         Name: "Spinner",
         Namespace: "Fayde.Controls.Input",
-        XmlNamespace: "http://schemas.wsick.com/fayde/input"
+        XmlNamespace: Input.XMLNS
     });
 }
