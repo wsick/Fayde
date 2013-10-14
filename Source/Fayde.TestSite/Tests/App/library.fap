@@ -15,6 +15,6 @@
                 <i:MenuItem Header="Test 3" />
             </i:ContextMenu>
         </i:ContextMenuService.ContextMenu>
-        <i:NumericUpDown />
+        <i:NumericUpDown HorizontalAlignment="Left" VerticalAlignment="Top" />
     </Grid>
 </Application>
