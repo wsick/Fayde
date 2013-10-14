@@ -13,15 +13,15 @@ interface Array<T> {
 
 module Fayde {
     //export interface IEnumerable<T> {
-        //Aggregate<TAccumulate>(seed: TAccumulate, func: (u: TAccumulate, t: T) => TAccumulate): TAccumulate;
-        //Where(filter: (t: T) => boolean): IEnumerable < T>;
-        //Select<TOut>(projection: (t: T) => TOut): IEnumerable < TOut>;
-        //All(filter: (t: T) => boolean): boolean;
-        //Any(filter: (t: T) => boolean): boolean;
-        //Average(func: (t: T) => number): number;
+    //Aggregate<TAccumulate>(seed: TAccumulate, func: (u: TAccumulate, t: T) => TAccumulate): TAccumulate;
+    //Where(filter: (t: T) => boolean): IEnumerable < T>;
+    //Select<TOut>(projection: (t: T) => TOut): IEnumerable < TOut>;
+    //All(filter: (t: T) => boolean): boolean;
+    //Any(filter: (t: T) => boolean): boolean;
+    //Average(func: (t: T) => number): number;
     //}
 
-    class Enumerable<T> implements IEnumerable<T>, IEnumerator<T> {
+    export class Enumerable<T> implements IEnumerable<T>, IEnumerator<T> {
         GetEnumerator(): IEnumerator<T> { return this; }
         Current: T = null;
         MoveNext(): boolean { return false; }
@@ -61,6 +61,65 @@ module Fayde {
                 count++;
             }
             return total / count;
+        }
+
+
+        static Count<S>(enumerable: IEnumerable<S>): number {
+            var count = 0;
+            if (enumerable) {
+                var enumerator = enumerable.GetEnumerator();
+                while (enumerator.MoveNext()) {
+                    count++;
+                }
+            }
+            return count;
+        }
+        static Contains<S>(enumerable: IEnumerable<S>, item: S): boolean {
+            if (!enumerable)
+                return false;
+            var enumerator = enumerable.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                if (enumerator.Current === item)
+                    return true;
+            }
+            return false;
+        }
+        static FirstOrDefault<S>(enumerable: IEnumerable<S>, filter?: (item: S) => boolean): S {
+            if (!enumerable)
+                return null;
+            var cur: any;
+            var enumerator = enumerable.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                cur = enumerator.Current;
+                if (!filter)
+                    return cur;
+                if (filter(cur))
+                    return cur;
+            }
+            return null;
+        }
+        static ElementAt<S>(enumerable: IEnumerable<S>, index: number): S {
+            if (!enumerable)
+                return null;
+            var enumerator = enumerable.GetEnumerator();
+            for (var i = 0; i <= index; i++) {
+                if (!enumerator.MoveNext())
+                    throw new IndexOutOfRangeException(i);
+            }
+            return enumerator.Current;
+        }
+        static ElementAtOrDefault<S>(enumerable: IEnumerable<S>, index: number): S {
+            if (!enumerable)
+                return null;
+            var enumerator = enumerable.GetEnumerator();
+            for (var i = 0; i <= index; i++) {
+                if (!enumerator.MoveNext())
+                    return null;
+            }
+            return enumerator.Current;
+        }
+        static Where<S>(enumerable: IEnumerable<S>, filter: (item: S) => boolean): IEnumerable<S> {
+            return new WhereEnumerable<S>(enumerable, filter);
         }
     }
 
@@ -107,7 +166,7 @@ module Fayde {
     }
 
     Object.defineProperty(Array.prototype, "Aggregate", { value: Enumerable.prototype.Aggregate, enumerable: false });
-    Object.defineProperty(Array.prototype, "Where", { value: Enumerable.prototype.Where, enumerable: false });
+    Object.defineProperty(Array.prototype, "Where", { value: function (filter: (item: any) => boolean) { return new WhereEnumerable<any>(this, filter); }, enumerable: false });
     Object.defineProperty(Array.prototype, "Select", { value: Enumerable.prototype.Select, enumerable: false });
     Object.defineProperty(Array.prototype, "All", { value: Enumerable.prototype.All, enumerable: false });
     Object.defineProperty(Array.prototype, "Any", { value: Enumerable.prototype.Any, enumerable: false });
