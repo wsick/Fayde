@@ -40,7 +40,7 @@ module Fayde.Controls.Input {
             this.SetTextBoxText();
         }
 
-        static IsEditableProperty = DependencyProperty.Register("IsEditable", () => Boolean, UpDownBase, undefined, (d, args) => (<UpDownBase<T>>d).OnIsEditableChanged(args));
+        static IsEditableProperty = DependencyProperty.Register("IsEditable", () => Boolean, UpDownBase, true, (d, args) => (<UpDownBase<T>>d).OnIsEditableChanged(args));
         IsEditable: boolean;
         private OnIsEditableChanged(args: IDependencyPropertyChangedEventArgs) {
             if (!this._TextBox)

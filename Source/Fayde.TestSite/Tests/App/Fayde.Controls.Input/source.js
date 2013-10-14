@@ -585,7 +585,7 @@ else
 
                 UpDownBase.IsEditableProperty = DependencyProperty.Register("IsEditable", function () {
                     return Boolean;
-                }, UpDownBase, undefined, function (d, args) {
+                }, UpDownBase, true, function (d, args) {
                     return (d).OnIsEditableChanged(args);
                 });
                 return UpDownBase;
