@@ -15,6 +15,8 @@ module Fayde.Controls.Input {
         Content: any;
         OnContentChanged(oldValue: any, newValue: any) { }
 
+        static Annotations = { ContentProperty: ButtonSpinner.ContentProperty };
+
         OnValidSpinDirectionChanged(args: IDependencyPropertyChangedEventArgs) {
             super.OnValidSpinDirectionChanged(args);
             this.SetButtonUsage();

@@ -1445,6 +1445,8 @@ else
                 }, ButtonSpinner, undefined, function (d, args) {
                     return (d).OnContentChanged(args.OldValue, args.NewValue);
                 });
+
+                ButtonSpinner.Annotations = { ContentProperty: ButtonSpinner.ContentProperty };
                 return ButtonSpinner;
             })(Input.Spinner);
             Input.ButtonSpinner = ButtonSpinner;
