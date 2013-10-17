@@ -24130,31 +24130,32 @@ var Fayde;
             Control.prototype.OnMouseWheel = function (e) {
             };
             Control.prototype.UpdateVisualState = function (useTransitions) {
+                var _this = this;
                 useTransitions = useTransitions !== false;
-                var states = this.GetVisualStateNamesToActivate();
-                for (var i = 0; i < states.length; i++) {
-                    Fayde.Media.VSM.VisualStateManager.GoToState(this, states[i], useTransitions);
-                }
+                var gotoFunc = function (state) {
+                    return Fayde.Media.VSM.VisualStateManager.GoToState(_this, state, useTransitions);
+                };
+                this.GoToStates(gotoFunc);
             };
-            Control.prototype.GetVisualStateNamesToActivate = function () {
-                var focusedState = this.GetVisualStateFocus();
-                var commonState = this.GetVisualStateCommon();
-                return [focusedState, commonState];
+            Control.prototype.GoToStates = function (gotoFunc) {
+                this.GoToStateCommon(gotoFunc);
+                this.GoToStateFocus(gotoFunc);
+                this.GoToStateSelection(gotoFunc);
             };
-            Control.prototype.GetVisualStateCommon = function () {
-                if (!this.IsEnabled) {
-                    return "Disabled";
-                } else if (this.IsMouseOver) {
-                    return "MouseOver";
-                } else {
-                    return "Normal";
-                }
+            Control.prototype.GoToStateCommon = function (gotoFunc) {
+                if (!this.IsEnabled)
+                    return gotoFunc("Disabled");
+                if (this.IsMouseOver)
+                    return gotoFunc("MouseOver");
+                return gotoFunc("Normal");
             };
-            Control.prototype.GetVisualStateFocus = function () {
+            Control.prototype.GoToStateFocus = function (gotoFunc) {
                 if (this.IsFocused && this.IsEnabled)
-                    return "Focused";
-else
-                    return "Unfocused";
+                    return gotoFunc("Focused");
+                return gotoFunc("Unfocused");
+            };
+            Control.prototype.GoToStateSelection = function (gotoFunc) {
+                return false;
             };
             Control.prototype._TemplateChanged = function (args) {
                 var node = this.XamlNode;
@@ -29159,16 +29160,14 @@ var Fayde;
                 Thumb.prototype._RaiseDragCompleted = function (canceled) {
                     this.DragCompleted.Raise(this, new Primitives.DragCompletedEventArgs(this._PreviousPosition.X - this._Origin.X, this._PreviousPosition.Y - this._Origin.Y, canceled));
                 };
-                Thumb.prototype.GetVisualStateCommon = function () {
-                    if (!this.IsEnabled) {
-                        return "Disabled";
-                    } else if (this.IsDragging) {
-                        return "Pressed";
-                    } else if (this.IsMouseOver) {
-                        return "MouseOver";
-                    } else {
-                        return "Normal";
-                    }
+                Thumb.prototype.GoToStateCommon = function (gotoFunc) {
+                    if (!this.IsEnabled)
+                        return gotoFunc("Disabled");
+                    if (this.IsDragging)
+                        return gotoFunc("Pressed");
+                    if (this.IsMouseOver)
+                        return gotoFunc("MouseOver");
+                    return gotoFunc("Normal");
                 };
                 Thumb.IsDraggingProperty = DependencyProperty.RegisterReadOnly("IsDragging", function () {
                     return Boolean;
@@ -30338,14 +30337,13 @@ var Fayde;
                         cbi.Style = ics;
                 }
             };
-            ComboBox.prototype.GetVisualStateFocus = function () {
+            ComboBox.prototype.GoToStateFocus = function (gotoFunc) {
                 var isEnabled = this.IsEnabled;
                 if (this.IsDropDownOpen && isEnabled)
-                    return "FocusedDropDown";
+                    return gotoFunc("FocusedDropDown");
 else if (this.IsFocused && isEnabled)
-                    return "Focused";
-else
-                    return "Unfocused";
+                    return gotoFunc("Focused");
+                return gotoFunc("Unfocused");
             };
             ComboBox.prototype.OnIsEnabledChanged = function (e) {
                 _super.prototype.OnIsEnabledChanged.call(this, e);
@@ -31994,26 +31992,12 @@ var Fayde;
                     this._ParentSelector.NotifyListItemLostFocus(this);
                 }
             };
-            ListBoxItem.prototype.GetVisualStateNamesToActivate = function () {
-                var arr = _super.prototype.GetVisualStateNamesToActivate.call(this);
-                arr.push(this.GetVisualStateSelection());
-                return arr;
-            };
-            ListBoxItem.prototype.GetVisualStateCommon = function () {
-                if (!this.IsEnabled) {
-                    return this.Content instanceof Controls.Control ? "Normal" : "Disabled";
-                } else if (this.IsMouseOver) {
-                    return "MouseOver";
-                } else {
-                    return "Normal";
-                }
-            };
-            ListBoxItem.prototype.GetVisualStateSelection = function () {
-                if (this.IsSelected) {
-                    return this.IsFocused ? "Selected" : "SelectedUnfocused";
-                } else {
-                    return "Unselected";
-                }
+            ListBoxItem.prototype.GoToStateSelection = function (gotoFunc) {
+                if (!this.IsSelected)
+                    return gotoFunc("Unselected");
+                if (gotoFunc("SelectedUnfocused"))
+                    return true;
+                return gotoFunc("Selected");
             };
             ListBoxItem.prototype.OnIsSelectedChanged = function (args) {
                 this.UpdateVisualState();
@@ -32242,8 +32226,11 @@ else if (parent instanceof Controls.Control)
                 var fullWidth = Math.max(0, (parent).ActualWidth - outerWidth);
                 indicator.Width = fullWidth * progress;
             };
-            ProgressBar.prototype.GetVisualStateNamesToActivate = function () {
-                return this.IsIndeterminate ? ["Indeterminate"] : ["Determinate"];
+            ProgressBar.prototype.GoToStates = function (gotoFunc) {
+                if (this.IsIndeterminate)
+                    gotoFunc("Indeterminate");
+else
+                    gotoFunc("Determinate");
             };
             ProgressBar.IsIndeterminateProperty = DependencyProperty.Register("IsIndeterminate", function () {
                 return Boolean;
@@ -33114,16 +33101,14 @@ var Fayde;
                 _super.prototype.OnLostFocus.call(this, e);
                 this.UpdateVisualState();
             };
-            TextBox.prototype.GetVisualStateCommon = function () {
-                if (!this.IsEnabled) {
-                    return "Disabled";
-                } else if (this.IsReadOnly) {
-                    return "ReadOnly";
-                } else if (this.IsMouseOver) {
-                    return "MouseOver";
-                } else {
-                    return "Normal";
-                }
+            TextBox.prototype.GoToStateCommon = function (gotoFunc) {
+                if (!this.IsEnabled)
+                    return gotoFunc("Disabled");
+                if (this.IsReadOnly)
+                    return gotoFunc("ReadOnly");
+                if (this.IsMouseOver)
+                    return gotoFunc("MouseOver");
+                return gotoFunc("Normal");
             };
             TextBox.AcceptsReturnProperty = DependencyProperty.Register("AcceptsReturn", function () {
                 return Boolean;
@@ -33382,16 +33367,14 @@ var Fayde;
                         return;
                     _super.prototype.UpdateVisualState.call(this, useTransitions);
                 };
-                ButtonBase.prototype.GetVisualStateCommon = function () {
-                    if (!this.IsEnabled) {
-                        return "Disabled";
-                    } else if (this.IsPressed) {
-                        return "Pressed";
-                    } else if (this.IsMouseOver) {
-                        return "MouseOver";
-                    } else {
-                        return "Normal";
-                    }
+                ButtonBase.prototype.GoToStateCommon = function (gotoFunc) {
+                    if (!this.IsEnabled)
+                        return gotoFunc("Disabled");
+                    if (this.IsPressed)
+                        return gotoFunc("Pressed");
+                    if (this.IsMouseOver)
+                        return gotoFunc("MouseOver");
+                    return gotoFunc("Normal");
                 };
                 ButtonBase.prototype._CaptureMouseInternal = function () {
                     if (!this._IsMouseCaptured)
