@@ -42,12 +42,12 @@ module Fayde.Controls {
         GenerateNext(isNewlyRealized: IOutValue): DependencyObject {
             if (!this._GenerationState)
                 throw new InvalidOperationException("Cannot call GenerateNext before calling StartAt");
-                
+
             var owner = this.Owner;
             var ownerItems = owner.Items;
             var state = this._GenerationState;
             var pos = state.Position;
-            
+
             var index = this.IndexFromGeneratorPosition(pos);
 
             isNewlyRealized.Value = this._Containers[index] == null;
@@ -82,7 +82,7 @@ module Fayde.Controls {
                     isNewlyRealized.Value = true;
                 }
             }
-            
+
             if (container instanceof FrameworkElement && !(item instanceof UIElement))
                 (<FrameworkElement>container).DataContext = item;
 
@@ -111,8 +111,9 @@ module Fayde.Controls {
             var containers = this._Containers;
             var items = this._Items;
             var ic = this.Owner;
-            while ((container = containers.shift()) != null && (item = items.shift()) != null) {
-                ic.ClearContainerForItem(container, item);
+            while ((container = containers.shift()) !== undefined && (item = items.shift()) !== undefined) {
+                if (container)
+                    ic.ClearContainerForItem(container, item);
             }
             this._RealizedCount = 0;
         }
@@ -153,7 +154,7 @@ module Fayde.Controls {
                 return { Index: -1, Offset: itemIndex + 1 };
             if (itemIndex > this.Owner.Items.Count)
                 return { Index: -1, Offset: 0 };
-            
+
             var realizedIndex: number = -1;
             var runningOffset: number = 0;
             var containers = this._Containers;
@@ -178,7 +179,7 @@ module Fayde.Controls {
             }
             if (index > this.Owner.Items.Count)
                 return -1;
-            
+
             var realizedIndex = index;
             var containers = this._Containers;
             var len = containers.length;
@@ -252,12 +253,21 @@ module Fayde.Controls {
                 throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
             var index = this.IndexFromGeneratorPosition(position);
             //TODO: Should we warn user if we're removing non-realized elements
-            this._Items.splice(index, count);
+            var tokillitems = this._Items.splice(index, count);
+            var tokillcontainers = this._Containers.splice(index, count);
             if (recycle)
-                this._Cache = this._Cache.concat(this._Containers.splice(index, count));
-            else
-                this._Containers.splice(index, count)
-            this._RealizedCount -= count;
+                this._Cache = this._Cache.concat(tokillcontainers);
+
+            var ic = this.Owner;
+            var len = tokillcontainers.length;
+            var container: DependencyObject;
+            for (var i = 0; i < len; i++) {
+                container = tokillcontainers[i];
+                if (!container)
+                    continue;
+                ic.ClearContainerForItem(container, tokillitems[i]);
+                this._RealizedCount--;
+            }
         }
     }
 }
