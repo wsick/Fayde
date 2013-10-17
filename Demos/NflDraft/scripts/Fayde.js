@@ -13066,7 +13066,7 @@ var Fayde;
                                 return result;
                             } else if (tt instanceof Enum) {
                             } else if (tt === Object) {
-                            } else if (result instanceof tt) {
+                            } else if (typeof tt === "function" && result instanceof tt) {
                                 return result;
                             }
                         }

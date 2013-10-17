@@ -250,7 +250,7 @@ module Fayde.Xaml {
                             return result;
                         } else if (tt instanceof Enum) {
                         } else if (tt === Object) {
-                        } else if (result instanceof <Function>tt) {
+                        } else if (typeof tt === "function" && result instanceof <Function>tt) {
                             return result;
                         }
                     }
