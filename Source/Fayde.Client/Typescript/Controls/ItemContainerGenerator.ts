@@ -111,7 +111,7 @@ module Fayde.Controls {
             var containers = this._Containers;
             var items = this._Items;
             var ic = this.Owner;
-            while ((container = containers.shift()) !== undefined && (item = items.shift()) !== undefined) {
+            while ((container = containers.shift()) != null && (item = items.shift()) != null) {
                 ic.ClearContainerForItem(container, item);
             }
             this._RealizedCount = 0;
