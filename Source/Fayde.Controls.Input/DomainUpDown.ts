@@ -11,7 +11,7 @@ module Fayde.Controls.Input {
         private _CurrentIndexDuringInit: number = null;
         private _CurrentIndexNestLevel: number = 0;
         private _Interaction: Internal.InteractionHelper;
-        
+
         static ValueProperty = DependencyProperty.Register("Value", () => Object, DomainUpDown, null, (d, args) => (<DomainUpDown>d)._OnValueChanged(args));
 
         static CurrentIndexProperty = DependencyProperty.Register("CurrentIndex", () => Number, DomainUpDown, -1, (d, args) => (<DomainUpDown>d)._OnCurrentIndexChanged(args));
@@ -187,11 +187,16 @@ module Fayde.Controls.Input {
             this.SetValidSpinDirection();
         }
 
-        GetVisualStateNamesToActivate(useTransitions?: boolean): string[] {
-            var arr = super.GetVisualStateNamesToActivate();
-            arr.push(this.IsEditing ? "Edit" : "Display");
-            arr.push(this._IsInvalidInput ? "InvalidDomain" : "ValidDomain");
-            return arr;
+        GoToStates(gotoFunc: (state: string) => boolean) {
+            super.GoToStates(gotoFunc);
+            this.GoToStateEditing(gotoFunc);
+            this.GoToStateValid(gotoFunc);
+        }
+        GoToStateEditing(gotoFunc: (state: string) => boolean): boolean {
+            return gotoFunc(this.IsEditing ? "Edit" : "Display");
+        }
+        GoToStateValid(gotoFunc: (state: string) => boolean): boolean {
+            return gotoFunc(this._IsInvalidInput ? "InvalidDomain" : "ValidDomain");
         }
 
         OnKeyDown(e: Fayde.Input.KeyEventArgs) {

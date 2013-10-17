@@ -16,13 +16,17 @@ module Fayde.Controls.Input {
                 throw new InvalidOperationException("Invalid Spin Direction");
             this.Spin.Raise(this, e);
         }
-
-        GetVisualStateNamesToActivate(): string[] {
-            var names = super.GetVisualStateNamesToActivate();
-            var vsp = this.ValidSpinDirection;
-            names.push(((vsp & ValidSpinDirections.Increase) === ValidSpinDirections.Increase) ? "IncreaseEnabled" : "IncreaseDisabled");
-            names.push(((vsp & ValidSpinDirections.Decrease) === ValidSpinDirections.Decrease) ? "DecreaseEnabled" : "DecreaseDisabled");
-            return names;
+        
+        GoToStates(gotoFunc: (state: string) => boolean) {
+            super.GoToStates(gotoFunc);
+            this.GoToStateIncrease(gotoFunc);
+            this.GoToStateDecrease(gotoFunc);
+        }
+        GoToStateIncrease(gotoFunc: (state: string) => boolean): boolean {
+            return gotoFunc(((this.ValidSpinDirection & ValidSpinDirections.Increase) === ValidSpinDirections.Increase) ? "IncreaseEnabled" : "IncreaseDisabled");
+        }
+        GoToStateDecrease(gotoFunc: (state: string) => boolean): boolean {
+            return gotoFunc(((this.ValidSpinDirection & ValidSpinDirections.Decrease) === ValidSpinDirections.Decrease) ? "DecreaseEnabled" : "DecreaseDisabled");
         }
     }
     Fayde.RegisterType(Spinner, {

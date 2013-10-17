@@ -19,18 +19,17 @@ module Fayde.Controls.Input.Internal {
             this.Control.Loaded.Subscribe(this.OnLoaded, this);
             this.Control.IsEnabledChanged.Subscribe(this.OnIsEnabledChanged, this);
         }
-
-        GetVisualStateCommon(): string {
+        
+        GoToStateCommon(gotoFunc: (state: string) => boolean): boolean {
             if (!this.Control.IsEnabled)
-                return "Disabled";
-            else if (this.IsReadOnly)
-                return "ReadOnly";
-            else if (this.IsPressed)
-                return "Pressed";
-            else if (this.IsMouseOver)
-                return "MouseOver";
-            else
-                return "Normal";
+                return gotoFunc("Disabled");
+            if (this.IsReadOnly)
+                return gotoFunc("ReadOnly");
+            if (this.IsPressed)
+                return gotoFunc("Pressed");
+            if (this.IsMouseOver)
+                return gotoFunc("MouseOver");
+            return gotoFunc("Normal");
         }
 
         private OnLoaded(sender: any, e: RoutedEventArgs) {

@@ -93,13 +93,11 @@ module Fayde.Controls.Input {
                 return;
             this.Command.Execute(this.CommandParameter);
         }
-        
-        GetVisualStateCommon(): string {
-            if (!this.IsEnabled) {
-                return "Disabled";
-            } else {
-                return "Normal";
-            }
+
+        GoToStateCommon(gotoFunc: (state: string) => boolean): boolean {
+            if (!this.IsEnabled)
+                return gotoFunc("Disabled");
+            return gotoFunc("Normal");
         }
     }
     Fayde.RegisterType(MenuItem, {

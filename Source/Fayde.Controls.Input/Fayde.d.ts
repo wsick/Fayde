@@ -4850,9 +4850,10 @@ declare module Fayde.Controls {
         public OnMouseRightButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnMouseWheel(e: Fayde.Input.MouseWheelEventArgs): void;
         public UpdateVisualState(useTransitions?: boolean): void;
-        public GetVisualStateNamesToActivate(): string[];
-        public GetVisualStateCommon(): string;
-        public GetVisualStateFocus(): string;
+        public GoToStates(gotoFunc: (state: string) => boolean): void;
+        public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
+        public GoToStateFocus(gotoFunc: (state: string) => boolean): boolean;
+        public GoToStateSelection(gotoFunc: (state: string) => boolean): boolean;
         private _TemplateChanged(args);
         private _PaddingChanged(args);
         private _BorderThicknessChanged(args);
@@ -5594,7 +5595,7 @@ declare module Fayde.Controls.Primitives {
         private _RaiseDragStarted();
         private _RaiseDragDelta(x, y);
         private _RaiseDragCompleted(canceled);
-        public GetVisualStateCommon(): string;
+        public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
     }
 }
 declare module Fayde.Data {
@@ -5737,7 +5738,7 @@ declare module Fayde.Controls {
         public IsItemItsOwnContainer(item: any): boolean;
         public GetContainerForItem(): Fayde.DependencyObject;
         public PrepareContainerForItem(container: Fayde.DependencyObject, item: any): void;
-        public GetVisualStateFocus(): string;
+        public GoToStateFocus(gotoFunc: (state: string) => boolean): boolean;
         public OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs): void;
         public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
@@ -5917,9 +5918,7 @@ declare module Fayde.Controls {
         public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
         public OnGotFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
-        public GetVisualStateNamesToActivate(): string[];
-        public GetVisualStateCommon(): string;
-        public GetVisualStateSelection(): string;
+        public GoToStateSelection(gotoFunc: (state: string) => boolean): boolean;
         private OnIsSelectedChanged(args);
     }
 }
@@ -5975,7 +5974,7 @@ declare module Fayde.Controls {
         private _OnTrackSizeChanged(sender, e);
         private _IsIndeterminateChanged(args);
         private _UpdateIndicator();
-        public GetVisualStateNamesToActivate(): string[];
+        public GoToStates(gotoFunc: (state: string) => boolean): void;
     }
 }
 declare module Fayde.Controls {
@@ -6138,7 +6137,7 @@ declare module Fayde.Controls {
         public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
         public OnGotFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
-        public GetVisualStateCommon(): string;
+        public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
     }
 }
 declare module Fayde.Controls {
@@ -6185,7 +6184,7 @@ declare module Fayde.Controls.Primitives {
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         public OnClick(): void;
         public UpdateVisualState(useTransitions?: boolean): void;
-        public GetVisualStateCommon(): string;
+        public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
         private _CaptureMouseInternal();
         private _ReleaseMouseCaptureInternal();
         private _IsValidMousePosition();

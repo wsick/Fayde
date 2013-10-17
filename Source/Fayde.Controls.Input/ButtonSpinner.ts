@@ -34,7 +34,7 @@ module Fayde.Controls.Input {
             this.SetButtonUsage();
         }
 
-        GetVisualStateCommon(): string { return this._Interaction.GetVisualStateCommon(); }
+        GoToStateCommon(gotoFunc: (state: string) => boolean): boolean { return this._Interaction.GoToStateCommon(gotoFunc); }
         
         OnMouseEnter(e: Fayde.Input.MouseEventArgs) {
             if (!this._Interaction.AllowMouseEnter(e))
