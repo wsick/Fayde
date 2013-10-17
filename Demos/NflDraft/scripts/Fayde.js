@@ -137,7 +137,7 @@ var Fayde;
                 var containers = this._Containers;
                 var items = this._Items;
                 var ic = this.Owner;
-                while ((container = containers.shift()) !== undefined && (item = items.shift()) !== undefined) {
+                while ((container = containers.shift()) != null && (item = items.shift()) != null) {
                     ic.ClearContainerForItem(container, item);
                 }
                 this._RealizedCount = 0;
@@ -13844,7 +13844,9 @@ var Fayde;
             } catch (err) {
                 if (!addingExpression)
                     throw err;
-                console.warn("Error setting value: " + err.toString());
+                var msg = "Error setting value: " + err.toString();
+                msg += err.stack;
+                console.warn(msg);
                 propd.Store.SetLocalValue(storage, propd.DefaultValue);
                 if (updateTwoWay)
                     (existing)._TryUpdateSourceObject(value);
