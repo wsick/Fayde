@@ -207,17 +207,15 @@ module Fayde.Controls {
             super.OnLostFocus(e);
             this.UpdateVisualState();
         }
-
-        GetVisualStateCommon(): string {
-            if (!this.IsEnabled) {
-                return "Disabled";
-            } else if (this.IsReadOnly) {
-                return "ReadOnly";
-            } else if (this.IsMouseOver) {
-                return "MouseOver";
-            } else {
-                return "Normal";
-            }
+        
+        GoToStateCommon(gotoFunc: (state: string) => boolean): boolean {
+            if (!this.IsEnabled)
+                return gotoFunc("Disabled");
+            if (this.IsReadOnly)
+                return gotoFunc("ReadOnly");
+            if (this.IsMouseOver)
+                return gotoFunc("MouseOver");
+            return gotoFunc("Normal");
         }
     }
     Fayde.RegisterType(TextBox, {

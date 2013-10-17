@@ -167,16 +167,14 @@ module Fayde.Controls.Primitives {
                 return;
             super.UpdateVisualState(useTransitions);
         }
-        GetVisualStateCommon(): string {
-            if (!this.IsEnabled) {
-                return "Disabled";
-            } else if (this.IsPressed) {
-                return "Pressed";
-            } else if (this.IsMouseOver) {
-                return "MouseOver";
-            } else {
-                return "Normal";
-            }
+        GoToStateCommon(gotoFunc: (state: string) => boolean): boolean {
+            if (!this.IsEnabled)
+                return gotoFunc("Disabled");
+            if (this.IsPressed)
+                return gotoFunc("Pressed");
+            if (this.IsMouseOver)
+                return gotoFunc("MouseOver");
+            return gotoFunc("Normal");
         }
 
         private _CaptureMouseInternal() {

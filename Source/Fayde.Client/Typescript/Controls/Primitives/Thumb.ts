@@ -103,17 +103,15 @@ module Fayde.Controls.Primitives {
         private _RaiseDragCompleted(canceled: boolean) {
             this.DragCompleted.Raise(this, new DragCompletedEventArgs(this._PreviousPosition.X - this._Origin.X, this._PreviousPosition.Y - this._Origin.Y, canceled));
         }
-
-        GetVisualStateCommon(): string {
-            if (!this.IsEnabled) {
-                return "Disabled";
-            } else if (this.IsDragging) {
-                return "Pressed";
-            } else if (this.IsMouseOver) {
-                return "MouseOver";
-            } else {
-                return "Normal";
-            }
+        
+        GoToStateCommon(gotoFunc: (state: string) => boolean): boolean {
+            if (!this.IsEnabled)
+                return gotoFunc("Disabled");
+            if (this.IsDragging)
+                return gotoFunc("Pressed");
+            if (this.IsMouseOver)
+                return gotoFunc("MouseOver");
+            return gotoFunc("Normal");
         }
     }
     Fayde.RegisterType(Thumb, {

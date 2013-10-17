@@ -59,26 +59,12 @@ module Fayde.Controls {
             }
         }
 
-        GetVisualStateNamesToActivate(): string[] {
-            var arr = super.GetVisualStateNamesToActivate();
-            arr.push(this.GetVisualStateSelection());
-            return arr;
-        }
-        GetVisualStateCommon(): string {
-            if (!this.IsEnabled) {
-                return this.Content instanceof Control ? "Normal" : "Disabled";
-            } else if (this.IsMouseOver) {
-                return "MouseOver";
-            } else {
-                return "Normal";
-            }
-        }
-        GetVisualStateSelection(): string {
-            if (this.IsSelected) {
-                return this.IsFocused ? "Selected" : "SelectedUnfocused";
-            } else {
-                return "Unselected";
-            }
+        GoToStateSelection(gotoFunc: (state: string) => boolean): boolean {
+            if (!this.IsSelected)
+                return gotoFunc("Unselected");
+            if (gotoFunc("SelectedUnfocused"))
+                return true;
+            return gotoFunc("Selected");
         }
         
         private OnIsSelectedChanged(args: IDependencyPropertyChangedEventArgs) {

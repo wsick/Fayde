@@ -189,30 +189,28 @@ module Fayde.Controls {
 
         UpdateVisualState(useTransitions?: boolean) {
             useTransitions = useTransitions !== false;
-            var states = this.GetVisualStateNamesToActivate();
-            for (var i = 0; i < states.length; i++) {
-                Media.VSM.VisualStateManager.GoToState(this, states[i], useTransitions);
-            }
+            var gotoFunc = (state: string) => Media.VSM.VisualStateManager.GoToState(this, state, useTransitions);
+            this.GoToStates(gotoFunc);
         }
-        GetVisualStateNamesToActivate(): string[] {
-            var focusedState = this.GetVisualStateFocus();
-            var commonState = this.GetVisualStateCommon();
-            return [focusedState, commonState];
+        GoToStates(gotoFunc: (state: string) => boolean) {
+            this.GoToStateCommon(gotoFunc);
+            this.GoToStateFocus(gotoFunc);
+            this.GoToStateSelection(gotoFunc);
         }
-        GetVisualStateCommon(): string {
-            if (!this.IsEnabled) {
-                return "Disabled";
-            } else if (this.IsMouseOver) {
-                return "MouseOver";
-            } else {
-                return "Normal";
-            }
+        GoToStateCommon(gotoFunc: (state: string) => boolean): boolean {
+            if (!this.IsEnabled)
+                return gotoFunc("Disabled");
+            if (this.IsMouseOver)
+                return gotoFunc("MouseOver");
+            return gotoFunc("Normal");
         }
-        GetVisualStateFocus(): string {
+        GoToStateFocus(gotoFunc: (state: string) => boolean): boolean {
             if (this.IsFocused && this.IsEnabled)
-                return "Focused";
-            else
-                return "Unfocused";
+                return gotoFunc("Focused");
+            return gotoFunc("Unfocused");
+        }
+        GoToStateSelection(gotoFunc: (state: string) => boolean): boolean {
+            return false;
         }
 
         private _TemplateChanged(args: IDependencyPropertyChangedEventArgs) {

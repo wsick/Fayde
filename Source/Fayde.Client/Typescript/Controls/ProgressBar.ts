@@ -78,8 +78,11 @@ module Fayde.Controls {
             indicator.Width = fullWidth * progress;
         }
 
-        GetVisualStateNamesToActivate(): string[] {
-            return this.IsIndeterminate ? ["Indeterminate"] : ["Determinate"];
+        GoToStates(gotoFunc: (state: string) => boolean) {
+            if (this.IsIndeterminate)
+                gotoFunc("Indeterminate");
+            else
+                gotoFunc("Determinate");
         }
     }
     Fayde.RegisterType(ProgressBar, {

@@ -128,14 +128,13 @@ module Fayde.Controls {
             }
         }
 
-        GetVisualStateFocus(): string {
+        GoToStateFocus(gotoFunc: (state: string) => boolean): boolean {
             var isEnabled = this.IsEnabled;
             if (this.IsDropDownOpen && isEnabled)
-                return "FocusedDropDown";
+                return gotoFunc("FocusedDropDown");
             else if (this.IsFocused && isEnabled)
-                return "Focused";
-            else
-                return "Unfocused";
+                return gotoFunc("Focused");
+            return gotoFunc("Unfocused");
         }
 
         OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs) {
