@@ -137,8 +137,9 @@ var Fayde;
                 var containers = this._Containers;
                 var items = this._Items;
                 var ic = this.Owner;
-                while ((container = containers.shift()) != null && (item = items.shift()) != null) {
-                    ic.ClearContainerForItem(container, item);
+                while ((container = containers.shift()) !== undefined && (item = items.shift()) !== undefined) {
+                    if (container)
+                        ic.ClearContainerForItem(container, item);
                 }
                 this._RealizedCount = 0;
             };
@@ -276,12 +277,20 @@ var Fayde;
                 if (position.Offset !== 0)
                     throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
                 var index = this.IndexFromGeneratorPosition(position);
-                this._Items.splice(index, count);
+                var tokillitems = this._Items.splice(index, count);
+                var tokillcontainers = this._Containers.splice(index, count);
                 if (recycle)
-                    this._Cache = this._Cache.concat(this._Containers.splice(index, count));
-else
-                    this._Containers.splice(index, count);
-                this._RealizedCount -= count;
+                    this._Cache = this._Cache.concat(tokillcontainers);
+                var ic = this.Owner;
+                var len = tokillcontainers.length;
+                var container;
+                for (var i = 0; i < len; i++) {
+                    container = tokillcontainers[i];
+                    if (!container)
+                        continue;
+                    ic.ClearContainerForItem(container, tokillitems[i]);
+                    this._RealizedCount--;
+                }
             };
             return ItemContainerGenerator;
         })();
