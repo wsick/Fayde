@@ -476,7 +476,7 @@
           </TextBlock>
         </StackPanel>
       </Border>
-      <ListBox Name="PlayerList" Grid.Row="3" ItemsSource="{Binding FantasyPlayers}" SelectedItem="{Binding SelectedPlayer, Mode=TwoWay}" Background="#E0E0E0" BorderThickness="0" Padding="0">
+      <ListBox x:Name="PlayerList" Grid.Row="3" ItemsSource="{Binding FantasyPlayers}" SelectedItem="{Binding SelectedPlayer, Mode=TwoWay}" Background="#E0E0E0" BorderThickness="0" Padding="0">
         <ListBox.ItemContainerStyle>
           <Style TargetType="ListBoxItem">
             <Setter Property="Padding" Value="0"/>
