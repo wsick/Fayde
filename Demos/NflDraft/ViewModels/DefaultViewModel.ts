@@ -11,12 +11,13 @@
 
 module NflDraft.ViewModels {
     export class DefaultViewModel extends Fayde.MVVM.ViewModelBase {
+        MyTeam: Models.FantasyTeam;
         Rounds: Fayde.Collections.ObservableCollection<Models.Round> = new Fayde.Collections.ObservableCollection<Models.Round>();
         DraftSelections: Fayde.Collections.ObservableCollection<Models.DraftSelection> = new Fayde.Collections.ObservableCollection<Models.DraftSelection>();
         Positions: string[] = [];
         FantasyTeams: Array<Models.FantasyTeam> = new Array<Models.FantasyTeam>();
         FantasyPlayers: Fayde.Collections.ObservableCollection<Models.FantasyPlayer> = new Fayde.Collections.ObservableCollection<Models.FantasyPlayer>();
-        SampleMessages: string[] = ["Hey man", "sup", "who is your fav player?", "who you takin first", "I like what the Steelers have done", "wow, that guy is a dud"];
+        //SampleMessages: string[] = ["Hey man", "sup", "who is your fav player?", "who you takin first", "I like what the Steelers have done", "wow, that guy is a dud"];
         ChatMessages: Fayde.Collections.ObservableCollection<Models.ChatMessage> = new Fayde.Collections.ObservableCollection<Models.ChatMessage>();
         private _draftComplete: boolean;
         get DraftComplete(): boolean {
@@ -42,6 +43,22 @@ module NflDraft.ViewModels {
         }
         private _interval_id: number;
 
+        /*ChatSubmitted(params: Fayde.IEventCommandParameter<Fayde.Input.KeyEventArgs>) {
+            if (params.args.Key === Fayde.Input.Key.Enter) {
+                var message = new Models.ChatMessage();
+                message.FantasyTeam = this.MyTeam;
+                message.Message = this.ChatText;
+                this.ChatMessages.Add(message);
+                this.ChatText = "";
+            }
+        }
+        private _chatText: string;
+        get ChatText(): string { return this._chatText; }
+        set ChatText(value: string) {
+            this._chatText = value;
+            this.OnPropertyChanged("ChatText");
+        }*/
+
         constructor() {
             super();
             this.Load();
@@ -53,6 +70,7 @@ module NflDraft.ViewModels {
             for (var i = 0; i < ft.length; i++) {
                 this.FantasyTeams.push(new Models.FantasyTeam(ft[i]));
             }
+            this.MyTeam = this.FantasyTeams[0];
 
             var _teams: Models.Team[] = [];
             var t = [{ "Abbreviation": "NO", "Logo": "Images/Team Logos/NO.png", "Location": "New Orleans", "Nickname": "Saints", "ByeWeek": 6 },
@@ -204,6 +222,7 @@ module NflDraft.ViewModels {
             }
 
             this.Countdown = 3;
+            this.SelectedPlayer = this.FantasyPlayers.GetValueAt(0);
             this._interval_id = setInterval(() => this.DoWork(), 1000);
         }
 
@@ -226,14 +245,14 @@ module NflDraft.ViewModels {
             this.Countdown = current;
 
             //populate the chat with random messages from random teams
-            var randomMessage = Math.floor((Math.random() * 60));
-            if (randomMessage < this.SampleMessages.length) {
-                var randomTeam = Math.floor((Math.random() * 10));
-                var message = new Models.ChatMessage();
-                message.FantasyTeam = this.FantasyTeams[randomTeam];
-                message.Message = this.SampleMessages[randomMessage];
-                this.ChatMessages.Add(message);
-            }
+            //var randomMessage = Math.floor((Math.random() * 60));
+            //if (randomMessage < this.SampleMessages.length) {
+            //    var randomTeam = Math.floor((Math.random() * 10));
+            //    var message = new Models.ChatMessage();
+            //    message.FantasyTeam = this.FantasyTeams[randomTeam];
+            //    message.Message = this.SampleMessages[randomMessage];
+            //    this.ChatMessages.Add(message);
+            //}
 
             if (this.Rounds.Count == 0 || this.FantasyPlayers.Count == 0) {
                 clearInterval(this._interval_id);
