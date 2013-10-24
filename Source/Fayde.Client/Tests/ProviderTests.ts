@@ -215,6 +215,19 @@ test("DataContext", () => {
     root.ClearValue(Fayde.DependencyObject.DataContextProperty);
     val = child.GetValue(Fayde.DependencyObject.DataContextProperty);
     strictEqual(val, undefined, "Child DataContext should be undefined after clearing root DataContext value.");
+
+
+    //Test inherited  with binding expression
+    var root2 = new Fayde.Controls.Border();
+    var child2 = new Fayde.Controls.Border();
+    var grandchild2 = new Fayde.Controls.Border();
+    var vm = { Child: {} };
+    root2.DataContext = vm;
+    root2.Child = child2;
+    child2.SetBinding(Fayde.DependencyObject.DataContextProperty, new Fayde.Data.Binding("Child"));
+    child2.Child = grandchild2;
+
+    strictEqual(grandchild2.DataContext, vm.Child, "Child DataContext of Bound DataContext from Inherited DataContext.");
 });
 
 test("IsEnabled", () => {
