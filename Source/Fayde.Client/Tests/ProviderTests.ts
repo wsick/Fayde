@@ -219,13 +219,15 @@ test("DataContext", () => {
 
     //Test inherited  with binding expression
     var root2 = new Fayde.Controls.Border();
-    var child2 = new Fayde.Controls.Border();
-    var grandchild2 = new Fayde.Controls.Border();
     var vm = { Child: {} };
     root2.DataContext = vm;
-    root2.Child = child2;
+    
+    var child2 = new Fayde.Controls.Border();
     child2.SetBinding(Fayde.DependencyObject.DataContextProperty, new Fayde.Data.Binding("Child"));
+    var grandchild2 = new Fayde.Controls.Border();
     child2.Child = grandchild2;
+
+    root2.Child = child2;
 
     strictEqual(grandchild2.DataContext, vm.Child, "Child DataContext of Bound DataContext from Inherited DataContext.");
 });

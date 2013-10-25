@@ -22,10 +22,9 @@ module Fayde.Providers {
                 return PropertyPrecedence.InheritedDataContext;
             return PropertyPrecedence.DefaultValue;
         }
-        EmitInheritedChanged(storage: IDataContextStorage, newInherited?: any) {
+        OnInheritedChanged(storage: IDataContextStorage, newInherited?: any) {
             var oldInherited = storage.InheritedValue;
             storage.InheritedValue = newInherited;
-
             if (storage.Precedence >= PropertyPrecedence.InheritedDataContext && oldInherited !== newInherited)
                 this.OnPropertyChanged(storage, PropertyPrecedence.InheritedDataContext, oldInherited, newInherited);
         }
@@ -44,11 +43,24 @@ module Fayde.Providers {
             };
         }
 
-        OnPropertyChanged(storage: IPropertyStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs {
+        OnPropertyChanged(storage: IDataContextStorage, effectivePrecedence: PropertyPrecedence, oldValue: any, newValue: any): IDependencyPropertyChangedEventArgs {
             var args = super.OnPropertyChanged(storage, effectivePrecedence, oldValue, newValue);
-            if (args)
-                storage.OwnerNode._DataContextPropertyChanged(storage.Precedence < PropertyPrecedence.InheritedDataContext, args);
+            if (args) {
+                if (effectivePrecedence > PropertyPrecedence.LocalValue && this.TryUpdateDataContextExpression(storage, args.NewValue))
+                    return;
+                storage.OwnerNode.OnDataContextChanged(args.OldValue, args.NewValue);
+            }
             return args;
+        }
+
+        private TryUpdateDataContextExpression(storage: IDataContextStorage, newDataContext: any): boolean {
+            var val = storage.InheritedValue;
+            var exprs = <Expression[]>(<any>storage.OwnerNode.XObject)._Expressions;
+            var dcexpr = exprs[storage.Property._ID];
+            if (!dcexpr)
+                return false;
+            dcexpr.OnDataContextChanged(newDataContext);
+            return true;
         }
     }
     DataContextStore.Instance = new DataContextStore();

@@ -5340,7 +5340,7 @@ var Fayde;
                     return Providers.PropertyPrecedence.InheritedDataContext;
                 return Providers.PropertyPrecedence.DefaultValue;
             };
-            DataContextStore.prototype.EmitInheritedChanged = function (storage, newInherited) {
+            DataContextStore.prototype.OnInheritedChanged = function (storage, newInherited) {
                 var oldInherited = storage.InheritedValue;
                 storage.InheritedValue = newInherited;
                 if (storage.Precedence >= Providers.PropertyPrecedence.InheritedDataContext && oldInherited !== newInherited)
@@ -5361,9 +5361,21 @@ var Fayde;
             };
             DataContextStore.prototype.OnPropertyChanged = function (storage, effectivePrecedence, oldValue, newValue) {
                 var args = _super.prototype.OnPropertyChanged.call(this, storage, effectivePrecedence, oldValue, newValue);
-                if (args)
-                    storage.OwnerNode._DataContextPropertyChanged(storage.Precedence < Providers.PropertyPrecedence.InheritedDataContext, args);
+                if (args) {
+                    if (effectivePrecedence > Providers.PropertyPrecedence.LocalValue && this.TryUpdateDataContextExpression(storage, args.NewValue))
+                        return;
+                    storage.OwnerNode.OnDataContextChanged(args.OldValue, args.NewValue);
+                }
                 return args;
+            };
+            DataContextStore.prototype.TryUpdateDataContextExpression = function (storage, newDataContext) {
+                var val = storage.InheritedValue;
+                var exprs = (storage.OwnerNode.XObject)._Expressions;
+                var dcexpr = exprs[storage.Property._ID];
+                if (!dcexpr)
+                    return false;
+                dcexpr.OnDataContextChanged(newDataContext);
+                return true;
             };
             return DataContextStore;
         })(Providers.PropertyStore);
@@ -13750,7 +13762,7 @@ var Fayde;
             var propd = DependencyObject.DataContextProperty;
             var storage = Fayde.Providers.GetStorage(this.XObject, propd);
             var newInherited = newParentNode ? newParentNode.DataContext : undefined;
-            (propd.Store).EmitInheritedChanged(storage, newInherited);
+            (propd.Store).OnInheritedChanged(storage, newInherited);
         };
         Object.defineProperty(DONode.prototype, "DataContext", {
             get: function () {
@@ -13759,14 +13771,12 @@ var Fayde;
             set: function (value) {
                 var propd = DependencyObject.DataContextProperty;
                 var storage = Fayde.Providers.GetStorage(this.XObject, propd);
-                (propd.Store).EmitInheritedChanged(storage, value);
-                this.OnDataContextChanged(undefined, value);
+                (propd.Store).OnInheritedChanged(storage, value);
             },
             enumerable: true,
             configurable: true
         });
-        DONode.prototype._DataContextPropertyChanged = function (isLocalSet, args) {
-            this.OnDataContextChanged(args.OldValue, args.NewValue);
+        DONode.prototype.OnDataContextChanged = function (oldDataContext, newDataContext) {
             var dcpid = DependencyObject.DataContextProperty._ID.toString();
             var exprs = (this.XObject)._Expressions;
             var expr;
@@ -13774,10 +13784,11 @@ var Fayde;
                 expr = exprs[id];
                 if (!expr)
                     continue;
-                if (isLocalSet && id === dcpid)
+                if (id === dcpid)
                     continue;
-                expr.OnDataContextChanged(args.NewValue);
+                expr.OnDataContextChanged(newDataContext);
             }
+            _super.prototype.OnDataContextChanged.call(this, oldDataContext, newDataContext);
         };
         return DONode;
     })(Fayde.XamlNode);

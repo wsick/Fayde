@@ -13,37 +13,34 @@ module Fayde {
         constructor(xobj: DependencyObject) {
             super(xobj);
         }
-        
+
         OnParentChanged(oldParentNode: XamlNode, newParentNode: XamlNode) {
             var propd = DependencyObject.DataContextProperty;
             var storage = <Providers.IDataContextStorage>Providers.GetStorage(this.XObject, propd);
             var newInherited = newParentNode ? newParentNode.DataContext : undefined;
-            (<Providers.DataContextStore>propd.Store).EmitInheritedChanged(storage, newInherited);
+            (<Providers.DataContextStore>propd.Store).OnInheritedChanged(storage, newInherited);
         }
 
         get DataContext(): any { return this.XObject.DataContext; }
         set DataContext(value: any) {
             var propd = DependencyObject.DataContextProperty;
             var storage = <Providers.IDataContextStorage>Providers.GetStorage(this.XObject, propd);
-            (<Providers.DataContextStore>propd.Store).EmitInheritedChanged(storage, value);
-            this.OnDataContextChanged(undefined, value);
+            (<Providers.DataContextStore>propd.Store).OnInheritedChanged(storage, value);
         }
-        _DataContextPropertyChanged(isLocalSet: boolean, args: IDependencyPropertyChangedEventArgs) {
-            this.OnDataContextChanged(args.OldValue, args.NewValue);
-
+        OnDataContextChanged(oldDataContext: any, newDataContext: any) {
             var dcpid = DependencyObject.DataContextProperty._ID.toString();
-
             var exprs = <Expression[]>(<any>this.XObject)._Expressions;
             var expr: Expression;
             for (var id in exprs) {
                 expr = exprs[id];
                 if (!expr)
                     continue;
-                //If DataContext was set local, we don't want to loop back on a DataContext BindingExpression
-                if (isLocalSet && id === dcpid)
+                //DataContextProperty expressions are updated in DataContextStore
+                if (id === dcpid)
                     continue;
-                expr.OnDataContextChanged(args.NewValue);
+                expr.OnDataContextChanged(newDataContext);
             }
+            super.OnDataContextChanged(oldDataContext, newDataContext);
         }
     }
     Fayde.RegisterType(DONode, {
