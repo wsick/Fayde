@@ -20,6 +20,8 @@ var Tests;
                 this.SelectedItem = this.AllItems[0];
             }
             TestViewModel.prototype.TestMethod = function (e) {
+                if (!this || !(this instanceof TestViewModel))
+                    alert("ERROR: this is not scoped to TestViewModel.");
                 if (e.sender)
                     alert("TestMethod called. [" + e.sender.constructor._TypeName + "]");
 else if (e.parameter)

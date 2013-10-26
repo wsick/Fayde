@@ -115,7 +115,6 @@ module Fayde.Data {
         GetValue(item: any) {
             this.Update(item);
             var o = this.FinalNode.Value;
-            this.Update(null);
             return o;
         }
         Update(source: any) {
@@ -135,6 +134,18 @@ module Fayde.Data {
             this.ValueInternal = node.Value;
             var listener = this._Listener;
             if (listener) listener.ValueChanged();
+        }
+
+        GetContext(): any {
+            var context: IPropertyPathNode = null;
+            var cur = this.Node;
+            var final = this.FinalNode;
+            while (cur && cur !== final) {
+                context = cur;
+                cur = cur.Next;
+            }
+            if (!context) return undefined;
+            return context.Value;
         }
     }
 

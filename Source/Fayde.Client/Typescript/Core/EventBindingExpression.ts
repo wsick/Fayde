@@ -60,10 +60,14 @@ module Fayde {
             var target = this._Target;
 
             var csource = findSource(target, this._EventBinding.CommandBinding);
-            var etarget = csource;
+            var context = csource;
+            var etarget = context;
             var cw = this._CommandWalker;
-            if (cw)
+            if (cw) {
                 etarget = cw.GetValue(etarget);
+                context = cw.GetContext();
+                if (context == null) context = csource;
+            }
             if (!etarget) {
                 console.warn("[EVENTBINDING]: Could not find command target for event '" + this._EventName + "'.");
                 return;
@@ -84,11 +88,11 @@ module Fayde {
 
 
             if (typeof etarget === "function") {
-                (<Function>etarget)(cargs);
+                (<Function>etarget).call(context, cargs);
             } else if (Nullstone.DoesInheritFrom(etarget, Fayde.Input.ICommand_)) {
                 var ecmd = <Fayde.Input.ICommand>etarget;
-                if (ecmd.CanExecute(cargs))
-                    ecmd.Execute(cargs);
+                if (ecmd.CanExecute.call(context, cargs))
+                    ecmd.Execute.call(context, cargs);
             } else {
                 console.warn("[EVENTBINDING]: Could not find command target for event '" + this._EventName + "'.");
                 return;

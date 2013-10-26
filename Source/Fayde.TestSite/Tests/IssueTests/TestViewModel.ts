@@ -18,6 +18,8 @@ module Tests.IssueTests {
             this.SelectedItem = this.AllItems[0];
         }
         TestMethod(e: Fayde.IEventBindingArgs<EventArgs>) {
+            if (!this || !(this instanceof TestViewModel))
+                alert("ERROR: this is not scoped to TestViewModel.");
             if (e.sender)
                 alert("TestMethod called. [" + e.sender.constructor._TypeName + "]");
             else if (e.parameter)
