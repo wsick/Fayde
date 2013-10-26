@@ -17,7 +17,6 @@ module NflDraft.ViewModels {
         Positions: string[] = [];
         FantasyTeams: Array<Models.FantasyTeam> = new Array<Models.FantasyTeam>();
         FantasyPlayers: Fayde.Collections.ObservableCollection<Models.FantasyPlayer> = new Fayde.Collections.ObservableCollection<Models.FantasyPlayer>();
-        //SampleMessages: string[] = ["Hey man", "sup", "who is your fav player?", "who you takin first", "I like what the Steelers have done", "wow, that guy is a dud"];
         ChatMessages: Fayde.Collections.ObservableCollection<Models.ChatMessage> = new Fayde.Collections.ObservableCollection<Models.ChatMessage>();
         private _draftComplete: boolean;
         get DraftComplete(): boolean {
@@ -43,21 +42,15 @@ module NflDraft.ViewModels {
         }
         private _interval_id: number;
 
-        /*ChatSubmitted(params: Fayde.IEventCommandParameter<Fayde.Input.KeyEventArgs>) {
-            if (params.args.Key === Fayde.Input.Key.Enter) {
+        ChatSubmitted(e: Fayde.IEventBindingArgs<Fayde.Input.KeyEventArgs>) {
+            if (e.args.Key === Fayde.Input.Key.Enter) {
                 var message = new Models.ChatMessage();
                 message.FantasyTeam = this.MyTeam;
-                message.Message = this.ChatText;
+                message.Message = e.parameter.Text;
                 this.ChatMessages.Add(message);
-                this.ChatText = "";
+                e.parameter.Text = "";
             }
         }
-        private _chatText: string;
-        get ChatText(): string { return this._chatText; }
-        set ChatText(value: string) {
-            this._chatText = value;
-            this.OnPropertyChanged("ChatText");
-        }*/
 
         constructor() {
             super();
@@ -243,16 +236,6 @@ module NflDraft.ViewModels {
             else
                 current = current - 1;
             this.Countdown = current;
-
-            //populate the chat with random messages from random teams
-            //var randomMessage = Math.floor((Math.random() * 60));
-            //if (randomMessage < this.SampleMessages.length) {
-            //    var randomTeam = Math.floor((Math.random() * 10));
-            //    var message = new Models.ChatMessage();
-            //    message.FantasyTeam = this.FantasyTeams[randomTeam];
-            //    message.Message = this.SampleMessages[randomMessage];
-            //    this.ChatMessages.Add(message);
-            //}
 
             if (this.Rounds.Count == 0 || this.FantasyPlayers.Count == 0) {
                 clearInterval(this._interval_id);

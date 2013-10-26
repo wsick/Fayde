@@ -1428,7 +1428,6 @@ else
             PropertyPathWalker.prototype.GetValue = function (item) {
                 this.Update(item);
                 var o = this.FinalNode.Value;
-                this.Update(null);
                 return o;
             };
             PropertyPathWalker.prototype.Update = function (source) {
@@ -1453,6 +1452,18 @@ else
                 var listener = this._Listener;
                 if (listener)
                     listener.ValueChanged();
+            };
+            PropertyPathWalker.prototype.GetContext = function () {
+                var context = null;
+                var cur = this.Node;
+                var final = this.FinalNode;
+                while (cur && cur !== final) {
+                    context = cur;
+                    cur = cur.Next;
+                }
+                if (!context)
+                    return undefined;
+                return context.Value;
             };
             return PropertyPathWalker;
         })();
@@ -14018,10 +14029,15 @@ var Fayde;
         EventBindingExpression.prototype._Callback = function (sender, e) {
             var target = this._Target;
             var csource = findSource(target, this._EventBinding.CommandBinding);
-            var etarget = csource;
+            var context = csource;
+            var etarget = context;
             var cw = this._CommandWalker;
-            if (cw)
+            if (cw) {
                 etarget = cw.GetValue(etarget);
+                context = cw.GetContext();
+                if (context == null)
+                    context = csource;
+            }
             if (!etarget) {
                 console.warn("[EVENTBINDING]: Could not find command target for event '" + this._EventName + "'.");
                 return;
@@ -14038,11 +14054,11 @@ var Fayde;
                 cargs.parameter = cpw.GetValue(cpsource);
             }
             if (typeof etarget === "function") {
-                (etarget)(cargs);
+                (etarget).call(context, cargs);
             } else if (Nullstone.DoesInheritFrom(etarget, Fayde.Input.ICommand_)) {
                 var ecmd = etarget;
-                if (ecmd.CanExecute(cargs))
-                    ecmd.Execute(cargs);
+                if (ecmd.CanExecute.call(context, cargs))
+                    ecmd.Execute.call(context, cargs);
             } else {
                 console.warn("[EVENTBINDING]: Could not find command target for event '" + this._EventName + "'.");
                 return;

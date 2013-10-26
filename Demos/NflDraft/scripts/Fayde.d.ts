@@ -314,6 +314,7 @@ declare module Fayde.Data {
         public Unlisten(listener: IPropertyPathWalkerListener): void;
         public IsBrokenChanged(node: IPropertyPathNode): void;
         public ValueChanged(node: IPropertyPathNode): void;
+        public GetContext(): any;
     }
 }
 declare module Fayde.Input.InteractionHelper {
@@ -2504,7 +2505,7 @@ declare module Fayde {
         constructor(xobj: DependencyObject);
         public OnParentChanged(oldParentNode: Fayde.XamlNode, newParentNode: Fayde.XamlNode): void;
         public DataContext : any;
-        public _DataContextPropertyChanged(args: IDependencyPropertyChangedEventArgs): void;
+        public OnDataContextChanged(oldDataContext: any, newDataContext: any): void;
     }
     class DependencyObject extends Fayde.XamlObject implements ICloneable, Fayde.Providers.IPropertyStorageOwner {
         private _Expressions;

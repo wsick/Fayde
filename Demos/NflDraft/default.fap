@@ -670,7 +670,7 @@
         </ListBox>
         <Image HorizontalAlignment="Left" Margin="-4, -8, 5, -10" Width="36" Height="36" Source="Images/chat.png"/>
       </Grid>
-      <TextBox Grid.Row="4" Text="{Binding ChatText, Mode=TwoWay}" Margin="5, 0, 5, 5" TextBlock.Foreground="White" Background="{StaticResource MediumGrayBrush}" BorderBrush="Black"></TextBox>
+      <TextBox x:Name="ChatTextbox" Grid.Row="4" KeyDown="{EventBinding ChatSubmitted, CommandParameter={Binding ElementName=ChatTextbox}}" Margin="5, 0, 5, 5" TextBlock.Foreground="White" Background="{StaticResource MediumGrayBrush}" BorderBrush="Black"></TextBox>
     </Grid>
   </Grid>
 </Application>
