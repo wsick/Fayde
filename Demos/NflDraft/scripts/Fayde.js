@@ -26480,22 +26480,20 @@ var Fayde;
             TextBoxBase.prototype._TextChanged = function (newValue) {
                 var text = newValue || "";
                 if (this._SettingValue) {
-                    if (text) {
-                        var action;
-                        if (this._Buffer.length > 0) {
-                            action = new Fayde.Text.TextBoxUndoActionReplace(this._SelectionAnchor, this._SelectionCursor, this._Buffer, 0, this._Buffer.length, text);
-                            this._Buffer = Fayde.Text.TextBuffer.Replace(this._Buffer, 0, this._Buffer.length, text);
-                        } else {
-                            action = new Fayde.Text.TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, 0, text);
-                            this._Buffer = text + this._Buffer;
-                        }
-                        this._Undo.push(action);
-                        this._Redo = [];
-                        this._Emit |= TextBoxEmitChangedType.TEXT;
-                        this.ClearSelection(0);
-                        this._ResetIMContext();
-                        this._SyncAndEmit(false);
+                    var action;
+                    if (this._Buffer.length > 0) {
+                        action = new Fayde.Text.TextBoxUndoActionReplace(this._SelectionAnchor, this._SelectionCursor, this._Buffer, 0, this._Buffer.length, text);
+                        this._Buffer = Fayde.Text.TextBuffer.Replace(this._Buffer, 0, this._Buffer.length, text);
+                    } else {
+                        action = new Fayde.Text.TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, 0, text);
+                        this._Buffer = text + this._Buffer;
                     }
+                    this._Undo.push(action);
+                    this._Redo = [];
+                    this._Emit |= TextBoxEmitChangedType.TEXT;
+                    this.ClearSelection(0);
+                    this._ResetIMContext();
+                    this._SyncAndEmit(false);
                 }
                 this._ModelChanged(TextBoxModelChangedType.Text, newValue);
             };

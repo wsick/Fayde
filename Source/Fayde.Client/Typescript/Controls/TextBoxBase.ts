@@ -222,25 +222,23 @@ module Fayde.Controls {
         _TextChanged(newValue: string) {
             var text = newValue || "";
             if (this._SettingValue) {
-                if (text) {
-                    var action: Text.ITextBoxUndoAction;
-                    if (this._Buffer.length > 0) {
-                        action = new Text.TextBoxUndoActionReplace(this._SelectionAnchor, this._SelectionCursor, this._Buffer, 0, this._Buffer.length, text);
-                        this._Buffer = Text.TextBuffer.Replace(this._Buffer, 0, this._Buffer.length, text);
-                    } else {
-                        action = new Text.TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, 0, text);
-                        this._Buffer = text + this._Buffer;
-                    }
-
-                    this._Undo.push(action);
-                    this._Redo = [];
-
-                    this._Emit |= TextBoxEmitChangedType.TEXT;
-                    this.ClearSelection(0);
-                    this._ResetIMContext();
-
-                    this._SyncAndEmit(false);
+                var action: Text.ITextBoxUndoAction;
+                if (this._Buffer.length > 0) {
+                    action = new Text.TextBoxUndoActionReplace(this._SelectionAnchor, this._SelectionCursor, this._Buffer, 0, this._Buffer.length, text);
+                    this._Buffer = Text.TextBuffer.Replace(this._Buffer, 0, this._Buffer.length, text);
+                } else {
+                    action = new Text.TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, 0, text);
+                    this._Buffer = text + this._Buffer;
                 }
+
+                this._Undo.push(action);
+                this._Redo = [];
+
+                this._Emit |= TextBoxEmitChangedType.TEXT;
+                this.ClearSelection(0);
+                this._ResetIMContext();
+
+                this._SyncAndEmit(false);
             }
             this._ModelChanged(TextBoxModelChangedType.Text, newValue);
         }
