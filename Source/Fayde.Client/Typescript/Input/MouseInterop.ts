@@ -10,6 +10,13 @@ module Fayde.Input {
             if (isNetscape) return button === 3;
             return button === 2;
         }
+        static CreateModifiers(e): IModifiersOn {
+            return {
+                Shift: e.shiftKey,
+                Ctrl: e.ctrlKey,
+                Alt: e.altKey
+            };
+        }
 
         static DisableBrowserContextMenu() {
             isContextMenuDisabled = true;

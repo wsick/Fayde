@@ -431,7 +431,8 @@ module Fayde {
         }
 
         private _HandleButtonPress(evt) {
-            Fayde.Input.Keyboard.RefreshModifiers(evt);
+            Engine.Inspection.Kill();
+            Input.Keyboard.RefreshModifiers(Input.MouseInterop.CreateModifiers(evt));
             var button = evt.which ? evt.which : evt.button;
             var pos = this._GetMousePosition(evt);
 
@@ -439,8 +440,9 @@ module Fayde {
             var handled = this._HandleMouseEvent(InputType.MouseDown, button, pos);
             this._UpdateCursorFromInputList();
             this._SetUserInitiatedEvent(false);
-
-            Input.MouseInterop.DisableBrowserContextMenu();
+            
+            if (handled)
+                Input.MouseInterop.DisableBrowserContextMenu();
         }
         private _HandleContextMenu(evt) {
             if (Input.MouseInterop.IsBrowserContextMenuDisabled) {
@@ -452,7 +454,7 @@ module Fayde {
             }
         }
         private _HandleButtonRelease(evt) {
-            Fayde.Input.Keyboard.RefreshModifiers(evt);
+            Input.Keyboard.RefreshModifiers(Input.MouseInterop.CreateModifiers(evt));
             var button = evt.which ? evt.which : evt.button;
             var pos = this._GetMousePosition(evt);
 
@@ -464,18 +466,18 @@ module Fayde {
                 this._PerformReleaseCapture();
         }
         private _HandleOut(evt) {
-            Fayde.Input.Keyboard.RefreshModifiers(evt);
+            Input.Keyboard.RefreshModifiers(Input.MouseInterop.CreateModifiers(evt));
             var pos = this._GetMousePosition(evt);
             this._HandleMouseEvent(InputType.MouseLeave, null, pos);
         }
         private _HandleMove(evt) {
-            Fayde.Input.Keyboard.RefreshModifiers(evt);
+            Input.Keyboard.RefreshModifiers(Input.MouseInterop.CreateModifiers(evt));
             var pos = this._GetMousePosition(evt);
             this._HandleMouseEvent(InputType.MouseMove, null, pos);
             this._UpdateCursorFromInputList();
         }
         private _HandleWheel(evt) {
-            Fayde.Input.Keyboard.RefreshModifiers(evt);
+            Input.Keyboard.RefreshModifiers(Input.MouseInterop.CreateModifiers(evt));
             var delta = 0;
             if (evt.wheelDelta)
                 delta = evt.wheelDelta / 120;
@@ -559,6 +561,8 @@ module Fayde {
                 args.Source = node.XObject;
             var isL = Input.MouseInterop.IsLeftButton(button);
             var isR = Input.MouseInterop.IsRightButton(button);
+            if (Fayde.Engine.Inspection.TryHandle(type, isL, isR, args, list))
+                return true;
             for (var i = 0; i < endIndex; i++) {
                 node = list[i];
                 if (type === InputType.MouseLeave)

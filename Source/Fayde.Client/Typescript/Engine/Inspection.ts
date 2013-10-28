@@ -1,0 +1,91 @@
+module Fayde.Engine {
+    export class Inspection {
+        //Ctrl+Right Click to show context menu
+        static TryHandle(type: InputType, isLeftButton: boolean, isRightButton: boolean, args: Input.MouseEventArgs, htlist: UINode[]): boolean {
+            if (!Fayde.IsInspectionOn)
+                return false;
+            if (type !== InputType.MouseDown)
+                return false;
+            if (!isRightButton)
+                return false;
+            if (!Input.Keyboard.HasControl())
+                return false;
+            var pos = args.AbsolutePos;
+            showMenu(pos, htlist);
+            return true;
+        }
+        static Kill() {
+            if (menu)
+                menu.style.display = "none";
+        }
+    }
+    
+    var menu: HTMLDivElement = null;
+    function showMenu(pos: Point, htlist: UINode[]) {
+        menu = menu || createMenu();
+        fillMenu(htlist);
+        menu.style.left = pos.X.toString() + "px";
+        menu.style.top = pos.Y.toString() + "px";
+        menu.style.display = "";
+    }
+    function createMenu(): HTMLDivElement {
+        var m = document.createElement("div");
+        m.style.position = "absolute";
+        m.style.display = "none";
+        m.style.backgroundColor = "rgba(128,128,128,1.0)";
+        m.style.margin = "5px";
+        m.oncontextmenu = () => false;
+        document.body.appendChild(m);
+        return m;
+    }
+    function fillMenu(htlist: UINode[]) {
+        menu.innerHTML = "";
+        var len = htlist.length;
+        for (var i = 0; i < len; i++) {
+            menu.appendChild(createMenuItem(htlist[i]));
+        }
+    }
+    function createMenuItem(cur: UINode) {
+        var miDiv = document.createElement("div");
+        miDiv.style.cursor = "pointer";
+        miDiv.innerHTML = serializeUINode(cur);
+        miDiv.onclick = () => handleMenuItemClick(cur);
+        miDiv.onmouseenter = () => handleMenuItemEnter(miDiv);
+        miDiv.onmouseleave = () => handleMenuItemLeave(miDiv);
+        return miDiv;
+    }
+    function serializeUINode(uin: UINode): string {
+        var cur = uin.XObject;
+
+        var str = "";
+
+        var name = uin.Name;
+        if (name) {
+            str += "[";
+            var ns = uin.NameScope;
+            if (!ns)
+                str += "^";
+            else if (ns.IsRoot)
+                str += "+";
+            else
+                str += "-";
+            str += name + "]";
+        }
+        
+        var id = (<any>cur)._ID;
+        if (id) str += "[" + id + "]";
+
+        str += (<any>cur).constructor._TypeName;
+
+        return str;
+    }
+    function handleMenuItemClick(uin: UINode) {
+        menu.style.display = "none";
+    }
+    function handleMenuItemEnter(mi: HTMLDivElement) {
+        mi.style.fontWeight = "bold";
+    }
+    function handleMenuItemLeave(mi: HTMLDivElement) {
+        mi.style.fontWeight = "normal";
+    }
+}

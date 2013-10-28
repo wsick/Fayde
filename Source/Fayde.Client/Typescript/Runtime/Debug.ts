@@ -18,4 +18,5 @@ module Fayde {
         export var IsCounterEnabled = false;
         export var DataContextCounter = 0;
     }
+    export var IsInspectionOn = false;
 }
