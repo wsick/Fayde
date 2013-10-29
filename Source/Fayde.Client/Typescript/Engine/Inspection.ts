@@ -33,7 +33,8 @@ module Fayde.Engine {
         m.style.position = "absolute";
         m.style.display = "none";
         m.style.backgroundColor = "rgba(128,128,128,1.0)";
-        m.style.margin = "5px";
+        m.style.padding = "5px";
+        m.style.fontFamily = "Tahoma";
         m.oncontextmenu = () => false;
         document.body.appendChild(m);
         return m;
@@ -59,9 +60,13 @@ module Fayde.Engine {
 
         var str = "";
 
+        var id = (<any>cur)._ID;
+        if (id) str += "[" + id + "] ";
+        str += (<any>cur).constructor._TypeName;
+        
         var name = uin.Name;
         if (name) {
-            str += "[";
+            str += " [";
             var ns = uin.NameScope;
             if (!ns)
                 str += "^";
@@ -71,11 +76,6 @@ module Fayde.Engine {
                 str += "-";
             str += name + "]";
         }
-        
-        var id = (<any>cur)._ID;
-        if (id) str += "[" + id + "]";
-
-        str += (<any>cur).constructor._TypeName;
 
         return str;
     }
@@ -83,9 +83,9 @@ module Fayde.Engine {
         menu.style.display = "none";
     }
     function handleMenuItemEnter(mi: HTMLDivElement) {
-        mi.style.fontWeight = "bold";
+        mi.style.textDecoration = "underline";
     }
     function handleMenuItemLeave(mi: HTMLDivElement) {
-        mi.style.fontWeight = "normal";
+        mi.style.textDecoration = "none";
     }
 }
