@@ -1,10 +1,10 @@
 module Fayde.Engine {
     export class Inspection {
         //Ctrl+Right Click to show context menu
-        static TryHandle(type: InputType, isLeftButton: boolean, isRightButton: boolean, args: Input.MouseEventArgs, htlist: UINode[]): boolean {
+        static TryHandle(type: Input.MouseInputType, isLeftButton: boolean, isRightButton: boolean, args: Input.MouseEventArgs, htlist: UINode[]): boolean {
             if (!Fayde.IsInspectionOn)
                 return false;
-            if (type !== InputType.MouseDown)
+            if (type !== Input.MouseInputType.MouseDown)
                 return false;
             if (!isRightButton)
                 return false;

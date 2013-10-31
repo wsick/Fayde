@@ -69,7 +69,7 @@ module Fayde.Controls {
                 this.IsMouseOver = false;
                 var surface = this._Surface;
                 if (surface) {
-                    surface._RemoveFocusFrom(this.LayoutUpdater);
+                    surface.RemoveFocusFrom(this.LayoutUpdater);
                     TabNavigationWalker.Focus(this, true);
                 }
                 this.ReleaseMouseCapture();

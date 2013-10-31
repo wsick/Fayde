@@ -137,10 +137,10 @@ module Fayde {
             x.OnLostMouseCapture(e);
             x.LostMouseCapture.Raise(x, e);
         }
-        _EmitMouseEvent(type: InputType, isLeftButton: boolean, isRightButton: boolean, args: Input.MouseEventArgs): boolean {
+        _EmitMouseEvent(type: Input.MouseInputType, isLeftButton: boolean, isRightButton: boolean, args: Input.MouseEventArgs): boolean {
             var x = this.XObject;
             switch (type) {
-                case InputType.MouseUp:
+                case Input.MouseInputType.MouseUp:
                     if (isLeftButton) {
                         x.OnMouseLeftButtonUp(<Input.MouseButtonEventArgs>args);
                         x.MouseLeftButtonUp.Raise(x, args);
@@ -149,7 +149,7 @@ module Fayde {
                         x.MouseRightButtonUp.Raise(x, args);
                     }
                     break;
-                case InputType.MouseDown:
+                case Input.MouseInputType.MouseDown:
                     if (isLeftButton) {
                         x.OnMouseLeftButtonDown(<Input.MouseButtonEventArgs>args);
                         x.MouseLeftButtonDown.Raise(x, args);
@@ -158,21 +158,21 @@ module Fayde {
                         x.MouseRightButtonDown.Raise(x, args);
                     }
                     break;
-                case InputType.MouseLeave:
+                case Input.MouseInputType.MouseLeave:
                     this.IsMouseOver = false;
                     x.OnMouseLeave(args);
                     x.MouseLeave.Raise(x, args);
                     break;
-                case InputType.MouseEnter:
+                case Input.MouseInputType.MouseEnter:
                     this.IsMouseOver = true;
                     x.OnMouseEnter(args);
                     x.MouseEnter.Raise(x, args);
                     break;
-                case InputType.MouseMove:
+                case Input.MouseInputType.MouseMove:
                     x.OnMouseMove(args);
                     x.MouseMove.Raise(x, args);
                     break;
-                case InputType.MouseWheel:
+                case Input.MouseInputType.MouseWheel:
                     x.OnMouseWheel(<Input.MouseWheelEventArgs>args);
                     x.MouseWheel.Raise(x, <Input.MouseWheelEventArgs>args);
                     break;
@@ -243,7 +243,7 @@ module Fayde {
             if (vpNode)
                 vpNode.LayoutUpdater.InvalidateMeasure();
             var surface = this._Surface;
-            if (surface) surface._RemoveFocusFrom(lu);
+            if (surface) surface.RemoveFocusFrom(lu);
         }
 
         IsAncestorOf(uin: UINode) {

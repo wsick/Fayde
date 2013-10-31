@@ -13,26 +13,6 @@
 
 var resizeTimeout: number;
 
-interface IFocusChangedEvents {
-    GotFocus: Fayde.UINode[];
-    LostFocus: Fayde.UINode[];
-}
-
-enum InputType {
-    NoOp = 0,
-    MouseUp = 1,
-    MouseDown = 2,
-    MouseLeave = 3,
-    MouseEnter = 4,
-    MouseMove = 5,
-    MouseWheel = 6,
-}
-
-interface ICommonElementIndices {
-    Index1: number;
-    Index2: number;
-}
-
 module Fayde {
     export class Surface {
         static TestCanvas: HTMLCanvasElement = <HTMLCanvasElement>document.createElement("canvas");
@@ -47,30 +27,17 @@ module Fayde {
         private _Ctx: CanvasRenderingContext2D = null;
         private _PercentageWidth: number = 0;
         private _PercentageHeight: number = 0;
-        private _CanvasOffset: any = null;
         private _Extents: size = null;
-        private _KeyInterop: Fayde.Input.KeyInterop;
-        private _CapturedInputList: Fayde.UINode[] = [];
-        private _InputList: Fayde.UINode[] = [];
-        private _FocusedNode: Fayde.UINode = null;
-        get FocusedNode(): Fayde.UINode { return this._FocusedNode; }
-        private _FocusChangedEvents: IFocusChangedEvents[] = [];
-        private _FirstUserInitiatedEvent: boolean = false;
-        private _UserInitiatedEvent: boolean = false;
-        private _Captured: Fayde.UINode = null;
-        private _PendingCapture: Fayde.UINode = null;
-        private _PendingReleaseCapture: boolean = false;
-        private _CurrentPos: Point = null;
-        private _EmittingMouseEvent: boolean = false;
-        private _Cursor: string = Fayde.CursorType.Default;
         private _InvalidatedRect: rect;
         private _RenderContext: Fayde.RenderContext;
+
+        private _InputMgr: Engine.InputManager;
 
         HitTestCallback: (inputList: Fayde.UINode[]) => void;
 
         constructor(app: Application) {
             this._App = app;
-            this._KeyInterop = Fayde.Input.KeyInterop.CreateInterop(this);
+            this._InputMgr = new Engine.InputManager(this);
         }
 
         get Extents(): size {
@@ -88,36 +55,8 @@ module Fayde {
             this._ResizeCanvas();
             document.body.onresize = (e) => this._HandleResize(window.event ? <any>window.event : e);
             window.onresize = (e) => this._HandleResize(window.event ? <any>window.event : e);
-            
-            this._CalculateOffset();
-            this._RegisterEvents();
-        }
-        private _CalculateOffset() {
-            var left = 0;
-            var top = 0;
-            var cur: HTMLElement = this._Canvas;
-            if (cur.offsetParent) {
-                do {
-                    left += cur.offsetLeft;
-                    top += cur.offsetTop;
-                } while (cur = <HTMLElement>cur.offsetParent);
-            }
-            this._CanvasOffset = { left: left, top: top };
-        }
-        private _RegisterEvents() {
-            var canvas = this._Canvas;
-            canvas.addEventListener("mousedown", (e) => this._HandleButtonPress(window.event ? <any>window.event : e));
-            canvas.addEventListener("mouseup", (e) => this._HandleButtonRelease(window.event ? <any>window.event : e));
-            canvas.addEventListener("mouseout", (e) => this._HandleOut(window.event ? <any>window.event : e));
-            canvas.addEventListener("mousemove", (e) => this._HandleMove(window.event ? <any>window.event : e));
-            canvas.addEventListener("contextmenu", (e) => this._HandleContextMenu(window.event ? <any>window.event : e));
 
-            //IE9, Chrome, Safari, Opera
-            canvas.addEventListener("mousewheel", (e) => this._HandleWheel(window.event ? <any>window.event : e));
-            //Firefox
-            canvas.addEventListener("DOMMouseScroll", (e) => this._HandleWheel(window.event ? <any>window.event : e));
-
-            this._KeyInterop.RegisterEvents();
+            this._InputMgr.Register(this._Canvas);
         }
         Attach(uie: Fayde.UIElement) {
             if (this._RootLayer)
@@ -133,6 +72,7 @@ module Fayde {
             this._RootLayer = uie;
             this.AttachLayer(uie);
         }
+        GetLayers(): UINode[] { return this._Layers.slice(0); }
         AttachLayer(layer: Fayde.UIElement) {
             var node = layer.XamlNode;
             if (this._RootLayer === layer)
@@ -151,20 +91,7 @@ module Fayde {
             var node = layer.XamlNode;
             node.IsTopLevel = false;
 
-            var il = this._InputList;
-            if (il[il.length - 1] === node)
-                this._InputList = [];
-
-            var f = this._FocusedNode;
-            if (f) {
-                while (f) {
-                    if (f === node) {
-                        this._FocusNode();
-                        break;
-                    }
-                    f = f.VisualParentNode;
-                }
-            }
+            this._InputMgr.OnNodeDetached(node);
 
             var index = this._Layers.indexOf(layer.XamlNode);
             if (index > -1)
@@ -322,7 +249,7 @@ module Fayde {
         }
         OnNodeDetached(lu: Fayde.LayoutUpdater) {
             this._RemoveDirtyElement(lu);
-            this._RemoveFocusFrom(lu);
+            this._InputMgr.OnNodeDetached(lu.Node);
         }
 
         // RENDER
@@ -381,366 +308,31 @@ module Fayde {
             canvas.height = window.innerHeight;
         }
 
-        // CURSOR
-        private _UpdateCursorFromInputList() {
-            var newCursor = Fayde.CursorType.Default;
-            var list = this._Captured ? this._CapturedInputList : this._InputList;
-            var len = list.length;
-            for (var i = 0; i < len; i++) {
-                newCursor = list[i].XObject.Cursor;
-                if (newCursor !== Fayde.CursorType.Default)
-                    break;
-            }
-            this._SetCursor(newCursor);
+        get FocusedNode(): UINode { return this._InputMgr.FocusedNode; }
+        Focus(node: Controls.ControlNode, recurse?: boolean): boolean {
+            return this._InputMgr.Focus(node, recurse);
         }
-        private _SetCursor(cursor: string) {
-            this._Cursor = cursor;
-            this._Canvas.style.cursor = cursor;
+        RemoveFocusFrom(lu: LayoutUpdater) {
+            this._InputMgr.OnNodeDetached(lu.Node);
         }
 
-        // INPUT
-        _HandleKeyDown(args: Fayde.Input.KeyEventArgs) {
-            this._SetUserInitiatedEvent(true);
-            Fayde.Input.Keyboard.RefreshModifiers(args.Modifiers);
-            if (this._FocusedNode) {
-                var focusToRoot = Surface._ElementPathToRoot(this._FocusedNode);
-                this._EmitKeyDown(focusToRoot, args);
-            }
-
-            if (!args.Handled && args.Key === Fayde.Input.Key.Tab) {
-                if (this._FocusedNode)
-                    Fayde.TabNavigationWalker.Focus(this._FocusedNode, args.Modifiers.Shift);
-                else
-                    this._EnsureElementFocused();
-            }
-            this._SetUserInitiatedEvent(false);
-        }
-        private _EmitKeyDown(list: Fayde.UINode[], args: Fayde.Input.KeyEventArgs, endIndex?: number) {
-            if (endIndex === 0)
-                return;
-            if (!endIndex || endIndex === -1)
-                endIndex = list.length;
-
-            var i = 0;
-            var cur = list.shift();
-            while (cur && i < endIndex) {
-                cur._EmitKeyDown(args);
-                cur = list.shift();
-                i++;
-            }
-        }
-
-        private _HandleButtonPress(evt) {
-            Engine.Inspection.Kill();
-            Input.Keyboard.RefreshModifiers(Input.MouseInterop.CreateModifiers(evt));
-            var button = evt.which ? evt.which : evt.button;
-            var pos = this._GetMousePosition(evt);
-
-            this._SetUserInitiatedEvent(true);
-            var handled = this._HandleMouseEvent(InputType.MouseDown, button, pos);
-            this._UpdateCursorFromInputList();
-            this._SetUserInitiatedEvent(false);
-            
-            if (handled)
-                Input.MouseInterop.DisableBrowserContextMenu();
-        }
-        private _HandleContextMenu(evt) {
-            if (Input.MouseInterop.IsBrowserContextMenuDisabled) {
-                if (evt.stopPropagation)
-                    evt.stopPropagation();
-                evt.preventDefault();
-                evt.cancelBubble = true;
+        HitTestPoint(newInputList: Fayde.UINode[], pos: Point): boolean {
+            if (!this._RootLayer)
                 return false;
-            }
-        }
-        private _HandleButtonRelease(evt) {
-            Input.Keyboard.RefreshModifiers(Input.MouseInterop.CreateModifiers(evt));
-            var button = evt.which ? evt.which : evt.button;
-            var pos = this._GetMousePosition(evt);
-
-            this._SetUserInitiatedEvent(true);
-            this._HandleMouseEvent(InputType.MouseUp, button, pos);
-            this._UpdateCursorFromInputList();
-            this._SetUserInitiatedEvent(false);
-            if (this._Captured)
-                this._PerformReleaseCapture();
-        }
-        private _HandleOut(evt) {
-            Input.Keyboard.RefreshModifiers(Input.MouseInterop.CreateModifiers(evt));
-            var pos = this._GetMousePosition(evt);
-            this._HandleMouseEvent(InputType.MouseLeave, null, pos);
-        }
-        private _HandleMove(evt) {
-            Input.Keyboard.RefreshModifiers(Input.MouseInterop.CreateModifiers(evt));
-            var pos = this._GetMousePosition(evt);
-            this._HandleMouseEvent(InputType.MouseMove, null, pos);
-            this._UpdateCursorFromInputList();
-        }
-        private _HandleWheel(evt) {
-            Input.Keyboard.RefreshModifiers(Input.MouseInterop.CreateModifiers(evt));
-            var delta = 0;
-            if (evt.wheelDelta)
-                delta = evt.wheelDelta / 120;
-            else if (evt.detail)
-                delta = -evt.detail / 3;
-            if (evt.preventDefault)
-                evt.preventDefault();
-            evt.returnValue = false;
-            this._HandleMouseEvent(InputType.MouseWheel, null, this._GetMousePosition(evt), delta);
-            this._UpdateCursorFromInputList();
-        }
-        private _HandleMouseEvent(type: InputType, button: number, pos: Point, delta?: number, emitLeave?: boolean, emitEnter?: boolean): boolean {
-            //var app = this._App;
-            //app._NotifyDebugCoordinates(pos);
-            this._CurrentPos = pos;
-            if (this._EmittingMouseEvent)
-                return false;
-            if (this._RootLayer == null)
-                return false;
-
-            var newInputList: Fayde.UINode[] = [];
             var layers = this._Layers;
             var layerCount = layers.length;
             for (var i = layerCount - 1; i >= 0 && newInputList.length === 0; i--) {
                 var layer = layers[i];
                 layer.LayoutUpdater.HitTestPoint(this._RenderContext, pos, newInputList);
             }
-
-            this._EmittingMouseEvent = true;
-
-            var indices = { Index1: -1, Index2: -1 };
-            this._FindFirstCommonElement(this._InputList, newInputList, indices);
-            if (emitLeave === undefined || emitLeave === true)
-                this._EmitMouseList(InputType.MouseLeave, button, pos, delta, this._InputList, indices.Index1);
-            if (emitEnter === undefined || emitEnter === true)
-                this._EmitMouseList(InputType.MouseEnter, button, pos, delta, newInputList, indices.Index2);
-
-            var handled = false;
-            if (type !== InputType.NoOp)
-                handled = this._EmitMouseList(type, button, pos, delta, this._Captured ? this._CapturedInputList : newInputList);
-            this._InputList = newInputList;
-
-            if (this.HitTestCallback)
-                this.HitTestCallback(newInputList);
-
-            if (this._PendingCapture)
-                this._PerformCapture(this._PendingCapture);
-            if (this._PendingReleaseCapture || (this._Captured && !this._Captured.CanCaptureMouse()))
-                this._PerformReleaseCapture();
-            this._EmittingMouseEvent = false;
-            return handled;
-        }
-        private _GetMousePosition(evt): Point {
-            return new Point(
-                evt.clientX + window.pageXOffset + this._CanvasOffset.left,
-                evt.clientY + window.pageYOffset + this._CanvasOffset.top);
-        }
-
-        private _FindFirstCommonElement(list1: Fayde.UINode[], list2: Fayde.UINode[], outObj: ICommonElementIndices) {
-            var i = list1.length - 1;
-            var j = list2.length - 1;
-            outObj.Index1 = -1;
-            outObj.Index2 = -1;
-            while (i >= 0 && j >= 0) {
-                if (list1[i] !== list2[j])
-                    return;
-                outObj.Index1 = i--;
-                outObj.Index2 = j--;
-            }
-        }
-
-        private _EmitMouseList(type: InputType, button: number, pos: Point, delta: number, list: Fayde.UINode[], endIndex?: number): boolean {
-            var handled = false;
-            if (endIndex === 0)
-                return handled;
-            if (!endIndex || endIndex === -1)
-                endIndex = list.length;
-            var args = this._CreateEventArgs(type, pos, delta);
-            var node = list[0];
-            if (node && args instanceof Fayde.RoutedEventArgs)
-                args.Source = node.XObject;
-            var isL = Input.MouseInterop.IsLeftButton(button);
-            var isR = Input.MouseInterop.IsRightButton(button);
-            if (Fayde.Engine.Inspection.TryHandle(type, isL, isR, args, list))
-                return true;
-            for (var i = 0; i < endIndex; i++) {
-                node = list[i];
-                if (type === InputType.MouseLeave)
-                    args.Source = node.XObject;
-                if (node._EmitMouseEvent(type, isL, isR, args))
-                    handled = true;
-                if (type === InputType.MouseLeave) //MouseLeave gets new event args on each emit
-                    args = this._CreateEventArgs(type, pos, delta);
-            }
-            return handled;
-        }
-        private _CreateEventArgs(type: InputType, pos: Point, delta: number): Fayde.Input.MouseEventArgs {
-            switch (type) {
-                case InputType.MouseUp:
-                    return new Fayde.Input.MouseButtonEventArgs(pos);
-                case InputType.MouseDown:
-                    return new Fayde.Input.MouseButtonEventArgs(pos);
-                case InputType.MouseLeave:
-                    return new Fayde.Input.MouseEventArgs(pos);
-                case InputType.MouseEnter:
-                    return new Fayde.Input.MouseEventArgs(pos);
-                case InputType.MouseMove:
-                    return new Fayde.Input.MouseEventArgs(pos);
-                case InputType.MouseWheel:
-                    return new Fayde.Input.MouseWheelEventArgs(pos, delta);
-            }
-        }
-
-        SetMouseCapture(uin: Fayde.UINode) {
-            if (this._Captured || this._PendingCapture)
-                return uin === this._Captured || uin === this._PendingCapture;
-            if (!this._EmittingMouseEvent)
-                return false;
-            this._PendingCapture = uin;
             return true;
+        }
+
+        SetMouseCapture(uin: Fayde.UINode):boolean {
+            return this._InputMgr.SetMouseCapture(uin);
         }
         ReleaseMouseCapture(uin: Fayde.UINode) {
-            if (uin !== this._Captured && uin !== this._PendingCapture)
-                return;
-            if (this._EmittingMouseEvent)
-                this._PendingReleaseCapture = true;
-            else
-                this._PerformReleaseCapture();
-        }
-        private _PerformCapture(uin: Fayde.UINode) {
-            this._Captured = uin;
-            var newInputList = [];
-            while (uin != null) {
-                newInputList.push(uin);
-                uin = uin.VisualParentNode;
-            }
-            this._CapturedInputList = newInputList;
-            this._PendingCapture = null;
-        }
-        private _PerformReleaseCapture() {
-            var oldCaptured = this._Captured;
-            this._Captured = null;
-            this._PendingReleaseCapture = false;
-            oldCaptured._EmitLostMouseCapture(this._CurrentPos);
-            //force "MouseEnter" on any new elements
-            this._HandleMouseEvent(InputType.NoOp, null, this._CurrentPos, undefined, false, true);
-        }
-        private _SetUserInitiatedEvent(val: boolean) {
-            this._EmitFocusChangeEvents();
-            this._FirstUserInitiatedEvent = this._FirstUserInitiatedEvent || val;
-            this._UserInitiatedEvent = val;
-        }
-
-        // FOCUS
-        Focus(ctrlNode: Fayde.Controls.ControlNode, recurse?: boolean): boolean {
-            recurse = recurse === undefined || recurse === true;
-            if (!ctrlNode.IsAttached)
-                return false;
-
-            var walker = Fayde.DeepTreeWalker(ctrlNode);
-            var uin: Fayde.UINode;
-            while (uin = walker.Step()) {
-                if (uin.XObject.Visibility !== Fayde.Visibility.Visible) {
-                    walker.SkipBranch();
-                    continue;
-                }
-
-                if (!(uin instanceof Fayde.Controls.ControlNode))
-                    continue;
-
-                var cn = <Fayde.Controls.ControlNode>uin;
-                var c = cn.XObject;
-                if (!c.IsEnabled) {
-                    if (!recurse)
-                        return false;
-                    walker.SkipBranch();
-                    continue;
-                }
-
-                var loaded = ctrlNode.IsLoaded;
-                var check: Fayde.UINode = ctrlNode;
-                while (!loaded && (check = check.VisualParentNode)) {
-                    loaded = loaded || check.IsLoaded;
-                }
-
-                if (loaded && cn.LayoutUpdater.TotalIsRenderVisible && c.IsTabStop)
-                    return this._FocusNode(cn);
-
-                if (!recurse)
-                    return false;
-            }
-            return false;
-        }
-        private _FocusNode(uin?: Fayde.UINode) {
-            if (uin === this._FocusedNode)
-                return true;
-            var fn = this._FocusedNode;
-            if (fn) {
-                this._FocusChangedEvents.push({
-                    LostFocus: Surface._ElementPathToRoot(fn),
-                    GotFocus: null
-                });
-            }
-            this._FocusedNode = uin;
-            if (uin) {
-                this._FocusChangedEvents.push({
-                    LostFocus: null,
-                    GotFocus: Surface._ElementPathToRoot(uin)
-                });
-            }
-
-            if (this._FirstUserInitiatedEvent)
-                this._EmitFocusChangeEventsAsync();
-
-            return true;
-        }
-        private _EnsureElementFocused() {
-            var layers = this._Layers;
-            if (!this._FocusedNode) {
-                var last = layers.length - 1;
-                for (var i = last; i >= 0; i--) {
-                    if (Fayde.TabNavigationWalker.Focus(layers[i]))
-                        break;
-                }
-                if (!this._FocusedNode && last !== -1)
-                    this._FocusNode(layers[last]);
-            }
-            if (this._FirstUserInitiatedEvent)
-                this._EmitFocusChangeEventsAsync();
-        }
-        _RemoveFocusFrom(lu: Fayde.LayoutUpdater) {
-            if (this._FocusedNode === lu.Node)
-                this._FocusNode(null);
-        }
-        private _EmitFocusChangeEventsAsync() {
-            setTimeout(() => this._EmitFocusChangeEvents(), 1);
-        }
-        private _EmitFocusChangeEvents() {
-            var evts = this._FocusChangedEvents;
-            var cur = evts.shift();
-            while (cur) {
-                this._EmitFocusList("lost", cur.LostFocus);
-                this._EmitFocusList("got", cur.GotFocus);
-                cur = evts.shift();
-            }
-        }
-        private _EmitFocusList(type: string, list: Fayde.UINode[]) {
-            if (!list)
-                return;
-            var cur = list.shift();
-            while (cur) {
-                cur._EmitFocusChange(type);
-                cur = list.shift();
-            }
-        }
-
-        private static _ElementPathToRoot(source: Fayde.UINode): Fayde.UINode[] {
-            var list: Fayde.UINode[] = [];
-            while (source) {
-                list.push(source);
-                source = source.VisualParentNode;
-            }
-            return list;
+            this._InputMgr.ReleaseMouseCapture(uin);
         }
 
         static MeasureWidth(text: string, font: Font): number {

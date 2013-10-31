@@ -202,6 +202,8 @@
     <TypeScriptCompile Include="Typescript\Input\MouseInterop.ts" />
     <TypeScriptCompile Include="Typescript\Core\RoutedPropertyChangingEvent.ts" />
     <TypeScriptCompile Include="Typescript\Engine\Inspection.ts" />
+    <TypeScriptCompile Include="Typescript\Engine\InputManager.ts" />
+    <TypeScriptCompile Include="Typescript\Engine\FocusManager.ts" />
     <Content Include="Typescript\Runtime\EnumerableEx.ts" />
     <TypeScriptCompile Include="Typescript\Xaml\Library.ts" />
     <Content Include="Typescript\Xaml\XamlLoader.ts" />

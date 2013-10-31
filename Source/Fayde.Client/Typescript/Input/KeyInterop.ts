@@ -6,6 +6,18 @@
 // Good Resource: http://unixpapa.com/js/key.html
 
 module Fayde.Input {
+    export interface IKeyInterop {
+        RegisterEvents(inputHandler: Engine.InputManager);
+    }
+    export function CreateKeyInterop(): IKeyInterop {
+        //Figure out which KeyInterop
+        if (navigator.appName === "Microsoft Internet Explorer")
+            return new IEKeyInterop();
+        else if (navigator.appName === "Netscape")
+            return new NetscapeKeyInterop();
+        return new KeyInterop();
+    }
+
     var keyFromKeyCode: Key[] = [];
     keyFromKeyCode[8] = Key.Back;
     keyFromKeyCode[9] = Key.Tab;
@@ -94,14 +106,12 @@ module Fayde.Input {
     keyFromKeyCode[122] = Key.F11;
     keyFromKeyCode[123] = Key.F12;
 
-    export class KeyInterop {
-        constructor(public Surface: Surface) { }
-        RegisterEvents() {
+    class KeyInterop implements IKeyInterop {
+        RegisterEvents(input: Engine.InputManager) {
             document.onkeypress = (e) => {
                 var args = this.CreateArgsPress(e);
                 if (args) {
-                    //KeyboardDebug("[Press] - " + e.keyCode + " - " + e.char);
-                    this.Surface._HandleKeyDown(args);
+                    input.HandleKeyDown(args);
                     if (args.Handled) {
                         e.preventDefault();
                         return false;
@@ -111,8 +121,7 @@ module Fayde.Input {
             document.onkeydown = (e) => {
                 var args = this.CreateArgsDown(e);
                 if (args) {
-                    //KeyboardDebug("[Down] - " + e.keyCode + " - " + e.char);
-                    this.Surface._HandleKeyDown(args);
+                    input.HandleKeyDown(args);
                     if (args.Handled) {
                         e.preventDefault();
                         return false;
@@ -122,20 +131,7 @@ module Fayde.Input {
         }
         CreateArgsPress(e): Fayde.Input.KeyEventArgs { return undefined; }
         CreateArgsDown(e): Fayde.Input.KeyEventArgs { return undefined; }
-        static CreateInterop(surface: Surface): KeyInterop {
-            //Figure out which KeyInterop
-            if (navigator.appName === "Microsoft Internet Explorer")
-                return new IEKeyInterop(surface);
-            else if (navigator.appName === "Netscape")
-                return new NetscapeKeyInterop(surface);
-            return new KeyInterop(surface);
-        }
     }
-    Fayde.RegisterType(KeyInterop, {
-    	Name: "KeyInterop",
-    	Namespace: "Fayde.Input",
-    	XmlNamespace: Fayde.XMLNS
-    });
     
     var udkie = [];
     udkie[41] = 48;
@@ -148,10 +144,7 @@ module Fayde.Input {
     udkie[38] = 55;
     udkie[42] = 56;
     udkie[34] = Key.Unknown;
-    export class IEKeyInterop extends KeyInterop {
-        constructor(surface: Surface) {
-            super(surface);
-        }
+    class IEKeyInterop extends KeyInterop {
         CreateArgsPress(e): Fayde.Input.KeyEventArgs {
             if (!e["char"])
                 return;
@@ -187,11 +180,6 @@ module Fayde.Input {
             return new Fayde.Input.KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode]);
         }
     }
-    Fayde.RegisterType(IEKeyInterop, {
-    	Name: "IEKeyInterop",
-    	Namespace: "Fayde.Input",
-    	XmlNamespace: Fayde.XMLNS
-    });
     
     var sknet = [];
     sknet[8] = Key.Back;
@@ -220,10 +208,7 @@ module Fayde.Input {
     udknet[38] = 55;
     udknet[42] = 56;
     udknet[34] = Key.Unknown;
-    export class NetscapeKeyInterop extends KeyInterop {
-        constructor(surface: Surface) {
-            super(surface);
-        }
+    class NetscapeKeyInterop extends KeyInterop {
         CreateArgsPress(e): Fayde.Input.KeyEventArgs {
             var modifiers = {
                 Shift: e.shiftKey,
@@ -251,9 +236,4 @@ module Fayde.Input {
             return new Fayde.Input.KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode]);
         }
     }
-    Fayde.RegisterType(NetscapeKeyInterop, {
-    	Name: "NetscapeKeyInterop",
-    	Namespace: "Fayde.Input",
-    	XmlNamespace: Fayde.XMLNS
-    });
 }
