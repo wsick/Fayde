@@ -1,7 +1,3 @@
-/// CODE
-/// <reference path="../../Core/DependencyObject.ts" />
-/// <reference path="../../Core/DependencyProperty.ts" />
-/// <reference path="AnimationBase.ts" />
 
 module Fayde.Media.Animation {
     export interface IAnimationStorage {

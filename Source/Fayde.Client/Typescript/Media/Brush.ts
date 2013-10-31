@@ -1,8 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
 /// <reference path="../Core/DependencyObject.ts" />
-/// <reference path="Transform.ts" />
-/// CODE
-/// <reference path="../Primitives/rect.ts" />
 
 module Fayde.Media {
     export interface IBrushChangedListener {

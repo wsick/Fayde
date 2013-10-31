@@ -1,9 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-/// CODE
-/// <reference path="XamlObject.ts" />
-/// <reference path="NameScope.ts" />
-/// <reference path="../Runtime/BError.ts" />
-/// <reference path="../Runtime/Enumerable.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 
 module Fayde {
     export enum VisualTreeDirection {

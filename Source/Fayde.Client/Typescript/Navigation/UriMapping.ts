@@ -1,5 +1,4 @@
 /// <reference path="../Core/DependencyObject.ts" />
-/// CODE
 
 module Fayde.Navigation {
     export class UriMapping extends DependencyObject {

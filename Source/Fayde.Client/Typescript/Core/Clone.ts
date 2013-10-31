@@ -1,5 +1,3 @@
-/// CODE
-/// <reference path="XamlObject.ts" />
 
 module Fayde {
     export function Clone(value: any): any {

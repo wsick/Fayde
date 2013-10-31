@@ -1,6 +1,4 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
-/// CODE
-/// <reference path="TimeSpan.ts" />
 
 class KeyTime implements ICloneable {
     private _IsPaced: boolean = false;

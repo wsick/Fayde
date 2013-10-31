@@ -1,5 +1,4 @@
 /// <reference path="AnimationUsingKeyFrames.ts" />
-/// CODE
 
 module Fayde.Media.Animation {
     export class ColorAnimationUsingKeyFrames extends AnimationUsingKeyFrames {

@@ -1,9 +1,4 @@
 /// <reference path="../Core/FrameworkElement.ts" />
-/// CODE
-/// <reference path="../Core/TemplateBindingExpression.ts" />
-/// <reference path="ContentControl.ts" />
-/// <reference path="Grid.ts" />
-/// <reference path="../Core/DataTemplate.ts" />
 
 module Fayde.Controls {
     export class ContentPresenterNode extends FENode {

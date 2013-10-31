@@ -1,6 +1,4 @@
 /// <reference path="Brush.ts" />
-/// CODE
-/// <reference path="../Primitives/Color.ts" />
 
 module Fayde.Media {
     export class SolidColorBrush extends Brush {

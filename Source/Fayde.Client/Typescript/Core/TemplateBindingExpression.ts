@@ -1,8 +1,4 @@
 /// <reference path="Expression.ts" />
-/// CODE
-/// <reference path="TypeConverter.ts" />
-/// <reference path="../Controls/ContentControl.ts" />
-/// <reference path="Providers/PropertyStore.ts" />
 
 module Fayde {
     export class TemplateBindingExpression extends Expression {

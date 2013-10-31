@@ -1,4 +1,3 @@
-/// CODE
 
 interface IInterfaceDeclaration extends IType {
     Name: string;

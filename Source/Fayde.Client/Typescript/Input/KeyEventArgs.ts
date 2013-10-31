@@ -1,5 +1,4 @@
 /// <reference path="../Core/RoutedEventArgs.ts" />
-/// CODE
 
 module Fayde.Input {
     export enum Key {

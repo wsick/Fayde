@@ -1,5 +1,4 @@
 /// <reference path="ButtonBase.ts" />
-/// CODE
 
 module Fayde.Controls.Primitives {
     export class ToggleButton extends ButtonBase {

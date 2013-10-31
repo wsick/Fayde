@@ -1,8 +1,4 @@
 /// <reference path="Geometry.ts" />
-/// <reference path="Geometry.ts" />
-/// CODE
-/// <reference path="../Shapes/Enums.ts" />
-/// <reference path="PathFigure.ts" />
 
 module Fayde.Media {
     export class PathGeometry extends Geometry implements IPathFigureListener {

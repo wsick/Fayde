@@ -1,7 +1,4 @@
 /// <reference path="VirtualizingPanel.ts" />
-/// CODE
-/// <reference path="ScrollViewer.ts" />
-/// <reference path="Primitives/IScrollInfo.ts" />
 
 module Fayde.Controls {
     var LineDelta = 14.7;

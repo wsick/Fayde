@@ -1,6 +1,4 @@
 /// <reference path="ContentControl.ts" />
-/// CODE
-/// <reference path="Primitives/Selector.ts" />
 
 module Fayde.Controls {
     export class ListBoxItem extends ContentControl {

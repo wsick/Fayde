@@ -1,4 +1,3 @@
-/// CODE
 
 module Fayde {
     export class AjaxRequest {

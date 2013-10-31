@@ -1,7 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-/// CODE
-/// <reference path="rect.ts" />
-/// <reference path="Thickness.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 
 interface ISize {
     Width: number;

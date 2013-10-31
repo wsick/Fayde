@@ -1,7 +1,4 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
-/// CODE
-/// <reference path="MarkupExpressionParser.ts" />
-/// <reference path="../Core/TemplateBindingExpression.ts" />
 
 module Fayde.Xaml {
     export class TemplateBinding implements IMarkup {

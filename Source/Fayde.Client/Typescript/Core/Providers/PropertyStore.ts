@@ -1,6 +1,3 @@
-/// CODE
-/// <reference path="../DependencyObject.ts" />
-/// <reference path="../../Media/Animation/AnimationStore.ts" />
 
 module Fayde.Providers {
     export enum PropertyPrecedence {

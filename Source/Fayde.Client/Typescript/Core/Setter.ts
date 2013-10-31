@@ -1,7 +1,5 @@
-/// <reference path="XamlObject.ts" />
+/// <reference path="DependencyObject.ts" />
 /// <reference path="XamlObjectCollection.ts" />
-/// CODE
-/// <reference path="TypeConverter.ts" />
 
 module Fayde {
     export class SetterCollection extends XamlObjectCollection<Setter> {

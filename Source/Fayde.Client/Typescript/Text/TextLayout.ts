@@ -1,10 +1,3 @@
-/// CODE
-/// <reference path="TextAttributes.ts" />
-/// <reference path="../Primitives/size.ts" />
-/// <reference path="../Engine/RenderContext.ts" />
-/// <reference path="../Engine/Surface.ts" />
-/// <reference path="../Core/Enums.ts" />
-/// <reference path="../Controls/Enums.ts" />
 
 module Fayde.Text {
     export interface IBreakOp {

@@ -1,5 +1,4 @@
 /// <reference path="EasingFunctionBase.ts" />
-/// CODE
 
 module Fayde.Media.Animation {
     export class BackEase extends EasingFunctionBase {

@@ -1,5 +1,4 @@
 /// <reference path="Expression.ts" />
-/// CODE
 
 module Fayde {
     export class DeferredValueExpression extends Expression {

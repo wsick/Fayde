@@ -1,10 +1,4 @@
 /// <reference path="../../Core/DependencyObject.ts" />
-/// CODE
-/// <reference path="../../Controls/Control.ts" />
-/// <reference path="../../Controls/UserControl.ts" />
-/// <reference path="VisualState.ts" />
-/// <reference path="VisualStateGroup.ts" />
-/// <reference path="../../Runtime/Debug.ts" />
 
 module Fayde.Media.VSM {
     export interface IStateData {

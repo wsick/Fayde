@@ -1,6 +1,4 @@
 /// <reference path="ButtonBase.ts" />
-/// CODE
-/// <reference path="../../Core/VisualTreeHelper.ts" />
 
 module Fayde.Controls.Primitives {
     export class RepeatButton extends ButtonBase {

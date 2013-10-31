@@ -1,7 +1,4 @@
 /// <reference path="../../Core/FrameworkElement.ts" />
-/// CODE
-/// <reference path="../../Primitives/Color.ts" />
-/// <reference path="../../Media/SolidColorBrush.ts" />
 
 module Fayde.Controls.Primitives {
     export class PopupNode extends FENode implements IBoundsComputable, IPostComputeTransformable {

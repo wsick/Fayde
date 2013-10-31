@@ -1,10 +1,4 @@
 /// <reference path="../Core/FrameworkElement.ts" />
-/// CODE
-/// <reference path="../Core/XamlObjectCollection.ts" />
-/// <reference path="../Documents/Run.ts" />
-/// <reference path="../Documents/Span.ts" />
-/// <reference path="../Documents/LineBreak.ts" />
-/// <reference path="../Text/TextLayout.ts" />
 
 module Fayde.Controls {
     export class TextBlockNode extends FENode implements IBoundsComputable, Documents.IInlinesChangedListener {

@@ -1,5 +1,4 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
-/// CODE
 
 class Thickness implements ICloneable {
     Left: number;

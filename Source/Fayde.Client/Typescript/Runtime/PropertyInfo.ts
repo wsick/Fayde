@@ -1,6 +1,3 @@
-/// CODE
-/// <reference path="Nullstone.ts" />
-/// <reference path="../Core/XamlObjectCollection.ts" />
 
 interface IPropertyInfo {
 }

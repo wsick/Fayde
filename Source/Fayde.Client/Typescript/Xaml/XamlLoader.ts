@@ -1,8 +1,4 @@
 /// <reference path="../Core/XamlObject.ts" />
-/// CODE
-/// <reference path="../Runtime/TypeManagement.ts" />
-/// <reference path="MarkupExpressionParser.ts" />
-/// <reference path="Library.ts" />
 
 module Fayde.Xaml {
     var parser = new DOMParser();

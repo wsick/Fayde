@@ -1,8 +1,4 @@
 /// <reference path="Timeline.ts" />
-/// CODE
-/// <reference path="../../Engine/Application.ts" />
-/// <reference path="../../Data/PropertyPath.ts" />
-/// <reference path="../../Runtime/Debug.ts" />
 
 module Fayde.Media.Animation {
     /// http://msdn.microsoft.com/en-us/library/cc189019(v=vs.95).aspx

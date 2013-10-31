@@ -1,6 +1,3 @@
-/// CODE
-/// <reference path="../Runtime/TypeManagement.ts" />
-/// <reference path="../Core/Expression.ts" />
 
 module Fayde.Xaml {
     export interface IMarkupParseContext {

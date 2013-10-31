@@ -1,6 +1,4 @@
 /// <reference path="../Core/DependencyObject.ts" />
-/// CODE
-/// <reference path="ICollectionView.ts" />
 
 module Fayde.Data {
     export class CollectionViewSource extends DependencyObject {

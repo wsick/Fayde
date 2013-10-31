@@ -1,6 +1,4 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
-/// CODE
-/// <reference path="../Runtime/MulticastEvent.ts" />
 
 module Fayde.Data {
     export interface ICollectionView extends IEnumerable<any> {

@@ -1,6 +1,4 @@
 /// <reference path="../../Core/Triggers.ts" />
-/// CODE
-/// <reference path="Storyboard.ts" />
 
 module Fayde.Media.Animation {
     export class BeginStoryboard extends TriggerAction {

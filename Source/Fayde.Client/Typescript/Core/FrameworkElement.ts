@@ -1,12 +1,6 @@
 /// <reference path="UIElement.ts" />
-/// CODE
-/// <reference path="../Runtime/Enumerable.ts" />
-/// <reference path="../Primitives/size.ts" />
-/// <reference path="../Primitives/Length.ts" />
-/// <reference path="ResourceDictionary.ts" />
+/// <reference path="Providers/ImmutableStore.ts" />
 /// <reference path="Providers/ActualSizeStore.ts" />
-/// <reference path="Providers/LocalStyleBroker.ts" />
-/// <reference path="Providers/ImplicitStyleBroker.ts" />
 
 module Fayde {
     export class FENode extends UINode implements Providers.IStyleHolder, Providers.IImplicitStyleHolder {

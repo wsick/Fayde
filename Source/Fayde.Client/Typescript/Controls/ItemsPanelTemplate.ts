@@ -1,6 +1,4 @@
 /// <reference path="../Xaml/XamlLoader.ts" />
-/// CODE
-/// <reference path="Panel.ts" />
 
 module Fayde.Controls {
     export class ItemsPanelTemplate extends Xaml.FrameworkTemplate {

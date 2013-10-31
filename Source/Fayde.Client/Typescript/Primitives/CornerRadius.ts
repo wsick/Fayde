@@ -1,5 +1,4 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
-/// CODE
 
 class CornerRadius implements ICloneable {
     TopLeft: number;

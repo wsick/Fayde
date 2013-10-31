@@ -1,10 +1,5 @@
 /// <reference path="../../Core/DependencyObject.ts" />
 /// <reference path="../../Core/XamlObjectCollection.ts" />
-/// CODE
-/// <reference path="VisualState.ts" />
-/// <reference path="VisualTransition.ts" />
-/// <reference path="../Animation/Storyboard.ts" />
-/// <reference path="../../Controls/Control.ts" />
 
 module Fayde.Media.VSM {
     export class VisualStateChangedEventArgs extends EventArgs {

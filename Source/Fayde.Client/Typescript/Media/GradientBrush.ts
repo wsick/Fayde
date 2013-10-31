@@ -1,8 +1,5 @@
 /// <reference path="Brush.ts" />
-/// <reference path="../Runtime/Enum.ts" />
 /// <reference path="Enums.ts" />
-/// CODE
-/// <reference path="GradientStop.ts" />
 
 module Fayde.Media {
     export class GradientBrush extends Brush implements IGradientStopsListener {

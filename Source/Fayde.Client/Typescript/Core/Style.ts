@@ -1,6 +1,4 @@
 /// <reference path="DependencyObject.ts" />
-/// CODE
-/// <reference path="Setter.ts" />
 
 module Fayde {
     export class Style extends DependencyObject {

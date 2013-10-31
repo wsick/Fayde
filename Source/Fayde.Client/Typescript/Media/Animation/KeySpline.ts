@@ -1,17 +1,14 @@
 /// <reference path="../../Core/DependencyObject.ts" />
-/// CODE
-/// <reference path="Curves.ts" />
-/// <reference path="../../Primitives/Point.ts" />
 
 module Fayde.Media.Animation {
     export class KeySpline extends DependencyObject {
         static PRECISION_LEVEL: number = 4;
         static TOTAL_COUNT: number = Math.pow(2, KeySpline.PRECISION_LEVEL);
 
-        static ControlPoint1Property: DependencyProperty = DependencyProperty.RegisterCore("ControlPoint1", function () { return Point; }, KeySpline, new Point(0, 0), (d, args) => (<KeySpline>d).InvalidateControlPoints());
-        static ControlPoint2Property: DependencyProperty = DependencyProperty.RegisterCore("ControlPoint2", function () { return Point; }, KeySpline, new Point(1.0, 1.0), (d, args) => (<KeySpline>d).InvalidateControlPoints());
-        ControlPoint1: Point;
-        ControlPoint2: Point;
+        static ControlPoint1Property: DependencyProperty = DependencyProperty.RegisterCore("ControlPoint1", function () { return Point; }, KeySpline, undefined, (d, args) => (<KeySpline>d).InvalidateControlPoints());
+        static ControlPoint2Property: DependencyProperty = DependencyProperty.RegisterCore("ControlPoint2", function () { return Point; }, KeySpline, undefined, (d, args) => (<KeySpline>d).InvalidateControlPoints());
+        ControlPoint1: Point; //undefined is 0,0
+        ControlPoint2: Point; //undefined is 1,1
 
         private _QuadraticsArray: IQuadraticCurve[] = null;
         GetSplineProgress(linearProgress: number): number {
@@ -27,8 +24,8 @@ module Fayde.Media.Animation {
             this._QuadraticsArray = null;
         }
         private _RegenerateQuadratics() {
-            var c1 = this.ControlPoint1;
-            var c2 = this.ControlPoint2;
+            var c1 = this.ControlPoint1 || new Point(0, 0);
+            var c2 = this.ControlPoint2 || new Point(1.0, 1.0);
             var src: ICubicCurve = {
                 c0: { x: 0.0, y: 0.0 },
                 c1: { x: c1.X, y: c1.Y },

@@ -1,7 +1,4 @@
 /// <reference path="KeyFrame.ts" />
-/// <reference path="EasingFunctionBase.ts" />
-/// <reference path="KeySpline.ts" />
-/// CODE
 
 module Fayde.Media.Animation {
     export class DoubleKeyFrame extends KeyFrame {

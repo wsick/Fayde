@@ -1,10 +1,4 @@
 /// <reference path="ContentControl.ts" />
-/// CODE
-/// <reference path="../Navigation/NavigationService.ts" />
-/// <reference path="../Navigation/UriMapper.ts" />
-/// <reference path="../Runtime/TimelineProfile.ts" />
-/// <reference path="Page.ts" />
-/// <reference path="../Primitives/Uri.ts" />
 
 module Fayde.Controls {
     var ERROR_PAGE_XAML = "<Page xmlns=\"" + Fayde.XMLNS + "\" xmlns:x=\"" + Fayde.XMLNSX + "\"><TextBlock Text=\"An error occurred navigating.\" /></Page>";

@@ -1,4 +1,3 @@
-/// CODE
 
 module Fayde.Text {
     export interface ITextBoxUndoAction {

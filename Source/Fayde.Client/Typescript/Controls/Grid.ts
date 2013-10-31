@@ -1,7 +1,4 @@
 /// <reference path="Panel.ts" />
-/// CODE
-/// <reference path="RowDefinition.ts" />
-/// <reference path="ColumnDefinition.ts" />
 
 module Fayde.Controls {
     export class GridNode extends PanelNode {

@@ -1,5 +1,4 @@
 /// <reference path="../Core/FrameworkElement.ts" />
-/// CODE
 /// <reference path="../Core/XamlObjectCollection.ts" />
 
 module Fayde.Controls {

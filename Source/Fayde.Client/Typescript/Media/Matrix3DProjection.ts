@@ -1,6 +1,4 @@
 /// <reference path="Projection.ts" />
-/// CODE
-/// <reference path="Matrix3D.ts" />
 
 module Fayde.Media {
     export class Matrix3DProjection extends Projection {

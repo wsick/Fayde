@@ -1,6 +1,4 @@
 /// <reference path="../Input/KeyEventArgs.ts" />
-/// CODE
-/// <reference path="../Engine/Surface.ts" />
 
 
 // Good Resource: http://unixpapa.com/js/key.html

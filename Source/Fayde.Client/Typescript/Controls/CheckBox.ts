@@ -1,5 +1,4 @@
 /// <reference path="Primitives/ToggleButton.ts" />
-/// CODE
 
 module Fayde.Controls {
     export class CheckBox extends Primitives.ToggleButton {

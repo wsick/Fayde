@@ -75,14 +75,9 @@
     <Content Include="Docs\Plugins.txt" />
     <Content Include="Docs\XamlLoaderNotes.txt" />
     <Content Include="Docs\XamlNotes.txt" />
-    <Content Include="Fayde.js">
-      <DependentUpon>Fayde.ts</DependentUpon>
-    </Content>
-    <Content Include="Fayde.ts" />
+    <Content Include="Fayde.d.ts" />
+    <Content Include="Fayde.js" />
     <Content Include="Global.asax" />
-    <Content Include="Fayde.d.ts">
-      <DependentUpon>Fayde.ts</DependentUpon>
-    </Content>
     <Content Include="Silo\brush-transform.html" />
     <Content Include="Silo\hittest.html" />
     <Content Include="Silo\lineargradient-pattern.html" />
@@ -443,10 +438,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Fayde.tsorder">
-      <DependentUpon>Fayde.ts</DependentUpon>
-    </Content>
     <None Include="build.bat" />
+    <Content Include="prebuild.ps1" />
+    <Content Include="Fayde.tsorder" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
@@ -479,6 +473,7 @@ xcopy /s /y Theme.*.xml ..\jsbin\</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>cd "$(ProjectDir)"
-build.bat "$(ProjectDir)"</PreBuildEvent>
+powershell -File "$(ProjectDir)prebuild.ps1" "$(ProjectDir)Typescript" "$(ProjectDir)SourceList.txt"
+tsc --sourcemap -t ES5 @SourceList.txt --out Fayde.js -d</PreBuildEvent>
   </PropertyGroup>
 </Project>

@@ -1,6 +1,4 @@
 /// <reference path="Control.ts" />
-/// CODE
-/// <reference path="Enums.ts" />
 
 module Fayde.Controls {
     export class _RichTextBoxView {

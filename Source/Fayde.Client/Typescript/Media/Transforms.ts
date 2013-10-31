@@ -1,6 +1,5 @@
 /// <reference path="Transform.ts" />
 /// <reference path="../Core/XamlObjectCollection.ts" />
-/// CODE
 
 module Fayde.Media {
     export class RotateTransform extends Transform {

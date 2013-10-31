@@ -1,9 +1,4 @@
 /// <reference path="ContentControl.ts" />
-/// CODE
-/// <reference path="Enums.ts" />
-/// <reference path="Primitives/ScrollEventArgs.ts" />
-/// <reference path="Primitives/ScrollBar.ts" />
-/// <reference path="ScrollContentPresenter.ts" />
 
 module Fayde.Controls {
     export class ScrollViewer extends ContentControl {

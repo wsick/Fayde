@@ -1,5 +1,4 @@
 /// <reference path="ObservableObject.ts"/>
-/// CODE
 
 module Fayde.MVVM {
     export class ViewModelBase extends ObservableObject {

@@ -1,6 +1,4 @@
 /// <reference path="../Xaml/XamlLoader.ts" />
-/// CODE
-/// <reference path="DependencyObject.ts" />
 
 module Fayde {
     export class DataTemplate extends Xaml.FrameworkTemplate {

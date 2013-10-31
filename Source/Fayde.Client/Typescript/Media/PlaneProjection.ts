@@ -1,6 +1,4 @@
 /// <reference path="Projection.ts" />
-/// CODE
-/// <reference path="Matrix3D.ts" />
 
 module Fayde.Media {
     var FIELD_OF_VIEW = 57.0 / 180 * Math.PI;

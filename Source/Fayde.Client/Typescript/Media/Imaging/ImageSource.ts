@@ -1,6 +1,4 @@
-/// <reference path="../../Runtime/Nullstone.ts" />
 /// <reference path="../../Core/DependencyObject.ts"/>
-/// CODE
 
 module Fayde.Media.Imaging {
     export class ImageSource extends DependencyObject {

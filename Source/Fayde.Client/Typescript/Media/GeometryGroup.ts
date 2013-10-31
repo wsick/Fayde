@@ -1,6 +1,4 @@
 /// <reference path="Geometry.ts" />
-/// CODE
-/// <reference path="../Runtime/Enum.ts" />
 /// <reference path="../Shapes/Enums.ts" />
 
 module Fayde.Media {

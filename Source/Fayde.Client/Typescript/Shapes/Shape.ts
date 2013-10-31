@@ -1,12 +1,4 @@
 /// <reference path="../Core/FrameworkElement.ts" />
-/// CODE
-/// <reference path="../Media/Brush.ts" />
-/// <reference path="../Media/Enums.ts" />
-/// <reference path="Enums.ts" />
-/// <reference path="DoubleCollection.ts" />
-/// <reference path="Rectangle.ts" />
-/// <reference path="Ellipse.ts" />
-/// <reference path="Line.ts" />
 
 module Fayde.Shapes {
     export class ShapeNode extends FENode implements IBoundsComputable, IPostInsideObject {

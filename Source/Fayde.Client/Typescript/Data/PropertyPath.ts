@@ -1,9 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-/// <reference path="../Controls/TextBlock.ts" />
-/// <reference path="../Controls/Primitives/Popup.ts" />
-/// CODE
-/// <reference path="../Core/DependencyProperty.ts" />
-/// <reference path="../Core/Clone.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 
 module Fayde.Data {
     interface IParseData {

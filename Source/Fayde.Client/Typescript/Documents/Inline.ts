@@ -1,6 +1,4 @@
 /// <reference path="TextElement.ts" />
-/// CODE
-/// <reference path="../Core/XamlObjectCollection.ts" />
 
 module Fayde.Documents {
     export interface IInlinesChangedListener {

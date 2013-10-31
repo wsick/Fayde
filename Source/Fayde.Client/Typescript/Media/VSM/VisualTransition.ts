@@ -1,6 +1,4 @@
 /// <reference path="../../Core/DependencyObject.ts" />
-/// CODE
-/// <reference path="../Animation/EasingFunctionBase.ts" />
 
 module Fayde.Media.VSM {
     export class VisualTransition extends DependencyObject {

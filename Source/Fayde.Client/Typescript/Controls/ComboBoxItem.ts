@@ -1,6 +1,4 @@
 /// <reference path="ListBoxItem.ts" />
-/// CODE
-/// <reference path="ComboBox.ts" />
 
 module Fayde.Controls {
     export class ComboBoxItem extends ListBoxItem {

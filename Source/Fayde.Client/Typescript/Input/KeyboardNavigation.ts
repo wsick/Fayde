@@ -1,5 +1,4 @@
 /// <reference path="../Core/DependencyObject.ts" />
-/// CODE
 
 module Fayde.Input {
     export class KeyboardNavigation {

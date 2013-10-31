@@ -1,14 +1,4 @@
 /// <reference path="../Core/DependencyObject.ts" />
-/// CODE
-/// <reference path="../Xaml/XamlLoader.ts" />
-/// <reference path="../Runtime/TimelineProfile.ts" />
-/// <reference path="Surface.ts" />
-/// <reference path="../Core/ResourceDictionary.ts" />
-/// <reference path="../Primitives/Uri.ts" />
-/// <reference path="ClockTimer.ts" />
-/// <reference path="DebugInterop.ts" />
-/// <reference path="../Core/XamlObjectCollection.ts" />
-/// <reference path="../Xaml/Sources.ts" />
 
 interface ITimeline {
     Update(nowTime: number);

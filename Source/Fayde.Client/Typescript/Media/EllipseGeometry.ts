@@ -1,5 +1,4 @@
 /// <reference path="Geometry.ts" />
-/// CODE
 
 module Fayde.Media {
     export class EllipseGeometry extends Geometry {

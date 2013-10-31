@@ -1,8 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-/// CODE
-/// <reference path="UIElement.ts" />
-/// <reference path="../Media/Geometry.ts" />
-/// <reference path="../Primitives/rect.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 
 module Fayde {
     export class LayoutInformation {

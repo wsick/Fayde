@@ -1,7 +1,4 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
-/// CODE
-/// <reference path="../Runtime/MulticastEvent.ts" />
-/// <reference path="../Runtime/EventArgs.ts" />
 
 module Fayde.Navigation {
     export class NavigationService {

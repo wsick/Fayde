@@ -1,5 +1,4 @@
 /// <reference path="Inline.ts" />
-/// CODE
 
 module Fayde.Documents {
     export class Span extends Inline implements IInlinesChangedListener {

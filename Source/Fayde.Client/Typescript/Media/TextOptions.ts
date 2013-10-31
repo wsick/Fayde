@@ -1,7 +1,4 @@
 /// <reference path="../Core/DependencyObject.ts" />
-/// CODE
-/// <reference path="../Runtime/Enum.ts" />
-/// <reference path="Enums.ts" />
 
 module Fayde.Media {
     export class TextOptions {

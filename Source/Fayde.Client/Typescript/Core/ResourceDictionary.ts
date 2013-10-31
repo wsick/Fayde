@@ -1,6 +1,5 @@
 /// <reference path="DependencyObject.ts" />
 /// <reference path="XamlObjectCollection.ts" />
-/// CODE
 
 // http://msdn.microsoft.com/en-us/library/cc903952(v=vs.95).aspx
 module Fayde {

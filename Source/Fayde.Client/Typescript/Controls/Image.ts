@@ -1,6 +1,4 @@
 /// <reference path="../Core/FrameworkElement.ts" />
-/// CODE
-/// <reference path="../Media/Imaging/BitmapImage.ts" />
 /// <reference path="../Media/Enums.ts" />
 
 module Fayde.Controls {

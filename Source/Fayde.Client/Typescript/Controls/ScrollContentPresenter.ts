@@ -1,12 +1,5 @@
 /// <reference path="ContentPresenter.ts" />
 /// <reference path="Primitives/IScrollInfo.ts" />
-/// CODE
-/// <reference path="ItemsPresenter.ts" />
-/// <reference path="Primitives/ScrollData.ts" />
-/// <reference path="Enums.ts" />
-/// <reference path="TextBox.ts" />
-/// <reference path="TextBoxView.ts" />
-/// <reference path="RichTextBox.ts" />
 
 module Fayde.Controls {
     export class ScrollContentPresenter extends ContentPresenter implements Primitives.IScrollInfo, IMeasurableHidden, IArrangeableHidden {

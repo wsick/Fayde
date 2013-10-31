@@ -1,7 +1,4 @@
 /// <reference path="GeneralTransform.ts" />
-/// CODE
-/// <reference path="../Primitives/RawMatrix.ts" />
-/// <reference path="Matrix.ts" />
 
 module Fayde.Media {
     export interface ITransformChangedListener {

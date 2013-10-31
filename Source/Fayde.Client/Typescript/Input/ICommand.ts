@@ -1,6 +1,4 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
-/// CODE
-/// <reference path="../Runtime/MulticastEvent.ts" />
 
 module Fayde.Input {
     export interface ICommand {

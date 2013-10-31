@@ -1,6 +1,4 @@
 /// <reference path="../Control.ts" />
-/// CODE
-/// <reference path="../../Core/RoutedPropertyChangedEvent.ts" />
 
 module Fayde.Controls.Primitives {
     export class RangeBase extends Controls.Control {

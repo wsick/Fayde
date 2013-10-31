@@ -1,6 +1,4 @@
 /// <reference path="Block.ts" />
-/// CODE
-/// <reference path="../Core/Providers/InheritedStore.ts" />
 
 module Fayde.Documents {
     export class Paragraph extends Block {

@@ -1,8 +1,5 @@
 /// <reference path="Effect.ts" />
 /// <reference path="../../Primitives/Color.ts" />
-/// CODE
-/// <reference path="../../Primitives/Thickness.ts" />
-/// <reference path="../../Engine/RenderContext.ts" />
 
 module Fayde.Media.Effects {
     export class DropShadowEffect extends Effect {

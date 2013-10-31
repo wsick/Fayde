@@ -1,7 +1,4 @@
-/// <reference path="../../Runtime/Nullstone.ts" />
 /// <reference path="ImageSource.ts"/>
-/// CODE
-/// <reference path="../../Primitives/Uri.ts"/>
 
 module Fayde.Media.Imaging {
     declare var Info;

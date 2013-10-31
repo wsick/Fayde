@@ -1,9 +1,5 @@
 /// <reference path="XamlObject.ts" />
 /// <reference path="../Runtime/Enumerable.ts" />
-/// CODE
-/// <reference path="Clone.ts" />
-/// <reference path="../Runtime/BError.ts" />
-/// <reference path="../Runtime/Nullstone.ts" />
 
 module Fayde {
     export class XamlObjectCollection<T extends XamlObject> extends XamlObject implements IEnumerable<T> {

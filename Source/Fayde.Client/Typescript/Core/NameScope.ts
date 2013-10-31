@@ -1,6 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-/// CODE
-/// <reference path="../Engine/Exceptions.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 
 module Fayde {
     export class NameScope {

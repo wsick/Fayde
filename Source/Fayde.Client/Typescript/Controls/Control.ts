@@ -1,7 +1,6 @@
 /// <reference path="../Core/FrameworkElement.ts" />
-/// CODE
 /// <reference path="../Core/Providers/IsEnabledStore.ts" />
-/// <reference path="../Media/VSM/VisualStateManager.ts" />
+/// <reference path="../Input/Keyboard.ts" />
 
 module Fayde.Controls {
     export interface IIsEnabledListener {

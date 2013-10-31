@@ -1,8 +1,3 @@
-/// CODE
-/// <reference path="../Core/UIElement.ts" />
-/// <reference path="ItemsControl.ts" />
-/// <reference path="Primitives/ItemsChangedEventArgs.ts" />
-/// <reference path="../Collections/NotifyCollectionChangedEventArgs.ts" />
 
 module Fayde.Controls {
     export interface IGeneratorPosition {

@@ -1,7 +1,4 @@
 /// <reference path="Primitives/Selector.ts" />
-/// CODE
-/// <reference path="../Core/VisualTreeHelper.ts" />
-/// <reference path="../Input/KeyboardNavigation.ts" />
 
 module Fayde.Controls {
     export class ListBox extends Primitives.Selector {

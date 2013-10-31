@@ -1,6 +1,4 @@
 /// <reference path="Control.ts" />
-/// CODE
-/// <reference path="Grid.ts" />
 
 module Fayde.Controls {
     export class ContentControlNode extends ControlNode {

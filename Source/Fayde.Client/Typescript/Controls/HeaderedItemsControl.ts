@@ -1,6 +1,4 @@
 /// <reference path="ItemsControl.ts" />
-/// CODE
-/// <reference path="../Core/HierarchicalDataTemplate.ts" />
 
 module Fayde.Controls {
     export class HeaderedItemsControl extends ItemsControl {

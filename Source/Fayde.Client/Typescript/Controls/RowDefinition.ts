@@ -1,7 +1,5 @@
 /// <reference path="../Core/DependencyObject.ts" />
 /// <reference path="../Core/XamlObjectCollection.ts" />
-/// CODE
-/// <reference path="GridLength.ts" />
 
 module Fayde.Controls {
     export interface IRowDefinitionListener {

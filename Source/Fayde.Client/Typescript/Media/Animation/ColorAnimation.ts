@@ -1,7 +1,4 @@
 /// <reference path="AnimationBase.ts" />
-/// <reference path="EasingFunctionBase.ts" />
-/// CODE
-/// <reference path="../../Primitives/Color.ts" />
 
 module Fayde.Media.Animation {
     export class ColorAnimation extends AnimationBase {

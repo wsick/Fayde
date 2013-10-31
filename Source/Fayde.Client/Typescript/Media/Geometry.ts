@@ -1,10 +1,5 @@
 /// <reference path="../Core/DependencyObject.ts" />
 /// <reference path="../Core/XamlObjectCollection.ts" />
-/// CODE
-/// <reference path="Transform.ts" />
-/// <reference path="../Primitives/rect.ts" />
-/// <reference path="../Engine/RenderContext.ts" />
-/// <reference path="../Shapes/RawPath.ts" />
 
 module Fayde.Media {
     export interface IGeometryListener {

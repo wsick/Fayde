@@ -1,5 +1,4 @@
 /// <reference path="../Core/DependencyObject.ts" />
-/// CODE
 
 module Fayde.Media {
     export interface IProjectionChangedListener {

@@ -1,6 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-/// CODE
-/// <reference path="Enums.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 
 module Fayde.Data {
     export class RelativeSource {

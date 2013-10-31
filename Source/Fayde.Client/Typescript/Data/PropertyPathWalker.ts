@@ -1,9 +1,3 @@
-/// CODE
-/// <reference path="PropertyPathParser.ts" />
-/// <reference path="../Runtime/PropertyInfo.ts" />
-/// <reference path="../Core/INotifyPropertyChanged.ts" />
-/// <reference path="../Collections/INotifyCollectionChanged.ts" />
-/// <reference path="CollectionViewSource.ts" />
 
 module Fayde.Data {
     declare var AbstractMethod;

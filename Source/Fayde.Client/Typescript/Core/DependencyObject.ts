@@ -1,11 +1,8 @@
+/// <reference path="XamlNode.ts" />
 /// <reference path="XamlObject.ts" />
 /// <reference path="DependencyProperty.ts" />
-/// CODE
 /// <reference path="Providers/PropertyStore.ts" />
 /// <reference path="Providers/DataContextStore.ts" />
-/// <reference path="Expression.ts" />
-/// <reference path="../Data/BindingExpression.ts" />
-/// <reference path="FrameworkElement.ts" />
 
 module Fayde {
     export class DONode extends XamlNode {

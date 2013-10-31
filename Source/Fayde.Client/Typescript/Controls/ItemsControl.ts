@@ -1,11 +1,4 @@
 /// <reference path="Control.ts" />
-/// CODE
-/// <reference path="Panel.ts" />
-/// <reference path="ItemsPresenter.ts" />
-/// <reference path="ItemContainerGenerator.ts" />
-/// <reference path="ContentPresenter.ts" />
-/// <reference path="ItemCollection.ts" />
-/// <reference path="../Collections/NotifyCollectionChangedEventArgs.ts" />
 
 module Fayde.Controls {
     export class ItemsControlNode extends ControlNode {

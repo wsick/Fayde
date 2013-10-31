@@ -1,7 +1,4 @@
 /// <reference path="Primitives/ButtonBase.ts" />
-/// CODE
-/// <reference path="Frame.ts" />
-/// <reference path="../Primitives/Uri.ts" />
 
 module Fayde.Controls {
     export class HyperlinkButton extends Primitives.ButtonBase {

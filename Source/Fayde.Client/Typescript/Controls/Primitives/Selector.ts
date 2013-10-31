@@ -1,9 +1,4 @@
 /// <reference path="../ItemsControl.ts" />
-/// CODE
-/// <reference path="../ListBoxItem.ts" />
-/// <reference path="SelectorSelection.ts" />
-/// <reference path="../../Collections/ObservableCollection.ts" />
-/// <reference path="SelectionChangedEventArgs.ts" />
 
 module Fayde.Controls.Primitives {
     export class Selector extends ItemsControl {

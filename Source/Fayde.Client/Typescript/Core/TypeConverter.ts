@@ -2,11 +2,6 @@
 /// <reference path="../Primitives/Color.ts" />
 /// <reference path="../Primitives/Thickness.ts" />
 /// <reference path="../Media/Brush.ts" />
-/// CODE
-/// <reference path="DependencyProperty.ts" />
-/// <reference path="../Runtime/Enum.ts" />
-/// <reference path="../Media/MediaParser.ts" />
-/// <reference path="../Media/SolidColorBrush.ts" />
 
 module Fayde {
     class TypeConverters {

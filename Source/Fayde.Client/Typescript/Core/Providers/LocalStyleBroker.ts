@@ -1,5 +1,3 @@
-/// CODE
-/// <reference path="../FrameworkElement.ts" />
 
 module Fayde.Providers {
     export interface IStyleHolder {

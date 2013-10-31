@@ -1,7 +1,5 @@
 /// <reference path="../Core/DependencyObject.ts" />
-/// <reference path="../Primitives/Color.ts" />
 /// <reference path="../Core/XamlObjectCollection.ts" />
-/// CODE
 
 module Fayde.Media {
     export interface IGradientStopListener {

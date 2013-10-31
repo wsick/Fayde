@@ -1,7 +1,4 @@
 /// <reference path="../../Runtime/EventArgs.ts" />
-/// CODE
-/// <reference path="../../Collections/NotifyCollectionChangedEventArgs.ts" />
-/// <reference path="../ItemContainerGenerator.ts" />
 
 module Fayde.Controls.Primitives {
     export class ItemsChangedEventArgs extends EventArgs {

@@ -1,6 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-/// CODE
-/// <reference path="../Primitives/RawMatrix.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 
 module Fayde.Media {
     export interface IMatrixChangedListener {

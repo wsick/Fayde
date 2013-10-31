@@ -1,5 +1,4 @@
 /// <reference path="../../Core/RoutedEventArgs.ts" />
-/// CODE
 
 module Fayde.Controls.Primitives {
     export class DragCompletedEventArgs extends RoutedEventArgs {

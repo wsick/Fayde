@@ -1,5 +1,4 @@
 /// <reference path="Primitives/ButtonBase.ts" />
-/// CODE
 
 module Fayde.Controls {
     export class Button extends Primitives.ButtonBase {

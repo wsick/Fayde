@@ -1,6 +1,4 @@
 /// <reference path="Shape.ts" />
-/// CODE
-/// <reference path="../Media/MediaParser.ts" />
 
 module Fayde.Shapes {
     export class Path extends Shape {

@@ -1,6 +1,4 @@
 /// <reference path="PathSegment.ts" />
-/// CODE
-/// <reference path="../Shapes/PointCollection.ts" />
 
 module Fayde.Media {
     export class ArcSegment extends PathSegment {

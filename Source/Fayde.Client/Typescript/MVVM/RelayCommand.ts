@@ -1,6 +1,5 @@
-/// <reference path="../Runtime/Nullstone.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 /// <reference path="../Input/ICommand.ts" />
-/// CODE
 
 module Fayde.MVVM {
     export class RelayCommand implements Input.ICommand {
@@ -16,8 +15,9 @@ module Fayde.MVVM {
         CanExecuteChanged: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
     }
     Fayde.RegisterType(RelayCommand, {
-    	Name: "RelayCommand",
-    	Namespace: "Fayde.MVVM",
-    	XmlNamespace: Fayde.XMLNS
+        Name: "RelayCommand",
+        Namespace: "Fayde.MVVM",
+        XmlNamespace: Fayde.XMLNS,
+        Interfaces: [Input.ICommand_]
     });
 }

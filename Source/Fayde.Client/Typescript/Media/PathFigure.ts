@@ -1,9 +1,5 @@
 /// <reference path="../Core/DependencyObject.ts" />
 /// <reference path="../Core/XamlObjectCollection.ts" />
-/// CODE
-/// <reference path="../Primitives/Point.ts" />
-/// <reference path="../Shapes/RawPath.ts" />
-/// <reference path="PathSegment.ts" />
 
 module Fayde.Media {
     export interface IPathFigureListener {

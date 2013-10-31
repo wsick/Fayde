@@ -1,8 +1,4 @@
 /// <reference path="../../Runtime/TypeManagement.ts" />
-/// CODE
-/// <reference path="../../Primitives/rect.ts" />
-/// <reference path="../../Core/UIElement.ts" />
-/// <reference path="../ScrollViewer.ts" />
 
 module Fayde.Controls.Primitives {
     export interface IScrollInfo {

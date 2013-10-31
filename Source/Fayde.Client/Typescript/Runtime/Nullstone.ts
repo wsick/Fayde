@@ -1,5 +1,4 @@
 /// <reference path="TypeManagement.ts" />
-/// CODE
 
 interface IOutValue {
     Value: any;

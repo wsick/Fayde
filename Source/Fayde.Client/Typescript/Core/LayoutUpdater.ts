@@ -1,14 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-/// CODE
-/// <reference path="UIElement.ts" />
-/// <reference path="../Primitives/RawMatrix.ts" />
-/// <reference path="../Media/Geometry.ts" />
-/// <reference path="../Primitives/rect.ts" />
-/// <reference path="../Primitives/size.ts" />
-/// <reference path="../Primitives/Thickness.ts" />
-/// <reference path="SizeChangedEventArgs.ts" />
-/// <reference path="../Controls/Canvas.ts" />
-/// <reference path="../Media/RectangleGeometry.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 
 module Fayde {
     enum _Dirty {

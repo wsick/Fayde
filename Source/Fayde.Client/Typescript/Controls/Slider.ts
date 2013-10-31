@@ -1,7 +1,4 @@
 /// <reference path="Primitives/RangeBase.ts" />
-/// CODE
-/// <reference path="Primitives/RepeatButton.ts" />
-/// <reference path="Primitives/Thumb.ts" />
 
 module Fayde.Controls {
     export class Slider extends Primitives.RangeBase {

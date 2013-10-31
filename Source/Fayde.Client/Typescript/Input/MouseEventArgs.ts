@@ -1,7 +1,4 @@
 /// <reference path="../Core/RoutedEventArgs.ts" />
-/// CODE
-/// <reference path="../Primitives/Point.ts" />
-/// <reference path="../Core/UIElement.ts" />
 
 module Fayde.Input {
     export class MouseEventArgs extends RoutedEventArgs {

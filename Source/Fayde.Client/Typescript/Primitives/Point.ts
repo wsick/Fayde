@@ -1,5 +1,4 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
-/// CODE
 
 interface IPoint {
     X: number;

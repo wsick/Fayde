@@ -1,15 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-/// CODE
-/// <reference path="../Runtime/TimelineProfile.ts" />
-/// <reference path="Application.ts" />
-/// <reference path="RenderContext.ts" />
-/// <reference path="../Core/UIElement.ts" />
-/// <reference path="../Input/KeyInterop.ts" />
-/// <reference path="../Input/MouseInterop.ts" />
-/// <reference path="../Input/Keyboard.ts" />
-/// <reference path="../Core/Walkers.ts" />
-/// <reference path="../Input/MouseEventArgs.ts" />
-/// <reference path="../Primitives/Font.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 
 var resizeTimeout: number;
 

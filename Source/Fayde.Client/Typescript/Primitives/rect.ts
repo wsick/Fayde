@@ -1,8 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-/// CODE
-/// <reference path="size.ts" />
-/// <reference path="RawMatrix.ts" />
-/// <reference path="Point.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 
 var RectOverlap = {
     Out: 0,

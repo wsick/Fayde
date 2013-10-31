@@ -1,6 +1,4 @@
 /// <reference path="TextElement.ts"/>
-/// CODE
-/// <reference path="Block.ts"/>
 
 module Fayde.Documents {
     export class Section extends TextElement implements IBlocksChangedListener {

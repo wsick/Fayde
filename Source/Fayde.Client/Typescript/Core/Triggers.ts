@@ -1,6 +1,5 @@
 /// <reference path="DependencyObject.ts" />
 /// <reference path="XamlObjectCollection.ts" />
-/// CODE
 
 module Fayde {
     export class TriggerAction extends DependencyObject {

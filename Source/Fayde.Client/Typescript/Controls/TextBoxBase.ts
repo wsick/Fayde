@@ -1,10 +1,5 @@
 /// <reference path="Control.ts" />
 /// <reference path="../Input/KeyEventArgs.ts" />
-/// CODE
-/// <reference path="../Core/Enums.ts" />
-/// <reference path="Enums.ts" />
-/// <reference path="Border.ts" />
-/// <reference path="../Text/History.ts" />
 
 module Fayde.Controls {
     export enum TextBoxModelChangedType {

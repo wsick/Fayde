@@ -1,6 +1,4 @@
 /// <reference path="../Core/XamlObjectCollection.ts" />
-/// CODE
-/// <reference path="Shape.ts" />
 
 module Fayde.Shapes {
     export class PointCollection implements IEnumerable<Point> {

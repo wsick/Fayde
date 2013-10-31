@@ -1,5 +1,3 @@
-/// CODE
-/// <reference path="../ScrollViewer.ts" />
 
 module Fayde.Controls.Primitives {
     export class ScrollData {

@@ -1,8 +1,4 @@
 /// <reference path="../Media/SolidColorBrush.ts" />
-/// CODE
-/// <reference path="../Core/Enums.ts" />
-/// <reference path="../Media/Brush.ts" />
-/// <reference path="../Primitives/Font.ts" />
 
 module Fayde.Text {
     export interface ITextAttributes {

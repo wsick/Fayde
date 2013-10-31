@@ -1,5 +1,4 @@
 /// <reference path="Control.ts" />
-/// CODE
 
 module Fayde.Controls {
     export class UCNode extends ControlNode {

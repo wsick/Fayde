@@ -1,7 +1,5 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
 /// <reference path="../Runtime/EventArgs.ts" />
-/// CODE
-/// <reference path="../Runtime/MulticastEvent.ts" />
 
 module Fayde {
     export class PropertyChangedEventArgs extends EventArgs {

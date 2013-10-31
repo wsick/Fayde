@@ -1,8 +1,5 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
 /// <reference path="Geometry.ts" />
-/// CODE
-/// <reference path="PathGeometry.ts" />
-/// <reference path="../Shapes/PointCollection.ts" />
 
 
 // Path Markup Syntax: http://msdn.microsoft.com/en-us/library/cc189041(v=vs.95).aspx

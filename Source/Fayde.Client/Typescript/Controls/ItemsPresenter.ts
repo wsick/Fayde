@@ -1,10 +1,4 @@
 /// <reference path="../Core/FrameworkElement.ts" />
-/// CODE
-/// <reference path="StackPanel.ts" />
-/// <reference path="VirtualizingStackPanel.ts" />
-/// <reference path="ItemsControl.ts" />
-/// <reference path="ItemsPanelTemplate.ts" />
-/// <reference path="ListBox.ts" />
 
 module Fayde.Controls {
     export class ItemsPresenterNode extends FENode {

@@ -1,5 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-/// CODE
+/// <reference path="../Runtime/TypeManagement.ts" />
 
 var FontStyle = {
     Normal: "normal",

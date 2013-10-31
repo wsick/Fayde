@@ -1,5 +1,3 @@
-/// CODE
-/// <reference path="../Engine/Exceptions.ts" />
 
 module Fayde.Data {
     export interface IPropertyPathParserData {

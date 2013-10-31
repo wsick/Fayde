@@ -1,7 +1,4 @@
 /// <reference path="Geometry.ts" />
-/// CODE
-/// <reference path="../Primitives/Point.ts" />
-/// <reference path="../Shapes/Enums.ts" />
 
 module Fayde.Media {
     export class LineGeometry extends Geometry {

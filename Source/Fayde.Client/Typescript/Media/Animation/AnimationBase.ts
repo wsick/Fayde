@@ -1,6 +1,4 @@
 /// <reference path="Timeline.ts" />
-/// CODE
-/// <reference path="AnimationStore.ts" />
 
 module Fayde.Media.Animation {
     export class AnimationBase extends Timeline {

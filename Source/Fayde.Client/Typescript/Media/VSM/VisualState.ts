@@ -1,7 +1,5 @@
 /// <reference path="../../Core/DependencyObject.ts" />
 /// <reference path="../../Core/XamlObjectCollection.ts" />
-/// CODE
-/// <reference path="../Animation/Storyboard.ts" />
 
 module Fayde.Media.VSM {
     export class VisualState extends DependencyObject {

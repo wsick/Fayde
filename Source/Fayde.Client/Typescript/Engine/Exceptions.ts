@@ -1,5 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-/// CODE
+/// <reference path="../Runtime/TypeManagement.ts" />
 
 class Exception {
     Message: string;

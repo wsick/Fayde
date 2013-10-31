@@ -1,5 +1,4 @@
 /// <reference path="Panel.ts" />
-/// CODE
 
 module Fayde.Controls {
     export class StackPanel extends Panel implements IMeasurableHidden, IArrangeableHidden {

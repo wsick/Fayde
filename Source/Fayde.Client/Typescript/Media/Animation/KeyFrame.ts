@@ -1,9 +1,5 @@
 /// <reference path="../../Core/DependencyObject.ts" />
 /// <reference path="../../Core/XamlObjectCollection.ts" />
-/// CODE
-/// <reference path="../../Primitives/KeyTime.ts" />
-/// <reference path="AnimationBase.ts" />
-/// <reference path="../../Primitives/TimeSpan.ts" />
 
 module Fayde.Media.Animation {
     export interface IKeyFrameListener {

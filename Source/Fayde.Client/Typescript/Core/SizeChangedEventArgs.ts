@@ -1,6 +1,4 @@
 /// <reference path="RoutedEventArgs.ts" />
-/// CODE
-/// <reference path="../Primitives/size.ts" />
 
 module Fayde {
     export class SizeChangedEventArgs extends RoutedEventArgs {

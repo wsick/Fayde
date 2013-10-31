@@ -1,13 +1,7 @@
 /// <reference path="../../Core/DependencyObject.ts" />
-/// <reference path="../../Primitives/TimeSpan.ts" />
-/// <reference path="../../Primitives/Duration.ts" />
-/// <reference path="RepeatBehavior.ts" />
-/// <reference path="Enums.ts" />
-/// <reference path="../../Runtime/Enum.ts" />
 /// <reference path="../../Core/XamlObjectCollection.ts" />
-/// CODE
-/// <reference path="../../Runtime/MulticastEvent.ts" />
-/// <reference path="../../Runtime/EventArgs.ts" />
+/// <reference path="Enums.ts" />
+/// <reference path="RepeatBehavior.ts" />
 
 module Fayde.Media.Animation {
     export interface IClockData {

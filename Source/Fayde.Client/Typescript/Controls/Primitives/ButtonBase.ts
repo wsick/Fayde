@@ -1,7 +1,5 @@
 /// <reference path="../ContentControl.ts" />
-/// CODE
 /// <reference path="../Enums.ts" />
-/// <reference path="../../Input/ICommand.ts" />
 
 module Fayde.Controls.Primitives {
     export class ButtonBase extends ContentControl {

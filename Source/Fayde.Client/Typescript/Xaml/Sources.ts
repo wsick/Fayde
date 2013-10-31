@@ -1,8 +1,5 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
 /// <reference path="../Core/DependencyObject.ts" />
-/// CODE
-/// <reference path="Resources.ts" />
-/// <reference path="../Runtime/BatchLoad.ts" />
 
 module Fayde.Xaml {
     export class Namespace extends DependencyObject implements Runtime.ILoadAsyncable {

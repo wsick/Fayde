@@ -1,7 +1,3 @@
-/// CODE
-/// <reference path="Enums.ts" />
-/// <reference path="../Primitives/rect.ts" />
-/// <reference path="../Engine/RenderContext.ts" />
 
 module Fayde.Shapes {
     export interface IRange {

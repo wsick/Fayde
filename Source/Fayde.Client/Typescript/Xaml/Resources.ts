@@ -1,6 +1,4 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
-/// CODE
-/// <reference path="../Runtime/BatchLoad.ts" />
 
 module Fayde.Xaml {
     export enum ResourceType {

@@ -1,7 +1,4 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
-/// CODE
-/// <reference path="../Data/Binding.ts" />
-/// <reference path="EventBindingExpression.ts" />
 
 module Fayde {
     export interface IEventFilter {

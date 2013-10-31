@@ -1,6 +1,3 @@
-/// CODE
-/// <reference path="UIElement.ts" />
-/// <reference path="../Controls/Grid.ts" />
 
 module Fayde {
     export class VisualTreeHelper {

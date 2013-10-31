@@ -1,8 +1,4 @@
 /// <reference path="Primitives/RangeBase.ts" />
-/// CODE
-/// <reference path="Control.ts" />
-/// <reference path="Border.ts" />
-/// <reference path="../Core/VisualTreeHelper.ts" />
 
 module Fayde.Controls {
     export class ProgressBar extends Primitives.RangeBase {

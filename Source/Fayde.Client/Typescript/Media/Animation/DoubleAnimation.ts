@@ -1,6 +1,4 @@
 /// <reference path="AnimationBase.ts" />
-/// <reference path="EasingFunctionBase.ts" />
-/// CODE
 
 module Fayde.Media.Animation {
     export class DoubleAnimation extends AnimationBase {

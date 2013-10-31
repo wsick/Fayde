@@ -1,11 +1,4 @@
 /// <reference path="../Core/FrameworkElement.ts" />
-/// CODE
-/// <reference path="../Primitives/rect.ts" />
-/// <reference path="../Text/TextLayout.ts" />
-/// <reference path="../Text/TextAttributes.ts" />
-/// <reference path="TextBox.ts" />
-/// <reference path="../Core/Enums.ts" />
-/// <reference path="TextBoxBase.ts" />
 
 module Fayde.Controls.Internal {
     var CURSOR_BLINK_DIVIDER = 3;

@@ -1,5 +1,4 @@
 /// <reference path="../Core/DependencyObject.ts" />
-/// CODE
 
 module Fayde.Xaml {
     export class Library extends DependencyObject implements Runtime.ILoadAsyncable {

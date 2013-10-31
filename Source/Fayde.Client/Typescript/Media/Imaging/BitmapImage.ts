@@ -1,8 +1,5 @@
-/// <reference path="../../Runtime/Nullstone.ts" />
 /// <reference path="BitmapSource.ts"/>
 /// <reference path="../../Primitives/Uri.ts"/>
-/// CODE
-/// <reference path="../../Runtime/MulticastEvent.ts"/>
 
 module Fayde.Media.Imaging {
     export class BitmapImage extends BitmapSource {

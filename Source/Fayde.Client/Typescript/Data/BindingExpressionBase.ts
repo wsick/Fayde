@@ -1,14 +1,4 @@
 /// <reference path="../Core/Expression.ts" />
-/// CODE
-/// <reference path="Enums.ts" />
-/// <reference path="Binding.ts" />
-/// <reference path="PropertyPathWalker.ts" />
-/// <reference path="../Controls/TextBox.ts" />
-/// <reference path="../Controls/ContentPresenter.ts" />
-/// <reference path="../Controls/ItemsControl.ts" />
-/// <reference path="../Runtime/Enumerable.ts" />
-/// <reference path="ICollectionView.ts" />
-/// <reference path="../Runtime/StringEx.ts" />
 
 module Fayde.Data {
     export class BindingExpressionBase extends Fayde.Expression implements IPropertyPathWalkerListener {

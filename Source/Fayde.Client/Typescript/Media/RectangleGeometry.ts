@@ -1,6 +1,4 @@
 /// <reference path="Geometry.ts" />
-/// CODE
-/// <reference path="../Shapes/RawPath.ts"/>
 
 module Fayde.Media {
     export class RectangleGeometry extends Geometry {

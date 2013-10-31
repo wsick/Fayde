@@ -1,5 +1,4 @@
 /// <reference path="UserControl.ts" />
-/// CODE
 
 module Fayde.Controls {
     export class Page extends UserControl {

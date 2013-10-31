@@ -1,6 +1,4 @@
 /// <reference path="../Xaml/XamlLoader.ts" />
-/// CODE
-/// <reference path="../Core/UIElement.ts" />
 
 module Fayde.Controls {
     export class ControlTemplate extends Xaml.FrameworkTemplate {

@@ -1,5 +1,4 @@
 /// <reference path="PropertyStore.ts" />
-/// CODE
 
 module Fayde.Providers {
     export class ActualSizeStore extends PropertyStore {

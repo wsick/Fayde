@@ -1,8 +1,4 @@
 /// <reference path="RangeBase.ts" />
-/// CODE
-/// <reference path="RepeatButton.ts" />
-/// <reference path="Thumb.ts" />
-/// <reference path="ScrollEventArgs.ts" />
 
 module Fayde.Controls.Primitives {
     export class ScrollBar extends RangeBase {

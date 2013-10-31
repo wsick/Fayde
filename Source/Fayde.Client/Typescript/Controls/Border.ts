@@ -1,5 +1,4 @@
 /// <reference path="../Core/FrameworkElement.ts" />
-/// CODE
 
 module Fayde.Controls {
     export class BorderNode extends FENode {

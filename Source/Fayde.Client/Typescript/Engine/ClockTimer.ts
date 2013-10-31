@@ -1,5 +1,3 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-/// CODE
 
 module Fayde {
     export interface ITimerListener {

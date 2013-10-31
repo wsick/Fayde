@@ -1,7 +1,4 @@
 /// <reference path="Primitives/Selector.ts" />
-/// CODE
-/// <reference path="Primitives/ToggleButton.ts" />
-/// <reference path="ComboBoxItem.ts" />
 
 module Fayde.Controls {
     export class ComboBox extends Primitives.Selector {

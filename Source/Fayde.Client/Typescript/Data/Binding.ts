@@ -1,7 +1,4 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
-/// CODE
-/// <reference path="RelativeSource.ts" />
-/// <reference path="../Xaml/MarkupExpressionParser.ts" />
 
 module Fayde.Data {
     export interface IValueConverter {

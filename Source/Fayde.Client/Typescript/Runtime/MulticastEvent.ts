@@ -1,6 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-/// CODE
-/// <reference path="EventArgs.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 
 interface IEventListener<T extends EventArgs> {
     Closure: any;

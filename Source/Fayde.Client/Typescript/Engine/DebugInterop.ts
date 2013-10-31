@@ -1,5 +1,4 @@
 /// <reference path="Application.ts" />
-/// CODE
 
 module Fayde {
     export interface IDebugInteropCache {

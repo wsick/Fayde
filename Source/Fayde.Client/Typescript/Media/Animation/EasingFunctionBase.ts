@@ -1,6 +1,4 @@
 /// <reference path="../../Core/DependencyObject.ts" />
-/// CODE
-/// <reference path="Enums.ts" />
 
 module Fayde.Media.Animation {
     export interface IEasingFunction {

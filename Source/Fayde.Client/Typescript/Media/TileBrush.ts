@@ -1,8 +1,5 @@
 /// <reference path="Brush.ts" />
-/// <reference path="../Runtime/Enum.ts" />
 /// <reference path="Enums.ts" />
-/// CODE
-/// <reference path="../Primitives/rect.ts" />
 
 module Fayde.Media {
     function computeImageMatrix(width: number, height: number, sw: number, sh: number, stretch: Stretch, alignX: AlignmentX, alignY: AlignmentY): number[] {

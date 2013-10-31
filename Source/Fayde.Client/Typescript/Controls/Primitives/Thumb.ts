@@ -1,6 +1,4 @@
 /// <reference path="../Control.ts" />
-/// CODE
-/// <reference path="DragEventArgs.ts" />
 
 module Fayde.Controls.Primitives {
     export class Thumb extends Control {

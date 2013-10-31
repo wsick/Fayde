@@ -1,6 +1,4 @@
 /// <reference path="AnimationUsingKeyFrames.ts" />
-/// CODE
-/// <reference path="ObjectKeyFrame.ts" />
 
 module Fayde.Media.Animation {
     export class ObjectAnimationUsingKeyFrames extends AnimationUsingKeyFrames {

@@ -1,5 +1,4 @@
 /// <reference path="../Runtime/EventArgs.ts" />
-/// CODE
 
 module Fayde {
     export class RoutedEventArgs extends EventArgs {

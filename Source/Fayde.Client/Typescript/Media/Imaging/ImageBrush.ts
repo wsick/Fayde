@@ -1,10 +1,4 @@
-/// <reference path="../../Runtime/Nullstone.ts" />
 /// <reference path="../TileBrush.ts"/>
-/// <reference path="ImageSource.ts"/>
-/// CODE
-/// <reference path="../../Runtime/MulticastEvent.ts"/>
-/// <reference path="BitmapSource.ts"/>
-/// <reference path="BitmapImage.ts"/>
 
 module Fayde.Media.Imaging {
     export class ImageBrush extends TileBrush implements IImageChangedListener {

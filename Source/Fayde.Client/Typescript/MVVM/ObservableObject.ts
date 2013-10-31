@@ -1,6 +1,5 @@
-/// <reference path="../Runtime/Nullstone.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 /// <reference path="../Core/INotifyPropertyChanged.ts" />
-/// CODE
 
 module Fayde.MVVM {
     export function NotifyProperties(type: any, propNames: string[]) {

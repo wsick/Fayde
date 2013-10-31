@@ -1,7 +1,4 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
-/// CODE
-/// <reference path="TimeSpan.ts" />
-/// <reference path="../Engine/Exceptions.ts" />
 
 enum DurationType {
     Automatic = 0,

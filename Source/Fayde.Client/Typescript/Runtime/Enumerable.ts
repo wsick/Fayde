@@ -1,6 +1,4 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
-/// CODE
-/// <reference path="../Core/XamlObject.ts" />
 
 module Fayde {
     export interface IEnumerable<T> {

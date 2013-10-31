@@ -1,20 +1,7 @@
 /// <reference path="DependencyObject.ts" />
-/// <reference path="XamlNode.ts" />
 /// <reference path="Providers/InheritedStore.ts" />
 /// <reference path="Enums.ts" />
-/// <reference path="../Media/Effects/Effect.ts"/>
-/// <reference path="../Media/Transform.ts"/>
-/// <reference path="../Media/Projection.ts"/>
-/// <reference path="../Primitives/Point.ts"/>
 /// <reference path="InheritableOwner.ts" />
-/// CODE
-/// <reference path="../Engine/Surface.ts" />
-/// <reference path="Walkers.ts" />
-/// <reference path="LayoutUpdater.ts" />
-/// <reference path="../Runtime/MulticastEvent.ts" />
-/// <reference path="RoutedEvent.ts" />
-/// <reference path="../Media/GeneralTransform.ts" />
-/// <reference path="Triggers.ts" />
 
 module Fayde {
     export class UINode extends DONode {

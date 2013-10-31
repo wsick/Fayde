@@ -1,11 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-/// CODE
-/// <reference path="DependencyObject.ts" />
-/// <reference path="DependencyPropertyChangedEventArgs.ts" />
-/// <reference path="Providers/PropertyStore.ts" />
-/// <reference path="Providers/InheritedStore.ts" />
-/// <reference path="Providers/ImmutableStore.ts" />
-/// <reference path="../Runtime/Enum.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 
 interface IOutIsValid {
     IsValid: boolean;

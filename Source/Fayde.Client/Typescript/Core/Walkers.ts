@@ -1,7 +1,3 @@
-/// CODE
-/// <reference path="UIElement.ts" />
-/// <reference path="Style.ts" />
-/// <reference path="../Controls/Control.ts" />
 
 module Fayde {
     export interface IWalker {

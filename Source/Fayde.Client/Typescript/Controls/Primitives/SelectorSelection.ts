@@ -1,7 +1,4 @@
 /// <reference path="../../Runtime/Nullstone.ts" />
-/// CODE
-/// <reference path="../Enums.ts" />
-/// <reference path="Selector.ts" />
 
 module Fayde.Controls.Primitives {
     export class SelectorSelection {

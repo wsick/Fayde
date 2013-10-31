@@ -1,7 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
 /// <reference path="../Core/DependencyObject.ts" />
-/// CODE
-/// <reference path="../Core/UIElement.ts" />
 
 module Fayde.Controls {
     export class ToolTipService {

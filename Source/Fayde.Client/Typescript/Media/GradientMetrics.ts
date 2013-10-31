@@ -1,5 +1,3 @@
-/// CODE
-/// <reference path="../Primitives/rect.ts" />
 
 module Fayde.Media {
     export interface ICoordinates {

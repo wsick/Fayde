@@ -1,5 +1,4 @@
 /// <reference path="RoutedEvent.ts" />
-/// CODE
 
 module Fayde {
     export class RoutedPropertyChangedEvent<T> extends RoutedEvent<RoutedPropertyChangedEventArgs<T>> {

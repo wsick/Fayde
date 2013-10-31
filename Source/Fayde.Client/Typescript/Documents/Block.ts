@@ -1,5 +1,4 @@
 /// <reference path="TextElement.ts" />
-/// CODE
 
 module Fayde.Documents {
     export interface IBlocksChangedListener {

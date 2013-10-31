@@ -1,7 +1,4 @@
 /// <reference path="Panel.ts" />
-/// CODE
-/// <reference path="ItemContainerGenerator.ts" />
-/// <reference path="ItemsControl.ts" />
 
 module Fayde.Controls {
     export class VirtualizingPanel extends Panel {

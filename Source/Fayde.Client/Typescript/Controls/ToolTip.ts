@@ -1,6 +1,4 @@
 /// <reference path="ContentControl.ts" />
-/// CODE
-/// <reference path="Enums.ts" />
 
 module Fayde.Controls {
     export class ToolTip extends ContentControl {

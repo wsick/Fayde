@@ -1,5 +1,4 @@
 /// <reference path="Shape.ts" />
-/// CODE
 
 module Fayde.Shapes {
     export class Polygon extends Shape {

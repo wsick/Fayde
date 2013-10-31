@@ -1,9 +1,5 @@
 /// <reference path="../Core/DependencyObject.ts"/>
-/// <reference path="../Core/Providers/InheritedStore.ts"/>
-/// CODE
-/// <reference path="../Core/XamlObjectCollection.ts"/>
-/// <reference path="../Text/TextAttributes.ts"/>
-/// <reference path="../Runtime/Enum.ts"/>
+/// <reference path="../Core/InheritableOwner.ts"/>
 
 module Fayde.Documents {
     export class TextElementNode extends DONode {

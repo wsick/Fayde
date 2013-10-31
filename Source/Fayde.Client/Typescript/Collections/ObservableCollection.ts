@@ -1,7 +1,5 @@
 /// <reference path="INotifyCollectionChanged.ts" />
 /// <reference path="../Runtime/Enumerable.ts" />
-/// CODE
-/// <reference path="NotifyCollectionChangedEventArgs.ts" />
 
 module Fayde.Collections {
     export class ObservableCollection<T> implements IEnumerable<T>, INotifyCollectionChanged, INotifyPropertyChanged {

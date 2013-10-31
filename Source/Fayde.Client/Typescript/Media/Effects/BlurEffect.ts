@@ -1,5 +1,4 @@
 /// <reference path="Effect.ts" />
-/// CODE
 
 module Fayde.Media.Effects {
     export class BlurEffect extends Effect {

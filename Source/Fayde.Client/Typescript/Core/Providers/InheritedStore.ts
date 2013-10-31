@@ -1,5 +1,4 @@
 /// <reference path="PropertyStore.ts" />
-/// CODE
 
 module Fayde.Providers {
     export interface IInheritedStorage extends IPropertyStorage {

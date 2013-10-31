@@ -1,6 +1,4 @@
-/// <reference path="../Runtime/Nullstone.ts" />
-/// CODE
-/// <reference path="DependencyObject.ts" />
+/// <reference path="../Runtime/TypeManagement.ts" />
 
 module Fayde {
     export class Expression {

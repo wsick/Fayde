@@ -1,8 +1,4 @@
 /// <reference path="KeyFrame.ts" />
-/// <reference path="../../Primitives/Point.ts" />
-/// <reference path="EasingFunctionBase.ts" />
-/// <reference path="KeySpline.ts" />
-/// CODE
 
 module Fayde.Media.Animation {
     export class PointKeyFrame extends KeyFrame {

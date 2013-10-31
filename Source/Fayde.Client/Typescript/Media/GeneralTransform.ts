@@ -1,10 +1,4 @@
 /// <reference path="../Core/DependencyObject.ts" />
-/// <reference path="../Runtime/Nullstone.ts" />
-/// CODE
-/// <reference path="Matrix.ts" />
-/// <reference path="../Primitives/Point.ts" />
-/// <reference path="../Primitives/rect.ts" />
-/// <reference path="Matrix3DProjection.ts" />
 
 module Fayde.Media {
     export class GeneralTransform extends DependencyObject {
