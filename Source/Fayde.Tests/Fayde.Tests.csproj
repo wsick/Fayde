@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <ProjectGuid>{F8F5F04B-D2B7-4992-A5D1-CAAC1283ACFB}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <OutputPath>bin</OutputPath>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="scripts\Fayde.d.ts" />
+    <Content Include="scripts\Fayde.js" />
+    <Content Include="scripts\Theme.Metro.xml" />
+    <Content Include="scripts\Theme.Silverlight.xml" />
+    <Content Include="XamlLoadTests.js">
+      <DependentUpon>XamlLoadTests.ts</DependentUpon>
+    </Content>
+    <Content Include="XamlNodeTests.js">
+      <DependentUpon>XamlNodeTests.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="XamlNodeTests.ts" />
+    <TypeScriptCompile Include="XamlLoadTests.ts" />
+    <TypeScriptCompile Include="BindingTests.ts" />
+    <Content Include="BindingTests.js">
+      <DependentUpon>BindingTests.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="ItemsControlTests.ts" />
+    <Content Include="ItemsControlTests.js">
+      <DependentUpon>ItemsControlTests.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="MarkupExpressionTests.ts" />
+    <Content Include="MarkupExpressionTests.js">
+      <DependentUpon>MarkupExpressionTests.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="PrimitivesTests.ts" />
+    <Content Include="PrimitivesTests.js">
+      <DependentUpon>PrimitivesTests.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="ProviderTests.ts" />
+    <Content Include="ProviderTests.js">
+      <DependentUpon>ProviderTests.ts</DependentUpon>
+    </Content>
+    <Content Include="scripts\qunit-1.10.0.d.ts" />
+    <Content Include="scripts\qunit-1.11.0.css" />
+    <Content Include="scripts\qunit-1.11.0.js" />
+    <Content Include="default.html" />
+    <TypeScriptCompile Include="TimelineTests.ts" />
+    <Content Include="TimelineTests.js">
+      <DependentUpon>TimelineTests.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="TransformTests.ts" />
+    <Content Include="TransformTests.js">
+      <DependentUpon>TransformTests.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="TypeConverterTests.ts" />
+    <Content Include="TypeConverterTests.js">
+      <DependentUpon>TypeConverterTests.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="UriMapperTests.ts" />
+    <Content Include="UriMapperTests.js">
+      <DependentUpon>UriMapperTests.ts</DependentUpon>
+    </Content>
+    <Content Include="web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>Fayde.Tests</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>62577</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:62509/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
+    <TypeScriptSourceMap>true</TypeScriptSourceMap>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
+    <TypeScriptSourceMap>false</TypeScriptSourceMap>
+  </PropertyGroup>
+  <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>cd "$(ProjectDir)"
+xcopy /s /y "..\jsbin\Fayde.d.ts" scripts\
+xcopy /s /y "..\jsbin\Fayde.js" scripts\
+xcopy /s /y "..\jsbin\Theme.*.xml" scripts\</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

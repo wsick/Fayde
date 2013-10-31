@@ -39,10 +39,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Tools\ThirdParty\log4net\4.0\release\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
@@ -65,7 +61,6 @@
     <Content Include="ClientBin\WickedSick.LitmusTests.xap" />
     <Content Include="default.fap.js" />
     <Content Include="default.html" />
-    <Content Include="Global.asax" />
     <Content Include="Images\github.png" />
     <Content Include="Images\header_overlay.png" />
     <Content Include="Images\page01.jpg" />
@@ -180,9 +175,6 @@
     <Content Include="LitmusTests.html" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Global.asax.cs">
-      <DependentUpon>Global.asax</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\test.aspx.cs">
       <DependentUpon>test.aspx</DependentUpon>
