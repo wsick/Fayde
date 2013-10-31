@@ -271,6 +271,9 @@
     <TypeScriptCompile Include="Text\History.ts" />
     <TypeScriptCompile Include="Text\TextAttributes.ts" />
     <TypeScriptCompile Include="Text\TextLayout.ts" />
+    <Content Include="Fayde.d.ts" />
+    <Content Include="Fayde.js" />
+    <Content Include="Fayde.js.map" />
     <Content Include="Theme.Metro.xml" />
     <Content Include="Theme.Silverlight.xml" />
     <TypeScriptCompile Include="Xaml\Library.ts" />
@@ -324,16 +327,16 @@
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
-	<TypeScriptOutFile>Fayde.js</TypeScriptOutFile>
-	<TypeScriptGeneratesDeclarations>true</TypeScriptGeneratesDeclarations>
+    <TypeScriptOutFile>Fayde.js</TypeScriptOutFile>
+    <TypeScriptGeneratesDeclarations>true</TypeScriptGeneratesDeclarations>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptTarget>ES5</TypeScriptTarget>
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
     <TypeScriptSourceMap>false</TypeScriptSourceMap>
     <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
-	<TypeScriptOutFile>Fayde.js</TypeScriptOutFile>
-	<TypeScriptGeneratesDeclarations>true</TypeScriptGeneratesDeclarations>
+    <TypeScriptOutFile>Fayde.js</TypeScriptOutFile>
+    <TypeScriptGeneratesDeclarations>true</TypeScriptGeneratesDeclarations>
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" />
   <PropertyGroup>
