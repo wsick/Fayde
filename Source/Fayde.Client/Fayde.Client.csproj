@@ -438,7 +438,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="build.bat" />
     <Content Include="prebuild.ps1" />
     <Content Include="Fayde.tsorder" />
   </ItemGroup>
@@ -474,6 +473,7 @@ xcopy /s /y Theme.*.xml ..\jsbin\</PostBuildEvent>
   <PropertyGroup>
     <PreBuildEvent>cd "$(ProjectDir)"
 powershell -File "$(ProjectDir)prebuild.ps1" "$(ProjectDir)Typescript" "$(ProjectDir)SourceList.txt"
-tsc --sourcemap -t ES5 @SourceList.txt --out Fayde.js -d</PreBuildEvent>
+tsc --sourcemap -t ES5 @SourceList.txt --out Fayde.js -d
+tsc --sourcemap -t ES5 @UnitTestList.txt</PreBuildEvent>
   </PropertyGroup>
 </Project>
