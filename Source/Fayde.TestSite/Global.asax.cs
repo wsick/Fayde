@@ -1,5 +1,4 @@
 ﻿using System;
-using Fayde.WebServer;
 
 namespace Fayde.TestSite
 {
@@ -8,7 +7,6 @@ namespace Fayde.TestSite
 
         protected void Application_Start(object sender, EventArgs e)
         {
-            FapHttpHandler.SetRootAssembly();
         }
 
         protected void Session_Start(object sender, EventArgs e)

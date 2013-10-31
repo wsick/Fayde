@@ -77,7 +77,6 @@
     <Content Include="Docs\XamlNotes.txt" />
     <Content Include="Fayde.d.ts" />
     <Content Include="Fayde.js" />
-    <Content Include="Global.asax" />
     <Content Include="Silo\brush-transform.html" />
     <Content Include="Silo\hittest.html" />
     <Content Include="Silo\lineargradient-pattern.html" />
@@ -90,6 +89,7 @@
     <Content Include="Silo\RawPath\quad-bezier-bounds.html" />
     <Content Include="Silo\UnitTestValidation.htm" />
     <TypeScriptCompile Include="Tests\BindingTests.ts" />
+    <Content Include="SourceList.txt" />
     <Content Include="Tests\BindingTests.js">
       <DependentUpon>BindingTests.ts</DependentUpon>
     </Content>
@@ -422,19 +422,8 @@
     <Content Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
-    <Content Include="xaml.aspx" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Global.asax.cs">
-      <DependentUpon>Global.asax</DependentUpon>
-    </Compile>
-    <Compile Include="xaml.aspx.cs">
-      <DependentUpon>xaml.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="xaml.aspx.designer.cs">
-      <DependentUpon>xaml.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -442,12 +431,6 @@
     <Content Include="Fayde.tsorder" />
   </ItemGroup>
   <ItemGroup />
-  <ItemGroup>
-    <ProjectReference Include="..\Fayde.Server\Fayde.Server.csproj">
-      <Project>{674c2ef2-d791-4543-9af9-4da3ca750b26}</Project>
-      <Name>Fayde.Server</Name>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
