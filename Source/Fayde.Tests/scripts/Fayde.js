@@ -245,6 +245,10 @@ var Fayde;
             NotifyCollectionChangedAction[NotifyCollectionChangedAction["Reset"] = 4] = "Reset";
         })(Collections.NotifyCollectionChangedAction || (Collections.NotifyCollectionChangedAction = {}));
         var NotifyCollectionChangedAction = Collections.NotifyCollectionChangedAction;
+        Fayde.RegisterEnum(NotifyCollectionChangedAction, {
+            Name: "NotifyCollectionChangedAction",
+            Namespace: "Fayde.Collections"
+        });
 
         var NotifyCollectionChangedEventArgs = (function (_super) {
             __extends(NotifyCollectionChangedEventArgs, _super);
@@ -2295,6 +2299,40 @@ else if (type === "lost")
             }
             return args.Handled;
         };
+        UINode.prototype._EmitTouchEvent = function (type, args) {
+            var x = this.XObject;
+            switch (type) {
+                case Fayde.Input.TouchInputType.TouchDown:
+                    x.OnTouchDown(args);
+                    x.TouchDown.Raise(x, args);
+                    break;
+                case Fayde.Input.TouchInputType.TouchUp:
+                    x.OnTouchUp(args);
+                    x.TouchUp.Raise(x, args);
+                case Fayde.Input.TouchInputType.TouchMove:
+                    x.OnTouchMove(args);
+                    x.TouchMove.Raise(x, args);
+                case Fayde.Input.TouchInputType.TouchEnter:
+                    x.OnTouchEnter(args);
+                    x.TouchEnter.Raise(x, args);
+                case Fayde.Input.TouchInputType.TouchLeave:
+                    x.OnTouchLeave(args);
+                    x.TouchLeave.Raise(x, args);
+                default:
+                    return false;
+            }
+            return args.Handled;
+        };
+        UINode.prototype._EmitGotTouchCapture = function (e) {
+            var x = this.XObject;
+            x.OnGotTouchCapture(e);
+            x.GotTouchCapture.Raise(this, e);
+        };
+        UINode.prototype._EmitLostTouchCapture = function (e) {
+            var x = this.XObject;
+            x.OnLostTouchCapture(e);
+            x.LostTouchCapture.Raise(this, e);
+        };
 
         UINode.prototype.CanCaptureMouse = function () {
             return true;
@@ -2431,6 +2469,13 @@ else
             this.MouseEnter = new Fayde.RoutedEvent();
             this.MouseMove = new Fayde.RoutedEvent();
             this.MouseWheel = new Fayde.RoutedEvent();
+            this.TouchDown = new Fayde.RoutedEvent();
+            this.TouchUp = new Fayde.RoutedEvent();
+            this.TouchEnter = new Fayde.RoutedEvent();
+            this.TouchLeave = new Fayde.RoutedEvent();
+            this.TouchMove = new Fayde.RoutedEvent();
+            this.GotTouchCapture = new Fayde.RoutedEvent();
+            this.LostTouchCapture = new Fayde.RoutedEvent();
         }
         UIElement.prototype.CreateNode = function () {
             return new UINode(this);
@@ -2537,6 +2582,20 @@ else
         UIElement.prototype.OnMouseRightButtonUp = function (e) {
         };
         UIElement.prototype.OnMouseWheel = function (e) {
+        };
+        UIElement.prototype.OnTouchDown = function (e) {
+        };
+        UIElement.prototype.OnTouchUp = function (e) {
+        };
+        UIElement.prototype.OnTouchEnter = function (e) {
+        };
+        UIElement.prototype.OnTouchLeave = function (e) {
+        };
+        UIElement.prototype.OnTouchMove = function (e) {
+        };
+        UIElement.prototype.OnGotTouchCapture = function (e) {
+        };
+        UIElement.prototype.OnLostTouchCapture = function (e) {
         };
 
         UIElement.prototype._ClipChanged = function (args) {
@@ -3917,6 +3976,12 @@ var Fayde;
             TextWrapping[TextWrapping["WrapWithOverflow"] = 2] = "WrapWithOverflow";
         })(Controls.TextWrapping || (Controls.TextWrapping = {}));
         var TextWrapping = Controls.TextWrapping;
+        Fayde.RegisterEnum(TextWrapping, {
+            Name: "TextWrapping",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (ScrollBarVisibility) {
             ScrollBarVisibility[ScrollBarVisibility["Disabled"] = 0] = "Disabled";
             ScrollBarVisibility[ScrollBarVisibility["Auto"] = 1] = "Auto";
@@ -3924,16 +3989,34 @@ var Fayde;
             ScrollBarVisibility[ScrollBarVisibility["Visible"] = 3] = "Visible";
         })(Controls.ScrollBarVisibility || (Controls.ScrollBarVisibility = {}));
         var ScrollBarVisibility = Controls.ScrollBarVisibility;
+        Fayde.RegisterEnum(ScrollBarVisibility, {
+            Name: "ScrollBarVisibility",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (TextTrimming) {
             TextTrimming[TextTrimming["None"] = 0] = "None";
         })(Controls.TextTrimming || (Controls.TextTrimming = {}));
         var TextTrimming = Controls.TextTrimming;
+        Fayde.RegisterEnum(TextTrimming, {
+            Name: "TextTrimming",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (ClickMode) {
             ClickMode[ClickMode["Release"] = 0] = "Release";
             ClickMode[ClickMode["Press"] = 1] = "Press";
             ClickMode[ClickMode["Hover"] = 2] = "Hover";
         })(Controls.ClickMode || (Controls.ClickMode = {}));
         var ClickMode = Controls.ClickMode;
+        Fayde.RegisterEnum(ClickMode, {
+            Name: "ClickMode",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (PlacementMode) {
             PlacementMode[PlacementMode["Bottom"] = 0] = "Bottom";
             PlacementMode[PlacementMode["Right"] = 1] = "Right";
@@ -3942,12 +4025,24 @@ var Fayde;
             PlacementMode[PlacementMode["Top"] = 4] = "Top";
         })(Controls.PlacementMode || (Controls.PlacementMode = {}));
         var PlacementMode = Controls.PlacementMode;
+        Fayde.RegisterEnum(PlacementMode, {
+            Name: "PlacementMode",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (SelectionMode) {
             SelectionMode[SelectionMode["Single"] = 0] = "Single";
             SelectionMode[SelectionMode["Multiple"] = 1] = "Multiple";
             SelectionMode[SelectionMode["Extended"] = 2] = "Extended";
         })(Controls.SelectionMode || (Controls.SelectionMode = {}));
         var SelectionMode = Controls.SelectionMode;
+        Fayde.RegisterEnum(SelectionMode, {
+            Name: "SelectionMode",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (MediaElementState) {
             MediaElementState[MediaElementState["Closed"] = 0] = "Closed";
             MediaElementState[MediaElementState["Opening"] = 1] = "Opening";
@@ -3960,6 +4055,11 @@ var Fayde;
             MediaElementState[MediaElementState["Stopped"] = 7] = "Stopped";
         })(Controls.MediaElementState || (Controls.MediaElementState = {}));
         var MediaElementState = Controls.MediaElementState;
+        Fayde.RegisterEnum(MediaElementState, {
+            Name: "MediaElementState",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -8024,6 +8124,11 @@ var Fayde;
             GridUnitType[GridUnitType["Star"] = 2] = "Star";
         })(Controls.GridUnitType || (Controls.GridUnitType = {}));
         var GridUnitType = Controls.GridUnitType;
+        Fayde.RegisterEnum(GridUnitType, {
+            Name: "GridUnitType",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
 
         var GridLength = (function () {
             function GridLength(value, unitType) {
@@ -8317,12 +8422,24 @@ var Fayde;
             BrushMappingMode[BrushMappingMode["RelativeToBoundingBox"] = 1] = "RelativeToBoundingBox";
         })(Media.BrushMappingMode || (Media.BrushMappingMode = {}));
         var BrushMappingMode = Media.BrushMappingMode;
+        Fayde.RegisterEnum(BrushMappingMode, {
+            Name: "BrushMappingMode",
+            Namespace: "Fayde.Media",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (GradientSpreadMethod) {
             GradientSpreadMethod[GradientSpreadMethod["Pad"] = 0] = "Pad";
             GradientSpreadMethod[GradientSpreadMethod["Reflect"] = 1] = "Reflect";
             GradientSpreadMethod[GradientSpreadMethod["Repeat"] = 2] = "Repeat";
         })(Media.GradientSpreadMethod || (Media.GradientSpreadMethod = {}));
         var GradientSpreadMethod = Media.GradientSpreadMethod;
+        Fayde.RegisterEnum(GradientSpreadMethod, {
+            Name: "GradientSpreadMethod",
+            Namespace: "Fayde.Media",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (Stretch) {
             Stretch[Stretch["None"] = 0] = "None";
             Stretch[Stretch["Fill"] = 1] = "Fill";
@@ -8330,23 +8447,46 @@ var Fayde;
             Stretch[Stretch["UniformToFill"] = 3] = "UniformToFill";
         })(Media.Stretch || (Media.Stretch = {}));
         var Stretch = Media.Stretch;
+        Fayde.RegisterEnum(Stretch, {
+            Name: "Stretch",
+            Namespace: "Fayde.Media",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (AlignmentX) {
             AlignmentX[AlignmentX["Left"] = 0] = "Left";
             AlignmentX[AlignmentX["Center"] = 1] = "Center";
             AlignmentX[AlignmentX["Right"] = 2] = "Right";
         })(Media.AlignmentX || (Media.AlignmentX = {}));
         var AlignmentX = Media.AlignmentX;
+        Fayde.RegisterEnum(AlignmentX, {
+            Name: "AlignmentX",
+            Namespace: "Fayde.Media",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (AlignmentY) {
             AlignmentY[AlignmentY["Top"] = 0] = "Top";
             AlignmentY[AlignmentY["Center"] = 1] = "Center";
             AlignmentY[AlignmentY["Bottom"] = 2] = "Bottom";
         })(Media.AlignmentY || (Media.AlignmentY = {}));
         var AlignmentY = Media.AlignmentY;
+        Fayde.RegisterEnum(AlignmentY, {
+            Name: "AlignmentY",
+            Namespace: "Fayde.Media",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (TextHintingMode) {
             TextHintingMode[TextHintingMode["Fixed"] = 0] = "Fixed";
             TextHintingMode[TextHintingMode["Animated"] = 1] = "Animated";
         })(Media.TextHintingMode || (Media.TextHintingMode = {}));
         var TextHintingMode = Media.TextHintingMode;
+        Fayde.RegisterEnum(TextHintingMode, {
+            Name: "TextHintingMode",
+            Namespace: "Fayde.Media",
+            XmlNamespace: Fayde.XMLNS
+        });
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -10022,6 +10162,11 @@ var Fayde;
             Key[Key["Unknown"] = 255] = "Unknown";
         })(Input.Key || (Input.Key = {}));
         var Key = Input.Key;
+        Fayde.RegisterEnum(Key, {
+            Name: "Key",
+            Namespace: "Fayde.Input",
+            XmlNamespace: Fayde.XMLNS
+        });
 
         var KeyboardEventArgs = (function (_super) {
             __extends(KeyboardEventArgs, _super);
@@ -12315,6 +12460,11 @@ var Fayde;
                 ScrollEventType[ScrollEventType["EndScroll"] = 8] = "EndScroll";
             })(Primitives.ScrollEventType || (Primitives.ScrollEventType = {}));
             var ScrollEventType = Primitives.ScrollEventType;
+            Fayde.RegisterEnum(ScrollEventType, {
+                Name: "ScrollEventType",
+                Namespace: "Fayde.Controls.Primitives",
+                XmlNamespace: Fayde.XMLNS
+            });
 
             var ScrollEventArgs = (function (_super) {
                 __extends(ScrollEventArgs, _super);
@@ -15543,6 +15693,11 @@ var Fayde;
             VirtualizationMode[VirtualizationMode["Recycling"] = 1] = "Recycling";
         })(Controls.VirtualizationMode || (Controls.VirtualizationMode = {}));
         var VirtualizationMode = Controls.VirtualizationMode;
+        Fayde.RegisterEnum(VirtualizationMode, {
+            Name: "VirtualizationMode",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
 
         var CleanUpVirtualizedItemEventArgs = (function (_super) {
             __extends(CleanUpVirtualizedItemEventArgs, _super);
@@ -23082,8 +23237,8 @@ var Fayde;
                 if (this._EmittingMouseEvent)
                     return false;
 
-                var newInputList = [];
-                if (!this._Surface.HitTestPoint(newInputList, pos))
+                var newInputList = this._Surface.HitTestPoint(pos);
+                if (!newInputList)
                     return false;
 
                 this._EmittingMouseEvent = true;
@@ -23134,6 +23289,10 @@ var Fayde;
                         args = this._MouseInterop.CreateEventArgs(type, pos, delta);
                 }
                 return handled;
+            };
+
+            InputManager.prototype.HitTestPoint = function (pos) {
+                return this._Surface.HitTestPoint(pos);
             };
 
             InputManager.prototype.UpdateCursorFromInputList = function () {
@@ -23806,16 +23965,17 @@ else
             this._InputMgr.OnNodeDetached(lu.Node);
         };
 
-        Surface.prototype.HitTestPoint = function (newInputList, pos) {
+        Surface.prototype.HitTestPoint = function (pos) {
             if (!this._RootLayer)
-                return false;
+                return null;
+            var list = [];
             var layers = this._Layers;
             var layerCount = layers.length;
-            for (var i = layerCount - 1; i >= 0 && newInputList.length === 0; i--) {
+            for (var i = layerCount - 1; i >= 0 && list.length === 0; i--) {
                 var layer = layers[i];
-                layer.LayoutUpdater.HitTestPoint(this._RenderContext, pos, newInputList);
+                layer.LayoutUpdater.HitTestPoint(this._RenderContext, pos, list);
             }
-            return true;
+            return list;
         };
 
         Surface.prototype.SetMouseCapture = function (uin) {
@@ -27252,6 +27412,7 @@ var Fayde;
             ShapeFlags[ShapeFlags["Radii"] = 8] = "Radii";
         })(Shapes.ShapeFlags || (Shapes.ShapeFlags = {}));
         var ShapeFlags = Shapes.ShapeFlags;
+
         (function (PenLineCap) {
             PenLineCap[PenLineCap["Flat"] = 0] = "Flat";
             PenLineCap[PenLineCap["Square"] = 1] = "Square";
@@ -27259,22 +27420,45 @@ var Fayde;
             PenLineCap[PenLineCap["Triangle"] = 3] = "Triangle";
         })(Shapes.PenLineCap || (Shapes.PenLineCap = {}));
         var PenLineCap = Shapes.PenLineCap;
+        Fayde.RegisterEnum(PenLineCap, {
+            Name: "PenLineCap",
+            Namespace: "Fayde.Shapes",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (PenLineJoin) {
             PenLineJoin[PenLineJoin["Miter"] = 0] = "Miter";
             PenLineJoin[PenLineJoin["Bevel"] = 1] = "Bevel";
             PenLineJoin[PenLineJoin["Round"] = 2] = "Round";
         })(Shapes.PenLineJoin || (Shapes.PenLineJoin = {}));
         var PenLineJoin = Shapes.PenLineJoin;
+        Fayde.RegisterEnum(PenLineJoin, {
+            Name: "PenLineJoin",
+            Namespace: "Fayde.Shapes",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (FillRule) {
             FillRule[FillRule["EvenOdd"] = 0] = "EvenOdd";
             FillRule[FillRule["NonZero"] = 1] = "NonZero";
         })(Shapes.FillRule || (Shapes.FillRule = {}));
         var FillRule = Shapes.FillRule;
+        Fayde.RegisterEnum(FillRule, {
+            Name: "FillRule",
+            Namespace: "Fayde.Shapes",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (SweepDirection) {
             SweepDirection[SweepDirection["Counterclockwise"] = 0] = "Counterclockwise";
             SweepDirection[SweepDirection["Clockwise"] = 1] = "Clockwise";
         })(Shapes.SweepDirection || (Shapes.SweepDirection = {}));
         var SweepDirection = Shapes.SweepDirection;
+        Fayde.RegisterEnum(SweepDirection, {
+            Name: "SweepDirection",
+            Namespace: "Fayde.Shapes",
+            XmlNamespace: Fayde.XMLNS
+        });
     })(Fayde.Shapes || (Fayde.Shapes = {}));
     var Shapes = Fayde.Shapes;
 })(Fayde || (Fayde = {}));
@@ -36444,6 +36628,346 @@ else
         Text.TextLayout = TextLayout;
     })(Fayde.Text || (Fayde.Text = {}));
     var Text = Fayde.Text;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Input) {
+        (function (TouchInputType) {
+            TouchInputType[TouchInputType["NoOp"] = 0] = "NoOp";
+            TouchInputType[TouchInputType["TouchDown"] = 1] = "TouchDown";
+            TouchInputType[TouchInputType["TouchUp"] = 2] = "TouchUp";
+            TouchInputType[TouchInputType["TouchMove"] = 3] = "TouchMove";
+            TouchInputType[TouchInputType["TouchEnter"] = 4] = "TouchEnter";
+            TouchInputType[TouchInputType["TouchLeave"] = 5] = "TouchLeave";
+        })(Input.TouchInputType || (Input.TouchInputType = {}));
+        var TouchInputType = Input.TouchInputType;
+
+        function CreateTouchInterop() {
+            return new TouchInterop();
+        }
+        Input.CreateTouchInterop = CreateTouchInterop;
+
+        var TouchInterop = (function () {
+            function TouchInterop() {
+                this._CanvasOffset = null;
+                this._ActiveTouches = [];
+            }
+            TouchInterop.prototype.RegisterEvents = function (input, canvas) {
+                var _this = this;
+                this._Input = input;
+                this._CanvasOffset = this._CalcOffset(canvas);
+
+                canvas.addEventListener("touchstart", function (e) {
+                    return _this._HandleTouchStart(window.event ? window.event : e);
+                });
+                canvas.addEventListener("touchend", function (e) {
+                    return _this._HandleTouchEnd(window.event ? window.event : e);
+                });
+                canvas.addEventListener("touchmove", function (e) {
+                    return _this._HandleTouchMove(window.event ? window.event : e);
+                });
+                canvas.addEventListener("touchenter", function (e) {
+                    return _this._HandleTouchEnter(window.event ? window.event : e);
+                });
+                canvas.addEventListener("touchleave", function (e) {
+                    return _this._HandleTouchLeave(window.event ? window.event : e);
+                });
+            };
+
+            TouchInterop.prototype._HandleTouchStart = function (e) {
+                e.preventDefault();
+                Fayde.Engine.Inspection.Kill();
+
+                var newTouches = this.TouchArrayFromList(e.changedTouches);
+                this._ActiveTouches = this._ActiveTouches.concat(newTouches);
+
+                this._Input.SetIsUserInitiatedEvent(true);
+                this.HandleTouches(Fayde.Input.TouchInputType.TouchDown, newTouches);
+                this._Input.SetIsUserInitiatedEvent(false);
+            };
+            TouchInterop.prototype._HandleTouchEnd = function (e) {
+                var oldTouches = this.TouchArrayFromList(e.changedTouches);
+                removeFromArray(this._ActiveTouches, oldTouches);
+
+                this._Input.SetIsUserInitiatedEvent(true);
+                this.HandleTouches(Fayde.Input.TouchInputType.TouchUp, oldTouches);
+                this._Input.SetIsUserInitiatedEvent(false);
+            };
+            TouchInterop.prototype._HandleTouchMove = function (e) {
+                var touches = this.TouchArrayFromList(e.changedTouches);
+                this.HandleTouches(Fayde.Input.TouchInputType.TouchMove, touches);
+            };
+            TouchInterop.prototype._HandleTouchEnter = function (e) {
+                var touches = this.TouchArrayFromList(e.changedTouches);
+                this.HandleTouches(Fayde.Input.TouchInputType.TouchEnter, touches);
+            };
+            TouchInterop.prototype._HandleTouchLeave = function (e) {
+                var touches = this.TouchArrayFromList(e.changedTouches);
+                this.HandleTouches(Fayde.Input.TouchInputType.TouchLeave, touches);
+            };
+            TouchInterop.prototype.HandleTouches = function (type, touches, emitLeave, emitEnter) {
+                var touch;
+                var handled = false;
+                while (touch = touches.shift()) {
+                    var inputList = this._Input.HitTestPoint(touch.Position);
+                    if (inputList)
+                        handled = handled || touch.Emit(type, inputList, emitLeave, emitEnter);
+                }
+                return handled;
+            };
+
+            TouchInterop.prototype._CalcOffset = function (canvas) {
+                var left = 0;
+                var top = 0;
+                var cur = canvas;
+                if (cur.offsetParent) {
+                    do {
+                        left += cur.offsetLeft;
+                        top += cur.offsetTop;
+                    } while(cur = cur.offsetParent);
+                }
+                return { left: left, top: top };
+            };
+            TouchInterop.prototype.GetPosition = function (e) {
+                return new Point(e.clientX + window.pageXOffset + this._CanvasOffset.left, e.clientY + window.pageYOffset + this._CanvasOffset.top);
+            };
+
+            TouchInterop.prototype.TouchArrayFromList = function (list) {
+                var len = list.length;
+                var touches = [];
+                var curto;
+                var existing;
+                for (var i = 0; i < len; i++) {
+                    var curto = list.item(i);
+                    existing = this.FindTouchInList(curto);
+                    if (existing)
+                        touches.push(existing);
+else
+                        touches.push(new Input.ActiveTouch(curto, this));
+                }
+                return touches;
+            };
+            TouchInterop.prototype.FindTouchInList = function (t) {
+                var at = this._ActiveTouches;
+                var len = at.length;
+                for (var i = 0; i < len; i++) {
+                    if (at[i].Identifier === t.identifier)
+                        return at[i];
+                }
+                return null;
+            };
+            return TouchInterop;
+        })();
+
+        function removeFromArray(arr, toRemove) {
+            var len = toRemove.length;
+            for (var i = 0; i < len; i++) {
+                var index = arr.indexOf(toRemove[i]);
+                if (index > -1)
+                    arr.splice(index, 1);
+            }
+        }
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    /// <reference path="../Core/RoutedEventArgs.ts" />
+    (function (Input) {
+        var TouchEventArgs = (function (_super) {
+            __extends(TouchEventArgs, _super);
+            function TouchEventArgs(pos, device) {
+                _super.call(this);
+                this._Device = device;
+                Object.defineProperty(this, "AbsolutePos", { value: pos, writable: false });
+            }
+            TouchEventArgs.prototype.GetTouchPoint = function (relativeTo) {
+                return this._Device.GetTouchPoint(relativeTo);
+            };
+            return TouchEventArgs;
+        })(Fayde.RoutedEventArgs);
+        Input.TouchEventArgs = TouchEventArgs;
+        Fayde.RegisterType(TouchEventArgs, {
+            Name: "TouchEventArgs",
+            Namespace: "Fayde.Input",
+            XmlNamespace: Fayde.XMLNS
+        });
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    /// <reference path="../Runtime/TypeManagement.ts" />
+    (function (Input) {
+        var TouchPoint = (function () {
+            function TouchPoint(position, radiusX, radiusY, rotationAngle, force) {
+                Object.defineProperty(this, "Position", { value: position, writable: false });
+                Object.defineProperty(this, "RadiusX", { value: radiusX, writable: false });
+                Object.defineProperty(this, "RadiusY", { value: radiusY, writable: false });
+                Object.defineProperty(this, "RotationAngle", { value: rotationAngle, writable: false });
+                Object.defineProperty(this, "Force", { value: force, writable: false });
+            }
+            return TouchPoint;
+        })();
+        Input.TouchPoint = TouchPoint;
+        Fayde.RegisterType(TouchPoint, {
+            Name: "TouchPoint",
+            Namespace: "Fayde.Input",
+            XmlNamespace: Fayde.XMLNS
+        });
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Input) {
+        var ActiveTouch = (function () {
+            function ActiveTouch(t, interop) {
+                var _this = this;
+                this._IsEmitting = false;
+                this._PendingCapture = null;
+                this._PendingReleaseCapture = false;
+                this._Captured = null;
+                this._CapturedInputList = null;
+                this.Identifier = t.identifier;
+                this.TouchObj = t;
+                this.Position = interop.GetPosition(t);
+                this.InputList = [];
+
+                this._FinishReleaseCaptureFunc = function () {
+                    return interop.HandleTouches(Fayde.Input.TouchInputType.NoOp, [_this], false, true);
+                };
+
+                var d = {
+                    Captured: null,
+                    Capture: function (uie) {
+                        return _this.Capture(uie);
+                    },
+                    ReleaseCapture: function (uie) {
+                        return _this.ReleaseCapture(uie);
+                    },
+                    GetTouchPoint: function (relativeTo) {
+                        return _this._GetTouchPoint(relativeTo);
+                    }
+                };
+                Object.defineProperty(d, "Captured", { get: function () {
+                        return _this._Captured;
+                    } });
+                Object.defineProperty(this, "Device", d);
+            }
+            ActiveTouch.prototype.Emit = function (type, newInputList, emitLeave, emitEnter) {
+                if (this._IsEmitting)
+                    return;
+                this._IsEmitting = true;
+                var handled = false;
+
+                var indices = { Index1: -1, Index2: -1 };
+                findFirstCommonElement(this.InputList, newInputList, indices);
+                if (emitLeave !== false)
+                    this._EmitList(Fayde.Input.TouchInputType.TouchLeave, this.InputList, indices.Index1);
+                if (emitEnter !== false)
+                    this._EmitList(Fayde.Input.TouchInputType.TouchEnter, newInputList, indices.Index2);
+
+                var handled = false;
+                if (type !== Fayde.Input.TouchInputType.NoOp)
+                    handled = this._EmitList(type, this._Captured ? this._CapturedInputList : newInputList);
+                this.InputList = newInputList;
+
+                if (this._PendingCapture)
+                    this._PerformCapture(this._PendingCapture);
+                if (this._PendingReleaseCapture)
+                    this._PerformReleaseCapture();
+
+                this._IsEmitting = false;
+                return handled;
+            };
+            ActiveTouch.prototype._EmitList = function (type, list, endIndex) {
+                var handled = false;
+                if (endIndex === 0)
+                    return handled;
+                if (!endIndex || endIndex === -1)
+                    endIndex = list.length;
+                var args = new Fayde.Input.TouchEventArgs(this.Position, this.Device);
+                var node = list[0];
+                if (node && args instanceof Fayde.RoutedEventArgs)
+                    args.Source = node.XObject;
+                for (var i = 0; i < endIndex; i++) {
+                    node = list[i];
+                    if (type === Fayde.Input.TouchInputType.TouchLeave)
+                        args.Source = node.XObject;
+                    if (node._EmitTouchEvent(type, args))
+                        handled = true;
+                    if (type === Fayde.Input.TouchInputType.TouchLeave)
+                        args = new Fayde.Input.TouchEventArgs(this.Position, this.Device);
+                }
+                return handled;
+            };
+
+            ActiveTouch.prototype.Capture = function (uie) {
+                var uin = uie.XamlNode;
+                if (this._Captured === uin || this._PendingCapture === uin)
+                    return true;
+                if (!this._IsEmitting)
+                    return false;
+                this._PendingCapture = uin;
+                return true;
+            };
+            ActiveTouch.prototype.ReleaseCapture = function (uie) {
+                var uin = uie.XamlNode;
+                if (this._Captured !== uin && this._PendingCapture !== uin)
+                    return;
+                if (this._IsEmitting)
+                    this._PendingReleaseCapture = true;
+else
+                    this._PerformReleaseCapture();
+            };
+            ActiveTouch.prototype._PerformCapture = function (uin) {
+                this._Captured = uin;
+                var newInputList = [];
+                while (uin != null) {
+                    newInputList.push(uin);
+                    uin = uin.VisualParentNode;
+                }
+                this._CapturedInputList = newInputList;
+                this._PendingCapture = null;
+            };
+            ActiveTouch.prototype._PerformReleaseCapture = function () {
+                var oldCaptured = this._Captured;
+                this._PendingReleaseCapture = false;
+                oldCaptured._EmitLostTouchCapture(new Fayde.Input.TouchEventArgs(this.Position, this.Device));
+                this._FinishReleaseCaptureFunc();
+            };
+
+            ActiveTouch.prototype._GetTouchPoint = function (relativeTo) {
+                var to = this.TouchObj;
+                if (!relativeTo)
+                    return new Input.TouchPoint(this.Position.Clone(), to.radiusX, to.radiusY, to.rotationAngle, to.force);
+                if (!(relativeTo instanceof Fayde.UIElement))
+                    throw new ArgumentException("Specified relative object must be a UIElement.");
+
+                //TODO: If attached, should we run ProcessDirtyElements
+                var p = this.Position.Clone();
+                relativeTo.XamlNode.LayoutUpdater.TransformPoint(p);
+                return new Input.TouchPoint(p, to.radiusX, to.radiusY, to.rotationAngle, to.force);
+            };
+            return ActiveTouch;
+        })();
+        Input.ActiveTouch = ActiveTouch;
+
+        function findFirstCommonElement(list1, list2, outObj) {
+            var i = list1.length - 1;
+            var j = list2.length - 1;
+            outObj.Index1 = -1;
+            outObj.Index2 = -1;
+            while (i >= 0 && j >= 0) {
+                if (list1[i] !== list2[j])
+                    return;
+                outObj.Index1 = i--;
+                outObj.Index2 = j--;
+            }
+        }
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {

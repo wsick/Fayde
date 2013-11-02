@@ -480,6 +480,9 @@ declare module Fayde {
         public _EmitKeyUp(args: Fayde.Input.KeyEventArgs): void;
         public _EmitLostMouseCapture(pos: Point): void;
         public _EmitMouseEvent(type: Fayde.Input.MouseInputType, isLeftButton: boolean, isRightButton: boolean, args: Fayde.Input.MouseEventArgs): boolean;
+        public _EmitTouchEvent(type: Fayde.Input.TouchInputType, args: Fayde.Input.TouchEventArgs): boolean;
+        public _EmitGotTouchCapture(e: Fayde.Input.TouchEventArgs): void;
+        public _EmitLostTouchCapture(e: Fayde.Input.TouchEventArgs): void;
         public CanCaptureMouse(): boolean;
         public CaptureMouse(): boolean;
         public ReleaseMouseCapture(): void;
@@ -551,6 +554,13 @@ declare module Fayde {
         public MouseEnter: Fayde.RoutedEvent<Fayde.Input.MouseEventArgs>;
         public MouseMove: Fayde.RoutedEvent<Fayde.Input.MouseEventArgs>;
         public MouseWheel: Fayde.RoutedEvent<Fayde.Input.MouseWheelEventArgs>;
+        public TouchDown: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public TouchUp: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public TouchEnter: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public TouchLeave: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public TouchMove: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public GotTouchCapture: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public LostTouchCapture: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
         public OnGotFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostMouseCapture(e: Fayde.Input.MouseEventArgs): void;
@@ -564,6 +574,13 @@ declare module Fayde {
         public OnMouseRightButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnMouseRightButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnMouseWheel(e: Fayde.Input.MouseWheelEventArgs): void;
+        public OnTouchDown(e: Fayde.Input.TouchEventArgs): void;
+        public OnTouchUp(e: Fayde.Input.TouchEventArgs): void;
+        public OnTouchEnter(e: Fayde.Input.TouchEventArgs): void;
+        public OnTouchLeave(e: Fayde.Input.TouchEventArgs): void;
+        public OnTouchMove(e: Fayde.Input.TouchEventArgs): void;
+        public OnGotTouchCapture(e: Fayde.Input.TouchEventArgs): void;
+        public OnLostTouchCapture(e: Fayde.Input.TouchEventArgs): void;
         private _ClipChanged(args);
         private _EffectChanged(args);
         private _UseLayoutRoundingChanged(args);
@@ -3984,6 +4001,7 @@ declare module Fayde.Engine {
         public HandleMouseRelease(button: number, pos: Point): void;
         public HandleMouseEvent(type: Fayde.Input.MouseInputType, button: number, pos: Point, delta?: number, emitLeave?: boolean, emitEnter?: boolean): boolean;
         private _EmitMouseList(type, button, pos, delta, list, endIndex?);
+        public HitTestPoint(pos: Point): Fayde.UINode[];
         public UpdateCursorFromInputList(): void;
         public SetMouseCapture(uin: Fayde.UINode): boolean;
         public ReleaseMouseCapture(uin: Fayde.UINode): void;
@@ -4067,7 +4085,7 @@ declare module Fayde {
         public FocusedNode : Fayde.UINode;
         public Focus(node: Fayde.Controls.ControlNode, recurse?: boolean): boolean;
         public RemoveFocusFrom(lu: Fayde.LayoutUpdater): void;
-        public HitTestPoint(newInputList: Fayde.UINode[], pos: Point): boolean;
+        public HitTestPoint(pos: Point): Fayde.UINode[];
         public SetMouseCapture(uin: Fayde.UINode): boolean;
         public ReleaseMouseCapture(uin: Fayde.UINode): void;
         static MeasureWidth(text: string, font: Font): number;
@@ -6178,6 +6196,98 @@ declare module Fayde.Text {
         private _OverrideLineHeight();
         private _GetLineHeightOverride();
         private _GetDescendOverride();
+    }
+}
+declare module Fayde.Input {
+    enum TouchInputType {
+        NoOp = 0,
+        TouchDown = 1,
+        TouchUp = 2,
+        TouchMove = 3,
+        TouchEnter = 4,
+        TouchLeave = 5,
+    }
+    interface ITouchInterop {
+        RegisterEvents(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement);
+        GetPosition(e: Touch): Point;
+        HandleTouches(type: TouchInputType, touches: Input.ActiveTouch[], emitLeave?: boolean, emitEnter?: boolean): boolean;
+    }
+    function CreateTouchInterop(): ITouchInterop;
+}
+declare module Fayde.Input {
+    class TouchEventArgs extends Fayde.RoutedEventArgs {
+        public AbsolutePos: Point;
+        private _Device;
+        constructor(pos: Point, device: Input.ITouchDevice);
+        public GetTouchPoint(relativeTo: Fayde.UIElement): Input.TouchPoint;
+    }
+}
+declare module Fayde.Input {
+    class TouchPoint {
+        public Position: Point;
+        public RadiusX: number;
+        public RadiusY: number;
+        public RotationAngle: number;
+        public Force: number;
+        constructor(position: Point, radiusX: number, radiusY: number, rotationAngle: number, force: number);
+    }
+}
+interface Touch {
+    identifier: number;
+    target: EventTarget;
+    screenX: number;
+    screenY: number;
+    clientX: number;
+    clientY: number;
+    pageX: number;
+    pageY: number;
+    radiusX: number;
+    radiusY: number;
+    rotationAngle: number;
+    force: number;
+}
+interface TouchList {
+    length: number;
+    item(index: number): Touch;
+    identifiedTouch(identifier: number): Touch;
+}
+interface TouchEvent extends UIEvent {
+    touches: TouchList;
+    targetTouches: TouchList;
+    changedTouches: TouchList;
+    altKey: boolean;
+    metaKey: boolean;
+    ctrlKey: boolean;
+    shiftKey: boolean;
+    initTouchEvent(type: string, canBubble: boolean, cancelable: boolean, view: any, detail: number, ctrlKey: boolean, altKey: boolean, shiftKey: boolean, metaKey: boolean, touches: TouchList, targetTouches: TouchList, changedTouches: TouchList);
+}
+declare module Fayde.Input {
+    interface ITouchDevice {
+        Captured: Fayde.UIElement;
+        Capture(uie: Fayde.UIElement): boolean;
+        ReleaseCapture(uie: Fayde.UIElement);
+        GetTouchPoint(relativeTo: Fayde.UIElement): Input.TouchPoint;
+    }
+    class ActiveTouch {
+        public Identifier: number;
+        public TouchObj: Touch;
+        public Position: Point;
+        public InputList: Fayde.UINode[];
+        public Device: ITouchDevice;
+        private _IsEmitting;
+        private _PendingCapture;
+        private _PendingReleaseCapture;
+        private _Captured;
+        private _CapturedInputList;
+        private _FinishReleaseCaptureFunc;
+        constructor(t: Touch, interop: Input.ITouchInterop);
+        public Emit(type: Input.TouchInputType, newInputList: Fayde.UINode[], emitLeave?: boolean, emitEnter?: boolean): boolean;
+        private _EmitList(type, list, endIndex?);
+        public Capture(uie: Fayde.UIElement): boolean;
+        public ReleaseCapture(uie: Fayde.UIElement): void;
+        private _PerformCapture(uin);
+        private _PerformReleaseCapture();
+        private _GetTouchPoint(relativeTo);
     }
 }
 declare module Fayde.Xaml {
