@@ -168,6 +168,40 @@ module Fayde {
             }
             return args.Handled;
         }
+        _EmitTouchEvent(type: Input.TouchInputType, args: Input.TouchEventArgs) {
+            var x = this.XObject;
+            switch (type) {
+                case Input.TouchInputType.TouchDown:
+                    x.OnTouchDown(args);
+                    x.TouchDown.Raise(x, args);
+                    break;
+                case Input.TouchInputType.TouchUp:
+                    x.OnTouchUp(args);
+                    x.TouchUp.Raise(x, args);
+                case Input.TouchInputType.TouchMove:
+                    x.OnTouchMove(args);
+                    x.TouchMove.Raise(x, args);
+                case Input.TouchInputType.TouchEnter:
+                    x.OnTouchEnter(args);
+                    x.TouchEnter.Raise(x, args);
+                case Input.TouchInputType.TouchLeave:
+                    x.OnTouchLeave(args);
+                    x.TouchLeave.Raise(x, args);
+                default:
+                    return false;
+            }
+            return args.Handled;
+        }
+        _EmitGotTouchCapture(e: Input.TouchEventArgs) {
+            var x = this.XObject;
+            x.OnGotTouchCapture(e);
+            x.GotTouchCapture.Raise(this, e);
+        }
+        _EmitLostTouchCapture(e: Input.TouchEventArgs) {
+            var x = this.XObject;
+            x.OnLostTouchCapture(e);
+            x.LostTouchCapture.Raise(this, e);
+        }
         
         CanCaptureMouse(): boolean { return true; }
         CaptureMouse(): boolean {
@@ -181,7 +215,7 @@ module Fayde {
                 return;
             this._Surface.ReleaseMouseCapture(this);
         }
-
+        
         _ResortChildrenByZIndex() {
             Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
         }
@@ -359,19 +393,26 @@ module Fayde {
                 error.ThrowException();
         }
 
-        LostFocus: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
-        GotFocus: RoutedEvent<RoutedEventArgs> = new RoutedEvent<RoutedEventArgs>();
-        LostMouseCapture: RoutedEvent<Input.MouseEventArgs> = new RoutedEvent<Input.MouseEventArgs>();
-        KeyDown: RoutedEvent<Input.KeyEventArgs> = new RoutedEvent<Input.KeyEventArgs>();
-        KeyUp: RoutedEvent<Input.KeyEventArgs> = new RoutedEvent<Input.KeyEventArgs>();
-        MouseLeftButtonUp: RoutedEvent<Input.MouseButtonEventArgs> = new RoutedEvent<Input.MouseButtonEventArgs>();
-        MouseRightButtonUp: RoutedEvent<Input.MouseButtonEventArgs> = new RoutedEvent<Input.MouseButtonEventArgs>();
-        MouseLeftButtonDown: RoutedEvent<Input.MouseButtonEventArgs> = new RoutedEvent<Input.MouseButtonEventArgs>();
-        MouseRightButtonDown: RoutedEvent<Input.MouseButtonEventArgs> = new RoutedEvent<Input.MouseButtonEventArgs>();
-        MouseLeave: RoutedEvent<Input.MouseEventArgs> = new RoutedEvent<Input.MouseEventArgs>();
-        MouseEnter: RoutedEvent<Input.MouseEventArgs> = new RoutedEvent<Input.MouseEventArgs>();
-        MouseMove: RoutedEvent<Input.MouseEventArgs> = new RoutedEvent<Input.MouseEventArgs>();
-        MouseWheel: RoutedEvent<Input.MouseWheelEventArgs> = new RoutedEvent<Input.MouseWheelEventArgs>();
+        LostFocus = new RoutedEvent<RoutedEventArgs>();
+        GotFocus = new RoutedEvent<RoutedEventArgs>();
+        LostMouseCapture = new RoutedEvent<Input.MouseEventArgs>();
+        KeyDown = new RoutedEvent<Input.KeyEventArgs>();
+        KeyUp = new RoutedEvent<Input.KeyEventArgs>();
+        MouseLeftButtonUp = new RoutedEvent<Input.MouseButtonEventArgs>();
+        MouseRightButtonUp = new RoutedEvent<Input.MouseButtonEventArgs>();
+        MouseLeftButtonDown = new RoutedEvent<Input.MouseButtonEventArgs>();
+        MouseRightButtonDown = new RoutedEvent<Input.MouseButtonEventArgs>();
+        MouseLeave = new RoutedEvent<Input.MouseEventArgs>();
+        MouseEnter = new RoutedEvent<Input.MouseEventArgs>();
+        MouseMove = new RoutedEvent<Input.MouseEventArgs>();
+        MouseWheel = new RoutedEvent<Input.MouseWheelEventArgs>();
+        TouchDown = new RoutedEvent<Input.TouchEventArgs>();
+        TouchUp = new RoutedEvent<Input.TouchEventArgs>();
+        TouchEnter = new RoutedEvent<Input.TouchEventArgs>();
+        TouchLeave = new RoutedEvent<Input.TouchEventArgs>();
+        TouchMove = new RoutedEvent<Input.TouchEventArgs>();
+        GotTouchCapture = new RoutedEvent<Input.TouchEventArgs>();
+        LostTouchCapture = new RoutedEvent<Input.TouchEventArgs>();
         
         OnGotFocus(e: RoutedEventArgs) { }
         OnLostFocus(e: RoutedEventArgs) { }
@@ -386,6 +427,13 @@ module Fayde {
         OnMouseRightButtonDown(e: Input.MouseButtonEventArgs) { }
         OnMouseRightButtonUp(e: Input.MouseButtonEventArgs) { }
         OnMouseWheel(e: Input.MouseWheelEventArgs) { }
+        OnTouchDown(e: Input.TouchEventArgs) { }
+        OnTouchUp(e: Input.TouchEventArgs) { }
+        OnTouchEnter(e: Input.TouchEventArgs) { }
+        OnTouchLeave(e: Input.TouchEventArgs) { }
+        OnTouchMove(e: Input.TouchEventArgs) { }
+        OnGotTouchCapture(e: Input.TouchEventArgs) { }
+        OnLostTouchCapture(e: Input.TouchEventArgs) { }
 
         private _ClipChanged(args: IDependencyPropertyChangedEventArgs) {
             var oldClip: Media.Geometry = args.OldValue;

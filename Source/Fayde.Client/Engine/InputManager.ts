@@ -107,8 +107,8 @@ module Fayde.Engine {
             if (this._EmittingMouseEvent)
                 return false;
 
-            var newInputList: UINode[] = [];
-            if (!this._Surface.HitTestPoint(newInputList, pos))
+            var newInputList = this._Surface.HitTestPoint(pos);
+            if (!newInputList)
                 return false;
 
             this._EmittingMouseEvent = true;
@@ -159,6 +159,10 @@ module Fayde.Engine {
                     args = this._MouseInterop.CreateEventArgs(type, pos, delta);
             }
             return handled;
+        }
+
+        HitTestPoint(pos: Point): UINode[] {
+            return this._Surface.HitTestPoint(pos);
         }
 
         UpdateCursorFromInputList() {

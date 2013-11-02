@@ -274,6 +274,11 @@
     <Content Include="Fayde.d.ts" />
     <Content Include="Fayde.js" />
     <Content Include="Fayde.js.map" />
+    <TypeScriptCompile Include="Input\TouchInterop.ts" />
+    <TypeScriptCompile Include="Input\TouchEventArgs.ts" />
+    <TypeScriptCompile Include="Input\TouchPoint.ts" />
+    <TypeScriptCompile Include="Input\TouchInterfaces.d.ts" />
+    <TypeScriptCompile Include="Input\ActiveTouch.ts" />
     <Content Include="Theme.Metro.xml" />
     <Content Include="Theme.Silverlight.xml" />
     <TypeScriptCompile Include="Xaml\Library.ts" />

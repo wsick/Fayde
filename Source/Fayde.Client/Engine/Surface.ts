@@ -305,16 +305,17 @@ module Fayde {
             this._InputMgr.OnNodeDetached(lu.Node);
         }
 
-        HitTestPoint(newInputList: Fayde.UINode[], pos: Point): boolean {
+        HitTestPoint(pos: Point): UINode[] {
             if (!this._RootLayer)
-                return false;
+                return null;
+            var list: UINode[] = [];
             var layers = this._Layers;
             var layerCount = layers.length;
-            for (var i = layerCount - 1; i >= 0 && newInputList.length === 0; i--) {
+            for (var i = layerCount - 1; i >= 0 && list.length === 0; i--) {
                 var layer = layers[i];
-                layer.LayoutUpdater.HitTestPoint(this._RenderContext, pos, newInputList);
+                layer.LayoutUpdater.HitTestPoint(this._RenderContext, pos, list);
             }
-            return true;
+            return list;
         }
 
         SetMouseCapture(uin: Fayde.UINode):boolean {
