@@ -1,27 +1,18 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
 
 module Fayde.Input {
-    export enum TouchAction {
-        Down,
-        Move,
-        Up
-    }
-    Fayde.RegisterEnum(TouchAction, {
-        Name: "TouchAction",
-        Namespace: "Fayde.Input",
-        XmlNamespace: Fayde.XMLNS
-    });
-
     export class TouchPoint {
-        Action: TouchAction;
-        Bounds: rect;
         Position: Point;
-        Size: size;
-        constructor(action: TouchAction, bounds: rect, position: Point, size: size) {
-            Object.defineProperty(this, "Action", { value: action, writable: false });
-            Object.defineProperty(this, "Bounds", { value: bounds, writable: false });
+        RadiusX: number;
+        RadiusY: number;
+        RotationAngle: number;
+        Force: number;
+        constructor(position: Point, radiusX: number, radiusY: number, rotationAngle: number, force: number) {
             Object.defineProperty(this, "Position", { value: position, writable: false });
-            Object.defineProperty(this, "Size", { value: size, writable: false });
+            Object.defineProperty(this, "RadiusX", { value: radiusX, writable: false });
+            Object.defineProperty(this, "RadiusY", { value: radiusY, writable: false });
+            Object.defineProperty(this, "RotationAngle", { value: rotationAngle, writable: false });
+            Object.defineProperty(this, "Force", { value: force, writable: false });
         }
     }
     Fayde.RegisterType(TouchPoint, {

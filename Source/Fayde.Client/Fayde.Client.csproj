@@ -277,7 +277,7 @@
     <TypeScriptCompile Include="Input\TouchInterop.ts" />
     <TypeScriptCompile Include="Input\TouchEventArgs.ts" />
     <TypeScriptCompile Include="Input\TouchPoint.ts" />
-    <TypeScriptCompile Include="Input\TouchInterfaces.d.ts" />
+    <TypeScriptCompile Include="Input\TouchInterfaces.ts" />
     <TypeScriptCompile Include="Input\ActiveTouch.ts" />
     <Content Include="Theme.Metro.xml" />
     <Content Include="Theme.Silverlight.xml" />

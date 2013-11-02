@@ -7,6 +7,10 @@ interface Touch {
     clientY: number;
     pageX: number;
     pageY: number;
+    radiusX: number;
+    radiusY: number;
+    rotationAngle: number;
+    force: number;
 }
 
 interface TouchList {

@@ -2,19 +2,16 @@
 
 module Fayde.Input {
     export class TouchEventArgs extends RoutedEventArgs {
-        private _Pos: Point;
+        AbsolutePos: Point;
         private _Device: ITouchDevice;
         constructor(pos: Point, device: ITouchDevice) {
             super();
-            this._Pos = pos;
             this._Device = device;
+            Object.defineProperty(this, "AbsolutePos", { value: pos, writable: false });
         }
 
         GetTouchPoint(relativeTo: UIElement): TouchPoint {
-            return null;
-        }
-        GetIntermediateTouchPoints(relativeTo: UIElement): TouchPoint[] {
-            return [];
+            return this._Device.GetTouchPoint(relativeTo);
         }
     }
     Fayde.RegisterType(TouchEventArgs, {

@@ -3,6 +3,7 @@ module Fayde.Input {
         Captured: UIElement;
         Capture(uie: UIElement): boolean;
         ReleaseCapture(uie: UIElement);
+        GetTouchPoint(relativeTo: UIElement): TouchPoint;
     }
 
     export class ActiveTouch {
@@ -30,7 +31,8 @@ module Fayde.Input {
             var d: ITouchDevice = {
                 Captured: null,
                 Capture: (uie: UIElement) => this.Capture(uie),
-                ReleaseCapture: (uie: UIElement) => this.ReleaseCapture(uie)
+                ReleaseCapture: (uie: UIElement) => this.ReleaseCapture(uie),
+                GetTouchPoint: (relativeTo: UIElement) => this._GetTouchPoint(relativeTo)
             };
             Object.defineProperty(d, "Captured", { get: () => this._Captured });
             Object.defineProperty(this, "Device", d);
@@ -68,7 +70,7 @@ module Fayde.Input {
                 return handled;
             if (!endIndex || endIndex === -1)
                 endIndex = list.length;
-            var args = new Input.TouchEventArgs(this.Position, this.Device)
+            var args = new Input.TouchEventArgs(this.Position, this.Device);
             var node = list[0];
             if (node && args instanceof Fayde.RoutedEventArgs)
                 args.Source = node.XObject;
@@ -78,8 +80,8 @@ module Fayde.Input {
                     args.Source = node.XObject;
                 if (node._EmitTouchEvent(type, args))
                     handled = true;
-                if (type === Input.TouchInputType.TouchLeave) //MouseLeave gets new event args on each emit
-                    args = new Input.TouchEventArgs(this.Position, this.Device)
+                if (type === Input.TouchInputType.TouchLeave) //TouchLeave gets new event args on each emit
+                    args = new Input.TouchEventArgs(this.Position, this.Device);
             }
             return handled;
         }
@@ -117,6 +119,18 @@ module Fayde.Input {
             this._PendingReleaseCapture = false;
             oldCaptured._EmitLostTouchCapture(new Input.TouchEventArgs(this.Position, this.Device));
             this._FinishReleaseCaptureFunc();
+        }
+
+        private _GetTouchPoint(relativeTo: UIElement): TouchPoint {
+            var to = this.TouchObj;
+            if (!relativeTo)
+                return new TouchPoint(this.Position.Clone(), to.radiusX, to.radiusY, to.rotationAngle, to.force);
+            if (!(relativeTo instanceof UIElement))
+                throw new ArgumentException("Specified relative object must be a UIElement.");
+            //TODO: If attached, should we run ProcessDirtyElements
+            var p = this.Position.Clone();
+            relativeTo.XamlNode.LayoutUpdater.TransformPoint(p);
+            return new TouchPoint(p, to.radiusX, to.radiusY, to.rotationAngle, to.force);
         }
     }
     

@@ -1,4 +1,3 @@
-/// <reference path="TouchInterfaces.d.ts" />
 
 module Fayde.Input {
     export enum TouchInputType {
