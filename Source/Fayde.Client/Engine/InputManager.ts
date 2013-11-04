@@ -13,6 +13,7 @@ module Fayde.Engine {
         private _Surface: Surface;
         private _KeyInterop: Fayde.Input.IKeyInterop;
         private _MouseInterop: Fayde.Input.IMouseInterop;
+        private _TouchInterop: Fayde.Input.ITouchInterop;
         private _Focus: FocusManager;
         private _State: IInputState;
         private _Cursor: string = Fayde.CursorType.Default;
@@ -33,6 +34,7 @@ module Fayde.Engine {
             this._Surface = surface;
             this._KeyInterop = Fayde.Input.CreateKeyInterop();
             this._MouseInterop = Fayde.Input.CreateMouseInterop();
+            this._TouchInterop = Fayde.Input.CreateTouchInterop();
 
             this._Focus = new FocusManager(this._State = {
                 IsUserInitiated: false,
@@ -45,6 +47,7 @@ module Fayde.Engine {
 
             this._KeyInterop.RegisterEvents(this);
             this._MouseInterop.RegisterEvents(this, canvas);
+            this._TouchInterop.RegisterEvents(this, canvas);
         }
 
         OnNodeDetached(node: UINode) {
