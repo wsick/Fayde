@@ -47,7 +47,7 @@ module Fayde.Engine {
 
             this._KeyInterop.RegisterEvents(this);
             this._MouseInterop.RegisterEvents(this, canvas);
-            this._TouchInterop.RegisterEvents(this, canvas);
+            this._TouchInterop.Register(this, canvas);
         }
 
         OnNodeDetached(node: UINode) {

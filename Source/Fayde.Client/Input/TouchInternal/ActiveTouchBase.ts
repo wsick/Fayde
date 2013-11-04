@@ -1,41 +1,59 @@
-module Fayde.Input {
-    export interface ITouchDevice {
-        Captured: UIElement;
-        Capture(uie: UIElement): boolean;
-        ReleaseCapture(uie: UIElement);
-        GetTouchPoint(relativeTo: UIElement): TouchPoint;
+module Fayde.Input.TouchInternal {
+    export interface ITouchHandler {
+        HandleTouches(type: Input.TouchInputType, touches: ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
     }
 
-    export class ActiveTouch {
+    export class ActiveTouchBase {
         Identifier: number;
-        TouchObj: Touch;
         Position: Point;
-        InputList: UINode[];
-        Device: ITouchDevice;
+        Device: Input.ITouchDevice;
+        InputList: UINode[] = [];
         private _IsEmitting: boolean = false;
         private _PendingCapture: UINode = null;
         private _PendingReleaseCapture = false;
         private _Captured: UINode = null;
         private _CapturedInputList: UINode[] = null;
-
+        
         private _FinishReleaseCaptureFunc: () => void;
 
-        constructor(t: Touch, interop: ITouchInterop) {
-            this.Identifier = t.identifier;
-            this.TouchObj = t;
-            this.Position = interop.GetPosition(t);
-            this.InputList = [];
+        constructor(touchHandler: ITouchHandler) {
+            Object.defineProperty(this, "Device", this.CreateTouchDevice());
+            this._FinishReleaseCaptureFunc = () => touchHandler.HandleTouches(Input.TouchInputType.NoOp, [this], false, true);
+        }
 
-            this._FinishReleaseCaptureFunc = () => interop.HandleTouches(Input.TouchInputType.NoOp, [this], false, true);
-
-            var d: ITouchDevice = {
-                Captured: null,
-                Capture: (uie: UIElement) => this.Capture(uie),
-                ReleaseCapture: (uie: UIElement) => this.ReleaseCapture(uie),
-                GetTouchPoint: (relativeTo: UIElement) => this._GetTouchPoint(relativeTo)
-            };
-            Object.defineProperty(d, "Captured", { get: () => this._Captured });
-            Object.defineProperty(this, "Device", d);
+        Capture(uie: UIElement):boolean {
+            var uin = uie.XamlNode;
+            if (this._Captured === uin || this._PendingCapture === uin)
+                return true;
+            if (!this._IsEmitting)
+                return false;
+            this._PendingCapture = uin;
+            return true;
+        }
+        ReleaseCapture(uie: UIElement) {
+            var uin = uie.XamlNode;
+            if (this._Captured !== uin && this._PendingCapture !== uin)
+                return;
+            if (this._IsEmitting)
+                this._PendingReleaseCapture = true;
+            else
+                this._PerformReleaseCapture();
+        }
+        private _PerformCapture(uin: UINode) {
+            this._Captured = uin;
+            var newInputList: UINode[] = [];
+            while (uin != null) {
+                newInputList.push(uin);
+                uin = uin.VisualParentNode;
+            }
+            this._CapturedInputList = newInputList;
+            this._PendingCapture = null;
+        }
+        private _PerformReleaseCapture() {
+            var oldCaptured = this._Captured;
+            this._PendingReleaseCapture = false;
+            oldCaptured._EmitLostTouchCapture(new Input.TouchEventArgs(this.Position, this.Device));
+            this._FinishReleaseCaptureFunc();
         }
 
         Emit(type: Input.TouchInputType, newInputList: UINode[], emitLeave?: boolean, emitEnter?: boolean): boolean {
@@ -85,54 +103,33 @@ module Fayde.Input {
             }
             return handled;
         }
-
-        Capture(uie: UIElement):boolean {
-            var uin = uie.XamlNode;
-            if (this._Captured === uin || this._PendingCapture === uin)
-                return true;
-            if (!this._IsEmitting)
-                return false;
-            this._PendingCapture = uin;
-            return true;
-        }
-        ReleaseCapture(uie: UIElement) {
-            var uin = uie.XamlNode;
-            if (this._Captured !== uin && this._PendingCapture !== uin)
-                return;
-            if (this._IsEmitting)
-                this._PendingReleaseCapture = true;
-            else
-                this._PerformReleaseCapture();
-        }
-        private _PerformCapture(uin: UINode) {
-            this._Captured = uin;
-            var newInputList: UINode[] = [];
-            while (uin != null) {
-                newInputList.push(uin);
-                uin = uin.VisualParentNode;
-            }
-            this._CapturedInputList = newInputList;
-            this._PendingCapture = null;
-        }
-        private _PerformReleaseCapture() {
-            var oldCaptured = this._Captured;
-            this._PendingReleaseCapture = false;
-            oldCaptured._EmitLostTouchCapture(new Input.TouchEventArgs(this.Position, this.Device));
-            this._FinishReleaseCaptureFunc();
-        }
-
-        private _GetTouchPoint(relativeTo: UIElement): TouchPoint {
-            var to = this.TouchObj;
+        
+        GetTouchPoint(relativeTo: UIElement): TouchPoint {
             if (!relativeTo)
-                return new TouchPoint(this.Position.Clone(), to.radiusX, to.radiusY, to.rotationAngle, to.force);
+                return this.CreateTouchPoint(this.Position.Clone());
             if (!(relativeTo instanceof UIElement))
                 throw new ArgumentException("Specified relative object must be a UIElement.");
             //TODO: If attached, should we run ProcessDirtyElements
             var p = this.Position.Clone();
             relativeTo.XamlNode.LayoutUpdater.TransformPoint(p);
-            return new TouchPoint(p, to.radiusX, to.radiusY, to.rotationAngle, to.force);
+            return this.CreateTouchPoint(p);
+        }
+        CreateTouchPoint(p: Point): TouchPoint {
+            return new TouchPoint(p, 0);
+        }
+        
+        private CreateTouchDevice(): ITouchDevice {
+            var d: ITouchDevice = {
+                Captured: null,
+                Capture: (uie: UIElement) => this.Capture(uie),
+                ReleaseCapture: (uie: UIElement) => this.ReleaseCapture(uie),
+                GetTouchPoint: (relativeTo: UIElement) => this.GetTouchPoint(relativeTo)
+            };
+            Object.defineProperty(d, "Captured", { get: () => this._Captured });
+            return d;
         }
     }
+
     
     interface ICommonElementIndices {
         Index1: number;
