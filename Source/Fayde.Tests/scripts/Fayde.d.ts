@@ -6264,45 +6264,6 @@ interface TouchEvent extends UIEvent {
     initTouchEvent(type: string, canBubble: boolean, cancelable: boolean, view: any, detail: number, ctrlKey: boolean, altKey: boolean, shiftKey: boolean, metaKey: boolean, touches: TouchList, targetTouches: TouchList, changedTouches: TouchList);
 }
 declare module Fayde.Input.TouchInternal {
-    class PointerTouchInterop extends TouchInternal.TouchInteropBase {
-        public Register(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement): void;
-        private _HandlePointerDown(e);
-        private _HandlePointerUp(e);
-        private _HandlePointerMove(e);
-        private _HandlePointerEnter(e);
-        private _HandlePointerLeave(e);
-        private GetActiveTouch(e);
-        private FindTouchInList(identifier);
-    }
-}
-declare module Fayde.Input.TouchInternal {
-    interface IOffset {
-        left: number;
-        top: number;
-    }
-    class TouchInteropBase implements Input.ITouchInterop, TouchInternal.ITouchHandler {
-        public Input: Fayde.Engine.InputManager;
-        public CanvasOffset: IOffset;
-        public ActiveTouches: TouchInternal.ActiveTouchBase[];
-        public CoordinateOffset : IOffset;
-        public Register(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement): void;
-        private _CalcOffset(canvas);
-        public HandleTouches(type: Input.TouchInputType, touches: TouchInternal.ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
-    }
-}
-declare module Fayde.Input.TouchInternal {
-    class NonPointerTouchInterop extends TouchInternal.TouchInteropBase {
-        public Register(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement): void;
-        private _HandleTouchStart(e);
-        private _HandleTouchEnd(e);
-        private _HandleTouchMove(e);
-        private _HandleTouchEnter(e);
-        private _HandleTouchLeave(e);
-        private TouchArrayFromList(list);
-        private FindTouchInList(identifier);
-    }
-}
-declare module Fayde.Input.TouchInternal {
     interface ITouchHandler {
         HandleTouches(type: Input.TouchInputType, touches: ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
     }
@@ -6327,6 +6288,45 @@ declare module Fayde.Input.TouchInternal {
         public GetTouchPoint(relativeTo: Fayde.UIElement): Input.TouchPoint;
         public CreateTouchPoint(p: Point): Input.TouchPoint;
         private CreateTouchDevice();
+    }
+}
+declare module Fayde.Input.TouchInternal {
+    interface IOffset {
+        left: number;
+        top: number;
+    }
+    class TouchInteropBase implements Input.ITouchInterop, TouchInternal.ITouchHandler {
+        public Input: Fayde.Engine.InputManager;
+        public CanvasOffset: IOffset;
+        public ActiveTouches: TouchInternal.ActiveTouchBase[];
+        public CoordinateOffset : IOffset;
+        public Register(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement): void;
+        private _CalcOffset(canvas);
+        public HandleTouches(type: Input.TouchInputType, touches: TouchInternal.ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
+    }
+}
+declare module Fayde.Input.TouchInternal {
+    class PointerTouchInterop extends TouchInternal.TouchInteropBase {
+        public Register(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement): void;
+        private _HandlePointerDown(e);
+        private _HandlePointerUp(e);
+        private _HandlePointerMove(e);
+        private _HandlePointerEnter(e);
+        private _HandlePointerLeave(e);
+        private GetActiveTouch(e);
+        private FindTouchInList(identifier);
+    }
+}
+declare module Fayde.Input.TouchInternal {
+    class NonPointerTouchInterop extends TouchInternal.TouchInteropBase {
+        public Register(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement): void;
+        private _HandleTouchStart(e);
+        private _HandleTouchEnd(e);
+        private _HandleTouchMove(e);
+        private _HandleTouchEnter(e);
+        private _HandleTouchLeave(e);
+        private TouchArrayFromList(list);
+        private FindTouchInList(identifier);
     }
 }
 declare module Fayde.Xaml {

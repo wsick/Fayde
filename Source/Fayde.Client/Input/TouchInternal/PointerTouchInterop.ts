@@ -22,11 +22,19 @@ module Fayde.Input.TouchInternal {
             (<any>canvas.style).touchAction = "none";
 
             canvas.addEventListener("selectstart", (e) => { e.preventDefault(); });
-            canvas.addEventListener("pointerdown", (e) => this._HandlePointerDown(window.event ? <any>window.event : e));
-            canvas.addEventListener("pointerup", (e) => this._HandlePointerUp(window.event ? <any>window.event : e));
-            canvas.addEventListener("pointermove", (e) => this._HandlePointerMove(window.event ? <any>window.event : e));
-            canvas.addEventListener("pointerenter", (e) => this._HandlePointerEnter(window.event ? <any>window.event : e));
-            canvas.addEventListener("pointerleave", (e) => this._HandlePointerLeave(window.event ? <any>window.event : e));
+            if (navigator.msPointerEnabled) {
+                canvas.addEventListener("MSPointerDown", (e) => this._HandlePointerDown(window.event ? <any>window.event : e));
+                canvas.addEventListener("MSPointerUp", (e) => this._HandlePointerUp(window.event ? <any>window.event : e));
+                canvas.addEventListener("MSPointerMove", (e) => this._HandlePointerMove(window.event ? <any>window.event : e));
+                canvas.addEventListener("MSPointerEnter", (e) => this._HandlePointerEnter(window.event ? <any>window.event : e));
+                canvas.addEventListener("MSPointerLeave", (e) => this._HandlePointerLeave(window.event ? <any>window.event : e));
+            } else {
+                canvas.addEventListener("pointerdown", (e) => this._HandlePointerDown(window.event ? <any>window.event : e));
+                canvas.addEventListener("pointerup", (e) => this._HandlePointerUp(window.event ? <any>window.event : e));
+                canvas.addEventListener("pointermove", (e) => this._HandlePointerMove(window.event ? <any>window.event : e));
+                canvas.addEventListener("pointerenter", (e) => this._HandlePointerEnter(window.event ? <any>window.event : e));
+                canvas.addEventListener("pointerleave", (e) => this._HandlePointerLeave(window.event ? <any>window.event : e));
+            }
         }
 
         private _HandlePointerDown(e: MSPointerEvent) {
@@ -55,19 +63,19 @@ module Fayde.Input.TouchInternal {
             if (e.pointerType === "mouse")
                 return;
             var cur = this.GetActiveTouch(e);
-            this.HandleTouches(Input.TouchInputType.TouchUp, [cur]);
+            this.HandleTouches(Input.TouchInputType.TouchMove, [cur]);
         }
         private _HandlePointerEnter(e: MSPointerEvent) {
             if (e.pointerType === "mouse")
                 return;
             var cur = this.GetActiveTouch(e);
-            this.HandleTouches(Input.TouchInputType.TouchUp, [cur]);
+            this.HandleTouches(Input.TouchInputType.TouchEnter, [cur]);
         }
         private _HandlePointerLeave(e: MSPointerEvent) {
             if (e.pointerType === "mouse")
                 return;
             var cur = this.GetActiveTouch(e);
-            this.HandleTouches(Input.TouchInputType.TouchUp, [cur]);
+            this.HandleTouches(Input.TouchInputType.TouchLeave, [cur]);
         }
 
         private GetActiveTouch(e: MSPointerEvent): PointerActiveTouch {

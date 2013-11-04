@@ -2584,8 +2584,10 @@ else
         UIElement.prototype.OnMouseWheel = function (e) {
         };
         UIElement.prototype.OnTouchDown = function (e) {
+            console.log("TouchDown");
         };
         UIElement.prototype.OnTouchUp = function (e) {
+            console.log("TouchUp");
         };
         UIElement.prototype.OnTouchEnter = function (e) {
         };
@@ -36716,298 +36718,6 @@ var Fayde;
 (function (Fayde) {
     (function (Input) {
         (function (TouchInternal) {
-            var PointerActiveTouch = (function (_super) {
-                __extends(PointerActiveTouch, _super);
-                function PointerActiveTouch() {
-                    _super.apply(this, arguments);
-                }
-                PointerActiveTouch.prototype.Init = function (t, offset) {
-                    this.TouchObject = t;
-                    this.Identifier = t.pointerId;
-                    this.Position = new Point(t.clientX + offset.left, t.clientY + offset.top);
-                };
-                PointerActiveTouch.prototype.CreateTouchPoint = function (p) {
-                    var to = this.TouchObject;
-                    return new Input.TouchPoint(p, to.pressure);
-                };
-                return PointerActiveTouch;
-            })(TouchInternal.ActiveTouchBase);
-
-            var PointerTouchInterop = (function (_super) {
-                __extends(PointerTouchInterop, _super);
-                function PointerTouchInterop() {
-                    _super.apply(this, arguments);
-                }
-                PointerTouchInterop.prototype.Register = function (input, canvas) {
-                    var _this = this;
-                    _super.prototype.Register.call(this, input, canvas);
-                    canvas.style.msTouchAction = "none";
-                    (canvas.style).touchAction = "none";
-
-                    canvas.addEventListener("selectstart", function (e) {
-                        e.preventDefault();
-                    });
-                    canvas.addEventListener("pointerdown", function (e) {
-                        return _this._HandlePointerDown(window.event ? window.event : e);
-                    });
-                    canvas.addEventListener("pointerup", function (e) {
-                        return _this._HandlePointerUp(window.event ? window.event : e);
-                    });
-                    canvas.addEventListener("pointermove", function (e) {
-                        return _this._HandlePointerMove(window.event ? window.event : e);
-                    });
-                    canvas.addEventListener("pointerenter", function (e) {
-                        return _this._HandlePointerEnter(window.event ? window.event : e);
-                    });
-                    canvas.addEventListener("pointerleave", function (e) {
-                        return _this._HandlePointerLeave(window.event ? window.event : e);
-                    });
-                };
-
-                PointerTouchInterop.prototype._HandlePointerDown = function (e) {
-                    if (e.pointerType === "mouse")
-                        return;
-                    e.preventDefault();
-                    Fayde.Engine.Inspection.Kill();
-
-                    var cur = this.GetActiveTouch(e);
-                    this.Input.SetIsUserInitiatedEvent(true);
-                    this.HandleTouches(Fayde.Input.TouchInputType.TouchDown, [cur]);
-                    this.Input.SetIsUserInitiatedEvent(false);
-                };
-                PointerTouchInterop.prototype._HandlePointerUp = function (e) {
-                    if (e.pointerType === "mouse")
-                        return;
-                    var cur = this.GetActiveTouch(e);
-                    this.Input.SetIsUserInitiatedEvent(true);
-                    this.HandleTouches(Fayde.Input.TouchInputType.TouchUp, [cur]);
-                    this.Input.SetIsUserInitiatedEvent(false);
-                    var index = this.ActiveTouches.indexOf(cur);
-                    if (index > -1)
-                        this.ActiveTouches.splice(index, 1);
-                };
-                PointerTouchInterop.prototype._HandlePointerMove = function (e) {
-                    if (e.pointerType === "mouse")
-                        return;
-                    var cur = this.GetActiveTouch(e);
-                    this.HandleTouches(Fayde.Input.TouchInputType.TouchUp, [cur]);
-                };
-                PointerTouchInterop.prototype._HandlePointerEnter = function (e) {
-                    if (e.pointerType === "mouse")
-                        return;
-                    var cur = this.GetActiveTouch(e);
-                    this.HandleTouches(Fayde.Input.TouchInputType.TouchUp, [cur]);
-                };
-                PointerTouchInterop.prototype._HandlePointerLeave = function (e) {
-                    if (e.pointerType === "mouse")
-                        return;
-                    var cur = this.GetActiveTouch(e);
-                    this.HandleTouches(Fayde.Input.TouchInputType.TouchUp, [cur]);
-                };
-
-                PointerTouchInterop.prototype.GetActiveTouch = function (e) {
-                    var existing = this.FindTouchInList(e.pointerId);
-                    var cur = existing || new PointerActiveTouch(this);
-                    if (!existing)
-                        this.ActiveTouches.push(cur);
-                    cur.Init(e, this.CoordinateOffset);
-                    return cur;
-                };
-                PointerTouchInterop.prototype.FindTouchInList = function (identifier) {
-                    var at = this.ActiveTouches;
-                    var len = at.length;
-                    for (var i = 0; i < len; i++) {
-                        if (at[i].Identifier === identifier)
-                            return at[i];
-                    }
-                    return null;
-                };
-                return PointerTouchInterop;
-            })(TouchInternal.TouchInteropBase);
-            TouchInternal.PointerTouchInterop = PointerTouchInterop;
-        })(Input.TouchInternal || (Input.TouchInternal = {}));
-        var TouchInternal = Input.TouchInternal;
-    })(Fayde.Input || (Fayde.Input = {}));
-    var Input = Fayde.Input;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Input) {
-        (function (TouchInternal) {
-            var TouchInteropBase = (function () {
-                function TouchInteropBase() {
-                    this.CanvasOffset = null;
-                    this.ActiveTouches = [];
-                }
-                Object.defineProperty(TouchInteropBase.prototype, "CoordinateOffset", {
-                    get: function () {
-                        return {
-                            left: window.pageXOffset + this.CanvasOffset.left,
-                            top: window.pageYOffset + this.CanvasOffset.top
-                        };
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-
-                TouchInteropBase.prototype.Register = function (input, canvas) {
-                    this.Input = input;
-                    this.CanvasOffset = this._CalcOffset(canvas);
-                };
-                TouchInteropBase.prototype._CalcOffset = function (canvas) {
-                    var left = 0;
-                    var top = 0;
-                    var cur = canvas;
-                    if (cur.offsetParent) {
-                        do {
-                            left += cur.offsetLeft;
-                            top += cur.offsetTop;
-                        } while(cur = cur.offsetParent);
-                    }
-                    return { left: left, top: top };
-                };
-
-                TouchInteropBase.prototype.HandleTouches = function (type, touches, emitLeave, emitEnter) {
-                    var touch;
-                    var handled = false;
-                    while (touch = touches.shift()) {
-                        var inputList = this.Input.HitTestPoint(touch.Position);
-                        if (inputList)
-                            handled = handled || touch.Emit(type, inputList, emitLeave, emitEnter);
-                    }
-                    return handled;
-                };
-                return TouchInteropBase;
-            })();
-            TouchInternal.TouchInteropBase = TouchInteropBase;
-        })(Input.TouchInternal || (Input.TouchInternal = {}));
-        var TouchInternal = Input.TouchInternal;
-    })(Fayde.Input || (Fayde.Input = {}));
-    var Input = Fayde.Input;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Input) {
-        (function (TouchInternal) {
-            var NonPointerActiveTouch = (function (_super) {
-                __extends(NonPointerActiveTouch, _super);
-                function NonPointerActiveTouch() {
-                    _super.apply(this, arguments);
-                }
-                NonPointerActiveTouch.prototype.Init = function (t, offset) {
-                    this.TouchObject = t;
-                    this.Identifier = t.identifier;
-                    this.Position = new Point(t.clientX + offset.left, t.clientY + offset.top);
-                };
-                NonPointerActiveTouch.prototype.CreateTouchPoint = function (p) {
-                    var to = this.TouchObject;
-                    return new Input.TouchPoint(p, to.force);
-                };
-                return NonPointerActiveTouch;
-            })(TouchInternal.ActiveTouchBase);
-
-            var NonPointerTouchInterop = (function (_super) {
-                __extends(NonPointerTouchInterop, _super);
-                function NonPointerTouchInterop() {
-                    _super.apply(this, arguments);
-                }
-                NonPointerTouchInterop.prototype.Register = function (input, canvas) {
-                    var _this = this;
-                    _super.prototype.Register.call(this, input, canvas);
-
-                    canvas.addEventListener("touchstart", function (e) {
-                        return _this._HandleTouchStart(window.event ? window.event : e);
-                    });
-                    canvas.addEventListener("touchend", function (e) {
-                        return _this._HandleTouchEnd(window.event ? window.event : e);
-                    });
-                    canvas.addEventListener("touchmove", function (e) {
-                        return _this._HandleTouchMove(window.event ? window.event : e);
-                    });
-                    canvas.addEventListener("touchenter", function (e) {
-                        return _this._HandleTouchEnter(window.event ? window.event : e);
-                    });
-                    canvas.addEventListener("touchleave", function (e) {
-                        return _this._HandleTouchLeave(window.event ? window.event : e);
-                    });
-                };
-
-                NonPointerTouchInterop.prototype._HandleTouchStart = function (e) {
-                    e.preventDefault();
-                    Fayde.Engine.Inspection.Kill();
-
-                    var newTouches = this.TouchArrayFromList(e.changedTouches);
-                    this.ActiveTouches = this.ActiveTouches.concat(newTouches);
-
-                    this.Input.SetIsUserInitiatedEvent(true);
-                    this.HandleTouches(Input.TouchInputType.TouchDown, newTouches);
-                    this.Input.SetIsUserInitiatedEvent(false);
-                };
-                NonPointerTouchInterop.prototype._HandleTouchEnd = function (e) {
-                    var oldTouches = this.TouchArrayFromList(e.changedTouches);
-
-                    this.Input.SetIsUserInitiatedEvent(true);
-                    this.HandleTouches(Input.TouchInputType.TouchUp, oldTouches);
-                    this.Input.SetIsUserInitiatedEvent(false);
-
-                    removeFromArray(this.ActiveTouches, oldTouches);
-                };
-                NonPointerTouchInterop.prototype._HandleTouchMove = function (e) {
-                    var touches = this.TouchArrayFromList(e.changedTouches);
-                    this.HandleTouches(Input.TouchInputType.TouchMove, touches);
-                };
-                NonPointerTouchInterop.prototype._HandleTouchEnter = function (e) {
-                    var touches = this.TouchArrayFromList(e.changedTouches);
-                    this.HandleTouches(Input.TouchInputType.TouchEnter, touches);
-                };
-                NonPointerTouchInterop.prototype._HandleTouchLeave = function (e) {
-                    var touches = this.TouchArrayFromList(e.changedTouches);
-                    this.HandleTouches(Input.TouchInputType.TouchLeave, touches);
-                };
-
-                NonPointerTouchInterop.prototype.TouchArrayFromList = function (list) {
-                    var len = list.length;
-                    var touches = [];
-                    var curto;
-                    var cur;
-                    for (var i = 0; i < len; i++) {
-                        var curto = list.item(i);
-                        cur = this.FindTouchInList(curto.identifier) || new NonPointerActiveTouch(this);
-                        cur.Init(curto, this.CoordinateOffset);
-                        touches.push(cur);
-                    }
-                    return touches;
-                };
-                NonPointerTouchInterop.prototype.FindTouchInList = function (identifier) {
-                    var at = this.ActiveTouches;
-                    var len = at.length;
-                    for (var i = 0; i < len; i++) {
-                        if (at[i].Identifier === identifier)
-                            return at[i];
-                    }
-                    return null;
-                };
-                return NonPointerTouchInterop;
-            })(TouchInternal.TouchInteropBase);
-            TouchInternal.NonPointerTouchInterop = NonPointerTouchInterop;
-
-            function removeFromArray(arr, toRemove) {
-                var len = toRemove.length;
-                for (var i = 0; i < len; i++) {
-                    var index = arr.indexOf(toRemove[i]);
-                    if (index > -1)
-                        arr.splice(index, 1);
-                }
-            }
-        })(Input.TouchInternal || (Input.TouchInternal = {}));
-        var TouchInternal = Input.TouchInternal;
-    })(Fayde.Input || (Fayde.Input = {}));
-    var Input = Fayde.Input;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Input) {
-        (function (TouchInternal) {
             var ActiveTouchBase = (function () {
                 function ActiveTouchBase(touchHandler) {
                     var _this = this;
@@ -37153,6 +36863,320 @@ else
                         return;
                     outObj.Index1 = i--;
                     outObj.Index2 = j--;
+                }
+            }
+        })(Input.TouchInternal || (Input.TouchInternal = {}));
+        var TouchInternal = Input.TouchInternal;
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Input) {
+        (function (TouchInternal) {
+            var TouchInteropBase = (function () {
+                function TouchInteropBase() {
+                    this.CanvasOffset = null;
+                    this.ActiveTouches = [];
+                }
+                Object.defineProperty(TouchInteropBase.prototype, "CoordinateOffset", {
+                    get: function () {
+                        return {
+                            left: window.pageXOffset + this.CanvasOffset.left,
+                            top: window.pageYOffset + this.CanvasOffset.top
+                        };
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+
+                TouchInteropBase.prototype.Register = function (input, canvas) {
+                    this.Input = input;
+                    this.CanvasOffset = this._CalcOffset(canvas);
+                };
+                TouchInteropBase.prototype._CalcOffset = function (canvas) {
+                    var left = 0;
+                    var top = 0;
+                    var cur = canvas;
+                    if (cur.offsetParent) {
+                        do {
+                            left += cur.offsetLeft;
+                            top += cur.offsetTop;
+                        } while(cur = cur.offsetParent);
+                    }
+                    return { left: left, top: top };
+                };
+
+                TouchInteropBase.prototype.HandleTouches = function (type, touches, emitLeave, emitEnter) {
+                    var touch;
+                    var handled = false;
+                    while (touch = touches.shift()) {
+                        var inputList = this.Input.HitTestPoint(touch.Position);
+                        if (inputList)
+                            handled = handled || touch.Emit(type, inputList, emitLeave, emitEnter);
+                    }
+                    return handled;
+                };
+                return TouchInteropBase;
+            })();
+            TouchInternal.TouchInteropBase = TouchInteropBase;
+        })(Input.TouchInternal || (Input.TouchInternal = {}));
+        var TouchInternal = Input.TouchInternal;
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Input) {
+        /// <reference path="ActiveTouchBase.ts" />
+        /// <reference path="TouchInteropBase.ts" />
+        (function (TouchInternal) {
+            var PointerActiveTouch = (function (_super) {
+                __extends(PointerActiveTouch, _super);
+                function PointerActiveTouch() {
+                    _super.apply(this, arguments);
+                }
+                PointerActiveTouch.prototype.Init = function (t, offset) {
+                    this.TouchObject = t;
+                    this.Identifier = t.pointerId;
+                    this.Position = new Point(t.clientX + offset.left, t.clientY + offset.top);
+                };
+                PointerActiveTouch.prototype.CreateTouchPoint = function (p) {
+                    var to = this.TouchObject;
+                    return new Input.TouchPoint(p, to.pressure);
+                };
+                return PointerActiveTouch;
+            })(TouchInternal.ActiveTouchBase);
+
+            var PointerTouchInterop = (function (_super) {
+                __extends(PointerTouchInterop, _super);
+                function PointerTouchInterop() {
+                    _super.apply(this, arguments);
+                }
+                PointerTouchInterop.prototype.Register = function (input, canvas) {
+                    var _this = this;
+                    _super.prototype.Register.call(this, input, canvas);
+                    canvas.style.msTouchAction = "none";
+                    (canvas.style).touchAction = "none";
+
+                    canvas.addEventListener("selectstart", function (e) {
+                        e.preventDefault();
+                    });
+                    if (navigator.msPointerEnabled) {
+                        canvas.addEventListener("MSPointerDown", function (e) {
+                            return _this._HandlePointerDown(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("MSPointerUp", function (e) {
+                            return _this._HandlePointerUp(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("MSPointerMove", function (e) {
+                            return _this._HandlePointerMove(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("MSPointerEnter", function (e) {
+                            return _this._HandlePointerEnter(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("MSPointerLeave", function (e) {
+                            return _this._HandlePointerLeave(window.event ? window.event : e);
+                        });
+                    } else {
+                        canvas.addEventListener("pointerdown", function (e) {
+                            return _this._HandlePointerDown(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("pointerup", function (e) {
+                            return _this._HandlePointerUp(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("pointermove", function (e) {
+                            return _this._HandlePointerMove(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("pointerenter", function (e) {
+                            return _this._HandlePointerEnter(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("pointerleave", function (e) {
+                            return _this._HandlePointerLeave(window.event ? window.event : e);
+                        });
+                    }
+                };
+
+                PointerTouchInterop.prototype._HandlePointerDown = function (e) {
+                    if (e.pointerType === "mouse")
+                        return;
+                    e.preventDefault();
+                    Fayde.Engine.Inspection.Kill();
+
+                    var cur = this.GetActiveTouch(e);
+                    this.Input.SetIsUserInitiatedEvent(true);
+                    this.HandleTouches(Fayde.Input.TouchInputType.TouchDown, [cur]);
+                    this.Input.SetIsUserInitiatedEvent(false);
+                };
+                PointerTouchInterop.prototype._HandlePointerUp = function (e) {
+                    if (e.pointerType === "mouse")
+                        return;
+                    var cur = this.GetActiveTouch(e);
+                    this.Input.SetIsUserInitiatedEvent(true);
+                    this.HandleTouches(Fayde.Input.TouchInputType.TouchUp, [cur]);
+                    this.Input.SetIsUserInitiatedEvent(false);
+                    var index = this.ActiveTouches.indexOf(cur);
+                    if (index > -1)
+                        this.ActiveTouches.splice(index, 1);
+                };
+                PointerTouchInterop.prototype._HandlePointerMove = function (e) {
+                    if (e.pointerType === "mouse")
+                        return;
+                    var cur = this.GetActiveTouch(e);
+                    this.HandleTouches(Fayde.Input.TouchInputType.TouchMove, [cur]);
+                };
+                PointerTouchInterop.prototype._HandlePointerEnter = function (e) {
+                    if (e.pointerType === "mouse")
+                        return;
+                    var cur = this.GetActiveTouch(e);
+                    this.HandleTouches(Fayde.Input.TouchInputType.TouchEnter, [cur]);
+                };
+                PointerTouchInterop.prototype._HandlePointerLeave = function (e) {
+                    if (e.pointerType === "mouse")
+                        return;
+                    var cur = this.GetActiveTouch(e);
+                    this.HandleTouches(Fayde.Input.TouchInputType.TouchLeave, [cur]);
+                };
+
+                PointerTouchInterop.prototype.GetActiveTouch = function (e) {
+                    var existing = this.FindTouchInList(e.pointerId);
+                    var cur = existing || new PointerActiveTouch(this);
+                    if (!existing)
+                        this.ActiveTouches.push(cur);
+                    cur.Init(e, this.CoordinateOffset);
+                    return cur;
+                };
+                PointerTouchInterop.prototype.FindTouchInList = function (identifier) {
+                    var at = this.ActiveTouches;
+                    var len = at.length;
+                    for (var i = 0; i < len; i++) {
+                        if (at[i].Identifier === identifier)
+                            return at[i];
+                    }
+                    return null;
+                };
+                return PointerTouchInterop;
+            })(TouchInternal.TouchInteropBase);
+            TouchInternal.PointerTouchInterop = PointerTouchInterop;
+        })(Input.TouchInternal || (Input.TouchInternal = {}));
+        var TouchInternal = Input.TouchInternal;
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Input) {
+        /// <reference path="ActiveTouchBase.ts" />
+        /// <reference path="TouchInteropBase.ts" />
+        (function (TouchInternal) {
+            var NonPointerActiveTouch = (function (_super) {
+                __extends(NonPointerActiveTouch, _super);
+                function NonPointerActiveTouch() {
+                    _super.apply(this, arguments);
+                }
+                NonPointerActiveTouch.prototype.Init = function (t, offset) {
+                    this.TouchObject = t;
+                    this.Identifier = t.identifier;
+                    this.Position = new Point(t.clientX + offset.left, t.clientY + offset.top);
+                };
+                NonPointerActiveTouch.prototype.CreateTouchPoint = function (p) {
+                    var to = this.TouchObject;
+                    return new Input.TouchPoint(p, to.force);
+                };
+                return NonPointerActiveTouch;
+            })(TouchInternal.ActiveTouchBase);
+
+            var NonPointerTouchInterop = (function (_super) {
+                __extends(NonPointerTouchInterop, _super);
+                function NonPointerTouchInterop() {
+                    _super.apply(this, arguments);
+                }
+                NonPointerTouchInterop.prototype.Register = function (input, canvas) {
+                    var _this = this;
+                    _super.prototype.Register.call(this, input, canvas);
+
+                    canvas.addEventListener("touchstart", function (e) {
+                        return _this._HandleTouchStart(window.event ? window.event : e);
+                    });
+                    canvas.addEventListener("touchend", function (e) {
+                        return _this._HandleTouchEnd(window.event ? window.event : e);
+                    });
+                    canvas.addEventListener("touchmove", function (e) {
+                        return _this._HandleTouchMove(window.event ? window.event : e);
+                    });
+                    canvas.addEventListener("touchenter", function (e) {
+                        return _this._HandleTouchEnter(window.event ? window.event : e);
+                    });
+                    canvas.addEventListener("touchleave", function (e) {
+                        return _this._HandleTouchLeave(window.event ? window.event : e);
+                    });
+                };
+
+                NonPointerTouchInterop.prototype._HandleTouchStart = function (e) {
+                    e.preventDefault();
+                    Fayde.Engine.Inspection.Kill();
+
+                    var newTouches = this.TouchArrayFromList(e.changedTouches);
+                    this.ActiveTouches = this.ActiveTouches.concat(newTouches);
+
+                    this.Input.SetIsUserInitiatedEvent(true);
+                    this.HandleTouches(Input.TouchInputType.TouchDown, newTouches);
+                    this.Input.SetIsUserInitiatedEvent(false);
+                };
+                NonPointerTouchInterop.prototype._HandleTouchEnd = function (e) {
+                    var oldTouches = this.TouchArrayFromList(e.changedTouches);
+
+                    this.Input.SetIsUserInitiatedEvent(true);
+                    this.HandleTouches(Input.TouchInputType.TouchUp, oldTouches);
+                    this.Input.SetIsUserInitiatedEvent(false);
+
+                    removeFromArray(this.ActiveTouches, oldTouches);
+                };
+                NonPointerTouchInterop.prototype._HandleTouchMove = function (e) {
+                    var touches = this.TouchArrayFromList(e.changedTouches);
+                    this.HandleTouches(Input.TouchInputType.TouchMove, touches);
+                };
+                NonPointerTouchInterop.prototype._HandleTouchEnter = function (e) {
+                    var touches = this.TouchArrayFromList(e.changedTouches);
+                    this.HandleTouches(Input.TouchInputType.TouchEnter, touches);
+                };
+                NonPointerTouchInterop.prototype._HandleTouchLeave = function (e) {
+                    var touches = this.TouchArrayFromList(e.changedTouches);
+                    this.HandleTouches(Input.TouchInputType.TouchLeave, touches);
+                };
+
+                NonPointerTouchInterop.prototype.TouchArrayFromList = function (list) {
+                    var len = list.length;
+                    var touches = [];
+                    var curto;
+                    var cur;
+                    for (var i = 0; i < len; i++) {
+                        var curto = list.item(i);
+                        cur = this.FindTouchInList(curto.identifier) || new NonPointerActiveTouch(this);
+                        cur.Init(curto, this.CoordinateOffset);
+                        touches.push(cur);
+                    }
+                    return touches;
+                };
+                NonPointerTouchInterop.prototype.FindTouchInList = function (identifier) {
+                    var at = this.ActiveTouches;
+                    var len = at.length;
+                    for (var i = 0; i < len; i++) {
+                        if (at[i].Identifier === identifier)
+                            return at[i];
+                    }
+                    return null;
+                };
+                return NonPointerTouchInterop;
+            })(TouchInternal.TouchInteropBase);
+            TouchInternal.NonPointerTouchInterop = NonPointerTouchInterop;
+
+            function removeFromArray(arr, toRemove) {
+                var len = toRemove.length;
+                for (var i = 0; i < len; i++) {
+                    var index = arr.indexOf(toRemove[i]);
+                    if (index > -1)
+                        arr.splice(index, 1);
                 }
             }
         })(Input.TouchInternal || (Input.TouchInternal = {}));
