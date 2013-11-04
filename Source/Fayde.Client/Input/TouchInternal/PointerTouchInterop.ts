@@ -1,3 +1,6 @@
+/// <reference path="ActiveTouchBase.ts" />
+/// <reference path="TouchInteropBase.ts" />
+
 module Fayde.Input.TouchInternal {
     class PointerActiveTouch extends ActiveTouchBase {
         TouchObject: MSPointerEvent;
