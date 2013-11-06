@@ -36702,7 +36702,7 @@ var Fayde;
                     this._PendingReleaseCapture = false;
                     this._Captured = null;
                     this._CapturedInputList = null;
-                    Object.defineProperty(this, "Device", this.CreateTouchDevice());
+                    Object.defineProperty(this, "Device", { value: this.CreateTouchDevice(), writable: false });
                     this._FinishReleaseCaptureFunc = function () {
                         return touchHandler.HandleTouches(Fayde.Input.TouchInputType.NoOp, [_this], false, true);
                     };

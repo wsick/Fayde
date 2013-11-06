@@ -17,7 +17,7 @@ module Fayde.Input.TouchInternal {
         private _FinishReleaseCaptureFunc: () => void;
 
         constructor(touchHandler: ITouchHandler) {
-            Object.defineProperty(this, "Device", this.CreateTouchDevice());
+            Object.defineProperty(this, "Device", { value: this.CreateTouchDevice(), writable: false });
             this._FinishReleaseCaptureFunc = () => touchHandler.HandleTouches(Input.TouchInputType.NoOp, [this], false, true);
         }
 
