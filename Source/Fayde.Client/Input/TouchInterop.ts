@@ -1,6 +1,6 @@
-
 module Fayde.Input {
     export interface ITouchDevice {
+        Identifier: number;
         Captured: UIElement;
         Capture(uie: UIElement): boolean;
         ReleaseCapture(uie: UIElement);
@@ -28,5 +28,4 @@ module Fayde.Input {
     class DummyTouchInterop implements ITouchInterop {
         Register(input: Engine.InputManager, canvas: HTMLCanvasElement) { }
     }
-
 }

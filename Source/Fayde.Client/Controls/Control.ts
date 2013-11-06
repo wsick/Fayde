@@ -174,17 +174,6 @@ module Fayde.Controls {
 
         OnGotFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = true; }
         OnLostFocus(e: RoutedEventArgs) { this.XamlNode.IsFocused = false; }
-        OnLostMouseCapture(e: Input.MouseEventArgs) { }
-        OnKeyDown(e: Input.KeyEventArgs) { }
-        OnKeyUp(e: Input.KeyEventArgs) { }
-        OnMouseEnter(e: Input.MouseEventArgs) { }
-        OnMouseLeave(e: Input.MouseEventArgs) { }
-        OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs) { }
-        OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs) { }
-        OnMouseMove(e: Input.MouseEventArgs) { }
-        OnMouseRightButtonDown(e: Input.MouseButtonEventArgs) { }
-        OnMouseRightButtonUp(e: Input.MouseButtonEventArgs) { }
-        OnMouseWheel(e: Input.MouseWheelEventArgs) { }
 
         UpdateVisualState(useTransitions?: boolean) {
             useTransitions = useTransitions !== false;

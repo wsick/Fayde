@@ -52,7 +52,7 @@ module Fayde.Input.TouchInternal {
         private _PerformReleaseCapture() {
             var oldCaptured = this._Captured;
             this._PendingReleaseCapture = false;
-            oldCaptured._EmitLostTouchCapture(new Input.TouchEventArgs(this.Position, this.Device));
+            oldCaptured._EmitLostTouchCapture(new Input.TouchEventArgs(this.Device));
             this._FinishReleaseCaptureFunc();
         }
 
@@ -88,7 +88,7 @@ module Fayde.Input.TouchInternal {
                 return handled;
             if (!endIndex || endIndex === -1)
                 endIndex = list.length;
-            var args = new Input.TouchEventArgs(this.Position, this.Device);
+            var args = new Input.TouchEventArgs(this.Device);
             var node = list[0];
             if (node && args instanceof Fayde.RoutedEventArgs)
                 args.Source = node.XObject;
@@ -99,7 +99,7 @@ module Fayde.Input.TouchInternal {
                 if (node._EmitTouchEvent(type, args))
                     handled = true;
                 if (type === Input.TouchInputType.TouchLeave) //TouchLeave gets new event args on each emit
-                    args = new Input.TouchEventArgs(this.Position, this.Device);
+                    args = new Input.TouchEventArgs(this.Device);
             }
             return handled;
         }
@@ -120,11 +120,13 @@ module Fayde.Input.TouchInternal {
         
         private CreateTouchDevice(): ITouchDevice {
             var d: ITouchDevice = {
+                Identifier: null,
                 Captured: null,
                 Capture: (uie: UIElement) => this.Capture(uie),
                 ReleaseCapture: (uie: UIElement) => this.ReleaseCapture(uie),
                 GetTouchPoint: (relativeTo: UIElement) => this.GetTouchPoint(relativeTo)
             };
+            Object.defineProperty(d, "Identifier", { get: () => this.Identifier });
             Object.defineProperty(d, "Captured", { get: () => this._Captured });
             return d;
         }
