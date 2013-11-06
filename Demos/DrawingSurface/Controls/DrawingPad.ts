@@ -19,6 +19,8 @@ module DrawingSurface {
             var finger = this._Fingers.filter(f => f.Device === e.Device)[0];
             if (!finger)
                 return;
+            var index = this._Fingers.indexOf(finger);
+            this._Fingers.splice(index, 1);
             var tp = e.GetTouchPoint(this);
             finger.End(tp.Position);
         }

@@ -45,3 +45,4 @@ Demos/NflDraft/Models/Round.js
 Demos/NflDraft/Models/Stats.js
 Demos/NflDraft/Models/Team.js
 Source/Fayde.Controls.Input/Fayde.Controls.Input.js
+Demos/DrawingSurface/Controls/DrawingPad.js
