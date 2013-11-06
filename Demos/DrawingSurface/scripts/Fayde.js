@@ -34442,11 +34442,24 @@ var Fayde;
                 var thickness = (logical || this._Stroke != null) ? 0.0 : this.StrokeThickness;
                 return geom.GetBounds(thickness);
             };
+
+            Path.prototype._OnDataChanged = function (args) {
+                var old = args.OldValue;
+                if (old instanceof Fayde.Media.Geometry)
+                    (old).Unlisten(this);
+                this.GeometryChanged(args.NewValue);
+                var n = args.NewValue;
+                if (n instanceof Fayde.Media.Geometry)
+                    (n).Listen(this);
+            };
+            Path.prototype.GeometryChanged = function (newGeometry) {
+                this._InvalidateNaturalBounds();
+            };
             Path.DataProperty = DependencyProperty.RegisterFull("Data", function () {
                 return Fayde.Media.Geometry;
             }, Path, undefined, function (d, args) {
-                return (d)._InvalidateNaturalBounds();
-            }, Path._DataCoercer);
+                return (d)._OnDataChanged(args);
+            }, Path._DataCoercer, undefined, undefined, false);
             return Path;
         })(Shapes.Shape);
         Shapes.Path = Path;

@@ -5891,13 +5891,15 @@ declare module Fayde.Shapes {
     }
 }
 declare module Fayde.Shapes {
-    class Path extends Shapes.Shape {
+    class Path extends Shapes.Shape implements Fayde.Media.IGeometryListener {
         private static _DataCoercer(d, propd, value);
         static DataProperty: DependencyProperty;
         public Data: Fayde.Media.Geometry;
         public _GetFillRule(): Shapes.FillRule;
         public _DrawPath(ctx: Fayde.RenderContext): void;
         public _ComputeShapeBoundsImpl(logical: boolean, matrix?: number[]): rect;
+        private _OnDataChanged(args);
+        public GeometryChanged(newGeometry: Fayde.Media.Geometry): void;
     }
 }
 declare module Fayde.Shapes {

@@ -12,25 +12,33 @@ var DrawingSurface;
         function DrawingPad() {
             _super.call(this);
             this._Fingers = [];
+            this.Background = Fayde.Media.SolidColorBrush.FromColor(Color.KnownColors.Transparent);
         }
         DrawingPad.prototype.OnTouchDown = function (e) {
-            var finger = this._Fingers[e.Device.Identifier] = new DrawingFinger(e.Device);
+            var finger = new DrawingFinger(e.Device);
+            this._Fingers.push(finger);
             finger.Attach(this);
             var tp = e.GetTouchPoint(this);
+            console.log(tp.Position.toString());
             finger.Start(tp.Position);
         };
         DrawingPad.prototype.OnTouchUp = function (e) {
-            var finger = this._Fingers[e.Device.Identifier];
+            var finger = this._Fingers.filter(function (f) {
+                return f.Device === e.Device;
+            })[0];
             if (!finger)
                 return;
             var tp = e.GetTouchPoint(this);
             finger.End(tp.Position);
         };
         DrawingPad.prototype.OnTouchMove = function (e) {
-            var finger = this._Fingers[e.Device.Identifier];
+            var finger = this._Fingers.filter(function (f) {
+                return f.Device === e.Device;
+            })[0];
             if (!finger)
                 return;
             var tp = e.GetTouchPoint(this);
+            console.log(tp.Position.toString());
             finger.Move(tp.Position);
         };
         DrawingPad.prototype.OnTouchEnter = function (e) {
@@ -52,27 +60,24 @@ var DrawingSurface;
             var path = this.Path = new Fayde.Shapes.Path();
             path.Stroke = Fayde.Media.SolidColorBrush.FromColor(Color.KnownColors.Black);
             path.StrokeThickness = 4.0;
+            var geom = path.Data = new Fayde.Media.PathGeometry();
+            geom.Figures.Add(this._Figure = new Fayde.Media.PathFigure());
         }
         DrawingFinger.prototype.Attach = function (pad) {
             pad.Children.Add(this.Path);
         };
 
         DrawingFinger.prototype.Start = function (pos) {
-            var path = this.Path;
-            var geom = path.Data = new Fayde.Media.PathGeometry();
-            var figure = new Fayde.Media.PathFigure();
-            figure.StartPoint = pos;
-            geom.Figures.Add(figure);
+            this._Figure.StartPoint = pos;
         };
         DrawingFinger.prototype.Move = function (pos) {
-            var geom = this.Path.Data;
-            var figure = geom.Figures.GetValueAt(0);
+            var figure = this._Figure;
             var segment = new Fayde.Media.LineSegment();
             segment.Point = pos;
             figure.Segments.Add(segment);
         };
         DrawingFinger.prototype.End = function (pos) {
-            var geom = this.Path.Data;
+            this.Move(pos);
         };
         return DrawingFinger;
     })();
