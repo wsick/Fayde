@@ -13234,6 +13234,27 @@ var Fayde;
             XmlNamespace: Fayde.XMLNS
         });
 
+        function ConvertRowDefinition(o) {
+            if (!o || o instanceof RowDefinition)
+                return o;
+            var s = o.toString();
+            var rd = new RowDefinition();
+            if (s.toLowerCase() === "auto") {
+                rd.Height = new Controls.GridLength(0, Controls.GridUnitType.Auto);
+                return rd;
+            }
+            if (s === "*") {
+                rd.Height = new Controls.GridLength(1, Controls.GridUnitType.Star);
+                return rd;
+            }
+            var v = parseFloat(s);
+            if (isNaN(v))
+                throw new XamlParseException("Invalid RowDefinition: '" + s + "'.");
+            rd.Height = new Controls.GridLength(v, s[s.length - 1] === "*" ? Controls.GridUnitType.Star : Controls.GridUnitType.Pixel);
+            return rd;
+        }
+        Fayde.RegisterTypeConverter(RowDefinition, ConvertRowDefinition);
+
         var RowDefinitionCollection = (function (_super) {
             __extends(RowDefinitionCollection, _super);
             function RowDefinitionCollection() {
@@ -13276,6 +13297,24 @@ var Fayde;
             Namespace: "Fayde.Controls",
             XmlNamespace: Fayde.XMLNS
         });
+
+        function ConvertRowDefinitionCollection(o) {
+            if (!o || o instanceof RowDefinitionCollection)
+                return o;
+            if (typeof o === "string") {
+                var tokens = (o).split(" ");
+                var len = tokens.length;
+                var rdc = new RowDefinitionCollection();
+                var rd;
+                for (var i = 0; i < len; i++) {
+                    if (rd = ConvertRowDefinition(tokens[i]))
+                        rdc.Add(rd);
+                }
+                return rdc;
+            }
+            return undefined;
+        }
+        Fayde.RegisterTypeConverter(RowDefinitionCollection, ConvertRowDefinitionCollection);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));

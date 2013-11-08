@@ -265,3 +265,62 @@ test("ColumnDefinition", () => {
     strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Pixel, "5.2");
     strictEqual(cdw.Value, 150, "5.3");
 });
+
+test("RowDefinition", () => {
+    var str = "auto * 200";
+    var rdc = <Fayde.Controls.RowDefinitionCollection>Fayde.ConvertAnyToType(str, Fayde.Controls.RowDefinitionCollection);
+    strictEqual(rdc.Count, 3, "1.1");
+
+    var rdh = rdc.GetValueAt(0).Height;
+    strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Auto, "1.2");
+
+    rdh = rdc.GetValueAt(1).Height;
+    strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Star, "1.3");
+    strictEqual(rdh.Value, 1, "1.4");
+
+    rdh = rdc.GetValueAt(2).Height;
+    strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Pixel, "1.5");
+    strictEqual(rdh.Value, 200, "1.6");
+
+
+    str = "3* 100 auto";
+    rdc = <Fayde.Controls.RowDefinitionCollection>Fayde.ConvertAnyToType(str, Fayde.Controls.RowDefinitionCollection);
+    strictEqual(rdc.Count, 3, "2.1");
+
+    rdh = rdc.GetValueAt(0).Height;
+    strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Star, "2.2");
+    strictEqual(rdh.Value, 3, "2.3");
+
+    rdh = rdc.GetValueAt(1).Height;
+    strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Pixel, "2.4");
+    strictEqual(rdh.Value, 100, "2.5");
+
+    rdh = rdc.GetValueAt(2).Height;
+    strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Auto, "2.6");
+
+
+    str = "*";
+    rdc = <Fayde.Controls.RowDefinitionCollection>Fayde.ConvertAnyToType(str, Fayde.Controls.RowDefinitionCollection);
+    strictEqual(rdc.Count, 1, "3.1");
+
+    rdh = rdc.GetValueAt(0).Height;
+    strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Star, "3.2");
+    strictEqual(rdh.Value, 1, "3.3");
+
+
+    str = "auto";
+    rdc = <Fayde.Controls.RowDefinitionCollection>Fayde.ConvertAnyToType(str, Fayde.Controls.RowDefinitionCollection);
+    strictEqual(rdc.Count, 1, "4.1");
+
+    rdh = rdc.GetValueAt(0).Height;
+    strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Auto, "4.2");
+
+
+    str = "150";
+    rdc = <Fayde.Controls.RowDefinitionCollection>Fayde.ConvertAnyToType(str, Fayde.Controls.RowDefinitionCollection);
+    strictEqual(rdc.Count, 1, "5.1");
+
+    rdh = rdc.GetValueAt(0).Height;
+    strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Pixel, "5.2");
+    strictEqual(rdh.Value, 150, "5.3");
+});
