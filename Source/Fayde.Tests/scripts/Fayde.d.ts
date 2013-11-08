@@ -3212,219 +3212,6 @@ declare module Fayde {
         public DetachTarget(target: Fayde.XamlObject): void;
     }
 }
-declare class CornerRadius implements ICloneable {
-    public TopLeft: number;
-    public TopRight: number;
-    public BottomRight: number;
-    public BottomLeft: number;
-    constructor(topLeft?: number, topRight?: number, bottomRight?: number, bottomLeft?: number);
-    public IsZero(): boolean;
-    public Equals(other: CornerRadius): boolean;
-    public toString(): string;
-    public Clone(): CornerRadius;
-}
-declare class Color implements ICloneable {
-    private static __NoAlphaRegex;
-    private static __AlphaRegex;
-    public R: number;
-    public G: number;
-    public B: number;
-    public A: number;
-    public Add(color2: Color): Color;
-    public Subtract(color2: Color): Color;
-    public Multiply(factor: number): Color;
-    public Equals(other: Color): boolean;
-    public toString(): string;
-    public ToHexStringNoAlpha(): string;
-    public Clone(): Color;
-    static LERP(start: Color, end: Color, p: number): Color;
-    static FromRgba(r: number, g: number, b: number, a: number): Color;
-    static FromHex(hex: string): Color;
-    static KnownColors: {
-        AliceBlue: Color;
-        AntiqueWhite: Color;
-        Aqua: Color;
-        Aquamarine: Color;
-        Azure: Color;
-        Beige: Color;
-        Bisque: Color;
-        Black: Color;
-        BlanchedAlmond: Color;
-        Blue: Color;
-        BlueViolet: Color;
-        Brown: Color;
-        BurlyWood: Color;
-        CadetBlue: Color;
-        Chartreuse: Color;
-        Chocolate: Color;
-        Coral: Color;
-        CornflowerBlue: Color;
-        Cornsilk: Color;
-        Crimson: Color;
-        Cyan: Color;
-        DarkBlue: Color;
-        DarkCyan: Color;
-        DarkGoldenrod: Color;
-        DarkGray: Color;
-        DarkGreen: Color;
-        DarkKhaki: Color;
-        DarkMagenta: Color;
-        DarkOliveGreen: Color;
-        DarkOrange: Color;
-        DarkOrchid: Color;
-        DarkRed: Color;
-        DarkSalmon: Color;
-        DarkSeaGreen: Color;
-        DarkSlateBlue: Color;
-        DarkSlateGray: Color;
-        DarkTurquoise: Color;
-        DarkViolet: Color;
-        DeepPink: Color;
-        DeepSkyBlue: Color;
-        DimGray: Color;
-        DodgerBlue: Color;
-        Firebrick: Color;
-        FloralWhite: Color;
-        ForestGreen: Color;
-        Fuchsia: Color;
-        Gainsboro: Color;
-        GhostWhite: Color;
-        Gold: Color;
-        Goldenrod: Color;
-        Gray: Color;
-        Green: Color;
-        GreenYellow: Color;
-        Honeydew: Color;
-        HotPink: Color;
-        IndianRed: Color;
-        Indigo: Color;
-        Ivory: Color;
-        Khaki: Color;
-        Lavender: Color;
-        LavenderBlush: Color;
-        LawnGreen: Color;
-        LemonChiffon: Color;
-        LightBlue: Color;
-        LightCoral: Color;
-        LightCyan: Color;
-        LightGoldenrodYellow: Color;
-        LightGray: Color;
-        LightGreen: Color;
-        LightPink: Color;
-        LightSalmon: Color;
-        LightSeaGreen: Color;
-        LightSkyBlue: Color;
-        LightSlateGray: Color;
-        LightSteelBlue: Color;
-        LightYellow: Color;
-        Lime: Color;
-        LimeGreen: Color;
-        Linen: Color;
-        Magenta: Color;
-        Maroon: Color;
-        MediumAquamarine: Color;
-        MediumBlue: Color;
-        MediumOrchid: Color;
-        MediumPurple: Color;
-        MediumSeaGreen: Color;
-        MediumSlateBlue: Color;
-        MediumSpringGreen: Color;
-        MediumTurquoise: Color;
-        MediumVioletRed: Color;
-        MidnightBlue: Color;
-        MintCream: Color;
-        MistyRose: Color;
-        Moccasin: Color;
-        NavajoWhite: Color;
-        Navy: Color;
-        OldLace: Color;
-        Olive: Color;
-        OliveDrab: Color;
-        Orange: Color;
-        OrangeRed: Color;
-        Orchid: Color;
-        PaleGoldenrod: Color;
-        PaleGreen: Color;
-        PaleTurquoise: Color;
-        PaleVioletRed: Color;
-        PapayaWhip: Color;
-        PeachPuff: Color;
-        Peru: Color;
-        Pink: Color;
-        Plum: Color;
-        PowderBlue: Color;
-        Purple: Color;
-        Red: Color;
-        RosyBrown: Color;
-        RoyalBlue: Color;
-        SaddleBrown: Color;
-        Salmon: Color;
-        SandyBrown: Color;
-        SeaGreen: Color;
-        SeaShell: Color;
-        Sienna: Color;
-        Silver: Color;
-        SkyBlue: Color;
-        SlateBlue: Color;
-        SlateGray: Color;
-        Snow: Color;
-        SpringGreen: Color;
-        SteelBlue: Color;
-        Tan: Color;
-        Teal: Color;
-        Thistle: Color;
-        Tomato: Color;
-        Transparent: Color;
-        Turquoise: Color;
-        Violet: Color;
-        Wheat: Color;
-        White: Color;
-        WhiteSmoke: Color;
-        Yellow: Color;
-        YellowGreen: Color;
-    };
-}
-declare class Thickness implements ICloneable {
-    public Left: number;
-    public Top: number;
-    public Right: number;
-    public Bottom: number;
-    constructor(left?: number, top?: number, right?: number, bottom?: number);
-    public Plus(thickness2: Thickness): Thickness;
-    public IsEmpty(): boolean;
-    public IsBalanced(): boolean;
-    public toString(): string;
-    public Clone(): Thickness;
-    static Equals(thickness1: Thickness, thickness2: Thickness): boolean;
-}
-declare module Fayde.Media {
-    interface IBrushChangedListener {
-        Callback: (newBrush: Brush) => void;
-        Detach();
-    }
-    class Brush extends Fayde.DependencyObject {
-        static TransformProperty: DependencyProperty;
-        public Transform: Media.Transform;
-        private _CachedBounds;
-        private _CachedBrush;
-        private _Listeners;
-        constructor();
-        public SetupBrush(ctx: CanvasRenderingContext2D, bounds: rect): void;
-        public CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any;
-        public ToHtml5Object(): any;
-        public Listen(func: (newBrush: Brush) => void): IBrushChangedListener;
-        public InvalidateBrush(): void;
-        private _TransformListener;
-        private _TransformChanged(args);
-    }
-}
-declare module Fayde {
-    class TypeConverter {
-        private static _Converters;
-        static Register(type: any, converter: (str: string) => any): void;
-        static ConvertObject(propd: DependencyProperty, val: any, objectType: Function, doStringConversion: boolean);
-    }
-}
 declare module Fayde {
     class VisualTreeHelper {
         static GetParent(d: Fayde.DependencyObject): Fayde.DependencyObject;
@@ -4612,6 +4399,27 @@ declare module Fayde.Media.Animation {
     }
 }
 declare module Fayde.Media {
+    interface IBrushChangedListener {
+        Callback: (newBrush: Brush) => void;
+        Detach();
+    }
+    class Brush extends Fayde.DependencyObject {
+        static TransformProperty: DependencyProperty;
+        public Transform: Media.Transform;
+        private _CachedBounds;
+        private _CachedBrush;
+        private _Listeners;
+        constructor();
+        public SetupBrush(ctx: CanvasRenderingContext2D, bounds: rect): void;
+        public CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any;
+        public ToHtml5Object(): any;
+        public Listen(func: (newBrush: Brush) => void): IBrushChangedListener;
+        public InvalidateBrush(): void;
+        private _TransformListener;
+        private _TransformChanged(args);
+    }
+}
+declare module Fayde.Media {
     class GeneralTransform extends Fayde.DependencyObject {
         public Inverse: GeneralTransform;
         public Transform(p: Point): Point;
@@ -4649,6 +4457,167 @@ declare module Fayde.Media.Effects {
         static RadiusProperty: DependencyProperty;
         public Radius: number;
     }
+}
+declare class Color implements ICloneable {
+    private static __NoAlphaRegex;
+    private static __AlphaRegex;
+    public R: number;
+    public G: number;
+    public B: number;
+    public A: number;
+    public Add(color2: Color): Color;
+    public Subtract(color2: Color): Color;
+    public Multiply(factor: number): Color;
+    public Equals(other: Color): boolean;
+    public toString(): string;
+    public ToHexStringNoAlpha(): string;
+    public Clone(): Color;
+    static LERP(start: Color, end: Color, p: number): Color;
+    static FromRgba(r: number, g: number, b: number, a: number): Color;
+    static FromHex(hex: string): Color;
+    static KnownColors: {
+        AliceBlue: Color;
+        AntiqueWhite: Color;
+        Aqua: Color;
+        Aquamarine: Color;
+        Azure: Color;
+        Beige: Color;
+        Bisque: Color;
+        Black: Color;
+        BlanchedAlmond: Color;
+        Blue: Color;
+        BlueViolet: Color;
+        Brown: Color;
+        BurlyWood: Color;
+        CadetBlue: Color;
+        Chartreuse: Color;
+        Chocolate: Color;
+        Coral: Color;
+        CornflowerBlue: Color;
+        Cornsilk: Color;
+        Crimson: Color;
+        Cyan: Color;
+        DarkBlue: Color;
+        DarkCyan: Color;
+        DarkGoldenrod: Color;
+        DarkGray: Color;
+        DarkGreen: Color;
+        DarkKhaki: Color;
+        DarkMagenta: Color;
+        DarkOliveGreen: Color;
+        DarkOrange: Color;
+        DarkOrchid: Color;
+        DarkRed: Color;
+        DarkSalmon: Color;
+        DarkSeaGreen: Color;
+        DarkSlateBlue: Color;
+        DarkSlateGray: Color;
+        DarkTurquoise: Color;
+        DarkViolet: Color;
+        DeepPink: Color;
+        DeepSkyBlue: Color;
+        DimGray: Color;
+        DodgerBlue: Color;
+        Firebrick: Color;
+        FloralWhite: Color;
+        ForestGreen: Color;
+        Fuchsia: Color;
+        Gainsboro: Color;
+        GhostWhite: Color;
+        Gold: Color;
+        Goldenrod: Color;
+        Gray: Color;
+        Green: Color;
+        GreenYellow: Color;
+        Honeydew: Color;
+        HotPink: Color;
+        IndianRed: Color;
+        Indigo: Color;
+        Ivory: Color;
+        Khaki: Color;
+        Lavender: Color;
+        LavenderBlush: Color;
+        LawnGreen: Color;
+        LemonChiffon: Color;
+        LightBlue: Color;
+        LightCoral: Color;
+        LightCyan: Color;
+        LightGoldenrodYellow: Color;
+        LightGray: Color;
+        LightGreen: Color;
+        LightPink: Color;
+        LightSalmon: Color;
+        LightSeaGreen: Color;
+        LightSkyBlue: Color;
+        LightSlateGray: Color;
+        LightSteelBlue: Color;
+        LightYellow: Color;
+        Lime: Color;
+        LimeGreen: Color;
+        Linen: Color;
+        Magenta: Color;
+        Maroon: Color;
+        MediumAquamarine: Color;
+        MediumBlue: Color;
+        MediumOrchid: Color;
+        MediumPurple: Color;
+        MediumSeaGreen: Color;
+        MediumSlateBlue: Color;
+        MediumSpringGreen: Color;
+        MediumTurquoise: Color;
+        MediumVioletRed: Color;
+        MidnightBlue: Color;
+        MintCream: Color;
+        MistyRose: Color;
+        Moccasin: Color;
+        NavajoWhite: Color;
+        Navy: Color;
+        OldLace: Color;
+        Olive: Color;
+        OliveDrab: Color;
+        Orange: Color;
+        OrangeRed: Color;
+        Orchid: Color;
+        PaleGoldenrod: Color;
+        PaleGreen: Color;
+        PaleTurquoise: Color;
+        PaleVioletRed: Color;
+        PapayaWhip: Color;
+        PeachPuff: Color;
+        Peru: Color;
+        Pink: Color;
+        Plum: Color;
+        PowderBlue: Color;
+        Purple: Color;
+        Red: Color;
+        RosyBrown: Color;
+        RoyalBlue: Color;
+        SaddleBrown: Color;
+        Salmon: Color;
+        SandyBrown: Color;
+        SeaGreen: Color;
+        SeaShell: Color;
+        Sienna: Color;
+        Silver: Color;
+        SkyBlue: Color;
+        SlateBlue: Color;
+        SlateGray: Color;
+        Snow: Color;
+        SpringGreen: Color;
+        SteelBlue: Color;
+        Tan: Color;
+        Teal: Color;
+        Thistle: Color;
+        Tomato: Color;
+        Transparent: Color;
+        Turquoise: Color;
+        Violet: Color;
+        Wheat: Color;
+        White: Color;
+        WhiteSmoke: Color;
+        Yellow: Color;
+        YellowGreen: Color;
+    };
 }
 declare module Fayde.Media.Effects {
     class DropShadowEffect extends Effects.Effect {
@@ -5435,6 +5404,17 @@ declare class Clip {
     public Height: number;
     constructor(r: rect);
 }
+declare class CornerRadius implements ICloneable {
+    public TopLeft: number;
+    public TopRight: number;
+    public BottomRight: number;
+    public BottomLeft: number;
+    constructor(topLeft?: number, topRight?: number, bottomRight?: number, bottomLeft?: number);
+    public IsZero(): boolean;
+    public Equals(other: CornerRadius): boolean;
+    public toString(): string;
+    public Clone(): CornerRadius;
+}
 declare enum DayOfWeek {
     Sunday,
     Monday,
@@ -5641,6 +5621,19 @@ declare class size implements ICloneable, ISize {
     static shrinkByThickness(dest: size, thickness: Thickness): size;
     static min(dest: size, other: size): size;
     static max(dest: size, other: size): size;
+}
+declare class Thickness implements ICloneable {
+    public Left: number;
+    public Top: number;
+    public Right: number;
+    public Bottom: number;
+    constructor(left?: number, top?: number, right?: number, bottom?: number);
+    public Plus(thickness2: Thickness): Thickness;
+    public IsEmpty(): boolean;
+    public IsBalanced(): boolean;
+    public toString(): string;
+    public Clone(): Thickness;
+    static Equals(thickness1: Thickness, thickness2: Thickness): boolean;
 }
 declare class TimeSpan {
     static _TicksPerMillisecond: number;

@@ -115,7 +115,6 @@
     <TypeScriptCompile Include="Core\Style.ts" />
     <TypeScriptCompile Include="Core\TemplateBindingExpression.ts" />
     <TypeScriptCompile Include="Core\Triggers.ts" />
-    <TypeScriptCompile Include="Core\TypeConverter.ts" />
     <TypeScriptCompile Include="Core\UIElement.ts" />
     <TypeScriptCompile Include="Core\VisualTreeHelper.ts" />
     <TypeScriptCompile Include="Core\Walkers.ts" />

@@ -245,6 +245,10 @@ var Fayde;
             NotifyCollectionChangedAction[NotifyCollectionChangedAction["Reset"] = 4] = "Reset";
         })(Collections.NotifyCollectionChangedAction || (Collections.NotifyCollectionChangedAction = {}));
         var NotifyCollectionChangedAction = Collections.NotifyCollectionChangedAction;
+        Fayde.RegisterEnum(NotifyCollectionChangedAction, {
+            Name: "NotifyCollectionChangedAction",
+            Namespace: "Fayde.Collections"
+        });
 
         var NotifyCollectionChangedEventArgs = (function (_super) {
             __extends(NotifyCollectionChangedEventArgs, _super);
@@ -3917,6 +3921,12 @@ var Fayde;
             TextWrapping[TextWrapping["WrapWithOverflow"] = 2] = "WrapWithOverflow";
         })(Controls.TextWrapping || (Controls.TextWrapping = {}));
         var TextWrapping = Controls.TextWrapping;
+        Fayde.RegisterEnum(TextWrapping, {
+            Name: "TextWrapping",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (ScrollBarVisibility) {
             ScrollBarVisibility[ScrollBarVisibility["Disabled"] = 0] = "Disabled";
             ScrollBarVisibility[ScrollBarVisibility["Auto"] = 1] = "Auto";
@@ -3924,16 +3934,34 @@ var Fayde;
             ScrollBarVisibility[ScrollBarVisibility["Visible"] = 3] = "Visible";
         })(Controls.ScrollBarVisibility || (Controls.ScrollBarVisibility = {}));
         var ScrollBarVisibility = Controls.ScrollBarVisibility;
+        Fayde.RegisterEnum(ScrollBarVisibility, {
+            Name: "ScrollBarVisibility",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (TextTrimming) {
             TextTrimming[TextTrimming["None"] = 0] = "None";
         })(Controls.TextTrimming || (Controls.TextTrimming = {}));
         var TextTrimming = Controls.TextTrimming;
+        Fayde.RegisterEnum(TextTrimming, {
+            Name: "TextTrimming",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (ClickMode) {
             ClickMode[ClickMode["Release"] = 0] = "Release";
             ClickMode[ClickMode["Press"] = 1] = "Press";
             ClickMode[ClickMode["Hover"] = 2] = "Hover";
         })(Controls.ClickMode || (Controls.ClickMode = {}));
         var ClickMode = Controls.ClickMode;
+        Fayde.RegisterEnum(ClickMode, {
+            Name: "ClickMode",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (PlacementMode) {
             PlacementMode[PlacementMode["Bottom"] = 0] = "Bottom";
             PlacementMode[PlacementMode["Right"] = 1] = "Right";
@@ -3942,12 +3970,24 @@ var Fayde;
             PlacementMode[PlacementMode["Top"] = 4] = "Top";
         })(Controls.PlacementMode || (Controls.PlacementMode = {}));
         var PlacementMode = Controls.PlacementMode;
+        Fayde.RegisterEnum(PlacementMode, {
+            Name: "PlacementMode",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (SelectionMode) {
             SelectionMode[SelectionMode["Single"] = 0] = "Single";
             SelectionMode[SelectionMode["Multiple"] = 1] = "Multiple";
             SelectionMode[SelectionMode["Extended"] = 2] = "Extended";
         })(Controls.SelectionMode || (Controls.SelectionMode = {}));
         var SelectionMode = Controls.SelectionMode;
+        Fayde.RegisterEnum(SelectionMode, {
+            Name: "SelectionMode",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (MediaElementState) {
             MediaElementState[MediaElementState["Closed"] = 0] = "Closed";
             MediaElementState[MediaElementState["Opening"] = 1] = "Opening";
@@ -3960,6 +4000,11 @@ var Fayde;
             MediaElementState[MediaElementState["Stopped"] = 7] = "Stopped";
         })(Controls.MediaElementState || (Controls.MediaElementState = {}));
         var MediaElementState = Controls.MediaElementState;
+        Fayde.RegisterEnum(MediaElementState, {
+            Name: "MediaElementState",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -4972,6 +5017,27 @@ var Fayde;
             XmlNamespace: Fayde.XMLNS
         });
 
+        function ConvertColumnDefinition(o) {
+            if (!o || o instanceof ColumnDefinition)
+                return o;
+            var s = o.toString();
+            var cd = new ColumnDefinition();
+            if (s.toLowerCase() === "auto") {
+                cd.Width = new Controls.GridLength(0, Controls.GridUnitType.Auto);
+                return cd;
+            }
+            if (s === "*") {
+                cd.Width = new Controls.GridLength(1, Controls.GridUnitType.Star);
+                return cd;
+            }
+            var v = parseFloat(s);
+            if (isNaN(v))
+                throw new XamlParseException("Invalid ColumnDefinition: '" + s + "'.");
+            cd.Width = new Controls.GridLength(v, s[s.length - 1] === "*" ? Controls.GridUnitType.Star : Controls.GridUnitType.Pixel);
+            return cd;
+        }
+        Fayde.RegisterTypeConverter(ColumnDefinition, ConvertColumnDefinition);
+
         var ColumnDefinitionCollection = (function (_super) {
             __extends(ColumnDefinitionCollection, _super);
             function ColumnDefinitionCollection() {
@@ -5014,6 +5080,24 @@ var Fayde;
             Namespace: "Fayde.Controls",
             XmlNamespace: Fayde.XMLNS
         });
+
+        function ConvertColumnDefinitionCollection(o) {
+            if (!o || o instanceof ColumnDefinitionCollection)
+                return o;
+            if (typeof o === "string") {
+                var tokens = (o).split(" ");
+                var len = tokens.length;
+                var cdc = new ColumnDefinitionCollection();
+                var cd;
+                for (var i = 0; i < len; i++) {
+                    if (cd = ConvertColumnDefinition(tokens[i]))
+                        cdc.Add(cd);
+                }
+                return cdc;
+            }
+            return undefined;
+        }
+        Fayde.RegisterTypeConverter(ColumnDefinitionCollection, ConvertColumnDefinitionCollection);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -8024,6 +8108,11 @@ var Fayde;
             GridUnitType[GridUnitType["Star"] = 2] = "Star";
         })(Controls.GridUnitType || (Controls.GridUnitType = {}));
         var GridUnitType = Controls.GridUnitType;
+        Fayde.RegisterEnum(GridUnitType, {
+            Name: "GridUnitType",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
 
         var GridLength = (function () {
             function GridLength(value, unitType) {
@@ -8317,12 +8406,24 @@ var Fayde;
             BrushMappingMode[BrushMappingMode["RelativeToBoundingBox"] = 1] = "RelativeToBoundingBox";
         })(Media.BrushMappingMode || (Media.BrushMappingMode = {}));
         var BrushMappingMode = Media.BrushMappingMode;
+        Fayde.RegisterEnum(BrushMappingMode, {
+            Name: "BrushMappingMode",
+            Namespace: "Fayde.Media",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (GradientSpreadMethod) {
             GradientSpreadMethod[GradientSpreadMethod["Pad"] = 0] = "Pad";
             GradientSpreadMethod[GradientSpreadMethod["Reflect"] = 1] = "Reflect";
             GradientSpreadMethod[GradientSpreadMethod["Repeat"] = 2] = "Repeat";
         })(Media.GradientSpreadMethod || (Media.GradientSpreadMethod = {}));
         var GradientSpreadMethod = Media.GradientSpreadMethod;
+        Fayde.RegisterEnum(GradientSpreadMethod, {
+            Name: "GradientSpreadMethod",
+            Namespace: "Fayde.Media",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (Stretch) {
             Stretch[Stretch["None"] = 0] = "None";
             Stretch[Stretch["Fill"] = 1] = "Fill";
@@ -8330,23 +8431,46 @@ var Fayde;
             Stretch[Stretch["UniformToFill"] = 3] = "UniformToFill";
         })(Media.Stretch || (Media.Stretch = {}));
         var Stretch = Media.Stretch;
+        Fayde.RegisterEnum(Stretch, {
+            Name: "Stretch",
+            Namespace: "Fayde.Media",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (AlignmentX) {
             AlignmentX[AlignmentX["Left"] = 0] = "Left";
             AlignmentX[AlignmentX["Center"] = 1] = "Center";
             AlignmentX[AlignmentX["Right"] = 2] = "Right";
         })(Media.AlignmentX || (Media.AlignmentX = {}));
         var AlignmentX = Media.AlignmentX;
+        Fayde.RegisterEnum(AlignmentX, {
+            Name: "AlignmentX",
+            Namespace: "Fayde.Media",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (AlignmentY) {
             AlignmentY[AlignmentY["Top"] = 0] = "Top";
             AlignmentY[AlignmentY["Center"] = 1] = "Center";
             AlignmentY[AlignmentY["Bottom"] = 2] = "Bottom";
         })(Media.AlignmentY || (Media.AlignmentY = {}));
         var AlignmentY = Media.AlignmentY;
+        Fayde.RegisterEnum(AlignmentY, {
+            Name: "AlignmentY",
+            Namespace: "Fayde.Media",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (TextHintingMode) {
             TextHintingMode[TextHintingMode["Fixed"] = 0] = "Fixed";
             TextHintingMode[TextHintingMode["Animated"] = 1] = "Animated";
         })(Media.TextHintingMode || (Media.TextHintingMode = {}));
         var TextHintingMode = Media.TextHintingMode;
+        Fayde.RegisterEnum(TextHintingMode, {
+            Name: "TextHintingMode",
+            Namespace: "Fayde.Media",
+            XmlNamespace: Fayde.XMLNS
+        });
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
@@ -10022,6 +10146,11 @@ var Fayde;
             Key[Key["Unknown"] = 255] = "Unknown";
         })(Input.Key || (Input.Key = {}));
         var Key = Input.Key;
+        Fayde.RegisterEnum(Key, {
+            Name: "Key",
+            Namespace: "Fayde.Input",
+            XmlNamespace: Fayde.XMLNS
+        });
 
         var KeyboardEventArgs = (function (_super) {
             __extends(KeyboardEventArgs, _super);
@@ -12315,6 +12444,11 @@ var Fayde;
                 ScrollEventType[ScrollEventType["EndScroll"] = 8] = "EndScroll";
             })(Primitives.ScrollEventType || (Primitives.ScrollEventType = {}));
             var ScrollEventType = Primitives.ScrollEventType;
+            Fayde.RegisterEnum(ScrollEventType, {
+                Name: "ScrollEventType",
+                Namespace: "Fayde.Controls.Primitives",
+                XmlNamespace: Fayde.XMLNS
+            });
 
             var ScrollEventArgs = (function (_super) {
                 __extends(ScrollEventArgs, _super);
@@ -15543,6 +15677,11 @@ var Fayde;
             VirtualizationMode[VirtualizationMode["Recycling"] = 1] = "Recycling";
         })(Controls.VirtualizationMode || (Controls.VirtualizationMode = {}));
         var VirtualizationMode = Controls.VirtualizationMode;
+        Fayde.RegisterEnum(VirtualizationMode, {
+            Name: "VirtualizationMode",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
 
         var CleanUpVirtualizedItemEventArgs = (function (_super) {
             __extends(CleanUpVirtualizedItemEventArgs, _super);
@@ -19014,603 +19153,6 @@ else
         Namespace: "Fayde",
         XmlNamespace: Fayde.XMLNS
     });
-})(Fayde || (Fayde = {}));
-/// <reference path="../Runtime/TypeManagement.ts" />
-var CornerRadius = (function () {
-    function CornerRadius(topLeft, topRight, bottomRight, bottomLeft) {
-        this.TopLeft = topLeft == null ? 0 : topLeft;
-        this.TopRight = topRight == null ? 0 : topRight;
-        this.BottomRight = bottomRight == null ? 0 : bottomRight;
-        this.BottomLeft = bottomLeft == null ? 0 : bottomLeft;
-    }
-    CornerRadius.prototype.IsZero = function () {
-        return this.TopLeft === 0 && this.TopRight === 0 && this.BottomRight === 0 && this.BottomLeft === 0;
-    };
-    CornerRadius.prototype.Equals = function (other) {
-        return this.TopLeft === other.TopLeft && this.TopRight === other.TopRight && this.BottomRight === other.BottomRight && this.BottomLeft === other.BottomLeft;
-    };
-    CornerRadius.prototype.toString = function () {
-        return "(" + this.TopLeft + ", " + this.TopRight + ", " + this.BottomRight + ", " + this.BottomLeft + ")";
-    };
-
-    CornerRadius.prototype.Clone = function () {
-        return new CornerRadius(this.TopLeft, this.TopRight, this.BottomRight, this.BottomLeft);
-    };
-    return CornerRadius;
-})();
-Fayde.RegisterType(CornerRadius, {
-    Name: "CornerRadius",
-    Namespace: "window",
-    XmlNamespace: Fayde.XMLNSX
-});
-
-Fayde.RegisterTypeConverter(CornerRadius, function (val) {
-    if (!val)
-        return new CornerRadius();
-    if (typeof val === "number")
-        return new CornerRadius(val, val, val, val);
-    var tokens = val.toString().split(",");
-    var topLeft, topRight, bottomRight, bottomLeft;
-    if (tokens.length === 1) {
-        topLeft = topRight = bottomRight = bottomLeft = parseFloat(tokens[0]);
-    } else if (tokens.length === 4) {
-        topLeft = parseFloat(tokens[0]);
-        topRight = parseFloat(tokens[1]);
-        bottomRight = parseFloat(tokens[2]);
-        bottomLeft = parseFloat(tokens[3]);
-    } else {
-        throw new Exception("Cannot parse CornerRadius value '" + val + "'");
-    }
-    return new CornerRadius(topLeft, topRight, bottomRight, bottomLeft);
-});
-/// <reference path="../Runtime/TypeManagement.ts" />
-var Color = (function () {
-    function Color() {
-        this.R = 0;
-        this.G = 0;
-        this.B = 0;
-        this.A = 1.0;
-    }
-    Color.prototype.Add = function (color2) {
-        var c = new Color();
-        c.R = this.R + color2.R;
-        c.G = this.G + color2.G;
-        c.B = this.B + color2.B;
-        c.A = this.A + color2.A;
-        return c;
-    };
-    Color.prototype.Subtract = function (color2) {
-        var c = new Color();
-        c.R = this.R - color2.R;
-        c.G = this.G - color2.G;
-        c.B = this.B - color2.B;
-        c.A = this.A - color2.A;
-        return c;
-    };
-    Color.prototype.Multiply = function (factor) {
-        var c = new Color();
-        c.R = this.R * factor;
-        c.G = this.G * factor;
-        c.B = this.B * factor;
-        c.A = this.A * factor;
-        return c;
-    };
-    Color.prototype.Equals = function (other) {
-        return this.R === other.R && this.G === other.G && this.B === other.B && this.A === other.A;
-    };
-    Color.prototype.toString = function () {
-        return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
-    };
-    Color.prototype.ToHexStringNoAlpha = function () {
-        return "#" + this.R.toString(16) + this.G.toString(16) + this.B.toString(16);
-    };
-
-    Color.prototype.Clone = function () {
-        return Color.FromRgba(this.R, this.G, this.B, this.A);
-    };
-
-    Color.LERP = function (start, end, p) {
-        var c = new Color();
-        c.R = start.R + (end.R - start.R) * p;
-        c.G = start.G + (end.G - start.G) * p;
-        c.B = start.B + (end.B - start.B) * p;
-        c.A = start.A + (end.A - start.A) * p;
-        return c;
-    };
-    Color.FromRgba = function (r, g, b, a) {
-        var c = new Color();
-        c.R = r;
-        c.G = g;
-        c.B = b;
-        c.A = a;
-        return c;
-    };
-    Color.FromHex = function (hex) {
-        var match;
-        var c = new Color();
-        if ((match = Color.__AlphaRegex.exec(hex)) != null) {
-            c.A = parseInt(match[1], 16) / 255.0;
-            c.R = parseInt(match[2], 16);
-            c.G = parseInt(match[3], 16);
-            c.B = parseInt(match[4], 16);
-        } else if ((match = Color.__NoAlphaRegex.exec(hex)) != null) {
-            c.A = 1.0;
-            c.R = parseInt(match[1], 16);
-            c.G = parseInt(match[2], 16);
-            c.B = parseInt(match[3], 16);
-        }
-        return c;
-    };
-    Color.__NoAlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
-    Color.__AlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
-
-    Color.KnownColors = {
-        AliceBlue: Color.FromHex("#FFF0F8FF"),
-        AntiqueWhite: Color.FromHex("#FFFAEBD7"),
-        Aqua: Color.FromHex("#FF00FFFF"),
-        Aquamarine: Color.FromHex("#FF7FFFD4"),
-        Azure: Color.FromHex("#FFF0FFFF"),
-        Beige: Color.FromHex("#FFF5F5DC"),
-        Bisque: Color.FromHex("#FFFFE4C4"),
-        Black: Color.FromHex("#FF000000"),
-        BlanchedAlmond: Color.FromHex("#FFFFEBCD"),
-        Blue: Color.FromHex("#FF0000FF"),
-        BlueViolet: Color.FromHex("#FF8A2BE2"),
-        Brown: Color.FromHex("#FFA52A2A"),
-        BurlyWood: Color.FromHex("#FFDEB887"),
-        CadetBlue: Color.FromHex("#FF5F9EA0"),
-        Chartreuse: Color.FromHex("#FF7FFF00"),
-        Chocolate: Color.FromHex("#FFD2691E"),
-        Coral: Color.FromHex("#FFFF7F50"),
-        CornflowerBlue: Color.FromHex("#FF6495ED"),
-        Cornsilk: Color.FromHex("#FFFFF8DC"),
-        Crimson: Color.FromHex("#FFDC143C"),
-        Cyan: Color.FromHex("#FF00FFFF"),
-        DarkBlue: Color.FromHex("#FF00008B"),
-        DarkCyan: Color.FromHex("#FF008B8B"),
-        DarkGoldenrod: Color.FromHex("#FFB8860B"),
-        DarkGray: Color.FromHex("#FFA9A9A9"),
-        DarkGreen: Color.FromHex("#FF006400"),
-        DarkKhaki: Color.FromHex("#FFBDB76B"),
-        DarkMagenta: Color.FromHex("#FF8B008B"),
-        DarkOliveGreen: Color.FromHex("#FF556B2F"),
-        DarkOrange: Color.FromHex("#FFFF8C00"),
-        DarkOrchid: Color.FromHex("#FF9932CC"),
-        DarkRed: Color.FromHex("#FF8B0000"),
-        DarkSalmon: Color.FromHex("#FFE9967A"),
-        DarkSeaGreen: Color.FromHex("#FF8FBC8F"),
-        DarkSlateBlue: Color.FromHex("#FF483D8B"),
-        DarkSlateGray: Color.FromHex("#FF2F4F4F"),
-        DarkTurquoise: Color.FromHex("#FF00CED1"),
-        DarkViolet: Color.FromHex("#FF9400D3"),
-        DeepPink: Color.FromHex("#FFFF1493"),
-        DeepSkyBlue: Color.FromHex("#FF00BFFF"),
-        DimGray: Color.FromHex("#FF696969"),
-        DodgerBlue: Color.FromHex("#FF1E90FF"),
-        Firebrick: Color.FromHex("#FFB22222"),
-        FloralWhite: Color.FromHex("#FFFFFAF0"),
-        ForestGreen: Color.FromHex("#FF228B22"),
-        Fuchsia: Color.FromHex("#FFFF00FF"),
-        Gainsboro: Color.FromHex("#FFDCDCDC"),
-        GhostWhite: Color.FromHex("#FFF8F8FF"),
-        Gold: Color.FromHex("#FFFFD700"),
-        Goldenrod: Color.FromHex("#FFDAA520"),
-        Gray: Color.FromHex("#FF808080"),
-        Green: Color.FromHex("#FF008000"),
-        GreenYellow: Color.FromHex("#FFADFF2F"),
-        Honeydew: Color.FromHex("#FFF0FFF0"),
-        HotPink: Color.FromHex("#FFFF69B4"),
-        IndianRed: Color.FromHex("#FFCD5C5C"),
-        Indigo: Color.FromHex("#FF4B0082"),
-        Ivory: Color.FromHex("#FFFFFFF0"),
-        Khaki: Color.FromHex("#FFF0E68C"),
-        Lavender: Color.FromHex("#FFE6E6FA"),
-        LavenderBlush: Color.FromHex("#FFFFF0F5"),
-        LawnGreen: Color.FromHex("#FF7CFC00"),
-        LemonChiffon: Color.FromHex("#FFFFFACD"),
-        LightBlue: Color.FromHex("#FFADD8E6"),
-        LightCoral: Color.FromHex("#FFF08080"),
-        LightCyan: Color.FromHex("#FFE0FFFF"),
-        LightGoldenrodYellow: Color.FromHex("#FFFAFAD2"),
-        LightGray: Color.FromHex("#FFD3D3D3"),
-        LightGreen: Color.FromHex("#FF90EE90"),
-        LightPink: Color.FromHex("#FFFFB6C1"),
-        LightSalmon: Color.FromHex("#FFFFA07A"),
-        LightSeaGreen: Color.FromHex("#FF20B2AA"),
-        LightSkyBlue: Color.FromHex("#FF87CEFA"),
-        LightSlateGray: Color.FromHex("#FF778899"),
-        LightSteelBlue: Color.FromHex("#FFB0C4DE"),
-        LightYellow: Color.FromHex("#FFFFFFE0"),
-        Lime: Color.FromHex("#FF00FF00"),
-        LimeGreen: Color.FromHex("#FF32CD32"),
-        Linen: Color.FromHex("#FFFAF0E6"),
-        Magenta: Color.FromHex("#FFFF00FF"),
-        Maroon: Color.FromHex("#FF800000"),
-        MediumAquamarine: Color.FromHex("#FF66CDAA"),
-        MediumBlue: Color.FromHex("#FF0000CD"),
-        MediumOrchid: Color.FromHex("#FFBA55D3"),
-        MediumPurple: Color.FromHex("#FF9370DB"),
-        MediumSeaGreen: Color.FromHex("#FF3CB371"),
-        MediumSlateBlue: Color.FromHex("#FF7B68EE"),
-        MediumSpringGreen: Color.FromHex("#FF00FA9A"),
-        MediumTurquoise: Color.FromHex("#FF48D1CC"),
-        MediumVioletRed: Color.FromHex("#FFC71585"),
-        MidnightBlue: Color.FromHex("#FF191970"),
-        MintCream: Color.FromHex("#FFF5FFFA"),
-        MistyRose: Color.FromHex("#FFFFE4E1"),
-        Moccasin: Color.FromHex("#FFFFE4B5"),
-        NavajoWhite: Color.FromHex("#FFFFDEAD"),
-        Navy: Color.FromHex("#FF000080"),
-        OldLace: Color.FromHex("#FFFDF5E6"),
-        Olive: Color.FromHex("#FF808000"),
-        OliveDrab: Color.FromHex("#FF6B8E23"),
-        Orange: Color.FromHex("#FFFFA500"),
-        OrangeRed: Color.FromHex("#FFFF4500"),
-        Orchid: Color.FromHex("#FFDA70D6"),
-        PaleGoldenrod: Color.FromHex("#FFEEE8AA"),
-        PaleGreen: Color.FromHex("#FF98FB98"),
-        PaleTurquoise: Color.FromHex("#FFAFEEEE"),
-        PaleVioletRed: Color.FromHex("#FFDB7093"),
-        PapayaWhip: Color.FromHex("#FFFFEFD5"),
-        PeachPuff: Color.FromHex("#FFFFDAB9"),
-        Peru: Color.FromHex("#FFCD853F"),
-        Pink: Color.FromHex("#FFFFC0CB"),
-        Plum: Color.FromHex("#FFDDA0DD"),
-        PowderBlue: Color.FromHex("#FFB0E0E6"),
-        Purple: Color.FromHex("#FF800080"),
-        Red: Color.FromHex("#FFFF0000"),
-        RosyBrown: Color.FromHex("#FFBC8F8F"),
-        RoyalBlue: Color.FromHex("#FF4169E1"),
-        SaddleBrown: Color.FromHex("#FF8B4513"),
-        Salmon: Color.FromHex("#FFFA8072"),
-        SandyBrown: Color.FromHex("#FFF4A460"),
-        SeaGreen: Color.FromHex("#FF2E8B57"),
-        SeaShell: Color.FromHex("#FFFFF5EE"),
-        Sienna: Color.FromHex("#FFA0522D"),
-        Silver: Color.FromHex("#FFC0C0C0"),
-        SkyBlue: Color.FromHex("#FF87CEEB"),
-        SlateBlue: Color.FromHex("#FF6A5ACD"),
-        SlateGray: Color.FromHex("#FF708090"),
-        Snow: Color.FromHex("#FFFFFAFA"),
-        SpringGreen: Color.FromHex("#FF00FF7F"),
-        SteelBlue: Color.FromHex("#FF4682B4"),
-        Tan: Color.FromHex("#FFD2B48C"),
-        Teal: Color.FromHex("#FF008080"),
-        Thistle: Color.FromHex("#FFD8BFD8"),
-        Tomato: Color.FromHex("#FFFF6347"),
-        Transparent: Color.FromHex("#00FFFFFF"),
-        Turquoise: Color.FromHex("#FF40E0D0"),
-        Violet: Color.FromHex("#FFEE82EE"),
-        Wheat: Color.FromHex("#FFF5DEB3"),
-        White: Color.FromHex("#FFFFFFFF"),
-        WhiteSmoke: Color.FromHex("#FFF5F5F5"),
-        Yellow: Color.FromHex("#FFFFFF00"),
-        YellowGreen: Color.FromHex("#FF9ACD32")
-    };
-    return Color;
-})();
-Fayde.RegisterType(Color, {
-    Name: "Color",
-    Namespace: "window",
-    XmlNamespace: Fayde.XMLNS
-});
-
-Fayde.RegisterTypeConverter(Color, function (val) {
-    if (!val)
-        return undefined;
-    if (val instanceof Color)
-        return val;
-    val = val.toString();
-    if (val[0] !== "#") {
-        var color = Color.KnownColors[val];
-        if (!color)
-            throw new NotSupportedException("Unknown Color: " + val);
-        return color;
-    }
-    return Color.FromHex(val);
-});
-/// <reference path="../Runtime/TypeManagement.ts" />
-var Thickness = (function () {
-    function Thickness(left, top, right, bottom) {
-        this.Left = left == null ? 0 : left;
-        this.Top = top == null ? 0 : top;
-        this.Right = right == null ? 0 : right;
-        this.Bottom = bottom == null ? 0 : bottom;
-    }
-    Thickness.prototype.Plus = function (thickness2) {
-        var t = new Thickness();
-        t.Left = this.Left + thickness2.Left;
-        t.Right = this.Right + thickness2.Right;
-        t.Top = this.Top + thickness2.Top;
-        t.Bottom = this.Bottom + thickness2.Bottom;
-        return t;
-    };
-    Thickness.prototype.IsEmpty = function () {
-        return this.Left == 0 && this.Top == 0 && this.Right == 0 && this.Bottom == 0;
-    };
-    Thickness.prototype.IsBalanced = function () {
-        return this.Left === this.Top && this.Left === this.Right && this.Left === this.Bottom;
-    };
-
-    Thickness.prototype.toString = function () {
-        return "(" + this.Left + ", " + this.Top + ", " + this.Right + ", " + this.Bottom + ")";
-    };
-
-    Thickness.prototype.Clone = function () {
-        return new Thickness(this.Left, this.Top, this.Right, this.Bottom);
-    };
-
-    Thickness.Equals = function (thickness1, thickness2) {
-        if (thickness1 == null && thickness2 == null)
-            return true;
-        if (thickness1 == null || thickness2 == null)
-            return false;
-        return thickness1.Left === thickness2.Left && thickness1.Top === thickness2.Top && thickness1.Right === thickness2.Right && thickness1.Bottom === thickness2.Bottom;
-    };
-    return Thickness;
-})();
-Fayde.RegisterType(Thickness, {
-    Name: "Thickness",
-    Namespace: "window",
-    XmlNamespace: Fayde.XMLNSX
-});
-
-Fayde.RegisterTypeConverter(Thickness, function (val) {
-    if (!val)
-        return new Thickness();
-    if (typeof val === "number")
-        return new Thickness(val, val, val, val);
-    if (val instanceof Thickness) {
-        var t = val;
-        return new Thickness(t.Left, t.Top, t.Right, t.Bottom);
-    }
-    var tokens = val.toString().split(",");
-    var left, top, right, bottom;
-    if (tokens.length === 1) {
-        left = top = right = bottom = parseFloat(tokens[0]);
-    } else if (tokens.length === 2) {
-        left = right = parseFloat(tokens[0]);
-        top = bottom = parseFloat(tokens[1]);
-    } else if (tokens.length === 4) {
-        left = parseFloat(tokens[0]);
-        top = parseFloat(tokens[1]);
-        right = parseFloat(tokens[2]);
-        bottom = parseFloat(tokens[3]);
-    } else {
-        throw new Exception("Cannot parse Thickness value '" + val + "'");
-    }
-    return new Thickness(left, top, right, bottom);
-});
-var Fayde;
-(function (Fayde) {
-    /// <reference path="../Core/DependencyObject.ts" />
-    (function (Media) {
-        var Brush = (function (_super) {
-            __extends(Brush, _super);
-            function Brush() {
-                _super.call(this);
-                this._CachedBounds = null;
-                this._CachedBrush = null;
-                this._Listeners = [];
-                Fayde.XamlNode.SetShareable(this.XamlNode);
-            }
-            Brush.prototype.SetupBrush = function (ctx, bounds) {
-                if (this._CachedBrush && this._CachedBounds && rect.isEqual(this._CachedBounds, bounds))
-                    return;
-                this._CachedBounds = bounds;
-
-                var transform = this.Transform;
-                if (transform) {
-                    var transformedBounds = transform.TransformBounds(bounds);
-                    var raw = transform.Value._Raw;
-
-                    var tmpBrush = this.CreateBrush(ctx, bounds);
-                    var fillExtents = rect.copyTo(bounds);
-                    rect.growBy(fillExtents, raw[2], raw[5], 0, 0);
-
-                    var tmpCanvas = document.createElement("canvas");
-                    tmpCanvas.width = Math.max(transformedBounds.Width, bounds.Width);
-                    tmpCanvas.height = Math.max(transformedBounds.Height, bounds.Height);
-                    var tmpCtx = tmpCanvas.getContext("2d");
-                    tmpCtx.setTransform(raw[0], raw[1], raw[3], raw[4], raw[2], raw[5]);
-                    tmpCtx.fillStyle = tmpBrush;
-                    tmpCtx.fillRect(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height);
-
-                    this._CachedBrush = ctx.createPattern(tmpCanvas, "no-repeat");
-                } else {
-                    this._CachedBrush = this.CreateBrush(ctx, bounds);
-                }
-            };
-            Brush.prototype.CreateBrush = function (ctx, bounds) {
-                return undefined;
-            };
-            Brush.prototype.ToHtml5Object = function () {
-                return this._CachedBrush;
-            };
-
-            Brush.prototype.Listen = function (func) {
-                var listeners = this._Listeners;
-                var listener = {
-                    Callback: func,
-                    Detach: function () {
-                        var index = listeners.indexOf(listener);
-                        if (index > -1)
-                            listeners.splice(index, 1);
-                    }
-                };
-                listeners.push(listener);
-                return listener;
-            };
-
-            Brush.prototype.InvalidateBrush = function () {
-                this._CachedBrush = null;
-                this._CachedBounds = null;
-                var listeners = this._Listeners;
-                var len = listeners.length;
-                for (var i = 0; i < len; i++) {
-                    listeners[i].Callback(this);
-                }
-            };
-
-            Brush.prototype._TransformChanged = function (args) {
-                var _this = this;
-                if (this._TransformListener) {
-                    this._TransformListener.Detach();
-                    this._TransformListener = null;
-                }
-                var newt = args.NewValue;
-                if (newt)
-                    this._TransformListener = newt.Listen(function (source) {
-                        return _this.InvalidateBrush();
-                    });
-                this.InvalidateBrush();
-            };
-            Brush.TransformProperty = DependencyProperty.RegisterCore("Transform", function () {
-                return Fayde.Media.Transform;
-            }, Brush, undefined, function (d, args) {
-                return (d)._TransformChanged(args);
-            });
-            return Brush;
-        })(Fayde.DependencyObject);
-        Media.Brush = Brush;
-        Fayde.RegisterType(Brush, {
-            Name: "Brush",
-            Namespace: "Fayde.Media",
-            XmlNamespace: Fayde.XMLNS
-        });
-    })(Fayde.Media || (Fayde.Media = {}));
-    var Media = Fayde.Media;
-})(Fayde || (Fayde = {}));
-/// <reference path="../Primitives/CornerRadius.ts" />
-/// <reference path="../Primitives/Color.ts" />
-/// <reference path="../Primitives/Thickness.ts" />
-/// <reference path="../Media/Brush.ts" />
-var Fayde;
-(function (Fayde) {
-    var TypeConverters = (function () {
-        function TypeConverters() {
-        }
-        TypeConverters.ThicknessConverter = function (str) {
-            if (!str)
-                return new Thickness();
-            var tokens = str.split(",");
-            var left, top, right, bottom;
-            if (tokens.length === 1) {
-                left = top = right = bottom = parseFloat(tokens[0]);
-            } else if (tokens.length === 2) {
-                left = right = parseFloat(tokens[0]);
-                top = bottom = parseFloat(tokens[1]);
-            } else if (tokens.length === 4) {
-                left = parseFloat(tokens[0]);
-                top = parseFloat(tokens[1]);
-                right = parseFloat(tokens[2]);
-                bottom = parseFloat(tokens[3]);
-            } else {
-                throw new XamlParseException("Cannot parse Thickness value '" + str + "'");
-            }
-            return new Thickness(left, top, right, bottom);
-        };
-        TypeConverters.CornerRadiusConverter = function (str) {
-            if (!str)
-                return new CornerRadius();
-            var tokens = str.split(",");
-            var topLeft, topRight, bottomRight, bottomLeft;
-            if (tokens.length === 1) {
-                topLeft = topRight = bottomRight = bottomLeft = parseFloat(tokens[0]);
-            } else if (tokens.length === 4) {
-                topLeft = parseFloat(tokens[0]);
-                topRight = parseFloat(tokens[1]);
-                bottomLeft = parseFloat(tokens[2]);
-                bottomRight = parseFloat(tokens[3]);
-            } else {
-                throw new XamlParseException("Cannot parse CornerRadius value '" + str + "'");
-            }
-            return new CornerRadius(topLeft, topRight, bottomRight, bottomLeft);
-        };
-        TypeConverters.BrushConverter = function (str) {
-            var scb = new Fayde.Media.SolidColorBrush();
-            scb.Color = TypeConverters.ColorConverter(str);
-            return scb;
-        };
-        TypeConverters.ColorConverter = function (str) {
-            if (!str)
-                return new Color();
-            if (str.substr(0, 1) !== "#") {
-                var color = Color.KnownColors[str];
-                if (!color)
-                    throw new NotSupportedException("Unknown Color: " + str);
-                return color;
-            }
-            return Color.FromHex(str);
-        };
-        TypeConverters.GeometryConverter = function (str) {
-            return Fayde.Media.ParseGeometry(str);
-        };
-        return TypeConverters;
-    })();
-
-    var TypeConverter = (function () {
-        function TypeConverter() {
-        }
-        TypeConverter.Register = function (type, converter) {
-            TypeConverter._Converters[type] = converter;
-        };
-        TypeConverter.ConvertObject = function (propd, val, objectType, doStringConversion) {
-            if (val == null)
-                return val;
-
-            var targetType = propd.GetTargetType();
-            if (typeof targetType === "string" || targetType === String) {
-                return doStringConversion ? val.toString() : "";
-            } else if (typeof targetType === "number" || targetType === Number) {
-                if (typeof val === "number")
-                    return val;
-                if (!val)
-                    return 0;
-                if (val instanceof Thickness)
-                    return val.Left;
-                return parseFloat(val.toString());
-            } else if (typeof targetType === "function") {
-                var f = targetType;
-                if (val instanceof f)
-                    return val;
-                var converter = TypeConverter._Converters[targetType];
-                if (converter)
-                    return converter(val);
-            } else if (targetType instanceof Enum) {
-                if (typeof val === "string") {
-                    var ret = (targetType).Object[val];
-                    if (ret !== undefined)
-                        return ret;
-                    return val;
-                }
-            }
-
-            if (typeof targetType === "string" || targetType === String)
-                return doStringConversion ? val.toString() : "";
-
-            var tc;
-            if (propd.IsAttached) {
-                //TODO: Find type converter for attached property
-            } else {
-                //TODO: Find type converter
-            }
-            return val;
-            //TODO: Default to basic type converter, return
-            //if (tc == null)
-            //tc = new TypeConverter();
-            //return tc.ConvertFrom(val);
-        };
-        TypeConverter._Converters = [];
-        return TypeConverter;
-    })();
-    Fayde.TypeConverter = TypeConverter;
-
-    TypeConverter.Register(Thickness, TypeConverters.ThicknessConverter);
-    TypeConverter.Register(CornerRadius, TypeConverters.CornerRadiusConverter);
-    TypeConverter.Register(Fayde.Media.Brush, TypeConverters.BrushConverter);
-    TypeConverter.Register(Color, TypeConverters.ColorConverter);
-    TypeConverter.Register(Fayde.Media.Geometry, TypeConverters.GeometryConverter);
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -26755,6 +26297,106 @@ var Fayde;
 (function (Fayde) {
     /// <reference path="../Core/DependencyObject.ts" />
     (function (Media) {
+        var Brush = (function (_super) {
+            __extends(Brush, _super);
+            function Brush() {
+                _super.call(this);
+                this._CachedBounds = null;
+                this._CachedBrush = null;
+                this._Listeners = [];
+                Fayde.XamlNode.SetShareable(this.XamlNode);
+            }
+            Brush.prototype.SetupBrush = function (ctx, bounds) {
+                if (this._CachedBrush && this._CachedBounds && rect.isEqual(this._CachedBounds, bounds))
+                    return;
+                this._CachedBounds = bounds;
+
+                var transform = this.Transform;
+                if (transform) {
+                    var transformedBounds = transform.TransformBounds(bounds);
+                    var raw = transform.Value._Raw;
+
+                    var tmpBrush = this.CreateBrush(ctx, bounds);
+                    var fillExtents = rect.copyTo(bounds);
+                    rect.growBy(fillExtents, raw[2], raw[5], 0, 0);
+
+                    var tmpCanvas = document.createElement("canvas");
+                    tmpCanvas.width = Math.max(transformedBounds.Width, bounds.Width);
+                    tmpCanvas.height = Math.max(transformedBounds.Height, bounds.Height);
+                    var tmpCtx = tmpCanvas.getContext("2d");
+                    tmpCtx.setTransform(raw[0], raw[1], raw[3], raw[4], raw[2], raw[5]);
+                    tmpCtx.fillStyle = tmpBrush;
+                    tmpCtx.fillRect(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height);
+
+                    this._CachedBrush = ctx.createPattern(tmpCanvas, "no-repeat");
+                } else {
+                    this._CachedBrush = this.CreateBrush(ctx, bounds);
+                }
+            };
+            Brush.prototype.CreateBrush = function (ctx, bounds) {
+                return undefined;
+            };
+            Brush.prototype.ToHtml5Object = function () {
+                return this._CachedBrush;
+            };
+
+            Brush.prototype.Listen = function (func) {
+                var listeners = this._Listeners;
+                var listener = {
+                    Callback: func,
+                    Detach: function () {
+                        var index = listeners.indexOf(listener);
+                        if (index > -1)
+                            listeners.splice(index, 1);
+                    }
+                };
+                listeners.push(listener);
+                return listener;
+            };
+
+            Brush.prototype.InvalidateBrush = function () {
+                this._CachedBrush = null;
+                this._CachedBounds = null;
+                var listeners = this._Listeners;
+                var len = listeners.length;
+                for (var i = 0; i < len; i++) {
+                    listeners[i].Callback(this);
+                }
+            };
+
+            Brush.prototype._TransformChanged = function (args) {
+                var _this = this;
+                if (this._TransformListener) {
+                    this._TransformListener.Detach();
+                    this._TransformListener = null;
+                }
+                var newt = args.NewValue;
+                if (newt)
+                    this._TransformListener = newt.Listen(function (source) {
+                        return _this.InvalidateBrush();
+                    });
+                this.InvalidateBrush();
+            };
+            Brush.TransformProperty = DependencyProperty.RegisterCore("Transform", function () {
+                return Fayde.Media.Transform;
+            }, Brush, undefined, function (d, args) {
+                return (d)._TransformChanged(args);
+            });
+            return Brush;
+        })(Fayde.DependencyObject);
+        Media.Brush = Brush;
+        Fayde.RegisterType(Brush, {
+            Name: "Brush",
+            Namespace: "Fayde.Media",
+            XmlNamespace: Fayde.XMLNS
+        });
+    })(Fayde.Media || (Fayde.Media = {}));
+    var Media = Fayde.Media;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    /// <reference path="../Core/DependencyObject.ts" />
+    (function (Media) {
         var GeneralTransform = (function (_super) {
             __extends(GeneralTransform, _super);
             function GeneralTransform() {
@@ -26910,6 +26552,252 @@ var Fayde;
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
+/// <reference path="../Runtime/TypeManagement.ts" />
+var Color = (function () {
+    function Color() {
+        this.R = 0;
+        this.G = 0;
+        this.B = 0;
+        this.A = 1.0;
+    }
+    Color.prototype.Add = function (color2) {
+        var c = new Color();
+        c.R = this.R + color2.R;
+        c.G = this.G + color2.G;
+        c.B = this.B + color2.B;
+        c.A = this.A + color2.A;
+        return c;
+    };
+    Color.prototype.Subtract = function (color2) {
+        var c = new Color();
+        c.R = this.R - color2.R;
+        c.G = this.G - color2.G;
+        c.B = this.B - color2.B;
+        c.A = this.A - color2.A;
+        return c;
+    };
+    Color.prototype.Multiply = function (factor) {
+        var c = new Color();
+        c.R = this.R * factor;
+        c.G = this.G * factor;
+        c.B = this.B * factor;
+        c.A = this.A * factor;
+        return c;
+    };
+    Color.prototype.Equals = function (other) {
+        return this.R === other.R && this.G === other.G && this.B === other.B && this.A === other.A;
+    };
+    Color.prototype.toString = function () {
+        return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
+    };
+    Color.prototype.ToHexStringNoAlpha = function () {
+        return "#" + this.R.toString(16) + this.G.toString(16) + this.B.toString(16);
+    };
+
+    Color.prototype.Clone = function () {
+        return Color.FromRgba(this.R, this.G, this.B, this.A);
+    };
+
+    Color.LERP = function (start, end, p) {
+        var c = new Color();
+        c.R = start.R + (end.R - start.R) * p;
+        c.G = start.G + (end.G - start.G) * p;
+        c.B = start.B + (end.B - start.B) * p;
+        c.A = start.A + (end.A - start.A) * p;
+        return c;
+    };
+    Color.FromRgba = function (r, g, b, a) {
+        var c = new Color();
+        c.R = r;
+        c.G = g;
+        c.B = b;
+        c.A = a;
+        return c;
+    };
+    Color.FromHex = function (hex) {
+        var match;
+        var c = new Color();
+        if ((match = Color.__AlphaRegex.exec(hex)) != null) {
+            c.A = parseInt(match[1], 16) / 255.0;
+            c.R = parseInt(match[2], 16);
+            c.G = parseInt(match[3], 16);
+            c.B = parseInt(match[4], 16);
+        } else if ((match = Color.__NoAlphaRegex.exec(hex)) != null) {
+            c.A = 1.0;
+            c.R = parseInt(match[1], 16);
+            c.G = parseInt(match[2], 16);
+            c.B = parseInt(match[3], 16);
+        }
+        return c;
+    };
+    Color.__NoAlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
+    Color.__AlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
+
+    Color.KnownColors = {
+        AliceBlue: Color.FromHex("#FFF0F8FF"),
+        AntiqueWhite: Color.FromHex("#FFFAEBD7"),
+        Aqua: Color.FromHex("#FF00FFFF"),
+        Aquamarine: Color.FromHex("#FF7FFFD4"),
+        Azure: Color.FromHex("#FFF0FFFF"),
+        Beige: Color.FromHex("#FFF5F5DC"),
+        Bisque: Color.FromHex("#FFFFE4C4"),
+        Black: Color.FromHex("#FF000000"),
+        BlanchedAlmond: Color.FromHex("#FFFFEBCD"),
+        Blue: Color.FromHex("#FF0000FF"),
+        BlueViolet: Color.FromHex("#FF8A2BE2"),
+        Brown: Color.FromHex("#FFA52A2A"),
+        BurlyWood: Color.FromHex("#FFDEB887"),
+        CadetBlue: Color.FromHex("#FF5F9EA0"),
+        Chartreuse: Color.FromHex("#FF7FFF00"),
+        Chocolate: Color.FromHex("#FFD2691E"),
+        Coral: Color.FromHex("#FFFF7F50"),
+        CornflowerBlue: Color.FromHex("#FF6495ED"),
+        Cornsilk: Color.FromHex("#FFFFF8DC"),
+        Crimson: Color.FromHex("#FFDC143C"),
+        Cyan: Color.FromHex("#FF00FFFF"),
+        DarkBlue: Color.FromHex("#FF00008B"),
+        DarkCyan: Color.FromHex("#FF008B8B"),
+        DarkGoldenrod: Color.FromHex("#FFB8860B"),
+        DarkGray: Color.FromHex("#FFA9A9A9"),
+        DarkGreen: Color.FromHex("#FF006400"),
+        DarkKhaki: Color.FromHex("#FFBDB76B"),
+        DarkMagenta: Color.FromHex("#FF8B008B"),
+        DarkOliveGreen: Color.FromHex("#FF556B2F"),
+        DarkOrange: Color.FromHex("#FFFF8C00"),
+        DarkOrchid: Color.FromHex("#FF9932CC"),
+        DarkRed: Color.FromHex("#FF8B0000"),
+        DarkSalmon: Color.FromHex("#FFE9967A"),
+        DarkSeaGreen: Color.FromHex("#FF8FBC8F"),
+        DarkSlateBlue: Color.FromHex("#FF483D8B"),
+        DarkSlateGray: Color.FromHex("#FF2F4F4F"),
+        DarkTurquoise: Color.FromHex("#FF00CED1"),
+        DarkViolet: Color.FromHex("#FF9400D3"),
+        DeepPink: Color.FromHex("#FFFF1493"),
+        DeepSkyBlue: Color.FromHex("#FF00BFFF"),
+        DimGray: Color.FromHex("#FF696969"),
+        DodgerBlue: Color.FromHex("#FF1E90FF"),
+        Firebrick: Color.FromHex("#FFB22222"),
+        FloralWhite: Color.FromHex("#FFFFFAF0"),
+        ForestGreen: Color.FromHex("#FF228B22"),
+        Fuchsia: Color.FromHex("#FFFF00FF"),
+        Gainsboro: Color.FromHex("#FFDCDCDC"),
+        GhostWhite: Color.FromHex("#FFF8F8FF"),
+        Gold: Color.FromHex("#FFFFD700"),
+        Goldenrod: Color.FromHex("#FFDAA520"),
+        Gray: Color.FromHex("#FF808080"),
+        Green: Color.FromHex("#FF008000"),
+        GreenYellow: Color.FromHex("#FFADFF2F"),
+        Honeydew: Color.FromHex("#FFF0FFF0"),
+        HotPink: Color.FromHex("#FFFF69B4"),
+        IndianRed: Color.FromHex("#FFCD5C5C"),
+        Indigo: Color.FromHex("#FF4B0082"),
+        Ivory: Color.FromHex("#FFFFFFF0"),
+        Khaki: Color.FromHex("#FFF0E68C"),
+        Lavender: Color.FromHex("#FFE6E6FA"),
+        LavenderBlush: Color.FromHex("#FFFFF0F5"),
+        LawnGreen: Color.FromHex("#FF7CFC00"),
+        LemonChiffon: Color.FromHex("#FFFFFACD"),
+        LightBlue: Color.FromHex("#FFADD8E6"),
+        LightCoral: Color.FromHex("#FFF08080"),
+        LightCyan: Color.FromHex("#FFE0FFFF"),
+        LightGoldenrodYellow: Color.FromHex("#FFFAFAD2"),
+        LightGray: Color.FromHex("#FFD3D3D3"),
+        LightGreen: Color.FromHex("#FF90EE90"),
+        LightPink: Color.FromHex("#FFFFB6C1"),
+        LightSalmon: Color.FromHex("#FFFFA07A"),
+        LightSeaGreen: Color.FromHex("#FF20B2AA"),
+        LightSkyBlue: Color.FromHex("#FF87CEFA"),
+        LightSlateGray: Color.FromHex("#FF778899"),
+        LightSteelBlue: Color.FromHex("#FFB0C4DE"),
+        LightYellow: Color.FromHex("#FFFFFFE0"),
+        Lime: Color.FromHex("#FF00FF00"),
+        LimeGreen: Color.FromHex("#FF32CD32"),
+        Linen: Color.FromHex("#FFFAF0E6"),
+        Magenta: Color.FromHex("#FFFF00FF"),
+        Maroon: Color.FromHex("#FF800000"),
+        MediumAquamarine: Color.FromHex("#FF66CDAA"),
+        MediumBlue: Color.FromHex("#FF0000CD"),
+        MediumOrchid: Color.FromHex("#FFBA55D3"),
+        MediumPurple: Color.FromHex("#FF9370DB"),
+        MediumSeaGreen: Color.FromHex("#FF3CB371"),
+        MediumSlateBlue: Color.FromHex("#FF7B68EE"),
+        MediumSpringGreen: Color.FromHex("#FF00FA9A"),
+        MediumTurquoise: Color.FromHex("#FF48D1CC"),
+        MediumVioletRed: Color.FromHex("#FFC71585"),
+        MidnightBlue: Color.FromHex("#FF191970"),
+        MintCream: Color.FromHex("#FFF5FFFA"),
+        MistyRose: Color.FromHex("#FFFFE4E1"),
+        Moccasin: Color.FromHex("#FFFFE4B5"),
+        NavajoWhite: Color.FromHex("#FFFFDEAD"),
+        Navy: Color.FromHex("#FF000080"),
+        OldLace: Color.FromHex("#FFFDF5E6"),
+        Olive: Color.FromHex("#FF808000"),
+        OliveDrab: Color.FromHex("#FF6B8E23"),
+        Orange: Color.FromHex("#FFFFA500"),
+        OrangeRed: Color.FromHex("#FFFF4500"),
+        Orchid: Color.FromHex("#FFDA70D6"),
+        PaleGoldenrod: Color.FromHex("#FFEEE8AA"),
+        PaleGreen: Color.FromHex("#FF98FB98"),
+        PaleTurquoise: Color.FromHex("#FFAFEEEE"),
+        PaleVioletRed: Color.FromHex("#FFDB7093"),
+        PapayaWhip: Color.FromHex("#FFFFEFD5"),
+        PeachPuff: Color.FromHex("#FFFFDAB9"),
+        Peru: Color.FromHex("#FFCD853F"),
+        Pink: Color.FromHex("#FFFFC0CB"),
+        Plum: Color.FromHex("#FFDDA0DD"),
+        PowderBlue: Color.FromHex("#FFB0E0E6"),
+        Purple: Color.FromHex("#FF800080"),
+        Red: Color.FromHex("#FFFF0000"),
+        RosyBrown: Color.FromHex("#FFBC8F8F"),
+        RoyalBlue: Color.FromHex("#FF4169E1"),
+        SaddleBrown: Color.FromHex("#FF8B4513"),
+        Salmon: Color.FromHex("#FFFA8072"),
+        SandyBrown: Color.FromHex("#FFF4A460"),
+        SeaGreen: Color.FromHex("#FF2E8B57"),
+        SeaShell: Color.FromHex("#FFFFF5EE"),
+        Sienna: Color.FromHex("#FFA0522D"),
+        Silver: Color.FromHex("#FFC0C0C0"),
+        SkyBlue: Color.FromHex("#FF87CEEB"),
+        SlateBlue: Color.FromHex("#FF6A5ACD"),
+        SlateGray: Color.FromHex("#FF708090"),
+        Snow: Color.FromHex("#FFFFFAFA"),
+        SpringGreen: Color.FromHex("#FF00FF7F"),
+        SteelBlue: Color.FromHex("#FF4682B4"),
+        Tan: Color.FromHex("#FFD2B48C"),
+        Teal: Color.FromHex("#FF008080"),
+        Thistle: Color.FromHex("#FFD8BFD8"),
+        Tomato: Color.FromHex("#FFFF6347"),
+        Transparent: Color.FromHex("#00FFFFFF"),
+        Turquoise: Color.FromHex("#FF40E0D0"),
+        Violet: Color.FromHex("#FFEE82EE"),
+        Wheat: Color.FromHex("#FFF5DEB3"),
+        White: Color.FromHex("#FFFFFFFF"),
+        WhiteSmoke: Color.FromHex("#FFF5F5F5"),
+        Yellow: Color.FromHex("#FFFFFF00"),
+        YellowGreen: Color.FromHex("#FF9ACD32")
+    };
+    return Color;
+})();
+Fayde.RegisterType(Color, {
+    Name: "Color",
+    Namespace: "window",
+    XmlNamespace: Fayde.XMLNS
+});
+
+Fayde.RegisterTypeConverter(Color, function (val) {
+    if (!val)
+        return undefined;
+    if (val instanceof Color)
+        return val;
+    val = val.toString();
+    if (val[0] !== "#") {
+        var color = Color.KnownColors[val];
+        if (!color)
+            throw new NotSupportedException("Unknown Color: " + val);
+        return color;
+    }
+    return Color.FromHex(val);
+});
 var Fayde;
 (function (Fayde) {
     (function (Media) {
@@ -27252,6 +27140,7 @@ var Fayde;
             ShapeFlags[ShapeFlags["Radii"] = 8] = "Radii";
         })(Shapes.ShapeFlags || (Shapes.ShapeFlags = {}));
         var ShapeFlags = Shapes.ShapeFlags;
+
         (function (PenLineCap) {
             PenLineCap[PenLineCap["Flat"] = 0] = "Flat";
             PenLineCap[PenLineCap["Square"] = 1] = "Square";
@@ -27259,22 +27148,45 @@ var Fayde;
             PenLineCap[PenLineCap["Triangle"] = 3] = "Triangle";
         })(Shapes.PenLineCap || (Shapes.PenLineCap = {}));
         var PenLineCap = Shapes.PenLineCap;
+        Fayde.RegisterEnum(PenLineCap, {
+            Name: "PenLineCap",
+            Namespace: "Fayde.Shapes",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (PenLineJoin) {
             PenLineJoin[PenLineJoin["Miter"] = 0] = "Miter";
             PenLineJoin[PenLineJoin["Bevel"] = 1] = "Bevel";
             PenLineJoin[PenLineJoin["Round"] = 2] = "Round";
         })(Shapes.PenLineJoin || (Shapes.PenLineJoin = {}));
         var PenLineJoin = Shapes.PenLineJoin;
+        Fayde.RegisterEnum(PenLineJoin, {
+            Name: "PenLineJoin",
+            Namespace: "Fayde.Shapes",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (FillRule) {
             FillRule[FillRule["EvenOdd"] = 0] = "EvenOdd";
             FillRule[FillRule["NonZero"] = 1] = "NonZero";
         })(Shapes.FillRule || (Shapes.FillRule = {}));
         var FillRule = Shapes.FillRule;
+        Fayde.RegisterEnum(FillRule, {
+            Name: "FillRule",
+            Namespace: "Fayde.Shapes",
+            XmlNamespace: Fayde.XMLNS
+        });
+
         (function (SweepDirection) {
             SweepDirection[SweepDirection["Counterclockwise"] = 0] = "Counterclockwise";
             SweepDirection[SweepDirection["Clockwise"] = 1] = "Clockwise";
         })(Shapes.SweepDirection || (Shapes.SweepDirection = {}));
         var SweepDirection = Shapes.SweepDirection;
+        Fayde.RegisterEnum(SweepDirection, {
+            Name: "SweepDirection",
+            Namespace: "Fayde.Shapes",
+            XmlNamespace: Fayde.XMLNS
+        });
     })(Fayde.Shapes || (Fayde.Shapes = {}));
     var Shapes = Fayde.Shapes;
 })(Fayde || (Fayde = {}));
@@ -31089,6 +31001,54 @@ Fayde.RegisterType(Clip, {
     XmlNamespace: Fayde.XMLNSX
 });
 /// <reference path="../Runtime/TypeManagement.ts" />
+var CornerRadius = (function () {
+    function CornerRadius(topLeft, topRight, bottomRight, bottomLeft) {
+        this.TopLeft = topLeft == null ? 0 : topLeft;
+        this.TopRight = topRight == null ? 0 : topRight;
+        this.BottomRight = bottomRight == null ? 0 : bottomRight;
+        this.BottomLeft = bottomLeft == null ? 0 : bottomLeft;
+    }
+    CornerRadius.prototype.IsZero = function () {
+        return this.TopLeft === 0 && this.TopRight === 0 && this.BottomRight === 0 && this.BottomLeft === 0;
+    };
+    CornerRadius.prototype.Equals = function (other) {
+        return this.TopLeft === other.TopLeft && this.TopRight === other.TopRight && this.BottomRight === other.BottomRight && this.BottomLeft === other.BottomLeft;
+    };
+    CornerRadius.prototype.toString = function () {
+        return "(" + this.TopLeft + ", " + this.TopRight + ", " + this.BottomRight + ", " + this.BottomLeft + ")";
+    };
+
+    CornerRadius.prototype.Clone = function () {
+        return new CornerRadius(this.TopLeft, this.TopRight, this.BottomRight, this.BottomLeft);
+    };
+    return CornerRadius;
+})();
+Fayde.RegisterType(CornerRadius, {
+    Name: "CornerRadius",
+    Namespace: "window",
+    XmlNamespace: Fayde.XMLNSX
+});
+
+Fayde.RegisterTypeConverter(CornerRadius, function (val) {
+    if (!val)
+        return new CornerRadius();
+    if (typeof val === "number")
+        return new CornerRadius(val, val, val, val);
+    var tokens = val.toString().split(",");
+    var topLeft, topRight, bottomRight, bottomLeft;
+    if (tokens.length === 1) {
+        topLeft = topRight = bottomRight = bottomLeft = parseFloat(tokens[0]);
+    } else if (tokens.length === 4) {
+        topLeft = parseFloat(tokens[0]);
+        topRight = parseFloat(tokens[1]);
+        bottomRight = parseFloat(tokens[2]);
+        bottomLeft = parseFloat(tokens[3]);
+    } else {
+        throw new Exception("Cannot parse CornerRadius value '" + val + "'");
+    }
+    return new CornerRadius(topLeft, topRight, bottomRight, bottomLeft);
+});
+/// <reference path="../Runtime/TypeManagement.ts" />
 var DayOfWeek;
 (function (DayOfWeek) {
     DayOfWeek[DayOfWeek["Sunday"] = 0] = "Sunday";
@@ -32764,6 +32724,78 @@ Fayde.RegisterType(size, {
     XmlNamespace: Fayde.XMLNSX
 });
 /// <reference path="../Runtime/TypeManagement.ts" />
+var Thickness = (function () {
+    function Thickness(left, top, right, bottom) {
+        this.Left = left == null ? 0 : left;
+        this.Top = top == null ? 0 : top;
+        this.Right = right == null ? 0 : right;
+        this.Bottom = bottom == null ? 0 : bottom;
+    }
+    Thickness.prototype.Plus = function (thickness2) {
+        var t = new Thickness();
+        t.Left = this.Left + thickness2.Left;
+        t.Right = this.Right + thickness2.Right;
+        t.Top = this.Top + thickness2.Top;
+        t.Bottom = this.Bottom + thickness2.Bottom;
+        return t;
+    };
+    Thickness.prototype.IsEmpty = function () {
+        return this.Left == 0 && this.Top == 0 && this.Right == 0 && this.Bottom == 0;
+    };
+    Thickness.prototype.IsBalanced = function () {
+        return this.Left === this.Top && this.Left === this.Right && this.Left === this.Bottom;
+    };
+
+    Thickness.prototype.toString = function () {
+        return "(" + this.Left + ", " + this.Top + ", " + this.Right + ", " + this.Bottom + ")";
+    };
+
+    Thickness.prototype.Clone = function () {
+        return new Thickness(this.Left, this.Top, this.Right, this.Bottom);
+    };
+
+    Thickness.Equals = function (thickness1, thickness2) {
+        if (thickness1 == null && thickness2 == null)
+            return true;
+        if (thickness1 == null || thickness2 == null)
+            return false;
+        return thickness1.Left === thickness2.Left && thickness1.Top === thickness2.Top && thickness1.Right === thickness2.Right && thickness1.Bottom === thickness2.Bottom;
+    };
+    return Thickness;
+})();
+Fayde.RegisterType(Thickness, {
+    Name: "Thickness",
+    Namespace: "window",
+    XmlNamespace: Fayde.XMLNSX
+});
+
+Fayde.RegisterTypeConverter(Thickness, function (val) {
+    if (!val)
+        return new Thickness();
+    if (typeof val === "number")
+        return new Thickness(val, val, val, val);
+    if (val instanceof Thickness) {
+        var t = val;
+        return new Thickness(t.Left, t.Top, t.Right, t.Bottom);
+    }
+    var tokens = val.toString().split(",");
+    var left, top, right, bottom;
+    if (tokens.length === 1) {
+        left = top = right = bottom = parseFloat(tokens[0]);
+    } else if (tokens.length === 2) {
+        left = right = parseFloat(tokens[0]);
+        top = bottom = parseFloat(tokens[1]);
+    } else if (tokens.length === 4) {
+        left = parseFloat(tokens[0]);
+        top = parseFloat(tokens[1]);
+        right = parseFloat(tokens[2]);
+        bottom = parseFloat(tokens[3]);
+    } else {
+        throw new Exception("Cannot parse Thickness value '" + val + "'");
+    }
+    return new Thickness(left, top, right, bottom);
+});
+/// <reference path="../Runtime/TypeManagement.ts" />
 var TimeSpan = (function () {
     function TimeSpan() {
         this._Ticks = 0;
@@ -34389,7 +34421,7 @@ var Fayde;
             PointCollection.prototype.IndexOf = function (value) {
                 var count = this._ht.length;
                 for (var i = 0; i < count; i++) {
-                    if (Nullstone.Equals(value, this._ht[i]))
+                    if (Point.Equals(value, this._ht[i]))
                         return i;
                 }
                 return -1;

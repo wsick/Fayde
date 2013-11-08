@@ -31,6 +31,27 @@ module Fayde.Controls {
     	Namespace: "Fayde.Controls",
     	XmlNamespace: Fayde.XMLNS
     });
+
+    function ConvertColumnDefinition(o: any): ColumnDefinition {
+        if (!o || o instanceof ColumnDefinition)
+            return <ColumnDefinition>o;
+        var s: string = o.toString();
+        var cd = new ColumnDefinition();
+        if (s.toLowerCase() === "auto") {
+            cd.Width = new GridLength(0, GridUnitType.Auto);
+            return cd;
+        }
+        if (s === "*") {
+            cd.Width = new GridLength(1, GridUnitType.Star);
+            return cd;
+        }
+        var v = parseFloat(s);
+        if (isNaN(v))
+            throw new XamlParseException("Invalid ColumnDefinition: '" + s + "'.");
+        cd.Width = new GridLength(v, s[s.length - 1] === "*" ? GridUnitType.Star : GridUnitType.Pixel);
+        return cd;
+    }
+    Fayde.RegisterTypeConverter(ColumnDefinition, ConvertColumnDefinition);
     
     export interface IColumnDefinitionsListener {
         ColumnDefinitionsChanged(colDefinitions: ColumnDefinitionCollection);
@@ -65,4 +86,22 @@ module Fayde.Controls {
     	Namespace: "Fayde.Controls",
     	XmlNamespace: Fayde.XMLNS
     });
+
+    function ConvertColumnDefinitionCollection(o: any): ColumnDefinitionCollection {
+        if (!o || o instanceof ColumnDefinitionCollection)
+            return <ColumnDefinitionCollection>o;
+        if (typeof o === "string") {
+            var tokens = (<string>o).split(" ");
+            var len = tokens.length;
+            var cdc = new ColumnDefinitionCollection();
+            var cd: ColumnDefinition;
+            for (var i = 0; i < len; i++) {
+                if (cd = ConvertColumnDefinition(tokens[i]))
+                    cdc.Add(cd);
+            }
+            return cdc;
+        }
+        return undefined;
+    }
+    Fayde.RegisterTypeConverter(ColumnDefinitionCollection, ConvertColumnDefinitionCollection);
 }

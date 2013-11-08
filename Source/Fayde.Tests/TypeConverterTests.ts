@@ -206,3 +206,62 @@ test("Geometry", () => {
     var rawpath = geom._Build();
     strictEqual(rawpath.Serialize(), str, "Serialize");
 });
+
+test("ColumnDefinition", () => {
+    var str = "auto * 200";
+    var cdc = <Fayde.Controls.ColumnDefinitionCollection>Fayde.ConvertAnyToType(str, Fayde.Controls.ColumnDefinitionCollection);
+    strictEqual(cdc.Count, 3, "1.1");
+
+    var cdw = cdc.GetValueAt(0).Width;
+    strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Auto, "1.2");
+
+    cdw = cdc.GetValueAt(1).Width;
+    strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Star, "1.3");
+    strictEqual(cdw.Value, 1, "1.4");
+
+    cdw = cdc.GetValueAt(2).Width;
+    strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Pixel, "1.5");
+    strictEqual(cdw.Value, 200, "1.6");
+
+
+    str = "3* 100 auto";
+    cdc = <Fayde.Controls.ColumnDefinitionCollection>Fayde.ConvertAnyToType(str, Fayde.Controls.ColumnDefinitionCollection);
+    strictEqual(cdc.Count, 3, "2.1");
+
+    cdw = cdc.GetValueAt(0).Width;
+    strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Star, "2.2");
+    strictEqual(cdw.Value, 3, "2.3");
+
+    cdw = cdc.GetValueAt(1).Width;
+    strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Pixel, "2.4");
+    strictEqual(cdw.Value, 100, "2.5");
+
+    cdw = cdc.GetValueAt(2).Width;
+    strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Auto, "2.6");
+
+
+    str = "*";
+    cdc = <Fayde.Controls.ColumnDefinitionCollection>Fayde.ConvertAnyToType(str, Fayde.Controls.ColumnDefinitionCollection);
+    strictEqual(cdc.Count, 1, "3.1");
+
+    cdw = cdc.GetValueAt(0).Width;
+    strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Star, "3.2");
+    strictEqual(cdw.Value, 1, "3.3");
+
+
+    str = "auto";
+    cdc = <Fayde.Controls.ColumnDefinitionCollection>Fayde.ConvertAnyToType(str, Fayde.Controls.ColumnDefinitionCollection);
+    strictEqual(cdc.Count, 1, "4.1");
+
+    cdw = cdc.GetValueAt(0).Width;
+    strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Auto, "4.2");
+
+
+    str = "150";
+    cdc = <Fayde.Controls.ColumnDefinitionCollection>Fayde.ConvertAnyToType(str, Fayde.Controls.ColumnDefinitionCollection);
+    strictEqual(cdc.Count, 1, "5.1");
+
+    cdw = cdc.GetValueAt(0).Width;
+    strictEqual(cdw.Type, Fayde.Controls.GridUnitType.Pixel, "5.2");
+    strictEqual(cdw.Value, 150, "5.3");
+});
