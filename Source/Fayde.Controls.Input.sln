@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Controls.Input", "Fayde.Controls.Input.csproj", "{538C1135-1F38-42E1-9F0C-0DF044F80663}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Controls.Input", "Fayde.Controls.Input\Fayde.Controls.Input.csproj", "{538C1135-1F38-42E1-9F0C-0DF044F80663}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
