@@ -1,4 +1,4 @@
-/// <reference path="../jsbin/Fayde.d.ts" />
+/// <reference path="Fayde.d.ts" />
 
 module Fayde.Controls {
     export class TabItem extends ContentControl {

@@ -1,4 +1,4 @@
-/// <reference path="../../jsbin/Fayde.d.ts" />
+/// <reference path="../Fayde.d.ts" />
 
 module Fayde.Controls.Primitives {
     export class TabPanel extends Panel {

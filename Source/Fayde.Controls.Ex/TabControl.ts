@@ -1,6 +1,4 @@
-/// <reference path="../jsbin/Fayde.d.ts" />
-/// <reference path="TabItem.ts" />
-/// <reference path="Primitives/TabPanel.ts" />
+/// <reference path="Fayde.d.ts" />
 
 module Fayde.Controls {
     export enum Dock {
