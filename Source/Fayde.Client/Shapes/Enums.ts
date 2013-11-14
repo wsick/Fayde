@@ -1,15 +1,4 @@
 module Fayde.Shapes {
-    export enum PathEntryType {
-        Move = 0,
-        Line = 1,
-        Rect = 2,
-        Quadratic = 3,
-        Bezier = 4,
-        EllipticalArc = 5,
-        Arc = 6,
-        ArcTo = 7,
-        Close = 8,
-    }
     export enum ShapeFlags {
         None = 0,
         Empty = 1,

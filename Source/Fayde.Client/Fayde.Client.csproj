@@ -273,6 +273,16 @@
     <Content Include="Fayde.d.ts" />
     <Content Include="Fayde.js" />
     <Content Include="Fayde.js.map" />
+    <TypeScriptCompile Include="Path\IArc.ts" />
+    <TypeScriptCompile Include="Path\IArcTo.ts" />
+    <TypeScriptCompile Include="Path\IClose.ts" />
+    <TypeScriptCompile Include="Path\ICubicBezier.ts" />
+    <TypeScriptCompile Include="Path\IEllipticalArc.ts" />
+    <TypeScriptCompile Include="Path\ILine.ts" />
+    <TypeScriptCompile Include="Path\IMove.ts" />
+    <TypeScriptCompile Include="Path\IQuadraticBezier.ts" />
+    <TypeScriptCompile Include="Path\IRect.ts" />
+    <TypeScriptCompile Include="Path\RawPath.ts" />
     <Content Include="Theme.Metro.xml" />
     <Content Include="Theme.Silverlight.xml" />
     <TypeScriptCompile Include="Xaml\Library.ts" />
