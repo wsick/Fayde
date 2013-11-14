@@ -269,7 +269,7 @@
     <TypeScriptCompile Include="Text\History.ts" />
     <TypeScriptCompile Include="Text\TextAttributes.ts" />
     <TypeScriptCompile Include="Text\TextLayout.ts" />
-    <Content Include="Controls\HeaderedContentControl.ts" />
+    <TypeScriptCompile Include="Controls\HeaderedContentControl.ts" />
     <Content Include="Fayde.d.ts" />
     <Content Include="Fayde.js" />
     <Content Include="Fayde.js.map" />
