@@ -3225,9 +3225,8 @@ else
                     return;
                 }
 
-                var rawPath = new Fayde.Shapes.RawPath();
-                rawPath.RoundedRectFull(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
-                rawPath.DrawRenderCtx(ctx);
+                var raw = Fayde.Path.RectRoundedFull(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
+                raw.draw(ctx.CanvasContext);
                 ctx.Fill(backgroundBrush, fillExtents);
             };
             Border.prototype._RenderBalanced = function (ctx, extents, backgroundBrush, borderBrush, thickness, cornerRadius) {
@@ -3247,9 +3246,8 @@ else
                         ctx.Stroke(borderBrush, thickness.Left, extents);
                     }
                 } else {
-                    var rawPath = new Fayde.Shapes.RawPath();
-                    rawPath.RoundedRectFull(strokeExtents.X, strokeExtents.Y, strokeExtents.Width, strokeExtents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
-                    rawPath.DrawRenderCtx(ctx);
+                    var raw = Fayde.Path.RectRoundedFull(strokeExtents.X, strokeExtents.Y, strokeExtents.Width, strokeExtents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
+                    raw.draw(ctx.CanvasContext);
                     if (backgroundBrush)
                         ctx.Fill(backgroundBrush, fillExtents);
                     ctx.Stroke(borderBrush, thickness.Left, extents);
@@ -3261,14 +3259,14 @@ else
                 if (thickness)
                     rect.shrinkByThickness(innerExtents, thickness);
 
-                var innerPath = new Fayde.Shapes.RawPath();
-                var outerPath = new Fayde.Shapes.RawPath();
+                var innerPath;
+                var outerPath;
                 if (hasCornerRadius) {
-                    outerPath.RoundedRectFull(0, 0, extents.Width, extents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
-                    innerPath.RoundedRectFull(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
+                    outerPath = Fayde.Path.RectRoundedFull(0, 0, extents.Width, extents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
+                    innerPath = Fayde.Path.RectRoundedFull(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
                 } else {
-                    outerPath.Rect(0, 0, extents.Width, extents.Height);
-                    innerPath.Rect(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height);
+                    outerPath = Fayde.Path.Rect(0, 0, extents.Width, extents.Height);
+                    innerPath = Fayde.Path.Rect(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height);
                 }
 
                 var tmpCanvas = document.createElement("canvas");
@@ -3276,19 +3274,19 @@ else
                 tmpCanvas.height = extents.Height;
                 var tmpCtx = tmpCanvas.getContext("2d");
 
-                outerPath.DrawCanvasCtx(tmpCtx);
+                outerPath.draw(tmpCtx);
                 borderBrush.SetupBrush(tmpCtx, extents);
                 tmpCtx.fillStyle = borderBrush.ToHtml5Object();
                 tmpCtx.fill();
 
                 tmpCtx.globalCompositeOperation = "xor";
-                innerPath.DrawCanvasCtx(tmpCtx);
+                innerPath.draw(tmpCtx);
                 tmpCtx.fill();
 
                 ctx.CanvasContext.drawImage(tmpCanvas, extents.X, extents.Y);
 
                 //DrawDebug("Draw Image (Border)");
-                innerPath.DrawRenderCtx(ctx);
+                innerPath.draw(ctx.CanvasContext);
                 if (backgroundBrush)
                     ctx.Fill(backgroundBrush, innerExtents);
             };
@@ -22954,12 +22952,6 @@ var Fayde;
             //DrawDebug("DrawClip (Geometry): " + g.toString());
             this.CanvasContext.clip();
         };
-        RenderContext.prototype.ClipRawPath = function (p/* Change to Fayde.Shapes.RawPath */ ) {
-            p.Draw(this);
-
-            //DrawDebug("DrawClip (RawPath): " + p.toString());
-            this.CanvasContext.clip();
-        };
 
         RenderContext.prototype.IsPointInPath = function (x, y) {
             return this.CanvasContext.isPointInPath(x, y);
@@ -26974,7 +26966,7 @@ var Fayde;
                 this._LocalBounds.Width = Number.NEGATIVE_INFINITY;
                 this._LocalBounds.Height = Number.NEGATIVE_INFINITY;
             }
-            Geometry.prototype.GetBounds = function (thickness) {
+            Geometry.prototype.GetBounds = function (pars) {
                 var compute = rect.isEmpty(this._LocalBounds);
 
                 if (!this._Path) {
@@ -26983,7 +26975,7 @@ var Fayde;
                 }
 
                 if (compute)
-                    rect.copyTo(this.ComputePathBounds(thickness), this._LocalBounds);
+                    rect.copyTo(this.ComputePathBounds(pars), this._LocalBounds);
                 var bounds = rect.copyTo(this._LocalBounds);
 
                 var transform = this.Transform;
@@ -27005,12 +26997,12 @@ var Fayde;
                 if (transform != null)
                     ctx.Restore();
             };
-            Geometry.prototype.ComputePathBounds = function (thickness) {
+            Geometry.prototype.ComputePathBounds = function (pars) {
                 if (!this._Path)
                     this._Path = this._Build();
                 if (!this._Path)
                     return new rect();
-                return this._Path.CalculateBounds(thickness);
+                return this._Path.CalculateBounds(pars);
             };
             Geometry.prototype._InvalidateGeometry = function () {
                 this._Path = null;
@@ -27126,7 +27118,7 @@ var Fayde;
                 var x = center ? center.X : 0.0;
                 var y = center ? center.Y : 0.0;
 
-                var p = new Fayde.Shapes.RawPath();
+                var p = new Fayde.Path.RawPath();
                 p.Ellipse(x - rx, y - ry, rx * 2.0, ry * 2.0);
                 return p;
             };
@@ -27159,18 +27151,6 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Shapes) {
-        (function (PathEntryType) {
-            PathEntryType[PathEntryType["Move"] = 0] = "Move";
-            PathEntryType[PathEntryType["Line"] = 1] = "Line";
-            PathEntryType[PathEntryType["Rect"] = 2] = "Rect";
-            PathEntryType[PathEntryType["Quadratic"] = 3] = "Quadratic";
-            PathEntryType[PathEntryType["Bezier"] = 4] = "Bezier";
-            PathEntryType[PathEntryType["EllipticalArc"] = 5] = "EllipticalArc";
-            PathEntryType[PathEntryType["Arc"] = 6] = "Arc";
-            PathEntryType[PathEntryType["ArcTo"] = 7] = "ArcTo";
-            PathEntryType[PathEntryType["Close"] = 8] = "Close";
-        })(Shapes.PathEntryType || (Shapes.PathEntryType = {}));
-        var PathEntryType = Shapes.PathEntryType;
         (function (ShapeFlags) {
             ShapeFlags[ShapeFlags["None"] = 0] = "None";
             ShapeFlags[ShapeFlags["Empty"] = 1] = "Empty";
@@ -27242,11 +27222,11 @@ var Fayde;
                 coll.AttachTo(this);
                 coll.Listen(this);
             }
-            GeometryGroup.prototype.ComputePathBounds = function (thickness) {
+            GeometryGroup.prototype.ComputePathBounds = function (pars) {
                 var bounds = new rect();
                 var enumerator = this.Children.GetEnumerator();
                 while (enumerator.MoveNext()) {
-                    rect.unionLogical(bounds, (enumerator.Current).GetBounds(thickness));
+                    rect.unionLogical(bounds, (enumerator.Current).GetBounds(pars));
                 }
                 return bounds;
             };
@@ -28118,7 +28098,7 @@ var Fayde;
                 var p1 = this.StartPoint;
                 var p2 = this.EndPoint;
 
-                var p = new Fayde.Shapes.RawPath();
+                var p = new Fayde.Path.RawPath();
                 p.Move(p1.X, p1.Y);
                 p.Line(p2.X, p2.Y);
                 return p;
@@ -28699,7 +28679,7 @@ var Fayde;
                 var cbzp = new Point();
                 var qbzp = new Point();
 
-                var path = new Fayde.Shapes.RawPath();
+                var path = new Fayde.Path.RawPath();
                 while (this.index < this.len) {
                     var c;
                     while (this.index < this.len && (c = this.str.charAt(this.index)) === ' ') {
@@ -28821,7 +28801,7 @@ else
                                 }
                                 this.Advance();
 
-                                path.Bezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
+                                path.CubicBezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
 
                                 cp1.X = cp3.X;
                                 cp1.Y = cp3.Y;
@@ -28857,7 +28837,7 @@ else
                                 } else
                                     cp1 = cp;
 
-                                path.Bezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
+                                path.CubicBezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
 
                                 cbz = true;
                                 cbzp.X = cp2.X;
@@ -28889,7 +28869,7 @@ else
                                 }
                                 this.Advance();
 
-                                path.Quadratic(cp1.X, cp1.Y, cp2.X, cp2.Y);
+                                path.QuadraticBezier(cp1.X, cp1.Y, cp2.X, cp2.Y);
 
                                 cp.X = cp2.X;
                                 cp.Y = cp2.Y;
@@ -28916,7 +28896,7 @@ else
                                 } else
                                     cp1 = cp;
 
-                                path.Quadratic(cp1.X, cp1.Y, cp2.X, cp2.Y);
+                                path.QuadraticBezier(cp1.X, cp1.Y, cp2.X, cp2.Y);
 
                                 qbz = true;
                                 qbzp.X = cp1.X;
@@ -29103,7 +29083,7 @@ var Fayde;
                 coll.Listen(this);
             }
             PathFigure.prototype._Build = function () {
-                var p = new Fayde.Shapes.RawPath();
+                var p = new Fayde.Path.RawPath();
 
                 var start = this.StartPoint;
                 p.Move(start.X, start.Y);
@@ -29142,7 +29122,7 @@ var Fayde;
             PathFigure.prototype.MergeInto = function (rp) {
                 if (!this._Path)
                     this._Path = this._Build();
-                Fayde.Shapes.RawPath.Merge(rp, this._Path);
+                Fayde.Path.RawPath.Merge(rp, this._Path);
             };
             PathFigure.Annotations = { ContentProperty: PathFigure.SegmentsProperty };
             PathFigure.IsClosedProperty = DependencyProperty.RegisterCore("IsClosed", function () {
@@ -29239,7 +29219,7 @@ var Fayde;
                 if (this._OverridePath)
                     return this._OverridePath;
 
-                var p = new Fayde.Shapes.RawPath();
+                var p = new Fayde.Path.RawPath();
                 var figures = this.Figures;
                 if (!figures)
                     return;
@@ -29412,7 +29392,7 @@ var Fayde;
                 var x3 = p3 ? p3.X : 0.0;
                 var y3 = p3 ? p3.Y : 0.0;
 
-                path.Bezier(x1, y1, x2, y2, x3, y3);
+                path.CubicBezier(x1, y1, x2, y2, x3, y3);
             };
             BezierSegment.Point1Property = DependencyProperty.Register("Point1", function () {
                 return Point;
@@ -29476,7 +29456,7 @@ var Fayde;
                     p2 = enumerator.Current;
                     enumerator.MoveNext();
                     p3 = enumerator.Current;
-                    path.Bezier(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y);
+                    path.CubicBezier(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y);
                 }
             };
             PolyBezierSegment.PointsProperty = DependencyProperty.RegisterImmutable("Points", function () {
@@ -29554,7 +29534,7 @@ var Fayde;
                     x1 = x0 + 2 * (x1 - x0) / 3;
                     y1 = y0 + 2 * (y1 - y0) / 3;
 
-                    path.Bezier(x1, y1, x2, y2, x3, y3);
+                    path.CubicBezier(x1, y1, x2, y2, x3, y3);
                     x0 = x3;
                     y0 = y3;
                 }
@@ -29586,7 +29566,7 @@ var Fayde;
                 var x2 = p2 ? p2.X : 0.0;
                 var y2 = p2 ? p2.Y : 0.0;
 
-                path.Quadratic(x1, y1, x2, y2);
+                path.QuadraticBezier(x1, y1, x2, y2);
             };
             QuadraticBezierSegment.Point1Property = DependencyProperty.Register("Point1", function () {
                 return Point;
@@ -29831,7 +29811,7 @@ var Fayde;
                 var radiusX = this.RadiusX;
                 var radiusY = this.RadiusY;
 
-                var p = new Fayde.Shapes.RawPath();
+                var p = new Fayde.Path.RawPath();
                 p.RoundedRect(irect.X, irect.Y, irect.Width, irect.Height, radiusX, radiusY);
                 return p;
             };
@@ -33975,15 +33955,17 @@ else
                 if (!this._Path || (this._ShapeFlags & Shapes.ShapeFlags.Empty))
                     return new rect();
 
-                if (logical) {
-                    return this._Path.CalculateBounds(0);
-                } else if (thickness > 0) {
-                    return this._Path.CalculateBounds(thickness);
-                } else {
-                    //TODO: measure fill extents
+                var pars = undefined;
+                if (!logical && thickness > 0) {
+                    pars = {
+                        thickness: thickness,
+                        startCap: this.StrokeStartLineCap,
+                        endCap: this.StrokeEndLineCap,
+                        join: this.StrokeLineJoin,
+                        miterLimit: this.StrokeMiterLimit
+                    };
                 }
-                NotImplemented("Shape._ComputeShapeBoundsImpl");
-                return new rect();
+                return this._Path.CalculateBounds(pars);
             };
 
             Shape.prototype._InvalidateStretch = function () {
@@ -34161,7 +34143,7 @@ var Fayde;
                 var ht = -t / 2;
                 rect.growBy(irect, ht, ht, ht, ht);
 
-                var path = new Fayde.Shapes.RawPath();
+                var path = new Fayde.Path.RawPath();
                 path.Ellipse(irect.X, irect.Y, irect.Width, irect.Height);
                 return path;
             };
@@ -34253,7 +34235,7 @@ var Fayde;
                 var x2 = this.X2;
                 var y2 = this.Y2;
 
-                var path = new Shapes.RawPath();
+                var path = new Fayde.Path.RawPath();
                 path.Move(x1, y1);
                 path.Line(x2, y2);
                 return path;
@@ -34347,7 +34329,14 @@ var Fayde;
                     return geom.GetBounds();
 
                 var thickness = (logical || this._Stroke != null) ? 0.0 : this.StrokeThickness;
-                return geom.GetBounds(thickness);
+                var pars = {
+                    thickness: thickness,
+                    startCap: this.StrokeStartLineCap,
+                    endCap: this.StrokeEndLineCap,
+                    join: this.StrokeLineJoin,
+                    miterLimit: this.StrokeMiterLimit
+                };
+                return geom.GetBounds(pars);
             };
             Path.DataProperty = DependencyProperty.RegisterFull("Data", function () {
                 return Fayde.Media.Geometry;
@@ -34460,7 +34449,7 @@ var Fayde;
             PointCollection.prototype.IndexOf = function (value) {
                 var count = this._ht.length;
                 for (var i = 0; i < count; i++) {
-                    if (Point.Equals(value, this._ht[i]))
+                    if (Nullstone.Equals(value, this._ht[i]))
                         return i;
                 }
                 return -1;
@@ -34527,7 +34516,7 @@ var Fayde;
 
                 this._ShapeFlags = Shapes.ShapeFlags.Normal;
 
-                var path = new Shapes.RawPath();
+                var path = new Fayde.Path.RawPath();
                 var enumerator = points.GetEnumerator();
                 enumerator.MoveNext();
                 var p = enumerator.Current;
@@ -34653,7 +34642,7 @@ var Fayde;
 
                 this._ShapeFlags = Shapes.ShapeFlags.Normal;
 
-                var path = new Shapes.RawPath();
+                var path = new Fayde.Path.RawPath();
                 var enumerator = points.GetEnumerator();
                 enumerator.MoveNext();
                 var p = enumerator.Current;
@@ -34735,575 +34724,6 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
-    (function (Shapes) {
-        var RawPath = (function () {
-            function RawPath() {
-                this._Path = [];
-                this._EndX = 0.0;
-                this._EndY = 0.0;
-            }
-            Object.defineProperty(RawPath.prototype, "EndX", {
-                get: function () {
-                    return this._EndX;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(RawPath.prototype, "EndY", {
-                get: function () {
-                    return this._EndY;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            RawPath.prototype.Move = function (x, y) {
-                this._Path.push({
-                    type: Shapes.PathEntryType.Move,
-                    x: x,
-                    y: y
-                });
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.Line = function (x, y) {
-                this._Path.push({
-                    type: Shapes.PathEntryType.Line,
-                    x: x,
-                    y: y
-                });
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.Rect = function (x, y, width, height) {
-                this._Path.push({
-                    type: Shapes.PathEntryType.Rect,
-                    x: x,
-                    y: y,
-                    width: width,
-                    height: height
-                });
-            };
-            RawPath.prototype.RoundedRectFull = function (left, top, width, height, topLeft, topRight, bottomRight, bottomLeft) {
-                var right = left + width;
-                var bottom = top + height;
-
-                this.Move(left + topLeft, top);
-
-                //top edge
-                this.Line(right - topRight, top);
-
-                if (topRight > 0)
-                    this.Quadratic(right, top, right, top + topRight);
-
-                //right edge
-                this.Line(right, bottom - bottomRight);
-
-                if (bottomRight > 0)
-                    this.Quadratic(right, bottom, right - bottomRight, bottom);
-
-                //bottom edge
-                this.Line(left + bottomLeft, bottom);
-
-                if (bottomLeft > 0)
-                    this.Quadratic(left, bottom, left, bottom - bottomLeft);
-
-                //left edge
-                this.Line(left, top + topLeft);
-
-                if (topLeft > 0)
-                    this.Quadratic(left, top, left + topLeft, top);
-                this.Close();
-            };
-            RawPath.prototype.RoundedRect = function (left, top, width, height, radiusX, radiusY) {
-                if (radiusX === 0.0 && radiusY === 0.0) {
-                    this.Rect(left, top, width, height);
-                    return;
-                }
-
-                var right = left + width;
-                var bottom = top + height;
-                this.Move(left + radiusX, top);
-
-                //top edge
-                this.Line(right - radiusX, top);
-
-                //top right arc
-                this.Quadratic(right, top, right, top + radiusY);
-
-                //right edge
-                this.Line(right, bottom - radiusY);
-
-                //bottom right arc
-                this.Quadratic(right, bottom, right - radiusX, bottom);
-
-                //bottom edge
-                this.Line(left + radiusX, bottom);
-
-                //bottom left arc
-                this.Quadratic(left, bottom, left, bottom - radiusY);
-
-                //left edge
-                this.Line(left, top + radiusY);
-
-                //top left arc
-                this.Quadratic(left, top, left + radiusX, top);
-                this.Close();
-            };
-            RawPath.prototype.Quadratic = function (cpx, cpy, x, y) {
-                this._Path.push({
-                    type: Shapes.PathEntryType.Quadratic,
-                    cpx: cpx,
-                    cpy: cpy,
-                    x: x,
-                    y: y
-                });
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.Bezier = function (cp1x, cp1y, cp2x, cp2y, x, y) {
-                this._Path.push({
-                    type: Shapes.PathEntryType.Bezier,
-                    cp1x: cp1x,
-                    cp1y: cp1y,
-                    cp2x: cp2x,
-                    cp2y: cp2y,
-                    x: x,
-                    y: y
-                });
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.Ellipse = function (x, y, width, height) {
-                var radiusX = width / 2;
-                var radiusY = height / 2;
-                var right = x + width;
-                var bottom = y + height;
-                var centerX = x + radiusX;
-                var centerY = y + radiusY;
-                if (width === height) {
-                    this.Arc(centerX, centerY, radiusX, 0, Math.PI * 2, false);
-                } else {
-                    var kappa = .5522848;
-                    var ox = radiusX * kappa;
-                    var oy = radiusY * kappa;
-
-                    //move to left edge, halfway down
-                    this.Move(x, centerY);
-
-                    //top left bezier curve
-                    this.Bezier(x, centerY - oy, centerX - ox, y, centerX, y);
-
-                    //top right bezier curve
-                    this.Bezier(centerX + ox, y, right, centerY - oy, right, centerY);
-
-                    //bottom right bezier curve
-                    this.Bezier(right, centerY + oy, centerX + ox, bottom, centerX, bottom);
-
-                    //bottom left bezier curve
-                    this.Bezier(centerX - ox, bottom, x, centerY + oy, x, centerY);
-                    this.Close();
-                }
-            };
-            RawPath.prototype.EllipticalArc = function (width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
-                this._Path.push({
-                    type: Shapes.PathEntryType.EllipticalArc,
-                    width: width,
-                    height: height,
-                    rotationAngle: rotationAngle,
-                    isLargeArcFlag: isLargeArcFlag,
-                    sweepDirectionFlag: sweepDirectionFlag,
-                    ex: ex,
-                    ey: ey
-                });
-            };
-            RawPath.prototype.Arc = function (x, y, r, sAngle, eAngle, aClockwise) {
-                this._Path.push({
-                    type: Shapes.PathEntryType.Arc,
-                    x: x,
-                    y: y,
-                    r: r,
-                    sAngle: sAngle,
-                    eAngle: eAngle,
-                    aClockwise: aClockwise
-                });
-            };
-            RawPath.prototype.ArcTo = function (cpx, cpy, x, y, radius) {
-                this._Path.push({
-                    type: Shapes.PathEntryType.ArcTo,
-                    cpx: cpx,
-                    cpy: cpy,
-                    x: x,
-                    y: y,
-                    r: radius
-                });
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.Close = function () {
-                this._Path.push({
-                    type: Shapes.PathEntryType.Close
-                });
-            };
-
-            RawPath.prototype.DrawRenderCtx = function (ctx) {
-                this.DrawCanvasCtx(ctx.CanvasContext);
-            };
-            RawPath.prototype.DrawCanvasCtx = function (canvasCtx) {
-                canvasCtx.beginPath();
-                var backing = this._Path;
-                for (var i = 0; i < backing.length; i++) {
-                    var p = backing[i];
-                    switch (p.type) {
-                        case Shapes.PathEntryType.Move:
-                            canvasCtx.moveTo(p.x, p.y);
-
-                            break;
-                        case Shapes.PathEntryType.Line:
-                            canvasCtx.lineTo(p.x, p.y);
-
-                            break;
-                        case Shapes.PathEntryType.Rect:
-                            canvasCtx.rect(p.x, p.y, p.width, p.height);
-
-                            break;
-                        case Shapes.PathEntryType.Quadratic:
-                            canvasCtx.quadraticCurveTo(p.cpx, p.cpy, p.x, p.y);
-
-                            break;
-                        case Shapes.PathEntryType.Bezier:
-                            canvasCtx.bezierCurveTo(p.cp1x, p.cp1y, p.cp2x, p.cp2y, p.x, p.y);
-                            break;
-                        case Shapes.PathEntryType.Arc:
-                            canvasCtx.arc(p.x, p.y, p.r, p.sAngle, p.eAngle, p.aClockwise);
-                            break;
-                        case Shapes.PathEntryType.ArcTo:
-                            canvasCtx.arcTo(p.cpx, p.cpy, p.x, p.y, p.r);
-                            break;
-                        case Shapes.PathEntryType.Close:
-                            canvasCtx.closePath();
-                            break;
-                    }
-                }
-            };
-            RawPath.prototype.CalculateBounds = function (thickness) {
-                var backing = this._Path;
-                var startX = null;
-                var startY = null;
-                var xMin = null;
-                var xMax = null;
-                var yMin = null;
-                var yMax = null;
-                var xRange = null;
-                var yRange = null;
-                for (var i = 0; i < backing.length; i++) {
-                    var p = backing[i];
-                    switch (p.type) {
-                        case Shapes.PathEntryType.Move:
-                            if (xMin == null && yMin == null) {
-                                xMin = xMax = p.x;
-                                yMin = yMax = p.y;
-                            } else {
-                                xMin = Math.min(p.x, xMin);
-                                yMin = Math.min(p.y, yMin);
-                                xMax = Math.max(p.x, xMax);
-                                yMax = Math.max(p.y, yMax);
-                            }
-                            startX = p.x;
-                            startY = p.y;
-                            break;
-                        case Shapes.PathEntryType.Line:
-                            xMin = Math.min(p.x, xMin);
-                            yMin = Math.min(p.y, yMin);
-                            xMax = Math.max(p.x, xMax);
-                            yMax = Math.max(p.y, yMax);
-                            startX = p.x;
-                            startY = p.y;
-                            break;
-                        case Shapes.PathEntryType.Rect:
-                            xMin = Math.min(p.x, xMin);
-                            yMin = Math.min(p.y, yMin);
-                            xMax = Math.max(p.x + p.width, xMax);
-                            yMax = Math.max(p.y + p.height, yMax);
-                            break;
-                        case Shapes.PathEntryType.Quadratic:
-                            xRange = RawPath._CalculateQuadraticBezierRange(startX, p.cpx, p.x);
-                            xMin = Math.min(xMin, xRange.min);
-                            xMax = Math.max(xMax, xRange.max);
-                            yRange = RawPath._CalculateQuadraticBezierRange(startY, p.cpy, p.y);
-                            yMin = Math.min(yMin, yRange.min);
-                            yMax = Math.max(yMax, yRange.max);
-                            startX = p.x;
-                            startY = p.y;
-                            break;
-                        case Shapes.PathEntryType.Bezier:
-                            xRange = RawPath._CalculateCubicBezierRange(startX, p.cp1x, p.cp2x, p.x);
-                            xMin = Math.min(xMin, xRange.min);
-                            xMax = Math.max(xMax, xRange.max);
-                            yRange = RawPath._CalculateCubicBezierRange(startY, p.cp1y, p.cp2y, p.y);
-                            yMin = Math.min(yMin, yRange.min);
-                            yMax = Math.max(yMax, yRange.max);
-                            startX = p.x;
-                            startY = p.y;
-                            break;
-                        case Shapes.PathEntryType.Arc:
-                            if (p.sAngle !== p.eAngle) {
-                                var r = RawPath._CalculateArcRange(p.x, p.y, p.r, p.sAngle, p.eAngle, p.aClockwise);
-                                xMin = Math.min(xMin, r.xMin);
-                                xMax = Math.max(xMax, r.xMax);
-                                yMin = Math.min(yMin, r.yMin);
-                                yMax = Math.max(yMax, r.yMax);
-                            }
-                            break;
-                        case Shapes.PathEntryType.ArcTo:
-                            var r = RawPath._CalculateArcToRange(startX, startY, p.cpx, p.cpy, p.x, p.y, p.r);
-                            xMin = Math.min(xMin, r.xMin);
-                            xMax = Math.max(xMax, r.xMax);
-                            yMin = Math.min(yMin, r.yMin);
-                            yMax = Math.max(yMax, r.yMax);
-                            startX = p.x;
-                            startY = p.y;
-                            break;
-                    }
-                }
-                var r2 = new rect();
-                rect.set(r2, xMin, yMin, xMax - xMin, yMax - yMin);
-                return r2;
-            };
-
-            RawPath._CalculateQuadraticBezierRange = //http://pomax.nihongoresources.com/pages/bezier/
-            function (a, b, c) {
-                var min = Math.min(a, c);
-                var max = Math.max(a, c);
-
-                if (min <= b && b <= max) {
-                    return {
-                        min: min,
-                        max: max
-                    };
-                }
-
-                // x(t) = a(1-t)^2 + 2*b(1-t)t + c*t^2
-                // find "change of direction" point (dx/dt = 0)
-                var t = (a - b) / (a - 2 * b + c);
-                var xt = (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
-                if (min > b) {
-                    //control point is expanding the bounding box to the left
-                    min = Math.min(min, xt);
-                } else {
-                    //control point is expanding the bounding box to the right
-                    max = Math.max(max, xt);
-                }
-                return {
-                    min: min,
-                    max: max
-                };
-            };
-
-            RawPath._CalculateCubicBezierRange = //http://pomax.nihongoresources.com/pages/bezier/
-            function (a, b, c, d) {
-                var min = Math.min(a, d);
-                var max = Math.max(a, d);
-
-                if ((min <= b && b <= max) && (min <= c && c <= max)) {
-                    return {
-                        min: min,
-                        max: max
-                    };
-                }
-
-                // find "change of direction" points (dx/dt = 0)
-                //xt = a(1-t)^3 + 3b(t)(1-t)^2 + 3c(1-t)(t)^2 + dt^3
-                var u = 2 * a - 4 * b + 2 * c;
-                var v = b - a;
-                var w = -a + 3 * b + d - 3 * c;
-                var rt = Math.sqrt(u * u - 4 * v * w);
-                if (!isNaN(rt)) {
-                    var t;
-
-                    t = (-u + rt) / (2 * w);
-
-                    if (t >= 0 && t <= 1) {
-                        var ot = 1 - t;
-                        var xt = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
-                        min = Math.min(min, xt);
-                        max = Math.max(max, xt);
-                    }
-
-                    t = (-u - rt) / (2 * w);
-
-                    if (t >= 0 && t <= 1) {
-                        var ot = 1 - t;
-                        var xt = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
-                        min = Math.min(min, xt);
-                        max = Math.max(max, xt);
-                    }
-                }
-
-                return {
-                    min: min,
-                    max: max
-                };
-            };
-            RawPath._CalculateArcRange = function (cx, cy, r, sa, ea, cc) {
-                //start point
-                var sx = cx + (r * Math.cos(sa));
-                var sy = cy + (r * Math.sin(sa));
-
-                //end point
-                var ex = cx + (r * Math.cos(ea));
-                var ey = cy + (r * Math.sin(ea));
-                return RawPath._CalculateArcPointsRange(cx, cy, sx, sy, ex, ey, r, cc);
-            };
-            RawPath._CalculateArcToRange = function (sx, sy, cpx, cpy, ex, ey, r) {
-                NotImplemented("RawPath._CalculateArcToRange");
-                return {
-                    xMin: sx,
-                    xMax: sx,
-                    yMin: sy,
-                    yMax: sy
-                };
-
-                var v1x = cpx - sx;
-                var v1y = cpy - sy;
-                var v2x = ex - cpx;
-                var v2y = ey - cpy;
-
-                var theta_outer1 = Math.atan2(Math.abs(v1y), Math.abs(v1x));
-                var theta_outer2 = Math.atan2(Math.abs(v2y), Math.abs(v2x));
-                var inner_theta = Math.PI - theta_outer1 - theta_outer2;
-
-                //distance to center of imaginary circle
-                var h = r / Math.sin(inner_theta / 2);
-
-                //cx, cy -> center of imaginary circle
-                var cx = cpx + h * Math.cos(inner_theta / 2 + theta_outer2);
-                var cy = cpy + h * Math.sin(inner_theta / 2 + theta_outer2);
-
-                //distance from cp -> tangent points on imaginary circle
-                var a = r / Math.tan(inner_theta / 2);
-
-                //tangent point at start of arc
-                var sx = cpx + a * Math.cos(theta_outer2 + inner_theta);
-                var sy = cpy + a * Math.sin(theta_outer2 + inner_theta);
-
-                //tangent point at end of arc
-                var ex = cpx + a * Math.cos(theta_outer2);
-                var ey = cpy + a * Math.sin(theta_outer2);
-
-                var cc = true;
-
-                var rng = RawPath._CalculateArcPointsRange(cx, cy, sx, sy, ex, ey, r, cc);
-                return {
-                    xMin: Math.min(sx, rng.xMin),
-                    xMax: Math.max(sx, rng.xMax),
-                    yMin: Math.min(sy, rng.yMin),
-                    yMax: Math.max(sy, rng.yMax)
-                };
-            };
-            RawPath._CalculateArcPointsRange = function (cx, cy, sx, sy, ex, ey, r, cc) {
-                var xMin = Math.min(sx, ex);
-                var xMax = Math.max(sx, ex);
-                var yMin = Math.min(sy, ey);
-                var yMax = Math.max(sy, ey);
-
-                var xLeft = cx - r;
-                if (RawPath._ArcContainsPoint(sx, sy, ex, ey, xLeft, cy, cc)) {
-                    //arc contains left edge of circle
-                    xMin = Math.min(xMin, xLeft);
-                }
-
-                var xRight = cx + r;
-                if (RawPath._ArcContainsPoint(sx, sy, ex, ey, xRight, cy, cc)) {
-                    //arc contains right edge of circle
-                    xMax = Math.max(xMax, xRight);
-                }
-
-                var yTop = cy - r;
-                if (RawPath._ArcContainsPoint(sx, sy, ex, ey, cx, yTop, cc)) {
-                    //arc contains top edge of circle
-                    yMin = Math.min(yMin, yTop);
-                }
-
-                var yBottom = cy + r;
-                if (RawPath._ArcContainsPoint(sx, sy, ex, ey, cx, yBottom, cc)) {
-                    //arc contains bottom edge of circle
-                    yMax = Math.max(yMax, yBottom);
-                }
-
-                return {
-                    xMin: xMin,
-                    xMax: xMax,
-                    yMin: yMin,
-                    yMax: yMax
-                };
-            };
-            RawPath._ArcContainsPoint = function (sx, sy, ex, ey, cpx, cpy, cc) {
-                // var a = ex - sx;
-                // var b = cpx - sx;
-                // var c = ey - sy;
-                // var d = cpy - sy;
-                // det = ad - bc;
-                var n = (ex - sx) * (cpy - sy) - (cpx - sx) * (ey - sy);
-                if (n === 0)
-                    return true;
-
-                if (n > 0 && cc)
-                    return true;
-
-                if (n < 0 && !cc)
-                    return true;
-                return false;
-            };
-
-            RawPath.Merge = function (path1, path2) {
-                path1._Path.push.apply(path1._Path, path2._Path);
-                path1._EndX += path2._EndX;
-                path1._EndY += path2._EndY;
-            };
-
-            RawPath.prototype.Serialize = function () {
-                var s = "";
-                var len = this._Path.length;
-                var backing = this._Path;
-                for (var i = 0; i < len; i++) {
-                    if (i > 0)
-                        s += " ";
-                    var p = backing[i];
-                    switch (p.type) {
-                        case Shapes.PathEntryType.Move:
-                            s += "M" + p.x.toString() + "," + p.y.toString();
-                            break;
-                        case Shapes.PathEntryType.Line:
-                            s += "L" + p.x.toString() + "," + p.y.toString();
-                            break;
-                        case Shapes.PathEntryType.Rect:
-                            break;
-                        case Shapes.PathEntryType.Quadratic:
-                            s += "Q" + p.cpx.toString() + "," + p.cpy.toString() + " " + p.x.toString() + "," + p.y.toString();
-                            break;
-                        case Shapes.PathEntryType.Bezier:
-                            s += "C" + p.cp1x.toString() + "," + p.cp1y.toString() + " " + p.cp2x.toString() + "," + p.cp2y.toString() + " " + p.x.toString() + "," + p.y.toString();
-                            break;
-                        case Shapes.PathEntryType.EllipticalArc:
-                            s += "A" + p.width.toString() + "," + p.height.toString() + " " + p.rotationAngle.toString() + " " + p.isLargeArcFlag.toString() + " " + p.sweepDirectionFlag.toString() + " " + p.ex.toString() + "," + p.ey.toString();
-                            break;
-                        case Shapes.PathEntryType.ArcTo:
-                            break;
-                        case Shapes.PathEntryType.Close:
-                            s += "Z";
-                            break;
-                    }
-                }
-                return s;
-            };
-            return RawPath;
-        })();
-        Shapes.RawPath = RawPath;
-    })(Fayde.Shapes || (Fayde.Shapes = {}));
-    var Shapes = Fayde.Shapes;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
     /// <reference path="Shape.ts" />
     (function (Shapes) {
         var Rectangle = (function (_super) {
@@ -35356,7 +34776,7 @@ var Fayde;
                 if (isNaN(radiusY))
                     radiusX = 0;
 
-                var path = new Shapes.RawPath();
+                var path = new Fayde.Path.RawPath();
                 path.RoundedRect(irect.X, irect.Y, irect.Width, irect.Height, radiusX, radiusY);
                 return path;
             };
@@ -36515,6 +35935,848 @@ else
         Text.TextLayout = TextLayout;
     })(Fayde.Text || (Fayde.Text = {}));
     var Text = Fayde.Text;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function Arc(x, y, r, sa, ea, cc) {
+            var prepped = false;
+
+            //start point
+            var sx;
+            var sy;
+
+            //end point
+            var ex;
+            var ey;
+
+            //cardinal corners
+            var l;
+            var r;
+            var t;
+            var b;
+
+            //contains cardinal corners
+            var cl;
+            var cr;
+            var ct;
+            var cb;
+
+            function prepBox() {
+                if (prepped)
+                    return;
+                sx = x + (r * Math.cos(sa));
+                sy = y + (r * Math.sin(sa));
+                ex = x + (r * Math.cos(ea));
+                ey = y + (r * Math.sin(ea));
+
+                l = x - r;
+                cl = arcContainsPoint(sx, sy, ex, ey, l, y, cc);
+
+                r = x + r;
+                cr = arcContainsPoint(sx, sy, ex, ey, r, y, cc);
+
+                t = y - r;
+                ct = arcContainsPoint(sx, sy, ex, ey, x, t, cc);
+
+                b = y + r;
+                cb = arcContainsPoint(sx, sy, ex, ey, x, b, cc);
+            }
+
+            return {
+                isSingle: true,
+                x: x,
+                y: y,
+                r: r,
+                sAngle: sa,
+                eAngle: ea,
+                aClockwise: cc,
+                draw: function (ctx) {
+                    ctx.arc(x, y, r, sa, ea, cc);
+                },
+                extendFillBox: function (box, prevX, prevY) {
+                    if (ea === sa)
+                        return;
+                    prepBox();
+
+                    box.l = Math.min(box.l, sx, ex);
+                    box.r = Math.max(box.r, sx, ex);
+                    box.t = Math.min(box.t, sy, ey);
+                    box.b = Math.max(box.b, sy, ey);
+
+                    if (cl)
+                        box.l = Math.min(box.l, l);
+                    if (cr)
+                        box.r = Math.max(box.r, r);
+                    if (ct)
+                        box.t = Math.min(box.t, t);
+                    if (cb)
+                        box.b = Math.max(box.b, b);
+                },
+                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                    if (ea === sa)
+                        return;
+                    prepBox();
+
+                    //TODO: Extend starting and ending point
+                    console.warn("[NOT IMPLEMENTED] Measure ArcTo (with stroke)");
+                    box.l = Math.min(box.l, sx, ex);
+                    box.r = Math.max(box.r, sx, ex);
+                    box.t = Math.min(box.t, sy, ey);
+                    box.b = Math.max(box.b, sy, ey);
+
+                    var hs = pars.thickness / 2.0;
+                    if (cl)
+                        box.l = Math.min(box.l, l - hs);
+                    if (cr)
+                        box.r = Math.max(box.r, r + hs);
+                    if (ct)
+                        box.t = Math.min(box.t, t - hs);
+                    if (cb)
+                        box.b = Math.max(box.b, b + hs);
+                },
+                toString: function () {
+                    return "";
+                }
+            };
+        }
+        Path.Arc = Arc;
+
+        function arcContainsPoint(sx, sy, ex, ey, cpx, cpy, cc) {
+            // var a = ex - sx;
+            // var b = cpx - sx;
+            // var c = ey - sy;
+            // var d = cpy - sy;
+            // det = ad - bc;
+            var n = (ex - sx) * (cpy - sy) - (cpx - sx) * (ey - sy);
+            if (n === 0)
+                return true;
+
+            if (n > 0 && cc)
+                return true;
+
+            if (n < 0 && !cc)
+                return true;
+            return false;
+        }
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function ArcTo(cpx, cpy, x, y, r) {
+            return {
+                isSingle: false,
+                cpx: cpx,
+                cpy: cpy,
+                x: x,
+                y: y,
+                r: r,
+                draw: function (ctx) {
+                    ctx.arcTo(cpx, cpy, x, y, r);
+                },
+                extendFillBox: function (box, prevX, prevY) {
+                    console.warn("[NOT IMPLEMENTED] Measure ArcTo");
+                },
+                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                    console.warn("[NOT IMPLEMENTED] Measure ArcTo (with stroke)");
+                },
+                toString: function () {
+                    return "";
+                }
+            };
+        }
+        Path.ArcTo = ArcTo;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function Close() {
+            return {
+                isSingle: false,
+                draw: function (ctx) {
+                    ctx.closePath();
+                },
+                extendFillBox: function (box, prevX, prevY) {
+                },
+                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                },
+                toString: function () {
+                    return "Z";
+                }
+            };
+        }
+        Path.Close = Close;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function CubicBezier(cp1x, cp1y, cp2x, cp2y, x, y) {
+            return {
+                isSingle: false,
+                cp1x: cp1x,
+                cp1y: cp1y,
+                cp2x: cp2x,
+                cp2y: cp2y,
+                x: x,
+                y: y,
+                draw: function (ctx) {
+                    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
+                },
+                extendFillBox: function (box, prevX, prevY) {
+                    var xr = range(prevX, cp1x, cp2x, x);
+                    var yr = range(prevY, cp1y, cp2y, y);
+                    box.l = Math.min(box.l, xr.min);
+                    box.r = Math.max(box.r, xr.max);
+                    box.t = Math.min(box.t, yr.min);
+                    box.b = Math.max(box.b, yr.max);
+                },
+                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                    var xr = range(prevX, cp1x, cp2x, x);
+                    var yr = range(prevY, cp1y, cp2y, y);
+                    box.l = Math.min(box.l, xr.min);
+                    box.r = Math.max(box.r, xr.max);
+                    box.t = Math.min(box.t, yr.min);
+                    box.b = Math.max(box.b, yr.max);
+                    console.warn("[NOT IMPLEMENTED] Measure CubicBezier (with stroke)");
+                },
+                toString: function () {
+                    return "C" + cp1x.toString() + "," + cp1y.toString() + " " + cp2x.toString() + "," + cp2y.toString() + " " + x.toString() + "," + y.toString();
+                }
+            };
+        }
+        Path.CubicBezier = CubicBezier;
+
+        function range(a, b, c, d) {
+            var min = Math.min(a, d);
+            var max = Math.max(a, d);
+
+            if ((min <= b && b <= max) && (min <= c && c <= max)) {
+                return {
+                    min: min,
+                    max: max
+                };
+            }
+
+            // find "change of direction" points (dx/dt = 0)
+            //xt = a(1-t)^3 + 3b(t)(1-t)^2 + 3c(1-t)(t)^2 + dt^3
+            var u = 2 * a - 4 * b + 2 * c;
+            var v = b - a;
+            var w = -a + 3 * b + d - 3 * c;
+            var rt = Math.sqrt(u * u - 4 * v * w);
+            if (!isNaN(rt)) {
+                var t;
+
+                t = (-u + rt) / (2 * w);
+
+                if (t >= 0 && t <= 1) {
+                    var ot = 1 - t;
+                    var xt = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
+                    min = Math.min(min, xt);
+                    max = Math.max(max, xt);
+                }
+
+                t = (-u - rt) / (2 * w);
+
+                if (t >= 0 && t <= 1) {
+                    var ot = 1 - t;
+                    var xt = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
+                    min = Math.min(min, xt);
+                    max = Math.max(max, xt);
+                }
+            }
+
+            return {
+                min: min,
+                max: max
+            };
+        }
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function EllipticalArc(width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
+            return {
+                isSingle: false,
+                width: width,
+                height: height,
+                rotationAngle: rotationAngle,
+                isLargeArcFlag: isLargeArcFlag,
+                sweepDirectionFlag: sweepDirectionFlag,
+                ex: ex,
+                ey: ey,
+                draw: function (ctx) {
+                    console.warn("[NOT IMPLEMENTED] Draw Elliptical Arc");
+                },
+                extendFillBox: function (box, prevX, prevY) {
+                    console.warn("[NOT IMPLEMENTED] Measure Elliptical Arc");
+                },
+                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                    console.warn("[NOT IMPLEMENTED] Measure Elliptical Arc (with stroke)");
+                },
+                toString: function () {
+                    return "A" + width.toString() + "," + height.toString() + " " + rotationAngle.toString() + " " + isLargeArcFlag.toString() + " " + sweepDirectionFlag.toString() + " " + ex.toString() + "," + ey.toString();
+                }
+            };
+        }
+        Path.EllipticalArc = EllipticalArc;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function Line(x, y) {
+            return {
+                isSingle: false,
+                x: x,
+                y: y,
+                draw: function (ctx) {
+                    ctx.lineTo(x, y);
+                },
+                extendFillBox: function (box, prevX, prevY) {
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y);
+                },
+                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                    var hs = pars.thickness / 2.0;
+                    if (prevX === x) {
+                        if (prevY === y)
+                            return;
+                        box.l = Math.min(box.l, x - hs);
+                        box.r = Math.max(box.r, x + hs);
+
+                        //TODO: Finish y expand
+                        console.warn("[NOT IMPLEMENTED] Measure Line (with stroke)");
+                        return;
+                    }
+                    if (prevY === y) {
+                        //TODO: Finish x expand
+                        console.warn("[NOT IMPLEMENTED] Measure Line (with stroke)");
+                        box.t = Math.min(box.t, y - hs);
+                        box.b = Math.max(box.b, y + hs);
+                        return;
+                    }
+
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y);
+                    console.warn("[NOT IMPLEMENTED] Measure Line (with stroke)");
+                },
+                toString: function () {
+                    return "L" + x.toString() + "," + y.toString();
+                }
+            };
+        }
+        Path.Line = Line;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function Move(x, y) {
+            return {
+                isSingle: false,
+                x: x,
+                y: y,
+                draw: function (ctx) {
+                    ctx.moveTo(x, y);
+                },
+                extendFillBox: function (box, prevX, prevY) {
+                    if (box.l == null || box.t == null) {
+                        box.l = box.r = x;
+                        box.t = box.b = y;
+                        return;
+                    }
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y);
+                },
+                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                    if (box.l == null || box.t == null) {
+                        box.l = box.r = x;
+                        box.t = box.b = y;
+                        return;
+                    }
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y);
+                },
+                toString: function () {
+                    return "M" + x.toString() + "," + y.toString();
+                }
+            };
+        }
+        Path.Move = Move;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function QuadraticBezier(cpx, cpy, x, y) {
+            return {
+                isSingle: false,
+                cpx: cpx,
+                cpy: cpy,
+                x: x,
+                y: y,
+                draw: function (ctx) {
+                    ctx.quadraticCurveTo(cpx, cpy, x, y);
+                },
+                extendFillBox: function (box, prevX, prevY) {
+                    var xr = range(prevX, cpx, x);
+                    var yr = range(prevY, cpy, y);
+                    box.l = Math.min(box.l, xr.min);
+                    box.r = Math.max(box.r, xr.max);
+                    box.t = Math.min(box.t, yr.min);
+                    box.b = Math.max(box.b, yr.max);
+                },
+                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                    var xr = range(prevX, cpx, x);
+                    var yr = range(prevY, cpy, y);
+                    box.l = Math.min(box.l, xr.min);
+                    box.r = Math.max(box.r, xr.max);
+                    box.t = Math.min(box.t, yr.min);
+                    box.b = Math.max(box.b, yr.max);
+                    console.warn("[NOT IMPLEMENTED] Measure QuadraticBezier (with stroke)");
+                },
+                toString: function () {
+                    return "Q" + cpx.toString() + "," + cpy.toString() + " " + x.toString() + "," + y.toString();
+                }
+            };
+        }
+        Path.QuadraticBezier = QuadraticBezier;
+
+        function range(a, b, c) {
+            var min = Math.min(a, c);
+            var max = Math.max(a, c);
+
+            if (min <= b && b <= max) {
+                return {
+                    min: min,
+                    max: max
+                };
+            }
+
+            // x(t) = a(1-t)^2 + 2*b(1-t)t + c*t^2
+            // find "change of direction" point (dx/dt = 0)
+            var t = (a - b) / (a - 2 * b + c);
+            var xt = (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
+            if (min > b) {
+                //control point is expanding the bounding box to the left
+                min = Math.min(min, xt);
+            } else {
+                //control point is expanding the bounding box to the right
+                max = Math.max(max, xt);
+            }
+            return {
+                min: min,
+                max: max
+            };
+        }
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function Rect(x, y, width, height) {
+            return {
+                isSingle: true,
+                x: x,
+                y: y,
+                width: width,
+                height: height,
+                draw: function (ctx) {
+                    ctx.rect(x, y, width, height);
+                },
+                extendFillBox: function (box, prevX, prevY) {
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x + width);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y + height);
+                },
+                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                    var hs = pars.thickness / 2.0;
+                    box.l = Math.min(box.l, x - hs);
+                    box.r = Math.max(box.r, x + width + hs);
+                    box.t = Math.min(box.t, y - hs);
+                    box.b = Math.max(box.b, y + height + hs);
+                }
+            };
+        }
+        Path.Rect = Rect;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        var RawPath = (function () {
+            function RawPath() {
+                this._Path = [];
+                this._EndX = 0.0;
+                this._EndY = 0.0;
+            }
+            Object.defineProperty(RawPath.prototype, "EndX", {
+                get: function () {
+                    return this._EndX;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(RawPath.prototype, "EndY", {
+                get: function () {
+                    return this._EndY;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            RawPath.prototype.Move = function (x, y) {
+                this._Path.push(Path.Move(x, y));
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.Line = function (x, y) {
+                this._Path.push(Path.Line(x, y));
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.Rect = function (x, y, width, height) {
+                this._Path.push(Path.Rect(x, y, width, height));
+            };
+            RawPath.prototype.RoundedRectFull = function (x, y, width, height, topLeft, topRight, bottomRight, bottomLeft) {
+                this._Path.push(Path.RectRoundedFull(x, y, width, height, topLeft, topRight, bottomRight, bottomLeft));
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.RoundedRect = function (x, y, width, height, radiusX, radiusY) {
+                this._Path.push(Path.RectRounded(x, y, width, height, radiusX, radiusY));
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.QuadraticBezier = function (cpx, cpy, x, y) {
+                this._Path.push(Path.QuadraticBezier(cpx, cpy, x, y));
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.CubicBezier = function (cp1x, cp1y, cp2x, cp2y, x, y) {
+                this._Path.push(Path.CubicBezier(cp1x, cp1y, cp2x, cp2y, x, y));
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.Ellipse = function (x, y, width, height) {
+                this._Path.push(Path.Ellipse(x, y, width, height));
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.EllipticalArc = function (width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
+                this._Path.push(Path.EllipticalArc(width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey));
+            };
+            RawPath.prototype.Arc = function (x, y, r, sAngle, eAngle, aClockwise) {
+                this._Path.push(Path.Arc(x, y, r, sAngle, eAngle, aClockwise));
+            };
+            RawPath.prototype.ArcTo = function (cpx, cpy, x, y, radius) {
+                this._Path.push(Path.ArcTo(cpx, cpy, x, y, radius));
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.Close = function () {
+                this._Path.push(Path.Close());
+            };
+
+            RawPath.prototype.DrawRenderCtx = function (ctx) {
+                this.DrawCanvasCtx(ctx.CanvasContext);
+            };
+            RawPath.prototype.DrawCanvasCtx = function (canvasCtx) {
+                canvasCtx.beginPath();
+                var path = this._Path;
+                var len = path.length;
+                for (var i = 0; i < len; i++) {
+                    path[i].draw(canvasCtx);
+                }
+            };
+            RawPath.prototype.CalculateBounds = function (pars) {
+                var box = pars ? this._CalcStrokeBox(pars) : this._CalcFillBox();
+                var r = new rect();
+                rect.set(r, box.l, box.t, Math.max(0, box.r - box.l), Math.max(0, box.b - box.t));
+                return r;
+            };
+            RawPath.prototype._CalcFillBox = function () {
+                var path = this._Path;
+                var len = path.length;
+                var box = {
+                    l: null,
+                    r: null,
+                    t: null,
+                    b: null
+                };
+                var prevX = null;
+                var prevY = null;
+                var entry;
+                for (var i = 0; i < len; i++) {
+                    entry = path[i];
+                    entry.extendFillBox(box, prevX, prevY);
+                    if (!entry.isSingle) {
+                        prevX = (entry).x;
+                        prevY = (entry).y;
+                    }
+                }
+                return box;
+            };
+            RawPath.prototype._CalcStrokeBox = function (pars) {
+                var path = this._Path;
+                var len = path.length;
+                var box = {
+                    l: null,
+                    r: null,
+                    t: null,
+                    b: null
+                };
+                var prevX = null;
+                var prevY = null;
+                var entry;
+                for (var i = 0; i < len; i++) {
+                    entry = path[i];
+                    entry.extendStrokeBox(box, pars, prevX, prevY, i === 0, (i + 1) === len);
+                    if (!entry.isSingle) {
+                        prevX = (entry).x;
+                        prevY = (entry).y;
+                    }
+                }
+                return box;
+            };
+
+            RawPath.Merge = function (path1, path2) {
+                path1._Path.push.apply(path1._Path, path2._Path);
+                path1._EndX += path2._EndX;
+                path1._EndY += path2._EndY;
+            };
+
+            RawPath.prototype.Serialize = function () {
+                var path = this._Path;
+                var len = path.length;
+                var s = "";
+                for (var i = 0; i < len; i++) {
+                    if (i > 0)
+                        s += " ";
+                    s += path[i].toString();
+                }
+                return s;
+            };
+            return RawPath;
+        })();
+        Path.RawPath = RawPath;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function RectRounded(x, y, width, height, radiusX, radiusY) {
+            if (radiusX === 0.0 && radiusY === 0.0)
+                return Path.Rect(x, y, width, height);
+
+            var left = x;
+            var top = y;
+            var right = x + width;
+            var bottom = y + height;
+
+            return {
+                isSingle: true,
+                x: x,
+                y: y,
+                width: width,
+                height: height,
+                radiusX: radiusX,
+                radiusY: radiusY,
+                draw: function (ctx) {
+                    ctx.moveTo(left + radiusX, top);
+
+                    //top edge
+                    ctx.lineTo(right - radiusX, top);
+
+                    //top right arc
+                    ctx.quadraticCurveTo(right, top, right, top + radiusY);
+
+                    //right edge
+                    ctx.lineTo(right, bottom - radiusY);
+
+                    //bottom right arc
+                    ctx.quadraticCurveTo(right, bottom, right - radiusX, bottom);
+
+                    //bottom edge
+                    ctx.lineTo(left + radiusX, bottom);
+
+                    //bottom left arc
+                    ctx.quadraticCurveTo(left, bottom, left, bottom - radiusY);
+
+                    //left edge
+                    ctx.lineTo(left, top + radiusY);
+
+                    //top left arc
+                    ctx.quadraticCurveTo(left, top, left + radiusX, top);
+                    ctx.closePath();
+                },
+                extendFillBox: function (box, prevX, prevY) {
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x + width);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y + height);
+                },
+                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                    var hs = pars.thickness / 2.0;
+                    box.l = Math.min(box.l, x - hs);
+                    box.r = Math.max(box.r, x + width + hs);
+                    box.t = Math.min(box.t, y - hs);
+                    box.b = Math.max(box.b, y + height + hs);
+                }
+            };
+        }
+        Path.RectRounded = RectRounded;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function RectRoundedFull(x, y, width, height, topLeft, topRight, bottomRight, bottomLeft) {
+            var left = x;
+            var top = y;
+            var right = x + width;
+            var bottom = y + height;
+
+            return {
+                isSingle: false,
+                x: x,
+                y: y,
+                width: width,
+                height: height,
+                draw: function (ctx) {
+                    var right = left + width;
+                    var bottom = top + height;
+
+                    ctx.moveTo(left + topLeft, top);
+
+                    //top edge
+                    ctx.lineTo(right - topRight, top);
+
+                    if (topRight > 0)
+                        ctx.quadraticCurveTo(right, top, right, top + topRight);
+
+                    //right edge
+                    ctx.lineTo(right, bottom - bottomRight);
+
+                    if (bottomRight > 0)
+                        ctx.quadraticCurveTo(right, bottom, right - bottomRight, bottom);
+
+                    //bottom edge
+                    ctx.lineTo(left + bottomLeft, bottom);
+
+                    if (bottomLeft > 0)
+                        ctx.quadraticCurveTo(left, bottom, left, bottom - bottomLeft);
+
+                    //left edge
+                    ctx.lineTo(left, top + topLeft);
+
+                    if (topLeft > 0)
+                        ctx.quadraticCurveTo(left, top, left + topLeft, top);
+                    ctx.closePath();
+                },
+                extendFillBox: function (box, prevX, prevY) {
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x + width);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y + height);
+                },
+                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                    var hs = pars.thickness / 2.0;
+                    box.l = Math.min(box.l, x - hs);
+                    box.r = Math.max(box.r, x + width + hs);
+                    box.t = Math.min(box.t, y - hs);
+                    box.b = Math.max(box.b, y + height + hs);
+                }
+            };
+        }
+        Path.RectRoundedFull = RectRoundedFull;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Path) {
+        function Ellipse(x, y, width, height) {
+            var radiusX = width / 2;
+            var radiusY = height / 2;
+            var right = x + width;
+            var bottom = y + height;
+            var centerX = x + radiusX;
+            var centerY = y + radiusY;
+
+            return {
+                isSingle: true,
+                x: x,
+                y: y,
+                width: width,
+                height: height,
+                draw: function (ctx) {
+                    if (width === height) {
+                        ctx.arc(centerX, centerY, radiusX, 0, Math.PI * 2, false);
+                        return;
+                    }
+
+                    var kappa = .5522848;
+                    var ox = radiusX * kappa;
+                    var oy = radiusY * kappa;
+
+                    //move to left edge, halfway down
+                    ctx.moveTo(x, centerY);
+
+                    //top left bezier curve
+                    ctx.bezierCurveTo(x, centerY - oy, centerX - ox, y, centerX, y);
+
+                    //top right bezier curve
+                    ctx.bezierCurveTo(centerX + ox, y, right, centerY - oy, right, centerY);
+
+                    //bottom right bezier curve
+                    ctx.bezierCurveTo(right, centerY + oy, centerX + ox, bottom, centerX, bottom);
+
+                    //bottom left bezier curve
+                    ctx.bezierCurveTo(centerX - ox, bottom, x, centerY + oy, x, centerY);
+                    ctx.closePath();
+                },
+                extendFillBox: function (box) {
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x + width);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y + height);
+                },
+                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                    var hs = pars.thickness / 2.0;
+                    box.l = Math.min(box.l, x - hs);
+                    box.r = Math.max(box.r, x + width + hs);
+                    box.t = Math.min(box.t, y - hs);
+                    box.b = Math.max(box.b, y + height + hs);
+                }
+            };
+        }
+        Path.Ellipse = Ellipse;
+    })(Fayde.Path || (Fayde.Path = {}));
+    var Path = Fayde.Path;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {

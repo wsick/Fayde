@@ -3795,7 +3795,6 @@ declare module Fayde {
         public Restore(): void;
         public ClipRect(r: rect): void;
         public ClipGeometry(g: Fayde.Media.Geometry): void;
-        public ClipRawPath(p: any): void;
         public IsPointInPath(x: number, y: number): boolean;
         public IsPointInClipPath(clip: Fayde.Media.Geometry, x: number, y: number): boolean;
         public Rect(r: rect): void;
@@ -4649,11 +4648,11 @@ declare module Fayde.Media {
         static TransformProperty: DependencyProperty;
         public Transform: Media.Transform;
         constructor();
-        public GetBounds(thickness?: number): rect;
+        public GetBounds(pars?: Fayde.Path.IStrokeParameters): rect;
         public Draw(ctx: Fayde.RenderContext): void;
-        public ComputePathBounds(thickness: number): rect;
+        public ComputePathBounds(pars: Fayde.Path.IStrokeParameters): rect;
         public _InvalidateGeometry(): void;
-        public _Build(): Fayde.Shapes.RawPath;
+        public _Build(): Fayde.Path.RawPath;
         public Listen(listener: IGeometryListener): void;
         public Unlisten(listener: IGeometryListener): void;
         private _TransformListener;
@@ -4677,21 +4676,10 @@ declare module Fayde.Media {
         public Center: Point;
         public RadiusX: number;
         public RadiusY: number;
-        public _Build(): Fayde.Shapes.RawPath;
+        public _Build(): Fayde.Path.RawPath;
     }
 }
 declare module Fayde.Shapes {
-    enum PathEntryType {
-        Move = 0,
-        Line = 1,
-        Rect = 2,
-        Quadratic = 3,
-        Bezier = 4,
-        EllipticalArc = 5,
-        Arc = 6,
-        ArcTo = 7,
-        Close = 8,
-    }
     enum ShapeFlags {
         None = 0,
         Empty = 1,
@@ -4726,7 +4714,7 @@ declare module Fayde.Media {
         public FillRule: Fayde.Shapes.FillRule;
         public Children: Media.GeometryCollection;
         constructor();
-        public ComputePathBounds(thickness: number): rect;
+        public ComputePathBounds(pars: Fayde.Path.IStrokeParameters): rect;
         public Draw(ctx: Fayde.RenderContext): void;
         public GeometryChanged(newGeometry: Media.Geometry): void;
     }
@@ -4900,7 +4888,7 @@ declare module Fayde.Media {
         static EndPointProperty: DependencyProperty;
         public StartPoint: Point;
         public EndPoint: Point;
-        public _Build(): Fayde.Shapes.RawPath;
+        public _Build(): Fayde.Path.RawPath;
     }
 }
 declare module Fayde.Media {
@@ -5010,7 +4998,7 @@ declare module Fayde.Media {
         private InvalidatePathFigure();
         public Listen(listener: IPathFigureListener): void;
         public Unlisten(listener: IPathFigureListener): void;
-        public MergeInto(rp: Fayde.Shapes.RawPath): void;
+        public MergeInto(rp: Fayde.Path.RawPath): void;
     }
     class PathFigureCollection extends Fayde.XamlObjectCollection<PathFigure> implements IPathFigureListener {
         private _Listener;
@@ -5032,8 +5020,8 @@ declare module Fayde.Media {
         public FillRule: Fayde.Shapes.FillRule;
         public Figures: Media.PathFigureCollection;
         constructor();
-        public OverridePath(path: Fayde.Shapes.RawPath): void;
-        public _Build(): Fayde.Shapes.RawPath;
+        public OverridePath(path: Fayde.Path.RawPath): void;
+        public _Build(): Fayde.Path.RawPath;
         public PathFigureChanged(newPathFigure: Media.PathFigure): void;
     }
 }
@@ -5043,7 +5031,7 @@ declare module Fayde.Media {
     }
     class PathSegment extends Fayde.DependencyObject {
         private _Listener;
-        public _Append(path: Fayde.Shapes.RawPath): void;
+        public _Append(path: Fayde.Path.RawPath): void;
         public Listen(listener: IPathSegmentListener): void;
         public Unlisten(listener: IPathSegmentListener): void;
     }
@@ -5068,7 +5056,7 @@ declare module Fayde.Media {
         public RotationAngle: number;
         public Size: size;
         public SweepDirection: Fayde.Shapes.SweepDirection;
-        public _Append(path: Fayde.Shapes.RawPath): void;
+        public _Append(path: Fayde.Path.RawPath): void;
     }
     class BezierSegment extends Media.PathSegment {
         static Point1Property: DependencyProperty;
@@ -5077,12 +5065,12 @@ declare module Fayde.Media {
         public Point1: Point;
         public Point2: Point;
         public Point3: Point;
-        public _Append(path: Fayde.Shapes.RawPath): void;
+        public _Append(path: Fayde.Path.RawPath): void;
     }
     class LineSegment extends Media.PathSegment {
         static PointProperty: DependencyProperty;
         public Point: Point;
-        public _Append(path: Fayde.Shapes.RawPath): void;
+        public _Append(path: Fayde.Path.RawPath): void;
     }
     class PolyBezierSegment extends Media.PathSegment {
         static PointsProperty: ImmutableDependencyProperty;
@@ -5091,7 +5079,7 @@ declare module Fayde.Media {
         };
         public Points: Fayde.Shapes.PointCollection;
         constructor();
-        public _Append(path: Fayde.Shapes.RawPath): void;
+        public _Append(path: Fayde.Path.RawPath): void;
     }
     class PolyLineSegment extends Media.PathSegment {
         static PointsProperty: ImmutableDependencyProperty;
@@ -5100,7 +5088,7 @@ declare module Fayde.Media {
         };
         public Points: Fayde.Shapes.PointCollection;
         constructor();
-        public _Append(path: Fayde.Shapes.RawPath): void;
+        public _Append(path: Fayde.Path.RawPath): void;
     }
     class PolyQuadraticBezierSegment extends Media.PathSegment {
         static PointsProperty: ImmutableDependencyProperty;
@@ -5109,14 +5097,14 @@ declare module Fayde.Media {
         };
         public Points: Fayde.Shapes.PointCollection;
         constructor();
-        public _Append(path: Fayde.Shapes.RawPath): void;
+        public _Append(path: Fayde.Path.RawPath): void;
     }
     class QuadraticBezierSegment extends Media.PathSegment {
         static Point1Property: DependencyProperty;
         static Point2Property: DependencyProperty;
         public Point1: Point;
         public Point2: Point;
-        public _Append(path: Fayde.Shapes.RawPath): void;
+        public _Append(path: Fayde.Path.RawPath): void;
     }
 }
 declare module Fayde.Media {
@@ -5170,7 +5158,7 @@ declare module Fayde.Media {
         public Rect: rect;
         public RadiusX: number;
         public RadiusY: number;
-        public _Build(): Fayde.Shapes.RawPath;
+        public _Build(): Fayde.Path.RawPath;
     }
 }
 declare module Fayde.Media {
@@ -5803,7 +5791,7 @@ declare module Fayde.Shapes {
         public _ShapeFlags: Shapes.ShapeFlags;
         private _StretchXform;
         private _NaturalBounds;
-        public _Path: Shapes.RawPath;
+        public _Path: Fayde.Path.RawPath;
         private _Fill;
         public _Stroke: Fayde.Media.Brush;
         static FillProperty: DependencyProperty;
@@ -5833,7 +5821,7 @@ declare module Fayde.Shapes {
         public _ArrangeOverride(finalSize: size, error: BError): size;
         public Render(ctx: Fayde.RenderContext, lu: Fayde.LayoutUpdater, region: rect): void;
         public _GetFillRule(): Shapes.FillRule;
-        public _BuildPath(): Shapes.RawPath;
+        public _BuildPath(): Fayde.Path.RawPath;
         public _DrawPath(ctx: Fayde.RenderContext): void;
         public ComputeActualSize(baseComputer: () => size, lu: Fayde.LayoutUpdater);
         public _ComputeStretchBounds(): rect;
@@ -5855,7 +5843,7 @@ declare module Fayde.Shapes {
 declare module Fayde.Shapes {
     class Ellipse extends Shapes.Shape {
         constructor();
-        public _BuildPath(): Shapes.RawPath;
+        public _BuildPath(): Fayde.Path.RawPath;
         public _ComputeStretchBounds(): rect;
         public _ComputeShapeBounds(logical: boolean): rect;
         public _ComputeShapeBoundsImpl(logical: boolean, matrix?: any): rect;
@@ -5871,7 +5859,7 @@ declare module Fayde.Shapes {
         public Y1: number;
         public X2: number;
         public Y2: number;
-        public _BuildPath(): Shapes.RawPath;
+        public _BuildPath(): Fayde.Path.RawPath;
         public _ComputeShapeBounds(logical: boolean): rect;
     }
 }
@@ -5914,7 +5902,7 @@ declare module Fayde.Shapes {
         public Points: Shapes.PointCollection;
         constructor();
         private _PointsChanged(args);
-        public _BuildPath(): Shapes.RawPath;
+        public _BuildPath(): Fayde.Path.RawPath;
         private _FillRuleChanged(args);
     }
 }
@@ -5927,53 +5915,8 @@ declare module Fayde.Shapes {
         public Points: Shapes.PointCollection;
         constructor();
         private _PointsChanged(args);
-        public _BuildPath(): Shapes.RawPath;
+        public _BuildPath(): Fayde.Path.RawPath;
         private _FillRuleChanged(args);
-    }
-}
-declare module Fayde.Shapes {
-    interface IRange {
-        min: number;
-        max: number;
-    }
-    interface IPointRange {
-        xMin: number;
-        xMax: number;
-        yMin: number;
-        yMax: number;
-    }
-    interface IPathEntry {
-        type: Shapes.PathEntryType;
-    }
-    class RawPath {
-        private _Path;
-        private _EndX;
-        private _EndY;
-        public EndX : number;
-        public EndY : number;
-        public Move(x: number, y: number): void;
-        public Line(x: number, y: number): void;
-        public Rect(x: number, y: number, width: number, height: number): void;
-        public RoundedRectFull(left: number, top: number, width: number, height: number, topLeft: number, topRight: number, bottomRight: number, bottomLeft: number): void;
-        public RoundedRect(left: number, top: number, width: number, height: number, radiusX: number, radiusY: number): void;
-        public Quadratic(cpx: number, cpy: number, x: number, y: number): void;
-        public Bezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void;
-        public Ellipse(x: number, y: number, width: number, height: number): void;
-        public EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Shapes.SweepDirection, ex: number, ey: number): void;
-        public Arc(x: number, y: number, r: number, sAngle: number, eAngle: number, aClockwise: boolean): void;
-        public ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number): void;
-        public Close(): void;
-        public DrawRenderCtx(ctx: Fayde.RenderContext): void;
-        public DrawCanvasCtx(canvasCtx: CanvasRenderingContext2D): void;
-        public CalculateBounds(thickness: number): rect;
-        private static _CalculateQuadraticBezierRange(a, b, c);
-        private static _CalculateCubicBezierRange(a, b, c, d);
-        private static _CalculateArcRange(cx, cy, r, sa, ea, cc);
-        private static _CalculateArcToRange(sx, sy, cpx, cpy, ex, ey, r);
-        private static _CalculateArcPointsRange(cx, cy, sx, sy, ex, ey, r, cc);
-        private static _ArcContainsPoint(sx, sy, ex, ey, cpx, cpy, cc);
-        static Merge(path1: RawPath, path2: RawPath): void;
-        public Serialize(): string;
     }
 }
 declare module Fayde.Shapes {
@@ -5983,7 +5926,7 @@ declare module Fayde.Shapes {
         public RadiusX: number;
         public RadiusY: number;
         constructor();
-        public _BuildPath(): Shapes.RawPath;
+        public _BuildPath(): Fayde.Path.RawPath;
         public _ComputeShapeBounds(logical: boolean): rect;
         public _ComputeShapeBoundsImpl(logical: boolean, matrix?): rect;
         public _ComputeStretchBounds(): rect;
@@ -6172,6 +6115,149 @@ declare module Fayde.Text {
         private _GetLineHeightOverride();
         private _GetDescendOverride();
     }
+}
+declare module Fayde.Path {
+    interface IArc extends Path.IPathEntry {
+        x: number;
+        y: number;
+        r: number;
+        sAngle: number;
+        eAngle: number;
+        aClockwise: boolean;
+    }
+    function Arc(x: number, y: number, r: number, sa: number, ea: number, cc: boolean): IArc;
+}
+declare module Fayde.Path {
+    interface IArcTo extends Path.IPathEntry {
+        cpx: number;
+        cpy: number;
+        x: number;
+        y: number;
+        r: number;
+    }
+    function ArcTo(cpx: number, cpy: number, x: number, y: number, r: number): IArcTo;
+}
+declare module Fayde.Path {
+    interface IClose extends Path.IPathEntry {
+    }
+    function Close(): IClose;
+}
+declare module Fayde.Path {
+    interface ICubicBezier extends Path.IPathEntry {
+        cp1x: number;
+        cp1y: number;
+        cp2x: number;
+        cp2y: number;
+        x: number;
+        y: number;
+    }
+    function CubicBezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): ICubicBezier;
+}
+declare module Fayde.Path {
+    interface IEllipticalArc extends Path.IPathEntry {
+        width: number;
+        height: number;
+        rotationAngle: number;
+        isLargeArcFlag: boolean;
+        sweepDirectionFlag: Fayde.Shapes.SweepDirection;
+        ex: number;
+        ey: number;
+    }
+    function EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Fayde.Shapes.SweepDirection, ex: number, ey: number): IEllipticalArc;
+}
+declare module Fayde.Path {
+    interface ILine extends Path.IPathEntry {
+        x: number;
+        y: number;
+    }
+    function Line(x: number, y: number): ILine;
+}
+declare module Fayde.Path {
+    interface IMove extends Path.IPathEntry {
+        x: number;
+        y: number;
+    }
+    function Move(x: number, y: number): IMove;
+}
+declare module Fayde.Path {
+    interface IQuadraticBezier extends Path.IPathEntry {
+        cpx: number;
+        cpy: number;
+        x: number;
+        y: number;
+    }
+    function QuadraticBezier(cpx: number, cpy: number, x: number, y: number): IQuadraticBezier;
+}
+declare module Fayde.Path {
+    interface IRect extends Path.IPathEntry {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    }
+    function Rect(x: number, y: number, width: number, height: number): IRect;
+}
+declare module Fayde.Path {
+    interface IStrokeParameters {
+        thickness: number;
+        join: Fayde.Shapes.PenLineJoin;
+        startCap: Fayde.Shapes.PenLineCap;
+        endCap: Fayde.Shapes.PenLineCap;
+        miterLimit: number;
+    }
+    interface IBoundingBox {
+        l: number;
+        r: number;
+        t: number;
+        b: number;
+    }
+    interface IPathEntry {
+        isSingle: boolean;
+        draw: (canvasCtx: CanvasRenderingContext2D) => void;
+        extendFillBox: (box: IBoundingBox, prevX: number, prevY: number) => void;
+        extendStrokeBox: (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) => void;
+    }
+    class RawPath {
+        private _Path;
+        private _EndX;
+        private _EndY;
+        public EndX : number;
+        public EndY : number;
+        public Move(x: number, y: number): void;
+        public Line(x: number, y: number): void;
+        public Rect(x: number, y: number, width: number, height: number): void;
+        public RoundedRectFull(x: number, y: number, width: number, height: number, topLeft: number, topRight: number, bottomRight: number, bottomLeft: number): void;
+        public RoundedRect(x: number, y: number, width: number, height: number, radiusX: number, radiusY: number): void;
+        public QuadraticBezier(cpx: number, cpy: number, x: number, y: number): void;
+        public CubicBezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void;
+        public Ellipse(x: number, y: number, width: number, height: number): void;
+        public EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Fayde.Shapes.SweepDirection, ex: number, ey: number): void;
+        public Arc(x: number, y: number, r: number, sAngle: number, eAngle: number, aClockwise: boolean): void;
+        public ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number): void;
+        public Close(): void;
+        public DrawRenderCtx(ctx: Fayde.RenderContext): void;
+        public DrawCanvasCtx(canvasCtx: CanvasRenderingContext2D): void;
+        public CalculateBounds(pars?: IStrokeParameters): rect;
+        private _CalcFillBox();
+        private _CalcStrokeBox(pars);
+        static Merge(path1: RawPath, path2: RawPath): void;
+        public Serialize(): string;
+    }
+}
+declare module Fayde.Path {
+    function RectRounded(x: number, y: number, width: number, height: number, radiusX: number, radiusY: number): IRect;
+}
+declare module Fayde.Path {
+    function RectRoundedFull(x: number, y: number, width: number, height: number, topLeft: number, topRight: number, bottomRight: number, bottomLeft: number): IRect;
+}
+declare module Fayde.Path {
+    interface IEllipse extends Path.IPathEntry {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    }
+    function Ellipse(x: number, y: number, width: number, height: number): IEllipse;
 }
 declare module Fayde.Xaml {
     class Library extends Fayde.DependencyObject implements Fayde.Runtime.ILoadAsyncable {
