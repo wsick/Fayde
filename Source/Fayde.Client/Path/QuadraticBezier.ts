@@ -24,6 +24,13 @@ module Fayde.Path {
                 box.b = Math.max(box.b, yr.max);
             },
             extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
+                var xr = range(prevX, cpx, x);
+                var yr = range(prevY, cpy, y);
+                box.l = Math.min(box.l, xr.min);
+                box.r = Math.max(box.r, xr.max);
+                box.t = Math.min(box.t, yr.min);
+                box.b = Math.max(box.b, yr.max);
+                console.warn("[NOT IMPLEMENTED] Measure QuadraticBezier (with stroke)");
             },
             toString: function (): string {
                 return "Q" + cpx.toString() + "," + cpy.toString() + " " + x.toString() + "," + y.toString();

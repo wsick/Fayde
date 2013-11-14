@@ -18,8 +18,10 @@ module Fayde.Path {
                 ctx.arcTo(cpx, cpy, x, y, r);
             },
             extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) {
+                console.warn("[NOT IMPLEMENTED] Measure ArcTo");
             },
             extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
+                console.warn("[NOT IMPLEMENTED] Measure ArcTo (with stroke)");
             },
             toString: function (): string {
                 return "";

@@ -19,10 +19,13 @@ module Fayde.Path {
             ex: ex,
             ey: ey,
             draw: function (ctx: CanvasRenderingContext2D) {
+                console.warn("[NOT IMPLEMENTED] Draw Elliptical Arc");
             },
             extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) {
+                console.warn("[NOT IMPLEMENTED] Measure Elliptical Arc");
             },
             extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
+                console.warn("[NOT IMPLEMENTED] Measure Elliptical Arc (with stroke)");
             },
             toString: function (): string {
                 return "A" + width.toString() + "," + height.toString() + " " + rotationAngle.toString() + " " + isLargeArcFlag.toString() + " " + sweepDirectionFlag.toString() + " " + ex.toString() + "," + ey.toString();

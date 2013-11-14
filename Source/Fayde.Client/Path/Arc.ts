@@ -82,6 +82,7 @@ module Fayde.Path {
                 prepBox();
 
                 //TODO: Extend starting and ending point
+                console.warn("[NOT IMPLEMENTED] Measure ArcTo (with stroke)");
                 box.l = Math.min(box.l, sx, ex);
                 box.r = Math.max(box.r, sx, ex);
                 box.t = Math.min(box.t, sy, ey);

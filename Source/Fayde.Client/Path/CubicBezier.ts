@@ -28,6 +28,13 @@ module Fayde.Path {
                 box.b = Math.max(box.b, yr.max);
             },
             extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
+                var xr = range(prevX, cp1x, cp2x, x);
+                var yr = range(prevY, cp1y, cp2y, y);
+                box.l = Math.min(box.l, xr.min);
+                box.r = Math.max(box.r, xr.max);
+                box.t = Math.min(box.t, yr.min);
+                box.b = Math.max(box.b, yr.max);
+                console.warn("[NOT IMPLEMENTED] Measure CubicBezier (with stroke)");
             },
             toString: function (): string {
                 return "C" + cp1x.toString() + "," + cp1y.toString() + " " + cp2x.toString() + "," + cp2y.toString() + " " + x.toString() + "," + y.toString();

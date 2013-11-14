@@ -25,14 +25,22 @@ module Fayde.Path {
                     box.l = Math.min(box.l, x - hs);
                     box.r = Math.max(box.r, x + hs);
                     //TODO: Finish y expand
+                    console.warn("[NOT IMPLEMENTED] Measure Line (with stroke)");
                     return;
                 }
                 if (prevY === y) {
                     //TODO: Finish x expand
+                    console.warn("[NOT IMPLEMENTED] Measure Line (with stroke)");
                     box.t = Math.min(box.t, y - hs);
                     box.b = Math.max(box.b, y + hs);
                     return;
                 }
+                
+                box.l = Math.min(box.l, x);
+                box.r = Math.max(box.r, x);
+                box.t = Math.min(box.t, y);
+                box.b = Math.max(box.b, y);
+                console.warn("[NOT IMPLEMENTED] Measure Line (with stroke)");
             },
             toString: function (): string {
                 return "L" + x.toString() + "," + y.toString();
