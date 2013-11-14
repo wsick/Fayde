@@ -17,9 +17,9 @@ module Fayde.Path {
             draw: function (ctx: CanvasRenderingContext2D) {
                 ctx.arcTo(cpx, cpy, x, y, r);
             },
-            extendFillBox: function (box: IBoundingBox) {
+            extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) {
             },
-            extendStrokeBox: function (box: IBoundingBox, thickness: number, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
+            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
             },
             toString: function (): string {
                 return "";

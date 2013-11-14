@@ -17,7 +17,7 @@ module Fayde.Media {
         StartPoint: Point;
         IsFilled: boolean;
 
-        private _Path: Shapes.RawPath = null;
+        private _Path: Path.RawPath = null;
         private _Listener: IPathFigureListener;
 
         constructor() {
@@ -27,8 +27,8 @@ module Fayde.Media {
             coll.Listen(this);
         }
 
-        private _Build(): Shapes.RawPath {
-            var p = new Shapes.RawPath();
+        private _Build(): Path.RawPath {
+            var p = new Path.RawPath();
 
             var start = this.StartPoint;
             p.Move(start.X, start.Y);
@@ -57,10 +57,10 @@ module Fayde.Media {
         Listen(listener: IPathFigureListener) { this._Listener = listener; }
         Unlisten(listener: IPathFigureListener) { if (this._Listener === listener) this._Listener = null; }
 
-        MergeInto(rp: Shapes.RawPath) {
+        MergeInto(rp: Path.RawPath) {
             if (!this._Path)
                 this._Path = this._Build();
-            Shapes.RawPath.Merge(rp, this._Path);
+            Path.RawPath.Merge(rp, this._Path);
         }
     }
     Fayde.RegisterType(PathFigure, {

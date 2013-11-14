@@ -59,11 +59,6 @@ module Fayde {
             //DrawDebug("DrawClip (Geometry): " + g.toString());
             this.CanvasContext.clip();
         }
-        ClipRawPath(p: any/* Change to Fayde.Shapes.RawPath */) {
-            p.Draw(this);
-            //DrawDebug("DrawClip (RawPath): " + p.toString());
-            this.CanvasContext.clip();
-        }
 
         IsPointInPath(x: number, y: number): boolean {
             return this.CanvasContext.isPointInPath(x, y);

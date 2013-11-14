@@ -18,7 +18,7 @@ module Fayde.Shapes {
             this.Stretch = Media.Stretch.Fill;
         }
 
-        _BuildPath(): Shapes.RawPath {
+        _BuildPath(): Fayde.Path.RawPath {
             var stretch = this.Stretch;
             var t = this._Stroke != null ? this.StrokeThickness : 0.0;
             var irect = new rect();
@@ -60,7 +60,7 @@ module Fayde.Shapes {
             var radiusY = Math.min(Math.abs(this.RadiusY), irect.Height / 2.0);
             if (isNaN(radiusY)) radiusX = 0;
 
-            var path = new RawPath();
+            var path = new Fayde.Path.RawPath();
             path.RoundedRect(irect.X, irect.Y, irect.Width, irect.Height, radiusX, radiusY);
             return path;
         }

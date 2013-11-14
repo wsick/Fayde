@@ -11,7 +11,7 @@ module Fayde.Shapes {
         X2: number;
         Y2: number;
 
-        _BuildPath(): Shapes.RawPath {
+        _BuildPath(): Fayde.Path.RawPath {
             this._ShapeFlags = ShapeFlags.Normal;
 
             var x1 = this.X1;
@@ -19,7 +19,7 @@ module Fayde.Shapes {
             var x2 = this.X2;
             var y2 = this.Y2;
             
-            var path = new RawPath();
+            var path = new Fayde.Path.RawPath();
             path.Move(x1, y1);
             path.Line(x2, y2);
             return path;

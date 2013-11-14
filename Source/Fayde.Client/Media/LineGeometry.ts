@@ -7,11 +7,11 @@ module Fayde.Media {
         StartPoint: Point;
         EndPoint: Point;
 
-        _Build(): Shapes.RawPath {
+        _Build(): Path.RawPath {
             var p1 = this.StartPoint;
             var p2 = this.EndPoint;
 
-            var p = new Shapes.RawPath();
+            var p = new Path.RawPath();
             p.Move(p1.X, p1.Y);
             p.Line(p2.X, p2.Y);
             return p;

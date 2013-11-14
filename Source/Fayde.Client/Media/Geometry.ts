@@ -7,7 +7,7 @@ module Fayde.Media {
     }
 
     export class Geometry extends DependencyObject {
-        private _Path: Shapes.RawPath = null;
+        private _Path: Path.RawPath = null;
         private _LocalBounds: rect = new rect();
         private _Listener: IGeometryListener = null;
 
@@ -20,7 +20,7 @@ module Fayde.Media {
             this._LocalBounds.Height = Number.NEGATIVE_INFINITY;
         }
 
-        GetBounds(thickness?: number): rect {
+        GetBounds(pars?: Path.IStrokeParameters): rect {
             var compute = rect.isEmpty(this._LocalBounds);
 
             if (!this._Path) {
@@ -29,7 +29,7 @@ module Fayde.Media {
             }
 
             if (compute)
-                rect.copyTo(this.ComputePathBounds(thickness), this._LocalBounds);
+                rect.copyTo(this.ComputePathBounds(pars), this._LocalBounds);
             var bounds = rect.copyTo(this._LocalBounds);
 
             var transform = this.Transform
@@ -51,12 +51,12 @@ module Fayde.Media {
             if (transform != null)
                 ctx.Restore();
         }
-        ComputePathBounds(thickness: number): rect {
+        ComputePathBounds(pars: Path.IStrokeParameters): rect {
             if (!this._Path)
                 this._Path = this._Build();
             if (!this._Path)
                 return new rect();
-            return this._Path.CalculateBounds(thickness);
+            return this._Path.CalculateBounds(pars);
         }
         _InvalidateGeometry() {
             this._Path = null;
@@ -64,7 +64,7 @@ module Fayde.Media {
             var listener = this._Listener;
             if (listener) listener.GeometryChanged(this);
         }
-        _Build(): Shapes.RawPath { return undefined; }
+        _Build(): Path.RawPath { return undefined; }
 
         Listen(listener: IGeometryListener) { this._Listener = listener; }
         Unlisten(listener: IGeometryListener) { if (this._Listener === listener) this._Listener = null; }

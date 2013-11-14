@@ -20,9 +20,9 @@ module Fayde.Path {
             ey: ey,
             draw: function (ctx: CanvasRenderingContext2D) {
             },
-            extendFillBox: function (box: IBoundingBox) {
+            extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) {
             },
-            extendStrokeBox: function (box: IBoundingBox, thickness: number, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
+            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
             },
             toString: function (): string {
                 return "A" + width.toString() + "," + height.toString() + " " + rotationAngle.toString() + " " + isLargeArcFlag.toString() + " " + sweepDirectionFlag.toString() + " " + ex.toString() + "," + ey.toString();

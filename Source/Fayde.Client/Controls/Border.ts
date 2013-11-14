@@ -168,10 +168,9 @@ module Fayde.Controls {
                 return;
             }
 
-            var rawPath = new Shapes.RawPath();
-            rawPath.RoundedRectFull(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height,
+            var raw = Path.RectRoundedFull(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height,
                 cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
-            rawPath.DrawRenderCtx(ctx);
+            raw.draw(ctx.CanvasContext);
             ctx.Fill(backgroundBrush, fillExtents);
         }
         private _RenderBalanced(ctx: RenderContext, extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cornerRadius: CornerRadius) {
@@ -192,10 +191,9 @@ module Fayde.Controls {
                     ctx.Stroke(borderBrush, thickness.Left, extents);
                 }
             } else {
-                var rawPath = new Shapes.RawPath();
-                rawPath.RoundedRectFull(strokeExtents.X, strokeExtents.Y, strokeExtents.Width, strokeExtents.Height,
+                var raw = Path.RectRoundedFull(strokeExtents.X, strokeExtents.Y, strokeExtents.Width, strokeExtents.Height,
                     cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
-                rawPath.DrawRenderCtx(ctx);
+                raw.draw(ctx.CanvasContext);
                 if (backgroundBrush)
                     ctx.Fill(backgroundBrush, fillExtents);
                 ctx.Stroke(borderBrush, thickness.Left, extents);
@@ -206,16 +204,16 @@ module Fayde.Controls {
             var innerExtents = rect.copyTo(extents);
             if (thickness) rect.shrinkByThickness(innerExtents, thickness);
 
-            var innerPath = new Fayde.Shapes.RawPath();
-            var outerPath = new Fayde.Shapes.RawPath();
+            var innerPath: Path.IRect;
+            var outerPath: Path.IRect;
             if (hasCornerRadius) {
-                outerPath.RoundedRectFull(0, 0, extents.Width, extents.Height,
+                outerPath = Path.RectRoundedFull(0, 0, extents.Width, extents.Height,
                     cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
-                innerPath.RoundedRectFull(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height,
+                innerPath = Path.RectRoundedFull(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height,
                     cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
             } else {
-                outerPath.Rect(0, 0, extents.Width, extents.Height);
-                innerPath.Rect(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height);
+                outerPath = Path.Rect(0, 0, extents.Width, extents.Height);
+                innerPath = Path.Rect(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height);
             }
 
             var tmpCanvas = <HTMLCanvasElement>document.createElement("canvas");
@@ -223,19 +221,19 @@ module Fayde.Controls {
             tmpCanvas.height = extents.Height;
             var tmpCtx = tmpCanvas.getContext("2d");
 
-            outerPath.DrawCanvasCtx(tmpCtx);
+            outerPath.draw(tmpCtx);
             borderBrush.SetupBrush(tmpCtx, extents);
             tmpCtx.fillStyle = borderBrush.ToHtml5Object();
             tmpCtx.fill();
 
             tmpCtx.globalCompositeOperation = "xor";
-            innerPath.DrawCanvasCtx(tmpCtx);
+            innerPath.draw(tmpCtx);
             tmpCtx.fill();
 
             ctx.CanvasContext.drawImage(tmpCanvas, extents.X, extents.Y);
             //DrawDebug("Draw Image (Border)");
 
-            innerPath.DrawRenderCtx(ctx);
+            innerPath.draw(ctx.CanvasContext);
             if (backgroundBrush)
                 ctx.Fill(backgroundBrush, innerExtents);
         }

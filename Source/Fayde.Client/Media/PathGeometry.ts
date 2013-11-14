@@ -2,7 +2,7 @@
 
 module Fayde.Media {
     export class PathGeometry extends Geometry implements IPathFigureListener {
-        private _OverridePath: Shapes.RawPath = null;
+        private _OverridePath: Path.RawPath = null;
         static Annotations = { ContentProperty: PathGeometry.FiguresProperty }
         static FillRuleProperty: DependencyProperty = DependencyProperty.Register("FillRule", () => new Enum(Shapes.FillRule), PathGeometry, Shapes.FillRule.EvenOdd, (d, args) => (<Geometry>d)._InvalidateGeometry());
         static FiguresProperty = DependencyProperty.RegisterImmutable("Figures", () => PathFigureCollection, PathGeometry);
@@ -16,15 +16,15 @@ module Fayde.Media {
             coll.Listen(this);
         }
 
-        OverridePath(path: Shapes.RawPath) {
+        OverridePath(path: Path.RawPath) {
             this._OverridePath = path;
         }
 
-        _Build(): Shapes.RawPath {
+        _Build(): Path.RawPath {
             if (this._OverridePath)
                 return this._OverridePath;
 
-            var p = new Shapes.RawPath();
+            var p = new Path.RawPath();
             var figures = this.Figures;
             if (!figures)
                 return;

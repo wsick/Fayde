@@ -1,5 +1,12 @@
 
 module Fayde.Path {
+    export interface IStrokeParameters {
+        thickness: number;
+        join: Shapes.PenLineJoin;
+        startCap: Shapes.PenLineCap;
+        endCap: Shapes.PenLineCap;
+        miterLimit: number;
+    }
     export interface IBoundingBox {
         l: number;
         r: number;
@@ -9,8 +16,8 @@ module Fayde.Path {
     export interface IPathEntry {
         isSingle: boolean;
         draw: (canvasCtx: CanvasRenderingContext2D) => void;
-        extendFillBox: (box: IBoundingBox) => void;
-        extendStrokeBox: (box: IBoundingBox, thickness: number, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) => void;
+        extendFillBox: (box: IBoundingBox, prevX: number, prevY: number) => void;
+        extendStrokeBox: (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) => void;
     }
 
     export class RawPath {
@@ -32,96 +39,30 @@ module Fayde.Path {
         Rect(x: number, y: number, width: number, height: number) {
             this._Path.push(Rect(x, y, width, height));
         }
-        RoundedRectFull(left: number, top: number, width: number, height: number, topLeft: number, topRight: number, bottomRight: number, bottomLeft: number) {
-            var right = left + width;
-            var bottom = top + height;
-
-            this.Move(left + topLeft, top);
-            //top edge
-            this.Line(right - topRight, top);
-            //top right arc
-            if (topRight > 0)
-                this.Quadratic(right, top, right, top + topRight);
-            //right edge
-            this.Line(right, bottom - bottomRight);
-            //bottom right arc
-            if (bottomRight > 0)
-                this.Quadratic(right, bottom, right - bottomRight, bottom);
-            //bottom edge
-            this.Line(left + bottomLeft, bottom);
-            //bottom left arc
-            if (bottomLeft > 0)
-                this.Quadratic(left, bottom, left, bottom - bottomLeft);
-            //left edge
-            this.Line(left, top + topLeft);
-            //top left arc
-            if (topLeft > 0)
-                this.Quadratic(left, top, left + topLeft, top);
-            this.Close();
+        RoundedRectFull(x: number, y: number, width: number, height: number, topLeft: number, topRight: number, bottomRight: number, bottomLeft: number) {
+            this._Path.push(RectRoundedFull(x, y, width, height, topLeft, topRight, bottomRight, bottomLeft));
+            this._EndX = x;
+            this._EndY = y;
         }
-        RoundedRect(left: number, top: number, width: number, height: number, radiusX: number, radiusY: number) {
-            if (radiusX === 0.0 && radiusY === 0.0) {
-                this.Rect(left, top, width, height);
-                return;
-            }
-
-            var right = left + width;
-            var bottom = top + height;
-            this.Move(left + radiusX, top);
-            //top edge
-            this.Line(right - radiusX, top);
-            //top right arc
-            this.Quadratic(right, top, right, top + radiusY);
-            //right edge
-            this.Line(right, bottom - radiusY);
-            //bottom right arc
-            this.Quadratic(right, bottom, right - radiusX, bottom);
-            //bottom edge
-            this.Line(left + radiusX, bottom);
-            //bottom left arc
-            this.Quadratic(left, bottom, left, bottom - radiusY);
-            //left edge
-            this.Line(left, top + radiusY);
-            //top left arc
-            this.Quadratic(left, top, left + radiusX, top);
-            this.Close();
+        RoundedRect(x: number, y: number, width: number, height: number, radiusX: number, radiusY: number) {
+            this._Path.push(RectRounded(x, y, width, height, radiusX, radiusY));
+            this._EndX = x;
+            this._EndY = y;
         }
-        Quadratic(cpx: number, cpy: number, x: number, y: number) {
+        QuadraticBezier(cpx: number, cpy: number, x: number, y: number) {
             this._Path.push(QuadraticBezier(cpx, cpy, x, y));
             this._EndX = x;
             this._EndY = y;
         }
-        Bezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number) {
+        CubicBezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number) {
             this._Path.push(CubicBezier(cp1x, cp1y, cp2x, cp2y, x, y));
             this._EndX = x;
             this._EndY = y;
         }
         Ellipse(x: number, y: number, width: number, height: number) {
-            var radiusX = width / 2;
-            var radiusY = height / 2;
-            var right = x + width;
-            var bottom = y + height;
-            var centerX = x + radiusX;
-            var centerY = y + radiusY;
-            if (width === height) { //circle
-                this.Arc(centerX, centerY, radiusX, 0, Math.PI * 2, false);
-            } else { //oval
-                var kappa = .5522848; // 4 * ((sqrt(2) - 1) / 3)
-                var ox = radiusX * kappa;
-                var oy = radiusY * kappa;
-
-                //move to left edge, halfway down
-                this.Move(x, centerY);
-                //top left bezier curve
-                this.Bezier(x, centerY - oy, centerX - ox, y, centerX, y);
-                //top right bezier curve
-                this.Bezier(centerX + ox, y, right, centerY - oy, right, centerY);
-                //bottom right bezier curve
-                this.Bezier(right, centerY + oy, centerX + ox, bottom, centerX, bottom);
-                //bottom left bezier curve
-                this.Bezier(centerX - ox, bottom, x, centerY + oy, x, centerY);
-                this.Close();
-            }
+            this._Path.push(Ellipse(x, y, width, height));
+            this._EndX = x;
+            this._EndY = y;
         }
         EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Shapes.SweepDirection, ex: number, ey: number) {
             this._Path.push(EllipticalArc(width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey));
@@ -149,21 +90,13 @@ module Fayde.Path {
                 path[i].draw(canvasCtx);
             }
         }
-        CalcFillBounds(): IBoundingBox {
-            var path = this._Path;
-            var len = path.length;
-            var box: IBoundingBox = {
-                l: null,
-                r: null,
-                t: null,
-                b: null
-            };
-            for (var i = 0; i < len; i++) {
-                path[i].extendFillBox(box);
-            }
-            return box;
+        CalculateBounds(pars?: IStrokeParameters): rect {
+            var box = pars ? this._CalcStrokeBox(pars) : this._CalcFillBox();
+            var r = new rect();
+            rect.set(r, box.l, box.t, Math.max(0, box.r - box.l), Math.max(0, box.b - box.t));
+            return r;
         }
-        CalcStrokeBounds(thickness: number): IBoundingBox {
+        private _CalcFillBox(): IBoundingBox {
             var path = this._Path;
             var len = path.length;
             var box: IBoundingBox = {
@@ -177,7 +110,29 @@ module Fayde.Path {
             var entry: IPathEntry;
             for (var i = 0; i < len; i++) {
                 entry = path[i];
-                entry.extendStrokeBox(box, thickness, prevX, prevY, i === 0, (i + 1) === len);
+                entry.extendFillBox(box, prevX, prevY);
+                if (!entry.isSingle) {
+                    prevX = (<any>entry).x;
+                    prevY = (<any>entry).y;
+                }
+            }
+            return box;
+        }
+        private _CalcStrokeBox(pars: IStrokeParameters): IBoundingBox {
+            var path = this._Path;
+            var len = path.length;
+            var box: IBoundingBox = {
+                l: null,
+                r: null,
+                t: null,
+                b: null
+            };
+            var prevX = null;
+            var prevY = null;
+            var entry: IPathEntry;
+            for (var i = 0; i < len; i++) {
+                entry = path[i];
+                entry.extendStrokeBox(box, pars, prevX, prevY, i === 0, (i + 1) === len);
                 if (!entry.isSingle) {
                     prevX = (<any>entry).x;
                     prevY = (<any>entry).y;

@@ -9,14 +9,14 @@ module Fayde.Media {
         RadiusX: number;
         RadiusY: number;
 
-        _Build(): Shapes.RawPath {
+        _Build(): Path.RawPath {
             var rx = this.RadiusX;
             var ry = this.RadiusY;
             var center = this.Center;
             var x = center ? center.X : 0.0;
             var y = center ? center.Y : 0.0;
 
-            var p = new Shapes.RawPath();
+            var p = new Path.RawPath();
             p.Ellipse(x - rx, y - ry, rx * 2.0, ry * 2.0);
             return p;
         }

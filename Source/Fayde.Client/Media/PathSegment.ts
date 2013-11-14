@@ -9,7 +9,7 @@ module Fayde.Media {
     export class PathSegment extends DependencyObject {
         private _Listener: IPathSegmentListener;
 
-        _Append(path: Shapes.RawPath) {
+        _Append(path: Path.RawPath) {
             //Abstract method
         }
 

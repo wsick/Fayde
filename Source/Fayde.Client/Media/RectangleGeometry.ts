@@ -9,7 +9,7 @@ module Fayde.Media {
         RadiusX: number;
         RadiusY: number;
 
-        _Build(): Shapes.RawPath {
+        _Build(): Path.RawPath {
             var irect = this.Rect;
             if (!irect)
                 return;
@@ -17,7 +17,7 @@ module Fayde.Media {
             var radiusX = this.RadiusX;
             var radiusY = this.RadiusY;
 
-            var p = new Shapes.RawPath();
+            var p = new Path.RawPath();
             p.RoundedRect(irect.X, irect.Y, irect.Width, irect.Height, radiusX, radiusY);
             return p;
         }

@@ -13,7 +13,7 @@ module Fayde.Media {
         Size: size;
         SweepDirection: Shapes.SweepDirection;
 
-        _Append(path: Shapes.RawPath) {
+        _Append(path: Path.RawPath) {
             var size = this.Size;
             var width = size ? size.Width : 0.0;
             var height = size ? size.Height : 0.0;
@@ -39,7 +39,7 @@ module Fayde.Media {
         Point2: Point;
         Point3: Point;
 
-        _Append(path: Shapes.RawPath) {
+        _Append(path: Path.RawPath) {
 	        var p1 = this.Point1;
 	        var p2 = this.Point2;
 	        var p3 = this.Point3;
@@ -51,7 +51,7 @@ module Fayde.Media {
 	        var x3 = p3 ? p3.X : 0.0;
 	        var y3 = p3 ? p3.Y : 0.0;
 
-	        path.Bezier(x1, y1, x2, y2, x3, y3);
+	        path.CubicBezier(x1, y1, x2, y2, x3, y3);
         }
     }
     Fayde.RegisterType(BezierSegment, {
@@ -64,7 +64,7 @@ module Fayde.Media {
         static PointProperty: DependencyProperty = DependencyProperty.Register("Point", () => Point, LineSegment);
         Point: Point;
 
-        _Append(path: Shapes.RawPath) {
+        _Append(path: Path.RawPath) {
             var p = this.Point;
             var x = p ? p.X : 0.0;
             var y = p ? p.Y : 0.0;
@@ -87,7 +87,7 @@ module Fayde.Media {
             PolyBezierSegment.PointsProperty.Initialize<Shapes.PointCollection>(this);
         }
 
-        _Append(path: Shapes.RawPath) {
+        _Append(path: Path.RawPath) {
             var points = this.Points;
             if (!points || (points.Count % 3) !== 0)
                 return;
@@ -102,7 +102,7 @@ module Fayde.Media {
                 p2 = enumerator.Current;
                 enumerator.MoveNext();
                 p3 = enumerator.Current;
-                path.Bezier(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y);
+                path.CubicBezier(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y);
             }
         }
     }
@@ -122,7 +122,7 @@ module Fayde.Media {
             PolyLineSegment.PointsProperty.Initialize<Shapes.PointCollection>(this);
         }
 
-        _Append(path: Shapes.RawPath) {
+        _Append(path: Path.RawPath) {
             var p: Point;
             var enumerator = this.Points.GetEnumerator();
             while (enumerator.MoveNext()) {
@@ -148,7 +148,7 @@ module Fayde.Media {
             PolyQuadraticBezierSegment.PointsProperty.Initialize<Shapes.PointCollection>(this);
         }
 
-        _Append(path: Shapes.RawPath) {
+        _Append(path: Path.RawPath) {
             var points = this.Points;
             if (!points || (points.Count % 2) !== 0)
                 return;
@@ -176,7 +176,7 @@ module Fayde.Media {
 		        x1 = x0 + 2 * (x1 - x0) / 3;
 		        y1 = y0 + 2 * (y1 - y0) / 3;
 
-                path.Bezier(x1, y1, x2, y2, x3, y3);
+                path.CubicBezier(x1, y1, x2, y2, x3, y3);
                 x0 = x3;
                 y0 = y3;
             }
@@ -194,7 +194,7 @@ module Fayde.Media {
         Point1: Point;
         Point2: Point;
 
-        _Append(path: Shapes.RawPath) {
+        _Append(path: Path.RawPath) {
             var p1 = this.Point1;
             var p2 = this.Point2;
 
@@ -203,7 +203,7 @@ module Fayde.Media {
             var x2 = p2 ? p2.X : 0.0;
             var y2 = p2 ? p2.Y : 0.0;
 
-            path.Quadratic(x1, y1, x2, y2);
+            path.QuadraticBezier(x1, y1, x2, y2);
         }
     }
     Fayde.RegisterType(QuadraticBezierSegment, {

@@ -70,7 +70,7 @@ module Fayde.Media {
             var cbzp = new Point(); // points needed to create "smooth" beziers
             var qbzp = new Point(); // points needed to create "smooth" beziers
 
-            var path = new Shapes.RawPath();
+            var path = new Path.RawPath();
             while (this.index < this.len) {
                 var c;
                 while (this.index < this.len && (c = this.str.charAt(this.index)) === ' ') {
@@ -192,7 +192,7 @@ module Fayde.Media {
                             }
                             this.Advance();
 
-                            path.Bezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
+                            path.CubicBezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
 
                             cp1.X = cp3.X;
                             cp1.Y = cp3.Y;
@@ -228,7 +228,7 @@ module Fayde.Media {
                             } else
                                 cp1 = cp;
 
-                            path.Bezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
+                            path.CubicBezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
 
                             cbz = true;
                             cbzp.X = cp2.X;
@@ -260,7 +260,7 @@ module Fayde.Media {
                             }
                             this.Advance();
 
-                            path.Quadratic(cp1.X, cp1.Y, cp2.X, cp2.Y);
+                            path.QuadraticBezier(cp1.X, cp1.Y, cp2.X, cp2.Y);
 
                             cp.X = cp2.X;
                             cp.Y = cp2.Y;
@@ -287,7 +287,7 @@ module Fayde.Media {
                             } else
                                 cp1 = cp;
 
-                            path.Quadratic(cp1.X, cp1.Y, cp2.X, cp2.Y);
+                            path.QuadraticBezier(cp1.X, cp1.Y, cp2.X, cp2.Y);
 
                             qbz = true;
                             qbzp.X = cp1.X;

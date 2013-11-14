@@ -33,7 +33,14 @@ module Fayde.Shapes {
                 return geom.GetBounds();
 
             var thickness = (logical || this._Stroke != null) ? 0.0 : this.StrokeThickness;
-            return geom.GetBounds(thickness);
+            var pars: Fayde.Path.IStrokeParameters = {
+                thickness: thickness,
+                startCap: this.StrokeStartLineCap,
+                endCap: this.StrokeEndLineCap,
+                join: this.StrokeLineJoin,
+                miterLimit: this.StrokeMiterLimit
+            };
+            return geom.GetBounds(pars);
         }
     }
     Fayde.RegisterType(Path, {

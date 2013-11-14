@@ -64,7 +64,7 @@ module Fayde.Shapes {
         _ShapeFlags: ShapeFlags = ShapeFlags.None;
         private _StretchXform: number[] = mat3.identity();
         private _NaturalBounds: rect = new rect();
-        _Path: RawPath = null;
+        _Path: Fayde.Path.RawPath = null;
         private _Fill: Media.Brush = null;
         _Stroke: Media.Brush = null;
 
@@ -222,7 +222,7 @@ module Fayde.Shapes {
         }
 
         _GetFillRule(): FillRule { return FillRule.NonZero; }
-        _BuildPath(): Shapes.RawPath { return undefined; }
+        _BuildPath(): Fayde.Path.RawPath { return undefined; }
         _DrawPath(ctx: RenderContext) {
             this._Path = this._Path || this._BuildPath();
             this._Path.DrawRenderCtx(ctx);
@@ -406,15 +406,17 @@ module Fayde.Shapes {
             if (!this._Path || (this._ShapeFlags & ShapeFlags.Empty))
                 return new rect();
 
-            if (logical) {
-                return this._Path.CalculateBounds(0);
-            } else if (thickness > 0) {
-                return this._Path.CalculateBounds(thickness);
-            } else {
-                //TODO: measure fill extents
+            var pars: Fayde.Path.IStrokeParameters = undefined;
+            if (!logical && thickness > 0) {
+                pars = {
+                    thickness: thickness,
+                    startCap: this.StrokeStartLineCap,
+                    endCap: this.StrokeEndLineCap,
+                    join: this.StrokeLineJoin,
+                    miterLimit: this.StrokeMiterLimit
+                };
             }
-            NotImplemented("Shape._ComputeShapeBoundsImpl");
-            return new rect();
+            return this._Path.CalculateBounds(pars);
         }
 
         private _InvalidateStretch() {

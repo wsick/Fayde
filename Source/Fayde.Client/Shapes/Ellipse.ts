@@ -7,7 +7,7 @@ module Fayde.Shapes {
             this.Stretch = Media.Stretch.Fill;
         }
 
-        _BuildPath(): Shapes.RawPath {
+        _BuildPath(): Fayde.Path.RawPath {
             var stretch = this.Stretch;
             var t = this._Stroke != null ? this.StrokeThickness : 0.0;
             var irect = new rect();
@@ -39,7 +39,7 @@ module Fayde.Shapes {
             var ht = -t / 2;
             rect.growBy(irect, ht, ht, ht, ht);
 
-            var path = new Fayde.Shapes.RawPath();
+            var path = new Fayde.Path.RawPath();
             path.Ellipse(irect.X, irect.Y, irect.Width, irect.Height);
             return path;
         }

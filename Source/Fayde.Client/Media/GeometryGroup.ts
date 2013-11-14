@@ -14,11 +14,11 @@ module Fayde.Media {
             coll.Listen(this);
         }
 
-        ComputePathBounds(thickness: number): rect {
+        ComputePathBounds(pars: Path.IStrokeParameters): rect {
             var bounds = new rect();
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.MoveNext()) {
-                rect.unionLogical(bounds, (<Geometry>enumerator.Current).GetBounds(thickness));
+                rect.unionLogical(bounds, (<Geometry>enumerator.Current).GetBounds(pars));
             }
             return bounds;
         }

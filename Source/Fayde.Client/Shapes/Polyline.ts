@@ -29,7 +29,7 @@ module Fayde.Shapes {
             this._InvalidateNaturalBounds();
         }
 
-        _BuildPath(): Shapes.RawPath {
+        _BuildPath(): Fayde.Path.RawPath {
             var points = this.Points;
             var count;
             if (!points || (count = points.Count) < 2) {
@@ -39,7 +39,7 @@ module Fayde.Shapes {
 
             this._ShapeFlags = ShapeFlags.Normal;
 
-            var path = new RawPath();
+            var path = new Fayde.Path.RawPath();
             var enumerator = points.GetEnumerator();
             enumerator.MoveNext();
             var p = <Point>enumerator.Current;
