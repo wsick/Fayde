@@ -6,7 +6,7 @@ module Fayde.Path {
         var bottom = y + height;
 
         return {
-            isSingle: false,
+            isSingle: true,
             x: x,
             y: y,
             width: width,
@@ -14,7 +14,7 @@ module Fayde.Path {
             draw: function (ctx: CanvasRenderingContext2D) {
                 var right = left + width;
                 var bottom = top + height;
-
+                ctx.beginPath();
                 ctx.moveTo(left + topLeft, top);
                 //top edge
                 ctx.lineTo(right - topRight, top);

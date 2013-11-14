@@ -20,6 +20,7 @@ module Fayde.Path {
             width: width,
             height: height,
             draw: function (ctx: CanvasRenderingContext2D) {
+                ctx.beginPath();
                 if (width === height) { //circle
                     ctx.arc(centerX, centerY, radiusX, 0, Math.PI * 2, false);
                     return;

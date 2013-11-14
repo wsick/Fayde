@@ -17,6 +17,7 @@ module Fayde.Path {
             radiusX: radiusX,
             radiusY: radiusY,
             draw: function (ctx: CanvasRenderingContext2D) {
+                ctx.beginPath();
                 ctx.moveTo(left + radiusX, top);
                 //top edge
                 ctx.lineTo(right - radiusX, top);
