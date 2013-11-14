@@ -96,7 +96,7 @@
         var drawPoint = function (ctx, x, y) {
             ctx.fillRect(x - 2, y - 2, 4, 4);
         };
-        $(document).ready(function () {
+        function load() {
             var ctx = document.getElementById("canvas").getContext("2d");
 
             var sx = Math.floor(Math.random() * 600);
@@ -130,11 +130,14 @@
 
             ctx.strokeStyle = "rgb(255,0,0)";
             ctx.strokeRect(xMin, yMin, xMax - xMin, yMax - yMin);
-        });
+        }
     </script>
 </head>
 <body>
     <canvas id="canvas" width="600" height="600" style="background: #eeeeee;">
     </canvas>
+    <script type="text/javascript">
+        load();
+    </script>
 </body>
 </html>

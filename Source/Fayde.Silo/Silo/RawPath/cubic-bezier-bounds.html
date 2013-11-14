@@ -2,7 +2,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title></title>
-    <script src="../../jquery-1.7.js" type="text/javascript"></script>
     <script type="text/javascript">
         var range = function (a, b, c, d) {
             var min = Math.min(a, d);
@@ -53,7 +52,7 @@
             ctx.beginPath();
             ctx.fillRect(x - 2, y - 2, 4, 4);
         };
-        $(document).ready(function () {
+        function load() {
             var ctx = document.getElementById("canvas").getContext("2d");
             var xMin, xMax, yMin, yMax;
 
@@ -73,9 +72,11 @@
             var y4 = Math.floor(Math.random() * 600);
             ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
             ctx.strokeStyle = "rgb(0,0,0)";
+            ctx.lineWidth = 15;
             ctx.stroke();
             ctx.closePath();
-
+            
+            ctx.lineWidth = 1;
             ctx.fillStyle = "rgb(0,0,255)";
             drawPoint(ctx, x2, y2);
             ctx.fillStyle = "rgb(0,255,0)";
@@ -91,11 +92,14 @@
 
             ctx.strokeStyle = "rgb(255,0,0)";
             ctx.strokeRect(xMin, yMin, xMax - xMin, yMax - yMin);
-        });
+        };
     </script>
 </head>
 <body>
     <canvas id="canvas" width="600" height="600" style="background: #eeeeee;">
     </canvas>
+    <script type="text/javascript">
+        load();
+    </script>
 </body>
 </html>
