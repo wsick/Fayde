@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="/Fayde/Fayde.js"></script>
+    <script src="util.js"></script>
+    <script type="text/javascript">
+        var config = {
+            w: 800,
+            h: 800,
+            bg: "#eeeeee"
+        };
+        var canvas;
+        var ctx;
+
+        function load() {
+            var canvas = addCanvas(config);
+            ctx = canvas.getContext("2d");
+            go();
+        }
+
+        function go() {
+            ctx.clearRect(0, 0, config.w, config.h);
+
+            var sx = randomInt(0, config.w);
+            var sy = randomInt(0, config.h);
+
+            var rnd = randomCubicBezier();
+            var bezier = Fayde.Path.CubicBezier(rnd.cp1x, rnd.cp1y, rnd.cp2x, rnd.cp2y, rnd.x, rnd.y);
+
+            ctx.beginPath();
+            ctx.strokeStyle = "rgb(0,0,0)";
+            ctx.moveTo(sx, sy);
+            bezier.draw(ctx);
+            ctx.stroke();
+
+            drawGuideLine(ctx, sx, sy, rnd.cp1x, rnd.cp1y, 1);
+            drawGuideLine(ctx, rnd.cp1x, rnd.cp1y, rnd.cp2x, rnd.cp2y, 2);
+            drawGuideLine(ctx, rnd.cp2x, rnd.cp2y, rnd.x, rnd.y, 3);
+
+            drawStartPoint(ctx, sx, sy);
+            drawControlPoint(ctx, rnd.cp1x, rnd.cp1y, 1);
+            drawControlPoint(ctx, rnd.cp2x, rnd.cp2y, 2);
+            drawEndPoint(ctx, rnd.x, rnd.y);
+
+            var box = { l: Number.POSITIVE_INFINITY, r: Number.NEGATIVE_INFINITY, t: Number.POSITIVE_INFINITY, b: Number.NEGATIVE_INFINITY };
+            bezier.extendFillBox(box, sx, sy);
+            ctx.strokeStyle = "rgb(255,0,0)";
+            ctx.strokeRect(box.l, box.t, box.r - box.l, box.b - box.t);
+        }
+
+        function randomCubicBezier() {
+            var cp1x = randomInt(0, config.w);
+            var cp1y = randomInt(0, config.h);
+            var cp2x = randomInt(0, config.w);
+            var cp2y = randomInt(0, config.h);
+            var x = randomInt(0, config.w);
+            var y = randomInt(0, config.h);
+
+            return {
+                cp1x: cp1x,
+                cp1y: cp1y,
+                cp2x: cp2x,
+                cp2y: cp2y,
+                x: x,
+                y: y
+            };
+        }
+    </script>
+</head>
+<body onload="load()">
+    <input type="button" value="again" onclick="go()" />
+    <br />
+</body>
+</html>

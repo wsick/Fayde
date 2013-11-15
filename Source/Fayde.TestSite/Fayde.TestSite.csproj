@@ -104,6 +104,11 @@
     <Content Include="Tests\Media\mediaelement-stack.fap">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Tests\Path\arc-to.html" />
+    <Content Include="Tests\Path\arc.html" />
+    <Content Include="Tests\Path\cubic-bezier.html" />
+    <Content Include="Tests\Path\quad-bezier.html" />
+    <Content Include="Tests\Path\util.js" />
     <Content Include="Tests\Shapes\shape-stretch.fap">
       <SubType>Designer</SubType>
     </Content>

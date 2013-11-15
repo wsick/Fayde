@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="/Fayde/Fayde.js"></script>
+    <script src="util.js"></script>
+    <script type="text/javascript">
+        var config = {
+            w: 800,
+            h: 800,
+            bg: "#eeeeee"
+        };
+        var canvas;
+        var ctx;
+
+        function load() {
+            var canvas = addCanvas(config);
+            ctx = canvas.getContext("2d");
+            go();
+        }
+
+        function go() {
+            ctx.clearRect(0, 0, config.w, config.h);
+
+            var ra = randomArc();
+            var arc = Fayde.Path.Arc(ra.x, ra.y, ra.r, ra.sa, ra.ea, ra.cc);
+
+            ctx.beginPath();
+            ctx.strokeStyle = "rgb(0,0,0)";
+            arc.draw(ctx);
+            ctx.stroke();
+
+            drawStartPoint(ctx, ra.x + ra.r * Math.cos(ra.sa), ra.y + ra.r * Math.sin(ra.sa));
+            drawCenterPoint(ctx, ra.x, ra.y);
+            drawEndPoint(ctx, ra.x + ra.r * Math.cos(ra.ea), ra.y + ra.r * Math.sin(ra.ea));
+
+            var box = { l: Number.POSITIVE_INFINITY, r: Number.NEGATIVE_INFINITY, t: Number.POSITIVE_INFINITY, b: Number.NEGATIVE_INFINITY };
+            arc.extendFillBox(box);
+            ctx.strokeStyle = "rgb(255,0,0)";
+            ctx.strokeRect(box.l, box.t, box.r - box.l, box.b - box.t);
+        }
+
+        function randomArc() {
+            var x = randomInt(0, config.w);
+            var y = randomInt(0, config.h);
+            var rem = Math.min(
+                Math.min(x, Math.max(0, config.w - x)),
+                Math.min(y, Math.max(0, config.h - y)));
+            var radius = Math.max(10, randomInt(0, rem));
+
+            var f = Math.PI * 2;
+            var startingAngle = randomInt(0, f);
+            var endingAngle = randomInt(0, f);
+            var counterclockwise = randomInt(0, 2) === 0;
+
+            return {
+                x: x,
+                y: y,
+                r: radius,
+                sa: startingAngle,
+                ea: endingAngle,
+                cc: counterclockwise
+            };
+        }
+    </script>
+</head>
+<body onload="load()">
+    <input type="button" value="again" onclick="go()" />
+    <br />
+</body>
+</html>

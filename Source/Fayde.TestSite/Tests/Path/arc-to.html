@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="/Fayde/Fayde.js"></script>
+    <script src="util.js"></script>
+    <script type="text/javascript">
+        var config = {
+            w: 800,
+            h: 800,
+            bg: "#eeeeee"
+        };
+        var canvas;
+        var ctx;
+        var rSpan;
+
+        function load() {
+            var canvas = addCanvas(config);
+            ctx = canvas.getContext("2d");
+            rSpan = document.getElementById("radius");
+            go();
+        }
+
+        function go() {
+            ctx.clearRect(0, 0, config.w, config.h);
+
+            var sx = randomInt(0, config.w);
+            var sy = randomInt(0, config.h);
+
+            var ra = randomArcTo();
+            rSpan.innerText = "radius:" + ra.r;
+            var arc = Fayde.Path.ArcTo(ra.cpx, ra.cpy, ra.ex, ra.ey, ra.r);
+
+            ctx.beginPath();
+            ctx.moveTo(sx, sy);
+            ctx.strokeStyle = "rgb(0,0,0)";
+            arc.draw(ctx);
+            ctx.stroke();
+
+            ctx.lineWidth = 1;
+
+            drawGuideLine(ctx, sx, sy, ra.cpx, ra.cpy, 1);
+            drawGuideLine(ctx, ra.cpx, ra.cpy, ra.ex, ra.ey, 2);
+
+            drawStartPoint(ctx, sx, sy);
+            drawControlPoint(ctx, ra.cpx, ra.cpy, 1);
+            drawEndPoint(ctx, ra.ex, ra.ey);
+
+            var box = { l: Number.POSITIVE_INFINITY, r: Number.NEGATIVE_INFINITY, t: Number.POSITIVE_INFINITY, b: Number.NEGATIVE_INFINITY };
+            arc.extendFillBox(box, sx, sy);
+            ctx.strokeStyle = "rgb(255,0,0)";
+            ctx.strokeRect(box.l, box.t, box.r - box.l, box.b - box.t);
+        }
+
+        function randomArcTo() {
+            var cpx = randomInt(0, config.w);
+            var cpy = randomInt(0, config.h);
+            var ex = randomInt(0, config.w);
+            var ey = randomInt(0, config.h);
+
+            var r = Math.max(10, randomInt(0, 50));
+
+            return {
+                cpx: cpx,
+                cpy: cpy,
+                ex: ex,
+                ey: ey,
+                r: r
+            };
+        }
+    </script>
+</head>
+<body onload="load()">
+    <input type="button" value="again" onclick="go()" />
+    <span id="radius"></span>
+    <br />
+</body>
+</html>

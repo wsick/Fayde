@@ -2,13 +2,13 @@ module Fayde.Path {
     export interface IArc extends IPathEntry {
         x: number;
         y: number;
-        r: number;
+        radius: number;
         sAngle: number;
         eAngle: number;
         aClockwise: boolean;
     }
-    export function Arc(x: number, y: number, r: number, sa: number, ea: number, cc: boolean): IArc {
-        var prepped = false;
+    export function Arc(x: number, y: number, radius: number, sa: number, ea: number, cc: boolean): IArc {
+        var inited = false;
         //start point
         var sx: number;
         var sy: number;
@@ -26,41 +26,43 @@ module Fayde.Path {
         var ct: boolean;
         var cb: boolean;
 
-        function prepBox() {
-            if (prepped) return;
-            sx = x + (r * Math.cos(sa));
-            sy = y + (r * Math.sin(sa));
-            ex = x + (r * Math.cos(ea));
-            ey = y + (r * Math.sin(ea));
+        function init() {
+            if (inited) return;
+            sx = x + (radius * Math.cos(sa));
+            sy = y + (radius * Math.sin(sa));
+            ex = x + (radius * Math.cos(ea));
+            ey = y + (radius * Math.sin(ea));
 
-            l = x - r;
+            l = x - radius;
             cl = arcContainsPoint(sx, sy, ex, ey, l, y, cc);
 
-            r = x + r;
+            r = x + radius;
             cr = arcContainsPoint(sx, sy, ex, ey, r, y, cc);
 
-            t = y - r;
+            t = y - radius;
             ct = arcContainsPoint(sx, sy, ex, ey, x, t, cc);
 
-            b = y + r;
+            b = y + radius;
             cb = arcContainsPoint(sx, sy, ex, ey, x, b, cc);
+
+            inited = true;
         }
 
         return {
             isSingle: true,
             x: x,
             y: y,
-            r: r,
+            radius: radius,
             sAngle: sa,
             eAngle: ea,
             aClockwise: cc,
             draw: function (ctx: CanvasRenderingContext2D) {
-                ctx.arc(x, y, r, sa, ea, cc);
+                ctx.arc(x, y, radius, sa, ea, cc);
             },
             extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) {
                 if (ea === sa)
                     return;
-                prepBox();
+                init();
 
                 box.l = Math.min(box.l, sx, ex);
                 box.r = Math.max(box.r, sx, ex);
@@ -79,7 +81,7 @@ module Fayde.Path {
             extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
                 if (ea === sa)
                     return;
-                prepBox();
+                init();
 
                 //TODO: Extend starting and ending point
                 console.warn("[NOT IMPLEMENTED] Measure ArcTo (with stroke)");
@@ -113,10 +115,8 @@ module Fayde.Path {
         var n = (ex - sx) * (cpy - sy) - (cpx - sx) * (ey - sy);
         if (n === 0)
             return true;
-        // if det > 0 && counterclockwise arc --> point is on the arc
         if (n > 0 && cc)
             return true;
-        // if det < 0 && clockwise arc --> point is on the arc
         if (n < 0 && !cc)
             return true;
         return false;
