@@ -17,13 +17,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Benchmarks\Bitwise\test.html" />
-    <Content Include="Benchmarks\LinkedList\LinkedList.js" />
-    <Content Include="Benchmarks\LinkedList\test.html" />
     <Content Include="Benchmarks\Matrix\CanvasMatrix.js" />
     <Content Include="Benchmarks\Matrix\glMatrix-min.js" />
     <Content Include="Benchmarks\Matrix\Matrix3D.js" />
     <Content Include="Benchmarks\Matrix\test.html" />
-    <Content Include="Benchmarks\refequals.html" />
     <Content Include="Silo\brush-transform.html" />
     <Content Include="Silo\heightTest.htm" />
     <Content Include="Silo\hittest.html" />
