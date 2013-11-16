@@ -25,19 +25,20 @@
             var ra = randomArc();
             var arc = Fayde.Path.Arc(ra.x, ra.y, ra.r, ra.sa, ra.ea, ra.cc);
 
+            var strokePars = randomStrokeParameters();
+
             ctx.beginPath();
             ctx.strokeStyle = "rgb(0,0,0)";
             arc.draw(ctx);
-            ctx.stroke();
+            pathStroke(ctx, "rgb(0,0,0)", strokePars);
 
             drawStartPoint(ctx, ra.x + ra.r * Math.cos(ra.sa), ra.y + ra.r * Math.sin(ra.sa));
             drawCenterPoint(ctx, ra.x, ra.y);
             drawEndPoint(ctx, ra.x + ra.r * Math.cos(ra.ea), ra.y + ra.r * Math.sin(ra.ea));
 
-            var box = { l: Number.POSITIVE_INFINITY, r: Number.NEGATIVE_INFINITY, t: Number.POSITIVE_INFINITY, b: Number.NEGATIVE_INFINITY };
-            arc.extendFillBox(box);
-            ctx.strokeStyle = "rgb(255,0,0)";
-            ctx.strokeRect(box.l, box.t, box.r - box.l, box.b - box.t);
+            drawBoundingBox(arc, 0, 0, strokePars);
+
+            dumpinfo(ra.r, strokePars);
         }
 
         function randomArc() {
@@ -62,10 +63,15 @@
                 cc: counterclockwise
             };
         }
+
+        function dumpinfo(r, pars) {
+            info.innerText = strokeParamsToString(pars) + "; radius:" + r;
+        }
     </script>
 </head>
 <body onload="load()">
     <input type="button" value="again" onclick="go()" />
+    <span id="info"></span>
     <br />
 </body>
 </html>

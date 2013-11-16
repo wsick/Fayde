@@ -70,6 +70,7 @@ function drawBoundingBox(path, sx, sy, strokePars) {
         path.extendStrokeBox(box, strokePars, sx, sy, true, true);
     else
         path.extendFillBox(box, sx, sy);
+    ctx.lineWidth = 1;
     ctx.strokeStyle = "rgb(255,0,0)";
     ctx.strokeRect(box.l, box.t, box.r - box.l, box.b - box.t);
 }
@@ -121,7 +122,7 @@ var strokeParamsToString;
         ctx.stroke();
     };
     strokeParamsToString = function (pars) {
-        if (!pars) return;
+        if (!pars) return "thickness: 0";
         var thickness = pars.thickness;
         var scap = caps[pars.startCap || 0] || caps[0];
         var ecap = caps[pars.endCap || 0] || caps[0];
