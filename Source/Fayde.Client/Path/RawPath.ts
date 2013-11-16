@@ -1,5 +1,6 @@
 
 module Fayde.Path {
+    //NOTE: HTML5 Canvas does not support start and end cap. 
     export interface IStrokeParameters {
         thickness: number;
         join: Shapes.PenLineJoin;

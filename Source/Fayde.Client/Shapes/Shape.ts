@@ -91,6 +91,7 @@ module Fayde.Shapes {
         StrokeLineJoin: PenLineJoin;
         StrokeMiterLimit: number;
         StrokeStartLineCap: PenLineCap;
+        //NOTE: HTML5 Canvas does not support start and end cap. Will use start if it's not "Flat"; otherwise, use end
 
         _InsideShape(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): boolean {
             if (this._ShapeFlags & ShapeFlags.Empty)
@@ -216,8 +217,9 @@ module Fayde.Shapes {
             this._DrawPath(ctx);
             if (this._Fill != null)
                 ctx.Fill(this._Fill, area);
-            if (this._Stroke != null)
-                ctx.Stroke(this._Stroke, this.StrokeThickness, area);
+            ctx.Stroke(this._Stroke, this._CreateStrokeParameters(), area);
+            //if (this._Stroke != null)
+                //ctx.Stroke(this._Stroke, this.StrokeThickness, area);
             ctx.Restore();
         }
 
@@ -399,24 +401,10 @@ module Fayde.Shapes {
             return this._ComputeShapeBoundsImpl(logical, null);
         }
         _ComputeShapeBoundsImpl(logical: boolean, matrix?: any): rect {
-            var thickness = (logical || !this._Stroke) ? 0.0 : this.StrokeThickness;
-            
             this._Path = this._Path || this._BuildPath();
-
             if (!this._Path || (this._ShapeFlags & ShapeFlags.Empty))
                 return new rect();
-
-            var pars: Fayde.Path.IStrokeParameters = undefined;
-            if (!logical && thickness > 0) {
-                pars = {
-                    thickness: thickness,
-                    startCap: this.StrokeStartLineCap,
-                    endCap: this.StrokeEndLineCap,
-                    join: this.StrokeLineJoin,
-                    miterLimit: this.StrokeMiterLimit
-                };
-            }
-            return this._Path.CalculateBounds(pars);
+            return this._Path.CalculateBounds(this._CreateStrokeParameters(logical));
         }
 
         private _InvalidateStretch() {
@@ -481,6 +469,21 @@ module Fayde.Shapes {
         _HeightChanged(args: IDependencyPropertyChangedEventArgs) {
             super._HeightChanged(args);
             this._InvalidateStretch();
+        }
+
+        private _CreateStrokeParameters(logical?: boolean): Fayde.Path.IStrokeParameters {
+            if (logical)
+                return null;
+            var thickness = this._Stroke ? this.StrokeThickness : 0.0;
+            if (thickness > 0)
+                return {
+                    thickness: thickness,
+                    startCap: this.StrokeStartLineCap,
+                    endCap: this.StrokeEndLineCap,
+                    join: this.StrokeLineJoin,
+                    miterLimit: this.StrokeMiterLimit
+                };
+            return null;
         }
     }
     Fayde.RegisterType(Shape, {

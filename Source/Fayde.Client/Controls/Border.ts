@@ -185,10 +185,10 @@ module Fayde.Controls {
             if (!cornerRadius || cornerRadius.IsZero()) {
                 //Technically this fills outside it's fill extents, we may need to do something different for a transparent border brush
                 if (backgroundBrush) {
-                    ctx.StrokeAndFillRect(borderBrush, thickness.Left, strokeExtents, backgroundBrush, fillExtents);
+                    ctx.StrokeAndFillRect(borderBrush, full, strokeExtents, backgroundBrush, fillExtents);
                 } else {
                     ctx.Rect(fillExtents);
-                    ctx.Stroke(borderBrush, thickness.Left, extents);
+                    ctx.StrokeSimple(borderBrush, full, extents);
                 }
             } else {
                 var raw = Path.RectRoundedFull(strokeExtents.X, strokeExtents.Y, strokeExtents.Width, strokeExtents.Height,
@@ -196,7 +196,7 @@ module Fayde.Controls {
                 raw.draw(ctx.CanvasContext);
                 if (backgroundBrush)
                     ctx.Fill(backgroundBrush, fillExtents);
-                ctx.Stroke(borderBrush, thickness.Left, extents);
+                ctx.StrokeSimple(borderBrush, full, extents);
             }
         }
         private _RenderUnbalanced(ctx: RenderContext, extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cornerRadius: CornerRadius) {

@@ -1,6 +1,18 @@
 /// <reference path="../Runtime/TypeManagement.ts" />
 
 module Fayde {
+    var caps: string[] = [
+        "butt", //flat
+        "square", //square
+        "round", //round
+        "butt" //triangle
+    ];
+    var joins: string[] = [
+        "miter",
+        "bevel",
+        "round"
+    ];
+
     export class RenderContext {
         CanvasContext: CanvasRenderingContext2D;
         CurrentTransform: number[] = null;
@@ -104,7 +116,18 @@ module Fayde {
             cc.stroke();
             //DrawDebug("StrokeAndFillRect: [" + cc.strokeStyle.toString() + "] [" + cc.fillStyle.toString() + "] " + strokeRect.toString());
         }
-        Stroke(stroke: Media.Brush, thickness: number, region: rect) {
+        Stroke(stroke: Media.Brush, pars: Fayde.Path.IStrokeParameters, region: rect) {
+            if (!stroke || !pars) return;
+            var cc = this.CanvasContext;
+            stroke.SetupBrush(cc, region);
+            cc.lineWidth = pars.thickness;
+            cc.lineCap = caps[pars.startCap || pars.endCap || 0] || caps[0];
+            cc.lineJoin = joins[pars.join || 0] || joins[0];
+            cc.miterLimit = pars.miterLimit;
+            cc.strokeStyle = stroke.ToHtml5Object();
+            cc.stroke();
+        }
+        StrokeSimple(stroke: Media.Brush, thickness: number, region: rect) {
             var cc = this.CanvasContext;
             stroke.SetupBrush(cc, region);
             cc.lineWidth = thickness;
