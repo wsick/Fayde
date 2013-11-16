@@ -7,8 +7,12 @@ module Fayde.Path {
             draw: function (ctx: CanvasRenderingContext2D) {
                 ctx.closePath();
             },
-            extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) { },
-            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) { },
+            extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) {
+                //TODO: Handle line join
+            },
+            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
+                //TODO: Handle line join
+            },
             toString: function (): string {
                 return "Z";
             }

@@ -44,6 +44,12 @@
 
             drawBoundingBox(path, strokePars);
 
+            var m = getMaxima(s.x, rnd.cpx, rnd.x, s.y, rnd.cpy, rnd.y);
+            drawPoint(ctx, m[0].x, m[0].y, "#0aaa00");
+            drawPoint(ctx, m[1].x, m[1].y, "#0aaa00");
+            console.log(m[0].t);
+            console.log(m[1].t);
+
             dumpinfo(strokePars);
         }
 
@@ -63,6 +69,34 @@
 
         function dumpinfo(pars) {
             info.innerText = strokeParamsToString(pars);
+        }
+
+        
+        function getMaxima(x1, x2, x3, y1, y2, y3) {
+            //change in x direction
+            var m1 = {
+                t: (x1 - x2) / (x1 - 2 * x2 + x3),
+                x: 0,
+                y: 0
+            };
+            m1.x = xoft(x1, x2, x3, m1.t);
+            m1.y = xoft(y1, y2, y3, m1.t);
+        
+            //change in y direction
+            var m2 = {
+                t: (y1 - y2) / (y1 - 2 * y2 + y3),
+                x: 0,
+                y: 0
+            };
+            m2.y = xoft(y1, y2, y3, m2.t);
+            m2.x = xoft(x1, x2, x3, m2.t);
+
+            return [m1, m2];
+        }
+        function xoft(a, b, c, t) {
+            // x(t) = a(1-t)^2 + 2*b(1-t)t + c*t^2
+            // "change of direction" point (dx/dt = 0)
+            return (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
         }
     </script>
 </head>
