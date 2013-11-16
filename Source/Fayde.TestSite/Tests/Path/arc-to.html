@@ -12,12 +12,13 @@
         };
         var canvas;
         var ctx;
-        var rSpan;
+        var info;
 
         function load() {
             var canvas = addCanvas(config);
             ctx = canvas.getContext("2d");
-            rSpan = document.getElementById("radius");
+            info = document.getElementById("info");
+            //ctx.lineCap = Fayde.Shapes.PenLineCap[
             go();
         }
 
@@ -28,15 +29,14 @@
             var sy = randomInt(0, config.h);
 
             var ra = randomArcTo();
-            rSpan.innerText = "radius:" + ra.r;
             var arc = Fayde.Path.ArcTo(ra.cpx, ra.cpy, ra.ex, ra.ey, ra.r);
 
+            var strokePars = randomStrokeParameters();
 
             ctx.beginPath();
             ctx.moveTo(sx, sy);
-            ctx.strokeStyle = "rgb(0,0,0)";
             arc.draw(ctx);
-            ctx.stroke();
+            pathStroke(ctx, "rgb(0,0,0)", strokePars);
 
             ctx.lineWidth = 1;
 
@@ -47,10 +47,13 @@
             drawControlPoint(ctx, ra.cpx, ra.cpy, 1);
             drawEndPoint(ctx, ra.ex, ra.ey);
 
-            var box = { l: Number.POSITIVE_INFINITY, r: Number.NEGATIVE_INFINITY, t: Number.POSITIVE_INFINITY, b: Number.NEGATIVE_INFINITY };
-            arc.extendFillBox(box, sx, sy);
-            ctx.strokeStyle = "rgb(255,0,0)";
-            ctx.strokeRect(box.l, box.t, box.r - box.l, box.b - box.t);
+            drawBoundingBox(arc, sx, sy, strokePars);
+
+            dumpinfo(ra.r, strokePars);
+        }
+
+        function dumpinfo(r, pars) {
+            info.innerText = strokeParamsToString(pars) + "; radius:" + r;
         }
 
         function randomArcTo() {
@@ -73,7 +76,7 @@
 </head>
 <body onload="load()">
     <input type="button" value="again" onclick="go()" />
-    <span id="radius"></span>
+    <span id="info"></span>
     <br />
 </body>
 </html>

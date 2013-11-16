@@ -22,7 +22,7 @@ module Fayde.Path {
         cc: boolean;
     }
     export function ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number): IArcTo {
-        function createAutoArc(prevX: number, prevY: number): IAutoArc {
+        function discoverArcPart(prevX: number, prevY: number): IAutoArc {
             var v1 = [cpx - prevX, cpy - prevY];
             var v2 = [x - cpx, y - cpy];
             var inner_theta = angleBetweenVectors(v1, v2);
@@ -54,10 +54,7 @@ module Fayde.Path {
                 ctx.arcTo(cpx, cpy, x, y, radius);
             },
             extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) {
-                console.warn("[NOT IMPLEMENTED] Measure ArcTo");
-                
-                var aa = createAutoArc(prevX, prevY);
-                console.log(aa.cc);
+                var aa = discoverArcPart(prevX, prevY);
                 
                 box.l = Math.min(box.l, prevX, aa.sx, aa.ex);
                 box.r = Math.max(box.r, prevX, aa.sx, aa.ex);
@@ -73,13 +70,11 @@ module Fayde.Path {
                     box.t = Math.min(box.t, pts.t);
                 if (!isNaN(pts.b))
                     box.b = Math.max(box.b, pts.b);
-
-                //Still need to expand box for line (prevX,prevY) --> (sx,sy)
             },
             extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
                 console.warn("[NOT IMPLEMENTED] Measure ArcTo (with stroke)");
                 
-                var aa = createAutoArc(prevX, prevY);
+                var aa = discoverArcPart(prevX, prevY);
                 
                 box.l = Math.min(box.l, prevX, aa.sx, aa.ex);
                 box.r = Math.max(box.r, prevX, aa.sx, aa.ex);
@@ -88,7 +83,7 @@ module Fayde.Path {
 
                 var hs = pars.thickness / 2.0;
 
-                var pts = getArcPoints(aa, radius, true);
+                var pts = getArcPoints(aa, radius, aa.cc);
                 if (!isNaN(pts.l))
                     box.l = Math.min(box.l, pts.l - hs);
                 if (!isNaN(pts.r))
@@ -98,7 +93,7 @@ module Fayde.Path {
                 if (!isNaN(pts.b))
                     box.b = Math.max(box.b, pts.b + hs);
 
-                //Still need to expand box for line (prevX,prevY) --> (sx,sy)
+                //Need to handle line cap and line join
             },
             toString: function (): string {
                 return "";
