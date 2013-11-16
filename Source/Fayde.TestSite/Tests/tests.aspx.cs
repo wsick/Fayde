@@ -23,14 +23,23 @@ namespace Fayde.TestSite.Tests
         protected IEnumerable<object> FindTests()
         {
             var localDir = new DirectoryInfo(Server.MapPath("~/Tests/"));
-            var files = localDir.GetFiles("*.fap", SearchOption.AllDirectories);
+            var files = localDir.GetFiles("*.*", SearchOption.AllDirectories);
             var root = Server.MapPath("~");
             root += "\\Tests\\";
-            return files.Select(fi => new
+            return files
+                .Where(fi => fi.Extension == ".fap" || fi.Extension == ".html")
+                .Select(fi => new
                 {
-                    RelativeLink = string.Format("test.aspx?page={0}", fi.FullName.Replace(root, "").Replace("\\", "/")),
+                    RelativeLink = GetRelativeLink(fi, root),
                     Name = fi.FullName.Replace(localDir.FullName, ""),
                 });
+        }
+        private static string GetRelativeLink(FileInfo fi, string root)
+        {
+            var rel = fi.FullName.Replace(root, "").Replace("\\", "/");
+            if (fi.Extension == ".html")
+                return string.Format(rel);
+            return string.Format("test.aspx?page={0}", rel);
         }
     }
 }
