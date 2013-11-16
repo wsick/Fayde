@@ -121,6 +121,7 @@ var strokeParamsToString;
         ctx.stroke();
     };
     strokeParamsToString = function (pars) {
+        if (!pars) return;
         var thickness = pars.thickness;
         var scap = caps[pars.startCap || 0] || caps[0];
         var ecap = caps[pars.endCap || 0] || caps[0];

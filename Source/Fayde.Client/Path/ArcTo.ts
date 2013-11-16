@@ -12,17 +12,13 @@ module Fayde.Path {
         y: number;
         radius: number;
     }
-    interface IAutoArc {
-        cx: number;
-        cy: number;
-        sx: number;
-        sy: number;
-        ex: number;
-        ey: number;
-        cc: boolean;
-    }
     export function ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number): IArcTo {
-        function discoverArcPart(prevX: number, prevY: number): IAutoArc {
+        var line: ILine;
+        var arc: IArc;
+        var inited = false;
+        function init(prevX: number, prevY: number) {
+            if (inited) return;
+            if (line && arc) return arc;
             var v1 = [cpx - prevX, cpy - prevY];
             var v2 = [x - cpx, y - cpy];
             var inner_theta = angleBetweenVectors(v1, v2);
@@ -31,16 +27,19 @@ module Fayde.Path {
             var b = getTangentPoint(inner_theta, radius, [cpx, cpy], v2, false);
             //find center point
             var c = getPerpendicularIntersections(a, v1, b, v2);
+            //counter clockwise test
+            var cc = isCounterClockwise([-v1[0], -v1[1]], v2, inner_theta);
+            //find starting angle -- [1,0] is origin direction of 0rad
+            var sa = Math.atan2(a[1] - c[1], a[0] - c[0]);
+            if (sa < 0)
+                sa = (2 * Math.PI) + sa;
+            var ea = Math.atan2(b[1] - c[1], b[0] - c[0]);
+            if (ea < 0)
+                ea = (2 * Math.PI) + ea;
 
-            return {
-                cx: c[0],
-                cy: c[1],
-                sx: a[0],
-                sy: a[1],
-                ex: b[0],
-                ey: b[1],
-                cc: isCounterClockwise([-v1[0], -v1[1]], v2, inner_theta)
-            };
+            line = Line(a[0], a[1]);
+            arc = Arc(c[0], c[1], radius, sa, ea, cc);
+            inited = true;
         }
 
         return {
@@ -54,99 +53,38 @@ module Fayde.Path {
                 ctx.arcTo(cpx, cpy, x, y, radius);
             },
             extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) {
-                var aa = discoverArcPart(prevX, prevY);
+                init(prevX, prevY);
                 
-                box.l = Math.min(box.l, prevX, aa.sx, aa.ex);
-                box.r = Math.max(box.r, prevX, aa.sx, aa.ex);
-                box.t = Math.min(box.t, prevY, aa.sy, aa.ey);
-                box.b = Math.max(box.b, prevY, aa.sy, aa.ey);
+                box.l = Math.min(box.l, prevX);
+                box.r = Math.max(box.r, prevX);
+                box.t = Math.min(box.t, prevY);
+                box.b = Math.max(box.b, prevY);
 
-                var pts = getArcPoints(aa, radius, aa.cc);
-                if (!isNaN(pts.l))
-                    box.l = Math.min(box.l, pts.l);
-                if (!isNaN(pts.r))
-                    box.r = Math.max(box.r, pts.r);
-                if (!isNaN(pts.t))
-                    box.t = Math.min(box.t, pts.t);
-                if (!isNaN(pts.b))
-                    box.b = Math.max(box.b, pts.b);
+                line.extendFillBox(box, prevX, prevY);
+                arc.extendFillBox(box, prevX, prevY);
             },
             extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
-                console.warn("[NOT IMPLEMENTED] Measure ArcTo (with stroke)");
-                
-                var aa = discoverArcPart(prevX, prevY);
-                
-                box.l = Math.min(box.l, prevX, aa.sx, aa.ex);
-                box.r = Math.max(box.r, prevX, aa.sx, aa.ex);
-                box.t = Math.min(box.t, prevY, aa.sy, aa.ey);
-                box.b = Math.max(box.b, prevY, aa.sy, aa.ey);
+                init(prevX, prevY);
 
-                var hs = pars.thickness / 2.0;
+                var hs = pars.thickness / 2;
+                box.l = Math.min(box.l, prevX - hs);
+                box.r = Math.max(box.r, prevX + hs);
+                box.t = Math.min(box.t, prevY - hs);
+                box.b = Math.max(box.b, prevY + hs);
 
-                var pts = getArcPoints(aa, radius, aa.cc);
-                if (!isNaN(pts.l))
-                    box.l = Math.min(box.l, pts.l - hs);
-                if (!isNaN(pts.r))
-                    box.r = Math.max(box.r, pts.r + hs);
-                if (!isNaN(pts.t))
-                    box.t = Math.min(box.t, pts.t - hs);
-                if (!isNaN(pts.b))
-                    box.b = Math.max(box.b, pts.b + hs);
+                if (isStart) {
+                    //TODO: Handle line cap
+                } else {
+                    //TODO: Handle line join from previous lin
+                }
 
-                //Need to handle line cap and line join
+                line.extendStrokeBox(box, pars, prevX, prevY, isStart, false);
+                arc.extendStrokeBox(box, pars, prevX, prevY, false, isEnd);
             },
             toString: function (): string {
                 return "";
             }
         };
-    }
-
-    interface IArcPoints {
-        l: number;
-        r: number;
-        t: number;
-        b: number;
-    }
-    function getArcPoints(aa: IAutoArc, radius: number, cc: boolean): IArcPoints {
-        var e = {
-            l: NaN,
-            r: NaN,
-            t: NaN,
-            b: NaN
-        };
-
-        var l = aa.cx - radius;
-        if (arcContainsPoint(aa.sx, aa.sy, aa.ex, aa.ey, l, aa.cy, cc))
-            e.l = l;
-
-        var r = aa.cx + radius;
-        if (arcContainsPoint(aa.sx, aa.sy, aa.ex, aa.ey, r, aa.cy, cc))
-            e.r = r;
-
-        var t = aa.cy - radius;
-        if (arcContainsPoint(aa.sx, aa.sy, aa.ex, aa.ey, aa.cx, t, cc))
-            e.t = t;
-
-        var b = aa.cy + radius;
-        if (arcContainsPoint(aa.sx, aa.sy, aa.ex, aa.ey, aa.cx, b, cc))
-            e.b = b;
-
-        return e;
-    }
-    function arcContainsPoint(sx: number, sy: number, ex: number, ey: number, cpx: number, cpy: number, cc: boolean): boolean {
-        // var a = ex - sx;
-        // var b = cpx - sx;
-        // var c = ey - sy;
-        // var d = cpy - sy;
-        // det = ad - bc;
-        var n = (ex - sx) * (cpy - sy) - (cpx - sx) * (ey - sy);
-        if (n === 0)
-            return true;
-        if (n > 0 && cc)
-            return true;
-        if (n < 0 && !cc)
-            return true;
-        return false;
     }
 
     function angleBetweenVectors(u: number[], v: number[]): number {
