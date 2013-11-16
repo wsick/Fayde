@@ -22,29 +22,27 @@
         }
 
         function go() {
-            ctx.clearRect(0, 0, config.w, config.h);
-
-            var sx = randomInt(0, config.w);
-            var sy = randomInt(0, config.h);
-
+            var s = randomPoint(0, config.w, 0, config.h);
             var rnd = randomQuadBezier();
-            var bezier = Fayde.Path.QuadraticBezier(rnd.cpx, rnd.cpy, rnd.x, rnd.y);
+
+            var path = new Fayde.Path.RawPath();
+            path.Move(s.x, s.y);
+            path.QuadraticBezier(rnd.cpx, rnd.cpy, rnd.x, rnd.y);
 
             var strokePars = randomStrokeParameters();
 
-            ctx.beginPath();
-            ctx.moveTo(sx, sy);
-            bezier.draw(ctx);
+            ctx.clearRect(0, 0, config.w, config.h);
+            path.DrawCanvasCtx(ctx);
             pathStroke(ctx, "rgb(0,0,0)", strokePars);
 
-            drawGuideLine(ctx, sx, sy, rnd.cpx, rnd.cpy, 1);
+            drawGuideLine(ctx, s.x, s.y, rnd.cpx, rnd.cpy, 1);
             drawGuideLine(ctx, rnd.cpx, rnd.cpy, rnd.x, rnd.y, 2);
 
-            drawStartPoint(ctx, sx, sy);
+            drawStartPoint(ctx, s.x, s.y);
             drawControlPoint(ctx, rnd.cpx, rnd.cpy, 1);
             drawEndPoint(ctx, rnd.x, rnd.y);
 
-            drawBoundingBox(bezier, sx, sy, strokePars);
+            drawBoundingBox(path, strokePars);
 
             dumpinfo(strokePars);
         }

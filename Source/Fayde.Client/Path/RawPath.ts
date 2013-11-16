@@ -101,10 +101,10 @@ module Fayde.Path {
             var path = this._Path;
             var len = path.length;
             var box: IBoundingBox = {
-                l: null,
-                r: null,
-                t: null,
-                b: null
+                l: Number.POSITIVE_INFINITY,
+                r: Number.NEGATIVE_INFINITY,
+                t: Number.POSITIVE_INFINITY,
+                b: Number.NEGATIVE_INFINITY
             };
             var prevX = null;
             var prevY = null;
@@ -123,10 +123,10 @@ module Fayde.Path {
             var path = this._Path;
             var len = path.length;
             var box: IBoundingBox = {
-                l: null,
-                r: null,
-                t: null,
-                b: null
+                l: Number.POSITIVE_INFINITY,
+                r: Number.NEGATIVE_INFINITY,
+                t: Number.POSITIVE_INFINITY,
+                b: Number.NEGATIVE_INFINITY
             };
             var prevX = null;
             var prevY = null;

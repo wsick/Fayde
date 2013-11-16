@@ -22,29 +22,27 @@
         }
 
         function go() {
-            ctx.clearRect(0, 0, config.w, config.h);
-
-            var sx = randomInt(0, config.w);
-            var sy = randomInt(0, config.h);
-
+            var s = randomPoint(0, config.w, 0, config.h);
             var ra = randomArcTo();
-            var arc = Fayde.Path.ArcTo(ra.cpx, ra.cpy, ra.ex, ra.ey, ra.r);
+
+            var path = new Fayde.Path.RawPath();
+            path.Move(s.x, s.y);
+            path.ArcTo(ra.cpx, ra.cpy, ra.ex, ra.ey, ra.r);
 
             var strokePars = randomStrokeParameters();
 
-            ctx.beginPath();
-            ctx.moveTo(sx, sy);
-            arc.draw(ctx);
+            ctx.clearRect(0, 0, config.w, config.h);
+            path.DrawCanvasCtx(ctx);
             pathStroke(ctx, "rgb(0,0,0)", strokePars);
 
-            drawGuideLine(ctx, sx, sy, ra.cpx, ra.cpy, 1);
+            drawGuideLine(ctx, s.x, s.y, ra.cpx, ra.cpy, 1);
             drawGuideLine(ctx, ra.cpx, ra.cpy, ra.ex, ra.ey, 2);
 
-            drawStartPoint(ctx, sx, sy);
+            drawStartPoint(ctx, s.x, s.y);
             drawControlPoint(ctx, ra.cpx, ra.cpy, 1);
             drawEndPoint(ctx, ra.ex, ra.ey);
 
-            drawBoundingBox(arc, sx, sy, strokePars);
+            drawBoundingBox(path, strokePars);
 
             dumpinfo(ra.r, strokePars);
         }

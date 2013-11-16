@@ -22,37 +22,25 @@
         }
 
         function go() {
-            ctx.clearRect(0, 0, config.w, config.h);
+            var s = randomPoint(0, config.w, 0, config.h);
+            var rp = randomPoint(0, config.w, 0, config.h);
 
-            var sx = randomInt(0, config.w);
-            var sy = randomInt(0, config.h);
-
-            var rp = randomLine();
-            var line = Fayde.Path.Line(rp.x, rp.y);
+            var path = new Fayde.Path.RawPath();
+            path.Move(s.x, s.y);
+            path.Line(rp.x, rp.y);
 
             var strokePars = randomStrokeParameters();
 
-            ctx.beginPath();
-            ctx.moveTo(sx, sy);
-            line.draw(ctx);
+            ctx.clearRect(0, 0, config.w, config.h);
+            path.DrawCanvasCtx(ctx);
             pathStroke(ctx, "rgb(0,0,0)", strokePars);
 
-            drawStartPoint(ctx, sx, sy);
+            drawStartPoint(ctx, s.x, s.y);
             drawEndPoint(ctx, rp.x, rp.y);
 
-            drawBoundingBox(line, sx, sy, strokePars);
+            drawBoundingBox(path, strokePars);
 
-            dumpinfo(rp.x,rp.y,strokePars);
-        }
-
-        function randomLine() {
-            var x = randomInt(0, config.w);
-            var y = randomInt(0, config.h);
-
-            return {
-                x: x,
-                y: y
-            };
+            dumpinfo(rp.x, rp.y, strokePars);
         }
 
         function dumpinfo(x, y, pars) {

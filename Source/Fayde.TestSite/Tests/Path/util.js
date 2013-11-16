@@ -65,19 +65,21 @@ function drawGuideLine(ctx, x1, y1, x2, y2, num) {
     drawLine(ctx, x1, y1, x2, y2);
 }
 
-function drawBoundingBox(path, sx, sy, strokePars) {
-    var box = { l: Number.POSITIVE_INFINITY, r: Number.NEGATIVE_INFINITY, t: Number.POSITIVE_INFINITY, b: Number.NEGATIVE_INFINITY };
-    if (strokePars)
-        path.extendStrokeBox(box, strokePars, sx, sy, true, true);
-    else
-        path.extendFillBox(box, sx, sy);
+function drawBoundingBox(path, pars) {
+    var r = path.CalculateBounds(pars);
     ctx.lineWidth = 1;
     ctx.strokeStyle = "rgb(255,0,0)";
-    ctx.strokeRect(box.l, box.t, box.r - box.l, box.b - box.t);
+    ctx.strokeRect(r.X, r.Y, r.Width, r.Height);
 }
 
 function randomInt(low, high) {
     return Math.floor(Math.random() * (high - low) + low);
+}
+function randomPoint(lowx, highx, lowy, highy) {
+    return {
+        x: randomInt(lowx, highx),
+        y:randomInt(lowy,highy)
+    };
 }
 
 /*
