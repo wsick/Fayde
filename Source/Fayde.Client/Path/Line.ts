@@ -18,6 +18,14 @@ module Fayde.Path {
                 box.b = Math.max(box.b, y);
             },
             extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
+                if (isStart) { //handle previous cap
+                    box.l = Math.min(box.l, prevX);
+                    box.r = Math.max(box.r, prevX);
+                    box.t = Math.min(box.t, prevY);
+                    box.b = Math.max(box.b, prevY);
+                } else { //handle join
+                }
+
                 var hs = pars.thickness / 2.0;
                 if (prevX === x) {
                     if (prevY === y)

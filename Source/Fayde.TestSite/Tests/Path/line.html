@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="/Fayde/Fayde.js"></script>
+    <script src="util.js"></script>
+    <script type="text/javascript">
+        var config = {
+            w: 800,
+            h: 800,
+            bg: "#eeeeee"
+        };
+        var canvas;
+        var ctx;
+        var info;
+
+        function load() {
+            var canvas = addCanvas(config);
+            ctx = canvas.getContext("2d");
+            info = document.getElementById("info");
+            go();
+        }
+
+        function go() {
+            ctx.clearRect(0, 0, config.w, config.h);
+
+            var sx = randomInt(0, config.w);
+            var sy = randomInt(0, config.h);
+
+            var rp = randomLine();
+            var line = Fayde.Path.Line(rp.x, rp.y);
+
+            var strokePars = randomStrokeParameters();
+
+            ctx.beginPath();
+            ctx.moveTo(sx, sy);
+            line.draw(ctx);
+            pathStroke(ctx, "rgb(0,0,0)", strokePars);
+
+            drawStartPoint(ctx, sx, sy);
+            drawEndPoint(ctx, rp.x, rp.y);
+
+            drawBoundingBox(line, sx, sy, strokePars);
+
+            dumpinfo(rp.x,rp.y,strokePars);
+        }
+
+        function randomLine() {
+            var x = randomInt(0, config.w);
+            var y = randomInt(0, config.h);
+
+            return {
+                x: x,
+                y: y
+            };
+        }
+
+        function dumpinfo(x, y, pars) {
+            info.innerText = strokeParamsToString(pars) + "; x:" + x + "; y:" + y;
+        }
+    </script>
+</head>
+<body onload="load()">
+    <input type="button" value="again" onclick="go()" />
+    <span id="info"></span>
+    <br />
+</body>
+</html>

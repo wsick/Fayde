@@ -12,10 +12,12 @@
         };
         var canvas;
         var ctx;
+        var info;
 
         function load() {
             var canvas = addCanvas(config);
             ctx = canvas.getContext("2d");
+            info = document.getElementById("info");
             go();
         }
 
@@ -28,7 +30,6 @@
             var strokePars = randomStrokeParameters();
 
             ctx.beginPath();
-            ctx.strokeStyle = "rgb(0,0,0)";
             arc.draw(ctx);
             pathStroke(ctx, "rgb(0,0,0)", strokePars);
 
