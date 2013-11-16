@@ -60,6 +60,7 @@ function drawGuideLine(ctx, x1, y1, x2, y2, num) {
         "rgba(0,255,0,0.4)"
     ][num - 1];
 
+    ctx.lineWidth = 1;
     if (color) ctx.strokeStyle = color;
     drawLine(ctx, x1, y1, x2, y2);
 }
@@ -89,14 +90,13 @@ export interface IStrokeParameters {
 }
 */
 function randomStrokeParameters() {
-    var pars = {
+    return {
         thickness: randomInt(1, 15),
         join: randomInt(0, 3),
         startCap: randomInt(0, 3),
         endCap: randomInt(0, 3),
         miterLimit: 10
     };
-    return (pars.thickness <= 1) ? null : pars;
 }
 var pathStroke;
 var strokeParamsToString;
