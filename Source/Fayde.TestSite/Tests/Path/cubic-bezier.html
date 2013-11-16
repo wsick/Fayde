@@ -12,10 +12,12 @@
         };
         var canvas;
         var ctx;
+        var info;
 
         function load() {
             var canvas = addCanvas(config);
             ctx = canvas.getContext("2d");
+            info = document.getElementById("info");
             go();
         }
 
@@ -28,12 +30,15 @@
             var rnd = randomCubicBezier();
             var bezier = Fayde.Path.CubicBezier(rnd.cp1x, rnd.cp1y, rnd.cp2x, rnd.cp2y, rnd.x, rnd.y);
 
+            var strokePars = randomStrokeParameters();
+
             ctx.beginPath();
             ctx.strokeStyle = "rgb(0,0,0)";
             ctx.moveTo(sx, sy);
             bezier.draw(ctx);
-            ctx.stroke();
+            pathStroke(ctx, "rgb(0,0,0)", strokePars);
 
+            ctx.lineWidth = 1;
             drawGuideLine(ctx, sx, sy, rnd.cp1x, rnd.cp1y, 1);
             drawGuideLine(ctx, rnd.cp1x, rnd.cp1y, rnd.cp2x, rnd.cp2y, 2);
             drawGuideLine(ctx, rnd.cp2x, rnd.cp2y, rnd.x, rnd.y, 3);
@@ -43,10 +48,9 @@
             drawControlPoint(ctx, rnd.cp2x, rnd.cp2y, 2);
             drawEndPoint(ctx, rnd.x, rnd.y);
 
-            var box = { l: Number.POSITIVE_INFINITY, r: Number.NEGATIVE_INFINITY, t: Number.POSITIVE_INFINITY, b: Number.NEGATIVE_INFINITY };
-            bezier.extendFillBox(box, sx, sy);
-            ctx.strokeStyle = "rgb(255,0,0)";
-            ctx.strokeRect(box.l, box.t, box.r - box.l, box.b - box.t);
+            drawBoundingBox(bezier, sx, sy, strokePars);
+
+            dumpinfo(strokePars);
         }
 
         function randomCubicBezier() {
@@ -66,10 +70,15 @@
                 y: y
             };
         }
+
+        function dumpinfo(pars) {
+            info.innerText = strokeParamsToString(pars);
+        }
     </script>
 </head>
 <body onload="load()">
     <input type="button" value="again" onclick="go()" />
+    <span id="info"></span>
     <br />
 </body>
 </html>
