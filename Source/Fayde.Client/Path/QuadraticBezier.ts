@@ -64,14 +64,21 @@ module Fayde.Path {
         y: number;
     }
     function getMaxima(x1: number, x2: number, x3: number, y1: number, y2: number, y3: number): IMaxima[] {
+        function x_t(t: number): number {
+            return (x1 * Math.pow(1 - t, 2)) + (2 * x2 * (1 - t) * t) + (x3 * Math.pow(t, 2));
+        }
+        function y_t(t: number): number {
+            return (y1 * Math.pow(1 - t, 2)) + (2 * y2 * (1 - t) * t) + (y3 * Math.pow(t, 2));
+        }
+
         //change in x direction
         var m1: IMaxima = null;
         var m1t = (x1 - x2) / (x1 - 2 * x2 + x3);
         if (m1t >= 0 && m1t <= 1) {
             m1 = {
                 t: m1t,
-                x: xoft(x1, x2, x3, m1t),
-                y: xoft(y1, y2, y3, m1t)
+                x: x_t(m1t),
+                y: y_t(m1t)
             };
         }
 
@@ -81,16 +88,11 @@ module Fayde.Path {
         if (m2t >= 0 && m2t <= 1) {
             m2 = {
                 t: m2t,
-                x: xoft(x1, x2, x3, m2t),
-                y: xoft(y1, y2, y3, m2t)
+                x: x_t(m2t),
+                y: y_t(m2t)
             };
         }
 
         return [m1, m2];
-    }
-    function xoft(a: number, b: number, c: number, t: number) {
-        // x(t) = a(1-t)^2 + 2*b(1-t)t + c*t^2
-        // "change of direction" point (dx/dt = 0)
-        return (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
     }
 }
