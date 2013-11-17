@@ -26,6 +26,12 @@ module Fayde.Path {
             },
             toString: function (): string {
                 return "M" + x.toString() + "," + y.toString();
+            },
+            getStartAngle: function (): number {
+                return null;
+            },
+            getEndAngle: function (): number {
+                return null;
             }
         };
     }

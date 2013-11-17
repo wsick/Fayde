@@ -15,6 +15,12 @@ module Fayde.Path {
             },
             toString: function (): string {
                 return "Z";
+            },
+            getStartAngle: function (): number {
+                return null;
+            },
+            getEndAngle: function (): number {
+                return null;
             }
         };
     }

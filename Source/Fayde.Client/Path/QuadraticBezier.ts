@@ -53,6 +53,12 @@ module Fayde.Path {
             },
             toString: function (): string {
                 return "Q" + cpx.toString() + "," + cpy.toString() + " " + x.toString() + "," + y.toString();
+            },
+            getStartAngle: function (): number {
+                return null;
+            },
+            getEndAngle: function (): number {
+                return null;
             }
         };
     }

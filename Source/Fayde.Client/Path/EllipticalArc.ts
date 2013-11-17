@@ -29,6 +29,12 @@ module Fayde.Path {
             },
             toString: function (): string {
                 return "A" + width.toString() + "," + height.toString() + " " + rotationAngle.toString() + " " + isLargeArcFlag.toString() + " " + sweepDirectionFlag.toString() + " " + ex.toString() + "," + ey.toString();
+            },
+            getStartAngle: function (): number {
+                return null;
+            },
+            getEndAngle: function (): number {
+                return null;
             }
         };
     }

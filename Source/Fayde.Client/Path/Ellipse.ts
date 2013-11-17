@@ -55,6 +55,12 @@ module Fayde.Path {
                 box.r = Math.max(box.r, x + width + hs);
                 box.t = Math.min(box.t, y - hs);
                 box.b = Math.max(box.b, y + height + hs);
+            },
+            getStartAngle: function (): number {
+                return null;
+            },
+            getEndAngle: function (): number {
+                return null;
             }
         };
     }
