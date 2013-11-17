@@ -17,13 +17,13 @@ module Fayde.Path {
             },
             extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) {
                 var m = getMaxima(prevX, cpx, x, prevY, cpy, y);
-                if (m[0]) {
-                    box.l = Math.min(box.l, m[0].x);
-                    box.r = Math.max(box.r, m[0].x);
+                if (m.x) {
+                    box.l = Math.min(box.l, m.x);
+                    box.r = Math.max(box.r, m.x);
                 }
-                if (m[1]) {
-                    box.t = Math.min(box.t, m[1].y);
-                    box.b = Math.max(box.b, m[1].y);
+                if (m.y) {
+                    box.t = Math.min(box.t, m.y);
+                    box.b = Math.max(box.b, m.y);
                 }
 
                 box.l = Math.min(box.l, x);
@@ -35,13 +35,13 @@ module Fayde.Path {
                 var hs = pars.thickness / 2.0;
                 
                 var m = getMaxima(prevX, cpx, x, prevY, cpy, y);
-                if (m[0]) {
-                    box.l = Math.min(box.l, m[0].x - hs);
-                    box.r = Math.max(box.r, m[0].x + hs);
+                if (m.x) {
+                    box.l = Math.min(box.l, m.x - hs);
+                    box.r = Math.max(box.r, m.x + hs);
                 }
-                if (m[1]) {
-                    box.t = Math.min(box.t, m[1].y - hs);
-                    box.b = Math.max(box.b, m[1].y + hs);
+                if (m.y) {
+                    box.t = Math.min(box.t, m.y - hs);
+                    box.b = Math.max(box.b, m.y + hs);
                 }
 
                 box.l = Math.min(box.l, x);
@@ -56,43 +56,23 @@ module Fayde.Path {
             }
         };
     }
-
+    
     //http://pomax.nihongoresources.com/pages/bezier/
     interface IMaxima {
-        t: number;
         x: number;
         y: number;
     }
-    function getMaxima(x1: number, x2: number, x3: number, y1: number, y2: number, y3: number): IMaxima[] {
-        function x_t(t: number): number {
-            return (x1 * Math.pow(1 - t, 2)) + (2 * x2 * (1 - t) * t) + (x3 * Math.pow(t, 2));
-        }
-        function y_t(t: number): number {
-            return (y1 * Math.pow(1 - t, 2)) + (2 * y2 * (1 - t) * t) + (y3 * Math.pow(t, 2));
-        }
-
+    function getMaxima(x1: number, x2: number, x3: number, y1: number, y2: number, y3: number): IMaxima {
         //change in x direction
-        var m1: IMaxima = null;
-        var m1t = (x1 - x2) / (x1 - 2 * x2 + x3);
-        if (m1t >= 0 && m1t <= 1) {
-            m1 = {
-                t: m1t,
-                x: x_t(m1t),
-                y: y_t(m1t)
-            };
-        }
-
-        //change in y direction
-        var m2: IMaxima = null;
-        var m2t = (y1 - y2) / (y1 - 2 * y2 + y3);
-        if (m2t >= 0 && m2t <= 1) {
-            m2 = {
-                t: m2t,
-                x: x_t(m2t),
-                y: y_t(m2t)
-            };
-        }
-
-        return [m1, m2];
+        return {
+            x: cod(x1, x2, x3),
+            y: cod(y1, y2, y3)
+        };
     }
+    function cod(a: number, b: number, c: number): number {
+        var t = (a - b) / (a - 2 * b + c);
+        if (t < 0 || t > 1)
+            return null;
+        return (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
+    }   
 }
