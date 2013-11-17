@@ -19,6 +19,8 @@ module Fayde.Path {
         draw: (canvasCtx: CanvasRenderingContext2D) => void;
         extendFillBox: (box: IBoundingBox, prevX: number, prevY: number) => void;
         extendStrokeBox: (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) => void;
+        getStartAngle(): number;
+        getEndAngle(): number;
     }
 
     export class RawPath {
@@ -157,6 +159,54 @@ module Fayde.Path {
                 s += path[i].toString();
             }
             return s;
+        }
+    }
+    function expandStartCap(box: IBoundingBox, p: number[], d: number[], pars: IStrokeParameters) {
+        var hs = pars.thickness / 2.0;
+        switch (pars.startCap) {
+            case Shapes.PenLineCap.Round:
+                box.l = Math.min(box.l, p[0] - hs);
+                box.r = Math.max(box.r, p[0] + hs);
+                box.t = Math.min(box.t, p[1] - hs);
+                box.b = Math.max(box.b, p[1] + hs);
+                break;
+            case Shapes.PenLineCap.Square:
+                break;
+            case Shapes.PenLineCap.Flat:
+            default:
+                break;
+        }
+    }
+    function expandEndCap(box: IBoundingBox, p: number[], d: number[], pars: IStrokeParameters) {
+        var hs = pars.thickness / 2.0;
+        switch (pars.startCap) {
+            case Shapes.PenLineCap.Round:
+                box.l = Math.min(box.l, p[0] - hs);
+                box.r = Math.max(box.r, p[0] + hs);
+                box.t = Math.min(box.t, p[1] - hs);
+                box.b = Math.max(box.b, p[1] + hs);
+                break;
+            case Shapes.PenLineCap.Square:
+                break;
+            case Shapes.PenLineCap.Flat:
+            default:
+                break;
+        }
+    }
+    function expandLineJoin(box: IBoundingBox, p: number[], sd: number[], ed: number[], pars: IStrokeParameters) {
+        var hs = pars.thickness / 2.0;
+        switch (pars.join) {
+            case Shapes.PenLineJoin.Miter:
+                break;
+            case Shapes.PenLineJoin.Round:
+                box.l = Math.min(box.l, p[0] - hs);
+                box.r = Math.max(box.r, p[0] + hs);
+                box.t = Math.min(box.t, p[1] - hs);
+                box.b = Math.max(box.b, p[1] + hs);
+                break;
+            case Shapes.PenLineJoin.Bevel:
+            default:
+                break;
         }
     }
 }
