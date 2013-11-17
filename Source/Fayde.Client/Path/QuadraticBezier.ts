@@ -17,11 +17,11 @@ module Fayde.Path {
             },
             extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) {
                 var m = getMaxima(prevX, cpx, x, prevY, cpy, y);
-                if (m.x) {
+                if (m.x != null) {
                     box.l = Math.min(box.l, m.x);
                     box.r = Math.max(box.r, m.x);
                 }
-                if (m.y) {
+                if (m.y != null) {
                     box.t = Math.min(box.t, m.y);
                     box.b = Math.max(box.b, m.y);
                 }
@@ -58,12 +58,24 @@ module Fayde.Path {
     }
     
     //http://pomax.nihongoresources.com/pages/bezier/
+    /* Quadratic Bezier curve is defined by parametric curve:
+     *  F(t)x = s.x(1-t)^2 + cp.x(1-t)t + e.x(t^2)
+     *  F(t)x = s.y(1-t)^2 + cp.y(1-t)t + e.y(t^2)
+     * where
+     *  s = start point
+     *  cp = control point
+     *  e = end point
+     * 
+     * We find the coordinates (2) where F(t)x/dt = 0, F(t)y/dt = 0 
+     * (within the constraints of the curve (0 <= t <= 1)
+     * These points will expand the bounding box
+     */
+
     interface IMaxima {
         x: number;
         y: number;
     }
     function getMaxima(x1: number, x2: number, x3: number, y1: number, y2: number, y3: number): IMaxima {
-        //change in x direction
         return {
             x: cod(x1, x2, x3),
             y: cod(y1, y2, y3)

@@ -20,20 +20,55 @@ module Fayde.Path {
                 ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
             },
             extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) {
-                var xr = range(prevX, cp1x, cp2x, x);
-                var yr = range(prevY, cp1y, cp2y, y);
-                box.l = Math.min(box.l, xr.min);
-                box.r = Math.max(box.r, xr.max);
-                box.t = Math.min(box.t, yr.min);
-                box.b = Math.max(box.b, yr.max);
+                var m = getMaxima(prevX, cp1x, cp2x, x, prevY, cp1y, cp2y, y);
+                if (m.x[0] != null) {
+                    box.l = Math.min(box.l, m.x[0]);
+                    box.r = Math.max(box.r, m.x[0]);
+                }
+                if (m.x[1] != null) {
+                    box.l = Math.min(box.l, m.x[1]);
+                    box.r = Math.max(box.r, m.x[1]);
+                }
+                if (m.y[0] != null) {
+                    box.t = Math.min(box.t, m.y[0]);
+                    box.b = Math.max(box.b, m.y[0]);
+                }
+                if (m.y[1] != null) {
+                    box.t = Math.min(box.t, m.y[1]);
+                    box.b = Math.max(box.b, m.y[1]);
+                }
+
+                box.l = Math.min(box.l, x);
+                box.r = Math.max(box.r, x);
+                box.t = Math.min(box.t, y);
+                box.b = Math.max(box.b, y);
             },
             extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
-                var xr = range(prevX, cp1x, cp2x, x);
-                var yr = range(prevY, cp1y, cp2y, y);
-                box.l = Math.min(box.l, xr.min);
-                box.r = Math.max(box.r, xr.max);
-                box.t = Math.min(box.t, yr.min);
-                box.b = Math.max(box.b, yr.max);
+                var hs = pars.thickness / 2.0;
+
+                var m = getMaxima(prevX, cp1x, cp2x, x, prevY, cp1y, cp2y, y);
+                if (m.x[0] != null) {
+                    box.l = Math.min(box.l, m.x[0] - hs);
+                    box.r = Math.max(box.r, m.x[0] + hs);
+                }
+                if (m.x[1] != null) {
+                    box.l = Math.min(box.l, m.x[1] - hs);
+                    box.r = Math.max(box.r, m.x[1] + hs);
+                }
+                if (m.y[0] != null) {
+                    box.t = Math.min(box.t, m.y[0] - hs);
+                    box.b = Math.max(box.b, m.y[0] + hs);
+                }
+                if (m.y[1] != null) {
+                    box.t = Math.min(box.t, m.y[1] - hs);
+                    box.b = Math.max(box.b, m.y[1] + hs);
+                }
+
+                box.l = Math.min(box.l, x);
+                box.r = Math.max(box.r, x);
+                box.t = Math.min(box.t, y);
+                box.b = Math.max(box.b, y);
+
                 console.warn("[NOT IMPLEMENTED] Measure CubicBezier (with stroke)");
             },
             toString: function (): string {
@@ -43,53 +78,55 @@ module Fayde.Path {
     }
     
     //http://pomax.nihongoresources.com/pages/bezier/
-    interface IRange {
-        min: number;
-        max: number;
+    /* Cubic Bezier curve is defined by parameteric curve:
+     * F(t)x = 
+     * F(t)y = 
+     * where
+     *  s = start point
+     *  cp1 = control point 1
+     *  cp2 = control point 2
+     *  e = end point
+     *
+     * We find the coordinates (4) where F(t)x/dt = 0, F(t)y/dt = 0
+     * (within the constraints of the curve (0 <= t <= 1)
+     * These points will expand the bounding box
+     */
+
+    interface IMaxima {
+        x: number[];
+        y: number[];
     }
-    function range(a: number, b: number, c: number, d: number): IRange {
-            var min = Math.min(a, d);
-            var max = Math.max(a, d);
+    function getMaxima(x1: number, x2: number, x3: number, x4: number, y1: number, y2: number, y3: number, y4: number): IMaxima {
+        return {
+            x: cod(x1, x2, x3, x4),
+            y: cod(y1, y2, y3, y4)
+        };
+    }
+    function cod(a: number, b: number, c: number, d: number): number[] {
+        var u = 2 * a - 4 * b + 2 * c;
+        var v = b - a;
+        var w = -a + 3 * b + d - 3 * c;
+        var rt = Math.sqrt(u * u - 4 * v * w);
+        
+        var cods: number[] = [null, null];
+        if (isNaN(rt))
+            return cods;
+        
+        var t: number,
+            ot: number;
 
-            // if control points lie between start/end, the bezier curve is bound by the start/end
-            if ((min <= b && b <= max) && (min <= c && c <= max)) {
-                return {
-                    min: min,
-                    max: max
-                };
-            }
-
-            // find "change of direction" points (dx/dt = 0)
-            //xt = a(1-t)^3 + 3b(t)(1-t)^2 + 3c(1-t)(t)^2 + dt^3
-            var u = 2 * a - 4 * b + 2 * c;
-            var v = b - a;
-            var w = -a + 3 * b + d - 3 * c;
-            var rt = Math.sqrt(u * u - 4 * v * w);
-            if (!isNaN(rt)) {
-                var t;
-
-                t = (-u + rt) / (2 * w);
-                //f(t) is only defined in [0,1]
-                if (t >= 0 && t <= 1) {
-                    var ot = 1 - t;
-                    var xt = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
-                    min = Math.min(min, xt);
-                    max = Math.max(max, xt);
-                }
-
-                t = (-u - rt) / (2 * w);
-                //f(t) is only defined in [0,1]
-                if (t >= 0 && t <= 1) {
-                    var ot = 1 - t;
-                    var xt = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
-                    min = Math.min(min, xt);
-                    max = Math.max(max, xt);
-                }
-            }
-
-            return {
-                min: min,
-                max: max
-            };
+        t = (-u + rt) / (2 * w);
+        if (t >= 0 && t <= 1) {
+            ot = 1 - t;
+            cods[0] = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
         }
+
+        t = (-u - rt) / (2 * w);
+        if (t >= 0 && t <= 1) {
+            ot = 1 - t;
+            cods[1] = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
+        }
+
+        return cods;
+    }
 }
