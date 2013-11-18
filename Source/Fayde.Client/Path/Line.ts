@@ -6,50 +6,36 @@ module Fayde.Path {
     export function Line(x: number, y: number): ILine {
         return {
             isSingle: false,
+            sx: null,
+            sy: null,
             x: x,
             y: y,
             draw: function (ctx: CanvasRenderingContext2D) {
                 ctx.lineTo(x, y);
             },
-            extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) {
+            extendFillBox: function (box: IBoundingBox) {
                 box.l = Math.min(box.l, x);
                 box.r = Math.max(box.r, x);
                 box.t = Math.min(box.t, y);
                 box.b = Math.max(box.b, y);
             },
-            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number) {
-                var hs = pars.thickness / 2.0;
-                if (prevX === x) {
-                    if (prevY === y)
-                        return;
-                    box.l = Math.min(box.l, x - hs);
-                    box.r = Math.max(box.r, x + hs);
-                    //TODO: Finish y expand
-                    console.warn("[NOT IMPLEMENTED] Measure Line (with stroke)");
-                    return;
-                }
-                if (prevY === y) {
-                    //TODO: Finish x expand
-                    console.warn("[NOT IMPLEMENTED] Measure Line (with stroke)");
-                    box.t = Math.min(box.t, y - hs);
-                    box.b = Math.max(box.b, y + hs);
-                    return;
-                }
-                
-                box.l = Math.min(box.l, x);
-                box.r = Math.max(box.r, x);
-                box.t = Math.min(box.t, y);
-                box.b = Math.max(box.b, y);
-                console.warn("[NOT IMPLEMENTED] Measure Line (with stroke)");
+            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters) {
+                this.extendFillBox(box);
             },
             toString: function (): string {
                 return "L" + x.toString() + "," + y.toString();
             },
             getStartVector: function (): number[] {
-                return null;
+                return [
+                    x - this.sx,
+                    y - this.sy
+                ];
             },
             getEndVector: function (): number[] {
-                return null;
+                return [
+                    x - this.sx,
+                    y - this.sy
+                ];
             }
         };
     }

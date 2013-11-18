@@ -7,6 +7,8 @@ module Fayde.Path {
     }
     export function QuadraticBezier(cpx: number, cpy: number, x: number, y: number): IQuadraticBezier {
         return {
+            sx: null,
+            sy: null,
             isSingle: false,
             cpx: cpx,
             cpy: cpy,
@@ -15,8 +17,8 @@ module Fayde.Path {
             draw: function (ctx: CanvasRenderingContext2D) {
                 ctx.quadraticCurveTo(cpx, cpy, x, y);
             },
-            extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) {
-                var m = getMaxima(prevX, cpx, x, prevY, cpy, y);
+            extendFillBox: function (box: IBoundingBox) {
+                var m = getMaxima(this.sx, cpx, x, this.sy, cpy, y);
                 if (m.x != null) {
                     box.l = Math.min(box.l, m.x);
                     box.r = Math.max(box.r, m.x);
@@ -31,10 +33,10 @@ module Fayde.Path {
                 box.t = Math.min(box.t, y);
                 box.b = Math.max(box.b, y);
             },
-            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number) {
+            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters) {
                 var hs = pars.thickness / 2.0;
-                
-                var m = getMaxima(prevX, cpx, x, prevY, cpy, y);
+
+                var m = getMaxima(this.sx, cpx, x, this.sy, cpy, y);
                 if (m.x) {
                     box.l = Math.min(box.l, m.x - hs);
                     box.r = Math.max(box.r, m.x + hs);
@@ -48,21 +50,27 @@ module Fayde.Path {
                 box.r = Math.max(box.r, x);
                 box.t = Math.min(box.t, y);
                 box.b = Math.max(box.b, y);
-
-                console.warn("[NOT IMPLEMENTED] Measure QuadraticBezier (with stroke)");
             },
             toString: function (): string {
                 return "Q" + cpx.toString() + "," + cpy.toString() + " " + x.toString() + "," + y.toString();
             },
             getStartVector: function (): number[] {
-                return null;
+                //[F(0)'x, F(0)'y]
+                return [
+                    2 * (cpx - this.sx),
+                    2 * (cpy - this.sy)
+                ];
             },
             getEndVector: function (): number[] {
-                return null;
+                //[F(1)'x, F(1)'y]
+                return [
+                    2 * (x - cpx),
+                    2 * (y - cpy)
+                ];
             }
         };
     }
-    
+
     //http://pomax.nihongoresources.com/pages/bezier/
     /* Quadratic Bezier curve is defined by parametric curve:
      *  F(t)x = s.x(1-t)^2 + cp.x(1-t)t + e.x(t^2)
@@ -92,5 +100,5 @@ module Fayde.Path {
         if (t < 0 || t > 1)
             return null;
         return (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
-    }   
+    }
 }

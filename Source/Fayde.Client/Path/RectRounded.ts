@@ -9,6 +9,8 @@ module Fayde.Path {
         var bottom = y + height;
 
         return {
+            sx: null,
+            sy: null,
             isSingle: true,
             x: x,
             y: y,
@@ -37,13 +39,13 @@ module Fayde.Path {
                 ctx.quadraticCurveTo(left, top, left + radiusX, top);
                 ctx.closePath();
             },
-            extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) {
+            extendFillBox: function (box: IBoundingBox) {
                 box.l = Math.min(box.l, x);
                 box.r = Math.max(box.r, x + width);
                 box.t = Math.min(box.t, y);
                 box.b = Math.max(box.b, y + height);
             },
-            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number) {
+            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters) {
                 var hs = pars.thickness / 2.0;
                 box.l = Math.min(box.l, x - hs);
                 box.r = Math.max(box.r, x + width + hs);

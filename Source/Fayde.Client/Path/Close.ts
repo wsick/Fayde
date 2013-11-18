@@ -4,17 +4,15 @@ module Fayde.Path {
     }
     export function Close(): IClose {
         return {
+            sx: null,
+            sy: null,
             isSingle: false,
             isClose: true,
             draw: function (ctx: CanvasRenderingContext2D) {
                 ctx.closePath();
             },
-            extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) {
-                //TODO: Handle line join
-            },
-            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number) {
-                //TODO: Handle line join
-            },
+            extendFillBox: function (box: IBoundingBox) { },
+            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters) { },
             toString: function (): string {
                 return "Z";
             },

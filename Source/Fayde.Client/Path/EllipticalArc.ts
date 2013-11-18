@@ -10,6 +10,8 @@ module Fayde.Path {
     }
     export function EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Shapes.SweepDirection, ex: number, ey: number): IEllipticalArc {
         return {
+            sx: null,
+            sy: null,
             isSingle: false,
             width: width,
             height: height,
@@ -21,10 +23,10 @@ module Fayde.Path {
             draw: function (ctx: CanvasRenderingContext2D) {
                 console.warn("[NOT IMPLEMENTED] Draw Elliptical Arc");
             },
-            extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) {
+            extendFillBox: function (box: IBoundingBox) {
                 console.warn("[NOT IMPLEMENTED] Measure Elliptical Arc");
             },
-            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number) {
+            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters) {
                 console.warn("[NOT IMPLEMENTED] Measure Elliptical Arc (with stroke)");
             },
             toString: function (): string {

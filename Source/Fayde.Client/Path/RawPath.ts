@@ -15,10 +15,12 @@ module Fayde.Path {
         b: number;
     }
     export interface IPathEntry {
+        sx: number;
+        sy: number;
         isSingle: boolean;
         draw: (canvasCtx: CanvasRenderingContext2D) => void;
-        extendFillBox: (box: IBoundingBox, prevX: number, prevY: number) => void;
-        extendStrokeBox: (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number) => void;
+        extendFillBox: (box: IBoundingBox) => void;
+        extendStrokeBox: (box: IBoundingBox, pars: IStrokeParameters) => void;
         //Start Vector must be in direction of path at start
         getStartVector(): number[];
         //End Vector must be in direction of path at end
@@ -110,16 +112,18 @@ module Fayde.Path {
                 t: Number.POSITIVE_INFINITY,
                 b: Number.NEGATIVE_INFINITY
             };
-            var prevX = null;
-            var prevY = null;
+            var curx = null;
+            var cury = null;
             var entry: IPathEntry;
             for (var i = 0; i < len; i++) {
                 entry = path[i];
-                entry.extendFillBox(box, prevX, prevY);
-                if (!entry.isSingle) {
-                    prevX = (<any>entry).x;
-                    prevY = (<any>entry).y;
-                }
+                entry.sx = curx;
+                entry.sy = cury;
+
+                entry.extendFillBox(box);
+
+                curx = (<any>entry).x || 0;
+                cury = (<any>entry).y || 0;
             }
             return box;
         }
@@ -151,50 +155,96 @@ module Fayde.Path {
             return s;
         }
     }
-    function expandStartCap(box: IBoundingBox, p: number[], d: number[], pars: IStrokeParameters) {
+    function expandStartCap(box: IBoundingBox, entry: IPathEntry, pars: IStrokeParameters) {
         var hs = pars.thickness / 2.0;
         var cap = pars.startCap || pars.endCap || 0; //HTML5 doesn't support start and end cap
         switch (cap) {
             case Shapes.PenLineCap.Round:
-                box.l = Math.min(box.l, p[0] - hs);
-                box.r = Math.max(box.r, p[0] + hs);
-                box.t = Math.min(box.t, p[1] - hs);
-                box.b = Math.max(box.b, p[1] + hs);
+                box.l = Math.min(box.l, entry.sx - hs);
+                box.r = Math.max(box.r, entry.sx + hs);
+                box.t = Math.min(box.t, entry.sy - hs);
+                box.b = Math.max(box.b, entry.sy + hs);
                 break;
             case Shapes.PenLineCap.Square:
+                var sd = normalizeVector(entry.getStartVector());
+                sd[0] = -sd[0];
+                sd[1] = -sd[1];
+                var sdo = perpendicularVector(sd);
+                var x1 = entry.sx + hs * (sd[0] + sdo[0]);
+                var x2 = entry.sx + hs * (sd[0] - sdo[0]);
+                var y1 = entry.sy + hs * (sd[1] + sdo[1]);
+                var y2 = entry.sy + hs * (sd[1] - sdo[1]);
+                box.l = Math.min(box.l, x1, x2);
+                box.r = Math.max(box.r, x1, x2);
+                box.t = Math.min(box.t, y1, y2);
+                box.b = Math.max(box.b, y1, y2);
                 break;
             case Shapes.PenLineCap.Flat:
             default:
+                var sd = normalizeVector(entry.getStartVector());
+                var sdo = perpendicularVector(sd);
+                var x1 = entry.sx + hs * sdo[0];
+                var x2 = entry.sx + hs * -sdo[0];
+                var y1 = entry.sy + hs * sdo[1];
+                var y2 = entry.sy + hs * -sdo[1];
+                box.l = Math.min(box.l, x1, x2);
+                box.r = Math.max(box.r, x1, x2);
+                box.t = Math.min(box.t, y1, y2);
+                box.b = Math.max(box.b, y1, y2);
                 break;
         }
     }
-    function expandEndCap(box: IBoundingBox, p: number[], d: number[], pars: IStrokeParameters) {
+    function expandEndCap(box: IBoundingBox, entry: IPathEntry, pars: IStrokeParameters) {
+        var ex: number = (<any>entry).x;
+        var ey: number = (<any>entry).y;
+
         var hs = pars.thickness / 2.0;
         var cap = pars.startCap || pars.endCap || 0; //HTML5 doesn't support start and end cap
         switch (cap) {
             case Shapes.PenLineCap.Round:
-                box.l = Math.min(box.l, p[0] - hs);
-                box.r = Math.max(box.r, p[0] + hs);
-                box.t = Math.min(box.t, p[1] - hs);
-                box.b = Math.max(box.b, p[1] + hs);
+                box.l = Math.min(box.l, ex - hs);
+                box.r = Math.max(box.r, ex + hs);
+                box.t = Math.min(box.t, ey - hs);
+                box.b = Math.max(box.b, ey + hs);
                 break;
             case Shapes.PenLineCap.Square:
+                var ed = normalizeVector(entry.getEndVector());
+                var edo = perpendicularVector(ed);
+                var x1 = ex + hs * (ed[0] + edo[0]);
+                var x2 = ex + hs * (ed[0] - edo[0]);
+                var y1 = ey + hs * (ed[1] + edo[1]);
+                var y2 = ey + hs * (ed[1] - edo[1]);
+                box.l = Math.min(box.l, x1, x2);
+                box.r = Math.max(box.r, x1, x2);
+                box.t = Math.min(box.t, y1, y2);
+                box.b = Math.max(box.b, y1, y2);
                 break;
             case Shapes.PenLineCap.Flat:
             default:
+                var ed = normalizeVector(entry.getEndVector());
+                var edo = perpendicularVector(ed);
+                var x1 = ex + hs * edo[0];
+                var x2 = ex + hs * -edo[0];
+                var y1 = ey + hs * edo[1];
+                var y2 = ey + hs * -edo[1];
+                box.l = Math.min(box.l, x1, x2);
+                box.r = Math.max(box.r, x1, x2);
+                box.t = Math.min(box.t, y1, y2);
+                box.b = Math.max(box.b, y1, y2);
                 break;
         }
     }
-    function expandLineJoin(box: IBoundingBox, p: number[], nd: number[], xd: number[], pars: IStrokeParameters) {
+    function expandLineJoin(box: IBoundingBox, previous: IPathEntry, entry: IPathEntry, pars: IStrokeParameters, sx: number, sy: number) {
+
         var hs = pars.thickness / 2.0;
         switch (pars.join) {
             case Shapes.PenLineJoin.Miter:
                 break;
             case Shapes.PenLineJoin.Round:
-                box.l = Math.min(box.l, p[0] - hs);
-                box.r = Math.max(box.r, p[0] + hs);
-                box.t = Math.min(box.t, p[1] - hs);
-                box.b = Math.max(box.b, p[1] + hs);
+                box.l = Math.min(box.l, entry.sx - hs);
+                box.r = Math.max(box.r, entry.sx + hs);
+                box.t = Math.min(box.t, entry.sy - hs);
+                box.b = Math.max(box.b, entry.sy + hs);
                 break;
             case Shapes.PenLineJoin.Bevel:
             default:
@@ -205,27 +255,31 @@ module Fayde.Path {
     function processStrokedBounds(box: IBoundingBox, entries: IPathEntry[], pars: IStrokeParameters) {
         var len = entries.length;
         var last: IPathEntry = null;
-        var prev: number[] = [null, null];
+        var curx: number = null;
+        var cury: number = null;
+        var sx: number = null;
+        var sy: number = null;
 
         var isLastEntryMove = false;
 
         function processEntry(entry: IPathEntry, i: number) {
+            entry.sx = curx;
+            entry.sy = cury;
+
             if (!entry.isSingle) {
-                if (!(<IMove>entry).isMove && isLastEntryMove)
-                    expandStartCap(box, prev, entry.getStartVector(), pars);
+                if (!(<IMove>entry).isMove && isLastEntryMove) {
+                    sx = entry.sx;
+                    sy = entry.sy;
+                    expandStartCap(box, entry, pars);
+                }
                 if (!isLastEntryMove && i > 0)
-                    expandLineJoin(box, prev, last.getEndVector(), entry.getStartVector(), pars);
+                    expandLineJoin(box, last, entry, pars, sx, sy);
             }
 
-            entry.extendStrokeBox(box, pars, prev[0], prev[1]);
+            entry.extendStrokeBox(box, pars);
 
-            if (!entry.isSingle) {
-                prev[0] = (<any>entry).x;
-                prev[1] = (<any>entry).y;
-                if (i + 1 >= len)
-                    expandEndCap(box, prev, entry.getEndVector(), pars);
-            }
-
+            curx = (<any>entry).x || 0;
+            cury = (<any>entry).y || 0;
             isLastEntryMove = !!(<IMove>entry).isMove;
             last = entry;
         }
@@ -233,5 +287,22 @@ module Fayde.Path {
         for (var i = 0; i < len; i++) {
             processEntry(entries[i], i);
         }
+        var end = entries[len - 1];
+        if (end && !end.isSingle)
+            expandEndCap(box, end, pars);
+    }
+
+    function normalizeVector(v: number[]): number[] {
+        var len = Math.sqrt(v[0] * v[0] + v[1] * v[1]);
+        return [
+            v[0] / len,
+            v[1] / len
+        ];
+    }
+    function perpendicularVector(v: number[]): number[] {
+        return [
+            -v[1],
+            v[0]
+        ];
     }
 }

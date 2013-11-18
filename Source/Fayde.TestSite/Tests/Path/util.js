@@ -93,7 +93,7 @@ export interface IStrokeParameters {
 */
 function randomStrokeParameters() {
     return {
-        thickness: randomInt(1, 15),
+        thickness: randomInt(1, 35),
         join: randomInt(0, 3),
         startCap: randomInt(0, 3),
         endCap: randomInt(0, 3),

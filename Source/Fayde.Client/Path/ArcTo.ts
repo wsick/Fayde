@@ -38,11 +38,15 @@ module Fayde.Path {
                 ea = (2 * Math.PI) + ea;
 
             line = Line(a[0], a[1]);
+            line.sx = prevX;
+            line.sy = prevY;
             arc = Arc(c[0], c[1], radius, sa, ea, cc);
             inited = true;
         }
 
         return {
+            sx: null,
+            sy: null,
             isSingle: false,
             cpx: cpx,
             cpy: cpy,
@@ -52,37 +56,38 @@ module Fayde.Path {
             draw: function (ctx: CanvasRenderingContext2D) {
                 ctx.arcTo(cpx, cpy, x, y, radius);
             },
-            extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) {
-                init(prevX, prevY);
-                
-                box.l = Math.min(box.l, prevX);
-                box.r = Math.max(box.r, prevX);
-                box.t = Math.min(box.t, prevY);
-                box.b = Math.max(box.b, prevY);
+            extendFillBox: function (box: IBoundingBox) {
+                init(this.sx, this.sy);
 
-                line.extendFillBox(box, prevX, prevY);
-                arc.extendFillBox(box, prevX, prevY);
+                box.l = Math.min(box.l, this.sx);
+                box.r = Math.max(box.r, this.sx);
+                box.t = Math.min(box.t, this.sy);
+                box.b = Math.max(box.b, this.sy);
+
+                line.extendFillBox(box);
+                arc.extendFillBox(box);
             },
-            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number) {
-                init(prevX, prevY);
+            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters) {
+                init(this.sx, this.sy);
 
                 var hs = pars.thickness / 2;
-                box.l = Math.min(box.l, prevX - hs);
-                box.r = Math.max(box.r, prevX + hs);
-                box.t = Math.min(box.t, prevY - hs);
-                box.b = Math.max(box.b, prevY + hs);
+                box.l = Math.min(box.l, this.sx - hs);
+                box.r = Math.max(box.r, this.sx + hs);
+                box.t = Math.min(box.t, this.sy - hs);
+                box.b = Math.max(box.b, this.sy + hs);
 
-                line.extendStrokeBox(box, pars, prevX, prevY);
-                arc.extendStrokeBox(box, pars, prevX, prevY);
+                line.extendStrokeBox(box, pars);
+                arc.extendStrokeBox(box, pars);
             },
             toString: function (): string {
                 return "";
             },
             getStartVector: function (): number[] {
-                return null;
+                init(this.sx, this.sy);
+                return line.getStartVector();
             },
             getEndVector: function (): number[] {
-                return null;
+                return arc.getEndVector();
             }
         };
     }
