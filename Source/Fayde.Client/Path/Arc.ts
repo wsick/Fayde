@@ -78,7 +78,7 @@ module Fayde.Path {
                 if (cb)
                     box.b = Math.max(box.b, b);
             },
-            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
+            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number) {
                 if (ea === sa)
                     return;
                 init();
@@ -103,10 +103,10 @@ module Fayde.Path {
             toString: function (): string {
                 return "";
             },
-            getStartAngle: function (): number {
+            getStartVector: function (): number[] {
                 return null;
             },
-            getEndAngle: function (): number {
+            getEndVector: function (): number[] {
                 return null;
             }
         };

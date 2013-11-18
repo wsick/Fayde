@@ -19,17 +19,17 @@ module Fayde.Path {
                 box.t = Math.min(box.t, y);
                 box.b = Math.max(box.b, y + height);
             },
-            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
+            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number) {
                 var hs = pars.thickness / 2.0;
                 box.l = Math.min(box.l, x - hs);
                 box.r = Math.max(box.r, x + width + hs);
                 box.t = Math.min(box.t, y - hs);
                 box.b = Math.max(box.b, y + height + hs);
             },
-            getStartAngle: function (): number {
+            getStartVector: function (): number[] {
                 return null;
             },
-            getEndAngle: function (): number {
+            getEndVector: function (): number[] {
                 return null;
             }
         };

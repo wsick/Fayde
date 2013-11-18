@@ -63,7 +63,7 @@ module Fayde.Path {
                 line.extendFillBox(box, prevX, prevY);
                 arc.extendFillBox(box, prevX, prevY);
             },
-            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
+            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number) {
                 init(prevX, prevY);
 
                 var hs = pars.thickness / 2;
@@ -72,22 +72,16 @@ module Fayde.Path {
                 box.t = Math.min(box.t, prevY - hs);
                 box.b = Math.max(box.b, prevY + hs);
 
-                if (isStart) {
-                    //TODO: Handle line cap
-                } else {
-                    //TODO: Handle line join from previous lin
-                }
-
-                line.extendStrokeBox(box, pars, prevX, prevY, isStart, false);
-                arc.extendStrokeBox(box, pars, prevX, prevY, false, isEnd);
+                line.extendStrokeBox(box, pars, prevX, prevY);
+                arc.extendStrokeBox(box, pars, prevX, prevY);
             },
             toString: function (): string {
                 return "";
             },
-            getStartAngle: function (): number {
+            getStartVector: function (): number[] {
                 return null;
             },
-            getEndAngle: function (): number {
+            getEndVector: function (): number[] {
                 return null;
             }
         };

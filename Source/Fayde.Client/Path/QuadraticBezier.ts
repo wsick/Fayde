@@ -31,7 +31,7 @@ module Fayde.Path {
                 box.t = Math.min(box.t, y);
                 box.b = Math.max(box.b, y);
             },
-            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
+            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number) {
                 var hs = pars.thickness / 2.0;
                 
                 var m = getMaxima(prevX, cpx, x, prevY, cpy, y);
@@ -54,10 +54,10 @@ module Fayde.Path {
             toString: function (): string {
                 return "Q" + cpx.toString() + "," + cpy.toString() + " " + x.toString() + "," + y.toString();
             },
-            getStartAngle: function (): number {
+            getStartVector: function (): number[] {
                 return null;
             },
-            getEndAngle: function (): number {
+            getEndVector: function (): number[] {
                 return null;
             }
         };

@@ -24,16 +24,16 @@ module Fayde.Path {
             extendFillBox: function (box: IBoundingBox, prevX: number, prevY: number) {
                 console.warn("[NOT IMPLEMENTED] Measure Elliptical Arc");
             },
-            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
+            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number) {
                 console.warn("[NOT IMPLEMENTED] Measure Elliptical Arc (with stroke)");
             },
             toString: function (): string {
                 return "A" + width.toString() + "," + height.toString() + " " + rotationAngle.toString() + " " + isLargeArcFlag.toString() + " " + sweepDirectionFlag.toString() + " " + ex.toString() + "," + ey.toString();
             },
-            getStartAngle: function (): number {
+            getStartVector: function (): number[] {
                 return null;
             },
-            getEndAngle: function (): number {
+            getEndVector: function (): number[] {
                 return null;
             }
         };

@@ -9,7 +9,7 @@ module Fayde.Path {
     }
     export function CubicBezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): ICubicBezier {
         return {
-            isSingle:false,
+            isSingle: false,
             cp1x: cp1x,
             cp1y: cp1y,
             cp2x: cp2x,
@@ -43,7 +43,7 @@ module Fayde.Path {
                 box.t = Math.min(box.t, y);
                 box.b = Math.max(box.b, y);
             },
-            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) {
+            extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number) {
                 var hs = pars.thickness / 2.0;
 
                 var m = getMaxima(prevX, cp1x, cp2x, x, prevY, cp1y, cp2y, y);
@@ -74,15 +74,15 @@ module Fayde.Path {
             toString: function (): string {
                 return "C" + cp1x.toString() + "," + cp1y.toString() + " " + cp2x.toString() + "," + cp2y.toString() + " " + x.toString() + "," + y.toString();
             },
-            getStartAngle: function (): number {
+            getStartVector: function (): number[] {
                 return null;
             },
-            getEndAngle: function (): number {
+            getEndVector: function (): number[] {
                 return null;
             }
         };
     }
-    
+
     //http://pomax.nihongoresources.com/pages/bezier/
     /* Cubic Bezier curve is defined by parameteric curve:
      * F(t)x = 
@@ -113,11 +113,11 @@ module Fayde.Path {
         var v = b - a;
         var w = -a + 3 * b + d - 3 * c;
         var rt = Math.sqrt(u * u - 4 * v * w);
-        
+
         var cods: number[] = [null, null];
         if (isNaN(rt))
             return cods;
-        
+
         var t: number,
             ot: number;
 

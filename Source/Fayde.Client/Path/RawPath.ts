@@ -18,9 +18,11 @@ module Fayde.Path {
         isSingle: boolean;
         draw: (canvasCtx: CanvasRenderingContext2D) => void;
         extendFillBox: (box: IBoundingBox, prevX: number, prevY: number) => void;
-        extendStrokeBox: (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) => void;
-        getStartAngle(): number;
-        getEndAngle(): number;
+        extendStrokeBox: (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number) => void;
+        //Start Vector must be in direction of path at start
+        getStartVector(): number[];
+        //End Vector must be in direction of path at end
+        getEndVector(): number[];
     }
 
     export class RawPath {
@@ -122,25 +124,13 @@ module Fayde.Path {
             return box;
         }
         private _CalcStrokeBox(pars: IStrokeParameters): IBoundingBox {
-            var path = this._Path;
-            var len = path.length;
             var box: IBoundingBox = {
                 l: Number.POSITIVE_INFINITY,
                 r: Number.NEGATIVE_INFINITY,
                 t: Number.POSITIVE_INFINITY,
                 b: Number.NEGATIVE_INFINITY
             };
-            var prevX = null;
-            var prevY = null;
-            var entry: IPathEntry;
-            for (var i = 0; i < len; i++) {
-                entry = path[i];
-                entry.extendStrokeBox(box, pars, prevX, prevY, i === 0, (i + 1) === len);
-                if (!entry.isSingle) {
-                    prevX = (<any>entry).x;
-                    prevY = (<any>entry).y;
-                }
-            }
+            processStrokedBounds(box, this._Path, pars);
             return box;
         }
 
@@ -163,7 +153,8 @@ module Fayde.Path {
     }
     function expandStartCap(box: IBoundingBox, p: number[], d: number[], pars: IStrokeParameters) {
         var hs = pars.thickness / 2.0;
-        switch (pars.startCap) {
+        var cap = pars.startCap || pars.endCap || 0; //HTML5 doesn't support start and end cap
+        switch (cap) {
             case Shapes.PenLineCap.Round:
                 box.l = Math.min(box.l, p[0] - hs);
                 box.r = Math.max(box.r, p[0] + hs);
@@ -179,7 +170,8 @@ module Fayde.Path {
     }
     function expandEndCap(box: IBoundingBox, p: number[], d: number[], pars: IStrokeParameters) {
         var hs = pars.thickness / 2.0;
-        switch (pars.startCap) {
+        var cap = pars.startCap || pars.endCap || 0; //HTML5 doesn't support start and end cap
+        switch (cap) {
             case Shapes.PenLineCap.Round:
                 box.l = Math.min(box.l, p[0] - hs);
                 box.r = Math.max(box.r, p[0] + hs);
@@ -193,7 +185,7 @@ module Fayde.Path {
                 break;
         }
     }
-    function expandLineJoin(box: IBoundingBox, p: number[], sd: number[], ed: number[], pars: IStrokeParameters) {
+    function expandLineJoin(box: IBoundingBox, p: number[], nd: number[], xd: number[], pars: IStrokeParameters) {
         var hs = pars.thickness / 2.0;
         switch (pars.join) {
             case Shapes.PenLineJoin.Miter:
@@ -207,6 +199,39 @@ module Fayde.Path {
             case Shapes.PenLineJoin.Bevel:
             default:
                 break;
+        }
+    }
+
+    function processStrokedBounds(box: IBoundingBox, entries: IPathEntry[], pars: IStrokeParameters) {
+        var len = entries.length;
+        var last: IPathEntry = null;
+        var prev: number[] = [null, null];
+
+        var isLastEntryMove = false;
+
+        function processEntry(entry: IPathEntry, i: number) {
+            if (!entry.isSingle) {
+                if (!(<IMove>entry).isMove && isLastEntryMove)
+                    expandStartCap(box, prev, entry.getStartVector(), pars);
+                if (!isLastEntryMove && i > 0)
+                    expandLineJoin(box, prev, last.getEndVector(), entry.getStartVector(), pars);
+            }
+
+            entry.extendStrokeBox(box, pars, prev[0], prev[1]);
+
+            if (!entry.isSingle) {
+                prev[0] = (<any>entry).x;
+                prev[1] = (<any>entry).y;
+                if (i + 1 >= len)
+                    expandEndCap(box, prev, entry.getEndVector(), pars);
+            }
+
+            isLastEntryMove = !!(<IMove>entry).isMove;
+            last = entry;
+        }
+
+        for (var i = 0; i < len; i++) {
+            processEntry(entries[i], i);
         }
     }
 }
