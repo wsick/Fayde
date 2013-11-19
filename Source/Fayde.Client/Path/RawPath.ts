@@ -156,6 +156,7 @@ module Fayde.Path {
         }
     }
     function expandStartCap(box: IBoundingBox, entry: IPathEntry, pars: IStrokeParameters) {
+        var v: number[];
         var hs = pars.thickness / 2.0;
         var cap = pars.startCap || pars.endCap || 0; //HTML5 doesn't support start and end cap
         switch (cap) {
@@ -166,7 +167,8 @@ module Fayde.Path {
                 box.b = Math.max(box.b, entry.sy + hs);
                 break;
             case Shapes.PenLineCap.Square:
-                var sd = normalizeVector(entry.getStartVector());
+                if (!(v = entry.getStartVector())) return;
+                var sd = normalizeVector(v);
                 sd[0] = -sd[0];
                 sd[1] = -sd[1];
                 var sdo = perpendicularVector(sd);
@@ -181,7 +183,8 @@ module Fayde.Path {
                 break;
             case Shapes.PenLineCap.Flat:
             default:
-                var sd = normalizeVector(entry.getStartVector());
+                if (!(v = entry.getStartVector())) return;
+                var sd = normalizeVector(v);
                 var sdo = perpendicularVector(sd);
                 var x1 = entry.sx + hs * sdo[0];
                 var x2 = entry.sx + hs * -sdo[0];
@@ -198,6 +201,7 @@ module Fayde.Path {
         var ex: number = (<any>entry).x;
         var ey: number = (<any>entry).y;
 
+        var v: number[];
         var hs = pars.thickness / 2.0;
         var cap = pars.startCap || pars.endCap || 0; //HTML5 doesn't support start and end cap
         switch (cap) {
@@ -208,7 +212,8 @@ module Fayde.Path {
                 box.b = Math.max(box.b, ey + hs);
                 break;
             case Shapes.PenLineCap.Square:
-                var ed = normalizeVector(entry.getEndVector());
+                if (!(v = entry.getEndVector())) return;
+                var ed = normalizeVector(v);
                 var edo = perpendicularVector(ed);
                 var x1 = ex + hs * (ed[0] + edo[0]);
                 var x2 = ex + hs * (ed[0] - edo[0]);
@@ -221,7 +226,8 @@ module Fayde.Path {
                 break;
             case Shapes.PenLineCap.Flat:
             default:
-                var ed = normalizeVector(entry.getEndVector());
+                if (!(v = entry.getEndVector())) return;
+                var ed = normalizeVector(v);
                 var edo = perpendicularVector(ed);
                 var x1 = ex + hs * edo[0];
                 var x2 = ex + hs * -edo[0];

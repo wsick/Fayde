@@ -85,8 +85,6 @@ module Fayde.Path {
                     return;
                 init();
 
-                //TODO: Extend starting and ending point
-                console.warn("[NOT IMPLEMENTED] Measure ArcTo (with stroke)");
                 box.l = Math.min(box.l, sx, ex);
                 box.r = Math.max(box.r, sx, ex);
                 box.t = Math.min(box.t, sy, ey);
@@ -101,16 +99,41 @@ module Fayde.Path {
                     box.t = Math.min(box.t, t - hs);
                 if (cb)
                     box.b = Math.max(box.b, b + hs);
+                
+                var cap = pars.startCap || pars.endCap || 0; //HTML5 doesn't support start and end cap
+                var sv = this.getStartVector();
+                sv[0] = -sv[0];
+                sv[1] = -sv[1];
+                var ss = getCapSpread(sx, sy, pars.thickness, cap, sv);
+                var ev = this.getEndVector();
+                var es = getCapSpread(ex, ey, pars.thickness, cap, ev);
+
+                box.l = Math.min(box.l, ss.x1, ss.x2, es.x1, es.x2);
+                box.r = Math.max(box.r, ss.x1, ss.x2, es.x1, es.x2);
+                box.t = Math.min(box.t, ss.y1, ss.y2, es.y1, es.y2);
+                box.b = Math.max(box.b, ss.y1, ss.y2, es.y1, es.y2);
             },
             toString: function (): string {
                 return "";
             },
             getStartVector: function (): number[] {
-                return null;
+                var rv = [
+                    sx - x,
+                    sy - y
+                ];
+                if (cc)
+                    return [rv[1], -rv[0]];
+                return [-rv[1], rv[0]];
             },
             getEndVector: function (): number[] {
-                return null;
-            }
+                var rv = [
+                    ex - x,
+                    ey - y
+                ];
+                if (cc)
+                    return [rv[1], -rv[0]];
+                return [-rv[1], rv[0]];
+            },
         };
     }
 
@@ -128,5 +151,53 @@ module Fayde.Path {
         if (n < 0 && !cc)
             return true;
         return false;
+    }
+
+    function getCapSpread(x: number, y: number, thickness: number, cap: Fayde.Shapes.PenLineCap, vector: number[]) {
+        var hs = thickness / 2.0;
+        switch (cap) {
+            case Shapes.PenLineCap.Round:
+                return {
+                    x1: x - hs,
+                    x2: x + hs,
+                    y1: y - hs,
+                    y2: y + hs
+                };
+                break;
+            case Shapes.PenLineCap.Square:
+                var ed = normalizeVector(vector);
+                var edo = perpendicularVector(ed);
+                return {
+                    x1: x + hs * (ed[0] + edo[0]),
+                    x2: x + hs * (ed[0] - edo[0]),
+                    y1: y + hs * (ed[1] + edo[1]),
+                    y2: y + hs * (ed[1] - edo[1])
+                };
+                break;
+            case Shapes.PenLineCap.Flat:
+            default:
+                var ed = normalizeVector(vector);
+                var edo = perpendicularVector(ed);
+                return {
+                    x1: x + hs * edo[0],
+                    x2: x + hs * -edo[0],
+                    y1: y + hs * edo[1],
+                    y2: y + hs * -edo[1]
+                };
+                break;
+        }
+    }
+    function normalizeVector(v: number[]): number[] {
+        var len = Math.sqrt(v[0] * v[0] + v[1] * v[1]);
+        return [
+            v[0] / len,
+            v[1] / len
+        ];
+    }
+    function perpendicularVector(v: number[]): number[] {
+        return [
+            -v[1],
+            v[0]
+        ];
     }
 }
