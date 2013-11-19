@@ -23,7 +23,7 @@
 
         function go() {
             var s = randomPoint(0, config.w, 0, config.h);
-            var rnd = randomQuadBezier();
+            var rnd = quadbezier.random(config);
 
             var path = new Fayde.Path.RawPath();
             path.Move(s.x, s.y);
@@ -44,57 +44,15 @@
 
             drawBoundingBox(path, strokePars);
 
-            var m = getMaxima(s.x, rnd.cpx, rnd.x, s.y, rnd.cpy, rnd.y);
+            var m = quadbezier.maxima(s.x, rnd.cpx, rnd.x, s.y, rnd.cpy, rnd.y);
             drawPoint(ctx, m[0].x, m[0].y, "#0aaa00");
             drawPoint(ctx, m[1].x, m[1].y, "#0aaa00");
 
             dumpinfo(strokePars);
         }
 
-        function randomQuadBezier() {
-            var cpx = randomInt(0, config.w);
-            var cpy = randomInt(0, config.h);
-            var x = randomInt(0, config.w);
-            var y = randomInt(0, config.h);
-
-            return {
-                cpx: cpx,
-                cpy: cpy,
-                x: x,
-                y: y
-            };
-        }
-
         function dumpinfo(pars) {
             info.innerText = strokeParamsToString(pars);
-        }
-
-        
-        function getMaxima(x1, x2, x3, y1, y2, y3) {
-            //change in x direction
-            var m1 = {
-                t: (x1 - x2) / (x1 - 2 * x2 + x3),
-                x: 0,
-                y: 0
-            };
-            m1.x = xoft(x1, x2, x3, m1.t);
-            m1.y = xoft(y1, y2, y3, m1.t);
-        
-            //change in y direction
-            var m2 = {
-                t: (y1 - y2) / (y1 - 2 * y2 + y3),
-                x: 0,
-                y: 0
-            };
-            m2.y = xoft(y1, y2, y3, m2.t);
-            m2.x = xoft(x1, x2, x3, m2.t);
-
-            return [m1, m2];
-        }
-        function xoft(a, b, c, t) {
-            // x(t) = a(1-t)^2 + 2*b(1-t)t + c*t^2
-            // "change of direction" point (dx/dt = 0)
-            return (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
         }
     </script>
 </head>

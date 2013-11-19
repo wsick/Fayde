@@ -54,6 +54,8 @@ module Fayde.Path {
             isSingle: true,
             x: x,
             y: y,
+            ex: x,
+            ey: y,
             radius: radius,
             sAngle: sa,
             eAngle: ea,
@@ -65,6 +67,8 @@ module Fayde.Path {
                 if (ea === sa)
                     return;
                 init();
+                this.ex = ex;
+                this.ey = ey;
 
                 box.l = Math.min(box.l, sx, ex);
                 box.r = Math.max(box.r, sx, ex);
@@ -84,6 +88,8 @@ module Fayde.Path {
                 if (ea === sa)
                     return;
                 init();
+                this.ex = ex;
+                this.ey = ey;
 
                 box.l = Math.min(box.l, sx, ex);
                 box.r = Math.max(box.r, sx, ex);

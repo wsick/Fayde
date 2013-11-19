@@ -9,6 +9,8 @@ module Fayde.Path {
         return {
             sx: null,
             sy: null,
+            ex: x,
+            ey: y,
             isSingle: false,
             isMove: true,
             x: x,
