@@ -3801,7 +3801,8 @@ declare module Fayde {
         public Fill(brush: Fayde.Media.Brush, r: rect): void;
         public FillRect(brush: Fayde.Media.Brush, r: rect): void;
         public StrokeAndFillRect(strokeBrush: Fayde.Media.Brush, thickness: number, strokeRect: rect, fillBrush: Fayde.Media.Brush, fillRect: rect): void;
-        public Stroke(stroke: Fayde.Media.Brush, thickness: number, region: rect): void;
+        public Stroke(stroke: Fayde.Media.Brush, pars: Fayde.Path.IStrokeParameters, region: rect): void;
+        public StrokeSimple(stroke: Fayde.Media.Brush, thickness: number, region: rect): void;
         public Clear(r: rect): void;
         public SetLineDash(offsets: number[]): void;
         public PreTransformMatrix(mat: number[]): void;
@@ -5838,6 +5839,7 @@ declare module Fayde.Shapes {
         private _StretchChanged(args);
         public _WidthChanged(args: IDependencyPropertyChangedEventArgs): void;
         public _HeightChanged(args: IDependencyPropertyChangedEventArgs): void;
+        private _CreateStrokeParameters(logical?);
     }
 }
 declare module Fayde.Shapes {
@@ -6116,29 +6118,42 @@ declare module Fayde.Text {
         private _GetDescendOverride();
     }
 }
+declare module Fayde.Controls {
+    class HeaderedContentControl extends Controls.ContentControl {
+        static HeaderProperty: DependencyProperty;
+        public Header: any;
+        static HeaderTemplateProperty: DependencyProperty;
+        public HeaderTemplate: Fayde.DataTemplate;
+        constructor();
+        public OnHeaderChanged(oldHeader: any, newHeader: any): void;
+        public OnHeaderTemplateChanged(oldHeaderTemplate: Fayde.DataTemplate, newHeaderTemplate: Fayde.DataTemplate): void;
+    }
+}
 declare module Fayde.Path {
     interface IArc extends Path.IPathEntry {
         x: number;
         y: number;
-        r: number;
+        radius: number;
         sAngle: number;
         eAngle: number;
         aClockwise: boolean;
     }
-    function Arc(x: number, y: number, r: number, sa: number, ea: number, cc: boolean): IArc;
+    function Arc(x: number, y: number, radius: number, sa: number, ea: number, cc: boolean): IArc;
 }
+declare function radToDegrees(rad): number;
 declare module Fayde.Path {
     interface IArcTo extends Path.IPathEntry {
         cpx: number;
         cpy: number;
         x: number;
         y: number;
-        r: number;
+        radius: number;
     }
-    function ArcTo(cpx: number, cpy: number, x: number, y: number, r: number): IArcTo;
+    function ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number): IArcTo;
 }
 declare module Fayde.Path {
     interface IClose extends Path.IPathEntry {
+        isClose: boolean;
     }
     function Close(): IClose;
 }
@@ -6176,6 +6191,7 @@ declare module Fayde.Path {
     interface IMove extends Path.IPathEntry {
         x: number;
         y: number;
+        isMove: boolean;
     }
     function Move(x: number, y: number): IMove;
 }
@@ -6212,10 +6228,14 @@ declare module Fayde.Path {
         b: number;
     }
     interface IPathEntry {
+        sx: number;
+        sy: number;
         isSingle: boolean;
         draw: (canvasCtx: CanvasRenderingContext2D) => void;
-        extendFillBox: (box: IBoundingBox, prevX: number, prevY: number) => void;
-        extendStrokeBox: (box: IBoundingBox, pars: IStrokeParameters, prevX: number, prevY: number, isStart: boolean, isEnd: boolean) => void;
+        extendFillBox: (box: IBoundingBox) => void;
+        extendStrokeBox: (box: IBoundingBox, pars: IStrokeParameters) => void;
+        getStartVector(): number[];
+        getEndVector(): number[];
     }
     class RawPath {
         private _Path;
@@ -6258,6 +6278,15 @@ declare module Fayde.Path {
         height: number;
     }
     function Ellipse(x: number, y: number, width: number, height: number): IEllipse;
+}
+declare module Vector {
+    function create(x: number, y: number): number[];
+    function reverse(v: number[]): number[];
+    function orthogonal(v: number[]): number[];
+    function normalize(v: number[]): number[];
+    function rotate(v: number[], theta: number): number[];
+    function angleBetween(u: number[], v: number[]): number;
+    function isClockwiseTo(v1: number[], v2: number[], theta: number): boolean;
 }
 declare module Fayde.Xaml {
     class Library extends Fayde.DependencyObject implements Fayde.Runtime.ILoadAsyncable {

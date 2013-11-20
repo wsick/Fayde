@@ -168,14 +168,14 @@ module Fayde.Path {
                 break;
             case Shapes.PenLineCap.Square:
                 if (!(v = entry.getStartVector())) return;
-                var sd = normalizeVector(v);
-                sd[0] = -sd[0];
-                sd[1] = -sd[1];
-                var sdo = perpendicularVector(sd);
+                var sd = Vector.reverse(Vector.normalize(v.slice(0)));
+                var sdo = Vector.orthogonal(sd.slice(0));
+
                 var x1 = entry.sx + hs * (sd[0] + sdo[0]);
                 var x2 = entry.sx + hs * (sd[0] - sdo[0]);
                 var y1 = entry.sy + hs * (sd[1] + sdo[1]);
                 var y2 = entry.sy + hs * (sd[1] - sdo[1]);
+
                 box.l = Math.min(box.l, x1, x2);
                 box.r = Math.max(box.r, x1, x2);
                 box.t = Math.min(box.t, y1, y2);
@@ -184,12 +184,13 @@ module Fayde.Path {
             case Shapes.PenLineCap.Flat:
             default:
                 if (!(v = entry.getStartVector())) return;
-                var sd = normalizeVector(v);
-                var sdo = perpendicularVector(sd);
+                var sdo = Vector.orthogonal(Vector.normalize(v.slice(0)));
+
                 var x1 = entry.sx + hs * sdo[0];
                 var x2 = entry.sx + hs * -sdo[0];
                 var y1 = entry.sy + hs * sdo[1];
                 var y2 = entry.sy + hs * -sdo[1];
+                
                 box.l = Math.min(box.l, x1, x2);
                 box.r = Math.max(box.r, x1, x2);
                 box.t = Math.min(box.t, y1, y2);
@@ -213,12 +214,14 @@ module Fayde.Path {
                 break;
             case Shapes.PenLineCap.Square:
                 if (!(v = entry.getEndVector())) return;
-                var ed = normalizeVector(v);
-                var edo = perpendicularVector(ed);
+                var ed = Vector.normalize(v.slice(0));
+                var edo = Vector.orthogonal(ed.slice(0));
+
                 var x1 = ex + hs * (ed[0] + edo[0]);
                 var x2 = ex + hs * (ed[0] - edo[0]);
                 var y1 = ey + hs * (ed[1] + edo[1]);
                 var y2 = ey + hs * (ed[1] - edo[1]);
+                
                 box.l = Math.min(box.l, x1, x2);
                 box.r = Math.max(box.r, x1, x2);
                 box.t = Math.min(box.t, y1, y2);
@@ -227,12 +230,13 @@ module Fayde.Path {
             case Shapes.PenLineCap.Flat:
             default:
                 if (!(v = entry.getEndVector())) return;
-                var ed = normalizeVector(v);
-                var edo = perpendicularVector(ed);
+                var edp = Vector.orthogonal(Vector.normalize(v.slice(0)));
+
                 var x1 = ex + hs * edo[0];
                 var x2 = ex + hs * -edo[0];
                 var y1 = ey + hs * edo[1];
                 var y2 = ey + hs * -edo[1];
+                
                 box.l = Math.min(box.l, x1, x2);
                 box.r = Math.max(box.r, x1, x2);
                 box.t = Math.min(box.t, y1, y2);
@@ -296,19 +300,5 @@ module Fayde.Path {
         var end = entries[len - 1];
         if (end && !end.isSingle)
             expandEndCap(box, end, pars);
-    }
-
-    function normalizeVector(v: number[]): number[] {
-        var len = Math.sqrt(v[0] * v[0] + v[1] * v[1]);
-        return [
-            v[0] / len,
-            v[1] / len
-        ];
-    }
-    function perpendicularVector(v: number[]): number[] {
-        return [
-            -v[1],
-            v[0]
-        ];
     }
 }

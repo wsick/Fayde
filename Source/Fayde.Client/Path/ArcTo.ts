@@ -21,14 +21,14 @@ module Fayde.Path {
             if (line && arc) return arc;
             var v1 = [cpx - prevX, cpy - prevY];
             var v2 = [x - cpx, y - cpy];
-            var inner_theta = angleBetweenVectors(v1, v2);
+            var inner_theta = Math.PI - Vector.angleBetween(v1, v2);
             //find 2 points tangent to imaginary circle along guide lines
             var a = getTangentPoint(inner_theta, radius, [prevX, prevY], v1, true);
             var b = getTangentPoint(inner_theta, radius, [cpx, cpy], v2, false);
             //find center point
             var c = getPerpendicularIntersections(a, v1, b, v2);
             //counter clockwise test
-            var cc = isCounterClockwise([-v1[0], -v1[1]], v2, inner_theta);
+            var cc = !Vector.isClockwiseTo([-v1[0], -v1[1]], v2, inner_theta);
             //find starting angle -- [1,0] is origin direction of 0rad
             var sa = Math.atan2(a[1] - c[1], a[0] - c[0]);
             if (sa < 0)
@@ -92,11 +92,6 @@ module Fayde.Path {
         };
     }
 
-    function angleBetweenVectors(u: number[], v: number[]): number {
-        var num = u[0] * v[0] + u[1] * v[1];
-        var den = Math.sqrt(u[0] * u[0] + u[1] * u[1]) * Math.sqrt(v[0] * v[0] + v[1] * v[1]);
-        return Math.PI - Math.acos(num / den);
-    }
     function getTangentPoint(theta: number, radius: number, s: number[], d: number[], invert: boolean): number[] {
         var len = Math.sqrt(d[0] * d[0] + d[1] * d[1]);
         var f = radius / Math.tan(theta / 2);
@@ -123,27 +118,5 @@ module Fayde.Path {
         var xn = ((x1 * y2 - y1 * x2) * (x3 - x4)) - ((x1 - x2) * (x3 * y4 - y3 * x4));
         var yn = ((x1 * y2 - y1 * x2) * (y3 - y4)) - ((y1 - y2) * (x3 * y4 - y3 * x4));
         return [xn / det, yn / det];
-    }
-
-    function isCounterClockwise(v1: number[], v2: number[], theta: number) {
-        var nv1 = normalizeVector(v1);
-        var nv2 = normalizeVector(v2);
-        var ccv1 = rotateVector(nv1, theta);
-        var nx = Math.abs(ccv1[0] - nv2[0]);
-        var ny = Math.abs(ccv1[1] - nv2[1]);
-        var tau = angleBetweenVectors(ccv1, nv2);
-        return nx < EPSILON
-            && ny < EPSILON;
-    }
-    function normalizeVector(v: number[]): number[] {
-        var len = Math.sqrt(v[0] * v[0] + v[1] * v[1]);
-        return [v[0] / len, v[1] / len];
-    }
-    function rotateVector(v: number[], angle: number): number[] {
-        var c = Math.cos(angle);
-        var s = Math.sin(angle);
-        var x = v[0];
-        var y = v[1];
-        return [x * c - y * s, x * s + y * c];
     }
 }

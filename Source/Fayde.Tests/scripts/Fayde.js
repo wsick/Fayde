@@ -3240,17 +3240,17 @@ else
 
                 if (!cornerRadius || cornerRadius.IsZero()) {
                     if (backgroundBrush) {
-                        ctx.StrokeAndFillRect(borderBrush, thickness.Left, strokeExtents, backgroundBrush, fillExtents);
+                        ctx.StrokeAndFillRect(borderBrush, full, strokeExtents, backgroundBrush, fillExtents);
                     } else {
                         ctx.Rect(fillExtents);
-                        ctx.Stroke(borderBrush, thickness.Left, extents);
+                        ctx.StrokeSimple(borderBrush, full, extents);
                     }
                 } else {
                     var raw = Fayde.Path.RectRoundedFull(strokeExtents.X, strokeExtents.Y, strokeExtents.Width, strokeExtents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
                     raw.draw(ctx.CanvasContext);
                     if (backgroundBrush)
                         ctx.Fill(backgroundBrush, fillExtents);
-                    ctx.Stroke(borderBrush, thickness.Left, extents);
+                    ctx.StrokeSimple(borderBrush, full, extents);
                 }
             };
             Border.prototype._RenderUnbalanced = function (ctx, extents, backgroundBrush, borderBrush, thickness, cornerRadius) {
@@ -22891,6 +22891,18 @@ else
 /// <reference path="../Runtime/TypeManagement.ts" />
 var Fayde;
 (function (Fayde) {
+    var caps = [
+        "butt",
+        "square",
+        "round",
+        "butt"
+    ];
+    var joins = [
+        "miter",
+        "bevel",
+        "round"
+    ];
+
     var RenderContext = (function () {
         function RenderContext(ctx) {
             var _this = this;
@@ -22998,7 +23010,19 @@ var Fayde;
             cc.stroke();
             //DrawDebug("StrokeAndFillRect: [" + cc.strokeStyle.toString() + "] [" + cc.fillStyle.toString() + "] " + strokeRect.toString());
         };
-        RenderContext.prototype.Stroke = function (stroke, thickness, region) {
+        RenderContext.prototype.Stroke = function (stroke, pars, region) {
+            if (!stroke || !pars)
+                return;
+            var cc = this.CanvasContext;
+            stroke.SetupBrush(cc, region);
+            cc.lineWidth = pars.thickness;
+            cc.lineCap = caps[pars.startCap || pars.endCap || 0] || caps[0];
+            cc.lineJoin = joins[pars.join || 0] || joins[0];
+            cc.miterLimit = pars.miterLimit;
+            cc.strokeStyle = stroke.ToHtml5Object();
+            cc.stroke();
+        };
+        RenderContext.prototype.StrokeSimple = function (stroke, thickness, region) {
             var cc = this.CanvasContext;
             stroke.SetupBrush(cc, region);
             cc.lineWidth = thickness;
@@ -33646,6 +33670,7 @@ var Fayde;
                 return new ShapeNode(this);
             };
 
+            //NOTE: HTML5 Canvas does not support start and end cap. Will use start if it's not "Flat"; otherwise, use end
             Shape.prototype._InsideShape = function (ctx, lu, x, y) {
                 if (this._ShapeFlags & Shapes.ShapeFlags.Empty)
                     return false;
@@ -33770,8 +33795,10 @@ else
                 this._DrawPath(ctx);
                 if (this._Fill != null)
                     ctx.Fill(this._Fill, area);
-                if (this._Stroke != null)
-                    ctx.Stroke(this._Stroke, this.StrokeThickness, area);
+                ctx.Stroke(this._Stroke, this._CreateStrokeParameters(), area);
+
+                //if (this._Stroke != null)
+                //ctx.Stroke(this._Stroke, this.StrokeThickness, area);
                 ctx.Restore();
             };
 
@@ -33948,24 +33975,10 @@ else
                 return this._ComputeShapeBoundsImpl(logical, null);
             };
             Shape.prototype._ComputeShapeBoundsImpl = function (logical, matrix) {
-                var thickness = (logical || !this._Stroke) ? 0.0 : this.StrokeThickness;
-
                 this._Path = this._Path || this._BuildPath();
-
                 if (!this._Path || (this._ShapeFlags & Shapes.ShapeFlags.Empty))
                     return new rect();
-
-                var pars = undefined;
-                if (!logical && thickness > 0) {
-                    pars = {
-                        thickness: thickness,
-                        startCap: this.StrokeStartLineCap,
-                        endCap: this.StrokeEndLineCap,
-                        join: this.StrokeLineJoin,
-                        miterLimit: this.StrokeMiterLimit
-                    };
-                }
-                return this._Path.CalculateBounds(pars);
+                return this._Path.CalculateBounds(this._CreateStrokeParameters(logical));
             };
 
             Shape.prototype._InvalidateStretch = function () {
@@ -34033,6 +34046,21 @@ else
             Shape.prototype._HeightChanged = function (args) {
                 _super.prototype._HeightChanged.call(this, args);
                 this._InvalidateStretch();
+            };
+
+            Shape.prototype._CreateStrokeParameters = function (logical) {
+                if (logical)
+                    return null;
+                var thickness = this._Stroke ? this.StrokeThickness : 0.0;
+                if (thickness > 0)
+                    return {
+                        thickness: thickness,
+                        startCap: this.StrokeStartLineCap,
+                        endCap: this.StrokeEndLineCap,
+                        join: this.StrokeLineJoin,
+                        miterLimit: this.StrokeMiterLimit
+                    };
+                return null;
             };
             Shape.FillProperty = DependencyProperty.Register("Fill", function () {
                 return Fayde.Media.Brush;
@@ -35938,9 +35966,45 @@ else
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
+    /// <reference path="ContentControl.ts" />
+    (function (Controls) {
+        var HeaderedContentControl = (function (_super) {
+            __extends(HeaderedContentControl, _super);
+            function HeaderedContentControl() {
+                _super.call(this);
+                this.DefaultStyleKey = (this).constructor;
+            }
+            HeaderedContentControl.prototype.OnHeaderChanged = function (oldHeader, newHeader) {
+            };
+            HeaderedContentControl.prototype.OnHeaderTemplateChanged = function (oldHeaderTemplate, newHeaderTemplate) {
+            };
+            HeaderedContentControl.HeaderProperty = DependencyProperty.Register("Header", function () {
+                return Object;
+            }, HeaderedContentControl, undefined, function (d, args) {
+                return (d).OnHeaderChanged(args.OldValue, args.NewValue);
+            });
+
+            HeaderedContentControl.HeaderTemplateProperty = DependencyProperty.Register("HeaderTemplate", function () {
+                return Fayde.DataTemplate;
+            }, HeaderedContentControl, undefined, function (d, args) {
+                return (d).OnHeaderTemplateChanged(args.OldValue, args.NewValue);
+            });
+            return HeaderedContentControl;
+        })(Controls.ContentControl);
+        Controls.HeaderedContentControl = HeaderedContentControl;
+        Fayde.RegisterType(HeaderedContentControl, {
+            Name: "HeaderedContentControl",
+            Namespace: "Fayde.Controls",
+            XmlNamespace: Fayde.XMLNS
+        });
+    })(Fayde.Controls || (Fayde.Controls = {}));
+    var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
     (function (Path) {
-        function Arc(x, y, r, sa, ea, cc) {
-            var prepped = false;
+        function Arc(x, y, radius, sa, ea, cc) {
+            var inited = false;
 
             //start point
             var sx;
@@ -35962,42 +36026,46 @@ var Fayde;
             var ct;
             var cb;
 
-            function prepBox() {
-                if (prepped)
+            function init() {
+                if (inited)
                     return;
-                sx = x + (r * Math.cos(sa));
-                sy = y + (r * Math.sin(sa));
-                ex = x + (r * Math.cos(ea));
-                ey = y + (r * Math.sin(ea));
+                sx = x + (radius * Math.cos(sa));
+                sy = y + (radius * Math.sin(sa));
+                ex = x + (radius * Math.cos(ea));
+                ey = y + (radius * Math.sin(ea));
 
-                l = x - r;
+                l = x - radius;
                 cl = arcContainsPoint(sx, sy, ex, ey, l, y, cc);
 
-                r = x + r;
+                r = x + radius;
                 cr = arcContainsPoint(sx, sy, ex, ey, r, y, cc);
 
-                t = y - r;
+                t = y - radius;
                 ct = arcContainsPoint(sx, sy, ex, ey, x, t, cc);
 
-                b = y + r;
+                b = y + radius;
                 cb = arcContainsPoint(sx, sy, ex, ey, x, b, cc);
+
+                inited = true;
             }
 
             return {
+                sx: null,
+                sy: null,
                 isSingle: true,
                 x: x,
                 y: y,
-                r: r,
+                radius: radius,
                 sAngle: sa,
                 eAngle: ea,
                 aClockwise: cc,
                 draw: function (ctx) {
-                    ctx.arc(x, y, r, sa, ea, cc);
+                    ctx.arc(x, y, radius, sa, ea, cc);
                 },
-                extendFillBox: function (box, prevX, prevY) {
+                extendFillBox: function (box) {
                     if (ea === sa)
                         return;
-                    prepBox();
+                    init();
 
                     box.l = Math.min(box.l, sx, ex);
                     box.r = Math.max(box.r, sx, ex);
@@ -36013,13 +36081,11 @@ var Fayde;
                     if (cb)
                         box.b = Math.max(box.b, b);
                 },
-                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                extendStrokeBox: function (box, pars) {
                     if (ea === sa)
                         return;
-                    prepBox();
+                    init();
 
-                    //TODO: Extend starting and ending point
-                    console.warn("[NOT IMPLEMENTED] Measure ArcTo (with stroke)");
                     box.l = Math.min(box.l, sx, ex);
                     box.r = Math.max(box.r, sx, ex);
                     box.t = Math.min(box.t, sy, ey);
@@ -36034,9 +36100,40 @@ var Fayde;
                         box.t = Math.min(box.t, t - hs);
                     if (cb)
                         box.b = Math.max(box.b, b + hs);
+
+                    var cap = pars.startCap || pars.endCap || 0;
+                    var sv = this.getStartVector();
+                    sv[0] = -sv[0];
+                    sv[1] = -sv[1];
+                    var ss = getCapSpread(sx, sy, pars.thickness, cap, sv);
+                    var ev = this.getEndVector();
+                    var es = getCapSpread(ex, ey, pars.thickness, cap, ev);
+
+                    box.l = Math.min(box.l, ss.x1, ss.x2, es.x1, es.x2);
+                    box.r = Math.max(box.r, ss.x1, ss.x2, es.x1, es.x2);
+                    box.t = Math.min(box.t, ss.y1, ss.y2, es.y1, es.y2);
+                    box.b = Math.max(box.b, ss.y1, ss.y2, es.y1, es.y2);
                 },
                 toString: function () {
                     return "";
+                },
+                getStartVector: function () {
+                    var rv = [
+                        sx - x,
+                        sy - y
+                    ];
+                    if (cc)
+                        return [rv[1], -rv[0]];
+                    return [-rv[1], rv[0]];
+                },
+                getEndVector: function () {
+                    var rv = [
+                        ex - x,
+                        ey - y
+                    ];
+                    if (cc)
+                        return [rv[1], -rv[0]];
+                    return [-rv[1], rv[0]];
                 }
             };
         }
@@ -36051,43 +36148,186 @@ var Fayde;
             var n = (ex - sx) * (cpy - sy) - (cpx - sx) * (ey - sy);
             if (n === 0)
                 return true;
-
             if (n > 0 && cc)
                 return true;
-
             if (n < 0 && !cc)
                 return true;
             return false;
         }
+
+        function getCapSpread(x, y, thickness, cap, vector) {
+            var hs = thickness / 2.0;
+            switch (cap) {
+                case Fayde.Shapes.PenLineCap.Round:
+                    return {
+                        x1: x - hs,
+                        x2: x + hs,
+                        y1: y - hs,
+                        y2: y + hs
+                    };
+                    break;
+                case Fayde.Shapes.PenLineCap.Square:
+                    var ed = normalizeVector(vector);
+                    var edo = perpendicularVector(ed);
+                    return {
+                        x1: x + hs * (ed[0] + edo[0]),
+                        x2: x + hs * (ed[0] - edo[0]),
+                        y1: y + hs * (ed[1] + edo[1]),
+                        y2: y + hs * (ed[1] - edo[1])
+                    };
+                    break;
+                case Fayde.Shapes.PenLineCap.Flat:
+                default:
+                    var ed = normalizeVector(vector);
+                    var edo = perpendicularVector(ed);
+                    return {
+                        x1: x + hs * edo[0],
+                        x2: x + hs * -edo[0],
+                        y1: y + hs * edo[1],
+                        y2: y + hs * -edo[1]
+                    };
+                    break;
+            }
+        }
+        function normalizeVector(v) {
+            var len = Math.sqrt(v[0] * v[0] + v[1] * v[1]);
+            return [
+                v[0] / len,
+                v[1] / len
+            ];
+        }
+        function perpendicularVector(v) {
+            return [
+                -v[1],
+                v[0]
+            ];
+        }
     })(Fayde.Path || (Fayde.Path = {}));
     var Path = Fayde.Path;
 })(Fayde || (Fayde = {}));
+function radToDegrees(rad) {
+    return rad * 180 / Math.PI;
+}
+
 var Fayde;
 (function (Fayde) {
     (function (Path) {
-        function ArcTo(cpx, cpy, x, y, r) {
+        var EPSILON = 1e-10;
+
+        function ArcTo(cpx, cpy, x, y, radius) {
+            var line;
+            var arc;
+            var inited = false;
+            function init(prevX, prevY) {
+                if (inited)
+                    return;
+                if (line && arc)
+                    return arc;
+                var v1 = [cpx - prevX, cpy - prevY];
+                var v2 = [x - cpx, y - cpy];
+                var inner_theta = Math.PI - Vector.angleBetween(v1, v2);
+
+                //find 2 points tangent to imaginary circle along guide lines
+                var a = getTangentPoint(inner_theta, radius, [prevX, prevY], v1, true);
+                var b = getTangentPoint(inner_theta, radius, [cpx, cpy], v2, false);
+
+                //find center point
+                var c = getPerpendicularIntersections(a, v1, b, v2);
+
+                //counter clockwise test
+                var cc = !Vector.isClockwiseTo([-v1[0], -v1[1]], v2, inner_theta);
+
+                //find starting angle -- [1,0] is origin direction of 0rad
+                var sa = Math.atan2(a[1] - c[1], a[0] - c[0]);
+                if (sa < 0)
+                    sa = (2 * Math.PI) + sa;
+                var ea = Math.atan2(b[1] - c[1], b[0] - c[0]);
+                if (ea < 0)
+                    ea = (2 * Math.PI) + ea;
+
+                line = Path.Line(a[0], a[1]);
+                line.sx = prevX;
+                line.sy = prevY;
+                arc = Path.Arc(c[0], c[1], radius, sa, ea, cc);
+                inited = true;
+            }
+
             return {
+                sx: null,
+                sy: null,
                 isSingle: false,
                 cpx: cpx,
                 cpy: cpy,
                 x: x,
                 y: y,
-                r: r,
+                radius: radius,
                 draw: function (ctx) {
-                    ctx.arcTo(cpx, cpy, x, y, r);
+                    ctx.arcTo(cpx, cpy, x, y, radius);
                 },
-                extendFillBox: function (box, prevX, prevY) {
-                    console.warn("[NOT IMPLEMENTED] Measure ArcTo");
+                extendFillBox: function (box) {
+                    init(this.sx, this.sy);
+
+                    box.l = Math.min(box.l, this.sx);
+                    box.r = Math.max(box.r, this.sx);
+                    box.t = Math.min(box.t, this.sy);
+                    box.b = Math.max(box.b, this.sy);
+
+                    line.extendFillBox(box);
+                    arc.extendFillBox(box);
                 },
-                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
-                    console.warn("[NOT IMPLEMENTED] Measure ArcTo (with stroke)");
+                extendStrokeBox: function (box, pars) {
+                    init(this.sx, this.sy);
+
+                    var hs = pars.thickness / 2;
+                    box.l = Math.min(box.l, this.sx - hs);
+                    box.r = Math.max(box.r, this.sx + hs);
+                    box.t = Math.min(box.t, this.sy - hs);
+                    box.b = Math.max(box.b, this.sy + hs);
+
+                    line.extendStrokeBox(box, pars);
+                    arc.extendStrokeBox(box, pars);
                 },
                 toString: function () {
                     return "";
+                },
+                getStartVector: function () {
+                    init(this.sx, this.sy);
+                    return line.getStartVector();
+                },
+                getEndVector: function () {
+                    return arc.getEndVector();
                 }
             };
         }
         Path.ArcTo = ArcTo;
+
+        function getTangentPoint(theta, radius, s, d, invert) {
+            var len = Math.sqrt(d[0] * d[0] + d[1] * d[1]);
+            var f = radius / Math.tan(theta / 2);
+            var t = f / len;
+            if (invert)
+                t = 1 - t;
+            return [s[0] + t * d[0], s[1] + t * d[1]];
+        }
+        function getPerpendicularIntersections(s1, d1, s2, d2) {
+            var x1 = s1[0];
+            var y1 = s1[1];
+            var x2 = s1[0] - d1[1];
+            var y2 = s1[1] + d1[0];
+
+            var x3 = s2[0];
+            var y3 = s2[1];
+            var x4 = s2[0] - d2[1];
+            var y4 = s2[1] + d2[0];
+
+            var det = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+            if (det === 0)
+                return null;
+
+            var xn = ((x1 * y2 - y1 * x2) * (x3 - x4)) - ((x1 - x2) * (x3 * y4 - y3 * x4));
+            var yn = ((x1 * y2 - y1 * x2) * (y3 - y4)) - ((y1 - y2) * (x3 * y4 - y3 * x4));
+            return [xn / det, yn / det];
+        }
     })(Fayde.Path || (Fayde.Path = {}));
     var Path = Fayde.Path;
 })(Fayde || (Fayde = {}));
@@ -36096,16 +36336,25 @@ var Fayde;
     (function (Path) {
         function Close() {
             return {
+                sx: null,
+                sy: null,
                 isSingle: false,
+                isClose: true,
                 draw: function (ctx) {
                     ctx.closePath();
                 },
-                extendFillBox: function (box, prevX, prevY) {
+                extendFillBox: function (box) {
                 },
-                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                extendStrokeBox: function (box, pars) {
                 },
                 toString: function () {
                     return "Z";
+                },
+                getStartVector: function () {
+                    return null;
+                },
+                getEndVector: function () {
+                    return null;
                 }
             };
         }
@@ -36118,6 +36367,8 @@ var Fayde;
     (function (Path) {
         function CubicBezier(cp1x, cp1y, cp2x, cp2y, x, y) {
             return {
+                sx: null,
+                sy: null,
                 isSingle: false,
                 cp1x: cp1x,
                 cp1y: cp1y,
@@ -36128,73 +36379,108 @@ var Fayde;
                 draw: function (ctx) {
                     ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
                 },
-                extendFillBox: function (box, prevX, prevY) {
-                    var xr = range(prevX, cp1x, cp2x, x);
-                    var yr = range(prevY, cp1y, cp2y, y);
-                    box.l = Math.min(box.l, xr.min);
-                    box.r = Math.max(box.r, xr.max);
-                    box.t = Math.min(box.t, yr.min);
-                    box.b = Math.max(box.b, yr.max);
+                extendFillBox: function (box) {
+                    var m = getMaxima(this.sx, cp1x, cp2x, x, this.sy, cp1y, cp2y, y);
+                    if (m.x[0] != null) {
+                        box.l = Math.min(box.l, m.x[0]);
+                        box.r = Math.max(box.r, m.x[0]);
+                    }
+                    if (m.x[1] != null) {
+                        box.l = Math.min(box.l, m.x[1]);
+                        box.r = Math.max(box.r, m.x[1]);
+                    }
+                    if (m.y[0] != null) {
+                        box.t = Math.min(box.t, m.y[0]);
+                        box.b = Math.max(box.b, m.y[0]);
+                    }
+                    if (m.y[1] != null) {
+                        box.t = Math.min(box.t, m.y[1]);
+                        box.b = Math.max(box.b, m.y[1]);
+                    }
+
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y);
                 },
-                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
-                    var xr = range(prevX, cp1x, cp2x, x);
-                    var yr = range(prevY, cp1y, cp2y, y);
-                    box.l = Math.min(box.l, xr.min);
-                    box.r = Math.max(box.r, xr.max);
-                    box.t = Math.min(box.t, yr.min);
-                    box.b = Math.max(box.b, yr.max);
-                    console.warn("[NOT IMPLEMENTED] Measure CubicBezier (with stroke)");
+                extendStrokeBox: function (box, pars) {
+                    var hs = pars.thickness / 2.0;
+
+                    var m = getMaxima(this.sx, cp1x, cp2x, x, this.sy, cp1y, cp2y, y);
+                    if (m.x[0] != null) {
+                        box.l = Math.min(box.l, m.x[0] - hs);
+                        box.r = Math.max(box.r, m.x[0] + hs);
+                    }
+                    if (m.x[1] != null) {
+                        box.l = Math.min(box.l, m.x[1] - hs);
+                        box.r = Math.max(box.r, m.x[1] + hs);
+                    }
+                    if (m.y[0] != null) {
+                        box.t = Math.min(box.t, m.y[0] - hs);
+                        box.b = Math.max(box.b, m.y[0] + hs);
+                    }
+                    if (m.y[1] != null) {
+                        box.t = Math.min(box.t, m.y[1] - hs);
+                        box.b = Math.max(box.b, m.y[1] + hs);
+                    }
+
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y);
                 },
                 toString: function () {
                     return "C" + cp1x.toString() + "," + cp1y.toString() + " " + cp2x.toString() + "," + cp2y.toString() + " " + x.toString() + "," + y.toString();
+                },
+                getStartVector: function () {
+                    //[F(0)'x, F(0)'y]
+                    return [
+                        3 * (cp1x - this.sx),
+                        3 * (cp1y - this.sy)
+                    ];
+                },
+                getEndVector: function () {
+                    //[F(1)'x, F(1)'y]
+                    return [
+                        3 * (x - cp2x),
+                        3 * (y - cp2y)
+                    ];
                 }
             };
         }
         Path.CubicBezier = CubicBezier;
 
-        function range(a, b, c, d) {
-            var min = Math.min(a, d);
-            var max = Math.max(a, d);
-
-            if ((min <= b && b <= max) && (min <= c && c <= max)) {
-                return {
-                    min: min,
-                    max: max
-                };
-            }
-
-            // find "change of direction" points (dx/dt = 0)
-            //xt = a(1-t)^3 + 3b(t)(1-t)^2 + 3c(1-t)(t)^2 + dt^3
+        function getMaxima(x1, x2, x3, x4, y1, y2, y3, y4) {
+            return {
+                x: cod(x1, x2, x3, x4),
+                y: cod(y1, y2, y3, y4)
+            };
+        }
+        function cod(a, b, c, d) {
             var u = 2 * a - 4 * b + 2 * c;
             var v = b - a;
             var w = -a + 3 * b + d - 3 * c;
             var rt = Math.sqrt(u * u - 4 * v * w);
-            if (!isNaN(rt)) {
-                var t;
 
-                t = (-u + rt) / (2 * w);
+            var cods = [null, null];
+            if (isNaN(rt))
+                return cods;
 
-                if (t >= 0 && t <= 1) {
-                    var ot = 1 - t;
-                    var xt = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
-                    min = Math.min(min, xt);
-                    max = Math.max(max, xt);
-                }
+            var t, ot;
 
-                t = (-u - rt) / (2 * w);
-
-                if (t >= 0 && t <= 1) {
-                    var ot = 1 - t;
-                    var xt = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
-                    min = Math.min(min, xt);
-                    max = Math.max(max, xt);
-                }
+            t = (-u + rt) / (2 * w);
+            if (t >= 0 && t <= 1) {
+                ot = 1 - t;
+                cods[0] = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
             }
 
-            return {
-                min: min,
-                max: max
-            };
+            t = (-u - rt) / (2 * w);
+            if (t >= 0 && t <= 1) {
+                ot = 1 - t;
+                cods[1] = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
+            }
+
+            return cods;
         }
     })(Fayde.Path || (Fayde.Path = {}));
     var Path = Fayde.Path;
@@ -36204,6 +36490,8 @@ var Fayde;
     (function (Path) {
         function EllipticalArc(width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
             return {
+                sx: null,
+                sy: null,
                 isSingle: false,
                 width: width,
                 height: height,
@@ -36215,14 +36503,20 @@ var Fayde;
                 draw: function (ctx) {
                     console.warn("[NOT IMPLEMENTED] Draw Elliptical Arc");
                 },
-                extendFillBox: function (box, prevX, prevY) {
+                extendFillBox: function (box) {
                     console.warn("[NOT IMPLEMENTED] Measure Elliptical Arc");
                 },
-                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                extendStrokeBox: function (box, pars) {
                     console.warn("[NOT IMPLEMENTED] Measure Elliptical Arc (with stroke)");
                 },
                 toString: function () {
                     return "A" + width.toString() + "," + height.toString() + " " + rotationAngle.toString() + " " + isLargeArcFlag.toString() + " " + sweepDirectionFlag.toString() + " " + ex.toString() + "," + ey.toString();
+                },
+                getStartVector: function () {
+                    return null;
+                },
+                getEndVector: function () {
+                    return null;
                 }
             };
         }
@@ -36236,45 +36530,36 @@ var Fayde;
         function Line(x, y) {
             return {
                 isSingle: false,
+                sx: null,
+                sy: null,
                 x: x,
                 y: y,
                 draw: function (ctx) {
                     ctx.lineTo(x, y);
                 },
-                extendFillBox: function (box, prevX, prevY) {
+                extendFillBox: function (box) {
                     box.l = Math.min(box.l, x);
                     box.r = Math.max(box.r, x);
                     box.t = Math.min(box.t, y);
                     box.b = Math.max(box.b, y);
                 },
-                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
-                    var hs = pars.thickness / 2.0;
-                    if (prevX === x) {
-                        if (prevY === y)
-                            return;
-                        box.l = Math.min(box.l, x - hs);
-                        box.r = Math.max(box.r, x + hs);
-
-                        //TODO: Finish y expand
-                        console.warn("[NOT IMPLEMENTED] Measure Line (with stroke)");
-                        return;
-                    }
-                    if (prevY === y) {
-                        //TODO: Finish x expand
-                        console.warn("[NOT IMPLEMENTED] Measure Line (with stroke)");
-                        box.t = Math.min(box.t, y - hs);
-                        box.b = Math.max(box.b, y + hs);
-                        return;
-                    }
-
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                    console.warn("[NOT IMPLEMENTED] Measure Line (with stroke)");
+                extendStrokeBox: function (box, pars) {
+                    this.extendFillBox(box);
                 },
                 toString: function () {
                     return "L" + x.toString() + "," + y.toString();
+                },
+                getStartVector: function () {
+                    return [
+                        x - this.sx,
+                        y - this.sy
+                    ];
+                },
+                getEndVector: function () {
+                    return [
+                        x - this.sx,
+                        y - this.sy
+                    ];
                 }
             };
         }
@@ -36287,36 +36572,32 @@ var Fayde;
     (function (Path) {
         function Move(x, y) {
             return {
+                sx: null,
+                sy: null,
                 isSingle: false,
+                isMove: true,
                 x: x,
                 y: y,
                 draw: function (ctx) {
                     ctx.moveTo(x, y);
                 },
-                extendFillBox: function (box, prevX, prevY) {
-                    if (box.l == null || box.t == null) {
-                        box.l = box.r = x;
-                        box.t = box.b = y;
-                        return;
-                    }
+                extendFillBox: function (box) {
                     box.l = Math.min(box.l, x);
                     box.r = Math.max(box.r, x);
                     box.t = Math.min(box.t, y);
                     box.b = Math.max(box.b, y);
                 },
-                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
-                    if (box.l == null || box.t == null) {
-                        box.l = box.r = x;
-                        box.t = box.b = y;
-                        return;
-                    }
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
+                extendStrokeBox: function (box, pars) {
+                    this.extendFillBox(box);
                 },
                 toString: function () {
                     return "M" + x.toString() + "," + y.toString();
+                },
+                getStartVector: function () {
+                    return null;
+                },
+                getEndVector: function () {
+                    return null;
                 }
             };
         }
@@ -36329,6 +36610,8 @@ var Fayde;
     (function (Path) {
         function QuadraticBezier(cpx, cpy, x, y) {
             return {
+                sx: null,
+                sy: null,
                 isSingle: false,
                 cpx: cpx,
                 cpy: cpy,
@@ -36337,56 +36620,72 @@ var Fayde;
                 draw: function (ctx) {
                     ctx.quadraticCurveTo(cpx, cpy, x, y);
                 },
-                extendFillBox: function (box, prevX, prevY) {
-                    var xr = range(prevX, cpx, x);
-                    var yr = range(prevY, cpy, y);
-                    box.l = Math.min(box.l, xr.min);
-                    box.r = Math.max(box.r, xr.max);
-                    box.t = Math.min(box.t, yr.min);
-                    box.b = Math.max(box.b, yr.max);
+                extendFillBox: function (box) {
+                    var m = getMaxima(this.sx, cpx, x, this.sy, cpy, y);
+                    if (m.x != null) {
+                        box.l = Math.min(box.l, m.x);
+                        box.r = Math.max(box.r, m.x);
+                    }
+                    if (m.y != null) {
+                        box.t = Math.min(box.t, m.y);
+                        box.b = Math.max(box.b, m.y);
+                    }
+
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y);
                 },
-                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
-                    var xr = range(prevX, cpx, x);
-                    var yr = range(prevY, cpy, y);
-                    box.l = Math.min(box.l, xr.min);
-                    box.r = Math.max(box.r, xr.max);
-                    box.t = Math.min(box.t, yr.min);
-                    box.b = Math.max(box.b, yr.max);
-                    console.warn("[NOT IMPLEMENTED] Measure QuadraticBezier (with stroke)");
+                extendStrokeBox: function (box, pars) {
+                    var hs = pars.thickness / 2.0;
+
+                    var m = getMaxima(this.sx, cpx, x, this.sy, cpy, y);
+                    if (m.x) {
+                        box.l = Math.min(box.l, m.x - hs);
+                        box.r = Math.max(box.r, m.x + hs);
+                    }
+                    if (m.y) {
+                        box.t = Math.min(box.t, m.y - hs);
+                        box.b = Math.max(box.b, m.y + hs);
+                    }
+
+                    box.l = Math.min(box.l, x);
+                    box.r = Math.max(box.r, x);
+                    box.t = Math.min(box.t, y);
+                    box.b = Math.max(box.b, y);
                 },
                 toString: function () {
                     return "Q" + cpx.toString() + "," + cpy.toString() + " " + x.toString() + "," + y.toString();
+                },
+                getStartVector: function () {
+                    //[F(0)'x, F(0)'y]
+                    return [
+                        2 * (cpx - this.sx),
+                        2 * (cpy - this.sy)
+                    ];
+                },
+                getEndVector: function () {
+                    //[F(1)'x, F(1)'y]
+                    return [
+                        2 * (x - cpx),
+                        2 * (y - cpy)
+                    ];
                 }
             };
         }
         Path.QuadraticBezier = QuadraticBezier;
 
-        function range(a, b, c) {
-            var min = Math.min(a, c);
-            var max = Math.max(a, c);
-
-            if (min <= b && b <= max) {
-                return {
-                    min: min,
-                    max: max
-                };
-            }
-
-            // x(t) = a(1-t)^2 + 2*b(1-t)t + c*t^2
-            // find "change of direction" point (dx/dt = 0)
-            var t = (a - b) / (a - 2 * b + c);
-            var xt = (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
-            if (min > b) {
-                //control point is expanding the bounding box to the left
-                min = Math.min(min, xt);
-            } else {
-                //control point is expanding the bounding box to the right
-                max = Math.max(max, xt);
-            }
+        function getMaxima(x1, x2, x3, y1, y2, y3) {
             return {
-                min: min,
-                max: max
+                x: cod(x1, x2, x3),
+                y: cod(y1, y2, y3)
             };
+        }
+        function cod(a, b, c) {
+            var t = (a - b) / (a - 2 * b + c);
+            if (t < 0 || t > 1)
+                return null;
+            return (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
         }
     })(Fayde.Path || (Fayde.Path = {}));
     var Path = Fayde.Path;
@@ -36396,6 +36695,8 @@ var Fayde;
     (function (Path) {
         function Rect(x, y, width, height) {
             return {
+                sx: null,
+                sy: null,
                 isSingle: true,
                 x: x,
                 y: y,
@@ -36404,18 +36705,24 @@ var Fayde;
                 draw: function (ctx) {
                     ctx.rect(x, y, width, height);
                 },
-                extendFillBox: function (box, prevX, prevY) {
+                extendFillBox: function (box) {
                     box.l = Math.min(box.l, x);
                     box.r = Math.max(box.r, x + width);
                     box.t = Math.min(box.t, y);
                     box.b = Math.max(box.b, y + height);
                 },
-                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                extendStrokeBox: function (box, pars) {
                     var hs = pars.thickness / 2.0;
                     box.l = Math.min(box.l, x - hs);
                     box.r = Math.max(box.r, x + width + hs);
                     box.t = Math.min(box.t, y - hs);
                     box.b = Math.max(box.b, y + height + hs);
+                },
+                getStartVector: function () {
+                    return null;
+                },
+                getEndVector: function () {
+                    return null;
                 }
             };
         }
@@ -36520,44 +36827,34 @@ var Fayde;
                 var path = this._Path;
                 var len = path.length;
                 var box = {
-                    l: null,
-                    r: null,
-                    t: null,
-                    b: null
+                    l: Number.POSITIVE_INFINITY,
+                    r: Number.NEGATIVE_INFINITY,
+                    t: Number.POSITIVE_INFINITY,
+                    b: Number.NEGATIVE_INFINITY
                 };
-                var prevX = null;
-                var prevY = null;
+                var curx = null;
+                var cury = null;
                 var entry;
                 for (var i = 0; i < len; i++) {
                     entry = path[i];
-                    entry.extendFillBox(box, prevX, prevY);
-                    if (!entry.isSingle) {
-                        prevX = (entry).x;
-                        prevY = (entry).y;
-                    }
+                    entry.sx = curx;
+                    entry.sy = cury;
+
+                    entry.extendFillBox(box);
+
+                    curx = (entry).x || 0;
+                    cury = (entry).y || 0;
                 }
                 return box;
             };
             RawPath.prototype._CalcStrokeBox = function (pars) {
-                var path = this._Path;
-                var len = path.length;
                 var box = {
-                    l: null,
-                    r: null,
-                    t: null,
-                    b: null
+                    l: Number.POSITIVE_INFINITY,
+                    r: Number.NEGATIVE_INFINITY,
+                    t: Number.POSITIVE_INFINITY,
+                    b: Number.NEGATIVE_INFINITY
                 };
-                var prevX = null;
-                var prevY = null;
-                var entry;
-                for (var i = 0; i < len; i++) {
-                    entry = path[i];
-                    entry.extendStrokeBox(box, pars, prevX, prevY, i === 0, (i + 1) === len);
-                    if (!entry.isSingle) {
-                        prevX = (entry).x;
-                        prevY = (entry).y;
-                    }
-                }
+                processStrokedBounds(box, this._Path, pars);
                 return box;
             };
 
@@ -36581,6 +36878,155 @@ var Fayde;
             return RawPath;
         })();
         Path.RawPath = RawPath;
+        function expandStartCap(box, entry, pars) {
+            var v;
+            var hs = pars.thickness / 2.0;
+            var cap = pars.startCap || pars.endCap || 0;
+            switch (cap) {
+                case Fayde.Shapes.PenLineCap.Round:
+                    box.l = Math.min(box.l, entry.sx - hs);
+                    box.r = Math.max(box.r, entry.sx + hs);
+                    box.t = Math.min(box.t, entry.sy - hs);
+                    box.b = Math.max(box.b, entry.sy + hs);
+                    break;
+                case Fayde.Shapes.PenLineCap.Square:
+                    if (!(v = entry.getStartVector()))
+                        return;
+                    var sd = Vector.reverse(Vector.normalize(v.slice(0)));
+                    var sdo = Vector.orthogonal(sd.slice(0));
+
+                    var x1 = entry.sx + hs * (sd[0] + sdo[0]);
+                    var x2 = entry.sx + hs * (sd[0] - sdo[0]);
+                    var y1 = entry.sy + hs * (sd[1] + sdo[1]);
+                    var y2 = entry.sy + hs * (sd[1] - sdo[1]);
+
+                    box.l = Math.min(box.l, x1, x2);
+                    box.r = Math.max(box.r, x1, x2);
+                    box.t = Math.min(box.t, y1, y2);
+                    box.b = Math.max(box.b, y1, y2);
+                    break;
+                case Fayde.Shapes.PenLineCap.Flat:
+                default:
+                    if (!(v = entry.getStartVector()))
+                        return;
+                    var sdo = Vector.orthogonal(Vector.normalize(v.slice(0)));
+
+                    var x1 = entry.sx + hs * sdo[0];
+                    var x2 = entry.sx + hs * -sdo[0];
+                    var y1 = entry.sy + hs * sdo[1];
+                    var y2 = entry.sy + hs * -sdo[1];
+
+                    box.l = Math.min(box.l, x1, x2);
+                    box.r = Math.max(box.r, x1, x2);
+                    box.t = Math.min(box.t, y1, y2);
+                    box.b = Math.max(box.b, y1, y2);
+                    break;
+            }
+        }
+        function expandEndCap(box, entry, pars) {
+            var ex = (entry).x;
+            var ey = (entry).y;
+
+            var v;
+            var hs = pars.thickness / 2.0;
+            var cap = pars.startCap || pars.endCap || 0;
+            switch (cap) {
+                case Fayde.Shapes.PenLineCap.Round:
+                    box.l = Math.min(box.l, ex - hs);
+                    box.r = Math.max(box.r, ex + hs);
+                    box.t = Math.min(box.t, ey - hs);
+                    box.b = Math.max(box.b, ey + hs);
+                    break;
+                case Fayde.Shapes.PenLineCap.Square:
+                    if (!(v = entry.getEndVector()))
+                        return;
+                    var ed = Vector.normalize(v.slice(0));
+                    var edo = Vector.orthogonal(ed.slice(0));
+
+                    var x1 = ex + hs * (ed[0] + edo[0]);
+                    var x2 = ex + hs * (ed[0] - edo[0]);
+                    var y1 = ey + hs * (ed[1] + edo[1]);
+                    var y2 = ey + hs * (ed[1] - edo[1]);
+
+                    box.l = Math.min(box.l, x1, x2);
+                    box.r = Math.max(box.r, x1, x2);
+                    box.t = Math.min(box.t, y1, y2);
+                    box.b = Math.max(box.b, y1, y2);
+                    break;
+                case Fayde.Shapes.PenLineCap.Flat:
+                default:
+                    if (!(v = entry.getEndVector()))
+                        return;
+                    var edp = Vector.orthogonal(Vector.normalize(v.slice(0)));
+
+                    var x1 = ex + hs * edo[0];
+                    var x2 = ex + hs * -edo[0];
+                    var y1 = ey + hs * edo[1];
+                    var y2 = ey + hs * -edo[1];
+
+                    box.l = Math.min(box.l, x1, x2);
+                    box.r = Math.max(box.r, x1, x2);
+                    box.t = Math.min(box.t, y1, y2);
+                    box.b = Math.max(box.b, y1, y2);
+                    break;
+            }
+        }
+        function expandLineJoin(box, previous, entry, pars, sx, sy) {
+            var hs = pars.thickness / 2.0;
+            switch (pars.join) {
+                case Fayde.Shapes.PenLineJoin.Miter:
+                    break;
+                case Fayde.Shapes.PenLineJoin.Round:
+                    box.l = Math.min(box.l, entry.sx - hs);
+                    box.r = Math.max(box.r, entry.sx + hs);
+                    box.t = Math.min(box.t, entry.sy - hs);
+                    box.b = Math.max(box.b, entry.sy + hs);
+                    break;
+                case Fayde.Shapes.PenLineJoin.Bevel:
+                default:
+                    break;
+            }
+        }
+
+        function processStrokedBounds(box, entries, pars) {
+            var len = entries.length;
+            var last = null;
+            var curx = null;
+            var cury = null;
+            var sx = null;
+            var sy = null;
+
+            var isLastEntryMove = false;
+
+            function processEntry(entry, i) {
+                entry.sx = curx;
+                entry.sy = cury;
+
+                if (!entry.isSingle) {
+                    if (!(entry).isMove && isLastEntryMove) {
+                        sx = entry.sx;
+                        sy = entry.sy;
+                        expandStartCap(box, entry, pars);
+                    }
+                    if (!isLastEntryMove && i > 0)
+                        expandLineJoin(box, last, entry, pars, sx, sy);
+                }
+
+                entry.extendStrokeBox(box, pars);
+
+                curx = (entry).x || 0;
+                cury = (entry).y || 0;
+                isLastEntryMove = !!(entry).isMove;
+                last = entry;
+            }
+
+            for (var i = 0; i < len; i++) {
+                processEntry(entries[i], i);
+            }
+            var end = entries[len - 1];
+            if (end && !end.isSingle)
+                expandEndCap(box, end, pars);
+        }
     })(Fayde.Path || (Fayde.Path = {}));
     var Path = Fayde.Path;
 })(Fayde || (Fayde = {}));
@@ -36597,6 +37043,8 @@ var Fayde;
             var bottom = y + height;
 
             return {
+                sx: null,
+                sy: null,
                 isSingle: true,
                 x: x,
                 y: y,
@@ -36605,6 +37053,7 @@ var Fayde;
                 radiusX: radiusX,
                 radiusY: radiusY,
                 draw: function (ctx) {
+                    ctx.beginPath();
                     ctx.moveTo(left + radiusX, top);
 
                     //top edge
@@ -36632,18 +37081,24 @@ var Fayde;
                     ctx.quadraticCurveTo(left, top, left + radiusX, top);
                     ctx.closePath();
                 },
-                extendFillBox: function (box, prevX, prevY) {
+                extendFillBox: function (box) {
                     box.l = Math.min(box.l, x);
                     box.r = Math.max(box.r, x + width);
                     box.t = Math.min(box.t, y);
                     box.b = Math.max(box.b, y + height);
                 },
-                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                extendStrokeBox: function (box, pars) {
                     var hs = pars.thickness / 2.0;
                     box.l = Math.min(box.l, x - hs);
                     box.r = Math.max(box.r, x + width + hs);
                     box.t = Math.min(box.t, y - hs);
                     box.b = Math.max(box.b, y + height + hs);
+                },
+                getStartVector: function () {
+                    return null;
+                },
+                getEndVector: function () {
+                    return null;
                 }
             };
         }
@@ -36661,7 +37116,9 @@ var Fayde;
             var bottom = y + height;
 
             return {
-                isSingle: false,
+                sx: null,
+                sy: null,
+                isSingle: true,
                 x: x,
                 y: y,
                 width: width,
@@ -36669,7 +37126,7 @@ var Fayde;
                 draw: function (ctx) {
                     var right = left + width;
                     var bottom = top + height;
-
+                    ctx.beginPath();
                     ctx.moveTo(left + topLeft, top);
 
                     //top edge
@@ -36697,18 +37154,24 @@ var Fayde;
                         ctx.quadraticCurveTo(left, top, left + topLeft, top);
                     ctx.closePath();
                 },
-                extendFillBox: function (box, prevX, prevY) {
+                extendFillBox: function (box) {
                     box.l = Math.min(box.l, x);
                     box.r = Math.max(box.r, x + width);
                     box.t = Math.min(box.t, y);
                     box.b = Math.max(box.b, y + height);
                 },
-                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                extendStrokeBox: function (box, pars) {
                     var hs = pars.thickness / 2.0;
                     box.l = Math.min(box.l, x - hs);
                     box.r = Math.max(box.r, x + width + hs);
                     box.t = Math.min(box.t, y - hs);
                     box.b = Math.max(box.b, y + height + hs);
+                },
+                getStartVector: function () {
+                    return null;
+                },
+                getEndVector: function () {
+                    return null;
                 }
             };
         }
@@ -36728,12 +37191,15 @@ var Fayde;
             var centerY = y + radiusY;
 
             return {
+                sx: null,
+                sy: null,
                 isSingle: true,
                 x: x,
                 y: y,
                 width: width,
                 height: height,
                 draw: function (ctx) {
+                    ctx.beginPath();
                     if (width === height) {
                         ctx.arc(centerX, centerY, radiusX, 0, Math.PI * 2, false);
                         return;
@@ -36765,12 +37231,18 @@ var Fayde;
                     box.t = Math.min(box.t, y);
                     box.b = Math.max(box.b, y + height);
                 },
-                extendStrokeBox: function (box, pars, prevX, prevY, isStart, isEnd) {
+                extendStrokeBox: function (box, pars) {
                     var hs = pars.thickness / 2.0;
                     box.l = Math.min(box.l, x - hs);
                     box.r = Math.max(box.r, x + width + hs);
                     box.t = Math.min(box.t, y - hs);
                     box.b = Math.max(box.b, y + height + hs);
+                },
+                getStartVector: function () {
+                    return null;
+                },
+                getEndVector: function () {
+                    return null;
                 }
             };
         }
@@ -36778,6 +37250,72 @@ var Fayde;
     })(Fayde.Path || (Fayde.Path = {}));
     var Path = Fayde.Path;
 })(Fayde || (Fayde = {}));
+var Vector;
+(function (Vector) {
+    var EPSILON = 1e-10;
+
+    function create(x, y) {
+        return [x, y];
+    }
+    Vector.create = create;
+
+    function reverse(v) {
+        v[0] = -v[0];
+        v[1] = -v[1];
+        return v;
+    }
+    Vector.reverse = reverse;
+
+    /// Equivalent of rotating 90 degrees clockwise (screen space)
+    function orthogonal(v) {
+        var x = v[0], y = v[1];
+        v[0] = -y;
+        v[1] = x;
+        return v;
+    }
+    Vector.orthogonal = orthogonal;
+
+    function normalize(v) {
+        var x = v[0], y = v[1];
+        var len = Math.sqrt(x * x + y * y);
+        v[0] = x / len;
+        v[1] = y / len;
+        return v;
+    }
+    Vector.normalize = normalize;
+
+    /// Rotates a vector(v) by angle(theta) clockwise(screen space) ...which is counter-clockwise in coordinate space
+    function rotate(v, theta) {
+        var c = Math.cos(theta);
+        var s = Math.sin(theta);
+        var x = v[0];
+        var y = v[1];
+        v[0] = x * c - y * s;
+        v[1] = x * s + y * c;
+        return v;
+    }
+    Vector.rotate = rotate;
+
+    /// Returns angle (in radians) between 2 vectors
+    function angleBetween(u, v) {
+        var ux = u[0], uy = u[1], vx = v[0], vy = v[1];
+        var num = ux * vx + uy * vy;
+        var den = Math.sqrt(ux * ux + uy * uy) * Math.sqrt(vx * vx + vy * vy);
+        return Math.acos(num / den);
+    }
+    Vector.angleBetween = angleBetween;
+
+    /// By rotating from vector(v1) to vector(v2), tests whether that angle is clockwise (screen space)
+    function isClockwiseTo(v1, v2, theta) {
+        var nv1 = normalize(v1.slice(0));
+        var nv2 = normalize(v2.slice(0));
+        rotate(nv1, theta);
+        var nx = Math.abs(nv1[0] - nv2[0]);
+        var ny = Math.abs(nv1[1] - nv2[1]);
+        return nx < EPSILON && ny < EPSILON;
+    }
+    Vector.isClockwiseTo = isClockwiseTo;
+})(Vector || (Vector = {}));
 var Fayde;
 (function (Fayde) {
     /// <reference path="../Core/DependencyObject.ts" />

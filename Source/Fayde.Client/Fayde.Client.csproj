@@ -286,6 +286,7 @@
     <TypeScriptCompile Include="Path\RectRounded.ts" />
     <TypeScriptCompile Include="Path\RectRoundedFull.ts" />
     <TypeScriptCompile Include="Path\Ellipse.ts" />
+    <TypeScriptCompile Include="Primitives\Vector.ts" />
     <Content Include="Theme.Metro.xml" />
     <Content Include="Theme.Silverlight.xml" />
     <TypeScriptCompile Include="Xaml\Library.ts" />
