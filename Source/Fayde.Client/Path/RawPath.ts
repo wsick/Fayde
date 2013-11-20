@@ -17,6 +17,8 @@ module Fayde.Path {
     export interface IPathEntry {
         sx: number;
         sy: number;
+        ex: number;
+        ey: number;
         isSingle: boolean;
         draw: (canvasCtx: CanvasRenderingContext2D) => void;
         extendFillBox: (box: IBoundingBox) => void;
@@ -78,9 +80,10 @@ module Fayde.Path {
             this._Path.push(Arc(x, y, r, sAngle, eAngle, aClockwise));
         }
         ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number) {
-            this._Path.push(ArcTo(cpx, cpy, x, y, radius));
-            this._EndX = x;
-            this._EndY = y;
+            var arcto = ArcTo(cpx, cpy, x, y, radius);
+            this._Path.push(arcto);
+            this._EndX = arcto.ex;
+            this._EndY = arcto.ey;
         }
         Close() {
             this._Path.push(Close());
@@ -122,8 +125,8 @@ module Fayde.Path {
 
                 entry.extendFillBox(box);
 
-                curx = (<any>entry).x || 0;
-                cury = (<any>entry).y || 0;
+                curx = entry.ex || 0;
+                cury = entry.ey || 0;
             }
             return box;
         }
@@ -199,8 +202,8 @@ module Fayde.Path {
         }
     }
     function expandEndCap(box: IBoundingBox, entry: IPathEntry, pars: IStrokeParameters) {
-        var ex: number = (<any>entry).x;
-        var ey: number = (<any>entry).y;
+        var ex = entry.ex;
+        var ey = entry.ey;
 
         var v: number[];
         var hs = pars.thickness / 2.0;
@@ -288,8 +291,8 @@ module Fayde.Path {
 
             entry.extendStrokeBox(box, pars);
 
-            curx = (<any>entry).x || 0;
-            cury = (<any>entry).y || 0;
+            curx = entry.ex || 0;
+            cury = entry.ey || 0;
             isLastEntryMove = !!(<IMove>entry).isMove;
             last = entry;
         }

@@ -1,8 +1,7 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title></title>
-    <script src="/Fayde/Fayde.js"></script>
+    <title></title><script src="/Fayde/Fayde.js"></script>
     <script src="util.js"></script>
     <script type="text/javascript">
         var config = {
@@ -22,33 +21,14 @@
         }
 
         function go() {
-            var s = randomPoint(0, config.w, 0, config.h);
-            var ra = arcto.random(config);
-
-            var path = new Fayde.Path.RawPath();
-            path.Move(s.x, s.y);
-            path.ArcTo(ra.cpx, ra.cpy, ra.ex, ra.ey, ra.r);
-
+            var path = multipath.random(config);
             var strokePars = randomStrokeParameters();
 
             ctx.clearRect(0, 0, config.w, config.h);
             path.DrawCanvasCtx(ctx);
-            pathStroke(ctx, "rgb(0,0,0)", strokePars);
-
-            drawGuideLine(ctx, s.x, s.y, ra.cpx, ra.cpy, 1);
-            drawGuideLine(ctx, ra.cpx, ra.cpy, ra.ex, ra.ey, 2);
-
-            drawStartPoint(ctx, s.x, s.y);
-            drawControlPoint(ctx, ra.cpx, ra.cpy, 1);
-            drawEndPoint(ctx, ra.ex, ra.ey);
+            pathStroke(ctx, "rgba(0,0,0,0.7)", strokePars);
 
             drawBoundingBox(path, strokePars);
-
-            dumpinfo(ra.r, strokePars);
-        }
-
-        function dumpinfo(r, pars) {
-            info.innerText = strokeParamsToString(pars) + "; radius:" + r;
         }
     </script>
 </head>

@@ -12,6 +12,8 @@ module Fayde.Path {
             isSingle: true,
             x: x,
             y: y,
+            ex: x,
+            ey: y,
             width: width,
             height: height,
             draw: function (ctx: CanvasRenderingContext2D) { ctx.rect(x, y, width, height); },

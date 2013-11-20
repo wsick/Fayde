@@ -10,6 +10,8 @@ module Fayde.Path {
             sy: null,
             x: x,
             y: y,
+            ex: x,
+            ey: y,
             draw: function (ctx: CanvasRenderingContext2D) {
                 ctx.lineTo(x, y);
             },

@@ -22,7 +22,8 @@
         }
 
         function go() {
-            var ra = randomArc();
+            var ra = arc.random(config);
+
             var path = new Fayde.Path.RawPath();
             path.Arc(ra.x, ra.y, ra.r, ra.sa, ra.ea, ra.cc);
 
@@ -39,29 +40,6 @@
             drawBoundingBox(path, strokePars);
 
             dumpinfo(ra.r, strokePars);
-        }
-
-        function randomArc() {
-            var x = randomInt(0, config.w);
-            var y = randomInt(0, config.h);
-            var rem = Math.min(
-                Math.min(x, Math.max(0, config.w - x)),
-                Math.min(y, Math.max(0, config.h - y)));
-            var radius = Math.max(10, randomInt(0, rem));
-
-            var f = Math.PI * 2;
-            var startingAngle = randomInt(0, f);
-            var endingAngle = randomInt(0, f);
-            var counterclockwise = randomInt(0, 2) === 0;
-
-            return {
-                x: x,
-                y: y,
-                r: radius,
-                sa: startingAngle,
-                ea: endingAngle,
-                cc: counterclockwise
-            };
         }
 
         function dumpinfo(r, pars) {

@@ -6,6 +6,8 @@ module Fayde.Path {
         return {
             sx: null,
             sy: null,
+            ex: null,
+            ey: null,
             isSingle: false,
             isClose: true,
             draw: function (ctx: CanvasRenderingContext2D) {

@@ -52,12 +52,16 @@ module Fayde.Path {
             cpy: cpy,
             x: x,
             y: y,
+            ex: x,
+            ey: y,
             radius: radius,
             draw: function (ctx: CanvasRenderingContext2D) {
                 ctx.arcTo(cpx, cpy, x, y, radius);
             },
             extendFillBox: function (box: IBoundingBox) {
                 init(this.sx, this.sy);
+                this.ex = arc.ex;
+                this.ey = arc.ey;
 
                 box.l = Math.min(box.l, this.sx);
                 box.r = Math.max(box.r, this.sx);
@@ -69,6 +73,8 @@ module Fayde.Path {
             },
             extendStrokeBox: function (box: IBoundingBox, pars: IStrokeParameters) {
                 init(this.sx, this.sy);
+                this.ex = arc.ex;
+                this.ey = arc.ey;
 
                 var hs = pars.thickness / 2;
                 box.l = Math.min(box.l, this.sx - hs);

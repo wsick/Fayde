@@ -23,7 +23,7 @@
 
         function go() {
             var s = randomPoint(0, config.w, 0, config.h);
-            var rnd = randomCubicBezier();
+            var rnd = cubicbezier.random(config);
 
             var path = new Fayde.Path.RawPath();
             path.Move(s.x, s.y);
@@ -46,7 +46,7 @@
 
             drawBoundingBox(path, strokePars);
 
-            var m = getMaxima(s.x, rnd.cp1x, rnd.cp2x, rnd.x, s.y, rnd.cp1y, rnd.cp2y, rnd.y);
+            var m = cubicbezier.maxima(s.x, rnd.cp1x, rnd.cp2x, rnd.x, s.y, rnd.cp1y, rnd.cp2y, rnd.y);
             drawPoint(ctx, m[0].x, m[0].y, "#0aaa00");
             drawPoint(ctx, m[1].x, m[1].y, "#0aaa00");
             drawPoint(ctx, m[2].x, m[2].y, "#0aaa00");
@@ -55,75 +55,8 @@
             dumpinfo(strokePars);
         }
 
-        function randomCubicBezier() {
-            var cp1x = randomInt(0, config.w);
-            var cp1y = randomInt(0, config.h);
-            var cp2x = randomInt(0, config.w);
-            var cp2y = randomInt(0, config.h);
-            var x = randomInt(0, config.w);
-            var y = randomInt(0, config.h);
-
-            return {
-                cp1x: cp1x,
-                cp1y: cp1y,
-                cp2x: cp2x,
-                cp2y: cp2y,
-                x: x,
-                y: y
-            };
-        }
-
         function dumpinfo(pars) {
             info.innerText = strokeParamsToString(pars);
-        }
-
-
-        
-        function getMaxima(x1, x2, x3, x4, y1, y2, y3, y4) {
-            function x_t(t) {
-                var ot = 1 - t;
-                return (x1 * ot * ot * ot) + (3 * x2 * t * ot * ot) + (3 * x3 * ot * t * t) + (x4 * t * t * t);
-            };
-            function y_t(t) {
-                var ot = 1 - t;
-                return (y1 * ot * ot * ot) + (3 * y2 * t * ot * ot) + (3 * y3 * ot * t * t) + (y4 * t * t * t);
-            };
-            function createMaxima(t) {
-                return {
-                    t: t,
-                    x: x_t(t),
-                    y: y_t(t)
-                };
-            };
-
-            var m = [{}, {}, {}, {}];
-
-            var txs = d_dt_0(x1, x2, x3, x4);
-            if (txs[0] >= 0 && txs[0] <= 1)
-                m[0] = createMaxima(txs[0]);
-            if (txs[1] >= 0 && txs[1] <= 1)
-                m[1] = createMaxima(txs[1]);
-
-            var tys = d_dt_0(y1, y2, y3, y4);
-            if (tys[0] >= 0 && tys[0] <= 1)
-                m[2] = createMaxima(tys[0]);
-            if (tys[1] >= 0 && tys[1] <= 1)
-                m[3] = createMaxima(tys[1]);
-
-            return m;
-        }
-        function d_dt_0(a, b, c, d) {
-            var u = 2 * a - 4 * b + 2 * c;
-            var v = b - a;
-            var w = -a + 3 * b + d - 3 * c;
-            var rt = Math.sqrt(u * u - 4 * v * w);
-            if (isNaN(rt))
-                return [NaN, NaN];
-            var z = [
-                (-u + rt) / (2 * w),
-                (-u - rt) / (2 * w)
-            ];
-            return z;
         }
     </script>
 </head>

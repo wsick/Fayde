@@ -9,8 +9,10 @@ module Fayde.Path {
     }
     export function CubicBezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): ICubicBezier {
         return {
-            sx:null,
-            sy:null,
+            sx: null,
+            sy: null,
+            ex: x,
+            ey: y,
             isSingle: false,
             cp1x: cp1x,
             cp1y: cp1y,
