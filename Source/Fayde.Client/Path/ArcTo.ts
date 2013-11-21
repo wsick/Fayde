@@ -107,22 +107,6 @@ module Fayde.Path {
         return [s[0] + t * d[0], s[1] + t * d[1]];
     }
     function getPerpendicularIntersections(s1: number[], d1: number[], s2: number[], d2: number[]): number[] {
-        var x1 = s1[0];
-        var y1 = s1[1];
-        var x2 = s1[0] - d1[1];
-        var y2 = s1[1] + d1[0];
-
-        var x3 = s2[0];
-        var y3 = s2[1];
-        var x4 = s2[0] - d2[1];
-        var y4 = s2[1] + d2[0];
-
-        var det = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-        if (det === 0)
-            return null;
-
-        var xn = ((x1 * y2 - y1 * x2) * (x3 - x4)) - ((x1 - x2) * (x3 * y4 - y3 * x4));
-        var yn = ((x1 * y2 - y1 * x2) * (y3 - y4)) - ((y1 - y2) * (x3 * y4 - y3 * x4));
-        return [xn / det, yn / det];
+        return Vector.intersection(s1, Vector.orthogonal(d1.slice(0)), s2, Vector.orthogonal(d2.slice(0)));
     }
 }
