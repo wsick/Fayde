@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="/Fayde/Fayde.js"></script>
+    <script src="../util.js"></script>
+    <script type="text/javascript">
+        var config = {
+            w: 800,
+            h: 800,
+            bg: "#eeeeee"
+        };
+        var canvas;
+        var ctx;
+        var info;
+
+        function load() {
+            var canvas = addCanvas(config);
+            ctx = canvas.getContext("2d");
+            info = document.getElementById("info");
+            go();
+        }
+
+        function go() {
+            ctx.clearRect(0, 0, config.w, config.h);
+
+            var dx = 0;
+            var dy = 100;
+            var sx = 30;
+            var sy = 30;
+            for (var i = 0; i < 7; i++) {
+                triangle(ctx, sx, sy, dx, dy);
+                sx += dx + dx + 50;
+                dx += 10;
+            }
+
+
+            dx = 50;
+            dy = 100;
+            sx = 30;
+            sy = 160;
+            for (var i = 0; i < 7; i++) {
+                triangle(ctx, sx, sy, dx, dy);
+                sx += dx + dx + 30;
+                dy -= 20;
+            }
+        }
+
+        function triangle(ctx, sx, sy, dx, dy) {
+            var path = new Fayde.Path.RawPath();
+            path.Move(sx, sy);
+            path.Line(sx + dx, sy + dy);
+            path.Line(sx + dx + dx, sy);
+            var pars = bevelstroke(30);
+            path.DrawCanvasCtx(ctx);
+            pathStroke(ctx, "rgb(0,0,0)", pars);
+            drawPoint(ctx, sx + dx, sy + dy, "red");
+        }
+        
+        function bevelstroke(thickness) {
+            return {
+                thickness: thickness,
+                join: 1,
+                startCap: 0,
+                endCap: 0,
+                miterLimit: 10
+            };
+        }
+    </script>
+</head>
+<body onload="load()">
+    <input type="button" value="again" onclick="go()" />
+    <span id="info"></span>
+    <br />
+</body>
+</html>

@@ -107,6 +107,7 @@
     <Content Include="Tests\Path\arc-to.html" />
     <Content Include="Tests\Path\arc.html" />
     <Content Include="Tests\Path\cubic-bezier.html" />
+    <Content Include="Tests\Path\join\bevel.html" />
     <Content Include="Tests\Path\line.html" />
     <Content Include="Tests\Path\multientry.html" />
     <Content Include="Tests\Path\quad-bezier.html" />
