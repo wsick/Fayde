@@ -85,7 +85,7 @@ function randomPoint(lowx, highx, lowy, highy) {
 
 var multipath = (function () {
     function randomEntry(path, config) {
-        switch (randomInt(0, 4)) {
+        switch (randomInt(0, 3)) {
             case 0:
                 var qb = quadbezier.random(config);
                 path.QuadraticBezier(qb.cpx, qb.cpy, qb.x, qb.y);
@@ -97,10 +97,6 @@ var multipath = (function () {
             case 2:
                 var l = randomPoint(0, config.w, 0, config.h);
                 path.Line(l.x, l.y);
-                break;
-            case 3:
-                var at = arcto.random(config);
-                path.ArcTo(at.cpx, at.cpy, at.ex, at.ey, at.r);
                 break;
         }
     }
