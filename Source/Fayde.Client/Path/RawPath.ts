@@ -311,10 +311,11 @@ module Fayde.Path {
         var x = entry.sx;
         var y = entry.sy;
 
-        var av = Vector.reverse(previous.getEndVector());
+        var av = previous.getEndVector();
         var bv = entry.getStartVector();
         if (!av || !bv)
             return null;
+        Vector.reverse(av);
         var tau = Vector.angleBetween(av, bv) / 2;
 
         var miterRatio = 1 / Math.sin(tau);
@@ -338,10 +339,12 @@ module Fayde.Path {
         var x = entry.sx;
         var y = entry.sy;
 
-        var av = Vector.normalize(Vector.reverse(previous.getEndVector().slice(0)));
-        var bv = Vector.normalize(entry.getStartVector().slice(0));
+        var av = previous.getEndVector();
+        var bv = entry.getStartVector();
         if (!av || !bv)
             return;
+        Vector.normalize(Vector.reverse(av));
+        Vector.normalize(bv);
         var avo: number[],
             bvo: number[];
         if (Vector.isClockwiseTo(av, bv)) {
