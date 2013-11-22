@@ -28,7 +28,36 @@
             path.DrawCanvasCtx(ctx);
             pathStroke(ctx, "rgba(0,0,0,0.7)", strokePars);
 
+            var entries = path._Path;
+            var len = entries.length;
+            var entry = entries[0];
+            drawPoint(ctx, entry.ex, entry.ey, "red");
+            for (var i = 1; i < len; i++) {
+                entry = entries[i];
+                drawPoint(ctx, entry.ex, entry.ey, "green");
+            }
+
             drawBoundingBox(path, strokePars);
+
+            var tips;
+            var hs = strokePars.thickness / 2;
+            var join = strokePars.join;
+            var entry;
+            for (var i = 2; i < len; i++) {
+                entry = entries[i];
+                
+                if (join === Fayde.Shapes.PenLineJoin.Bevel) {
+                    tips = Fayde.Path.findBevelTips(entries[i - 1], entries[i], hs);
+                } else if (join === Fayde.Shapes.PenLineJoin.Miter) {
+                    tips = Fayde.Path.findMiterTips(entries[i - 1], entries[i], hs);
+                } else {
+                    continue;
+                }
+                drawPoint(ctx, tips[0].x, tips[0].y, "orange");
+                drawPoint(ctx, tips[1].x, tips[1].y, "orange");
+            }
+
+            var r = path.CalculateBounds(strokePars);
         }
     </script>
 </head>

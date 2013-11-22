@@ -233,7 +233,7 @@ module Fayde.Path {
             case Shapes.PenLineCap.Flat:
             default:
                 if (!(v = entry.getEndVector())) return;
-                var edp = Vector.orthogonal(Vector.normalize(v.slice(0)));
+                var edo = Vector.orthogonal(Vector.normalize(v.slice(0)));
 
                 var x1 = ex + hs * edo[0];
                 var x2 = ex + hs * -edo[0];
@@ -247,22 +247,23 @@ module Fayde.Path {
                 break;
         }
     }
-    function expandLineJoin(box: IBoundingBox, previous: IPathEntry, entry: IPathEntry, pars: IStrokeParameters, sx: number, sy: number) {
-
+    function expandLineJoin(box: IBoundingBox, previous: IPathEntry, entry: IPathEntry, pars: IStrokeParameters) {
         var hs = pars.thickness / 2.0;
-        switch (pars.join) {
-            case Shapes.PenLineJoin.Miter:
-                break;
-            case Shapes.PenLineJoin.Round:
-                box.l = Math.min(box.l, entry.sx - hs);
-                box.r = Math.max(box.r, entry.sx + hs);
-                box.t = Math.min(box.t, entry.sy - hs);
-                box.b = Math.max(box.b, entry.sy + hs);
-                break;
-            case Shapes.PenLineJoin.Bevel:
-            default:
-                break;
+        if (pars.join === Shapes.PenLineJoin.Round) {
+            box.l = Math.min(box.l, entry.sx - hs);
+            box.r = Math.max(box.r, entry.sx + hs);
+            box.t = Math.min(box.t, entry.sy - hs);
+            box.b = Math.max(box.b, entry.sy + hs);
         }
+        var tips = (pars.join === Shapes.PenLineJoin.Miter) ? findMiterTips(previous, entry, hs, pars.miterLimit) : findBevelTips(previous, entry, hs);
+        var x1 = tips[0].x;
+        var x2 = tips[1].x;
+        var y1 = tips[0].y;
+        var y2 = tips[1].y;
+        box.l = Math.min(box.l, x1, x2);
+        box.r = Math.max(box.r, x1, x2);
+        box.t = Math.min(box.t, y1, y2);
+        box.b = Math.max(box.b, y1, y2);
     }
 
     function processStrokedBounds(box: IBoundingBox, entries: IPathEntry[], pars: IStrokeParameters) {
@@ -286,7 +287,7 @@ module Fayde.Path {
                     expandStartCap(box, entry, pars);
                 }
                 if (!isLastEntryMove && i > 0)
-                    expandLineJoin(box, last, entry, pars, sx, sy);
+                    expandLineJoin(box, last, entry, pars);
             }
 
             entry.extendStrokeBox(box, pars);
@@ -303,5 +304,51 @@ module Fayde.Path {
         var end = entries[len - 1];
         if (end && !end.isSingle)
             expandEndCap(box, end, pars);
+    }
+    export function findMiterTips(previous: IPathEntry, entry: IPathEntry, hs: number, miterLimit: number) {
+        var x = entry.sx;
+        var y = entry.sy;
+
+        var av = Vector.reverse(previous.getEndVector());
+        var bv = entry.getStartVector();
+        var tau = Vector.angleBetween(av, bv) / 2;
+
+        var miterRatio = 1 / Math.sin(tau);
+        if (miterRatio > miterLimit)
+            return findBevelTips(previous, entry, hs);
+        
+        //vector in direction of join point to miter tip
+        var cv = Vector.isClockwiseTo(av, bv) ? av.slice(0) : bv.slice(0);
+        Vector.normalize(Vector.reverse(Vector.rotate(cv, tau)));
+
+        //distance from join point and miter tip
+        var miterLen = hs * miterRatio;
+
+        var tip = { x: x + miterLen * cv[0], y: y + miterLen * cv[1] }
+        return [
+            tip,
+            tip
+        ];
+    }
+    export function findBevelTips(previous: IPathEntry, entry: IPathEntry, hs: number) {
+        var x = entry.sx;
+        var y = entry.sy;
+
+        var av = Vector.normalize(Vector.reverse(previous.getEndVector().slice(0)));
+        var bv = Vector.normalize(entry.getStartVector().slice(0));
+        var avo: number[],
+            bvo: number[];
+        if (Vector.isClockwiseTo(av, bv)) {
+            avo = Vector.orthogonal(av.slice(0));
+            bvo = Vector.reverse(Vector.orthogonal(bv.slice(0)));
+        } else {
+            avo = Vector.reverse(Vector.orthogonal(av.slice(0)));
+            bvo = Vector.orthogonal(bv.slice(0));
+        }
+
+        return [
+            { x: x - hs * avo[0], y: y - hs * avo[1] },
+            { x: x - hs * bvo[0], y: y - hs * bvo[1] }
+        ];
     }
 }

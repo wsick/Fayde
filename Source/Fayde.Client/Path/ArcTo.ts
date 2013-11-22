@@ -28,7 +28,7 @@ module Fayde.Path {
             //find center point
             var c = getPerpendicularIntersections(a, v1, b, v2);
             //counter clockwise test
-            var cc = !Vector.isClockwiseTo([-v1[0], -v1[1]], v2, inner_theta);
+            var cc = !Vector.isClockwiseTo(v1, v2);
             //find starting angle -- [1,0] is origin direction of 0rad
             var sa = Math.atan2(a[1] - c[1], a[0] - c[0]);
             if (sa < 0)

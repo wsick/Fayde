@@ -54,7 +54,8 @@ module Vector {
     }
 
     /// By rotating from vector(v1) to vector(v2), tests whether that angle is clockwise (screen space)
-    export function isClockwiseTo(v1: number[], v2: number[], theta: number) {
+    export function isClockwiseTo(v1: number[], v2: number[]) {
+        var theta = angleBetween(v1, v2);
         var nv1 = normalize(v1.slice(0));
         var nv2 = normalize(v2.slice(0));
         rotate(nv1, theta);
