@@ -256,6 +256,8 @@ module Fayde.Path {
             box.b = Math.max(box.b, entry.sy + hs);
         }
         var tips = (pars.join === Shapes.PenLineJoin.Miter) ? findMiterTips(previous, entry, hs, pars.miterLimit) : findBevelTips(previous, entry, hs);
+        if (!tips)
+            return;
         var x1 = tips[0].x;
         var x2 = tips[1].x;
         var y1 = tips[0].y;
@@ -311,6 +313,8 @@ module Fayde.Path {
 
         var av = Vector.reverse(previous.getEndVector());
         var bv = entry.getStartVector();
+        if (!av || !bv)
+            return null;
         var tau = Vector.angleBetween(av, bv) / 2;
 
         var miterRatio = 1 / Math.sin(tau);
@@ -336,6 +340,8 @@ module Fayde.Path {
 
         var av = Vector.normalize(Vector.reverse(previous.getEndVector().slice(0)));
         var bv = Vector.normalize(entry.getStartVector().slice(0));
+        if (!av || !bv)
+            return;
         var avo: number[],
             bvo: number[];
         if (Vector.isClockwiseTo(av, bv)) {
