@@ -101,7 +101,7 @@ module Fayde.Path {
             }
         }
         CalculateBounds(pars?: IStrokeParameters): rect {
-            var box = pars ? this._CalcStrokeBox(pars) : this._CalcFillBox();
+            var box = pars && pars.thickness > 1 ? this._CalcStrokeBox(pars) : this._CalcFillBox();
             var r = new rect();
             rect.set(r, box.l, box.t, Math.max(0, box.r - box.l), Math.max(0, box.b - box.t));
             return r;
