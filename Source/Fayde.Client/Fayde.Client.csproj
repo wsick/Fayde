@@ -281,6 +281,14 @@
     <TypeScriptCompile Include="Path\Line.ts" />
     <TypeScriptCompile Include="Path\Move.ts" />
     <TypeScriptCompile Include="Path\QuadraticBezier.ts" />
+    <TypeScriptCompile Include="Input\TouchInterop.ts" />
+    <TypeScriptCompile Include="Input\TouchEventArgs.ts" />
+    <TypeScriptCompile Include="Input\TouchPoint.ts" />
+    <TypeScriptCompile Include="Input\TouchInterfaces.ts" />
+    <TypeScriptCompile Include="Input\TouchInternal\PointerTouchInterop.ts" />
+    <TypeScriptCompile Include="Input\TouchInternal\TouchInteropBase.ts" />
+    <TypeScriptCompile Include="Input\TouchInternal\NonPointerTouchInterop.ts" />
+    <TypeScriptCompile Include="Input\TouchInternal\ActiveTouchBase.ts" />
     <TypeScriptCompile Include="Path\Rect.ts" />
     <TypeScriptCompile Include="Path\RawPath.ts" />
     <TypeScriptCompile Include="Path\RectRounded.ts" />

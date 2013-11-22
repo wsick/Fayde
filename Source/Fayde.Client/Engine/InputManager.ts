@@ -13,6 +13,7 @@ module Fayde.Engine {
         private _Surface: Surface;
         private _KeyInterop: Fayde.Input.IKeyInterop;
         private _MouseInterop: Fayde.Input.IMouseInterop;
+        private _TouchInterop: Fayde.Input.ITouchInterop;
         private _Focus: FocusManager;
         private _State: IInputState;
         private _Cursor: string = Fayde.CursorType.Default;
@@ -33,6 +34,7 @@ module Fayde.Engine {
             this._Surface = surface;
             this._KeyInterop = Fayde.Input.CreateKeyInterop();
             this._MouseInterop = Fayde.Input.CreateMouseInterop();
+            this._TouchInterop = Fayde.Input.CreateTouchInterop();
 
             this._Focus = new FocusManager(this._State = {
                 IsUserInitiated: false,
@@ -45,6 +47,7 @@ module Fayde.Engine {
 
             this._KeyInterop.RegisterEvents(this);
             this._MouseInterop.RegisterEvents(this, canvas);
+            this._TouchInterop.Register(this, canvas);
         }
 
         OnNodeDetached(node: UINode) {
@@ -107,8 +110,8 @@ module Fayde.Engine {
             if (this._EmittingMouseEvent)
                 return false;
 
-            var newInputList: UINode[] = [];
-            if (!this._Surface.HitTestPoint(newInputList, pos))
+            var newInputList = this._Surface.HitTestPoint(pos);
+            if (!newInputList)
                 return false;
 
             this._EmittingMouseEvent = true;
@@ -159,6 +162,10 @@ module Fayde.Engine {
                     args = this._MouseInterop.CreateEventArgs(type, pos, delta);
             }
             return handled;
+        }
+
+        HitTestPoint(pos: Point): UINode[] {
+            return this._Surface.HitTestPoint(pos);
         }
 
         UpdateCursorFromInputList() {

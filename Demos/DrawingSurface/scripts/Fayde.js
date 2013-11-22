@@ -2299,6 +2299,40 @@ else if (type === "lost")
             }
             return args.Handled;
         };
+        UINode.prototype._EmitTouchEvent = function (type, args) {
+            var x = this.XObject;
+            switch (type) {
+                case Fayde.Input.TouchInputType.TouchDown:
+                    x.OnTouchDown(args);
+                    x.TouchDown.Raise(x, args);
+                    break;
+                case Fayde.Input.TouchInputType.TouchUp:
+                    x.OnTouchUp(args);
+                    x.TouchUp.Raise(x, args);
+                case Fayde.Input.TouchInputType.TouchMove:
+                    x.OnTouchMove(args);
+                    x.TouchMove.Raise(x, args);
+                case Fayde.Input.TouchInputType.TouchEnter:
+                    x.OnTouchEnter(args);
+                    x.TouchEnter.Raise(x, args);
+                case Fayde.Input.TouchInputType.TouchLeave:
+                    x.OnTouchLeave(args);
+                    x.TouchLeave.Raise(x, args);
+                default:
+                    return false;
+            }
+            return args.Handled;
+        };
+        UINode.prototype._EmitGotTouchCapture = function (e) {
+            var x = this.XObject;
+            x.OnGotTouchCapture(e);
+            x.GotTouchCapture.Raise(this, e);
+        };
+        UINode.prototype._EmitLostTouchCapture = function (e) {
+            var x = this.XObject;
+            x.OnLostTouchCapture(e);
+            x.LostTouchCapture.Raise(this, e);
+        };
 
         UINode.prototype.CanCaptureMouse = function () {
             return true;
@@ -2435,6 +2469,13 @@ else
             this.MouseEnter = new Fayde.RoutedEvent();
             this.MouseMove = new Fayde.RoutedEvent();
             this.MouseWheel = new Fayde.RoutedEvent();
+            this.TouchDown = new Fayde.RoutedEvent();
+            this.TouchUp = new Fayde.RoutedEvent();
+            this.TouchEnter = new Fayde.RoutedEvent();
+            this.TouchLeave = new Fayde.RoutedEvent();
+            this.TouchMove = new Fayde.RoutedEvent();
+            this.GotTouchCapture = new Fayde.RoutedEvent();
+            this.LostTouchCapture = new Fayde.RoutedEvent();
         }
         UIElement.prototype.CreateNode = function () {
             return new UINode(this);
@@ -2541,6 +2582,20 @@ else
         UIElement.prototype.OnMouseRightButtonUp = function (e) {
         };
         UIElement.prototype.OnMouseWheel = function (e) {
+        };
+        UIElement.prototype.OnTouchDown = function (e) {
+        };
+        UIElement.prototype.OnTouchUp = function (e) {
+        };
+        UIElement.prototype.OnTouchEnter = function (e) {
+        };
+        UIElement.prototype.OnTouchLeave = function (e) {
+        };
+        UIElement.prototype.OnTouchMove = function (e) {
+        };
+        UIElement.prototype.OnGotTouchCapture = function (e) {
+        };
+        UIElement.prototype.OnLostTouchCapture = function (e) {
         };
 
         UIElement.prototype._ClipChanged = function (args) {
@@ -3225,8 +3280,9 @@ else
                     return;
                 }
 
-                var raw = Fayde.Path.RectRoundedFull(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
-                raw.draw(ctx.CanvasContext);
+                var rawPath = new Fayde.Shapes.RawPath();
+                rawPath.RoundedRectFull(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
+                rawPath.DrawRenderCtx(ctx);
                 ctx.Fill(backgroundBrush, fillExtents);
             };
             Border.prototype._RenderBalanced = function (ctx, extents, backgroundBrush, borderBrush, thickness, cornerRadius) {
@@ -3240,17 +3296,18 @@ else
 
                 if (!cornerRadius || cornerRadius.IsZero()) {
                     if (backgroundBrush) {
-                        ctx.StrokeAndFillRect(borderBrush, full, strokeExtents, backgroundBrush, fillExtents);
+                        ctx.StrokeAndFillRect(borderBrush, thickness.Left, strokeExtents, backgroundBrush, fillExtents);
                     } else {
                         ctx.Rect(fillExtents);
-                        ctx.StrokeSimple(borderBrush, full, extents);
+                        ctx.Stroke(borderBrush, thickness.Left, extents);
                     }
                 } else {
-                    var raw = Fayde.Path.RectRoundedFull(strokeExtents.X, strokeExtents.Y, strokeExtents.Width, strokeExtents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
-                    raw.draw(ctx.CanvasContext);
+                    var rawPath = new Fayde.Shapes.RawPath();
+                    rawPath.RoundedRectFull(strokeExtents.X, strokeExtents.Y, strokeExtents.Width, strokeExtents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
+                    rawPath.DrawRenderCtx(ctx);
                     if (backgroundBrush)
                         ctx.Fill(backgroundBrush, fillExtents);
-                    ctx.StrokeSimple(borderBrush, full, extents);
+                    ctx.Stroke(borderBrush, thickness.Left, extents);
                 }
             };
             Border.prototype._RenderUnbalanced = function (ctx, extents, backgroundBrush, borderBrush, thickness, cornerRadius) {
@@ -3259,14 +3316,14 @@ else
                 if (thickness)
                     rect.shrinkByThickness(innerExtents, thickness);
 
-                var innerPath;
-                var outerPath;
+                var innerPath = new Fayde.Shapes.RawPath();
+                var outerPath = new Fayde.Shapes.RawPath();
                 if (hasCornerRadius) {
-                    outerPath = Fayde.Path.RectRoundedFull(0, 0, extents.Width, extents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
-                    innerPath = Fayde.Path.RectRoundedFull(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
+                    outerPath.RoundedRectFull(0, 0, extents.Width, extents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
+                    innerPath.RoundedRectFull(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
                 } else {
-                    outerPath = Fayde.Path.Rect(0, 0, extents.Width, extents.Height);
-                    innerPath = Fayde.Path.Rect(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height);
+                    outerPath.Rect(0, 0, extents.Width, extents.Height);
+                    innerPath.Rect(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height);
                 }
 
                 var tmpCanvas = document.createElement("canvas");
@@ -3274,19 +3331,19 @@ else
                 tmpCanvas.height = extents.Height;
                 var tmpCtx = tmpCanvas.getContext("2d");
 
-                outerPath.draw(tmpCtx);
+                outerPath.DrawCanvasCtx(tmpCtx);
                 borderBrush.SetupBrush(tmpCtx, extents);
                 tmpCtx.fillStyle = borderBrush.ToHtml5Object();
                 tmpCtx.fill();
 
                 tmpCtx.globalCompositeOperation = "xor";
-                innerPath.draw(tmpCtx);
+                innerPath.DrawCanvasCtx(tmpCtx);
                 tmpCtx.fill();
 
                 ctx.CanvasContext.drawImage(tmpCanvas, extents.X, extents.Y);
 
                 //DrawDebug("Draw Image (Border)");
-                innerPath.draw(ctx.CanvasContext);
+                innerPath.DrawRenderCtx(ctx);
                 if (backgroundBrush)
                     ctx.Fill(backgroundBrush, innerExtents);
             };
@@ -3696,28 +3753,6 @@ var Fayde;
             };
             Control.prototype.OnLostFocus = function (e) {
                 this.XamlNode.IsFocused = false;
-            };
-            Control.prototype.OnLostMouseCapture = function (e) {
-            };
-            Control.prototype.OnKeyDown = function (e) {
-            };
-            Control.prototype.OnKeyUp = function (e) {
-            };
-            Control.prototype.OnMouseEnter = function (e) {
-            };
-            Control.prototype.OnMouseLeave = function (e) {
-            };
-            Control.prototype.OnMouseLeftButtonDown = function (e) {
-            };
-            Control.prototype.OnMouseLeftButtonUp = function (e) {
-            };
-            Control.prototype.OnMouseMove = function (e) {
-            };
-            Control.prototype.OnMouseRightButtonDown = function (e) {
-            };
-            Control.prototype.OnMouseRightButtonUp = function (e) {
-            };
-            Control.prototype.OnMouseWheel = function (e) {
             };
 
             Control.prototype.UpdateVisualState = function (useTransitions) {
@@ -5015,27 +5050,6 @@ var Fayde;
             XmlNamespace: Fayde.XMLNS
         });
 
-        function ConvertColumnDefinition(o) {
-            if (!o || o instanceof ColumnDefinition)
-                return o;
-            var s = o.toString();
-            var cd = new ColumnDefinition();
-            if (s.toLowerCase() === "auto") {
-                cd.Width = new Controls.GridLength(0, Controls.GridUnitType.Auto);
-                return cd;
-            }
-            if (s === "*") {
-                cd.Width = new Controls.GridLength(1, Controls.GridUnitType.Star);
-                return cd;
-            }
-            var v = parseFloat(s);
-            if (isNaN(v))
-                throw new XamlParseException("Invalid ColumnDefinition: '" + s + "'.");
-            cd.Width = new Controls.GridLength(v, s[s.length - 1] === "*" ? Controls.GridUnitType.Star : Controls.GridUnitType.Pixel);
-            return cd;
-        }
-        Fayde.RegisterTypeConverter(ColumnDefinition, ConvertColumnDefinition);
-
         var ColumnDefinitionCollection = (function (_super) {
             __extends(ColumnDefinitionCollection, _super);
             function ColumnDefinitionCollection() {
@@ -5078,24 +5092,6 @@ var Fayde;
             Namespace: "Fayde.Controls",
             XmlNamespace: Fayde.XMLNS
         });
-
-        function ConvertColumnDefinitionCollection(o) {
-            if (!o || o instanceof ColumnDefinitionCollection)
-                return o;
-            if (typeof o === "string") {
-                var tokens = (o).split(" ");
-                var len = tokens.length;
-                var cdc = new ColumnDefinitionCollection();
-                var cd;
-                for (var i = 0; i < len; i++) {
-                    if (cd = ConvertColumnDefinition(tokens[i]))
-                        cdc.Add(cd);
-                }
-                return cdc;
-            }
-            return undefined;
-        }
-        Fayde.RegisterTypeConverter(ColumnDefinitionCollection, ConvertColumnDefinitionCollection);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -13232,27 +13228,6 @@ var Fayde;
             XmlNamespace: Fayde.XMLNS
         });
 
-        function ConvertRowDefinition(o) {
-            if (!o || o instanceof RowDefinition)
-                return o;
-            var s = o.toString();
-            var rd = new RowDefinition();
-            if (s.toLowerCase() === "auto") {
-                rd.Height = new Controls.GridLength(0, Controls.GridUnitType.Auto);
-                return rd;
-            }
-            if (s === "*") {
-                rd.Height = new Controls.GridLength(1, Controls.GridUnitType.Star);
-                return rd;
-            }
-            var v = parseFloat(s);
-            if (isNaN(v))
-                throw new XamlParseException("Invalid RowDefinition: '" + s + "'.");
-            rd.Height = new Controls.GridLength(v, s[s.length - 1] === "*" ? Controls.GridUnitType.Star : Controls.GridUnitType.Pixel);
-            return rd;
-        }
-        Fayde.RegisterTypeConverter(RowDefinition, ConvertRowDefinition);
-
         var RowDefinitionCollection = (function (_super) {
             __extends(RowDefinitionCollection, _super);
             function RowDefinitionCollection() {
@@ -13295,24 +13270,6 @@ var Fayde;
             Namespace: "Fayde.Controls",
             XmlNamespace: Fayde.XMLNS
         });
-
-        function ConvertRowDefinitionCollection(o) {
-            if (!o || o instanceof RowDefinitionCollection)
-                return o;
-            if (typeof o === "string") {
-                var tokens = (o).split(" ");
-                var len = tokens.length;
-                var rdc = new RowDefinitionCollection();
-                var rd;
-                for (var i = 0; i < len; i++) {
-                    if (rd = ConvertRowDefinition(tokens[i]))
-                        rdc.Add(rd);
-                }
-                return rdc;
-            }
-            return undefined;
-        }
-        Fayde.RegisterTypeConverter(RowDefinitionCollection, ConvertRowDefinitionCollection);
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -19191,6 +19148,603 @@ else
         XmlNamespace: Fayde.XMLNS
     });
 })(Fayde || (Fayde = {}));
+/// <reference path="../Runtime/TypeManagement.ts" />
+var CornerRadius = (function () {
+    function CornerRadius(topLeft, topRight, bottomRight, bottomLeft) {
+        this.TopLeft = topLeft == null ? 0 : topLeft;
+        this.TopRight = topRight == null ? 0 : topRight;
+        this.BottomRight = bottomRight == null ? 0 : bottomRight;
+        this.BottomLeft = bottomLeft == null ? 0 : bottomLeft;
+    }
+    CornerRadius.prototype.IsZero = function () {
+        return this.TopLeft === 0 && this.TopRight === 0 && this.BottomRight === 0 && this.BottomLeft === 0;
+    };
+    CornerRadius.prototype.Equals = function (other) {
+        return this.TopLeft === other.TopLeft && this.TopRight === other.TopRight && this.BottomRight === other.BottomRight && this.BottomLeft === other.BottomLeft;
+    };
+    CornerRadius.prototype.toString = function () {
+        return "(" + this.TopLeft + ", " + this.TopRight + ", " + this.BottomRight + ", " + this.BottomLeft + ")";
+    };
+
+    CornerRadius.prototype.Clone = function () {
+        return new CornerRadius(this.TopLeft, this.TopRight, this.BottomRight, this.BottomLeft);
+    };
+    return CornerRadius;
+})();
+Fayde.RegisterType(CornerRadius, {
+    Name: "CornerRadius",
+    Namespace: "window",
+    XmlNamespace: Fayde.XMLNSX
+});
+
+Fayde.RegisterTypeConverter(CornerRadius, function (val) {
+    if (!val)
+        return new CornerRadius();
+    if (typeof val === "number")
+        return new CornerRadius(val, val, val, val);
+    var tokens = val.toString().split(",");
+    var topLeft, topRight, bottomRight, bottomLeft;
+    if (tokens.length === 1) {
+        topLeft = topRight = bottomRight = bottomLeft = parseFloat(tokens[0]);
+    } else if (tokens.length === 4) {
+        topLeft = parseFloat(tokens[0]);
+        topRight = parseFloat(tokens[1]);
+        bottomRight = parseFloat(tokens[2]);
+        bottomLeft = parseFloat(tokens[3]);
+    } else {
+        throw new Exception("Cannot parse CornerRadius value '" + val + "'");
+    }
+    return new CornerRadius(topLeft, topRight, bottomRight, bottomLeft);
+});
+/// <reference path="../Runtime/TypeManagement.ts" />
+var Color = (function () {
+    function Color() {
+        this.R = 0;
+        this.G = 0;
+        this.B = 0;
+        this.A = 1.0;
+    }
+    Color.prototype.Add = function (color2) {
+        var c = new Color();
+        c.R = this.R + color2.R;
+        c.G = this.G + color2.G;
+        c.B = this.B + color2.B;
+        c.A = this.A + color2.A;
+        return c;
+    };
+    Color.prototype.Subtract = function (color2) {
+        var c = new Color();
+        c.R = this.R - color2.R;
+        c.G = this.G - color2.G;
+        c.B = this.B - color2.B;
+        c.A = this.A - color2.A;
+        return c;
+    };
+    Color.prototype.Multiply = function (factor) {
+        var c = new Color();
+        c.R = this.R * factor;
+        c.G = this.G * factor;
+        c.B = this.B * factor;
+        c.A = this.A * factor;
+        return c;
+    };
+    Color.prototype.Equals = function (other) {
+        return this.R === other.R && this.G === other.G && this.B === other.B && this.A === other.A;
+    };
+    Color.prototype.toString = function () {
+        return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
+    };
+    Color.prototype.ToHexStringNoAlpha = function () {
+        return "#" + this.R.toString(16) + this.G.toString(16) + this.B.toString(16);
+    };
+
+    Color.prototype.Clone = function () {
+        return Color.FromRgba(this.R, this.G, this.B, this.A);
+    };
+
+    Color.LERP = function (start, end, p) {
+        var c = new Color();
+        c.R = start.R + (end.R - start.R) * p;
+        c.G = start.G + (end.G - start.G) * p;
+        c.B = start.B + (end.B - start.B) * p;
+        c.A = start.A + (end.A - start.A) * p;
+        return c;
+    };
+    Color.FromRgba = function (r, g, b, a) {
+        var c = new Color();
+        c.R = r;
+        c.G = g;
+        c.B = b;
+        c.A = a;
+        return c;
+    };
+    Color.FromHex = function (hex) {
+        var match;
+        var c = new Color();
+        if ((match = Color.__AlphaRegex.exec(hex)) != null) {
+            c.A = parseInt(match[1], 16) / 255.0;
+            c.R = parseInt(match[2], 16);
+            c.G = parseInt(match[3], 16);
+            c.B = parseInt(match[4], 16);
+        } else if ((match = Color.__NoAlphaRegex.exec(hex)) != null) {
+            c.A = 1.0;
+            c.R = parseInt(match[1], 16);
+            c.G = parseInt(match[2], 16);
+            c.B = parseInt(match[3], 16);
+        }
+        return c;
+    };
+    Color.__NoAlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
+    Color.__AlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
+
+    Color.KnownColors = {
+        AliceBlue: Color.FromHex("#FFF0F8FF"),
+        AntiqueWhite: Color.FromHex("#FFFAEBD7"),
+        Aqua: Color.FromHex("#FF00FFFF"),
+        Aquamarine: Color.FromHex("#FF7FFFD4"),
+        Azure: Color.FromHex("#FFF0FFFF"),
+        Beige: Color.FromHex("#FFF5F5DC"),
+        Bisque: Color.FromHex("#FFFFE4C4"),
+        Black: Color.FromHex("#FF000000"),
+        BlanchedAlmond: Color.FromHex("#FFFFEBCD"),
+        Blue: Color.FromHex("#FF0000FF"),
+        BlueViolet: Color.FromHex("#FF8A2BE2"),
+        Brown: Color.FromHex("#FFA52A2A"),
+        BurlyWood: Color.FromHex("#FFDEB887"),
+        CadetBlue: Color.FromHex("#FF5F9EA0"),
+        Chartreuse: Color.FromHex("#FF7FFF00"),
+        Chocolate: Color.FromHex("#FFD2691E"),
+        Coral: Color.FromHex("#FFFF7F50"),
+        CornflowerBlue: Color.FromHex("#FF6495ED"),
+        Cornsilk: Color.FromHex("#FFFFF8DC"),
+        Crimson: Color.FromHex("#FFDC143C"),
+        Cyan: Color.FromHex("#FF00FFFF"),
+        DarkBlue: Color.FromHex("#FF00008B"),
+        DarkCyan: Color.FromHex("#FF008B8B"),
+        DarkGoldenrod: Color.FromHex("#FFB8860B"),
+        DarkGray: Color.FromHex("#FFA9A9A9"),
+        DarkGreen: Color.FromHex("#FF006400"),
+        DarkKhaki: Color.FromHex("#FFBDB76B"),
+        DarkMagenta: Color.FromHex("#FF8B008B"),
+        DarkOliveGreen: Color.FromHex("#FF556B2F"),
+        DarkOrange: Color.FromHex("#FFFF8C00"),
+        DarkOrchid: Color.FromHex("#FF9932CC"),
+        DarkRed: Color.FromHex("#FF8B0000"),
+        DarkSalmon: Color.FromHex("#FFE9967A"),
+        DarkSeaGreen: Color.FromHex("#FF8FBC8F"),
+        DarkSlateBlue: Color.FromHex("#FF483D8B"),
+        DarkSlateGray: Color.FromHex("#FF2F4F4F"),
+        DarkTurquoise: Color.FromHex("#FF00CED1"),
+        DarkViolet: Color.FromHex("#FF9400D3"),
+        DeepPink: Color.FromHex("#FFFF1493"),
+        DeepSkyBlue: Color.FromHex("#FF00BFFF"),
+        DimGray: Color.FromHex("#FF696969"),
+        DodgerBlue: Color.FromHex("#FF1E90FF"),
+        Firebrick: Color.FromHex("#FFB22222"),
+        FloralWhite: Color.FromHex("#FFFFFAF0"),
+        ForestGreen: Color.FromHex("#FF228B22"),
+        Fuchsia: Color.FromHex("#FFFF00FF"),
+        Gainsboro: Color.FromHex("#FFDCDCDC"),
+        GhostWhite: Color.FromHex("#FFF8F8FF"),
+        Gold: Color.FromHex("#FFFFD700"),
+        Goldenrod: Color.FromHex("#FFDAA520"),
+        Gray: Color.FromHex("#FF808080"),
+        Green: Color.FromHex("#FF008000"),
+        GreenYellow: Color.FromHex("#FFADFF2F"),
+        Honeydew: Color.FromHex("#FFF0FFF0"),
+        HotPink: Color.FromHex("#FFFF69B4"),
+        IndianRed: Color.FromHex("#FFCD5C5C"),
+        Indigo: Color.FromHex("#FF4B0082"),
+        Ivory: Color.FromHex("#FFFFFFF0"),
+        Khaki: Color.FromHex("#FFF0E68C"),
+        Lavender: Color.FromHex("#FFE6E6FA"),
+        LavenderBlush: Color.FromHex("#FFFFF0F5"),
+        LawnGreen: Color.FromHex("#FF7CFC00"),
+        LemonChiffon: Color.FromHex("#FFFFFACD"),
+        LightBlue: Color.FromHex("#FFADD8E6"),
+        LightCoral: Color.FromHex("#FFF08080"),
+        LightCyan: Color.FromHex("#FFE0FFFF"),
+        LightGoldenrodYellow: Color.FromHex("#FFFAFAD2"),
+        LightGray: Color.FromHex("#FFD3D3D3"),
+        LightGreen: Color.FromHex("#FF90EE90"),
+        LightPink: Color.FromHex("#FFFFB6C1"),
+        LightSalmon: Color.FromHex("#FFFFA07A"),
+        LightSeaGreen: Color.FromHex("#FF20B2AA"),
+        LightSkyBlue: Color.FromHex("#FF87CEFA"),
+        LightSlateGray: Color.FromHex("#FF778899"),
+        LightSteelBlue: Color.FromHex("#FFB0C4DE"),
+        LightYellow: Color.FromHex("#FFFFFFE0"),
+        Lime: Color.FromHex("#FF00FF00"),
+        LimeGreen: Color.FromHex("#FF32CD32"),
+        Linen: Color.FromHex("#FFFAF0E6"),
+        Magenta: Color.FromHex("#FFFF00FF"),
+        Maroon: Color.FromHex("#FF800000"),
+        MediumAquamarine: Color.FromHex("#FF66CDAA"),
+        MediumBlue: Color.FromHex("#FF0000CD"),
+        MediumOrchid: Color.FromHex("#FFBA55D3"),
+        MediumPurple: Color.FromHex("#FF9370DB"),
+        MediumSeaGreen: Color.FromHex("#FF3CB371"),
+        MediumSlateBlue: Color.FromHex("#FF7B68EE"),
+        MediumSpringGreen: Color.FromHex("#FF00FA9A"),
+        MediumTurquoise: Color.FromHex("#FF48D1CC"),
+        MediumVioletRed: Color.FromHex("#FFC71585"),
+        MidnightBlue: Color.FromHex("#FF191970"),
+        MintCream: Color.FromHex("#FFF5FFFA"),
+        MistyRose: Color.FromHex("#FFFFE4E1"),
+        Moccasin: Color.FromHex("#FFFFE4B5"),
+        NavajoWhite: Color.FromHex("#FFFFDEAD"),
+        Navy: Color.FromHex("#FF000080"),
+        OldLace: Color.FromHex("#FFFDF5E6"),
+        Olive: Color.FromHex("#FF808000"),
+        OliveDrab: Color.FromHex("#FF6B8E23"),
+        Orange: Color.FromHex("#FFFFA500"),
+        OrangeRed: Color.FromHex("#FFFF4500"),
+        Orchid: Color.FromHex("#FFDA70D6"),
+        PaleGoldenrod: Color.FromHex("#FFEEE8AA"),
+        PaleGreen: Color.FromHex("#FF98FB98"),
+        PaleTurquoise: Color.FromHex("#FFAFEEEE"),
+        PaleVioletRed: Color.FromHex("#FFDB7093"),
+        PapayaWhip: Color.FromHex("#FFFFEFD5"),
+        PeachPuff: Color.FromHex("#FFFFDAB9"),
+        Peru: Color.FromHex("#FFCD853F"),
+        Pink: Color.FromHex("#FFFFC0CB"),
+        Plum: Color.FromHex("#FFDDA0DD"),
+        PowderBlue: Color.FromHex("#FFB0E0E6"),
+        Purple: Color.FromHex("#FF800080"),
+        Red: Color.FromHex("#FFFF0000"),
+        RosyBrown: Color.FromHex("#FFBC8F8F"),
+        RoyalBlue: Color.FromHex("#FF4169E1"),
+        SaddleBrown: Color.FromHex("#FF8B4513"),
+        Salmon: Color.FromHex("#FFFA8072"),
+        SandyBrown: Color.FromHex("#FFF4A460"),
+        SeaGreen: Color.FromHex("#FF2E8B57"),
+        SeaShell: Color.FromHex("#FFFFF5EE"),
+        Sienna: Color.FromHex("#FFA0522D"),
+        Silver: Color.FromHex("#FFC0C0C0"),
+        SkyBlue: Color.FromHex("#FF87CEEB"),
+        SlateBlue: Color.FromHex("#FF6A5ACD"),
+        SlateGray: Color.FromHex("#FF708090"),
+        Snow: Color.FromHex("#FFFFFAFA"),
+        SpringGreen: Color.FromHex("#FF00FF7F"),
+        SteelBlue: Color.FromHex("#FF4682B4"),
+        Tan: Color.FromHex("#FFD2B48C"),
+        Teal: Color.FromHex("#FF008080"),
+        Thistle: Color.FromHex("#FFD8BFD8"),
+        Tomato: Color.FromHex("#FFFF6347"),
+        Transparent: Color.FromHex("#00FFFFFF"),
+        Turquoise: Color.FromHex("#FF40E0D0"),
+        Violet: Color.FromHex("#FFEE82EE"),
+        Wheat: Color.FromHex("#FFF5DEB3"),
+        White: Color.FromHex("#FFFFFFFF"),
+        WhiteSmoke: Color.FromHex("#FFF5F5F5"),
+        Yellow: Color.FromHex("#FFFFFF00"),
+        YellowGreen: Color.FromHex("#FF9ACD32")
+    };
+    return Color;
+})();
+Fayde.RegisterType(Color, {
+    Name: "Color",
+    Namespace: "window",
+    XmlNamespace: Fayde.XMLNS
+});
+
+Fayde.RegisterTypeConverter(Color, function (val) {
+    if (!val)
+        return undefined;
+    if (val instanceof Color)
+        return val;
+    val = val.toString();
+    if (val[0] !== "#") {
+        var color = Color.KnownColors[val];
+        if (!color)
+            throw new NotSupportedException("Unknown Color: " + val);
+        return color;
+    }
+    return Color.FromHex(val);
+});
+/// <reference path="../Runtime/TypeManagement.ts" />
+var Thickness = (function () {
+    function Thickness(left, top, right, bottom) {
+        this.Left = left == null ? 0 : left;
+        this.Top = top == null ? 0 : top;
+        this.Right = right == null ? 0 : right;
+        this.Bottom = bottom == null ? 0 : bottom;
+    }
+    Thickness.prototype.Plus = function (thickness2) {
+        var t = new Thickness();
+        t.Left = this.Left + thickness2.Left;
+        t.Right = this.Right + thickness2.Right;
+        t.Top = this.Top + thickness2.Top;
+        t.Bottom = this.Bottom + thickness2.Bottom;
+        return t;
+    };
+    Thickness.prototype.IsEmpty = function () {
+        return this.Left == 0 && this.Top == 0 && this.Right == 0 && this.Bottom == 0;
+    };
+    Thickness.prototype.IsBalanced = function () {
+        return this.Left === this.Top && this.Left === this.Right && this.Left === this.Bottom;
+    };
+
+    Thickness.prototype.toString = function () {
+        return "(" + this.Left + ", " + this.Top + ", " + this.Right + ", " + this.Bottom + ")";
+    };
+
+    Thickness.prototype.Clone = function () {
+        return new Thickness(this.Left, this.Top, this.Right, this.Bottom);
+    };
+
+    Thickness.Equals = function (thickness1, thickness2) {
+        if (thickness1 == null && thickness2 == null)
+            return true;
+        if (thickness1 == null || thickness2 == null)
+            return false;
+        return thickness1.Left === thickness2.Left && thickness1.Top === thickness2.Top && thickness1.Right === thickness2.Right && thickness1.Bottom === thickness2.Bottom;
+    };
+    return Thickness;
+})();
+Fayde.RegisterType(Thickness, {
+    Name: "Thickness",
+    Namespace: "window",
+    XmlNamespace: Fayde.XMLNSX
+});
+
+Fayde.RegisterTypeConverter(Thickness, function (val) {
+    if (!val)
+        return new Thickness();
+    if (typeof val === "number")
+        return new Thickness(val, val, val, val);
+    if (val instanceof Thickness) {
+        var t = val;
+        return new Thickness(t.Left, t.Top, t.Right, t.Bottom);
+    }
+    var tokens = val.toString().split(",");
+    var left, top, right, bottom;
+    if (tokens.length === 1) {
+        left = top = right = bottom = parseFloat(tokens[0]);
+    } else if (tokens.length === 2) {
+        left = right = parseFloat(tokens[0]);
+        top = bottom = parseFloat(tokens[1]);
+    } else if (tokens.length === 4) {
+        left = parseFloat(tokens[0]);
+        top = parseFloat(tokens[1]);
+        right = parseFloat(tokens[2]);
+        bottom = parseFloat(tokens[3]);
+    } else {
+        throw new Exception("Cannot parse Thickness value '" + val + "'");
+    }
+    return new Thickness(left, top, right, bottom);
+});
+var Fayde;
+(function (Fayde) {
+    /// <reference path="../Core/DependencyObject.ts" />
+    (function (Media) {
+        var Brush = (function (_super) {
+            __extends(Brush, _super);
+            function Brush() {
+                _super.call(this);
+                this._CachedBounds = null;
+                this._CachedBrush = null;
+                this._Listeners = [];
+                Fayde.XamlNode.SetShareable(this.XamlNode);
+            }
+            Brush.prototype.SetupBrush = function (ctx, bounds) {
+                if (this._CachedBrush && this._CachedBounds && rect.isEqual(this._CachedBounds, bounds))
+                    return;
+                this._CachedBounds = bounds;
+
+                var transform = this.Transform;
+                if (transform) {
+                    var transformedBounds = transform.TransformBounds(bounds);
+                    var raw = transform.Value._Raw;
+
+                    var tmpBrush = this.CreateBrush(ctx, bounds);
+                    var fillExtents = rect.copyTo(bounds);
+                    rect.growBy(fillExtents, raw[2], raw[5], 0, 0);
+
+                    var tmpCanvas = document.createElement("canvas");
+                    tmpCanvas.width = Math.max(transformedBounds.Width, bounds.Width);
+                    tmpCanvas.height = Math.max(transformedBounds.Height, bounds.Height);
+                    var tmpCtx = tmpCanvas.getContext("2d");
+                    tmpCtx.setTransform(raw[0], raw[1], raw[3], raw[4], raw[2], raw[5]);
+                    tmpCtx.fillStyle = tmpBrush;
+                    tmpCtx.fillRect(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height);
+
+                    this._CachedBrush = ctx.createPattern(tmpCanvas, "no-repeat");
+                } else {
+                    this._CachedBrush = this.CreateBrush(ctx, bounds);
+                }
+            };
+            Brush.prototype.CreateBrush = function (ctx, bounds) {
+                return undefined;
+            };
+            Brush.prototype.ToHtml5Object = function () {
+                return this._CachedBrush;
+            };
+
+            Brush.prototype.Listen = function (func) {
+                var listeners = this._Listeners;
+                var listener = {
+                    Callback: func,
+                    Detach: function () {
+                        var index = listeners.indexOf(listener);
+                        if (index > -1)
+                            listeners.splice(index, 1);
+                    }
+                };
+                listeners.push(listener);
+                return listener;
+            };
+
+            Brush.prototype.InvalidateBrush = function () {
+                this._CachedBrush = null;
+                this._CachedBounds = null;
+                var listeners = this._Listeners;
+                var len = listeners.length;
+                for (var i = 0; i < len; i++) {
+                    listeners[i].Callback(this);
+                }
+            };
+
+            Brush.prototype._TransformChanged = function (args) {
+                var _this = this;
+                if (this._TransformListener) {
+                    this._TransformListener.Detach();
+                    this._TransformListener = null;
+                }
+                var newt = args.NewValue;
+                if (newt)
+                    this._TransformListener = newt.Listen(function (source) {
+                        return _this.InvalidateBrush();
+                    });
+                this.InvalidateBrush();
+            };
+            Brush.TransformProperty = DependencyProperty.RegisterCore("Transform", function () {
+                return Fayde.Media.Transform;
+            }, Brush, undefined, function (d, args) {
+                return (d)._TransformChanged(args);
+            });
+            return Brush;
+        })(Fayde.DependencyObject);
+        Media.Brush = Brush;
+        Fayde.RegisterType(Brush, {
+            Name: "Brush",
+            Namespace: "Fayde.Media",
+            XmlNamespace: Fayde.XMLNS
+        });
+    })(Fayde.Media || (Fayde.Media = {}));
+    var Media = Fayde.Media;
+})(Fayde || (Fayde = {}));
+/// <reference path="../Primitives/CornerRadius.ts" />
+/// <reference path="../Primitives/Color.ts" />
+/// <reference path="../Primitives/Thickness.ts" />
+/// <reference path="../Media/Brush.ts" />
+var Fayde;
+(function (Fayde) {
+    var TypeConverters = (function () {
+        function TypeConverters() {
+        }
+        TypeConverters.ThicknessConverter = function (str) {
+            if (!str)
+                return new Thickness();
+            var tokens = str.split(",");
+            var left, top, right, bottom;
+            if (tokens.length === 1) {
+                left = top = right = bottom = parseFloat(tokens[0]);
+            } else if (tokens.length === 2) {
+                left = right = parseFloat(tokens[0]);
+                top = bottom = parseFloat(tokens[1]);
+            } else if (tokens.length === 4) {
+                left = parseFloat(tokens[0]);
+                top = parseFloat(tokens[1]);
+                right = parseFloat(tokens[2]);
+                bottom = parseFloat(tokens[3]);
+            } else {
+                throw new XamlParseException("Cannot parse Thickness value '" + str + "'");
+            }
+            return new Thickness(left, top, right, bottom);
+        };
+        TypeConverters.CornerRadiusConverter = function (str) {
+            if (!str)
+                return new CornerRadius();
+            var tokens = str.split(",");
+            var topLeft, topRight, bottomRight, bottomLeft;
+            if (tokens.length === 1) {
+                topLeft = topRight = bottomRight = bottomLeft = parseFloat(tokens[0]);
+            } else if (tokens.length === 4) {
+                topLeft = parseFloat(tokens[0]);
+                topRight = parseFloat(tokens[1]);
+                bottomLeft = parseFloat(tokens[2]);
+                bottomRight = parseFloat(tokens[3]);
+            } else {
+                throw new XamlParseException("Cannot parse CornerRadius value '" + str + "'");
+            }
+            return new CornerRadius(topLeft, topRight, bottomRight, bottomLeft);
+        };
+        TypeConverters.BrushConverter = function (str) {
+            var scb = new Fayde.Media.SolidColorBrush();
+            scb.Color = TypeConverters.ColorConverter(str);
+            return scb;
+        };
+        TypeConverters.ColorConverter = function (str) {
+            if (!str)
+                return new Color();
+            if (str.substr(0, 1) !== "#") {
+                var color = Color.KnownColors[str];
+                if (!color)
+                    throw new NotSupportedException("Unknown Color: " + str);
+                return color;
+            }
+            return Color.FromHex(str);
+        };
+        TypeConverters.GeometryConverter = function (str) {
+            return Fayde.Media.ParseGeometry(str);
+        };
+        return TypeConverters;
+    })();
+
+    var TypeConverter = (function () {
+        function TypeConverter() {
+        }
+        TypeConverter.Register = function (type, converter) {
+            TypeConverter._Converters[type] = converter;
+        };
+        TypeConverter.ConvertObject = function (propd, val, objectType, doStringConversion) {
+            if (val == null)
+                return val;
+
+            var targetType = propd.GetTargetType();
+            if (typeof targetType === "string" || targetType === String) {
+                return doStringConversion ? val.toString() : "";
+            } else if (typeof targetType === "number" || targetType === Number) {
+                if (typeof val === "number")
+                    return val;
+                if (!val)
+                    return 0;
+                if (val instanceof Thickness)
+                    return val.Left;
+                return parseFloat(val.toString());
+            } else if (typeof targetType === "function") {
+                var f = targetType;
+                if (val instanceof f)
+                    return val;
+                var converter = TypeConverter._Converters[targetType];
+                if (converter)
+                    return converter(val);
+            } else if (targetType instanceof Enum) {
+                if (typeof val === "string") {
+                    var ret = (targetType).Object[val];
+                    if (ret !== undefined)
+                        return ret;
+                    return val;
+                }
+            }
+
+            if (typeof targetType === "string" || targetType === String)
+                return doStringConversion ? val.toString() : "";
+
+            var tc;
+            if (propd.IsAttached) {
+                //TODO: Find type converter for attached property
+            } else {
+                //TODO: Find type converter
+            }
+            return val;
+            //TODO: Default to basic type converter, return
+            //if (tc == null)
+            //tc = new TypeConverter();
+            //return tc.ConvertFrom(val);
+        };
+        TypeConverter._Converters = [];
+        return TypeConverter;
+    })();
+    Fayde.TypeConverter = TypeConverter;
+
+    TypeConverter.Register(Thickness, TypeConverters.ThicknessConverter);
+    TypeConverter.Register(CornerRadius, TypeConverters.CornerRadiusConverter);
+    TypeConverter.Register(Fayde.Media.Brush, TypeConverters.BrushConverter);
+    TypeConverter.Register(Color, TypeConverters.ColorConverter);
+    TypeConverter.Register(Fayde.Media.Geometry, TypeConverters.GeometryConverter);
+})(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
     var VisualTreeHelper = (function () {
@@ -22574,6 +23128,7 @@ var Fayde;
                 this._Surface = surface;
                 this._KeyInterop = Fayde.Input.CreateKeyInterop();
                 this._MouseInterop = Fayde.Input.CreateMouseInterop();
+                this._TouchInterop = Fayde.Input.CreateTouchInterop();
 
                 this._Focus = new Engine.FocusManager(this._State = {
                     IsUserInitiated: false,
@@ -22599,6 +23154,7 @@ var Fayde;
 
                 this._KeyInterop.RegisterEvents(this);
                 this._MouseInterop.RegisterEvents(this, canvas);
+                this._TouchInterop.Register(this, canvas);
             };
 
             InputManager.prototype.OnNodeDetached = function (node) {
@@ -22661,8 +23217,8 @@ var Fayde;
                 if (this._EmittingMouseEvent)
                     return false;
 
-                var newInputList = [];
-                if (!this._Surface.HitTestPoint(newInputList, pos))
+                var newInputList = this._Surface.HitTestPoint(pos);
+                if (!newInputList)
                     return false;
 
                 this._EmittingMouseEvent = true;
@@ -22713,6 +23269,10 @@ var Fayde;
                         args = this._MouseInterop.CreateEventArgs(type, pos, delta);
                 }
                 return handled;
+            };
+
+            InputManager.prototype.HitTestPoint = function (pos) {
+                return this._Surface.HitTestPoint(pos);
             };
 
             InputManager.prototype.UpdateCursorFromInputList = function () {
@@ -22891,18 +23451,6 @@ else
 /// <reference path="../Runtime/TypeManagement.ts" />
 var Fayde;
 (function (Fayde) {
-    var caps = [
-        "butt",
-        "square",
-        "round",
-        "butt"
-    ];
-    var joins = [
-        "miter",
-        "bevel",
-        "round"
-    ];
-
     var RenderContext = (function () {
         function RenderContext(ctx) {
             var _this = this;
@@ -22964,16 +23512,15 @@ var Fayde;
             //DrawDebug("DrawClip (Geometry): " + g.toString());
             this.CanvasContext.clip();
         };
+        RenderContext.prototype.ClipRawPath = function (p/* Change to Fayde.Shapes.RawPath */ ) {
+            p.Draw(this);
+
+            //DrawDebug("DrawClip (RawPath): " + p.toString());
+            this.CanvasContext.clip();
+        };
 
         RenderContext.prototype.IsPointInPath = function (x, y) {
             return this.CanvasContext.isPointInPath(x, y);
-        };
-        RenderContext.prototype.IsPointInStroke = function (pars, x, y) {
-            if (!pars)
-                return;
-            this.SetupStroke(pars);
-            var ctx = this.CanvasContext;
-            return (ctx).isPointInStoke && (ctx).isPointInStoke(x, y);
         };
         RenderContext.prototype.IsPointInClipPath = function (clip, x, y) {
             clip.Draw(this);
@@ -23017,25 +23564,7 @@ var Fayde;
             cc.stroke();
             //DrawDebug("StrokeAndFillRect: [" + cc.strokeStyle.toString() + "] [" + cc.fillStyle.toString() + "] " + strokeRect.toString());
         };
-        RenderContext.prototype.SetupStroke = function (pars, region) {
-            if (!pars)
-                return false;
-            var ctx = this.CanvasContext;
-            ctx.lineWidth = pars.thickness;
-            ctx.lineCap = caps[pars.startCap || pars.endCap || 0] || caps[0];
-            ctx.lineJoin = joins[pars.join || 0] || joins[0];
-            ctx.miterLimit = pars.miterLimit;
-            return true;
-        };
-        RenderContext.prototype.Stroke = function (stroke, pars, region) {
-            if (!this.SetupStroke(pars) || !region)
-                return;
-            var ctx = this.CanvasContext;
-            stroke.SetupBrush(ctx, region);
-            ctx.strokeStyle = stroke.ToHtml5Object();
-            this.CanvasContext.stroke();
-        };
-        RenderContext.prototype.StrokeSimple = function (stroke, thickness, region) {
+        RenderContext.prototype.Stroke = function (stroke, thickness, region) {
             var cc = this.CanvasContext;
             stroke.SetupBrush(cc, region);
             cc.lineWidth = thickness;
@@ -23416,16 +23945,17 @@ else
             this._InputMgr.OnNodeDetached(lu.Node);
         };
 
-        Surface.prototype.HitTestPoint = function (newInputList, pos) {
+        Surface.prototype.HitTestPoint = function (pos) {
             if (!this._RootLayer)
-                return false;
+                return null;
+            var list = [];
             var layers = this._Layers;
             var layerCount = layers.length;
-            for (var i = layerCount - 1; i >= 0 && newInputList.length === 0; i--) {
+            for (var i = layerCount - 1; i >= 0 && list.length === 0; i--) {
                 var layer = layers[i];
-                layer.LayoutUpdater.HitTestPoint(this._RenderContext, pos, newInputList);
+                layer.LayoutUpdater.HitTestPoint(this._RenderContext, pos, list);
             }
-            return true;
+            return list;
         };
 
         Surface.prototype.SetMouseCapture = function (uin) {
@@ -26365,106 +26895,6 @@ var Fayde;
 (function (Fayde) {
     /// <reference path="../Core/DependencyObject.ts" />
     (function (Media) {
-        var Brush = (function (_super) {
-            __extends(Brush, _super);
-            function Brush() {
-                _super.call(this);
-                this._CachedBounds = null;
-                this._CachedBrush = null;
-                this._Listeners = [];
-                Fayde.XamlNode.SetShareable(this.XamlNode);
-            }
-            Brush.prototype.SetupBrush = function (ctx, bounds) {
-                if (this._CachedBrush && this._CachedBounds && rect.isEqual(this._CachedBounds, bounds))
-                    return;
-                this._CachedBounds = bounds;
-
-                var transform = this.Transform;
-                if (transform) {
-                    var transformedBounds = transform.TransformBounds(bounds);
-                    var raw = transform.Value._Raw;
-
-                    var tmpBrush = this.CreateBrush(ctx, bounds);
-                    var fillExtents = rect.copyTo(bounds);
-                    rect.growBy(fillExtents, raw[2], raw[5], 0, 0);
-
-                    var tmpCanvas = document.createElement("canvas");
-                    tmpCanvas.width = Math.max(transformedBounds.Width, bounds.Width);
-                    tmpCanvas.height = Math.max(transformedBounds.Height, bounds.Height);
-                    var tmpCtx = tmpCanvas.getContext("2d");
-                    tmpCtx.setTransform(raw[0], raw[1], raw[3], raw[4], raw[2], raw[5]);
-                    tmpCtx.fillStyle = tmpBrush;
-                    tmpCtx.fillRect(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height);
-
-                    this._CachedBrush = ctx.createPattern(tmpCanvas, "no-repeat");
-                } else {
-                    this._CachedBrush = this.CreateBrush(ctx, bounds);
-                }
-            };
-            Brush.prototype.CreateBrush = function (ctx, bounds) {
-                return undefined;
-            };
-            Brush.prototype.ToHtml5Object = function () {
-                return this._CachedBrush;
-            };
-
-            Brush.prototype.Listen = function (func) {
-                var listeners = this._Listeners;
-                var listener = {
-                    Callback: func,
-                    Detach: function () {
-                        var index = listeners.indexOf(listener);
-                        if (index > -1)
-                            listeners.splice(index, 1);
-                    }
-                };
-                listeners.push(listener);
-                return listener;
-            };
-
-            Brush.prototype.InvalidateBrush = function () {
-                this._CachedBrush = null;
-                this._CachedBounds = null;
-                var listeners = this._Listeners;
-                var len = listeners.length;
-                for (var i = 0; i < len; i++) {
-                    listeners[i].Callback(this);
-                }
-            };
-
-            Brush.prototype._TransformChanged = function (args) {
-                var _this = this;
-                if (this._TransformListener) {
-                    this._TransformListener.Detach();
-                    this._TransformListener = null;
-                }
-                var newt = args.NewValue;
-                if (newt)
-                    this._TransformListener = newt.Listen(function (source) {
-                        return _this.InvalidateBrush();
-                    });
-                this.InvalidateBrush();
-            };
-            Brush.TransformProperty = DependencyProperty.RegisterCore("Transform", function () {
-                return Fayde.Media.Transform;
-            }, Brush, undefined, function (d, args) {
-                return (d)._TransformChanged(args);
-            });
-            return Brush;
-        })(Fayde.DependencyObject);
-        Media.Brush = Brush;
-        Fayde.RegisterType(Brush, {
-            Name: "Brush",
-            Namespace: "Fayde.Media",
-            XmlNamespace: Fayde.XMLNS
-        });
-    })(Fayde.Media || (Fayde.Media = {}));
-    var Media = Fayde.Media;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    /// <reference path="../Core/DependencyObject.ts" />
-    (function (Media) {
         var GeneralTransform = (function (_super) {
             __extends(GeneralTransform, _super);
             function GeneralTransform() {
@@ -26620,252 +27050,6 @@ var Fayde;
     })(Fayde.Media || (Fayde.Media = {}));
     var Media = Fayde.Media;
 })(Fayde || (Fayde = {}));
-/// <reference path="../Runtime/TypeManagement.ts" />
-var Color = (function () {
-    function Color() {
-        this.R = 0;
-        this.G = 0;
-        this.B = 0;
-        this.A = 1.0;
-    }
-    Color.prototype.Add = function (color2) {
-        var c = new Color();
-        c.R = this.R + color2.R;
-        c.G = this.G + color2.G;
-        c.B = this.B + color2.B;
-        c.A = this.A + color2.A;
-        return c;
-    };
-    Color.prototype.Subtract = function (color2) {
-        var c = new Color();
-        c.R = this.R - color2.R;
-        c.G = this.G - color2.G;
-        c.B = this.B - color2.B;
-        c.A = this.A - color2.A;
-        return c;
-    };
-    Color.prototype.Multiply = function (factor) {
-        var c = new Color();
-        c.R = this.R * factor;
-        c.G = this.G * factor;
-        c.B = this.B * factor;
-        c.A = this.A * factor;
-        return c;
-    };
-    Color.prototype.Equals = function (other) {
-        return this.R === other.R && this.G === other.G && this.B === other.B && this.A === other.A;
-    };
-    Color.prototype.toString = function () {
-        return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
-    };
-    Color.prototype.ToHexStringNoAlpha = function () {
-        return "#" + this.R.toString(16) + this.G.toString(16) + this.B.toString(16);
-    };
-
-    Color.prototype.Clone = function () {
-        return Color.FromRgba(this.R, this.G, this.B, this.A);
-    };
-
-    Color.LERP = function (start, end, p) {
-        var c = new Color();
-        c.R = start.R + (end.R - start.R) * p;
-        c.G = start.G + (end.G - start.G) * p;
-        c.B = start.B + (end.B - start.B) * p;
-        c.A = start.A + (end.A - start.A) * p;
-        return c;
-    };
-    Color.FromRgba = function (r, g, b, a) {
-        var c = new Color();
-        c.R = r;
-        c.G = g;
-        c.B = b;
-        c.A = a;
-        return c;
-    };
-    Color.FromHex = function (hex) {
-        var match;
-        var c = new Color();
-        if ((match = Color.__AlphaRegex.exec(hex)) != null) {
-            c.A = parseInt(match[1], 16) / 255.0;
-            c.R = parseInt(match[2], 16);
-            c.G = parseInt(match[3], 16);
-            c.B = parseInt(match[4], 16);
-        } else if ((match = Color.__NoAlphaRegex.exec(hex)) != null) {
-            c.A = 1.0;
-            c.R = parseInt(match[1], 16);
-            c.G = parseInt(match[2], 16);
-            c.B = parseInt(match[3], 16);
-        }
-        return c;
-    };
-    Color.__NoAlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
-    Color.__AlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
-
-    Color.KnownColors = {
-        AliceBlue: Color.FromHex("#FFF0F8FF"),
-        AntiqueWhite: Color.FromHex("#FFFAEBD7"),
-        Aqua: Color.FromHex("#FF00FFFF"),
-        Aquamarine: Color.FromHex("#FF7FFFD4"),
-        Azure: Color.FromHex("#FFF0FFFF"),
-        Beige: Color.FromHex("#FFF5F5DC"),
-        Bisque: Color.FromHex("#FFFFE4C4"),
-        Black: Color.FromHex("#FF000000"),
-        BlanchedAlmond: Color.FromHex("#FFFFEBCD"),
-        Blue: Color.FromHex("#FF0000FF"),
-        BlueViolet: Color.FromHex("#FF8A2BE2"),
-        Brown: Color.FromHex("#FFA52A2A"),
-        BurlyWood: Color.FromHex("#FFDEB887"),
-        CadetBlue: Color.FromHex("#FF5F9EA0"),
-        Chartreuse: Color.FromHex("#FF7FFF00"),
-        Chocolate: Color.FromHex("#FFD2691E"),
-        Coral: Color.FromHex("#FFFF7F50"),
-        CornflowerBlue: Color.FromHex("#FF6495ED"),
-        Cornsilk: Color.FromHex("#FFFFF8DC"),
-        Crimson: Color.FromHex("#FFDC143C"),
-        Cyan: Color.FromHex("#FF00FFFF"),
-        DarkBlue: Color.FromHex("#FF00008B"),
-        DarkCyan: Color.FromHex("#FF008B8B"),
-        DarkGoldenrod: Color.FromHex("#FFB8860B"),
-        DarkGray: Color.FromHex("#FFA9A9A9"),
-        DarkGreen: Color.FromHex("#FF006400"),
-        DarkKhaki: Color.FromHex("#FFBDB76B"),
-        DarkMagenta: Color.FromHex("#FF8B008B"),
-        DarkOliveGreen: Color.FromHex("#FF556B2F"),
-        DarkOrange: Color.FromHex("#FFFF8C00"),
-        DarkOrchid: Color.FromHex("#FF9932CC"),
-        DarkRed: Color.FromHex("#FF8B0000"),
-        DarkSalmon: Color.FromHex("#FFE9967A"),
-        DarkSeaGreen: Color.FromHex("#FF8FBC8F"),
-        DarkSlateBlue: Color.FromHex("#FF483D8B"),
-        DarkSlateGray: Color.FromHex("#FF2F4F4F"),
-        DarkTurquoise: Color.FromHex("#FF00CED1"),
-        DarkViolet: Color.FromHex("#FF9400D3"),
-        DeepPink: Color.FromHex("#FFFF1493"),
-        DeepSkyBlue: Color.FromHex("#FF00BFFF"),
-        DimGray: Color.FromHex("#FF696969"),
-        DodgerBlue: Color.FromHex("#FF1E90FF"),
-        Firebrick: Color.FromHex("#FFB22222"),
-        FloralWhite: Color.FromHex("#FFFFFAF0"),
-        ForestGreen: Color.FromHex("#FF228B22"),
-        Fuchsia: Color.FromHex("#FFFF00FF"),
-        Gainsboro: Color.FromHex("#FFDCDCDC"),
-        GhostWhite: Color.FromHex("#FFF8F8FF"),
-        Gold: Color.FromHex("#FFFFD700"),
-        Goldenrod: Color.FromHex("#FFDAA520"),
-        Gray: Color.FromHex("#FF808080"),
-        Green: Color.FromHex("#FF008000"),
-        GreenYellow: Color.FromHex("#FFADFF2F"),
-        Honeydew: Color.FromHex("#FFF0FFF0"),
-        HotPink: Color.FromHex("#FFFF69B4"),
-        IndianRed: Color.FromHex("#FFCD5C5C"),
-        Indigo: Color.FromHex("#FF4B0082"),
-        Ivory: Color.FromHex("#FFFFFFF0"),
-        Khaki: Color.FromHex("#FFF0E68C"),
-        Lavender: Color.FromHex("#FFE6E6FA"),
-        LavenderBlush: Color.FromHex("#FFFFF0F5"),
-        LawnGreen: Color.FromHex("#FF7CFC00"),
-        LemonChiffon: Color.FromHex("#FFFFFACD"),
-        LightBlue: Color.FromHex("#FFADD8E6"),
-        LightCoral: Color.FromHex("#FFF08080"),
-        LightCyan: Color.FromHex("#FFE0FFFF"),
-        LightGoldenrodYellow: Color.FromHex("#FFFAFAD2"),
-        LightGray: Color.FromHex("#FFD3D3D3"),
-        LightGreen: Color.FromHex("#FF90EE90"),
-        LightPink: Color.FromHex("#FFFFB6C1"),
-        LightSalmon: Color.FromHex("#FFFFA07A"),
-        LightSeaGreen: Color.FromHex("#FF20B2AA"),
-        LightSkyBlue: Color.FromHex("#FF87CEFA"),
-        LightSlateGray: Color.FromHex("#FF778899"),
-        LightSteelBlue: Color.FromHex("#FFB0C4DE"),
-        LightYellow: Color.FromHex("#FFFFFFE0"),
-        Lime: Color.FromHex("#FF00FF00"),
-        LimeGreen: Color.FromHex("#FF32CD32"),
-        Linen: Color.FromHex("#FFFAF0E6"),
-        Magenta: Color.FromHex("#FFFF00FF"),
-        Maroon: Color.FromHex("#FF800000"),
-        MediumAquamarine: Color.FromHex("#FF66CDAA"),
-        MediumBlue: Color.FromHex("#FF0000CD"),
-        MediumOrchid: Color.FromHex("#FFBA55D3"),
-        MediumPurple: Color.FromHex("#FF9370DB"),
-        MediumSeaGreen: Color.FromHex("#FF3CB371"),
-        MediumSlateBlue: Color.FromHex("#FF7B68EE"),
-        MediumSpringGreen: Color.FromHex("#FF00FA9A"),
-        MediumTurquoise: Color.FromHex("#FF48D1CC"),
-        MediumVioletRed: Color.FromHex("#FFC71585"),
-        MidnightBlue: Color.FromHex("#FF191970"),
-        MintCream: Color.FromHex("#FFF5FFFA"),
-        MistyRose: Color.FromHex("#FFFFE4E1"),
-        Moccasin: Color.FromHex("#FFFFE4B5"),
-        NavajoWhite: Color.FromHex("#FFFFDEAD"),
-        Navy: Color.FromHex("#FF000080"),
-        OldLace: Color.FromHex("#FFFDF5E6"),
-        Olive: Color.FromHex("#FF808000"),
-        OliveDrab: Color.FromHex("#FF6B8E23"),
-        Orange: Color.FromHex("#FFFFA500"),
-        OrangeRed: Color.FromHex("#FFFF4500"),
-        Orchid: Color.FromHex("#FFDA70D6"),
-        PaleGoldenrod: Color.FromHex("#FFEEE8AA"),
-        PaleGreen: Color.FromHex("#FF98FB98"),
-        PaleTurquoise: Color.FromHex("#FFAFEEEE"),
-        PaleVioletRed: Color.FromHex("#FFDB7093"),
-        PapayaWhip: Color.FromHex("#FFFFEFD5"),
-        PeachPuff: Color.FromHex("#FFFFDAB9"),
-        Peru: Color.FromHex("#FFCD853F"),
-        Pink: Color.FromHex("#FFFFC0CB"),
-        Plum: Color.FromHex("#FFDDA0DD"),
-        PowderBlue: Color.FromHex("#FFB0E0E6"),
-        Purple: Color.FromHex("#FF800080"),
-        Red: Color.FromHex("#FFFF0000"),
-        RosyBrown: Color.FromHex("#FFBC8F8F"),
-        RoyalBlue: Color.FromHex("#FF4169E1"),
-        SaddleBrown: Color.FromHex("#FF8B4513"),
-        Salmon: Color.FromHex("#FFFA8072"),
-        SandyBrown: Color.FromHex("#FFF4A460"),
-        SeaGreen: Color.FromHex("#FF2E8B57"),
-        SeaShell: Color.FromHex("#FFFFF5EE"),
-        Sienna: Color.FromHex("#FFA0522D"),
-        Silver: Color.FromHex("#FFC0C0C0"),
-        SkyBlue: Color.FromHex("#FF87CEEB"),
-        SlateBlue: Color.FromHex("#FF6A5ACD"),
-        SlateGray: Color.FromHex("#FF708090"),
-        Snow: Color.FromHex("#FFFFFAFA"),
-        SpringGreen: Color.FromHex("#FF00FF7F"),
-        SteelBlue: Color.FromHex("#FF4682B4"),
-        Tan: Color.FromHex("#FFD2B48C"),
-        Teal: Color.FromHex("#FF008080"),
-        Thistle: Color.FromHex("#FFD8BFD8"),
-        Tomato: Color.FromHex("#FFFF6347"),
-        Transparent: Color.FromHex("#00FFFFFF"),
-        Turquoise: Color.FromHex("#FF40E0D0"),
-        Violet: Color.FromHex("#FFEE82EE"),
-        Wheat: Color.FromHex("#FFF5DEB3"),
-        White: Color.FromHex("#FFFFFFFF"),
-        WhiteSmoke: Color.FromHex("#FFF5F5F5"),
-        Yellow: Color.FromHex("#FFFFFF00"),
-        YellowGreen: Color.FromHex("#FF9ACD32")
-    };
-    return Color;
-})();
-Fayde.RegisterType(Color, {
-    Name: "Color",
-    Namespace: "window",
-    XmlNamespace: Fayde.XMLNS
-});
-
-Fayde.RegisterTypeConverter(Color, function (val) {
-    if (!val)
-        return undefined;
-    if (val instanceof Color)
-        return val;
-    val = val.toString();
-    if (val[0] !== "#") {
-        var color = Color.KnownColors[val];
-        if (!color)
-            throw new NotSupportedException("Unknown Color: " + val);
-        return color;
-    }
-    return Color.FromHex(val);
-});
 var Fayde;
 (function (Fayde) {
     (function (Media) {
@@ -27003,7 +27187,7 @@ var Fayde;
                 this._LocalBounds.Width = Number.NEGATIVE_INFINITY;
                 this._LocalBounds.Height = Number.NEGATIVE_INFINITY;
             }
-            Geometry.prototype.GetBounds = function (pars) {
+            Geometry.prototype.GetBounds = function (thickness) {
                 var compute = rect.isEmpty(this._LocalBounds);
 
                 if (!this._Path) {
@@ -27012,7 +27196,7 @@ var Fayde;
                 }
 
                 if (compute)
-                    rect.copyTo(this.ComputePathBounds(pars), this._LocalBounds);
+                    rect.copyTo(this.ComputePathBounds(thickness), this._LocalBounds);
                 var bounds = rect.copyTo(this._LocalBounds);
 
                 var transform = this.Transform;
@@ -27034,12 +27218,12 @@ var Fayde;
                 if (transform != null)
                     ctx.Restore();
             };
-            Geometry.prototype.ComputePathBounds = function (pars) {
+            Geometry.prototype.ComputePathBounds = function (thickness) {
                 if (!this._Path)
                     this._Path = this._Build();
                 if (!this._Path)
                     return new rect();
-                return this._Path.CalculateBounds(pars);
+                return this._Path.CalculateBounds(thickness);
             };
             Geometry.prototype._InvalidateGeometry = function () {
                 this._Path = null;
@@ -27155,7 +27339,7 @@ var Fayde;
                 var x = center ? center.X : 0.0;
                 var y = center ? center.Y : 0.0;
 
-                var p = new Fayde.Path.RawPath();
+                var p = new Fayde.Shapes.RawPath();
                 p.Ellipse(x - rx, y - ry, rx * 2.0, ry * 2.0);
                 return p;
             };
@@ -27188,6 +27372,18 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Shapes) {
+        (function (PathEntryType) {
+            PathEntryType[PathEntryType["Move"] = 0] = "Move";
+            PathEntryType[PathEntryType["Line"] = 1] = "Line";
+            PathEntryType[PathEntryType["Rect"] = 2] = "Rect";
+            PathEntryType[PathEntryType["Quadratic"] = 3] = "Quadratic";
+            PathEntryType[PathEntryType["Bezier"] = 4] = "Bezier";
+            PathEntryType[PathEntryType["EllipticalArc"] = 5] = "EllipticalArc";
+            PathEntryType[PathEntryType["Arc"] = 6] = "Arc";
+            PathEntryType[PathEntryType["ArcTo"] = 7] = "ArcTo";
+            PathEntryType[PathEntryType["Close"] = 8] = "Close";
+        })(Shapes.PathEntryType || (Shapes.PathEntryType = {}));
+        var PathEntryType = Shapes.PathEntryType;
         (function (ShapeFlags) {
             ShapeFlags[ShapeFlags["None"] = 0] = "None";
             ShapeFlags[ShapeFlags["Empty"] = 1] = "Empty";
@@ -27259,11 +27455,11 @@ var Fayde;
                 coll.AttachTo(this);
                 coll.Listen(this);
             }
-            GeometryGroup.prototype.ComputePathBounds = function (pars) {
+            GeometryGroup.prototype.ComputePathBounds = function (thickness) {
                 var bounds = new rect();
                 var enumerator = this.Children.GetEnumerator();
                 while (enumerator.MoveNext()) {
-                    rect.unionLogical(bounds, (enumerator.Current).GetBounds(pars));
+                    rect.unionLogical(bounds, (enumerator.Current).GetBounds(thickness));
                 }
                 return bounds;
             };
@@ -28135,7 +28331,7 @@ var Fayde;
                 var p1 = this.StartPoint;
                 var p2 = this.EndPoint;
 
-                var p = new Fayde.Path.RawPath();
+                var p = new Fayde.Shapes.RawPath();
                 p.Move(p1.X, p1.Y);
                 p.Line(p2.X, p2.Y);
                 return p;
@@ -28716,7 +28912,7 @@ var Fayde;
                 var cbzp = new Point();
                 var qbzp = new Point();
 
-                var path = new Fayde.Path.RawPath();
+                var path = new Fayde.Shapes.RawPath();
                 while (this.index < this.len) {
                     var c;
                     while (this.index < this.len && (c = this.str.charAt(this.index)) === ' ') {
@@ -28838,7 +29034,7 @@ else
                                 }
                                 this.Advance();
 
-                                path.CubicBezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
+                                path.Bezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
 
                                 cp1.X = cp3.X;
                                 cp1.Y = cp3.Y;
@@ -28874,7 +29070,7 @@ else
                                 } else
                                     cp1 = cp;
 
-                                path.CubicBezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
+                                path.Bezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
 
                                 cbz = true;
                                 cbzp.X = cp2.X;
@@ -28906,7 +29102,7 @@ else
                                 }
                                 this.Advance();
 
-                                path.QuadraticBezier(cp1.X, cp1.Y, cp2.X, cp2.Y);
+                                path.Quadratic(cp1.X, cp1.Y, cp2.X, cp2.Y);
 
                                 cp.X = cp2.X;
                                 cp.Y = cp2.Y;
@@ -28933,7 +29129,7 @@ else
                                 } else
                                     cp1 = cp;
 
-                                path.QuadraticBezier(cp1.X, cp1.Y, cp2.X, cp2.Y);
+                                path.Quadratic(cp1.X, cp1.Y, cp2.X, cp2.Y);
 
                                 qbz = true;
                                 qbzp.X = cp1.X;
@@ -29120,7 +29316,7 @@ var Fayde;
                 coll.Listen(this);
             }
             PathFigure.prototype._Build = function () {
-                var p = new Fayde.Path.RawPath();
+                var p = new Fayde.Shapes.RawPath();
 
                 var start = this.StartPoint;
                 p.Move(start.X, start.Y);
@@ -29159,7 +29355,7 @@ var Fayde;
             PathFigure.prototype.MergeInto = function (rp) {
                 if (!this._Path)
                     this._Path = this._Build();
-                Fayde.Path.RawPath.Merge(rp, this._Path);
+                Fayde.Shapes.RawPath.Merge(rp, this._Path);
             };
             PathFigure.Annotations = { ContentProperty: PathFigure.SegmentsProperty };
             PathFigure.IsClosedProperty = DependencyProperty.RegisterCore("IsClosed", function () {
@@ -29256,7 +29452,7 @@ var Fayde;
                 if (this._OverridePath)
                     return this._OverridePath;
 
-                var p = new Fayde.Path.RawPath();
+                var p = new Fayde.Shapes.RawPath();
                 var figures = this.Figures;
                 if (!figures)
                     return;
@@ -29429,7 +29625,7 @@ var Fayde;
                 var x3 = p3 ? p3.X : 0.0;
                 var y3 = p3 ? p3.Y : 0.0;
 
-                path.CubicBezier(x1, y1, x2, y2, x3, y3);
+                path.Bezier(x1, y1, x2, y2, x3, y3);
             };
             BezierSegment.Point1Property = DependencyProperty.Register("Point1", function () {
                 return Point;
@@ -29493,7 +29689,7 @@ var Fayde;
                     p2 = enumerator.Current;
                     enumerator.MoveNext();
                     p3 = enumerator.Current;
-                    path.CubicBezier(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y);
+                    path.Bezier(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y);
                 }
             };
             PolyBezierSegment.PointsProperty = DependencyProperty.RegisterImmutable("Points", function () {
@@ -29571,7 +29767,7 @@ var Fayde;
                     x1 = x0 + 2 * (x1 - x0) / 3;
                     y1 = y0 + 2 * (y1 - y0) / 3;
 
-                    path.CubicBezier(x1, y1, x2, y2, x3, y3);
+                    path.Bezier(x1, y1, x2, y2, x3, y3);
                     x0 = x3;
                     y0 = y3;
                 }
@@ -29603,7 +29799,7 @@ var Fayde;
                 var x2 = p2 ? p2.X : 0.0;
                 var y2 = p2 ? p2.Y : 0.0;
 
-                path.QuadraticBezier(x1, y1, x2, y2);
+                path.Quadratic(x1, y1, x2, y2);
             };
             QuadraticBezierSegment.Point1Property = DependencyProperty.Register("Point1", function () {
                 return Point;
@@ -29848,7 +30044,7 @@ var Fayde;
                 var radiusX = this.RadiusX;
                 var radiusY = this.RadiusY;
 
-                var p = new Fayde.Path.RawPath();
+                var p = new Fayde.Shapes.RawPath();
                 p.RoundedRect(irect.X, irect.Y, irect.Width, irect.Height, radiusX, radiusY);
                 return p;
             };
@@ -31055,54 +31251,6 @@ Fayde.RegisterType(Clip, {
     Name: "Clip",
     Namespace: "window",
     XmlNamespace: Fayde.XMLNSX
-});
-/// <reference path="../Runtime/TypeManagement.ts" />
-var CornerRadius = (function () {
-    function CornerRadius(topLeft, topRight, bottomRight, bottomLeft) {
-        this.TopLeft = topLeft == null ? 0 : topLeft;
-        this.TopRight = topRight == null ? 0 : topRight;
-        this.BottomRight = bottomRight == null ? 0 : bottomRight;
-        this.BottomLeft = bottomLeft == null ? 0 : bottomLeft;
-    }
-    CornerRadius.prototype.IsZero = function () {
-        return this.TopLeft === 0 && this.TopRight === 0 && this.BottomRight === 0 && this.BottomLeft === 0;
-    };
-    CornerRadius.prototype.Equals = function (other) {
-        return this.TopLeft === other.TopLeft && this.TopRight === other.TopRight && this.BottomRight === other.BottomRight && this.BottomLeft === other.BottomLeft;
-    };
-    CornerRadius.prototype.toString = function () {
-        return "(" + this.TopLeft + ", " + this.TopRight + ", " + this.BottomRight + ", " + this.BottomLeft + ")";
-    };
-
-    CornerRadius.prototype.Clone = function () {
-        return new CornerRadius(this.TopLeft, this.TopRight, this.BottomRight, this.BottomLeft);
-    };
-    return CornerRadius;
-})();
-Fayde.RegisterType(CornerRadius, {
-    Name: "CornerRadius",
-    Namespace: "window",
-    XmlNamespace: Fayde.XMLNSX
-});
-
-Fayde.RegisterTypeConverter(CornerRadius, function (val) {
-    if (!val)
-        return new CornerRadius();
-    if (typeof val === "number")
-        return new CornerRadius(val, val, val, val);
-    var tokens = val.toString().split(",");
-    var topLeft, topRight, bottomRight, bottomLeft;
-    if (tokens.length === 1) {
-        topLeft = topRight = bottomRight = bottomLeft = parseFloat(tokens[0]);
-    } else if (tokens.length === 4) {
-        topLeft = parseFloat(tokens[0]);
-        topRight = parseFloat(tokens[1]);
-        bottomRight = parseFloat(tokens[2]);
-        bottomLeft = parseFloat(tokens[3]);
-    } else {
-        throw new Exception("Cannot parse CornerRadius value '" + val + "'");
-    }
-    return new CornerRadius(topLeft, topRight, bottomRight, bottomLeft);
 });
 /// <reference path="../Runtime/TypeManagement.ts" />
 var DayOfWeek;
@@ -32780,78 +32928,6 @@ Fayde.RegisterType(size, {
     XmlNamespace: Fayde.XMLNSX
 });
 /// <reference path="../Runtime/TypeManagement.ts" />
-var Thickness = (function () {
-    function Thickness(left, top, right, bottom) {
-        this.Left = left == null ? 0 : left;
-        this.Top = top == null ? 0 : top;
-        this.Right = right == null ? 0 : right;
-        this.Bottom = bottom == null ? 0 : bottom;
-    }
-    Thickness.prototype.Plus = function (thickness2) {
-        var t = new Thickness();
-        t.Left = this.Left + thickness2.Left;
-        t.Right = this.Right + thickness2.Right;
-        t.Top = this.Top + thickness2.Top;
-        t.Bottom = this.Bottom + thickness2.Bottom;
-        return t;
-    };
-    Thickness.prototype.IsEmpty = function () {
-        return this.Left == 0 && this.Top == 0 && this.Right == 0 && this.Bottom == 0;
-    };
-    Thickness.prototype.IsBalanced = function () {
-        return this.Left === this.Top && this.Left === this.Right && this.Left === this.Bottom;
-    };
-
-    Thickness.prototype.toString = function () {
-        return "(" + this.Left + ", " + this.Top + ", " + this.Right + ", " + this.Bottom + ")";
-    };
-
-    Thickness.prototype.Clone = function () {
-        return new Thickness(this.Left, this.Top, this.Right, this.Bottom);
-    };
-
-    Thickness.Equals = function (thickness1, thickness2) {
-        if (thickness1 == null && thickness2 == null)
-            return true;
-        if (thickness1 == null || thickness2 == null)
-            return false;
-        return thickness1.Left === thickness2.Left && thickness1.Top === thickness2.Top && thickness1.Right === thickness2.Right && thickness1.Bottom === thickness2.Bottom;
-    };
-    return Thickness;
-})();
-Fayde.RegisterType(Thickness, {
-    Name: "Thickness",
-    Namespace: "window",
-    XmlNamespace: Fayde.XMLNSX
-});
-
-Fayde.RegisterTypeConverter(Thickness, function (val) {
-    if (!val)
-        return new Thickness();
-    if (typeof val === "number")
-        return new Thickness(val, val, val, val);
-    if (val instanceof Thickness) {
-        var t = val;
-        return new Thickness(t.Left, t.Top, t.Right, t.Bottom);
-    }
-    var tokens = val.toString().split(",");
-    var left, top, right, bottom;
-    if (tokens.length === 1) {
-        left = top = right = bottom = parseFloat(tokens[0]);
-    } else if (tokens.length === 2) {
-        left = right = parseFloat(tokens[0]);
-        top = bottom = parseFloat(tokens[1]);
-    } else if (tokens.length === 4) {
-        left = parseFloat(tokens[0]);
-        top = parseFloat(tokens[1]);
-        right = parseFloat(tokens[2]);
-        bottom = parseFloat(tokens[3]);
-    } else {
-        throw new Exception("Cannot parse Thickness value '" + val + "'");
-    }
-    return new Thickness(left, top, right, bottom);
-});
-/// <reference path="../Runtime/TypeManagement.ts" />
 var TimeSpan = (function () {
     function TimeSpan() {
         this._Ticks = 0;
@@ -33683,20 +33759,20 @@ var Fayde;
                 return new ShapeNode(this);
             };
 
-            //NOTE: HTML5 Canvas does not support start and end cap. Will use start if it's not "Flat"; otherwise, use end
             Shape.prototype._InsideShape = function (ctx, lu, x, y) {
                 if (this._ShapeFlags & Shapes.ShapeFlags.Empty)
                     return false;
                 var ret = false;
                 ctx.Save();
                 ctx.PreTransformMatrix(this._StretchXform);
-                if (this._Fill || this._Stroke) {
+                if (this._Fill != null) {
                     this._DrawPath(ctx);
-                    if (this._Fill) {
-                        ret = ret || ctx.IsPointInPath(x, y);
-                    } else if (!ret) {
-                        ret = ret || ctx.IsPointInStroke(this._CreateStrokeParameters(), x, y);
-                    }
+                    if (ctx.IsPointInPath(x, y))
+                        ret = true;
+                }
+                if (!ret && this._Stroke != null) {
+                    if (window.console && console.warn)
+                        console.warn("Shape._InsideShape-Stroke");
                 }
                 ctx.Restore();
                 return ret;
@@ -33807,7 +33883,8 @@ else
                 this._DrawPath(ctx);
                 if (this._Fill != null)
                     ctx.Fill(this._Fill, area);
-                ctx.Stroke(this._Stroke, this._CreateStrokeParameters(), area);
+                if (this._Stroke != null)
+                    ctx.Stroke(this._Stroke, this.StrokeThickness, area);
                 ctx.Restore();
             };
 
@@ -33984,10 +34061,22 @@ else
                 return this._ComputeShapeBoundsImpl(logical, null);
             };
             Shape.prototype._ComputeShapeBoundsImpl = function (logical, matrix) {
+                var thickness = (logical || !this._Stroke) ? 0.0 : this.StrokeThickness;
+
                 this._Path = this._Path || this._BuildPath();
+
                 if (!this._Path || (this._ShapeFlags & Shapes.ShapeFlags.Empty))
                     return new rect();
-                return this._Path.CalculateBounds(this._CreateStrokeParameters(logical));
+
+                if (logical) {
+                    return this._Path.CalculateBounds(0);
+                } else if (thickness > 0) {
+                    return this._Path.CalculateBounds(thickness);
+                } else {
+                    //TODO: measure fill extents
+                }
+                NotImplemented("Shape._ComputeShapeBoundsImpl");
+                return new rect();
             };
 
             Shape.prototype._InvalidateStretch = function () {
@@ -34055,21 +34144,6 @@ else
             Shape.prototype._HeightChanged = function (args) {
                 _super.prototype._HeightChanged.call(this, args);
                 this._InvalidateStretch();
-            };
-
-            Shape.prototype._CreateStrokeParameters = function (logical) {
-                if (logical)
-                    return null;
-                var thickness = this._Stroke ? this.StrokeThickness : 0.0;
-                if (thickness > 0)
-                    return {
-                        thickness: thickness,
-                        startCap: this.StrokeStartLineCap,
-                        endCap: this.StrokeEndLineCap,
-                        join: this.StrokeLineJoin,
-                        miterLimit: this.StrokeMiterLimit
-                    };
-                return null;
             };
             Shape.FillProperty = DependencyProperty.Register("Fill", function () {
                 return Fayde.Media.Brush;
@@ -34180,7 +34254,7 @@ var Fayde;
                 var ht = -t / 2;
                 rect.growBy(irect, ht, ht, ht, ht);
 
-                var path = new Fayde.Path.RawPath();
+                var path = new Fayde.Shapes.RawPath();
                 path.Ellipse(irect.X, irect.Y, irect.Width, irect.Height);
                 return path;
             };
@@ -34272,7 +34346,7 @@ var Fayde;
                 var x2 = this.X2;
                 var y2 = this.Y2;
 
-                var path = new Fayde.Path.RawPath();
+                var path = new Shapes.RawPath();
                 path.Move(x1, y1);
                 path.Line(x2, y2);
                 return path;
@@ -34366,20 +34440,26 @@ var Fayde;
                     return geom.GetBounds();
 
                 var thickness = (logical || this._Stroke != null) ? 0.0 : this.StrokeThickness;
-                var pars = {
-                    thickness: thickness,
-                    startCap: this.StrokeStartLineCap,
-                    endCap: this.StrokeEndLineCap,
-                    join: this.StrokeLineJoin,
-                    miterLimit: this.StrokeMiterLimit
-                };
-                return geom.GetBounds(pars);
+                return geom.GetBounds(thickness);
+            };
+
+            Path.prototype._OnDataChanged = function (args) {
+                var old = args.OldValue;
+                if (old instanceof Fayde.Media.Geometry)
+                    (old).Unlisten(this);
+                this.GeometryChanged(args.NewValue);
+                var n = args.NewValue;
+                if (n instanceof Fayde.Media.Geometry)
+                    (n).Listen(this);
+            };
+            Path.prototype.GeometryChanged = function (newGeometry) {
+                this._InvalidateNaturalBounds();
             };
             Path.DataProperty = DependencyProperty.RegisterFull("Data", function () {
                 return Fayde.Media.Geometry;
             }, Path, undefined, function (d, args) {
-                return (d)._InvalidateNaturalBounds();
-            }, Path._DataCoercer);
+                return (d)._OnDataChanged(args);
+            }, Path._DataCoercer, undefined, undefined, false);
             return Path;
         })(Shapes.Shape);
         Shapes.Path = Path;
@@ -34553,7 +34633,7 @@ var Fayde;
 
                 this._ShapeFlags = Shapes.ShapeFlags.Normal;
 
-                var path = new Fayde.Path.RawPath();
+                var path = new Shapes.RawPath();
                 var enumerator = points.GetEnumerator();
                 enumerator.MoveNext();
                 var p = enumerator.Current;
@@ -34679,7 +34759,7 @@ var Fayde;
 
                 this._ShapeFlags = Shapes.ShapeFlags.Normal;
 
-                var path = new Fayde.Path.RawPath();
+                var path = new Shapes.RawPath();
                 var enumerator = points.GetEnumerator();
                 enumerator.MoveNext();
                 var p = enumerator.Current;
@@ -34761,6 +34841,575 @@ var Fayde;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
+    (function (Shapes) {
+        var RawPath = (function () {
+            function RawPath() {
+                this._Path = [];
+                this._EndX = 0.0;
+                this._EndY = 0.0;
+            }
+            Object.defineProperty(RawPath.prototype, "EndX", {
+                get: function () {
+                    return this._EndX;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(RawPath.prototype, "EndY", {
+                get: function () {
+                    return this._EndY;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            RawPath.prototype.Move = function (x, y) {
+                this._Path.push({
+                    type: Shapes.PathEntryType.Move,
+                    x: x,
+                    y: y
+                });
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.Line = function (x, y) {
+                this._Path.push({
+                    type: Shapes.PathEntryType.Line,
+                    x: x,
+                    y: y
+                });
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.Rect = function (x, y, width, height) {
+                this._Path.push({
+                    type: Shapes.PathEntryType.Rect,
+                    x: x,
+                    y: y,
+                    width: width,
+                    height: height
+                });
+            };
+            RawPath.prototype.RoundedRectFull = function (left, top, width, height, topLeft, topRight, bottomRight, bottomLeft) {
+                var right = left + width;
+                var bottom = top + height;
+
+                this.Move(left + topLeft, top);
+
+                //top edge
+                this.Line(right - topRight, top);
+
+                if (topRight > 0)
+                    this.Quadratic(right, top, right, top + topRight);
+
+                //right edge
+                this.Line(right, bottom - bottomRight);
+
+                if (bottomRight > 0)
+                    this.Quadratic(right, bottom, right - bottomRight, bottom);
+
+                //bottom edge
+                this.Line(left + bottomLeft, bottom);
+
+                if (bottomLeft > 0)
+                    this.Quadratic(left, bottom, left, bottom - bottomLeft);
+
+                //left edge
+                this.Line(left, top + topLeft);
+
+                if (topLeft > 0)
+                    this.Quadratic(left, top, left + topLeft, top);
+                this.Close();
+            };
+            RawPath.prototype.RoundedRect = function (left, top, width, height, radiusX, radiusY) {
+                if (radiusX === 0.0 && radiusY === 0.0) {
+                    this.Rect(left, top, width, height);
+                    return;
+                }
+
+                var right = left + width;
+                var bottom = top + height;
+                this.Move(left + radiusX, top);
+
+                //top edge
+                this.Line(right - radiusX, top);
+
+                //top right arc
+                this.Quadratic(right, top, right, top + radiusY);
+
+                //right edge
+                this.Line(right, bottom - radiusY);
+
+                //bottom right arc
+                this.Quadratic(right, bottom, right - radiusX, bottom);
+
+                //bottom edge
+                this.Line(left + radiusX, bottom);
+
+                //bottom left arc
+                this.Quadratic(left, bottom, left, bottom - radiusY);
+
+                //left edge
+                this.Line(left, top + radiusY);
+
+                //top left arc
+                this.Quadratic(left, top, left + radiusX, top);
+                this.Close();
+            };
+            RawPath.prototype.Quadratic = function (cpx, cpy, x, y) {
+                this._Path.push({
+                    type: Shapes.PathEntryType.Quadratic,
+                    cpx: cpx,
+                    cpy: cpy,
+                    x: x,
+                    y: y
+                });
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.Bezier = function (cp1x, cp1y, cp2x, cp2y, x, y) {
+                this._Path.push({
+                    type: Shapes.PathEntryType.Bezier,
+                    cp1x: cp1x,
+                    cp1y: cp1y,
+                    cp2x: cp2x,
+                    cp2y: cp2y,
+                    x: x,
+                    y: y
+                });
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.Ellipse = function (x, y, width, height) {
+                var radiusX = width / 2;
+                var radiusY = height / 2;
+                var right = x + width;
+                var bottom = y + height;
+                var centerX = x + radiusX;
+                var centerY = y + radiusY;
+                if (width === height) {
+                    this.Arc(centerX, centerY, radiusX, 0, Math.PI * 2, false);
+                } else {
+                    var kappa = .5522848;
+                    var ox = radiusX * kappa;
+                    var oy = radiusY * kappa;
+
+                    //move to left edge, halfway down
+                    this.Move(x, centerY);
+
+                    //top left bezier curve
+                    this.Bezier(x, centerY - oy, centerX - ox, y, centerX, y);
+
+                    //top right bezier curve
+                    this.Bezier(centerX + ox, y, right, centerY - oy, right, centerY);
+
+                    //bottom right bezier curve
+                    this.Bezier(right, centerY + oy, centerX + ox, bottom, centerX, bottom);
+
+                    //bottom left bezier curve
+                    this.Bezier(centerX - ox, bottom, x, centerY + oy, x, centerY);
+                    this.Close();
+                }
+            };
+            RawPath.prototype.EllipticalArc = function (width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
+                this._Path.push({
+                    type: Shapes.PathEntryType.EllipticalArc,
+                    width: width,
+                    height: height,
+                    rotationAngle: rotationAngle,
+                    isLargeArcFlag: isLargeArcFlag,
+                    sweepDirectionFlag: sweepDirectionFlag,
+                    ex: ex,
+                    ey: ey
+                });
+            };
+            RawPath.prototype.Arc = function (x, y, r, sAngle, eAngle, aClockwise) {
+                this._Path.push({
+                    type: Shapes.PathEntryType.Arc,
+                    x: x,
+                    y: y,
+                    r: r,
+                    sAngle: sAngle,
+                    eAngle: eAngle,
+                    aClockwise: aClockwise
+                });
+            };
+            RawPath.prototype.ArcTo = function (cpx, cpy, x, y, radius) {
+                this._Path.push({
+                    type: Shapes.PathEntryType.ArcTo,
+                    cpx: cpx,
+                    cpy: cpy,
+                    x: x,
+                    y: y,
+                    r: radius
+                });
+                this._EndX = x;
+                this._EndY = y;
+            };
+            RawPath.prototype.Close = function () {
+                this._Path.push({
+                    type: Shapes.PathEntryType.Close
+                });
+            };
+
+            RawPath.prototype.DrawRenderCtx = function (ctx) {
+                this.DrawCanvasCtx(ctx.CanvasContext);
+            };
+            RawPath.prototype.DrawCanvasCtx = function (canvasCtx) {
+                canvasCtx.beginPath();
+                var backing = this._Path;
+                for (var i = 0; i < backing.length; i++) {
+                    var p = backing[i];
+                    switch (p.type) {
+                        case Shapes.PathEntryType.Move:
+                            canvasCtx.moveTo(p.x, p.y);
+
+                            break;
+                        case Shapes.PathEntryType.Line:
+                            canvasCtx.lineTo(p.x, p.y);
+
+                            break;
+                        case Shapes.PathEntryType.Rect:
+                            canvasCtx.rect(p.x, p.y, p.width, p.height);
+
+                            break;
+                        case Shapes.PathEntryType.Quadratic:
+                            canvasCtx.quadraticCurveTo(p.cpx, p.cpy, p.x, p.y);
+
+                            break;
+                        case Shapes.PathEntryType.Bezier:
+                            canvasCtx.bezierCurveTo(p.cp1x, p.cp1y, p.cp2x, p.cp2y, p.x, p.y);
+                            break;
+                        case Shapes.PathEntryType.Arc:
+                            canvasCtx.arc(p.x, p.y, p.r, p.sAngle, p.eAngle, p.aClockwise);
+                            break;
+                        case Shapes.PathEntryType.ArcTo:
+                            canvasCtx.arcTo(p.cpx, p.cpy, p.x, p.y, p.r);
+                            break;
+                        case Shapes.PathEntryType.Close:
+                            canvasCtx.closePath();
+                            break;
+                    }
+                }
+            };
+            RawPath.prototype.CalculateBounds = function (thickness) {
+                var backing = this._Path;
+                var startX = null;
+                var startY = null;
+                var xMin = null;
+                var xMax = null;
+                var yMin = null;
+                var yMax = null;
+                var xRange = null;
+                var yRange = null;
+                for (var i = 0; i < backing.length; i++) {
+                    var p = backing[i];
+                    switch (p.type) {
+                        case Shapes.PathEntryType.Move:
+                            if (xMin == null && yMin == null) {
+                                xMin = xMax = p.x;
+                                yMin = yMax = p.y;
+                            } else {
+                                xMin = Math.min(p.x, xMin);
+                                yMin = Math.min(p.y, yMin);
+                                xMax = Math.max(p.x, xMax);
+                                yMax = Math.max(p.y, yMax);
+                            }
+                            startX = p.x;
+                            startY = p.y;
+                            break;
+                        case Shapes.PathEntryType.Line:
+                            xMin = Math.min(p.x, xMin);
+                            yMin = Math.min(p.y, yMin);
+                            xMax = Math.max(p.x, xMax);
+                            yMax = Math.max(p.y, yMax);
+                            startX = p.x;
+                            startY = p.y;
+                            break;
+                        case Shapes.PathEntryType.Rect:
+                            xMin = Math.min(p.x, xMin);
+                            yMin = Math.min(p.y, yMin);
+                            xMax = Math.max(p.x + p.width, xMax);
+                            yMax = Math.max(p.y + p.height, yMax);
+                            break;
+                        case Shapes.PathEntryType.Quadratic:
+                            xRange = RawPath._CalculateQuadraticBezierRange(startX, p.cpx, p.x);
+                            xMin = Math.min(xMin, xRange.min);
+                            xMax = Math.max(xMax, xRange.max);
+                            yRange = RawPath._CalculateQuadraticBezierRange(startY, p.cpy, p.y);
+                            yMin = Math.min(yMin, yRange.min);
+                            yMax = Math.max(yMax, yRange.max);
+                            startX = p.x;
+                            startY = p.y;
+                            break;
+                        case Shapes.PathEntryType.Bezier:
+                            xRange = RawPath._CalculateCubicBezierRange(startX, p.cp1x, p.cp2x, p.x);
+                            xMin = Math.min(xMin, xRange.min);
+                            xMax = Math.max(xMax, xRange.max);
+                            yRange = RawPath._CalculateCubicBezierRange(startY, p.cp1y, p.cp2y, p.y);
+                            yMin = Math.min(yMin, yRange.min);
+                            yMax = Math.max(yMax, yRange.max);
+                            startX = p.x;
+                            startY = p.y;
+                            break;
+                        case Shapes.PathEntryType.Arc:
+                            if (p.sAngle !== p.eAngle) {
+                                var r = RawPath._CalculateArcRange(p.x, p.y, p.r, p.sAngle, p.eAngle, p.aClockwise);
+                                xMin = Math.min(xMin, r.xMin);
+                                xMax = Math.max(xMax, r.xMax);
+                                yMin = Math.min(yMin, r.yMin);
+                                yMax = Math.max(yMax, r.yMax);
+                            }
+                            break;
+                        case Shapes.PathEntryType.ArcTo:
+                            var r = RawPath._CalculateArcToRange(startX, startY, p.cpx, p.cpy, p.x, p.y, p.r);
+                            xMin = Math.min(xMin, r.xMin);
+                            xMax = Math.max(xMax, r.xMax);
+                            yMin = Math.min(yMin, r.yMin);
+                            yMax = Math.max(yMax, r.yMax);
+                            startX = p.x;
+                            startY = p.y;
+                            break;
+                    }
+                }
+                var r2 = new rect();
+                rect.set(r2, xMin, yMin, xMax - xMin, yMax - yMin);
+                return r2;
+            };
+
+            RawPath._CalculateQuadraticBezierRange = //http://pomax.nihongoresources.com/pages/bezier/
+            function (a, b, c) {
+                var min = Math.min(a, c);
+                var max = Math.max(a, c);
+
+                if (min <= b && b <= max) {
+                    return {
+                        min: min,
+                        max: max
+                    };
+                }
+
+                // x(t) = a(1-t)^2 + 2*b(1-t)t + c*t^2
+                // find "change of direction" point (dx/dt = 0)
+                var t = (a - b) / (a - 2 * b + c);
+                var xt = (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
+                if (min > b) {
+                    //control point is expanding the bounding box to the left
+                    min = Math.min(min, xt);
+                } else {
+                    //control point is expanding the bounding box to the right
+                    max = Math.max(max, xt);
+                }
+                return {
+                    min: min,
+                    max: max
+                };
+            };
+
+            RawPath._CalculateCubicBezierRange = //http://pomax.nihongoresources.com/pages/bezier/
+            function (a, b, c, d) {
+                var min = Math.min(a, d);
+                var max = Math.max(a, d);
+
+                if ((min <= b && b <= max) && (min <= c && c <= max)) {
+                    return {
+                        min: min,
+                        max: max
+                    };
+                }
+
+                // find "change of direction" points (dx/dt = 0)
+                //xt = a(1-t)^3 + 3b(t)(1-t)^2 + 3c(1-t)(t)^2 + dt^3
+                var u = 2 * a - 4 * b + 2 * c;
+                var v = b - a;
+                var w = -a + 3 * b + d - 3 * c;
+                var rt = Math.sqrt(u * u - 4 * v * w);
+                if (!isNaN(rt)) {
+                    var t;
+
+                    t = (-u + rt) / (2 * w);
+
+                    if (t >= 0 && t <= 1) {
+                        var ot = 1 - t;
+                        var xt = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
+                        min = Math.min(min, xt);
+                        max = Math.max(max, xt);
+                    }
+
+                    t = (-u - rt) / (2 * w);
+
+                    if (t >= 0 && t <= 1) {
+                        var ot = 1 - t;
+                        var xt = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
+                        min = Math.min(min, xt);
+                        max = Math.max(max, xt);
+                    }
+                }
+
+                return {
+                    min: min,
+                    max: max
+                };
+            };
+            RawPath._CalculateArcRange = function (cx, cy, r, sa, ea, cc) {
+                //start point
+                var sx = cx + (r * Math.cos(sa));
+                var sy = cy + (r * Math.sin(sa));
+
+                //end point
+                var ex = cx + (r * Math.cos(ea));
+                var ey = cy + (r * Math.sin(ea));
+                return RawPath._CalculateArcPointsRange(cx, cy, sx, sy, ex, ey, r, cc);
+            };
+            RawPath._CalculateArcToRange = function (sx, sy, cpx, cpy, ex, ey, r) {
+                NotImplemented("RawPath._CalculateArcToRange");
+                return {
+                    xMin: sx,
+                    xMax: sx,
+                    yMin: sy,
+                    yMax: sy
+                };
+
+                var v1x = cpx - sx;
+                var v1y = cpy - sy;
+                var v2x = ex - cpx;
+                var v2y = ey - cpy;
+
+                var theta_outer1 = Math.atan2(Math.abs(v1y), Math.abs(v1x));
+                var theta_outer2 = Math.atan2(Math.abs(v2y), Math.abs(v2x));
+                var inner_theta = Math.PI - theta_outer1 - theta_outer2;
+
+                //distance to center of imaginary circle
+                var h = r / Math.sin(inner_theta / 2);
+
+                //cx, cy -> center of imaginary circle
+                var cx = cpx + h * Math.cos(inner_theta / 2 + theta_outer2);
+                var cy = cpy + h * Math.sin(inner_theta / 2 + theta_outer2);
+
+                //distance from cp -> tangent points on imaginary circle
+                var a = r / Math.tan(inner_theta / 2);
+
+                //tangent point at start of arc
+                var sx = cpx + a * Math.cos(theta_outer2 + inner_theta);
+                var sy = cpy + a * Math.sin(theta_outer2 + inner_theta);
+
+                //tangent point at end of arc
+                var ex = cpx + a * Math.cos(theta_outer2);
+                var ey = cpy + a * Math.sin(theta_outer2);
+
+                var cc = true;
+
+                var rng = RawPath._CalculateArcPointsRange(cx, cy, sx, sy, ex, ey, r, cc);
+                return {
+                    xMin: Math.min(sx, rng.xMin),
+                    xMax: Math.max(sx, rng.xMax),
+                    yMin: Math.min(sy, rng.yMin),
+                    yMax: Math.max(sy, rng.yMax)
+                };
+            };
+            RawPath._CalculateArcPointsRange = function (cx, cy, sx, sy, ex, ey, r, cc) {
+                var xMin = Math.min(sx, ex);
+                var xMax = Math.max(sx, ex);
+                var yMin = Math.min(sy, ey);
+                var yMax = Math.max(sy, ey);
+
+                var xLeft = cx - r;
+                if (RawPath._ArcContainsPoint(sx, sy, ex, ey, xLeft, cy, cc)) {
+                    //arc contains left edge of circle
+                    xMin = Math.min(xMin, xLeft);
+                }
+
+                var xRight = cx + r;
+                if (RawPath._ArcContainsPoint(sx, sy, ex, ey, xRight, cy, cc)) {
+                    //arc contains right edge of circle
+                    xMax = Math.max(xMax, xRight);
+                }
+
+                var yTop = cy - r;
+                if (RawPath._ArcContainsPoint(sx, sy, ex, ey, cx, yTop, cc)) {
+                    //arc contains top edge of circle
+                    yMin = Math.min(yMin, yTop);
+                }
+
+                var yBottom = cy + r;
+                if (RawPath._ArcContainsPoint(sx, sy, ex, ey, cx, yBottom, cc)) {
+                    //arc contains bottom edge of circle
+                    yMax = Math.max(yMax, yBottom);
+                }
+
+                return {
+                    xMin: xMin,
+                    xMax: xMax,
+                    yMin: yMin,
+                    yMax: yMax
+                };
+            };
+            RawPath._ArcContainsPoint = function (sx, sy, ex, ey, cpx, cpy, cc) {
+                // var a = ex - sx;
+                // var b = cpx - sx;
+                // var c = ey - sy;
+                // var d = cpy - sy;
+                // det = ad - bc;
+                var n = (ex - sx) * (cpy - sy) - (cpx - sx) * (ey - sy);
+                if (n === 0)
+                    return true;
+
+                if (n > 0 && cc)
+                    return true;
+
+                if (n < 0 && !cc)
+                    return true;
+                return false;
+            };
+
+            RawPath.Merge = function (path1, path2) {
+                path1._Path.push.apply(path1._Path, path2._Path);
+                path1._EndX += path2._EndX;
+                path1._EndY += path2._EndY;
+            };
+
+            RawPath.prototype.Serialize = function () {
+                var s = "";
+                var len = this._Path.length;
+                var backing = this._Path;
+                for (var i = 0; i < len; i++) {
+                    if (i > 0)
+                        s += " ";
+                    var p = backing[i];
+                    switch (p.type) {
+                        case Shapes.PathEntryType.Move:
+                            s += "M" + p.x.toString() + "," + p.y.toString();
+                            break;
+                        case Shapes.PathEntryType.Line:
+                            s += "L" + p.x.toString() + "," + p.y.toString();
+                            break;
+                        case Shapes.PathEntryType.Rect:
+                            break;
+                        case Shapes.PathEntryType.Quadratic:
+                            s += "Q" + p.cpx.toString() + "," + p.cpy.toString() + " " + p.x.toString() + "," + p.y.toString();
+                            break;
+                        case Shapes.PathEntryType.Bezier:
+                            s += "C" + p.cp1x.toString() + "," + p.cp1y.toString() + " " + p.cp2x.toString() + "," + p.cp2y.toString() + " " + p.x.toString() + "," + p.y.toString();
+                            break;
+                        case Shapes.PathEntryType.EllipticalArc:
+                            s += "A" + p.width.toString() + "," + p.height.toString() + " " + p.rotationAngle.toString() + " " + p.isLargeArcFlag.toString() + " " + p.sweepDirectionFlag.toString() + " " + p.ex.toString() + "," + p.ey.toString();
+                            break;
+                        case Shapes.PathEntryType.ArcTo:
+                            break;
+                        case Shapes.PathEntryType.Close:
+                            s += "Z";
+                            break;
+                    }
+                }
+                return s;
+            };
+            return RawPath;
+        })();
+        Shapes.RawPath = RawPath;
+    })(Fayde.Shapes || (Fayde.Shapes = {}));
+    var Shapes = Fayde.Shapes;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
     /// <reference path="Shape.ts" />
     (function (Shapes) {
         var Rectangle = (function (_super) {
@@ -34813,7 +35462,7 @@ var Fayde;
                 if (isNaN(radiusY))
                     radiusX = 0;
 
-                var path = new Fayde.Path.RawPath();
+                var path = new Shapes.RawPath();
                 path.RoundedRect(irect.X, irect.Y, irect.Width, irect.Height, radiusX, radiusY);
                 return path;
             };
@@ -35975,1452 +36624,558 @@ else
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
-    /// <reference path="ContentControl.ts" />
-    (function (Controls) {
-        var HeaderedContentControl = (function (_super) {
-            __extends(HeaderedContentControl, _super);
-            function HeaderedContentControl() {
-                _super.call(this);
-                this.DefaultStyleKey = (this).constructor;
-            }
-            HeaderedContentControl.prototype.OnHeaderChanged = function (oldHeader, newHeader) {
-            };
-            HeaderedContentControl.prototype.OnHeaderTemplateChanged = function (oldHeaderTemplate, newHeaderTemplate) {
-            };
-            HeaderedContentControl.HeaderProperty = DependencyProperty.Register("Header", function () {
-                return Object;
-            }, HeaderedContentControl, undefined, function (d, args) {
-                return (d).OnHeaderChanged(args.OldValue, args.NewValue);
-            });
+    (function (Input) {
+        (function (TouchInputType) {
+            TouchInputType[TouchInputType["NoOp"] = 0] = "NoOp";
+            TouchInputType[TouchInputType["TouchDown"] = 1] = "TouchDown";
+            TouchInputType[TouchInputType["TouchUp"] = 2] = "TouchUp";
+            TouchInputType[TouchInputType["TouchMove"] = 3] = "TouchMove";
+            TouchInputType[TouchInputType["TouchEnter"] = 4] = "TouchEnter";
+            TouchInputType[TouchInputType["TouchLeave"] = 5] = "TouchLeave";
+        })(Input.TouchInputType || (Input.TouchInputType = {}));
+        var TouchInputType = Input.TouchInputType;
 
-            HeaderedContentControl.HeaderTemplateProperty = DependencyProperty.Register("HeaderTemplate", function () {
-                return Fayde.DataTemplate;
-            }, HeaderedContentControl, undefined, function (d, args) {
-                return (d).OnHeaderTemplateChanged(args.OldValue, args.NewValue);
-            });
-            return HeaderedContentControl;
-        })(Controls.ContentControl);
-        Controls.HeaderedContentControl = HeaderedContentControl;
-        Fayde.RegisterType(HeaderedContentControl, {
-            Name: "HeaderedContentControl",
-            Namespace: "Fayde.Controls",
+        function CreateTouchInterop() {
+            if (navigator.msPointerEnabled || (navigator).pointerEnabled)
+                return new Input.TouchInternal.PointerTouchInterop();
+            if ("ontouchstart" in window)
+                return new Input.TouchInternal.NonPointerTouchInterop();
+            return new DummyTouchInterop();
+        }
+        Input.CreateTouchInterop = CreateTouchInterop;
+
+        var DummyTouchInterop = (function () {
+            function DummyTouchInterop() {
+            }
+            DummyTouchInterop.prototype.Register = function (input, canvas) {
+            };
+            return DummyTouchInterop;
+        })();
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    /// <reference path="../Core/RoutedEventArgs.ts" />
+    (function (Input) {
+        var TouchEventArgs = (function (_super) {
+            __extends(TouchEventArgs, _super);
+            function TouchEventArgs(device) {
+                _super.call(this);
+                this.Device = device;
+            }
+            TouchEventArgs.prototype.GetTouchPoint = function (relativeTo) {
+                return this.Device.GetTouchPoint(relativeTo);
+            };
+            return TouchEventArgs;
+        })(Fayde.RoutedEventArgs);
+        Input.TouchEventArgs = TouchEventArgs;
+        Fayde.RegisterType(TouchEventArgs, {
+            Name: "TouchEventArgs",
+            Namespace: "Fayde.Input",
             XmlNamespace: Fayde.XMLNS
         });
-    })(Fayde.Controls || (Fayde.Controls = {}));
-    var Controls = Fayde.Controls;
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
-    (function (Path) {
-        function Arc(x, y, radius, sa, ea, cc) {
-            var inited = false;
+    /// <reference path="../Runtime/TypeManagement.ts" />
+    (function (Input) {
+        var TouchPoint = (function () {
+            function TouchPoint(position, force) {
+                Object.defineProperty(this, "Position", { value: position, writable: false });
 
-            //start point
-            var sx;
-            var sy;
-
-            //end point
-            var ex;
-            var ey;
-
-            //cardinal corners
-            var l;
-            var r;
-            var t;
-            var b;
-
-            //contains cardinal corners
-            var cl;
-            var cr;
-            var ct;
-            var cb;
-
-            function init() {
-                if (inited)
-                    return;
-                sx = x + (radius * Math.cos(sa));
-                sy = y + (radius * Math.sin(sa));
-                ex = x + (radius * Math.cos(ea));
-                ey = y + (radius * Math.sin(ea));
-
-                l = x - radius;
-                cl = arcContainsPoint(sx, sy, ex, ey, l, y, cc);
-
-                r = x + radius;
-                cr = arcContainsPoint(sx, sy, ex, ey, r, y, cc);
-
-                t = y - radius;
-                ct = arcContainsPoint(sx, sy, ex, ey, x, t, cc);
-
-                b = y + radius;
-                cb = arcContainsPoint(sx, sy, ex, ey, x, b, cc);
-
-                inited = true;
+                //Object.defineProperty(this, "RadiusX", { value: radiusX, writable: false });
+                //Object.defineProperty(this, "RadiusY", { value: radiusY, writable: false });
+                //Object.defineProperty(this, "RotationAngle", { value: rotationAngle, writable: false });
+                Object.defineProperty(this, "Force", { value: force, writable: false });
             }
-
-            return {
-                sx: null,
-                sy: null,
-                isSingle: true,
-                x: x,
-                y: y,
-                ex: x,
-                ey: y,
-                radius: radius,
-                sAngle: sa,
-                eAngle: ea,
-                aClockwise: cc,
-                draw: function (ctx) {
-                    ctx.arc(x, y, radius, sa, ea, cc);
-                },
-                extendFillBox: function (box) {
-                    if (ea === sa)
-                        return;
-                    init();
-                    this.ex = ex;
-                    this.ey = ey;
-
-                    box.l = Math.min(box.l, sx, ex);
-                    box.r = Math.max(box.r, sx, ex);
-                    box.t = Math.min(box.t, sy, ey);
-                    box.b = Math.max(box.b, sy, ey);
-
-                    if (cl)
-                        box.l = Math.min(box.l, l);
-                    if (cr)
-                        box.r = Math.max(box.r, r);
-                    if (ct)
-                        box.t = Math.min(box.t, t);
-                    if (cb)
-                        box.b = Math.max(box.b, b);
-                },
-                extendStrokeBox: function (box, pars) {
-                    if (ea === sa)
-                        return;
-                    init();
-                    this.ex = ex;
-                    this.ey = ey;
-
-                    box.l = Math.min(box.l, sx, ex);
-                    box.r = Math.max(box.r, sx, ex);
-                    box.t = Math.min(box.t, sy, ey);
-                    box.b = Math.max(box.b, sy, ey);
-
-                    var hs = pars.thickness / 2.0;
-                    if (cl)
-                        box.l = Math.min(box.l, l - hs);
-                    if (cr)
-                        box.r = Math.max(box.r, r + hs);
-                    if (ct)
-                        box.t = Math.min(box.t, t - hs);
-                    if (cb)
-                        box.b = Math.max(box.b, b + hs);
-
-                    var cap = pars.startCap || pars.endCap || 0;
-                    var sv = this.getStartVector();
-                    sv[0] = -sv[0];
-                    sv[1] = -sv[1];
-                    var ss = getCapSpread(sx, sy, pars.thickness, cap, sv);
-                    var ev = this.getEndVector();
-                    var es = getCapSpread(ex, ey, pars.thickness, cap, ev);
-
-                    box.l = Math.min(box.l, ss.x1, ss.x2, es.x1, es.x2);
-                    box.r = Math.max(box.r, ss.x1, ss.x2, es.x1, es.x2);
-                    box.t = Math.min(box.t, ss.y1, ss.y2, es.y1, es.y2);
-                    box.b = Math.max(box.b, ss.y1, ss.y2, es.y1, es.y2);
-                },
-                toString: function () {
-                    return "";
-                },
-                getStartVector: function () {
-                    var rv = [
-                        sx - x,
-                        sy - y
-                    ];
-                    if (cc)
-                        return [rv[1], -rv[0]];
-                    return [-rv[1], rv[0]];
-                },
-                getEndVector: function () {
-                    var rv = [
-                        ex - x,
-                        ey - y
-                    ];
-                    if (cc)
-                        return [rv[1], -rv[0]];
-                    return [-rv[1], rv[0]];
-                }
-            };
-        }
-        Path.Arc = Arc;
-
-        function arcContainsPoint(sx, sy, ex, ey, cpx, cpy, cc) {
-            // var a = ex - sx;
-            // var b = cpx - sx;
-            // var c = ey - sy;
-            // var d = cpy - sy;
-            // det = ad - bc;
-            var n = (ex - sx) * (cpy - sy) - (cpx - sx) * (ey - sy);
-            if (n === 0)
-                return true;
-            if (n > 0 && cc)
-                return true;
-            if (n < 0 && !cc)
-                return true;
-            return false;
-        }
-
-        function getCapSpread(x, y, thickness, cap, vector) {
-            var hs = thickness / 2.0;
-            switch (cap) {
-                case Fayde.Shapes.PenLineCap.Round:
-                    return {
-                        x1: x - hs,
-                        x2: x + hs,
-                        y1: y - hs,
-                        y2: y + hs
-                    };
-                    break;
-                case Fayde.Shapes.PenLineCap.Square:
-                    var ed = normalizeVector(vector);
-                    var edo = perpendicularVector(ed);
-                    return {
-                        x1: x + hs * (ed[0] + edo[0]),
-                        x2: x + hs * (ed[0] - edo[0]),
-                        y1: y + hs * (ed[1] + edo[1]),
-                        y2: y + hs * (ed[1] - edo[1])
-                    };
-                    break;
-                case Fayde.Shapes.PenLineCap.Flat:
-                default:
-                    var ed = normalizeVector(vector);
-                    var edo = perpendicularVector(ed);
-                    return {
-                        x1: x + hs * edo[0],
-                        x2: x + hs * -edo[0],
-                        y1: y + hs * edo[1],
-                        y2: y + hs * -edo[1]
-                    };
-                    break;
-            }
-        }
-        function normalizeVector(v) {
-            var len = Math.sqrt(v[0] * v[0] + v[1] * v[1]);
-            return [
-                v[0] / len,
-                v[1] / len
-            ];
-        }
-        function perpendicularVector(v) {
-            return [
-                -v[1],
-                v[0]
-            ];
-        }
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-function radToDegrees(rad) {
-    return rad * 180 / Math.PI;
-}
-
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        var EPSILON = 1e-10;
-
-        function ArcTo(cpx, cpy, x, y, radius) {
-            var line;
-            var arc;
-            var inited = false;
-            function init(prevX, prevY) {
-                if (inited)
-                    return;
-                if (line && arc)
-                    return arc;
-                var v1 = [cpx - prevX, cpy - prevY];
-                var v2 = [x - cpx, y - cpy];
-                var inner_theta = Math.PI - Vector.angleBetween(v1, v2);
-
-                //find 2 points tangent to imaginary circle along guide lines
-                var a = getTangentPoint(inner_theta, radius, [prevX, prevY], v1, true);
-                var b = getTangentPoint(inner_theta, radius, [cpx, cpy], v2, false);
-
-                //find center point
-                var c = getPerpendicularIntersections(a, v1, b, v2);
-
-                //counter clockwise test
-                var cc = !Vector.isClockwiseTo(v1, v2);
-
-                //find starting angle -- [1,0] is origin direction of 0rad
-                var sa = Math.atan2(a[1] - c[1], a[0] - c[0]);
-                if (sa < 0)
-                    sa = (2 * Math.PI) + sa;
-                var ea = Math.atan2(b[1] - c[1], b[0] - c[0]);
-                if (ea < 0)
-                    ea = (2 * Math.PI) + ea;
-
-                line = Path.Line(a[0], a[1]);
-                line.sx = prevX;
-                line.sy = prevY;
-                arc = Path.Arc(c[0], c[1], radius, sa, ea, cc);
-                inited = true;
-            }
-
-            return {
-                sx: null,
-                sy: null,
-                isSingle: false,
-                cpx: cpx,
-                cpy: cpy,
-                x: x,
-                y: y,
-                ex: x,
-                ey: y,
-                radius: radius,
-                draw: function (ctx) {
-                    ctx.arcTo(cpx, cpy, x, y, radius);
-                },
-                extendFillBox: function (box) {
-                    init(this.sx, this.sy);
-                    this.ex = arc.ex;
-                    this.ey = arc.ey;
-
-                    box.l = Math.min(box.l, this.sx);
-                    box.r = Math.max(box.r, this.sx);
-                    box.t = Math.min(box.t, this.sy);
-                    box.b = Math.max(box.b, this.sy);
-
-                    line.extendFillBox(box);
-                    arc.extendFillBox(box);
-                },
-                extendStrokeBox: function (box, pars) {
-                    init(this.sx, this.sy);
-                    this.ex = arc.ex;
-                    this.ey = arc.ey;
-
-                    var hs = pars.thickness / 2;
-                    box.l = Math.min(box.l, this.sx - hs);
-                    box.r = Math.max(box.r, this.sx + hs);
-                    box.t = Math.min(box.t, this.sy - hs);
-                    box.b = Math.max(box.b, this.sy + hs);
-
-                    line.extendStrokeBox(box, pars);
-                    arc.extendStrokeBox(box, pars);
-                },
-                toString: function () {
-                    return "";
-                },
-                getStartVector: function () {
-                    init(this.sx, this.sy);
-                    return line.getStartVector();
-                },
-                getEndVector: function () {
-                    return arc.getEndVector();
-                }
-            };
-        }
-        Path.ArcTo = ArcTo;
-
-        function getTangentPoint(theta, radius, s, d, invert) {
-            var len = Math.sqrt(d[0] * d[0] + d[1] * d[1]);
-            var f = radius / Math.tan(theta / 2);
-            var t = f / len;
-            if (invert)
-                t = 1 - t;
-            return [s[0] + t * d[0], s[1] + t * d[1]];
-        }
-        function getPerpendicularIntersections(s1, d1, s2, d2) {
-            return Vector.intersection(s1, Vector.orthogonal(d1.slice(0)), s2, Vector.orthogonal(d2.slice(0)));
-        }
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function Close() {
-            return {
-                sx: null,
-                sy: null,
-                ex: null,
-                ey: null,
-                isSingle: false,
-                isClose: true,
-                draw: function (ctx) {
-                    ctx.closePath();
-                },
-                extendFillBox: function (box) {
-                },
-                extendStrokeBox: function (box, pars) {
-                },
-                toString: function () {
-                    return "Z";
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.Close = Close;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function CubicBezier(cp1x, cp1y, cp2x, cp2y, x, y) {
-            return {
-                sx: null,
-                sy: null,
-                ex: x,
-                ey: y,
-                isSingle: false,
-                cp1x: cp1x,
-                cp1y: cp1y,
-                cp2x: cp2x,
-                cp2y: cp2y,
-                x: x,
-                y: y,
-                draw: function (ctx) {
-                    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
-                },
-                extendFillBox: function (box) {
-                    var m = getMaxima(this.sx, cp1x, cp2x, x, this.sy, cp1y, cp2y, y);
-                    if (m.x[0] != null) {
-                        box.l = Math.min(box.l, m.x[0]);
-                        box.r = Math.max(box.r, m.x[0]);
-                    }
-                    if (m.x[1] != null) {
-                        box.l = Math.min(box.l, m.x[1]);
-                        box.r = Math.max(box.r, m.x[1]);
-                    }
-                    if (m.y[0] != null) {
-                        box.t = Math.min(box.t, m.y[0]);
-                        box.b = Math.max(box.b, m.y[0]);
-                    }
-                    if (m.y[1] != null) {
-                        box.t = Math.min(box.t, m.y[1]);
-                        box.b = Math.max(box.b, m.y[1]);
-                    }
-
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                },
-                extendStrokeBox: function (box, pars) {
-                    var hs = pars.thickness / 2.0;
-
-                    var m = getMaxima(this.sx, cp1x, cp2x, x, this.sy, cp1y, cp2y, y);
-                    if (m.x[0] != null) {
-                        box.l = Math.min(box.l, m.x[0] - hs);
-                        box.r = Math.max(box.r, m.x[0] + hs);
-                    }
-                    if (m.x[1] != null) {
-                        box.l = Math.min(box.l, m.x[1] - hs);
-                        box.r = Math.max(box.r, m.x[1] + hs);
-                    }
-                    if (m.y[0] != null) {
-                        box.t = Math.min(box.t, m.y[0] - hs);
-                        box.b = Math.max(box.b, m.y[0] + hs);
-                    }
-                    if (m.y[1] != null) {
-                        box.t = Math.min(box.t, m.y[1] - hs);
-                        box.b = Math.max(box.b, m.y[1] + hs);
-                    }
-
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                },
-                toString: function () {
-                    return "C" + cp1x.toString() + "," + cp1y.toString() + " " + cp2x.toString() + "," + cp2y.toString() + " " + x.toString() + "," + y.toString();
-                },
-                getStartVector: function () {
-                    //[F(0)'x, F(0)'y]
-                    return [
-                        3 * (cp1x - this.sx),
-                        3 * (cp1y - this.sy)
-                    ];
-                },
-                getEndVector: function () {
-                    //[F(1)'x, F(1)'y]
-                    return [
-                        3 * (x - cp2x),
-                        3 * (y - cp2y)
-                    ];
-                }
-            };
-        }
-        Path.CubicBezier = CubicBezier;
-
-        function getMaxima(x1, x2, x3, x4, y1, y2, y3, y4) {
-            return {
-                x: cod(x1, x2, x3, x4),
-                y: cod(y1, y2, y3, y4)
-            };
-        }
-        function cod(a, b, c, d) {
-            var u = 2 * a - 4 * b + 2 * c;
-            var v = b - a;
-            var w = -a + 3 * b + d - 3 * c;
-            var rt = Math.sqrt(u * u - 4 * v * w);
-
-            var cods = [null, null];
-            if (isNaN(rt))
-                return cods;
-
-            var t, ot;
-
-            t = (-u + rt) / (2 * w);
-            if (t >= 0 && t <= 1) {
-                ot = 1 - t;
-                cods[0] = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
-            }
-
-            t = (-u - rt) / (2 * w);
-            if (t >= 0 && t <= 1) {
-                ot = 1 - t;
-                cods[1] = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
-            }
-
-            return cods;
-        }
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function EllipticalArc(width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
-            return {
-                sx: null,
-                sy: null,
-                isSingle: false,
-                width: width,
-                height: height,
-                rotationAngle: rotationAngle,
-                isLargeArcFlag: isLargeArcFlag,
-                sweepDirectionFlag: sweepDirectionFlag,
-                ex: ex,
-                ey: ey,
-                draw: function (ctx) {
-                    console.warn("[NOT IMPLEMENTED] Draw Elliptical Arc");
-                },
-                extendFillBox: function (box) {
-                    console.warn("[NOT IMPLEMENTED] Measure Elliptical Arc");
-                },
-                extendStrokeBox: function (box, pars) {
-                    console.warn("[NOT IMPLEMENTED] Measure Elliptical Arc (with stroke)");
-                },
-                toString: function () {
-                    return "A" + width.toString() + "," + height.toString() + " " + rotationAngle.toString() + " " + isLargeArcFlag.toString() + " " + sweepDirectionFlag.toString() + " " + ex.toString() + "," + ey.toString();
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.EllipticalArc = EllipticalArc;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function Line(x, y) {
-            return {
-                isSingle: false,
-                sx: null,
-                sy: null,
-                x: x,
-                y: y,
-                ex: x,
-                ey: y,
-                draw: function (ctx) {
-                    ctx.lineTo(x, y);
-                },
-                extendFillBox: function (box) {
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                },
-                extendStrokeBox: function (box, pars) {
-                    this.extendFillBox(box);
-                },
-                toString: function () {
-                    return "L" + x.toString() + "," + y.toString();
-                },
-                getStartVector: function () {
-                    return [
-                        x - this.sx,
-                        y - this.sy
-                    ];
-                },
-                getEndVector: function () {
-                    return [
-                        x - this.sx,
-                        y - this.sy
-                    ];
-                }
-            };
-        }
-        Path.Line = Line;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function Move(x, y) {
-            return {
-                sx: null,
-                sy: null,
-                ex: x,
-                ey: y,
-                isSingle: false,
-                isMove: true,
-                x: x,
-                y: y,
-                draw: function (ctx) {
-                    ctx.moveTo(x, y);
-                },
-                extendFillBox: function (box) {
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                },
-                extendStrokeBox: function (box, pars) {
-                    this.extendFillBox(box);
-                },
-                toString: function () {
-                    return "M" + x.toString() + "," + y.toString();
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.Move = Move;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function QuadraticBezier(cpx, cpy, x, y) {
-            return {
-                sx: null,
-                sy: null,
-                ex: x,
-                ey: y,
-                isSingle: false,
-                cpx: cpx,
-                cpy: cpy,
-                x: x,
-                y: y,
-                draw: function (ctx) {
-                    ctx.quadraticCurveTo(cpx, cpy, x, y);
-                },
-                extendFillBox: function (box) {
-                    var m = getMaxima(this.sx, cpx, x, this.sy, cpy, y);
-                    if (m.x != null) {
-                        box.l = Math.min(box.l, m.x);
-                        box.r = Math.max(box.r, m.x);
-                    }
-                    if (m.y != null) {
-                        box.t = Math.min(box.t, m.y);
-                        box.b = Math.max(box.b, m.y);
-                    }
-
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                },
-                extendStrokeBox: function (box, pars) {
-                    var hs = pars.thickness / 2.0;
-
-                    var m = getMaxima(this.sx, cpx, x, this.sy, cpy, y);
-                    if (m.x) {
-                        box.l = Math.min(box.l, m.x - hs);
-                        box.r = Math.max(box.r, m.x + hs);
-                    }
-                    if (m.y) {
-                        box.t = Math.min(box.t, m.y - hs);
-                        box.b = Math.max(box.b, m.y + hs);
-                    }
-
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y);
-                },
-                toString: function () {
-                    return "Q" + cpx.toString() + "," + cpy.toString() + " " + x.toString() + "," + y.toString();
-                },
-                getStartVector: function () {
-                    //[F(0)'x, F(0)'y]
-                    return [
-                        2 * (cpx - this.sx),
-                        2 * (cpy - this.sy)
-                    ];
-                },
-                getEndVector: function () {
-                    //[F(1)'x, F(1)'y]
-                    return [
-                        2 * (x - cpx),
-                        2 * (y - cpy)
-                    ];
-                }
-            };
-        }
-        Path.QuadraticBezier = QuadraticBezier;
-
-        function getMaxima(x1, x2, x3, y1, y2, y3) {
-            return {
-                x: cod(x1, x2, x3),
-                y: cod(y1, y2, y3)
-            };
-        }
-        function cod(a, b, c) {
-            var t = (a - b) / (a - 2 * b + c);
-            if (t < 0 || t > 1)
-                return null;
-            return (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
-        }
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function Rect(x, y, width, height) {
-            return {
-                sx: null,
-                sy: null,
-                isSingle: true,
-                x: x,
-                y: y,
-                ex: x,
-                ey: y,
-                width: width,
-                height: height,
-                draw: function (ctx) {
-                    ctx.rect(x, y, width, height);
-                },
-                extendFillBox: function (box) {
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x + width);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y + height);
-                },
-                extendStrokeBox: function (box, pars) {
-                    var hs = pars.thickness / 2.0;
-                    box.l = Math.min(box.l, x - hs);
-                    box.r = Math.max(box.r, x + width + hs);
-                    box.t = Math.min(box.t, y - hs);
-                    box.b = Math.max(box.b, y + height + hs);
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.Rect = Rect;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        var RawPath = (function () {
-            function RawPath() {
-                this._Path = [];
-                this._EndX = 0.0;
-                this._EndY = 0.0;
-            }
-            Object.defineProperty(RawPath.prototype, "EndX", {
-                get: function () {
-                    return this._EndX;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(RawPath.prototype, "EndY", {
-                get: function () {
-                    return this._EndY;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            RawPath.prototype.Move = function (x, y) {
-                this._Path.push(Path.Move(x, y));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.Line = function (x, y) {
-                this._Path.push(Path.Line(x, y));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.Rect = function (x, y, width, height) {
-                this._Path.push(Path.Rect(x, y, width, height));
-            };
-            RawPath.prototype.RoundedRectFull = function (x, y, width, height, topLeft, topRight, bottomRight, bottomLeft) {
-                this._Path.push(Path.RectRoundedFull(x, y, width, height, topLeft, topRight, bottomRight, bottomLeft));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.RoundedRect = function (x, y, width, height, radiusX, radiusY) {
-                this._Path.push(Path.RectRounded(x, y, width, height, radiusX, radiusY));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.QuadraticBezier = function (cpx, cpy, x, y) {
-                this._Path.push(Path.QuadraticBezier(cpx, cpy, x, y));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.CubicBezier = function (cp1x, cp1y, cp2x, cp2y, x, y) {
-                this._Path.push(Path.CubicBezier(cp1x, cp1y, cp2x, cp2y, x, y));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.Ellipse = function (x, y, width, height) {
-                this._Path.push(Path.Ellipse(x, y, width, height));
-                this._EndX = x;
-                this._EndY = y;
-            };
-            RawPath.prototype.EllipticalArc = function (width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
-                this._Path.push(Path.EllipticalArc(width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey));
-            };
-            RawPath.prototype.Arc = function (x, y, r, sAngle, eAngle, aClockwise) {
-                this._Path.push(Path.Arc(x, y, r, sAngle, eAngle, aClockwise));
-            };
-            RawPath.prototype.ArcTo = function (cpx, cpy, x, y, radius) {
-                var arcto = Path.ArcTo(cpx, cpy, x, y, radius);
-                this._Path.push(arcto);
-                this._EndX = arcto.ex;
-                this._EndY = arcto.ey;
-            };
-            RawPath.prototype.Close = function () {
-                this._Path.push(Path.Close());
-            };
-
-            RawPath.prototype.DrawRenderCtx = function (ctx) {
-                this.DrawCanvasCtx(ctx.CanvasContext);
-            };
-            RawPath.prototype.DrawCanvasCtx = function (canvasCtx) {
-                canvasCtx.beginPath();
-                var path = this._Path;
-                var len = path.length;
-                for (var i = 0; i < len; i++) {
-                    path[i].draw(canvasCtx);
-                }
-            };
-            RawPath.prototype.CalculateBounds = function (pars) {
-                var box = pars && pars.thickness > 1 ? this._CalcStrokeBox(pars) : this._CalcFillBox();
-                var r = new rect();
-                rect.set(r, box.l, box.t, Math.max(0, box.r - box.l), Math.max(0, box.b - box.t));
-                return r;
-            };
-            RawPath.prototype._CalcFillBox = function () {
-                var path = this._Path;
-                var len = path.length;
-                var box = {
-                    l: Number.POSITIVE_INFINITY,
-                    r: Number.NEGATIVE_INFINITY,
-                    t: Number.POSITIVE_INFINITY,
-                    b: Number.NEGATIVE_INFINITY
-                };
-                var curx = null;
-                var cury = null;
-                var entry;
-                for (var i = 0; i < len; i++) {
-                    entry = path[i];
-                    entry.sx = curx;
-                    entry.sy = cury;
-
-                    entry.extendFillBox(box);
-
-                    curx = entry.ex || 0;
-                    cury = entry.ey || 0;
-                }
-                return box;
-            };
-            RawPath.prototype._CalcStrokeBox = function (pars) {
-                var box = {
-                    l: Number.POSITIVE_INFINITY,
-                    r: Number.NEGATIVE_INFINITY,
-                    t: Number.POSITIVE_INFINITY,
-                    b: Number.NEGATIVE_INFINITY
-                };
-                processStrokedBounds(box, this._Path, pars);
-                return box;
-            };
-
-            RawPath.Merge = function (path1, path2) {
-                path1._Path.push.apply(path1._Path, path2._Path);
-                path1._EndX += path2._EndX;
-                path1._EndY += path2._EndY;
-            };
-
-            RawPath.prototype.Serialize = function () {
-                var path = this._Path;
-                var len = path.length;
-                var s = "";
-                for (var i = 0; i < len; i++) {
-                    if (i > 0)
-                        s += " ";
-                    s += path[i].toString();
-                }
-                return s;
-            };
-            return RawPath;
+            return TouchPoint;
         })();
-        Path.RawPath = RawPath;
-        function expandStartCap(box, entry, pars) {
-            var v;
-            var hs = pars.thickness / 2.0;
-            var cap = pars.startCap || pars.endCap || 0;
-            switch (cap) {
-                case Fayde.Shapes.PenLineCap.Round:
-                    box.l = Math.min(box.l, entry.sx - hs);
-                    box.r = Math.max(box.r, entry.sx + hs);
-                    box.t = Math.min(box.t, entry.sy - hs);
-                    box.b = Math.max(box.b, entry.sy + hs);
-                    break;
-                case Fayde.Shapes.PenLineCap.Square:
-                    if (!(v = entry.getStartVector()))
+        Input.TouchPoint = TouchPoint;
+        Fayde.RegisterType(TouchPoint, {
+            Name: "TouchPoint",
+            Namespace: "Fayde.Input",
+            XmlNamespace: Fayde.XMLNS
+        });
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Input) {
+        (function (TouchInternal) {
+            var ActiveTouchBase = (function () {
+                function ActiveTouchBase(touchHandler) {
+                    var _this = this;
+                    this.InputList = [];
+                    this._IsEmitting = false;
+                    this._PendingCapture = null;
+                    this._PendingReleaseCapture = false;
+                    this._Captured = null;
+                    this._CapturedInputList = null;
+                    Object.defineProperty(this, "Device", { value: this.CreateTouchDevice(), writable: false });
+                    this._FinishReleaseCaptureFunc = function () {
+                        return touchHandler.HandleTouches(Fayde.Input.TouchInputType.NoOp, [_this], false, true);
+                    };
+                }
+                ActiveTouchBase.prototype.Capture = function (uie) {
+                    var uin = uie.XamlNode;
+                    if (this._Captured === uin || this._PendingCapture === uin)
+                        return true;
+                    if (!this._IsEmitting)
+                        return false;
+                    this._PendingCapture = uin;
+                    return true;
+                };
+                ActiveTouchBase.prototype.ReleaseCapture = function (uie) {
+                    var uin = uie.XamlNode;
+                    if (this._Captured !== uin && this._PendingCapture !== uin)
                         return;
-                    var sd = Vector.reverse(Vector.normalize(v.slice(0)));
-                    var sdo = Vector.orthogonal(sd.slice(0));
-
-                    var x1 = entry.sx + hs * (sd[0] + sdo[0]);
-                    var x2 = entry.sx + hs * (sd[0] - sdo[0]);
-                    var y1 = entry.sy + hs * (sd[1] + sdo[1]);
-                    var y2 = entry.sy + hs * (sd[1] - sdo[1]);
-
-                    box.l = Math.min(box.l, x1, x2);
-                    box.r = Math.max(box.r, x1, x2);
-                    box.t = Math.min(box.t, y1, y2);
-                    box.b = Math.max(box.b, y1, y2);
-                    break;
-                case Fayde.Shapes.PenLineCap.Flat:
-                default:
-                    if (!(v = entry.getStartVector()))
-                        return;
-                    var sdo = Vector.orthogonal(Vector.normalize(v.slice(0)));
-
-                    var x1 = entry.sx + hs * sdo[0];
-                    var x2 = entry.sx + hs * -sdo[0];
-                    var y1 = entry.sy + hs * sdo[1];
-                    var y2 = entry.sy + hs * -sdo[1];
-
-                    box.l = Math.min(box.l, x1, x2);
-                    box.r = Math.max(box.r, x1, x2);
-                    box.t = Math.min(box.t, y1, y2);
-                    box.b = Math.max(box.b, y1, y2);
-                    break;
-            }
-        }
-        function expandEndCap(box, entry, pars) {
-            var ex = entry.ex;
-            var ey = entry.ey;
-
-            var v;
-            var hs = pars.thickness / 2.0;
-            var cap = pars.startCap || pars.endCap || 0;
-            switch (cap) {
-                case Fayde.Shapes.PenLineCap.Round:
-                    box.l = Math.min(box.l, ex - hs);
-                    box.r = Math.max(box.r, ex + hs);
-                    box.t = Math.min(box.t, ey - hs);
-                    box.b = Math.max(box.b, ey + hs);
-                    break;
-                case Fayde.Shapes.PenLineCap.Square:
-                    if (!(v = entry.getEndVector()))
-                        return;
-                    var ed = Vector.normalize(v.slice(0));
-                    var edo = Vector.orthogonal(ed.slice(0));
-
-                    var x1 = ex + hs * (ed[0] + edo[0]);
-                    var x2 = ex + hs * (ed[0] - edo[0]);
-                    var y1 = ey + hs * (ed[1] + edo[1]);
-                    var y2 = ey + hs * (ed[1] - edo[1]);
-
-                    box.l = Math.min(box.l, x1, x2);
-                    box.r = Math.max(box.r, x1, x2);
-                    box.t = Math.min(box.t, y1, y2);
-                    box.b = Math.max(box.b, y1, y2);
-                    break;
-                case Fayde.Shapes.PenLineCap.Flat:
-                default:
-                    if (!(v = entry.getEndVector()))
-                        return;
-                    var edo = Vector.orthogonal(Vector.normalize(v.slice(0)));
-
-                    var x1 = ex + hs * edo[0];
-                    var x2 = ex + hs * -edo[0];
-                    var y1 = ey + hs * edo[1];
-                    var y2 = ey + hs * -edo[1];
-
-                    box.l = Math.min(box.l, x1, x2);
-                    box.r = Math.max(box.r, x1, x2);
-                    box.t = Math.min(box.t, y1, y2);
-                    box.b = Math.max(box.b, y1, y2);
-                    break;
-            }
-        }
-        function expandLineJoin(box, previous, entry, pars) {
-            var hs = pars.thickness / 2.0;
-            if (pars.join === Fayde.Shapes.PenLineJoin.Round) {
-                box.l = Math.min(box.l, entry.sx - hs);
-                box.r = Math.max(box.r, entry.sx + hs);
-                box.t = Math.min(box.t, entry.sy - hs);
-                box.b = Math.max(box.b, entry.sy + hs);
-            }
-            var tips = (pars.join === Fayde.Shapes.PenLineJoin.Miter) ? findMiterTips(previous, entry, hs, pars.miterLimit) : findBevelTips(previous, entry, hs);
-            if (!tips)
-                return;
-            var x1 = tips[0].x;
-            var x2 = tips[1].x;
-            var y1 = tips[0].y;
-            var y2 = tips[1].y;
-            box.l = Math.min(box.l, x1, x2);
-            box.r = Math.max(box.r, x1, x2);
-            box.t = Math.min(box.t, y1, y2);
-            box.b = Math.max(box.b, y1, y2);
-        }
-
-        function processStrokedBounds(box, entries, pars) {
-            var len = entries.length;
-            var last = null;
-            var curx = null;
-            var cury = null;
-            var sx = null;
-            var sy = null;
-
-            var isLastEntryMove = false;
-
-            function processEntry(entry, i) {
-                entry.sx = curx;
-                entry.sy = cury;
-
-                if (!entry.isSingle) {
-                    if (!(entry).isMove && isLastEntryMove) {
-                        sx = entry.sx;
-                        sy = entry.sy;
-                        expandStartCap(box, entry, pars);
+                    if (this._IsEmitting)
+                        this._PendingReleaseCapture = true;
+else
+                        this._PerformReleaseCapture();
+                };
+                ActiveTouchBase.prototype._PerformCapture = function (uin) {
+                    this._Captured = uin;
+                    var newInputList = [];
+                    while (uin != null) {
+                        newInputList.push(uin);
+                        uin = uin.VisualParentNode;
                     }
-                    if (!isLastEntryMove && i > 0)
-                        expandLineJoin(box, last, entry, pars);
-                }
+                    this._CapturedInputList = newInputList;
+                    this._PendingCapture = null;
+                };
+                ActiveTouchBase.prototype._PerformReleaseCapture = function () {
+                    var oldCaptured = this._Captured;
+                    this._PendingReleaseCapture = false;
+                    oldCaptured._EmitLostTouchCapture(new Fayde.Input.TouchEventArgs(this.Device));
+                    this._FinishReleaseCaptureFunc();
+                };
 
-                entry.extendStrokeBox(box, pars);
-
-                curx = entry.ex || 0;
-                cury = entry.ey || 0;
-                isLastEntryMove = !!(entry).isMove;
-                last = entry;
-            }
-
-            for (var i = 0; i < len; i++) {
-                processEntry(entries[i], i);
-            }
-            var end = entries[len - 1];
-            if (end && !end.isSingle)
-                expandEndCap(box, end, pars);
-        }
-        function findMiterTips(previous, entry, hs, miterLimit) {
-            var x = entry.sx;
-            var y = entry.sy;
-
-            var av = previous.getEndVector();
-            var bv = entry.getStartVector();
-            if (!av || !bv)
-                return null;
-            Vector.reverse(av);
-            var tau = Vector.angleBetween(av, bv) / 2;
-
-            var miterRatio = 1 / Math.sin(tau);
-            if (miterRatio > miterLimit)
-                return findBevelTips(previous, entry, hs);
-
-            //vector in direction of join point to miter tip
-            var cv = Vector.isClockwiseTo(av, bv) ? av.slice(0) : bv.slice(0);
-            Vector.normalize(Vector.reverse(Vector.rotate(cv, tau)));
-
-            //distance from join point and miter tip
-            var miterLen = hs * miterRatio;
-
-            var tip = { x: x + miterLen * cv[0], y: y + miterLen * cv[1] };
-            return [
-                tip,
-                tip
-            ];
-        }
-        Path.findMiterTips = findMiterTips;
-        function findBevelTips(previous, entry, hs) {
-            var x = entry.sx;
-            var y = entry.sy;
-
-            var av = previous.getEndVector();
-            var bv = entry.getStartVector();
-            if (!av || !bv)
-                return;
-            Vector.normalize(Vector.reverse(av));
-            Vector.normalize(bv);
-            var avo, bvo;
-            if (Vector.isClockwiseTo(av, bv)) {
-                avo = Vector.orthogonal(av.slice(0));
-                bvo = Vector.reverse(Vector.orthogonal(bv.slice(0)));
-            } else {
-                avo = Vector.reverse(Vector.orthogonal(av.slice(0)));
-                bvo = Vector.orthogonal(bv.slice(0));
-            }
-
-            return [
-                { x: x - hs * avo[0], y: y - hs * avo[1] },
-                { x: x - hs * bvo[0], y: y - hs * bvo[1] }
-            ];
-        }
-        Path.findBevelTips = findBevelTips;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function RectRounded(x, y, width, height, radiusX, radiusY) {
-            if (radiusX === 0.0 && radiusY === 0.0)
-                return Path.Rect(x, y, width, height);
-
-            var left = x;
-            var top = y;
-            var right = x + width;
-            var bottom = y + height;
-
-            return {
-                sx: null,
-                sy: null,
-                ex: x,
-                ey: y,
-                isSingle: true,
-                x: x,
-                y: y,
-                width: width,
-                height: height,
-                radiusX: radiusX,
-                radiusY: radiusY,
-                draw: function (ctx) {
-                    ctx.beginPath();
-                    ctx.moveTo(left + radiusX, top);
-
-                    //top edge
-                    ctx.lineTo(right - radiusX, top);
-
-                    //top right arc
-                    ctx.quadraticCurveTo(right, top, right, top + radiusY);
-
-                    //right edge
-                    ctx.lineTo(right, bottom - radiusY);
-
-                    //bottom right arc
-                    ctx.quadraticCurveTo(right, bottom, right - radiusX, bottom);
-
-                    //bottom edge
-                    ctx.lineTo(left + radiusX, bottom);
-
-                    //bottom left arc
-                    ctx.quadraticCurveTo(left, bottom, left, bottom - radiusY);
-
-                    //left edge
-                    ctx.lineTo(left, top + radiusY);
-
-                    //top left arc
-                    ctx.quadraticCurveTo(left, top, left + radiusX, top);
-                    ctx.closePath();
-                },
-                extendFillBox: function (box) {
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x + width);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y + height);
-                },
-                extendStrokeBox: function (box, pars) {
-                    var hs = pars.thickness / 2.0;
-                    box.l = Math.min(box.l, x - hs);
-                    box.r = Math.max(box.r, x + width + hs);
-                    box.t = Math.min(box.t, y - hs);
-                    box.b = Math.max(box.b, y + height + hs);
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.RectRounded = RectRounded;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function RectRoundedFull(x, y, width, height, topLeft, topRight, bottomRight, bottomLeft) {
-            var left = x;
-            var top = y;
-            var right = x + width;
-            var bottom = y + height;
-
-            return {
-                sx: null,
-                sy: null,
-                ex: x,
-                ey: y,
-                isSingle: true,
-                x: x,
-                y: y,
-                width: width,
-                height: height,
-                draw: function (ctx) {
-                    var right = left + width;
-                    var bottom = top + height;
-                    ctx.beginPath();
-                    ctx.moveTo(left + topLeft, top);
-
-                    //top edge
-                    ctx.lineTo(right - topRight, top);
-
-                    if (topRight > 0)
-                        ctx.quadraticCurveTo(right, top, right, top + topRight);
-
-                    //right edge
-                    ctx.lineTo(right, bottom - bottomRight);
-
-                    if (bottomRight > 0)
-                        ctx.quadraticCurveTo(right, bottom, right - bottomRight, bottom);
-
-                    //bottom edge
-                    ctx.lineTo(left + bottomLeft, bottom);
-
-                    if (bottomLeft > 0)
-                        ctx.quadraticCurveTo(left, bottom, left, bottom - bottomLeft);
-
-                    //left edge
-                    ctx.lineTo(left, top + topLeft);
-
-                    if (topLeft > 0)
-                        ctx.quadraticCurveTo(left, top, left + topLeft, top);
-                    ctx.closePath();
-                },
-                extendFillBox: function (box) {
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x + width);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y + height);
-                },
-                extendStrokeBox: function (box, pars) {
-                    var hs = pars.thickness / 2.0;
-                    box.l = Math.min(box.l, x - hs);
-                    box.r = Math.max(box.r, x + width + hs);
-                    box.t = Math.min(box.t, y - hs);
-                    box.b = Math.max(box.b, y + height + hs);
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
-                }
-            };
-        }
-        Path.RectRoundedFull = RectRoundedFull;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    (function (Path) {
-        function Ellipse(x, y, width, height) {
-            var radiusX = width / 2;
-            var radiusY = height / 2;
-            var right = x + width;
-            var bottom = y + height;
-            var centerX = x + radiusX;
-            var centerY = y + radiusY;
-
-            return {
-                sx: null,
-                sy: null,
-                ex: x,
-                ey: y,
-                isSingle: true,
-                x: x,
-                y: y,
-                width: width,
-                height: height,
-                draw: function (ctx) {
-                    ctx.beginPath();
-                    if (width === height) {
-                        ctx.arc(centerX, centerY, radiusX, 0, Math.PI * 2, false);
+                ActiveTouchBase.prototype.Emit = function (type, newInputList, emitLeave, emitEnter) {
+                    if (this._IsEmitting)
                         return;
+                    this._IsEmitting = true;
+                    var handled = false;
+
+                    var indices = { Index1: -1, Index2: -1 };
+                    findFirstCommonElement(this.InputList, newInputList, indices);
+                    if (emitLeave !== false)
+                        this._EmitList(Fayde.Input.TouchInputType.TouchLeave, this.InputList, indices.Index1);
+                    if (emitEnter !== false)
+                        this._EmitList(Fayde.Input.TouchInputType.TouchEnter, newInputList, indices.Index2);
+
+                    var handled = false;
+                    if (type !== Fayde.Input.TouchInputType.NoOp)
+                        handled = this._EmitList(type, this._Captured ? this._CapturedInputList : newInputList);
+                    this.InputList = newInputList;
+
+                    if (this._PendingCapture)
+                        this._PerformCapture(this._PendingCapture);
+                    if (this._PendingReleaseCapture)
+                        this._PerformReleaseCapture();
+
+                    this._IsEmitting = false;
+                    return handled;
+                };
+                ActiveTouchBase.prototype._EmitList = function (type, list, endIndex) {
+                    var handled = false;
+                    if (endIndex === 0)
+                        return handled;
+                    if (!endIndex || endIndex === -1)
+                        endIndex = list.length;
+                    var args = new Fayde.Input.TouchEventArgs(this.Device);
+                    var node = list[0];
+                    if (node && args instanceof Fayde.RoutedEventArgs)
+                        args.Source = node.XObject;
+                    for (var i = 0; i < endIndex; i++) {
+                        node = list[i];
+                        if (type === Fayde.Input.TouchInputType.TouchLeave)
+                            args.Source = node.XObject;
+                        if (node._EmitTouchEvent(type, args))
+                            handled = true;
+                        if (type === Fayde.Input.TouchInputType.TouchLeave)
+                            args = new Fayde.Input.TouchEventArgs(this.Device);
                     }
+                    return handled;
+                };
 
-                    var kappa = .5522848;
-                    var ox = radiusX * kappa;
-                    var oy = radiusY * kappa;
+                ActiveTouchBase.prototype.GetTouchPoint = function (relativeTo) {
+                    if (!relativeTo)
+                        return this.CreateTouchPoint(this.Position.Clone());
+                    if (!(relativeTo instanceof Fayde.UIElement))
+                        throw new ArgumentException("Specified relative object must be a UIElement.");
 
-                    //move to left edge, halfway down
-                    ctx.moveTo(x, centerY);
+                    //TODO: If attached, should we run ProcessDirtyElements
+                    var p = this.Position.Clone();
+                    relativeTo.XamlNode.LayoutUpdater.TransformPoint(p);
+                    return this.CreateTouchPoint(p);
+                };
+                ActiveTouchBase.prototype.CreateTouchPoint = function (p) {
+                    return new Input.TouchPoint(p, 0);
+                };
 
-                    //top left bezier curve
-                    ctx.bezierCurveTo(x, centerY - oy, centerX - ox, y, centerX, y);
+                ActiveTouchBase.prototype.CreateTouchDevice = function () {
+                    var _this = this;
+                    var d = {
+                        Identifier: null,
+                        Captured: null,
+                        Capture: function (uie) {
+                            return _this.Capture(uie);
+                        },
+                        ReleaseCapture: function (uie) {
+                            return _this.ReleaseCapture(uie);
+                        },
+                        GetTouchPoint: function (relativeTo) {
+                            return _this.GetTouchPoint(relativeTo);
+                        }
+                    };
+                    Object.defineProperty(d, "Identifier", { get: function () {
+                            return _this.Identifier;
+                        } });
+                    Object.defineProperty(d, "Captured", { get: function () {
+                            return _this._Captured;
+                        } });
+                    return d;
+                };
+                return ActiveTouchBase;
+            })();
+            TouchInternal.ActiveTouchBase = ActiveTouchBase;
 
-                    //top right bezier curve
-                    ctx.bezierCurveTo(centerX + ox, y, right, centerY - oy, right, centerY);
-
-                    //bottom right bezier curve
-                    ctx.bezierCurveTo(right, centerY + oy, centerX + ox, bottom, centerX, bottom);
-
-                    //bottom left bezier curve
-                    ctx.bezierCurveTo(centerX - ox, bottom, x, centerY + oy, x, centerY);
-                    ctx.closePath();
-                },
-                extendFillBox: function (box) {
-                    box.l = Math.min(box.l, x);
-                    box.r = Math.max(box.r, x + width);
-                    box.t = Math.min(box.t, y);
-                    box.b = Math.max(box.b, y + height);
-                },
-                extendStrokeBox: function (box, pars) {
-                    var hs = pars.thickness / 2.0;
-                    box.l = Math.min(box.l, x - hs);
-                    box.r = Math.max(box.r, x + width + hs);
-                    box.t = Math.min(box.t, y - hs);
-                    box.b = Math.max(box.b, y + height + hs);
-                },
-                getStartVector: function () {
-                    return null;
-                },
-                getEndVector: function () {
-                    return null;
+            function findFirstCommonElement(list1, list2, outObj) {
+                var i = list1.length - 1;
+                var j = list2.length - 1;
+                outObj.Index1 = -1;
+                outObj.Index2 = -1;
+                while (i >= 0 && j >= 0) {
+                    if (list1[i] !== list2[j])
+                        return;
+                    outObj.Index1 = i--;
+                    outObj.Index2 = j--;
                 }
-            };
-        }
-        Path.Ellipse = Ellipse;
-    })(Fayde.Path || (Fayde.Path = {}));
-    var Path = Fayde.Path;
+            }
+        })(Input.TouchInternal || (Input.TouchInternal = {}));
+        var TouchInternal = Input.TouchInternal;
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
 })(Fayde || (Fayde = {}));
-var Vector;
-(function (Vector) {
-    var EPSILON = 1e-10;
+var Fayde;
+(function (Fayde) {
+    (function (Input) {
+        (function (TouchInternal) {
+            var TouchInteropBase = (function () {
+                function TouchInteropBase() {
+                    this.CanvasOffset = null;
+                    this.ActiveTouches = [];
+                }
+                Object.defineProperty(TouchInteropBase.prototype, "CoordinateOffset", {
+                    get: function () {
+                        return {
+                            left: window.pageXOffset + this.CanvasOffset.left,
+                            top: window.pageYOffset + this.CanvasOffset.top
+                        };
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
 
-    function create(x, y) {
-        return [x, y];
-    }
-    Vector.create = create;
+                TouchInteropBase.prototype.Register = function (input, canvas) {
+                    this.Input = input;
+                    this.CanvasOffset = this._CalcOffset(canvas);
+                };
+                TouchInteropBase.prototype._CalcOffset = function (canvas) {
+                    var left = 0;
+                    var top = 0;
+                    var cur = canvas;
+                    if (cur.offsetParent) {
+                        do {
+                            left += cur.offsetLeft;
+                            top += cur.offsetTop;
+                        } while(cur = cur.offsetParent);
+                    }
+                    return { left: left, top: top };
+                };
 
-    function reverse(v) {
-        v[0] = -v[0];
-        v[1] = -v[1];
-        return v;
-    }
-    Vector.reverse = reverse;
+                TouchInteropBase.prototype.HandleTouches = function (type, touches, emitLeave, emitEnter) {
+                    var touch;
+                    var handled = false;
+                    while (touch = touches.shift()) {
+                        var inputList = this.Input.HitTestPoint(touch.Position);
+                        if (inputList)
+                            handled = handled || touch.Emit(type, inputList, emitLeave, emitEnter);
+                    }
+                    return handled;
+                };
+                return TouchInteropBase;
+            })();
+            TouchInternal.TouchInteropBase = TouchInteropBase;
+        })(Input.TouchInternal || (Input.TouchInternal = {}));
+        var TouchInternal = Input.TouchInternal;
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Input) {
+        /// <reference path="ActiveTouchBase.ts" />
+        /// <reference path="TouchInteropBase.ts" />
+        (function (TouchInternal) {
+            var PointerActiveTouch = (function (_super) {
+                __extends(PointerActiveTouch, _super);
+                function PointerActiveTouch() {
+                    _super.apply(this, arguments);
+                }
+                PointerActiveTouch.prototype.Init = function (t, offset) {
+                    this.TouchObject = t;
+                    this.Identifier = t.pointerId;
+                    this.Position = new Point(t.clientX + offset.left, t.clientY + offset.top);
+                };
+                PointerActiveTouch.prototype.CreateTouchPoint = function (p) {
+                    var to = this.TouchObject;
+                    return new Input.TouchPoint(p, to.pressure);
+                };
+                return PointerActiveTouch;
+            })(TouchInternal.ActiveTouchBase);
 
-    /// Equivalent of rotating 90 degrees clockwise (screen space)
-    function orthogonal(v) {
-        var x = v[0], y = v[1];
-        v[0] = -y;
-        v[1] = x;
-        return v;
-    }
-    Vector.orthogonal = orthogonal;
+            var PointerTouchInterop = (function (_super) {
+                __extends(PointerTouchInterop, _super);
+                function PointerTouchInterop() {
+                    _super.apply(this, arguments);
+                }
+                PointerTouchInterop.prototype.Register = function (input, canvas) {
+                    var _this = this;
+                    _super.prototype.Register.call(this, input, canvas);
+                    canvas.style.msTouchAction = "none";
+                    (canvas.style).touchAction = "none";
 
-    function normalize(v) {
-        var x = v[0], y = v[1];
-        var len = Math.sqrt(x * x + y * y);
-        v[0] = x / len;
-        v[1] = y / len;
-        return v;
-    }
-    Vector.normalize = normalize;
+                    canvas.addEventListener("selectstart", function (e) {
+                        e.preventDefault();
+                    });
+                    if (navigator.msPointerEnabled) {
+                        canvas.addEventListener("MSPointerDown", function (e) {
+                            return _this._HandlePointerDown(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("MSPointerUp", function (e) {
+                            return _this._HandlePointerUp(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("MSPointerMove", function (e) {
+                            return _this._HandlePointerMove(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("MSPointerEnter", function (e) {
+                            return _this._HandlePointerEnter(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("MSPointerLeave", function (e) {
+                            return _this._HandlePointerLeave(window.event ? window.event : e);
+                        });
+                    } else {
+                        canvas.addEventListener("pointerdown", function (e) {
+                            return _this._HandlePointerDown(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("pointerup", function (e) {
+                            return _this._HandlePointerUp(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("pointermove", function (e) {
+                            return _this._HandlePointerMove(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("pointerenter", function (e) {
+                            return _this._HandlePointerEnter(window.event ? window.event : e);
+                        });
+                        canvas.addEventListener("pointerleave", function (e) {
+                            return _this._HandlePointerLeave(window.event ? window.event : e);
+                        });
+                    }
+                };
 
-    /// Rotates a vector(v) by angle(theta) clockwise(screen space) ...which is counter-clockwise in coordinate space
-    function rotate(v, theta) {
-        var c = Math.cos(theta);
-        var s = Math.sin(theta);
-        var x = v[0];
-        var y = v[1];
-        v[0] = x * c - y * s;
-        v[1] = x * s + y * c;
-        return v;
-    }
-    Vector.rotate = rotate;
+                PointerTouchInterop.prototype._HandlePointerDown = function (e) {
+                    if (e.pointerType === "mouse")
+                        return;
+                    e.preventDefault();
+                    Fayde.Engine.Inspection.Kill();
 
-    /// Returns smallest angle (in radians) between 2 vectors
-    function angleBetween(u, v) {
-        var ux = u[0], uy = u[1], vx = v[0], vy = v[1];
-        var num = ux * vx + uy * vy;
-        var den = Math.sqrt(ux * ux + uy * uy) * Math.sqrt(vx * vx + vy * vy);
-        return Math.acos(num / den);
-    }
-    Vector.angleBetween = angleBetween;
+                    var cur = this.GetActiveTouch(e);
+                    this.Input.SetIsUserInitiatedEvent(true);
+                    this.HandleTouches(Fayde.Input.TouchInputType.TouchDown, [cur]);
+                    this.Input.SetIsUserInitiatedEvent(false);
+                };
+                PointerTouchInterop.prototype._HandlePointerUp = function (e) {
+                    if (e.pointerType === "mouse")
+                        return;
+                    var cur = this.GetActiveTouch(e);
+                    this.Input.SetIsUserInitiatedEvent(true);
+                    this.HandleTouches(Fayde.Input.TouchInputType.TouchUp, [cur]);
+                    this.Input.SetIsUserInitiatedEvent(false);
+                    var index = this.ActiveTouches.indexOf(cur);
+                    if (index > -1)
+                        this.ActiveTouches.splice(index, 1);
+                };
+                PointerTouchInterop.prototype._HandlePointerMove = function (e) {
+                    if (e.pointerType === "mouse")
+                        return;
+                    var cur = this.GetActiveTouch(e);
+                    this.HandleTouches(Fayde.Input.TouchInputType.TouchMove, [cur]);
+                };
+                PointerTouchInterop.prototype._HandlePointerEnter = function (e) {
+                    if (e.pointerType === "mouse")
+                        return;
+                    var cur = this.GetActiveTouch(e);
+                    this.HandleTouches(Fayde.Input.TouchInputType.TouchEnter, [cur]);
+                };
+                PointerTouchInterop.prototype._HandlePointerLeave = function (e) {
+                    if (e.pointerType === "mouse")
+                        return;
+                    var cur = this.GetActiveTouch(e);
+                    this.HandleTouches(Fayde.Input.TouchInputType.TouchLeave, [cur]);
+                };
 
-    /// By rotating from vector(v1) to vector(v2), tests whether that angle is clockwise (screen space)
-    function isClockwiseTo(v1, v2) {
-        var theta = angleBetween(v1, v2);
-        var nv1 = normalize(v1.slice(0));
-        var nv2 = normalize(v2.slice(0));
-        rotate(nv1, theta);
-        var nx = Math.abs(nv1[0] - nv2[0]);
-        var ny = Math.abs(nv1[1] - nv2[1]);
-        return nx < EPSILON && ny < EPSILON;
-    }
-    Vector.isClockwiseTo = isClockwiseTo;
+                PointerTouchInterop.prototype.GetActiveTouch = function (e) {
+                    var existing = this.FindTouchInList(e.pointerId);
+                    var cur = existing || new PointerActiveTouch(this);
+                    if (!existing)
+                        this.ActiveTouches.push(cur);
+                    cur.Init(e, this.CoordinateOffset);
+                    return cur;
+                };
+                PointerTouchInterop.prototype.FindTouchInList = function (identifier) {
+                    var at = this.ActiveTouches;
+                    var len = at.length;
+                    for (var i = 0; i < len; i++) {
+                        if (at[i].Identifier === identifier)
+                            return at[i];
+                    }
+                    return null;
+                };
+                return PointerTouchInterop;
+            })(TouchInternal.TouchInteropBase);
+            TouchInternal.PointerTouchInterop = PointerTouchInterop;
+        })(Input.TouchInternal || (Input.TouchInternal = {}));
+        var TouchInternal = Input.TouchInternal;
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    (function (Input) {
+        /// <reference path="ActiveTouchBase.ts" />
+        /// <reference path="TouchInteropBase.ts" />
+        (function (TouchInternal) {
+            var NonPointerActiveTouch = (function (_super) {
+                __extends(NonPointerActiveTouch, _super);
+                function NonPointerActiveTouch() {
+                    _super.apply(this, arguments);
+                }
+                NonPointerActiveTouch.prototype.Init = function (t, offset) {
+                    this.TouchObject = t;
+                    this.Identifier = t.identifier;
+                    this.Position = new Point(t.clientX + offset.left, t.clientY + offset.top);
+                };
+                NonPointerActiveTouch.prototype.CreateTouchPoint = function (p) {
+                    var to = this.TouchObject;
+                    return new Input.TouchPoint(p, to.force);
+                };
+                return NonPointerActiveTouch;
+            })(TouchInternal.ActiveTouchBase);
 
-    /// Finds intersection of v1(s1 + t(d1)) and v2(s2 + t(d2))
-    function intersection(s1, d1, s2, d2) {
-        var x1 = s1[0];
-        var y1 = s1[1];
-        var x2 = x1 + d1[0];
-        var y2 = y1 + d1[1];
+            var NonPointerTouchInterop = (function (_super) {
+                __extends(NonPointerTouchInterop, _super);
+                function NonPointerTouchInterop() {
+                    _super.apply(this, arguments);
+                }
+                NonPointerTouchInterop.prototype.Register = function (input, canvas) {
+                    var _this = this;
+                    _super.prototype.Register.call(this, input, canvas);
 
-        var x3 = s2[0];
-        var y3 = s2[1];
-        var x4 = x3 + d2[0];
-        var y4 = y3 + d2[1];
+                    canvas.addEventListener("touchstart", function (e) {
+                        return _this._HandleTouchStart(window.event ? window.event : e);
+                    });
+                    canvas.addEventListener("touchend", function (e) {
+                        return _this._HandleTouchEnd(window.event ? window.event : e);
+                    });
+                    canvas.addEventListener("touchmove", function (e) {
+                        return _this._HandleTouchMove(window.event ? window.event : e);
+                    });
+                    canvas.addEventListener("touchenter", function (e) {
+                        return _this._HandleTouchEnter(window.event ? window.event : e);
+                    });
+                    canvas.addEventListener("touchleave", function (e) {
+                        return _this._HandleTouchLeave(window.event ? window.event : e);
+                    });
+                };
 
-        var det = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-        if (det === 0)
-            return null;
+                NonPointerTouchInterop.prototype._HandleTouchStart = function (e) {
+                    e.preventDefault();
+                    Fayde.Engine.Inspection.Kill();
 
-        var xn = ((x1 * y2 - y1 * x2) * (x3 - x4)) - ((x1 - x2) * (x3 * y4 - y3 * x4));
-        var yn = ((x1 * y2 - y1 * x2) * (y3 - y4)) - ((y1 - y2) * (x3 * y4 - y3 * x4));
-        return [xn / det, yn / det];
-    }
-    Vector.intersection = intersection;
-})(Vector || (Vector = {}));
+                    var newTouches = this.TouchArrayFromList(e.changedTouches);
+                    this.ActiveTouches = this.ActiveTouches.concat(newTouches);
+
+                    this.Input.SetIsUserInitiatedEvent(true);
+                    this.HandleTouches(Input.TouchInputType.TouchDown, newTouches);
+                    this.Input.SetIsUserInitiatedEvent(false);
+                };
+                NonPointerTouchInterop.prototype._HandleTouchEnd = function (e) {
+                    var oldTouches = this.TouchArrayFromList(e.changedTouches);
+
+                    this.Input.SetIsUserInitiatedEvent(true);
+                    this.HandleTouches(Input.TouchInputType.TouchUp, oldTouches);
+                    this.Input.SetIsUserInitiatedEvent(false);
+
+                    removeFromArray(this.ActiveTouches, oldTouches);
+                };
+                NonPointerTouchInterop.prototype._HandleTouchMove = function (e) {
+                    var touches = this.TouchArrayFromList(e.changedTouches);
+                    this.HandleTouches(Input.TouchInputType.TouchMove, touches);
+                };
+                NonPointerTouchInterop.prototype._HandleTouchEnter = function (e) {
+                    var touches = this.TouchArrayFromList(e.changedTouches);
+                    this.HandleTouches(Input.TouchInputType.TouchEnter, touches);
+                };
+                NonPointerTouchInterop.prototype._HandleTouchLeave = function (e) {
+                    var touches = this.TouchArrayFromList(e.changedTouches);
+                    this.HandleTouches(Input.TouchInputType.TouchLeave, touches);
+                };
+
+                NonPointerTouchInterop.prototype.TouchArrayFromList = function (list) {
+                    var len = list.length;
+                    var touches = [];
+                    var curto;
+                    var cur;
+                    for (var i = 0; i < len; i++) {
+                        var curto = list.item(i);
+                        cur = this.FindTouchInList(curto.identifier) || new NonPointerActiveTouch(this);
+                        cur.Init(curto, this.CoordinateOffset);
+                        touches.push(cur);
+                    }
+                    return touches;
+                };
+                NonPointerTouchInterop.prototype.FindTouchInList = function (identifier) {
+                    var at = this.ActiveTouches;
+                    var len = at.length;
+                    for (var i = 0; i < len; i++) {
+                        if (at[i].Identifier === identifier)
+                            return at[i];
+                    }
+                    return null;
+                };
+                return NonPointerTouchInterop;
+            })(TouchInternal.TouchInteropBase);
+            TouchInternal.NonPointerTouchInterop = NonPointerTouchInterop;
+
+            function removeFromArray(arr, toRemove) {
+                var len = toRemove.length;
+                for (var i = 0; i < len; i++) {
+                    var index = arr.indexOf(toRemove[i]);
+                    if (index > -1)
+                        arr.splice(index, 1);
+                }
+            }
+        })(Input.TouchInternal || (Input.TouchInternal = {}));
+        var TouchInternal = Input.TouchInternal;
+    })(Fayde.Input || (Fayde.Input = {}));
+    var Input = Fayde.Input;
+})(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
     /// <reference path="../Core/DependencyObject.ts" />

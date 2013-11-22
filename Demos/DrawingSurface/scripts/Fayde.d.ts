@@ -480,6 +480,9 @@ declare module Fayde {
         public _EmitKeyUp(args: Fayde.Input.KeyEventArgs): void;
         public _EmitLostMouseCapture(pos: Point): void;
         public _EmitMouseEvent(type: Fayde.Input.MouseInputType, isLeftButton: boolean, isRightButton: boolean, args: Fayde.Input.MouseEventArgs): boolean;
+        public _EmitTouchEvent(type: Fayde.Input.TouchInputType, args: Fayde.Input.TouchEventArgs): boolean;
+        public _EmitGotTouchCapture(e: Fayde.Input.TouchEventArgs): void;
+        public _EmitLostTouchCapture(e: Fayde.Input.TouchEventArgs): void;
         public CanCaptureMouse(): boolean;
         public CaptureMouse(): boolean;
         public ReleaseMouseCapture(): void;
@@ -551,6 +554,13 @@ declare module Fayde {
         public MouseEnter: Fayde.RoutedEvent<Fayde.Input.MouseEventArgs>;
         public MouseMove: Fayde.RoutedEvent<Fayde.Input.MouseEventArgs>;
         public MouseWheel: Fayde.RoutedEvent<Fayde.Input.MouseWheelEventArgs>;
+        public TouchDown: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public TouchUp: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public TouchEnter: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public TouchLeave: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public TouchMove: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public GotTouchCapture: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public LostTouchCapture: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
         public OnGotFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostMouseCapture(e: Fayde.Input.MouseEventArgs): void;
@@ -564,6 +574,13 @@ declare module Fayde {
         public OnMouseRightButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnMouseRightButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnMouseWheel(e: Fayde.Input.MouseWheelEventArgs): void;
+        public OnTouchDown(e: Fayde.Input.TouchEventArgs): void;
+        public OnTouchUp(e: Fayde.Input.TouchEventArgs): void;
+        public OnTouchEnter(e: Fayde.Input.TouchEventArgs): void;
+        public OnTouchLeave(e: Fayde.Input.TouchEventArgs): void;
+        public OnTouchMove(e: Fayde.Input.TouchEventArgs): void;
+        public OnGotTouchCapture(e: Fayde.Input.TouchEventArgs): void;
+        public OnLostTouchCapture(e: Fayde.Input.TouchEventArgs): void;
         private _ClipChanged(args);
         private _EffectChanged(args);
         private _UseLayoutRoundingChanged(args);
@@ -839,17 +856,6 @@ declare module Fayde.Controls {
         public OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs): void;
         public OnGotFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
-        public OnLostMouseCapture(e: Fayde.Input.MouseEventArgs): void;
-        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
-        public OnKeyUp(e: Fayde.Input.KeyEventArgs): void;
-        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseMove(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseRightButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseRightButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseWheel(e: Fayde.Input.MouseWheelEventArgs): void;
         public UpdateVisualState(useTransitions?: boolean): void;
         public GoToStates(gotoFunc: (state: string) => boolean): void;
         public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
@@ -3212,6 +3218,219 @@ declare module Fayde {
         public DetachTarget(target: Fayde.XamlObject): void;
     }
 }
+declare class CornerRadius implements ICloneable {
+    public TopLeft: number;
+    public TopRight: number;
+    public BottomRight: number;
+    public BottomLeft: number;
+    constructor(topLeft?: number, topRight?: number, bottomRight?: number, bottomLeft?: number);
+    public IsZero(): boolean;
+    public Equals(other: CornerRadius): boolean;
+    public toString(): string;
+    public Clone(): CornerRadius;
+}
+declare class Color implements ICloneable {
+    private static __NoAlphaRegex;
+    private static __AlphaRegex;
+    public R: number;
+    public G: number;
+    public B: number;
+    public A: number;
+    public Add(color2: Color): Color;
+    public Subtract(color2: Color): Color;
+    public Multiply(factor: number): Color;
+    public Equals(other: Color): boolean;
+    public toString(): string;
+    public ToHexStringNoAlpha(): string;
+    public Clone(): Color;
+    static LERP(start: Color, end: Color, p: number): Color;
+    static FromRgba(r: number, g: number, b: number, a: number): Color;
+    static FromHex(hex: string): Color;
+    static KnownColors: {
+        AliceBlue: Color;
+        AntiqueWhite: Color;
+        Aqua: Color;
+        Aquamarine: Color;
+        Azure: Color;
+        Beige: Color;
+        Bisque: Color;
+        Black: Color;
+        BlanchedAlmond: Color;
+        Blue: Color;
+        BlueViolet: Color;
+        Brown: Color;
+        BurlyWood: Color;
+        CadetBlue: Color;
+        Chartreuse: Color;
+        Chocolate: Color;
+        Coral: Color;
+        CornflowerBlue: Color;
+        Cornsilk: Color;
+        Crimson: Color;
+        Cyan: Color;
+        DarkBlue: Color;
+        DarkCyan: Color;
+        DarkGoldenrod: Color;
+        DarkGray: Color;
+        DarkGreen: Color;
+        DarkKhaki: Color;
+        DarkMagenta: Color;
+        DarkOliveGreen: Color;
+        DarkOrange: Color;
+        DarkOrchid: Color;
+        DarkRed: Color;
+        DarkSalmon: Color;
+        DarkSeaGreen: Color;
+        DarkSlateBlue: Color;
+        DarkSlateGray: Color;
+        DarkTurquoise: Color;
+        DarkViolet: Color;
+        DeepPink: Color;
+        DeepSkyBlue: Color;
+        DimGray: Color;
+        DodgerBlue: Color;
+        Firebrick: Color;
+        FloralWhite: Color;
+        ForestGreen: Color;
+        Fuchsia: Color;
+        Gainsboro: Color;
+        GhostWhite: Color;
+        Gold: Color;
+        Goldenrod: Color;
+        Gray: Color;
+        Green: Color;
+        GreenYellow: Color;
+        Honeydew: Color;
+        HotPink: Color;
+        IndianRed: Color;
+        Indigo: Color;
+        Ivory: Color;
+        Khaki: Color;
+        Lavender: Color;
+        LavenderBlush: Color;
+        LawnGreen: Color;
+        LemonChiffon: Color;
+        LightBlue: Color;
+        LightCoral: Color;
+        LightCyan: Color;
+        LightGoldenrodYellow: Color;
+        LightGray: Color;
+        LightGreen: Color;
+        LightPink: Color;
+        LightSalmon: Color;
+        LightSeaGreen: Color;
+        LightSkyBlue: Color;
+        LightSlateGray: Color;
+        LightSteelBlue: Color;
+        LightYellow: Color;
+        Lime: Color;
+        LimeGreen: Color;
+        Linen: Color;
+        Magenta: Color;
+        Maroon: Color;
+        MediumAquamarine: Color;
+        MediumBlue: Color;
+        MediumOrchid: Color;
+        MediumPurple: Color;
+        MediumSeaGreen: Color;
+        MediumSlateBlue: Color;
+        MediumSpringGreen: Color;
+        MediumTurquoise: Color;
+        MediumVioletRed: Color;
+        MidnightBlue: Color;
+        MintCream: Color;
+        MistyRose: Color;
+        Moccasin: Color;
+        NavajoWhite: Color;
+        Navy: Color;
+        OldLace: Color;
+        Olive: Color;
+        OliveDrab: Color;
+        Orange: Color;
+        OrangeRed: Color;
+        Orchid: Color;
+        PaleGoldenrod: Color;
+        PaleGreen: Color;
+        PaleTurquoise: Color;
+        PaleVioletRed: Color;
+        PapayaWhip: Color;
+        PeachPuff: Color;
+        Peru: Color;
+        Pink: Color;
+        Plum: Color;
+        PowderBlue: Color;
+        Purple: Color;
+        Red: Color;
+        RosyBrown: Color;
+        RoyalBlue: Color;
+        SaddleBrown: Color;
+        Salmon: Color;
+        SandyBrown: Color;
+        SeaGreen: Color;
+        SeaShell: Color;
+        Sienna: Color;
+        Silver: Color;
+        SkyBlue: Color;
+        SlateBlue: Color;
+        SlateGray: Color;
+        Snow: Color;
+        SpringGreen: Color;
+        SteelBlue: Color;
+        Tan: Color;
+        Teal: Color;
+        Thistle: Color;
+        Tomato: Color;
+        Transparent: Color;
+        Turquoise: Color;
+        Violet: Color;
+        Wheat: Color;
+        White: Color;
+        WhiteSmoke: Color;
+        Yellow: Color;
+        YellowGreen: Color;
+    };
+}
+declare class Thickness implements ICloneable {
+    public Left: number;
+    public Top: number;
+    public Right: number;
+    public Bottom: number;
+    constructor(left?: number, top?: number, right?: number, bottom?: number);
+    public Plus(thickness2: Thickness): Thickness;
+    public IsEmpty(): boolean;
+    public IsBalanced(): boolean;
+    public toString(): string;
+    public Clone(): Thickness;
+    static Equals(thickness1: Thickness, thickness2: Thickness): boolean;
+}
+declare module Fayde.Media {
+    interface IBrushChangedListener {
+        Callback: (newBrush: Brush) => void;
+        Detach();
+    }
+    class Brush extends Fayde.DependencyObject {
+        static TransformProperty: DependencyProperty;
+        public Transform: Media.Transform;
+        private _CachedBounds;
+        private _CachedBrush;
+        private _Listeners;
+        constructor();
+        public SetupBrush(ctx: CanvasRenderingContext2D, bounds: rect): void;
+        public CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any;
+        public ToHtml5Object(): any;
+        public Listen(func: (newBrush: Brush) => void): IBrushChangedListener;
+        public InvalidateBrush(): void;
+        private _TransformListener;
+        private _TransformChanged(args);
+    }
+}
+declare module Fayde {
+    class TypeConverter {
+        private static _Converters;
+        static Register(type: any, converter: (str: string) => any): void;
+        static ConvertObject(propd: DependencyProperty, val: any, objectType: Function, doStringConversion: boolean);
+    }
+}
 declare module Fayde {
     class VisualTreeHelper {
         static GetParent(d: Fayde.DependencyObject): Fayde.DependencyObject;
@@ -3748,6 +3967,7 @@ declare module Fayde.Engine {
         private _Surface;
         private _KeyInterop;
         private _MouseInterop;
+        private _TouchInterop;
         private _Focus;
         private _State;
         private _Cursor;
@@ -3771,6 +3991,7 @@ declare module Fayde.Engine {
         public HandleMouseRelease(button: number, pos: Point): void;
         public HandleMouseEvent(type: Fayde.Input.MouseInputType, button: number, pos: Point, delta?: number, emitLeave?: boolean, emitEnter?: boolean): boolean;
         private _EmitMouseList(type, button, pos, delta, list, endIndex?);
+        public HitTestPoint(pos: Point): Fayde.UINode[];
         public UpdateCursorFromInputList(): void;
         public SetMouseCapture(uin: Fayde.UINode): boolean;
         public ReleaseMouseCapture(uin: Fayde.UINode): void;
@@ -3795,16 +4016,14 @@ declare module Fayde {
         public Restore(): void;
         public ClipRect(r: rect): void;
         public ClipGeometry(g: Fayde.Media.Geometry): void;
+        public ClipRawPath(p: any): void;
         public IsPointInPath(x: number, y: number): boolean;
-        public IsPointInStroke(pars: Fayde.Path.IStrokeParameters, x: number, y: number): boolean;
         public IsPointInClipPath(clip: Fayde.Media.Geometry, x: number, y: number): boolean;
         public Rect(r: rect): void;
         public Fill(brush: Fayde.Media.Brush, r: rect): void;
         public FillRect(brush: Fayde.Media.Brush, r: rect): void;
         public StrokeAndFillRect(strokeBrush: Fayde.Media.Brush, thickness: number, strokeRect: rect, fillBrush: Fayde.Media.Brush, fillRect: rect): void;
-        public SetupStroke(pars: Fayde.Path.IStrokeParameters, region?: rect): boolean;
-        public Stroke(stroke: Fayde.Media.Brush, pars: Fayde.Path.IStrokeParameters, region: rect): void;
-        public StrokeSimple(stroke: Fayde.Media.Brush, thickness: number, region: rect): void;
+        public Stroke(stroke: Fayde.Media.Brush, thickness: number, region: rect): void;
         public Clear(r: rect): void;
         public SetLineDash(offsets: number[]): void;
         public PreTransformMatrix(mat: number[]): void;
@@ -3856,7 +4075,7 @@ declare module Fayde {
         public FocusedNode : Fayde.UINode;
         public Focus(node: Fayde.Controls.ControlNode, recurse?: boolean): boolean;
         public RemoveFocusFrom(lu: Fayde.LayoutUpdater): void;
-        public HitTestPoint(newInputList: Fayde.UINode[], pos: Point): boolean;
+        public HitTestPoint(pos: Point): Fayde.UINode[];
         public SetMouseCapture(uin: Fayde.UINode): boolean;
         public ReleaseMouseCapture(uin: Fayde.UINode): void;
         static MeasureWidth(text: string, font: Font): number;
@@ -4401,27 +4620,6 @@ declare module Fayde.Media.Animation {
     }
 }
 declare module Fayde.Media {
-    interface IBrushChangedListener {
-        Callback: (newBrush: Brush) => void;
-        Detach();
-    }
-    class Brush extends Fayde.DependencyObject {
-        static TransformProperty: DependencyProperty;
-        public Transform: Media.Transform;
-        private _CachedBounds;
-        private _CachedBrush;
-        private _Listeners;
-        constructor();
-        public SetupBrush(ctx: CanvasRenderingContext2D, bounds: rect): void;
-        public CreateBrush(ctx: CanvasRenderingContext2D, bounds: rect): any;
-        public ToHtml5Object(): any;
-        public Listen(func: (newBrush: Brush) => void): IBrushChangedListener;
-        public InvalidateBrush(): void;
-        private _TransformListener;
-        private _TransformChanged(args);
-    }
-}
-declare module Fayde.Media {
     class GeneralTransform extends Fayde.DependencyObject {
         public Inverse: GeneralTransform;
         public Transform(p: Point): Point;
@@ -4460,167 +4658,6 @@ declare module Fayde.Media.Effects {
         public Radius: number;
     }
 }
-declare class Color implements ICloneable {
-    private static __NoAlphaRegex;
-    private static __AlphaRegex;
-    public R: number;
-    public G: number;
-    public B: number;
-    public A: number;
-    public Add(color2: Color): Color;
-    public Subtract(color2: Color): Color;
-    public Multiply(factor: number): Color;
-    public Equals(other: Color): boolean;
-    public toString(): string;
-    public ToHexStringNoAlpha(): string;
-    public Clone(): Color;
-    static LERP(start: Color, end: Color, p: number): Color;
-    static FromRgba(r: number, g: number, b: number, a: number): Color;
-    static FromHex(hex: string): Color;
-    static KnownColors: {
-        AliceBlue: Color;
-        AntiqueWhite: Color;
-        Aqua: Color;
-        Aquamarine: Color;
-        Azure: Color;
-        Beige: Color;
-        Bisque: Color;
-        Black: Color;
-        BlanchedAlmond: Color;
-        Blue: Color;
-        BlueViolet: Color;
-        Brown: Color;
-        BurlyWood: Color;
-        CadetBlue: Color;
-        Chartreuse: Color;
-        Chocolate: Color;
-        Coral: Color;
-        CornflowerBlue: Color;
-        Cornsilk: Color;
-        Crimson: Color;
-        Cyan: Color;
-        DarkBlue: Color;
-        DarkCyan: Color;
-        DarkGoldenrod: Color;
-        DarkGray: Color;
-        DarkGreen: Color;
-        DarkKhaki: Color;
-        DarkMagenta: Color;
-        DarkOliveGreen: Color;
-        DarkOrange: Color;
-        DarkOrchid: Color;
-        DarkRed: Color;
-        DarkSalmon: Color;
-        DarkSeaGreen: Color;
-        DarkSlateBlue: Color;
-        DarkSlateGray: Color;
-        DarkTurquoise: Color;
-        DarkViolet: Color;
-        DeepPink: Color;
-        DeepSkyBlue: Color;
-        DimGray: Color;
-        DodgerBlue: Color;
-        Firebrick: Color;
-        FloralWhite: Color;
-        ForestGreen: Color;
-        Fuchsia: Color;
-        Gainsboro: Color;
-        GhostWhite: Color;
-        Gold: Color;
-        Goldenrod: Color;
-        Gray: Color;
-        Green: Color;
-        GreenYellow: Color;
-        Honeydew: Color;
-        HotPink: Color;
-        IndianRed: Color;
-        Indigo: Color;
-        Ivory: Color;
-        Khaki: Color;
-        Lavender: Color;
-        LavenderBlush: Color;
-        LawnGreen: Color;
-        LemonChiffon: Color;
-        LightBlue: Color;
-        LightCoral: Color;
-        LightCyan: Color;
-        LightGoldenrodYellow: Color;
-        LightGray: Color;
-        LightGreen: Color;
-        LightPink: Color;
-        LightSalmon: Color;
-        LightSeaGreen: Color;
-        LightSkyBlue: Color;
-        LightSlateGray: Color;
-        LightSteelBlue: Color;
-        LightYellow: Color;
-        Lime: Color;
-        LimeGreen: Color;
-        Linen: Color;
-        Magenta: Color;
-        Maroon: Color;
-        MediumAquamarine: Color;
-        MediumBlue: Color;
-        MediumOrchid: Color;
-        MediumPurple: Color;
-        MediumSeaGreen: Color;
-        MediumSlateBlue: Color;
-        MediumSpringGreen: Color;
-        MediumTurquoise: Color;
-        MediumVioletRed: Color;
-        MidnightBlue: Color;
-        MintCream: Color;
-        MistyRose: Color;
-        Moccasin: Color;
-        NavajoWhite: Color;
-        Navy: Color;
-        OldLace: Color;
-        Olive: Color;
-        OliveDrab: Color;
-        Orange: Color;
-        OrangeRed: Color;
-        Orchid: Color;
-        PaleGoldenrod: Color;
-        PaleGreen: Color;
-        PaleTurquoise: Color;
-        PaleVioletRed: Color;
-        PapayaWhip: Color;
-        PeachPuff: Color;
-        Peru: Color;
-        Pink: Color;
-        Plum: Color;
-        PowderBlue: Color;
-        Purple: Color;
-        Red: Color;
-        RosyBrown: Color;
-        RoyalBlue: Color;
-        SaddleBrown: Color;
-        Salmon: Color;
-        SandyBrown: Color;
-        SeaGreen: Color;
-        SeaShell: Color;
-        Sienna: Color;
-        Silver: Color;
-        SkyBlue: Color;
-        SlateBlue: Color;
-        SlateGray: Color;
-        Snow: Color;
-        SpringGreen: Color;
-        SteelBlue: Color;
-        Tan: Color;
-        Teal: Color;
-        Thistle: Color;
-        Tomato: Color;
-        Transparent: Color;
-        Turquoise: Color;
-        Violet: Color;
-        Wheat: Color;
-        White: Color;
-        WhiteSmoke: Color;
-        Yellow: Color;
-        YellowGreen: Color;
-    };
-}
 declare module Fayde.Media.Effects {
     class DropShadowEffect extends Effects.Effect {
         static MAX_BLUR_RADIUS: number;
@@ -4651,11 +4688,11 @@ declare module Fayde.Media {
         static TransformProperty: DependencyProperty;
         public Transform: Media.Transform;
         constructor();
-        public GetBounds(pars?: Fayde.Path.IStrokeParameters): rect;
+        public GetBounds(thickness?: number): rect;
         public Draw(ctx: Fayde.RenderContext): void;
-        public ComputePathBounds(pars: Fayde.Path.IStrokeParameters): rect;
+        public ComputePathBounds(thickness: number): rect;
         public _InvalidateGeometry(): void;
-        public _Build(): Fayde.Path.RawPath;
+        public _Build(): Fayde.Shapes.RawPath;
         public Listen(listener: IGeometryListener): void;
         public Unlisten(listener: IGeometryListener): void;
         private _TransformListener;
@@ -4679,10 +4716,21 @@ declare module Fayde.Media {
         public Center: Point;
         public RadiusX: number;
         public RadiusY: number;
-        public _Build(): Fayde.Path.RawPath;
+        public _Build(): Fayde.Shapes.RawPath;
     }
 }
 declare module Fayde.Shapes {
+    enum PathEntryType {
+        Move = 0,
+        Line = 1,
+        Rect = 2,
+        Quadratic = 3,
+        Bezier = 4,
+        EllipticalArc = 5,
+        Arc = 6,
+        ArcTo = 7,
+        Close = 8,
+    }
     enum ShapeFlags {
         None = 0,
         Empty = 1,
@@ -4717,7 +4765,7 @@ declare module Fayde.Media {
         public FillRule: Fayde.Shapes.FillRule;
         public Children: Media.GeometryCollection;
         constructor();
-        public ComputePathBounds(pars: Fayde.Path.IStrokeParameters): rect;
+        public ComputePathBounds(thickness: number): rect;
         public Draw(ctx: Fayde.RenderContext): void;
         public GeometryChanged(newGeometry: Media.Geometry): void;
     }
@@ -4891,7 +4939,7 @@ declare module Fayde.Media {
         static EndPointProperty: DependencyProperty;
         public StartPoint: Point;
         public EndPoint: Point;
-        public _Build(): Fayde.Path.RawPath;
+        public _Build(): Fayde.Shapes.RawPath;
     }
 }
 declare module Fayde.Media {
@@ -5001,7 +5049,7 @@ declare module Fayde.Media {
         private InvalidatePathFigure();
         public Listen(listener: IPathFigureListener): void;
         public Unlisten(listener: IPathFigureListener): void;
-        public MergeInto(rp: Fayde.Path.RawPath): void;
+        public MergeInto(rp: Fayde.Shapes.RawPath): void;
     }
     class PathFigureCollection extends Fayde.XamlObjectCollection<PathFigure> implements IPathFigureListener {
         private _Listener;
@@ -5023,8 +5071,8 @@ declare module Fayde.Media {
         public FillRule: Fayde.Shapes.FillRule;
         public Figures: Media.PathFigureCollection;
         constructor();
-        public OverridePath(path: Fayde.Path.RawPath): void;
-        public _Build(): Fayde.Path.RawPath;
+        public OverridePath(path: Fayde.Shapes.RawPath): void;
+        public _Build(): Fayde.Shapes.RawPath;
         public PathFigureChanged(newPathFigure: Media.PathFigure): void;
     }
 }
@@ -5034,7 +5082,7 @@ declare module Fayde.Media {
     }
     class PathSegment extends Fayde.DependencyObject {
         private _Listener;
-        public _Append(path: Fayde.Path.RawPath): void;
+        public _Append(path: Fayde.Shapes.RawPath): void;
         public Listen(listener: IPathSegmentListener): void;
         public Unlisten(listener: IPathSegmentListener): void;
     }
@@ -5059,7 +5107,7 @@ declare module Fayde.Media {
         public RotationAngle: number;
         public Size: size;
         public SweepDirection: Fayde.Shapes.SweepDirection;
-        public _Append(path: Fayde.Path.RawPath): void;
+        public _Append(path: Fayde.Shapes.RawPath): void;
     }
     class BezierSegment extends Media.PathSegment {
         static Point1Property: DependencyProperty;
@@ -5068,12 +5116,12 @@ declare module Fayde.Media {
         public Point1: Point;
         public Point2: Point;
         public Point3: Point;
-        public _Append(path: Fayde.Path.RawPath): void;
+        public _Append(path: Fayde.Shapes.RawPath): void;
     }
     class LineSegment extends Media.PathSegment {
         static PointProperty: DependencyProperty;
         public Point: Point;
-        public _Append(path: Fayde.Path.RawPath): void;
+        public _Append(path: Fayde.Shapes.RawPath): void;
     }
     class PolyBezierSegment extends Media.PathSegment {
         static PointsProperty: ImmutableDependencyProperty;
@@ -5082,7 +5130,7 @@ declare module Fayde.Media {
         };
         public Points: Fayde.Shapes.PointCollection;
         constructor();
-        public _Append(path: Fayde.Path.RawPath): void;
+        public _Append(path: Fayde.Shapes.RawPath): void;
     }
     class PolyLineSegment extends Media.PathSegment {
         static PointsProperty: ImmutableDependencyProperty;
@@ -5091,7 +5139,7 @@ declare module Fayde.Media {
         };
         public Points: Fayde.Shapes.PointCollection;
         constructor();
-        public _Append(path: Fayde.Path.RawPath): void;
+        public _Append(path: Fayde.Shapes.RawPath): void;
     }
     class PolyQuadraticBezierSegment extends Media.PathSegment {
         static PointsProperty: ImmutableDependencyProperty;
@@ -5100,14 +5148,14 @@ declare module Fayde.Media {
         };
         public Points: Fayde.Shapes.PointCollection;
         constructor();
-        public _Append(path: Fayde.Path.RawPath): void;
+        public _Append(path: Fayde.Shapes.RawPath): void;
     }
     class QuadraticBezierSegment extends Media.PathSegment {
         static Point1Property: DependencyProperty;
         static Point2Property: DependencyProperty;
         public Point1: Point;
         public Point2: Point;
-        public _Append(path: Fayde.Path.RawPath): void;
+        public _Append(path: Fayde.Shapes.RawPath): void;
     }
 }
 declare module Fayde.Media {
@@ -5161,7 +5209,7 @@ declare module Fayde.Media {
         public Rect: rect;
         public RadiusX: number;
         public RadiusY: number;
-        public _Build(): Fayde.Path.RawPath;
+        public _Build(): Fayde.Shapes.RawPath;
     }
 }
 declare module Fayde.Media {
@@ -5395,17 +5443,6 @@ declare class Clip {
     public Height: number;
     constructor(r: rect);
 }
-declare class CornerRadius implements ICloneable {
-    public TopLeft: number;
-    public TopRight: number;
-    public BottomRight: number;
-    public BottomLeft: number;
-    constructor(topLeft?: number, topRight?: number, bottomRight?: number, bottomLeft?: number);
-    public IsZero(): boolean;
-    public Equals(other: CornerRadius): boolean;
-    public toString(): string;
-    public Clone(): CornerRadius;
-}
 declare enum DayOfWeek {
     Sunday,
     Monday,
@@ -5613,19 +5650,6 @@ declare class size implements ICloneable, ISize {
     static min(dest: size, other: size): size;
     static max(dest: size, other: size): size;
 }
-declare class Thickness implements ICloneable {
-    public Left: number;
-    public Top: number;
-    public Right: number;
-    public Bottom: number;
-    constructor(left?: number, top?: number, right?: number, bottom?: number);
-    public Plus(thickness2: Thickness): Thickness;
-    public IsEmpty(): boolean;
-    public IsBalanced(): boolean;
-    public toString(): string;
-    public Clone(): Thickness;
-    static Equals(thickness1: Thickness, thickness2: Thickness): boolean;
-}
 declare class TimeSpan {
     static _TicksPerMillisecond: number;
     static _TicksPerSecond: number;
@@ -5794,7 +5818,7 @@ declare module Fayde.Shapes {
         public _ShapeFlags: Shapes.ShapeFlags;
         private _StretchXform;
         private _NaturalBounds;
-        public _Path: Fayde.Path.RawPath;
+        public _Path: Shapes.RawPath;
         private _Fill;
         public _Stroke: Fayde.Media.Brush;
         static FillProperty: DependencyProperty;
@@ -5824,7 +5848,7 @@ declare module Fayde.Shapes {
         public _ArrangeOverride(finalSize: size, error: BError): size;
         public Render(ctx: Fayde.RenderContext, lu: Fayde.LayoutUpdater, region: rect): void;
         public _GetFillRule(): Shapes.FillRule;
-        public _BuildPath(): Fayde.Path.RawPath;
+        public _BuildPath(): Shapes.RawPath;
         public _DrawPath(ctx: Fayde.RenderContext): void;
         public ComputeActualSize(baseComputer: () => size, lu: Fayde.LayoutUpdater);
         public _ComputeStretchBounds(): rect;
@@ -5841,13 +5865,12 @@ declare module Fayde.Shapes {
         private _StretchChanged(args);
         public _WidthChanged(args: IDependencyPropertyChangedEventArgs): void;
         public _HeightChanged(args: IDependencyPropertyChangedEventArgs): void;
-        private _CreateStrokeParameters(logical?);
     }
 }
 declare module Fayde.Shapes {
     class Ellipse extends Shapes.Shape {
         constructor();
-        public _BuildPath(): Fayde.Path.RawPath;
+        public _BuildPath(): Shapes.RawPath;
         public _ComputeStretchBounds(): rect;
         public _ComputeShapeBounds(logical: boolean): rect;
         public _ComputeShapeBoundsImpl(logical: boolean, matrix?: any): rect;
@@ -5863,18 +5886,20 @@ declare module Fayde.Shapes {
         public Y1: number;
         public X2: number;
         public Y2: number;
-        public _BuildPath(): Fayde.Path.RawPath;
+        public _BuildPath(): Shapes.RawPath;
         public _ComputeShapeBounds(logical: boolean): rect;
     }
 }
 declare module Fayde.Shapes {
-    class Path extends Shapes.Shape {
+    class Path extends Shapes.Shape implements Fayde.Media.IGeometryListener {
         private static _DataCoercer(d, propd, value);
         static DataProperty: DependencyProperty;
         public Data: Fayde.Media.Geometry;
         public _GetFillRule(): Shapes.FillRule;
         public _DrawPath(ctx: Fayde.RenderContext): void;
         public _ComputeShapeBoundsImpl(logical: boolean, matrix?: number[]): rect;
+        private _OnDataChanged(args);
+        public GeometryChanged(newGeometry: Fayde.Media.Geometry): void;
     }
 }
 declare module Fayde.Shapes {
@@ -5906,7 +5931,7 @@ declare module Fayde.Shapes {
         public Points: Shapes.PointCollection;
         constructor();
         private _PointsChanged(args);
-        public _BuildPath(): Fayde.Path.RawPath;
+        public _BuildPath(): Shapes.RawPath;
         private _FillRuleChanged(args);
     }
 }
@@ -5919,8 +5944,53 @@ declare module Fayde.Shapes {
         public Points: Shapes.PointCollection;
         constructor();
         private _PointsChanged(args);
-        public _BuildPath(): Fayde.Path.RawPath;
+        public _BuildPath(): Shapes.RawPath;
         private _FillRuleChanged(args);
+    }
+}
+declare module Fayde.Shapes {
+    interface IRange {
+        min: number;
+        max: number;
+    }
+    interface IPointRange {
+        xMin: number;
+        xMax: number;
+        yMin: number;
+        yMax: number;
+    }
+    interface IPathEntry {
+        type: Shapes.PathEntryType;
+    }
+    class RawPath {
+        private _Path;
+        private _EndX;
+        private _EndY;
+        public EndX : number;
+        public EndY : number;
+        public Move(x: number, y: number): void;
+        public Line(x: number, y: number): void;
+        public Rect(x: number, y: number, width: number, height: number): void;
+        public RoundedRectFull(left: number, top: number, width: number, height: number, topLeft: number, topRight: number, bottomRight: number, bottomLeft: number): void;
+        public RoundedRect(left: number, top: number, width: number, height: number, radiusX: number, radiusY: number): void;
+        public Quadratic(cpx: number, cpy: number, x: number, y: number): void;
+        public Bezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void;
+        public Ellipse(x: number, y: number, width: number, height: number): void;
+        public EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Shapes.SweepDirection, ex: number, ey: number): void;
+        public Arc(x: number, y: number, r: number, sAngle: number, eAngle: number, aClockwise: boolean): void;
+        public ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number): void;
+        public Close(): void;
+        public DrawRenderCtx(ctx: Fayde.RenderContext): void;
+        public DrawCanvasCtx(canvasCtx: CanvasRenderingContext2D): void;
+        public CalculateBounds(thickness: number): rect;
+        private static _CalculateQuadraticBezierRange(a, b, c);
+        private static _CalculateCubicBezierRange(a, b, c, d);
+        private static _CalculateArcRange(cx, cy, r, sa, ea, cc);
+        private static _CalculateArcToRange(sx, sy, cpx, cpy, ex, ey, r);
+        private static _CalculateArcPointsRange(cx, cy, sx, sy, ex, ey, r, cc);
+        private static _ArcContainsPoint(sx, sy, ex, ey, cpx, cpy, cc);
+        static Merge(path1: RawPath, path2: RawPath): void;
+        public Serialize(): string;
     }
 }
 declare module Fayde.Shapes {
@@ -5930,7 +6000,7 @@ declare module Fayde.Shapes {
         public RadiusX: number;
         public RadiusY: number;
         constructor();
-        public _BuildPath(): Fayde.Path.RawPath;
+        public _BuildPath(): Shapes.RawPath;
         public _ComputeShapeBounds(logical: boolean): rect;
         public _ComputeShapeBoundsImpl(logical: boolean, matrix?): rect;
         public _ComputeStretchBounds(): rect;
@@ -6120,186 +6190,135 @@ declare module Fayde.Text {
         private _GetDescendOverride();
     }
 }
-declare module Fayde.Controls {
-    class HeaderedContentControl extends Controls.ContentControl {
-        static HeaderProperty: DependencyProperty;
-        public Header: any;
-        static HeaderTemplateProperty: DependencyProperty;
-        public HeaderTemplate: Fayde.DataTemplate;
-        constructor();
-        public OnHeaderChanged(oldHeader: any, newHeader: any): void;
-        public OnHeaderTemplateChanged(oldHeaderTemplate: Fayde.DataTemplate, newHeaderTemplate: Fayde.DataTemplate): void;
+declare module Fayde.Input {
+    interface ITouchDevice {
+        Identifier: number;
+        Captured: Fayde.UIElement;
+        Capture(uie: Fayde.UIElement): boolean;
+        ReleaseCapture(uie: Fayde.UIElement);
+        GetTouchPoint(relativeTo: Fayde.UIElement): Input.TouchPoint;
+    }
+    enum TouchInputType {
+        NoOp = 0,
+        TouchDown = 1,
+        TouchUp = 2,
+        TouchMove = 3,
+        TouchEnter = 4,
+        TouchLeave = 5,
+    }
+    interface ITouchInterop {
+        Register(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement);
+    }
+    function CreateTouchInterop(): ITouchInterop;
+}
+declare module Fayde.Input {
+    class TouchEventArgs extends Fayde.RoutedEventArgs {
+        public Device: Input.ITouchDevice;
+        constructor(device: Input.ITouchDevice);
+        public GetTouchPoint(relativeTo: Fayde.UIElement): Input.TouchPoint;
     }
 }
-declare module Fayde.Path {
-    interface IArc extends Path.IPathEntry {
-        x: number;
-        y: number;
-        radius: number;
-        sAngle: number;
-        eAngle: number;
-        aClockwise: boolean;
+declare module Fayde.Input {
+    class TouchPoint {
+        public Position: Point;
+        public Force: number;
+        constructor(position: Point, force: number);
     }
-    function Arc(x: number, y: number, radius: number, sa: number, ea: number, cc: boolean): IArc;
 }
-declare function radToDegrees(rad): number;
-declare module Fayde.Path {
-    interface IArcTo extends Path.IPathEntry {
-        cpx: number;
-        cpy: number;
-        x: number;
-        y: number;
-        radius: number;
-    }
-    function ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number): IArcTo;
+interface Touch {
+    identifier: number;
+    target: EventTarget;
+    screenX: number;
+    screenY: number;
+    clientX: number;
+    clientY: number;
+    pageX: number;
+    pageY: number;
+    radiusX: number;
+    radiusY: number;
+    rotationAngle: number;
+    force: number;
 }
-declare module Fayde.Path {
-    interface IClose extends Path.IPathEntry {
-        isClose: boolean;
-    }
-    function Close(): IClose;
+interface TouchList {
+    length: number;
+    item(index: number): Touch;
+    identifiedTouch(identifier: number): Touch;
 }
-declare module Fayde.Path {
-    interface ICubicBezier extends Path.IPathEntry {
-        cp1x: number;
-        cp1y: number;
-        cp2x: number;
-        cp2y: number;
-        x: number;
-        y: number;
-    }
-    function CubicBezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): ICubicBezier;
+interface TouchEvent extends UIEvent {
+    touches: TouchList;
+    targetTouches: TouchList;
+    changedTouches: TouchList;
+    altKey: boolean;
+    metaKey: boolean;
+    ctrlKey: boolean;
+    shiftKey: boolean;
+    initTouchEvent(type: string, canBubble: boolean, cancelable: boolean, view: any, detail: number, ctrlKey: boolean, altKey: boolean, shiftKey: boolean, metaKey: boolean, touches: TouchList, targetTouches: TouchList, changedTouches: TouchList);
 }
-declare module Fayde.Path {
-    interface IEllipticalArc extends Path.IPathEntry {
-        width: number;
-        height: number;
-        rotationAngle: number;
-        isLargeArcFlag: boolean;
-        sweepDirectionFlag: Fayde.Shapes.SweepDirection;
-        ex: number;
-        ey: number;
+declare module Fayde.Input.TouchInternal {
+    interface ITouchHandler {
+        HandleTouches(type: Input.TouchInputType, touches: ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
     }
-    function EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Fayde.Shapes.SweepDirection, ex: number, ey: number): IEllipticalArc;
+    class ActiveTouchBase {
+        public Identifier: number;
+        public Position: Point;
+        public Device: Input.ITouchDevice;
+        public InputList: Fayde.UINode[];
+        private _IsEmitting;
+        private _PendingCapture;
+        private _PendingReleaseCapture;
+        private _Captured;
+        private _CapturedInputList;
+        private _FinishReleaseCaptureFunc;
+        constructor(touchHandler: ITouchHandler);
+        public Capture(uie: Fayde.UIElement): boolean;
+        public ReleaseCapture(uie: Fayde.UIElement): void;
+        private _PerformCapture(uin);
+        private _PerformReleaseCapture();
+        public Emit(type: Input.TouchInputType, newInputList: Fayde.UINode[], emitLeave?: boolean, emitEnter?: boolean): boolean;
+        private _EmitList(type, list, endIndex?);
+        public GetTouchPoint(relativeTo: Fayde.UIElement): Input.TouchPoint;
+        public CreateTouchPoint(p: Point): Input.TouchPoint;
+        private CreateTouchDevice();
+    }
 }
-declare module Fayde.Path {
-    interface ILine extends Path.IPathEntry {
-        x: number;
-        y: number;
+declare module Fayde.Input.TouchInternal {
+    interface IOffset {
+        left: number;
+        top: number;
     }
-    function Line(x: number, y: number): ILine;
+    class TouchInteropBase implements Input.ITouchInterop, TouchInternal.ITouchHandler {
+        public Input: Fayde.Engine.InputManager;
+        public CanvasOffset: IOffset;
+        public ActiveTouches: TouchInternal.ActiveTouchBase[];
+        public CoordinateOffset : IOffset;
+        public Register(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement): void;
+        private _CalcOffset(canvas);
+        public HandleTouches(type: Input.TouchInputType, touches: TouchInternal.ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
+    }
 }
-declare module Fayde.Path {
-    interface IMove extends Path.IPathEntry {
-        x: number;
-        y: number;
-        isMove: boolean;
+declare module Fayde.Input.TouchInternal {
+    class PointerTouchInterop extends TouchInternal.TouchInteropBase {
+        public Register(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement): void;
+        private _HandlePointerDown(e);
+        private _HandlePointerUp(e);
+        private _HandlePointerMove(e);
+        private _HandlePointerEnter(e);
+        private _HandlePointerLeave(e);
+        private GetActiveTouch(e);
+        private FindTouchInList(identifier);
     }
-    function Move(x: number, y: number): IMove;
 }
-declare module Fayde.Path {
-    interface IQuadraticBezier extends Path.IPathEntry {
-        cpx: number;
-        cpy: number;
-        x: number;
-        y: number;
+declare module Fayde.Input.TouchInternal {
+    class NonPointerTouchInterop extends TouchInternal.TouchInteropBase {
+        public Register(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement): void;
+        private _HandleTouchStart(e);
+        private _HandleTouchEnd(e);
+        private _HandleTouchMove(e);
+        private _HandleTouchEnter(e);
+        private _HandleTouchLeave(e);
+        private TouchArrayFromList(list);
+        private FindTouchInList(identifier);
     }
-    function QuadraticBezier(cpx: number, cpy: number, x: number, y: number): IQuadraticBezier;
-}
-declare module Fayde.Path {
-    interface IRect extends Path.IPathEntry {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-    }
-    function Rect(x: number, y: number, width: number, height: number): IRect;
-}
-declare module Fayde.Path {
-    interface IStrokeParameters {
-        thickness: number;
-        join: Fayde.Shapes.PenLineJoin;
-        startCap: Fayde.Shapes.PenLineCap;
-        endCap: Fayde.Shapes.PenLineCap;
-        miterLimit: number;
-    }
-    interface IBoundingBox {
-        l: number;
-        r: number;
-        t: number;
-        b: number;
-    }
-    interface IPathEntry {
-        sx: number;
-        sy: number;
-        ex: number;
-        ey: number;
-        isSingle: boolean;
-        draw: (canvasCtx: CanvasRenderingContext2D) => void;
-        extendFillBox: (box: IBoundingBox) => void;
-        extendStrokeBox: (box: IBoundingBox, pars: IStrokeParameters) => void;
-        getStartVector(): number[];
-        getEndVector(): number[];
-    }
-    class RawPath {
-        private _Path;
-        private _EndX;
-        private _EndY;
-        public EndX : number;
-        public EndY : number;
-        public Move(x: number, y: number): void;
-        public Line(x: number, y: number): void;
-        public Rect(x: number, y: number, width: number, height: number): void;
-        public RoundedRectFull(x: number, y: number, width: number, height: number, topLeft: number, topRight: number, bottomRight: number, bottomLeft: number): void;
-        public RoundedRect(x: number, y: number, width: number, height: number, radiusX: number, radiusY: number): void;
-        public QuadraticBezier(cpx: number, cpy: number, x: number, y: number): void;
-        public CubicBezier(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void;
-        public Ellipse(x: number, y: number, width: number, height: number): void;
-        public EllipticalArc(width: number, height: number, rotationAngle: number, isLargeArcFlag: boolean, sweepDirectionFlag: Fayde.Shapes.SweepDirection, ex: number, ey: number): void;
-        public Arc(x: number, y: number, r: number, sAngle: number, eAngle: number, aClockwise: boolean): void;
-        public ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number): void;
-        public Close(): void;
-        public DrawRenderCtx(ctx: Fayde.RenderContext): void;
-        public DrawCanvasCtx(canvasCtx: CanvasRenderingContext2D): void;
-        public CalculateBounds(pars?: IStrokeParameters): rect;
-        private _CalcFillBox();
-        private _CalcStrokeBox(pars);
-        static Merge(path1: RawPath, path2: RawPath): void;
-        public Serialize(): string;
-    }
-    function findMiterTips(previous: IPathEntry, entry: IPathEntry, hs: number, miterLimit: number): {
-        x: number;
-        y: number;
-    }[];
-    function findBevelTips(previous: IPathEntry, entry: IPathEntry, hs: number): {
-        x: number;
-        y: number;
-    }[];
-}
-declare module Fayde.Path {
-    function RectRounded(x: number, y: number, width: number, height: number, radiusX: number, radiusY: number): IRect;
-}
-declare module Fayde.Path {
-    function RectRoundedFull(x: number, y: number, width: number, height: number, topLeft: number, topRight: number, bottomRight: number, bottomLeft: number): IRect;
-}
-declare module Fayde.Path {
-    interface IEllipse extends Path.IPathEntry {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-    }
-    function Ellipse(x: number, y: number, width: number, height: number): IEllipse;
-}
-declare module Vector {
-    function create(x: number, y: number): number[];
-    function reverse(v: number[]): number[];
-    function orthogonal(v: number[]): number[];
-    function normalize(v: number[]): number[];
-    function rotate(v: number[], theta: number): number[];
-    function angleBetween(u: number[], v: number[]): number;
-    function isClockwiseTo(v1: number[], v2: number[]): boolean;
-    function intersection(s1: number[], d1: number[], s2: number[], d2: number[]): number[];
 }
 declare module Fayde.Xaml {
     class Library extends Fayde.DependencyObject implements Fayde.Runtime.ILoadAsyncable {

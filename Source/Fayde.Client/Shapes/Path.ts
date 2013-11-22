@@ -1,14 +1,14 @@
 /// <reference path="Shape.ts" />
 
 module Fayde.Shapes {
-    export class Path extends Shape {
+    export class Path extends Shape implements Media.IGeometryListener {
         private static _DataCoercer(d: DependencyObject, propd: DependencyProperty, value: any): any {
             if (typeof value === "string")
                 return Media.ParseGeometry(value);
             return value;
         }
         // Path.Data Description: http://msdn.microsoft.com/en-us/library/system.windows.shapes.path.data(v=vs.95).aspx
-        static DataProperty: DependencyProperty = DependencyProperty.RegisterFull("Data", () => Media.Geometry, Path, undefined, (d, args) => (<Shape>d)._InvalidateNaturalBounds(), Path._DataCoercer);
+        static DataProperty: DependencyProperty = DependencyProperty.RegisterFull("Data", () => Media.Geometry, Path, undefined, (d, args) => (<Path>d)._OnDataChanged(args), Path._DataCoercer, undefined, undefined, false);
         Data: Media.Geometry;
 
         _GetFillRule(): FillRule {
@@ -41,6 +41,19 @@ module Fayde.Shapes {
                 miterLimit: this.StrokeMiterLimit
             };
             return geom.GetBounds(pars);
+        }
+
+        private _OnDataChanged(args: IDependencyPropertyChangedEventArgs) {
+            var old = args.OldValue;
+            if (old instanceof Media.Geometry)
+                (<Media.Geometry>old).Unlisten(this);
+            this.GeometryChanged(args.NewValue);
+            var n = args.NewValue;
+            if (n instanceof Media.Geometry)
+                (<Media.Geometry>n).Listen(this);
+        }
+        GeometryChanged(newGeometry: Media.Geometry) {
+            this._InvalidateNaturalBounds();
         }
     }
     Fayde.RegisterType(Path, {
