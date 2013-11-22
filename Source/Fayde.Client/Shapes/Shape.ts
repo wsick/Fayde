@@ -99,14 +99,13 @@ module Fayde.Shapes {
             var ret = false;
             ctx.Save();
             ctx.PreTransformMatrix(this._StretchXform);
-            if (this._Fill != null) {
+            if (this._Fill || this._Stroke) {
                 this._DrawPath(ctx);
-                if (ctx.IsPointInPath(x, y))
-                    ret = true;
-            }
-            if (!ret && this._Stroke != null) {
-                if (window.console && console.warn)
-                    console.warn("Shape._InsideShape-Stroke");
+                if (this._Fill) {
+                    ret = ret || ctx.IsPointInPath(x, y);
+                } else if (!ret) {
+                    ret = ret || ctx.IsPointInStroke(this._CreateStrokeParameters(), x, y);
+                }
             }
             ctx.Restore();
             return ret;
@@ -218,8 +217,6 @@ module Fayde.Shapes {
             if (this._Fill != null)
                 ctx.Fill(this._Fill, area);
             ctx.Stroke(this._Stroke, this._CreateStrokeParameters(), area);
-            //if (this._Stroke != null)
-                //ctx.Stroke(this._Stroke, this.StrokeThickness, area);
             ctx.Restore();
         }
 

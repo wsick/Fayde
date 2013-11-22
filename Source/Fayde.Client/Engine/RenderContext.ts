@@ -75,6 +75,12 @@ module Fayde {
         IsPointInPath(x: number, y: number): boolean {
             return this.CanvasContext.isPointInPath(x, y);
         }
+        IsPointInStroke(pars: Path.IStrokeParameters, x: number, y: number): boolean {
+            if (!pars) return;
+            this.SetupStroke(pars);
+            var ctx = this.CanvasContext;
+            return (<any>ctx).isPointInStoke && (<any>ctx).isPointInStoke(x, y);
+        }
         IsPointInClipPath(clip: Media.Geometry, x: number, y: number): boolean {
             clip.Draw(this);
             //DrawDebug("DrawClip (Geometry): " + clip.toString());
@@ -116,16 +122,22 @@ module Fayde {
             cc.stroke();
             //DrawDebug("StrokeAndFillRect: [" + cc.strokeStyle.toString() + "] [" + cc.fillStyle.toString() + "] " + strokeRect.toString());
         }
+        SetupStroke(pars: Fayde.Path.IStrokeParameters, region?: rect): boolean {
+            if (!pars) return false;
+            var ctx = this.CanvasContext;
+            ctx.lineWidth = pars.thickness;
+            ctx.lineCap = caps[pars.startCap || pars.endCap || 0] || caps[0];
+            ctx.lineJoin = joins[pars.join || 0] || joins[0];
+            ctx.miterLimit = pars.miterLimit;
+            return true;
+        }
         Stroke(stroke: Media.Brush, pars: Fayde.Path.IStrokeParameters, region: rect) {
-            if (!stroke || !pars) return;
-            var cc = this.CanvasContext;
-            stroke.SetupBrush(cc, region);
-            cc.lineWidth = pars.thickness;
-            cc.lineCap = caps[pars.startCap || pars.endCap || 0] || caps[0];
-            cc.lineJoin = joins[pars.join || 0] || joins[0];
-            cc.miterLimit = pars.miterLimit;
-            cc.strokeStyle = stroke.ToHtml5Object();
-            cc.stroke();
+            if (!this.SetupStroke(pars) || !region)
+                return;
+            var ctx = this.CanvasContext;
+            stroke.SetupBrush(ctx, region);
+            ctx.strokeStyle = stroke.ToHtml5Object();
+            this.CanvasContext.stroke();
         }
         StrokeSimple(stroke: Media.Brush, thickness: number, region: rect) {
             var cc = this.CanvasContext;
