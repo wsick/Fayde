@@ -77,6 +77,8 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ListBoxMonitor.cs" />
+    <Compile Include="Controls\VirtualizingStackPanelMonitor.cs" />
     <Compile Include="Tests\BorderTest.xaml.cs">
       <DependentUpon>BorderTest.xaml</DependentUpon>
     </Compile>
@@ -85,6 +87,9 @@
     </Compile>
     <Compile Include="Tests\ContentPresenterTest.xaml.cs">
       <DependentUpon>ContentPresenterTest.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Tests\DoubleListBox.xaml.cs">
+      <DependentUpon>DoubleListBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="Tests\ImageBrushTest.xaml.cs">
       <DependentUpon>ImageBrushTest.xaml</DependentUpon>
@@ -139,6 +144,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Tests\ContentPresenterTest.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Tests\DoubleListBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -224,6 +233,7 @@
   <ItemGroup>
     <Resource Include="testing.jpg" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
