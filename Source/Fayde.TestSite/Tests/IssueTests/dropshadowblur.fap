@@ -18,5 +18,10 @@
                 <DropShadowEffect BlurRadius="0" ShadowDepth="20" Color="Black" />
             </Border.Effect>
         </Border>
+        <Image Grid.Column="0" Margin="-20, 0, 0, 0" Width="200" Source="../Images/calvin_johnson.png">
+            <Image.Effect>
+                <DropShadowEffect BlurRadius="20" ShadowDepth="20" Color="#2B2F33"/>
+            </Image.Effect>
+        </Image>
     </StackPanel>
 </Application>
