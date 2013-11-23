@@ -3938,6 +3938,7 @@ var Fayde;
 var Fayde;
 (function (Fayde) {
     (function (Text) {
+        var isFirefox = /firefox/i.test(navigator.userAgent);
         var TextLayoutGlyphCluster = (function () {
             function TextLayoutGlyphCluster(text, font, selected) {
                 this._Selected = false;
@@ -3976,8 +3977,13 @@ var Fayde;
                 }
                 canvasCtx.font = font.ToHtml5Object();
                 canvasCtx.textAlign = "left";
-                canvasCtx.textBaseline = "top";
-                canvasCtx.fillText(this._Text, 0, 0);
+                if (isFirefox) {
+                    canvasCtx.textBaseline = "bottom";
+                    canvasCtx.fillText(this._Text, 0, fontHeight);
+                } else {
+                    canvasCtx.textBaseline = "top";
+                    canvasCtx.fillText(this._Text, 0, 0);
+                }
                 if (attrs.IsUnderlined) {
                     canvasCtx.beginPath();
                     canvasCtx.moveTo(0, fontHeight);

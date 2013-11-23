@@ -14,6 +14,7 @@ module Fayde.Text {
         Font: Font;
     }
 
+    var isFirefox = /firefox/i.test(navigator.userAgent);
     export class TextLayoutGlyphCluster {
         private _Text: string;
         private _Selected: boolean = false;
@@ -56,9 +57,13 @@ module Fayde.Text {
             }
             canvasCtx.font = font.ToHtml5Object();
             canvasCtx.textAlign = "left";
-            canvasCtx.textBaseline = "top";
-            canvasCtx.fillText(this._Text, 0, 0);
-            //DrawDebug("Text: " + this._Text + " [" + canvasCtx.fillStyle.toString() + "]");
+            if (isFirefox) {
+                canvasCtx.textBaseline = "bottom";
+                canvasCtx.fillText(this._Text, 0, fontHeight);
+            } else {
+                canvasCtx.textBaseline = "top";
+                canvasCtx.fillText(this._Text, 0, 0);
+            }
 
             if (attrs.IsUnderlined) {
                 canvasCtx.beginPath();
