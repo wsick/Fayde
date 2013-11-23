@@ -1,9 +1,12 @@
 /// <reference path="../../../jsbin/Fayde.d.ts" />
 
 module Tests.IssueTests {
+    import RelayCommand = Fayde.MVVM.RelayCommand;
+
     export class DoubleListBoxViewModel extends Fayde.MVVM.ViewModelBase {
         AllItems = new Fayde.Collections.ObservableCollection<any>();
-        RemoveFirstItemCommand: Fayde.MVVM.RelayCommand;
+        AddItemCommand: RelayCommand;
+        RemoveFirstItemCommand: RelayCommand;
         constructor() {
             super();
             for (var i = 0; i < 6; i++) {
@@ -13,9 +16,16 @@ module Tests.IssueTests {
                 ni.SubItems.AddRange([1, 2, 3, 4, 5]);
                 this.AllItems.Add(ni);
             }
-            this.RemoveFirstItemCommand = new Fayde.MVVM.RelayCommand(() => this.RemoveFirst());
+            this.AddItemCommand = new RelayCommand(() => this.Add());
+            this.RemoveFirstItemCommand = new RelayCommand(() => this.RemoveFirst());
         }
 
+        private Add() {
+            if (this.AllItems.Count < 1)
+                return;
+            var first = this.AllItems.GetValueAt(0);
+            first.SubItems.Add(first.SubItems.Count);
+        }
         private RemoveFirst() {
             if (this.AllItems.Count < 1)
                 return;

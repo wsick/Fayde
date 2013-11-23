@@ -15,6 +15,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="100" />
             <ColumnDefinition />
+            <ColumnDefinition Width="100" />
         </Grid.ColumnDefinitions>
         <ListBox ItemsSource="{Binding AllItems}">
             <ListBox.ItemTemplate>
@@ -25,10 +26,29 @@
                                 <TextBlock Text="{Binding}" />
                             </DataTemplate>
                         </ListBox.ItemTemplate>
+                        <!--
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        -->
                     </ListBox>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Button Grid.Column="1" Content="Remove First Item" Margin="10,0,0,0" Command="{Binding RemoveFirstItemCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" />
+        <StackPanel Grid.Column="1">
+            <Button Content="Add Item" Margin="10,0,0,0" Command="{Binding AddItemCommand}" Width="150" />
+            <Button Content="Remove First Item" Margin="10,0,0,0" Command="{Binding RemoveFirstItemCommand}" Width="150" />
+        </StackPanel>
+        <StackPanel Grid.Column="2" Orientation="Vertical">
+            <ListBox ItemsSource="{Binding AllItems[0].SubItems}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
     </Grid>
 </Application>

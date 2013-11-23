@@ -8,6 +8,8 @@ var Tests;
 (function (Tests) {
     /// <reference path="../../../jsbin/Fayde.d.ts" />
     (function (IssueTests) {
+        var RelayCommand = Fayde.MVVM.RelayCommand;
+
         var DoubleListBoxViewModel = (function (_super) {
             __extends(DoubleListBoxViewModel, _super);
             function DoubleListBoxViewModel() {
@@ -21,10 +23,19 @@ var Tests;
                     ni.SubItems.AddRange([1, 2, 3, 4, 5]);
                     this.AllItems.Add(ni);
                 }
-                this.RemoveFirstItemCommand = new Fayde.MVVM.RelayCommand(function () {
+                this.AddItemCommand = new RelayCommand(function () {
+                    return _this.Add();
+                });
+                this.RemoveFirstItemCommand = new RelayCommand(function () {
                     return _this.RemoveFirst();
                 });
             }
+            DoubleListBoxViewModel.prototype.Add = function () {
+                if (this.AllItems.Count < 1)
+                    return;
+                var first = this.AllItems.GetValueAt(0);
+                first.SubItems.Add(first.SubItems.Count);
+            };
             DoubleListBoxViewModel.prototype.RemoveFirst = function () {
                 if (this.AllItems.Count < 1)
                     return;
