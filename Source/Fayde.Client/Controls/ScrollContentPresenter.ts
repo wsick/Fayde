@@ -2,7 +2,7 @@
 /// <reference path="Primitives/IScrollInfo.ts" />
 
 module Fayde.Controls {
-    export class ScrollContentPresenter extends ContentPresenter implements Primitives.IScrollInfo, IMeasurableHidden, IArrangeableHidden {
+    export class ScrollContentPresenter extends ContentPresenter implements Primitives.IScrollInfo {
         private _ScrollData: Primitives.ScrollData = new Primitives.ScrollData();
         private _IsClipPropertySet: boolean = false;
         private _ClippingRectangle: Media.RectangleGeometry = null;
@@ -129,7 +129,7 @@ module Fayde.Controls {
             var scrollOwner = this.ScrollOwner;
             var cr = (<ContentPresenterNode>this.XamlNode).ContentRoot;
             if (!scrollOwner || !cr)
-                return (<IMeasurableHidden>super)._MeasureOverride.call(this, availableSize, error);
+                return super._MeasureOverride.call(this, availableSize, error);
 
             var ideal = size.createInfinite();
             if (!this.CanHorizontallyScroll)
@@ -151,7 +151,7 @@ module Fayde.Controls {
             var scrollOwner = this.ScrollOwner;
             var cr = (<ContentPresenterNode>this.XamlNode).ContentRoot;
             if (!scrollOwner || !cr)
-                return (<IArrangeableHidden>super)._ArrangeOverride.call(this, finalSize, error);
+                return super._ArrangeOverride.call(this, finalSize, error);
 
             if (this._ClampOffsets())
                 scrollOwner.InvalidateScrollInfo();

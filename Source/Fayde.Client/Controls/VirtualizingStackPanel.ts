@@ -196,22 +196,23 @@ module Fayde.Controls {
             var beyond = 0;
 
             var index: number;
+            var constraint = availableSize.Clone();
+            var scrollOwner = this.ScrollOwner;
             var isHorizontal = this.Orientation === Orientation.Horizontal;
-            if (isHorizontal)
+            if (isHorizontal) {
+                if (scrollOwner && this._CanVerticallyScroll)
+                    constraint.Height = Number.POSITIVE_INFINITY;
                 index = Math.floor(this._HorizontalOffset);
-            else
+            } else {
+                if (scrollOwner && this._CanHorizontallyScroll)
+                    constraint.Width = Number.POSITIVE_INFINITY;
                 index = Math.floor(this._VerticalOffset);
+            }
 
             var itemCount = owner.Items.Count;
             var generator = this.ItemContainerGenerator;
             if (itemCount > 0) {
                 var children = this.Children;
-                var childAvailable = size.copyTo(availableSize);
-                if (this._CanHorizontallyScroll || isHorizontal)
-                    childAvailable.Width = Number.POSITIVE_INFINITY;
-                if (this._CanVerticallyScroll || !isHorizontal)
-                    childAvailable.Height = Number.POSITIVE_INFINITY;
-
                 var start = generator.GeneratorPositionFromIndex(index);
                 var insertAt = (start.Offset === 0) ? start.Index : start.Index + 1;
 
@@ -232,20 +233,18 @@ module Fayde.Controls {
                             generator.PrepareItemContainer(child);
                         }
 
-                        child.Measure(childAvailable);
+                        child.Measure(size.copyTo(constraint));
                         var s = childlu.DesiredSize;
                         nvisible++;
 
                         if (!isHorizontal) {
                             measured.Width = Math.max(measured.Width, s.Width);
                             measured.Height += s.Height;
-
                             if (measured.Height > availableSize.Height)
                                 beyond++;
                         } else {
                             measured.Height = Math.max(measured.Height, s.Height);
                             measured.Width += s.Width;
-
                             if (measured.Width > availableSize.Width)
                                 beyond++;
                         }
@@ -255,12 +254,11 @@ module Fayde.Controls {
                 }
             }
 
-            VirtualizingStackPanel.SetIsVirtualizing(owner, true);
-
             if (nvisible > 0)
                 this.RemoveUnusedContainers(index, nvisible);
             nvisible -= beyond;
 
+            itemCount = owner.Items.Count;
             if (!isHorizontal) {
                 if (this._ExtentHeight !== itemCount) {
                     this._ExtentHeight = itemCount;
@@ -274,8 +272,8 @@ module Fayde.Controls {
                     this._ViewportHeight = nvisible;
                     invalidate = true;
                 }
-                if (this._ViewportWidth != availableSize.Width) {
-                    this._ViewportWidth = availableSize.Width;
+                if (this._ViewportWidth !== constraint.Width) {
+                    this._ViewportWidth = constraint.Width;
                     invalidate = true;
                 }
             } else {
@@ -289,8 +287,8 @@ module Fayde.Controls {
                     invalidate = true;
                 }
 
-                if (this._ViewportHeight !== availableSize.Height) {
-                    this._ViewportHeight = availableSize.Height;
+                if (this._ViewportHeight !== constraint.Height) {
+                    this._ViewportHeight = constraint.Height;
                     invalidate = true;
                 }
 
