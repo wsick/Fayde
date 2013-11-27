@@ -18,5 +18,9 @@
             "run_at": "document_start"
         }
     ],
+	"web_accessible_resources": [
+		"scripts/contentscript.js.map",
+		"scripts/contentscript.ts"
+	],
     "minimum_chrome_version": "21.0.1180.57"
 }

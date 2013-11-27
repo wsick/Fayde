@@ -17,6 +17,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="background.html" />
+    <Content Include="scripts\dynatree\jquery.dynatree.js" />
+    <Content Include="scripts\dynatree\jquery.dynatree.min.js" />
+    <Content Include="scripts\typings\jquery.dynatree\jquery.dynatree.d.ts" />
+    <Content Include="scripts\typings\jquery\jquery.d.ts" />
+    <Content Include="skin\icons-rtl.gif" />
+    <Content Include="skin\icons.gif" />
+    <Content Include="skin\loading.gif" />
+    <Content Include="skin\ui.dynatree.css" />
+    <Content Include="skin\vline-rtl.gif" />
+    <Content Include="skin\vline.gif" />
     <None Include="manifest.json" />
     <Content Include="devtools.html" />
     <Content Include="packages.config" />
@@ -28,10 +38,17 @@
     <TypeScriptCompile Include="scripts\panel\helper.ts" />
     <TypeScriptCompile Include="scripts\interfaces.ts" />
     <TypeScriptCompile Include="scripts\interop.ts" />
+    <Content Include="scripts\jquery\jquery-ui.custom.js" />
+    <Content Include="scripts\jquery\jquery-ui.custom.min.js" />
+    <Content Include="scripts\jquery\jquery.cookie.js" />
+    <Content Include="scripts\jquery\jquery.js" />
+    <Content Include="scripts\jquery\jquery.min.js" />
+    <Content Include="scripts\jquery\README.txt" />
     <Content Include="scripts\typings\Fayde.d.ts" />
     <Content Include="scripts\typings\chrome\chrome-app.d.ts" />
     <Content Include="scripts\typings\chrome\chrome.d.ts" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

@@ -1,44 +1,53 @@
+/// <reference path="../typings/jquery/jquery.d.ts" />
+/// <reference path="../typings/jquery.dynatree/jquery.dynatree.d.ts" />
 
 module Gerudo {
     export var IsFaydePage = false;
+    var info: JQuery;
+    var tree: JQuery;
     export function onPanelShown(doc: HTMLDocument) {
+        info = $("#info");
+        tree = $("#tree");
+        
         Gerudo.eval("(!!window.Fayde)", (result) => {
             IsFaydePage = result;
             if (!IsFaydePage)
-                return (doc.body.innerText = "Fayde not found.");
-            doc.body.innerHTML = "";
-            loadVisualTree(doc);
+                return (info.text("Fayde not found."));
+            info.text("Fayde []");
+            
+            loadVisualTree();
         }, () => alert("Error"));
     }
     export function onPanelHidden() {
         IsFaydePage = false;
     }
 
-    function loadVisualTree(doc: HTMLDocument) {
+    var data: ITreeNode[];
+    function loadVisualTree() {
         Gerudo.evalFn(
             (window) => {
                 if (!window.Gerudo || !window.Gerudo.GetTree) return null;
                 return window.Gerudo.GetTree();
             },
             {},
-            (result) => updateTree(doc, result),
+            (result) => { data = result; updateTree(); },
             () => alert("ERROR!")
             );
     }
-    function updateTree(doc: HTMLDocument, tree: ITreeNode[]) {
-        for (var i = 0, len = tree.length; i < len; i++) {
-            doc.body.appendChild(createElFromTreeNode(tree[i]));
-        }
+    function updateTree() {
+        data.forEach(mutateNode);
+        (<any>tree).dynatree({
+            onActivate: (node) => {
+
+            },
+            persist: true,
+            children: data
+        });
     }
-    function createElFromTreeNode(tn: ITreeNode): HTMLDivElement {
-        var div = document.createElement("div");
-        div.style.marginLeft = "20px";
-        div.innerText = tn.TypeName + " [" + tn.ID + (tn.Name ? ":" + tn.Name : "") + "]";
-
-        for (var i = 0, len = tn.Children.length; i < len; i++) {
-            div.appendChild(createElFromTreeNode(tn.Children[i]));
-        }
-
-        return div;
+    function mutateNode(node: ITreeNode) {
+        (<any>node).title = node.TypeName + " [" + node.ID + (node.Name ? ":" + node.Name : "") + "]";
+        (<any>node).children = node.Children;
+        if (node.Children)
+            node.Children.forEach(mutateNode);
     }
 }
