@@ -1,0 +1,22 @@
+﻿{
+    "name": "Gerudo",
+    "version": "0.1",
+    "description": "Extension to debug Fayde Applications.",
+    "background": {
+        "page": "background.html"
+    },
+    "devtools_page": "devtools.html",
+    "manifest_version": 2,
+    "permissions": [
+        "tabs",
+        "<all_urls>"
+    ],
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["scripts/contentscript.js"],
+            "run_at": "document_start"
+        }
+    ],
+    "minimum_chrome_version": "21.0.1180.57"
+}

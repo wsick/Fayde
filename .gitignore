@@ -47,3 +47,13 @@ Demos/NflDraft/Models/Team.js
 Source/Fayde.Controls.Input/Fayde.Controls.Input.js
 Source/Fayde.Controls.Ex/Fayde.Controls.Ex.js
 Demos/DrawingSurface/Controls/DrawingPad.js
+Source/packages/*
+Source/Fayde.Debugger/scripts/background.js
+Source/Fayde.Debugger/scripts/contentscript.js
+Source/Fayde.Debugger/scripts/devtools.js
+Source/Fayde.Debugger/scripts/interfaces.js
+Source/Fayde.Debugger/scripts/interop.js
+Source/Fayde.Debugger/scripts/panel/broker.js
+Source/Fayde.Debugger/scripts/panel/helper.js
+Source/Fayde.Debugger/scripts/panel/interop.js
+Source/Fayde.Debugger/scripts/panel/page.js
