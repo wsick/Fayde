@@ -29,14 +29,16 @@ module Fayde.Controls {
         }
         BringIndexIntoView(index) { }
         OnClearChildren() { }
-        OnItemContainerGeneratorChanged(sender, e: Primitives.ItemsChangedEventArgs) {
+        private OnItemContainerGeneratorChanged(sender, e: Primitives.ItemsChangedEventArgs) {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
             if (e.Action === Collections.NotifyCollectionChangedAction.Reset) {
                 this.Children.Clear();
                 this.ItemContainerGenerator.RemoveAll();
                 this.OnClearChildren();
             }
+            this.OnItemsChanged(sender, e);
         }
+        OnItemsChanged(sender: any, e: Primitives.ItemsChangedEventArgs) { }
     }
     Fayde.RegisterType(VirtualizingPanel, {
     	Name: "VirtualizingPanel",

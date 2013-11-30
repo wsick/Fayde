@@ -1059,6 +1059,7 @@ module Fayde {
 
             var measure = this.PreviousConstraint;
             if (this.IsContainer && !measure) {
+                //This looks suspicious...PreviousContraint may be Infinity,Infinity whereas the finalRect may not be
                 this._Measure(size.fromRect(finalRect), error);
             }
             measure = this.PreviousConstraint;

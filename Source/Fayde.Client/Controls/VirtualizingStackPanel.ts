@@ -394,9 +394,7 @@ module Fayde.Controls {
             var scrollOwner = this.ScrollOwner;
             if (scrollOwner) scrollOwner.InvalidateScrollInfo();
         }
-        OnItemContainerGeneratorChanged(sender, e: Primitives.ItemsChangedEventArgs) {
-            super.OnItemContainerGeneratorChanged(sender, e);
-
+        OnItemsChanged(sender: any, e: Primitives.ItemsChangedEventArgs) {
             var generator = this.ItemContainerGenerator;
             var owner = ItemsControl.GetItemsOwner(this);
             var orientation = this.Orientation;

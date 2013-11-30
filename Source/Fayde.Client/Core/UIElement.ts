@@ -59,7 +59,7 @@ module Fayde {
             var lu = this.LayoutUpdater;
             lu.UpdateBounds(true);
             lu.InvalidateMeasure();
-            lu.PreviousConstraint = undefined;
+            // lu.PreviousConstraint = undefined;
 
             var un = uie.XamlNode;
             un.SetVisualParentNode(this);
