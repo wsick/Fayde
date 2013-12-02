@@ -13,11 +13,12 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
+    <Grid>
+        <tests:BorderTest />
     <!--<tests:MapTest />-->
     <!--<tests:ResourceTest />-->
     <!--<tests:ImageTest />-->
     <!--<tests:ScrollBarTest />-->
-    <Grid>
-        <tests:DoubleListBox />
+        <!--<tests:DoubleListBox />-->
     </Grid>
 </UserControl>
