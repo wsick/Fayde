@@ -58,7 +58,7 @@ module Fayde {
         _ArrangeOverride(finalSize: size, error: BError): size;
     }
     export interface IRenderable {
-        Render(ctx: RenderContext, lu:LayoutUpdater, region: rect);
+        Render(ctx: RenderContextEx, lu:LayoutUpdater, region: rect);
     }
     export interface IActualSizeComputable {
         ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater);
@@ -70,7 +70,7 @@ module Fayde {
         PostCompute(lu: LayoutUpdater, hasLocalProjection: boolean);
     }
     export interface IPostInsideObject {
-        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): boolean;
+        PostInsideObject(ctx: RenderContextEx, lu: LayoutUpdater, x: number, y: number): boolean;
     }
 
     interface ISizeChangedData {
@@ -1222,7 +1222,7 @@ module Fayde {
             }
         }
 
-        DoRender(ctx: Fayde.RenderContext, r: rect) {
+        DoRender(ctx: Fayde.RenderContextEx, r: rect) {
             if (!this.TotalIsRenderVisible)
                 return;
             if ((this.TotalOpacity * 255) < 0.5)
@@ -1234,7 +1234,7 @@ module Fayde {
             } else {
                 rect.copyTo(this.ExtentsWithChildren, region);
                 rect.transform(region, this.RenderXform);
-                rect.transform(region, ctx.CurrentTransform);
+                rect.transform(region, ctx.currentTransform);
                 rect.roundOut(region);
                 rect.intersection(region, r);
             }
@@ -1242,18 +1242,15 @@ module Fayde {
             if (rect.isEmpty(region))
                 return;
 
-            ctx.Save();
+            ctx.save();
 
-            ctx.PreTransformMatrix(this.RenderXform);
-            ctx.CanvasContext.globalAlpha = this.TotalOpacity;
+            ctx.pretransformMatrix(this.RenderXform);
+            ctx.globalAlpha = this.TotalOpacity;
 
             var uie = this.Node.XObject;
-            var canvasCtx = ctx.CanvasContext;
             var clip = uie.Clip;
-            if (clip) {
-                clip.Draw(ctx);
-                canvasCtx.clip();
-            }
+            if (clip)
+                ctx.clipGeometry(clip);
 
             /*
             if (window.RenderDebug) {
@@ -1264,13 +1261,13 @@ module Fayde {
 
             var effect = uie.Effect;
             if (effect) {
-                canvasCtx.save();
+                ctx.save();
                 effect.PreRender(ctx);
             }
             if ((<IRenderable><any>uie).Render)
                 (<IRenderable><any>uie).Render(ctx, this, region);
             if (effect) {
-                canvasCtx.restore();
+                ctx.restore();
             }
 
             //if (window.RenderDebug) RenderDebug.Indent();
@@ -1280,7 +1277,7 @@ module Fayde {
             }
             //if (window.RenderDebug) RenderDebug.Unindent();
 
-            ctx.Restore();
+            ctx.restore();
         }
 
         FindElementsInHostCoordinates(p: Point): UINode[] {
@@ -1288,7 +1285,7 @@ module Fayde {
             this._FindElementsInHostCoordinates(this.Surface.TestRenderContext, p, uinlist, false);
             return uinlist;
         }
-        private _FindElementsInHostCoordinates(ctx: RenderContext, p: Point, uinlist: UINode[], applyXform: boolean) {
+        private _FindElementsInHostCoordinates(ctx: RenderContextEx, p: Point, uinlist: UINode[], applyXform: boolean) {
             if (this.ShouldSkipHitTest)
                 return;
             if (!this.TotalIsRenderVisible)
@@ -1300,12 +1297,12 @@ module Fayde {
 
             var thisNode = this.Node;
 
-            ctx.Save();
+            ctx.save();
             if (applyXform)
-                ctx.TransformMatrix(this.RenderXform);
+                ctx.transformMatrix(this.RenderXform);
 
             if (!this._InsideClip(ctx, p.X, p.Y)) {
-                ctx.Restore();
+                ctx.restore();
                 return;
             }
 
@@ -1320,9 +1317,9 @@ module Fayde {
                     uinlist.shift();
             }
 
-            ctx.Restore();
+            ctx.restore();
         }
-        HitTestPoint(ctx: Fayde.RenderContext, p: Point, uinlist: Fayde.UINode[]) {
+        HitTestPoint(ctx: RenderContextEx, p: Point, uinlist: Fayde.UINode[]) {
             if (this.ShouldSkipHitTest)
                 return;
             if (!this.TotalIsRenderVisible)
@@ -1330,11 +1327,11 @@ module Fayde {
             if (!this.TotalIsHitTestVisible)
                 return;
 
-            ctx.Save();
-            ctx.TransformMatrix(this.RenderXform);
+            ctx.save();
+            ctx.transformMatrix(this.RenderXform);
             
             if (!this._InsideClip(ctx, p.X, p.Y)) {
-                ctx.Restore();
+                ctx.restore();
                 return;
             }
 
@@ -1359,9 +1356,9 @@ module Fayde {
                 }
             }
 
-            ctx.Restore();
+            ctx.restore();
         }
-        private _InsideObject(ctx: RenderContext, x: number, y: number): boolean {
+        private _InsideObject(ctx: RenderContextEx, x: number, y: number): boolean {
             if (this.IsNeverInsideObject)
                 return false;
 
@@ -1369,7 +1366,7 @@ module Fayde {
             var fe = <FrameworkElement>this.Node.XObject;
             rect.set(bounds, 0, 0, fe.ActualWidth, fe.ActualHeight);
             //TODO: Use local variable bounds, figure out which one matches up
-            rect.transform(bounds, ctx.CurrentTransform);
+            rect.transform(bounds, ctx.currentTransform);
             if (!rect.containsPointXY(bounds, x, y))
                 return false;
 
@@ -1380,19 +1377,20 @@ module Fayde {
                 return (<IPostInsideObject><any>this.Node).PostInsideObject(ctx, this, x, y);
             return true;
         }
-        private _InsideClip(ctx: RenderContext, x: number, y: number): boolean {
+        private _InsideClip(ctx: RenderContextEx, x: number, y: number): boolean {
             var clip = this.Node.XObject.Clip;
             if (!clip)
                 return true;
 
             var bounds = clip.GetBounds();
-            rect.transform(bounds, ctx.CurrentTransform);
+            rect.transform(bounds, ctx.currentTransform);
             if (!rect.containsPointXY(bounds, x,y))
                 return false;
 
-            return ctx.IsPointInClipPath(clip, x, y);
+            clip.Draw(ctx);
+            return ctx.isPointInPath(x, y);
         }
-        private _InsideLayoutClip(ctx: RenderContext, x: number, y: number): boolean {
+        private _InsideLayoutClip(ctx: RenderContextEx, x: number, y: number): boolean {
             var layoutClip = this.LayoutClip;
             if (!layoutClip)
                 return true;
@@ -1400,13 +1398,16 @@ module Fayde {
             //TODO: Handle composite LayoutClip
 
             var layoutClipBounds = rect.copyTo(layoutClip);
-            rect.transform(layoutClipBounds, ctx.CurrentTransform);
+            rect.transform(layoutClipBounds, ctx.currentTransform);
             return rect.containsPointXY(layoutClipBounds, x, y);
         }
-        RenderLayoutClip(ctx: RenderContext) {
+        RenderLayoutClip(ctx: RenderContextEx) {
             var composite = this.CompositeLayoutClip;
-            if (composite)
-                ctx.ClipRect(composite);
+            if (composite) {
+                ctx.beginPath();
+                ctx.rect(composite.X, composite.Y, composite.Width, composite.Height);
+                ctx.clip();
+            }
         }
 
         private _DebugLayout() {

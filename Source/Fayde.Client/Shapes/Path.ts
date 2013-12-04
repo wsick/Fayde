@@ -17,7 +17,7 @@ module Fayde.Shapes {
                 return super._GetFillRule();
             return (<Media.PathGeometry>geom).FillRule;
         }
-        _DrawPath(ctx: RenderContext) {
+        _DrawPath(ctx: RenderContextEx) {
             var geom = this.Data;
             if (!geom)
                 return;

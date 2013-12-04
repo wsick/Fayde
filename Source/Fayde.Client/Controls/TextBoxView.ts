@@ -203,7 +203,7 @@ module Fayde.Controls.Internal {
         GetLineFromIndex(index: number): Text.TextLayoutLine { return this._Layout.GetLineFromIndex(index); }
         GetCursorFromXY(x: number, y: number): number { return this._Layout.GetCursorFromXY(null, x, y); }
 
-        Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
+        Render(ctx: RenderContextEx, lu: LayoutUpdater, region: rect) {
             var renderSize = lu.RenderSize;
             //TODO: Initialize Selection Brushes
             //this._TextBox._Providers[_PropertyPrecedence.DynamicValue]._InitializeSelectionBrushes();
@@ -214,35 +214,34 @@ module Fayde.Controls.Internal {
                 this._Layout.Select(this._TextBox.SelectionStart, this._TextBox.SelectionLength);
                 this._SelectionChanged = false;
             }
-            ctx.Save();
+            ctx.save();
             lu.RenderLayoutClip(ctx);
             this._Layout.AvailableWidth = renderSize.Width;
             this._RenderImpl(ctx, region);
-            ctx.Restore();
+            ctx.restore();
         }
-        private _RenderImpl(ctx: RenderContext, region: rect) {
-            ctx.Save();
+        private _RenderImpl(ctx: RenderContextEx, region: rect) {
+            ctx.save();
             if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
                 //TODO: Invert
             }
             this._Layout.Render(ctx);
             if (this._CursorVisible) {
-                var canvasCtx = ctx.CanvasContext;
                 var rect = this._Cursor;
-                canvasCtx.beginPath();
-                canvasCtx.moveTo(rect.X + 0.5, rect.Y);
-                canvasCtx.lineTo(rect.X + 0.5, rect.Y + rect.Height);
-                canvasCtx.lineWidth = 1.0;
+                ctx.beginPath();
+                ctx.moveTo(rect.X + 0.5, rect.Y);
+                ctx.lineTo(rect.X + 0.5, rect.Y + rect.Height);
+                ctx.lineWidth = 1.0;
                 var caretBrush = this._TextBox.CaretBrush;
                 if (caretBrush) {
-                    caretBrush.SetupBrush(canvasCtx, rect);
-                    canvasCtx.strokeStyle = caretBrush.ToHtml5Object();
+                    caretBrush.SetupBrush(ctx, rect);
+                    ctx.strokeStyle = caretBrush.ToHtml5Object();
                 } else {
-                    canvasCtx.strokeStyle = "#000000";
+                    ctx.strokeStyle = "#000000";
                 }
-                canvasCtx.stroke();
+                ctx.stroke();
             }
-            ctx.Restore();
+            ctx.restore();
         }
 
         OnLostFocus(e) { this._EndCursorBlink(); }

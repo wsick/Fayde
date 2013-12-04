@@ -7,7 +7,7 @@ module Fayde.Controls {
             super(xobj);
         }
 
-        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): boolean {
+        PostInsideObject(ctx: RenderContextEx, lu: LayoutUpdater, x: number, y: number): boolean {
             //TODO: Implement
             return false;
         }

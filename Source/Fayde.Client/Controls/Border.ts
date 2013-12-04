@@ -134,7 +134,7 @@ module Fayde.Controls {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
         }
 
-        private Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
+        private Render(ctx: RenderContextEx, lu: LayoutUpdater, region: rect) {
             var borderBrush = this.BorderBrush;
             var extents = lu.Extents;
             var backgroundBrush = this.Background;
@@ -149,10 +149,10 @@ module Fayde.Controls {
             var fillOnly = !borderBrush || !thickness || thickness.IsEmpty();
             if (fillOnly && !backgroundBrush)
                 return;
-            ctx.Save();
+            ctx.save();
             lu.RenderLayoutClip(ctx);
             render(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
-            ctx.Restore();
+            ctx.restore();
         }
     }
     Fayde.RegisterType(Border, {
@@ -161,7 +161,7 @@ module Fayde.Controls {
         XmlNamespace: Fayde.XMLNS
     });
 
-    function render(rctx: RenderContext, extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cornerRadius?: CornerRadius) {
+    function render(ctx: RenderContextEx, extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cornerRadius?: CornerRadius) {
         thickness = thickness || new Thickness();
         var ia = cornerRadius ? cornerRadius.Clone() : new CornerRadius();
         ia.TopLeft = Math.max(ia.TopLeft - Math.max(thickness.Left, thickness.Top) * 0.5, 0);
@@ -177,7 +177,6 @@ module Fayde.Controls {
 
         var fillExtents = rect.shrinkByThickness(extents.Clone(), thickness);
 
-        var ctx = rctx.CanvasContext;
         ctx.beginPath();
         if (borderBrush && !rect.isEmpty(extents)) {
             borderBrush.SetupBrush(ctx, extents);
@@ -195,7 +194,7 @@ module Fayde.Controls {
         }
     }
     var ARC_TO_BEZIER = 0.55228475;
-    function drawRect(ctx: CanvasRenderingContext2D, extents: rect, cr?: CornerRadius) {
+    function drawRect(ctx: RenderContextEx, extents: rect, cr?: CornerRadius) {
         if (!cr || cr.IsZero()) {
             ctx.rect(extents.X, extents.Y, extents.Width, extents.Height);
             return;

@@ -1,14 +1,32 @@
 module Fayde {
     export interface RenderContextEx extends CanvasRenderingContext2D {
         currentTransform: number[];
+        transformMatrix(mat: number[]);
+        transformTransform(transform: Media.Transform);
+        pretransformMatrix(mat: number[]);
+
         clear(r: rect);
+        fillEx(brush: Media.Brush, r: rect);
+        fillRectEx(brush: Media.Brush, r: rect);
+
+        setupStroke(pars: Path.IStrokeParameters): boolean;
+        strokeEx(brush: Media.Brush, pars: Path.IStrokeParameters, region: rect);
+        isPointInStroke(x: number, y: number);
+        isPointInStrokeEx(pars: Path.IStrokeParameters, x: number, y: number);
+
+        clipRect(r: rect);
+        clipGeometry(g: Media.Geometry);
     }
 
     export function ExtendRenderContext(ctx: CanvasRenderingContext2D): RenderContextEx {
         var c: any = ctx;
         Ex.Transforms(c);
+        Ex.TransformEx(c);
         Ex.LineDash(c);
         Ex.Clear(c);
+        Ex.Fill(c);
+        Ex.Stroke(c);
+        Ex.Clip(c);
         return <RenderContextEx>c;
     }
 
@@ -45,27 +63,49 @@ module Fayde {
             ctx.transform = function (m11: number, m12: number, m21: number, m22: number, dx: number, dy: number) {
                 var ct = ctx.currentTransform;
                 mat3.multiply(ct, mat3.create([m11, m12, dx, m21, m22, dy]), ct);
-                ctx.transform(m11, m12, m21, m22, dx, dy);
+                super_.transform.call(ctx, m11, m12, m21, m22, dx, dy);
                 ctx.currentTransform = ct;
             };
             ctx.rotate = function (angle: number) {
                 var ct = ctx.currentTransform;
                 var r = mat3.createRotate(angle);
                 mat3.multiply(ct, r, ct);
-                ctx.rotate(angle);
+                super_.rotate.call(ctx, angle);
             };
             ctx.scale = function (x: number, y: number) {
                 var ct = ctx.currentTransform;
                 mat3.scale(ct, x, y);
-                ctx.scale(x, y);
+                super_.scale.call(ctx, x, y);
             };
             ctx.translate = function (x: number, y: number) {
                 var ct = ctx.currentTransform;
                 mat3.translate(ct, x, y);
-                ctx.translate(x, y);
+                super_.translate.call(ctx, x, y);
             };
 
             return false;
+        }
+        export function TransformEx(ctx: RenderContextEx) {
+            ctx.transformMatrix = function (mat: number[]) {
+                ctx.transform(mat[0], mat[1], mat[3], mat[4], mat[2], mat[5]);
+            };
+            ctx.transformTransform = function (transform: Media.Transform) {
+                var v = transform.Value;
+                var mat: number[];
+                if (!v || !(mat = v._Raw))
+                    return;
+
+                var ct = ctx.currentTransform;
+                mat3.multiply(ct, mat, ct); //ct = matrix * ct
+                ctx.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
+                ctx.currentTransform = ct;
+            };
+            ctx.pretransformMatrix = function (mat: number[]) {
+                var ct = ctx.currentTransform;
+                mat3.multiply(mat, ct, ct);
+                ctx.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
+                ctx.currentTransform = ct;
+            };
         }
         export function LineDash(ctx: RenderContextEx) {
             if (!ctx.setLineDash)
@@ -74,6 +114,65 @@ module Fayde {
         export function Clear(ctx: RenderContextEx) {
             ctx.clear = function (r: rect) {
                 ctx.clearRect(r.X, r.Y, r.Width, r.Height);
+            };
+        }
+        export function Fill(ctx: RenderContextEx) {
+            ctx.fillEx = function (brush: Media.Brush, r: rect) {
+                brush.SetupBrush(ctx, r);
+                ctx.fillStyle = brush.ToHtml5Object();
+                ctx.fill();
+            };
+            ctx.fillRectEx = function (brush: Media.Brush, r: rect) {
+                brush.SetupBrush(ctx, r);
+                ctx.fillStyle = brush.ToHtml5Object();
+                ctx.beginPath();
+                ctx.rect(r.X, r.Y, r.Width, r.Height);
+                ctx.fill();
+            };
+        }
+        export function Stroke(ctx: RenderContextEx) {
+            var caps: string[] = [
+                "butt", //flat
+                "square", //square
+                "round", //round
+                "butt" //triangle
+            ];
+            var joins: string[] = [
+                "miter",
+                "bevel",
+                "round"
+            ];
+            ctx.setupStroke = function (pars: Path.IStrokeParameters): boolean {
+                if (!pars) return false;
+                ctx.lineWidth = pars.thickness;
+                ctx.lineCap = caps[pars.startCap || pars.endCap || 0] || caps[0];
+                ctx.lineJoin = joins[pars.join || 0] || joins[0];
+                ctx.miterLimit = pars.miterLimit;
+                return true;
+            };
+            ctx.strokeEx = function (brush: Media.Brush, pars: Path.IStrokeParameters, region: rect) {
+                if (!region || !ctx.setupStroke(pars))
+                    return;
+                brush.SetupBrush(ctx, region);
+                ctx.strokeStyle = brush.ToHtml5Object();
+                ctx.stroke();
+            };
+            ctx.isPointInStroke = ctx.isPointInStroke || function (x: number, y: number) { return false; };
+            ctx.isPointInStrokeEx = function (pars: Path.IStrokeParameters, x: number, y: number): boolean {
+                if (!pars) return;
+                ctx.setupStroke(pars);
+                return ctx.isPointInStroke(x, y);
+            };
+        }
+        export function Clip(ctx: RenderContextEx) {
+            ctx.clipRect = function (r: rect) {
+                ctx.beginPath();
+                ctx.rect(r.X, r.Y, r.Width, r.Height);
+                ctx.clip();
+            };
+            ctx.clipGeometry = function (g: Media.Geometry) {
+                g.Draw(ctx);
+                ctx.clip();
             };
         }
     }

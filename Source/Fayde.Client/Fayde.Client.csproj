@@ -147,7 +147,6 @@
     <TypeScriptCompile Include="Engine\FocusManager.ts" />
     <TypeScriptCompile Include="Engine\InputManager.ts" />
     <TypeScriptCompile Include="Engine\Inspection.ts" />
-    <TypeScriptCompile Include="Engine\RenderContext.ts" />
     <TypeScriptCompile Include="Engine\Surface.ts" />
     <TypeScriptCompile Include="Input\ICommand.ts" />
     <TypeScriptCompile Include="Input\InteractionHelper.ts" />

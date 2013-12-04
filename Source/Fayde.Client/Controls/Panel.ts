@@ -111,7 +111,7 @@ module Fayde.Controls {
             super.OnIsAttachedChanged(newIsAttached);
         }
 
-        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): boolean {
+        PostInsideObject(ctx: RenderContextEx, lu: LayoutUpdater, x: number, y: number): boolean {
             return this.XObject.Background != null;
         }
 
@@ -205,7 +205,7 @@ module Fayde.Controls {
             //Abstract Method
             return new size();
         }
-        Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
+        Render(ctx: RenderContextEx, lu: LayoutUpdater, region: rect) {
             var background = this.Background;
             if (!background)
                 return;
@@ -215,10 +215,10 @@ module Fayde.Controls {
                 return;
 
             var area = rect.fromSize(framework);
-            ctx.Save();
+            ctx.save();
             lu.RenderLayoutClip(ctx);
-            ctx.FillRect(background, area);
-            ctx.Restore();
+            ctx.fillRectEx(background, area);
+            ctx.restore();
         }
     }
     Fayde.RegisterType(Panel, {

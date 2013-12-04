@@ -38,18 +38,18 @@ module Fayde.Media {
 
             return bounds;
         }
-        Draw(ctx: RenderContext) {
+        Draw(ctx: RenderContextEx) {
             if (!this._Path)
                 return;
 
             var transform = this.Transform;
             if (transform != null) {
-                ctx.Save();
-                ctx.Transform(transform);
+                ctx.save();
+                ctx.transformTransform(transform);
             }
-            this._Path.DrawRenderCtx(ctx);
+            this._Path.Draw(ctx);
             if (transform != null)
-                ctx.Restore();
+                ctx.restore();
         }
         ComputePathBounds(pars: Path.IStrokeParameters): rect {
             if (!this._Path)

@@ -88,16 +88,13 @@ module Fayde.Path {
         Close() {
             this._Path.push(Close());
         }
-
-        DrawRenderCtx(ctx: RenderContext) {
-            this.DrawCanvasCtx(ctx.CanvasContext);
-        }
-        DrawCanvasCtx(canvasCtx: CanvasRenderingContext2D) {
-            canvasCtx.beginPath();
+       
+        Draw(ctx: RenderContextEx) {
+            ctx.beginPath();
             var path = this._Path;
             var len = path.length;
             for (var i = 0; i < len; i++) {
-                path[i].draw(canvasCtx);
+                path[i].draw(ctx);
             }
         }
         CalculateBounds(pars?: IStrokeParameters): rect {

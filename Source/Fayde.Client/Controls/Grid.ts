@@ -494,7 +494,7 @@ module Fayde.Controls {
             return finalSize;
         }
 
-        Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
+        Render(ctx: RenderContextEx, lu: LayoutUpdater, region: rect) {
             var background = this.Background;
             var showGridLines = this.ShowGridLines;
             if (!background && !showGridLines)
@@ -505,24 +505,22 @@ module Fayde.Controls {
                 return;
 
             var area = rect.fromSize(framework);
-            ctx.Save();
+            ctx.save();
             lu.RenderLayoutClip(ctx);
             if (background)
-                ctx.FillRect(background, area);
+                ctx.fillRectEx(background, area);
             if (showGridLines) {
-                var cctx = ctx.CanvasContext;
-
                 var cuml = -1;
                 var cols = this.ColumnDefinitions;
                 if (cols) {
                     var enumerator = cols.GetEnumerator();
                     while (enumerator.MoveNext()) {
                         cuml += enumerator.Current.ActualWidth;
-                        cctx.beginPath();
-                        ctx.SetLineDash([5]);
-                        cctx.moveTo(cuml, 0);
-                        cctx.lineTo(cuml, framework.Height);
-                        cctx.stroke();
+                        ctx.beginPath();
+                        ctx.setLineDash([5]);
+                        ctx.moveTo(cuml, 0);
+                        ctx.lineTo(cuml, framework.Height);
+                        ctx.stroke();
                     }
                 }
                 var rows = this.RowDefinitions;
@@ -531,15 +529,15 @@ module Fayde.Controls {
                     var enumerator2 = rows.GetEnumerator();
                     while (enumerator2.MoveNext()) {
                         cuml += enumerator2.Current.ActualHeight;
-                        cctx.beginPath();
-                        ctx.SetLineDash([5]);
-                        cctx.moveTo(0, cuml);
-                        cctx.lineTo(framework.Width, cuml);
-                        cctx.stroke();
+                        ctx.beginPath();
+                        ctx.setLineDash([5]);
+                        ctx.moveTo(0, cuml);
+                        ctx.lineTo(framework.Width, cuml);
+                        ctx.stroke();
                     }
                 }
             }
-            ctx.Restore();
+            ctx.restore();
         }
 
 

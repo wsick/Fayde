@@ -119,7 +119,7 @@ module Fayde.Controls {
             this.LayoutUpdater.CanHitElement = true;
         }
 
-        PostInsideObject(ctx: RenderContext, lu:LayoutUpdater, x: number, y: number): boolean {
+        PostInsideObject(ctx: RenderContextEx, lu:LayoutUpdater, x: number, y: number): boolean {
             var img = this.XObject;
             var source = img.Source;
             if (!source)
@@ -255,7 +255,7 @@ module Fayde.Controls {
             return arranged;
         }
 
-        Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
+        Render(ctx: RenderContextEx, lu: LayoutUpdater, region: rect) {
             // Just to get something working, we do all the matrix transforms for stretching.
             // Eventually, we can let the html5 canvas do all the dirty work.
 
@@ -270,13 +270,13 @@ module Fayde.Controls {
                 return;
             }
 
-            ctx.Save();
+            ctx.save();
             if (lu.CompositeLayoutClip || metrics.Overlap !== RectOverlap.In)
                 lu.RenderLayoutClip(ctx);
-            ctx.PreTransformMatrix(metrics.Matrix);
-            ctx.CanvasContext.drawImage(source.Image, 0, 0);
+            ctx.pretransformMatrix(metrics.Matrix);
+            ctx.drawImage(source.Image, 0, 0);
             //DrawDebug("Image: [" + source.Image.src + "]");
-            ctx.Restore();
+            ctx.restore();
 
             source.Unlock();
         }

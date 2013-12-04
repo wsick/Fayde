@@ -22,18 +22,18 @@ module Fayde.Media {
             }
             return bounds;
         }
-        Draw(ctx: RenderContext) {
+        Draw(ctx: RenderContextEx) {
             var transform = this.Transform;
             if (transform != null) {
-                ctx.Save();
-                ctx.Transform(transform);
+                ctx.save();
+                ctx.transformTransform(transform);
             }
             var enumerator = this.Children.GetEnumerator();
             while (enumerator.MoveNext()) {
                 (<Geometry>enumerator.Current).Draw(ctx);
             }
             if (transform != null)
-                ctx.Restore();
+                ctx.restore();
         }
 
         GeometryChanged(newGeometry: Geometry) { this._InvalidateGeometry(); }

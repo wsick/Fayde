@@ -7,10 +7,10 @@ module Fayde.Shapes {
             super(xobj);
         }
 
-        PostInsideObject(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): boolean {
+        PostInsideObject(ctx: RenderContextEx, lu: LayoutUpdater, x: number, y: number): boolean {
             var shape = this.XObject;
             var extents = rect.copyTo(this.GetStretchExtents(shape, lu));
-            rect.transform(extents, ctx.CurrentTransform);
+            rect.transform(extents, ctx.currentTransform);
             if (!rect.containsPointXY(extents, x, y))
                 return false;
             return shape._InsideShape(ctx, lu, x, y);
@@ -93,21 +93,21 @@ module Fayde.Shapes {
         StrokeStartLineCap: PenLineCap;
         //NOTE: HTML5 Canvas does not support start and end cap. Will use start if it's not "Flat"; otherwise, use end
 
-        _InsideShape(ctx: RenderContext, lu: LayoutUpdater, x: number, y: number): boolean {
+        _InsideShape(ctx: RenderContextEx, lu: LayoutUpdater, x: number, y: number): boolean {
             if (this._ShapeFlags & ShapeFlags.Empty)
                 return false;
             var ret = false;
-            ctx.Save();
-            ctx.PreTransformMatrix(this._StretchXform);
+            ctx.save();
+            ctx.pretransformMatrix(this._StretchXform);
             if (this._Fill || this._Stroke) {
                 this._DrawPath(ctx);
                 if (this._Fill) {
-                    ret = ret || ctx.IsPointInPath(x, y);
+                    ret = ret || ctx.isPointInPath(x, y);
                 } else if (!ret) {
-                    ret = ret || ctx.IsPointInStroke(this._CreateStrokeParameters(), x, y);
+                    ret = ret || ctx.isPointInStrokeEx(this._CreateStrokeParameters(), x, y);
                 }
             }
-            ctx.Restore();
+            ctx.restore();
             return ret;
         }
         _MeasureOverride(availableSize: size, error: BError): size {
@@ -207,24 +207,24 @@ module Fayde.Shapes {
             arranged.Height = shapeBounds.Height * sy;
             return arranged;
         }
-        Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
+        Render(ctx: RenderContextEx, lu: LayoutUpdater, region: rect) {
             if (this._ShapeFlags & ShapeFlags.Empty)
                 return;
             var area = this.XamlNode.GetStretchExtents(this, lu);
-            ctx.Save();
-            ctx.PreTransformMatrix(this._StretchXform);
+            ctx.save();
+            ctx.pretransformMatrix(this._StretchXform);
             this._DrawPath(ctx);
             if (this._Fill != null)
-                ctx.Fill(this._Fill, area);
-            ctx.Stroke(this._Stroke, this._CreateStrokeParameters(), area);
-            ctx.Restore();
+                ctx.fillEx(this._Fill, area);
+            ctx.strokeEx(this._Stroke, this._CreateStrokeParameters(), area);
+            ctx.restore();
         }
 
         _GetFillRule(): FillRule { return FillRule.NonZero; }
         _BuildPath(): Fayde.Path.RawPath { return undefined; }
-        _DrawPath(ctx: RenderContext) {
+        _DrawPath(ctx: RenderContextEx) {
             this._Path = this._Path || this._BuildPath();
-            this._Path.DrawRenderCtx(ctx);
+            this._Path.Draw(ctx);
         }
         
         ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater) {

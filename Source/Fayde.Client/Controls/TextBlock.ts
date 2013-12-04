@@ -325,8 +325,8 @@ module Fayde.Controls {
             return finalSize;
         }
 
-        Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
-            ctx.Save();
+        Render(ctx: RenderContextEx, lu: LayoutUpdater, region: rect) {
+            ctx.save();
             lu.RenderLayoutClip(ctx);
             var padding = this.Padding;
             var offset: Point = null;
@@ -335,7 +335,7 @@ module Fayde.Controls {
                 NotImplemented("TextBlock._Render: Right to left");
             }
             this.XamlNode._Layout.Render(ctx, null, offset);
-            ctx.Restore();
+            ctx.restore();
         }
 
         ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater): size {
