@@ -9,8 +9,8 @@ module Fayde.Controls {
         }
     }
     Fayde.RegisterType(BorderNode, {
-    	Name: "BorderNode",
-    	Namespace: "Fayde.Controls"
+        Name: "BorderNode",
+        Namespace: "Fayde.Controls"
     });
 
     export class Border extends FrameworkElement {
@@ -34,7 +34,7 @@ module Fayde.Controls {
         private _BorderBrushListener: Media.IBrushChangedListener;
 
         static Annotations = { ContentProperty: Border.ChildProperty }
-        
+
         _MeasureOverride(availableSize: size, error: BError): size {
             var padding = this.Padding;
             var borderThickness = this.BorderThickness;
@@ -107,10 +107,10 @@ module Fayde.Controls {
             var newBrush = <Media.Brush>args.NewValue;
             if (this._BackgroundListener)
                 this._BackgroundListener.Detach();
-                this._BackgroundListener = null;
+            this._BackgroundListener = null;
             if (newBrush)
                 this._BackgroundListener = newBrush.Listen((brush) => lu.Invalidate());
-            
+
             lu.CanHitElement = newBrush != null || this.BorderBrush != null;
             lu.Invalidate();
         }
@@ -120,7 +120,7 @@ module Fayde.Controls {
             var newBrush = <Media.Brush>args.NewValue;
             if (this._BorderBrushListener)
                 this._BorderBrushListener.Detach();
-                this._BorderBrushListener = null;
+            this._BorderBrushListener = null;
             if (newBrush)
                 this._BorderBrushListener = newBrush.Listen((brush) => lu.Invalidate());
 
@@ -134,7 +134,7 @@ module Fayde.Controls {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
         }
 
-        private Render(ctx: RenderContext, lu:LayoutUpdater, region: rect) {
+        private Render(ctx: RenderContext, lu: LayoutUpdater, region: rect) {
             var borderBrush = this.BorderBrush;
             var extents = lu.Extents;
             var backgroundBrush = this.Background;
@@ -151,96 +151,93 @@ module Fayde.Controls {
                 return;
             ctx.Save();
             lu.RenderLayoutClip(ctx);
-            if (fillOnly)
-                this._RenderFillOnly(ctx, extents, backgroundBrush, thickness, this.CornerRadius);
-            else if (thickness && thickness.IsBalanced())
-                this._RenderBalanced(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
-            else
-                this._RenderUnbalanced(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
+            render(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
             ctx.Restore();
-        }
-        private _RenderFillOnly(ctx: RenderContext, extents: rect, backgroundBrush: Media.Brush, thickness: Thickness, cornerRadius: CornerRadius) {
-            var fillExtents = rect.copyTo(extents);
-            if (thickness) rect.shrinkByThickness(fillExtents, thickness);
-
-            if (!cornerRadius || cornerRadius.IsZero()) {
-                ctx.FillRect(backgroundBrush, fillExtents);
-                return;
-            }
-
-            var raw = Path.RectRoundedFull(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height,
-                cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
-            raw.draw(ctx.CanvasContext);
-            ctx.Fill(backgroundBrush, fillExtents);
-        }
-        private _RenderBalanced(ctx: RenderContext, extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cornerRadius: CornerRadius) {
-            //Stroke renders half-out/half-in the path, Border control needs to fit within the given extents so we need to shrink by half the border thickness
-            var full = thickness.Left;
-            var half = full * 0.5;
-            var strokeExtents = rect.copyTo(extents);
-            rect.shrinkBy(strokeExtents, half, half, half, half);
-            var fillExtents = rect.copyTo(extents);
-            rect.shrinkBy(fillExtents, full, full, full, full);
-
-            if (!cornerRadius || cornerRadius.IsZero()) {
-                //Technically this fills outside it's fill extents, we may need to do something different for a transparent border brush
-                if (backgroundBrush) {
-                    ctx.StrokeAndFillRect(borderBrush, full, strokeExtents, backgroundBrush, fillExtents);
-                } else {
-                    ctx.Rect(fillExtents);
-                    ctx.StrokeSimple(borderBrush, full, extents);
-                }
-            } else {
-                var raw = Path.RectRoundedFull(strokeExtents.X, strokeExtents.Y, strokeExtents.Width, strokeExtents.Height,
-                    cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
-                raw.draw(ctx.CanvasContext);
-                if (backgroundBrush)
-                    ctx.Fill(backgroundBrush, fillExtents);
-                ctx.StrokeSimple(borderBrush, full, extents);
-            }
-        }
-        private _RenderUnbalanced(ctx: RenderContext, extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cornerRadius: CornerRadius) {
-            var hasCornerRadius = cornerRadius && !cornerRadius.IsZero();
-            var innerExtents = rect.copyTo(extents);
-            if (thickness) rect.shrinkByThickness(innerExtents, thickness);
-
-            var innerPath: Path.IRect;
-            var outerPath: Path.IRect;
-            if (hasCornerRadius) {
-                outerPath = Path.RectRoundedFull(0, 0, extents.Width, extents.Height,
-                    cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
-                innerPath = Path.RectRoundedFull(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height,
-                    cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
-            } else {
-                outerPath = Path.Rect(0, 0, extents.Width, extents.Height);
-                innerPath = Path.Rect(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height);
-            }
-
-            var tmpCanvas = <HTMLCanvasElement>document.createElement("canvas");
-            tmpCanvas.width = extents.Width;
-            tmpCanvas.height = extents.Height;
-            var tmpCtx = tmpCanvas.getContext("2d");
-
-            outerPath.draw(tmpCtx);
-            borderBrush.SetupBrush(tmpCtx, extents);
-            tmpCtx.fillStyle = borderBrush.ToHtml5Object();
-            tmpCtx.fill();
-
-            tmpCtx.globalCompositeOperation = "xor";
-            innerPath.draw(tmpCtx);
-            tmpCtx.fill();
-
-            ctx.CanvasContext.drawImage(tmpCanvas, extents.X, extents.Y);
-            //DrawDebug("Draw Image (Border)");
-
-            innerPath.draw(ctx.CanvasContext);
-            if (backgroundBrush)
-                ctx.Fill(backgroundBrush, innerExtents);
         }
     }
     Fayde.RegisterType(Border, {
-    	Name: "Border",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
+        Name: "Border",
+        Namespace: "Fayde.Controls",
+        XmlNamespace: Fayde.XMLNS
     });
+
+    function render(rctx: RenderContext, extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cornerRadius?: CornerRadius) {
+        thickness = thickness || new Thickness();
+        var ia = cornerRadius ? cornerRadius.Clone() : new CornerRadius();
+        ia.TopLeft = Math.max(ia.TopLeft - Math.max(thickness.Left, thickness.Top) * 0.5, 0);
+        ia.TopRight = Math.max(ia.TopRight - Math.max(thickness.Right, thickness.Top) * 0.5, 0);
+        ia.BottomRight = Math.max(ia.BottomRight - Math.max(thickness.Right, thickness.Bottom) * 0.5, 0);
+        ia.BottomLeft = Math.max(ia.BottomLeft - Math.max(thickness.Left, thickness.Bottom) * 0.5, 0);
+
+        var oa = cornerRadius ? cornerRadius.Clone() : new CornerRadius();
+        oa.TopLeft = oa.TopLeft ? Math.max(oa.TopLeft + Math.max(thickness.Left, thickness.Top) * 0.5, 0) : 0;
+        oa.TopRight = oa.TopRight ? Math.max(oa.TopRight + Math.max(thickness.Right, thickness.Top) * 0.5, 0) : 0;
+        oa.BottomRight = oa.BottomRight ? Math.max(oa.BottomRight + Math.max(thickness.Right, thickness.Bottom) * 0.5, 0) : 0;
+        oa.BottomLeft = oa.BottomLeft ? Math.max(oa.BottomLeft + Math.max(thickness.Left, thickness.Bottom) * 0.5, 0) : 0;
+
+        var fillExtents = rect.shrinkByThickness(extents.Clone(), thickness);
+
+        var ctx = rctx.CanvasContext;
+        ctx.beginPath();
+        if (borderBrush && !rect.isEmpty(extents)) {
+            borderBrush.SetupBrush(ctx, extents);
+            ctx.fillStyle = borderBrush.ToHtml5Object();
+            drawRect(ctx, extents, oa);
+            drawRect(ctx, fillExtents, ia);
+            ctx.fill("evenodd");
+        }
+        ctx.beginPath();
+        if (backgroundBrush && !rect.isEmpty(fillExtents)) {
+            backgroundBrush.SetupBrush(ctx, fillExtents);
+            ctx.fillStyle = backgroundBrush.ToHtml5Object();
+            drawRect(ctx, fillExtents, ia);
+            ctx.fill("evenodd");
+        }
+    }
+    var ARC_TO_BEZIER = 0.55228475;
+    function drawRect(ctx: CanvasRenderingContext2D, extents: rect, cr?: CornerRadius) {
+        if (!cr || cr.IsZero()) {
+            ctx.rect(extents.X, extents.Y, extents.Width, extents.Height);
+            return;
+        }
+
+        var top_adj = Math.max(cr.TopLeft + cr.TopRight - extents.Width, 0) / 2;
+        var bottom_adj = Math.max(cr.BottomLeft + cr.BottomRight - extents.Width, 0) / 2;
+        var left_adj = Math.max(cr.TopLeft + cr.BottomLeft - extents.Height, 0) / 2;
+        var right_adj = Math.max(cr.TopRight + cr.BottomRight - extents.Height, 0) / 2;
+
+        var tlt = cr.TopLeft - top_adj;
+        ctx.moveTo(extents.X + tlt, extents.Y);
+
+        var trt = cr.TopRight - top_adj;
+        var trr = cr.TopRight - right_adj;
+        ctx.lineTo(extents.X + extents.Width - trt, extents.Y);
+        ctx.bezierCurveTo(
+            extents.X + extents.Width - trt + trt * ARC_TO_BEZIER, extents.Y,
+            extents.X + extents.Width, extents.Y + trr - trr * ARC_TO_BEZIER,
+            extents.X + extents.Width, extents.Y + trr);
+
+        var brr = cr.BottomRight - right_adj;
+        var brb = cr.BottomRight - bottom_adj;
+        ctx.lineTo(extents.X + extents.Width, extents.Y + extents.Height - brr);
+        ctx.bezierCurveTo(
+            extents.X + extents.Width, extents.Y + extents.Height - brr + brr * ARC_TO_BEZIER,
+            extents.X + extents.Width + brb * ARC_TO_BEZIER - brb, extents.Y + extents.Height,
+            extents.X + extents.Width - brb, extents.Y + extents.Height);
+
+        var blb = cr.BottomLeft - bottom_adj;
+        var bll = cr.BottomLeft - left_adj;
+        ctx.lineTo(extents.X + blb, extents.Y + extents.Height);
+        ctx.bezierCurveTo(
+            extents.X + blb - blb * ARC_TO_BEZIER, extents.Y + extents.Height,
+            extents.X, extents.Y + extents.Height - bll + bll * ARC_TO_BEZIER,
+            extents.X, extents.Y + extents.Height - bll);
+
+        var tll = cr.TopLeft - left_adj;
+        ctx.lineTo(extents.X, extents.Y + tll);
+        ctx.bezierCurveTo(
+            extents.X, extents.Y + tll - tll * ARC_TO_BEZIER,
+            extents.X + tlt - tlt * ARC_TO_BEZIER, extents.Y,
+            extents.X + tlt, extents.Y);
+    }
 }

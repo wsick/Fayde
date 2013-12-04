@@ -5,19 +5,22 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     d:DesignHeight="300" d:DesignWidth="400" Background="Navy" FontFamily="Verdana" FontSize="16">
-    <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <Grid Background="White">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Border Background="Green">
-                <TextBlock>Testing</TextBlock>
-            </Border>
-        </Grid>
-    </Border>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Border Background="Green" Margin="5">
+        </Border>
+        <Border Grid.Column="1" BorderBrush="CadetBlue" BorderThickness="10" Background="Bisque" Margin="5">
+        </Border>
+        <Border Grid.Row="1" BorderBrush="Black" BorderThickness="10,20,30,40" CornerRadius="10,15,20,25" Margin="5" Background="Yellow">
+        </Border>
+        <Border Grid.Row="1" Grid.Column="1" BorderBrush="OrangeRed" BorderThickness="10" CornerRadius="10" Margin="5" Background="SteelBlue">
+        </Border>
+    </Grid>
 </UserControl>

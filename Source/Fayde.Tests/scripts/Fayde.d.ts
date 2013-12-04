@@ -480,6 +480,9 @@ declare module Fayde {
         public _EmitKeyUp(args: Fayde.Input.KeyEventArgs): void;
         public _EmitLostMouseCapture(pos: Point): void;
         public _EmitMouseEvent(type: Fayde.Input.MouseInputType, isLeftButton: boolean, isRightButton: boolean, args: Fayde.Input.MouseEventArgs): boolean;
+        public _EmitTouchEvent(type: Fayde.Input.TouchInputType, args: Fayde.Input.TouchEventArgs): boolean;
+        public _EmitGotTouchCapture(e: Fayde.Input.TouchEventArgs): void;
+        public _EmitLostTouchCapture(e: Fayde.Input.TouchEventArgs): void;
         public CanCaptureMouse(): boolean;
         public CaptureMouse(): boolean;
         public ReleaseMouseCapture(): void;
@@ -551,6 +554,13 @@ declare module Fayde {
         public MouseEnter: Fayde.RoutedEvent<Fayde.Input.MouseEventArgs>;
         public MouseMove: Fayde.RoutedEvent<Fayde.Input.MouseEventArgs>;
         public MouseWheel: Fayde.RoutedEvent<Fayde.Input.MouseWheelEventArgs>;
+        public TouchDown: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public TouchUp: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public TouchEnter: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public TouchLeave: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public TouchMove: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public GotTouchCapture: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
+        public LostTouchCapture: Fayde.RoutedEvent<Fayde.Input.TouchEventArgs>;
         public OnGotFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostMouseCapture(e: Fayde.Input.MouseEventArgs): void;
@@ -564,6 +574,13 @@ declare module Fayde {
         public OnMouseRightButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnMouseRightButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
         public OnMouseWheel(e: Fayde.Input.MouseWheelEventArgs): void;
+        public OnTouchDown(e: Fayde.Input.TouchEventArgs): void;
+        public OnTouchUp(e: Fayde.Input.TouchEventArgs): void;
+        public OnTouchEnter(e: Fayde.Input.TouchEventArgs): void;
+        public OnTouchLeave(e: Fayde.Input.TouchEventArgs): void;
+        public OnTouchMove(e: Fayde.Input.TouchEventArgs): void;
+        public OnGotTouchCapture(e: Fayde.Input.TouchEventArgs): void;
+        public OnLostTouchCapture(e: Fayde.Input.TouchEventArgs): void;
         private _ClipChanged(args);
         private _EffectChanged(args);
         private _UseLayoutRoundingChanged(args);
@@ -839,17 +856,6 @@ declare module Fayde.Controls {
         public OnIsEnabledChanged(e: IDependencyPropertyChangedEventArgs): void;
         public OnGotFocus(e: Fayde.RoutedEventArgs): void;
         public OnLostFocus(e: Fayde.RoutedEventArgs): void;
-        public OnLostMouseCapture(e: Fayde.Input.MouseEventArgs): void;
-        public OnKeyDown(e: Fayde.Input.KeyEventArgs): void;
-        public OnKeyUp(e: Fayde.Input.KeyEventArgs): void;
-        public OnMouseEnter(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseLeave(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseLeftButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseLeftButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseMove(e: Fayde.Input.MouseEventArgs): void;
-        public OnMouseRightButtonDown(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseRightButtonUp(e: Fayde.Input.MouseButtonEventArgs): void;
-        public OnMouseWheel(e: Fayde.Input.MouseWheelEventArgs): void;
         public UpdateVisualState(useTransitions?: boolean): void;
         public GoToStates(gotoFunc: (state: string) => boolean): void;
         public GoToStateCommon(gotoFunc: (state: string) => boolean): boolean;
@@ -2327,7 +2333,7 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
-    class ScrollContentPresenter extends Controls.ContentPresenter implements Controls.Primitives.IScrollInfo, Fayde.IMeasurableHidden, Fayde.IArrangeableHidden {
+    class ScrollContentPresenter extends Controls.ContentPresenter implements Controls.Primitives.IScrollInfo {
         private _ScrollData;
         private _IsClipPropertySet;
         private _ClippingRectangle;
@@ -3748,6 +3754,7 @@ declare module Fayde.Engine {
         private _Surface;
         private _KeyInterop;
         private _MouseInterop;
+        private _TouchInterop;
         private _Focus;
         private _State;
         private _Cursor;
@@ -3771,6 +3778,7 @@ declare module Fayde.Engine {
         public HandleMouseRelease(button: number, pos: Point): void;
         public HandleMouseEvent(type: Fayde.Input.MouseInputType, button: number, pos: Point, delta?: number, emitLeave?: boolean, emitEnter?: boolean): boolean;
         private _EmitMouseList(type, button, pos, delta, list, endIndex?);
+        public HitTestPoint(pos: Point): Fayde.UINode[];
         public UpdateCursorFromInputList(): void;
         public SetMouseCapture(uin: Fayde.UINode): boolean;
         public ReleaseMouseCapture(uin: Fayde.UINode): void;
@@ -3856,7 +3864,7 @@ declare module Fayde {
         public FocusedNode : Fayde.UINode;
         public Focus(node: Fayde.Controls.ControlNode, recurse?: boolean): boolean;
         public RemoveFocusFrom(lu: Fayde.LayoutUpdater): void;
-        public HitTestPoint(newInputList: Fayde.UINode[], pos: Point): boolean;
+        public HitTestPoint(pos: Point): Fayde.UINode[];
         public SetMouseCapture(uin: Fayde.UINode): boolean;
         public ReleaseMouseCapture(uin: Fayde.UINode): void;
         static MeasureWidth(text: string, font: Font): number;
@@ -5868,13 +5876,15 @@ declare module Fayde.Shapes {
     }
 }
 declare module Fayde.Shapes {
-    class Path extends Shapes.Shape {
+    class Path extends Shapes.Shape implements Fayde.Media.IGeometryListener {
         private static _DataCoercer(d, propd, value);
         static DataProperty: DependencyProperty;
         public Data: Fayde.Media.Geometry;
         public _GetFillRule(): Shapes.FillRule;
         public _DrawPath(ctx: Fayde.RenderContext): void;
         public _ComputeShapeBoundsImpl(logical: boolean, matrix?: number[]): rect;
+        private _OnDataChanged(args);
+        public GeometryChanged(newGeometry: Fayde.Media.Geometry): void;
     }
 }
 declare module Fayde.Shapes {
@@ -6205,6 +6215,136 @@ declare module Fayde.Path {
         y: number;
     }
     function QuadraticBezier(cpx: number, cpy: number, x: number, y: number): IQuadraticBezier;
+}
+declare module Fayde.Input {
+    interface ITouchDevice {
+        Identifier: number;
+        Captured: Fayde.UIElement;
+        Capture(uie: Fayde.UIElement): boolean;
+        ReleaseCapture(uie: Fayde.UIElement);
+        GetTouchPoint(relativeTo: Fayde.UIElement): Input.TouchPoint;
+    }
+    enum TouchInputType {
+        NoOp = 0,
+        TouchDown = 1,
+        TouchUp = 2,
+        TouchMove = 3,
+        TouchEnter = 4,
+        TouchLeave = 5,
+    }
+    interface ITouchInterop {
+        Register(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement);
+    }
+    function CreateTouchInterop(): ITouchInterop;
+}
+declare module Fayde.Input {
+    class TouchEventArgs extends Fayde.RoutedEventArgs {
+        public Device: Input.ITouchDevice;
+        constructor(device: Input.ITouchDevice);
+        public GetTouchPoint(relativeTo: Fayde.UIElement): Input.TouchPoint;
+    }
+}
+declare module Fayde.Input {
+    class TouchPoint {
+        public Position: Point;
+        public Force: number;
+        constructor(position: Point, force: number);
+    }
+}
+interface Touch {
+    identifier: number;
+    target: EventTarget;
+    screenX: number;
+    screenY: number;
+    clientX: number;
+    clientY: number;
+    pageX: number;
+    pageY: number;
+    radiusX: number;
+    radiusY: number;
+    rotationAngle: number;
+    force: number;
+}
+interface TouchList {
+    length: number;
+    item(index: number): Touch;
+    identifiedTouch(identifier: number): Touch;
+}
+interface TouchEvent extends UIEvent {
+    touches: TouchList;
+    targetTouches: TouchList;
+    changedTouches: TouchList;
+    altKey: boolean;
+    metaKey: boolean;
+    ctrlKey: boolean;
+    shiftKey: boolean;
+    initTouchEvent(type: string, canBubble: boolean, cancelable: boolean, view: any, detail: number, ctrlKey: boolean, altKey: boolean, shiftKey: boolean, metaKey: boolean, touches: TouchList, targetTouches: TouchList, changedTouches: TouchList);
+}
+declare module Fayde.Input.TouchInternal {
+    interface ITouchHandler {
+        HandleTouches(type: Input.TouchInputType, touches: ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
+    }
+    class ActiveTouchBase {
+        public Identifier: number;
+        public Position: Point;
+        public Device: Input.ITouchDevice;
+        public InputList: Fayde.UINode[];
+        private _IsEmitting;
+        private _PendingCapture;
+        private _PendingReleaseCapture;
+        private _Captured;
+        private _CapturedInputList;
+        private _FinishReleaseCaptureFunc;
+        constructor(touchHandler: ITouchHandler);
+        public Capture(uie: Fayde.UIElement): boolean;
+        public ReleaseCapture(uie: Fayde.UIElement): void;
+        private _PerformCapture(uin);
+        private _PerformReleaseCapture();
+        public Emit(type: Input.TouchInputType, newInputList: Fayde.UINode[], emitLeave?: boolean, emitEnter?: boolean): boolean;
+        private _EmitList(type, list, endIndex?);
+        public GetTouchPoint(relativeTo: Fayde.UIElement): Input.TouchPoint;
+        public CreateTouchPoint(p: Point): Input.TouchPoint;
+        private CreateTouchDevice();
+    }
+}
+declare module Fayde.Input.TouchInternal {
+    interface IOffset {
+        left: number;
+        top: number;
+    }
+    class TouchInteropBase implements Input.ITouchInterop, TouchInternal.ITouchHandler {
+        public Input: Fayde.Engine.InputManager;
+        public CanvasOffset: IOffset;
+        public ActiveTouches: TouchInternal.ActiveTouchBase[];
+        public CoordinateOffset : IOffset;
+        public Register(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement): void;
+        private _CalcOffset(canvas);
+        public HandleTouches(type: Input.TouchInputType, touches: TouchInternal.ActiveTouchBase[], emitLeave?: boolean, emitEnter?: boolean): boolean;
+    }
+}
+declare module Fayde.Input.TouchInternal {
+    class PointerTouchInterop extends TouchInternal.TouchInteropBase {
+        public Register(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement): void;
+        private _HandlePointerDown(e);
+        private _HandlePointerUp(e);
+        private _HandlePointerMove(e);
+        private _HandlePointerEnter(e);
+        private _HandlePointerLeave(e);
+        private GetActiveTouch(e);
+        private FindTouchInList(identifier);
+    }
+}
+declare module Fayde.Input.TouchInternal {
+    class NonPointerTouchInterop extends TouchInternal.TouchInteropBase {
+        public Register(input: Fayde.Engine.InputManager, canvas: HTMLCanvasElement): void;
+        private _HandleTouchStart(e);
+        private _HandleTouchEnd(e);
+        private _HandleTouchMove(e);
+        private _HandleTouchEnter(e);
+        private _HandleTouchLeave(e);
+        private TouchArrayFromList(list);
+        private FindTouchInList(identifier);
+    }
 }
 declare module Fayde.Path {
     interface IRect extends Path.IPathEntry {
