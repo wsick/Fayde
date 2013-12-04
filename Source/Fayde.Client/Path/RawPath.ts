@@ -89,7 +89,7 @@ module Fayde.Path {
             this._Path.push(Close());
         }
        
-        Draw(ctx: RenderContextEx) {
+        Draw(ctx: CanvasRenderingContext2D) {
             ctx.beginPath();
             var path = this._Path;
             var len = path.length;

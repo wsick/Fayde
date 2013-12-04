@@ -4,6 +4,7 @@ module Fayde {
         transformMatrix(mat: number[]);
         transformTransform(transform: Media.Transform);
         pretransformMatrix(mat: number[]);
+        pretransformTransform(transform: Media.Transform);
 
         clear(r: rect);
         fillEx(brush: Media.Brush, r: rect);
@@ -87,24 +88,30 @@ module Fayde {
         }
         export function TransformEx(ctx: RenderContextEx) {
             ctx.transformMatrix = function (mat: number[]) {
-                ctx.transform(mat[0], mat[1], mat[3], mat[4], mat[2], mat[5]);
+                var ct = ctx.currentTransform;
+                mat3.multiply(ct, mat, ct); //ct = matrix * ct
+                ctx.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
+                ctx.currentTransform = ct;
             };
             ctx.transformTransform = function (transform: Media.Transform) {
                 var v = transform.Value;
                 var mat: number[];
                 if (!v || !(mat = v._Raw))
                     return;
-
-                var ct = ctx.currentTransform;
-                mat3.multiply(ct, mat, ct); //ct = matrix * ct
-                ctx.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
-                ctx.currentTransform = ct;
+                ctx.transformMatrix(mat);
             };
             ctx.pretransformMatrix = function (mat: number[]) {
                 var ct = ctx.currentTransform;
-                mat3.multiply(mat, ct, ct);
+                mat3.multiply(mat, ct, ct); //ct = ct * matrix
                 ctx.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
                 ctx.currentTransform = ct;
+            };
+            ctx.pretransformTransform = function (transform: Media.Transform) {
+                var v = transform.Value;
+                var mat: number[];
+                if (!v || !(mat = v._Raw))
+                    return;
+                ctx.pretransformMatrix(mat);
             };
         }
         export function LineDash(ctx: RenderContextEx) {
