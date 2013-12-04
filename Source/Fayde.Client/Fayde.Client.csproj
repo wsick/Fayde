@@ -270,6 +270,7 @@
     <TypeScriptCompile Include="Text\TextAttributes.ts" />
     <TypeScriptCompile Include="Text\TextLayout.ts" />
     <TypeScriptCompile Include="Controls\HeaderedContentControl.ts" />
+    <TypeScriptCompile Include="Engine\RenderContextEx.ts" />
     <Content Include="Fayde.d.ts" />
     <Content Include="Fayde.js" />
     <Content Include="Fayde.js.map" />
