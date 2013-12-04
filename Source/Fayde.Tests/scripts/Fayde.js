@@ -2188,8 +2188,8 @@ var Fayde;
             var lu = this.LayoutUpdater;
             lu.UpdateBounds(true);
             lu.InvalidateMeasure();
-            lu.PreviousConstraint = undefined;
 
+            // lu.PreviousConstraint = undefined;
             var un = uie.XamlNode;
             un.SetVisualParentNode(this);
             Fayde.Providers.InheritedStore.PropagateInheritedOnAdd(this.XObject, un);
@@ -3260,90 +3260,10 @@ var Fayde;
                 var fillOnly = !borderBrush || !thickness || thickness.IsEmpty();
                 if (fillOnly && !backgroundBrush)
                     return;
-                ctx.Save();
+                ctx.save();
                 lu.RenderLayoutClip(ctx);
-                if (fillOnly)
-                    this._RenderFillOnly(ctx, extents, backgroundBrush, thickness, this.CornerRadius);
-else if (thickness && thickness.IsBalanced())
-                    this._RenderBalanced(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
-else
-                    this._RenderUnbalanced(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
-                ctx.Restore();
-            };
-            Border.prototype._RenderFillOnly = function (ctx, extents, backgroundBrush, thickness, cornerRadius) {
-                var fillExtents = rect.copyTo(extents);
-                if (thickness)
-                    rect.shrinkByThickness(fillExtents, thickness);
-
-                if (!cornerRadius || cornerRadius.IsZero()) {
-                    ctx.FillRect(backgroundBrush, fillExtents);
-                    return;
-                }
-
-                var raw = Fayde.Path.RectRoundedFull(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
-                raw.draw(ctx.CanvasContext);
-                ctx.Fill(backgroundBrush, fillExtents);
-            };
-            Border.prototype._RenderBalanced = function (ctx, extents, backgroundBrush, borderBrush, thickness, cornerRadius) {
-                //Stroke renders half-out/half-in the path, Border control needs to fit within the given extents so we need to shrink by half the border thickness
-                var full = thickness.Left;
-                var half = full * 0.5;
-                var strokeExtents = rect.copyTo(extents);
-                rect.shrinkBy(strokeExtents, half, half, half, half);
-                var fillExtents = rect.copyTo(extents);
-                rect.shrinkBy(fillExtents, full, full, full, full);
-
-                if (!cornerRadius || cornerRadius.IsZero()) {
-                    if (backgroundBrush) {
-                        ctx.StrokeAndFillRect(borderBrush, full, strokeExtents, backgroundBrush, fillExtents);
-                    } else {
-                        ctx.Rect(fillExtents);
-                        ctx.StrokeSimple(borderBrush, full, extents);
-                    }
-                } else {
-                    var raw = Fayde.Path.RectRoundedFull(strokeExtents.X, strokeExtents.Y, strokeExtents.Width, strokeExtents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
-                    raw.draw(ctx.CanvasContext);
-                    if (backgroundBrush)
-                        ctx.Fill(backgroundBrush, fillExtents);
-                    ctx.StrokeSimple(borderBrush, full, extents);
-                }
-            };
-            Border.prototype._RenderUnbalanced = function (ctx, extents, backgroundBrush, borderBrush, thickness, cornerRadius) {
-                var hasCornerRadius = cornerRadius && !cornerRadius.IsZero();
-                var innerExtents = rect.copyTo(extents);
-                if (thickness)
-                    rect.shrinkByThickness(innerExtents, thickness);
-
-                var innerPath;
-                var outerPath;
-                if (hasCornerRadius) {
-                    outerPath = Fayde.Path.RectRoundedFull(0, 0, extents.Width, extents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
-                    innerPath = Fayde.Path.RectRoundedFull(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height, cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
-                } else {
-                    outerPath = Fayde.Path.Rect(0, 0, extents.Width, extents.Height);
-                    innerPath = Fayde.Path.Rect(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height);
-                }
-
-                var tmpCanvas = document.createElement("canvas");
-                tmpCanvas.width = extents.Width;
-                tmpCanvas.height = extents.Height;
-                var tmpCtx = tmpCanvas.getContext("2d");
-
-                outerPath.draw(tmpCtx);
-                borderBrush.SetupBrush(tmpCtx, extents);
-                tmpCtx.fillStyle = borderBrush.ToHtml5Object();
-                tmpCtx.fill();
-
-                tmpCtx.globalCompositeOperation = "xor";
-                innerPath.draw(tmpCtx);
-                tmpCtx.fill();
-
-                ctx.CanvasContext.drawImage(tmpCanvas, extents.X, extents.Y);
-
-                //DrawDebug("Draw Image (Border)");
-                innerPath.draw(ctx.CanvasContext);
-                if (backgroundBrush)
-                    ctx.Fill(backgroundBrush, innerExtents);
+                render(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
+                ctx.restore();
             };
             Border.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () {
                 return Fayde.Media.Brush;
@@ -3383,6 +3303,73 @@ else
             Namespace: "Fayde.Controls",
             XmlNamespace: Fayde.XMLNS
         });
+
+        function render(ctx, extents, backgroundBrush, borderBrush, thickness, cornerRadius) {
+            thickness = thickness || new Thickness();
+            var ia = cornerRadius ? cornerRadius.Clone() : new CornerRadius();
+            ia.TopLeft = Math.max(ia.TopLeft - Math.max(thickness.Left, thickness.Top) * 0.5, 0);
+            ia.TopRight = Math.max(ia.TopRight - Math.max(thickness.Right, thickness.Top) * 0.5, 0);
+            ia.BottomRight = Math.max(ia.BottomRight - Math.max(thickness.Right, thickness.Bottom) * 0.5, 0);
+            ia.BottomLeft = Math.max(ia.BottomLeft - Math.max(thickness.Left, thickness.Bottom) * 0.5, 0);
+
+            var oa = cornerRadius ? cornerRadius.Clone() : new CornerRadius();
+            oa.TopLeft = oa.TopLeft ? Math.max(oa.TopLeft + Math.max(thickness.Left, thickness.Top) * 0.5, 0) : 0;
+            oa.TopRight = oa.TopRight ? Math.max(oa.TopRight + Math.max(thickness.Right, thickness.Top) * 0.5, 0) : 0;
+            oa.BottomRight = oa.BottomRight ? Math.max(oa.BottomRight + Math.max(thickness.Right, thickness.Bottom) * 0.5, 0) : 0;
+            oa.BottomLeft = oa.BottomLeft ? Math.max(oa.BottomLeft + Math.max(thickness.Left, thickness.Bottom) * 0.5, 0) : 0;
+
+            var fillExtents = rect.shrinkByThickness(extents.Clone(), thickness);
+
+            ctx.beginPath();
+            if (borderBrush && !rect.isEmpty(extents)) {
+                borderBrush.SetupBrush(ctx, extents);
+                ctx.fillStyle = borderBrush.ToHtml5Object();
+                drawRect(ctx, extents, oa);
+                drawRect(ctx, fillExtents, ia);
+                ctx.fill("evenodd");
+            }
+            ctx.beginPath();
+            if (backgroundBrush && !rect.isEmpty(fillExtents)) {
+                backgroundBrush.SetupBrush(ctx, fillExtents);
+                ctx.fillStyle = backgroundBrush.ToHtml5Object();
+                drawRect(ctx, fillExtents, ia);
+                ctx.fill("evenodd");
+            }
+        }
+        var ARC_TO_BEZIER = 0.55228475;
+        function drawRect(ctx, extents, cr) {
+            if (!cr || cr.IsZero()) {
+                ctx.rect(extents.X, extents.Y, extents.Width, extents.Height);
+                return;
+            }
+
+            var top_adj = Math.max(cr.TopLeft + cr.TopRight - extents.Width, 0) / 2;
+            var bottom_adj = Math.max(cr.BottomLeft + cr.BottomRight - extents.Width, 0) / 2;
+            var left_adj = Math.max(cr.TopLeft + cr.BottomLeft - extents.Height, 0) / 2;
+            var right_adj = Math.max(cr.TopRight + cr.BottomRight - extents.Height, 0) / 2;
+
+            var tlt = cr.TopLeft - top_adj;
+            ctx.moveTo(extents.X + tlt, extents.Y);
+
+            var trt = cr.TopRight - top_adj;
+            var trr = cr.TopRight - right_adj;
+            ctx.lineTo(extents.X + extents.Width - trt, extents.Y);
+            ctx.bezierCurveTo(extents.X + extents.Width - trt + trt * ARC_TO_BEZIER, extents.Y, extents.X + extents.Width, extents.Y + trr - trr * ARC_TO_BEZIER, extents.X + extents.Width, extents.Y + trr);
+
+            var brr = cr.BottomRight - right_adj;
+            var brb = cr.BottomRight - bottom_adj;
+            ctx.lineTo(extents.X + extents.Width, extents.Y + extents.Height - brr);
+            ctx.bezierCurveTo(extents.X + extents.Width, extents.Y + extents.Height - brr + brr * ARC_TO_BEZIER, extents.X + extents.Width + brb * ARC_TO_BEZIER - brb, extents.Y + extents.Height, extents.X + extents.Width - brb, extents.Y + extents.Height);
+
+            var blb = cr.BottomLeft - bottom_adj;
+            var bll = cr.BottomLeft - left_adj;
+            ctx.lineTo(extents.X + blb, extents.Y + extents.Height);
+            ctx.bezierCurveTo(extents.X + blb - blb * ARC_TO_BEZIER, extents.Y + extents.Height, extents.X, extents.Y + extents.Height - bll + bll * ARC_TO_BEZIER, extents.X, extents.Y + extents.Height - bll);
+
+            var tll = cr.TopLeft - left_adj;
+            ctx.lineTo(extents.X, extents.Y + tll);
+            ctx.bezierCurveTo(extents.X, extents.Y + tll - tll * ARC_TO_BEZIER, extents.X + tlt - tlt * ARC_TO_BEZIER, extents.Y, extents.X + tlt, extents.Y);
+        }
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
 })(Fayde || (Fayde = {}));
@@ -4688,10 +4675,10 @@ var Fayde;
                     return;
 
                 var area = rect.fromSize(framework);
-                ctx.Save();
+                ctx.save();
                 lu.RenderLayoutClip(ctx);
-                ctx.FillRect(background, area);
-                ctx.Restore();
+                ctx.fillRectEx(background, area);
+                ctx.restore();
             };
             Panel.ZIndexProperty = DependencyProperty.RegisterAttached("ZIndex", function () {
                 return Number;
@@ -7863,24 +7850,22 @@ else if (offered > max)
                     return;
 
                 var area = rect.fromSize(framework);
-                ctx.Save();
+                ctx.save();
                 lu.RenderLayoutClip(ctx);
                 if (background)
-                    ctx.FillRect(background, area);
+                    ctx.fillRectEx(background, area);
                 if (showGridLines) {
-                    var cctx = ctx.CanvasContext;
-
                     var cuml = -1;
                     var cols = this.ColumnDefinitions;
                     if (cols) {
                         var enumerator = cols.GetEnumerator();
                         while (enumerator.MoveNext()) {
                             cuml += enumerator.Current.ActualWidth;
-                            cctx.beginPath();
-                            ctx.SetLineDash([5]);
-                            cctx.moveTo(cuml, 0);
-                            cctx.lineTo(cuml, framework.Height);
-                            cctx.stroke();
+                            ctx.beginPath();
+                            ctx.setLineDash([5]);
+                            ctx.moveTo(cuml, 0);
+                            ctx.lineTo(cuml, framework.Height);
+                            ctx.stroke();
                         }
                     }
                     var rows = this.RowDefinitions;
@@ -7889,15 +7874,15 @@ else if (offered > max)
                         var enumerator2 = rows.GetEnumerator();
                         while (enumerator2.MoveNext()) {
                             cuml += enumerator2.Current.ActualHeight;
-                            cctx.beginPath();
-                            ctx.SetLineDash([5]);
-                            cctx.moveTo(0, cuml);
-                            cctx.lineTo(framework.Width, cuml);
-                            cctx.stroke();
+                            ctx.beginPath();
+                            ctx.setLineDash([5]);
+                            ctx.moveTo(0, cuml);
+                            ctx.lineTo(framework.Width, cuml);
+                            ctx.stroke();
                         }
                     }
                 }
-                ctx.Restore();
+                ctx.restore();
             };
 
             Grid.prototype._ExpandStarRows = function (availableSize) {
@@ -8767,14 +8752,14 @@ var Fayde;
                     return;
                 }
 
-                ctx.Save();
+                ctx.save();
                 if (lu.CompositeLayoutClip || metrics.Overlap !== RectOverlap.In)
                     lu.RenderLayoutClip(ctx);
-                ctx.PreTransformMatrix(metrics.Matrix);
-                ctx.CanvasContext.drawImage(source.Image, 0, 0);
+                ctx.pretransformMatrix(metrics.Matrix);
+                ctx.drawImage(source.Image, 0, 0);
 
                 //DrawDebug("Image: [" + source.Image.src + "]");
-                ctx.Restore();
+                ctx.restore();
 
                 source.Unlock();
             };
@@ -14897,7 +14882,7 @@ var Fayde;
             };
 
             TextBlock.prototype.Render = function (ctx, lu, region) {
-                ctx.Save();
+                ctx.save();
                 lu.RenderLayoutClip(ctx);
                 var padding = this.Padding;
                 var offset = null;
@@ -14907,7 +14892,7 @@ var Fayde;
                     NotImplemented("TextBlock._Render: Right to left");
                 }
                 this.XamlNode._Layout.Render(ctx, null, offset);
-                ctx.Restore();
+                ctx.restore();
             };
 
             TextBlock.prototype.ComputeActualSize = function (baseComputer, lu) {
@@ -15519,35 +15504,34 @@ else
                         this._Layout.Select(this._TextBox.SelectionStart, this._TextBox.SelectionLength);
                         this._SelectionChanged = false;
                     }
-                    ctx.Save();
+                    ctx.save();
                     lu.RenderLayoutClip(ctx);
                     this._Layout.AvailableWidth = renderSize.Width;
                     this._RenderImpl(ctx, region);
-                    ctx.Restore();
+                    ctx.restore();
                 };
                 TextBoxView.prototype._RenderImpl = function (ctx, region) {
-                    ctx.Save();
+                    ctx.save();
                     if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
                         //TODO: Invert
                     }
                     this._Layout.Render(ctx);
                     if (this._CursorVisible) {
-                        var canvasCtx = ctx.CanvasContext;
                         var rect = this._Cursor;
-                        canvasCtx.beginPath();
-                        canvasCtx.moveTo(rect.X + 0.5, rect.Y);
-                        canvasCtx.lineTo(rect.X + 0.5, rect.Y + rect.Height);
-                        canvasCtx.lineWidth = 1.0;
+                        ctx.beginPath();
+                        ctx.moveTo(rect.X + 0.5, rect.Y);
+                        ctx.lineTo(rect.X + 0.5, rect.Y + rect.Height);
+                        ctx.lineWidth = 1.0;
                         var caretBrush = this._TextBox.CaretBrush;
                         if (caretBrush) {
-                            caretBrush.SetupBrush(canvasCtx, rect);
-                            canvasCtx.strokeStyle = caretBrush.ToHtml5Object();
+                            caretBrush.SetupBrush(ctx, rect);
+                            ctx.strokeStyle = caretBrush.ToHtml5Object();
                         } else {
-                            canvasCtx.strokeStyle = "#000000";
+                            ctx.strokeStyle = "#000000";
                         }
-                        canvasCtx.stroke();
+                        ctx.stroke();
                     }
-                    ctx.Restore();
+                    ctx.restore();
                 };
 
                 TextBoxView.prototype.OnLostFocus = function (e) {
@@ -15723,6 +15707,9 @@ var Fayde;
                     this.ItemContainerGenerator.RemoveAll();
                     this.OnClearChildren();
                 }
+                this.OnItemsChanged(sender, e);
+            };
+            VirtualizingPanel.prototype.OnItemsChanged = function (sender, e) {
             };
             return VirtualizingPanel;
         })(Controls.Panel);
@@ -16200,9 +16187,7 @@ else
                 if (scrollOwner)
                     scrollOwner.InvalidateScrollInfo();
             };
-            VirtualizingStackPanel.prototype.OnItemContainerGeneratorChanged = function (sender, e) {
-                _super.prototype.OnItemContainerGeneratorChanged.call(this, sender, e);
-
+            VirtualizingStackPanel.prototype.OnItemsChanged = function (sender, e) {
                 var generator = this.ItemContainerGenerator;
                 var owner = Controls.ItemsControl.GetItemsOwner(this);
                 var orientation = this.Orientation;
@@ -17670,6 +17655,7 @@ else
 
             var measure = this.PreviousConstraint;
             if (this.IsContainer && !measure) {
+                //This looks suspicious...PreviousContraint may be Infinity,Infinity whereas the finalRect may not be
                 this._Measure(size.fromRect(finalRect), error);
             }
             measure = this.PreviousConstraint;
@@ -17843,7 +17829,7 @@ else
             } else {
                 rect.copyTo(this.ExtentsWithChildren, region);
                 rect.transform(region, this.RenderXform);
-                rect.transform(region, ctx.CurrentTransform);
+                rect.transform(region, ctx.currentTransform);
                 rect.roundOut(region);
                 rect.intersection(region, r);
             }
@@ -17851,18 +17837,15 @@ else
             if (rect.isEmpty(region))
                 return;
 
-            ctx.Save();
+            ctx.save();
 
-            ctx.PreTransformMatrix(this.RenderXform);
-            ctx.CanvasContext.globalAlpha = this.TotalOpacity;
+            ctx.pretransformMatrix(this.RenderXform);
+            ctx.globalAlpha = this.TotalOpacity;
 
             var uie = this.Node.XObject;
-            var canvasCtx = ctx.CanvasContext;
             var clip = uie.Clip;
-            if (clip) {
-                clip.Draw(ctx);
-                canvasCtx.clip();
-            }
+            if (clip)
+                ctx.clipGeometry(clip);
 
             /*
             if (window.RenderDebug) {
@@ -17872,13 +17855,13 @@ else
             */
             var effect = uie.Effect;
             if (effect) {
-                canvasCtx.save();
+                ctx.save();
                 effect.PreRender(ctx);
             }
             if ((uie).Render)
                 (uie).Render(ctx, this, region);
             if (effect) {
-                canvasCtx.restore();
+                ctx.restore();
             }
 
             //if (window.RenderDebug) RenderDebug.Indent();
@@ -17888,7 +17871,7 @@ else
             }
 
             //if (window.RenderDebug) RenderDebug.Unindent();
-            ctx.Restore();
+            ctx.restore();
         };
 
         LayoutUpdater.prototype.FindElementsInHostCoordinates = function (p) {
@@ -17908,12 +17891,12 @@ else
 
             var thisNode = this.Node;
 
-            ctx.Save();
+            ctx.save();
             if (applyXform)
-                ctx.TransformMatrix(this.RenderXform);
+                ctx.transformMatrix(this.RenderXform);
 
             if (!this._InsideClip(ctx, p.X, p.Y)) {
-                ctx.Restore();
+                ctx.restore();
                 return;
             }
 
@@ -17928,7 +17911,7 @@ else
                     uinlist.shift();
             }
 
-            ctx.Restore();
+            ctx.restore();
         };
         LayoutUpdater.prototype.HitTestPoint = function (ctx, p, uinlist) {
             if (this.ShouldSkipHitTest)
@@ -17938,11 +17921,11 @@ else
             if (!this.TotalIsHitTestVisible)
                 return;
 
-            ctx.Save();
-            ctx.TransformMatrix(this.RenderXform);
+            ctx.save();
+            ctx.transformMatrix(this.RenderXform);
 
             if (!this._InsideClip(ctx, p.X, p.Y)) {
-                ctx.Restore();
+                ctx.restore();
                 return;
             }
 
@@ -17966,7 +17949,7 @@ else
                 }
             }
 
-            ctx.Restore();
+            ctx.restore();
         };
         LayoutUpdater.prototype._InsideObject = function (ctx, x, y) {
             if (this.IsNeverInsideObject)
@@ -17977,7 +17960,7 @@ else
             rect.set(bounds, 0, 0, fe.ActualWidth, fe.ActualHeight);
 
             //TODO: Use local variable bounds, figure out which one matches up
-            rect.transform(bounds, ctx.CurrentTransform);
+            rect.transform(bounds, ctx.currentTransform);
             if (!rect.containsPointXY(bounds, x, y))
                 return false;
 
@@ -17994,11 +17977,12 @@ else
                 return true;
 
             var bounds = clip.GetBounds();
-            rect.transform(bounds, ctx.CurrentTransform);
+            rect.transform(bounds, ctx.currentTransform);
             if (!rect.containsPointXY(bounds, x, y))
                 return false;
 
-            return ctx.IsPointInClipPath(clip, x, y);
+            clip.Draw(ctx);
+            return ctx.isPointInPath(x, y);
         };
         LayoutUpdater.prototype._InsideLayoutClip = function (ctx, x, y) {
             var layoutClip = this.LayoutClip;
@@ -18007,13 +17991,16 @@ else
 
             //TODO: Handle composite LayoutClip
             var layoutClipBounds = rect.copyTo(layoutClip);
-            rect.transform(layoutClipBounds, ctx.CurrentTransform);
+            rect.transform(layoutClipBounds, ctx.currentTransform);
             return rect.containsPointXY(layoutClipBounds, x, y);
         };
         LayoutUpdater.prototype.RenderLayoutClip = function (ctx) {
             var composite = this.CompositeLayoutClip;
-            if (composite)
-                ctx.ClipRect(composite);
+            if (composite) {
+                ctx.beginPath();
+                ctx.rect(composite.X, composite.Y, composite.Width, composite.Height);
+                ctx.clip();
+            }
         };
 
         LayoutUpdater.prototype._DebugLayout = function () {
@@ -22926,229 +22913,13 @@ else
     var Engine = Fayde.Engine;
 })(Fayde || (Fayde = {}));
 /// <reference path="../Runtime/TypeManagement.ts" />
-var Fayde;
-(function (Fayde) {
-    var caps = [
-        "butt",
-        "square",
-        "round",
-        "butt"
-    ];
-    var joins = [
-        "miter",
-        "bevel",
-        "round"
-    ];
-
-    var RenderContext = (function () {
-        function RenderContext(ctx) {
-            var _this = this;
-            this.CurrentTransform = null;
-            this._Transforms = [];
-            this.CanvasContext = ctx;
-            if (!ctx.hasOwnProperty("currentTransform")) {
-                Object.defineProperty(ctx, "currentTransform", {
-                    get: function () {
-                        return _this.CurrentTransform;
-                    },
-                    set: function (value) {
-                        ctx.setTransform(value[0], value[1], value[3], value[4], value[2], value[5]);
-                        _this.CurrentTransform = value;
-                    }
-                });
-            }
-        }
-        RenderContext.prototype.DoRender = function (layers, r) {
-            this.Clear(r);
-            this.CanvasContext.save();
-            this.ClipRect(r);
-            if (layers) {
-                var len = layers.length;
-                for (var i = 0; i < len; i++) {
-                    layers[i].LayoutUpdater.DoRender(this, r);
-                }
-            }
-            this.CanvasContext.restore();
-        };
-
-        RenderContext.prototype.Save = function () {
-            this.CanvasContext.save();
-            var ct = this.CurrentTransform;
-            this._Transforms.push(ct);
-            this.CurrentTransform = ct == null ? mat3.identity() : mat3.create(ct);
-            //if (this.CurrentTransform)
-            //TransformDebug("Save", this.CurrentTransform);
-        };
-        RenderContext.prototype.Restore = function () {
-            var curXform = this._Transforms.pop();
-            this.CurrentTransform = curXform;
-            this.CanvasContext.restore();
-            //if (this.CurrentTransform)
-            //TransformDebug("Restore", this.CurrentTransform);
-        };
-
-        RenderContext.prototype.ClipRect = function (r) {
-            var cc = this.CanvasContext;
-            cc.beginPath();
-            cc.rect(r.X, r.Y, r.Width, r.Height);
-
-            //DrawDebug("DrawClip (Rect): " + r.toString());
-            cc.clip();
-        };
-        RenderContext.prototype.ClipGeometry = function (g) {
-            g.Draw(this);
-
-            //DrawDebug("DrawClip (Geometry): " + g.toString());
-            this.CanvasContext.clip();
-        };
-
-        RenderContext.prototype.IsPointInPath = function (x, y) {
-            return this.CanvasContext.isPointInPath(x, y);
-        };
-        RenderContext.prototype.IsPointInStroke = function (pars, x, y) {
-            if (!pars)
-                return;
-            this.SetupStroke(pars);
-            var ctx = this.CanvasContext;
-            return (ctx).isPointInStoke && (ctx).isPointInStoke(x, y);
-        };
-        RenderContext.prototype.IsPointInClipPath = function (clip, x, y) {
-            clip.Draw(this);
-
-            //DrawDebug("DrawClip (Geometry): " + clip.toString());
-            return this.CanvasContext.isPointInPath(x, y);
-        };
-
-        RenderContext.prototype.Rect = function (r) {
-            var cc = this.CanvasContext;
-            cc.beginPath();
-            cc.rect(r.X, r.Y, r.Width, r.Height);
-            //DrawDebug("Rect: " + r.toString());
-        };
-        RenderContext.prototype.Fill = function (brush, r) {
-            var cc = this.CanvasContext;
-            brush.SetupBrush(cc, r);
-            cc.fillStyle = brush.ToHtml5Object();
-            cc.fill();
-            //DrawDebug("Fill: [" + cc.fillStyle.toString() + "]");
-        };
-        RenderContext.prototype.FillRect = function (brush, r) {
-            var cc = this.CanvasContext;
-            brush.SetupBrush(cc, r);
-            cc.beginPath();
-            cc.rect(r.X, r.Y, r.Width, r.Height);
-            cc.fillStyle = brush.ToHtml5Object();
-            cc.fill();
-            //DrawDebug("FillRect: [" + ctx.fillStyle.toString() + "] " + r.toString());
-        };
-        RenderContext.prototype.StrokeAndFillRect = function (strokeBrush, thickness, strokeRect, fillBrush, fillRect) {
-            var cc = this.CanvasContext;
-            strokeBrush.SetupBrush(cc, strokeRect);
-            fillBrush.SetupBrush(cc, fillRect);
-            cc.beginPath();
-            cc.rect(strokeRect.X, strokeRect.Y, strokeRect.Width, strokeRect.Height);
-            cc.fillStyle = fillBrush.ToHtml5Object();
-            cc.fill();
-            cc.lineWidth = thickness;
-            cc.strokeStyle = strokeBrush.ToHtml5Object();
-            cc.stroke();
-            //DrawDebug("StrokeAndFillRect: [" + cc.strokeStyle.toString() + "] [" + cc.fillStyle.toString() + "] " + strokeRect.toString());
-        };
-        RenderContext.prototype.SetupStroke = function (pars, region) {
-            if (!pars)
-                return false;
-            var ctx = this.CanvasContext;
-            ctx.lineWidth = pars.thickness;
-            ctx.lineCap = caps[pars.startCap || pars.endCap || 0] || caps[0];
-            ctx.lineJoin = joins[pars.join || 0] || joins[0];
-            ctx.miterLimit = pars.miterLimit;
-            return true;
-        };
-        RenderContext.prototype.Stroke = function (stroke, pars, region) {
-            if (!this.SetupStroke(pars) || !region)
-                return;
-            var ctx = this.CanvasContext;
-            stroke.SetupBrush(ctx, region);
-            ctx.strokeStyle = stroke.ToHtml5Object();
-            this.CanvasContext.stroke();
-        };
-        RenderContext.prototype.StrokeSimple = function (stroke, thickness, region) {
-            var cc = this.CanvasContext;
-            stroke.SetupBrush(cc, region);
-            cc.lineWidth = thickness;
-            cc.strokeStyle = stroke.ToHtml5Object();
-            cc.stroke();
-            //DrawDebug("Stroke: [" + cc.strokeStyle.toString() + "] -> " + cc.lineWidth.toString());
-        };
-        RenderContext.prototype.Clear = function (r) {
-            this.CanvasContext.clearRect(r.X, r.Y, r.Width, r.Height);
-            //DrawDebug("Clear: " + r.toString());
-        };
-
-        RenderContext.prototype.SetLineDash = function (offsets) {
-            var ctx = this.CanvasContext;
-            if ((ctx).setLineDash)
-                (ctx).setLineDash(offsets);
-        };
-
-        RenderContext.prototype.PreTransformMatrix = function (mat) {
-            var ct = this.CurrentTransform;
-            mat3.multiply(mat, ct, ct);
-            this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
-            this.CurrentTransform = ct;
-            //TransformDebug("PreTransform", ct);
-        };
-        RenderContext.prototype.PreTransform = function (transform) {
-            var v = transform.Value;
-            var mat;
-            if (!v || !(mat = v._Raw))
-                return;
-
-            var ct = this.CurrentTransform;
-            mat3.multiply(mat, ct, ct);
-            this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
-            this.CurrentTransform = ct;
-            //TransformDebug("PreTransform", ct);
-        };
-        RenderContext.prototype.TransformMatrix = function (mat) {
-            var ct = this.CurrentTransform;
-            mat3.multiply(ct, mat, ct);
-            var cc = this.CanvasContext;
-            this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
-            this.CurrentTransform = ct;
-            //TransformDebug("Transform", ct);
-        };
-        RenderContext.prototype.Transform = function (transform) {
-            var v = transform.Value;
-            var mat;
-            if (!v || !(mat = v._Raw))
-                return;
-
-            var ct = this.CurrentTransform;
-            mat3.multiply(ct, mat, ct);
-            var cc = this.CanvasContext;
-            this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
-            this.CurrentTransform = ct;
-            //TransformDebug("Transform", ct);
-        };
-        RenderContext.prototype.Translate = function (x, y) {
-            var ct = this.CurrentTransform;
-            mat3.translate(ct, x, y);
-            this.CanvasContext.translate(x, y);
-            //TransformDebug("Translate", ct);
-        };
-        return RenderContext;
-    })();
-    Fayde.RenderContext = RenderContext;
-})(Fayde || (Fayde = {}));
-/// <reference path="../Runtime/TypeManagement.ts" />
 var resizeTimeout;
 
 var Fayde;
 (function (Fayde) {
     var Surface = (function () {
         function Surface(app) {
-            this.TestRenderContext = new Fayde.RenderContext(Surface.TestCanvas.getContext("2d"));
+            this.TestRenderContext = Fayde.ExtendRenderContext(Surface.TestCanvas.getContext("2d"));
             this._Layers = [];
             this._UpDirty = [];
             this._DownDirty = [];
@@ -23175,7 +22946,7 @@ var Fayde;
             var _this = this;
             this._Canvas = canvas;
             this._Ctx = this._Canvas.getContext("2d");
-            this._RenderContext = new Fayde.RenderContext(this._Ctx);
+            this._RenderContext = Fayde.ExtendRenderContext(this._Ctx);
 
             this._ResizeCanvas();
             document.body.onresize = function (e) {
@@ -23398,12 +23169,19 @@ else
             if (!(r.Width > 0 && r.Height > 0))
                 return;
 
-            //var startRenderTime;
-            //var isRenderPassTimed;
-            //if (isRenderPassTimed = (this._App._DebugFunc[4] != null))
-            //startRenderTime = new Date().getTime();
-            //if (window.RenderDebug) RenderDebug.Count = 0;
-            this._RenderContext.DoRender(this._Layers, r);
+             {
+                var ctx = this._RenderContext;
+                ctx.clear(r);
+                ctx.save();
+                ctx.clipRect(r);
+                var layers = this._Layers;
+                if (layers) {
+                    for (var i = 0, len = layers.length; i < len; i++) {
+                        layers[i].LayoutUpdater.DoRender(ctx, r);
+                    }
+                }
+                ctx.restore();
+            }
             //if (window.RenderDebug) RenderDebug("UIElement Count: " + RenderDebug.Count);
             //if (isRenderPassTimed)
             //this._App._NotifyDebugRenderPass(new Date().getTime() - startRenderTime);
@@ -26978,12 +26756,10 @@ var Fayde;
                     var offsetX = Math.cos(direction) * depth;
                     var offsetY = -Math.sin(direction) * depth;
 
-                    var canvasCtx = ctx.CanvasContext;
-
-                    canvasCtx.shadowColor = "rgba(" + color.R + "," + color.G + "," + color.B + "," + opacity + ")";
-                    canvasCtx.shadowBlur = radius;
-                    canvasCtx.shadowOffsetX = offsetX;
-                    canvasCtx.shadowOffsetY = offsetY;
+                    ctx.shadowColor = "rgba(" + color.R + "," + color.G + "," + color.B + "," + opacity + ")";
+                    ctx.shadowBlur = radius;
+                    ctx.shadowOffsetX = offsetX;
+                    ctx.shadowOffsetY = offsetY;
                 };
                 DropShadowEffect.MAX_BLUR_RADIUS = 20;
                 DropShadowEffect.MAX_SHADOW_DEPTH = 300;
@@ -27065,12 +26841,12 @@ var Fayde;
 
                 var transform = this.Transform;
                 if (transform != null) {
-                    ctx.Save();
-                    ctx.Transform(transform);
+                    ctx.save();
+                    ctx.transformTransform(transform);
                 }
-                this._Path.DrawRenderCtx(ctx);
+                this._Path.Draw(ctx);
                 if (transform != null)
-                    ctx.Restore();
+                    ctx.restore();
             };
             Geometry.prototype.ComputePathBounds = function (pars) {
                 if (!this._Path)
@@ -27308,15 +27084,15 @@ var Fayde;
             GeometryGroup.prototype.Draw = function (ctx) {
                 var transform = this.Transform;
                 if (transform != null) {
-                    ctx.Save();
-                    ctx.Transform(transform);
+                    ctx.save();
+                    ctx.transformTransform(transform);
                 }
                 var enumerator = this.Children.GetEnumerator();
                 while (enumerator.MoveNext()) {
                     (enumerator.Current).Draw(ctx);
                 }
                 if (transform != null)
-                    ctx.Restore();
+                    ctx.restore();
             };
 
             GeometryGroup.prototype.GeometryChanged = function (newGeometry) {
@@ -32470,6 +32246,7 @@ var rect = (function () {
             dest.Width = 0;
         if (dest.Height < 0)
             dest.Height = 0;
+        return dest;
     };
     rect.growByThickness = function (dest, thickness) {
         dest.X -= thickness.Left;
@@ -32480,6 +32257,7 @@ var rect = (function () {
             dest.Width = 0;
         if (dest.Height < 0)
             dest.Height = 0;
+        return dest;
     };
     rect.shrinkBy = function (dest, left, top, right, bottom) {
         dest.X += left;
@@ -32490,6 +32268,7 @@ var rect = (function () {
             dest.Width = 0;
         if (dest.Height < 0)
             dest.Height = 0;
+        return dest;
     };
     rect.shrinkByThickness = function (dest, thickness) {
         dest.X += thickness.Left;
@@ -32500,6 +32279,7 @@ var rect = (function () {
             dest.Width = 0;
         if (dest.Height < 0)
             dest.Height = 0;
+        return dest;
     };
     rect.extendTo = function (rect1, x, y) {
         var rx = rect1.X;
@@ -33657,7 +33437,7 @@ var Fayde;
             ShapeNode.prototype.PostInsideObject = function (ctx, lu, x, y) {
                 var shape = this.XObject;
                 var extents = rect.copyTo(this.GetStretchExtents(shape, lu));
-                rect.transform(extents, ctx.CurrentTransform);
+                rect.transform(extents, ctx.currentTransform);
                 if (!rect.containsPointXY(extents, x, y))
                     return false;
                 return shape._InsideShape(ctx, lu, x, y);
@@ -33726,17 +33506,17 @@ var Fayde;
                 if (this._ShapeFlags & Shapes.ShapeFlags.Empty)
                     return false;
                 var ret = false;
-                ctx.Save();
-                ctx.PreTransformMatrix(this._StretchXform);
+                ctx.save();
+                ctx.pretransformMatrix(this._StretchXform);
                 if (this._Fill || this._Stroke) {
                     this._DrawPath(ctx);
                     if (this._Fill) {
-                        ret = ret || ctx.IsPointInPath(x, y);
+                        ret = ret || ctx.isPointInPath(x, y);
                     } else if (!ret) {
-                        ret = ret || ctx.IsPointInStroke(this._CreateStrokeParameters(), x, y);
+                        ret = ret || ctx.isPointInStrokeEx(this._CreateStrokeParameters(), x, y);
                     }
                 }
-                ctx.Restore();
+                ctx.restore();
                 return ret;
             };
             Shape.prototype._MeasureOverride = function (availableSize, error) {
@@ -33840,13 +33620,13 @@ else
                 if (this._ShapeFlags & Shapes.ShapeFlags.Empty)
                     return;
                 var area = this.XamlNode.GetStretchExtents(this, lu);
-                ctx.Save();
-                ctx.PreTransformMatrix(this._StretchXform);
+                ctx.save();
+                ctx.pretransformMatrix(this._StretchXform);
                 this._DrawPath(ctx);
                 if (this._Fill != null)
-                    ctx.Fill(this._Fill, area);
-                ctx.Stroke(this._Stroke, this._CreateStrokeParameters(), area);
-                ctx.Restore();
+                    ctx.fillEx(this._Fill, area);
+                ctx.strokeEx(this._Stroke, this._CreateStrokeParameters(), area);
+                ctx.restore();
             };
 
             Shape.prototype._GetFillRule = function () {
@@ -33857,7 +33637,7 @@ else
             };
             Shape.prototype._DrawPath = function (ctx) {
                 this._Path = this._Path || this._BuildPath();
-                this._Path.DrawRenderCtx(ctx);
+                this._Path.Draw(ctx);
             };
 
             Shape.prototype.ComputeActualSize = function (baseComputer, lu) {
@@ -35120,7 +34900,7 @@ var Fayde;
                     return;
                 var font = attrs.Font;
                 var y0 = font._Ascender();
-                ctx.Translate(x, y - y0);
+                ctx.translate(x, y - y0);
 
                 var fontHeight = font.GetActualHeight();
                 var area = new rect();
@@ -35134,35 +34914,33 @@ var Fayde;
 
                 var brush = attrs.GetBackground(this._Selected);
                 if (brush) {
-                    ctx.FillRect(brush, area);
+                    ctx.fillRectEx(brush, area);
                 }
 
-                var canvasCtx = ctx.CanvasContext;
                 brush = attrs.GetForeground(this._Selected);
+                var brushHtml5 = "#000000";
                 if (brush) {
-                    brush.SetupBrush(canvasCtx, area);
-                    var brushHtml5 = brush.ToHtml5Object();
-                    canvasCtx.fillStyle = brushHtml5;
-                } else {
-                    canvasCtx.fillStyle = "#000000";
+                    brush.SetupBrush(ctx, area);
+                    brushHtml5 = brush.ToHtml5Object();
                 }
-                canvasCtx.font = font.ToHtml5Object();
-                canvasCtx.textAlign = "left";
+                ctx.fillStyle = brushHtml5;
+                ctx.font = font.ToHtml5Object();
+                ctx.textAlign = "left";
                 if (isFirefox) {
-                    canvasCtx.textBaseline = "bottom";
-                    canvasCtx.fillText(this._Text, 0, fontHeight);
+                    ctx.textBaseline = "bottom";
+                    ctx.fillText(this._Text, 0, fontHeight);
                 } else {
-                    canvasCtx.textBaseline = "top";
-                    canvasCtx.fillText(this._Text, 0, 0);
+                    ctx.textBaseline = "top";
+                    ctx.fillText(this._Text, 0, 0);
                 }
 
                 if (attrs.IsUnderlined) {
-                    canvasCtx.beginPath();
-                    canvasCtx.moveTo(0, fontHeight);
-                    canvasCtx.lineTo(this._Advance, fontHeight);
-                    canvasCtx.lineWidth = 2;
-                    canvasCtx.strokeStyle = brushHtml5;
-                    canvasCtx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(0, fontHeight);
+                    ctx.lineTo(this._Advance, fontHeight);
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = brushHtml5;
+                    ctx.stroke();
                 }
             };
             return TextLayoutGlyphCluster;
@@ -35228,9 +35006,9 @@ var Fayde;
 
                 for (var i = 0; i < this._Clusters.length; i++) {
                     var cluster = this._Clusters[i];
-                    ctx.Save();
+                    ctx.save();
                     cluster._Render(ctx, origin, this._Attrs, x0, y);
-                    ctx.Restore();
+                    ctx.restore();
                     x0 += cluster._Advance;
                 }
             };
@@ -36065,6 +35843,191 @@ var Fayde;
         });
     })(Fayde.Controls || (Fayde.Controls = {}));
     var Controls = Fayde.Controls;
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    function ExtendRenderContext(ctx) {
+        var c = ctx;
+        Ex.Transforms(c);
+        Ex.TransformEx(c);
+        Ex.LineDash(c);
+        Ex.Clear(c);
+        Ex.Fill(c);
+        Ex.Stroke(c);
+        Ex.Clip(c);
+        return c;
+    }
+    Fayde.ExtendRenderContext = ExtendRenderContext;
+
+    var Ex;
+    (function (Ex) {
+        function Transforms(ctx) {
+            var hasct = !!Object.getOwnPropertyDescriptor(ctx, "currentTransform");
+            if (hasct)
+                return true;
+            var mozct = Object.getOwnPropertyDescriptor(ctx, "mozCurrentTransform");
+            if (mozct) {
+                Object.defineProperty(ctx, "currentTransform", {
+                    get: function () {
+                        return (ctx).mozCurrentTransform;
+                    },
+                    set: function (value) {
+                        (ctx).mozCurrentTransform = value;
+                    }
+                });
+                return true;
+            }
+
+            //No browser implementation of currentTransform, we need to polyfill
+            var transforms = [];
+            var super_ = CanvasRenderingContext2D.prototype;
+
+            ctx.save = function () {
+                super_.save.call(ctx);
+                var ct = ctx.currentTransform;
+                transforms.push(ct);
+                ctx.currentTransform = !ct ? mat3.identity() : mat3.create(ct);
+            };
+            ctx.restore = function () {
+                var cur = transforms.pop();
+                ctx.currentTransform = cur;
+                super_.restore.call(ctx);
+            };
+
+            ctx.transform = function (m11, m12, m21, m22, dx, dy) {
+                var ct = ctx.currentTransform;
+                mat3.multiply(ct, mat3.create([m11, m12, dx, m21, m22, dy]), ct);
+                super_.transform.call(ctx, m11, m12, m21, m22, dx, dy);
+                ctx.currentTransform = ct;
+            };
+            ctx.rotate = function (angle) {
+                var ct = ctx.currentTransform;
+                var r = mat3.createRotate(angle);
+                mat3.multiply(ct, r, ct);
+                super_.rotate.call(ctx, angle);
+            };
+            ctx.scale = function (x, y) {
+                var ct = ctx.currentTransform;
+                mat3.scale(ct, x, y);
+                super_.scale.call(ctx, x, y);
+            };
+            ctx.translate = function (x, y) {
+                var ct = ctx.currentTransform;
+                mat3.translate(ct, x, y);
+                super_.translate.call(ctx, x, y);
+            };
+
+            return false;
+        }
+        Ex.Transforms = Transforms;
+        function TransformEx(ctx) {
+            ctx.transformMatrix = function (mat) {
+                var ct = ctx.currentTransform;
+                mat3.multiply(ct, mat, ct);
+                ctx.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
+                ctx.currentTransform = ct;
+            };
+            ctx.transformTransform = function (transform) {
+                var v = transform.Value;
+                var mat;
+                if (!v || !(mat = v._Raw))
+                    return;
+                ctx.transformMatrix(mat);
+            };
+            ctx.pretransformMatrix = function (mat) {
+                var ct = ctx.currentTransform;
+                mat3.multiply(mat, ct, ct);
+                ctx.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
+                ctx.currentTransform = ct;
+            };
+            ctx.pretransformTransform = function (transform) {
+                var v = transform.Value;
+                var mat;
+                if (!v || !(mat = v._Raw))
+                    return;
+                ctx.pretransformMatrix(mat);
+            };
+        }
+        Ex.TransformEx = TransformEx;
+        function LineDash(ctx) {
+            if (!ctx.setLineDash)
+                ctx.setLineDash = function (segments) {
+                };
+        }
+        Ex.LineDash = LineDash;
+        function Clear(ctx) {
+            ctx.clear = function (r) {
+                ctx.clearRect(r.X, r.Y, r.Width, r.Height);
+            };
+        }
+        Ex.Clear = Clear;
+        function Fill(ctx) {
+            ctx.fillEx = function (brush, r) {
+                brush.SetupBrush(ctx, r);
+                ctx.fillStyle = brush.ToHtml5Object();
+                ctx.fill();
+            };
+            ctx.fillRectEx = function (brush, r) {
+                brush.SetupBrush(ctx, r);
+                ctx.fillStyle = brush.ToHtml5Object();
+                ctx.beginPath();
+                ctx.rect(r.X, r.Y, r.Width, r.Height);
+                ctx.fill();
+            };
+        }
+        Ex.Fill = Fill;
+        function Stroke(ctx) {
+            var caps = [
+                "butt",
+                "square",
+                "round",
+                "butt"
+            ];
+            var joins = [
+                "miter",
+                "bevel",
+                "round"
+            ];
+            ctx.setupStroke = function (pars) {
+                if (!pars)
+                    return false;
+                ctx.lineWidth = pars.thickness;
+                ctx.lineCap = caps[pars.startCap || pars.endCap || 0] || caps[0];
+                ctx.lineJoin = joins[pars.join || 0] || joins[0];
+                ctx.miterLimit = pars.miterLimit;
+                return true;
+            };
+            ctx.strokeEx = function (brush, pars, region) {
+                if (!region || !ctx.setupStroke(pars))
+                    return;
+                brush.SetupBrush(ctx, region);
+                ctx.strokeStyle = brush.ToHtml5Object();
+                ctx.stroke();
+            };
+            ctx.isPointInStroke = ctx.isPointInStroke || function (x, y) {
+                return false;
+            };
+            ctx.isPointInStrokeEx = function (pars, x, y) {
+                if (!pars)
+                    return;
+                ctx.setupStroke(pars);
+                return ctx.isPointInStroke(x, y);
+            };
+        }
+        Ex.Stroke = Stroke;
+        function Clip(ctx) {
+            ctx.clipRect = function (r) {
+                ctx.beginPath();
+                ctx.rect(r.X, r.Y, r.Width, r.Height);
+                ctx.clip();
+            };
+            ctx.clipGeometry = function (g) {
+                g.Draw(ctx);
+                ctx.clip();
+            };
+        }
+        Ex.Clip = Clip;
+    })(Ex || (Ex = {}));
 })(Fayde || (Fayde = {}));
 var Fayde;
 (function (Fayde) {
@@ -37435,15 +37398,12 @@ var Fayde;
                 this._Path.push(Path.Close());
             };
 
-            RawPath.prototype.DrawRenderCtx = function (ctx) {
-                this.DrawCanvasCtx(ctx.CanvasContext);
-            };
-            RawPath.prototype.DrawCanvasCtx = function (canvasCtx) {
-                canvasCtx.beginPath();
+            RawPath.prototype.Draw = function (ctx) {
+                ctx.beginPath();
                 var path = this._Path;
                 var len = path.length;
                 for (var i = 0; i < len; i++) {
-                    path[i].draw(canvasCtx);
+                    path[i].draw(ctx);
                 }
             };
             RawPath.prototype.CalculateBounds = function (pars) {
