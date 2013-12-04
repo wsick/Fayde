@@ -111,6 +111,9 @@
     <Compile Include="Tests\MapTest.xaml.cs">
       <DependentUpon>MapTest.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tests\nfldraft.xaml.cs">
+      <DependentUpon>nfldraft.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tests\RectangleTest.xaml.cs">
       <DependentUpon>RectangleTest.xaml</DependentUpon>
     </Compile>
@@ -172,6 +175,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Tests\MapTest.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Tests\nfldraft.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
