@@ -47,3 +47,14 @@ Demos/NflDraft/Models/Team.js
 Source/Fayde.Controls.Input/Fayde.Controls.Input.js
 Source/Fayde.Controls.Ex/Fayde.Controls.Ex.js
 Demos/DrawingSurface/Controls/DrawingPad.js
+Source/Fayde.Tests/scripts/Fayde.d.ts
+Source/Fayde.Tests/scripts/Fayde.js
+Source/Fayde.Tests/BindingTests.js
+Source/Fayde.Tests/ItemsControlTests.js
+Source/Fayde.Tests/MarkupExpressionTests.js
+Source/Fayde.Tests/PrimitivesTests.js
+Source/Fayde.Tests/ProviderTests.js
+Source/Fayde.Tests/TimelineTests.js
+Source/Fayde.Tests/TransformTests.js
+Source/Fayde.Tests/TypeConverterTests.js
+Source/Fayde.Tests/UriMapperTests.js
