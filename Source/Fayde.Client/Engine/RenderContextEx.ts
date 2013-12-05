@@ -1,6 +1,7 @@
 module Fayde {
     export interface RenderContextEx extends CanvasRenderingContext2D {
         currentTransform: number[];
+        resetTransform();
         transformMatrix(mat: number[]);
         transformTransform(transform: Media.Transform);
         pretransformMatrix(mat: number[]);
@@ -62,12 +63,18 @@ module Fayde {
             };
             
             ctx.setTransform = function (m11: number, m12: number, m21: number, m22: number, dx: number, dy: number) {
-                ctx.currentTransform = mat3.create([m11, m12, dx, m21, m22, dy]);
+                ctx.currentTransform = mat3.create([m11, m12, dx, m21, m22, dy, 0, 0, 1]);
                 super_.setTransform.call(ctx, m11, m12, m21, m22, dx, dy);
+            };
+            
+            ctx.resetTransform = function () {
+                ctx.currentTransform = mat3.identity();
+                if ((<any>super_).resetTransform)
+                    (<any>super_).resetTransform.call(ctx);
             };
             ctx.transform = function (m11: number, m12: number, m21: number, m22: number, dx: number, dy: number) {
                 var ct = ctx.currentTransform;
-                mat3.multiply(ct, mat3.create([m11, m12, dx, m21, m22, dy]), ct);
+                mat3.multiply(ct, mat3.create([m11, m12, dx, m21, m22, dy, 0, 0, 1]), ct);
                 super_.transform.call(ctx, m11, m12, m21, m22, dx, dy);
                 ctx.currentTransform = ct;
             };
