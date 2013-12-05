@@ -60,7 +60,11 @@ module Fayde {
                 ctx.currentTransform = cur;
                 super_.restore.call(ctx);
             };
-
+            
+            ctx.setTransform = function (m11: number, m12: number, m21: number, m22: number, dx: number, dy: number) {
+                ctx.currentTransform = mat3.create([m11, m12, dx, m21, m22, dy]);
+                super_.setTransform.call(ctx, m11, m12, m21, m22, dx, dy);
+            };
             ctx.transform = function (m11: number, m12: number, m21: number, m22: number, dx: number, dy: number) {
                 var ct = ctx.currentTransform;
                 mat3.multiply(ct, mat3.create([m11, m12, dx, m21, m22, dy]), ct);
@@ -91,7 +95,6 @@ module Fayde {
                 var ct = ctx.currentTransform;
                 mat3.multiply(ct, mat, ct); //ct = matrix * ct
                 ctx.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
-                ctx.currentTransform = ct;
             };
             ctx.transformTransform = function (transform: Media.Transform) {
                 var v = transform.Value;
@@ -104,7 +107,6 @@ module Fayde {
                 var ct = ctx.currentTransform;
                 mat3.multiply(mat, ct, ct); //ct = ct * matrix
                 ctx.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
-                ctx.currentTransform = ct;
             };
             ctx.pretransformTransform = function (transform: Media.Transform) {
                 var v = transform.Value;
