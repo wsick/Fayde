@@ -1,5 +1,3 @@
-/// <reference path="scripts/qunit-1.10.0.d.ts" />
-/// <reference path="scripts/Fayde.d.ts" />
 QUnit.module("Markup Expression Tests");
 
 var TestConverter = (function () {
@@ -128,4 +126,3 @@ test("EventBinding", function () {
     button.OnClick();
     ok(methodcalled, "Implicit Command, CommandParameter.");
 });
-//# sourceMappingURL=MarkupExpressionTests.js.map

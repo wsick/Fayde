@@ -1,5 +1,3 @@
-/// <reference path="scripts/qunit-1.10.0.d.ts" />
-/// <reference path="scripts/Fayde.d.ts" />
 QUnit.module("Binding Tests");
 
 test("BindingExpression with Source", function () {
@@ -86,4 +84,3 @@ test("UpdateSource", function () {
     expr.UpdateSource();
     equal(data.Value, 100, "Explicit Two-Way Binding should update after UpdateSource()");
 });
-//# sourceMappingURL=BindingTests.js.map

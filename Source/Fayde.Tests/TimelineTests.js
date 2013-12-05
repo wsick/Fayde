@@ -1,5 +1,3 @@
-/// <reference path="scripts/qunit-1.10.0.d.ts" />
-/// <reference path="scripts/Fayde.d.ts" />
 QUnit.module("Timeline Tests");
 
 test("Storyboard Natural Duration", function () {
@@ -56,7 +54,6 @@ test("Storyboard Update", function () {
     storyboard.Children.Add(a1);
     a1.Duration = new Duration(TimeSpan.FromArgs(0, 0, 0, 0, 100));
 
-    //Animation #1 delays 0ms, duration of 200ms, no speed up, no auto reverse, run once
     var b1 = new Fayde.Controls.Border();
     Fayde.Media.Animation.Storyboard.SetTargetProperty(a1, new Fayde.Data.PropertyPath("(FrameworkElement.Height)"));
     Fayde.Media.Animation.Storyboard.SetTarget(a1, b1);
@@ -71,7 +68,6 @@ test("Storyboard Update", function () {
     a2.SpeedRatio = 2.0;
     a2.BeginTime = TimeSpan.FromArgs(0, 0, 0, 0, 50);
 
-    //Animation #2 delays 50ms, duration of 200ms, sped up x2, autoreverse, run twice
     var b2 = new Fayde.Controls.Border();
     Fayde.Media.Animation.Storyboard.SetTargetProperty(a2, new Fayde.Data.PropertyPath("(FrameworkElement.Height)"));
     Fayde.Media.Animation.Storyboard.SetTarget(a2, b2);
@@ -113,4 +109,3 @@ test("Storyboard Update", function () {
     strictEqual(b2.Height, 1.0, "Animation #2 hit 450ms, 400ms past begin time, height should be 1.0.");
     ok(a2completed, "Animation #2 should have raised Completed event.");
 });
-//# sourceMappingURL=TimelineTests.js.map

@@ -1,5 +1,3 @@
-/// <reference path="scripts/qunit-1.10.0.d.ts" />
-/// <reference path="scripts/Fayde.d.ts" />
 QUnit.module("Primitives Tests");
 
 test("size", function () {
@@ -185,19 +183,16 @@ test("Vector", function () {
         close(v1[1], v2[1], message + ".2");
     }
 
-    //normalize
     var n = Vector.normalize([2, 2]);
     vecEqual(n, [Math.SQRT2 / 2, Math.SQRT2 / 2], "#1");
     n = Vector.normalize([0, 5]);
     vecEqual(n, [0.0, 1.0], "#2");
 
-    //reverse
     var r = Vector.reverse([-3, -5]);
     vecEqual(r, [3, 5], "#3");
     r = Vector.reverse([6, 2]);
     vecEqual(r, [-6, -2], "#4");
 
-    //orthogonal
     var o = Vector.orthogonal([1, 1]);
     vecEqual(o, [-1, 1], "#5");
     o = Vector.orthogonal([-1, 1]);
@@ -207,7 +202,6 @@ test("Vector", function () {
     o = Vector.orthogonal([1, -1]);
     vecEqual(o, [1, 1], "#8");
 
-    //rotate
     var rt2_2 = Math.SQRT2 / 2;
     var t = Vector.rotate([1, 0], Math.PI / 4);
     vecEqual(t, [rt2_2, rt2_2], "#9");
@@ -220,7 +214,6 @@ test("Vector", function () {
     t = Vector.rotate([-1, 0], Math.PI / 4);
     vecEqual(t, [-rt2_2, -rt2_2], "#13");
 
-    //angle between
     var b = Vector.angleBetween([1, 0], [rt2_2, rt2_2]);
     close(b, Math.PI / 4, "#14");
     b = Vector.angleBetween([1, 0], [-rt2_2, rt2_2]);
@@ -228,4 +221,3 @@ test("Vector", function () {
     b = Vector.angleBetween([1, 0], [-rt2_2, -rt2_2]);
     close(b, 3 * Math.PI / 4, "#16");
 });
-//# sourceMappingURL=PrimitivesTests.js.map

@@ -1,5 +1,3 @@
-/// <reference path="scripts/qunit-1.10.0.d.ts" />
-/// <reference path="scripts/Fayde.d.ts" />
 QUnit.module("Provider Tests");
 
 var Mock1Property = DependencyProperty.Register("Mock1", function () {
@@ -124,7 +122,6 @@ test("Styles", function () {
     var error = new BError();
     ok(root.XamlNode.AttachVisualChild(child, error), "Attaching child to root should not fail: " + error.Message);
 
-    //Test implicit style
     var val = child.GetValue(Fayde.UIElement.TagProperty);
     strictEqual(val, undefined, "Child Tag should be undefined by default.");
     var visualTreeStyle = new Fayde.Style();
@@ -162,7 +159,6 @@ test("Styles", function () {
     val = child.GetValue(Fayde.UIElement.VisibilityProperty);
     strictEqual(val, Fayde.Visibility.Visible, "Child Visibility should default to Visible.");
 
-    //Test local style
     var localStyle = new Fayde.Style();
     var s3 = new Fayde.Setter();
     s3.Property = Fayde.UIElement.TagProperty;
@@ -204,7 +200,6 @@ test("DataContext", function () {
     var root = new Fayde.FrameworkElement();
     var child = new Fayde.FrameworkElement();
 
-    //Test inherited DataContext
     var effectiveDataContext = {};
 
     root.SetValue(Fayde.DependencyObject.DataContextProperty, effectiveDataContext);
@@ -222,7 +217,6 @@ test("DataContext", function () {
     val = child.GetValue(Fayde.DependencyObject.DataContextProperty);
     strictEqual(val, undefined, "Child DataContext should be undefined after clearing root DataContext value.");
 
-    //Test inherited  with binding expression
     var root2 = new Fayde.Controls.Border();
     var vm = { Child: {} };
     root2.DataContext = vm;
@@ -272,4 +266,3 @@ test("IsEnabled", function () {
     theBorder.Child = null;
     ok(child.IsEnabled, "Child IsEnabled is no longer in the tree. IsEnabled should be local value true.");
 });
-//# sourceMappingURL=ProviderTests.js.map

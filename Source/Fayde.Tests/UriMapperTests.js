@@ -1,5 +1,3 @@
-/// <reference path="scripts/qunit-1.10.0.d.ts" />
-/// <reference path="scripts/Fayde.d.ts" />
 QUnit.module("Uri Mapper");
 
 test("MapUri", function () {
@@ -21,4 +19,3 @@ test("MapUri", function () {
     var mapped = mapper.MapUri(new Uri("/Core", UriKind.Relative));
     strictEqual(mapped.toString(), "/Views/Core.fayde", "PageName");
 });
-//# sourceMappingURL=UriMapperTests.js.map

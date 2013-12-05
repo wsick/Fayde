@@ -1,5 +1,3 @@
-/// <reference path="scripts/qunit-1.10.0.d.ts" />
-/// <reference path="scripts/Fayde.d.ts" />
 QUnit.module("Type Converter Tests");
 
 test("Primitives", function () {
@@ -314,4 +312,3 @@ test("RowDefinition", function () {
     strictEqual(rdh.Type, Fayde.Controls.GridUnitType.Pixel, "5.2");
     strictEqual(rdh.Value, 150, "5.3");
 });
-//# sourceMappingURL=TypeConverterTests.js.map

@@ -1,5 +1,3 @@
-/// <reference path="scripts/qunit-1.10.0.d.ts" />
-/// <reference path="scripts/Fayde.d.ts" />
 QUnit.module("Transform Tests");
 
 test("Change Notification", function () {
@@ -32,4 +30,3 @@ test("Change Notification", function () {
     ok(collchanged, "Changing TranslateTransform property in TransformCollection should notify Collection listener of change.");
     collchanged = false;
 });
-//# sourceMappingURL=TransformTests.js.map

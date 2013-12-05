@@ -18,14 +18,6 @@ module NflDraft.ViewModels {
         FantasyTeams: Array<Models.FantasyTeam> = new Array<Models.FantasyTeam>();
         FantasyPlayers: Fayde.Collections.ObservableCollection<Models.FantasyPlayer> = new Fayde.Collections.ObservableCollection<Models.FantasyPlayer>();
         ChatMessages: Fayde.Collections.ObservableCollection<Models.ChatMessage> = new Fayde.Collections.ObservableCollection<Models.ChatMessage>();
-        private _draftComplete: boolean;
-        get DraftComplete(): boolean {
-            return this._draftComplete;
-        }
-        set DraftComplete(value: boolean) {
-            this._draftComplete = value;
-            this.OnPropertyChanged("DraftComplete");
-        }
         private _countdown: number;
         get Countdown(): number {
             return this._countdown;
@@ -37,8 +29,10 @@ module NflDraft.ViewModels {
         private _selectedPlayer: Models.FantasyPlayer;
         get SelectedPlayer(): Models.FantasyPlayer { return this._selectedPlayer; }
         set SelectedPlayer(value: Models.FantasyPlayer) {
-            this._selectedPlayer = value;
-            this.OnPropertyChanged("SelectedPlayer");
+            if (value != null) {
+                this._selectedPlayer = value;
+                this.OnPropertyChanged("SelectedPlayer");
+            }
         }
         private _interval_id: number;
 
@@ -214,7 +208,7 @@ module NflDraft.ViewModels {
                 this.FantasyPlayers.Add(fantasyPlayer);
             }
 
-            this.Countdown = 3;
+            this.Countdown = 10;
             this.SelectedPlayer = this.FantasyPlayers.GetValueAt(0);
             this._interval_id = setInterval(() => this.DoWork(), 1000);
         }
@@ -231,7 +225,7 @@ module NflDraft.ViewModels {
                 this.Rounds.GetValueAt(0).DraftSpots.RemoveAt(0);
                 if (this.Rounds.GetValueAt(0).DraftSpots.Count == 0)
                     this.Rounds.RemoveAt(0);
-                current = 3;
+                current = 10;
             }
             else
                 current = current - 1;

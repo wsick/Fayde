@@ -1,5 +1,3 @@
-/// <reference path="scripts/qunit-1.10.0.d.ts" />
-/// <reference path="scripts/Fayde.d.ts" />
 QUnit.module("ItemsControl Tests");
 
 test("ItemContainerGenerator Initialization", function () {
@@ -186,4 +184,3 @@ test("Virtualizing Non-UI Items", function () {
     ok(icg.ContainerFromIndex(1) === undefined, "Items.Clear: Container @ 1 should no longer exist.");
     ok(icg.ContainerFromIndex(0) === undefined, "Items.Clear: Container @ 0 should no longer exist.");
 });
-//# sourceMappingURL=ItemsControlTests.js.map

@@ -720,6 +720,9 @@ declare module Fayde.Controls {
         private _BorderThicknessChanged(args);
         private _PaddingChanged(args);
         private Render(ctx, lu, region);
+        private _RenderFillOnly(ctx, extents, backgroundBrush, thickness, cornerRadius);
+        private _RenderBalanced(ctx, extents, backgroundBrush, borderBrush, thickness, cornerRadius);
+        private _RenderUnbalanced(ctx, extents, backgroundBrush, borderBrush, thickness, cornerRadius);
     }
 }
 declare module Fayde.Providers {
@@ -1009,7 +1012,7 @@ declare module Fayde.Controls {
         public _InvalidateChildrenZIndices(): void;
         public _ResortChildrenByZIndex(): void;
         public OnIsAttachedChanged(newIsAttached: boolean): void;
-        public PostInsideObject(ctx: Fayde.RenderContextEx, lu: Fayde.LayoutUpdater, x: number, y: number): boolean;
+        public PostInsideObject(ctx: Fayde.RenderContext, lu: Fayde.LayoutUpdater, x: number, y: number): boolean;
         public ComputeBounds(baseComputer: () => void, lu: Fayde.LayoutUpdater): void;
         public GetVisualTreeEnumerator(direction?: Fayde.VisualTreeDirection): Fayde.IEnumerator<Fayde.FENode>;
     }
@@ -1035,7 +1038,7 @@ declare module Fayde.Controls {
         static SetZ(uie: Fayde.UIElement, value: number): void;
         private _BackgroundChanged(args);
         public _MeasureOverride(availableSize: size, error: BError): size;
-        public Render(ctx: Fayde.RenderContextEx, lu: Fayde.LayoutUpdater, region: rect): void;
+        public Render(ctx: Fayde.RenderContext, lu: Fayde.LayoutUpdater, region: rect): void;
     }
 }
 declare module Fayde.Controls {
@@ -1397,7 +1400,7 @@ declare module Fayde.Controls {
         constructor();
         public _MeasureOverride(availableSize: size, error: BError): size;
         public _ArrangeOverride(finalSize: size, error: BError): size;
-        public Render(ctx: Fayde.RenderContextEx, lu: Fayde.LayoutUpdater, region: rect): void;
+        public Render(ctx: Fayde.RenderContext, lu: Fayde.LayoutUpdater, region: rect): void;
         private _ExpandStarRows(availableSize);
         private _ExpandStarCols(availableSize);
         private _AllocateDesiredSize(rowCount, colCount);
@@ -1497,7 +1500,7 @@ declare module Fayde.Controls {
     class ImageNode extends Fayde.FENode implements Fayde.IPostInsideObject {
         public XObject: Image;
         constructor(xobj: Image);
-        public PostInsideObject(ctx: Fayde.RenderContextEx, lu: Fayde.LayoutUpdater, x: number, y: number): boolean;
+        public PostInsideObject(ctx: Fayde.RenderContext, lu: Fayde.LayoutUpdater, x: number, y: number): boolean;
     }
     class Image extends Fayde.FrameworkElement implements Fayde.IActualSizeComputable, Fayde.IMeasurableHidden, Fayde.IArrangeableHidden, Fayde.IRenderable, Fayde.Media.Imaging.IImageChangedListener {
         public XamlNode: ImageNode;
@@ -1511,7 +1514,7 @@ declare module Fayde.Controls {
         public ImageFailed: MulticastEvent<EventArgs>;
         public _MeasureOverride(availableSize: size, error: BError): size;
         public _ArrangeOverride(finalSize: size, error: BError): size;
-        public Render(ctx: Fayde.RenderContextEx, lu: Fayde.LayoutUpdater, region: rect): void;
+        public Render(ctx: Fayde.RenderContext, lu: Fayde.LayoutUpdater, region: rect): void;
         public ComputeActualSize(baseComputer: () => size, lu: Fayde.LayoutUpdater);
         private _SourceChanged(args);
         public OnImageErrored(source: Fayde.Media.Imaging.BitmapSource, e: Event): void;
@@ -1674,7 +1677,7 @@ declare module Fayde.Controls {
     class MENode extends Fayde.FENode implements Fayde.IPostInsideObject {
         public XObject: MediaElement;
         constructor(xobj: MediaElement);
-        public PostInsideObject(ctx: Fayde.RenderContextEx, lu: Fayde.LayoutUpdater, x: number, y: number): boolean;
+        public PostInsideObject(ctx: Fayde.RenderContext, lu: Fayde.LayoutUpdater, x: number, y: number): boolean;
     }
     class MediaElement extends Fayde.FrameworkElement implements Fayde.IMeasurableHidden, Fayde.IArrangeableHidden {
         public XamlNode: MENode;
@@ -2551,7 +2554,7 @@ declare module Fayde.Controls {
         constructor();
         public _MeasureOverride(availableSize: size, error: BError): size;
         public _ArrangeOverride(finalSize: size, error: BError): size;
-        public Render(ctx: Fayde.RenderContextEx, lu: Fayde.LayoutUpdater, region: rect): void;
+        public Render(ctx: Fayde.RenderContext, lu: Fayde.LayoutUpdater, region: rect): void;
         public ComputeActualSize(baseComputer: () => size, lu: Fayde.LayoutUpdater): size;
         private _ForegroundListener;
         public FontChanged(args: IDependencyPropertyChangedEventArgs): void;
@@ -2658,7 +2661,7 @@ declare module Fayde.Controls.Internal {
         public GetLineFromY(y: number): Fayde.Text.TextLayoutLine;
         public GetLineFromIndex(index: number): Fayde.Text.TextLayoutLine;
         public GetCursorFromXY(x: number, y: number): number;
-        public Render(ctx: Fayde.RenderContextEx, lu: Fayde.LayoutUpdater, region: rect): void;
+        public Render(ctx: Fayde.RenderContext, lu: Fayde.LayoutUpdater, region: rect): void;
         private _RenderImpl(ctx, region);
         public OnLostFocus(e): void;
         public OnGotFocus(e): void;
@@ -2696,8 +2699,7 @@ declare module Fayde.Controls {
         public RemoveInternalChildRange(index: number, range: number): void;
         public BringIndexIntoView(index): void;
         public OnClearChildren(): void;
-        private OnItemContainerGeneratorChanged(sender, e);
-        public OnItemsChanged(sender: any, e: Controls.Primitives.ItemsChangedEventArgs): void;
+        public OnItemContainerGeneratorChanged(sender, e: Controls.Primitives.ItemsChangedEventArgs): void;
     }
 }
 declare module Fayde.Controls {
@@ -2761,7 +2763,7 @@ declare module Fayde.Controls {
         public RemoveUnusedContainers(first: number, count: number): void;
         public OnCleanUpVirtualizedItem(uie: Fayde.UIElement, value): ICancelable;
         public OnClearChildren(): void;
-        public OnItemsChanged(sender: any, e: Controls.Primitives.ItemsChangedEventArgs): void;
+        public OnItemContainerGeneratorChanged(sender, e: Controls.Primitives.ItemsChangedEventArgs): void;
     }
 }
 declare module Fayde {
@@ -2886,7 +2888,7 @@ declare module Fayde {
         _ArrangeOverride(finalSize: size, error: BError): size;
     }
     interface IRenderable {
-        Render(ctx: Fayde.RenderContextEx, lu: LayoutUpdater, region: rect);
+        Render(ctx: Fayde.RenderContext, lu: LayoutUpdater, region: rect);
     }
     interface IActualSizeComputable {
         ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater);
@@ -2898,7 +2900,7 @@ declare module Fayde {
         PostCompute(lu: LayoutUpdater, hasLocalProjection: boolean);
     }
     interface IPostInsideObject {
-        PostInsideObject(ctx: Fayde.RenderContextEx, lu: LayoutUpdater, x: number, y: number): boolean;
+        PostInsideObject(ctx: Fayde.RenderContext, lu: LayoutUpdater, x: number, y: number): boolean;
     }
     class LayoutUpdater {
         public Node: Fayde.UINode;
@@ -3003,14 +3005,14 @@ declare module Fayde {
         public _Measure(availableSize: size, error: BError): void;
         private _DoArrangeWithError(error);
         public _Arrange(finalRect: rect, error: BError): void;
-        public DoRender(ctx: Fayde.RenderContextEx, r: rect): void;
+        public DoRender(ctx: Fayde.RenderContext, r: rect): void;
         public FindElementsInHostCoordinates(p: Point): Fayde.UINode[];
         private _FindElementsInHostCoordinates(ctx, p, uinlist, applyXform);
-        public HitTestPoint(ctx: Fayde.RenderContextEx, p: Point, uinlist: Fayde.UINode[]): void;
+        public HitTestPoint(ctx: Fayde.RenderContext, p: Point, uinlist: Fayde.UINode[]): void;
         private _InsideObject(ctx, x, y);
         private _InsideClip(ctx, x, y);
         private _InsideLayoutClip(ctx, x, y);
-        public RenderLayoutClip(ctx: Fayde.RenderContextEx): void;
+        public RenderLayoutClip(ctx: Fayde.RenderContext): void;
         private _DebugLayout();
         private _SerializeDirt();
         private _SerializeFlags();
@@ -3790,11 +3792,41 @@ declare module Fayde.Engine {
         static Kill(): void;
     }
 }
+declare module Fayde {
+    class RenderContext {
+        public CanvasContext: CanvasRenderingContext2D;
+        public CurrentTransform: number[];
+        private _Transforms;
+        constructor(ctx: CanvasRenderingContext2D);
+        public DoRender(layers: Fayde.UINode[], r: rect): void;
+        public Save(): void;
+        public Restore(): void;
+        public ClipRect(r: rect): void;
+        public ClipGeometry(g: Fayde.Media.Geometry): void;
+        public IsPointInPath(x: number, y: number): boolean;
+        public IsPointInStroke(pars: Fayde.Path.IStrokeParameters, x: number, y: number): boolean;
+        public IsPointInClipPath(clip: Fayde.Media.Geometry, x: number, y: number): boolean;
+        public Rect(r: rect): void;
+        public Fill(brush: Fayde.Media.Brush, r: rect): void;
+        public FillRect(brush: Fayde.Media.Brush, r: rect): void;
+        public StrokeAndFillRect(strokeBrush: Fayde.Media.Brush, thickness: number, strokeRect: rect, fillBrush: Fayde.Media.Brush, fillRect: rect): void;
+        public SetupStroke(pars: Fayde.Path.IStrokeParameters, region?: rect): boolean;
+        public Stroke(stroke: Fayde.Media.Brush, pars: Fayde.Path.IStrokeParameters, region: rect): void;
+        public StrokeSimple(stroke: Fayde.Media.Brush, thickness: number, region: rect): void;
+        public Clear(r: rect): void;
+        public SetLineDash(offsets: number[]): void;
+        public PreTransformMatrix(mat: number[]): void;
+        public PreTransform(transform: Fayde.Media.Transform): void;
+        public TransformMatrix(mat: number[]): void;
+        public Transform(transform: Fayde.Media.Transform): void;
+        public Translate(x: number, y: number): void;
+    }
+}
 declare var resizeTimeout: number;
 declare module Fayde {
     class Surface {
         static TestCanvas: HTMLCanvasElement;
-        public TestRenderContext: Fayde.RenderContextEx;
+        public TestRenderContext: Fayde.RenderContext;
         private _App;
         public _RootLayer: Fayde.UIElement;
         private _Layers;
@@ -4424,7 +4456,7 @@ declare module Fayde.Media.Effects {
         public EffectMapping: Media.GeneralTransform;
         public Padding(): Thickness;
         public GetPadding(thickness: Thickness): boolean;
-        public PreRender(ctx: Fayde.RenderContextEx): void;
+        public PreRender(ctx: Fayde.RenderContext): void;
         public Listen(listener: IEffectListener): void;
         public Unlisten(listener: IEffectListener): void;
         public _EffectChanged(args: IDependencyPropertyChangedEventArgs): void;
@@ -4613,7 +4645,7 @@ declare module Fayde.Media.Effects {
         public ShadowDepth: number;
         public Padding(): Thickness;
         public GetPadding(thickness: Thickness): boolean;
-        public PreRender(ctx: Fayde.RenderContextEx): void;
+        public PreRender(ctx: Fayde.RenderContext): void;
     }
 }
 declare module Fayde.Media {
@@ -4628,7 +4660,7 @@ declare module Fayde.Media {
         public Transform: Media.Transform;
         constructor();
         public GetBounds(pars?: Fayde.Path.IStrokeParameters): rect;
-        public Draw(ctx: Fayde.RenderContextEx): void;
+        public Draw(ctx: Fayde.RenderContext): void;
         public ComputePathBounds(pars: Fayde.Path.IStrokeParameters): rect;
         public _InvalidateGeometry(): void;
         public _Build(): Fayde.Path.RawPath;
@@ -4694,7 +4726,7 @@ declare module Fayde.Media {
         public Children: Media.GeometryCollection;
         constructor();
         public ComputePathBounds(pars: Fayde.Path.IStrokeParameters): rect;
-        public Draw(ctx: Fayde.RenderContextEx): void;
+        public Draw(ctx: Fayde.RenderContext): void;
         public GeometryChanged(newGeometry: Media.Geometry): void;
     }
 }
@@ -5548,10 +5580,10 @@ declare class rect implements ICloneable {
     static intersection(dest: rect, rect2: rect): rect;
     static union(dest: rect, rect2: rect): rect;
     static unionLogical(dest: rect, rect2: rect): rect;
-    static growBy(dest: rect, left: number, top: number, right: number, bottom: number): rect;
-    static growByThickness(dest: rect, thickness): rect;
-    static shrinkBy(dest: rect, left: number, top: number, right: number, bottom: number): rect;
-    static shrinkByThickness(dest: rect, thickness): rect;
+    static growBy(dest: rect, left: number, top: number, right: number, bottom: number): void;
+    static growByThickness(dest: rect, thickness): void;
+    static shrinkBy(dest: rect, left: number, top: number, right: number, bottom: number): void;
+    static shrinkByThickness(dest: rect, thickness): void;
     static extendTo(rect1: rect, x: number, y: number): void;
     static transform(dest: rect, xform: number[]): rect;
     private static clipmask(clip);
@@ -5758,7 +5790,7 @@ declare module Fayde.Shapes {
     class ShapeNode extends Fayde.FENode implements Fayde.IBoundsComputable, Fayde.IPostInsideObject {
         public XObject: Shape;
         constructor(xobj: Shape);
-        public PostInsideObject(ctx: Fayde.RenderContextEx, lu: Fayde.LayoutUpdater, x: number, y: number): boolean;
+        public PostInsideObject(ctx: Fayde.RenderContext, lu: Fayde.LayoutUpdater, x: number, y: number): boolean;
         public ComputeBounds(baseComputer: () => void, lu: Fayde.LayoutUpdater): void;
         private IntersectBaseBoundsWithClipPath(lu, dest, baseBounds, xform);
         public UpdateStretch(): void;
@@ -5795,13 +5827,13 @@ declare module Fayde.Shapes {
         public StrokeLineJoin: Shapes.PenLineJoin;
         public StrokeMiterLimit: number;
         public StrokeStartLineCap: Shapes.PenLineCap;
-        public _InsideShape(ctx: Fayde.RenderContextEx, lu: Fayde.LayoutUpdater, x: number, y: number): boolean;
+        public _InsideShape(ctx: Fayde.RenderContext, lu: Fayde.LayoutUpdater, x: number, y: number): boolean;
         public _MeasureOverride(availableSize: size, error: BError): size;
         public _ArrangeOverride(finalSize: size, error: BError): size;
-        public Render(ctx: Fayde.RenderContextEx, lu: Fayde.LayoutUpdater, region: rect): void;
+        public Render(ctx: Fayde.RenderContext, lu: Fayde.LayoutUpdater, region: rect): void;
         public _GetFillRule(): Shapes.FillRule;
         public _BuildPath(): Fayde.Path.RawPath;
-        public _DrawPath(ctx: Fayde.RenderContextEx): void;
+        public _DrawPath(ctx: Fayde.RenderContext): void;
         public ComputeActualSize(baseComputer: () => size, lu: Fayde.LayoutUpdater);
         public _ComputeStretchBounds(): rect;
         private _GetNaturalBounds();
@@ -5849,7 +5881,7 @@ declare module Fayde.Shapes {
         static DataProperty: DependencyProperty;
         public Data: Fayde.Media.Geometry;
         public _GetFillRule(): Shapes.FillRule;
-        public _DrawPath(ctx: Fayde.RenderContextEx): void;
+        public _DrawPath(ctx: Fayde.RenderContext): void;
         public _ComputeShapeBoundsImpl(logical: boolean, matrix?: number[]): rect;
         private _OnDataChanged(args);
         public GeometryChanged(newGeometry: Fayde.Media.Geometry): void;
@@ -6012,7 +6044,7 @@ declare module Fayde.Text {
         private _Selected;
         public _Advance: number;
         constructor(text: string, font: Font, selected?: boolean);
-        public _Render(ctx: Fayde.RenderContextEx, origin: Point, attrs: Text.ITextAttributes, x: number, y: number): void;
+        public _Render(ctx: Fayde.RenderContext, origin: Point, attrs: Text.ITextAttributes, x: number, y: number): void;
     }
     class TextLayoutRun {
         private _Clusters;
@@ -6024,7 +6056,7 @@ declare module Fayde.Text {
         constructor(line: TextLayoutLine, attrs: Text.ITextAttributes, start: number);
         public _GenerateCache(): void;
         public _ClearCache(): void;
-        public _Render(ctx: Fayde.RenderContextEx, origin: Point, x: number, y: number): void;
+        public _Render(ctx: Fayde.RenderContext, origin: Point, x: number, y: number): void;
         public __Debug(allText);
     }
     class TextLayoutLine {
@@ -6088,7 +6120,7 @@ declare module Fayde.Text {
         public Select(start: number, length: number): void;
         public Layout(): void;
         public _HorizontalAlignment(lineWidth: number): number;
-        public Render(ctx: Fayde.RenderContextEx, origin?: Point, offset?: Point): void;
+        public Render(ctx: Fayde.RenderContext, origin?: Point, offset?: Point): void;
         public __Debug(): string;
         public ResetState(): void;
         private _ClearCache();
@@ -6108,25 +6140,6 @@ declare module Fayde.Controls {
         public OnHeaderChanged(oldHeader: any, newHeader: any): void;
         public OnHeaderTemplateChanged(oldHeaderTemplate: Fayde.DataTemplate, newHeaderTemplate: Fayde.DataTemplate): void;
     }
-}
-declare module Fayde {
-    interface RenderContextEx extends CanvasRenderingContext2D {
-        currentTransform: number[];
-        transformMatrix(mat: number[]);
-        transformTransform(transform: Fayde.Media.Transform);
-        pretransformMatrix(mat: number[]);
-        pretransformTransform(transform: Fayde.Media.Transform);
-        clear(r: rect);
-        fillEx(brush: Fayde.Media.Brush, r: rect);
-        fillRectEx(brush: Fayde.Media.Brush, r: rect);
-        setupStroke(pars: Fayde.Path.IStrokeParameters): boolean;
-        strokeEx(brush: Fayde.Media.Brush, pars: Fayde.Path.IStrokeParameters, region: rect);
-        isPointInStroke(x: number, y: number);
-        isPointInStrokeEx(pars: Fayde.Path.IStrokeParameters, x: number, y: number);
-        clipRect(r: rect);
-        clipGeometry(g: Fayde.Media.Geometry);
-    }
-    function ExtendRenderContext(ctx: CanvasRenderingContext2D): RenderContextEx;
 }
 declare module Fayde.Path {
     interface IArc extends Path.IPathEntry {
@@ -6386,7 +6399,8 @@ declare module Fayde.Path {
         public Arc(x: number, y: number, r: number, sAngle: number, eAngle: number, aClockwise: boolean): void;
         public ArcTo(cpx: number, cpy: number, x: number, y: number, radius: number): void;
         public Close(): void;
-        public Draw(ctx: CanvasRenderingContext2D): void;
+        public DrawRenderCtx(ctx: Fayde.RenderContext): void;
+        public DrawCanvasCtx(canvasCtx: CanvasRenderingContext2D): void;
         public CalculateBounds(pars?: IStrokeParameters): rect;
         private _CalcFillBox();
         private _CalcStrokeBox(pars);
