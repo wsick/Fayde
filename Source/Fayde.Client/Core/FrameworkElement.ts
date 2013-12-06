@@ -183,7 +183,7 @@ module Fayde {
                 return true;
             if (propd === FrameworkElement.LanguageProperty)
                 return true;
-            return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);
+            return super.IsInheritable(propd);
         }
                 
         ActualHeight: number;

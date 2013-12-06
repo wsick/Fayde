@@ -364,7 +364,7 @@ module Fayde.Controls {
         IsInheritable(propd: DependencyProperty): boolean {
             if (TextBlockInheritedProps.indexOf(propd) > -1)
                 return true;
-            return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);
+            return super.IsInheritable(propd);
         }
     }
     Fayde.RegisterType(TextBlock, {

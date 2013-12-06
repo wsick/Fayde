@@ -12,7 +12,7 @@ module Fayde.Documents {
         IsInheritable(propd: DependencyProperty): boolean {
             if (propd === Run.FlowDirectionProperty)
                 return true;
-            return (<Providers.IIsPropertyInheritable>super).IsInheritable.call(this, propd);
+            return super.IsInheritable(propd);
         }
     }
     Fayde.RegisterType(Run, {
