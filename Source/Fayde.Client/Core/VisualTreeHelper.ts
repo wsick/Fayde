@@ -48,7 +48,7 @@ module Fayde {
             var subtreeNode = feNode.SubtreeNode;
             var subtree = subtreeNode.XObject;
             if (subtreeNode.XObject instanceof XamlObjectCollection)
-                return (<XamlObjectCollection>subtree).Count;
+                return (<XamlObjectCollection<DependencyObject>>subtree).Count;
 
             if (subtree instanceof UIElement)
                 return 1;

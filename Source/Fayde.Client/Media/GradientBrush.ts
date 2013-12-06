@@ -3,7 +3,7 @@
 
 module Fayde.Media {
     export class GradientBrush extends Brush implements IGradientStopsListener {
-        static GradientStopsProperty = DependencyProperty.RegisterImmutable("GradientStops", () => GradientStopCollection, GradientBrush);
+        static GradientStopsProperty = DependencyProperty.RegisterImmutable<GradientStopCollection>("GradientStops", () => GradientStopCollection, GradientBrush);
         static MappingModeProperty = DependencyProperty.Register("MappingMode", () => new Enum(BrushMappingMode), GradientBrush, BrushMappingMode.RelativeToBoundingBox, (d, args) => (<Brush>d).InvalidateBrush());
         static SpreadMethodProperty = DependencyProperty.Register("SpreadMethod", () => new Enum(GradientSpreadMethod), GradientBrush, GradientSpreadMethod.Pad, (d, args) => (<Brush>d).InvalidateBrush());
         GradientStops: GradientStopCollection;
@@ -14,7 +14,7 @@ module Fayde.Media {
 
         constructor() {
             super();
-            var coll = GradientBrush.GradientStopsProperty.Initialize<GradientStopCollection>(this);
+            var coll = GradientBrush.GradientStopsProperty.Initialize(this);
             coll.AttachTo(this);
             coll.Listen(this);
         }

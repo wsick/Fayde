@@ -2,14 +2,14 @@
 
 module Fayde.Navigation {
     export class UriMapper extends DependencyObject {
-        static UriMappingsProperty = DependencyProperty.RegisterImmutable("UriMappings", () => XamlObjectCollection, UriMapper);
+        static UriMappingsProperty = DependencyProperty.RegisterImmutable<XamlObjectCollection<UriMapping>>("UriMappings", () => XamlObjectCollection, UriMapper);
         UriMappings: XamlObjectCollection<UriMapping>;
 
         static Annotations = { ContentProperty: UriMapper.UriMappingsProperty };
 
         constructor() {
             super();
-            UriMapper.UriMappingsProperty.Initialize<XamlObjectCollection<UriMapping>>(this);
+            UriMapper.UriMappingsProperty.Initialize(this);
         }
 
         MapUri(uri: Uri): Uri {

@@ -6,14 +6,14 @@ module Fayde.Documents {
             return new TextElementNode(this, "Blocks");
         }
 
-        static BlocksProperty = DependencyProperty.RegisterImmutable("Blocks", () => BlockCollection, Section);
+        static BlocksProperty = DependencyProperty.RegisterImmutable<BlockCollection>("Blocks", () => BlockCollection, Section);
 
         static Annotations = { ContentProperty: Section.BlocksProperty };
         
         Blocks: BlockCollection;
         constructor() {
             super();
-            var coll = Section.BlocksProperty.Initialize<BlockCollection>(this);
+            var coll = Section.BlocksProperty.Initialize(this);
             coll.AttachTo(this);
             coll.Listen(this);
         }

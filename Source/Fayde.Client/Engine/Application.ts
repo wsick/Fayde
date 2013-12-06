@@ -16,11 +16,11 @@ module Fayde {
         private _Storyboards: ITimeline[] = [];
         private _ClockTimer: ClockTimer = new ClockTimer();
 
-        static ResourcesProperty = DependencyProperty.RegisterImmutable("Resources", () => ResourceDictionary, Application);
+        static ResourcesProperty = DependencyProperty.RegisterImmutable<ResourceDictionary>("Resources", () => ResourceDictionary, Application);
         Resources: ResourceDictionary;
-        static SourcesProperty = DependencyProperty.RegisterImmutable("Sources", () => XamlObjectCollection, Application);
+        static SourcesProperty = DependencyProperty.RegisterImmutable<XamlObjectCollection<Xaml.Namespace>>("Sources", () => XamlObjectCollection, Application);
         Sources: XamlObjectCollection<Xaml.Namespace>;
-        static LibrariesProperty = DependencyProperty.RegisterImmutable("Libraries", () => XamlObjectCollection, Application);
+        static LibrariesProperty = DependencyProperty.RegisterImmutable<XamlObjectCollection<Xaml.Library>>("Libraries", () => XamlObjectCollection, Application);
         Libraries: XamlObjectCollection<Xaml.Library>;
 
         Theme: Xaml.Theme;
@@ -28,12 +28,12 @@ module Fayde {
         constructor() {
             super();
             this.XamlNode.NameScope = new NameScope(true);
-            var rd = Application.ResourcesProperty.Initialize<ResourceDictionary>(this);
+            var rd = Application.ResourcesProperty.Initialize(this);
             this.MainSurface = new Surface(this);
             this.DebugInterop = new DebugInterop(this);
             this.Address = new Uri(document.URL);
-            Application.SourcesProperty.Initialize<XamlObjectCollection<Xaml.Namespace>>(this);
-            Application.LibrariesProperty.Initialize<XamlObjectCollection<Xaml.Library>>(this);
+            Application.SourcesProperty.Initialize(this);
+            Application.LibrariesProperty.Initialize(this);
         }
 
         get RootVisual(): UIElement { return this.MainSurface._RootLayer; }

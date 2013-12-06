@@ -156,7 +156,7 @@ module Fayde {
         Resources: Fayde.ResourceDictionary;
         constructor() {
             super();
-            var rd = FrameworkElement.ResourcesProperty.Initialize<ResourceDictionary>(this);
+            var rd = FrameworkElement.ResourcesProperty.Initialize(this);
             rd.AttachTo(this);
         }
         CreateNode(): FENode { return new FENode(this); }
@@ -176,7 +176,7 @@ module Fayde {
         static StyleProperty: DependencyProperty = DependencyProperty.Register("Style", () => Style, FrameworkElement, undefined, (d, args) => (<FrameworkElement>d)._StyleChanged(args));
         static VerticalAlignmentProperty: DependencyProperty = DependencyProperty.Register("VerticalAlignment", () => new Enum(VerticalAlignment), FrameworkElement, VerticalAlignment.Stretch, (d, args) => (<FrameworkElement>d)._AlignmentChanged(args));
         static WidthProperty: DependencyProperty = DependencyProperty.Register("Width", () => Length, FrameworkElement, NaN, (d, args) => (<FrameworkElement>d)._WidthChanged(args));
-        static ResourcesProperty = DependencyProperty.RegisterImmutable("Resources", () => ResourceDictionary, FrameworkElement);
+        static ResourcesProperty = DependencyProperty.RegisterImmutable<ResourceDictionary>("Resources", () => ResourceDictionary, FrameworkElement);
         
         IsInheritable(propd: DependencyProperty): boolean {
             if (propd === FrameworkElement.FlowDirectionProperty)

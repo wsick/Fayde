@@ -386,7 +386,7 @@ module Fayde.Xaml {
                     if (dobj)
                         propd = DependencyProperty.GetDependencyProperty(ownerType, propertyName, true);
                     if (!propd) {
-                        event = <MulticastEvent>owner[propertyName];
+                        event = <MulticastEvent<EventArgs>>owner[propertyName];
                         if (!(event instanceof MulticastEvent))
                             event = undefined;
                     }
@@ -579,7 +579,7 @@ module Fayde.Xaml {
 
             var next: Element;
             var attrs: NamedNodeMap;
-            var curElement = ctx.Document.documentElement;
+            var curElement: Element = ctx.Document.documentElement;
             var nsUri: string;
             while (curElement) {
                 nsUri = curElement.namespaceURI;

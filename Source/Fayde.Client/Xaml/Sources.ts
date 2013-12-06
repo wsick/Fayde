@@ -5,7 +5,7 @@ module Fayde.Xaml {
     export class Namespace extends DependencyObject implements Runtime.ILoadAsyncable {
         static NameProperty = DependencyProperty.Register("Name", () => String, Namespace);
         static SourceProperty = DependencyProperty.Register("Source", () => Uri, Namespace);
-        static SourcesProperty = DependencyProperty.RegisterImmutable("Sources", () => XamlObjectCollection, Namespace);
+        static SourcesProperty = DependencyProperty.RegisterImmutable<XamlObjectCollection<Source>>("Sources", () => XamlObjectCollection, Namespace);
         Name: string;
         Source: Uri;
         Sources: XamlObjectCollection<Source>;
@@ -16,7 +16,7 @@ module Fayde.Xaml {
 
         constructor() {
             super();
-            Namespace.SourcesProperty.Initialize<XamlObjectCollection<Source>>(this);
+            Namespace.SourcesProperty.Initialize(this);
         }
 
         RegisterSource() {
@@ -73,14 +73,14 @@ module Fayde.Xaml {
     });
 
     export class XamlSource extends Source {
-        static CodeSourcesProperty = DependencyProperty.RegisterImmutable("CodeSources", () => XamlObjectCollection, XamlSource);
+        static CodeSourcesProperty = DependencyProperty.RegisterImmutable<XamlObjectCollection<Source>>("CodeSources", () => XamlObjectCollection, XamlSource);
         CodeSources: XamlObjectCollection<Source>;
 
         static Annotations = { ContentProperty: XamlSource.CodeSourcesProperty };
 
         constructor() {
             super();
-            XamlSource.CodeSourcesProperty.Initialize<XamlObjectCollection<Source>>(this);
+            XamlSource.CodeSourcesProperty.Initialize(this);
         }
 
         RegisterSource(namespace: string) {
