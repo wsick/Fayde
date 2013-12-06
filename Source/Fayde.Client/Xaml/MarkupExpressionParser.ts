@@ -302,7 +302,10 @@ module Fayde.Xaml {
         return eb;
     }
 
-    var bindingPropertyFuncs: { (binding: Data.Binding, key: string, oVal: any, strVal: string): void }[] = [];
+    interface IBindingPropertyFunc {
+        (binding: Data.Binding, key: string, oVal: any, strVal: string);
+    }
+    var bindingPropertyFuncs: IBindingPropertyFunc[] = [];
     bindingPropertyFuncs["FallbackValue"] =
     bindingPropertyFuncs["ElementName"] =
     bindingPropertyFuncs["TargetNullValue"] =
@@ -371,7 +374,11 @@ module Fayde.Xaml {
         throw new NotSupportedException("ConverterCulture");
     };
 
-    var eventBindingPropertyFuncs: { (binding: EventBinding, key: string, oVal: any, strVal: string): void }[] = [];
+
+    interface IEventBindingPropertyFunc {
+        (binding: EventBinding, key: string, oVal: any, strVal: string);
+    }
+    var eventBindingPropertyFuncs: IEventBindingPropertyFunc[] = [];
     eventBindingPropertyFuncs["Command"] = function (binding: EventBinding, key: string, oVal: any, strVal: string) {
         if (!oVal || typeof oVal === "string")
             binding.CommandBinding = new Data.Binding(strVal);
