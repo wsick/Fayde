@@ -12,6 +12,12 @@ module Fayde {
     });
     
     export class TriggerActionCollection extends XamlObjectCollection<TriggerAction> {
+        Fire() {
+            var enumerator = this.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                (<TriggerAction>enumerator.Current).Fire();
+            }
+        }
     }
     Fayde.RegisterType(TriggerActionCollection, {
     	Name: "TriggerActionCollection",
@@ -31,14 +37,19 @@ module Fayde {
     });
     
     export class EventTrigger extends TriggerBase {
-        static ActionsProperty: DependencyProperty = DependencyProperty.Register("Actions", () => TriggerActionCollection, EventTrigger);
-        static RoutedEventProperty: DependencyProperty = DependencyProperty.Register("RoutedEvent", () => String, EventTrigger);
+        static ActionsProperty = DependencyProperty.RegisterImmutable<TriggerActionCollection>("Actions", () => TriggerActionCollection, EventTrigger);
+        static RoutedEventProperty = DependencyProperty.Register("RoutedEvent", () => String, EventTrigger);
         Actions: TriggerActionCollection;
         RoutedEvent: string;
         
         private _IsAttached: boolean = false;
         
         static Annotations = { ContentProperty: EventTrigger.ActionsProperty }
+
+        constructor() {
+            super();
+            EventTrigger.ActionsProperty.Initialize(this);
+        }
 
         Attach(target: XamlObject) {
             if (this._IsAttached)
@@ -59,12 +70,8 @@ module Fayde {
 
         private _FireActions(sender, e: RoutedEventArgs) {
             var actions = this.Actions;
-            if (!actions)
-                return;
-            var enumerator = actions.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                (<TriggerAction>enumerator.Current)
-            }
+            if (actions)
+                actions.Fire();
         }
 
         private _ParseEventName(target: XamlObject): RoutedEvent<RoutedEventArgs> {
