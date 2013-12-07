@@ -13,11 +13,13 @@ module Fayde.Controls {
             if (!super.AttachVisualChild(uie, error))
                 return false;
             this._UpdateIsLayoutContainerOnAdd(uie);
+            return true;
         }
         DetachVisualChild(uie: UIElement, error: BError): boolean {
             if (!super.DetachVisualChild(uie, error))
                 return false;
             this._UpdateIsLayoutContainerOnRemove(uie);
+            return true;
         }
         private _UpdateIsLayoutContainerOnAdd(uie: UIElement) {
             //If it's already a layout container, adding a child will not affect
@@ -29,7 +31,7 @@ module Fayde.Controls {
             while (childNode = walker.Step()) {
                 if (!(childNode instanceof CanvasNode) && childNode.LayoutUpdater.IsLayoutContainer) {
                     lu.IsLayoutContainer = true;
-                    break;
+                    return;
                 }
             }
         }
@@ -41,10 +43,8 @@ module Fayde.Controls {
             var walker = DeepTreeWalker(this);
             var childNode: UINode;
             while (childNode = walker.Step()) {
-                if (!(childNode instanceof CanvasNode) && childNode.LayoutUpdater.IsLayoutContainer) {
-                    lu.IsLayoutContainer = true;
-                    break;
-                }
+                if (!(childNode instanceof CanvasNode) && childNode.LayoutUpdater.IsLayoutContainer)
+                    return;
             }
             lu.IsLayoutContainer = false;
         }
@@ -108,6 +108,8 @@ module Fayde.Controls {
     }
 
     export class Canvas extends Panel implements IMeasurableHidden, IArrangeableHidden {
+        //CreateNode(): CanvasNode { return new CanvasNode(this); }
+
         static TopProperty: DependencyProperty = DependencyProperty.RegisterAttached("Top", () => Number, Canvas, 0.0, invalidateTopLeft);
         static GetTop(d: DependencyObject): number { return d.GetValue(Canvas.TopProperty); }
         static SetTop(d: DependencyObject, value: number) { d.SetValue(Canvas.TopProperty, value); }
