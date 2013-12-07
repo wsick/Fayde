@@ -241,7 +241,8 @@ class ImmutableDependencyProperty<T> extends DependencyProperty {
     Initialize(dobj: Fayde.DependencyObject): T {
         var storage = Fayde.Providers.GetStorage(dobj, this);
         storage.Precedence = Fayde.Providers.PropertyPrecedence.LocalValue;
-        var obj: T = new (<any>this.GetTargetType())();
+        var type = <any>this.GetTargetType();
+        var obj: T = new type();
         Object.defineProperty(dobj, this.Name, {
             value: obj,
             writable: false
