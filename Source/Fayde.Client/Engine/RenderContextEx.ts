@@ -8,8 +8,8 @@ module Fayde {
         pretransformTransform(transform: Media.Transform);
 
         clear(r: rect);
-        fillEx(brush: Media.Brush, r: rect);
-        fillRectEx(brush: Media.Brush, r: rect);
+        fillEx(brush: Media.Brush, r: rect, fillRule?: string);
+        fillRectEx(brush: Media.Brush, r: rect, fillRule?: string);
 
         setupStroke(pars: Path.IStrokeParameters): boolean;
         strokeEx(brush: Media.Brush, pars: Path.IStrokeParameters, region: rect);
@@ -133,17 +133,17 @@ module Fayde {
             };
         }
         export function Fill(ctx: RenderContextEx) {
-            ctx.fillEx = function (brush: Media.Brush, r: rect) {
+            ctx.fillEx = function (brush: Media.Brush, r: rect, fillRule?: string) {
                 brush.SetupBrush(ctx, r);
                 ctx.fillStyle = brush.ToHtml5Object();
-                ctx.fill();
+                ctx.fill(fillRule);
             };
-            ctx.fillRectEx = function (brush: Media.Brush, r: rect) {
+            ctx.fillRectEx = function (brush: Media.Brush, r: rect, fillRule?: string) {
                 brush.SetupBrush(ctx, r);
                 ctx.fillStyle = brush.ToHtml5Object();
                 ctx.beginPath();
                 ctx.rect(r.X, r.Y, r.Width, r.Height);
-                ctx.fill();
+                ctx.fill(fillRule);
             };
         }
         export function Stroke(ctx: RenderContextEx) {
