@@ -45,10 +45,6 @@ module Fayde {
         Updated: boolean;
     }
 
-    export interface IRenderable {
-        Render(ctx: RenderContextEx, lu:LayoutUpdater, region: rect);
-    }
-
     interface ISizeChangedData {
         Element: FrameworkElement;
         PreviousSize: size;
@@ -1254,8 +1250,7 @@ module Fayde {
                 ctx.save();
                 effect.PreRender(ctx);
             }
-            if ((<IRenderable><any>uie).Render)
-                (<IRenderable><any>uie).Render(ctx, this, region);
+            this.Render(ctx, region);
             if (effect) {
                 ctx.restore();
             }
@@ -1269,6 +1264,7 @@ module Fayde {
 
             ctx.restore();
         }
+        Render(ctx: RenderContextEx, region: rect) { }
 
         FindElementsInHostCoordinates(p: Point): UINode[] {
             var uinlist: UINode[] = [];

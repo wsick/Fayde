@@ -7,20 +7,8 @@ module Fayde.Controls.Internal {
     var CURSOR_BLINK_ON_MULTIPLIER = 4;
     var CURSOR_BLINK_TIMEOUT_DEFAULT = 900;
 
-    export class TextBoxViewNode extends FENode {
-        XObject: TextBoxView;
-        constructor(xobj: TextBoxView) {
-            super(xobj);
-        }
-    }
-    Fayde.RegisterType(TextBoxViewNode, {
-    	Name: "TextBoxViewNode",
-    	Namespace: "Fayde.Controls"
-    });
-
-    export class TextBoxView extends FrameworkElement implements IRenderable, IActualSizeComputable, ITextModelListener {
-        XamlNode: TextBoxViewNode;
-        CreateNode(): TextBoxViewNode { return new TextBoxViewNode(this); }
+    export class TextBoxView extends FrameworkElement implements ITextModelListener {
+        CreateLayoutUpdater() { return new TextBoxViewLayoutUpdater(this); }
 
         private _Cursor: rect = new rect();
         private _Layout: Text.TextLayout = new Text.TextLayout();
@@ -168,13 +156,6 @@ module Fayde.Controls.Internal {
             this._Layout.Text = text ? text : "", -1;
         }
 
-        ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater) {
-            if (lu.LayoutSlot !== undefined)
-                return baseComputer.call(lu);
-
-            this.Layout(size.createInfinite());
-            return this._Layout.ActualExtents;
-        }
         MeasureOverride(availableSize: size) {
             this.Layout(availableSize);
             var desired = size.copyTo(this._Layout.ActualExtents);
@@ -202,47 +183,6 @@ module Fayde.Controls.Internal {
         GetLineFromY(y: number): Text.TextLayoutLine { return this._Layout.GetLineFromY(null, y); }
         GetLineFromIndex(index: number): Text.TextLayoutLine { return this._Layout.GetLineFromIndex(index); }
         GetCursorFromXY(x: number, y: number): number { return this._Layout.GetCursorFromXY(null, x, y); }
-
-        Render(ctx: RenderContextEx, lu: LayoutUpdater, region: rect) {
-            var renderSize = lu.RenderSize;
-            //TODO: Initialize Selection Brushes
-            //this._TextBox._Providers[_PropertyPrecedence.DynamicValue]._InitializeSelectionBrushes();
-
-            this._UpdateCursor(false);
-
-            if (this._SelectionChanged) {
-                this._Layout.Select(this._TextBox.SelectionStart, this._TextBox.SelectionLength);
-                this._SelectionChanged = false;
-            }
-            ctx.save();
-            lu.RenderLayoutClip(ctx);
-            this._Layout.AvailableWidth = renderSize.Width;
-            this._RenderImpl(ctx, region);
-            ctx.restore();
-        }
-        private _RenderImpl(ctx: RenderContextEx, region: rect) {
-            ctx.save();
-            if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
-                //TODO: Invert
-            }
-            this._Layout.Render(ctx);
-            if (this._CursorVisible) {
-                var rect = this._Cursor;
-                ctx.beginPath();
-                ctx.moveTo(rect.X + 0.5, rect.Y);
-                ctx.lineTo(rect.X + 0.5, rect.Y + rect.Height);
-                ctx.lineWidth = 1.0;
-                var caretBrush = this._TextBox.CaretBrush;
-                if (caretBrush) {
-                    caretBrush.SetupBrush(ctx, rect);
-                    ctx.strokeStyle = caretBrush.ToHtml5Object();
-                } else {
-                    ctx.strokeStyle = "#000000";
-                }
-                ctx.stroke();
-            }
-            ctx.restore();
-        }
 
         OnLostFocus(e) { this._EndCursorBlink(); }
         OnGotFocus(e) { this._ResetCursorBlink(false); }
@@ -289,9 +229,62 @@ module Fayde.Controls.Internal {
             }
             lu.Invalidate();
         }
+
+        ComputeActualExtents(): size {
+            this.Layout(size.createInfinite());
+            return this._Layout.ActualExtents;
+        }
+        PreRender() {
+            this._UpdateCursor(false);
+
+            if (this._SelectionChanged) {
+                this._Layout.Select(this._TextBox.SelectionStart, this._TextBox.SelectionLength);
+                this._SelectionChanged = false;
+            }
+        }
+        Render(ctx: RenderContextEx, region: rect, renderSize: size) {
+            this._Layout.AvailableWidth = renderSize.Width;
+
+            if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
+                //TODO: Invert
+            }
+            this._Layout.Render(ctx);
+            if (this._CursorVisible) {
+                var rect = this._Cursor;
+                ctx.beginPath();
+                ctx.moveTo(rect.X + 0.5, rect.Y);
+                ctx.lineTo(rect.X + 0.5, rect.Y + rect.Height);
+                ctx.lineWidth = 1.0;
+                var caretBrush = this._TextBox.CaretBrush;
+                if (caretBrush) {
+                    caretBrush.SetupBrush(ctx, rect);
+                    ctx.strokeStyle = caretBrush.ToHtml5Object();
+                } else {
+                    ctx.strokeStyle = "#000000";
+                }
+                ctx.stroke();
+            }
+        }
     }
     Fayde.RegisterType(TextBoxView, {
-    	Name: "TextBoxView",
-    	Namespace: "Fayde.Controls"
+        Name: "TextBoxView",
+        Namespace: "Fayde.Controls"
     });
+
+    export class TextBoxViewLayoutUpdater extends LayoutUpdater {
+        ComputeActualSize() {
+            if (this.LayoutSlot !== undefined)
+                return super.ComputeActualSize();
+            return (<TextBoxView>this.Node.XObject).ComputeActualExtents();
+        }
+        
+        Render(ctx: RenderContextEx, region: rect) {
+            var tbv = <TextBoxView>this.Node.XObject;
+            tbv.PreRender();
+            ctx.save();
+            this.RenderLayoutClip(ctx);
+            tbv.Render(ctx, region, this.RenderSize);
+            ctx.restore();
+        }
+    }
 }

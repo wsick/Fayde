@@ -69,6 +69,16 @@ module Fayde.Controls {
             if (padding) size.growByThickness(result, padding);
             return result;
         }
+        Render(ctx: RenderContextEx) {
+            var tb = this.XObject;
+            var padding = tb.Padding;
+            var offset: Point = null;
+            if (padding) offset = new Point(padding.Left, padding.Top);
+            if (tb.FlowDirection === Fayde.FlowDirection.RightToLeft) {
+                NotImplemented("TextBlock._Render: Right to left");
+            }
+            this._Layout.Render(ctx, null, offset);
+        }
 
         _FontChanged(args: IDependencyPropertyChangedEventArgs) {
             this._UpdateFonts(false);
@@ -248,26 +258,7 @@ module Fayde.Controls {
     	Namespace: "Fayde.Controls"
     });
 
-    export class TextBlockLayoutUpdater extends LayoutUpdater {
-        ComputeBounds() {
-            var node = <TextBlockNode>this.Node;
-            rect.copyTo(node._Layout.RenderExtents, this.Extents);
-            var padding = node.XObject.Padding;
-            if (padding) {
-                this.Extents.X += padding.Left;
-                this.Extents.Y += padding.Top;
-            }
-            rect.copyTo(this.Extents, this.ExtentsWithChildren);
-
-            this.IntersectBoundsWithClipPath(this.Bounds, this.AbsoluteXform);
-            rect.copyTo(this.Bounds, this.BoundsWithChildren);
-
-            this.ComputeGlobalBounds();
-            this.ComputeSurfaceBounds();
-        }
-    }
-
-    export class TextBlock extends FrameworkElement implements IRenderable, IActualSizeComputable, IFontChangeable {
+    export class TextBlock extends FrameworkElement implements IFontChangeable {
         XamlNode: TextBlockNode;
         CreateNode(): TextBlockNode { return new TextBlockNode(this); }
         CreateLayoutUpdater() { return new TextBlockLayoutUpdater(this); }
@@ -329,23 +320,6 @@ module Fayde.Controls {
             return finalSize;
         }
 
-        Render(ctx: RenderContextEx, lu: LayoutUpdater, region: rect) {
-            ctx.save();
-            lu.RenderLayoutClip(ctx);
-            var padding = this.Padding;
-            var offset: Point = null;
-            if (padding) offset = new Point(padding.Left, padding.Top);
-            if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
-                NotImplemented("TextBlock._Render: Right to left");
-            }
-            this.XamlNode._Layout.Render(ctx, null, offset);
-            ctx.restore();
-        }
-
-        ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater): size {
-            return this.XamlNode.ComputeActualSize(lu, this.Padding);
-        }
-
         private _ForegroundListener: Media.IBrushChangedListener;
         FontChanged(args: IDependencyPropertyChangedEventArgs) {
             var node = this.XamlNode;
@@ -385,4 +359,37 @@ module Fayde.Controls {
         TextBlock.FontWeightProperty,
         TextBlock.ForegroundProperty
     ];
+
+    export class TextBlockLayoutUpdater extends LayoutUpdater {
+        ComputeActualSize(): size {
+            var node = <TextBlockNode>this.Node;
+            var tb = <TextBlock>node.XObject;
+            return node.ComputeActualSize(this, tb.Padding);
+        }
+
+        ComputeBounds() {
+            var node = <TextBlockNode>this.Node;
+            rect.copyTo(node._Layout.RenderExtents, this.Extents);
+            var padding = node.XObject.Padding;
+            if (padding) {
+                this.Extents.X += padding.Left;
+                this.Extents.Y += padding.Top;
+            }
+            rect.copyTo(this.Extents, this.ExtentsWithChildren);
+
+            this.IntersectBoundsWithClipPath(this.Bounds, this.AbsoluteXform);
+            rect.copyTo(this.Bounds, this.BoundsWithChildren);
+
+            this.ComputeGlobalBounds();
+            this.ComputeSurfaceBounds();
+        }
+
+        Render(ctx: RenderContextEx, region: rect) {
+            ctx.save();
+            this.RenderLayoutClip(ctx);
+            var node = <TextBlockNode>this.Node;
+            node.Render(ctx);
+            ctx.restore();
+        }
+    }
 }
