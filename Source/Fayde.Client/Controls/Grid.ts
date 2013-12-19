@@ -59,7 +59,7 @@ module Fayde.Controls {
     	XmlNamespace: Fayde.XMLNS
     });
 
-    export class GridLayoutUpdater extends LayoutUpdater {
+    export class GridLayoutUpdater extends PanelLayoutUpdater {
         private _Measurer = new GridMeasurer();
 
         MeasureOverride(availableSize: size, error: BError): size {
