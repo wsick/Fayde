@@ -1,6 +1,35 @@
 /// <reference path="Control.ts" />
 
 module Fayde.Controls {
+    export class UserControl extends Control {
+        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, UserControl, undefined, (d, args) => (<UserControl>d)._InvalidateContent(args));
+        Content: any;
+        static Annotations = { ContentProperty: UserControl.ContentProperty }
+
+        CreateLayoutUpdater() { return new UserControlLayoutUpdater(this); }
+
+        InitializeComponent() {
+            this.ApplyTemplate();
+        }
+
+        private _InvalidateContent(args: IDependencyPropertyChangedEventArgs) {
+            var node = this.XamlNode;
+            var error = new BError();
+            if (args.OldValue instanceof UIElement)
+                node.DetachVisualChild(<UIElement>args.OldValue, error);
+            if (args.NewValue instanceof UIElement)
+                node.AttachVisualChild(<UIElement>args.NewValue, error);
+            if (error.Message)
+                error.ThrowException();
+            node.LayoutUpdater.UpdateBounds();
+        }
+    }
+    Fayde.RegisterType(UserControl, {
+    	Name: "UserControl",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
+
     export class UserControlLayoutUpdater extends LayoutUpdater {
         constructor(uc: UserControl) {
             super(uc);
@@ -63,33 +92,4 @@ module Fayde.Controls {
             return finalSize;
         }
     }
-
-    export class UserControl extends Control {
-        static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, UserControl, undefined, (d, args) => (<UserControl>d)._InvalidateContent(args));
-        Content: any;
-        static Annotations = { ContentProperty: UserControl.ContentProperty }
-
-        CreateLayoutUpdater() { return new UserControlLayoutUpdater(this); }
-
-        InitializeComponent() {
-            this.ApplyTemplate();
-        }
-
-        private _InvalidateContent(args: IDependencyPropertyChangedEventArgs) {
-            var node = this.XamlNode;
-            var error = new BError();
-            if (args.OldValue instanceof UIElement)
-                node.DetachVisualChild(<UIElement>args.OldValue, error);
-            if (args.NewValue instanceof UIElement)
-                node.AttachVisualChild(<UIElement>args.NewValue, error);
-            if (error.Message)
-                error.ThrowException();
-            node.LayoutUpdater.UpdateBounds();
-        }
-    }
-    Fayde.RegisterType(UserControl, {
-    	Name: "UserControl",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
 }
