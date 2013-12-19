@@ -18,7 +18,7 @@ module Fayde.Controls.Internal {
     	Namespace: "Fayde.Controls"
     });
 
-    export class TextBoxView extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable, ITextModelListener {
+    export class TextBoxView extends FrameworkElement implements IRenderable, IActualSizeComputable, ITextModelListener {
         XamlNode: TextBoxViewNode;
         CreateNode(): TextBoxViewNode { return new TextBoxViewNode(this); }
 
@@ -175,7 +175,7 @@ module Fayde.Controls.Internal {
             this.Layout(size.createInfinite());
             return this._Layout.ActualExtents;
         }
-        _MeasureOverride(availableSize: size, error: BError) {
+        MeasureOverride(availableSize: size) {
             this.Layout(availableSize);
             var desired = size.copyTo(this._Layout.ActualExtents);
             if (!isFinite(availableSize.Width))
@@ -183,7 +183,7 @@ module Fayde.Controls.Internal {
             size.min(desired, availableSize);
             return desired;
         }
-        _ArrangeOverride(finalSize: size, error: BError) {
+        ArrangeOverride(finalSize: size) {
             this.Layout(finalSize);
             var arranged = size.copyTo(this._Layout.ActualExtents);
             size.max(arranged, finalSize);

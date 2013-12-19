@@ -2,7 +2,7 @@
 /// <reference path="../Core/FrameworkElement.ts" />
 
 module Fayde.Controls {
-    export class TextBlockNode extends FENode implements IBoundsComputable, Documents.IInlinesChangedListener {
+    export class TextBlockNode extends FENode implements Documents.IInlinesChangedListener {
         XObject: TextBlock;
         private _ActualWidth: number = 0.0;
         private _ActualHeight: number = 0.0;
@@ -22,22 +22,6 @@ module Fayde.Controls {
             var inlines = xobj.Inlines;
             if (inlines)
                 return <IEnumerator<DONode>>inlines.GetNodeEnumerator();
-        }
-
-        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
-            rect.copyTo(this._Layout.RenderExtents, lu.Extents);
-            var padding = this.XObject.Padding;
-            if (padding) {
-                lu.Extents.X += padding.Left;
-                lu.Extents.Y += padding.Top;
-            }
-            rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
-
-            lu.IntersectBoundsWithClipPath(lu.Bounds, lu.AbsoluteXform);
-            rect.copyTo(lu.Bounds, lu.BoundsWithChildren);
-
-            lu.ComputeGlobalBounds();
-            lu.ComputeSurfaceBounds();
         }
 
         Measure(constraint: size): size {
@@ -264,9 +248,29 @@ module Fayde.Controls {
     	Namespace: "Fayde.Controls"
     });
 
-    export class TextBlock extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable, IFontChangeable {
+    export class TextBlockLayoutUpdater extends LayoutUpdater {
+        ComputeBounds() {
+            var node = <TextBlockNode>this.Node;
+            rect.copyTo(node._Layout.RenderExtents, this.Extents);
+            var padding = node.XObject.Padding;
+            if (padding) {
+                this.Extents.X += padding.Left;
+                this.Extents.Y += padding.Top;
+            }
+            rect.copyTo(this.Extents, this.ExtentsWithChildren);
+
+            this.IntersectBoundsWithClipPath(this.Bounds, this.AbsoluteXform);
+            rect.copyTo(this.Bounds, this.BoundsWithChildren);
+
+            this.ComputeGlobalBounds();
+            this.ComputeSurfaceBounds();
+        }
+    }
+
+    export class TextBlock extends FrameworkElement implements IRenderable, IActualSizeComputable, IFontChangeable {
         XamlNode: TextBlockNode;
         CreateNode(): TextBlockNode { return new TextBlockNode(this); }
+        CreateLayoutUpdater() { return new TextBlockLayoutUpdater(this); }
 
         static PaddingProperty: DependencyProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, TextBlock, undefined, (d, args) => (<TextBlock>d).XamlNode._InvalidateDirty(true));
         static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty.ExtendTo(TextBlock);
@@ -309,7 +313,7 @@ module Fayde.Controls {
             inlines.Listen(this.XamlNode);
         }
 
-        _MeasureOverride(availableSize: size, error: BError): size {
+        MeasureOverride(availableSize: size): size {
             var constraint = size.copyTo(availableSize);
             var padding = this.Padding;
             if (padding) size.shrinkByThickness(constraint, padding);
@@ -317,7 +321,7 @@ module Fayde.Controls {
             if (padding) size.growByThickness(desired, padding);
             return desired;
         }
-        _ArrangeOverride(finalSize: size, error: BError): size {
+        ArrangeOverride(finalSize: size): size {
             var constraint = size.copyTo(finalSize);
             var padding = this.Padding;
             if (padding) size.shrinkByThickness(constraint, padding);

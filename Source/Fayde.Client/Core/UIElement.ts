@@ -26,8 +26,6 @@ module Fayde {
 
         constructor(xobj: UIElement) {
             super(xobj);
-            this.LayoutUpdater = new LayoutUpdater(this);
-            this.LayoutUpdater.SetContainerMode(false);
         }
 
         VisualParentNode: UINode;
@@ -319,6 +317,12 @@ module Fayde {
         private _ClipListener: Media.IGeometryListener = null;
         private _EffectListener: Media.Effects.IEffectListener = null;
         CreateNode(): UINode { return new UINode(this); }
+        CreateLayoutUpdater(): LayoutUpdater { return new LayoutUpdater(this); }
+
+        constructor() {
+            super();
+            this.XamlNode.LayoutUpdater = this.CreateLayoutUpdater();
+        }
 
         get VisualParent() {
             var vpNode = this.XamlNode.VisualParentNode;
@@ -480,6 +484,13 @@ module Fayde {
                 oldTriggers.DetachTarget(this);
             if (newTriggers instanceof TriggerCollection)
                 newTriggers.AttachTarget(this);
+        }
+
+        MeasureOverride(availableSize: size): size {
+            return undefined;
+        }
+        ArrangeOverride(finalSize: size): size {
+            return undefined;
         }
     }
     Fayde.RegisterType(UIElement, {

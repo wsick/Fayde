@@ -124,86 +124,6 @@ module Fayde.Controls {
             sv.ScrollInfo = info;
             sv.InvalidateScrollInfo();
         }
-
-        _MeasureOverride(availableSize: size, error: BError): size {
-            var scrollOwner = this.ScrollOwner;
-            var cr = (<ContentPresenterNode>this.XamlNode).ContentRoot;
-            if (!scrollOwner || !cr)
-                return super._MeasureOverride.call(this, availableSize, error);
-
-            var ideal = size.createInfinite();
-            if (!this.CanHorizontallyScroll)
-                ideal.Width = availableSize.Width;
-            if (!this.CanVerticallyScroll)
-                ideal.Height = availableSize.Height;
-
-            cr.Measure(ideal);
-            var crds = cr.DesiredSize;
-            this._UpdateExtents(availableSize, crds.Width, crds.Height);
-
-            var desired = size.copyTo(availableSize);
-            var sd = this._ScrollData;
-            desired.Width = Math.min(desired.Width, sd.ExtentWidth);
-            desired.Height = Math.min(desired.Height, sd.ExtentHeight);
-            return desired;
-        }
-        _ArrangeOverride(finalSize: size, error: BError): size {
-            var scrollOwner = this.ScrollOwner;
-            var cr = (<ContentPresenterNode>this.XamlNode).ContentRoot;
-            if (!scrollOwner || !cr)
-                return super._ArrangeOverride.call(this, finalSize, error);
-
-            if (this._ClampOffsets())
-                scrollOwner.InvalidateScrollInfo();
-
-            var desired = cr.DesiredSize;
-            var start = new Point(-this.HorizontalOffset, -this.VerticalOffset);
-
-            var offerSize = size.copyTo(desired);
-            size.max(offerSize, finalSize);
-            var childRect = rect.fromSize(offerSize);
-            childRect.X = start.X;
-            childRect.Y = start.Y;
-            cr.Arrange(childRect);
-            this._UpdateClip(finalSize);
-            var sd = this._ScrollData;
-            this._UpdateExtents(finalSize, sd.ExtentWidth, sd.ExtentHeight);
-            return finalSize;
-        }
-
-        private _UpdateExtents(viewport: size, extentWidth: number, extentHeight: number) {
-            var sd = this._ScrollData;
-            var changed = sd.ViewportWidth !== viewport.Width
-                || sd.ViewportHeight !== viewport.Height
-                || sd.ExtentWidth !== extentWidth
-                || sd.ExtentHeight !== extentHeight;
-            sd.ViewportWidth = viewport.Width;
-            sd.ViewportHeight = viewport.Height;
-            sd.ExtentWidth = extentWidth;
-            sd.ExtentHeight = extentHeight;
-            if (this._ClampOffsets())
-                changed = true;
-            if (changed) this.ScrollOwner.InvalidateScrollInfo();
-        }
-        private _ClampOffsets(): boolean {
-            var changed = false;
-            
-            var sd = this._ScrollData;
-            var result = this.CanHorizontallyScroll ? Math.min(sd.CachedOffsetX, sd.ExtentWidth - sd.ViewportWidth) : 0;
-            result = Math.max(0, result);
-            if (!areNumbersClose(result, this.HorizontalOffset)) {
-                sd.OffsetX = result;
-                changed = true;
-            }
-
-            result = this.CanVerticallyScroll ? Math.min(sd.CachedOffsetY, sd.ExtentHeight - sd.ViewportHeight) : 0;
-            result = Math.max(0, result);
-            if (!areNumbersClose(result, this.VerticalOffset)) {
-                sd.OffsetY = result;
-                changed = true;
-            }
-            return changed;
-        }
         private _UpdateClip(arrangeSize: size) {
             if (!this._IsClipPropertySet) {
                 this._ClippingRectangle = new Media.RectangleGeometry();
@@ -258,6 +178,86 @@ module Fayde.Controls {
             var r = new rect();
             rect.set(r, -left, 0, arrangeSize.Width + left + right, arrangeSize.Height);
             return r;
+        }
+
+        MeasureOverride(availableSize: size): size {
+            var scrollOwner = this.ScrollOwner;
+            var cr = this.XamlNode.ContentRoot;
+            if (!scrollOwner || !cr)
+                return super.MeasureOverride(availableSize);
+
+            var ideal = size.createInfinite();
+            if (!this.CanHorizontallyScroll)
+                ideal.Width = availableSize.Width;
+            if (!this.CanVerticallyScroll)
+                ideal.Height = availableSize.Height;
+
+            cr.Measure(ideal);
+            var crds = cr.DesiredSize;
+            this._UpdateExtents(availableSize, crds.Width, crds.Height);
+
+            var desired = size.copyTo(availableSize);
+            var sd = this._ScrollData;
+            desired.Width = Math.min(desired.Width, sd.ExtentWidth);
+            desired.Height = Math.min(desired.Height, sd.ExtentHeight);
+            return desired;
+        }
+        ArrangeOverride(finalSize: size): size {
+            var scrollOwner = this.ScrollOwner;
+            var cr = this.XamlNode.ContentRoot;
+            if (!scrollOwner || !cr)
+                return super.ArrangeOverride(finalSize);
+
+            if (this._ClampOffsets())
+                scrollOwner.InvalidateScrollInfo();
+
+            var desired = cr.DesiredSize;
+            var start = new Point(-this.HorizontalOffset, -this.VerticalOffset);
+
+            var offerSize = size.copyTo(desired);
+            size.max(offerSize, finalSize);
+            var childRect = rect.fromSize(offerSize);
+            childRect.X = start.X;
+            childRect.Y = start.Y;
+            cr.Arrange(childRect);
+            this._UpdateClip(finalSize);
+            var sd = this._ScrollData;
+            this._UpdateExtents(finalSize, sd.ExtentWidth, sd.ExtentHeight);
+            return finalSize;
+        }
+
+        private _UpdateExtents(viewport: size, extentWidth: number, extentHeight: number) {
+            var sd = this._ScrollData;
+            var changed = sd.ViewportWidth !== viewport.Width
+                || sd.ViewportHeight !== viewport.Height
+                || sd.ExtentWidth !== extentWidth
+                || sd.ExtentHeight !== extentHeight;
+            sd.ViewportWidth = viewport.Width;
+            sd.ViewportHeight = viewport.Height;
+            sd.ExtentWidth = extentWidth;
+            sd.ExtentHeight = extentHeight;
+            if (this._ClampOffsets())
+                changed = true;
+            if (changed) this.ScrollOwner.InvalidateScrollInfo();
+        }
+        private _ClampOffsets(): boolean {
+            var changed = false;
+
+            var sd = this._ScrollData;
+            var result = this.CanHorizontallyScroll ? Math.min(sd.CachedOffsetX, sd.ExtentWidth - sd.ViewportWidth) : 0;
+            result = Math.max(0, result);
+            if (!areNumbersClose(result, this.HorizontalOffset)) {
+                sd.OffsetX = result;
+                changed = true;
+            }
+
+            result = this.CanVerticallyScroll ? Math.min(sd.CachedOffsetY, sd.ExtentHeight - sd.ViewportHeight) : 0;
+            result = Math.max(0, result);
+            if (!areNumbersClose(result, this.VerticalOffset)) {
+                sd.OffsetY = result;
+                changed = true;
+            }
+            return changed;
         }
     }
     Fayde.RegisterType(ScrollContentPresenter, {

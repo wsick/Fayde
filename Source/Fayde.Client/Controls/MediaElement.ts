@@ -1,34 +1,21 @@
 /// <reference path="../Core/FrameworkElement.ts" />
 
 module Fayde.Controls {
-    export class MENode extends FENode implements IPostInsideObject {
-        XObject: MediaElement;
-        constructor(xobj: MediaElement) {
-            super(xobj);
-        }
-
-        PostInsideObject(ctx: RenderContextEx, lu: LayoutUpdater, x: number, y: number): boolean {
-            //TODO: Implement
+    export class MediaElementLayoutUpdater extends LayoutUpdater {
+        InsideObject(ctx: RenderContextEx, x: number, y: number) {
             return false;
         }
-    }
-    Fayde.RegisterType(MENode, {
-    	Name: "MENode",
-    	Namespace: "Fayde.Controls"
-    });
 
-    export class MediaElement extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden {
-        XamlNode: MENode;
-        CreateNode(): MENode { return new MENode(this); }
-        
-        _MeasureOverride(availableSize: size, error: BError): size {
-            //NotImplemented
+        MeasureOverride(availableSize: size, error: BError): size {
             return availableSize;
         }
-        _ArrangeOverride(finalSize: size, error: BError): size {
-            //NotImplemented
+        ArrangeOverride(finalSize: size, error: BError): size {
             return finalSize;
         }
+    }
+
+    export class MediaElement extends FrameworkElement {
+        CreateLayoutUpdater() { return new MediaElementLayoutUpdater(this); }
     }
     Fayde.RegisterType(MediaElement, {
     	Name: "MediaElement",

@@ -83,7 +83,7 @@ module Fayde.Controls {
             stretch, Fayde.Media.AlignmentX.Center, Fayde.Media.AlignmentY.Center);
 
         if (adjust) {
-            (<IMeasurableHidden>img)._MeasureOverride(specified, null);
+            img.MeasureOverride(specified);
             rect.set(paint,
                 (stretched.Width - specified.Width) * 0.5,
                 (stretched.Height - specified.Height) * 0.5,
@@ -112,22 +112,24 @@ module Fayde.Controls {
         Overlap: number;
     }
 
-    export class ImageNode extends FENode implements IPostInsideObject {
-        XObject: Image;
-        constructor(xobj: Image) {
-            super(xobj);
-            this.LayoutUpdater.CanHitElement = true;
+    export class ImageLayoutUpdater extends LayoutUpdater {
+        constructor(img: Image) {
+            super(img);
+            this.CanHitElement = true;
         }
 
-        PostInsideObject(ctx: RenderContextEx, lu:LayoutUpdater, x: number, y: number): boolean {
-            var img = this.XObject;
+        InsideObject(ctx: RenderContextEx, x: number, y: number) {
+            if (super.InsideObject(ctx, x, y))
+                return true;
+
+            var img = <Image>this.Node.XObject;
             var source = img.Source;
             if (!source)
                 return false;
             var stretch = img.Stretch;
             if (stretch === Media.Stretch.Fill || stretch === Media.Stretch.UniformToFill)
                 return true;
-            var metrics = calculateRenderMetrics(img, source, lu);
+            var metrics = calculateRenderMetrics(img, source, this);
             if (!metrics)
                 return null;
 
@@ -136,18 +138,13 @@ module Fayde.Controls {
             irect.Height = source.PixelHeight;
             rect.transform(irect, metrics.Matrix);
             var np = new Point(x, y);
-            lu.TransformPoint(np);
+            this.TransformPoint(np);
             return rect.containsPoint(irect, np);
         }
     }
-    Fayde.RegisterType(ImageNode, {
-    	Name: "ImageNode",
-    	Namespace: "Fayde.Controls"
-    });
 
-    export class Image extends FrameworkElement implements IActualSizeComputable, IMeasurableHidden, IArrangeableHidden, IRenderable, Media.Imaging.IImageChangedListener {
-        XamlNode: ImageNode;
-        CreateNode(): ImageNode { return new ImageNode(this); }
+    export class Image extends FrameworkElement implements IActualSizeComputable, IRenderable, Media.Imaging.IImageChangedListener {
+        CreateLayoutUpdater(): ImageLayoutUpdater { return new ImageLayoutUpdater(this); }
 
         private static _SourceCoercer(d: DependencyObject, propd: DependencyProperty, value: any): any {
             if (typeof value === "string")
@@ -165,11 +162,11 @@ module Fayde.Controls {
         ImageOpened: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
         ImageFailed: MulticastEvent<EventArgs> = new MulticastEvent<EventArgs>();
 
-        _MeasureOverride(availableSize: size, error: BError): size {
+        MeasureOverride(availableSize: size): size {
             var desired = size.copyTo(availableSize);
             var shapeBounds = new rect();
             var source = this.Source;
-            var sx = 0.0; 
+            var sx = 0.0;
             var sy = 0.0;
 
             if (source) {
@@ -214,7 +211,7 @@ module Fayde.Controls {
             desired.Height = shapeBounds.Height * sy;
             return desired;
         }
-        _ArrangeOverride(finalSize: size, error: BError): size {
+        ArrangeOverride(finalSize: size): size {
             var arranged = size.copyTo(finalSize);
             var shapeBounds = new rect();
             var source = this.Source;
@@ -291,7 +288,7 @@ module Fayde.Controls {
             var source = this.Source;
             if (source) {
                 var available = lu.CoerceSize(size.createInfinite());
-                result = this._MeasureOverride(available, null);
+                result = this.MeasureOverride(available);
                 lu.CoerceSize(result);
             }
 

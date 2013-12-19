@@ -150,7 +150,7 @@ module Fayde {
     	Namespace: "Fayde"
     });
 
-    export class FrameworkElement extends UIElement implements IResourcable, IMeasurableHidden, IArrangeableHidden, Providers.IIsPropertyInheritable {
+    export class FrameworkElement extends UIElement implements IResourcable, Providers.IIsPropertyInheritable {
         DefaultStyleKey: any;
         XamlNode: FENode;
         Resources: Fayde.ResourceDictionary;
@@ -214,37 +214,6 @@ module Fayde {
         }
 
         UpdateLayout() { this.XamlNode.UpdateLayout(); }
-
-        _MeasureOverride(availableSize: size, error: BError): size {
-            var desired = new size();
-
-            availableSize = size.copyTo(availableSize);
-            size.max(availableSize, desired);
-
-            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                var childNode = <FENode>enumerator.Current;
-                var childLu = childNode.LayoutUpdater;
-                childLu._Measure(availableSize, error);
-                desired = size.copyTo(childLu.DesiredSize);
-            }
-
-            size.min(desired, availableSize);
-            return desired;
-        }
-        _ArrangeOverride(finalSize: size, error: BError): size {
-            var arranged = size.copyTo(finalSize);
-
-            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
-            while (enumerator.MoveNext()) {
-                var childNode = <FENode>enumerator.Current;
-                var childRect = rect.fromSize(finalSize);
-                childNode.LayoutUpdater._Arrange(childRect, error);
-                size.max(arranged, finalSize);
-            }
-
-            return arranged;
-        }
         
         private _StyleChanged(args: IDependencyPropertyChangedEventArgs) {
             Providers.LocalStyleBroker.Set(this, <Style>args.NewValue);

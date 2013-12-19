@@ -2,7 +2,6 @@
 
 module Fayde.Controls {
     export class CanvasNode extends PanelNode {
-        _Surface: Surface;
         XObject: Canvas;
         constructor(xobj: Canvas) {
             super(xobj);
@@ -48,23 +47,6 @@ module Fayde.Controls {
             }
             lu.IsLayoutContainer = false;
         }
-
-        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
-            var surface = this._Surface;
-            if (surface && this.IsAttached && this.IsTopLevel) {
-                // a toplevel (non-popup) canvas doesn't subscribe to the same bounds computation as others
-                var surfaceSize = surface.Extents;
-                rect.set(lu.Extents, 0, 0, surfaceSize.Width, surfaceSize.Height);
-                rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
-                rect.copyTo(lu.Extents, lu.Bounds);
-                rect.copyTo(lu.Bounds, lu.BoundsWithChildren);
-
-                lu.ComputeGlobalBounds();
-                lu.ComputeSurfaceBounds();
-            } else {
-                super.ComputeBounds(baseComputer, lu);
-            }
-        }
     }
     Fayde.RegisterType(CanvasNode, {
     	Name: "CanvasNode",
@@ -107,27 +89,18 @@ module Fayde.Controls {
         lu.InvalidateArrange();
     }
 
-    export class Canvas extends Panel implements IMeasurableHidden, IArrangeableHidden {
-        //CreateNode(): CanvasNode { return new CanvasNode(this); }
-
-        static TopProperty: DependencyProperty = DependencyProperty.RegisterAttached("Top", () => Number, Canvas, 0.0, invalidateTopLeft);
-        static GetTop(d: DependencyObject): number { return d.GetValue(Canvas.TopProperty); }
-        static SetTop(d: DependencyObject, value: number) { d.SetValue(Canvas.TopProperty, value); }
-        static LeftProperty: DependencyProperty = DependencyProperty.RegisterAttached("Left", () => Number, Canvas, 0.0, invalidateTopLeft);
-        static GetLeft(d: DependencyObject): number { return d.GetValue(Canvas.LeftProperty); }
-        static SetLeft(d: DependencyObject, value: number) { d.SetValue(Canvas.LeftProperty, value); }
-
-        _MeasureOverride(availableSize: size, error: BError): size {
+    export class CanvasLayoutUpdater extends PanelLayoutUpdater {
+        MeasureOverride(availableSize: size, error: BError): size {
             var childSize = size.createInfinite();
-            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            var enumerator = this.Node.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {
                 var childNode = enumerator.Current;
                 childNode.LayoutUpdater._Measure(childSize, error);
             }
             return new size();
         }
-        _ArrangeOverride(finalSize: size, error: BError): size {
-            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+        ArrangeOverride(finalSize: size, error: BError): size {
+            var enumerator = this.Node.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {
                 var childNode = enumerator.Current;
                 var lu = childNode.LayoutUpdater;
@@ -138,6 +111,36 @@ module Fayde.Controls {
             }
             return finalSize;
         }
+
+        ComputeBounds() {
+            var surface = this.Surface;
+            var node = this.Node;
+            if (surface && node.IsAttached && node.IsTopLevel) {
+                // a toplevel (non-popup) canvas doesn't subscribe to the same bounds computation as others
+                var surfaceSize = surface.Extents;
+                rect.set(this.Extents, 0, 0, surfaceSize.Width, surfaceSize.Height);
+                rect.copyTo(this.Extents, this.ExtentsWithChildren);
+                rect.copyTo(this.Extents, this.Bounds);
+                rect.copyTo(this.Bounds, this.BoundsWithChildren);
+
+                this.ComputeGlobalBounds();
+                this.ComputeSurfaceBounds();
+            } else {
+                super.ComputeBounds();
+            }
+        } 
+    }
+
+    export class Canvas extends Panel {
+        //CreateNode(): CanvasNode { return new CanvasNode(this); }
+        CreateLayoutUpdater() { return new CanvasLayoutUpdater(this); }
+
+        static TopProperty: DependencyProperty = DependencyProperty.RegisterAttached("Top", () => Number, Canvas, 0.0, invalidateTopLeft);
+        static GetTop(d: DependencyObject): number { return d.GetValue(Canvas.TopProperty); }
+        static SetTop(d: DependencyObject, value: number) { d.SetValue(Canvas.TopProperty, value); }
+        static LeftProperty: DependencyProperty = DependencyProperty.RegisterAttached("Left", () => Number, Canvas, 0.0, invalidateTopLeft);
+        static GetLeft(d: DependencyObject): number { return d.GetValue(Canvas.LeftProperty); }
+        static SetLeft(d: DependencyObject, value: number) { d.SetValue(Canvas.LeftProperty, value); }
     }
     Fayde.RegisterType(Canvas, {
     	Name: "Canvas",
