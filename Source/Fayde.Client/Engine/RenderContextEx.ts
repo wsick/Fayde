@@ -136,14 +136,20 @@ module Fayde {
             ctx.fillEx = function (brush: Media.Brush, r: rect, fillRule?: string) {
                 brush.SetupBrush(ctx, r);
                 ctx.fillStyle = brush.ToHtml5Object();
-                ctx.fill(fillRule);
+                if (fillRule)
+                    ctx.fill(fillRule);
+                else
+                    ctx.fill();
             };
             ctx.fillRectEx = function (brush: Media.Brush, r: rect, fillRule?: string) {
                 brush.SetupBrush(ctx, r);
                 ctx.fillStyle = brush.ToHtml5Object();
                 ctx.beginPath();
                 ctx.rect(r.X, r.Y, r.Width, r.Height);
-                ctx.fill(fillRule);
+                if (fillRule)
+                    ctx.fill(fillRule);
+                else
+                    ctx.fill();
             };
         }
         export function Stroke(ctx: RenderContextEx) {
