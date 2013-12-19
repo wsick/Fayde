@@ -41,52 +41,6 @@ module Fayde.Controls {
             Grid.RowDefinitionsProperty.Initialize(this).Listen(this);
         }
 
-        Render(ctx: RenderContextEx, lu: LayoutUpdater, region: rect) {
-            var background = this.Background;
-            var showGridLines = this.ShowGridLines;
-            if (!background && !showGridLines)
-                return;
-
-            var framework = lu.CoerceSize(size.fromRaw(lu.ActualWidth, lu.ActualHeight));
-            if (framework.Width <= 0 || framework.Height <= 0)
-                return;
-
-            var area = rect.fromSize(framework);
-            ctx.save();
-            lu.RenderLayoutClip(ctx);
-            if (background)
-                ctx.fillRectEx(background, area);
-            if (showGridLines) {
-                var cuml = -1;
-                var cols = this.ColumnDefinitions;
-                if (cols) {
-                    var enumerator = cols.GetEnumerator();
-                    while (enumerator.MoveNext()) {
-                        cuml += enumerator.Current.ActualWidth;
-                        ctx.beginPath();
-                        ctx.setLineDash([5]);
-                        ctx.moveTo(cuml, 0);
-                        ctx.lineTo(cuml, framework.Height);
-                        ctx.stroke();
-                    }
-                }
-                var rows = this.RowDefinitions;
-                if (rows) {
-                    cuml = -1;
-                    var enumerator2 = rows.GetEnumerator();
-                    while (enumerator2.MoveNext()) {
-                        cuml += enumerator2.Current.ActualHeight;
-                        ctx.beginPath();
-                        ctx.setLineDash([5]);
-                        ctx.moveTo(0, cuml);
-                        ctx.lineTo(framework.Width, cuml);
-                        ctx.stroke();
-                    }
-                }
-            }
-            ctx.restore();
-        }
-
         private _ShowGridLinesChanged(args: IDependencyPropertyChangedEventArgs) {
             var lu = this.XamlNode.LayoutUpdater;
             lu.Invalidate();
@@ -115,6 +69,54 @@ module Fayde.Controls {
             return this._Measurer.Arrange(<Grid>this.Node.XObject, finalSize, error);
         }
 
+        Render(ctx: RenderContextEx, region: rect) {
+            var grid = <Grid>this.Node.XObject;
+
+            var background = grid.Background;
+            var showGridLines = grid.ShowGridLines;
+            if (!background && !showGridLines)
+                return;
+
+            var framework = this.CoerceSize(size.fromRaw(this.ActualWidth, this.ActualHeight));
+            if (framework.Width <= 0 || framework.Height <= 0)
+                return;
+
+            var area = rect.fromSize(framework);
+            ctx.save();
+            this.RenderLayoutClip(ctx);
+            if (background)
+                ctx.fillRectEx(background, area);
+            if (showGridLines) {
+                var cuml = -1;
+                var cols = grid.ColumnDefinitions;
+                if (cols) {
+                    var enumerator = cols.GetEnumerator();
+                    while (enumerator.MoveNext()) {
+                        cuml += enumerator.Current.ActualWidth;
+                        ctx.beginPath();
+                        ctx.setLineDash([5]);
+                        ctx.moveTo(cuml, 0);
+                        ctx.lineTo(cuml, framework.Height);
+                        ctx.stroke();
+                    }
+                }
+                var rows = grid.RowDefinitions;
+                if (rows) {
+                    cuml = -1;
+                    var enumerator2 = rows.GetEnumerator();
+                    while (enumerator2.MoveNext()) {
+                        cuml += enumerator2.Current.ActualHeight;
+                        ctx.beginPath();
+                        ctx.setLineDash([5]);
+                        ctx.moveTo(0, cuml);
+                        ctx.lineTo(framework.Width, cuml);
+                        ctx.stroke();
+                    }
+                }
+            }
+            ctx.restore();
+        }
+
         ComputeBounds() {
             if ((<Grid>this.Node.XObject).ShowGridLines) {
                 rect.set(this.Extents, 0, 0, this.ActualWidth, this.ActualHeight);
@@ -131,6 +133,9 @@ module Fayde.Controls {
     }
 
     class GridMeasurer {
+        private _RowMatrix: ISegment[][] = [];
+        private _ColMatrix: ISegment[][] = [];
+
         Measure(grid: Grid, availableSize: size, error: BError): size {
             var totalSize = size.copyTo(availableSize);
             var cols = grid.ColumnDefinitions;
@@ -566,8 +571,6 @@ module Fayde.Controls {
             return size;
         }
 
-        private _RowMatrix: ISegment[][];
-        private _ColMatrix: ISegment[][];
         private _CreateMatrices(rowCount: number, colCount: number) {
             var rm = this._RowMatrix = [];
             for (var r = 0; r < rowCount; r++) {
