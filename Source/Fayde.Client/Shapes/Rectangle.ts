@@ -96,6 +96,11 @@ module Fayde.Shapes {
 
             return bounds;
         }
+        ComputeShapeBoundsImpl(logical: boolean, matrix?: number[]): rect {
+            var r = new rect();
+            r.Width = r.Height = logical ? 1.0 : 0.0;
+            return r;
+        }
 
         BuildPath(): Fayde.Path.RawPath {
             var t = !!this.Stroke ? this.StrokeThickness : 0.0;

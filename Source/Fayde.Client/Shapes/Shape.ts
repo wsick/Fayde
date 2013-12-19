@@ -464,7 +464,7 @@ module Fayde.Shapes {
         BuildPath(): Fayde.Path.RawPath { return undefined; }
 
         CreateStrokeParameters(logical?: boolean): Fayde.Path.IStrokeParameters {
-            var thickness = (logical || !!this.Stroke) ? 0.0 : this.StrokeThickness;
+            var thickness = (logical || !this.Stroke) ? 0.0 : this.StrokeThickness;
             if (!(thickness > 0))
                 return;
             return {
