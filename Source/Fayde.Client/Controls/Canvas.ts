@@ -89,6 +89,23 @@ module Fayde.Controls {
         lu.InvalidateArrange();
     }
 
+    export class Canvas extends Panel {
+        //CreateNode(): CanvasNode { return new CanvasNode(this); }
+        CreateLayoutUpdater() { return new CanvasLayoutUpdater(this); }
+
+        static TopProperty: DependencyProperty = DependencyProperty.RegisterAttached("Top", () => Number, Canvas, 0.0, invalidateTopLeft);
+        static GetTop(d: DependencyObject): number { return d.GetValue(Canvas.TopProperty); }
+        static SetTop(d: DependencyObject, value: number) { d.SetValue(Canvas.TopProperty, value); }
+        static LeftProperty: DependencyProperty = DependencyProperty.RegisterAttached("Left", () => Number, Canvas, 0.0, invalidateTopLeft);
+        static GetLeft(d: DependencyObject): number { return d.GetValue(Canvas.LeftProperty); }
+        static SetLeft(d: DependencyObject, value: number) { d.SetValue(Canvas.LeftProperty, value); }
+    }
+    Fayde.RegisterType(Canvas, {
+    	Name: "Canvas",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
+
     export class CanvasLayoutUpdater extends PanelLayoutUpdater {
         MeasureOverride(availableSize: size, error: BError): size {
             var childSize = size.createInfinite();
@@ -130,21 +147,4 @@ module Fayde.Controls {
             }
         } 
     }
-
-    export class Canvas extends Panel {
-        //CreateNode(): CanvasNode { return new CanvasNode(this); }
-        CreateLayoutUpdater() { return new CanvasLayoutUpdater(this); }
-
-        static TopProperty: DependencyProperty = DependencyProperty.RegisterAttached("Top", () => Number, Canvas, 0.0, invalidateTopLeft);
-        static GetTop(d: DependencyObject): number { return d.GetValue(Canvas.TopProperty); }
-        static SetTop(d: DependencyObject, value: number) { d.SetValue(Canvas.TopProperty, value); }
-        static LeftProperty: DependencyProperty = DependencyProperty.RegisterAttached("Left", () => Number, Canvas, 0.0, invalidateTopLeft);
-        static GetLeft(d: DependencyObject): number { return d.GetValue(Canvas.LeftProperty); }
-        static SetLeft(d: DependencyObject, value: number) { d.SetValue(Canvas.LeftProperty, value); }
-    }
-    Fayde.RegisterType(Canvas, {
-    	Name: "Canvas",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
 }

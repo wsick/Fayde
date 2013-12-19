@@ -1,6 +1,24 @@
 /// <reference path="Panel.ts" />
 
 module Fayde.Controls {
+    export class StackPanel extends Panel {
+        CreateLayoutUpdater() { return new StackPanelLayoutUpdater(this); }
+
+        static OrientationProperty: DependencyProperty = DependencyProperty.Register("Orientation", () => new Enum(Orientation), StackPanel, Orientation.Vertical, (d, args) => (<StackPanel>d)._OrientationChanged(args));
+        Orientation: Orientation;
+
+        private _OrientationChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
+            lu.InvalidateMeasure();
+            lu.InvalidateArrange();
+        }
+    }
+    Fayde.RegisterType(StackPanel, {
+    	Name: "StackPanel",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
+
     export class StackPanelLayoutUpdater extends PanelLayoutUpdater {
         constructor(sp: StackPanel) {
             super(sp);
@@ -105,22 +123,4 @@ module Fayde.Controls {
             return arranged;
         }
     }
-
-    export class StackPanel extends Panel {
-        CreateLayoutUpdater() { return new StackPanelLayoutUpdater(this); }
-
-        static OrientationProperty: DependencyProperty = DependencyProperty.Register("Orientation", () => new Enum(Orientation), StackPanel, Orientation.Vertical, (d, args) => (<StackPanel>d)._OrientationChanged(args));
-        Orientation: Orientation;
-
-        private _OrientationChanged(args: IDependencyPropertyChangedEventArgs) {
-            var lu = this.XamlNode.LayoutUpdater;
-            lu.InvalidateMeasure();
-            lu.InvalidateArrange();
-        }
-    }
-    Fayde.RegisterType(StackPanel, {
-    	Name: "StackPanel",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
 }

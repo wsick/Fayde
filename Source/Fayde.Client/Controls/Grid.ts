@@ -1,31 +1,6 @@
 /// <reference path="Panel.ts" />
 
 module Fayde.Controls {
-    export class GridLayoutUpdater extends LayoutUpdater {
-        private _Measurer: GridMeasurer;
-
-        MeasureOverride(availableSize: size, error: BError): size {
-            return this._Measurer.Measure(<Grid>this.Node.XObject, availableSize, error);
-        }
-        ArrangeOverride(finalSize: size, error: BError): size {
-            return this._Measurer.Arrange(<Grid>this.Node.XObject, finalSize, error);
-        }
-
-        ComputeBounds() {
-            if ((<Grid>this.Node.XObject).ShowGridLines) {
-                rect.set(this.Extents, 0, 0, this.ActualWidth, this.ActualHeight);
-                rect.union(this.ExtentsWithChildren, this.Extents);
-                this.IntersectBoundsWithClipPath(this.Bounds, this.AbsoluteXform);
-                rect.union(this.BoundsWithChildren, this.Bounds);
-
-                this.ComputeGlobalBounds();
-                this.ComputeSurfaceBounds();
-            } else {
-                super.ComputeBounds();
-            }
-        }
-    }
-
     export class Grid extends Panel implements IRowDefinitionsListener, IColumnDefinitionsListener {
         CreateLayoutUpdater() { return new GridLayoutUpdater(this); }
 
@@ -129,6 +104,31 @@ module Fayde.Controls {
     	Namespace: "Fayde.Controls",
     	XmlNamespace: Fayde.XMLNS
     });
+
+    export class GridLayoutUpdater extends LayoutUpdater {
+        private _Measurer: GridMeasurer;
+
+        MeasureOverride(availableSize: size, error: BError): size {
+            return this._Measurer.Measure(<Grid>this.Node.XObject, availableSize, error);
+        }
+        ArrangeOverride(finalSize: size, error: BError): size {
+            return this._Measurer.Arrange(<Grid>this.Node.XObject, finalSize, error);
+        }
+
+        ComputeBounds() {
+            if ((<Grid>this.Node.XObject).ShowGridLines) {
+                rect.set(this.Extents, 0, 0, this.ActualWidth, this.ActualHeight);
+                rect.union(this.ExtentsWithChildren, this.Extents);
+                this.IntersectBoundsWithClipPath(this.Bounds, this.AbsoluteXform);
+                rect.union(this.BoundsWithChildren, this.Bounds);
+
+                this.ComputeGlobalBounds();
+                this.ComputeSurfaceBounds();
+            } else {
+                super.ComputeBounds();
+            }
+        }
+    }
 
     class GridMeasurer {
         Measure(grid: Grid, availableSize: size, error: BError): size {
