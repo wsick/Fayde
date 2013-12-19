@@ -2,7 +2,7 @@
 
 module Fayde.Shapes {
     export class Shape extends FrameworkElement {
-        CreateLayoutUpdater() { return new ShapeLayoutUpdater(this); }
+        CreateLayoutUpdater(node: UINode) { return new ShapeLayoutUpdater(node); }
 
         private static _StrokePropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
             var shape = <Shape>dobj;

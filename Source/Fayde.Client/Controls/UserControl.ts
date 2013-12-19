@@ -6,7 +6,7 @@ module Fayde.Controls {
         Content: any;
         static Annotations = { ContentProperty: UserControl.ContentProperty }
 
-        CreateLayoutUpdater() { return new UserControlLayoutUpdater(this); }
+        CreateLayoutUpdater(node: UINode) { return new UserControlLayoutUpdater(node); }
 
         InitializeComponent() {
             this.ApplyTemplate();
@@ -31,8 +31,8 @@ module Fayde.Controls {
     });
 
     export class UserControlLayoutUpdater extends LayoutUpdater {
-        constructor(uc: UserControl) {
-            super(uc);
+        constructor(node: UINode) {
+            super(node);
             this.BreaksLayoutClipRender = true;
             this.SetContainerMode(true);
         }

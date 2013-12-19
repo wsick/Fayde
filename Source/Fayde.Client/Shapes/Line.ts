@@ -2,7 +2,7 @@
 
 module Fayde.Shapes {
     export class Line extends Shape {
-        CreateLayoutUpdater() { return new LineLayoutUpdater(this); }
+        CreateLayoutUpdater(node: UINode) { return new LineLayoutUpdater(node); }
 
         private static _InvalidateCoordinate(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
             var lu = <LineLayoutUpdater>(<Line>dobj).XamlNode.LayoutUpdater;

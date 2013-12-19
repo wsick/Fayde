@@ -3,7 +3,7 @@
 
 module Fayde.Controls {
     export class Image extends FrameworkElement implements Media.Imaging.IImageChangedListener {
-        CreateLayoutUpdater(): ImageLayoutUpdater { return new ImageLayoutUpdater(this); }
+        CreateLayoutUpdater(node: UINode): ImageLayoutUpdater { return new ImageLayoutUpdater(node); }
 
         private static _SourceCoercer(d: DependencyObject, propd: DependencyProperty, value: any): any {
             if (typeof value === "string")
@@ -142,8 +142,8 @@ module Fayde.Controls {
     });
 
     export class ImageLayoutUpdater extends LayoutUpdater {
-        constructor(img: Image) {
-            super(img);
+        constructor(node: UINode) {
+            super(node);
             this.CanHitElement = true;
         }
 

@@ -8,7 +8,7 @@ module Fayde.Controls.Internal {
     var CURSOR_BLINK_TIMEOUT_DEFAULT = 900;
 
     export class TextBoxView extends FrameworkElement implements ITextModelListener {
-        CreateLayoutUpdater() { return new TextBoxViewLayoutUpdater(this); }
+        CreateLayoutUpdater(node: UINode) { return new TextBoxViewLayoutUpdater(node); }
 
         private _Cursor: rect = new rect();
         private _Layout: Text.TextLayout = new Text.TextLayout();

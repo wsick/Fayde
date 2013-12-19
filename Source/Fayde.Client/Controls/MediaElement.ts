@@ -1,6 +1,15 @@
 /// <reference path="../Core/FrameworkElement.ts" />
 
 module Fayde.Controls {
+    export class MediaElement extends FrameworkElement {
+        CreateLayoutUpdater(node: UINode) { return new MediaElementLayoutUpdater(node); }
+    }
+    Fayde.RegisterType(MediaElement, {
+    	Name: "MediaElement",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
+    
     export class MediaElementLayoutUpdater extends LayoutUpdater {
         InsideObject(ctx: RenderContextEx, x: number, y: number) {
             return false;
@@ -13,13 +22,4 @@ module Fayde.Controls {
             return finalSize;
         }
     }
-
-    export class MediaElement extends FrameworkElement {
-        CreateLayoutUpdater() { return new MediaElementLayoutUpdater(this); }
-    }
-    Fayde.RegisterType(MediaElement, {
-    	Name: "MediaElement",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
 }

@@ -113,8 +113,8 @@ module Fayde {
         private _ForceInvalidateOfNewBounds: boolean = false;
 
         Node: UINode;
-        constructor(uie: UIElement) {
-            this.Node = uie.XamlNode;
+        constructor(uin: UINode) {
+            this.Node = uin;
         }
 
         OnIsAttachedChanged(newIsAttached: boolean, visualParentNode: UINode) {
@@ -990,8 +990,7 @@ module Fayde {
                             desired = size.copyTo(surface.Extents);
                     }
                 } else {
-                    desired.Width = fe.ActualWidth;
-                    desired.Height = fe.ActualHeight;
+                    desired = size.fromRaw(fe.ActualWidth, fe.ActualHeight);
                 }
 
                 var viewport = rect.fromSize(desired);

@@ -2,7 +2,7 @@
 
 module Fayde.Shapes {
     export class Path extends Shape implements Media.IGeometryListener {
-        CreateLayoutUpdater() { return new PathLayoutUpdater(this); }
+        CreateLayoutUpdater(node: UINode) { return new PathLayoutUpdater(node); }
 
         private static _DataCoercer(d: DependencyObject, propd: DependencyProperty, value: any): any {
             if (typeof value === "string")

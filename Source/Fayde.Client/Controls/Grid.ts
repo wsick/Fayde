@@ -2,7 +2,7 @@
 
 module Fayde.Controls {
     export class Grid extends Panel implements IRowDefinitionsListener, IColumnDefinitionsListener {
-        CreateLayoutUpdater() { return new GridLayoutUpdater(this); }
+        CreateLayoutUpdater(node: PanelNode) { return new GridLayoutUpdater(node); }
 
         private static _AttachedPropChanged(d: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
             var dNode = <UINode>d.XamlNode;

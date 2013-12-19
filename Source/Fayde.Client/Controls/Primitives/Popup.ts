@@ -145,38 +145,10 @@ module Fayde.Controls.Primitives {
     	Namespace: "Fayde.Controls.Primitives"
     });
 
-    export class PopupLayoutUpdater extends LayoutUpdater {
-        ComputeBounds() { }
-
-        PostComputeTransform(hasProjection: boolean) {
-            var popup = <Popup>this.Node.XObject;
-            var child = popup.Child;
-            if (!child)
-                return;
-            var childLu = child.XamlNode.LayoutUpdater;
-            if (this.TotalRenderProjection) {
-                var projection = mat4.clone(this.AbsoluteProjection);
-                var m = mat4.createTranslate(popup.HorizontalOffset, popup.VerticalOffset, 0.0);
-                mat4.multiply(m, projection, projection); //projection = projection * m
-
-                childLu.CarrierProjection = projection;
-                childLu.CarrierXform = null;
-                childLu.UpdateProjection();
-            } else {
-                var xform = mat3.clone(this.AbsoluteXform);
-                mat3.translate(xform, popup.HorizontalOffset, popup.VerticalOffset);
-
-                childLu.CarrierProjection = null;
-                childLu.CarrierXform = xform;
-                childLu.UpdateTransform();
-            }
-        }
-    }
-
     export class Popup extends FrameworkElement {
         XamlNode: PopupNode;
         CreateNode(): PopupNode { return new PopupNode(this); }
-        CreateLayoutUpdater() { return new PopupLayoutUpdater(this); }
+        CreateLayoutUpdater(node: PopupNode) { return new PopupLayoutUpdater(node); }
 
         static ChildProperty = DependencyProperty.Register("Child", () => UIElement, Popup, undefined, (d, args) => (<Popup>d)._OnChildChanged(args));
         static HorizontalOffsetProperty = DependencyProperty.Register("HorizontalOffset", () => Number, Popup, 0.0, (d, args) => (<Popup>d).XamlNode.OnHorizontalOffsetChanged(args));
@@ -215,4 +187,32 @@ module Fayde.Controls.Primitives {
     	Namespace: "Fayde.Controls.Primitives",
     	XmlNamespace: Fayde.XMLNS
     });
+
+    export class PopupLayoutUpdater extends LayoutUpdater {
+        ComputeBounds() { }
+
+        PostComputeTransform(hasProjection: boolean) {
+            var popup = <Popup>this.Node.XObject;
+            var child = popup.Child;
+            if (!child)
+                return;
+            var childLu = child.XamlNode.LayoutUpdater;
+            if (this.TotalRenderProjection) {
+                var projection = mat4.clone(this.AbsoluteProjection);
+                var m = mat4.createTranslate(popup.HorizontalOffset, popup.VerticalOffset, 0.0);
+                mat4.multiply(m, projection, projection); //projection = projection * m
+
+                childLu.CarrierProjection = projection;
+                childLu.CarrierXform = null;
+                childLu.UpdateProjection();
+            } else {
+                var xform = mat3.clone(this.AbsoluteXform);
+                mat3.translate(xform, popup.HorizontalOffset, popup.VerticalOffset);
+
+                childLu.CarrierProjection = null;
+                childLu.CarrierXform = xform;
+                childLu.UpdateTransform();
+            }
+        }
+    }
 }

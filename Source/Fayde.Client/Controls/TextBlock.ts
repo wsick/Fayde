@@ -261,7 +261,7 @@ module Fayde.Controls {
     export class TextBlock extends FrameworkElement implements IFontChangeable {
         XamlNode: TextBlockNode;
         CreateNode(): TextBlockNode { return new TextBlockNode(this); }
-        CreateLayoutUpdater() { return new TextBlockLayoutUpdater(this); }
+        CreateLayoutUpdater(node: TextBlockNode) { return new TextBlockLayoutUpdater(node); }
 
         static PaddingProperty: DependencyProperty = DependencyProperty.RegisterCore("Padding", () => Thickness, TextBlock, undefined, (d, args) => (<TextBlock>d).XamlNode._InvalidateDirty(true));
         static FontFamilyProperty: DependencyProperty = InheritableOwner.FontFamilyProperty.ExtendTo(TextBlock);

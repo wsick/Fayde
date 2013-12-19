@@ -26,6 +26,7 @@ module Fayde {
 
         constructor(xobj: UIElement) {
             super(xobj);
+            this.LayoutUpdater = xobj.CreateLayoutUpdater(this);
         }
 
         VisualParentNode: UINode;
@@ -317,13 +318,8 @@ module Fayde {
         private _ClipListener: Media.IGeometryListener = null;
         private _EffectListener: Media.Effects.IEffectListener = null;
         CreateNode(): UINode { return new UINode(this); }
-        CreateLayoutUpdater(): LayoutUpdater { return new LayoutUpdater(this); }
-
-        constructor() {
-            super();
-            this.XamlNode.LayoutUpdater = this.CreateLayoutUpdater();
-        }
-
+        CreateLayoutUpdater(uin: UINode): LayoutUpdater { return new LayoutUpdater(uin); }
+        
         get VisualParent() {
             var vpNode = this.XamlNode.VisualParentNode;
             if (vpNode) return vpNode.XObject;

@@ -2,7 +2,7 @@
 
 module Fayde.Shapes {
     export class Ellipse extends Shape {
-        CreateLayoutUpdater() { return new EllipseLayoutUpdater(this); }
+        CreateLayoutUpdater(node: UINode) { return new EllipseLayoutUpdater(node); }
 
         constructor() {
             super();

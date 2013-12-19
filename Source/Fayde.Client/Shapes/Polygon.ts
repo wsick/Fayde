@@ -2,7 +2,7 @@
 
 module Fayde.Shapes {
     export class Polygon extends Shape {
-        CreateLayoutUpdater() { return new PolygonLayoutUpdater(this); }
+        CreateLayoutUpdater(node: UINode) { return new PolygonLayoutUpdater(node); }
         
         private static _PointsCoercer(d: DependencyObject, propd: DependencyProperty, value: any): any {
             if (typeof value === "string")

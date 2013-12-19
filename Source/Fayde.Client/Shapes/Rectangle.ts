@@ -2,7 +2,7 @@
 
 module Fayde.Shapes {
     export class Rectangle extends Shape {
-        CreateLayoutUpdater() { return new RectangleLayoutUpdater(this); }
+        CreateLayoutUpdater(node: UINode) { return new RectangleLayoutUpdater(node); }
         /* RadiusX/RadiusY Notes
         For the rectangle to have rounded corners, both the RadiusX and RadiusY properties must be nonzero.
         A value greater than or equal to zero and less than or equal to half the rectangle's width that describes the x-radius of the ellipse is used to round the corners of the rectangle. 

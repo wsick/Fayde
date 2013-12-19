@@ -1,6 +1,7 @@
 /// <reference path="UIElement.ts" />
 /// <reference path="Providers/ImmutableStore.ts" />
 /// <reference path="Providers/ActualSizeStore.ts" />
+/// <reference path="LayoutUpdater.ts" />
 
 module Fayde {
     export class FENode extends UINode implements Providers.IStyleHolder, Providers.IImplicitStyleHolder {

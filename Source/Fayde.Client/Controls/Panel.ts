@@ -120,8 +120,8 @@ module Fayde.Controls {
     });
 
     export class PanelLayoutUpdater extends LayoutUpdater {
-        constructor(panel: Panel) {
-            super(panel);
+        constructor(node: PanelNode) {
+            super(node);
             this.SetContainerMode(true, true);
         }
 
@@ -170,7 +170,7 @@ module Fayde.Controls {
     export class Panel extends FrameworkElement {
         XamlNode: PanelNode;
         CreateNode(): PanelNode { return new PanelNode(this); }
-        CreateLayoutUpdater() { return new PanelLayoutUpdater(this); }
+        CreateLayoutUpdater(node: PanelNode) { return new PanelLayoutUpdater(node); }
 
         static ZIndexProperty: DependencyProperty = DependencyProperty.RegisterAttached("ZIndex", () => { return Number; }, Panel, 0, zIndexPropertyChanged);
         static ZProperty: DependencyProperty = DependencyProperty.RegisterAttached("Z", () => { return Number; }, Panel, NaN);

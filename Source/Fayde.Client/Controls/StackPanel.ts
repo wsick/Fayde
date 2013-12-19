@@ -2,7 +2,7 @@
 
 module Fayde.Controls {
     export class StackPanel extends Panel {
-        CreateLayoutUpdater() { return new StackPanelLayoutUpdater(this); }
+        CreateLayoutUpdater(node: PanelNode) { return new StackPanelLayoutUpdater(node); }
 
         static OrientationProperty: DependencyProperty = DependencyProperty.Register("Orientation", () => new Enum(Orientation), StackPanel, Orientation.Vertical, (d, args) => (<StackPanel>d)._OrientationChanged(args));
         Orientation: Orientation;
@@ -20,10 +20,6 @@ module Fayde.Controls {
     });
 
     export class StackPanelLayoutUpdater extends PanelLayoutUpdater {
-        constructor(sp: StackPanel) {
-            super(sp);
-        }
-
         MeasureOverride(availableSize: size, error: BError): size {
             var sp = <StackPanel>this.Node.XObject;
             var childAvailable = size.createInfinite();

@@ -91,7 +91,7 @@ module Fayde.Controls {
 
     export class Canvas extends Panel {
         //CreateNode(): CanvasNode { return new CanvasNode(this); }
-        CreateLayoutUpdater() { return new CanvasLayoutUpdater(this); }
+        CreateLayoutUpdater(node: PanelNode) { return new CanvasLayoutUpdater(node); }
 
         static TopProperty: DependencyProperty = DependencyProperty.RegisterAttached("Top", () => Number, Canvas, 0.0, invalidateTopLeft);
         static GetTop(d: DependencyObject): number { return d.GetValue(Canvas.TopProperty); }

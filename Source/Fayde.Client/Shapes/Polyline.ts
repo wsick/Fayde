@@ -2,7 +2,7 @@
 
 module Fayde.Shapes {
     export class Polyline extends Shape {
-        CreateLayoutUpdater() { return new PolylineLayoutUpdater(this); }
+        CreateLayoutUpdater(node: UINode) { return new PolylineLayoutUpdater(node); }
 
         private static _PointsCoercer(d: DependencyObject, propd: DependencyProperty, value: any): any {
             if (typeof value === "string")
