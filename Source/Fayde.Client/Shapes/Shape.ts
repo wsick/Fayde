@@ -67,6 +67,7 @@ module Fayde.Shapes {
         }
         private _StretchChanged(args: IDependencyPropertyChangedEventArgs) {
             var lu = <ShapeLayoutUpdater>this.XamlNode.LayoutUpdater;
+            lu.Stretch = args.NewValue;
             lu.InvalidateMeasure();
             lu.InvalidateStretch();
         }

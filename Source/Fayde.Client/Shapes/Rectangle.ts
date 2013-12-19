@@ -15,7 +15,7 @@ module Fayde.Shapes {
 
         constructor() {
             super();
-            this.Stretch = Media.Stretch.Fill;
+            this.Stretch = Fayde.Media.Stretch.Fill;
         }
 
         private _RadiusChanged(args: IDependencyPropertyChangedEventArgs) {
@@ -68,16 +68,16 @@ module Fayde.Shapes {
 
             var t = !!this.Stroke ? this.StrokeThickness : 0.0;
             switch (this.Stretch) {
-                case Media.Stretch.None:
+                case Fayde.Media.Stretch.None:
                     bounds.Width = bounds.Height = 0.0;
                     break;
-                case Media.Stretch.Uniform:
+                case Fayde.Media.Stretch.Uniform:
                     bounds.Width = bounds.Height = Math.min(bounds.Width, bounds.Height);
                     break;
-                case Media.Stretch.UniformToFill:
+                case Fayde.Media.Stretch.UniformToFill:
                     bounds.Width = bounds.Height = Math.max(bounds.Width, bounds.Height);
                     break;
-                case Media.Stretch.Fill:
+                case Fayde.Media.Stretch.Fill:
                     break;
             }
 
@@ -105,16 +105,16 @@ module Fayde.Shapes {
             bounds.Height = this.ActualHeight;
 
             switch (this.Stretch) {
-                case Media.Stretch.None:
+                case Fayde.Media.Stretch.None:
                     bounds.Width = bounds.Height = 0;
                     break;
-                case Media.Stretch.Uniform:
+                case Fayde.Media.Stretch.Uniform:
                     bounds.Width = bounds.Height = Math.min(bounds.Width, bounds.Height);
                     break;
-                case Media.Stretch.UniformToFill:
+                case Fayde.Media.Stretch.UniformToFill:
                     bounds.Width = bounds.Height = Math.max(bounds.Width, bounds.Height);
                     break;
-                case Media.Stretch.Fill:
+                case Fayde.Media.Stretch.Fill:
                     break;
             }
 
