@@ -1,21 +1,8 @@
 /// <reference path="../Core/FrameworkElement.ts" />
 
 module Fayde.Controls {
-    export class BorderNode extends FENode {
-        XObject: Border;
-        constructor(xobj: Border) {
-            super(xobj);
-            this.LayoutUpdater.SetContainerMode(true);
-        }
-    }
-    Fayde.RegisterType(BorderNode, {
-        Name: "BorderNode",
-        Namespace: "Fayde.Controls"
-    });
-
     export class Border extends FrameworkElement {
-        XamlNode: BorderNode;
-        CreateNode(): BorderNode { return new BorderNode(this); }
+        CreateLayoutUpdater(node: UINode) { return new BorderLayoutUpdater(node); }
 
         static BackgroundProperty: DependencyProperty = DependencyProperty.RegisterCore("Background", () => Media.Brush, Border, undefined, (d, args) => (<Border>d)._BackgroundChanged(args));
         static BorderBrushProperty: DependencyProperty = DependencyProperty.RegisterCore("BorderBrush", () => Media.Brush, Border, undefined, (d, args) => (<Border>d)._BorderBrushChanged(args));
@@ -34,57 +21,6 @@ module Fayde.Controls {
         private _BorderBrushListener: Media.IBrushChangedListener;
 
         static Annotations = { ContentProperty: Border.ChildProperty }
-
-        _MeasureOverride(availableSize: size, error: BError): size {
-            var padding = this.Padding;
-            var borderThickness = this.BorderThickness;
-            var border: Thickness = null;
-            if (padding && borderThickness) {
-                border = padding.Plus(borderThickness);
-            } else if (padding) {
-                border = padding.Clone();
-            } else if (borderThickness) {
-                border = borderThickness.Clone();
-            }
-
-            var desired = new size();
-            if (border) availableSize = size.shrinkByThickness(size.copyTo(availableSize), border);
-
-            var child = this.Child;
-            if (child) {
-                var lu = child.XamlNode.LayoutUpdater;
-                lu._Measure(availableSize, error);
-                desired = size.copyTo(lu.DesiredSize);
-            }
-            if (border) size.growByThickness(desired, border);
-            size.min(desired, availableSize);
-            return desired;
-        }
-        _ArrangeOverride(finalSize: size, error: BError): size {
-            var child = this.Child;
-            if (child) {
-                var padding = this.Padding;
-                var borderThickness = this.BorderThickness;
-                var border: Thickness = null;
-                if (padding && borderThickness) {
-                    border = padding.Plus(borderThickness);
-                } else if (padding) {
-                    border = padding;
-                } else if (borderThickness) {
-                    border = borderThickness;
-                }
-
-                var childRect = rect.fromSize(finalSize);
-                if (border) rect.shrinkByThickness(childRect, border);
-                child.XamlNode.LayoutUpdater._Arrange(childRect, error);
-                /*
-                arranged = size.fromRect(childRect);
-                if (border) size.growByThickness(arranged, border);
-                size.max(arranged, finalSize);
-                */
-            }
-            return finalSize;
-        }
 
         private _ChildChanged(args: IDependencyPropertyChangedEventArgs) {
             var olduie = <UIElement>args.OldValue;
@@ -133,33 +69,94 @@ module Fayde.Controls {
         private _PaddingChanged(args: IDependencyPropertyChangedEventArgs) {
             this.XamlNode.LayoutUpdater.InvalidateMeasure();
         }
-
-        private Render(ctx: RenderContextEx, lu: LayoutUpdater, region: rect) {
-            var borderBrush = this.BorderBrush;
-            var extents = lu.Extents;
-            var backgroundBrush = this.Background;
-
-            if (!backgroundBrush && !borderBrush)
-                return;
-            if (rect.isEmpty(extents))
-                return;
-
-            var thickness = this.BorderThickness;
-
-            var fillOnly = !borderBrush || !thickness || thickness.IsEmpty();
-            if (fillOnly && !backgroundBrush)
-                return;
-            ctx.save();
-            lu.RenderLayoutClip(ctx);
-            render(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
-            ctx.restore();
-        }
     }
     Fayde.RegisterType(Border, {
         Name: "Border",
         Namespace: "Fayde.Controls",
         XmlNamespace: Fayde.XMLNS
     });
+
+    export class BorderLayoutUpdater extends LayoutUpdater {
+        constructor(node: UINode) {
+            super(node);
+            this.SetContainerMode(true);
+        }
+
+        MeasureOverride(availableSize: size, error: BError): size {
+            var b = <Border>this.Node.XObject;
+            var padding = b.Padding;
+            var borderThickness = b.BorderThickness;
+            var border: Thickness = null;
+            if (padding && borderThickness) {
+                border = padding.Plus(borderThickness);
+            } else if (padding) {
+                border = padding.Clone();
+            } else if (borderThickness) {
+                border = borderThickness.Clone();
+            }
+
+            var desired = new size();
+            if (border) availableSize = size.shrinkByThickness(size.copyTo(availableSize), border);
+
+            var child = b.Child;
+            if (child) {
+                var lu = child.XamlNode.LayoutUpdater;
+                lu._Measure(availableSize, error);
+                desired = size.copyTo(lu.DesiredSize);
+            }
+            if (border) size.growByThickness(desired, border);
+            size.min(desired, availableSize);
+            return desired;
+        }
+        ArrangeOverride(finalSize: size, error: BError): size {
+            var b = <Border>this.Node.XObject;
+            var child = b.Child;
+            if (child) {
+                var padding = b.Padding;
+                var borderThickness = b.BorderThickness;
+                var border: Thickness = null;
+                if (padding && borderThickness) {
+                    border = padding.Plus(borderThickness);
+                } else if (padding) {
+                    border = padding;
+                } else if (borderThickness) {
+                    border = borderThickness;
+                }
+
+                var childRect = rect.fromSize(finalSize);
+                if (border) rect.shrinkByThickness(childRect, border);
+                child.XamlNode.LayoutUpdater._Arrange(childRect, error);
+                /*
+                arranged = size.fromRect(childRect);
+                if (border) size.growByThickness(arranged, border);
+                size.max(arranged, finalSize);
+                */
+            }
+            return finalSize;
+        }
+
+        Render(ctx: RenderContextEx, region: rect) {
+            var border = <Border>this.Node.XObject;
+            var borderBrush = border.BorderBrush;
+            var extents = this.Extents;
+            var backgroundBrush = border.Background;
+
+            if (!backgroundBrush && !borderBrush)
+                return;
+            if (rect.isEmpty(extents))
+                return;
+
+            var thickness = border.BorderThickness;
+
+            var fillOnly = !borderBrush || !thickness || thickness.IsEmpty();
+            if (fillOnly && !backgroundBrush)
+                return;
+            ctx.save();
+            this.RenderLayoutClip(ctx);
+            render(ctx, extents, backgroundBrush, borderBrush, thickness, border.CornerRadius);
+            ctx.restore();
+        }
+    }
 
     function render(ctx: RenderContextEx, extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cornerRadius?: CornerRadius) {
         thickness = thickness || new Thickness();
