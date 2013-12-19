@@ -106,7 +106,7 @@ module Fayde.Controls {
     });
 
     export class GridLayoutUpdater extends LayoutUpdater {
-        private _Measurer: GridMeasurer;
+        private _Measurer = new GridMeasurer();
 
         MeasureOverride(availableSize: size, error: BError): size {
             return this._Measurer.Measure(<Grid>this.Node.XObject, availableSize, error);
