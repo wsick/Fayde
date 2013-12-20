@@ -100,7 +100,7 @@ module Fayde.Shapes {
         Fill: Media.Brush = null;
         Stretch: Media.Stretch = Media.Stretch.None;
         FillRule: FillRule = FillRule.NonZero;
-        StrokeThickness: number = 0;
+        StrokeThickness: number = 1;
         StrokeStartLineCap = PenLineCap.Flat;
         StrokeEndLineCap = PenLineCap.Flat;
         StrokeLineJoin = PenLineJoin.Miter;
