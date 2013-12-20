@@ -168,6 +168,7 @@ module Fayde.Path {
                 break;
             case Shapes.PenLineCap.Square:
                 if (!(v = entry.getStartVector())) return;
+                if (!v[0] || !v[1]) return;
                 var sd = Vector.reverse(Vector.normalize(v.slice(0)));
                 var sdo = Vector.orthogonal(sd.slice(0));
 
@@ -184,6 +185,7 @@ module Fayde.Path {
             case Shapes.PenLineCap.Flat:
             default:
                 if (!(v = entry.getStartVector())) return;
+                if (!v[0] || !v[1]) return;
                 var sdo = Vector.orthogonal(Vector.normalize(v.slice(0)));
 
                 var x1 = entry.sx + hs * sdo[0];
@@ -314,6 +316,8 @@ module Fayde.Path {
             return null;
         Vector.reverse(av);
         var tau = Vector.angleBetween(av, bv) / 2;
+        if (isNaN(tau))
+            return null;
 
         var miterRatio = 1 / Math.sin(tau);
         if (miterRatio > miterLimit)
