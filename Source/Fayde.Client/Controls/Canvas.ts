@@ -5,7 +5,6 @@ module Fayde.Controls {
         XObject: Canvas;
         constructor(xobj: Canvas) {
             super(xobj);
-            this.LayoutUpdater.BreaksLayoutClipRender = true;
         }
 
         AttachVisualChild(uie: UIElement, error: BError): boolean {
@@ -107,6 +106,11 @@ module Fayde.Controls {
     });
 
     export class CanvasLayoutUpdater extends PanelLayoutUpdater {
+        constructor(node: PanelNode) {
+            super(node);
+            this.BreaksLayoutClipRender = true;
+        }
+
         MeasureOverride(availableSize: size, error: BError): size {
             var childSize = size.createInfinite();
             var enumerator = this.Node.GetVisualTreeEnumerator();
