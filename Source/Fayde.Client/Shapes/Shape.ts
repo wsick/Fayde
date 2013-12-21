@@ -8,6 +8,7 @@ module Fayde.Shapes {
             var shape = <Shape>dobj;
             var lu = <ShapeLayoutUpdater>shape.XamlNode.LayoutUpdater;
             lu[args.Property.Name] = args.NewValue;
+            lu.InvalidateNaturalBounds();
         }
 
         static FillProperty: DependencyProperty = DependencyProperty.Register("Fill", () => Media.Brush, Shape, undefined, (d, args) => (<Shape>d)._FillChanged(args));
