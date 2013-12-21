@@ -117,18 +117,16 @@ module Fayde.Controls {
             ctx.restore();
         }
 
-        ComputeBounds() {
-            if ((<Grid>this.Node.XObject).ShowGridLines) {
-                rect.set(this.Extents, 0, 0, this.ActualWidth, this.ActualHeight);
-                rect.union(this.ExtentsWithChildren, this.Extents);
-                this.IntersectBoundsWithClipPath(this.Bounds, this.AbsoluteXform);
-                rect.union(this.BoundsWithChildren, this.Bounds);
+        ComputeExtents(actualSize: size) {
+            if (!(<Grid>this.Node.XObject).ShowGridLines)
+                return super.ComputeExtents(actualSize);
 
-                this.ComputeGlobalBounds();
-                this.ComputeSurfaceBounds();
-            } else {
-                super.ComputeBounds();
-            }
+            var e = this.Extents;
+            var ewc = this.ExtentsWithChildren;
+            e.X = ewc.X = 0;
+            e.Y = ewc.Y = 0;
+            ewc.Width = ewc.Width = actualSize.Width;
+            ewc.Height = ewc.Height = actualSize.Height;
         }
     }
 

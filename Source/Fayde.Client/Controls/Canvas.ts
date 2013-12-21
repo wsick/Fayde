@@ -133,22 +133,16 @@ module Fayde.Controls {
             return finalSize;
         }
 
-        ComputeBounds() {
+        ComputeExtents(actualSize: size) {
             var surface = this.Surface;
             var node = this.Node;
-            if (surface && node.IsAttached && node.IsTopLevel) {
-                // a toplevel (non-popup) canvas doesn't subscribe to the same bounds computation as others
-                var surfaceSize = surface.Extents;
-                rect.set(this.Extents, 0, 0, surfaceSize.Width, surfaceSize.Height);
-                rect.copyTo(this.Extents, this.ExtentsWithChildren);
-                rect.copyTo(this.Extents, this.Bounds);
-                rect.copyTo(this.Bounds, this.BoundsWithChildren);
+            if (!surface || !node.IsAttached || !node.IsTopLevel)
+                return super.ComputeExtents(actualSize);
 
-                this.ComputeGlobalBounds();
-                this.ComputeSurfaceBounds();
-            } else {
-                super.ComputeBounds();
-            }
-        } 
+            // a toplevel (non-popup) canvas doesn't subscribe to the same bounds computation as others
+            var surfaceSize = surface.Extents;
+            rect.set(this.Extents, 0, 0, surfaceSize.Width, surfaceSize.Height);
+            rect.copyTo(this.Extents, this.ExtentsWithChildren);
+        }
     }
 }

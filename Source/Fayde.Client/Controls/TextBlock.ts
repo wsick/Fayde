@@ -367,7 +367,7 @@ module Fayde.Controls {
             return node.ComputeActualSize(this, tb.Padding);
         }
 
-        ComputeBounds() {
+        ComputeExtents(actualSize: size) {
             var node = <TextBlockNode>this.Node;
             rect.copyTo(node._Layout.RenderExtents, this.Extents);
             var padding = node.XObject.Padding;
@@ -376,12 +376,6 @@ module Fayde.Controls {
                 this.Extents.Y += padding.Top;
             }
             rect.copyTo(this.Extents, this.ExtentsWithChildren);
-
-            this.IntersectBoundsWithClipPath(this.Bounds, this.AbsoluteXform);
-            rect.copyTo(this.Bounds, this.BoundsWithChildren);
-
-            this.ComputeGlobalBounds();
-            this.ComputeSurfaceBounds();
         }
 
         Render(ctx: RenderContextEx, region: rect) {

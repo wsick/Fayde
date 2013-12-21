@@ -87,11 +87,7 @@ module Fayde {
 
         Extents: rect = new rect();
         ExtentsWithChildren: rect = new rect();
-        Bounds: rect = new rect();
-        BoundsWithChildren: rect = new rect();
-        GlobalBounds: rect = new rect();
         GlobalBoundsWithChildren: rect = new rect();
-        SurfaceBounds: rect = new rect();
         SurfaceBoundsWithChildren: rect = new rect();
         EffectPadding: Thickness = new Thickness();
         ClipBounds: rect = new rect();
@@ -339,19 +335,14 @@ module Fayde {
         }
         Invalidate(r?: rect) {
             if (!r)
-                r = this.SurfaceBounds;
+                r = this.SurfaceBoundsWithChildren;
             if (!this.TotalIsRenderVisible || (this.TotalOpacity * 255) < 0.5)
                 return;
 
             if (this.Node.IsAttached) {
                 this._AddDirtyElement(_Dirty.Invalidate);
                 this.InvalidateBitmapCache();
-                if (false) {
-                    //TODO: Render Intermediate not implemented
-                    rect.union(this.DirtyRegion, this.SurfaceBoundsWithChildren);
-                } else {
-                    rect.union(this.DirtyRegion, r);
-                }
+                rect.union(this.DirtyRegion, r);
                 //this._OnInvalidated();
             }
         }
@@ -631,31 +622,28 @@ module Fayde {
                 s.Width = 0;
             if (isNaN(s.Height))
                 s.Height = 0;
-            
-            rect.set(this.Extents, 0, 0, s.Width, s.Height);
-            rect.copyTo(this.Extents, this.ExtentsWithChildren);
-            
+            this.ComputeExtents(s);
+            this.ComputePaintBounds();
+        }
+        ComputeExtents(actualSize: size) {
+            var e = this.Extents;
+            var ewc = this.ExtentsWithChildren;
+            e.X = ewc.X = 0;
+            e.Y = ewc.Y = 0;
+            ewc.Width = ewc.Width = actualSize.Width;
+            ewc.Height = ewc.Height = actualSize.Height;
+
             var node = this.Node;
             var enumerator = node.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {
                 var item = <UINode>enumerator.Current;
                 var itemlu = item.LayoutUpdater;
                 if (itemlu.TotalIsRenderVisible)
-                    rect.union(this.ExtentsWithChildren, itemlu.GlobalBoundsWithChildren);
+                    rect.union(ewc, itemlu.GlobalBoundsWithChildren);
             }
-
-            this.IntersectBoundsWithClipPath(this.Bounds, this.AbsoluteXform);
-            rect.copyGrowTransform(this.BoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, this.AbsoluteXform);
-
-            this.ComputeGlobalBounds();
-            this.ComputeSurfaceBounds();
         }
-        ComputeGlobalBounds() {
-            this.IntersectBoundsWithClipPath(this.GlobalBounds, this.LocalXform);
+        ComputePaintBounds() {
             rect.copyGrowTransform4(this.GlobalBoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, this.LocalProjection);
-        }
-        ComputeSurfaceBounds() {
-            this.IntersectBoundsWithClipPath(this.SurfaceBounds, this.AbsoluteXform);
             rect.copyGrowTransform4(this.SurfaceBoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, this.AbsoluteProjection);
         }
         IntersectBoundsWithClipPath(dest: rect, xform: number[]): rect {

@@ -131,28 +131,13 @@ module Fayde.Controls {
             return (<Panel>this.Node.XObject).Background != null;
         }
 
-        ComputeBounds() {
-            rect.clear(this.Extents);
-            rect.clear(this.ExtentsWithChildren);
-
-            var enumerator = this.Node.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
-            while (enumerator.MoveNext()) {
-                var item = <UINode>enumerator.Current;
-                var itemlu = item.LayoutUpdater;
-                if (itemlu.TotalIsRenderVisible)
-                    rect.union(this.ExtentsWithChildren, itemlu.GlobalBoundsWithChildren);
+        ComputeExtents(actualSize: size) {
+            if (!(<Panel>this.Node.XObject).Background) {
+                //initialize extents as empty if no background
+                actualSize.Width = 0;
+                actualSize.Height = 0;
             }
-
-            if ((<Panel>this.Node.XObject).Background) {
-                rect.set(this.Extents, 0, 0, this.ActualWidth, this.ActualHeight);
-                rect.union(this.ExtentsWithChildren, this.Extents);
-            }
-
-            rect.copyGrowTransform(this.Bounds, this.Extents, this.EffectPadding, this.AbsoluteXform);
-            rect.copyGrowTransform(this.BoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, this.AbsoluteXform);
-
-            this.ComputeGlobalBounds();
-            this.ComputeSurfaceBounds();
+            return super.ComputeExtents(actualSize);
         }
 
         MeasureOverride(availableSize: size, error: BError): size {

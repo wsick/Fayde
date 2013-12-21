@@ -114,7 +114,7 @@ module Fayde.Shapes {
             return this.FillRule === FillRule.EvenOdd ? "evenodd" : "nonzero";
         }
         GetBrushSize(): ISize {
-            return size.fromRect(this.GetStretchExtents());
+            return size.fromRect(this.Extents);
         }
         
 
@@ -212,6 +212,11 @@ module Fayde.Shapes {
         }
 
 
+        GetNaturalBounds(): rect {
+            if (rect.isEmpty(this.NaturalBounds))
+                this.NaturalBounds = this.ComputeShapeBoundsImpl(false);
+            return this.NaturalBounds;
+        }
         InvalidateNaturalBounds() {
             rect.clear(this.NaturalBounds);
             this.InvalidateStretch();
@@ -229,30 +234,24 @@ module Fayde.Shapes {
                 this.UpdateBounds(true);
         }
 
-        ComputeBounds() {
-            intersectBaseBoundsWithClipPath(this, this.Bounds, this.GetStretchExtents(), this.AbsoluteXform);
-            rect.copyTo(this.Bounds, this.BoundsWithChildren);
-            this.ComputeGlobalBounds();
-            this.ComputeSurfaceBounds();
-        }
-        GetStretchExtents() {
+
+        ComputeExtents(actualSize: size) {
             if (rect.isEmpty(this.Extents)) {
-                rect.copyTo(this.ComputeStretchBounds(), this.Extents);
+                rect.copyTo(this.ComputeStretchBounds(actualSize), this.Extents);
                 rect.copyTo(this.Extents, this.ExtentsWithChildren);
             }
-            return this.Extents;
         }
-        GetNaturalBounds(): rect {
-            if (rect.isEmpty(this.NaturalBounds))
-                this.NaturalBounds = this.ComputeShapeBoundsImpl(false);
-            return this.NaturalBounds;
-        }
-
-        ComputeStretchBounds(): rect {
+        ComputeStretchBounds(actualSize: size): rect {
             var shapeBounds = this.GetNaturalBounds();
             if (!shapeBounds || shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
                 this.SFlags = ShapeFlags.Empty;
                 return new rect();
+            }
+
+            var stretch = this.Stretch;
+            if (stretch === Fayde.Media.Stretch.None) {
+                rect.transform(shapeBounds, this.StretchXform);
+                return shapeBounds;
             }
 
             var node = this.Node;
@@ -265,7 +264,7 @@ module Fayde.Shapes {
                 return new rect();
             }
 
-            var framework = size.fromRaw(this.ActualWidth, this.ActualHeight);
+            var framework = size.copyTo(actualSize);
             if (node.VisualParentNode instanceof Controls.CanvasNode) {
                 framework.Width = framework.Width === 0.0 ? shapeBounds.Width : framework.Width;
                 framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
@@ -276,12 +275,6 @@ module Fayde.Shapes {
             } else if (!this.PreviousConstraint) {
                 framework.Width = framework.Width === 0.0 ? shapeBounds.Width : framework.Width;
                 framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
-            }
-
-            var stretch = this.Stretch;
-            if (stretch === Fayde.Media.Stretch.None) {
-                rect.transform(shapeBounds, this.StretchXform);
-                return shapeBounds;
             }
 
             if (framework.Width === 0.0 || framework.Height === 0.0) {
@@ -418,7 +411,7 @@ module Fayde.Shapes {
         InsideObject(ctx: RenderContextEx, x: number, y: number): boolean {
             if (super.InsideObject(ctx, x, y))
                 return true;
-            var extents = rect.copyTo(this.GetStretchExtents());
+            var extents = rect.copyTo(this.Extents);
             rect.transform(extents, ctx.currentTransform);
             if (!rect.containsPointXY(extents, x, y))
                 return false;
@@ -447,13 +440,13 @@ module Fayde.Shapes {
                 return;
             if (!this.Fill && !this.Stroke)
                 return false;
-            var area = this.GetStretchExtents();
+            var extents = this.Extents;
             ctx.save();
             ctx.pretransformMatrix(this.StretchXform);
             this.Draw(ctx);
             if (!!this.Fill)
-                ctx.fillEx(this.Fill, area, this.GetFillRule());
-            ctx.strokeEx(this.Stroke, this.CreateStrokeParameters(), area);
+                ctx.fillEx(this.Fill, extents, this.GetFillRule());
+            ctx.strokeEx(this.Stroke, this.CreateStrokeParameters(), extents);
             ctx.restore();
         }
 
