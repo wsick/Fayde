@@ -378,7 +378,6 @@ module Fayde {
                 this.Flags &= ~UIElementFlags.HitTestVisible;
 
         }
-        InvalidateStretch() { }
 
         UpdateClip() {
             if (this.Node.IsAttached)
@@ -1272,7 +1271,7 @@ module Fayde {
 
             ctx.save();
             if (applyXform)
-                ctx.transformMatrix(this.RenderXform);
+                ctx.pretransformMatrix(this.RenderXform);
 
             if (!this._InsideClip(ctx, p.X, p.Y)) {
                 ctx.restore();
@@ -1301,7 +1300,7 @@ module Fayde {
                 return;
 
             ctx.save();
-            ctx.transformMatrix(this.RenderXform);
+            ctx.pretransformMatrix(this.RenderXform);
             
             if (!this._InsideClip(ctx, p.X, p.Y)) {
                 ctx.restore();
