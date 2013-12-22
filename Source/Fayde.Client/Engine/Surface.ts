@@ -257,6 +257,7 @@ module Fayde {
             this._InvalidatedRect = null;
             if (!(r.Width > 0 && r.Height > 0))
                 return;
+            rect.roundOut(r);
 
             //var startRenderTime;
             //var isRenderPassTimed;
