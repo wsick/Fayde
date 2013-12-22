@@ -234,7 +234,7 @@ module Fayde {
             
             if (this.DirtyFlags & _Dirty.ChildrenZIndices) {
                 this.DirtyFlags &= ~_Dirty.ChildrenZIndices;
-                thisNode._ResortChildrenByZIndex();
+                thisNode.ResortChildrenByZIndex();
             }
 
             //DirtyDebug.Level--;
@@ -377,6 +377,10 @@ module Fayde {
             else
                 this.Flags &= ~UIElementFlags.HitTestVisible;
 
+        }
+        InvalidateChildrenZIndices() {
+            if (this.Node.IsAttached)
+                this._AddDirtyElement(_Dirty.ChildrenZIndices);
         }
 
         UpdateClip() {

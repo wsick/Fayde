@@ -96,11 +96,10 @@ module Fayde.Controls {
             return true;
         }
         _InvalidateChildrenZIndices() {
-            if (this.IsAttached) {
-                //TODO: Invalidate ChildrenZIndices
-            }
+            var lu = this.LayoutUpdater;
+            lu.InvalidateChildrenZIndices();
         }
-        _ResortChildrenByZIndex() {
+        ResortChildrenByZIndex() {
             (<PanelChildrenCollection>this.XObject.Children).XamlNode.ResortByZIndex();
         }
 
@@ -149,8 +148,10 @@ module Fayde.Controls {
         var xn = dobj.XamlNode;
         if (xn instanceof UINode)
             (<UINode>xn).LayoutUpdater.Invalidate();
-        if (xn.IsAttached)
-            (<PanelNode>xn.ParentNode)._InvalidateChildrenZIndices();
+        if (xn.IsAttached) {
+            var panelNode = <PanelNode>(<UINode>xn).VisualParentNode;
+            panelNode._InvalidateChildrenZIndices();
+        }
     }
     export class Panel extends FrameworkElement {
         XamlNode: PanelNode;

@@ -215,9 +215,7 @@ module Fayde {
             this._Surface.ReleaseMouseCapture(this);
         }
         
-        _ResortChildrenByZIndex() {
-            Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
-        }
+        ResortChildrenByZIndex() { }
 
         InvalidateParent(r: rect) {
             var vpNode = this.VisualParentNode;
