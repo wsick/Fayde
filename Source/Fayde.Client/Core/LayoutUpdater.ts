@@ -633,8 +633,8 @@ module Fayde {
             var ewc = this.ExtentsWithChildren;
             e.X = ewc.X = 0;
             e.Y = ewc.Y = 0;
-            ewc.Width = ewc.Width = actualSize.Width;
-            ewc.Height = ewc.Height = actualSize.Height;
+            e.Width = ewc.Width = actualSize.Width;
+            e.Height = ewc.Height = actualSize.Height;
 
             var node = this.Node;
             var enumerator = node.GetVisualTreeEnumerator();
