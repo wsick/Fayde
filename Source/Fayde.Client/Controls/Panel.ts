@@ -188,8 +188,8 @@ module Fayde.Controls {
         }
 
         InsideObject(ctx: RenderContextEx, x: number, y: number): boolean {
-            if (super.InsideObject(ctx, x, y))
-                return true;
+            if (!super.InsideObject(ctx, x, y))
+                return false;
             return (<Panel>this.Node.XObject).Background != null;
         }
 

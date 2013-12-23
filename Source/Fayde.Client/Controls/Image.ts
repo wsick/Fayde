@@ -148,8 +148,8 @@ module Fayde.Controls {
         }
 
         InsideObject(ctx: RenderContextEx, x: number, y: number) {
-            if (super.InsideObject(ctx, x, y))
-                return true;
+            if (!super.InsideObject(ctx, x, y))
+                return false;
 
             var img = <Image>this.Node.XObject;
             var source = img.Source;
