@@ -118,32 +118,6 @@ module Fayde.Controls {
     	Namespace: "Fayde.Controls"
     });
 
-    export class PanelLayoutUpdater extends LayoutUpdater {
-        constructor(node: PanelNode) {
-            super(node);
-            this.SetContainerMode(true, true);
-        }
-
-        InsideObject(ctx: RenderContextEx, x: number, y: number): boolean {
-            if (super.InsideObject(ctx, x, y))
-                return true;
-            return (<Panel>this.Node.XObject).Background != null;
-        }
-
-        ComputeExtents(actualSize: size) {
-            if (!(<Panel>this.Node.XObject).Background) {
-                //initialize extents as empty if no background
-                actualSize.Width = 0;
-                actualSize.Height = 0;
-            }
-            return super.ComputeExtents(actualSize);
-        }
-
-        MeasureOverride(availableSize: size, error: BError): size {
-            return new size();
-        }
-    }
-
     function zIndexPropertyChanged(dobj: DependencyObject, args) {
         var xn = dobj.XamlNode;
         if (xn instanceof UINode)
@@ -200,25 +174,53 @@ module Fayde.Controls {
             lu.UpdateBounds();
             lu.Invalidate();
         }
-        Render(ctx: RenderContextEx, lu: LayoutUpdater, region: rect) {
-            var background = this.Background;
-            if (!background)
-                return;
-
-            var framework = lu.CoerceSize(size.fromRaw(this.ActualWidth, this.ActualHeight));
-            if (framework.Width <= 0 || framework.Height <= 0)
-                return;
-
-            var area = rect.fromSize(framework);
-            ctx.save();
-            lu.RenderLayoutClip(ctx);
-            ctx.fillRectEx(background, area);
-            ctx.restore();
-        }
     }
     Fayde.RegisterType(Panel, {
     	Name: "Panel",
     	Namespace: "Fayde.Controls",
     	XmlNamespace: Fayde.XMLNS
     });
+
+    export class PanelLayoutUpdater extends LayoutUpdater {
+        constructor(node: PanelNode) {
+            super(node);
+            this.SetContainerMode(true, true);
+        }
+
+        InsideObject(ctx: RenderContextEx, x: number, y: number): boolean {
+            if (super.InsideObject(ctx, x, y))
+                return true;
+            return (<Panel>this.Node.XObject).Background != null;
+        }
+
+        ComputeExtents(actualSize: size) {
+            if (!(<Panel>this.Node.XObject).Background) {
+                //initialize extents as empty if no background
+                actualSize.Width = 0;
+                actualSize.Height = 0;
+            }
+            return super.ComputeExtents(actualSize);
+        }
+
+        MeasureOverride(availableSize: size, error: BError): size {
+            return new size();
+        }
+
+        Render(ctx: RenderContextEx, region: rect) {
+            var panel = <Panel>this.Node.XObject;
+            var background = panel.Background;
+            if (!background)
+                return;
+
+            var framework = this.CoerceSize(size.fromRaw(this.ActualWidth, this.ActualHeight));
+            if (framework.Width <= 0 || framework.Height <= 0)
+                return;
+
+            var area = rect.fromSize(framework);
+            ctx.save();
+            this.RenderLayoutClip(ctx);
+            ctx.fillRectEx(background, area);
+            ctx.restore();
+        }
+    }
 }
