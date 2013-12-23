@@ -202,10 +202,6 @@ module Fayde.Controls {
             return super.ComputeExtents(actualSize);
         }
 
-        MeasureOverride(availableSize: size, error: BError): size {
-            return new size();
-        }
-
         Render(ctx: RenderContextEx, region: rect) {
             var panel = <Panel>this.Node.XObject;
             var background = panel.Background;
