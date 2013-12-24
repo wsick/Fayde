@@ -412,10 +412,6 @@ module Fayde.Shapes {
         InsideObject(ctx: RenderContextEx, x: number, y: number): boolean {
             if (!super.InsideObject(ctx, x, y))
                 return false;
-            var extents = rect.copyTo(this.Extents);
-            rect.transform(extents, ctx.currentTransform);
-            if (!rect.containsPointXY(extents, x, y))
-                return false;
             return this.InsideShape(ctx, x, y);
         }
         InsideShape(ctx: RenderContextEx, x: number, y: number): boolean {
