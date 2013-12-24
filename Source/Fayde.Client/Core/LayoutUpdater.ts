@@ -1338,10 +1338,7 @@ module Fayde {
             if (this.IsNeverInsideObject)
                 return false;
 
-            var bounds = new rect();
-            var fe = <FrameworkElement>this.Node.XObject;
-            rect.set(bounds, 0, 0, fe.ActualWidth, fe.ActualHeight);
-            //TODO: Use local variable bounds, figure out which one matches up
+            var bounds = rect.copyTo(this.Extents);
             rect.transform(bounds, ctx.currentTransform);
             if (!rect.containsPointXY(bounds, x, y))
                 return false;
