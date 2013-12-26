@@ -174,14 +174,33 @@ module Fayde.Controls {
 
         var fillExtents = rect.shrinkByThickness(extents.Clone(), thickness);
 
-        ctx.beginPath();
+        if (ctx.hasFillRule)
+            doFill(ctx, extents, fillExtents, backgroundBrush, borderBrush, oa, ia);
+        else
+            doFillWithoutFillRule(ctx, extents, fillExtents, backgroundBrush, borderBrush, oa, ia);
+    }
+    function doFill(ctx: RenderContextEx, extents: rect, fillExtents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, oa: CornerRadius, ia: CornerRadius) {
         if (borderBrush && !rect.isEmpty(extents)) {
+            ctx.beginPath();
             drawRect(ctx, extents, oa);
             drawRect(ctx, fillExtents, ia);
             ctx.fillEx(borderBrush, extents, "evenodd");
         }
-        ctx.beginPath();
         if (backgroundBrush && !rect.isEmpty(fillExtents)) {
+            ctx.beginPath();
+            drawRect(ctx, fillExtents, ia);
+            ctx.fillEx(backgroundBrush, fillExtents, "evenodd");
+        }
+    }
+    function doFillWithoutFillRule(ctx: RenderContextEx, extents: rect, fillExtents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, oa: CornerRadius, ia: CornerRadius) {
+        if (borderBrush && !rect.isEmpty(extents)) {
+            ctx.beginPath();
+            drawRect(ctx, extents, oa);
+            drawRect(ctx, fillExtents, ia);
+            ctx.fillEx(borderBrush, extents, "evenodd");
+        }
+        if (backgroundBrush && !rect.isEmpty(fillExtents)) {
+            ctx.beginPath();
             drawRect(ctx, fillExtents, ia);
             ctx.fillEx(backgroundBrush, fillExtents, "evenodd");
         }
