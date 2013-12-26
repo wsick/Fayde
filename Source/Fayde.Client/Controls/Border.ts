@@ -176,18 +176,14 @@ module Fayde.Controls {
 
         ctx.beginPath();
         if (borderBrush && !rect.isEmpty(extents)) {
-            borderBrush.SetupBrush(ctx, extents);
-            ctx.fillStyle = borderBrush.ToHtml5Object();
             drawRect(ctx, extents, oa);
             drawRect(ctx, fillExtents, ia);
-            ctx.fill("evenodd");
+            ctx.fillEx(borderBrush, extents, "evenodd");
         }
         ctx.beginPath();
         if (backgroundBrush && !rect.isEmpty(fillExtents)) {
-            backgroundBrush.SetupBrush(ctx, fillExtents);
-            ctx.fillStyle = backgroundBrush.ToHtml5Object();
             drawRect(ctx, fillExtents, ia);
-            ctx.fill("evenodd");
+            ctx.fillEx(backgroundBrush, fillExtents, "evenodd");
         }
     }
     var ARC_TO_BEZIER = 0.55228475;

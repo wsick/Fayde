@@ -2,7 +2,7 @@
     xmlns="http://schemas.wsick.com/fayde"
     xmlns:x="http://schemas.wsick.com/fayde/x"
     Theme="/Fayde/Theme.Metro.xml">
-    <Grid>
+    <Grid Background="Orange">
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition />
@@ -13,7 +13,7 @@
         </Grid.ColumnDefinitions>
         <Border Background="Green" Margin="5">
         </Border>
-        <Border Grid.Column="1" BorderBrush="CadetBlue" BorderThickness="10" Background="Bisque" Margin="5">
+        <Border Grid.Column="1" BorderBrush="CadetBlue" BorderThickness="10" Background="Transparent" Margin="5">
         </Border>
         <Border Grid.Row="1" BorderBrush="Black" BorderThickness="10,20,30,40" CornerRadius="10,15,20,25" Margin="5" Background="Yellow">
         </Border>
