@@ -1,5 +1,10 @@
 
 module Fayde {
+    export module Render {
+        export var Debug = false;
+        export var DebugIndent = 0;
+    }
+
     export module Layout {
         export var Debug = false;
         export var DebugIndent = 0;

@@ -1228,17 +1228,9 @@ module Fayde {
             if ((this.TotalOpacity * 255) < 0.5)
                 return;
 
-            var region = new rect();
-            if (false) {
-                //TODO: Render to intermediate
-            } else {
-                rect.copyTo(this.ExtentsWithChildren, region);
-                rect.transform(region, this.RenderXform);
-                rect.transform(region, ctx.currentTransform);
-                rect.roundOut(region);
-                rect.intersection(region, r);
-            }
-
+            var region = rect.copyTo(this.SurfaceBoundsWithChildren);
+            rect.roundOut(region);
+            rect.intersection(region, r);
             if (rect.isEmpty(region))
                 return;
 
@@ -1251,13 +1243,9 @@ module Fayde {
             var clip = uie.Clip;
             if (clip)
                 ctx.clipGeometry(clip);
-
-            /*
-            if (window.RenderDebug) {
-                RenderDebug.Count++;
-                RenderDebug(this.__DebugToString());
-            }
-            */
+            
+            if (Fayde.Render.Debug)
+                console.log(new Array(Fayde.Render.DebugIndent).join("\t") + "[RENDER] " + this._DebugToString());
 
             var effect = uie.Effect;
             if (effect) {
@@ -1270,12 +1258,12 @@ module Fayde {
                 ctx.restore();
             }
 
-            //if (window.RenderDebug) RenderDebug.Indent();
+            Fayde.Render.DebugIndent++;
             var enumerator = this.Node.GetVisualTreeEnumerator(VisualTreeDirection.ZFoward);
             while (enumerator.MoveNext()) {
                 (<UINode>enumerator.Current).LayoutUpdater.DoRender(ctx, region);
             }
-            //if (window.RenderDebug) RenderDebug.Unindent();
+            Fayde.Render.DebugIndent--;
 
             ctx.restore();
         }

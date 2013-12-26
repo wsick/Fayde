@@ -45,7 +45,7 @@ interface Config {
 	current: Object;
 	reorder: boolean;
 	requireExpects: boolean;
-	urlConfig: Array;
+	urlConfig: Array<any>;
 }
 
 interface LifecycleObject {

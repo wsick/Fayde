@@ -172,8 +172,8 @@ module Fayde.Controls {
         static GetRowSpan(d: DependencyObject): number { return d.GetValue(Grid.RowSpanProperty); }
         static SetRowSpan(d: DependencyObject, value: number) { d.SetValue(Grid.RowSpanProperty, value); }
 
-        static ColumnDefinitionsProperty = DependencyProperty.RegisterImmutable("ColumnDefinitions", () => ColumnDefinitionCollection, Grid);
-        static RowDefinitionsProperty = DependencyProperty.RegisterImmutable("RowDefinitions", () => RowDefinitionCollection, Grid);
+        static ColumnDefinitionsProperty = DependencyProperty.RegisterImmutable<ColumnDefinitionCollection>("ColumnDefinitions", () => ColumnDefinitionCollection, Grid);
+        static RowDefinitionsProperty = DependencyProperty.RegisterImmutable<RowDefinitionCollection>("RowDefinitions", () => RowDefinitionCollection, Grid);
         static ShowGridLinesProperty: DependencyProperty = DependencyProperty.Register("ShowGridLines", () => Boolean, Grid, false, (d, args) => (<Grid>d)._ShowGridLinesChanged(args));
         ShowGridLines: boolean;
         ColumnDefinitions: ColumnDefinitionCollection;
@@ -181,8 +181,8 @@ module Fayde.Controls {
 
         constructor() {
             super();
-            <ColumnDefinitionCollection>Grid.ColumnDefinitionsProperty.Initialize(this).Listen(this);
-            <RowDefinitionCollection>Grid.RowDefinitionsProperty.Initialize(this).Listen(this);
+            Grid.ColumnDefinitionsProperty.Initialize(this).Listen(this);
+            Grid.RowDefinitionsProperty.Initialize(this).Listen(this);
         }
 
         _MeasureOverride(availableSize: size, error: BError): size {

@@ -149,7 +149,7 @@ module Fayde.Media {
     });
 
     export class TransformGroup extends Transform {
-        static ChildrenProperty = DependencyProperty.RegisterImmutable("Children", () => TransformCollection, TransformGroup);
+        static ChildrenProperty = DependencyProperty.RegisterImmutable<TransformCollection>("Children", () => TransformCollection, TransformGroup);
         Children: TransformCollection;
 
         static Annotations = { ContentProperty: TransformGroup.ChildrenProperty };
@@ -158,7 +158,7 @@ module Fayde.Media {
 
         constructor() {
             super();
-            var coll = TransformGroup.ChildrenProperty.Initialize<TransformCollection>(this);
+            var coll = TransformGroup.ChildrenProperty.Initialize(this);
             coll.AttachTo(this);
             coll.RelayChanges(() => this._InvalidateValue());
         }

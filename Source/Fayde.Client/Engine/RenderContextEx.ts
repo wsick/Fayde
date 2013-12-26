@@ -1,14 +1,15 @@
 module Fayde {
     export interface RenderContextEx extends CanvasRenderingContext2D {
         currentTransform: number[];
+        resetTransform();
         transformMatrix(mat: number[]);
         transformTransform(transform: Media.Transform);
         pretransformMatrix(mat: number[]);
         pretransformTransform(transform: Media.Transform);
 
         clear(r: rect);
-        fillEx(brush: Media.Brush, r: rect);
-        fillRectEx(brush: Media.Brush, r: rect);
+        fillEx(brush: Media.Brush, r: rect, fillRule?: string);
+        fillRectEx(brush: Media.Brush, r: rect, fillRule?: string);
 
         setupStroke(pars: Path.IStrokeParameters): boolean;
         strokeEx(brush: Media.Brush, pars: Path.IStrokeParameters, region: rect);
@@ -60,10 +61,20 @@ module Fayde {
                 ctx.currentTransform = cur;
                 super_.restore.call(ctx);
             };
-
+            
+            ctx.setTransform = function (m11: number, m12: number, m21: number, m22: number, dx: number, dy: number) {
+                ctx.currentTransform = mat3.create([m11, m12, dx, m21, m22, dy, 0, 0, 1]);
+                super_.setTransform.call(ctx, m11, m12, m21, m22, dx, dy);
+            };
+            
+            ctx.resetTransform = function () {
+                ctx.currentTransform = mat3.identity();
+                if ((<any>super_).resetTransform)
+                    (<any>super_).resetTransform.call(ctx);
+            };
             ctx.transform = function (m11: number, m12: number, m21: number, m22: number, dx: number, dy: number) {
                 var ct = ctx.currentTransform;
-                mat3.multiply(ct, mat3.create([m11, m12, dx, m21, m22, dy]), ct);
+                mat3.multiply(ct, mat3.create([m11, m12, dx, m21, m22, dy, 0, 0, 1]), ct);
                 super_.transform.call(ctx, m11, m12, m21, m22, dx, dy);
                 ctx.currentTransform = ct;
             };
@@ -91,7 +102,6 @@ module Fayde {
                 var ct = ctx.currentTransform;
                 mat3.multiply(ct, mat, ct); //ct = matrix * ct
                 ctx.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
-                ctx.currentTransform = ct;
             };
             ctx.transformTransform = function (transform: Media.Transform) {
                 var v = transform.Value;
@@ -104,7 +114,6 @@ module Fayde {
                 var ct = ctx.currentTransform;
                 mat3.multiply(mat, ct, ct); //ct = ct * matrix
                 ctx.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
-                ctx.currentTransform = ct;
             };
             ctx.pretransformTransform = function (transform: Media.Transform) {
                 var v = transform.Value;
@@ -124,17 +133,17 @@ module Fayde {
             };
         }
         export function Fill(ctx: RenderContextEx) {
-            ctx.fillEx = function (brush: Media.Brush, r: rect) {
+            ctx.fillEx = function (brush: Media.Brush, r: rect, fillRule?: string) {
                 brush.SetupBrush(ctx, r);
                 ctx.fillStyle = brush.ToHtml5Object();
-                ctx.fill();
+                ctx.fill(fillRule);
             };
-            ctx.fillRectEx = function (brush: Media.Brush, r: rect) {
+            ctx.fillRectEx = function (brush: Media.Brush, r: rect, fillRule?: string) {
                 brush.SetupBrush(ctx, r);
                 ctx.fillStyle = brush.ToHtml5Object();
                 ctx.beginPath();
                 ctx.rect(r.X, r.Y, r.Width, r.Height);
-                ctx.fill();
+                ctx.fill(fillRule);
             };
         }
         export function Stroke(ctx: RenderContextEx) {
