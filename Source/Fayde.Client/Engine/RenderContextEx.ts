@@ -20,6 +20,8 @@ module Fayde {
         clipGeometry(g: Media.Geometry);
 
         hasFillRule: boolean;
+
+        createTemporaryContext(width: number, height: number): RenderContextEx;
     }
 
     export function ExtendRenderContext(ctx: CanvasRenderingContext2D): RenderContextEx {
@@ -32,6 +34,7 @@ module Fayde {
         Ex.Stroke(c);
         Ex.Clip(c);
         Ex.FillRule(c);
+        Ex.Temporary(c);
         return <RenderContextEx>c;
     }
 
@@ -206,6 +209,17 @@ module Fayde {
                 var version = getIEVersion();
                 ctx.hasFillRule = version < 0 || version > 10;
             }
+        }
+        export function Temporary(ctx: RenderContextEx) {
+            var tempCanvas = document.createElement("canvas");
+            var tempContext: RenderContextEx;
+            ctx.createTemporaryContext = function (width: number, height: number): RenderContextEx {
+                if (!tempContext)
+                    tempContext = ExtendRenderContext(tempCanvas.getContext("2d"));
+                tempCanvas.width = width;
+                tempCanvas.height = height;
+                return tempContext;
+            };
         }
     }
 
