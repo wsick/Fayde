@@ -6,7 +6,7 @@ module NflDraft.Models {
     export class Player {
         Team: Team;
         Name: string;
-        Positions: Array<string>;
+        PrimaryPosition: string;
         Headshot: string;
         Birthdate: Date;
         Height: string;

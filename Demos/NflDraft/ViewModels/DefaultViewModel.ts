@@ -68,10 +68,16 @@ module NflDraft.ViewModels {
         }
 
         Load() {
+            var positions = ["QB", "RB", "RB", "WR", "WR", "TE"];
+            var fantasy_positions = new Fayde.Collections.ObservableCollection<Models.FantasyPosition>();
+            for (var i = 0; i < positions.length; i++) {
+                fantasy_positions.Add(new Models.FantasyPosition(positions[i]));
+            }
+
             var ft = ["Victorious Secret", "Somewhere Over Dwayne Bowe", "The Blair Walsh Project", "Forgetting Brandon Marshall", "Show Me Your TDs",
                 "Boston Tebow Party", "Saved by the Le'Von Bell", "Stafford Infection", "I Pitta the Fool", "Cruz Control"];
             for (var i = 0; i < ft.length; i++) {
-                this.FantasyTeams.push(new Models.FantasyTeam(ft[i]));
+                this.FantasyTeams.push(new Models.FantasyTeam(ft[i], fantasy_positions));
             }
             this.MyTeam = this.FantasyTeams[0];
 
@@ -191,7 +197,7 @@ module NflDraft.ViewModels {
                 fantasyPlayer.Headshot = fp[i]["Headshot"];
                 fantasyPlayer.Height = fp[i]["Height"];
                 fantasyPlayer.Name = fp[i]["Name"];
-                fantasyPlayer.Positions = fp[i]["Positions"].split(',');
+                fantasyPlayer.PrimaryPosition = fp[i]["Positions"];
                 fantasyPlayer.Team = fp[i]["Team"];
                 fantasyPlayer.Weight = fp[i]["Weight"];
                 fantasyPlayer.ADP = fp[i]["ADP"];
@@ -235,6 +241,7 @@ module NflDraft.ViewModels {
             this.CurrentDraftSpot = this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0);
             this.SelectedPlayer = this.FantasyPlayers.GetValueAt(0);
             this.CurrentPositionFilter = "ALL";
+            //this.MyTeam.Roster[0].Player = this.FantasyPlayers.GetValueAt(0);
             this._interval_id = setInterval(() => this.DoWork(), 1000);
         }
 
@@ -243,8 +250,18 @@ module NflDraft.ViewModels {
             if (current == 0) {
                 var spot = this.Rounds.GetValueAt(0).DraftSpots.GetValueAt(0);
                 var ds = new Models.DraftSelection();
+                var fp = this.FantasyPlayers.GetValueAt(0);
                 ds.DraftSpot = spot;
-                ds.FantasyPlayer = this.FantasyPlayers.GetValueAt(0);
+                ds.FantasyPlayer = fp;
+                if (spot.Team === this.MyTeam) {
+                    for (var i = 0; i < this.MyTeam.Roster.Count; i++) {
+                        var fantasy_position = this.MyTeam.Roster.GetValueAt(i);
+                        if (fantasy_position.Position === fp.PrimaryPosition && fantasy_position.Player === undefined) {
+                            fantasy_position.Player = fp;
+                            break;
+                        }
+                    }    
+                }
                 this.FantasyPlayers.RemoveAt(0);
                 this.DraftSelections.Add(ds);
                 this.Rounds.GetValueAt(0).DraftSpots.RemoveAt(0);

@@ -33,7 +33,7 @@ else
             });
             Object.defineProperty(FantasyPlayer.prototype, "PlayerDisplay", {
                 get: function () {
-                    return this.Name + " " + this.Team.Abbreviation + " - " + this.Positions.toString();
+                    return this.Name + " " + this.Team.Abbreviation + " - " + this.PrimaryPosition;
                 },
                 enumerable: true,
                 configurable: true

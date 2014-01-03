@@ -67,6 +67,7 @@
     <Content Include="Images\chat.png" />
     <Content Include="Images\fayde.gif" />
     <Content Include="Images\footballfield.png" />
+    <Content Include="Images\helmet.png" />
     <Content Include="Images\Player Headshots\aaron_rodgers.png" />
     <Content Include="Images\Player Headshots\adrian_peterson.png" />
     <Content Include="Images\Player Headshots\aj_green.png" />
@@ -140,6 +141,7 @@
     <TypeScriptCompile Include="Models\DraftSelection.ts" />
     <TypeScriptCompile Include="Resources\DoubleValueConverter.ts" />
     <TypeScriptCompile Include="Models\ChatMessage.ts" />
+    <TypeScriptCompile Include="Models\FantasyPosition.ts" />
     <Content Include="Resources\DateValueConverter.ts" />
     <Content Include="scripts\Fayde.d.ts" />
     <Content Include="scripts\Fayde.js" />

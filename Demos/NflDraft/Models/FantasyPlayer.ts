@@ -17,7 +17,7 @@ module NflDraft.Models {
             }
         }
         get PlayerDisplay() {
-            return this.Name + " " + this.Team.Abbreviation + " - " + this.Positions.toString();
+            return this.Name + " " + this.Team.Abbreviation + " - " + this.PrimaryPosition;
         }
     }
 }
