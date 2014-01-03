@@ -77,6 +77,8 @@ module Fayde.Controls {
     });
 
     export class BorderLayoutUpdater extends LayoutUpdater {
+        private _Renderer: IBorderRenderer;
+
         constructor(node: UINode) {
             super(node);
             this.SetContainerMode(true);
@@ -153,58 +155,119 @@ module Fayde.Controls {
                 return;
             ctx.save();
             this.RenderLayoutClip(ctx);
-            render(ctx, extents, backgroundBrush, borderBrush, thickness, border.CornerRadius);
+            if (!this._Renderer)
+                this._Renderer = getRenderer(ctx);
+            this._Renderer.Initialize(extents, backgroundBrush, borderBrush, thickness, border.CornerRadius);
+            this._Renderer.Render(ctx);
             ctx.restore();
         }
     }
 
-    function render(ctx: RenderContextEx, extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cornerRadius?: CornerRadius) {
-        thickness = thickness || new Thickness();
-        var ia = cornerRadius ? cornerRadius.Clone() : new CornerRadius();
-        ia.TopLeft = Math.max(ia.TopLeft - Math.max(thickness.Left, thickness.Top) * 0.5, 0);
-        ia.TopRight = Math.max(ia.TopRight - Math.max(thickness.Right, thickness.Top) * 0.5, 0);
-        ia.BottomRight = Math.max(ia.BottomRight - Math.max(thickness.Right, thickness.Bottom) * 0.5, 0);
-        ia.BottomLeft = Math.max(ia.BottomLeft - Math.max(thickness.Left, thickness.Bottom) * 0.5, 0);
-
-        var oa = cornerRadius ? cornerRadius.Clone() : new CornerRadius();
-        oa.TopLeft = oa.TopLeft ? Math.max(oa.TopLeft + Math.max(thickness.Left, thickness.Top) * 0.5, 0) : 0;
-        oa.TopRight = oa.TopRight ? Math.max(oa.TopRight + Math.max(thickness.Right, thickness.Top) * 0.5, 0) : 0;
-        oa.BottomRight = oa.BottomRight ? Math.max(oa.BottomRight + Math.max(thickness.Right, thickness.Bottom) * 0.5, 0) : 0;
-        oa.BottomLeft = oa.BottomLeft ? Math.max(oa.BottomLeft + Math.max(thickness.Left, thickness.Bottom) * 0.5, 0) : 0;
-
-        var fillExtents = rect.shrinkByThickness(extents.Clone(), thickness);
-
+    function getRenderer(ctx: RenderContextEx): IBorderRenderer {
         if (ctx.hasFillRule)
-            doFill(ctx, extents, fillExtents, backgroundBrush, borderBrush, oa, ia);
-        else
-            doFillWithoutFillRule(ctx, extents, fillExtents, backgroundBrush, borderBrush, oa, ia);
+            return new BorderRenderer();
+        return new BorderRendererShim();
     }
-    function doFill(ctx: RenderContextEx, extents: rect, fillExtents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, oa: CornerRadius, ia: CornerRadius) {
-        if (borderBrush && !rect.isEmpty(extents)) {
-            ctx.beginPath();
-            drawRect(ctx, extents, oa);
-            drawRect(ctx, fillExtents, ia);
-            ctx.fillEx(borderBrush, extents, "evenodd");
+    interface IBorderRenderer {
+        Initialize(extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cr: CornerRadius)
+        Render(ctx: RenderContextEx);
+    }
+    class BorderRenderer implements IBorderRenderer {
+        Extents: rect;
+        FillExtents: rect;
+        BackgroundBrush: Media.Brush;
+        BorderBrush: Media.Brush;
+        Thickness: Thickness;
+        InnerCornerRadius: CornerRadius;
+        OuterCornerRadius: CornerRadius;
+
+        Initialize(extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cr: CornerRadius) {
+            this.Thickness = thickness = thickness || new Thickness();
+            this.Extents = extents;
+            this.FillExtents = rect.shrinkByThickness(extents.Clone(), thickness);
+            this.BackgroundBrush = backgroundBrush;
+            this.BorderBrush = borderBrush;
+
+            var ia = this.InnerCornerRadius = cr ? cr.Clone() : new CornerRadius();
+            ia.TopLeft = Math.max(ia.TopLeft - Math.max(thickness.Left, thickness.Top) * 0.5, 0);
+            ia.TopRight = Math.max(ia.TopRight - Math.max(thickness.Right, thickness.Top) * 0.5, 0);
+            ia.BottomRight = Math.max(ia.BottomRight - Math.max(thickness.Right, thickness.Bottom) * 0.5, 0);
+            ia.BottomLeft = Math.max(ia.BottomLeft - Math.max(thickness.Left, thickness.Bottom) * 0.5, 0);
+
+            var oa = this.OuterCornerRadius = cr ? cr.Clone() : new CornerRadius();
+            oa.TopLeft = oa.TopLeft ? Math.max(oa.TopLeft + Math.max(thickness.Left, thickness.Top) * 0.5, 0) : 0;
+            oa.TopRight = oa.TopRight ? Math.max(oa.TopRight + Math.max(thickness.Right, thickness.Top) * 0.5, 0) : 0;
+            oa.BottomRight = oa.BottomRight ? Math.max(oa.BottomRight + Math.max(thickness.Right, thickness.Bottom) * 0.5, 0) : 0;
+            oa.BottomLeft = oa.BottomLeft ? Math.max(oa.BottomLeft + Math.max(thickness.Left, thickness.Bottom) * 0.5, 0) : 0;
         }
-        if (backgroundBrush && !rect.isEmpty(fillExtents)) {
-            ctx.beginPath();
-            drawRect(ctx, fillExtents, ia);
-            ctx.fillEx(backgroundBrush, fillExtents, "evenodd");
+        Render(ctx: RenderContextEx) {
+            var borderBrush = this.BorderBrush;
+            var extents = this.Extents;
+            var fillExtents = this.FillExtents;
+            if (borderBrush && !rect.isEmpty(extents)) {
+                ctx.beginPath();
+                drawRect(ctx, extents, this.OuterCornerRadius);
+                drawRect(ctx, fillExtents, this.InnerCornerRadius);
+                ctx.fillEx(borderBrush, extents, "evenodd");
+            }
+            var backgroundBrush = this.BackgroundBrush;
+            if (backgroundBrush && !rect.isEmpty(fillExtents)) {
+                ctx.beginPath();
+                drawRect(ctx, fillExtents, this.InnerCornerRadius);
+                ctx.fillEx(backgroundBrush, fillExtents);
+            }
         }
     }
-    function doFillWithoutFillRule(ctx: RenderContextEx, extents: rect, fillExtents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, oa: CornerRadius, ia: CornerRadius) {
-        if (borderBrush && !rect.isEmpty(extents)) {
-            ctx.beginPath();
-            drawRect(ctx, extents, oa);
-            drawRect(ctx, fillExtents, ia);
-            ctx.fillEx(borderBrush, extents, "evenodd");
+    class BorderRendererShim extends BorderRenderer {
+        Pattern: CanvasPattern;
+
+        Initialize(extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cr: CornerRadius) {
+            if (!thickness) {
+                super.Initialize(extents, backgroundBrush, borderBrush, undefined, cr);
+                return this.Pattern = null;
+            }
+
+            var ot = this.Thickness;
+            var oextents = this.Extents;
+            var ofillExtents = this.FillExtents;
+            var oocr = this.OuterCornerRadius;
+            var oicr = this.InnerCornerRadius;
+            var obb = this.BorderBrush;
+
+            super.Initialize(extents, backgroundBrush, borderBrush, thickness, cr);
+
+            if (!Thickness.Equals(ot, this.Thickness)
+                || !rect.isEqual(oextents, this.Extents)
+                || !rect.isEqual(ofillExtents, this.FillExtents)
+                || !CornerRadius.Equals(oocr, this.OuterCornerRadius)
+                || !CornerRadius.Equals(oicr, this.InnerCornerRadius)
+                || obb !== this.BorderBrush)
+                return this.Pattern = null;
         }
-        if (backgroundBrush && !rect.isEmpty(fillExtents)) {
-            ctx.beginPath();
-            drawRect(ctx, fillExtents, ia);
-            ctx.fillEx(backgroundBrush, fillExtents, "evenodd");
+        Render(ctx: RenderContextEx) {
+            var borderBrush = this.BorderBrush;
+            var backgroundBrush = this.BackgroundBrush;
+            var extents = this.Extents;
+            var fillExtents = this.FillExtents;
+            var ocr = this.OuterCornerRadius;
+            var icr = this.InnerCornerRadius;
+            if (borderBrush && !rect.isEmpty(extents)) {
+                var pattern = this.Pattern;
+                if (!pattern) pattern = this.Pattern = createBorderPattern(ctx, borderBrush, extents, fillExtents, ocr, icr);
+
+                ctx.beginPath();
+                ctx.fillStyle = pattern;
+                drawRect(ctx, extents, ocr);
+                ctx.fill();
+            }
+            if (backgroundBrush && !rect.isEmpty(fillExtents)) {
+                ctx.beginPath();
+                drawRect(ctx, fillExtents, icr);
+                ctx.fillEx(backgroundBrush, fillExtents);
+            }
         }
     }
+
     var ARC_TO_BEZIER = 0.55228475;
     function drawRect(ctx: RenderContextEx, extents: rect, cr?: CornerRadius) {
         if (!cr || cr.IsZero()) {
@@ -250,5 +313,16 @@ module Fayde.Controls {
             extents.X, extents.Y + tll - tll * ARC_TO_BEZIER,
             extents.X + tlt - tlt * ARC_TO_BEZIER, extents.Y,
             extents.X + tlt, extents.Y);
+    }
+    function createBorderPattern(ctx: RenderContextEx, borderBrush: Media.Brush, extents: rect, fillExtents: rect, oa: CornerRadius, ia: CornerRadius): CanvasPattern {
+        var tempCtx = ctx.createTemporaryContext(extents.Width, extents.Height);
+        tempCtx.beginPath();
+        drawRect(tempCtx, extents, oa);
+        tempCtx.fillEx(borderBrush, extents);
+        tempCtx.globalCompositeOperation = "xor";
+        tempCtx.beginPath();
+        drawRect(tempCtx, fillExtents, ia);
+        tempCtx.fill();
+        return tempCtx.createPattern(tempCtx.canvas, "no-repeat");
     }
 }
