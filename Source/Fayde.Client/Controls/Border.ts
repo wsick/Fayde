@@ -259,6 +259,8 @@ module Fayde.Controls {
         }
         Render(ctx: RenderContextEx) {
             var backgroundBrush = this.BackgroundBrush;
+            if (!isBrushTransparent(backgroundBrush))
+                return super.Render(ctx);
             var fillExtents = this.FillExtents;
             var icr = this.InnerCornerRadius;
 
@@ -352,5 +354,20 @@ module Fayde.Controls {
         drawRect(tempCtx, fillExtents, ia);
         tempCtx.fill();
         return tempCtx.createPattern(tempCtx.canvas, "no-repeat");
+    }
+    function isBrushTransparent(brush: Media.Brush) {
+        if (!brush)
+            return true;
+        if (brush instanceof Media.SolidColorBrush)
+            return (<Media.SolidColorBrush>brush).Color.A < 1.0;
+        if (brush instanceof Media.LinearGradientBrush) {
+            var enumerator = (<Media.LinearGradientBrush>brush).GradientStops.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                if (enumerator.Current.Color.A < 1.0)
+                    return true;
+            }
+            return false;
+        }
+        return true;
     }
 }
