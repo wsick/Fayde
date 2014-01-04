@@ -23,6 +23,9 @@ class PropertyInfo implements IPropertyInfo {
         if (isType)
             o = new typeOrObj();
 
+        if (!(o instanceof Object))
+            return null;
+
         var nameClosure = name;
         var propDesc = Nullstone.GetPropertyDescriptor(o, name);
         if (propDesc) {
