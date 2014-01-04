@@ -26,8 +26,7 @@ module Fayde {
 
         constructor(xobj: UIElement) {
             super(xobj);
-            this.LayoutUpdater = new LayoutUpdater(this);
-            this.LayoutUpdater.SetContainerMode(false);
+            this.LayoutUpdater = xobj.CreateLayoutUpdater(this);
         }
 
         VisualParentNode: UINode;
@@ -216,9 +215,7 @@ module Fayde {
             this._Surface.ReleaseMouseCapture(this);
         }
         
-        _ResortChildrenByZIndex() {
-            Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
-        }
+        ResortChildrenByZIndex() { }
 
         InvalidateParent(r: rect) {
             var vpNode = this.VisualParentNode;
@@ -319,7 +316,8 @@ module Fayde {
         private _ClipListener: Media.IGeometryListener = null;
         private _EffectListener: Media.Effects.IEffectListener = null;
         CreateNode(): UINode { return new UINode(this); }
-
+        CreateLayoutUpdater(uin: UINode): LayoutUpdater { return new LayoutUpdater(uin); }
+        
         get VisualParent() {
             var vpNode = this.XamlNode.VisualParentNode;
             if (vpNode) return vpNode.XObject;
@@ -480,6 +478,13 @@ module Fayde {
                 oldTriggers.DetachTarget(this);
             if (newTriggers instanceof TriggerCollection)
                 newTriggers.AttachTarget(this);
+        }
+
+        MeasureOverride(availableSize: size): size {
+            return undefined;
+        }
+        ArrangeOverride(finalSize: size): size {
+            return undefined;
         }
     }
     Fayde.RegisterType(UIElement, {

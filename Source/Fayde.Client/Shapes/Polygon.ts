@@ -2,6 +2,8 @@
 
 module Fayde.Shapes {
     export class Polygon extends Shape {
+        CreateLayoutUpdater(node: UINode) { return new PolygonLayoutUpdater(node); }
+        
         private static _PointsCoercer(d: DependencyObject, propd: DependencyProperty, value: any): any {
             if (typeof value === "string")
                 value = PointCollection.FromData(<string>value);
@@ -20,24 +22,42 @@ module Fayde.Shapes {
         }
 
         private _PointsChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = <PolygonLayoutUpdater>this.XamlNode.LayoutUpdater;
+
             var oldColl = args.OldValue;
             var newColl = args.NewValue;
             if (oldColl instanceof PointCollection)
-                (<PointCollection>oldColl).Owner = null;
+                (<PointCollection>oldColl).OnChanged = null;
             if (newColl instanceof PointCollection)
-                (<PointCollection>newColl).Owner = this;
-            this._InvalidateNaturalBounds();
-        }
+                (<PointCollection>newColl).OnChanged = () => lu.InvalidateNaturalBounds();
 
-        _BuildPath(): Fayde.Path.RawPath {
+            lu.Points = args.NewValue;
+            lu.InvalidateNaturalBounds();
+        }
+        private _FillRuleChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = <PolygonLayoutUpdater>this.XamlNode.LayoutUpdater;
+            lu.FillRule = args.NewValue;
+            lu.Invalidate();
+        }
+    }
+    Fayde.RegisterType(Polygon, {
+    	Name: "Polygon",
+    	Namespace: "Fayde.Shapes",
+    	XmlNamespace: Fayde.XMLNS
+    });
+
+    export class PolygonLayoutUpdater extends ShapeLayoutUpdater {
+        Points: PointCollection;
+
+        BuildPath(): Fayde.Path.RawPath {
             var points = this.Points;
             var count;
             if (!points || (count = points.Count) < 2) {
-                this._ShapeFlags = ShapeFlags.Empty;
+                this.SFlags = ShapeFlags.Empty;
                 return;
             }
 
-            this._ShapeFlags = ShapeFlags.Normal;
+            this.SFlags = ShapeFlags.Normal;
 
             var path = new Fayde.Path.RawPath();
             var enumerator = points.GetEnumerator();
@@ -59,16 +79,7 @@ module Fayde.Shapes {
             path.Close();
             return path;
         }
-        private _FillRuleChanged(args: IDependencyPropertyChangedEventArgs) {
-            this.XamlNode.LayoutUpdater.Invalidate();
-        }
     }
-    Fayde.RegisterType(Polygon, {
-    	Name: "Polygon",
-    	Namespace: "Fayde.Shapes",
-    	XmlNamespace: Fayde.XMLNS
-    });
-
     function extendLine(p1: Point, p2: Point, thickness: number) {
         var t5 = thickness * 5.0;
         var dx = p1.X - p2.X;

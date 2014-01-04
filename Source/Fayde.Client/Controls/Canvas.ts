@@ -2,11 +2,9 @@
 
 module Fayde.Controls {
     export class CanvasNode extends PanelNode {
-        _Surface: Surface;
         XObject: Canvas;
         constructor(xobj: Canvas) {
             super(xobj);
-            this.LayoutUpdater.BreaksLayoutClipRender = true;
         }
 
         AttachVisualChild(uie: UIElement, error: BError): boolean {
@@ -47,23 +45,6 @@ module Fayde.Controls {
                     return;
             }
             lu.IsLayoutContainer = false;
-        }
-
-        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
-            var surface = this._Surface;
-            if (surface && this.IsAttached && this.IsTopLevel) {
-                // a toplevel (non-popup) canvas doesn't subscribe to the same bounds computation as others
-                var surfaceSize = surface.Extents;
-                rect.set(lu.Extents, 0, 0, surfaceSize.Width, surfaceSize.Height);
-                rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
-                rect.copyTo(lu.Extents, lu.Bounds);
-                rect.copyTo(lu.Bounds, lu.BoundsWithChildren);
-
-                lu.ComputeGlobalBounds();
-                lu.ComputeSurfaceBounds();
-            } else {
-                super.ComputeBounds(baseComputer, lu);
-            }
         }
     }
     Fayde.RegisterType(CanvasNode, {
@@ -107,8 +88,9 @@ module Fayde.Controls {
         lu.InvalidateArrange();
     }
 
-    export class Canvas extends Panel implements IMeasurableHidden, IArrangeableHidden {
-        //CreateNode(): CanvasNode { return new CanvasNode(this); }
+    export class Canvas extends Panel {
+        CreateNode(): CanvasNode { return new CanvasNode(this); }
+        CreateLayoutUpdater(node: PanelNode) { return new CanvasLayoutUpdater(node); }
 
         static TopProperty: DependencyProperty = DependencyProperty.RegisterAttached("Top", () => Number, Canvas, 0.0, invalidateTopLeft);
         static GetTop(d: DependencyObject): number { return d.GetValue(Canvas.TopProperty); }
@@ -116,18 +98,30 @@ module Fayde.Controls {
         static LeftProperty: DependencyProperty = DependencyProperty.RegisterAttached("Left", () => Number, Canvas, 0.0, invalidateTopLeft);
         static GetLeft(d: DependencyObject): number { return d.GetValue(Canvas.LeftProperty); }
         static SetLeft(d: DependencyObject, value: number) { d.SetValue(Canvas.LeftProperty, value); }
+    }
+    Fayde.RegisterType(Canvas, {
+    	Name: "Canvas",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
-        _MeasureOverride(availableSize: size, error: BError): size {
+    export class CanvasLayoutUpdater extends PanelLayoutUpdater {
+        constructor(node: PanelNode) {
+            super(node);
+            this.BreaksLayoutClipRender = true;
+        }
+
+        MeasureOverride(availableSize: size, error: BError): size {
             var childSize = size.createInfinite();
-            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            var enumerator = this.Node.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {
                 var childNode = enumerator.Current;
                 childNode.LayoutUpdater._Measure(childSize, error);
             }
             return new size();
         }
-        _ArrangeOverride(finalSize: size, error: BError): size {
-            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+        ArrangeOverride(finalSize: size, error: BError): size {
+            var enumerator = this.Node.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {
                 var childNode = enumerator.Current;
                 var lu = childNode.LayoutUpdater;
@@ -138,10 +132,15 @@ module Fayde.Controls {
             }
             return finalSize;
         }
+
+        ComputeBounds() {
+            super.ComputeBounds();
+            var surface = this.Surface;
+            var node = this.Node;
+            if (surface && node.IsAttached && node.IsTopLevel) {
+                var full = surface.Extents;
+                rect.set(this.SurfaceBoundsWithChildren, 0, 0, full.Width, full.Height);
+            }
+        }
     }
-    Fayde.RegisterType(Canvas, {
-    	Name: "Canvas",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
 }

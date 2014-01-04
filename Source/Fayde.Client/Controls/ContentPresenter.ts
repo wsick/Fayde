@@ -77,7 +77,7 @@ module Fayde.Controls {
     });
 
     export class ContentPresenter extends FrameworkElement {
-        //XamlNode: ContentPresenterNode;
+        XamlNode: ContentPresenterNode;
         CreateNode(): ContentPresenterNode { return new ContentPresenterNode(this); }
 
         static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, ContentPresenter, undefined, (d, args) => (<ContentPresenterNode>(<ContentPresenter>d).XamlNode)._ContentChanged(args));

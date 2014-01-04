@@ -156,7 +156,7 @@ module Fayde {
         }
         private static __DebugGrid(uin: UINode, tabIndex: number): string {
             var grid: Controls.Grid;
-            if (uin instanceof Controls.GridNode)
+            if (uin.XObject instanceof Controls.Grid)
                 grid = <Controls.Grid>uin.XObject;
             if (!grid)
                 return "";

@@ -18,6 +18,10 @@ module Fayde {
 
         clipRect(r: rect);
         clipGeometry(g: Media.Geometry);
+
+        hasFillRule: boolean;
+
+        createTemporaryContext(width: number, height: number): RenderContextEx;
     }
 
     export function ExtendRenderContext(ctx: CanvasRenderingContext2D): RenderContextEx {
@@ -29,6 +33,8 @@ module Fayde {
         Ex.Fill(c);
         Ex.Stroke(c);
         Ex.Clip(c);
+        Ex.FillRule(c);
+        Ex.Temporary(c);
         return <RenderContextEx>c;
     }
 
@@ -136,6 +142,9 @@ module Fayde {
             ctx.fillEx = function (brush: Media.Brush, r: rect, fillRule?: string) {
                 brush.SetupBrush(ctx, r);
                 ctx.fillStyle = brush.ToHtml5Object();
+                if (!fillRule)
+                    return ctx.fill();
+                (<any>ctx).fillRule = ctx.msFillRule = fillRule;
                 ctx.fill(fillRule);
             };
             ctx.fillRectEx = function (brush: Media.Brush, r: rect, fillRule?: string) {
@@ -143,6 +152,9 @@ module Fayde {
                 ctx.fillStyle = brush.ToHtml5Object();
                 ctx.beginPath();
                 ctx.rect(r.X, r.Y, r.Width, r.Height);
+                if (!fillRule)
+                    return ctx.fill();
+                (<any>ctx).fillRule = ctx.msFillRule = fillRule;
                 ctx.fill(fillRule);
             };
         }
@@ -191,5 +203,30 @@ module Fayde {
                 ctx.clip();
             };
         }
+        export function FillRule(ctx: RenderContextEx) {
+            ctx.hasFillRule = true;
+            if (navigator.appName === "Microsoft Internet Explorer") {
+                var version = getIEVersion();
+                ctx.hasFillRule = version < 0 || version > 10;
+            }
+        }
+        export function Temporary(ctx: RenderContextEx) {
+            var tempCanvas = document.createElement("canvas");
+            var tempContext: RenderContextEx;
+            ctx.createTemporaryContext = function (width: number, height: number): RenderContextEx {
+                if (!tempContext)
+                    tempContext = ExtendRenderContext(tempCanvas.getContext("2d"));
+                tempCanvas.width = width;
+                tempCanvas.height = height;
+                return tempContext;
+            };
+        }
+    }
+
+    function getIEVersion(): number {
+        var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+        if (re.exec(navigator.userAgent) != null)
+            return parseFloat(RegExp.$1);
+        return -1;
     }
 }

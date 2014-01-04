@@ -1,27 +1,12 @@
 /// <reference path="Control.ts" />
 
 module Fayde.Controls {
-    export class UCNode extends ControlNode {
-        _IsParsing: boolean = false;
-        XObject: UserControl;
-        constructor(xobj: UserControl) {
-            super(xobj);
-            this.LayoutUpdater.BreaksLayoutClipRender = true;
-            this.LayoutUpdater.SetContainerMode(true);
-        }
-    }
-    Fayde.RegisterType(UCNode, {
-    	Name: "UCNode",
-    	Namespace: "Fayde.Controls"
-    });
-
-    export class UserControl extends Control implements IMeasurableHidden, IArrangeableHidden {
-        XamlNode: UCNode;
+    export class UserControl extends Control {
         static ContentProperty: DependencyProperty = DependencyProperty.Register("Content", () => Object, UserControl, undefined, (d, args) => (<UserControl>d)._InvalidateContent(args));
         Content: any;
         static Annotations = { ContentProperty: UserControl.ContentProperty }
 
-        CreateNode(): UCNode { return new UCNode(this); }
+        CreateLayoutUpdater(node: UINode) { return new UserControlLayoutUpdater(node); }
 
         InitializeComponent() {
             this.ApplyTemplate();
@@ -29,8 +14,6 @@ module Fayde.Controls {
 
         private _InvalidateContent(args: IDependencyPropertyChangedEventArgs) {
             var node = this.XamlNode;
-            if (node._IsParsing)
-                return;
             var error = new BError();
             if (args.OldValue instanceof UIElement)
                 node.DetachVisualChild(<UIElement>args.OldValue, error);
@@ -40,13 +23,27 @@ module Fayde.Controls {
                 error.ThrowException();
             node.LayoutUpdater.UpdateBounds();
         }
+    }
+    Fayde.RegisterType(UserControl, {
+    	Name: "UserControl",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
 
-        _MeasureOverride(availableSize: size, error: BError): size {
+    export class UserControlLayoutUpdater extends LayoutUpdater {
+        constructor(node: UINode) {
+            super(node);
+            this.BreaksLayoutClipRender = true;
+            this.SetContainerMode(true);
+        }
+
+        MeasureOverride(availableSize: size, error: BError): size {
             var desired: size;
             availableSize = size.copyTo(availableSize);
 
-            var padding = this.Padding;
-            var borderThickness = this.BorderThickness;
+            var uc = <UserControl>this.Node.XObject;
+            var padding = uc.Padding;
+            var borderThickness = uc.BorderThickness;
             var border: Thickness = null;
             if (!padding)
                 border = borderThickness;
@@ -54,10 +51,10 @@ module Fayde.Controls {
                 border = padding;
             else
                 border = padding.Plus(borderThickness);
-            
+
             if (border) size.shrinkByThickness(availableSize, border);
 
-            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            var enumerator = this.Node.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {
                 var childLu = (<UINode>enumerator.Current).LayoutUpdater;
                 childLu._Measure(availableSize, error);
@@ -67,9 +64,10 @@ module Fayde.Controls {
             if (border) size.growByThickness(desired, border);
             return desired;
         }
-        _ArrangeOverride(finalSize: size, error: BError): size {
-            var padding = this.Padding;
-            var borderThickness = this.BorderThickness;
+        ArrangeOverride(finalSize: size, error: BError): size {
+            var uc = <UserControl>this.Node.XObject;
+            var padding = uc.Padding;
+            var borderThickness = uc.BorderThickness;
             var border: Thickness = null;
             if (!padding)
                 border = borderThickness;
@@ -80,7 +78,7 @@ module Fayde.Controls {
 
             var arranged: size = null;
 
-            var enumerator = this.XamlNode.GetVisualTreeEnumerator();
+            var enumerator = this.Node.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {
                 var childLu = (<UINode>enumerator.Current).LayoutUpdater;
                 var childRect = rect.fromSize(finalSize);
@@ -94,9 +92,4 @@ module Fayde.Controls {
             return finalSize;
         }
     }
-    Fayde.RegisterType(UserControl, {
-    	Name: "UserControl",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
 }

@@ -1,152 +1,8 @@
 /// <reference path="Panel.ts" />
 
 module Fayde.Controls {
-    export class GridNode extends PanelNode {
-        XObject: Grid;
-        constructor(xobj: Grid) {
-            super(xobj);
-        }
-        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
-            if (this.XObject.ShowGridLines) {
-                rect.set(lu.Extents, 0, 0, lu.ActualWidth, lu.ActualHeight);
-                rect.union(lu.ExtentsWithChildren, lu.Extents);
-                lu.IntersectBoundsWithClipPath(lu.Bounds, lu.AbsoluteXform);
-                rect.union(lu.BoundsWithChildren, lu.Bounds);
-
-                lu.ComputeGlobalBounds();
-                lu.ComputeSurfaceBounds();
-            } else {
-                super.ComputeBounds(baseComputer, lu);
-            }
-        }
-    }
-    Fayde.RegisterType(GridNode, {
-    	Name: "GridNode",
-    	Namespace: "Fayde.Controls"
-    });
-
-    export interface ISegment {
-        DesiredSize: number;
-        OfferedSize: number;
-        OriginalSize: number;
-        Min: number;
-        Max: number;
-        Stars: number;
-        Type: GridUnitType;
-        Clamp: (value: number) => number;
-        SetOfferedToDesired: () => number;
-        SetDesiredToOffered: () => number;
-    }
-    function createSegment(offered?: number, min?: number, max?: number, unitType?: GridUnitType): ISegment {
-        if (offered == null) offered = 0.0;
-        if (min == null) min = 0.0;
-        if (max == null) max = Number.POSITIVE_INFINITY;
-        if (unitType == null) unitType = GridUnitType.Pixel;
-
-        if (offered < min)
-            offered = min;
-        else if (offered > max)
-            offered = max;
-
-        return {
-            DesiredSize: 0,
-            OfferedSize: offered,
-            OriginalSize: offered,
-            Min: min,
-            Max: max,
-            Stars: 0,
-            Type: unitType,
-            Clamp: function (value: number): number {
-                if (value < this.Min)
-                    return this.Min;
-                if (value > this.Max)
-                    return this.Max;
-                return value;
-            },
-            SetOfferedToDesired: function (): number { return this.OfferedSize = this.DesiredSize; },
-            SetDesiredToOffered: function (): number { return this.DesiredSize = this.OfferedSize; }
-        };
-    }
-
-    interface IGridStates {
-        HasAutoAuto: boolean;
-        HasStarAuto: boolean;
-        HasAutoStar: boolean;
-    }
-
-    interface IGridChildPlacement {
-        Matrix: ISegment[][];
-        Row: number;
-        Col: number;
-        Size: number;
-    }
-    function createGridChildPlacement(matrix: ISegment[][], row: number, col: number, size: number): IGridChildPlacement {
-        return {
-            Matrix: matrix,
-            Row: row,
-            Col: col,
-            Size: size
-        };
-    }
-    
-    function walkGrid(grid: Grid, rowMatrix: ISegment[][], colMatrix: ISegment[][]): IGridStates {
-        var haa: boolean = false;
-        var hsa: boolean = false;
-        var has: boolean = false;
-
-        var starCol = false;
-        var starRow = false;
-        var autoCol = false;
-        var autoRow = false;
-
-        var col: number = 0;
-        var row: number = 0;
-        var colspan: number = 1;
-        var rowspan: number = 1;
-
-        var rowCount = rowMatrix.length;
-        var colCount = colMatrix.length;
-
-        var childNode: UINode = null;
-        var child: UIElement;
-        var enumerator = grid.XamlNode.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
-        while (enumerator.MoveNext()) {
-            childNode = enumerator.Current;
-            child = childNode.XObject;
-
-            starCol = false;
-            starRow = false;
-            autoCol = false;
-            autoRow = false;
-
-            col = Math.min(Grid.GetColumn(child), colCount - 1);
-            row = Math.min(Grid.GetRow(child), rowCount - 1);
-            colspan = Math.min(Grid.GetColumnSpan(child), colCount - col);
-            rowspan = Math.min(Grid.GetRowSpan(child), rowCount - row);
-
-            for (var r = row; r < row + rowspan; r++) {
-                starRow = starRow || (rowMatrix[r][r].Type === GridUnitType.Star);
-                autoRow = autoRow || (rowMatrix[r][r].Type === GridUnitType.Auto);
-            }
-            for (var c = col; c < col + colspan; c++) {
-                starCol = starCol || (colMatrix[c][c].Type === GridUnitType.Star);
-                autoCol = autoCol || (colMatrix[c][c].Type === GridUnitType.Auto);
-            }
-
-            haa = haa || (autoRow && autoCol && !starRow && !starCol);
-            hsa = hsa || (starRow && autoCol);
-            has = has || (autoRow && starCol);
-        }
-
-        return {
-            HasAutoAuto: haa,
-            HasStarAuto: hsa,
-            HasAutoStar: has
-        };
-    }
-
-    export class Grid extends Panel implements IMeasurableHidden, IArrangeableHidden, IRowDefinitionsListener, IColumnDefinitionsListener {
-        CreateNode(): GridNode { return new GridNode(this); }
+    export class Grid extends Panel implements IRowDefinitionsListener, IColumnDefinitionsListener {
+        CreateLayoutUpdater(node: PanelNode) { return new GridLayoutUpdater(node); }
 
         private static _AttachedPropChanged(d: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
             var dNode = <UINode>d.XamlNode;
@@ -185,17 +41,109 @@ module Fayde.Controls {
             Grid.RowDefinitionsProperty.Initialize(this).Listen(this);
         }
 
-        _MeasureOverride(availableSize: size, error: BError): size {
-            //LayoutDebug(function () { return "Grid Measure Pass: " + this.__DebugToString() + " [" + availableSize.toString() + "]"; });
+        private _ShowGridLinesChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = this.XamlNode.LayoutUpdater;
+            lu.Invalidate();
+            lu.InvalidateMeasure();
+        }
+        RowDefinitionsChanged(rowDefinitions: RowDefinitionCollection) {
+            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+        }
+        ColumnDefinitionsChanged(colDefinitions: ColumnDefinitionCollection) {
+            this.XamlNode.LayoutUpdater.InvalidateMeasure();
+        }
+    }
+    Fayde.RegisterType(Grid, {
+    	Name: "Grid",
+    	Namespace: "Fayde.Controls",
+    	XmlNamespace: Fayde.XMLNS
+    });
+
+    export class GridLayoutUpdater extends PanelLayoutUpdater {
+        private _Measurer = new GridMeasurer();
+
+        MeasureOverride(availableSize: size, error: BError): size {
+            return this._Measurer.Measure(<Grid>this.Node.XObject, availableSize, error);
+        }
+        ArrangeOverride(finalSize: size, error: BError): size {
+            return this._Measurer.Arrange(<Grid>this.Node.XObject, finalSize, error);
+        }
+
+        Render(ctx: RenderContextEx, region: rect) {
+            var grid = <Grid>this.Node.XObject;
+
+            var background = grid.Background;
+            var showGridLines = grid.ShowGridLines;
+            if (!background && !showGridLines)
+                return;
+
+            var framework = this.CoerceSize(size.fromRaw(this.ActualWidth, this.ActualHeight));
+            if (framework.Width <= 0 || framework.Height <= 0)
+                return;
+
+            var area = rect.fromSize(framework);
+            ctx.save();
+            this.RenderLayoutClip(ctx);
+            if (background)
+                ctx.fillRectEx(background, area);
+            if (showGridLines) {
+                var cuml = -1;
+                var cols = grid.ColumnDefinitions;
+                if (cols) {
+                    var enumerator = cols.GetEnumerator();
+                    while (enumerator.MoveNext()) {
+                        cuml += enumerator.Current.ActualWidth;
+                        ctx.beginPath();
+                        ctx.setLineDash([5]);
+                        ctx.moveTo(cuml, 0);
+                        ctx.lineTo(cuml, framework.Height);
+                        ctx.stroke();
+                    }
+                }
+                var rows = grid.RowDefinitions;
+                if (rows) {
+                    cuml = -1;
+                    var enumerator2 = rows.GetEnumerator();
+                    while (enumerator2.MoveNext()) {
+                        cuml += enumerator2.Current.ActualHeight;
+                        ctx.beginPath();
+                        ctx.setLineDash([5]);
+                        ctx.moveTo(0, cuml);
+                        ctx.lineTo(framework.Width, cuml);
+                        ctx.stroke();
+                    }
+                }
+            }
+            ctx.restore();
+        }
+
+        ComputeExtents(actualSize: size) {
+            if (!(<Grid>this.Node.XObject).ShowGridLines)
+                return super.ComputeExtents(actualSize);
+
+            var e = this.Extents;
+            var ewc = this.ExtentsWithChildren;
+            e.X = ewc.X = 0;
+            e.Y = ewc.Y = 0;
+            ewc.Width = ewc.Width = actualSize.Width;
+            ewc.Height = ewc.Height = actualSize.Height;
+        }
+    }
+
+    class GridMeasurer {
+        private _RowMatrix: ISegment[][] = [];
+        private _ColMatrix: ISegment[][] = [];
+
+        Measure(grid: Grid, availableSize: size, error: BError): size {
             var totalSize = size.copyTo(availableSize);
-            var cols = this.ColumnDefinitions;
-            var rows = this.RowDefinitions;
+            var cols = grid.ColumnDefinitions;
+            var rows = grid.RowDefinitions;
             var colCount = cols ? cols.Count : 0;
             var rowCount = rows ? rows.Count : 0;
             var totalStars = new size();
             var emptyRows = rowCount === 0;
             var emptyCols = colCount === 0;
-            var hasChildren = this.Children.Count > 0;
+            var hasChildren = grid.Children.Count > 0;
 
             if (emptyRows) rowCount = 1;
             if (emptyCols) colCount = 1;
@@ -204,7 +152,7 @@ module Fayde.Controls {
 
             var rm = this._RowMatrix;
             var cm = this._ColMatrix;
-            
+
             var defaultGridLength: GridLength = new GridLength(1.0, GridUnitType.Star);
 
             var i: number = 0;
@@ -225,7 +173,7 @@ module Fayde.Controls {
                     if (!height) height = defaultGridLength;
                     rowdef.SetValueInternal(RowDefinition.ActualHeightProperty, Number.POSITIVE_INFINITY);
                     cell = createSegment(0.0, rowdef.MinHeight, rowdef.MaxHeight, height.Type);
-                    
+
                     if (height.Type === GridUnitType.Pixel) {
                         cell.OfferedSize = cell.Clamp(height.Value);
                         rowdef.SetValueInternal(RowDefinition.ActualHeightProperty, cell.SetDesiredToOffered());
@@ -285,26 +233,26 @@ module Fayde.Controls {
             };
             sizes.push(separator);
             var separatorIndex: number = 0;
-            
+
             var c: number = 0;
             var r: number = 0;
             var childNode: UINode = null;
             var child: UIElement = null;
             var childLu: LayoutUpdater = null;
-            
+
             var childSize = new size();
             var starCol = false;
             var starRow = false;
             var autoCol = false;
             var autoRow = false;
-            
+
             var col = 0;
             var row = 0;
             var colspan = 0;
             var rowspan = 0;
 
             var node: IGridChildPlacement = null;
-            var gridState = walkGrid(this, rm, cm);
+            var gridState = walkGrid(grid, rm, cm);
             for (i = 0; i < 6; i++) {
                 var autoAuto = i === 0;
                 var starAuto = i === 1;
@@ -314,11 +262,11 @@ module Fayde.Controls {
                 var remainingStar = i === 5;
 
                 if (hasChildren) {
-                    this._ExpandStarCols(totalSize);
-                    this._ExpandStarRows(totalSize);
+                    this._ExpandStarCols(grid, totalSize);
+                    this._ExpandStarRows(grid, totalSize);
                 }
 
-                var e4 = this.XamlNode.GetVisualTreeEnumerator();
+                var e4 = grid.XamlNode.GetVisualTreeEnumerator();
                 while (e4.MoveNext()) {
                     childNode = e4.Current;
                     child = childNode.XObject;
@@ -423,10 +371,9 @@ module Fayde.Controls {
             }
             return gridSize;
         }
-        _ArrangeOverride(finalSize: size, error: BError): size {
-            //LayoutDebug(function () { return "Grid Arrange Pass: " + this.__DebugToString() + " [" + finalSize.toString() + "]"; });
-            var cols = this.ColumnDefinitions;
-            var rows = this.RowDefinitions;
+        Arrange(grid: Grid, finalSize, error: BError): size {
+            var cols = grid.ColumnDefinitions;
+            var rows = grid.RowDefinitions;
 
             this._RestoreMeasureResults();
 
@@ -444,9 +391,9 @@ module Fayde.Controls {
             }
 
             if (totalConsumed.Width !== finalSize.Width)
-                this._ExpandStarCols(finalSize);
+                this._ExpandStarCols(grid, finalSize);
             if (totalConsumed.Height !== finalSize.Height)
-                this._ExpandStarRows(finalSize);
+                this._ExpandStarRows(grid, finalSize);
 
             var i: number = 0;
             var enumerator = cols.GetEnumerator();
@@ -462,7 +409,7 @@ module Fayde.Controls {
                 i++;
             }
 
-            var enumerator3 = this.XamlNode.GetVisualTreeEnumerator();
+            var enumerator3 = grid.XamlNode.GetVisualTreeEnumerator();
             var childNode: UINode;
             var child: UIElement;
             while (enumerator3.MoveNext()) {
@@ -494,56 +441,9 @@ module Fayde.Controls {
             return finalSize;
         }
 
-        Render(ctx: RenderContextEx, lu: LayoutUpdater, region: rect) {
-            var background = this.Background;
-            var showGridLines = this.ShowGridLines;
-            if (!background && !showGridLines)
-                return;
-
-            var framework = lu.CoerceSize(size.fromRaw(lu.ActualWidth, lu.ActualHeight));
-            if (framework.Width <= 0 || framework.Height <= 0)
-                return;
-
-            var area = rect.fromSize(framework);
-            ctx.save();
-            lu.RenderLayoutClip(ctx);
-            if (background)
-                ctx.fillRectEx(background, area);
-            if (showGridLines) {
-                var cuml = -1;
-                var cols = this.ColumnDefinitions;
-                if (cols) {
-                    var enumerator = cols.GetEnumerator();
-                    while (enumerator.MoveNext()) {
-                        cuml += enumerator.Current.ActualWidth;
-                        ctx.beginPath();
-                        ctx.setLineDash([5]);
-                        ctx.moveTo(cuml, 0);
-                        ctx.lineTo(cuml, framework.Height);
-                        ctx.stroke();
-                    }
-                }
-                var rows = this.RowDefinitions;
-                if (rows) {
-                    cuml = -1;
-                    var enumerator2 = rows.GetEnumerator();
-                    while (enumerator2.MoveNext()) {
-                        cuml += enumerator2.Current.ActualHeight;
-                        ctx.beginPath();
-                        ctx.setLineDash([5]);
-                        ctx.moveTo(0, cuml);
-                        ctx.lineTo(framework.Width, cuml);
-                        ctx.stroke();
-                    }
-                }
-            }
-            ctx.restore();
-        }
-
-
-        private _ExpandStarRows(availableSize: size) {
+        private _ExpandStarRows(grid: Grid, availableSize: size) {
             availableSize = size.copyTo(availableSize);
-            var rows = this.RowDefinitions;
+            var rows = grid.RowDefinitions;
             var rowsCount = rows ? rows.Count : 0;
 
             var rm = this._RowMatrix;
@@ -557,7 +457,7 @@ module Fayde.Controls {
                     availableSize.Height = Math.max(availableSize.Height - cur.OfferedSize, 0);
             }
             availableSize.Height = this._AssignSize(rm, 0, rm.length - 1, availableSize.Height, GridUnitType.Star, false);
-            
+
             var row: RowDefinition = null;
             i = 0;
             var enumerator = rows.GetEnumerator();
@@ -569,9 +469,9 @@ module Fayde.Controls {
                 i++;
             }
         }
-        private _ExpandStarCols(availableSize: size) {
+        private _ExpandStarCols(grid: Grid, availableSize: size) {
             availableSize = size.copyTo(availableSize);
-            var cols = this.ColumnDefinitions;
+            var cols = grid.ColumnDefinitions;
             var columnsCount = cols ? cols.Count : 0;
 
             var i: number = 0;
@@ -585,7 +485,7 @@ module Fayde.Controls {
                     availableSize.Width = Math.max(availableSize.Width - cur.OfferedSize, 0);
             }
             availableSize.Width = this._AssignSize(cm, 0, cm.length - 1, availableSize.Width, GridUnitType.Star, false);
-            
+
             var col: ColumnDefinition = null;
             i = 0;
             var enumerator = cols.GetEnumerator();
@@ -597,7 +497,7 @@ module Fayde.Controls {
                 i++;
             }
         }
-        private _AllocateDesiredSize(rowCount:number, colCount:number) {
+        private _AllocateDesiredSize(rowCount: number, colCount: number) {
             var matrix: ISegment[][];
             for (var i = 0; i < 2; i++) {
                 matrix = i === 0 ? this._RowMatrix : this._ColMatrix;
@@ -669,8 +569,6 @@ module Fayde.Controls {
             return size;
         }
 
-        private _RowMatrix: ISegment[][];
-        private _ColMatrix: ISegment[][];
         private _CreateMatrices(rowCount: number, colCount: number) {
             var rm = this._RowMatrix = [];
             for (var r = 0; r < rowCount; r++) {
@@ -722,23 +620,125 @@ module Fayde.Controls {
                 }
             }
         }
-
-
-        private _ShowGridLinesChanged(args: IDependencyPropertyChangedEventArgs) {
-            var lu = this.XamlNode.LayoutUpdater;
-            lu.Invalidate();
-            lu.InvalidateMeasure();
-        }
-        RowDefinitionsChanged(rowDefinitions: RowDefinitionCollection) {
-            this.XamlNode.LayoutUpdater.InvalidateMeasure();
-        }
-        ColumnDefinitionsChanged(colDefinitions: ColumnDefinitionCollection) {
-            this.XamlNode.LayoutUpdater.InvalidateMeasure();
-        }
     }
-    Fayde.RegisterType(Grid, {
-    	Name: "Grid",
-    	Namespace: "Fayde.Controls",
-    	XmlNamespace: Fayde.XMLNS
-    });
+
+    export interface ISegment {
+        DesiredSize: number;
+        OfferedSize: number;
+        OriginalSize: number;
+        Min: number;
+        Max: number;
+        Stars: number;
+        Type: GridUnitType;
+        Clamp: (value: number) => number;
+        SetOfferedToDesired: () => number;
+        SetDesiredToOffered: () => number;
+    }
+    function createSegment(offered?: number, min?: number, max?: number, unitType?: GridUnitType): ISegment {
+        if (offered == null) offered = 0.0;
+        if (min == null) min = 0.0;
+        if (max == null) max = Number.POSITIVE_INFINITY;
+        if (unitType == null) unitType = GridUnitType.Pixel;
+
+        if (offered < min)
+            offered = min;
+        else if (offered > max)
+            offered = max;
+
+        return {
+            DesiredSize: 0,
+            OfferedSize: offered,
+            OriginalSize: offered,
+            Min: min,
+            Max: max,
+            Stars: 0,
+            Type: unitType,
+            Clamp: function (value: number): number {
+                if (value < this.Min)
+                    return this.Min;
+                if (value > this.Max)
+                    return this.Max;
+                return value;
+            },
+            SetOfferedToDesired: function (): number { return this.OfferedSize = this.DesiredSize; },
+            SetDesiredToOffered: function (): number { return this.DesiredSize = this.OfferedSize; }
+        };
+    }
+
+    interface IGridStates {
+        HasAutoAuto: boolean;
+        HasStarAuto: boolean;
+        HasAutoStar: boolean;
+    }
+
+    interface IGridChildPlacement {
+        Matrix: ISegment[][];
+        Row: number;
+        Col: number;
+        Size: number;
+    }
+    function createGridChildPlacement(matrix: ISegment[][], row: number, col: number, size: number): IGridChildPlacement {
+        return {
+            Matrix: matrix,
+            Row: row,
+            Col: col,
+            Size: size
+        };
+    }
+
+    function walkGrid(grid: Grid, rowMatrix: ISegment[][], colMatrix: ISegment[][]): IGridStates {
+        var haa: boolean = false;
+        var hsa: boolean = false;
+        var has: boolean = false;
+
+        var starCol = false;
+        var starRow = false;
+        var autoCol = false;
+        var autoRow = false;
+
+        var col: number = 0;
+        var row: number = 0;
+        var colspan: number = 1;
+        var rowspan: number = 1;
+
+        var rowCount = rowMatrix.length;
+        var colCount = colMatrix.length;
+
+        var childNode: UINode = null;
+        var child: UIElement;
+        var enumerator = grid.XamlNode.GetVisualTreeEnumerator(VisualTreeDirection.Logical);
+        while (enumerator.MoveNext()) {
+            childNode = enumerator.Current;
+            child = childNode.XObject;
+
+            starCol = false;
+            starRow = false;
+            autoCol = false;
+            autoRow = false;
+
+            col = Math.min(Grid.GetColumn(child), colCount - 1);
+            row = Math.min(Grid.GetRow(child), rowCount - 1);
+            colspan = Math.min(Grid.GetColumnSpan(child), colCount - col);
+            rowspan = Math.min(Grid.GetRowSpan(child), rowCount - row);
+
+            for (var r = row; r < row + rowspan; r++) {
+                starRow = starRow || (rowMatrix[r][r].Type === GridUnitType.Star);
+                autoRow = autoRow || (rowMatrix[r][r].Type === GridUnitType.Auto);
+            }
+            for (var c = col; c < col + colspan; c++) {
+                starCol = starCol || (colMatrix[c][c].Type === GridUnitType.Star);
+                autoCol = autoCol || (colMatrix[c][c].Type === GridUnitType.Auto);
+            }
+
+            haa = haa || (autoRow && autoCol && !starRow && !starCol);
+            hsa = hsa || (starRow && autoCol);
+            has = has || (autoRow && starCol);
+        }
+
+        return {
+            HasAutoAuto: haa,
+            HasStarAuto: hsa,
+            HasAutoStar: has
+        };
+    }
 }

@@ -29,7 +29,7 @@ module Fayde.Controls {
         }
     }
 
-    export class VirtualizingStackPanel extends VirtualizingPanel implements Primitives.IScrollInfo, IMeasurableHidden, IArrangeableHidden {
+    export class VirtualizingStackPanel extends VirtualizingPanel implements Primitives.IScrollInfo {
         private _CanHorizontallyScroll: boolean = false;
         private _CanVerticallyScroll: boolean = false;
         private _HorizontalOffset: number = 0;
@@ -188,7 +188,7 @@ module Fayde.Controls {
         static GetVirtualizationMode(d: DependencyObject): VirtualizationMode { return d.GetValue(VirtualizingStackPanel.VirtualizationModeProperty); }
         static SetVirtualizationMode(d: DependencyObject, value: VirtualizationMode) { d.SetValue(VirtualizingStackPanel.VirtualizationModeProperty, value); }
 
-        _MeasureOverride(availableSize: size, error: BError): size {
+        MeasureOverride(availableSize: size): size {
             var owner = ItemsControl.GetItemsOwner(this);
             var measured = new size();
             var invalidate = false;
@@ -304,7 +304,7 @@ module Fayde.Controls {
 
             return measured;
         }
-        _ArrangeOverride(finalSize: size, error: BError): size {
+        ArrangeOverride(finalSize: size): size {
             var arranged = size.copyTo(finalSize);
             var isHorizontal = this.Orientation === Orientation.Horizontal;
             if (!isHorizontal)
@@ -327,7 +327,7 @@ module Fayde.Controls {
                         childFinal.X = -this._HorizontalOffset;
                         childFinal.Y = arranged.Height;
                     }
-                    childLu._Arrange(childFinal, error);
+                    child.Arrange(childFinal);
                     arranged.Width = Math.max(arranged.Width, s.Width);
                     arranged.Height += s.Height;
                 } else {

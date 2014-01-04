@@ -98,6 +98,7 @@ module Fayde {
     });
 
     export class TriggerCollection extends XamlObjectCollection<TriggerBase> {
+        XamlNode: XamlNode;
         private get ParentXamlObject(): XamlObject {
             var parentNode = this.XamlNode.ParentNode;
             if (!parentNode)

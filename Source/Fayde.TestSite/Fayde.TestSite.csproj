@@ -113,6 +113,7 @@
     <Content Include="Tests\Path\multientry.html" />
     <Content Include="Tests\Path\quad-bezier.html" />
     <Content Include="Tests\Path\util.js" />
+    <TypeScriptCompile Include="Tests\Shapes\map.fap.ts" />
     <Content Include="Tests\Shapes\shape-stretch.fap">
       <SubType>Designer</SubType>
     </Content>

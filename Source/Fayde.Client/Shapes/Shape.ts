@@ -1,85 +1,28 @@
 /// <reference path="../Core/FrameworkElement.ts" />
 
 module Fayde.Shapes {
-    export class ShapeNode extends FENode implements IBoundsComputable, IPostInsideObject {
-        XObject: Shape;
-        constructor(xobj: Shape) {
-            super(xobj);
+    export class Shape extends FrameworkElement {
+        CreateLayoutUpdater(node: UINode) { return new ShapeLayoutUpdater(node); }
+
+        private static _StrokePropertyChanged(dobj: DependencyObject, args: IDependencyPropertyChangedEventArgs) {
+            var shape = <Shape>dobj;
+            var lu = <ShapeLayoutUpdater>shape.XamlNode.LayoutUpdater;
+            lu[args.Property.Name] = args.NewValue;
+            lu.InvalidateNaturalBounds();
         }
-
-        PostInsideObject(ctx: RenderContextEx, lu: LayoutUpdater, x: number, y: number): boolean {
-            var shape = this.XObject;
-            var extents = rect.copyTo(this.GetStretchExtents(shape, lu));
-            rect.transform(extents, ctx.currentTransform);
-            if (!rect.containsPointXY(extents, x, y))
-                return false;
-            return shape._InsideShape(ctx, lu, x, y);
-        }
-
-        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater) {
-            this.IntersectBaseBoundsWithClipPath(lu, lu.Bounds, this.GetStretchExtents(this.XObject, lu), lu.AbsoluteXform);
-            rect.copyTo(lu.Bounds, lu.BoundsWithChildren);
-            lu.ComputeGlobalBounds();
-            lu.ComputeSurfaceBounds();
-        }
-        private IntersectBaseBoundsWithClipPath(lu: LayoutUpdater, dest: rect, baseBounds: rect, xform: number[]) {
-            var isClipEmpty = rect.isEmpty(lu.ClipBounds);
-            var isLayoutClipEmpty = lu.LayoutClip ? rect.isEmpty(lu.LayoutClip) : true;
-
-            if ((!isClipEmpty || !isLayoutClipEmpty) && !lu.TotalIsRenderVisible) {
-                rect.clear(dest);
-                return;
-            }
-
-            rect.copyGrowTransform(dest, baseBounds, lu.EffectPadding, xform);
-
-            if (!isClipEmpty)
-                rect.intersection(dest, lu.ClipBounds);
-            if (!isLayoutClipEmpty)
-                rect.intersection(dest, lu.LayoutClip);
-        }
-
-        UpdateStretch() {
-            var lu = this.LayoutUpdater;
-            rect.clear(lu.Extents);
-            rect.clear(lu.ExtentsWithChildren);
-        }
-        GetStretchExtents(shape: Shapes.Shape, lu: LayoutUpdater) {
-            if (rect.isEmpty(lu.Extents)) {
-                rect.copyTo(shape._ComputeStretchBounds(), lu.Extents);
-                rect.copyTo(lu.Extents, lu.ExtentsWithChildren);
-            }
-            return lu.Extents;
-        }
-    }
-
-    function isSignificant(dx: number, x: number): boolean {
-        return Math.abs(x) < 0.000019 && (Math.abs(dx) * x - x) > 1.0;
-    }
-
-    export class Shape extends FrameworkElement implements IMeasurableHidden, IArrangeableHidden, IRenderable, IActualSizeComputable {
-        XamlNode: ShapeNode;
-        CreateNode(): ShapeNode { return new ShapeNode(this); }
-
-        _ShapeFlags: ShapeFlags = ShapeFlags.None;
-        private _StretchXform: number[] = mat3.identity();
-        private _NaturalBounds: rect = new rect();
-        _Path: Fayde.Path.RawPath = null;
-        private _Fill: Media.Brush = null;
-        _Stroke: Media.Brush = null;
 
         static FillProperty: DependencyProperty = DependencyProperty.Register("Fill", () => Media.Brush, Shape, undefined, (d, args) => (<Shape>d)._FillChanged(args));
         //http://msdn.microsoft.com/en-us/library/system.windows.shapes.shape.stretch(v=vs.95).aspx
         static StretchProperty: DependencyProperty = DependencyProperty.Register("Stretch", () => new Enum(Media.Stretch), Shape, Media.Stretch.None, (d, args) => (<Shape>d)._StretchChanged(args));
         static StrokeProperty: DependencyProperty = DependencyProperty.Register("Stroke", () => Media.Brush, Shape, undefined, (d, args) => (<Shape>d)._StrokeChanged(args));
-        static StrokeThicknessProperty: DependencyProperty = DependencyProperty.Register("StrokeThickness", () => Number, Shape, 1.0, (d, args) => (<Shape>d)._InvalidateNaturalBounds());
-        static StrokeDashArrayProperty: DependencyProperty = DependencyProperty.Register("StrokeDashArray", () => DoubleCollection, Shape, undefined, (d, args) => (<Shape>d)._InvalidateNaturalBounds());
-        static StrokeDashCapProperty: DependencyProperty = DependencyProperty.Register("StrokeDashCap", () => new Enum(PenLineCap), Shape, PenLineCap.Flat, (d, args) => (<Shape>d)._InvalidateNaturalBounds());
-        static StrokeDashOffsetProperty: DependencyProperty = DependencyProperty.Register("StrokeDashOffset", () => Number, Shape, 0.0, (d, args) => (<Shape>d)._InvalidateNaturalBounds());
-        static StrokeEndLineCapProperty: DependencyProperty = DependencyProperty.Register("StrokeEndLineCap", () => new Enum(PenLineCap), Shape, PenLineCap.Flat, (d, args) => (<Shape>d)._InvalidateNaturalBounds());
-        static StrokeLineJoinProperty: DependencyProperty = DependencyProperty.Register("StrokeLineJoin", () => new Enum(PenLineJoin), Shape, PenLineJoin.Miter, (d, args) => (<Shape>d)._InvalidateNaturalBounds());
-        static StrokeMiterLimitProperty: DependencyProperty = DependencyProperty.Register("StrokeMiterLimit", () => Number, Shape, 10.0, (d, args) => (<Shape>d)._InvalidateNaturalBounds());
-        static StrokeStartLineCapProperty: DependencyProperty = DependencyProperty.Register("StrokeStartLineCap", () => new Enum(PenLineCap), Shape, PenLineCap.Flat, (d, args) => (<Shape>d)._InvalidateNaturalBounds());
+        static StrokeThicknessProperty: DependencyProperty = DependencyProperty.Register("StrokeThickness", () => Number, Shape, 1.0, Shape._StrokePropertyChanged);
+        static StrokeDashArrayProperty: DependencyProperty = DependencyProperty.Register("StrokeDashArray", () => DoubleCollection, Shape, undefined, Shape._StrokePropertyChanged);
+        static StrokeDashCapProperty: DependencyProperty = DependencyProperty.Register("StrokeDashCap", () => new Enum(PenLineCap), Shape, PenLineCap.Flat, Shape._StrokePropertyChanged);
+        static StrokeDashOffsetProperty: DependencyProperty = DependencyProperty.Register("StrokeDashOffset", () => Number, Shape, 0.0, (d, args) => Shape._StrokePropertyChanged);
+        static StrokeEndLineCapProperty: DependencyProperty = DependencyProperty.Register("StrokeEndLineCap", () => new Enum(PenLineCap), Shape, PenLineCap.Flat, Shape._StrokePropertyChanged);
+        static StrokeLineJoinProperty: DependencyProperty = DependencyProperty.Register("StrokeLineJoin", () => new Enum(PenLineJoin), Shape, PenLineJoin.Miter, Shape._StrokePropertyChanged);
+        static StrokeMiterLimitProperty: DependencyProperty = DependencyProperty.Register("StrokeMiterLimit", () => Number, Shape, 10.0, Shape._StrokePropertyChanged);
+        static StrokeStartLineCapProperty: DependencyProperty = DependencyProperty.Register("StrokeStartLineCap", () => new Enum(PenLineCap), Shape, PenLineCap.Flat, Shape._StrokePropertyChanged);
         Fill: Media.Brush;
         Stretch: Media.Stretch;
         Stroke: Media.Brush;
@@ -92,37 +35,98 @@ module Fayde.Shapes {
         StrokeMiterLimit: number;
         StrokeStartLineCap: PenLineCap;
         //NOTE: HTML5 Canvas does not support start and end cap. Will use start if it's not "Flat"; otherwise, use end
-
-        _InsideShape(ctx: RenderContextEx, lu: LayoutUpdater, x: number, y: number): boolean {
-            if (this._ShapeFlags & ShapeFlags.Empty)
-                return false;
-            var ret = false;
-            ctx.save();
-            ctx.pretransformMatrix(this._StretchXform);
-            if (this._Fill || this._Stroke) {
-                this._DrawPath(ctx);
-                if (this._Fill) {
-                    ret = ret || ctx.isPointInPath(x, y);
-                } else if (!ret) {
-                    ret = ret || ctx.isPointInStrokeEx(this._CreateStrokeParameters(), x, y);
-                }
-            }
-            ctx.restore();
-            return ret;
+        
+        private _FillListener: Media.IBrushChangedListener;
+        private _FillChanged(args: IDependencyPropertyChangedEventArgs) {
+            var newBrush = <Media.Brush>args.NewValue;
+            if (this._FillListener)
+                this._FillListener.Detach();
+                this._FillListener = null;
+            if (newBrush)
+                this._FillListener = newBrush.Listen((brush) => lu.Invalidate());
+            
+            var lu = <ShapeLayoutUpdater>this.XamlNode.LayoutUpdater;
+            if (lu.Fill || newBrush)
+                lu.InvalidateNaturalBounds();
+            lu.Fill = newBrush;
+            lu.CanHitElement = !!lu.Stroke || !!lu.Fill;
         }
-        _MeasureOverride(availableSize: size, error: BError): size {
-            var shapeBounds = this._GetNaturalBounds();
+        private _StrokeListener: Media.IBrushChangedListener;
+        private _StrokeChanged(args: IDependencyPropertyChangedEventArgs) {
+            var newBrush = <Media.Brush>args.NewValue;
+            if (this._StrokeListener)
+                this._StrokeListener.Detach();
+                this._StrokeListener = null;
+            if (newBrush)
+                this._StrokeListener = newBrush.Listen((brush) => lu.Invalidate());
+            
+            var lu = <ShapeLayoutUpdater>this.XamlNode.LayoutUpdater;
+            if (lu.Stroke || newBrush)
+                lu.InvalidateNaturalBounds();
+            lu.Stroke = newBrush;
+            lu.CanHitElement = !!lu.Stroke || !!lu.Fill;
+        }
+        private _StretchChanged(args: IDependencyPropertyChangedEventArgs) {
+            var lu = <ShapeLayoutUpdater>this.XamlNode.LayoutUpdater;
+            lu.Stretch = args.NewValue;
+            lu.InvalidateMeasure();
+            lu.InvalidateStretch();
+        }
+
+        _WidthChanged(args: IDependencyPropertyChangedEventArgs) {
+            super._WidthChanged(args);
+            var lu = <ShapeLayoutUpdater>this.XamlNode.LayoutUpdater;
+            lu.InvalidateStretch();
+        }
+        _HeightChanged(args: IDependencyPropertyChangedEventArgs) {
+            super._HeightChanged(args);
+            var lu = <ShapeLayoutUpdater>this.XamlNode.LayoutUpdater;
+            lu.InvalidateStretch();
+        }
+
+    }
+    Fayde.RegisterType(Shape, {
+    	Name: "Shape",
+    	Namespace: "Fayde.Shapes",
+    	XmlNamespace: Fayde.XMLNS
+    });
+
+    export class ShapeLayoutUpdater extends LayoutUpdater {
+        NaturalBounds = new rect();
+        StretchXform = mat3.identity();
+        Path: Fayde.Path.RawPath = null;
+        SFlags = ShapeFlags.None;
+
+        Stroke: Media.Brush = null;
+        Fill: Media.Brush = null;
+        Stretch: Media.Stretch = Media.Stretch.None;
+        FillRule: FillRule = FillRule.NonZero;
+        StrokeThickness: number = 1;
+        StrokeStartLineCap = PenLineCap.Flat;
+        StrokeEndLineCap = PenLineCap.Flat;
+        StrokeLineJoin = PenLineJoin.Miter;
+        StrokeMiterLimit = 10;
+        StrokeDashArray: DoubleCollection = null;
+        StrokeDashCap = PenLineCap.Flat;
+        StrokeDashOffset: number = 0;
+        
+
+        GetFillRule(): string {
+            return this.FillRule === FillRule.EvenOdd ? "evenodd" : "nonzero";
+        }
+        GetBrushSize(): ISize {
+            return size.fromRect(this.Extents);
+        }
+        
+
+        MeasureOverride(availableSize: size, error: BError): size {
+            var shapeBounds = this.GetNaturalBounds();
             if (!shapeBounds)
                 return new size();
             var sx = 0.0;
             var sy = 0.0;
 
-            var desired;
-            if (this instanceof Rectangle || this instanceof Ellipse)
-                desired = new size();
-            else
-                desired = size.copyTo(availableSize);
-
+            var desired = size.copyTo(availableSize);
             var stretch = this.Stretch;
             if (stretch === Media.Stretch.None) {
                 return size.fromRaw(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height);
@@ -164,15 +168,15 @@ module Fayde.Shapes {
             desired.Height = shapeBounds.Height * sy;
             return desired;
         }
-        _ArrangeOverride(finalSize: size, error: BError): size {
+        ArrangeOverride(finalSize: size, error: BError): size {
             var sx = 1.0;
             var sy = 1.0;
 
-            var shapeBounds = this._GetNaturalBounds();
+            var shapeBounds = this.GetNaturalBounds();
             if (!shapeBounds)
                 return new size();
 
-            this._InvalidateStretch();
+            this.InvalidateStretch();
 
             var arranged;
             var stretch = this.Stretch;
@@ -207,39 +211,164 @@ module Fayde.Shapes {
             arranged.Height = shapeBounds.Height * sy;
             return arranged;
         }
-        Render(ctx: RenderContextEx, lu: LayoutUpdater, region: rect) {
-            if (this._ShapeFlags & ShapeFlags.Empty)
-                return;
-            var area = this.XamlNode.GetStretchExtents(this, lu);
-            ctx.save();
-            ctx.pretransformMatrix(this._StretchXform);
-            this._DrawPath(ctx);
-            if (this._Fill != null)
-                ctx.fillEx(this._Fill, area);
-            ctx.strokeEx(this._Stroke, this._CreateStrokeParameters(), area);
-            ctx.restore();
+
+
+        GetNaturalBounds(): rect {
+            if (rect.isEmpty(this.NaturalBounds))
+                this.NaturalBounds = this.ComputeShapeBoundsImpl(false);
+            return this.NaturalBounds;
+        }
+        InvalidateNaturalBounds() {
+            rect.clear(this.NaturalBounds);
+            this.InvalidateStretch();
+            this.Invalidate();
+        }
+        InvalidateStretch() {
+            rect.clear(this.Extents);
+            rect.clear(this.ExtentsWithChildren);
+            this.StretchXform = mat3.identity();
+            this.InvalidatePathCache();
+        }
+        InvalidatePathCache(free?: boolean) {
+            this.Path = null;
+            if (!free)
+                this.UpdateBounds(true);
         }
 
-        _GetFillRule(): FillRule { return FillRule.NonZero; }
-        _BuildPath(): Fayde.Path.RawPath { return undefined; }
-        _DrawPath(ctx: RenderContextEx) {
-            this._Path = this._Path || this._BuildPath();
-            this._Path.Draw(ctx);
+
+        ComputeExtents(actualSize: size) {
+            if (rect.isEmpty(this.Extents)) {
+                rect.copyTo(this.ComputeStretchBounds(actualSize), this.Extents);
+                rect.copyTo(this.Extents, this.ExtentsWithChildren);
+            }
         }
-        
-        ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater) {
-            var desired = baseComputer.call(lu);
+        ComputeStretchBounds(actualSize: size): rect {
+            var shapeBounds = this.GetNaturalBounds();
+            if (!shapeBounds || shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
+                this.SFlags = ShapeFlags.Empty;
+                return new rect();
+            }
 
-            var node = this.XamlNode;
-            var lu = node.LayoutUpdater;
+            var stretch = this.Stretch;
+            if (stretch === Fayde.Media.Stretch.None) {
+                rect.transform(shapeBounds, this.StretchXform);
+                return shapeBounds;
+            }
 
-            var shapeBounds = this._GetNaturalBounds();
+            var node = this.Node;
+            var shape = <Shape>node.XObject;
+
+            var specified = size.fromRaw(shape.Width, shape.Height);
+
+            if (specified.Width <= 0.0 || specified.Height <= 0.0) {
+                this.SFlags = ShapeFlags.Empty;
+                return new rect();
+            }
+
+            var framework = size.copyTo(actualSize);
+            if (node.VisualParentNode instanceof Controls.CanvasNode) {
+                framework.Width = framework.Width === 0.0 ? shapeBounds.Width : framework.Width;
+                framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
+                if (!isNaN(specified.Width))
+                    framework.Width = specified.Width;
+                if (!isNaN(specified.Height))
+                    framework.Height = specified.Height;
+            } else if (!this.PreviousConstraint) {
+                framework.Width = framework.Width === 0.0 ? shapeBounds.Width : framework.Width;
+                framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
+            }
+
+            if (framework.Width === 0.0 || framework.Height === 0.0) {
+                this.SFlags = ShapeFlags.Empty;
+                return new rect();
+            }
+
+            var logicalBounds = this.ComputeShapeBoundsImpl(true);
+
+            var adjX = logicalBounds.Width !== 0.0;
+            var adjY = logicalBounds.Height !== 0.0;
+
+            var diffX = shapeBounds.Width - logicalBounds.Width;
+            var diffY = shapeBounds.Height - logicalBounds.Height;
+            var sw = adjX ? (framework.Width - diffX) / logicalBounds.Width : 1.0;
+            var sh = adjY ? (framework.Height - diffY) / logicalBounds.Height : 1.0;
+
+            var center = false;
+            switch (stretch) {
+                case Media.Stretch.Fill:
+                    center = true;
+                    break;
+                case Media.Stretch.Uniform:
+                    sw = sh = (sw < sh) ? sw : sh;
+                    center = true;
+                    break;
+                case Media.Stretch.UniformToFill:
+                    sw = sh = (sw > sh) ? sw : sh;
+                    break;
+            }
+
+            if ((adjX && isSignificant(sw - 1, shapeBounds.Width)) || (adjY && isSignificant(sh - 1, shapeBounds.Height))) {
+                var temp = mat3.createScale(adjX ? sw : 1.0, adjY ? sh : 1.0);
+                var stretchBounds = this.ComputeShapeBoundsImpl(false, temp);
+                if (stretchBounds.Width !== shapeBounds.Width && stretchBounds.Height !== shapeBounds.Height) {
+                    sw *= adjX ? (framework.Width - stretchBounds.Width + logicalBounds.Width * sw) / (logicalBounds.Width * sw) : 1.0;
+                    sh *= adjY ? (framework.Height - stretchBounds.Height + logicalBounds.Height * sh) / (logicalBounds.Height * sh) : 1.0;
+                    switch (stretch) {
+                        case Media.Stretch.Uniform:
+                            sw = sh = (sw < sh) ? sw : sh;
+                            break;
+                        case Media.Stretch.UniformToFill:
+                            sw = sh = (sw > sh) ? sw : sh;
+                            break;
+                    }
+                }
+            }
+
+            var autoDim = isNaN(specified.Width);
+            var x = (!autoDim || adjX) ? shapeBounds.X : 0;
+            var y = (!autoDim || adjY) ? shapeBounds.Y : 0;
+
+            var st = this.StretchXform;
+            if (!(this instanceof Line) || !autoDim)
+                mat3.translate(st, -x, -y);
+            mat3.translate(st,
+                adjX ? -shapeBounds.Width * 0.5 : 0.0,
+                adjY ? -shapeBounds.Height * 0.5 : 0.0);
+            mat3.scale(st,
+                adjX ? sw : 1.0,
+                adjY ? sh : 1.0);
+            if (center) {
+                mat3.translate(st,
+                    adjX ? framework.Width * 0.5 : 0,
+                    adjY ? framework.Height * 0.5 : 0);
+            } else {
+                mat3.translate(st,
+                    adjX ? (logicalBounds.Width * sw + diffX) * 0.5 : 0,
+                    adjY ? (logicalBounds.Height * sh + diffY) * 0.5 : 0);
+            }
+
+            rect.transform(shapeBounds, this.StretchXform = st);
+            return shapeBounds;
+        }
+        ComputeShapeBounds(logical: boolean): rect { return this.ComputeShapeBoundsImpl(logical); }
+        ComputeShapeBoundsImpl(logical: boolean, matrix?: number[]): rect {
+            this.Path = this.Path || this.BuildPath();
+            if (!this.Path || (this.SFlags & ShapeFlags.Empty))
+                return new rect();
+            return this.Path.CalculateBounds(this.CreateStrokeParameters(logical));
+        }
+
+        ComputeActualSize() {
+            var desired = super.ComputeActualSize();
+
+            var shapeBounds = this.GetNaturalBounds();
             var sx = 1.0;
             var sy = 1.0;
 
+            var node = this.Node;
             var visualParentNode = node.VisualParentNode;
             if (visualParentNode != null && !(visualParentNode instanceof Controls.CanvasNode)) {
-                if (lu.PreviousConstraint !== undefined || lu.LayoutSlot !== undefined) {
+                if (this.PreviousConstraint !== undefined || this.LayoutSlot !== undefined) {
                     return desired;
                 }
             }
@@ -279,213 +408,82 @@ module Fayde.Shapes {
             desired.Height = Math.min(desired.Height, shapeBounds.Height * sy);
             return desired;
         }
-        _ComputeStretchBounds(): rect {
-            var shapeBounds = this._GetNaturalBounds();
-            if (!shapeBounds || shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
-                this._ShapeFlags = ShapeFlags.Empty;
-                return new rect();
+
+        InsideObject(ctx: RenderContextEx, x: number, y: number): boolean {
+            if (!super.InsideObject(ctx, x, y))
+                return false;
+            return this.InsideShape(ctx, x, y);
+        }
+        InsideShape(ctx: RenderContextEx, x: number, y: number): boolean {
+            if (this.SFlags & ShapeFlags.Empty)
+                return false;
+            if (!this.Fill && !this.Stroke)
+                return false;
+            ctx.save();
+            ctx.pretransformMatrix(this.StretchXform);
+            this.Draw(ctx);
+            var ret = false;
+            if (this.Fill) {
+                ret = ctx.isPointInPath(x, y);
+            } else if (!ret) {
+                ret = ctx.isPointInStrokeEx(this.CreateStrokeParameters(), x, y);
             }
-
-            var specified = size.fromRaw(this.Width, this.Height);
-            var autoDim = isNaN(specified.Width);
-            var framework = size.fromRaw(this.ActualWidth, this.ActualHeight);
-
-            if (specified.Width <= 0.0 || specified.Height <= 0.0) {
-                this._ShapeFlags = ShapeFlags.Empty;
-                return new rect();
-            }
-
-            var node = this.XamlNode;
-            var lu = node.LayoutUpdater;
-            var vpNode = node.VisualParentNode;
-            if (vpNode instanceof Controls.CanvasNode) {
-                framework.Width = framework.Width === 0.0 ? shapeBounds.Width : framework.Width;
-                framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
-                if (!isNaN(specified.Width))
-                    framework.Width = specified.Width;
-                if (!isNaN(specified.Height))
-                    framework.Height = specified.Height;
-
-            } else if (!lu.PreviousConstraint) {
-                framework.Width = framework.Width === 0.0 ? shapeBounds.Width : framework.Width;
-                framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
-            }
-
-            var stretch = this.Stretch;
-            if (stretch === Fayde.Media.Stretch.None) {
-                rect.transform(shapeBounds, this._StretchXform);
-                return shapeBounds;
-            }
-
-            if (framework.Width === 0.0 || framework.Height === 0.0) {
-                this._ShapeFlags = ShapeFlags.Empty;
-                return new rect();
-            }
-
-            var logicalBounds = this._ComputeShapeBoundsImpl(true, null);
-
-            var adjX = logicalBounds.Width !== 0.0;
-            var adjY = logicalBounds.Height !== 0.0;
-
-            var diffX = shapeBounds.Width - logicalBounds.Width;
-            var diffY = shapeBounds.Height - logicalBounds.Height;
-            var sw = adjX ? (framework.Width - diffX) / logicalBounds.Width : 1.0;
-            var sh = adjY ? (framework.Height - diffY) / logicalBounds.Height : 1.0;
-
-            var center = false;
-            switch (stretch) {
-                case Media.Stretch.Fill:
-                    center = true;
-                    break;
-                case Media.Stretch.Uniform:
-                    sw = sh = (sw < sh) ? sw : sh;
-                    center = true;
-                    break;
-                case Media.Stretch.UniformToFill:
-                    sw = sh = (sw > sh) ? sw : sh;
-                    break;
-            }
-
-            if ((adjX && isSignificant(sw - 1, shapeBounds.Width)) || (adjY && isSignificant(sh - 1, shapeBounds.Height))) {
-                var temp = mat3.createScale(adjX ? sw : 1.0, adjY ? sh : 1.0);
-                var stretchBounds = this._ComputeShapeBoundsImpl(false, temp);
-                if (stretchBounds.Width !== shapeBounds.Width && stretchBounds.Height !== shapeBounds.Height) {
-                    sw *= adjX ? (framework.Width - stretchBounds.Width + logicalBounds.Width * sw) / (logicalBounds.Width * sw) : 1.0;
-                    sh *= adjY ? (framework.Height - stretchBounds.Height + logicalBounds.Height * sh) / (logicalBounds.Height * sh) : 1.0;
-                    switch (stretch) {
-                        case Media.Stretch.Uniform:
-                            sw = sh = (sw < sh) ? sw : sh;
-                            break;
-                        case Media.Stretch.UniformToFill:
-                            sw = sh = (sw > sh) ? sw : sh;
-                            break;
-                    }
-                }
-            }
-
-            var x = (!autoDim || adjX) ? shapeBounds.X : 0;
-            var y = (!autoDim || adjY) ? shapeBounds.Y : 0;
-
-            var st = this._StretchXform;
-            if (!(this instanceof Line) || !autoDim)
-                mat3.translate(st, -x, -y);
-            mat3.translate(st,
-                adjX ? -shapeBounds.Width * 0.5 : 0.0,
-                adjY ? -shapeBounds.Height * 0.5 : 0.0);
-            mat3.scale(st,
-                adjX ? sw : 1.0,
-                adjY ? sh : 1.0);
-            if (center) {
-                mat3.translate(st,
-                    adjX ? framework.Width * 0.5 : 0,
-                    adjY ? framework.Height * 0.5 : 0);
-            } else {
-                mat3.translate(st,
-                    adjX ? (logicalBounds.Width * sw + diffX) * 0.5 : 0,
-                    adjY ? (logicalBounds.Height * sh + diffY) * 0.5 : 0);
-            }
-            this._StretchXform = st;
-
-            rect.transform(shapeBounds, this._StretchXform);
-            return shapeBounds;
-        }
-        private _GetNaturalBounds(): rect {
-            if (rect.isEmpty(this._NaturalBounds))
-                this._NaturalBounds = this._ComputeShapeBoundsImpl(false);
-            return this._NaturalBounds;
-        }
-        _ComputeShapeBounds(logical: boolean): rect {
-            return this._ComputeShapeBoundsImpl(logical, null);
-        }
-        _ComputeShapeBoundsImpl(logical: boolean, matrix?: any): rect {
-            this._Path = this._Path || this._BuildPath();
-            if (!this._Path || (this._ShapeFlags & ShapeFlags.Empty))
-                return new rect();
-            return this._Path.CalculateBounds(this._CreateStrokeParameters(logical));
+            ctx.restore();
+            return ret;
         }
 
-        private _InvalidateStretch() {
-            this.XamlNode.UpdateStretch();
-            this._StretchXform = mat3.identity();
-            this._InvalidatePathCache();
-        }
-        _InvalidatePathCache(free?: boolean) {
-            this._Path = null;
-            if (!free)
-                this.XamlNode.LayoutUpdater.UpdateBounds(true);
-        }
-        _InvalidateNaturalBounds() {
-            rect.clear(this._NaturalBounds);
-            this._InvalidateStretch();
-            this.XamlNode.LayoutUpdater.Invalidate();
-        }
-        
-        private _FillListener: Media.IBrushChangedListener;
-        private _FillChanged(args: IDependencyPropertyChangedEventArgs) {
-            var lu = this.XamlNode.LayoutUpdater;
-
-            var newBrush = <Media.Brush>args.NewValue;
-            if (this._FillListener)
-                this._FillListener.Detach();
-                this._FillListener = null;
-            if (newBrush)
-                this._FillListener = newBrush.Listen((brush) => lu.Invalidate());
-
-            if (this._Fill || newBrush)
-                this._InvalidateNaturalBounds();
-            this._Fill = newBrush;
-
-            lu.CanHitElement = this._Stroke != null || this._Fill != null;
-        }
-        private _StrokeListener: Media.IBrushChangedListener;
-        private _StrokeChanged(args: IDependencyPropertyChangedEventArgs) {
-            var lu = this.XamlNode.LayoutUpdater;
-
-            var newBrush = <Media.Brush>args.NewValue;
-            if (this._StrokeListener)
-                this._StrokeListener.Detach();
-                this._StrokeListener = null;
-            if (newBrush)
-                this._StrokeListener = newBrush.Listen((brush) => lu.Invalidate());
-
-            if (this._Stroke || newBrush)
-                this._InvalidateNaturalBounds();
-            this._Stroke = newBrush;
-
-            lu.CanHitElement = this._Stroke != null || this._Fill != null;
-        }
-        private _StretchChanged(args: IDependencyPropertyChangedEventArgs) {
-            this.XamlNode.LayoutUpdater.InvalidateMeasure();
-            this._InvalidateStretch();
+        Render(ctx: RenderContextEx, region: rect) {
+            if (this.SFlags & ShapeFlags.Empty)
+                return;
+            if (!this.Fill && !this.Stroke)
+                return false;
+            var extents = this.Extents;
+            ctx.save();
+            ctx.pretransformMatrix(this.StretchXform);
+            this.Draw(ctx);
+            if (!!this.Fill)
+                ctx.fillEx(this.Fill, extents, this.GetFillRule());
+            ctx.strokeEx(this.Stroke, this.CreateStrokeParameters(), extents);
+            ctx.restore();
         }
 
-        _WidthChanged(args: IDependencyPropertyChangedEventArgs) {
-            super._WidthChanged(args);
-            this._InvalidateStretch();
+        Draw(ctx: RenderContextEx) {
+            this.Path = this.Path || this.BuildPath();
+            this.Path.Draw(ctx);
         }
-        _HeightChanged(args: IDependencyPropertyChangedEventArgs) {
-            super._HeightChanged(args);
-            this._InvalidateStretch();
-        }
+        BuildPath(): Fayde.Path.RawPath { return undefined; }
 
-        private _CreateStrokeParameters(logical?: boolean): Fayde.Path.IStrokeParameters {
-            if (logical)
-                return null;
-            var thickness = this._Stroke ? this.StrokeThickness : 0.0;
-            if (thickness > 0)
-                return {
-                    thickness: thickness,
-                    startCap: this.StrokeStartLineCap,
-                    endCap: this.StrokeEndLineCap,
-                    join: this.StrokeLineJoin,
-                    miterLimit: this.StrokeMiterLimit
-                };
-            return null;
+        CreateStrokeParameters(logical?: boolean): Fayde.Path.IStrokeParameters {
+            var thickness = (logical || !this.Stroke) ? 0.0 : this.StrokeThickness;
+            if (!(thickness > 0))
+                return;
+            return {
+                thickness: thickness,
+                startCap: this.StrokeStartLineCap,
+                endCap: this.StrokeEndLineCap,
+                join: this.StrokeLineJoin,
+                miterLimit: this.StrokeMiterLimit
+            };
         }
     }
-    Fayde.RegisterType(Shape, {
-    	Name: "Shape",
-    	Namespace: "Fayde.Shapes",
-    	XmlNamespace: Fayde.XMLNS
-    });
+
+    function isSignificant(dx: number, x: number): boolean {
+        return Math.abs(x) < 0.000019 && (Math.abs(dx) * x - x) > 1.0;
+    }
+    function intersectBaseBoundsWithClipPath(lu: LayoutUpdater, dest: rect, baseBounds: rect, xform: number[]) {
+        var isClipEmpty = rect.isEmpty(lu.ClipBounds);
+        var isLayoutClipEmpty = lu.LayoutClip ? rect.isEmpty(lu.LayoutClip) : true;
+
+        if ((!isClipEmpty || !isLayoutClipEmpty) && !lu.TotalIsRenderVisible) {
+            rect.clear(dest);
+            return;
+        }
+
+        rect.copyGrowTransform(dest, baseBounds, lu.EffectPadding, xform);
+
+        if (!isClipEmpty)
+            rect.intersection(dest, lu.ClipBounds);
+        if (!isLayoutClipEmpty)
+            rect.intersection(dest, lu.LayoutClip);
+    }
 }

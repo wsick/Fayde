@@ -45,34 +45,6 @@ module Fayde {
         Updated: boolean;
     }
 
-    export interface IMeasurable {
-        MeasureOverride(availableSize: size): size;
-    }
-    export interface IMeasurableHidden {
-        _MeasureOverride(availableSize: size, error: BError): size;
-    }
-    export interface IArrangeable {
-        ArrangeOverride(finalSize: size): size;
-    }
-    export interface IArrangeableHidden {
-        _ArrangeOverride(finalSize: size, error: BError): size;
-    }
-    export interface IRenderable {
-        Render(ctx: RenderContextEx, lu:LayoutUpdater, region: rect);
-    }
-    export interface IActualSizeComputable {
-        ComputeActualSize(baseComputer: () => size, lu: LayoutUpdater);
-    }
-    export interface IBoundsComputable {
-        ComputeBounds(baseComputer: () => void , lu: LayoutUpdater);
-    }
-    export interface IPostComputeTransformable {
-        PostCompute(lu: LayoutUpdater, hasLocalProjection: boolean);
-    }
-    export interface IPostInsideObject {
-        PostInsideObject(ctx: RenderContextEx, lu: LayoutUpdater, x: number, y: number): boolean;
-    }
-
     interface ISizeChangedData {
         Element: FrameworkElement;
         PreviousSize: size;
@@ -115,11 +87,7 @@ module Fayde {
 
         Extents: rect = new rect();
         ExtentsWithChildren: rect = new rect();
-        Bounds: rect = new rect();
-        BoundsWithChildren: rect = new rect();
-        GlobalBounds: rect = new rect();
         GlobalBoundsWithChildren: rect = new rect();
-        SurfaceBounds: rect = new rect();
         SurfaceBoundsWithChildren: rect = new rect();
         EffectPadding: Thickness = new Thickness();
         ClipBounds: rect = new rect();
@@ -140,7 +108,10 @@ module Fayde {
         DirtyRegion: rect = new rect();
         private _ForceInvalidateOfNewBounds: boolean = false;
 
-        constructor(public Node: UINode) { }
+        Node: UINode;
+        constructor(uin: UINode) {
+            this.Node = uin;
+        }
 
         OnIsAttachedChanged(newIsAttached: boolean, visualParentNode: UINode) {
             this.UpdateTotalRenderVisibility();
@@ -263,7 +234,7 @@ module Fayde {
             
             if (this.DirtyFlags & _Dirty.ChildrenZIndices) {
                 this.DirtyFlags &= ~_Dirty.ChildrenZIndices;
-                thisNode._ResortChildrenByZIndex();
+                thisNode.ResortChildrenByZIndex();
             }
 
             //DirtyDebug.Level--;
@@ -287,10 +258,7 @@ module Fayde {
                 var oglobalbounds = rect.copyTo(this.GlobalBoundsWithChildren);
                 var osubtreebounds = rect.copyTo(this.SurfaceBoundsWithChildren);
 
-                if ((<IBoundsComputable><any>thisNode).ComputeBounds)
-                    (<IBoundsComputable><any>thisNode).ComputeBounds(this.ComputeBounds, this);
-                else
-                    this.ComputeBounds();
+                this.ComputeBounds();
 
                 if (!rect.isEqual(oglobalbounds, this.GlobalBoundsWithChildren)) {
                     if (visualParentLu) {
@@ -367,19 +335,14 @@ module Fayde {
         }
         Invalidate(r?: rect) {
             if (!r)
-                r = this.SurfaceBounds;
+                r = this.SurfaceBoundsWithChildren;
             if (!this.TotalIsRenderVisible || (this.TotalOpacity * 255) < 0.5)
                 return;
 
             if (this.Node.IsAttached) {
                 this._AddDirtyElement(_Dirty.Invalidate);
                 this.InvalidateBitmapCache();
-                if (false) {
-                    //TODO: Render Intermediate not implemented
-                    rect.union(this.DirtyRegion, this.SurfaceBoundsWithChildren);
-                } else {
-                    rect.union(this.DirtyRegion, r);
-                }
+                rect.union(this.DirtyRegion, r);
                 //this._OnInvalidated();
             }
         }
@@ -414,6 +377,10 @@ module Fayde {
             else
                 this.Flags &= ~UIElementFlags.HitTestVisible;
 
+        }
+        InvalidateChildrenZIndices() {
+            if (this.Node.IsAttached)
+                this._AddDirtyElement(_Dirty.ChildrenZIndices);
         }
 
         UpdateClip() {
@@ -478,8 +445,7 @@ module Fayde {
                 return;
             }
 
-            var objectSize: ISize = (uie instanceof Shapes.Shape) ? this._GetShapeBrushSize(<Shapes.Shape>uie) : this._GetBrushSize();
-            projection.SetObjectSize(objectSize);
+            projection.SetObjectSize(this.GetBrushSize());
             var z = projection.GetDistanceFromXYPlane();
             Controls.Panel.SetZ(uie, z);
         }
@@ -553,11 +519,10 @@ module Fayde {
             this.UpdateBounds();
             
             this.ComputeComposite();
-            
-            var post = <IPostComputeTransformable><any>uin;
-            if (post.PostCompute)
-                post.PostCompute(this, projection != null);
+
+            this.PostComputeTransform(!!projection);
         }
+        PostComputeTransform(hasProjection: boolean) { }
         UpdateProjection() {
             if (this.Node.IsAttached)
                 this._AddDirtyElement(_Dirty.LocalProjection);
@@ -660,31 +625,28 @@ module Fayde {
                 s.Width = 0;
             if (isNaN(s.Height))
                 s.Height = 0;
-            
-            rect.set(this.Extents, 0, 0, s.Width, s.Height);
-            rect.copyTo(this.Extents, this.ExtentsWithChildren);
-            
+            this.ComputeExtents(s);
+            this.ComputePaintBounds();
+        }
+        ComputeExtents(actualSize: size) {
+            var e = this.Extents;
+            var ewc = this.ExtentsWithChildren;
+            e.X = ewc.X = 0;
+            e.Y = ewc.Y = 0;
+            e.Width = ewc.Width = actualSize.Width;
+            e.Height = ewc.Height = actualSize.Height;
+
             var node = this.Node;
             var enumerator = node.GetVisualTreeEnumerator();
             while (enumerator.MoveNext()) {
                 var item = <UINode>enumerator.Current;
                 var itemlu = item.LayoutUpdater;
                 if (itemlu.TotalIsRenderVisible)
-                    rect.union(this.ExtentsWithChildren, itemlu.GlobalBoundsWithChildren);
+                    rect.union(ewc, itemlu.GlobalBoundsWithChildren);
             }
-
-            this.IntersectBoundsWithClipPath(this.Bounds, this.AbsoluteXform);
-            rect.copyGrowTransform(this.BoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, this.AbsoluteXform);
-
-            this.ComputeGlobalBounds();
-            this.ComputeSurfaceBounds();
         }
-        ComputeGlobalBounds() {
-            this.IntersectBoundsWithClipPath(this.GlobalBounds, this.LocalXform);
+        ComputePaintBounds() {
             rect.copyGrowTransform4(this.GlobalBoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, this.LocalProjection);
-        }
-        ComputeSurfaceBounds() {
-            this.IntersectBoundsWithClipPath(this.SurfaceBounds, this.AbsoluteXform);
             rect.copyGrowTransform4(this.SurfaceBoundsWithChildren, this.ExtentsWithChildren, this.EffectPadding, this.AbsoluteProjection);
         }
         IntersectBoundsWithClipPath(dest: rect, xform: number[]): rect {
@@ -709,11 +671,7 @@ module Fayde {
         private _UpdateActualSize(): ISizeChangedData {
             var last = this.LastRenderSize;
             var fe = <FrameworkElement>this.Node.XObject;
-            var s: size;
-            if ((<IActualSizeComputable><any>fe).ComputeActualSize)
-                s = (<IActualSizeComputable><any>fe).ComputeActualSize(this._ComputeActualSize, this);
-            else
-                s = this._ComputeActualSize();
+            var s = this.ComputeActualSize();
             this.ActualWidth = s.Width;
             this.ActualHeight = s.Height;
             if (last && size.isEqual(last, s))
@@ -731,7 +689,7 @@ module Fayde {
                 NewSize: s
             };
         }
-        private _ComputeActualSize(): size {
+        ComputeActualSize(): size {
             var node = this.Node;
 
             if (node.XObject.Visibility !== Fayde.Visibility.Visible)
@@ -743,14 +701,11 @@ module Fayde {
 
             return this.CoerceSize(new size());
         }
-        private _GetBrushSize(): ISize {
+        GetBrushSize(): ISize {
             return {
                 Width: this.ActualWidth,
                 Height: this.ActualHeight
             };
-        }
-        private _GetShapeBrushSize(shape: Shapes.Shape): ISize {
-            return size.fromRect(shape.XamlNode.GetStretchExtents(shape, this));
         }
         CoerceSize(s: size): size {
             var fe = <FrameworkElement>this.Node.XObject;
@@ -952,11 +907,7 @@ module Fayde {
             this.CoerceSize(s);
 
             Fayde.Layout.DebugIndent++;
-            if ((<any>fe).MeasureOverride) {
-                s = (<IMeasurable><any>fe).MeasureOverride(s);
-            } else {
-                s = (<IMeasurableHidden>fe)._MeasureOverride(s, error);
-            }
+            var s = this.MeasureOverride(s, error);
             Fayde.Layout.DebugIndent--;
 
             if (error.Message)
@@ -985,6 +936,30 @@ module Fayde {
 
             size.copyTo(s, this.DesiredSize);
         }
+        MeasureOverride(availableSize: size, error: BError): size {
+            var node = this.Node;
+            var uie = node.XObject;
+            var desired = uie.MeasureOverride(availableSize);
+            if (!!desired)
+                return desired;
+
+            desired = new size();
+
+            availableSize = size.copyTo(availableSize);
+            size.max(availableSize, desired);
+
+            var enumerator = node.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                var childNode = <FENode>enumerator.Current;
+                var childLu = childNode.LayoutUpdater;
+                childLu._Measure(availableSize, error);
+                desired = size.copyTo(childLu.DesiredSize);
+            }
+
+            size.min(desired, availableSize);
+            return desired;
+        }
+
         private _DoArrangeWithError(error: BError) {
             var last = this.LayoutSlot;
             if (last === null)
@@ -1006,8 +981,7 @@ module Fayde {
                             desired = size.copyTo(surface.Extents);
                     }
                 } else {
-                    desired.Width = fe.ActualWidth;
-                    desired.Height = fe.ActualHeight;
+                    desired = size.fromRaw(fe.ActualWidth, fe.ActualHeight);
                 }
 
                 var viewport = rect.fromSize(desired);
@@ -1094,12 +1068,7 @@ module Fayde {
             this.LayoutSlot = finalRect;
 
             Fayde.Layout.DebugIndent++;
-            var response: size;
-            if ((<any>fe).ArrangeOverride) {
-                response = (<IArrangeable><any>fe).ArrangeOverride(offer);
-            } else {
-                response = (<IArrangeableHidden>fe)._ArrangeOverride(offer, error);
-            }
+            var response = this.ArrangeOverride(offer, error);
             Fayde.Layout.DebugIndent--;
 
             if (horiz === HorizontalAlignment.Stretch)
@@ -1221,6 +1190,25 @@ module Fayde {
                 }
             }
         }
+        ArrangeOverride(finalSize: size, error: BError): size {
+            var node = this.Node;
+            var uie = node.XObject;
+            var arranged = uie.ArrangeOverride(finalSize);
+            if (!!arranged)
+                return arranged;
+
+            arranged = size.copyTo(finalSize);
+
+            var enumerator = node.GetVisualTreeEnumerator();
+            while (enumerator.MoveNext()) {
+                var childNode = <FENode>enumerator.Current;
+                var childRect = rect.fromSize(finalSize);
+                childNode.LayoutUpdater._Arrange(childRect, error);
+                size.max(arranged, finalSize);
+            }
+
+            return arranged;
+        }
 
         DoRender(ctx: Fayde.RenderContextEx, r: rect) {
             if (!this.TotalIsRenderVisible)
@@ -1252,8 +1240,7 @@ module Fayde {
                 ctx.save();
                 effect.PreRender(ctx);
             }
-            if ((<IRenderable><any>uie).Render)
-                (<IRenderable><any>uie).Render(ctx, this, region);
+            this.Render(ctx, region);
             if (effect) {
                 ctx.restore();
             }
@@ -1267,6 +1254,7 @@ module Fayde {
 
             ctx.restore();
         }
+        Render(ctx: RenderContextEx, region: rect) { }
 
         FindElementsInHostCoordinates(p: Point): UINode[] {
             var uinlist: UINode[] = [];
@@ -1287,7 +1275,7 @@ module Fayde {
 
             ctx.save();
             if (applyXform)
-                ctx.transformMatrix(this.RenderXform);
+                ctx.pretransformMatrix(this.RenderXform);
 
             if (!this._InsideClip(ctx, p.X, p.Y)) {
                 ctx.restore();
@@ -1301,7 +1289,7 @@ module Fayde {
             }
 
             if (thisNode === uinlist[0]) {
-                if (!this.CanHitElement || !this._InsideObject(ctx, p.X, p.Y))
+                if (!this.CanHitElement || !this.InsideObject(ctx, p.X, p.Y))
                     uinlist.shift();
             }
 
@@ -1316,7 +1304,7 @@ module Fayde {
                 return;
 
             ctx.save();
-            ctx.transformMatrix(this.RenderXform);
+            ctx.pretransformMatrix(this.RenderXform);
             
             if (!this._InsideClip(ctx, p.X, p.Y)) {
                 ctx.restore();
@@ -1337,7 +1325,7 @@ module Fayde {
                 }
             }
 
-            if (!hit && !(this.CanHitElement && this._InsideObject(ctx, p.X, p.Y))) {
+            if (!hit && !(this.CanHitElement && this.InsideObject(ctx, p.X, p.Y))) {
                 //We're really trying to remove "this", is there a chance "this" is not at the head?
                 if (uinlist.shift() !== thisNode) {
                     throw new Exception("Look at my code! -> FENode._HitTestPoint");
@@ -1346,24 +1334,16 @@ module Fayde {
 
             ctx.restore();
         }
-        private _InsideObject(ctx: RenderContextEx, x: number, y: number): boolean {
+        InsideObject(ctx: RenderContextEx, x: number, y: number): boolean {
             if (this.IsNeverInsideObject)
                 return false;
 
-            var bounds = new rect();
-            var fe = <FrameworkElement>this.Node.XObject;
-            rect.set(bounds, 0, 0, fe.ActualWidth, fe.ActualHeight);
-            //TODO: Use local variable bounds, figure out which one matches up
+            var bounds = rect.copyTo(this.Extents);
             rect.transform(bounds, ctx.currentTransform);
             if (!rect.containsPointXY(bounds, x, y))
                 return false;
 
-            if (!this._InsideLayoutClip(ctx, x, y))
-                return false;
-                
-            if ((<IPostInsideObject><any>this.Node).PostInsideObject)
-                return (<IPostInsideObject><any>this.Node).PostInsideObject(ctx, this, x, y);
-            return true;
+            return this._InsideLayoutClip(ctx, x, y);
         }
         private _InsideClip(ctx: RenderContextEx, x: number, y: number): boolean {
             var clip = this.Node.XObject.Clip;
