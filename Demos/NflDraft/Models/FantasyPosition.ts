@@ -15,4 +15,8 @@ module NflDraft.Models {
             this.Position = position;
         }
     }
+    Fayde.RegisterType(FantasyPosition, {
+        Name: "FantasyPosition",
+        Namespace: "NflDraft.Models"
+    });
 }
