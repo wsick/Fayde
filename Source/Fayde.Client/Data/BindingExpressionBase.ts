@@ -310,10 +310,11 @@ module Fayde.Data {
             return value;
         }
         private _ConvertToType(propd: DependencyProperty, value: any): any {
+            var targetType = this.Property.GetTargetType();
             try {
                 var binding = this.ParentBinding;
                 if (!this.PropertyPathWalker.IsPathBroken && binding.Converter) {
-                    value = binding.Converter.Convert(value, this.Property.GetTargetType(), binding.ConverterParameter, binding.ConverterCulture);
+                    value = binding.Converter.Convert(value, targetType, binding.ConverterParameter, binding.ConverterCulture);
                 }
                 if (value === DependencyProperty.UnsetValue || this.PropertyPathWalker.IsPathBroken) {
                     value = binding.FallbackValue;
@@ -332,11 +333,10 @@ module Fayde.Data {
                     }
                 }
             } catch (err) {
-                //NOTE: Do we need to handle string conversion?
                 console.warn("[BINDING]" + err.toString());
-                return Fayde.ConvertAnyToType(binding.FallbackValue, <Function>propd.GetTargetType());
+                value = binding.FallbackValue;
             }
-            return value;
+            return Fayde.ConvertAnyToType(value, <Function>targetType);
         }
         
         private _MaybeEmitError(message: string, exception: Exception) {
