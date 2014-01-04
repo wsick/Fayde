@@ -34,6 +34,12 @@ module Fayde {
         
         var i = reg.Interfaces;
         if (!i) i = [];
+        for (var j = 0, len = i.length; j < len; j++) {
+            if (!i[j]) {
+                console.warn("Registering undefined interface on type.", type);
+                break;
+            }
+        }
 
         var bc = <Function>Object.getPrototypeOf(type.prototype).constructor;
 

@@ -52,10 +52,8 @@ class Nullstone {
         var is: IInterfaceDeclaration[];
         do {
             is = curType._Interfaces;
-            if (!is) {
-                console.warn("Checking interface implementation with undefined interface.");
+            if (!is)
                 continue;
-            }
             if (is.indexOf(i) > -1)
                 return true;
         } while (curType = curType._BaseClass);
