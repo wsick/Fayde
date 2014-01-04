@@ -7,6 +7,7 @@ module Tests.IssueTests {
     }
 
     export class TestViewModel extends Fayde.MVVM.ViewModelBase {
+        ObsItems = new Fayde.Collections.ObservableCollection<string>();
         AllItems: IItem[] = [
             { Name: "Item1", Data: 0 },
             { Name: "Item2", Data: 1 },
@@ -24,6 +25,9 @@ module Tests.IssueTests {
                 alert("TestMethod called. [" + e.sender.constructor._TypeName + "]");
             else if (e.parameter)
                 alert("TestMethod called. [" + e.parameter.Name + "]");
+        }
+        AddObservableItem(e: Fayde.IEventBindingArgs<Fayde.Input.MouseEventArgs>) {
+            this.ObsItems.Add(this.ObsItems.Count.toString());
         }
         private static ctor = (() => {
             Fayde.MVVM.NotifyProperties(TestViewModel, ["SelectedItem"]);
