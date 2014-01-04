@@ -220,6 +220,8 @@ module Fayde.Controls {
     }
     class BorderRendererShim extends BorderRenderer {
         Pattern: CanvasPattern;
+        StrokeExtents: rect;
+        MiddleCornerRadius: CornerRadius;
 
         Initialize(extents: rect, backgroundBrush: Media.Brush, borderBrush: Media.Brush, thickness: Thickness, cr: CornerRadius) {
             if (!thickness) {
@@ -236,6 +238,17 @@ module Fayde.Controls {
 
             super.Initialize(extents, backgroundBrush, borderBrush, thickness, cr);
 
+            if (this.Thickness.IsBalanced()) {
+                var icr = this.InnerCornerRadius;
+                var ocr = this.OuterCornerRadius;
+                this.MiddleCornerRadius = new CornerRadius(
+                    (icr.TopLeft + ocr.TopLeft) / 2.0,
+                    (icr.TopRight + ocr.TopRight) / 2.0,
+                    (icr.BottomRight + ocr.BottomRight) / 2.0,
+                    (icr.BottomLeft + ocr.BottomLeft) / 2.0);
+                this.StrokeExtents = rect.shrinkBy(extents.Clone(), thickness.Left / 2.0, thickness.Top / 2.0, thickness.Right / 2.0, thickness.Bottom / 2.0);
+            }
+
             if (!Thickness.Equals(ot, this.Thickness)
                 || !rect.isEqual(oextents, this.Extents)
                 || !rect.isEqual(ofillExtents, this.FillExtents)
@@ -245,26 +258,41 @@ module Fayde.Controls {
                 return this.Pattern = null;
         }
         Render(ctx: RenderContextEx) {
-            var borderBrush = this.BorderBrush;
             var backgroundBrush = this.BackgroundBrush;
-            var extents = this.Extents;
             var fillExtents = this.FillExtents;
-            var ocr = this.OuterCornerRadius;
             var icr = this.InnerCornerRadius;
-            if (borderBrush && !rect.isEmpty(extents)) {
-                var pattern = this.Pattern;
-                if (!pattern) pattern = this.Pattern = createBorderPattern(ctx, borderBrush, extents, fillExtents, ocr, icr);
 
-                ctx.beginPath();
-                ctx.fillStyle = pattern;
-                drawRect(ctx, extents, ocr);
-                ctx.fill();
-            }
+            this.RenderBorder(ctx);
             if (backgroundBrush && !rect.isEmpty(fillExtents)) {
                 ctx.beginPath();
                 drawRect(ctx, fillExtents, icr);
                 ctx.fillEx(backgroundBrush, fillExtents);
             }
+        }
+        private RenderBorder(ctx: RenderContextEx) {
+            var borderBrush = this.BorderBrush;
+            if (!borderBrush)
+                return;
+            var extents = this.Extents;
+            if (rect.isEmpty(extents))
+                return;
+
+            var thickness = this.Thickness;
+            if (thickness.IsBalanced()) {
+                ctx.beginPath();
+                drawRect(ctx, this.StrokeExtents, this.MiddleCornerRadius);
+                ctx.strokeEx(borderBrush, { thickness: thickness.Left, endCap: 0, startCap: 0, miterLimit: 0, join: 0 }, this.StrokeExtents);
+                return;
+            }
+
+            var ocr = this.OuterCornerRadius;
+            var pattern = this.Pattern;
+            if (!pattern) pattern = this.Pattern = createBorderPattern(ctx, borderBrush, extents, this.FillExtents, ocr, this.InnerCornerRadius);
+
+            ctx.beginPath();
+            ctx.fillStyle = pattern;
+            drawRect(ctx, extents, ocr);
+            ctx.fill();
         }
     }
 

@@ -146,7 +146,7 @@ class rect implements ICloneable {
             dest.Height = 0;
         return dest;
     }
-    static shrinkByThickness(dest: rect, thickness) {
+    static shrinkByThickness(dest: rect, thickness: Thickness) {
         dest.X += thickness.Left;
         dest.Y += thickness.Top;
         dest.Width -= thickness.Left + thickness.Right;
